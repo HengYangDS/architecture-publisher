@@ -5,9 +5,10 @@ ETHOS is its first full application, not a required product runtime dependency.
 
 ## Available now: data-only source verification
 
-Use Node 26.8.2 (the currently exercised toolchain) and its bundled npm.
-The package declares Node >=22; this is not a substitute for runtime testing. Other
-versions and operating systems are not yet qualified by this implementation slice.
+The source-intake slice is tested on macOS with Node 26.8.2 and on isolated
+Linux with Node 24.19.0, using their bundled npm. `.node-version` records the
+development toolchain. The package declares Node >=22; the minimum version and
+other operating systems are not yet qualified.
 No runtime npm dependencies, ETHOS, Python, Git checkout, credentials or agent
 session are required to use the installed command.
 
@@ -53,8 +54,8 @@ and installs exact artifacts with recoverable effects. Source adapters, project
 meaning, geometry, reader behavior, observation and publication stay separate.
 
 The current slice does not yet render or reproduce the accepted ETHOS poster
-or thirteen-page atlas. Linux execution, full semantic transformations, renderer
-migration, browser qualification and recoverable installation remain unfinished.
+or thirteen-page atlas. Full semantic transformations, renderer migration, browser qualification,
+full-product platform parity and recoverable installation remain unfinished.
 
 This repository is a new implementation baseline. Original architecture
 repositories and their histories remain preserved, not merged or rewritten.
