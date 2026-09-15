@@ -202,6 +202,76 @@ Success means exact, checked reproduction, not new browser or semantic approval.
 The published source still selects and qualifies each edition independently;
 changing expected hashes is not a substitute for reviewing a redesigned diagram.
 
+## Offline SVG rasterization
+
+Rasterize an authored SVG through a separate public entry:
+
+```sh
+architecture raster ./raster-plan.json
+```
+
+Its plan selects a closed source bundle and resolves filesystem paths relative
+to the plan file, not the caller's current directory:
+
+```json
+{
+  "manifest": "./input/manifest.json",
+  "manifestSha256": "<selected-manifest-sha256>",
+  "svg": "figure.svg",
+  "fonts": [{"path": "font.ttf", "family": "JetBrains Mono", "weight": 400}],
+  "width": 1200,
+  "output": "./new-figure.png"
+}
+```
+
+`svg` and font paths are members of that verified bundle. Supply every selected
+font's bytes with permission to use them; a shape-only SVG uses `"fonts": []`.
+The installed command uses pinned resvg WASM, SAX and OpenType components, not
+system fonts, a browser, an ETHOS checkout or the interactive rendering modules.
+Their exact inventories and notices are under `assets/raster/`; OpenType's
+bundled tiny-inflate notice is retained separately. The broader transitive
+WASM license/source inventory audit remains open before release.
+
+The input profile accepts declarative shapes, paths, gradients, clipping,
+markers, internal references and font-bound text. It rejects scripts, event
+attributes, external resources, CSS stylesheets/inline styles, images,
+animation, foreign HTML, DTDs and unknown element/attribute names. It is not a
+complete SVG conformance validator: acceptance of a recognized attribute does
+not prove every possible value is implemented by the pinned renderer.
+
+Visible text must select a supplied family and upright weight, with glyph
+coverage for non-whitespace characters. Internal `use` text is checked in each
+effective font context; explicit declarations in the referenced subtree take
+precedence over inherited properties. Undefined fonts, unsupported styles,
+missing glyphs and reference cycles fail instead of silently approving font
+fallback. This does not establish text shaping, kerning or visual equivalence
+with another renderer.
+
+Bounds are 16 MiB SVG, 16 fonts of at most 8 MiB each/32 MiB combined,
+8,192 pixels per dimension and 32 Mi pixels total. XML depth is bounded to 128,
+reference paths to 256, and elements/references/distinct font contexts to
+100,000 each. The child has a 30-second deadline, a 512 MiB JavaScript heap
+limit and a separate 512 MiB WASM memory limit. These are not a total process
+or OS-level memory sandbox. PNG output is limited to 96 MiB and child output
+to 128 MiB.
+
+The target parent must exist physically and the output must not exist. The
+command validates the actual PNG dimensions and copies it exclusively, preserving
+an output that appears concurrently. It cleans only its own temporary directory;
+it is not a crash-recoverable installer. A receipt records selected source,
+SVG, supply and PNG identities. `rendered` does not mean semantic acceptance,
+browser acceptance or permission to replace an accepted publication.
+
+This entry rasterizes an authored SVG. Portable reconstruction of the entire
+ETHOS poster, source-to-layout composition and legacy font measurement are
+separate unfinished work. The original accepted artwork is not replaced.
+
+The installed raster command and negative cases ran on macOS Node 26.8.2 and
+isolated Linux Node 24.19.0. Both complete 165-test suites and syntax checks
+passed. Linux had no network or host mounts; the installed static test removed
+interactive/ETHOS modules from its disposable copy and used empty HOME/PATH.
+These observations qualify those tested cases, not every SVG or platform.
+
 ## Product boundaries
 
 The intended complete product accepts explicit source-bound input and authored

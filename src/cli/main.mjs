@@ -2,9 +2,25 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture raster <plan.json> | atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
+  if (args.length === 2 && args[0] === 'raster') {
+    const fs = await import('node:fs/promises'),
+      path = await import('node:path');
+    const file = path.resolve(args[1]),
+      stat = await fs.lstat(file);
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024)
+      throw Object.assign(new Error(), { code: 'raster_plan_invalid' });
+    const plan = JSON.parse(await fs.readFile(file, 'utf8'));
+    for (const key of ['manifest', 'output']) {
+      if (typeof plan?.[key] !== 'string' || !plan[key])
+        throw Object.assign(new Error(), { code: 'raster_plan_invalid' });
+      plan[key] = path.resolve(path.dirname(file), plan[key]);
+    }
+    const { rasterize } = await import('../static/raster.mjs');
+    return rasterize(plan);
+  }
   if (args.length === 3 && args[0] === 'atlas' && args[1] === 'ethos') {
     const fs = await import('node:fs/promises'),
       path = await import('node:path');

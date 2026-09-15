@@ -1,0 +1,20 @@
+/** Resource bounds of the supported raster operation, shared by both processes. */
+export const RASTER_LIMITS = Object.freeze({
+  svgBytes: 16 * 1024 * 1024,
+  fontBytes: 8 * 1024 * 1024,
+  fontTotalBytes: 32 * 1024 * 1024,
+  fonts: 16,
+  width: 8192,
+  height: 8192,
+  pixels: 32 * 1024 * 1024,
+  elements: 100000,
+  depth: 128,
+  references: 100000,
+  referenceDepth: 256,
+  fontContexts: 100000,
+  pngBytes: 96 * 1024 * 1024,
+  responseBytes: 128 * 1024 * 1024,
+  executionMs: 30000,
+  heapMiB: 512,
+  wasmPages: 8192,
+});
