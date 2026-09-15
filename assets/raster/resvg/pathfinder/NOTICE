@@ -1,0 +1,19 @@
+pathfinder_content 0.5.0
+
+Copyright © 2019 The Pathfinder Project Developers.
+
+Licensed under the Apache License, Version 2.0 (LICENSE-APACHE) or the
+MIT license (LICENSE-MIT), at your option, as stated in the source headers.
+The two license files are preserved unchanged.
+
+Source: https://github.com/servo/pathfinder
+Comparison revision: ccf9822e11f10afa26138943f48546607cfabec8
+Crate SHA-256: 6449e0cfa07ca782719467da7cf928625ea43375c9cd0f3104817ecd8825ca69
+
+All 16 Rust source members in the published crate match that Git tree.
+Its Cargo.toml.orig differs in package metadata and sibling dependency versions.
+The crate's recorded revision f9dab5a3fd6c0cf4fd4f0f3f17843a68c9fed835
+could not be retrieved; the comparison does not reconstruct that commit.
+
+This notice covers the identified source component. It is not a complete
+WASM dependency inventory, reproducible-build claim or compliance opinion.

@@ -92,6 +92,24 @@
       "source": "src/tiny-inflate@1.0.3.esm.mjs license header at opentype.js sourceCommit",
       "bytes": 1077,
       "sha256": "c0df7f551401f8f80197ff31bf69b8cd23727d127423403282514d242a3ab132"
+    },
+    {
+      "path": "resvg/pathfinder/LICENSE-MIT",
+      "source": "servo/pathfinder ccf9822e11f10afa26138943f48546607cfabec8/LICENSE-MIT; all 16 pathfinder_content 0.5.0 Rust files match this tree",
+      "bytes": 1071,
+      "sha256": "0621878e61f0d0fda054bcbe02df75192c28bde1ecc8289cbd86aeba2dd72720"
+    },
+    {
+      "path": "resvg/pathfinder/LICENSE-APACHE",
+      "source": "servo/pathfinder ccf9822e11f10afa26138943f48546607cfabec8/LICENSE-APACHE; all 16 pathfinder_content 0.5.0 Rust files match this tree",
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    {
+      "path": "resvg/pathfinder/NOTICE",
+      "source": "Published pathfinder_content 0.5.0 source header with bounded source-comparison provenance",
+      "bytes": 907,
+      "sha256": "d1be8819c065bafe5f7e63bada5acae388a664a4e9eccf9d13b1d61d2342f69f"
     }
   ]
 }

@@ -33,6 +33,23 @@ test('installed raster command needs only explicit input and its pinned static s
   assert(
     pack.files.some((f) => f.path === 'assets/raster/resvg/index_bg.wasm'),
   );
+  const pathfinderNotices = [
+    [
+      'LICENSE-MIT',
+      '0621878e61f0d0fda054bcbe02df75192c28bde1ecc8289cbd86aeba2dd72720',
+    ],
+    [
+      'LICENSE-APACHE',
+      'a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2',
+    ],
+  ];
+  for (const name of [...pathfinderNotices.map(([name]) => name), 'NOTICE'])
+    assert(
+      pack.files.some(
+        (f) => f.path === 'assets/raster/resvg/pathfinder/' + name,
+      ),
+      'installed package must retain the Pathfinder notice: ' + name,
+    );
   const consumer = path.join(dir, 'consumer'),
     home = path.join(dir, 'empty home');
   await fs.mkdir(consumer);
@@ -52,6 +69,20 @@ test('installed raster command needs only explicit input and its pinned static s
     consumer,
   );
   const pkg = path.join(consumer, 'node_modules/architecture-publishing');
+  for (const [name, expected] of pathfinderNotices)
+    assert.equal(
+      hash(
+        await fs.readFile(path.join(pkg, 'assets/raster/resvg/pathfinder', name)),
+      ),
+      expected,
+    );
+  assert.match(
+    await fs.readFile(
+      path.join(pkg, 'assets/raster/resvg/pathfinder/NOTICE'),
+      'utf8',
+    ),
+    /Copyright © 2019 The Pathfinder Project Developers\./,
+  );
   // This disposable installed copy deliberately lacks the interactive and ETHOS code.
   // Static execution must never load those independent capability owners.
   for (const name of [
@@ -174,6 +205,9 @@ test('installed raster command needs only explicit input and its pinned static s
     'resvg/index_bg.wasm',
     'sax/sax.cjs',
     'opentype/opentype.mjs',
+    'resvg/pathfinder/LICENSE-MIT',
+    'resvg/pathfinder/LICENSE-APACHE',
+    'resvg/pathfinder/NOTICE',
   ]) {
     const target = path.join(pkg, 'assets/raster', member),
       original = await fs.readFile(target);
@@ -188,6 +222,17 @@ test('installed raster command needs only explicit input and its pinned static s
     });
     await fs.writeFile(target, original);
   }
+  const noticePath = path.join(pkg, 'assets/raster/resvg/pathfinder/NOTICE'),
+    noticeBytes = await fs.readFile(noticePath);
+  await fs.unlink(noticePath);
+  const missingNotice = invoke();
+  assert.equal(missingNotice.status, 1);
+  assert.equal(
+    JSON.parse(missingNotice.stdout).error.code,
+    'raster_supply_invalid',
+  );
+  await assert.rejects(fs.stat(path.join(dir, 'bad.png')), { code: 'ENOENT' });
+  await fs.writeFile(noticePath, noticeBytes);
   // A test-only installed worker observes the actual child-process invocation.
   // It does not stand in for the real raster tests above or qualify any artifact.
   const worker = path.join(pkg, 'src/static/worker.mjs');

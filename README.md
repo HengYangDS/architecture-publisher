@@ -229,8 +229,11 @@ font's bytes with permission to use them; a shape-only SVG uses `"fonts": []`.
 The installed command uses pinned resvg WASM, SAX and OpenType components, not
 system fonts, a browser, an ETHOS checkout or the interactive rendering modules.
 Their exact inventories and notices are under `assets/raster/`; OpenType's
-bundled tiny-inflate notice is retained separately. The broader transitive
-WASM license/source inventory audit remains open before release.
+bundled tiny-inflate notice is retained separately. The identified
+`pathfinder_content` source headers and unchanged dual-license texts are retained
+under `assets/raster/resvg/pathfinder/`; its notice states the exact comparison
+scope and unavailable recorded revision. The broader transitive WASM
+license/source inventory audit remains open before release.
 
 The input profile accepts declarative shapes, paths, gradients, clipping,
 markers, internal references and font-bound text. It rejects scripts, event
