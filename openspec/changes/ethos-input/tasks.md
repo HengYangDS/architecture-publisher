@@ -9,7 +9,7 @@
 - [x] 2.1 Import source 8f2e829 and prove whole-projection equivalence to both accepted media inputs.
 - [x] 2.2 Verify the real bundle offline on macOS and Linux with source tooling unavailable.
 - [x] 2.3 Preserve/download the exact input and evidence.
-- [ ] 2.4 Prove, integrate and publish the source change through ETHOS.
+- [x] 2.4 Prove, integrate and publish the source change through ETHOS.
 
 This task list owns only this integration slice. Full renderer migration and
 Workline A completion remain in the existing project execution record.
@@ -19,3 +19,7 @@ Evidence: GitLab project 1323, package 123, `ethos-architecture-source`, version
 The downloaded archive restored all 22 members and matched both accepted
 projections in full. `assurance-manifest.json` binds the source and observations;
 its SHA-256 is `251027df26521b2672576ea2350b281923b6d36b0d4e6b18b99680743b542cc2`.
+Implementation commit `67e2db9ad2ee25a9c9013916e090912c1e9002a2` passed
+exact-HEAD proof, native candidate/accepted integration and receipt-bound dev
+publication. A fresh remote clone passed strict fsck, all 35 tracked file
+hashes/modes, 69 tests and syntax checks. This does not close Workline A.
