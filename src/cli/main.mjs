@@ -2,9 +2,64 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture atlas ethos [verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture publish ethos plan <input.json> | publish ethos apply|recover <plan.json> <acceptance.json> | atlas ethos [verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
+  if (
+    args[0] === 'publish' &&
+    args[1] === 'ethos' &&
+    ((args.length === 4 && args[2] === 'plan') ||
+      (args.length === 5 && ['apply', 'recover'].includes(args[2])))
+  ) {
+    const fs = await import('node:fs/promises'),
+      path = await import('node:path');
+    async function read(name) {
+      const file = path.resolve(name),
+        stat = await fs.lstat(file);
+      if (
+        !stat.isFile() ||
+        stat.isSymbolicLink() ||
+        stat.size > 4 * 1024 * 1024
+      )
+        throw Object.assign(new Error(), { code: 'publication_input_invalid' });
+      return { file, value: JSON.parse(await fs.readFile(file, 'utf8')) };
+    }
+    const input = await read(args[3]);
+    const api = await import('../../editions/ethos/publication.mjs');
+    if (args[2] === 'plan') {
+      const plan = input.value,
+        base = path.dirname(input.file);
+      function resolve(object, key) {
+        if (typeof object?.[key] !== 'string' || !object[key])
+          throw Object.assign(new Error(), {
+            code: 'publication_path_required',
+          });
+        object[key] = path.resolve(base, object[key]);
+      }
+      for (const key of ['sourceManifest', 'editionManifest', 'outputManifest'])
+        resolve(plan.review?.atlas, key);
+      if (
+        !Array.isArray(plan.review?.evidenceBundles) ||
+        !Array.isArray(plan.browser?.reports)
+      )
+        throw Object.assign(new Error(), { code: 'publication_input_invalid' });
+      for (const b of plan.review.evidenceBundles) resolve(b, 'manifestPath');
+      resolve(plan.staticArtifact, 'manifestPath');
+      if (plan.browser.checker) resolve(plan.browser.checker, 'manifestPath');
+      for (const r of plan.browser.reports) resolve(r, 'manifestPath');
+      for (const k of ['native', 'atlas'])
+        resolve(plan.deployment?.destinations, k);
+      resolve(plan.deployment, 'recoveryRoot');
+      return api.planEthosPublication(plan);
+    }
+    const acceptance = await read(args[4]);
+    return (
+      args[2] === 'apply'
+        ? api.publishEthosPublication
+        : api.recoverEthosPublication
+    )(input.value, acceptance.value);
+  }
+
   const verifyAtlas =
     args.length === 4 &&
     args[0] === 'atlas' &&

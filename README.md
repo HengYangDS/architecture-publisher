@@ -251,6 +251,37 @@ before the final publisher may consume observations. The browser runner and
 qualified publisher migration are still incomplete; a passing input test is not
 browser acceptance.
 
+## Qualified paired publication
+
+`architecture publish ethos plan ./pair-input.json` composes the existing
+atlas, retained review, static evidence and browser-report consumers. The input
+contains `review`, `staticArtifact`, `browser` (checker and reports) and
+`deployment` (two target directories and a recovery directory). Relative input
+paths resolve against that file. Missing current browser reports fail before
+writing either target. The actual browser runner remains pending.
+
+The generic two-target installer is migrated from the existing file engine,
+not implemented a second time. Its version-two file plan uses explicit
+`sourceRoots` instead of assumed native/atlas checkout roots. It preserves
+unrelated files and old root entry metadata, records switch intent and supports
+bounded process-interruption recovery. It does not claim global atomicity,
+power-loss durability or protection from hostile filesystem races. The retained
+control-directory namespace preserves cooperating-writer exclusion.
+
+`architecture publish ethos apply <plan.json> <acceptance.json>` requires
+exact plan acceptance plus an explicit observed-browser-run reference bound to
+the artifact, checker and reports. It rederives qualification before invoking
+the file engine. This operator assertion is not a cryptographic proof of browser
+execution and must never be generated from a passing parser alone.
+`architecture publish ethos recover <plan.json> <acceptance.json>` uses the
+persisted file plan without needing changed source inputs to pass again.
+
+Static files retain their original relative paths under `terminal/`; the atlas
+retains its output layout under `atlas/`. Supporting review/browser records live
+beside the atlas under `evidence/`, not inside its closed output manifest.
+Qualified positive installation is not yet claimed: current browser evidence is
+still missing. File-effect tests alone do not qualify publication.
+
 ## Product boundaries
 
 The intended complete product accepts explicit source-bound input and authored
@@ -260,7 +291,7 @@ meaning, geometry, reader behavior, observation and publication stay separate.
 
 The generic backend renders typed diagrams; the ETHOS edition reproduces the
 selected thirteen-page atlas. Portable static-poster reconstruction, browser
-qualification, full-product platform parity and recoverable installation remain
+qualification, full-product platform parity and qualified paired installation remain
 unfinished. The edition implementation has been accepted and published on `dev`;
 this is not a completed product release or a claim of final browser acceptance.
 

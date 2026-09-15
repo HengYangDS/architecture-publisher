@@ -50,6 +50,25 @@ accepted correction's source documents; arbitrary substitutions are rejected.
 This observes applicability within retained review limits, not a new independent
 review or browser approval. Current browser observations remain mandatory.
 
+### Qualified pair composition
+
+The existing file installer moves to src/publication/files.mjs unchanged first,
+with all interruption/recovery tests. Its explicit two media roots become a
+bounded list of source roots, so evidence inputs need not be hidden under a
+personal common ancestor. The media remain static/native and atlas; no ETHOS
+semantic state enters the generic engine. Existing lock namespace remains for
+cooperating-writer exclusion during migration, not as an ETHOS dependency.
+
+The edition publisher composes current atlas identity, frozen-review continuity,
+static artifact/reproduction/visual-subject binding and current browser report
+coverage. It generates the same exact-target file plan only after those checks.
+Apply requires exact plan owner acceptance and recomputes qualification plus
+file identities; recovery uses the persisted file plan even if old source moved.
+A parsed report does not authenticate its execution. Accepted observed-run
+provenance remains an operator qualification requirement; do not label synthetic
+boundary tests as production success. Absent browser reports must stop before
+any Documents or recovery write.
+
 ## Risks / Trade-offs
 
 A digest supplied by the same caller is identity selection, not independent

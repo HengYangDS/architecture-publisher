@@ -287,6 +287,13 @@ export async function readEthosReview(plan) {
     scope: 'historical-review-applicability',
     source: identity,
     outputManifestSha256: current.manifestSha256,
+    retainedStaticSubject: owner.subject.native,
+    retainedVisualSource: owner.subject.source,
+    retainedQualitySha256: owner.subject.qualityContractSha256,
+    priorReview: {
+      sha256: sha256(readMember(plan.history.priorReview)),
+      text: utf8(readMember(plan.history.priorReview)),
+    },
     reviewSha256: sha256(readMember(plan.history.review)),
     reviewBindingSha256: sha256(readMember(plan.history.reviewApplicability)),
     evidenceBundles: bundles,
