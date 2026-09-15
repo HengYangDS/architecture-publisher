@@ -13,9 +13,9 @@ function keys(value, required, optional = []) {
   return record(value) && required.every(key => Object.hasOwn(value, key)) && Object.keys(value).every(key => required.includes(key) || optional.includes(key));
 }
 export function portablePath(value) {
-  if (typeof value !== 'string' || !value || value.length > 2048 || /[\uD800-\uDFFF]/u.test(value) || /[\\\x00-\x1f\x7f:<>"|?*]/.test(value)) fail('member_path_invalid');
+  if (typeof value !== 'string' || !value || Buffer.byteLength(value, 'utf8') > 2048 || /[\uD800-\uDFFF]/u.test(value) || /[\\\x00-\x1f\x7f:<>"|?*]/.test(value)) fail('member_path_invalid');
   const parts = value.split('/');
-  if (parts.length > LIMITS.depth || parts.some(part => !part || part === '.' || part === '..' || /[. ]$/.test(part) || /^(con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])(?:\.|$)/i.test(part))) fail('member_path_invalid');
+  if (parts.length > LIMITS.depth || parts.some(part => !part || Buffer.byteLength(part, 'utf8') > 255 || part === '.' || part === '..' || /[. ]$/.test(part) || /^(con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])(?:\.|$)/i.test(part))) fail('member_path_invalid');
   return value;
 }
 export function portableKey(value) {

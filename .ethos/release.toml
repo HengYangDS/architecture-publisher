@@ -1,0 +1,14 @@
+[protected_refs]
+branches = ["dev"]
+tags = []
+
+[publication]
+local_verification_command = "npm test"
+local_installation_command = "node --test tests/installed-cli.test.mjs"
+
+[[publication.peers]]
+id = "gitlab"
+provider = "gitlab"
+role = "private_source_projection"
+git_remote = "origin"
+capabilities = ["repository", "publication"]

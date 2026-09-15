@@ -126,3 +126,11 @@ test('rejects inconsistent directory aliases before filesystem access', async t 
   f.manifest.files = ['Directory/a', 'directory/b'].map(p => ({...f.manifest.files[0], path: p}));
   assert.throws(() => validateManifest(f.manifest), {code: 'member_path_duplicate'});
 });
+
+test('uses UTF-8 component byte limits, not JavaScript character count', async t => {
+  const f = await fixture(t);
+  f.manifest.files[0].path = 'é'.repeat(128);
+  assert.throws(() => validateManifest(f.manifest), {code: 'member_path_invalid'});
+  f.manifest.files[0].path = 'é'.repeat(127) + 'a';
+  assert.equal(validateManifest(f.manifest).files[0].path, f.manifest.files[0].path);
+});

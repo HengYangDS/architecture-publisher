@@ -36,6 +36,7 @@ must contain only the manifest and declared regular files. Symlinks, escaping
 or ambiguous portable paths, extra/missing files and changed bytes are rejected.
 Bounds are 1 MiB for the manifest, 32 MiB per member, 128 MiB total payload,
 4,096 members, 8,192 directory entries and 32 member path components.
+Member paths have at most 2,048 UTF-8 bytes, with at most 255 bytes per component.
 
 The command emits JSON and exits 0 for verified file integrity, 1 for verification
 failure, or 2 for usage failure. Success does **not** establish semantic truth,
