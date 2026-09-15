@@ -208,8 +208,8 @@ meaning, geometry, reader behavior, observation and publication stay separate.
 The generic backend renders typed diagrams; the ETHOS edition reproduces the
 selected thirteen-page atlas. Portable static-poster reconstruction, browser
 qualification, full-product platform parity and recoverable installation remain
-unfinished. The edition is candidate work until native acceptance and publication
-are separately completed; local rendering success does not promote it to `main`.
+unfinished. The edition implementation has been accepted and published on `dev`;
+this is not a completed product release or a claim of final browser acceptance.
 
 This repository is a new implementation baseline. Original architecture
 repositories and their histories remain preserved, not merged or rewritten.

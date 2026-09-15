@@ -8,14 +8,14 @@
 
 - [x] 2.1 Verify packed installation on macOS and isolated Linux without developer dependencies.
 - [x] 2.2 Preserve scoped evidence, prove and publish a proposal through ETHOS.
-- [ ] 2.3 Integrate into accepted dev and verify the exact accepted publication after the predecessor archive-identity defect is fixed.
+- [x] 2.3 Integrate into accepted dev and verify the exact accepted publication after the predecessor archive-identity defect is fixed.
 
 ## 3. Source-bound ETHOS HTML edition
 
 - [x] 3.1 Extract edition adapters and authoring with provenance; reject binding and closure drift.
 - [x] 3.2 Add a shared internal rendering seam and explicit atlas CLI without reverse backend-to-ETHOS dependency.
 - [x] 3.3 Reproduce all 13 accepted HTML files through installed macOS/Linux packages; preserve rejecting cases.
-- [ ] 3.4 Publish source and scoped evidence, then close through native governance.
+- [x] 3.4 Publish source and scoped evidence, then close through native governance.
 
 This Change owns the backend and its directly dependent HTML edition. The
 original execution record owns static migration, browser qualification and
@@ -27,7 +27,15 @@ passed strict fsck, all 90 tracked file hashes/modes, 87 tests and syntax checks
 GitLab project 1323 package 125 preserves downloaded, byte-verified qualification
 and clone evidence. Qualification digest:
 `21d8e0f732f9ffe7786c0beb16fc5561acb54b012816f8e565bd2576ada5f0a3`.
-Accepted dev remains `67e2db9`; proposal publication is not accepted integration.
+The earlier proposal-only checkpoint was superseded by implementation `426ee81`.
+After official runtime activation from accepted ETHOS `e0ba1e3`, the exact original
+`bc816e1` archived commitment and its carried proof passed admission without any
+source or evidence rewrite. Native accepted closeout and receipt-bound publication
+then advanced `dev` to `426ee81`; remote readback matched. `main` remains a separate
+release baseline, and browser/product completion is not implied. Package 140
+(`ethos-atlas-assurance`, qualification SHA-256
+`8849f5247d1dd02c288a4f1745c14ef387e7baf80db49d93a5bcd02118523d50`)
+preserves the byte-verified installable archive and scoped evidence.
 
 Edition qualification: all 131 tests and syntax passed on macOS Node 26.8.2
 and isolated Linux Node 24.19.0. The suite runs installed complete 13-page
