@@ -1,0 +1,72 @@
+# Two independent publication examples
+
+These are small portability and separation examples, not ETHOS diagrams or a
+claim that the tool supports every domain. Each has an editable JSON document
+for the native Archify renderer and a separately authored SVG for the static
+rasterizer. They share node identities, directed relationships and conditions;
+they do not share coordinates or a general semantic compiler.
+
+| Example | Meaning retained in both media |
+| --- | --- |
+| `service-topology` | Request, durable storage, event publication and independent fulfilment; commit precedes event publication |
+| `job-lifecycle` | Native ordered phase progression, transient failure with a due retry, and permanent failure with no retry |
+
+For lifecycle, the explicit static phase arrows represent Archify's native
+ordered rail. The three authored branch transitions remain distinct. This is
+not an assertion that arbitrary state machines have an implicit phase order.
+
+## Use the installed commands
+
+Copy the chosen JSON and SVG to your own physical working directory. Do not
+edit the installed package. The package's `assets/fonts/` includes the exact
+JetBrains Mono Regular/Bold files and their OFL license; copy them as explicit
+inputs when rasterizing, rather than relying on system font installation.
+
+1. Edit JSON content and its SVG view together where meaning changes. Node and
+   relationship IDs bind the two views; neither command automatically updates
+   the other view. The repository's example tests detect missing labels,
+   conditions and changed relationship endpoints.
+2. Calculate the JSON SHA-256 and run `architecture render architecture` for
+   the service or `architecture render lifecycle` for the job, following the
+   root README's `--sha256` and `--output` contract.
+3. For static output, make a closed source bundle containing the SVG and selected
+   font files. Use the documented `architecture.source-bundle/v1` manifest:
+   every member declares its relative path, byte length and SHA-256. The
+   manifest itself is not a member. The root README defines this format.
+4. Create the raster plan **outside** that closed bundle. Select its manifest
+   digest, SVG member, Regular font at weight 400, Bold font at weight 700,
+   width 2400 and an absent output PNG. Run `architecture raster <plan.json>`.
+   Its paths resolve from the plan file, not the shell's working directory.
+5. A local publication bundle can contain JSON, SVG, PNG, self-contained HTML,
+   both font files and the OFL notice. Write one manifest over these seven
+   members and run `architecture source verify <manifest> --sha256 <digest>`.
+   This verifies file identity, not semantic approval or recoverable installation.
+6. Relocate that complete bundle. Select its digest in an external raster plan
+   and render the same PNG; rerender its JSON to the same HTML. Updating content
+   produces a new bundle/digest rather than rewriting an accepted output.
+
+The SVG remains an editable font-referencing input. The PNG is the portable
+static viewing artifact; the HTML embeds its fonts. Opening the raw SVG without
+the selected fonts is not a qualified visual reproduction.
+
+## What the repository verifies
+
+`node --test tests/example-journeys.test.mjs` builds and installs the archive,
+removes the installed ETHOS edition and input adapter, uses an empty HOME/PATH
+and paths containing spaces, then exercises both examples and content updates.
+It checks native HTML validation, source-bound labels/relations, repeated
+determinism, local bundles and relocated re-rendering through installed commands.
+
+The static check reads actual ASCII glyph outlines/advances from the selected
+font files and feeds the shared scene auditor. Example-specific minima are
+14-unit text, 12-unit owner inset, 8-unit text/line clearance and 24-unit terminal
+segments. It does not claim full font shaping, arbitrary SVG/CSS support or
+browser paint measurement. The tests reject hidden text and detached routes.
+
+For retained observations, set `ARCHITECTURE_EXAMPLE_EVIDENCE` to an explicit
+physical output parent before running that test. This test-only option retains
+its newly created work directory, exact artifacts and `result.json`; it is not
+an installed product configuration or another progress ledger.
+
+Browser interaction, aesthetic approval and recoverable pair installation need
+their own evidence. Neither raster output nor a green test report supplies it.

@@ -152,6 +152,11 @@ examples with empty HOME/PATH. Each example's repeated HTML was deterministic
 and byte-identical across those two environments. This limited observation does
 not establish all-input, all-platform or browser-rendering parity.
 
+Both examples also include independently authored static SVG views. The guide
+in `examples/README.md` explains explicit font inputs, source/view editing,
+installed PNG/HTML rendering, local bundles and relocated replay. This is a
+bounded pair of examples, not a generic semantic compiler or browser approval.
+
 ## Source-bound ETHOS atlas
 
 ```sh

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="780" viewBox="0 0 1440 780" role="img" aria-label="Durable job lifecycle" font-family="JetBrains Mono" font-weight="400" fill="#34463f">
+  <title>Durable job lifecycle</title>
+  <desc>Editable static view; explicit node and relationship identities bind the companion JSON. Rendering does not establish implementation or browser approval.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#526a5e"/></marker></defs>
+  <rect width="1440" height="780" fill="#f6f4ee"/>
+  <text x="50" y="65" font-size="30" font-weight="700" fill="#34463f">Durable job lifecycle</text>
+  <line x1="50" y1="96" x2="1390" y2="96" stroke="#bac3b8" stroke-width="1"/>
+  <text x="54" y="122" font-size="14" font-weight="700" fill="#6c766d">Progression</text>
+  <text x="54" y="343" font-size="14" font-weight="700" fill="#6c766d">Conditional recovery and terminal outcome</text>
+  <path data-edge-id="phase-ready" data-from="accepted" data-to="ready" d="M 274 206 H 332" fill="none" stroke="#526a5e" stroke-width="2" marker-end="url(#arrow)"/>
+  <path data-edge-id="phase-run" data-from="ready" data-to="run" d="M 552 206 H 610" fill="none" stroke="#526a5e" stroke-width="2" marker-end="url(#arrow)"/>
+  <path data-edge-id="phase-result" data-from="run" data-to="result" d="M 830 206 H 888" fill="none" stroke="#526a5e" stroke-width="2" marker-end="url(#arrow)"/>
+  <path data-edge-id="phase-done" data-from="result" data-to="done" d="M 1108 206 H 1166" fill="none" stroke="#526a5e" stroke-width="2" marker-end="url(#arrow)"/>
+  <path data-edge-id="transient" data-from="run" data-to="wait" d="M 780 262 V 395" fill="none" stroke="#526a5e" stroke-width="2" stroke-dasharray="8 6" marker-end="url(#arrow)"/>
+  <path data-edge-id="retry" data-from="wait" data-to="run" d="M 610 473 H 580 V 235 H 610" fill="none" stroke="#526a5e" stroke-width="2" marker-end="url(#arrow)"/>
+  <path data-edge-id="permanent" data-from="result" data-to="failed" d="M 998 262 V 350 H 1100 V 395" fill="none" stroke="#526a5e" stroke-width="2" marker-end="url(#arrow)"/>
+  <g data-node-id="accepted">
+  <rect data-node-box="accepted" x="54" y="150" width="220" height="112" rx="8" fill="#e6eae0" stroke="#8b998e" stroke-width="1.5"/>
+  <text x="72" y="189" font-size="20" font-weight="700" fill="#34463f">Accepted</text>
+  <text x="72" y="220" font-size="14" font-weight="400" fill="#536359">Request recorded</text>
+  </g>
+  <g data-node-id="ready">
+  <rect data-node-box="ready" x="332" y="150" width="220" height="112" rx="8" fill="#e6eae0" stroke="#8b998e" stroke-width="1.5"/>
+  <text x="350" y="189" font-size="20" font-weight="700" fill="#34463f">Ready</text>
+  <text x="350" y="220" font-size="14" font-weight="400" fill="#536359">Capacity available</text>
+  </g>
+  <g data-node-id="run">
+  <rect data-node-box="run" x="610" y="150" width="220" height="112" rx="8" fill="#e6eae0" stroke="#8b998e" stroke-width="1.5"/>
+  <text x="628" y="189" font-size="20" font-weight="700" fill="#34463f">Running</text>
+  <text x="628" y="220" font-size="14" font-weight="400" fill="#536359">Attempt in progress</text>
+  </g>
+  <g data-node-id="result">
+  <rect data-node-box="result" x="888" y="150" width="220" height="112" rx="8" fill="#e6eae0" stroke="#8b998e" stroke-width="1.5"/>
+  <text x="906" y="189" font-size="20" font-weight="700" fill="#34463f">Result</text>
+  <text x="906" y="220" font-size="14" font-weight="400" fill="#536359">Outcome classified</text>
+  </g>
+  <g data-node-id="done">
+  <rect data-node-box="done" x="1166" y="150" width="220" height="112" rx="8" fill="#dce5d8" stroke="#8b998e" stroke-width="1.5"/>
+  <text x="1184" y="189" font-size="20" font-weight="700" fill="#34463f">Complete</text>
+  <text x="1184" y="220" font-size="14" font-weight="400" fill="#536359">Output durable</text>
+  </g>
+  <g data-node-id="wait">
+  <rect data-node-box="wait" x="610" y="395" width="240" height="110" rx="8" fill="#ede6d5" stroke="#8b998e" stroke-width="1.5"/>
+  <text x="628" y="434" font-size="20" font-weight="700" fill="#34463f">Retry wait</text>
+  <text x="628" y="465" font-size="14" font-weight="400" fill="#536359">Transient failure</text>
+  </g>
+  <g data-node-id="failed">
+  <rect data-node-box="failed" x="980" y="395" width="250" height="110" rx="8" fill="#ece1d9" stroke="#8b998e" stroke-width="1.5"/>
+  <text x="998" y="434" font-size="20" font-weight="700" fill="#34463f">Failed</text>
+  <text x="998" y="465" font-size="14" font-weight="400" fill="#536359">Permanent failure</text>
+  </g>
+  <text x="630" y="368" font-size="14" font-weight="400" fill="#34463f">transient</text>
+  <text x="430" y="455" font-size="14" font-weight="400" fill="#34463f">due retry</text>
+  <text x="1130" y="367" font-size="14" font-weight="400" fill="#34463f">permanent</text>
+  <line x1="54" y1="552" x2="1386" y2="552" stroke="#bac3b8" stroke-width="1"/>
+  <text x="54" y="588" font-size="18" font-weight="700" fill="#34463f">Retry is conditional</text>
+  <text x="54" y="621" font-size="14" font-weight="400" fill="#34463f">Only a transient failure may return the same job to execution.</text>
+  <text x="54" y="655" font-size="14" font-weight="400" fill="#34463f">The retry event must be due before another attempt starts.</text>
+  <text x="54" y="683" font-size="14" font-weight="400" fill="#34463f">A permanent failure terminates the job instead of entering the retry loop.</text>
+</svg>
