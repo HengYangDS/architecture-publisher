@@ -4,12 +4,19 @@
   "private": true,
   "description": "Source-bound architecture publishing; portable source intake implementation slice",
   "type": "module",
-  "engines": {"node": ">=22"},
-  "bin": {"architecture": "src/cli/main.mjs"},
-  "files": ["src/", "README.md"],
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "architecture": "src/cli/main.mjs"
+  },
+  "files": [
+    "src/",
+    "README.md"
+  ],
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check src/source/manifest.mjs && node --check src/source/bundle.mjs && node --check src/cli/main.mjs"
+    "check": "node --check src/source/manifest.mjs && node --check src/source/bundle.mjs && node --check src/cli/main.mjs && node --check src/source/write.mjs && node --check src/integrations/ethos/projection.mjs && node --check src/integrations/ethos/import.mjs"
   },
   "license": "UNLICENSED"
 }
