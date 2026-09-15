@@ -1,0 +1,6 @@
+profile_id = "ethos-architecture"
+
+[openspec]
+material_paths = [
+    "**",
+]
