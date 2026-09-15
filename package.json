@@ -1,0 +1,15 @@
+{
+  "name": "architecture-publishing",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "description": "Source-bound architecture publishing; portable source intake implementation slice",
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "bin": {"architecture": "src/cli/main.mjs"},
+  "files": ["src/", "README.md"],
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check src/source/manifest.mjs && node --check src/source/bundle.mjs && node --check src/cli/main.mjs"
+  },
+  "license": "UNLICENSED"
+}

@@ -4,3 +4,33 @@ profile_id = "ethos-architecture"
 material_paths = [
     "**",
 ]
+
+[proof]
+code_correctness_gates = ["node-behavior", "node-syntax"]
+
+[proof.code_correctness_map]
+behavior = "node-behavior"
+static-analysis = "node-syntax"
+
+[[proof.gates]]
+id = "node-behavior"
+kind = "test"
+command = ["npm", "test"]
+dimensions = ["behavior", "test"]
+execution_mode = "subprocess"
+evidence_class = "proof"
+trust_bearing = true
+tool_adapter = "repository-native"
+writes_files = true
+network_policy = "offline"
+
+[[proof.gates]]
+id = "node-syntax"
+kind = "syntax"
+command = ["npm", "run", "check"]
+dimensions = ["static-analysis"]
+execution_mode = "subprocess"
+evidence_class = "contract"
+trust_bearing = true
+tool_adapter = "repository-native"
+network_policy = "offline"
