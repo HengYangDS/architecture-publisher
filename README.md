@@ -318,6 +318,41 @@ original explicitly selected raster tool and reproduced the accepted 6000-pixel
 PNG byte-for-byte. That last observation is legacy macOS raster qualification,
 not a claim about portable font rendering or fresh measurement.
 
+### Optional outlined projection
+
+```sh
+architecture poster ethos outline ./outline-plan.json
+architecture raster ./raster-plan.json
+```
+
+The outline plan has six fields:
+
+- `poster`: the five source/edition identity fields above, without `output`.
+- `renderer`: `{path, sha256}` selecting an installed `rsvg-convert` executable.
+- `fontList`: `{path, sha256}` selecting an installed Fontconfig `fc-list`.
+- `fonts`: `[{path, sha256}]` selecting the original licensed font files.
+- `reference`: `{width, height, pngSha256}` selecting the prior raster to match.
+- `output`: an absent directory. All input paths resolve from the plan file.
+
+This opt-in host adapter recompiles the original poster through its existing
+checks. A private Fontconfig configuration permits only the explicitly selected
+files. The source raster must match the selected reference PNG exactly before
+conversion; missing fonts, changed tools, wrong reference pixels and surviving
+text are rejected. No system font is installed globally or copied into output.
+
+The output bundle contains `source.svg`, the original 180-label `text.txt`,
+`outlined.svg`, `observation.json` and their integrity manifest. Pass that
+manifest and `svg: "outlined.svg", fonts: []` to the existing raster entry.
+The observation preserves source and conversion identities, not new visual
+approval. Neither the outline nor new raster bytes replace accepted artwork.
+
+Tool executable hashes and Fontconfig inventory do not prove a complete native
+library closure or isolate a malicious executable. The caller must supply a
+trusted installed toolchain with the matching native dependencies. This adapter
+does not promise outline generation on every host; consuming a qualified
+font-free outline is separate from regenerating it using the original fonts.
+Pixel, semantic and owner acceptance remain separate publication prerequisites.
+
 ### Explicit fresh measurement on macOS
 
 ```sh

@@ -1,11 +1,12 @@
 import fs from 'node:fs/promises';
-import { createReadStream, constants } from 'node:fs';
+import { constants } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { fail, isDigest } from '../source/manifest.mjs';
+import { fail } from '../source/manifest.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
 import { createMetricReader } from './metrics.mjs';
+import { fileIdentity } from './files.mjs';
 
 const fields = (value, keys) =>
   value &&
@@ -16,18 +17,6 @@ const fields = (value, keys) =>
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const encode = (v) => Buffer.from(JSON.stringify(v, null, 2) + '\n');
 const absolute = (p) => typeof p === 'string' && path.isAbsolute(p);
-
-async function fileIdentity(file, expected, maximum, code) {
-  if (!absolute(file) || !isDigest(expected)) fail(code);
-  const resolved = await fs.realpath(file),
-    stat = await fs.stat(resolved);
-  if (!stat.isFile() || stat.size > maximum) fail(code);
-  const h = createHash('sha256');
-  for await (const bytes of createReadStream(resolved)) h.update(bytes);
-  const digest = h.digest('hex');
-  if (digest !== expected) fail(code);
-  return { path: resolved, sha256: digest, bytes: stat.size };
-}
 
 /** Explicit opt-in macOS measurement. This is not an SDK or OS sandbox. */
 export async function measureCoreText(plan) {

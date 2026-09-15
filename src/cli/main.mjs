@@ -2,9 +2,39 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture poster ethos outline <plan.json> | measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
+  if (
+    args.length === 4 &&
+    args[0] === 'poster' &&
+    args[1] === 'ethos' &&
+    args[2] === 'outline'
+  ) {
+    const fs = await import('node:fs/promises'),
+      path = await import('node:path');
+    const file = path.resolve(args[3]),
+      stat = await fs.lstat(file);
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024)
+      throw Object.assign(new Error(), { code: 'outline_plan_invalid' });
+    const plan = JSON.parse(await fs.readFile(file, 'utf8'));
+    const resolve = (o, k) => {
+      if (typeof o?.[k] !== 'string' || !o[k])
+        throw Object.assign(new Error(), { code: 'outline_plan_invalid' });
+      o[k] = path.resolve(path.dirname(file), o[k]);
+    };
+    if (!Array.isArray(plan?.fonts))
+      throw Object.assign(new Error(), { code: 'outline_plan_invalid' });
+    resolve(plan, 'output');
+    for (const k of ['sourceManifest', 'editionManifest'])
+      resolve(plan.poster, k);
+    for (const k of ['renderer', 'fontList']) resolve(plan[k], 'path');
+    for (const f of plan.fonts) resolve(f, 'path');
+    const { outlineEthosPoster } = await import(
+      '../../editions/ethos/outline.mjs'
+    );
+    return outlineEthosPoster(plan);
+  }
   if (args.length === 3 && args[0] === 'measure' && args[1] === 'coretext') {
     const fs = await import('node:fs/promises'),
       path = await import('node:path');
@@ -66,8 +96,9 @@ async function command() {
       plan[key] = path.resolve(path.dirname(file), plan[key]);
     }
     if (kind === 'poster') {
-      const { renderEthosPoster } =
-        await import('../../editions/ethos/poster.mjs');
+      const { renderEthosPoster } = await import(
+        '../../editions/ethos/poster.mjs'
+      );
       return renderEthosPoster(plan);
     }
     const { renderEthosAtlas } = await import('../../editions/ethos/atlas.mjs');
@@ -109,8 +140,9 @@ async function command() {
     args[4] === '--sha256' &&
     args[6] === '--projection'
   ) {
-    const { readEthosSource } =
-      await import('../integrations/ethos/projection.mjs');
+    const { readEthosSource } = await import(
+      '../integrations/ethos/projection.mjs'
+    );
     const value = await readEthosSource(args[3], args[5], args[7]);
     return {
       status: 'verified',
@@ -140,8 +172,9 @@ async function command() {
         throw Object.assign(new Error(), { code: 'import_plan_invalid' });
       plan[key] = path.resolve(path.dirname(planPath), plan[key]);
     }
-    const { importEthosSource } =
-      await import('../integrations/ethos/import.mjs');
+    const { importEthosSource } = await import(
+      '../integrations/ethos/import.mjs'
+    );
     return { status: 'imported', ...(await importEthosSource(plan)) };
   }
   throw Object.assign(new Error(usage), { code: 'usage' });

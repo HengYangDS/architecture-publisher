@@ -54,3 +54,11 @@ rendering, and never substitute new pixels for accepted artwork implicitly.
 - **WHEN** a portable renderer produces different raster bytes or pixel values
 - **THEN** the difference is recorded and separately qualified
 - **AND** previous artwork and its acceptance remain unchanged
+
+#### Scenario: Opt-in outlined delivery projection
+
+- **WHEN** the selected source and edition, explicit trusted conversion tools, original font files and a reference raster identity are supplied
+- **THEN** the adapter recompiles the original poster and requires exact reference raster reproduction before outlining
+- **AND** it retains the original SVG and text alternative alongside the font-free SVG and scoped observation
+- **AND** changed tools, missing fonts, reference mismatch or surviving text fail without replacing existing output
+- **AND** the resulting outline and raster require separate visual qualification rather than inheriting original approval

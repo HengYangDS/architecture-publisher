@@ -129,6 +129,22 @@ or a replacement semantic graph. Keep a text alternative and source identities.
 Do not commit system font bytes. Renderer antialiasing changes are recorded and
 reviewed; old approval does not silently transfer to new pixels.
 
+The opt-in `poster ethos outline` adapter composes the existing poster entry,
+explicit rsvg-convert/Fontconfig tool identities, selected original font files
+and an exact reference PNG hash. Its private Fontconfig inventory must equal the
+selected files, and the recompiled source must reproduce the reference raster
+before conversion. The output is a closed bundle of original SVG, original text
+alternative, font-free SVG and scoped observation. The existing raster entry
+consumes the outlined member; no second rasterizer, geometry compiler or
+publication qualification is introduced. Host file identity checks are shared
+with the CoreText adapter; neither claims complete native-library isolation.
+
+Outline protocol tests use labeled test-only executables and therefore prove
+only admission and preservation. Real installed rsvg-convert execution, exact
+reference reproduction, subsequent isolated font-free rasterization and visual
+qualification are distinct required evidence. A valid outline containing no
+text is not by itself proof that every source assertion remains visually present.
+
 ## Verification and sequence
 
 1. Rejecting tests for selected bytes, safe SVG, font fallback, occupied output,
