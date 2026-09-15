@@ -272,6 +272,47 @@ passed. Linux had no network or host mounts; the installed static test removed
 interactive/ETHOS modules from its disposable copy and used empty HOME/PATH.
 These observations qualify those tested cases, not every SVG or platform.
 
+## Selected static-poster reconstruction
+
+```sh
+architecture poster ethos ./poster-plan.json
+```
+
+Use the same six plan fields as `atlas ethos`: `sourceManifest`,
+`sourceSha256`, `projectionDigest`, `editionManifest`, `editionSha256`,
+and an absent `output` directory. Select the poster bundle under
+`editions/ethos/static/authoring/`, not the interactive atlas bundle. All paths
+resolve from the plan file. Its expected source identities freeze one publication
+snapshot; they do not follow the current ETHOS checkout.
+
+This command **recompiles** the selected source with explicit historical text
+measurements. It does not copy a prebuilt SVG. It produces `terminal.svg`,
+`scene.json`, `text.txt`, `checks.json` and a file-integrity `manifest.json`.
+Checks cover source/witness bindings, measured geometry, authored grouping,
+actual emitted edge endpoints and canvas containment. Their scope is recorded;
+none claims a new semantic, browser or aesthetic approval.
+
+Missing or invalid measurements, mismatched source identities, changed expected
+scene/SVG identities, undeclared members or executable adapters fail before
+creating output. The reader never estimates missing glyph widths or invokes
+host font services. Original module provenance is in
+`editions/ethos/static/migration.json`; generic geometry does not import the
+ETHOS edition.
+
+**Exact SVG bytes are not standalone font portability.** The preserved SVG
+references Avenir Next and Georgia without embedding them. A viewer still needs
+appropriate fonts for matching appearance. The command explicitly reports
+`measurement: recorded`, not fresh measurement, and produces no PNG. The original
+6000-pixel PNG remains the accepted raster deliverable. New measurement adapters,
+portable raster qualification and recoverable paired installation remain open.
+
+The installed poster entry reproduced all 180 labels and the exact selected SVG
+on macOS Node 26.8.2 and isolated Linux Node 24.19.0; both 175-test suites passed.
+An additional macOS installed-package run passed its generated SVG to the
+original explicitly selected raster tool and reproduced the accepted 6000-pixel
+PNG byte-for-byte. That last observation is legacy macOS raster qualification,
+not a claim about portable font rendering or fresh measurement.
+
 ## Product boundaries
 
 The intended complete product accepts explicit source-bound input and authored

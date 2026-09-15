@@ -61,6 +61,29 @@ adapter may reproduce the historic scene; it is not the default portable path.
 Portable measurements and outputs must be qualified against source obligations,
 not declared equivalent merely because their hashes are stable.
 
+The first reconstruction entry is `architecture poster ethos <plan.json>`.
+It consumes the same explicit source selection as the atlas plus a selected
+poster edition bundle. That bundle contains the historic measurement table and
+expected scene/SVG identities, not executable adapter paths. The ordinary build
+loads no CoreText, legacy checkout or system font. It recomposes the document,
+compiles every label, runs source-binding/scene/separation/emitted-edge/canvas
+checks and writes SVG, scene, text alternative and scoped observations through
+the shared closed-bundle writer. Missing measurements fail; they are never
+replaced with character-width guesses.
+
+The selected original SVG references Avenir Next and Georgia. Rebuilding its
+bytes without those fonts is not portable visual rendering: it does not embed
+font bytes or establish the browser's painted result. Fresh measurement and
+PNG qualification remain independent, mandatory steps. Recorded measurements
+are historical input, never a report that measurement ran again.
+
+Pure scene and separation checks live in `src/geometry/`; ETHOS-specific copy,
+mark vocabulary, source assertions and the fixed authored poster live under
+`editions/ethos/static/`. Migration reads exact committed legacy modules, records
+their hashes and applies type erasure and formatting without redesign. The
+installed test deliberately removes unrelated renderer/font assets from its
+own disposable package copy to detect accidental dependency coupling.
+
 An outlined publication is a derived delivery artifact, not an editable source
 or a replacement semantic graph. Keep a text alternative and source identities.
 Do not commit system font bytes. Renderer antialiasing changes are recorded and

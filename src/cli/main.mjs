@@ -2,7 +2,7 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture raster <plan.json> | atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture raster <plan.json> | poster ethos <plan.json> | atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
   if (args.length === 2 && args[0] === 'raster') {
@@ -21,18 +21,28 @@ async function command() {
     const { rasterize } = await import('../static/raster.mjs');
     return rasterize(plan);
   }
-  if (args.length === 3 && args[0] === 'atlas' && args[1] === 'ethos') {
+  if (
+    args.length === 3 &&
+    ['atlas', 'poster'].includes(args[0]) &&
+    args[1] === 'ethos'
+  ) {
+    const kind = args[0];
     const fs = await import('node:fs/promises'),
       path = await import('node:path');
     const file = path.resolve(args[2]),
       stat = await fs.lstat(file);
     if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024)
-      throw Object.assign(new Error(), { code: 'atlas_plan_invalid' });
+      throw Object.assign(new Error(), { code: `${kind}_plan_invalid` });
     const plan = JSON.parse(await fs.readFile(file, 'utf8'));
     for (const key of ['sourceManifest', 'editionManifest', 'output']) {
       if (typeof plan?.[key] !== 'string' || !plan[key])
-        throw Object.assign(new Error(), { code: 'atlas_plan_invalid' });
+        throw Object.assign(new Error(), { code: `${kind}_plan_invalid` });
       plan[key] = path.resolve(path.dirname(file), plan[key]);
+    }
+    if (kind === 'poster') {
+      const { renderEthosPoster } =
+        await import('../../editions/ethos/poster.mjs');
+      return renderEthosPoster(plan);
     }
     const { renderEthosAtlas } = await import('../../editions/ethos/atlas.mjs');
     return renderEthosAtlas(plan);

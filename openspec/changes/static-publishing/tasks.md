@@ -22,9 +22,25 @@ source. Neither a green suite nor pinned bytes closes those remaining audits.
 
 ## 2. Static edition reconstruction
 
-- [ ] 2.1 Migrate authored composition and geometry with provenance and source-bound tests.
+- [x] 2.1 Migrate authored composition and geometry with provenance and source-bound tests.
 - [ ] 2.2 Implement explicit measurement adapters and reproduce the complete original scene and accepted artifacts.
 - [ ] 2.3 Qualify the portable static path and both non-ETHOS example journeys without implicit host dependencies.
+
+2.1 evidence: `static-poster-macos.txt` and `static-poster-linux.txt` each
+record 175 passing tests and syntax, including installed reconstruction of all
+180 labels without the legacy checkout or host fonts. Mutations prove detection
+of missing emitted edges, displaced endpoints, text overlap, canvas overflow and
+lost source bindings. The seven migrated module identities are preserved in
+`editions/ethos/static/migration.json`.
+
+`poster-installed-qualification.json` binds a fresh installed archive to exact
+SVG `87594199a5b3182860d6ed1a16b446082a2862cc52b8ed8c1731111f3e600bfa`
+and, with the explicit original macOS raster tool, exact 6000 PNG
+`efb8cb02a80bbed3a244921abebde98ce43fd3b25151e2d24453c83d955ec839`.
+This uses recorded historical measurements; 2.2 remains open for the explicit
+fresh measurement adapter. 2.3 remains open because the original SVG still
+references licensed system typefaces; matching SVG bytes alone does not qualify
+portable visual rendering. Existing accepted Documents files remain unchanged.
 
 ## 3. Acceptance and preservation
 
