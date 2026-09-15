@@ -1,5 +1,5 @@
 [protected_refs]
-branches = ["dev"]
+branches = ["main", "dev"]
 tags = []
 
 [publication]
