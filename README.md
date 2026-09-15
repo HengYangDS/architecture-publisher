@@ -101,6 +101,57 @@ executed on macOS; importer execution tests on Linux use a synthetic committed
 exporter. No real-source Linux replay or Windows claim is made. Raw
 projection/source bundles are inputs, not installed runtime code.
 
+## Offline diagram rendering
+
+Render explicit typed JSON through the pinned Archify backend:
+
+```sh
+architecture render architecture ./service-topology.json \
+  --sha256 <input-file-sha256> --output ./new-service.html
+architecture render lifecycle ./job-lifecycle.json \
+  --sha256 <input-file-sha256> --output ./new-lifecycle.html
+```
+
+The package includes both examples, the unchanged Archify 2.16.0 rendering
+runtime and its MIT license, plus JetBrains Mono 2.304 fonts and OFL license.
+It needs Node only: no ETHOS runtime, Git repository, source checkout, browser,
+tar executable, credentials or global package is required to render. JSON and
+output paths resolve from the CLI's current directory. `meta.output` never
+selects the final target; the explicit `--output` does.
+
+The public types are `architecture`, `workflow`, `sequence`, `dataflow` and
+`lifecycle`, using Archify's native schema. Set `meta.quality_profile` to
+`showcase`. Native schema and nine artifact checks must pass with no composition
+errors or warnings. Unsupported source-repository metadata and remote brand
+retrieval are rejected before execution; they are not silently discarded.
+The lifecycle format has a native ordered phase rail as well as authored
+transitions; it is not a general unconstrained state-machine renderer.
+
+The HTML embeds font bytes and its viewer/export code. The private runtime
+template is adapted **before** native rendering and checking; packaged upstream
+files are never patched in place. Source entities and geometry are not rewritten
+by this font adapter. No CDN font request or system font installation is needed.
+Glyphs outside the bundled font's coverage are not cross-platform qualified.
+
+The caller selects an existing physical output parent and an absent target.
+Input (maximum 4 MiB) is frozen into a private scratch directory before native
+execution; final output (maximum 32 MiB) is copied exclusively after its receipt
+and hash match. Existing content is preserved, including a target that appears
+during execution. The renderer removes only its own scratch directory. It does
+not implement overwrite, paired publication or crash-recovery installation.
+
+Success reports `status: rendered`, input/output hashes and native check scope;
+native failures retain diagnostics. Exit codes remain 0/1/2 for success,
+operation failure and usage failure. Native checks do **not** prove source
+meaning, browser behavior, actual text paint or visual approval. Rendering and
+installed-package tests are not runtime browser qualification.
+
+Observed qualification: 87 tests passed on macOS Node 26.8.2 and isolated Linux
+Node 24.19.0. Both installed packages rendered and updated the two included
+examples with empty HOME/PATH. Each example's repeated HTML was deterministic
+and byte-identical across those two environments. This limited observation does
+not establish all-input, all-platform or browser-rendering parity.
+
 ## Product boundaries
 
 The intended complete product accepts explicit source-bound input and authored
@@ -108,8 +159,9 @@ views, produces static and interactive editions, verifies scoped properties,
 and installs exact artifacts with recoverable effects. Source adapters, project
 meaning, geometry, reader behavior, observation and publication stay separate.
 
-The current slice does not yet render or reproduce the accepted ETHOS poster
-or thirteen-page atlas. Full semantic transformations, renderer migration, browser qualification,
+The generic backend renders typed diagrams, but does not yet reproduce the
+accepted ETHOS poster or thirteen-page atlas. Full semantic transformations,
+ETHOS edition migration, browser qualification,
 full-product platform parity and recoverable installation remain unfinished.
 
 This repository is a new implementation baseline. Original architecture

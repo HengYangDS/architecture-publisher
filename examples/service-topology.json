@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Order service",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1100,
+      660
+    ]
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client",
+      "sublabel": "Order request",
+      "pos": [
+        60,
+        150
+      ],
+      "size": [
+        150,
+        80
+      ]
+    },
+    {
+      "id": "orders",
+      "type": "backend",
+      "label": "Order service",
+      "sublabel": "Validate and store",
+      "pos": [
+        460,
+        150
+      ],
+      "size": [
+        170,
+        80
+      ]
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "Order store",
+      "sublabel": "Durable records",
+      "pos": [
+        870,
+        150
+      ],
+      "size": [
+        170,
+        80
+      ]
+    },
+    {
+      "id": "events",
+      "type": "messagebus",
+      "label": "Events",
+      "sublabel": "Committed orders",
+      "pos": [
+        460,
+        420
+      ],
+      "size": [
+        170,
+        80
+      ]
+    },
+    {
+      "id": "fulfil",
+      "type": "backend",
+      "label": "Fulfilment",
+      "sublabel": "Asynchronous work",
+      "pos": [
+        870,
+        420
+      ],
+      "size": [
+        170,
+        80
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "request",
+      "from": "client",
+      "to": "orders",
+      "label": "submit",
+      "variant": "emphasis"
+    },
+    {
+      "id": "write",
+      "from": "orders",
+      "to": "store",
+      "label": "persist"
+    },
+    {
+      "id": "publish",
+      "from": "orders",
+      "to": "events",
+      "label": "publish",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 80
+    },
+    {
+      "id": "consume",
+      "from": "events",
+      "to": "fulfil",
+      "label": "consume",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Transaction boundary",
+      "items": [
+        "A committed order precedes its published event.",
+        "Fulfilment consumes events independently of the request."
+      ]
+    }
+  ]
+}

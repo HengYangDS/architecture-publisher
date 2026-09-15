@@ -12,11 +12,13 @@
   },
   "files": [
     "src/",
+    "assets/",
+    "examples/",
     "README.md"
   ],
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check src/source/manifest.mjs && node --check src/source/bundle.mjs && node --check src/cli/main.mjs && node --check src/source/write.mjs && node --check src/integrations/ethos/projection.mjs && node --check src/integrations/ethos/import.mjs"
+    "check": "node --check src/source/manifest.mjs && node --check src/source/bundle.mjs && node --check src/cli/main.mjs && node --check src/source/write.mjs && node --check src/integrations/ethos/projection.mjs && node --check src/integrations/ethos/import.mjs && node --check src/interactive/archify.mjs && node --check src/interactive/fonts.mjs"
   },
   "license": "UNLICENSED"
 }

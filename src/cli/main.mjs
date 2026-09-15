@@ -2,9 +2,24 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
+  if (
+    args.length === 7 &&
+    args[0] === 'render' &&
+    args[3] === '--sha256' &&
+    args[5] === '--output'
+  ) {
+    const path = await import('node:path');
+    const { renderDiagram } = await import('../interactive/archify.mjs');
+    return renderDiagram({
+      type: args[1],
+      input: path.resolve(args[2]),
+      inputSha256: args[4],
+      output: path.resolve(args[6]),
+    });
+  }
   if (
     args.length === 5 &&
     args[0] === 'source' &&
@@ -70,7 +85,11 @@ try {
   process.stdout.write(
     JSON.stringify({
       status: 'error',
-      error: { code, message: code === 'usage' ? usage : code },
+      error: {
+        code,
+        message: code === 'usage' ? usage : code,
+        ...(error.diagnostics ? { diagnostics: error.diagnostics } : {}),
+      },
     }) + '\n',
   );
   process.exitCode = code === 'usage' ? 2 : 1;

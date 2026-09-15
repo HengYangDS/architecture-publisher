@@ -17,7 +17,7 @@ test('packed CLI verifies relocated non-Git input without development executable
   assert.equal(pack.status, 0, pack.stderr);
   const info = JSON.parse(pack.stdout)[0];
   assert(info.files.some(f => f.path === 'src/cli/main.mjs'));
-  assert(info.files.every(f => f.path === 'README.md' || f.path === 'package.json' || f.path.startsWith('src/')));
+  assert(info.files.every(f => f.path === 'README.md' || f.path === 'package.json' || f.path.startsWith('src/') || f.path.startsWith('assets/') || f.path.startsWith('examples/')));
   const install = path.join(tmp, 'consumer'); await fs.mkdir(install);
   const installed = spawnSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--offline', '--prefix', install, path.join(tmp, info.filename)], {cwd: install, env, encoding: 'utf8'});
   assert.equal(installed.status, 0, installed.stderr);

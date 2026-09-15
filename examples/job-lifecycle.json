@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Durable job lifecycle",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1080,
+      680
+    ],
+    "views": [
+      {
+        "id": "retry",
+        "label": "Retry path",
+        "focus": [
+          "run",
+          "wait"
+        ],
+        "note": "Only a transient failure may return the same job to execution."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Job progression"
+    },
+    {
+      "id": "waiting",
+      "label": "Recovery event"
+    },
+    {
+      "id": "terminal",
+      "label": "Failed outcome"
+    }
+  ],
+  "states": [
+    {
+      "id": "accepted",
+      "type": "start",
+      "label": "Accepted",
+      "lane": "main",
+      "col": 0,
+      "sublabel": "Request recorded"
+    },
+    {
+      "id": "ready",
+      "type": "active",
+      "label": "Ready",
+      "lane": "main",
+      "col": 1,
+      "sublabel": "Capacity available"
+    },
+    {
+      "id": "run",
+      "type": "active",
+      "label": "Running",
+      "lane": "main",
+      "col": 2,
+      "sublabel": "Attempt in progress"
+    },
+    {
+      "id": "result",
+      "type": "decision",
+      "label": "Result",
+      "lane": "main",
+      "col": 3,
+      "sublabel": "Outcome classified"
+    },
+    {
+      "id": "done",
+      "type": "success",
+      "label": "Complete",
+      "lane": "main",
+      "col": 4,
+      "sublabel": "Output durable"
+    },
+    {
+      "id": "wait",
+      "type": "waiting",
+      "label": "Retry wait",
+      "lane": "waiting",
+      "col": 0,
+      "sublabel": "Transient failure"
+    },
+    {
+      "id": "failed",
+      "type": "failure",
+      "label": "Failed",
+      "lane": "terminal",
+      "col": 1,
+      "sublabel": "Permanent failure"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "transient",
+      "from": "run",
+      "to": "wait",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "retry",
+      "from": "wait",
+      "to": "run",
+      "variant": "emphasis",
+      "fromSide": "left",
+      "toSide": "left",
+      "route": "left-channel",
+      "channelX": 326
+    },
+    {
+      "id": "permanent",
+      "from": "result",
+      "to": "failed",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "Retry is conditional",
+      "items": [
+        "The retry event must be due before another attempt starts.",
+        "A permanent failure terminates the job instead of entering the retry loop."
+      ]
+    }
+  ]
+}
