@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { readSourceBundle } from '../src/source/bundle.mjs';
 import { writeSourceBundle } from '../src/source/write.mjs';
 import { sha256 } from '../src/integrations/ethos/projection.mjs';
+import { readEthosSource } from '../src/integrations/ethos/projection.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sourceSha256 =
@@ -14,7 +15,27 @@ const sourceSha256 =
 const projectionDigest =
   '4ea40f421434106948f1e1d2d9ae5ee6c8b9868edc5538ff755876fd01d37ef8';
 const editionSha256 =
-  'c7ffac4ae4f9a853855ac64f4334dd15b0b931f23d002d5aa039a64d19baeab7';
+  'bcfc207b0f7dc3c56d2bbb8d9a4c7fa43985c43c155e485955c2681bd792a279';
+test('every page uses only the source-owned maturity notice as its subtitle', async () => {
+  const source = await readEthosSource(
+    path.join(root, 'tests/fixtures/ethos-source/manifest.json'),
+    sourceSha256,
+    projectionDigest,
+  );
+  const edition = JSON.parse(
+    await fs.readFile(path.join(root, 'editions/ethos/authoring/edition.json')),
+  );
+  for (const page of edition.pages) {
+    const spec = JSON.parse(
+      await fs.readFile(path.join(root, 'editions/ethos/authoring', page.spec)),
+    );
+    assert.equal(
+      spec.meta.subtitle,
+      source.projection.documents.copy.maturity_notice,
+      page.id,
+    );
+  }
+});
 async function setup(t, edit) {
   const base = path.join(root, 'build/test-work');
   await fs.mkdir(base, { recursive: true });

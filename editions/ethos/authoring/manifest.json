@@ -52,8 +52,8 @@
     },
     {
       "path": "pages/runtime/diagram.json",
-      "bytes": 8596,
-      "sha256": "fe20796e23a1aa71702e70caa9728443610bab195794c2a9bada4f683e4c7dad"
+      "bytes": 8509,
+      "sha256": "9526e078662f6279423a915017e2fbcf82fef858a5654a3b25ac23cb5cb40adc"
     },
     {
       "path": "pages/runtime/bindings.json",
@@ -148,7 +148,7 @@
     {
       "path": "edition.json",
       "bytes": 9908,
-      "sha256": "c5de7c3a15685a4a8cdda919b2320a37ccf9a3db5be693496c3110f8c00bb4e4"
+      "sha256": "01a7d7c297c91987792bfa744669807ddcb4e272d95d25b249b34d61eb2062af"
     }
   ]
 }

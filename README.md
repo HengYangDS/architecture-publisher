@@ -172,7 +172,11 @@ not the caller's current directory:
 }
 ```
 
-`editions/ethos/authoring/` ships the accepted thirteen-page authoring bundle.
+`editions/ethos/authoring/` ships the selected thirteen-page authoring bundle.
+It includes the user-requested Runtime subtitle correction: every page uses
+only the source maturity notice. Runtime's title, view notes and protocol cards
+retain its coordination, reclamation and independent-admission explanations.
+The other twelve pages are unchanged from the preceding accepted edition.
 Supply its selected source bundle separately; the package does not find an
 ETHOS checkout or execute the exporter during rendering. The compact real-source
 fixture is test data and is excluded from the installed archive. The edition's

@@ -3,7 +3,7 @@
   "diagram_type": "architecture",
   "meta": {
     "title": "ETHOS · 问道 — One Runtime, Independent Admission",
-    "subtitle": "Target architecture, not a claim of current implementation. Runtime coordination and reclamation dependencies; execution requires local admission.",
+    "subtitle": "Target architecture, not a claim of current implementation.",
     "locale": "en",
     "quality_profile": "showcase",
     "visual_preset": "editorial",

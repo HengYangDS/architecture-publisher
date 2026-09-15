@@ -94,9 +94,9 @@
       "path": "mechanisms/runtime/index.html",
       "spec": "pages/runtime/diagram.json",
       "bindings": "pages/runtime/bindings.json",
-      "specSha256": "fe20796e23a1aa71702e70caa9728443610bab195794c2a9bada4f683e4c7dad",
+      "specSha256": "9526e078662f6279423a915017e2fbcf82fef858a5654a3b25ac23cb5cb40adc",
       "bindingsSha256": "aea878b799c47c105f1f5b009dc8dd2a366f063179602b290c766f67b0c20928",
-      "acceptedHtmlSha256": "edbaaed0a43f82a6795e2d58379fef22cd7ba43f9a6749b15f98ea08d2e3972e",
+      "acceptedHtmlSha256": "1d662a0c5574e4fc356d5cab94e43306463c280cdc67ee8a2492dff5079d4214",
       "typography": {
         "diagramArea": [
           1320,
