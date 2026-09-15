@@ -2,7 +2,7 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture atlas ethos [verify] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture atlas ethos [verify|review] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
   const verifyAtlas =
@@ -10,17 +10,47 @@ async function command() {
     args[0] === 'atlas' &&
     args[1] === 'ethos' &&
     args[2] === 'verify';
+  const reviewAtlas =
+    args.length === 4 &&
+    args[0] === 'atlas' &&
+    args[1] === 'ethos' &&
+    args[2] === 'review';
   if (
+    reviewAtlas ||
     verifyAtlas ||
     (args.length === 3 && args[0] === 'atlas' && args[1] === 'ethos')
   ) {
     const fs = await import('node:fs/promises'),
       path = await import('node:path');
-    const file = path.resolve(args[verifyAtlas ? 3 : 2]),
+    const file = path.resolve(args[verifyAtlas || reviewAtlas ? 3 : 2]),
       stat = await fs.lstat(file);
     if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024)
       throw Object.assign(new Error(), { code: 'atlas_plan_invalid' });
     const plan = JSON.parse(await fs.readFile(file, 'utf8'));
+    if (reviewAtlas) {
+      if (!plan?.atlas || !Array.isArray(plan.evidenceBundles))
+        throw Object.assign(new Error(), { code: 'review_inputs_invalid' });
+      for (const key of [
+        'sourceManifest',
+        'editionManifest',
+        'outputManifest',
+      ]) {
+        if (typeof plan.atlas[key] !== 'string' || !plan.atlas[key])
+          throw Object.assign(new Error(), { code: 'review_path_required' });
+        plan.atlas[key] = path.resolve(path.dirname(file), plan.atlas[key]);
+      }
+      for (const bundle of plan.evidenceBundles) {
+        if (typeof bundle?.manifestPath !== 'string' || !bundle.manifestPath)
+          throw Object.assign(new Error(), { code: 'review_path_required' });
+        bundle.manifestPath = path.resolve(
+          path.dirname(file),
+          bundle.manifestPath,
+        );
+      }
+      const { readEthosReview } =
+        await import('../../editions/ethos/review.mjs');
+      return readEthosReview(plan);
+    }
     for (const key of [
       'sourceManifest',
       'editionManifest',

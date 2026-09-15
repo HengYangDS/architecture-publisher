@@ -217,6 +217,23 @@ or permission to publish. It returns observations of bytes already read, not a
 lease on future file contents. The publisher still needs applicable review,
 current browser evidence and effect-time revalidation before installation.
 
+### Retained review applicability
+
+`architecture atlas ethos review ./review-plan.json` observes whether a frozen
+review still applies within its original scope. Its explicit inputs are an
+`atlas` verification plan, digest-selected `evidenceBundles`, historical path
+roles under `history`, and exact `editorial` selections. Original report,
+subject, prompt/log, visual acceptance and predecessor records remain unchanged.
+Evidence files are ordinary source bundles; historical scripts are bytes only.
+
+Unchanged pages must match exactly. The only editorial continuation supported
+here removes an extra subtitle suffix to restore the source maturity notice,
+while preserving graph specifications, bindings and all other HTML bytes. It
+requires exact old/new identities and selected change-basis documents. The
+result preserves prior review limitations and explicitly reports no new browser
+or publication acceptance. Caller-selected hashes establish identity, not an
+independent trusted signature or permission to install.
+
 ## Product boundaries
 
 The intended complete product accepts explicit source-bound input and authored

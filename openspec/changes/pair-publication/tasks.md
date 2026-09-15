@@ -5,7 +5,7 @@
 
 ## 2. Qualification and installation migration
 
-- [ ] 2.1 Migrate frozen-review applicability and narrow editorial continuity without changing historical review subjects or transferring browser approval.
+- [x] 2.1 Migrate frozen-review applicability and narrow editorial continuity without changing historical review subjects or transferring browser approval.
 - [ ] 2.2 Migrate explicit browser-obligation and observation inputs; reject missing, synthetic, stale or incomplete observations and qualify actual current artifacts through an allowed browser surface.
 - [ ] 2.3 Reuse the existing file installation/recovery engine through the qualified pair publisher; verify controlled membership, interruption recovery and unchanged unrelated files.
 

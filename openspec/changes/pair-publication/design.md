@@ -30,6 +30,26 @@ artwork, implement a general workflow framework or rewrite historical receipts.
    useful implementation with provenance; no separate service or state machine.
    Generic installed usage has no personal paths, agent auth or neighbor imports.
 
+### Review input and applicability
+
+Retain the existing reader-review verifier's historical checks, but make its
+file reads consume explicitly digest-selected evidence bundles, not a live
+legacy checkout. The reader report, its prompt/log, owner visual record,
+predecessor applicability and diagram comparisons keep their original bytes
+and original paths inside those bundles. Stored scripts are evidence bytes,
+never executable inputs. Partition historical snapshots into bounded bundles
+instead of raising the shared file-reader limit or tracking generated artwork.
+
+The current adapter separately compares old and new source identities, every
+page and authoring specification/binding. Unchanged pages must be byte-identical.
+An explicitly selected editorial item may only remove a surplus subtitle suffix
+so that the subtitle equals the source-owned maturity notice. It must leave all
+other specification fields/bindings unchanged and reproduce exactly the two
+whole-subtitle replacements in HTML. Bind the selected old/new hashes and the
+accepted correction's source documents; arbitrary substitutions are rejected.
+This observes applicability within retained review limits, not a new independent
+review or browser approval. Current browser observations remain mandatory.
+
 ## Risks / Trade-offs
 
 A digest supplied by the same caller is identity selection, not independent
