@@ -202,6 +202,21 @@ Success means exact, checked reproduction, not new browser or semantic approval.
 The published source still selects and qualifies each edition independently;
 changing expected hashes is not a substitute for reviewing a redesigned diagram.
 
+### Read an existing atlas without rendering it
+
+`architecture atlas ethos verify ./read-plan.json` consumes the same explicit
+source/edition identity fields as rendering. Replace `output` with
+`outputManifest` and its independently selected `outputSha256`.
+Paths are relative to that plan. The current `architecture.atlas-output/v1`
+manifest is consumed directly; no legacy sidecar or original checkout is needed.
+
+The read-only consumer checks the complete file set, exact source and edition,
+all page bytes and required license bytes through the shared bounded file reader.
+Its result is **artifact-file-integrity**, not semantic review, browser execution
+or permission to publish. It returns observations of bytes already read, not a
+lease on future file contents. The publisher still needs applicable review,
+current browser evidence and effect-time revalidation before installation.
+
 ## Product boundaries
 
 The intended complete product accepts explicit source-bound input and authored

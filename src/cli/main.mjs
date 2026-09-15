@@ -2,21 +2,43 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture atlas ethos [verify] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
-  if (args.length === 3 && args[0] === 'atlas' && args[1] === 'ethos') {
+  const verifyAtlas =
+    args.length === 4 &&
+    args[0] === 'atlas' &&
+    args[1] === 'ethos' &&
+    args[2] === 'verify';
+  if (
+    verifyAtlas ||
+    (args.length === 3 && args[0] === 'atlas' && args[1] === 'ethos')
+  ) {
     const fs = await import('node:fs/promises'),
       path = await import('node:path');
-    const file = path.resolve(args[2]),
+    const file = path.resolve(args[verifyAtlas ? 3 : 2]),
       stat = await fs.lstat(file);
     if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024)
       throw Object.assign(new Error(), { code: 'atlas_plan_invalid' });
     const plan = JSON.parse(await fs.readFile(file, 'utf8'));
-    for (const key of ['sourceManifest', 'editionManifest', 'output']) {
+    for (const key of [
+      'sourceManifest',
+      'editionManifest',
+      verifyAtlas ? 'outputManifest' : 'output',
+    ]) {
       if (typeof plan?.[key] !== 'string' || !plan[key])
         throw Object.assign(new Error(), { code: 'atlas_plan_invalid' });
       plan[key] = path.resolve(path.dirname(file), plan[key]);
+    }
+    if (verifyAtlas) {
+      const { readEthosAtlasOutput } =
+        await import('../../editions/ethos/atlas-output.mjs');
+      const result = await readEthosAtlasOutput(plan);
+      return {
+        status: 'verified',
+        ...result,
+        members: result.members.map(({ content, ...member }) => member),
+      };
     }
     const { renderEthosAtlas } = await import('../../editions/ethos/atlas.mjs');
     return renderEthosAtlas(plan);

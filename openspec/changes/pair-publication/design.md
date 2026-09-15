@@ -1,0 +1,56 @@
+## Context
+
+The current producer emits manifest.json, 13 HTMLs and two license files. The
+legacy publisher expects atlas-manifest.json, publication/, authoring sidecars
+and review paths. Those are different envelopes, not different product meaning.
+The existing approved design owner is the retained Archify repository's
+`docs/architecture-product-design.md`; workline-A status stays in the native
+repository's existing execution record. This Change owns only its task state.
+
+## Goals / Non-Goals
+
+Goals: directly consume current exact artifacts, retain explicit evidence scope,
+reuse existing installation/recovery, preserve delivered art and unrelated files.
+Non-goals: replace the browser gate, infer review approval, rebuild ETHOS, redesign
+artwork, implement a general workflow framework or rewrite historical receipts.
+
+## Decisions
+
+1. One generic bounded file-envelope reader owns safe member paths, regular-file
+   reads, complete membership and hashes. Source envelopes retain their original
+   schema and behavior; the atlas adapter validates its own metadata and reuses
+   the same file boundary. Never serialize a fake source/legacy manifest.
+2. The edition owns source/edition/output agreement and exact page/license
+   identities. A read result says file integrity, not semantic/browser approval.
+   Reuse existing source and edition selection; do not rerender as a read effect.
+3. The existing pair qualifier consumes frozen reviews plus explicit narrow
+   continuity, independently derived runtime obligations and real observations.
+   Stale quality or browser evidence is refused, not silently transferred.
+4. The existing file installer remains the single switch/recovery owner. Migrate
+   useful implementation with provenance; no separate service or state machine.
+   Generic installed usage has no personal paths, agent auth or neighbor imports.
+
+## Risks / Trade-offs
+
+A digest supplied by the same caller is identity selection, not independent
+trust. Exact-byte validation cannot prove readability. File checks return
+observed bytes; publication must revalidate effect-time inputs. Multi-directory
+installation is recoverable, not globally atomic. Portable raster appearance
+remains the separate static-publishing Change's responsibility.
+
+## Migration Plan
+
+First extend the existing file-envelope boundary and add a current-atlas reader,
+with negative tests and the real 13-page payload. Then migrate review, runtime
+observation and existing publisher/installer consumers. Remove active legacy
+entry duplication only after replacement qualifies; preserve historical code
+in Git and prior evidence unchanged. No accepted ref moves until native gates.
+
+## Validation Strategy
+
+Cover missing/unknown/duplicate members, hash/size/license/source/edition drift,
+escape/symlink paths and unchanged source/artifacts. Exercise installed code with
+explicit relocated inputs and no original checkout. Missing, synthetic or stale
+browser evidence must reject before installation. Qualified publication needs
+actual current runtime observations plus original-target installation, payload
+hashes, preserved files and recoverable interruption evidence.
