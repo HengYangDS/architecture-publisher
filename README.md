@@ -234,6 +234,23 @@ result preserves prior review limitations and explicitly reports no new browser
 or publication acceptance. Caller-selected hashes establish identity, not an
 independent trusted signature or permission to install.
 
+### Current browser obligations and reported evidence
+
+`architecture atlas ethos browser-plan ./read-plan.json` accepts the current
+atlas verification plan and derives required document/Present, story, export
+and disclosure observations from the actual HTML and source-owned quality
+contract. It does not launch a browser. No host browser path, adjacent checkout
+or agent credential is loaded by this command.
+
+The edition's reported-evidence reader requires all declared viewports, exact
+artifact/source/quality identity and byte-bound screenshots/exports. Evidence
+paths are bundle-relative; explicit synthetic evidence, stale reports, missing
+beats and reused output files are rejected. These checks do not authenticate
+execution: an allowed actual browser run and checker identity remain required
+before the final publisher may consume observations. The browser runner and
+qualified publisher migration are still incomplete; a passing input test is not
+browser acceptance.
+
 ## Product boundaries
 
 The intended complete product accepts explicit source-bound input and authored

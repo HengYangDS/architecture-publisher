@@ -2,7 +2,7 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture atlas ethos [verify|review] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture atlas ethos [verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
   const verifyAtlas =
@@ -15,14 +15,22 @@ async function command() {
     args[0] === 'atlas' &&
     args[1] === 'ethos' &&
     args[2] === 'review';
+  const browserPlan =
+    args.length === 4 &&
+    args[0] === 'atlas' &&
+    args[1] === 'ethos' &&
+    args[2] === 'browser-plan';
   if (
+    browserPlan ||
     reviewAtlas ||
     verifyAtlas ||
     (args.length === 3 && args[0] === 'atlas' && args[1] === 'ethos')
   ) {
     const fs = await import('node:fs/promises'),
       path = await import('node:path');
-    const file = path.resolve(args[verifyAtlas || reviewAtlas ? 3 : 2]),
+    const file = path.resolve(
+        args[verifyAtlas || reviewAtlas || browserPlan ? 3 : 2],
+      ),
       stat = await fs.lstat(file);
     if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024)
       throw Object.assign(new Error(), { code: 'atlas_plan_invalid' });
@@ -54,11 +62,16 @@ async function command() {
     for (const key of [
       'sourceManifest',
       'editionManifest',
-      verifyAtlas ? 'outputManifest' : 'output',
+      verifyAtlas || browserPlan ? 'outputManifest' : 'output',
     ]) {
       if (typeof plan?.[key] !== 'string' || !plan[key])
         throw Object.assign(new Error(), { code: 'atlas_plan_invalid' });
       plan[key] = path.resolve(path.dirname(file), plan[key]);
+    }
+    if (browserPlan) {
+      const { describeEthosBrowser } =
+        await import('../../editions/ethos/browser.mjs');
+      return describeEthosBrowser(plan);
     }
     if (verifyAtlas) {
       const { readEthosAtlasOutput } =
