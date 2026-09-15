@@ -235,9 +235,14 @@ WASM license/source inventory audit remains open before release.
 The input profile accepts declarative shapes, paths, gradients, clipping,
 markers, internal references and font-bound text. It rejects scripts, event
 attributes, external resources, CSS stylesheets/inline styles, images,
-animation, foreign HTML, DTDs and unknown element/attribute names. It is not a
-complete SVG conformance validator: acceptance of a recognized attribute does
-not prove every possible value is implemented by the pinned renderer.
+animation, foreign HTML, DTDs and unknown element/attribute names. The shared
+attribute owner checks finite numbers, length units, enumerations, color syntax,
+complete path commands and arc flags, point lists, transform arity and viewBox
+values before rendering. Invalid input fails without publishing a final PNG;
+it is not normalized into a different drawing. Compact path numbers, repeated
+commands, explicit units, named/hex/function colors and internal references
+remain supported. This is a bounded input profile, not complete SVG conformance
+or proof that every accepted declaration has the intended visual effect.
 
 Visible text must select a supplied family and upright weight, with glyph
 coverage for non-whitespace characters. Internal `use` text is checked in each

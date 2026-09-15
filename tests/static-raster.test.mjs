@@ -97,6 +97,22 @@ test('supports internal gradient, clipping and use references', async (t) => {
     rasterize = await api();
   assert.equal((await rasterize(f.plan)).width, 800);
 });
+for (const body of [
+  '<rect width="20" height="20" fill="not-a-color"/>',
+  '<path d="M0 0 L"/>',
+  '<g transform="translate(banana)"/>',
+  '<path stroke-width="NaN"/>',
+  '<path stroke-linecap="triangle"/>',
+]) {
+  test(`invalid SVG value never publishes a PNG: ${body}`, async (t) => {
+    const f = await setup(t, shape.replace('</svg>', body + '</svg>'));
+    await assert.rejects((await api())(f.plan), {
+      code: 'raster_svg_value_invalid',
+    });
+    await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+    assert.deepEqual(await fs.readdir(f.dir), ['input']);
+  });
+}
 for (const [name, svg] of [
   ['script', shape.replace('</svg>', '<script>alert(1)</script></svg>')],
   ['event handler', shape.replace('<rect', '<rect onclick="run()"')],

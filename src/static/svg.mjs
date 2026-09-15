@@ -2,6 +2,7 @@ import sax from '../../assets/raster/sax/sax.cjs';
 import { parse as parseFont } from '../../assets/raster/opentype/opentype.mjs';
 import { fail } from '../source/manifest.mjs';
 import { RASTER_LIMITS } from './limits.mjs';
+import { isSvgAttribute, validateSvgValues } from './svg-values.mjs';
 
 const SVG = 'http://www.w3.org/2000/svg',
   XLINK = 'http://www.w3.org/1999/xlink',
@@ -30,11 +31,6 @@ const tags = new Set([
   'title',
   'desc',
 ]);
-const attributes = new Set(
-  'id width height viewBox preserveAspectRatio x y x1 y1 x2 y2 cx cy r rx ry dx dy d points transform opacity fill fill-opacity fill-rule stroke stroke-width stroke-opacity stroke-linecap stroke-linejoin stroke-miterlimit stroke-dasharray stroke-dashoffset clip-path clip-rule clipPathUnits marker-start marker-mid marker-end markerWidth markerHeight markerUnits refX refY orient gradientUnits gradientTransform spreadMethod offset stop-color stop-opacity fx fy fr font-family font-size font-weight font-style text-anchor dominant-baseline alignment-baseline letter-spacing word-spacing textLength lengthAdjust visibility display color vector-effect shape-rendering text-rendering role version'.split(
-    ' ',
-  ),
-);
 const positive = (value) => {
   if (
     typeof value !== 'string' ||
@@ -146,12 +142,7 @@ export function validateSvg(bytes, fonts, width) {
         )
           reject();
         references.push({ from: count, to: value.slice(1), kind: 'href' });
-      } else if (
-        !attributes.has(key) &&
-        !/^data-[\w-]+$/.test(key) &&
-        !/^aria-[\w-]+$/.test(key)
-      )
-        reject();
+      } else if (!isSvgAttribute(key)) reject();
       if (Object.hasOwn(values, key)) reject();
       values[key] = value;
       if (
@@ -216,6 +207,7 @@ export function validateSvg(bytes, fonts, width) {
         fail('raster_dimensions_invalid');
       extent = { width, height };
     }
+    validateSvgValues(node.local, values);
     const font = {
       family: values['font-family'] ?? inherited.family,
       weight: values['font-weight'] ?? inherited.weight,

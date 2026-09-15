@@ -111,6 +111,38 @@ test('installed raster command needs only explicit input and its pinned static s
   assert.equal(occupied.status, 1);
   assert.equal(JSON.parse(occupied.stdout).error.code, 'raster_output_exists');
   assert.deepEqual(await fs.readFile(path.join(dir, 'figure.png')), bytes);
+  const invalidSource = await writeSourceBundle(
+    path.join(dir, 'invalid-input'),
+    { id: 'service:invalid-attribute-value' },
+    [
+      {
+        path: 'diagram.svg',
+        content: Buffer.from(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M0 0 L"/></svg>',
+        ),
+      },
+    ],
+  );
+  await fs.writeFile(
+    planPath,
+    JSON.stringify({
+      ...plan,
+      manifest: 'invalid-input/manifest.json',
+      manifestSha256: invalidSource.manifestSha256,
+      fonts: [],
+      output: 'invalid.png',
+    }),
+  );
+  const invalid = invoke();
+  assert.equal(invalid.status, 1);
+  assert.equal(
+    JSON.parse(invalid.stdout).error.code,
+    'raster_svg_value_invalid',
+  );
+  await assert.rejects(fs.stat(path.join(dir, 'invalid.png')), {
+    code: 'ENOENT',
+  });
+  await fs.writeFile(planPath, JSON.stringify(plan));
   for (const member of [
     'resvg/index.mjs',
     'resvg/index_bg.wasm',
