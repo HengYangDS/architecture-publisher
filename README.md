@@ -262,9 +262,9 @@ it is not a crash-recoverable installer. A receipt records selected source,
 SVG, supply and PNG identities. `rendered` does not mean semantic acceptance,
 browser acceptance or permission to replace an accepted publication.
 
-This entry rasterizes an authored SVG. Portable reconstruction of the entire
-ETHOS poster, source-to-layout composition and legacy font measurement are
-separate unfinished work. The original accepted artwork is not replaced.
+This entry rasterizes an authored SVG. Source-bound composition and explicit
+legacy measurement use the separate entries below. Portable appearance of the
+entire ETHOS poster remains unqualified. The original artwork is not replaced.
 
 The installed raster command and negative cases ran on macOS Node 26.8.2 and
 isolated Linux Node 24.19.0. Both complete 165-test suites and syntax checks
@@ -303,8 +303,8 @@ ETHOS edition.
 references Avenir Next and Georgia without embedding them. A viewer still needs
 appropriate fonts for matching appearance. The command explicitly reports
 `measurement: recorded`, not fresh measurement, and produces no PNG. The original
-6000-pixel PNG remains the accepted raster deliverable. New measurement adapters,
-portable raster qualification and recoverable paired installation remain open.
+6000-pixel PNG remains the accepted raster deliverable. Portable raster
+qualification and recoverable paired installation remain open.
 
 The installed poster entry reproduced all 180 labels and the exact selected SVG
 on macOS Node 26.8.2 and isolated Linux Node 24.19.0; both 175-test suites passed.
@@ -312,6 +312,35 @@ An additional macOS installed-package run passed its generated SVG to the
 original explicitly selected raster tool and reproduced the accepted 6000-pixel
 PNG byte-for-byte. That last observation is legacy macOS raster qualification,
 not a claim about portable font rendering or fresh measurement.
+
+### Explicit fresh measurement on macOS
+
+```sh
+architecture measure coretext ./measurement-plan.json
+```
+
+The opt-in plan contains `compiler: {path, sha256}`, `sdk: {path,
+settingsSha256}`, `fonts: [{id, path, sha256, postscript, cascade}]`,
+`requests: [{text, size, font}]`, and a new `output` directory. Paths resolve
+from the plan; the SDK identity is the hash of its `SDKSettings.json`.
+The compiler path retains its driver spelling. The caller must provide and
+lawfully access the selected SDK and fonts; nothing is discovered or installed
+globally. This command is unsupported on non-macOS hosts.
+
+The helper verifies actual font runs against the selected primary and ordered
+fallback IDs. Missing glyphs, undeclared fallback and changed selected files
+fail without publishing output. It emits reusable `metrics.json`, a distinct
+fresh-run `observation.json`, and their integrity manifest. Reusing the table
+later is recorded input, not another measurement. Compiler bytes and SDK
+settings are checked, not the complete operating-system/toolchain closure.
+
+The full selected poster requires Avenir Next and Georgia, plus the observed
+PingFangSC-Semibold Chinese-title fallback and LucidaGrande arrow fallback.
+Those system font files are **not distributed**. A fresh 364-request run
+matched every historical metric and recompiled all 180 labels into the exact
+selected scene and SVG; the selected macOS raster tool also reproduced the
+6000-pixel PNG exactly. This is legacy reproduction, not portable rendering,
+browser qualification or new visual acceptance.
 
 ## Product boundaries
 
@@ -329,7 +358,7 @@ this is not a completed product release or a claim of final browser acceptance.
 This repository is a new implementation baseline. Original architecture
 repositories and their histories remain preserved, not merged or rewritten.
 The project-level decision remains in the original Archify repository's
-`docs/architecture-product-design.md` at `c23dd4cfad4feb8f1e16d10b0a0fd62653228ca1`.
+`docs/architecture-product-design.md` at `771572cf9fe27c6c2bab8005ac96177bbace7c98`.
 This avoids copying a second design authority during migration.
 
 ## Development

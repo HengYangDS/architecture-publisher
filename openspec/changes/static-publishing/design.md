@@ -77,6 +77,28 @@ font bytes or establish the browser's painted result. Fresh measurement and
 PNG qualification remain independent, mandatory steps. Recorded measurements
 are historical input, never a report that measurement ran again.
 
+The opt-in CoreText measurer receives an explicitly selected Swift compiler,
+SDK, font files with digests/PostScript identities, ordered fallback selections,
+text requests and a new output directory. It compiles a packaged helper in its
+own temporary directory, measures the requests, and checks every resulting font
+run against the declared primary/fallback files. It does not discover fonts,
+register them globally or ship their bytes. Tool and font identities are checked
+before and after execution; this detects observed drift, not a hostile writer.
+
+The original title's Chinese glyphs use PingFangSC-Semibold rather than Avenir
+Next. This is an actual CoreText observation, so the legacy reproduction plan
+must include that explicit fallback. A caller-provided cascade only expresses
+preference to CoreText; checking actual runs prevents undeclared system fallback
+from passing. Missing glyphs fail. Fresh execution is recorded separately from
+the resulting reusable measurement table; reading that table later is not fresh
+measurement. This macOS adapter does not qualify Linux raster parity.
+
+The arrow character in regular-weight copy uses LucidaGrande, also observed in
+the complete measurement run. Its file and PostScript identity must be declared
+as a fallback independently of the Chinese title font. The public entry is
+`architecture measure coretext <plan.json>`; compiler, SDK, font and output paths
+resolve from that plan, not the caller's working directory or ambient PATH.
+
 Pure scene and separation checks live in `src/geometry/`; ETHOS-specific copy,
 mark vocabulary, source assertions and the fixed authored poster live under
 `editions/ethos/static/`. Migration reads exact committed legacy modules, records

@@ -2,9 +2,35 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture raster <plan.json> | poster ethos <plan.json> | atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
+  if (args.length === 3 && args[0] === 'measure' && args[1] === 'coretext') {
+    const fs = await import('node:fs/promises'),
+      path = await import('node:path');
+    const file = path.resolve(args[2]),
+      stat = await fs.lstat(file);
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 8 * 1024 * 1024)
+      throw Object.assign(new Error(), { code: 'coretext_plan_invalid' });
+    const plan = JSON.parse(await fs.readFile(file, 'utf8'));
+    const resolve = (value) => {
+      if (typeof value !== 'string' || !value)
+        throw Object.assign(new Error(), { code: 'coretext_plan_invalid' });
+      return path.resolve(path.dirname(file), value);
+    };
+    if (!plan?.compiler || !plan?.sdk || !Array.isArray(plan.fonts))
+      throw Object.assign(new Error(), { code: 'coretext_plan_invalid' });
+    plan.compiler.path = resolve(plan.compiler.path);
+    plan.sdk.path = resolve(plan.sdk.path);
+    plan.output = resolve(plan.output);
+    for (const font of plan.fonts) {
+      if (!font || typeof font !== 'object')
+        throw Object.assign(new Error(), { code: 'coretext_plan_invalid' });
+      font.path = resolve(font.path);
+    }
+    const { measureCoreText } = await import('../static/coretext.mjs');
+    return measureCoreText(plan);
+  }
   if (args.length === 2 && args[0] === 'raster') {
     const fs = await import('node:fs/promises'),
       path = await import('node:path');
