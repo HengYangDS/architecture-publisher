@@ -71,7 +71,8 @@ Change and passing prewrite for the exact paths. `.ethos` and `openspec` are
 engineering inputs, excluded from the installed package. Runtime users do not
 install or invoke them.
 
-`openspec/changes/portable-source` owns this slice's intent and progress. Tests
+`openspec/specs/source-intake/spec.md` owns the accepted behavior. The completed
+`portable-source` Change is preserved under `openspec/changes/archive/`. Tests
 exercise the installed archive under a relocated path with empty HOME and no
 Git/Python/ETHOS available through PATH. Raw observations are ignored under
 `build/`; they must not be reclassified as source or full-product acceptance.
