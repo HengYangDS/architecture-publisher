@@ -101,6 +101,35 @@ export async function renderDiagram(plan) {
     'render_input_type_invalid',
   );
   if (sha(input) !== plan.inputSha256) fail('render_input_digest_mismatch');
+  return renderNativeDiagram(
+    { type: plan.type, inputBytes: input, output: plan.output },
+    async (native, notice) => {
+      const file = path.join(native, 'assets/template.html');
+      const template = await embedFonts(await fs.readFile(file, 'utf8'));
+      await fs.writeFile(
+        file,
+        template.replace(
+          '</head>',
+          '<!-- ' + notice.replaceAll('--', '—') + ' -->\n</head>',
+        ),
+      );
+    },
+  );
+}
+
+/** Internal code-owned edition seam. Never selected by input data or plugin paths. */
+export async function renderNativeDiagram(plan, adaptRuntime) {
+  if (!plan || !types.has(plan.type)) fail('render_type_unsupported');
+  if (
+    !Buffer.isBuffer(plan.inputBytes) ||
+    plan.inputBytes.length > 4 * 1024 * 1024
+  )
+    fail('render_input_type_invalid');
+  if (typeof plan.output !== 'string' || !path.isAbsolute(plan.output))
+    fail('render_path_required');
+  if (typeof adaptRuntime !== 'function') fail('render_adaptation_required');
+  const input = Buffer.from(plan.inputBytes),
+    inputSha256 = sha(input);
   let diagram;
   try {
     diagram = JSON.parse(
@@ -139,17 +168,9 @@ export async function renderDiagram(plan) {
     for (const member of runtime) {
       const file = path.join(native, member.path);
       await fs.mkdir(path.dirname(file), { recursive: true });
-      const content =
-        member.path === 'assets/template.html'
-          ? await embedFonts(member.content.toString('utf8')).then((template) =>
-              template.replace(
-                '</head>',
-                '<!-- ' + notice.replaceAll('--', '—') + ' -->\n</head>',
-              ),
-            )
-          : member.content;
-      await fs.writeFile(file, content, { flag: 'wx' });
+      await fs.writeFile(file, member.content, { flag: 'wx' });
     }
+    await adaptRuntime(native, notice);
     const selected = path.join(scratch, 'input.json'),
       candidate = path.join(scratch, 'candidate.html');
     await fs.writeFile(selected, input, { flag: 'wx' });
@@ -198,7 +219,7 @@ export async function renderDiagram(plan) {
     if (
       receipt.command !== 'deliver' ||
       receipt.type !== plan.type ||
-      receipt.specification?.sha256 !== plan.inputSha256 ||
+      receipt.specification?.sha256 !== inputSha256 ||
       checks?.checkCount !== 9 ||
       checks.checksPassed !== 9 ||
       checks.compositionProfile !== 'showcase' ||
@@ -227,7 +248,7 @@ export async function renderDiagram(plan) {
     return {
       status: 'rendered',
       type: plan.type,
-      inputSha256: plan.inputSha256,
+      inputSha256,
       output: plan.output,
       artifact: receipt.artifact,
       nativeValidation: checks,

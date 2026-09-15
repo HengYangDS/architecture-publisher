@@ -10,8 +10,8 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const escape = (text) =>
   text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
-/** Adapt a private pinned template before native rendering and validation. */
-export async function embedFonts(template) {
+/** Shared verified font bytes; presentation aliases remain edition-owned. */
+export async function loadBundledFonts() {
   const raw = await fs.readFile(path.join(root, 'supply.json'));
   if (sha(raw) !== digest) fail('render_font_supply_invalid');
   const supply = JSON.parse(raw),
@@ -24,9 +24,15 @@ export async function embedFonts(template) {
       fail('render_font_supply_invalid');
     const bytes = await fs.readFile(name);
     if (sha(bytes) !== file.sha256) fail('render_font_supply_invalid');
-    if (file.weight) fonts.push({ weight: file.weight, bytes });
-    else license = bytes.toString('utf8');
+    if (file.weight) fonts.push({ ...file, bytes });
+    else license = { ...file, bytes };
   }
+  return { fonts, license, manifest: supply, sha256: digest };
+}
+
+/** Adapt a private pinned template before native rendering and validation. */
+export async function embedFonts(template) {
+  const { fonts, license } = await loadBundledFonts();
   const block = /  <!-- Async font load:[\s\S]*?<\/noscript>\n/;
   const local =
     /        \/\/ Prepend a local\(\)-only @font-face block[\s\S]*?        \}\)\.join\('\\n'\);/;
@@ -50,6 +56,6 @@ export async function embedFonts(template) {
     )
     .replace(
       '</body>',
-      `<details class="no-print" style="margin:24px auto;max-width:1100px;font:12px/1.5 system-ui"><summary>Font license</summary><pre style="white-space:pre-wrap">${escape(license)}</pre></details>\n</body>`,
+      `<details class="no-print" style="margin:24px auto;max-width:1100px;font:12px/1.5 system-ui"><summary>Font license</summary><pre style="white-space:pre-wrap">${escape(license.bytes.toString('utf8'))}</pre></details>\n</body>`,
     );
 }

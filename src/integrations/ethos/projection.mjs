@@ -148,6 +148,20 @@ export function validateProjectionEnvelope(value, expectedDigest) {
         (Object.hasOwn(view, 'project') && !object(view.project))
       )
         fail('projection_view_invalid');
+      if (Object.hasOwn(view, 'project'))
+        for (const field of [
+          'id',
+          'label',
+          'kind',
+          'from',
+          'to',
+          'provenance',
+          'attributes',
+          'authority',
+          'contracts',
+        ])
+          if (Object.hasOwn(view.project, field))
+            fail('projection_view_semantic_override');
     }
   }
   return value;

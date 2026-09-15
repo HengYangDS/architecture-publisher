@@ -146,11 +146,57 @@ operation failure and usage failure. Native checks do **not** prove source
 meaning, browser behavior, actual text paint or visual approval. Rendering and
 installed-package tests are not runtime browser qualification.
 
-Observed qualification: 87 tests passed on macOS Node 26.8.2 and isolated Linux
+The original backend qualification used macOS Node 26.8.2 and isolated Linux
 Node 24.19.0. Both installed packages rendered and updated the two included
 examples with empty HOME/PATH. Each example's repeated HTML was deterministic
 and byte-identical across those two environments. This limited observation does
 not establish all-input, all-platform or browser-rendering parity.
+
+## Source-bound ETHOS atlas
+
+```sh
+architecture atlas ethos ./atlas-plan.json
+```
+
+The plan contains exactly these fields. Paths resolve from the plan's directory,
+not the caller's current directory:
+
+```json
+{
+  "sourceManifest": "./source/manifest.json",
+  "sourceSha256": "<selected-source-manifest-sha256>",
+  "projectionDigest": "<selected-projection-digest>",
+  "editionManifest": "./edition/manifest.json",
+  "editionSha256": "<selected-edition-manifest-sha256>",
+  "output": "./new-atlas"
+}
+```
+
+`editions/ethos/authoring/` ships the accepted thirteen-page authoring bundle.
+Supply its selected source bundle separately; the package does not find an
+ETHOS checkout or execute the exporter during rendering. The compact real-source
+fixture is test data and is excluded from the installed archive. The edition's
+source and expected HTML identities deliberately freeze a publication snapshot;
+they do not designate the current ETHOS implementation or automatically follow it.
+
+The edition checks the complete catalog, page/source bindings, required detail
+sections, and selected fonts before reserving output. Its active view adapters
+are separated from the generic renderer and their original committed provenance
+is recorded in `editions/ethos/migration.json`. One shared loader supplies font
+bytes; one source integration owns projection validation. Input cannot select
+executable adapters. Other projects and generic rendering do not load this edition.
+
+Every page runs the native checks and must match its selected expected HTML
+hash. Existing output is never overwritten. A failed build retains its partial
+new directory without a completion manifest. The final scan checks the file set
+and rehashes all pages before writing `manifest.json` last. The complete folder
+includes the original HTML pages plus Archify/font license files. This detects
+observed drift; it does not isolate files from a hostile equal-privilege writer
+after verification and is not crash-recoverable installation.
+
+Success means exact, checked reproduction, not new browser or semantic approval.
+The published source still selects and qualifies each edition independently;
+changing expected hashes is not a substitute for reviewing a redesigned diagram.
 
 ## Product boundaries
 
@@ -159,10 +205,11 @@ views, produces static and interactive editions, verifies scoped properties,
 and installs exact artifacts with recoverable effects. Source adapters, project
 meaning, geometry, reader behavior, observation and publication stay separate.
 
-The generic backend renders typed diagrams, but does not yet reproduce the
-accepted ETHOS poster or thirteen-page atlas. Full semantic transformations,
-ETHOS edition migration, browser qualification,
-full-product platform parity and recoverable installation remain unfinished.
+The generic backend renders typed diagrams; the ETHOS edition reproduces the
+selected thirteen-page atlas. Portable static-poster reconstruction, browser
+qualification, full-product platform parity and recoverable installation remain
+unfinished. The edition is candidate work until native acceptance and publication
+are separately completed; local rendering success does not promote it to `main`.
 
 This repository is a new implementation baseline. Original architecture
 repositories and their histories remain preserved, not merged or rewritten.

@@ -197,6 +197,27 @@ const changes = [
     'projection_authority_invalid',
   ],
 ];
+for (const collection of ['nodes', 'relations'])
+  for (const field of [
+    'id',
+    'label',
+    'kind',
+    'from',
+    'to',
+    'provenance',
+    'attributes',
+    'authority',
+    'contracts',
+  ])
+    changes.push([
+      `${collection} presentation overriding ${field}`,
+      (f) => {
+        const view = Object.values(f.input.view[collection])[0];
+        view.project[field] = 'substituted source meaning';
+        f.refresh();
+      },
+      'projection_view_semantic_override',
+    ]);
 for (const [name, change, code] of changes)
   test(`rejects ${name}`, async (t) => {
     const root = await setup(t),

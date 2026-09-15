@@ -1,0 +1,119 @@
+{
+  "schema": "architecture.source-bundle/v1",
+  "source": {
+    "id": "ethos-terminal-architecture",
+    "revision": "8f2e829fed3877c5375cd8636bea45bee583f6c4"
+  },
+  "files": [
+    {
+      "path": "projection-input.json",
+      "bytes": 238457,
+      "sha256": "b34707dce6a0fc0e6a5b218b10359a87a765075f1aef4b234fcb22ca12fe4ae4"
+    },
+    {
+      "path": "source/LICENSE",
+      "bytes": 11317,
+      "sha256": "6b979beb778730698398347eac7edf85a79e9012c9f0192832945b2f1603ee7d"
+    },
+    {
+      "path": "source/docs/architecture/adoption-profiles.md",
+      "bytes": 2548,
+      "sha256": "5c81a41e505bbc55fe285421746a4581bcc2de959c4eacfcc71a2b4ec3800f2d"
+    },
+    {
+      "path": "source/docs/architecture/agent-projections.md",
+      "bytes": 994,
+      "sha256": "accf5ea60a7dc0f094e4b757319b522e21fe303f0bb088cefec47d12ab3f4003"
+    },
+    {
+      "path": "source/docs/architecture/local-state.md",
+      "bytes": 3380,
+      "sha256": "01f656fa725e64e9c044bda3d08a7439d24daa36343a14de3edcb3b2f3e4299d"
+    },
+    {
+      "path": "source/docs/architecture/runner-and-mutation.md",
+      "bytes": 15258,
+      "sha256": "9eaa32d7ebab62f5db76702d11b94dfb0425b3fc8614ea60bd8948483ed55d3d"
+    },
+    {
+      "path": "source/docs/architecture/transition-plan.md",
+      "bytes": 2164,
+      "sha256": "286ed8828b61bd40460cd6504b3d66aa3ede56ace9971223942c1987f105de9e"
+    },
+    {
+      "path": "source/docs/governance/evolution-campaign.md",
+      "bytes": 1634,
+      "sha256": "22d253393a9b42f486366464dfc6ea925e39772c6888f802e2ba54fdaa352224"
+    },
+    {
+      "path": "source/docs/governance/independent-verification-adoption.md",
+      "bytes": 1031,
+      "sha256": "7e0867fa8c532f7d865993a911f5e4ad21822ac4c34f24e6fdfe03632a8fe4c0"
+    },
+    {
+      "path": "source/docs/governance/product-design-contract.md",
+      "bytes": 43017,
+      "sha256": "be3ea8d7e819728ee4377db5098326dc767e92e28a951571250d1d79883aae18"
+    },
+    {
+      "path": "source/docs/governance/skills.md",
+      "bytes": 2617,
+      "sha256": "281cfa31913274c0b80e042fd5269c7a68e71a1ebe7ecb87657d59bdde7cf592"
+    },
+    {
+      "path": "source/openspec/specs/command-plane/spec.md",
+      "bytes": 46263,
+      "sha256": "fca1a7150b7492580c469628f9d18217524e5584fea762b289e254bd0ab9096c"
+    },
+    {
+      "path": "source/openspec/specs/contracts/spec.md",
+      "bytes": 16153,
+      "sha256": "fe037a0d25adc4522e675544fd38e132bddbbce51cdc8abc7e9ad89ac5235e8d"
+    },
+    {
+      "path": "source/openspec/specs/repository-governance/spec.md",
+      "bytes": 217741,
+      "sha256": "bce9c98ac210e1871acfe36a6d35a3fb194f0ab5b843d8904479b1d27fb8db3f"
+    },
+    {
+      "path": "source/src/ethos/repository/policy/projections.py",
+      "bytes": 17609,
+      "sha256": "158e26f07f1827c376c2fbf8116f84c0be8bcf2dae4972ee4c038cc2fa85918e"
+    },
+    {
+      "path": "source/system/axioms.md",
+      "bytes": 1538,
+      "sha256": "d315efe90ccf65bc49d27c1592f1087ff150c1c33ddc33aca3a25415af73733c"
+    },
+    {
+      "path": "source/system/projections/terminal-architecture/copy.json",
+      "bytes": 9969,
+      "sha256": "997ff46ede349696c82acdc9eabb6b294e3a1b2ef0c9f4068ac095be78d1d90c"
+    },
+    {
+      "path": "source/system/projections/terminal-architecture/declaration.json",
+      "bytes": 2887,
+      "sha256": "401ea8938a4a847082c9d50f0cacf9cefe6aec3b9a6d8facf1b16d78e8e3ecc6"
+    },
+    {
+      "path": "source/system/projections/terminal-architecture/quality-contract.json",
+      "bytes": 25645,
+      "sha256": "12895be7eb2a5af4d82994f6baed9d0e58e72a55db7e07c07d1836b3c729181f"
+    },
+    {
+      "path": "source/system/projections/terminal-architecture/semantic-graph.json",
+      "bytes": 148587,
+      "sha256": "579f1a70eb807b207955e26cbd45604e90d863eda97e770b1618891e7b45bff4"
+    },
+    {
+      "path": "source/system/projections/terminal-architecture/view-profile.json",
+      "bytes": 60555,
+      "sha256": "c548c2afb2a8186860382b57f64876d1c8d718c87973071da11e4c1c925afb5e"
+    },
+    {
+      "path": "source/tools/projection/export_terminal_architecture.py",
+      "bytes": 15814,
+      "sha256": "f32780b5135523e209749e3f8651dbd152f63baa68329a270956586a5bfa6520"
+    }
+  ]
+}

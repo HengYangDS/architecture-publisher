@@ -4,8 +4,23 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { renderDiagram } from '../src/interactive/archify.mjs';
+import * as renderer from '../src/interactive/archify.mjs';
+import * as fontSupply from '../src/interactive/fonts.mjs';
 import { serviceTopology } from './fixtures/diagrams.mjs';
 const sha = (b) => createHash('sha256').update(b).digest('hex');
+test('editions reuse the verified bundled font bytes without a second loader', async () => {
+  assert.equal(typeof fontSupply.loadBundledFonts, 'function');
+  const selected = await fontSupply.loadBundledFonts();
+  assert.deepEqual(
+    selected.fonts.map((f) => f.weight),
+    [400, 500, 600, 700],
+  );
+  for (const font of selected.fonts) assert.equal(sha(font.bytes), font.sha256);
+  assert.match(
+    selected.license.bytes.toString('utf8'),
+    /SIL OPEN FONT LICENSE/,
+  );
+});
 async function setup(t, diagram = serviceTopology()) {
   const base = new URL('../build/test-work/', import.meta.url);
   await fs.mkdir(base, { recursive: true });
@@ -27,6 +42,51 @@ async function setup(t, diagram = serviceTopology()) {
     },
   };
 }
+test('trusted edition adapts the private runtime before native validation', async (t) => {
+  const f = await setup(t);
+  assert.equal(typeof renderer.renderNativeDiagram, 'function');
+  let called = false;
+  const result = await renderer.renderNativeDiagram(
+    {
+      type: f.plan.type,
+      inputBytes: f.bytes,
+      output: f.plan.output,
+    },
+    async (runtime) => {
+      called = true;
+      const file = path.join(runtime, 'assets/template.html');
+      const text = await fs.readFile(file, 'utf8');
+      await fs.writeFile(
+        file,
+        text.replace('</head>', '<!-- trusted edition -->\n</head>'),
+      );
+    },
+  );
+  assert.equal(called, true);
+  assert.equal(result.nativeValidation.checksPassed, 9);
+  assert.match(await fs.readFile(f.plan.output, 'utf8'), /trusted edition/);
+});
+test('private runtime adaptation cannot skip native validation or leak failed output', async (t) => {
+  const f = await setup(t);
+  assert.equal(typeof renderer.renderNativeDiagram, 'function');
+  await assert.rejects(
+    renderer.renderNativeDiagram(
+      {
+        type: f.plan.type,
+        inputBytes: f.bytes,
+        output: f.plan.output,
+      },
+      async (runtime) => {
+        await fs.writeFile(
+          path.join(runtime, 'assets/template.html'),
+          '<html>invalid</html>',
+        );
+      },
+    ),
+  );
+  await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+  assert.deepEqual(await fs.readdir(f.root), ['diagram.json']);
+});
 test('renders explicit non-ETHOS data through nine native showcase checks', async (t) => {
   const f = await setup(t);
   const r = await renderDiagram(f.plan);

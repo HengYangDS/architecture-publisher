@@ -15,12 +15,15 @@ source-independent backend before migrating ETHOS-specific views and checks.
   renderer. Such integrations require separate explicit contracts.
 - Exercise independent non-ETHOS architecture/lifecycle inputs under an installed
   package, relocated paths, empty HOME and unavailable Git/Python/ETHOS tooling.
+- Migrate the accepted ETHOS atlas as an explicit edition above the backend,
+  retaining authored pages and binding checks without requiring the old repository.
 
 ## Capabilities
 
 ### New Capabilities
 
 - `archify-renderer`: pinned, offline, independently installed typed-diagram rendering.
+- `ethos-atlas`: source-bound ETHOS edition compilation over the portable renderer.
 
 ### Modified Capabilities
 
@@ -30,6 +33,6 @@ None. Generic source bundles and ETHOS inputs keep their accepted contracts.
 
 `src/interactive/`, CLI dispatch, pinned runtime supply under `assets/archify/`,
 examples, package payload and tests. No modification to original artwork or old
-repository code. This Change owns the generic backend; full ETHOS atlas migration,
-static composition, runtime verification and recoverable installation remain in
-the existing Workline A execution record.
+repository code. This Change owns the backend and its directly dependent ETHOS
+HTML edition migration. Static composition, runtime verification and recoverable
+installation remain in the existing Workline A execution record.

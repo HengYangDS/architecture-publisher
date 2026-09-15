@@ -2,9 +2,25 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
+  if (args.length === 3 && args[0] === 'atlas' && args[1] === 'ethos') {
+    const fs = await import('node:fs/promises'),
+      path = await import('node:path');
+    const file = path.resolve(args[2]),
+      stat = await fs.lstat(file);
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024)
+      throw Object.assign(new Error(), { code: 'atlas_plan_invalid' });
+    const plan = JSON.parse(await fs.readFile(file, 'utf8'));
+    for (const key of ['sourceManifest', 'editionManifest', 'output']) {
+      if (typeof plan?.[key] !== 'string' || !plan[key])
+        throw Object.assign(new Error(), { code: 'atlas_plan_invalid' });
+      plan[key] = path.resolve(path.dirname(file), plan[key]);
+    }
+    const { renderEthosAtlas } = await import('../../editions/ethos/atlas.mjs');
+    return renderEthosAtlas(plan);
+  }
   if (
     args.length === 7 &&
     args[0] === 'render' &&

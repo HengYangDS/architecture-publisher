@@ -3,7 +3,8 @@
 Implement the generic rendering backend before the ETHOS edition. It consumes
 Archify's existing typed JSON rather than inventing a universal graph schema.
 Project assertions and source-owned quality rules remain outside this backend.
-The accepted 13-page atlas stays frozen until its separate migration qualifies.
+The accepted 13-page atlas stays frozen while its explicitly selected edition
+is migrated above the backend; old and new output roots remain separate.
 
 ## Supply
 
@@ -78,6 +79,41 @@ installer or its crash-recovery protocol.
 
 Native source validation is necessary but not sufficient for visual meaning.
 This slice does not qualify browser interactions, fonts across platforms,
-complete ETHOS views, static edition or recoverable installation. Upstream
+static edition or recoverable installation. Upstream
 source may contain unused optional capabilities; they are not exposed by the
 public renderer merely because their code is in the pinned dependency closure.
+
+## ETHOS edition migration
+
+The rehearsal reproduced every accepted HTML byte on macOS and Linux. Promote
+the useful responsibilities, not its scratch directory or the old builder.
+
+- `editions/ethos/` owns authored pages and source-specific binding, annotation,
+  presentation and explanation code. It consumes the generic renderer, never
+  the reverse. Reuse source integration validation; retain stronger view rules.
+- Split internal native execution from default generic presentation. A trusted
+  edition callback adapts only the private runtime before native checks. It is
+  code-owned, not executable input, a plugin path or a dynamic registry.
+- `architecture atlas ethos <plan.json>` takes source manifest/digest,
+  projection digest, edition manifest/digest and absent output root. Relative
+  paths resolve from the plan. Validate all selected members before output.
+  Reject unknown fields, duplicate/escaping pages, extra members, mismatched
+  source identities and missing source-required detail sections.
+- A single catalog owns page identity/order/location. The other selected files
+  own diagrams/bindings. Expected HTML identities test preservation, not truth
+  or acceptance. Unknown presentation modes fail, not silently disappear.
+- Move only active adapter functions with original commit/path/hash provenance.
+  No sibling imports, exporter execution or host font installation. Reuse the
+  packaged font bytes while retaining the exact ETHOS CSS alias and original
+  font-lock identity. Preserve the accepted rendering sequence and all checks.
+- A failed atlas retains its partial new directory without a success manifest.
+  Existing directories are never overwritten. The complete output includes all
+  HTML pages, source/edition identity, license and final hash manifest last.
+- Before the final manifest, scan the actual output file set and rehash all
+  completed pages; an earlier page changed while a later page was rendering
+  invalidates completion. This is observed drift detection, not filesystem
+  isolation from a malicious equal-privilege writer.
+
+Acceptance requires real installed macOS/Linux reconstruction of all 13 selected
+pages, exact HTML comparison and rejecting binding/closure tests. Native checks
+and exact reproduction do not establish new browser or semantic acceptance.
