@@ -1,6 +1,6 @@
 ## 1. Explicit portable rasterization
 
-- [ ] 1.1 Complete rejecting tests for closed input, SVG attribute values, font resolution, resource limits and output preservation; verify invalid inputs produce no final PNG.
+- [x] 1.1 Complete rejecting tests for closed input, SVG attribute values, font resolution, resource limits and output preservation; verify invalid inputs produce no final PNG.
 - [ ] 1.2 Audit pinned renderer, parser and font-reader supply, including transitive WASM licenses and sources; verify every distributed component has matching identities and required notices.
 - [x] 1.3 Implement bounded offline raster execution and the plan-file CLI; verify real rendering and negative cases with the static raster tests.
 - [x] 1.4 Qualify installed rasterization on macOS and isolated Linux; verify successful output, rejected supply drift and preserved existing files without implicit host dependencies.

@@ -209,4 +209,114 @@ test('installed raster command needs only explicit input and its pinned static s
     'resource-boundary-observed',
   );
   await assert.rejects(fs.stat(path.join(dir, 'bad.png')), { code: 'ENOENT' });
+  // Inject faults only into this disposable installation, after real rendering.
+  // These cases qualify transport rejection, not a replacement renderer.
+  const successfulReply = {
+    status: 'rendered',
+    width: 1200,
+    height: 480,
+    elements: 3,
+    fontCount: 1,
+    png: bytes.toString('base64'),
+  };
+  const consumeInput =
+    'import fs from "node:fs";JSON.parse(fs.readFileSync(0,"utf8"));';
+  for (const [label, body, expected] of [
+    ['empty stdout', '', 'raster_response_invalid'],
+    [
+      'invalid JSON',
+      'process.stdout.write("{broken");',
+      'raster_response_invalid',
+    ],
+    ...[
+      null,
+      [],
+      0,
+      { ...successfulReply, png: [] },
+      { ...successfulReply, unexpected: true },
+      { ...successfulReply, png: successfulReply.png + '!' },
+      { ...successfulReply, elements: -1 },
+      { ...successfulReply, fontCount: 17 },
+      { ...successfulReply, width: 1199 },
+      { ...successfulReply, height: 479 },
+      { ...successfulReply, png: '' },
+      { ...successfulReply, png: Buffer.alloc(33).toString('base64') },
+      { ...successfulReply, png: bytes.subarray(0, 20).toString('base64') },
+      { status: 'error', code: { unexpected: true } },
+    ].map((reply, index) => [
+      `invalid reply ${index}`,
+      `process.stdout.write(${JSON.stringify(JSON.stringify(reply))});`,
+      'raster_response_invalid',
+    ]),
+    [
+      'nonzero despite success reply',
+      `process.stdout.write(${JSON.stringify(JSON.stringify(successfulReply))});process.exitCode=1;`,
+      'raster_render_failed',
+    ],
+    [
+      'killed child',
+      'process.kill(process.pid,"SIGKILL");',
+      'raster_process_failed',
+    ],
+    [
+      'bounded child output',
+      `const chunk=Buffer.alloc(65536);for(let count=0;count<=${RASTER_LIMITS.responseBytes};count+=chunk.length)fs.writeSync(1,chunk);`,
+      'raster_process_failed',
+    ],
+  ]) {
+    await t.test(label, async () => {
+      const outputDir = await fs.mkdtemp(path.join(dir, 'response-'));
+      await fs.writeFile(
+        planPath,
+        JSON.stringify({
+          ...plan,
+          output: path.relative(dir, path.join(outputDir, 'bad.png')),
+        }),
+      );
+      await fs.writeFile(worker, consumeInput + body);
+      const rejected = invoke();
+      assert.equal(rejected.status, 1, rejected.stdout + rejected.stderr);
+      assert.equal(JSON.parse(rejected.stdout).error.code, expected);
+      await assert.rejects(fs.stat(path.join(outputDir, 'bad.png')), {
+        code: 'ENOENT',
+      });
+      assert.deepEqual(
+        await fs.readFile(path.join(dir, 'figure.png')),
+        bytes,
+      );
+      assert.deepEqual(await fs.readdir(outputDir), []);
+    });
+  }
+  await t.test(
+    'actual deadline stops a non-terminating child',
+    async () => {
+      const outputDir = await fs.mkdtemp(path.join(dir, 'deadline-'));
+      await fs.writeFile(
+        planPath,
+        JSON.stringify({
+          ...plan,
+          output: path.relative(dir, path.join(outputDir, 'bad.png')),
+        }),
+      );
+      await fs.writeFile(
+        worker,
+        consumeInput + 'setInterval(()=>{},1000);',
+      );
+      const started = performance.now(),
+        timedOut = invoke();
+      assert.equal(timedOut.status, 1, timedOut.stdout + timedOut.stderr);
+      assert.equal(
+        JSON.parse(timedOut.stdout).error.code,
+        'raster_execution_timeout',
+      );
+      assert(performance.now() - started >= RASTER_LIMITS.executionMs);
+      assert(
+        performance.now() - started < RASTER_LIMITS.executionMs + 15000,
+      );
+      await assert.rejects(fs.stat(path.join(outputDir, 'bad.png')), {
+        code: 'ENOENT',
+      });
+      assert.deepEqual(await fs.readdir(outputDir), []);
+    },
+  );
 });

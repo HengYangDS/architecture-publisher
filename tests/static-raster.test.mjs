@@ -21,12 +21,15 @@ async function api() {
   );
   return (await import(entry)).rasterize;
 }
-async function setup(t, svg = shape, fonts = false) {
+async function setup(t, svg = shape, fonts = false, extraMembers = []) {
   const base = path.join(root, 'build/test-work');
   await fs.mkdir(base, { recursive: true });
   const dir = await fs.mkdtemp(path.join(base, 'raster space-'));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
-  const members = [{ path: 'figure.svg', content: Buffer.from(svg) }];
+  const members = [
+    { path: 'figure.svg', content: Buffer.from(svg) },
+    ...extraMembers,
+  ];
   const selection = [];
   if (fonts) {
     members.push({
@@ -152,13 +155,17 @@ test('preserves cross-kind gradient templates and actual marker rendering', asyn
     ['radialGradient', 'linearGradient'],
   ]) {
     const body = '<rect width="100" height="100" fill="url(#paint)"/>';
-    const inherited = await setup(t, wrap(
-      `<${template} id="template">${stops}</${template}><${paint} id="paint" href="#template"/>`,
-      body,
-    ));
-    const direct = await setup(t, wrap(
-      `<${paint} id="paint">${stops}</${paint}>`, body,
-    ));
+    const inherited = await setup(
+      t,
+      wrap(
+        `<${template} id="template">${stops}</${template}><${paint} id="paint" href="#template"/>`,
+        body,
+      ),
+    );
+    const direct = await setup(
+      t,
+      wrap(`<${paint} id="paint">${stops}</${paint}>`, body),
+    );
     assert.equal(
       (await rasterize(inherited.plan)).artifact.sha256,
       (await rasterize(direct.plan)).artifact.sha256,
@@ -170,11 +177,13 @@ test('preserves cross-kind gradient templates and actual marker rendering', asyn
   const baseline = await setup(t, wrap(marker, line + '/>'));
   const baselineHash = (await rasterize(baseline.plan)).artifact.sha256;
   for (const kind of ['marker-start', 'marker-mid', 'marker-end']) {
-    const marked = await setup(t, wrap(
-      marker, line + ` ${kind}="url(#arrow)"/>`,
-    ));
+    const marked = await setup(
+      t,
+      wrap(marker, line + ` ${kind}="url(#arrow)"/>`),
+    );
     assert.notEqual(
-      (await rasterize(marked.plan)).artifact.sha256, baselineHash,
+      (await rasterize(marked.plan)).artifact.sha256,
+      baselineHash,
     );
   }
 });
@@ -199,7 +208,10 @@ for (const [name, svg] of [
   ['event handler', shape.replace('<rect', '<rect onclick="run()"')],
   [
     'external use',
-    shape.replace('</svg>', '<use href="file:///private/input.svg#x"/></svg>'),
+    shape.replace(
+      '</svg>',
+      '<use href="file:///private/input.svg#x"/></svg>',
+    ),
   ],
   [
     'entity-encoded external reference',
@@ -233,7 +245,10 @@ for (const [name, svg] of [
   ],
   [
     'image',
-    shape.replace('</svg>', '<image href="data:image/png;base64,AA=="/></svg>'),
+    shape.replace(
+      '</svg>',
+      '<image href="data:image/png;base64,AA=="/></svg>',
+    ),
   ],
   [
     'external CSS paint',
@@ -360,6 +375,174 @@ test('rejects excessive pixel area and retains a valid large canvas bound', () =
   });
   assert.equal(validateSvg(svg, [], 4096).height, 4096);
 });
+test('bounds reference fanout and distinct inherited font contexts', () => {
+  const wrap = (body) =>
+    Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">${body}</svg>`,
+    );
+  const definitions =
+    '<defs><linearGradient id="paint"/><clipPath id="clip"/><marker id="mark"/></defs>';
+  const referenced =
+    '<path fill="url(#paint)" stroke="url(#paint)" clip-path="url(#clip)" marker-start="url(#mark)" marker-mid="url(#mark)" marker-end="url(#mark)"/>';
+  assert.throws(
+    () =>
+      validateSvg(
+        wrap(
+          definitions +
+            referenced.repeat(Math.floor(RASTER_LIMITS.references / 6) + 1),
+        ),
+        [],
+        100,
+      ),
+    { code: 'raster_svg_limit' },
+  );
+  // Far fewer than the element/reference limits, but every host has a distinct
+  // inherited context. A cached first instance must not erase the work bound.
+  const children = 120;
+  const hosts = Math.ceil(RASTER_LIMITS.fontContexts / children) + 1;
+  const instances = Array.from(
+    { length: hosts },
+    (_, i) => `<use href="#cluster" font-family="Context ${i}"/>`,
+  ).join('');
+  assert.throws(
+    () =>
+      validateSvg(
+        wrap(
+          '<defs><g id="cluster">' +
+            '<path/>'.repeat(children) +
+            '</g></defs>' +
+            instances,
+        ),
+        [],
+        100,
+      ),
+    { code: 'raster_svg_limit' },
+  );
+});
+test('rejects excess font count, individual bytes and aggregate bytes before rendering', async (t) => {
+  const rasterize = await api();
+  const count = await setup(t);
+  await assert.rejects(
+    rasterize({
+      ...count.plan,
+      fonts: Array(RASTER_LIMITS.fonts + 1).fill({}),
+    }),
+    { code: 'raster_fonts_invalid' },
+  );
+  const member = await setup(t, shape, false, [
+    {
+      path: 'oversize.ttf',
+      content: Buffer.alloc(RASTER_LIMITS.fontBytes + 1),
+    },
+  ]);
+  await assert.rejects(
+    rasterize({
+      ...member.plan,
+      fonts: [
+        {
+          path: 'oversize.ttf',
+          family: 'Oversize',
+          weight: 400,
+        },
+      ],
+    }),
+    { code: 'raster_fonts_invalid' },
+  );
+  const members = Array.from({ length: 5 }, (_, i) => ({
+    path: `font-${i}.ttf`,
+    content: Buffer.alloc(RASTER_LIMITS.fontBytes),
+  }));
+  const aggregate = await setup(t, shape, false, members);
+  await assert.rejects(
+    rasterize({
+      ...aggregate.plan,
+      fonts: members.map(({ path }, i) => ({
+        path,
+        family: `Font ${i}`,
+        weight: 400,
+      })),
+    }),
+    { code: 'raster_fonts_invalid' },
+  );
+  for (const f of [count, member, aggregate]) {
+    await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+    assert.deepEqual(await fs.readdir(f.dir), ['input']);
+  }
+});
+test('rejects corrupt, duplicated and unsupported font selections', async (t) => {
+  const bytes = await fs.readFile(
+    path.join(root, 'assets/fonts/JetBrainsMono-Regular.ttf'),
+  );
+  for (const [name, content, fonts, code] of [
+    [
+      'corrupt',
+      Buffer.from('not a font'),
+      [{ path: 'other.ttf', family: 'JetBrains Mono', weight: 400 }],
+      'raster_font_invalid',
+    ],
+    [
+      'duplicate identity',
+      bytes,
+      [
+        { path: 'fonts/regular.ttf', family: 'JetBrains Mono', weight: 400 },
+        { path: 'other.ttf', family: 'JetBrains Mono', weight: 400 },
+      ],
+      'raster_font_duplicate',
+    ],
+    [
+      'duplicate member',
+      bytes,
+      Array(2).fill({
+        path: 'other.ttf',
+        family: 'JetBrains Mono',
+        weight: 400,
+      }),
+      'raster_fonts_invalid',
+    ],
+  ]) {
+    await t.test(name, async () => {
+      const f = await setup(t, withText('Verify'), true, [
+        { path: 'other.ttf', content },
+      ]);
+      await assert.rejects((await api())({ ...f.plan, fonts }), { code });
+      await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+      assert.deepEqual(await fs.readdir(f.dir), ['input']);
+    });
+  }
+  for (const attribute of [
+    'font-style="italic"',
+    'font-family="Missing, JetBrains Mono"',
+  ]) {
+    const svg = attribute.startsWith('font-family')
+      ? withText('Verify').replace('font-family="JetBrains Mono"', attribute)
+      : withText('Verify').replace('<text ', `<text ${attribute} `);
+    const f = await setup(t, svg, true);
+    await assert.rejects((await api())(f.plan), {
+      code: 'raster_font_unbound',
+    });
+    await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+  }
+});
+test('rejects invalid XML encoding, SVG bytes and dimensions through public raster', async (t) => {
+  for (const [svg, code] of [
+    [Buffer.from([0xff, 0xfe]), 'raster_svg_invalid'],
+    [Buffer.alloc(RASTER_LIMITS.svgBytes + 1), 'raster_svg_size_exceeded'],
+    [
+      shape.replace('height="100"', 'height="0.0001"'),
+      'raster_dimensions_invalid',
+    ],
+    [shape.replace('width="200"', 'width="1"'), 'raster_dimensions_invalid'],
+    [
+      shape.replace('xmlns="http://www.w3.org/2000/svg"', ''),
+      'raster_svg_unsupported',
+    ],
+  ]) {
+    const f = await setup(t, svg);
+    await assert.rejects((await api())(f.plan), { code });
+    await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+    assert.deepEqual(await fs.readdir(f.dir), ['input']);
+  }
+});
 test('rejects absent font, missing glyph, mismatched family and missing weight', async (t) => {
   const rasterize = await api();
   for (const [text, fonts, change] of [
@@ -411,6 +594,34 @@ test('rejects changed bundle and missing SVG member', async (t) => {
   await assert.rejects(rasterize({ ...f.plan, svg: 'absent.svg' }));
   await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
 });
+test('closed bundle failures never reserve raster output', async (t) => {
+  for (const kind of ['changed', 'missing', 'extra', 'symlink']) {
+    const f = await setup(t);
+    const member = path.join(f.dir, 'input/figure.svg');
+    if (kind === 'changed')
+      await fs.writeFile(member, Buffer.alloc(Buffer.byteLength(shape), 'x'));
+    if (kind === 'missing') await fs.unlink(member);
+    if (kind === 'extra')
+      await fs.writeFile(path.join(f.dir, 'input/extra'), 'extra');
+    if (kind === 'symlink') {
+      const target = path.join(f.dir, 'physical.svg');
+      await fs.writeFile(target, shape);
+      await fs.unlink(member);
+      await fs.symlink(target, member);
+    }
+    const before = (await fs.readdir(f.dir)).sort();
+    await assert.rejects((await api())(f.plan), {
+      code:
+        kind === 'changed'
+          ? 'member_digest_mismatch'
+          : kind === 'symlink'
+            ? 'bundle_symlink_forbidden'
+            : 'bundle_members_mismatch',
+    });
+    await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+    assert.deepEqual((await fs.readdir(f.dir)).sort(), before);
+  }
+});
 test('preserves occupied output and rejects symlink parent', async (t) => {
   const f = await setup(t),
     rasterize = await api();
@@ -423,6 +634,20 @@ test('preserves occupied output and rejects symlink parent', async (t) => {
     rasterize({ ...f.plan, output: path.join(link, 'new.png') }),
     { code: 'raster_output_parent_invalid' },
   );
+  const nested = path.join(f.dir, 'nested');
+  await fs.mkdir(nested);
+  await assert.rejects(
+    rasterize({ ...f.plan, output: path.join(link, 'nested', 'new.png') }),
+    { code: 'raster_output_parent_invalid' },
+  );
+  assert.deepEqual(await fs.readdir(nested), []);
+  const occupiedLink = path.join(f.dir, 'occupied-link.png');
+  await fs.symlink(f.plan.output, occupiedLink);
+  await assert.rejects(rasterize({ ...f.plan, output: occupiedLink }), {
+    code: 'raster_output_exists',
+  });
+  assert.equal(await fs.readlink(occupiedLink), f.plan.output);
+  assert.equal(await fs.readFile(f.plan.output, 'utf8'), 'keep');
 });
 test('inherits explicitly selected fonts and resolves bold only to supplied weight', async (t) => {
   const svg = withText('Verify')

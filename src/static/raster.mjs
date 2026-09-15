@@ -83,7 +83,9 @@ export async function rasterize(plan) {
     if (error.code !== 'ENOENT') throw error;
   }
   const supply = await verifyRasterSupply();
-  const scratch = await fs.mkdtemp(path.join(parent, '.architecture-raster-'));
+  const scratch = await fs.mkdtemp(
+    path.join(parent, '.architecture-raster-'),
+  );
   try {
     const result = spawnSync(
       process.execPath,
@@ -118,16 +120,47 @@ export async function rasterize(plan) {
           ? 'raster_execution_timeout'
           : 'raster_process_failed',
       );
+    if (result.signal || result.status === null)
+      fail('raster_process_failed');
     let response;
     try {
       response = JSON.parse(result.stdout);
     } catch {
       fail('raster_response_invalid');
     }
-    if (result.status !== 0 || response.status !== 'rendered')
-      fail(response.code ?? 'raster_render_failed');
+    if (fields(response, ['status', 'code']) && response.status === 'error') {
+      if (
+        typeof response.code !== 'string' ||
+        !response.code ||
+        response.code.length > 128
+      )
+        fail('raster_response_invalid');
+      fail(response.code);
+    }
+    if (
+      !fields(response, [
+        'status',
+        'width',
+        'height',
+        'elements',
+        'fontCount',
+        'png',
+      ]) ||
+      response.status !== 'rendered' ||
+      typeof response.png !== 'string' ||
+      response.png.length > Math.ceil(limits.pngBytes / 3) * 4 ||
+      !Number.isInteger(response.elements) ||
+      response.elements < 1 ||
+      response.elements > limits.elements ||
+      !Number.isInteger(response.fontCount) ||
+      response.fontCount < 0 ||
+      response.fontCount > fonts.length
+    )
+      fail('raster_response_invalid');
+    if (result.status !== 0) fail('raster_render_failed');
     const png = Buffer.from(response.png, 'base64');
     if (
+      png.toString('base64') !== response.png ||
       png.length < 33 ||
       png.length > limits.pngBytes ||
       !png

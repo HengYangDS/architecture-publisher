@@ -60,6 +60,15 @@ dimensions and returned bytes are checked. On renderer failure no final output
 is published. Never delete an occupied or concurrently arriving target. Later
 pair installation and crash recovery stay outside this renderer.
 
+The parent admits the worker's closed response shape, bounded counts, canonical
+Base64 and PNG header/dimensions before publication. Signaled children, malformed
+responses, unsuccessful exits, output-buffer exhaustion and the actual deadline
+produce distinct failures and leave no final output. The installed test consumes
+stdin before injecting a reply; an EPIPE before consumption is not evidence of
+reply validation. Fault cases use separate output directories, so an erroneously
+accepted earlier case cannot mask later failures. These are transport checks,
+not an independent pixel decoder or semantic approval.
+
 ## ETHOS static edition
 
 Move the useful original composition/geometry functions, with provenance, into
@@ -133,3 +142,19 @@ reviewed; old approval does not silently transfer to new pixels.
 
 Full-product browser qualification, paired installation and its crash-recovery
 tests remain mandatory in Workline A. No raster milestone closes those tasks.
+
+### Input-boundary verification ownership
+
+| Boundary | Executable evidence owner |
+| --- | --- |
+| Selected manifest/member bytes, missing/extra files and symlinks | `tests/source-bundle.test.mjs`; public no-output cases in `tests/static-raster.test.mjs` |
+| XML feature admission, attribute values and reference identity/type/cycles | `tests/static-svg-values.test.mjs` and `tests/static-raster.test.mjs` |
+| Explicit font identity, glyph/style/weight, instance inheritance and byte/count limits | `tests/static-raster.test.mjs` |
+| Pixel/element/depth/reference/context bounds and occupied/concurrent output | `tests/static-raster.test.mjs` |
+| Installed execution, supply drift, process flags, actual deadline/output exhaustion and malformed replies | `tests/static-installed.test.mjs` |
+
+The worker reply boundary checks structure and selected PNG header dimensions;
+it does not independently decode pixels or authenticate a hostile worker. Font
+admission does not implement the whole CSS cascade: relative weights and CSS
+inheritance keywords without resolved explicit selections are rejected. These
+limits must not be promoted into claims of general SVG or visual equivalence.
