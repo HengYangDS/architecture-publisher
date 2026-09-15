@@ -39,6 +39,15 @@ longest reference paths and the number of distinct font contexts are bounded.
 Unused definitions need not declare fonts. This is font binding, not general
 CSS computation or proof of SVG visual fidelity.
 
+Internal references must resolve to an appropriate target type, not merely an
+existing ID. Within this profile, fill/stroke and gradient templates select
+gradients, clip-path selects clipPath, and marker properties select marker.
+Linear and radial gradients may template one another; use remains governed by
+the supported SVG namespace rather than a new narrower target whitelist. Invalid
+types fail before rendering instead of inheriting the renderer's fallback or
+silent omission. These rules follow SVG 2, Linking, Valid URL targets; this
+strict profile rejects invalid references even where a browser defines fallback.
+
 The earlier proposed blanket rejection of instanced text was not justified by
 its fixture: that fixture set the font on the referenced group explicitly.
 The actual reproduced defect used an inherited weight on a definition ancestor

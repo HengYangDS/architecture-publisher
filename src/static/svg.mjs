@@ -40,6 +40,16 @@ const positive = (value) => {
   return Number(value.replace(/px$/, ''));
 };
 const familyName = (value) => value.trim().replace(/^(['"])(.*?)\1$/, '$2');
+const gradients = new Set(['linearGradient', 'radialGradient']);
+
+function validReferenceTarget(source, kind, target) {
+  if (kind === 'fill' || kind === 'stroke') return gradients.has(target);
+  if (kind === 'clip-path') return target === 'clipPath';
+  if (kind.startsWith('marker-')) return target === 'marker';
+  if (kind === 'href' && gradients.has(source)) return gradients.has(target);
+  // The parser already restricts use targets to the supported SVG namespace.
+  return kind === 'href' && source === 'use';
+}
 
 function selectedFonts(fonts) {
   const known = new Map();
@@ -267,6 +277,14 @@ export function validateSvg(bytes, fonts, width) {
   for (const reference of references) {
     const target = ids.get(reference.to);
     if (!target) fail('raster_svg_reference_missing');
+    if (
+      !validReferenceTarget(
+        nodes.get(reference.from).tag,
+        reference.kind,
+        nodes.get(target).tag,
+      )
+    )
+      fail('raster_svg_reference_type_invalid');
     graph.get(reference.from).push(target);
     nodes.get(reference.from).references.push({ target, kind: reference.kind });
   }

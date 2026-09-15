@@ -97,6 +97,87 @@ test('supports internal gradient, clipping and use references', async (t) => {
     rasterize = await api();
   assert.equal((await rasterize(f.plan)).width, 800);
 });
+for (const [name, definition, body] of [
+  [
+    'fill',
+    '<rect id="target" width="20" height="20"/>',
+    '<rect width="100" height="100" fill="url(#target)"/>',
+  ],
+  [
+    'stroke',
+    '<clipPath id="target"><rect width="20" height="20"/></clipPath>',
+    '<path d="M10 50 H90" stroke="url(#target)"/>',
+  ],
+  [
+    'clip-path',
+    '<linearGradient id="target"><stop offset="0" stop-color="red"/></linearGradient>',
+    '<rect width="100" height="100" clip-path="url(#target)"/>',
+  ],
+  ...['marker-start', 'marker-mid', 'marker-end'].map((kind) => [
+    kind,
+    '<path id="target" d="M0 0 L10 5 L0 10 Z"/>',
+    `<path d="M10 50 H50 H90" stroke="black" ${kind}="url(#target)"/>`,
+  ]),
+  [
+    'linearGradient href',
+    '<rect id="target" width="20" height="20"/><linearGradient id="paint" href="#target"/>',
+    '<rect width="100" height="100" fill="url(#paint)"/>',
+  ],
+  [
+    'radialGradient xlink:href',
+    '<rect id="target" width="20" height="20"/><radialGradient id="paint" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#target"/>',
+    '<rect width="100" height="100" fill="url(#paint)"/>',
+  ],
+]) {
+  test(`rejects wrong internal reference target type for ${name} without publishing`, async (t) => {
+    const f = await setup(
+      t,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><defs>${definition}</defs>${body}</svg>`,
+    );
+    await assert.rejects((await api())(f.plan), {
+      code: 'raster_svg_reference_type_invalid',
+    });
+    await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+    assert.deepEqual(await fs.readdir(f.dir), ['input']);
+  });
+}
+test('preserves cross-kind gradient templates and actual marker rendering', async (t) => {
+  const stops =
+    '<stop offset="0" stop-color="#29372f"/><stop offset="1" stop-color="#b9bfb2"/>';
+  const wrap = (definition, body) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><defs>${definition}</defs>${body}</svg>`;
+  const rasterize = await api();
+  for (const [template, paint] of [
+    ['linearGradient', 'radialGradient'],
+    ['radialGradient', 'linearGradient'],
+  ]) {
+    const body = '<rect width="100" height="100" fill="url(#paint)"/>';
+    const inherited = await setup(t, wrap(
+      `<${template} id="template">${stops}</${template}><${paint} id="paint" href="#template"/>`,
+      body,
+    ));
+    const direct = await setup(t, wrap(
+      `<${paint} id="paint">${stops}</${paint}>`, body,
+    ));
+    assert.equal(
+      (await rasterize(inherited.plan)).artifact.sha256,
+      (await rasterize(direct.plan)).artifact.sha256,
+    );
+  }
+  const marker =
+    '<marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z"/></marker>';
+  const line = '<path d="M20 50 H50 H80" stroke="black"';
+  const baseline = await setup(t, wrap(marker, line + '/>'));
+  const baselineHash = (await rasterize(baseline.plan)).artifact.sha256;
+  for (const kind of ['marker-start', 'marker-mid', 'marker-end']) {
+    const marked = await setup(t, wrap(
+      marker, line + ` ${kind}="url(#arrow)"/>`,
+    ));
+    assert.notEqual(
+      (await rasterize(marked.plan)).artifact.sha256, baselineHash,
+    );
+  }
+});
 for (const body of [
   '<rect width="20" height="20" fill="not-a-color"/>',
   '<path d="M0 0 L"/>',

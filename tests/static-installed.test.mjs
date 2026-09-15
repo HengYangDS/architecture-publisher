@@ -142,6 +142,32 @@ test('installed raster command needs only explicit input and its pinned static s
   await assert.rejects(fs.stat(path.join(dir, 'invalid.png')), {
     code: 'ENOENT',
   });
+  const wrongReference = await writeSourceBundle(
+    path.join(dir, 'wrong-reference'),
+    { id: 'service:invalid-reference-type' },
+    [{
+      path: 'diagram.svg',
+      content: Buffer.from(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><defs><rect id="paint" width="10" height="10"/></defs><rect width="100" height="100" fill="url(#paint)"/></svg>',
+      ),
+    }],
+  );
+  await fs.writeFile(planPath, JSON.stringify({
+    ...plan,
+    manifest: 'wrong-reference/manifest.json',
+    manifestSha256: wrongReference.manifestSha256,
+    fonts: [],
+    output: 'wrong-reference.png',
+  }));
+  const wrong = invoke();
+  assert.equal(wrong.status, 1);
+  assert.equal(
+    JSON.parse(wrong.stdout).error.code,
+    'raster_svg_reference_type_invalid',
+  );
+  await assert.rejects(fs.stat(path.join(dir, 'wrong-reference.png')), {
+    code: 'ENOENT',
+  });
   await fs.writeFile(planPath, JSON.stringify(plan));
   for (const member of [
     'resvg/index.mjs',
