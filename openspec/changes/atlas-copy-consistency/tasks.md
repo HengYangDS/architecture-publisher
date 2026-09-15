@@ -7,4 +7,4 @@
 ## 2. Delivery and preservation
 
 - [x] 2.1 Preserve the original standalone HTML and update its embedded Runtime page; verify every embedded page hash, unchanged navigation and shared blocks, and the unchanged static PNG.
-- [ ] 2.2 Complete tests, exact-HEAD proof, scoped source publication and remote recovery; verify published refs and restored files without claiming broader Workline A completion.
+- [x] 2.2 Complete tests, exact-HEAD proof, scoped source publication and remote recovery; verify published refs and restored files without claiming broader Workline A completion.
