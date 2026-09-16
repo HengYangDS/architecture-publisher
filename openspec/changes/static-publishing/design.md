@@ -174,3 +174,95 @@ it does not independently decode pixels or authenticate a hostile worker. Font
 admission does not implement the whole CSS cascade: relative weights and CSS
 inheritance keywords without resolved explicit selections are rejected. These
 limits must not be promoted into claims of general SVG or visual equivalence.
+
+## Proposed source-closed renderer replacement
+
+Disposition: design recommendation for approval, not implemented or accepted.
+Task 1.2 remains open. Preserve the installed renderer, original accepted
+artwork and historical observations until the replacement passes its own
+acceptance. Packages 180 and 181 in the existing private evidence projection
+record the bounded native feasibility experiments; they are not build inputs
+or normative authorities for this proposal.
+
+### Decision and rejected alternatives
+
+Retain the existing installed Node-only public raster command and isolated
+WASM worker. Replace only the renderer dependency with one reproducibly built,
+source-closed WASM module and its narrow generated binding. Use the audited
+upstream resvg source with an exact dependency lock, explicit feature set,
+compiler/target identity, generated-binding tool identity and source notices.
+The accepted build inputs must be selected explicitly; do not depend on the
+builder's global Cargo state or resolve a dependency branch at build time.
+
+The native resvg 0.48.1 experiment has a complete selected source archive and
+successful offline macOS/Linux builds. Its seven selected PNG outputs match
+across those two platforms. That result justifies testing a source-closed
+replacement; it does not establish a WASM build, the old binary's provenance,
+all-input parity, publication qualification or approval of new artwork.
+
+| Alternative | Retained value | Reason not selected |
+| --- | --- | --- |
+| Keep guessing the old binary's missing lock | No runtime change | Binary strings establish only a lower bound; they cannot prove complete dependency resolution. |
+| Ship the tested native CLI | Upstream command and known source closure | Changes Node-only installation, executable/platform distribution and memory/filesystem restrictions; it is not a drop-in worker replacement. |
+| Rebuild a narrow WASM dependency | Current public inputs, process boundary and portable package | Preferred; feasibility and generated binding remain to be proved before adoption. |
+| Ship both with automatic fallback | Apparent availability | Creates two semantics and supply authorities; a failed selected runtime must fail closed. |
+
+If the narrow binding is not supportable without disproportionate maintenance,
+return that evidence for a design decision. Do not silently switch to the native
+CLI, weaken limits or introduce a generic renderer-plugin framework.
+
+### Unchanged responsibility boundaries
+
+The existing source-bundle reader owns explicit input bytes. The existing
+SVG/font validator owns the supported feature subset and rejects external or
+undeclared resources before rendering. The worker owns one render invocation,
+not source meaning, font discovery, output paths, approval or publication.
+The existing parent process retains input/output byte and dimension limits,
+execution deadline, JavaScript heap and WASM memory caps, response validation,
+exclusive final output and occupied/concurrently arriving target preservation.
+The paired publisher and browser qualifier remain unchanged owners.
+
+The binding accepts SVG bytes, explicitly selected font bytes and requested
+width; it returns bounded rendered dimensions and PNG bytes. Disable upstream
+system-font discovery and unneeded file/network capabilities at build time.
+Instantiate without filesystem, network or process imports; inspect and test
+the module's actual import/export table rather than trusting a build flag.
+Prefer the upstream rendering APIs and an established generated binding over
+handwritten allocation protocols, a second SVG implementation or a new engine.
+Use one private disposable worker lifecycle; a trap, allocation failure,
+malformed response or timeout must never create a successful final PNG.
+
+The new dependency must be pinned in the existing raster supply manifest and
+verified by its existing installed reader. Preserve direct/parser/font-reader
+notices; replace old renderer-specific inventory only after the new closure is
+verified. Source archive, lock, build recipe and required notices must accompany
+or have exact recoverable references from the distributed candidate. They are
+supply evidence, not another progress or approval store.
+
+### Bounded implementation and acceptance order
+
+1. In the existing static work lane, prove one offline locked WASM build and
+   exact import/export contract. Review the small binding and all selected
+   dependency sources/notices. Keep its experimental bytes outside the shipped
+   assets. No passing native build substitutes for this step.
+2. Reuse the current public raster fixtures and rejecting tests against a
+   disposable installed candidate: explicit fonts and instance inheritance,
+   invalid/external SVG, bad supply, dimensions/memory/time/output bounds,
+   malformed/trapped worker results and occupied/concurrent targets. Demonstrate
+   the old missing-source-closure failure and the candidate closure explicitly.
+3. Reproduce the complete outlined ETHOS input at all three existing sizes and
+   both non-ETHOS journeys, including updates, under installed macOS and isolated
+   Linux execution. Compare decoded RGBA, color metadata and package identities;
+   do not invent a tolerance or infer universal equivalence from seven outputs.
+4. After design approval and candidate acceptance, replace the incumbent at
+   the existing worker/supply owners, remove its active assets and superseded
+   notices, update precise documentation and run the native gates. Preserve
+   previous source refs, evidence and the human-accepted originals. Do not
+   transfer browser or visual acceptance to changed artifacts.
+
+A renderer migration is not a prerequisite for rereading or installing the
+already frozen accepted artwork. Current paired delivery is separately blocked
+by required browser observations and supported Git integration recovery. Keep
+those dependencies explicit: never manufacture browser evidence or use the raw
+file installer to evade the qualified publisher. A full generic graphics
+platform remains outside Workline A.
