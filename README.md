@@ -282,6 +282,186 @@ beside the atlas under `evidence/`, not inside its closed output manifest.
 Qualified positive installation is not yet claimed: current browser evidence is
 still missing. File-effect tests alone do not qualify publication.
 
+## Offline SVG rasterization
+
+Rasterize an authored SVG through a separate public entry:
+
+```sh
+architecture raster ./raster-plan.json
+```
+
+Its plan selects a closed source bundle and resolves filesystem paths relative
+to the plan file, not the caller's current directory:
+
+```json
+{
+  "manifest": "./input/manifest.json",
+  "manifestSha256": "<selected-manifest-sha256>",
+  "svg": "figure.svg",
+  "fonts": [{"path": "font.ttf", "family": "JetBrains Mono", "weight": 400}],
+  "width": 1200,
+  "output": "./new-figure.png"
+}
+```
+
+`svg` and font paths are members of that verified bundle. Supply every selected
+font's bytes with permission to use them; a shape-only SVG uses `"fonts": []`.
+The installed command uses pinned resvg WASM, SAX and OpenType components, not
+system fonts, a browser, an ETHOS checkout or the interactive rendering modules.
+Their exact inventories and notices are under `assets/raster/`; OpenType's
+bundled tiny-inflate notice is retained separately. The broader transitive
+WASM license/source inventory audit remains open before release.
+
+The input profile accepts declarative shapes, paths, gradients, clipping,
+markers, internal references and font-bound text. It rejects scripts, event
+attributes, external resources, CSS stylesheets/inline styles, images,
+animation, foreign HTML, DTDs and unknown element/attribute names. The shared
+attribute owner checks finite numbers, length units, enumerations, color syntax,
+complete path commands and arc flags, point lists, transform arity and viewBox
+values before rendering. Invalid input fails without publishing a final PNG;
+it is not normalized into a different drawing. Compact path numbers, repeated
+commands, explicit units, named/hex/function colors and internal references
+remain supported. This is a bounded input profile, not complete SVG conformance
+or proof that every accepted declaration has the intended visual effect.
+
+Visible text must select a supplied family and upright weight, with glyph
+coverage for non-whitespace characters. Internal `use` text is checked in each
+effective font context; explicit declarations in the referenced subtree take
+precedence over inherited properties. Undefined fonts, unsupported styles,
+missing glyphs and reference cycles fail instead of silently approving font
+fallback. This does not establish text shaping, kerning or visual equivalence
+with another renderer.
+
+Bounds are 16 MiB SVG, 16 fonts of at most 8 MiB each/32 MiB combined,
+8,192 pixels per dimension and 32 Mi pixels total. XML depth is bounded to 128,
+reference paths to 256, and elements/references/distinct font contexts to
+100,000 each. The child has a 30-second deadline, a 512 MiB JavaScript heap
+limit and a separate 512 MiB WASM memory limit. These are not a total process
+or OS-level memory sandbox. PNG output is limited to 96 MiB and child output
+to 128 MiB.
+
+The target parent must exist physically and the output must not exist. The
+command validates the actual PNG dimensions and copies it exclusively, preserving
+an output that appears concurrently. It cleans only its own temporary directory;
+it is not a crash-recoverable installer. A receipt records selected source,
+SVG, supply and PNG identities. `rendered` does not mean semantic acceptance,
+browser acceptance or permission to replace an accepted publication.
+
+This entry rasterizes an authored SVG. Source-bound composition and explicit
+legacy measurement use the separate entries below. Portable appearance of the
+entire ETHOS poster remains unqualified. The original artwork is not replaced.
+
+The installed raster command and negative cases ran on macOS Node 26.8.2 and
+isolated Linux Node 24.19.0. Both complete 165-test suites and syntax checks
+passed. Linux had no network or host mounts; the installed static test removed
+interactive/ETHOS modules from its disposable copy and used empty HOME/PATH.
+These observations qualify those tested cases, not every SVG or platform.
+
+## Selected static-poster reconstruction
+
+```sh
+architecture poster ethos ./poster-plan.json
+```
+
+Use the same six plan fields as `atlas ethos`: `sourceManifest`,
+`sourceSha256`, `projectionDigest`, `editionManifest`, `editionSha256`,
+and an absent `output` directory. Select the poster bundle under
+`editions/ethos/static/authoring/`, not the interactive atlas bundle. All paths
+resolve from the plan file. Its expected source identities freeze one publication
+snapshot; they do not follow the current ETHOS checkout.
+
+This command **recompiles** the selected source with explicit historical text
+measurements. It does not copy a prebuilt SVG. It produces `terminal.svg`,
+`scene.json`, `text.txt`, `checks.json` and a file-integrity `manifest.json`.
+Checks cover source/witness bindings, measured geometry, authored grouping,
+actual emitted edge endpoints and canvas containment. Their scope is recorded;
+none claims a new semantic, browser or aesthetic approval.
+
+Missing or invalid measurements, mismatched source identities, changed expected
+scene/SVG identities, undeclared members or executable adapters fail before
+creating output. The reader never estimates missing glyph widths or invokes
+host font services. Original module provenance is in
+`editions/ethos/static/migration.json`; generic geometry does not import the
+ETHOS edition.
+
+**Exact SVG bytes are not standalone font portability.** The preserved SVG
+references Avenir Next and Georgia without embedding them. A viewer still needs
+appropriate fonts for matching appearance. The command explicitly reports
+`measurement: recorded`, not fresh measurement, and produces no PNG. The original
+6000-pixel PNG remains the accepted raster deliverable. Portable raster
+qualification and recoverable paired installation remain open.
+
+The installed poster entry reproduced all 180 labels and the exact selected SVG
+on macOS Node 26.8.2 and isolated Linux Node 24.19.0; both 175-test suites passed.
+An additional macOS installed-package run passed its generated SVG to the
+original explicitly selected raster tool and reproduced the accepted 6000-pixel
+PNG byte-for-byte. That last observation is legacy macOS raster qualification,
+not a claim about portable font rendering or fresh measurement.
+
+### Optional outlined projection
+
+```sh
+architecture poster ethos outline ./outline-plan.json
+architecture raster ./raster-plan.json
+```
+
+The outline plan has six fields:
+
+- `poster`: the five source/edition identity fields above, without `output`.
+- `renderer`: `{path, sha256}` selecting an installed `rsvg-convert` executable.
+- `fontList`: `{path, sha256}` selecting an installed Fontconfig `fc-list`.
+- `fonts`: `[{path, sha256}]` selecting the original licensed font files.
+- `reference`: `{width, height, pngSha256}` selecting the prior raster to match.
+- `output`: an absent directory. All input paths resolve from the plan file.
+
+This opt-in host adapter recompiles the original poster through its existing
+checks. A private Fontconfig configuration permits only the explicitly selected
+files. The source raster must match the selected reference PNG exactly before
+conversion; missing fonts, changed tools, wrong reference pixels and surviving
+text are rejected. No system font is installed globally or copied into output.
+
+The output bundle contains `source.svg`, the original 180-label `text.txt`,
+`outlined.svg`, `observation.json` and their integrity manifest. Pass that
+manifest and `svg: "outlined.svg", fonts: []` to the existing raster entry.
+The observation preserves source and conversion identities, not new visual
+approval. Neither the outline nor new raster bytes replace accepted artwork.
+
+Tool executable hashes and Fontconfig inventory do not prove a complete native
+library closure or isolate a malicious executable. The caller must supply a
+trusted installed toolchain with the matching native dependencies. This adapter
+does not promise outline generation on every host; consuming a qualified
+font-free outline is separate from regenerating it using the original fonts.
+Pixel, semantic and owner acceptance remain separate publication prerequisites.
+
+### Explicit fresh measurement on macOS
+
+```sh
+architecture measure coretext ./measurement-plan.json
+```
+
+The opt-in plan contains `compiler: {path, sha256}`, `sdk: {path,
+settingsSha256}`, `fonts: [{id, path, sha256, postscript, cascade}]`,
+`requests: [{text, size, font}]`, and a new `output` directory. Paths resolve
+from the plan; the SDK identity is the hash of its `SDKSettings.json`.
+The compiler path retains its driver spelling. The caller must provide and
+lawfully access the selected SDK and fonts; nothing is discovered or installed
+globally. This command is unsupported on non-macOS hosts.
+
+The helper verifies actual font runs against the selected primary and ordered
+fallback IDs. Missing glyphs, undeclared fallback and changed selected files
+fail without publishing output. It emits reusable `metrics.json`, a distinct
+fresh-run `observation.json`, and their integrity manifest. Reusing the table
+later is recorded input, not another measurement. Compiler bytes and SDK
+settings are checked, not the complete operating-system/toolchain closure.
+
+The full selected poster requires Avenir Next and Georgia, plus the observed
+PingFangSC-Semibold Chinese-title fallback and LucidaGrande arrow fallback.
+Those system font files are **not distributed**. A fresh 364-request run
+matched every historical metric and recompiled all 180 labels into the exact
+selected scene and SVG; the selected macOS raster tool also reproduced the
+6000-pixel PNG exactly. This is legacy reproduction, not portable rendering,
+browser qualification or new visual acceptance.
+
 ## Product boundaries
 
 The intended complete product accepts explicit source-bound input and authored
@@ -298,7 +478,7 @@ this is not a completed product release or a claim of final browser acceptance.
 This repository is a new implementation baseline. Original architecture
 repositories and their histories remain preserved, not merged or rewritten.
 The project-level decision remains in the original Archify repository's
-`docs/architecture-product-design.md` at `c23dd4cfad4feb8f1e16d10b0a0fd62653228ca1`.
+`docs/architecture-product-design.md` at `771572cf9fe27c6c2bab8005ac96177bbace7c98`.
 This avoids copying a second design authority during migration.
 
 ## Development
