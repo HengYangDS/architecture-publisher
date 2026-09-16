@@ -59,6 +59,12 @@ test('packed CLI verifies relocated non-Git input without development executable
     await fs.readFile(path.join(pkg, 'package.json'), 'utf8'),
   );
   assert.deepEqual(packageJson.dependencies ?? {}, {});
+  await assert.rejects(fs.stat(path.join(install, 'node_modules/acorn')), {
+    code: 'ENOENT',
+  });
+  await assert.rejects(fs.stat(path.join(pkg, 'node_modules')), {
+    code: 'ENOENT',
+  });
   await assert.rejects(fs.stat(path.join(install, '.git')), { code: 'ENOENT' });
   const input = path.join(tmp, 'relocated input');
   await fs.mkdir(input);

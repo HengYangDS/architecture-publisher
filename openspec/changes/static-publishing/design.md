@@ -124,6 +124,20 @@ their hashes and applies type erasure and formatting without redesign. The
 installed test deliberately removes unrelated renderer/font assets from its
 own disposable package copy to detect accidental dependency coupling.
 
+The test-only module-boundary owner parses every first-party JavaScript module
+with locked Acorn. Its dependency rules follow the source, geometry, publication,
+static, interactive, integration, edition and CLI responsibilities. It checks
+imports, re-exports, dynamic imports, `import.meta.resolve` and module-relative
+resource URLs; unknown owners, computed module dependencies, package escapes and
+unadmitted loaders fail. Injected reverse dependencies must fail the same checker
+used on real source. Third-party asset internals retain their existing supply
+verification, rather than becoming first-party graph nodes. This bounded syntax
+check does not prove arbitrary filesystem access, loader aliases, evaluation of
+generated code, or the Swift adapter's dependency graph. Installed and relocated
+consumer tests retain those distinct responsibilities. Acorn is development-only
+and absent from consumer installation; locked development installation is an
+explicit fresh-checkout test prerequisite.
+
 An outlined publication is a derived delivery artifact, not an editable source
 or a replacement semantic graph. Keep a text alternative and source identities.
 Do not commit system font bytes. Renderer antialiasing changes are recorded and

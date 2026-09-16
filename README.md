@@ -552,6 +552,17 @@ Change and passing prewrite for the exact paths. `.ethos` and `openspec` are
 engineering inputs, excluded from the installed package. Runtime users do not
 install or invoke them.
 
+Run `npm ci --ignore-scripts` before the repository tests. The locked Acorn
+development dependency powers the test-only module-boundary check; consumer
+installation does not install it. That check scans first-party JavaScript imports,
+re-exports, dynamic imports and module-relative resource URLs. Generic source,
+geometry, publication and rendering owners must not depend on the ETHOS edition
+or adapter; static and interactive backends remain independent. CLI and edition
+composition are the explicit consumers of those separate capabilities.
+Computed module dependencies and unknown owners fail rather than silently bypass
+the check. This is a syntax-level dependency guard, not arbitrary data-flow or
+runtime isolation proof; installed-package removal tests remain necessary.
+
 Create publication-bound commits with the configured signing identity and verify
 the exact object before native publication. A configured public key, successful
 merge, local proof or accepted branch is not evidence of a commit signature.
