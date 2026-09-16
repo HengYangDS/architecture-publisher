@@ -33,6 +33,11 @@ test('installed raster command needs only explicit input and its pinned static s
   assert(
     pack.files.some((f) => f.path === 'assets/raster/resvg/index_bg.wasm'),
   );
+  const observedNoticePath = 'assets/raster/resvg/THIRD-PARTY-NOTICES.txt';
+  assert(
+    pack.files.some((f) => f.path === observedNoticePath),
+    'installed renderer must retain the verified observed-source notices',
+  );
   const pathfinderNotices = [
     [
       'LICENSE-MIT',
@@ -69,6 +74,14 @@ test('installed raster command needs only explicit input and its pinned static s
     consumer,
   );
   const pkg = path.join(consumer, 'node_modules/architecture-publishing');
+  const observedNotice = await fs.readFile(path.join(pkg, observedNoticePath));
+  assert.equal(
+    hash(observedNotice),
+    'ac5bee9d9f24349a750932188ae2c4e12e94cfbc28620c46f8dc11fe6756871b',
+  );
+  assert.match(observedNotice.toString(), /not a complete\nSBOM/);
+  assert.match(observedNotice.toString(), /Complete release dependency resolution/);
+  assert.match(observedNotice.toString(), /pathfinder\/LICENSE-APACHE/);
   for (const [name, expected] of pathfinderNotices)
     assert.equal(
       hash(
@@ -208,6 +221,7 @@ test('installed raster command needs only explicit input and its pinned static s
     'resvg/pathfinder/LICENSE-MIT',
     'resvg/pathfinder/LICENSE-APACHE',
     'resvg/pathfinder/NOTICE',
+    'resvg/THIRD-PARTY-NOTICES.txt',
   ]) {
     const target = path.join(pkg, 'assets/raster', member),
       original = await fs.readFile(target);
@@ -233,6 +247,16 @@ test('installed raster command needs only explicit input and its pinned static s
   );
   await assert.rejects(fs.stat(path.join(dir, 'bad.png')), { code: 'ENOENT' });
   await fs.writeFile(noticePath, noticeBytes);
+  const observedPath = path.join(pkg, observedNoticePath);
+  await fs.unlink(observedPath);
+  const missingObservedNotice = invoke();
+  assert.equal(missingObservedNotice.status, 1);
+  assert.equal(
+    JSON.parse(missingObservedNotice.stdout).error.code,
+    'raster_supply_invalid',
+  );
+  await assert.rejects(fs.stat(path.join(dir, 'bad.png')), { code: 'ENOENT' });
+  await fs.writeFile(observedPath, observedNotice);
   // A test-only installed worker observes the actual child-process invocation.
   // It does not stand in for the real raster tests above or qualify any artifact.
   const worker = path.join(pkg, 'src/static/worker.mjs');

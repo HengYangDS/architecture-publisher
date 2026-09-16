@@ -110,6 +110,12 @@
       "source": "Published pathfinder_content 0.5.0 source header with bounded source-comparison provenance",
       "bytes": 907,
       "sha256": "d1be8819c065bafe5f7e63bada5acae388a664a4e9eccf9d13b1d61d2342f69f"
+    },
+    {
+      "path": "resvg/THIRD-PARTY-NOTICES.txt",
+      "source": "Deduplicated exact notices from 37 checksum-verified observed crate archives and two fixed Git dependency trees; Pathfinder remains separately supplied. Bounded coverage, not complete release provenance.",
+      "bytes": 148637,
+      "sha256": "ac5bee9d9f24349a750932188ae2c4e12e94cfbc28620c46f8dc11fe6756871b"
     }
   ]
 }
