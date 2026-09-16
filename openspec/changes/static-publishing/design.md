@@ -208,6 +208,18 @@ compiler/target identity, generated-binding tool identity and source notices.
 The accepted build inputs must be selected explicitly; do not depend on the
 builder's global Cargo state or resolve a dependency branch at build time.
 
+The September 16, 2026 read-only audit of the official `resvg-js` tag `v2.6.2`
+at `9ca058462ac529120c8cc84ddcd6fef644cc5406` confirms the precise remaining
+gap. The committed ESM wrapper, package metadata and MPL license match the
+distributed files byte-for-byte, but the committed WASM does not. That tag has
+no Cargo.lock; its CI requests the latest wasm-pack, does not pin the wasm Rust
+toolchain, and follows the `woff2-rs/fix-total-compressed-size` branch. The
+declared release inputs therefore cannot reproduce the distributed WASM
+identity. Existing bounded source and notice reconstruction cannot be promoted
+to a complete release build graph, and binary strings remain diagnostic only.
+Task 1.2 stays open until authoritative exact build inputs reproduce the current
+WASM or a source-closed replacement passes the existing worker contract.
+
 The native resvg 0.48.1 experiment has a complete selected source archive and
 successful offline macOS/Linux builds. Its seven selected PNG outputs match
 across those two platforms. That result justifies testing a source-closed

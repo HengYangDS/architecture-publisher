@@ -13,5 +13,5 @@
 
 ## 3. Acceptance and preservation
 
-- [ ] 3.1 Publish scoped reconstruction evidence; verify downloaded artifacts and observations match their selected identities without transferring acceptance to changed pixels.
+- [x] 3.1 Publish scoped reconstruction evidence; verify downloaded artifacts and observations match their selected identities without transferring acceptance to changed pixels.
 - [ ] 3.2 Complete native proof, accepted integration, publication and remote recovery; verify exact refs, reachable objects and restored files while preserving originals and foreign work.
