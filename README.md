@@ -147,8 +147,8 @@ meaning, browser behavior, actual text paint or visual approval. Rendering and
 installed-package tests are not runtime browser qualification.
 
 The original backend qualification used macOS Node 26.8.2 and isolated Linux
-Node 24.19.0. Both installed packages rendered and updated the two included
-examples with empty HOME/PATH. Each example's repeated HTML was deterministic
+Node 24.19.0. Both installed packages rendered the two included examples and
+title-only variants with empty HOME/PATH. Each example's repeated HTML was deterministic
 and byte-identical across those two environments. This limited observation does
 not establish all-input, all-platform or browser-rendering parity.
 
@@ -156,6 +156,9 @@ Both examples also include independently authored static SVG views. The guide
 in `examples/README.md` explains explicit font inputs, source/view editing,
 installed PNG/HTML rendering, local bundles and relocated replay. This is a
 bounded pair of examples, not a generic semantic compiler or browser approval.
+The retained update test appends a title suffix and edits matching SVG title
+text. It does not test node/relationship changes, automatic cross-media updates
+or regenerated layout; those remain explicit acceptance gaps.
 
 ## Source-bound ETHOS atlas
 

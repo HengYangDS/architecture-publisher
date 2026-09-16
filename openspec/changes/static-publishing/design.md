@@ -261,8 +261,22 @@ supply evidence, not another progress or approval store.
    transfer browser or visual acceptance to changed artifacts.
 
 A renderer migration is not a prerequisite for rereading or installing the
-already frozen accepted artwork. Current paired delivery is separately blocked
-by required browser observations and supported Git integration recovery. Keep
-those dependencies explicit: never manufacture browser evidence or use the raw
-file installer to evade the qualified publisher. A full generic graphics
-platform remains outside Workline A.
+already frozen accepted artwork. Exact-artifact browser observations, qualified
+paired installation, source integration and remote recovery have their own
+evidence and execution owner. Do not repeat completed delivery work to qualify a
+new renderer, manufacture browser evidence or use the raw file installer to evade
+the qualified publisher. A full generic graphics platform remains outside
+Workline A.
+
+### Meaningful example-update acceptance
+
+The current two-example journey changes titles and matching static text only.
+Keep that regression, but do not count it as semantic-update acceptance. Task 2.3
+still requires installed journeys that add/remove an entity or relationship and
+change a branch condition, with explicit input/view changes and no generic code
+or generated-output edits. Validate every retained and changed directed relation,
+its conditions, actual text geometry and both media from the selected inputs.
+Unsupported semantics must identify a gap and preserve the prior edition.
+The present separately authored JSON/SVG examples are portability checks, not an
+automatic shared-semantic compiler; neither a title update nor byte determinism
+can close that boundary.

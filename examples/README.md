@@ -53,9 +53,15 @@ the selected fonts is not a qualified visual reproduction.
 
 `node --test tests/example-journeys.test.mjs` builds and installs the archive,
 removes the installed ETHOS edition and input adapter, uses an empty HOME/PATH
-and paths containing spaces, then exercises both examples and content updates.
+and paths containing spaces, then exercises both examples and title-only updates.
 It checks native HTML validation, source-bound labels/relations, repeated
 determinism, local bundles and relocated re-rendering through installed commands.
+
+The update loop appends ` / reviewed` to the title and replaces matching static
+title text. This is a narrow input-change check, not a semantic evolution journey.
+It does not insert/remove entities, change directed relationships or conditions,
+increase topology density, or derive static SVG from JSON. Those cases must be
+demonstrated separately before claiming reusable architecture regeneration.
 
 The static check reads actual ASCII glyph outlines/advances from the selected
 font files and feeds the shared scene auditor. Example-specific minima are
