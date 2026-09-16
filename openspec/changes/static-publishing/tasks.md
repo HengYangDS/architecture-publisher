@@ -9,7 +9,7 @@
 
 - [x] 2.1 Migrate authored composition and geometry with provenance; verify installed reconstruction preserves all 180 labels and the selected SVG, and mutations fail the retained checks.
 - [x] 2.2 Implement explicit fresh measurement adapters; verify the complete recompiled scene and original-toolchain artifacts match the selected accepted identities.
-- [ ] 2.3 Qualify portable static rendering and both non-ETHOS example journeys; verify complete static and interactive outputs without implicit host fonts or checkout dependencies.
+- [x] 2.3 Qualify portable static rendering and both non-ETHOS example journeys; verify complete static and interactive outputs without implicit host fonts or checkout dependencies.
 
 ## 3. Acceptance and preservation
 
