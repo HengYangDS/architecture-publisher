@@ -16,7 +16,7 @@ session are required for the installed verification commands. Explicit source
 import has the separate tool and trust requirements below.
 
 ```sh
-npm ci --offline --ignore-scripts
+npm ci --ignore-scripts
 npm test
 npm run check
 npm pack --ignore-scripts --pack-destination build
@@ -257,9 +257,10 @@ artifact/source/quality identity and byte-bound screenshots/exports. Evidence
 paths are bundle-relative; explicit synthetic evidence, stale reports, missing
 beats and reused output files are rejected. These checks do not authenticate
 execution: an allowed actual browser run and checker identity remain required
-before the final publisher may consume observations. The browser runner and
-qualified publisher migration are still incomplete; a passing input test is not
-browser acceptance.
+before the final publisher may consume observations. The selected frozen edition
+has completed real browser observation and qualified installation. The installed
+CLI consumes those explicit observations; it is not itself a browser runner, and
+a passing input test is not browser acceptance for a new edition.
 
 ## Qualified paired publication
 
@@ -268,7 +269,8 @@ atlas, retained review, static evidence and browser-report consumers. The input
 contains `review`, `staticArtifact`, `browser` (checker and reports) and
 `deployment` (two target directories and a recovery directory). Relative input
 paths resolve against that file. Missing current browser reports fail before
-writing either target. The actual browser runner remains pending.
+writing either target. Actual browser execution remains an external, explicit
+qualification step, not an implicit effect of planning.
 
 The generic two-target installer is migrated from the existing file engine,
 not implemented a second time. Its version-two file plan uses explicit
@@ -405,8 +407,9 @@ ETHOS edition.
 references Avenir Next and Georgia without embedding them. A viewer still needs
 appropriate fonts for matching appearance. The command explicitly reports
 `measurement: recorded`, not fresh measurement, and produces no PNG. The original
-6000-pixel PNG remains the accepted raster deliverable. Portable raster
-qualification and recoverable paired installation remain open.
+6000-pixel PNG remains the accepted raster deliverable. Its qualified paired
+installation and recovery are implemented; that does not qualify the changed
+pixels produced by a portable rasterizer.
 
 The installed poster entry reproduced all 180 labels and the exact selected SVG
 on macOS Node 26.8.2 and isolated Linux Node 24.19.0; both 175-test suites passed.
@@ -449,6 +452,17 @@ trusted installed toolchain with the matching native dependencies. This adapter
 does not promise outline generation on every host; consuming a qualified
 font-free outline is separate from regenerating it using the original fonts.
 Pixel, semantic and owner acceptance remain separate publication prerequisites.
+
+The current installed package reconstructs the complete recorded-metric SVG and
+all 180 label records, matches them to the selected outline's source, then renders
+that outline at widths 1600, 2400 and 6000 on macOS and isolated Linux. Each PNG
+is byte-identical across those executions and to the previously observed portable
+output. Linux has no network, host mounts, original fonts or original checkout;
+the raster journey also removes interactive and ETHOS modules from its disposable
+installation. Occupied outputs and incorrect input identities are rejected.
+This proves portable consumption of that exact outline, not portable creation of
+a new outline, actual outlined-glyph geometry acceptance, or permission to replace
+the original raster. The source metric/SVG checks do not validate every new pixel.
 
 ### Explicit fresh measurement on macOS
 
