@@ -49,11 +49,18 @@ func measure(_ input: Input) throws -> [Observation] {
             let name = CTFontCopyPostScriptName(actual) as String
             guard let url = CTFontCopyAttribute(actual, kCTFontURLAttribute) as? URL else { throw MeasureError.font }
             let file = url.resolvingSymlinksInPath().standardizedFileURL.path
-            guard let id = allowed.first(where: { selections[$0]?.postscript == name && selections[$0]?.path == file }) else { throw MeasureError.font }
+            guard let id = allowed.first(where: {
+                guard let candidate = selections[$0] else { return false }
+                let selectedPath = URL(fileURLWithPath: candidate.path)
+                    .resolvingSymlinksInPath().standardizedFileURL.path
+                return candidate.postscript == name && selectedPath == file
+            }) else { throw MeasureError.font }
             var glyphs = [CGGlyph](repeating: 0, count: CTRunGetGlyphCount(run))
             CTRunGetGlyphs(run, CFRange(location: 0, length: 0), &glyphs)
             if glyphs.contains(0) { throw MeasureError.glyph }
-            if seen.insert(id).inserted { used.append(UsedFont(id: id, path: file, postscript: name)) }
+            if seen.insert(id).inserted {
+                used.append(UsedFont(id: id, path: selections[id]!.path, postscript: name))
+            }
         }
         if used.isEmpty { throw MeasureError.glyph }
         var ascent: CGFloat = 0, descent: CGFloat = 0, leading: CGFloat = 0

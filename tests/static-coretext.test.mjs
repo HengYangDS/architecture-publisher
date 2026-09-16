@@ -137,6 +137,27 @@ test(
   },
 );
 test(
+  'CoreText accepts the selected font through the macOS private tmp path alias',
+  { skip: process.platform !== 'darwin' },
+  async (t) => {
+    const measure = await api(),
+      f = await setup(t),
+      aliasRoot = await fs.mkdtemp('/private/tmp/architecture-coretext-alias-');
+    t.after(() => fs.rm(aliasRoot, { recursive: true, force: true }));
+    const font = path.join(aliasRoot, 'selected.ttf');
+    await fs.copyFile(f.plan.fonts[0].path, font);
+    const plan = structuredClone(f.plan);
+    plan.fonts[0].path = font;
+    plan.fonts[0].sha256 = sha(await fs.readFile(font));
+    plan.output = path.join(aliasRoot, 'metrics');
+
+    const result = await measure(plan);
+
+    assert.equal(result.status, 'measured');
+    assert.equal(result.observations[0].fonts[0].path, font);
+  },
+);
+test(
   'CoreText rejects font drift, identity substitution and undeclared fallback before publication',
   { skip: process.platform !== 'darwin' },
   async (t) => {
