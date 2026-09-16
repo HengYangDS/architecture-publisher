@@ -474,16 +474,62 @@ and installs exact artifacts with recoverable effects. Source adapters, project
 meaning, geometry, reader behavior, observation and publication stay separate.
 
 The generic backend renders typed diagrams; the ETHOS edition reproduces the
-selected thirteen-page atlas. Portable static-poster reconstruction, browser
-qualification, full-product platform parity and qualified paired installation remain
-unfinished. The edition implementation has been accepted and published on `dev`;
-this is not a completed product release or a claim of final browser acceptance.
+selected thirteen-page atlas and original static composition. Current-artifact
+qualification and recoverable paired installation are implemented; their
+acceptance applies only to the selected source, artifact, observation and
+installation identities. It does not qualify arbitrary future artwork.
+Transitive raster supply closure, portable static appearance, full-product
+platform parity and final source-release closure remain separate obligations.
 
 This repository is a new implementation baseline. Original architecture
 repositories and their histories remain preserved, not merged or rewritten.
-The project-level decision remains in the original Archify repository's
-`docs/architecture-product-design.md` at `771572cf9fe27c6c2bab8005ac96177bbace7c98`.
-This avoids copying a second design authority during migration.
+The project-level decision remains in the retained Archify repository's
+`docs/architecture-product-design.md`. This is a migration design reference,
+not an installed runtime dependency or another mutable source of product meaning.
+
+### Architecture evolution
+
+The target is reusable publication, not permanent replay of a frozen drawing.
+A source change must explicitly select new source bytes, identify changed
+entities, relationships and obligations, and produce a new authored edition.
+Source meaning remains with its source owner; each medium owns its expression.
+Static and interactive outputs share semantic identity, not layout coordinates.
+
+The current ETHOS reader is intentionally bound to an accepted edition and exact
+artifact hashes. It must reject an unqualified candidate instead of calling it
+an automatic update. New-candidate compilation, semantic coverage comparison and
+dependency-scoped evidence invalidation remain planned work. Renaming example
+titles does not establish semantic evolution or low-cost adaptation.
+
+Installation replay is also distinct from edition replacement. A stored plan can
+resume its own operation; a new plan currently rejects occupied managed payload
+paths. Safe upgrades must bind prior ownership and exact preimages, preserve
+unknown or modified files, qualify new outputs and recover interrupted switches.
+Disabling collision checks is not an upgrade implementation.
+
+### Publication and storage
+
+| Role | Durable content | Boundary |
+| --- | --- | --- |
+| Source | Code, small authored inputs, specifications and locks in Git | No generated media, browser runs or runtime snapshots |
+| Reader release | Selected standalone HTML, high-resolution PNG and checksums | A release links immutable reader assets; package upload alone is not a release |
+| Qualification | Evidence consumed by the selected edition and its acceptance | Bind subjects and scope; reuse unchanged inputs instead of copying every run |
+| Recovery | Current source and necessary publication inputs | Prove restoration before retiring their only remote copy |
+| Local history | Preserved predecessor repositories and historical recovery material | Not a permanent dependency of the successor's remote registry |
+| Disposable work | Caches, extraction trees, diagnostics and unselected trials | Stay local; no package per step or copied execution diary |
+
+Before deleting a package, enumerate its exact files and consumers, verify the
+replacement or local-only custody required by its role, update active locators
+and recheck retained assets. Observe both removal and refreshed storage accounting.
+Age, size, a duplicate hash or a successful source push alone is insufficient.
+Do not move bulk to another project or LFS merely to hide registry growth.
+Necessary qualification inputs are not reader payload, and excluding them from
+delivery does not authorize deleting their recovery copy.
+
+These are lifecycle rules for this repository's existing publication process,
+not a new registry service, autonomous deletion engine or parallel evidence store.
+The existing OpenSpec Changes retain execution state; package descriptions and
+historical reports must not become competing completion ledgers.
 
 ## Development
 
@@ -492,6 +538,12 @@ Use the current repository-local runtime, an owned Work Lane, official OpenSpec
 Change and passing prewrite for the exact paths. `.ethos` and `openspec` are
 engineering inputs, excluded from the installed package. Runtime users do not
 install or invoke them.
+
+Create publication-bound commits with the configured signing identity and verify
+the exact object before native publication. A configured public key, successful
+merge, local proof or accepted branch is not evidence of a commit signature.
+Repository commit policy and publication admission are distinct checks. Do not
+rewrite historical commits or weaken trust to conceal a failed check.
 
 `openspec/specs/source-intake/spec.md` owns the accepted file-envelope behavior.
 The `ethos-input` capability owns the ETHOS boundary. The completed

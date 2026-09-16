@@ -93,3 +93,33 @@ explicit relocated inputs and no original checkout. Missing, synthetic or stale
 browser evidence must reject before installation. Qualified publication needs
 actual current runtime observations plus original-target installation, payload
 hashes, preserved files and recoverable interruption evidence.
+
+### Reader payload and evidence retention
+
+The file plan installs only reader-facing static HTML/SVG/PNG and the atlas's
+complete HTML/license payload. Qualification manifests, source construction
+records, screenshots and exports remain effect-time dependencies, but are not
+copied into Documents or reader packages. The installed manifest describes the
+actual payload rather than advertising excluded input members.
+
+The remote reader package contains the selected standalone HTML, high-resolution
+PNG and checksums. Source refs, qualified-release metadata and recovery inputs
+have separate acceptance duties. Routine diagnostic iterations are local work,
+not new remote packages. Retiring intermediate packages requires exact retained
+dependencies and restoration evidence; the predecessor histories remain local
+by the owner's decision. No new archive project or storage service is introduced.
+
+### Evolution boundary
+
+Frozen-edition replay does not implement semantic updates. Future work must
+compile changed source entities, relations and obligations into an explicitly
+selected candidate edition, then invalidate only evidence whose subjects changed.
+It must preserve unchanged acceptance identities without transferring approval
+to changed HTML or pixels. Title-only examples do not prove this capability.
+
+First installation and stored-plan replay do not implement safe edition upgrade.
+A replacement must bind the previous managed receipt and file preimages,
+preserve unknown or locally modified content and reuse interruption recovery.
+The current collision rejection remains intact until that contract is implemented
+and tested. These future capabilities are not claimed by this Change's delivery
+closure and do not justify redesigning already accepted artwork.
