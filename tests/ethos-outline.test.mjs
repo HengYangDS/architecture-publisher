@@ -54,8 +54,11 @@ async function setup(t) {
   }
   const render = await executable(
     renderer,
-    `const fs=require('node:fs');
-const input=fs.readFileSync(0,'utf8');if(!input.includes('data-source-commit'))process.exit(3);
+    // The UTF-8 fd fast path stalled on the measured 73,525-byte socket input.
+    // Read bytes and bind the complete input, not only a marker string.
+    `const fs=require('node:fs'),crypto=require('node:crypto');
+const input=fs.readFileSync(0);
+if(crypto.createHash('sha256').update(input).digest('hex')!=='87594199a5b3182860d6ed1a16b446082a2862cc52b8ed8c1731111f3e600bfa')process.exit(3);
 fs.writeSync(1,process.argv.includes('svg')?${JSON.stringify(shape)}:Buffer.from(${JSON.stringify(png.toString('base64'))},'base64'));`,
   );
   const list = await executable(
@@ -91,6 +94,20 @@ fs.writeSync(1,process.argv.includes('svg')?${JSON.stringify(shape)}:Buffer.from
     },
   };
 }
+test('outline protocol fixture rejects incomplete input rather than accepting a marker', async (t) => {
+  const f = await setup(t);
+  for (const input of [Buffer.from('data-source-commit'), Buffer.alloc(0)]) {
+    const result = spawnSync(f.plan.renderer.path, ['--width', '1600'], {
+      input,
+      cwd: f.dir,
+      env: { HOME: f.dir, PATH: f.dir },
+      timeout: 30000,
+    });
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 3);
+    assert.equal(result.stdout.length, 0);
+  }
+});
 test('outline protocol retains source, text and observations without claiming visual acceptance', async (t) => {
   const outline = await api(),
     f = await setup(t);
