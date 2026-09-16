@@ -348,14 +348,18 @@ to the plan file, not the caller's current directory:
 
 `svg` and font paths are members of that verified bundle. Supply every selected
 font's bytes with permission to use them; a shape-only SVG uses `"fonts": []`.
-The installed command uses pinned resvg WASM, SAX and OpenType components, not
-system fonts, a browser, an ETHOS checkout or the interactive rendering modules.
-Their exact inventories and notices are under `assets/raster/`; OpenType's
-bundled tiny-inflate notice is retained separately. The identified
-`pathfinder_content` source headers and unchanged dual-license texts are retained
-under `assets/raster/resvg/pathfinder/`; its notice states the exact comparison
-scope and unavailable recorded revision. The broader transitive WASM
-license/source inventory audit remains open before release.
+The installed command uses a repository-owned narrow binding over resvg 0.48.1,
+plus pinned SAX and OpenType components. It uses no system fonts, browser, ETHOS
+checkout or interactive rendering modules. `assets/raster/resvg/source.json`
+binds the exact Rust source archive, Cargo lock, stable toolchain, build recipe
+and generated JavaScript/WASM identities. `tools/raster/resvg/build.sh` rebuilds
+the selected archive offline and fails unless its digest, tracked binding inputs
+and generated outputs all match. The 61 locked third-party Rust packages and
+their required license texts are enumerated in
+`assets/raster/resvg/THIRD-PARTY-NOTICES.txt`; OpenType's bundled tiny-inflate
+notice remains separate. The source archive is retained as the private GitLab
+generic package `architecture-raster-resvg-source/0.48.1-76f1a4a8e1d2`, not as
+bulk Git history.
 
 The input profile accepts declarative shapes, paths, gradients, clipping,
 markers, internal references and font-bound text. It rejects scripts, event
@@ -396,11 +400,14 @@ This entry rasterizes an authored SVG. Source-bound composition and explicit
 legacy measurement use the separate entries below. Portable appearance of the
 entire ETHOS poster remains unqualified. The original artwork is not replaced.
 
-The installed raster command and negative cases ran on macOS Node 26.8.2 and
-isolated Linux Node 24.19.0. Both complete 165-test suites and syntax checks
-passed. Linux had no network or host mounts; the installed static test removed
-interactive/ETHOS modules from its disposable copy and used empty HOME/PATH.
-These observations qualify those tested cases, not every SVG or platform.
+The source-closed replacement passed all 415 executed macOS tests, with nine
+evidence-dependent tests intentionally skipped, plus syntax checks on Node
+26.8.2. Two clean absolute-path offline builds reproduced
+identical JavaScript/WASM bytes. A package restored from GitLab reproduced those
+same bytes, and an installed package ran twice byte-identically and rejected
+supply tampering in an isolated Linux Node 24.19.0 container with no network, a
+read-only root filesystem and all Linux capabilities dropped. These observations
+qualify only their tested cases, not every SVG or platform.
 
 ## Selected static-poster reconstruction
 

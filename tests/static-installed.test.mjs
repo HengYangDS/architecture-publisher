@@ -38,22 +38,14 @@ test('installed raster command needs only explicit input and its pinned static s
     pack.files.some((f) => f.path === observedNoticePath),
     'installed renderer must retain the verified observed-source notices',
   );
-  const pathfinderNotices = [
-    [
-      'LICENSE-MIT',
-      '0621878e61f0d0fda054bcbe02df75192c28bde1ecc8289cbd86aeba2dd72720',
-    ],
-    [
-      'LICENSE-APACHE',
-      'a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2',
-    ],
-  ];
-  for (const name of [...pathfinderNotices.map(([name]) => name), 'NOTICE'])
+  for (const name of [
+    'assets/raster/resvg/source.json',
+    'assets/raster/resvg/LICENSE-MIT',
+    'assets/raster/resvg/LICENSE-APACHE',
+  ])
     assert(
-      pack.files.some(
-        (f) => f.path === 'assets/raster/resvg/pathfinder/' + name,
-      ),
-      'installed package must retain the Pathfinder notice: ' + name,
+      pack.files.some((f) => f.path === name),
+      'installed renderer must retain source closure evidence: ' + name,
     );
   const consumer = path.join(dir, 'consumer'),
     home = path.join(dir, 'empty home');
@@ -74,28 +66,23 @@ test('installed raster command needs only explicit input and its pinned static s
     consumer,
   );
   const pkg = path.join(consumer, 'node_modules/architecture-publishing');
-  const observedNotice = await fs.readFile(path.join(pkg, observedNoticePath));
+  const rendererSource = JSON.parse(
+    await fs.readFile(path.join(pkg, 'assets/raster/resvg/source.json'), 'utf8'),
+  );
+  assert.equal(rendererSource.source.version, '0.48.1');
+  assert.equal(rendererSource.toolchain.rust, '1.98.1');
+  assert.equal(rendererSource.toolchain.wasmBindgen, '0.2.128');
   assert.equal(
-    hash(observedNotice),
-    'ac5bee9d9f24349a750932188ae2c4e12e94cfbc28620c46f8dc11fe6756871b',
+    rendererSource.source.archiveSha256,
+    '76f1a4a8e1d2baf726a3b4c5badc2bef32427428c131275a655b4b82aceadd1a',
   );
-  assert.match(observedNotice.toString(), /not a complete\nSBOM/);
-  assert.match(observedNotice.toString(), /Complete release dependency resolution/);
-  assert.match(observedNotice.toString(), /pathfinder\/LICENSE-APACHE/);
-  for (const [name, expected] of pathfinderNotices)
-    assert.equal(
-      hash(
-        await fs.readFile(path.join(pkg, 'assets/raster/resvg/pathfinder', name)),
-      ),
-      expected,
-    );
-  assert.match(
-    await fs.readFile(
-      path.join(pkg, 'assets/raster/resvg/pathfinder/NOTICE'),
-      'utf8',
-    ),
-    /Copyright © 2019 The Pathfinder Project Developers\./,
+  const observedNotice = await fs.readFile(
+    path.join(pkg, observedNoticePath),
+    'utf8',
   );
+  assert.match(observedNotice, /Resolved Rust packages:/);
+  assert.match(observedNotice, /resvg 0\.48\.1/);
+  assert.match(observedNotice, /wasm-bindgen 0\.2\.128/);
   // This disposable installed copy deliberately lacks the interactive and ETHOS code.
   // Static execution must never load those independent capability owners.
   for (const name of [
@@ -218,9 +205,9 @@ test('installed raster command needs only explicit input and its pinned static s
     'resvg/index_bg.wasm',
     'sax/sax.cjs',
     'opentype/opentype.mjs',
-    'resvg/pathfinder/LICENSE-MIT',
-    'resvg/pathfinder/LICENSE-APACHE',
-    'resvg/pathfinder/NOTICE',
+    'resvg/source.json',
+    'resvg/LICENSE-MIT',
+    'resvg/LICENSE-APACHE',
     'resvg/THIRD-PARTY-NOTICES.txt',
   ]) {
     const target = path.join(pkg, 'assets/raster', member),
@@ -236,17 +223,17 @@ test('installed raster command needs only explicit input and its pinned static s
     });
     await fs.writeFile(target, original);
   }
-  const noticePath = path.join(pkg, 'assets/raster/resvg/pathfinder/NOTICE'),
-    noticeBytes = await fs.readFile(noticePath);
-  await fs.unlink(noticePath);
-  const missingNotice = invoke();
-  assert.equal(missingNotice.status, 1);
+  const sourcePath = path.join(pkg, 'assets/raster/resvg/source.json'),
+    sourceBytes = await fs.readFile(sourcePath);
+  await fs.unlink(sourcePath);
+  const missingSource = invoke();
+  assert.equal(missingSource.status, 1);
   assert.equal(
-    JSON.parse(missingNotice.stdout).error.code,
+    JSON.parse(missingSource.stdout).error.code,
     'raster_supply_invalid',
   );
   await assert.rejects(fs.stat(path.join(dir, 'bad.png')), { code: 'ENOENT' });
-  await fs.writeFile(noticePath, noticeBytes);
+  await fs.writeFile(sourcePath, sourceBytes);
   const observedPath = path.join(pkg, observedNoticePath);
   await fs.unlink(observedPath);
   const missingObservedNotice = invoke();

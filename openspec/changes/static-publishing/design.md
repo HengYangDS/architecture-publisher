@@ -189,14 +189,15 @@ admission does not implement the whole CSS cascade: relative weights and CSS
 inheritance keywords without resolved explicit selections are rejected. These
 limits must not be promoted into claims of general SVG or visual equivalence.
 
-## Proposed source-closed renderer replacement
+## Source-closed renderer replacement
 
-Disposition: design recommendation for approval, not implemented or accepted.
-Task 1.2 remains open. Preserve the installed renderer, original accepted
-artwork and historical observations until the replacement passes its own
-acceptance. Packages 180 and 181 in the existing private evidence projection
-record the bounded native feasibility experiments; they are not build inputs
-or normative authorities for this proposal.
+Disposition: implemented candidate, not yet accepted or released. Preserve the
+original accepted artwork and historical observations; the renderer change does
+not transfer visual approval to newly rendered pixels. Packages 180 and 181 are
+superseded feasibility experiments, not build inputs or normative authorities.
+The selected source closure is private generic package
+`architecture-raster-resvg-source/0.48.1-76f1a4a8e1d2`; its archive SHA-256 is
+`76f1a4a8e1d2baf726a3b4c5badc2bef32427428c131275a655b4b82aceadd1a`.
 
 ### Decision and rejected alternatives
 
@@ -217,14 +218,22 @@ toolchain, and follows the `woff2-rs/fix-total-compressed-size` branch. The
 declared release inputs therefore cannot reproduce the distributed WASM
 identity. Existing bounded source and notice reconstruction cannot be promoted
 to a complete release build graph, and binary strings remain diagnostic only.
-Task 1.2 stays open until authoritative exact build inputs reproduce the current
-WASM or a source-closed replacement passes the existing worker contract.
+The old WASM is therefore rejected as the continuing renderer. The replacement
+uses resvg 0.48.1, Rust 1.98.1, target `wasm32-unknown-unknown` and wasm-bindgen
+0.2.128 with a committed Cargo.lock and thin binding. Its deterministic archive
+has canonical ownership and timestamps, contains the complete vendored Cargo
+closure, and rebuilds offline with `--frozen` and a physical-root path remap.
+Two clean absolute paths produced identical JavaScript and WASM bytes, and a
+fresh download of the content-addressed source package reproduced the tracked
+outputs byte-for-byte.
 
-The native resvg 0.48.1 experiment has a complete selected source archive and
-successful offline macOS/Linux builds. Its seven selected PNG outputs match
-across those two platforms. That result justifies testing a source-closed
-replacement; it does not establish a WASM build, the old binary's provenance,
-all-input parity, publication qualification or approval of new artwork.
+The earlier native resvg 0.48.1 experiment has successful offline macOS/Linux
+builds and seven matching selected PNG outputs. The replacement adds the missing
+WASM build closure and passes the existing public worker contract on macOS. A
+packed installation also renders twice byte-identically and rejects supply drift
+inside a networkless, read-only-root Linux Node 24.19.0 container with all Linux
+capabilities dropped. No claim of universal SVG parity, publication
+qualification or new artwork approval follows from these results.
 
 | Alternative | Retained value | Reason not selected |
 | --- | --- | --- |
@@ -269,8 +278,10 @@ supply evidence, not another progress or approval store.
 
 1. In the existing static work lane, prove one offline locked WASM build and
    exact import/export contract. Review the small binding and all selected
-   dependency sources/notices. Keep its experimental bytes outside the shipped
-   assets. No passing native build substitutes for this step.
+   dependency sources/notices. The completed candidate has three generated glue
+   imports and no filesystem, network or process imports; every Cargo.lock
+   package has retained license text. No passing native build substitutes for
+   this step.
 2. Reuse the current public raster fixtures and rejecting tests against a
    disposable installed candidate: explicit fonts and instance inheritance,
    invalid/external SVG, bad supply, dimensions/memory/time/output bounds,
@@ -280,10 +291,10 @@ supply evidence, not another progress or approval store.
    both non-ETHOS journeys, including updates, under installed macOS and isolated
    Linux execution. Compare decoded RGBA, color metadata and package identities;
    do not invent a tolerance or infer universal equivalence from seven outputs.
-4. After design approval and candidate acceptance, replace the incumbent at
-   the existing worker/supply owners, remove its active assets and superseded
-   notices, update precise documentation and run the native gates. Preserve
-   previous source refs, evidence and the human-accepted originals. Do not
+4. The work-lane candidate replaces the incumbent only at the existing
+   worker/supply owners, removes its active renderer-specific assets, and keeps
+   the human-accepted originals unchanged. Accepted integration still requires
+   the remaining platform, proof, publication and recovery gates. Do not
    transfer browser or visual acceptance to changed artifacts.
 
 A renderer migration is not a prerequisite for rereading or installing the

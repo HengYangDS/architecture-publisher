@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { initWasm, Resvg } from '../../assets/raster/resvg/index.mjs';
+import * as resvg from '../../assets/raster/resvg/index.mjs';
 import { validateSvg } from './svg.mjs';
 
 try {
@@ -10,37 +10,23 @@ try {
     bytes: Buffer.from(f.bytes, 'base64'),
   }));
   const checked = validateSvg(input, fonts, request.width);
-  await initWasm(
+  const module = new WebAssembly.Module(
     fs.readFileSync(
       new URL('../../assets/raster/resvg/index_bg.wasm', import.meta.url),
     ),
   );
-  const renderer = new Resvg(input, {
-    fitTo: { mode: 'width', value: request.width },
-    font: { fontBuffers: fonts.map((f) => f.bytes) },
-  });
+  const instance = new WebAssembly.Instance(module, { './index_bg.js': resvg });
+  resvg.__wbg_set_wasm(instance.exports);
+  instance.exports.__wbindgen_start();
+  const renderer = new resvg.Renderer();
+  for (const font of fonts) renderer.addFont(font.bytes);
   try {
-    if (renderer.imagesToResolve().length)
-      throw Object.assign(new Error(), { code: 'raster_external_resource' });
-    const rendered = renderer.render();
-    try {
-      if (
-        rendered.width !== checked.width ||
-        rendered.height !== checked.height
-      )
-        throw Object.assign(new Error(), {
-          code: 'raster_dimensions_mismatch',
-        });
-      process.stdout.write(
-        JSON.stringify({
-          status: 'rendered',
-          ...checked,
-          png: Buffer.from(rendered.asPng()).toString('base64'),
-        }),
-      );
-    } finally {
-      rendered.free();
-    }
+    const png = Buffer.from(renderer.render(input, request.width));
+    if (png.readUInt32BE(16) !== checked.width || png.readUInt32BE(20) !== checked.height)
+      throw Object.assign(new Error(), { code: 'raster_dimensions_mismatch' });
+    process.stdout.write(
+      JSON.stringify({ status: 'rendered', ...checked, png: png.toString('base64') }),
+    );
   } finally {
     renderer.free();
   }
