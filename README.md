@@ -276,11 +276,15 @@ execution and must never be generated from a passing parser alone.
 `architecture publish ethos recover <plan.json> <acceptance.json>` uses the
 persisted file plan without needing changed source inputs to pass again.
 
-Static files retain their original relative paths under `terminal/`; the atlas
-retains its output layout under `atlas/`. Supporting review/browser records live
-beside the atlas under `evidence/`, not inside its closed output manifest.
-Qualified positive installation is not yet claimed: current browser evidence is
-still missing. File-effect tests alone do not qualify publication.
+Reader-facing static HTML, SVG and PNG files retain their original relative paths
+under `terminal/`; the atlas retains its complete output layout and license files
+under `atlas/`. Static construction records, authored source, review records and
+browser screenshots/exports are qualification inputs, not installed reader payload.
+All selected manifests and members remain exact effect-time dependencies. Their
+exclusion from the delivery directory does not weaken qualification or allow stale
+evidence. The delivery manifest records installed file identities; do not copy a
+full static input manifest into a directory containing only its reader subset.
+File-effect tests alone do not qualify semantic, visual or browser acceptance.
 
 ## Offline SVG rasterization
 

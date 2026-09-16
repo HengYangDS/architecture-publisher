@@ -106,7 +106,13 @@ export async function planEthosPublication(input, replayPrestates) {
   );
   const staticRoot = path.dirname(input.staticArtifact.manifestPath);
   await bundle(input.staticArtifact.manifestPath, input.staticArtifact.sha256);
+  const staticReaderFiles = new Set([
+    'native/terminal.html',
+    'native/terminal.svg',
+    ...[1600, 2400, 6000].map((width) => `native/terminal-${width}.png`),
+  ]);
   for (const member of staticArtifact.members) {
+    if (!staticReaderFiles.has(member.path)) continue;
     const target = 'terminal/' + member.path;
     await add(
       'native',
@@ -115,12 +121,6 @@ export async function planEthosPublication(input, replayPrestates) {
       member.sha256,
     );
   }
-  await add(
-    'native',
-    input.staticArtifact.manifestPath,
-    'terminal/manifest.json',
-    input.staticArtifact.sha256,
-  );
   await bundle(
     input.review.atlas.sourceManifest,
     input.review.atlas.sourceSha256,
@@ -129,39 +129,15 @@ export async function planEthosPublication(input, replayPrestates) {
     input.review.atlas.editionManifest,
     input.review.atlas.editionSha256,
   );
-  const reviewFiles = new Set([
-    input.review.history.review,
-    input.review.history.reviewApplicability,
-    input.review.history.ownerVisualAcceptance,
-    input.review.history.priorReview,
-    input.review.history.priorReviewApplicability,
-    ...input.review.editorial.flatMap((e) => e.basis.map((b) => b.path)),
-  ]);
-  for (const item of input.review.evidenceBundles) {
-    const selected = await bundle(item.manifestPath, item.sha256);
-    for (const member of selected.members)
-      if (reviewFiles.has(member.path))
-        await add(
-          'atlas',
-          path.join(path.dirname(item.manifestPath), member.path),
-          'evidence/review/' + member.path,
-          member.sha256,
-        );
-  }
+  // Qualification remains bound at effect time, but is not reader content.
+  for (const item of input.review.evidenceBundles)
+    await bundle(item.manifestPath, item.sha256);
   await bundle(
     input.browser.checker.manifestPath,
     input.browser.checker.sha256,
   );
-  for (const item of input.browser.reports) {
-    const selected = await bundle(item.manifestPath, item.sha256);
-    for (const member of selected.members)
-      await add(
-        'atlas',
-        path.join(path.dirname(item.manifestPath), member.path),
-        'evidence/browser/' + item.viewport.join('x') + '/' + member.path,
-        member.sha256,
-      );
-  }
+  for (const item of input.browser.reports)
+    await bundle(item.manifestPath, item.sha256);
   // Bind the installed runtime closure, not a developer's adjacent checkout.
   async function runtimeFiles(directory) {
     for (const item of await fs.readdir(directory, { withFileTypes: true })) {
