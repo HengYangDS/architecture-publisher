@@ -12,7 +12,7 @@ import {
 } from './manifest.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-async function noSymlinkAncestors(file) {
+export async function noSymlinkAncestors(file) {
   const absolute = path.resolve(file);
   let current = path.parse(absolute).root;
   for (const part of absolute.slice(current.length).split(path.sep)) {
@@ -21,7 +21,7 @@ async function noSymlinkAncestors(file) {
       fail('bundle_symlink_forbidden');
   }
 }
-async function regularBytes(file, maximum) {
+export async function regularBytes(file, maximum) {
   const before = await fs.lstat(file);
   if (before.isSymbolicLink()) fail('bundle_symlink_forbidden');
   if (!before.isFile()) fail('bundle_type_unsupported');

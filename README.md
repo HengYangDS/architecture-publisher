@@ -49,6 +49,32 @@ are returned in memory to programmatic consumers; later file reads are not
 covered. Inputs should remain immutable during verification; this slice does
 not protect against a hostile concurrent writer with equal OS privileges.
 
+### Package selected files through the installed CLI
+
+`architecture source pack ./pack.json --sha256 <selected-plan-digest>` prepares
+the same portable bundle from explicitly selected local files. It is also the
+local packaging entry for rendered HTML, SVG, PNG and required licenses; it does
+not grant release or installation approval.
+
+```json
+{
+  "schema": "architecture.pack-input/v1",
+  "source": {"id": "example:service", "revision": "release-1"},
+  "files": [{"input": "./authored.svg", "path": "diagram.svg", "bytes": 123, "sha256": "<actual-file-sha256>"}],
+  "output": "./new-bundle"
+}
+```
+
+Replace the illustrative size and digest, then select the plan's own SHA-256.
+`input` and `output` resolve relative to the plan; `path` is the portable name
+inside the new bundle. Each input must be a regular file with matching bytes and
+digest, without symlink ancestors. The shared limits above apply. No directory
+discovery, source execution, Git metadata, ETHOS or agent credentials are used.
+The existing writer refuses occupied output and writes `manifest.json` last.
+An interrupted write may leave incomplete output; it is not promoted or silently
+deleted. The returned `manifestPath` and `manifestSha256` feed `source verify`
+or a rendering plan. Member identities do not contain input or output host paths.
+
 ## ETHOS input: offline reading and explicit replay
 
 Consume a selected bundle without an ETHOS installation or source checkout:

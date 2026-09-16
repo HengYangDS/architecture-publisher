@@ -284,6 +284,19 @@ Workline A.
 
 ### Meaningful example-update acceptance
 
+The non-ETHOS journey must use installed public commands for input preparation
+and output packaging as well as rendering and verification. `source pack`
+consumes a digest-selected `architecture.pack-input/v1` file plan. Each selected
+file names an input, portable output path, byte count and SHA-256. Inputs and the
+new output directory resolve relative to the plan; input files need not live in
+a preexisting closed directory. The existing bounded reader checks regular files
+and symlink ancestry before the existing source-bundle writer copies verified
+bytes and writes its manifest last. Neither arbitrary directory discovery nor
+execution of input code is introduced. Opaque source/revision identity survives
+relocation. Tests build both raster bundles and reader bundles through the
+installed CLI, not a repository-internal helper. A package is not a release or
+recoverable installation; those remain separate obligations.
+
 The former title-only observations cannot establish semantic-update acceptance.
 The current examples retain titles while adding an audit subscriber and removing
 a redundant Ready state with revised result/retry conditions. Authors select

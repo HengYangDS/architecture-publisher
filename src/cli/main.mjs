@@ -2,7 +2,7 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture poster ethos outline <plan.json> | measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | publish ethos plan <input.json> | publish ethos apply|recover <plan.json> <acceptance.json> | atlas ethos [verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture poster ethos outline <plan.json> | measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | publish ethos plan <input.json> | publish ethos apply|recover <plan.json> <acceptance.json> | atlas ethos [verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source pack <plan.json> --sha256 <digest> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
   if (
@@ -233,6 +233,15 @@ async function command() {
       inputSha256: args[4],
       output: path.resolve(args[6]),
     });
+  }
+  if (
+    args.length === 5 &&
+    args[0] === 'source' &&
+    args[1] === 'pack' &&
+    args[3] === '--sha256'
+  ) {
+    const { packSourceFiles } = await import('../source/pack.mjs');
+    return packSourceFiles(args[2], args[4]);
   }
   if (
     args.length === 5 &&

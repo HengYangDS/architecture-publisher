@@ -8,7 +8,6 @@ import { createHash } from 'node:crypto';
 import sax from '../assets/raster/sax/sax.cjs';
 import { parse as parseFont } from '../assets/raster/opentype/opentype.mjs';
 import { auditScene } from '../src/geometry/scene.mjs';
-import { writeSourceBundle } from '../src/source/write.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (b) => createHash('sha256').update(b).digest('hex');
@@ -244,31 +243,91 @@ test('installed non-ETHOS examples support both media, updates and local bundles
   if (!process.env.ARCHITECTURE_EXAMPLE_EVIDENCE)
     t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const run = (cmd, args, cwd = root, env = process.env) => {
-    const r = spawnSync(cmd, args, { cwd, env, encoding: 'utf8', timeout: 60000 });
+    const r = spawnSync(cmd, args, {
+      cwd,
+      env,
+      encoding: 'utf8',
+      timeout: 60000,
+    });
     assert.equal(r.status, 0, r.stdout + r.stderr);
     return r.stdout;
   };
-  const pack = JSON.parse(run('npm', ['pack', '--ignore-scripts', '--json',
-    '--pack-destination', dir]))[0];
-  const consumer = path.join(dir, 'independent consumer'), home = path.join(dir, 'empty home');
+  const pack = JSON.parse(
+    run('npm', [
+      'pack',
+      '--ignore-scripts',
+      '--json',
+      '--pack-destination',
+      dir,
+    ]),
+  )[0];
+  const consumer = path.join(dir, 'independent consumer'),
+    home = path.join(dir, 'empty home');
   await fs.mkdir(consumer);
   await fs.mkdir(home);
-  run('npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund',
-    '--prefix', consumer, path.join(dir, pack.filename)], consumer);
+  run(
+    'npm',
+    [
+      'install',
+      '--offline',
+      '--ignore-scripts',
+      '--no-audit',
+      '--no-fund',
+      '--prefix',
+      consumer,
+      path.join(dir, pack.filename),
+    ],
+    consumer,
+  );
   const pkg = path.join(consumer, 'node_modules/architecture-publishing');
   for (const p of ['editions', 'src/integrations'])
     await fs.rm(path.join(pkg, p), { recursive: true });
-  const invoke = (args) => JSON.parse(run(process.execPath,
-    [path.join(pkg, 'src/cli/main.mjs'), ...args], home, { HOME: home, PATH: home }));
-  const fontMembers = await Promise.all(['Regular', 'Bold'].map(async (weight) => ({
+  const invoke = (args) =>
+    JSON.parse(
+      run(
+        process.execPath,
+        [path.join(pkg, 'src/cli/main.mjs'), ...args],
+        home,
+        { HOME: home, PATH: home },
+      ),
+    );
+  const fontFiles = ['Regular', 'Bold'].map((weight) => ({
     path: weight + '.ttf',
-    content: await fs.readFile(path.join(pkg, 'assets/fonts/JetBrainsMono-' + weight + '.ttf')),
-  })));
+    input: path.join(pkg, 'assets/fonts/JetBrainsMono-' + weight + '.ttf'),
+  }));
+  async function packFiles(output, source, selected) {
+    const files = [];
+    for (const item of selected) {
+      const bytes = await fs.readFile(item.input);
+      files.push({
+        input: path.relative(path.dirname(output), item.input),
+        path: item.path,
+        bytes: bytes.length,
+        sha256: sha(bytes),
+      });
+    }
+    const plan = Buffer.from(
+      JSON.stringify({
+        schema: 'architecture.pack-input/v1',
+        source,
+        files,
+        output: path.basename(output),
+      }),
+    );
+    const planPath = output + '-pack.json';
+    await fs.writeFile(planPath, plan);
+    const result = invoke(['source', 'pack', planPath, '--sha256', sha(plan)]);
+    assert.equal(result.status, 'packed');
+    assert.equal(result.semanticAcceptance, 'not-performed');
+    return result;
+  }
   const observations = [];
   for (const [name, type] of examples) {
     const workspace = path.join(dir, name);
     await fs.mkdir(workspace);
-    const source = await fs.readFile(path.join(pkg, 'examples', name + '.json'));
+    const source = await fs.readFile(
+      path.join(pkg, 'examples', name + '.json'),
+    );
     const svg = await fs.readFile(path.join(pkg, 'examples', name + '.svg'));
     const diagram = JSON.parse(source);
     compareMeaning(diagram, svg.toString());
@@ -276,7 +335,11 @@ test('installed non-ETHOS examples support both media, updates and local bundles
     for (const update of [false, true]) {
       const revision = update ? 'updated' : 'original';
       const selected = update
-        ? JSON.parse(await fs.readFile(path.join(pkg, 'examples', name + '-updated.json')))
+        ? JSON.parse(
+            await fs.readFile(
+              path.join(pkg, 'examples', name + '-updated.json'),
+            ),
+          )
         : structuredClone(diagram);
       const staticInput = update
         ? await fs.readFile(path.join(pkg, 'examples', name + '-updated.svg'))
@@ -287,23 +350,51 @@ test('installed non-ETHOS examples support both media, updates and local bundles
       await checkGeometry(staticInput.toString());
       const file = path.join(workspace, revision + '.json');
       await fs.writeFile(file, input);
+      const staticFile = path.join(workspace, revision + '.svg');
+      await fs.writeFile(staticFile, staticInput);
       const html = path.join(workspace, revision + '.html');
-      const interactive = invoke(['render', type, file, '--sha256', sha(input), '--output', html]);
+      const interactive = invoke([
+        'render',
+        type,
+        file,
+        '--sha256',
+        sha(input),
+        '--output',
+        html,
+      ]);
       assert.equal(interactive.nativeValidation.checksPassed, 9);
       assert.equal(interactive.browserAcceptance, 'not-performed');
       const repeatedHtml = path.join(workspace, revision + '-repeat.html');
-      const repeated = invoke(['render', type, file, '--sha256', sha(input), '--output', repeatedHtml]);
+      const repeated = invoke([
+        'render',
+        type,
+        file,
+        '--sha256',
+        sha(input),
+        '--output',
+        repeatedHtml,
+      ]);
       assert.equal(repeated.artifact.sha256, interactive.artifact.sha256);
-      const bundle = await writeSourceBundle(path.join(workspace, revision + '-input'),
-        { id: 'example:' + name, revision }, [{ path: 'diagram.svg', content: staticInput }, ...fontMembers]);
+      const bundle = await packFiles(
+        path.join(workspace, revision + '-input'),
+        { id: 'example:' + name, revision },
+        [{ path: 'diagram.svg', input: staticFile }, ...fontFiles],
+      );
       const planFile = path.join(workspace, revision + '-raster.json');
-      await fs.writeFile(planFile, JSON.stringify({
-        manifest: revision + '-input/manifest.json', manifestSha256: bundle.manifestSha256,
-        svg: 'diagram.svg', fonts: [
-          { path: 'Regular.ttf', family: 'JetBrains Mono', weight: 400 },
-          { path: 'Bold.ttf', family: 'JetBrains Mono', weight: 700 },
-        ], width: 2400, output: revision + '.png',
-      }));
+      await fs.writeFile(
+        planFile,
+        JSON.stringify({
+          manifest: revision + '-input/manifest.json',
+          manifestSha256: bundle.manifestSha256,
+          svg: 'diagram.svg',
+          fonts: [
+            { path: 'Regular.ttf', family: 'JetBrains Mono', weight: 400 },
+            { path: 'Bold.ttf', family: 'JetBrains Mono', weight: 700 },
+          ],
+          width: 2400,
+          output: revision + '.png',
+        }),
+      );
       const staticResult = invoke(['raster', planFile]);
       assert.equal(staticResult.width, 2400);
       assert.equal(staticResult.semanticAcceptance, 'not-performed');
@@ -312,50 +403,124 @@ test('installed non-ETHOS examples support both media, updates and local bundles
       const htmlBytes = await fs.readFile(html);
       assert.equal(sha(htmlBytes), interactive.artifact.sha256);
       compareInteractiveMeaning(selected, htmlBytes.toString());
-      assert.throws(() => compareInteractiveMeaning(selected,
-        htmlBytes.toString().replace(/data-node-id="[^"]+"/, 'data-node-id="missing"')));
-      assert.throws(() => compareInteractiveMeaning(selected,
-        htmlBytes.toString().replace(/data-edge-to="[^"]+"/, 'data-edge-to="wrong"')));
+      assert.throws(() =>
+        compareInteractiveMeaning(
+          selected,
+          htmlBytes
+            .toString()
+            .replace(/data-node-id="[^"]+"/, 'data-node-id="missing"'),
+        ),
+      );
+      assert.throws(() =>
+        compareInteractiveMeaning(
+          selected,
+          htmlBytes
+            .toString()
+            .replace(/data-edge-to="[^"]+"/, 'data-edge-to="wrong"'),
+        ),
+      );
       assert(!htmlBytes.toString().includes(root), 'No checkout path in HTML');
       const plan = JSON.parse(await fs.readFile(planFile));
       const repeatPlan = path.join(workspace, revision + '-repeat-raster.json');
-      await fs.writeFile(repeatPlan, JSON.stringify({ ...plan, output: revision + '-repeat.png' }));
-      assert.equal(invoke(['raster', repeatPlan]).artifact.sha256, staticResult.artifact.sha256);
-      const publication = await writeSourceBundle(path.join(workspace, revision + '-publication'),
-        { id: 'example:' + name, revision }, [
-          { path: 'diagram.json', content: input },
-          { path: 'diagram.svg', content: staticInput },
-          { path: 'diagram.png', content: png },
-          { path: 'diagram.html', content: htmlBytes },
-          ...fontMembers,
-          { path: 'FONT-LICENSE.txt', content: await fs.readFile(path.join(pkg, 'assets/fonts/OFL.txt')) },
-        ]);
-      const verified = invoke(['source', 'verify', publication.manifestPath,
-        '--sha256', publication.manifestSha256]);
+      await fs.writeFile(
+        repeatPlan,
+        JSON.stringify({ ...plan, output: revision + '-repeat.png' }),
+      );
+      assert.equal(
+        invoke(['raster', repeatPlan]).artifact.sha256,
+        staticResult.artifact.sha256,
+      );
+      const publication = await packFiles(
+        path.join(workspace, revision + '-publication'),
+        { id: 'example:' + name, revision },
+        [
+          { path: 'diagram.json', input: file },
+          { path: 'diagram.svg', input: staticFile },
+          {
+            path: 'diagram.png',
+            input: path.join(workspace, revision + '.png'),
+          },
+          { path: 'diagram.html', input: html },
+          ...fontFiles,
+          {
+            path: 'FONT-LICENSE.txt',
+            input: path.join(pkg, 'assets/fonts/OFL.txt'),
+          },
+        ],
+      );
+      const verified = invoke([
+        'source',
+        'verify',
+        publication.manifestPath,
+        '--sha256',
+        publication.manifestSha256,
+      ]);
       assert.equal(verified.status, 'verified');
       assert.equal(verified.members.length, 7);
       const relocated = path.join(workspace, revision + '-relocated');
-      await fs.cp(path.dirname(publication.manifestPath), relocated, { recursive: true, errorOnExist: true });
+      await fs.cp(path.dirname(publication.manifestPath), relocated, {
+        recursive: true,
+        errorOnExist: true,
+      });
       const replayPlan = path.join(workspace, revision + '-replay.json');
-      await fs.writeFile(replayPlan, JSON.stringify({ ...plan,
-        manifest: revision + '-relocated/manifest.json', manifestSha256: publication.manifestSha256,
-        output: revision + '-replayed.png' }));
-      assert.equal(invoke(['raster', replayPlan]).artifact.sha256, staticResult.artifact.sha256);
-      assert.equal(invoke(['render', type, path.join(relocated, 'diagram.json'),
-        '--sha256', sha(input), '--output', path.join(workspace, revision + '-replayed.html')])
-        .artifact.sha256, interactive.artifact.sha256);
+      await fs.writeFile(
+        replayPlan,
+        JSON.stringify({
+          ...plan,
+          manifest: revision + '-relocated/manifest.json',
+          manifestSha256: publication.manifestSha256,
+          output: revision + '-replayed.png',
+        }),
+      );
+      assert.equal(
+        invoke(['raster', replayPlan]).artifact.sha256,
+        staticResult.artifact.sha256,
+      );
+      assert.equal(
+        invoke([
+          'render',
+          type,
+          path.join(relocated, 'diagram.json'),
+          '--sha256',
+          sha(input),
+          '--output',
+          path.join(workspace, revision + '-replayed.html'),
+        ]).artifact.sha256,
+        interactive.artifact.sha256,
+      );
       revisions.push({ png: sha(png), html: sha(htmlBytes) });
-      observations.push({ name, revision, semanticUpdate: update, nodeIds: (selected.components ?? selected.states).map(n => n.id), relationIds: (selected.connections ?? selected.transitions).map(e => e.id), inputSha256: sha(input),
-        svgSha256: sha(staticInput), pngSha256: sha(png), htmlSha256: sha(htmlBytes),
-        publicationSha256: publication.manifestSha256, repeatedBytesIdentical: true });
+      observations.push({
+        name,
+        revision,
+        semanticUpdate: update,
+        nodeIds: (selected.components ?? selected.states).map((n) => n.id),
+        relationIds: (selected.connections ?? selected.transitions).map(
+          (e) => e.id,
+        ),
+        inputSha256: sha(input),
+        svgSha256: sha(staticInput),
+        pngSha256: sha(png),
+        htmlSha256: sha(htmlBytes),
+        publicationSha256: publication.manifestSha256,
+        repeatedBytesIdentical: true,
+      });
     }
     assert.notEqual(revisions[0].png, revisions[1].png);
     assert.notEqual(revisions[0].html, revisions[1].html);
   }
-  const result = { node: process.version, platform: process.platform,
-    packageSha256: sha(await fs.readFile(path.join(dir, pack.filename))), observations,
-    scope: 'Installed rendering, source-bound example checks and bundle integrity only; no browser execution, visual approval or recoverable installation.' };
-  await fs.writeFile(path.join(dir, 'result.json'), JSON.stringify(result, null, 2) + '\n');
+  const result = {
+    node: process.version,
+    platform: process.platform,
+    packageSha256: sha(await fs.readFile(path.join(dir, pack.filename))),
+    observations,
+    scope:
+      'Installed rendering, source-bound example checks and bundle integrity only; no browser execution, visual approval or recoverable installation.',
+  };
+  await fs.writeFile(
+    path.join(dir, 'result.json'),
+    JSON.stringify(result, null, 2) + '\n',
+  );
   t.diagnostic(JSON.stringify(result));
-  if (process.env.ARCHITECTURE_EXAMPLE_EVIDENCE) t.diagnostic('Retained at ' + dir);
+  if (process.env.ARCHITECTURE_EXAMPLE_EVIDENCE)
+    t.diagnostic('Retained at ' + dir);
 });

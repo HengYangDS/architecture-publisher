@@ -21,6 +21,9 @@ accepted artwork or making the generic publisher depend on ETHOS.
   differences are observations, not automatic permission to replace them.
 - Exercise installed non-ETHOS inputs on macOS and isolated Linux, and retain
   exact-source ETHOS checks and complete input/output identity evidence.
+- Expose the existing source-bundle writer through explicit, digest-selected
+  file plans so installed non-ETHOS workflows do not import internal code to
+  prepare raster input or package their resulting files.
 
 ## Capabilities
 
@@ -31,11 +34,12 @@ accepted artwork or making the generic publisher depend on ETHOS.
 
 ### Modified Capabilities
 
-None. The existing source-bundle and HTML-edition contracts remain intact.
+- `source-intake`: add explicit file packaging through the public CLI; existing
+  source-bundle verification and the HTML-edition contracts remain intact.
 
 ## Impact
 
-`src/static/`, static CLI dispatch, pinned resources, static tests, and the
+`src/static/`, `src/source/`, CLI dispatch, pinned resources, static tests, and the
 ETHOS-specific static edition. No source edit in either retained original
 repository; no browser-policy workaround, global font installation or implicit
 source replay. Full browser qualification and recoverable paired installation
