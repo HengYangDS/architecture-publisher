@@ -156,9 +156,11 @@ Both examples also include independently authored static SVG views. The guide
 in `examples/README.md` explains explicit font inputs, source/view editing,
 installed PNG/HTML rendering, local bundles and relocated replay. This is a
 bounded pair of examples, not a generic semantic compiler or browser approval.
-The retained update test appends a title suffix and edits matching SVG title
-text. It does not test node/relationship changes, automatic cross-media updates
-or regenerated layout; those remain explicit acceptance gaps.
+The current update fixtures add an independent audit consumer and remove a
+redundant ready state while changing retry routing and conditions. Their authored
+JSON and SVG views are checked together and rendered through installed commands.
+This tests bounded semantic changes, not automatic cross-media compilation or
+layout adaptation. The original title-only observations remain historical.
 
 ## Source-bound ETHOS atlas
 

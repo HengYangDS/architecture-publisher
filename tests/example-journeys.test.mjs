@@ -154,6 +154,71 @@ function compareMeaning(diagram, svg) {
     if (view.note) assert(copy.includes(view.note), 'Missing view condition');
 }
 
+function compareInteractiveMeaning(diagram, html) {
+  const start = html.indexOf('<svg');
+  const end = html.indexOf('</svg>', start);
+  assert(start >= 0 && end > start, 'Rendered SVG is required');
+  const svg = html.slice(start, end + 6);
+  const parser = sax.parser(true), stack = [], nodes = [], edges = [];
+  parser.onopentag = ({ name, attributes: a }) => {
+    const item = { name, a, text: '' };
+    stack.push(item);
+    if (a['data-node-id']) nodes.push(item);
+    if (name === 'path' && a['data-edge-id']) edges.push(item);
+  };
+  parser.ontext = text => { for (const item of stack) item.text += text; };
+  parser.onclosetag = () => { stack.pop(); };
+  parser.write(svg).close();
+  const selectedNodes = diagram.components ?? diagram.states;
+  assert.deepEqual(nodes.map(n => n.a['data-node-id']).sort(), selectedNodes.map(n => n.id).sort());
+  for (const source of selectedNodes) {
+    const actual = nodes.find(n => n.a['data-node-id'] === source.id);
+    assert(actual.text.includes(source.label), 'Missing visible interactive node label');
+    if (source.sublabel) assert(actual.text.includes(source.sublabel), 'Missing visible interactive condition');
+  }
+  const selectedEdges = diagram.connections ?? diagram.transitions;
+  assert.deepEqual(edges.map(e => e.a['data-edge-id']).sort(), selectedEdges.map(e => e.id).sort());
+  for (const source of selectedEdges) {
+    const actual = edges.find(e => e.a['data-edge-id'] === source.id);
+    assert.equal(actual.a['data-edge-from'], source.from);
+    assert.equal(actual.a['data-edge-to'], source.to);
+    assert.match(actual.a.d, /^M /);
+    assert.match(actual.a['marker-end'], /^url\(#.+\)$/);
+  }
+}
+
+function assertSemanticUpdate(name, original, updated) {
+  assert.equal(updated.meta.title, original.meta.title, 'Semantic update is not a title change');
+  const nodes = d => (d.components ?? d.states).map(n => n.id).sort();
+  const edges = d => (d.connections ?? d.transitions).map(e => [e.id, e.from, e.to]);
+  assert.notDeepEqual(nodes(updated), nodes(original), 'Node membership must change');
+  assert.notDeepEqual(edges(updated), edges(original), 'Directed relationships must change');
+  assert.notDeepEqual(updated.cards, original.cards, 'Visible semantic conditions must change');
+  if (name === 'service-topology') {
+    assert(updated.components.some(n => n.id === 'audit'));
+    assert(updated.connections.some(e => e.from === 'events' && e.to === 'audit'));
+  } else {
+    assert(!updated.states.some(n => n.id === 'ready'));
+    assert.equal(updated.states.find(n => n.id === 'accepted').sublabel, 'Capacity reserved');
+    assert(updated.transitions.some(e => e.id === 'transient' && e.from === 'result' && e.to === 'wait'));
+    assert.match(updated.meta.views[0].note, /attempts remain/);
+  }
+}
+
+for (const [name] of examples)
+  test('authored semantic update is complete in both views: ' + name, async () => {
+    const original = JSON.parse(await fs.readFile(path.join(root, 'examples', name + '.json')));
+    const file = path.join(root, 'examples', name + '-updated.json');
+    assert.equal(await fs.access(file).then(() => true, () => false), true,
+      'An authored semantic update is required; title-only substitution is insufficient');
+    const updated = JSON.parse(await fs.readFile(file));
+    const svg = await fs.readFile(path.join(root, 'examples', name + '-updated.svg'), 'utf8');
+    assertSemanticUpdate(name, original, updated);
+    compareMeaning(updated, svg);
+    await checkGeometry(svg);
+    assert.throws(() => compareMeaning(original, svg), 'Changed views must not pass as the original source');
+  });
+
 for (const [name] of examples)
   test('static example preserves source meaning: ' + name, async () => {
     const diagram = JSON.parse(await fs.readFile(path.join(root, 'examples', name + '.json')));
@@ -210,14 +275,14 @@ test('installed non-ETHOS examples support both media, updates and local bundles
     const revisions = [];
     for (const update of [false, true]) {
       const revision = update ? 'updated' : 'original';
-      const selected = structuredClone(diagram);
-      if (update) selected.meta.title += ' / reviewed';
+      const selected = update
+        ? JSON.parse(await fs.readFile(path.join(pkg, 'examples', name + '-updated.json')))
+        : structuredClone(diagram);
+      const staticInput = update
+        ? await fs.readFile(path.join(pkg, 'examples', name + '-updated.svg'))
+        : Buffer.from(svg);
+      if (update) assertSemanticUpdate(name, diagram, selected);
       const input = Buffer.from(JSON.stringify(selected, null, 2) + '\n');
-      const staticInput = Buffer.from(svg.toString()
-        .replace('aria-label="' + diagram.meta.title + '"', 'aria-label="' + selected.meta.title + '"')
-        .replace('<title>' + diagram.meta.title + '</title>', '<title>' + selected.meta.title + '</title>')
-        .replace(/(<text [^>]*font-size="30"[^>]*>)[^<]*(<\/text>)/,
-          (_match, start, end) => start + selected.meta.title + end));
       compareMeaning(selected, staticInput.toString());
       await checkGeometry(staticInput.toString());
       const file = path.join(workspace, revision + '.json');
@@ -246,6 +311,11 @@ test('installed non-ETHOS examples support both media, updates and local bundles
       assert.equal(sha(png), staticResult.artifact.sha256);
       const htmlBytes = await fs.readFile(html);
       assert.equal(sha(htmlBytes), interactive.artifact.sha256);
+      compareInteractiveMeaning(selected, htmlBytes.toString());
+      assert.throws(() => compareInteractiveMeaning(selected,
+        htmlBytes.toString().replace(/data-node-id="[^"]+"/, 'data-node-id="missing"')));
+      assert.throws(() => compareInteractiveMeaning(selected,
+        htmlBytes.toString().replace(/data-edge-to="[^"]+"/, 'data-edge-to="wrong"')));
       assert(!htmlBytes.toString().includes(root), 'No checkout path in HTML');
       const plan = JSON.parse(await fs.readFile(planFile));
       const repeatPlan = path.join(workspace, revision + '-repeat-raster.json');
@@ -275,7 +345,7 @@ test('installed non-ETHOS examples support both media, updates and local bundles
         '--sha256', sha(input), '--output', path.join(workspace, revision + '-replayed.html')])
         .artifact.sha256, interactive.artifact.sha256);
       revisions.push({ png: sha(png), html: sha(htmlBytes) });
-      observations.push({ name, revision, inputSha256: sha(input),
+      observations.push({ name, revision, semanticUpdate: update, nodeIds: (selected.components ?? selected.states).map(n => n.id), relationIds: (selected.connections ?? selected.transitions).map(e => e.id), inputSha256: sha(input),
         svgSha256: sha(staticInput), pngSha256: sha(png), htmlSha256: sha(htmlBytes),
         publicationSha256: publication.manifestSha256, repeatedBytesIdentical: true });
     }

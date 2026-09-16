@@ -270,13 +270,18 @@ Workline A.
 
 ### Meaningful example-update acceptance
 
-The current two-example journey changes titles and matching static text only.
-Keep that regression, but do not count it as semantic-update acceptance. Task 2.3
-still requires installed journeys that add/remove an entity or relationship and
-change a branch condition, with explicit input/view changes and no generic code
-or generated-output edits. Validate every retained and changed directed relation,
-its conditions, actual text geometry and both media from the selected inputs.
-Unsupported semantics must identify a gap and preserve the prior edition.
-The present separately authored JSON/SVG examples are portability checks, not an
-automatic shared-semantic compiler; neither a title update nor byte determinism
-can close that boundary.
+The former title-only observations cannot establish semantic-update acceptance.
+The current examples retain titles while adding an audit subscriber and removing
+a redundant Ready state with revised result/retry conditions. Authors select
+explicit versioned JSON/SVG inputs; tests require changed node membership,
+directed relationships and visible conditions, then check both installed media
+and relocated replay. No generic implementation or generated output is edited
+to make a test pass. Invalid source/view pairings and geometric collisions must
+fail rather than silently dropping claims.
+
+These authored examples are a bounded portability and update demonstration, not
+an automatic shared-semantic compiler. Task 2.3 remains open until complete
+portable ETHOS rendering and required example-platform qualification settle.
+Automatic view derivation, density adaptation, unsupported-semantics diagnostics
+and safe installed-edition upgrades remain distinct product boundaries; neither
+example determinism nor a passing label check closes them.
