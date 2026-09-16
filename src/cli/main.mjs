@@ -2,7 +2,7 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture poster ethos outline <plan.json> | measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | atlas ethos <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture poster ethos outline <plan.json> | measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | publish ethos plan <input.json> | publish ethos apply|recover <plan.json> <acceptance.json> | atlas ethos [verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
   if (
@@ -78,27 +78,142 @@ async function command() {
     return rasterize(plan);
   }
   if (
-    args.length === 3 &&
-    ['atlas', 'poster'].includes(args[0]) &&
-    args[1] === 'ethos'
+    args[0] === 'publish' &&
+    args[1] === 'ethos' &&
+    ((args.length === 4 && args[2] === 'plan') ||
+      (args.length === 5 && ['apply', 'recover'].includes(args[2])))
   ) {
-    const kind = args[0];
     const fs = await import('node:fs/promises'),
       path = await import('node:path');
-    const file = path.resolve(args[2]),
+    async function read(name) {
+      const file = path.resolve(name),
+        stat = await fs.lstat(file);
+      if (
+        !stat.isFile() ||
+        stat.isSymbolicLink() ||
+        stat.size > 4 * 1024 * 1024
+      )
+        throw Object.assign(new Error(), { code: 'publication_input_invalid' });
+      return { file, value: JSON.parse(await fs.readFile(file, 'utf8')) };
+    }
+    const input = await read(args[3]);
+    const api = await import('../../editions/ethos/publication.mjs');
+    if (args[2] === 'plan') {
+      const plan = input.value,
+        base = path.dirname(input.file);
+      function resolve(object, key) {
+        if (typeof object?.[key] !== 'string' || !object[key])
+          throw Object.assign(new Error(), {
+            code: 'publication_path_required',
+          });
+        object[key] = path.resolve(base, object[key]);
+      }
+      for (const key of ['sourceManifest', 'editionManifest', 'outputManifest'])
+        resolve(plan.review?.atlas, key);
+      if (
+        !Array.isArray(plan.review?.evidenceBundles) ||
+        !Array.isArray(plan.browser?.reports)
+      )
+        throw Object.assign(new Error(), { code: 'publication_input_invalid' });
+      for (const b of plan.review.evidenceBundles) resolve(b, 'manifestPath');
+      resolve(plan.staticArtifact, 'manifestPath');
+      if (plan.browser.checker) resolve(plan.browser.checker, 'manifestPath');
+      for (const r of plan.browser.reports) resolve(r, 'manifestPath');
+      for (const k of ['native', 'atlas'])
+        resolve(plan.deployment?.destinations, k);
+      resolve(plan.deployment, 'recoveryRoot');
+      return api.planEthosPublication(plan);
+    }
+    const acceptance = await read(args[4]);
+    return (
+      args[2] === 'apply'
+        ? api.publishEthosPublication
+        : api.recoverEthosPublication
+    )(input.value, acceptance.value);
+  }
+
+  const poster = args.length === 3 && args[0] === 'poster' && args[1] === 'ethos';
+  const verifyAtlas =
+    args.length === 4 &&
+    args[0] === 'atlas' &&
+    args[1] === 'ethos' &&
+    args[2] === 'verify';
+  const reviewAtlas =
+    args.length === 4 &&
+    args[0] === 'atlas' &&
+    args[1] === 'ethos' &&
+    args[2] === 'review';
+  const browserPlan =
+    args.length === 4 &&
+    args[0] === 'atlas' &&
+    args[1] === 'ethos' &&
+    args[2] === 'browser-plan';
+  if (
+    poster ||
+    browserPlan ||
+    reviewAtlas ||
+    verifyAtlas ||
+    (args.length === 3 && args[0] === 'atlas' && args[1] === 'ethos')
+  ) {
+    const fs = await import('node:fs/promises'),
+      path = await import('node:path');
+    const file = path.resolve(
+        args[verifyAtlas || reviewAtlas || browserPlan ? 3 : 2],
+      ),
       stat = await fs.lstat(file);
     if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024)
-      throw Object.assign(new Error(), { code: `${kind}_plan_invalid` });
+      throw Object.assign(new Error(), { code: poster ? 'poster_plan_invalid' : 'atlas_plan_invalid' });
     const plan = JSON.parse(await fs.readFile(file, 'utf8'));
-    for (const key of ['sourceManifest', 'editionManifest', 'output']) {
+    if (reviewAtlas) {
+      if (!plan?.atlas || !Array.isArray(plan.evidenceBundles))
+        throw Object.assign(new Error(), { code: 'review_inputs_invalid' });
+      for (const key of [
+        'sourceManifest',
+        'editionManifest',
+        'outputManifest',
+      ]) {
+        if (typeof plan.atlas[key] !== 'string' || !plan.atlas[key])
+          throw Object.assign(new Error(), { code: 'review_path_required' });
+        plan.atlas[key] = path.resolve(path.dirname(file), plan.atlas[key]);
+      }
+      for (const bundle of plan.evidenceBundles) {
+        if (typeof bundle?.manifestPath !== 'string' || !bundle.manifestPath)
+          throw Object.assign(new Error(), { code: 'review_path_required' });
+        bundle.manifestPath = path.resolve(
+          path.dirname(file),
+          bundle.manifestPath,
+        );
+      }
+      const { readEthosReview } =
+        await import('../../editions/ethos/review.mjs');
+      return readEthosReview(plan);
+    }
+    for (const key of [
+      'sourceManifest',
+      'editionManifest',
+      verifyAtlas || browserPlan ? 'outputManifest' : 'output',
+    ]) {
       if (typeof plan?.[key] !== 'string' || !plan[key])
-        throw Object.assign(new Error(), { code: `${kind}_plan_invalid` });
+        throw Object.assign(new Error(), { code: poster ? 'poster_plan_invalid' : 'atlas_plan_invalid' });
       plan[key] = path.resolve(path.dirname(file), plan[key]);
     }
-    if (kind === 'poster') {
-      const { renderEthosPoster } = await import(
-        '../../editions/ethos/poster.mjs'
-      );
+    if (browserPlan) {
+      const { describeEthosBrowser } =
+        await import('../../editions/ethos/browser.mjs');
+      return describeEthosBrowser(plan);
+    }
+    if (verifyAtlas) {
+      const { readEthosAtlasOutput } =
+        await import('../../editions/ethos/atlas-output.mjs');
+      const result = await readEthosAtlasOutput(plan);
+      return {
+        status: 'verified',
+        ...result,
+        members: result.members.map(({ content, ...member }) => member),
+      };
+    }
+    if (poster) {
+      const { renderEthosPoster } = await import('../../editions/ethos/poster.mjs');
       return renderEthosPoster(plan);
     }
     const { renderEthosAtlas } = await import('../../editions/ethos/atlas.mjs');
@@ -140,9 +255,8 @@ async function command() {
     args[4] === '--sha256' &&
     args[6] === '--projection'
   ) {
-    const { readEthosSource } = await import(
-      '../integrations/ethos/projection.mjs'
-    );
+    const { readEthosSource } =
+      await import('../integrations/ethos/projection.mjs');
     const value = await readEthosSource(args[3], args[5], args[7]);
     return {
       status: 'verified',
@@ -172,9 +286,8 @@ async function command() {
         throw Object.assign(new Error(), { code: 'import_plan_invalid' });
       plan[key] = path.resolve(path.dirname(planPath), plan[key]);
     }
-    const { importEthosSource } = await import(
-      '../integrations/ethos/import.mjs'
-    );
+    const { importEthosSource } =
+      await import('../integrations/ethos/import.mjs');
     return { status: 'imported', ...(await importEthosSource(plan)) };
   }
   throw Object.assign(new Error(usage), { code: 'usage' });

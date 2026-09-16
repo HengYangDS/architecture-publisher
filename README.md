@@ -207,6 +207,90 @@ Success means exact, checked reproduction, not new browser or semantic approval.
 The published source still selects and qualifies each edition independently;
 changing expected hashes is not a substitute for reviewing a redesigned diagram.
 
+### Read an existing atlas without rendering it
+
+`architecture atlas ethos verify ./read-plan.json` consumes the same explicit
+source/edition identity fields as rendering. Replace `output` with
+`outputManifest` and its independently selected `outputSha256`.
+Paths are relative to that plan. The current `architecture.atlas-output/v1`
+manifest is consumed directly; no legacy sidecar or original checkout is needed.
+
+The read-only consumer checks the complete file set, exact source and edition,
+all page bytes and required license bytes through the shared bounded file reader.
+Its result is **artifact-file-integrity**, not semantic review, browser execution
+or permission to publish. It returns observations of bytes already read, not a
+lease on future file contents. The publisher still needs applicable review,
+current browser evidence and effect-time revalidation before installation.
+
+### Retained review applicability
+
+`architecture atlas ethos review ./review-plan.json` observes whether a frozen
+review still applies within its original scope. Its explicit inputs are an
+`atlas` verification plan, digest-selected `evidenceBundles`, historical path
+roles under `history`, and exact `editorial` selections. Original report,
+subject, prompt/log, visual acceptance and predecessor records remain unchanged.
+Evidence files are ordinary source bundles; historical scripts are bytes only.
+
+Unchanged pages must match exactly. The only editorial continuation supported
+here removes an extra subtitle suffix to restore the source maturity notice,
+while preserving graph specifications, bindings and all other HTML bytes. It
+requires exact old/new identities and selected change-basis documents. The
+result preserves prior review limitations and explicitly reports no new browser
+or publication acceptance. Caller-selected hashes establish identity, not an
+independent trusted signature or permission to install.
+
+### Current browser obligations and reported evidence
+
+`architecture atlas ethos browser-plan ./read-plan.json` accepts the current
+atlas verification plan and derives required document/Present, story, export
+and disclosure observations from the actual HTML and source-owned quality
+contract. It does not launch a browser. No host browser path, adjacent checkout
+or agent credential is loaded by this command.
+
+The edition's reported-evidence reader requires all declared viewports, exact
+artifact/source/quality identity and byte-bound screenshots/exports. Evidence
+paths are bundle-relative; explicit synthetic evidence, stale reports, missing
+beats and reused output files are rejected. These checks do not authenticate
+execution: an allowed actual browser run and checker identity remain required
+before the final publisher may consume observations. The browser runner and
+qualified publisher migration are still incomplete; a passing input test is not
+browser acceptance.
+
+## Qualified paired publication
+
+`architecture publish ethos plan ./pair-input.json` composes the existing
+atlas, retained review, static evidence and browser-report consumers. The input
+contains `review`, `staticArtifact`, `browser` (checker and reports) and
+`deployment` (two target directories and a recovery directory). Relative input
+paths resolve against that file. Missing current browser reports fail before
+writing either target. The actual browser runner remains pending.
+
+The generic two-target installer is migrated from the existing file engine,
+not implemented a second time. Its version-two file plan uses explicit
+`sourceRoots` instead of assumed native/atlas checkout roots. It preserves
+unrelated files and old root entry metadata, records switch intent and supports
+bounded process-interruption recovery. It does not claim global atomicity,
+power-loss durability or protection from hostile filesystem races. The retained
+control-directory namespace preserves cooperating-writer exclusion.
+
+`architecture publish ethos apply <plan.json> <acceptance.json>` requires
+exact plan acceptance plus an explicit observed-browser-run reference bound to
+the artifact, checker and reports. It rederives qualification before invoking
+the file engine. This operator assertion is not a cryptographic proof of browser
+execution and must never be generated from a passing parser alone.
+`architecture publish ethos recover <plan.json> <acceptance.json>` uses the
+persisted file plan without needing changed source inputs to pass again.
+
+Reader-facing static HTML, SVG and PNG files retain their original relative paths
+under `terminal/`; the atlas retains its complete output layout and license files
+under `atlas/`. Static construction records, authored source, review records and
+browser screenshots/exports are qualification inputs, not installed reader payload.
+All selected manifests and members remain exact effect-time dependencies. Their
+exclusion from the delivery directory does not weaken qualification or allow stale
+evidence. The delivery manifest records installed file identities; do not copy a
+full static input manifest into a directory containing only its reader subset.
+File-effect tests alone do not qualify semantic, visual or browser acceptance.
+
 ## Offline SVG rasterization
 
 Rasterize an authored SVG through a separate public entry:
@@ -398,16 +482,62 @@ and installs exact artifacts with recoverable effects. Source adapters, project
 meaning, geometry, reader behavior, observation and publication stay separate.
 
 The generic backend renders typed diagrams; the ETHOS edition reproduces the
-selected thirteen-page atlas. Portable static-poster reconstruction, browser
-qualification, full-product platform parity and recoverable installation remain
-unfinished. The edition implementation has been accepted and published on `dev`;
-this is not a completed product release or a claim of final browser acceptance.
+selected thirteen-page atlas and original static composition. Current-artifact
+qualification and recoverable paired installation are implemented; their
+acceptance applies only to the selected source, artifact, observation and
+installation identities. It does not qualify arbitrary future artwork.
+Transitive raster supply closure, portable static appearance, full-product
+platform parity and final source-release closure remain separate obligations.
 
 This repository is a new implementation baseline. Original architecture
 repositories and their histories remain preserved, not merged or rewritten.
-The project-level decision remains in the original Archify repository's
-`docs/architecture-product-design.md` at `771572cf9fe27c6c2bab8005ac96177bbace7c98`.
-This avoids copying a second design authority during migration.
+The project-level decision remains in the retained Archify repository's
+`docs/architecture-product-design.md`. This is a migration design reference,
+not an installed runtime dependency or another mutable source of product meaning.
+
+### Architecture evolution
+
+The target is reusable publication, not permanent replay of a frozen drawing.
+A source change must explicitly select new source bytes, identify changed
+entities, relationships and obligations, and produce a new authored edition.
+Source meaning remains with its source owner; each medium owns its expression.
+Static and interactive outputs share semantic identity, not layout coordinates.
+
+The current ETHOS reader is intentionally bound to an accepted edition and exact
+artifact hashes. It must reject an unqualified candidate instead of calling it
+an automatic update. New-candidate compilation, semantic coverage comparison and
+dependency-scoped evidence invalidation remain planned work. Renaming example
+titles does not establish semantic evolution or low-cost adaptation.
+
+Installation replay is also distinct from edition replacement. A stored plan can
+resume its own operation; a new plan currently rejects occupied managed payload
+paths. Safe upgrades must bind prior ownership and exact preimages, preserve
+unknown or modified files, qualify new outputs and recover interrupted switches.
+Disabling collision checks is not an upgrade implementation.
+
+### Publication and storage
+
+| Role | Durable content | Boundary |
+| --- | --- | --- |
+| Source | Code, small authored inputs, specifications and locks in Git | No generated media, browser runs or runtime snapshots |
+| Reader release | Selected standalone HTML, high-resolution PNG and checksums | A release links immutable reader assets; package upload alone is not a release |
+| Qualification | Evidence consumed by the selected edition and its acceptance | Bind subjects and scope; reuse unchanged inputs instead of copying every run |
+| Recovery | Current source and necessary publication inputs | Prove restoration before retiring their only remote copy |
+| Local history | Preserved predecessor repositories and historical recovery material | Not a permanent dependency of the successor's remote registry |
+| Disposable work | Caches, extraction trees, diagnostics and unselected trials | Stay local; no package per step or copied execution diary |
+
+Before deleting a package, enumerate its exact files and consumers, verify the
+replacement or local-only custody required by its role, update active locators
+and recheck retained assets. Observe both removal and refreshed storage accounting.
+Age, size, a duplicate hash or a successful source push alone is insufficient.
+Do not move bulk to another project or LFS merely to hide registry growth.
+Necessary qualification inputs are not reader payload, and excluding them from
+delivery does not authorize deleting their recovery copy.
+
+These are lifecycle rules for this repository's existing publication process,
+not a new registry service, autonomous deletion engine or parallel evidence store.
+The existing OpenSpec Changes retain execution state; package descriptions and
+historical reports must not become competing completion ledgers.
 
 ## Development
 
@@ -416,6 +546,12 @@ Use the current repository-local runtime, an owned Work Lane, official OpenSpec
 Change and passing prewrite for the exact paths. `.ethos` and `openspec` are
 engineering inputs, excluded from the installed package. Runtime users do not
 install or invoke them.
+
+Create publication-bound commits with the configured signing identity and verify
+the exact object before native publication. A configured public key, successful
+merge, local proof or accepted branch is not evidence of a commit signature.
+Repository commit policy and publication admission are distinct checks. Do not
+rewrite historical commits or weaken trust to conceal a failed check.
 
 `openspec/specs/source-intake/spec.md` owns the accepted file-envelope behavior.
 The `ethos-input` capability owns the ETHOS boundary. The completed

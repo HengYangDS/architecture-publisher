@@ -50,16 +50,15 @@ function parse(bytes) {
   }
 }
 
-async function select(plan) {
+export async function readEthosAtlasSelection(plan) {
   fields(plan, [
     'sourceManifest',
     'sourceSha256',
     'projectionDigest',
     'editionManifest',
     'editionSha256',
-    'output',
   ]);
-  for (const key of ['sourceManifest', 'editionManifest', 'output'])
+  for (const key of ['sourceManifest', 'editionManifest'])
     if (typeof plan[key] !== 'string' || !path.isAbsolute(plan[key]))
       fail('atlas_path_required');
   const source = await readEthosSource(
@@ -278,7 +277,10 @@ async function select(plan) {
 
 /** Portable ETHOS edition. Byte reproduction is not new semantic or browser acceptance. */
 export async function renderEthosAtlas(plan) {
-  const selected = await select(plan);
+  const { output, ...selection } = plan;
+  if (typeof output !== 'string' || !path.isAbsolute(output))
+    fail('atlas_path_required');
+  const selected = await readEthosAtlasSelection(selection);
   const parent = path.dirname(plan.output),
     stat = await fs.lstat(parent);
   if (
