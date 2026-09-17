@@ -538,8 +538,10 @@ selected thirteen-page atlas and original static composition. Current-artifact
 qualification and recoverable paired installation are implemented; their
 acceptance applies only to the selected source, artifact, observation and
 installation identities. It does not qualify arbitrary future artwork.
-Transitive raster supply closure, portable static appearance, full-product
-platform parity and final source-release closure remain separate obligations.
+The renderer source closure and portable static reconstruction are qualified
+within the explicit boundaries documented above. Frozen-edition recovery and
+semantic example journeys are verified separately; final source-release closure
+remains a publication obligation.
 
 This repository is a new implementation baseline. Original architecture
 repositories and their histories remain preserved, not merged or rewritten.
@@ -568,6 +570,17 @@ unknown or modified files, qualify new outputs and recover interrupted switches.
 Disabling collision checks is not an upgrade implementation.
 
 ### Publication and storage
+
+The current private GitLab project is
+`dig/research/human-agent-stewardship/ethos-architecture`. Its reader package is
+`ethos-architecture/2026.09.16`; it contains `ETHOS-architecture.html`,
+`ETHOS-architecture-6000.png` and `SHA256SUMS`. The qualification package is
+`ethos-architecture-qualification`, version
+`d1c07163f3bd8042f8321914a02d407ce1dde48f2825d4246009002971a43308`.
+Its `manifest.json` and checksums bind the exact recovery archive and associated
+reader/source identities. Recovery uses package name, version, filename and
+SHA-256; transient registry numeric IDs are not dependencies. The current
+renderer source package is identified in the raster section above.
 
 | Role | Durable content | Boundary |
 | --- | --- | --- |

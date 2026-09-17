@@ -12,4 +12,4 @@
 ## 3. Delivery closure
 
 - [x] 3.1 Install the qualified pair at the original Documents destinations and verify payload hashes, preserved content, recovery and user entry paths.
-- [ ] 3.2 Complete native proof, signed integration, remote projection and restoration; retire only superseded owned active entry points and retain historical provenance.
+- [x] 3.2 Complete native proof, signed integration, remote projection and restoration; retire only superseded owned active entry points and retain historical provenance.
