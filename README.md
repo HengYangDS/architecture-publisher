@@ -288,6 +288,59 @@ has completed real browser observation and qualified installation. The installed
 CLI consumes those explicit observations; it is not itself a browser runner, and
 a passing input test is not browser acceptance for a new edition.
 
+## Independent paired-file installation
+
+`architecture publish files plan ./files.json` exposes the existing file
+installer without loading ETHOS edition or integration modules. It returns
+`status: PLANNED`, `scope: file-integrity`, `semanticAcceptance: not-performed`
+and a `plan` object. Save that object unchanged for application and recovery.
+Planning reads selected inputs and inventories targets but does not install.
+
+The input has exactly `options`, `source`, `payload`, `entries` and `dependencies`:
+
+```json
+{
+  "options": {
+    "sourceRoots": ["./artifacts"],
+    "destinations": {"native": "./delivery/static", "atlas": "./delivery/interactive"},
+    "recoveryRoot": "./recovery"
+  },
+  "source": {"id": "example:service", "revision": "r1"},
+  "payload": [
+    {"medium": "native", "path": "figure.svg", "source": "./artifacts/figure.svg", "bytes": 123, "sha256": "<actual-file-digest>"},
+    {"medium": "atlas", "path": "page.html", "source": "./artifacts/page.html", "bytes": 456, "sha256": "<actual-file-digest>"}
+  ],
+  "entries": {
+    "native": {"index.html": "<a href='figure.svg'>Diagram</a>", "README.md": "Static files"},
+    "atlas": {"index.html": "<a href='page.html'>Diagram</a>", "README.md": "Interactive files"}
+  },
+  "dependencies": []
+}
+```
+
+Replace illustrative sizes and digests with actual identities. Optional dependency
+members have exactly `file` and `sha256`. All source, dependency and target paths
+resolve relative to the input file, not the calling directory. Targets must share
+an existing physical parent and must not overlap sources or recovery. `native`
+and `atlas` are the two existing file slots, not required ETHOS content types.
+Inputs must be regular non-symlink JSON files at most 4 MiB.
+
+After explicitly reviewing the exact plan and targets, supply an authorization
+file containing `{"decision":"AUTHORIZED","planSha256":"<plan.sha256>"}`.
+The tool does not create this authorization or infer it from a successful check.
+
+```sh
+architecture publish files apply ./plan.json ./authorization.json
+architecture publish files recover ./plan.json ./authorization.json
+```
+
+Emitted plans bind absolute physical targets. Moving a plan file does not change
+those targets. Application rechecks input identities and current prestates;
+recovery checks the original operation. Unrelated content is preserved; payload
+collisions are rejected. Successful replay reports `ALREADY_INSTALLED`.
+This is raw file installation, not semantic, visual, browser or ETHOS-qualified
+publication, and it is not an upgrade operation for an existing edition.
+
 ## Qualified paired publication
 
 `architecture publish ethos plan ./pair-input.json` composes the existing
@@ -545,9 +598,9 @@ remains a publication obligation.
 
 This repository is a new implementation baseline. Original architecture
 repositories and their histories remain preserved, not merged or rewritten.
-The project-level decision remains in the retained Archify repository's
-`docs/architecture-product-design.md`. This is a migration design reference,
-not an installed runtime dependency or another mutable source of product meaning.
+The current product design is [Product design](docs/product-design.md), included
+in the installed package. Predecessor design documents remain historical decision
+evidence, not another mutable design authority or a runtime dependency.
 
 ### Architecture evolution
 

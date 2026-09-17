@@ -2,9 +2,15 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture poster ethos outline <plan.json> | measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | publish ethos plan <input.json> | publish ethos apply|recover <plan.json> <acceptance.json> | atlas ethos [verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source pack <plan.json> --sha256 <digest> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture publish files plan <input.json> | publish files apply|recover <plan.json> <authorization.json> | poster ethos outline <plan.json> | measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | publish ethos plan <input.json> | publish ethos apply|recover <plan.json> <acceptance.json> | atlas ethos [verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source pack <plan.json> --sha256 <digest> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
+  if (args[0] === 'publish' && args[1] === 'files' &&
+      ((args.length === 4 && args[2] === 'plan') ||
+       (args.length === 5 && ['apply', 'recover'].includes(args[2])))) {
+    const { filePublication } = await import('../publication/input.mjs');
+    return filePublication(args[2], args[3], args[4]);
+  }
   if (
     args.length === 4 &&
     args[0] === 'poster' &&

@@ -30,6 +30,7 @@ test('packed CLI verifies relocated non-Git input without development executable
     info.files.every(
       (f) =>
         f.path === 'README.md' ||
+        f.path === 'docs/product-design.md' ||
         f.path === 'package.json' ||
         f.path.startsWith('src/') ||
         f.path.startsWith('assets/') ||
