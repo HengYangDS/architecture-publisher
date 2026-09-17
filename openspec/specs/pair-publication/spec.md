@@ -1,7 +1,10 @@
 # pair-publication Specification
 
 ## Purpose
-TBD - created by archiving change pair-publication. Update Purpose after archive.
+
+Qualify explicitly selected static and interactive architecture artifacts against
+their source, review and browser evidence, then install the authorized pair at
+explicit destinations with preservation and recoverable interruption.
 
 ## Requirements
 
