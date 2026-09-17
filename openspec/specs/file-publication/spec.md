@@ -1,7 +1,9 @@
 # file-publication Specification
 
 ## Purpose
-TBD - created by archiving change portable-publication. Update Purpose after archive.
+Expose explicit paired-file planning, authorized installation and recoverable
+effects through the installed CLI, independently of project-specific semantic
+qualification and without duplicating the filesystem installer.
 
 ## Requirements
 
