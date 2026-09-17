@@ -12,4 +12,4 @@
 ## 3. Acceptance
 
 - [x] 3.1 Verify installed non-ETHOS use and preservation without edition or integration modules.
-- [ ] 3.2 Run full repository verification and exact-HEAD native proof.
+- [x] 3.2 Run full repository verification and exact-HEAD native proof.
