@@ -1,6 +1,6 @@
 [protected_refs]
 branches = ["main", "dev"]
-tags = []
+tags = ["v0.1.0-alpha.0"]
 
 [publication]
 local_verification_command = "npm test"
