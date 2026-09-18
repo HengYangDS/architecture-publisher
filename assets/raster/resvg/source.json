@@ -7,10 +7,10 @@
       "provider": "gitlab",
       "projectPath": "dig/research/human-agent-stewardship/ethos-architecture",
       "package": "architecture-raster-resvg-source",
-      "version": "0.48.1-76f1a4a8e1d2",
+      "version": "0.48.1-9c1219f8e903",
       "file": "source.tar.xz"
     },
-    "archiveSha256": "76f1a4a8e1d2baf726a3b4c5badc2bef32427428c131275a655b4b82aceadd1a"
+    "archiveSha256": "9c1219f8e9037730a51e95c1dd905137987f8b084c7f0e3666642f52b93260e8"
   },
   "toolchain": {
     "rust": "1.98.1",
@@ -18,7 +18,7 @@
     "wasmBindgen": "0.2.128"
   },
   "build": {
-    "cargoLockSha256": "f10fe94f5c02d8fde54a84f39557719c84914f7224fde151fffeb82bdbb4803b",
+    "cargoLockSha256": "fc00bd3f4b30b69c25f87446123deb4335261c392a73f4a816bc0dea8f218578",
     "network": "offline",
     "frozen": true,
     "pathRemap": "/workspace",
@@ -31,7 +31,7 @@
       {
         "path": "tools/raster/resvg/Cargo.lock",
         "bytes": 14030,
-        "sha256": "f10fe94f5c02d8fde54a84f39557719c84914f7224fde151fffeb82bdbb4803b"
+        "sha256": "fc00bd3f4b30b69c25f87446123deb4335261c392a73f4a816bc0dea8f218578"
       },
       {
         "path": "tools/raster/resvg/rust-toolchain.toml",
@@ -63,8 +63,8 @@
     },
     {
       "path": "assets/raster/resvg/index_bg.wasm",
-      "bytes": 3421855,
-      "sha256": "e806e9e7f88b9bfbbf29fcc2a88a6b3c2a20dda55b987efc00bdfd5b0a213ac2"
+      "bytes": 3425153,
+      "sha256": "29217145dc31ddc764ecadfd6dedd1904a14997c659aa2523adc83e161095b3a"
     }
   ]
 }

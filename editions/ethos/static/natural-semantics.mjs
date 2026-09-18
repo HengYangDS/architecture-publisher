@@ -30,6 +30,8 @@ export function auditNaturalSemantics(v, input) {
       for (const key of ['replay', 'merge', 'pending'])
         if (carriers['refresh-' + key] !== v.refresh[key])
           throw Error('Changed refresh carrier');
+      if (carriers['refresh-pending-key'] !== 'Pending')
+        throw Error('Missing pending-merge field name');
     } catch {
       failures.push('refresh-meaning-visible');
     }

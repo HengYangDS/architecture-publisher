@@ -87,6 +87,20 @@ their own archive operation. The enclosing goal remains open until those native
 effects and disposable-artifact cleanup are observed. Preserve the release tag
 and package identities when only documentation or archive metadata advances.
 
+User review additionally requires coherent Refresh and proposal-retirement
+grouping. Two refresh alternatives share the left field; pending-merge recovery
+has its own right field. Related review text uses measured adjacency, while scope
+notes share a right edge. Declare these alignment and adjacency constraints at
+the existing composition/separation owners; collision clearance alone is not
+layout acceptance. Historical releases keep their own pinned source and runtime.
+
+The requested supply update selects only verified official stable releases.
+Project-local package tooling must not overwrite Homebrew-owned host software.
+Native Node and Rust compatibility, installed npm output consumers, vendored
+parser behavior, license notices and renderer source/output hashes are checked
+together. Unchanged interactive bytes may retain their exact observed browser
+evidence; modified static bytes require new applicable measurement and review.
+
 ## Risks / Trade-offs
 
 Historical replay must remain executable; preserving its schema is a reproducible

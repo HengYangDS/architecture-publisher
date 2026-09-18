@@ -158,9 +158,17 @@ test('static refresh authoring carries exact source meaning and rejects changed 
     sha256: sha(stable(p.semantics.nodes.candidate_base_stale)),
     replay: 'Unpublished: replay; then re-prove',
     merge: 'Preserve history: merge; then re-prove',
-    pending: 'Pending merge: exact continuation or preserved rollback',
+    pending: 'Merge: exact continuation or preserved rollback',
   };
-  const m = createMetricReader(metrics);
+  const added = JSON.parse(
+    await fs.readFile(
+      new URL('./fixtures/refresh-metrics.json', import.meta.url),
+    ),
+  );
+  const m = createMetricReader({
+    ...metrics,
+    records: [...metrics.records, ...added.records],
+  });
   const c = composeNaturalOverview(p, m.measure, q, { refresh });
   const visible = c.document.labels
     .filter((l) => l.id.startsWith('refresh-'))

@@ -77,14 +77,12 @@ export function auditNaturalSeparation(scene, groups, quality) {
     for (const id of edges.keys())
       if (!seen.has('path:' + id)) throw Error('Ungrouped path ' + id);
   }
-  const gaps = bands
-    .slice(1)
-    .map((b, i) => ({
-      from: bands[i].id,
-      to: b.id,
-      actual: b.top - bands[i].bottom,
-      minimum: q.major_section_gap_px_at_reference_min,
-    }));
+  const gaps = bands.slice(1).map((b, i) => ({
+    from: bands[i].id,
+    to: b.id,
+    actual: b.top - bands[i].bottom,
+    minimum: q.major_section_gap_px_at_reference_min,
+  }));
   const tableGaps = groups.tables.flatMap((t) =>
     t.rows.map(([left, right]) => ({
       table: t.id,
@@ -106,16 +104,14 @@ export function auditNaturalSeparation(scene, groups, quality) {
         end: Math.max(...b.map((b) => (p.axis === 'x' ? b.right : b.bottom))),
       };
     });
-    return bounds
-      .slice(1)
-      .map((b, i) => ({
-        group: p.id,
-        axis: p.axis,
-        from: bounds[i].id,
-        to: b.id,
-        actual: b.start - bounds[i].end,
-        minimum: q.semantic_peer_group_gap_px_at_reference_min,
-      }));
+    return bounds.slice(1).map((b, i) => ({
+      group: p.id,
+      axis: p.axis,
+      from: bounds[i].id,
+      to: b.id,
+      actual: b.start - bounds[i].end,
+      minimum: q.semantic_peer_group_gap_px_at_reference_min,
+    }));
   });
   const failures = [
     ...gaps
@@ -128,6 +124,34 @@ export function auditNaturalSeparation(scene, groups, quality) {
       .filter((g) => g.actual < g.minimum)
       .map((g) => 'peer-gap:' + g.group + ':' + g.from + '/' + g.to),
   ];
+  const alignments = (groups.alignments ?? []).map((group) => {
+    if (
+      !['left', 'right', 'baseline'].includes(group.edge) ||
+      group.labels.length < 2
+    )
+      throw Error('Invalid alignment group');
+    const values = group.labels.map((id) => {
+      const t = texts.get(id);
+      if (!t) throw Error('Unmeasured alignment label ' + id);
+      return group.edge === 'baseline'
+        ? t.baseline
+        : t.box.x + (group.edge === 'right' ? t.box.width : 0);
+    });
+    const residual = Math.max(...values) - Math.min(...values);
+    if (!Number.isFinite(residual) || residual > 1e-6)
+      failures.push('alignment:' + group.id);
+    return { id: group.id, edge: group.edge, residual };
+  });
+  const adjacencies = (groups.adjacencies ?? []).map((group) => {
+    if (group.labels.length !== 2) throw Error('Invalid adjacency group');
+    const [left, right] = group.labels;
+    const gap = box(right).left - box(left).right;
+    const expected = q.semantic_peer_group_gap_px_at_reference_min;
+    const sameBaseline = texts.get(left).baseline === texts.get(right).baseline;
+    if (Math.abs(gap - expected) > 1e-6 || !sameBaseline)
+      failures.push('adjacency:' + group.id);
+    return { id: group.id, gap, expected, sameBaseline };
+  });
   const cellTables = (groups.cellTables ?? []).map((t) => {
     if (
       t.columns.length < 2 ||
@@ -194,13 +218,11 @@ export function auditNaturalSeparation(scene, groups, quality) {
     return {
       id: t.id,
       rows,
-      rowGaps: rows
-        .slice(1)
-        .map((r, i) => ({
-          from: rows[i].id,
-          to: r.id,
-          actual: r.top - rows[i].bottom,
-        })),
+      rowGaps: rows.slice(1).map((r, i) => ({
+        from: rows[i].id,
+        to: r.id,
+        actual: r.top - rows[i].bottom,
+      })),
     };
   });
   return {
@@ -209,6 +231,8 @@ export function auditNaturalSeparation(scene, groups, quality) {
     gaps,
     tableGaps,
     peerGaps,
+    ...(groups.alignments ? { alignments } : {}),
+    ...(groups.adjacencies ? { adjacencies } : {}),
     cellTables,
     failures,
     scope:

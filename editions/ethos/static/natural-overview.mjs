@@ -365,6 +365,28 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     );
     return y + (lines.length - 1) * leading;
   };
+  const measuredLabel = (id) => {
+    const label = d.labels.find((l) => l.id === id);
+    if (!label) throw Error('Missing layout label ' + id);
+    const metric = measure(label.text, label.size, label.weight);
+    return { label, ink: metric.glyph };
+  };
+  const alignInkLeft = (id, reference) => {
+    const a = measuredLabel(id),
+      b = measuredLabel(reference);
+    a.label.x = b.label.x + b.ink.x - a.ink.x;
+  };
+  const adjacentInk = (left, right) => {
+    const a = measuredLabel(left),
+      b = measuredLabel(right);
+    b.label.x =
+      a.label.x +
+      a.ink.x +
+      a.ink.width * (1 + growth) +
+      quality.hard_gates.geometry_each_scale
+        .semantic_peer_group_gap_px_at_reference_min -
+      b.ink.x;
+  };
   const mark = (id, kind, x, y, r, sourceIds) => {
     for (const s of sourceIds)
       if (!input.semantics.nodes[s]) throw Error('Unknown source mark ' + s);
@@ -468,6 +490,13 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     ['accepted', 'exit'],
     12.5,
   );
+  if (refresh) {
+    for (const id of ['kernel-scope', 'maturity']) {
+      const { label, ink } = measuredLabel(id);
+      label.x = 1552 - ink.x - ink.width;
+    }
+    adjacentInk('review', 'review-exit');
+  }
   if (
     input.documents.copy.assertions.compile.text.includes(
       'Source acceptance, delivery and Change completion are distinct',
@@ -2527,14 +2556,16 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     const semantics = ['lanes', 'candidate', 'recovery'];
     text('refresh-key', 'Refresh', 48, 488, semantics, 12.5, '600');
     text('refresh-replay', refresh.replay, 164, 488, semantics);
-    text('refresh-merge', refresh.merge, 535, 488, semantics);
+    text('refresh-merge', refresh.merge, 164, 488, semantics);
+    text('refresh-pending-key', 'Pending', 808, 488, semantics, 12.5, '600');
     text('refresh-pending', refresh.pending, 917, 488, semantics);
-    runtimeRows.push([
-      'refresh-key',
-      'refresh-replay',
-      'refresh-merge',
-      'refresh-pending',
-    ]);
+    alignInkLeft('refresh-key', 'runtime-key');
+    alignInkLeft('refresh-replay', 'runtime-0');
+    alignInkLeft('refresh-pending-key', 'runtime-upgrade-key');
+    alignInkLeft('refresh-pending', 'runtime-upgrade-0');
+    adjacentInk('refresh-replay', 'refresh-merge');
+    runtimeRows.push(['refresh-key', 'refresh-replay', 'refresh-merge']);
+    runtimeRows.push(['refresh-pending-key', 'refresh-pending']);
   }
   d.sourceExplanations = [
     {
@@ -2692,6 +2723,55 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
   const prefixLabels = (prefix) =>
     d.labels.filter((l) => l.id.startsWith(prefix)).map((l) => l.id);
   const separation = {
+    ...(refresh
+      ? {
+          alignments: [
+            {
+              id: 'header-scope',
+              edge: 'right',
+              labels: ['kernel-scope', 'maturity'],
+            },
+            {
+              id: 'refresh-left-key',
+              edge: 'left',
+              labels: ['runtime-key', 'refresh-key'],
+            },
+            {
+              id: 'refresh-left-value',
+              edge: 'left',
+              labels: ['runtime-0', 'refresh-replay'],
+            },
+            {
+              id: 'refresh-right-key',
+              edge: 'left',
+              labels: ['runtime-upgrade-key', 'refresh-pending-key'],
+            },
+            {
+              id: 'refresh-right-value',
+              edge: 'left',
+              labels: ['runtime-upgrade-0', 'refresh-pending'],
+            },
+            {
+              id: 'refresh-row',
+              edge: 'baseline',
+              labels: [
+                'refresh-key',
+                'refresh-replay',
+                'refresh-merge',
+                'refresh-pending-key',
+                'refresh-pending',
+              ],
+            },
+          ],
+          adjacencies: [
+            {
+              id: 'refresh-alternatives',
+              labels: ['refresh-replay', 'refresh-merge'],
+            },
+            { id: 'review-continuation', labels: ['review', 'review-exit'] },
+          ],
+        }
+      : {}),
     bands: [
       band('core', [
         'intent',
@@ -2726,10 +2806,19 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       ...(runtimeRows.length
         ? [
             peer('runtime-columns', 'x', [
-              { id: 'write-boundary', labels: runtimeRows.slice(0, 5).flat() },
+              {
+                id: 'write-boundary',
+                labels: [
+                  ...runtimeRows.slice(0, 5).flat(),
+                  ...(refresh ? runtimeRows[10] : []),
+                ],
+              },
               {
                 id: 'runtime-lifecycle',
-                labels: runtimeRows.slice(5, 10).flat(),
+                labels: [
+                  ...runtimeRows.slice(5, 10).flat(),
+                  ...(refresh ? runtimeRows[11] : []),
+                ],
               },
             ]),
           ]

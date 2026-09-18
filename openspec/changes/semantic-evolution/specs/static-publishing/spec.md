@@ -16,3 +16,9 @@ enforcing the existing semantic and geometry gates.
 
 - **WHEN** the historical accepted poster input is selected
 - **THEN** its exact scene and SVG identities remain mandatory
+
+#### Scenario: Related text drifts without colliding
+
+- **WHEN** refresh alternatives, pending-merge recovery or proposal-retirement text lose their declared grouping or alignment
+- **THEN** the measured layout check rejects the candidate even when labels do not overlap
+- **AND** numeric spacing minima remain owned by the source quality contract

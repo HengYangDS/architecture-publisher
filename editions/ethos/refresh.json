@@ -5,7 +5,7 @@
   "static": {
     "replay": "Unpublished: replay; then re-prove",
     "merge": "Preserve history: merge; then re-prove",
-    "pending": "Pending merge: exact continuation or preserved rollback"
+    "pending": "Merge: exact continuation or preserved rollback"
   },
   "interactive": {
     "summary": "An advanced candidate base requires reconciliation and fresh proof before integration. Unpublished replay and history-preserving merge share this boundary; a pending merge requires exact-state continuation or preserved rollback.",

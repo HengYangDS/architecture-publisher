@@ -67,14 +67,22 @@ test('installed raster command needs only explicit input and its pinned static s
   );
   const pkg = path.join(consumer, 'node_modules/architecture-publishing');
   const rendererSource = JSON.parse(
-    await fs.readFile(path.join(pkg, 'assets/raster/resvg/source.json'), 'utf8'),
+    await fs.readFile(
+      path.join(pkg, 'assets/raster/resvg/source.json'),
+      'utf8',
+    ),
   );
   assert.equal(rendererSource.source.version, '0.48.1');
   assert.equal(rendererSource.toolchain.rust, '1.98.1');
   assert.equal(rendererSource.toolchain.wasmBindgen, '0.2.128');
   assert.equal(
     rendererSource.source.archiveSha256,
-    '76f1a4a8e1d2baf726a3b4c5badc2bef32427428c131275a655b4b82aceadd1a',
+    JSON.parse(
+      await fs.readFile(
+        path.join(root, 'assets/raster/resvg/source.json'),
+        'utf8',
+      ),
+    ).source.archiveSha256,
   );
   const observedNotice = await fs.readFile(
     path.join(pkg, observedNoticePath),
@@ -176,20 +184,25 @@ test('installed raster command needs only explicit input and its pinned static s
   const wrongReference = await writeSourceBundle(
     path.join(dir, 'wrong-reference'),
     { id: 'service:invalid-reference-type' },
-    [{
-      path: 'diagram.svg',
-      content: Buffer.from(
-        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><defs><rect id="paint" width="10" height="10"/></defs><rect width="100" height="100" fill="url(#paint)"/></svg>',
-      ),
-    }],
+    [
+      {
+        path: 'diagram.svg',
+        content: Buffer.from(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><defs><rect id="paint" width="10" height="10"/></defs><rect width="100" height="100" fill="url(#paint)"/></svg>',
+        ),
+      },
+    ],
   );
-  await fs.writeFile(planPath, JSON.stringify({
-    ...plan,
-    manifest: 'wrong-reference/manifest.json',
-    manifestSha256: wrongReference.manifestSha256,
-    fonts: [],
-    output: 'wrong-reference.png',
-  }));
+  await fs.writeFile(
+    planPath,
+    JSON.stringify({
+      ...plan,
+      manifest: 'wrong-reference/manifest.json',
+      manifestSha256: wrongReference.manifestSha256,
+      fonts: [],
+      output: 'wrong-reference.png',
+    }),
+  );
   const wrong = invoke();
   assert.equal(wrong.status, 1);
   assert.equal(
@@ -336,43 +349,32 @@ test('installed raster command needs only explicit input and its pinned static s
       await assert.rejects(fs.stat(path.join(outputDir, 'bad.png')), {
         code: 'ENOENT',
       });
-      assert.deepEqual(
-        await fs.readFile(path.join(dir, 'figure.png')),
-        bytes,
-      );
+      assert.deepEqual(await fs.readFile(path.join(dir, 'figure.png')), bytes);
       assert.deepEqual(await fs.readdir(outputDir), []);
     });
   }
-  await t.test(
-    'actual deadline stops a non-terminating child',
-    async () => {
-      const outputDir = await fs.mkdtemp(path.join(dir, 'deadline-'));
-      await fs.writeFile(
-        planPath,
-        JSON.stringify({
-          ...plan,
-          output: path.relative(dir, path.join(outputDir, 'bad.png')),
-        }),
-      );
-      await fs.writeFile(
-        worker,
-        consumeInput + 'setInterval(()=>{},1000);',
-      );
-      const started = performance.now(),
-        timedOut = invoke();
-      assert.equal(timedOut.status, 1, timedOut.stdout + timedOut.stderr);
-      assert.equal(
-        JSON.parse(timedOut.stdout).error.code,
-        'raster_execution_timeout',
-      );
-      assert(performance.now() - started >= RASTER_LIMITS.executionMs);
-      assert(
-        performance.now() - started < RASTER_LIMITS.executionMs + 15000,
-      );
-      await assert.rejects(fs.stat(path.join(outputDir, 'bad.png')), {
-        code: 'ENOENT',
-      });
-      assert.deepEqual(await fs.readdir(outputDir), []);
-    },
-  );
+  await t.test('actual deadline stops a non-terminating child', async () => {
+    const outputDir = await fs.mkdtemp(path.join(dir, 'deadline-'));
+    await fs.writeFile(
+      planPath,
+      JSON.stringify({
+        ...plan,
+        output: path.relative(dir, path.join(outputDir, 'bad.png')),
+      }),
+    );
+    await fs.writeFile(worker, consumeInput + 'setInterval(()=>{},1000);');
+    const started = performance.now(),
+      timedOut = invoke();
+    assert.equal(timedOut.status, 1, timedOut.stdout + timedOut.stderr);
+    assert.equal(
+      JSON.parse(timedOut.stdout).error.code,
+      'raster_execution_timeout',
+    );
+    assert(performance.now() - started >= RASTER_LIMITS.executionMs);
+    assert(performance.now() - started < RASTER_LIMITS.executionMs + 15000);
+    await assert.rejects(fs.stat(path.join(outputDir, 'bad.png')), {
+      code: 'ENOENT',
+    });
+    assert.deepEqual(await fs.readdir(outputDir), []);
+  });
 });

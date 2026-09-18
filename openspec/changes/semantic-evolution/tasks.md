@@ -13,12 +13,18 @@
 ## 3. Complete new edition
 
 - [x] 3.1 Bind the refresh semantics into the complete overview and interactive mechanism views.
-- [x] 3.2 Generate fresh measured static output and the complete standalone HTML.
-- [x] 3.3 Verify source coverage, actual geometry, all browser pages and interactions; record update-cost measurements.
+- [x] 3.2 Generate fresh measured static output and the complete standalone HTML after the reported layout corrections.
+- [x] 3.3 Verify source coverage, actual geometry, semantic grouping, header alignment and browser applicability; record update-cost measurements.
 
 ## 4. Qualification and delivery
 
-- [x] 4.1 Run full repository checks, installed-package and isolated portable qualification on selected new inputs.
+- [x] 4.1 Run full repository checks, installed-package and isolated portable qualification on the corrected edition and upgraded supply.
 - [x] 4.2 Exercise upgrade from the real previous edition and verify preserved user content and recovery.
-- [x] 4.3 Complete native source acceptance and publish a separately versioned GitLab release with verified downloads.
-- [x] 4.4 Install and hash-readback Documents delivery; verify the portable recovery archive and preserve prior inputs.
+- [ ] 4.3 Complete native source acceptance and publish the corrected release with verified downloads, preserving existing signed releases.
+- [ ] 4.4 Install and hash-readback the corrected Documents delivery; verify portable recovery and preserved prior inputs.
+
+## 5. Stable supply update
+
+- [x] 5.1 Verify official stable releases, installation ownership and exact source/package identities.
+- [x] 5.2 Upgrade selected runtime, package tooling, parser and compatible Rust lock dependencies without changing host-managed tools.
+- [x] 5.3 Rebuild and reproduce the pinned renderer closure; verify installed behavior and unchanged historical replay boundaries.

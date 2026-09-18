@@ -1,8 +1,8 @@
 ETHOS Architecture raster renderer third-party notices
 
-Source closure: gitlab-generic://dig/research/human-agent-stewardship/ethos-architecture/architecture-raster-resvg-source/0.48.1-76f1a4a8e1d2/source.tar.xz
-Source archive SHA-256: 76f1a4a8e1d2baf726a3b4c5badc2bef32427428c131275a655b4b82aceadd1a
-Cargo.lock SHA-256: f10fe94f5c02d8fde54a84f39557719c84914f7224fde151fffeb82bdbb4803b
+Source closure: gitlab-generic://dig/research/human-agent-stewardship/ethos-architecture/architecture-raster-resvg-source/0.48.1-9c1219f8e903/source.tar.xz
+Source archive SHA-256: 9c1219f8e9037730a51e95c1dd905137987f8b084c7f0e3666642f52b93260e8
+Cargo.lock SHA-256: fc00bd3f4b30b69c25f87446123deb4335261c392a73f4a816bc0dea8f218578
 
 Resolved Rust packages:
 - adler2 2.0.1: 0BSD OR MIT OR Apache-2.0
@@ -14,7 +14,7 @@ Resolved Rust packages:
 - bumpalo 3.20.3: MIT OR Apache-2.0
 - bytemuck 1.25.2: Zlib OR Apache-2.0 OR MIT
 - bytemuck_derive 1.12.1: Zlib OR Apache-2.0 OR MIT
-- cfg-if 1.0.4: MIT OR Apache-2.0
+- cfg-if 1.0.5: MIT OR Apache-2.0
 - crc32fast 1.5.2: MIT OR Apache-2.0
 - data-url 0.3.2: MIT OR Apache-2.0
 - euclid 0.22.14: MIT OR Apache-2.0
@@ -50,12 +50,12 @@ Resolved Rust packages:
 - smallvec 1.16.1: MIT OR Apache-2.0
 - strict-num 0.1.1: MIT
 - svgtypes 0.16.1: Apache-2.0 OR MIT
-- syn 3.0.5: MIT OR Apache-2.0
+- syn 3.0.6: MIT OR Apache-2.0
 - tiny-skia 0.12.0: BSD-3-Clause
 - tiny-skia-path 0.12.0: BSD-3-Clause
 - tinyvec 1.13.3: Zlib OR Apache-2.0 OR MIT
 - unicode-bidi 0.3.18: MIT OR Apache-2.0
-- unicode-ident 1.0.24: (MIT OR Apache-2.0) AND Unicode-3.0
+- unicode-ident 1.0.26: (MIT OR Apache-2.0) AND Unicode-3.0
 - unicode-script 0.5.8: MIT OR Apache-2.0
 - unicode-vo 0.1.0: MIT/Apache-2.0
 - usvg 0.48.1: Apache-2.0 OR MIT
@@ -67,7 +67,7 @@ Resolved Rust packages:
 - xmlwriter 0.1.0: MIT
 - zlib-rs 0.6.8: Zlib
 
-License texts follow. Identical files are deduplicated by SHA-256.
+License texts follow. Original files are deduplicated by SHA-256; presentation normalizes line endings and trailing space only. Original bytes remain in the bound source archive.
 
 ==============================================================================
 SHA-256: 01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f
@@ -473,8 +473,8 @@ Applies to:
 - proc-macro2 1.0.107/LICENSE-MIT
 - quote 1.0.47/LICENSE-MIT
 - rustversion 1.0.23/LICENSE-MIT
-- syn 3.0.5/LICENSE-MIT
-- unicode-ident 1.0.24/LICENSE-MIT
+- syn 3.0.6/LICENSE-MIT
+- unicode-ident 1.0.26/LICENSE-MIT
 
 Permission is hereby granted, free of charge, to any
 person obtaining a copy of this software and associated
@@ -586,7 +586,7 @@ THE SOFTWARE.
 ==============================================================================
 SHA-256: 378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397
 Applies to:
-- cfg-if 1.0.4/LICENSE-MIT
+- cfg-if 1.0.5/LICENSE-MIT
 - wasm-bindgen 0.2.128/LICENSE-MIT
 - wasm-bindgen-macro 0.2.128/LICENSE-MIT
 - wasm-bindgen-macro-support 0.2.128/LICENSE-MIT
@@ -879,8 +879,8 @@ Applies to:
 - proc-macro2 1.0.107/LICENSE-APACHE
 - quote 1.0.47/LICENSE-APACHE
 - rustversion 1.0.23/LICENSE-APACHE
-- syn 3.0.5/LICENSE-APACHE
-- unicode-ident 1.0.24/LICENSE-APACHE
+- syn 3.0.6/LICENSE-APACHE
+- unicode-ident 1.0.26/LICENSE-APACHE
 
                               Apache License
                         Version 2.0, January 2004
@@ -1788,7 +1788,7 @@ Applies to:
 - base64 0.23.1/LICENSE-APACHE
 - bitflags 2.13.2/LICENSE-APACHE
 - bumpalo 3.20.3/LICENSE-APACHE
-- cfg-if 1.0.4/LICENSE-APACHE
+- cfg-if 1.0.5/LICENSE-APACHE
 - data-url 0.3.2/LICENSE-APACHE
 - euclid 0.22.14/LICENSE-APACHE
 - flate2 1.1.10/LICENSE-APACHE
@@ -2275,6 +2275,23 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+SHA-256: b84fdd2c3da5db56385cdbb639795e90aa3e035c53bc3591135f18df3331451f
+Applies to:
+- fontdb 0.24.0/tests/fonts/LICENSE.txt
+
+We, the copyright holders of this work, hereby release it into the
+public domain. This applies worldwide.
+
+In case this is not legally possible,
+
+We grant any entity the right to use this work for any purpose, without
+any conditions, unless such conditions are required by law.
+
+Thatcher Ulrich <tu@tulrich.com> http://tulrich.com
+Karoly Barta bartakarcsi@gmail.com
+Michael Evans http://www.evertype.com
 
 ==============================================================================
 SHA-256: c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08
@@ -2937,6 +2954,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ==============================================================================
+SHA-256: ec82b96487e9e778ee610c7ab245162464782cfa1f555c2299333f8dbe5c036a
+Applies to:
+- euclid 0.22.14/COPYRIGHT
+
+Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+<LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+option. All files in the project carrying such notice may not be
+copied, modified, or distributed except according to those terms.
+
+==============================================================================
+SHA-256: edb20b474f6cbd4f4db066b54a9e0f687d0009d309412a63431189b59b8e2a07
+Applies to:
+- unicode-bidi 0.3.18/COPYRIGHT
+
+This project is copyright 2015, The Servo Project Developers (given in the
+file AUTHORS).
+
+Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+http://www.apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
+http://opensource.org/licenses/MIT>, at your option. All files in the project
+carrying such notice may not be copied, modified, or distributed except
+according to those terms.
+
+==============================================================================
 SHA-256: f3c9fe731c701ed77fd5fbaac573872af04dc5869385eb9bd5e3c73c42713814
 Applies to:
 - svgtypes 0.16.1/LICENSE-MIT
@@ -3021,7 +3063,7 @@ THE SOFTWARE.
 ==============================================================================
 SHA-256: f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1
 Applies to:
-- unicode-ident 1.0.24/LICENSE-UNICODE
+- unicode-ident 1.0.26/LICENSE-UNICODE
 
 UNICODE LICENSE V3
 

@@ -1,6 +1,6 @@
 {
   "name": "architecture-publishing",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "private": true,
   "description": "Source-bound architecture publishing with offline rendering and an ETHOS atlas edition",
   "type": "module",
@@ -26,5 +26,6 @@
   "devDependencies": {
     "acorn": "8.18.0",
     "playwright-core": "1.63.0"
-  }
+  },
+  "packageManager": "npm@11.19.1"
 }

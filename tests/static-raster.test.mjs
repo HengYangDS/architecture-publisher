@@ -13,6 +13,14 @@ const shape =
   '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100" viewBox="0 0 200 100"><rect width="200" height="100" fill="#f5f3ed"/><path d="M 20 50 H 180" stroke="#29372f" stroke-width="3"/></svg>';
 const withText = (text) =>
   `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="100"><rect width="240" height="100" fill="#f5f3ed"/><text x="16" y="56" font-family="JetBrains Mono" font-size="20" fill="#29372f">${text}</text></svg>`;
+test('the supplied XML parser rejects character references outside XML Char', () => {
+  for (const value of ['&#0;', '&#xD800;', '&#xFFFF;', '&#x110000;']) {
+    const bytes = Buffer.from(
+      shape.replace('</svg>', `<title>${value}</title></svg>`),
+    );
+    assert.throws(() => validateSvg(bytes, [], 800), value);
+  }
+});
 async function api() {
   const entry = new URL('../src/static/raster.mjs', import.meta.url);
   await assert.doesNotReject(
@@ -208,10 +216,7 @@ for (const [name, svg] of [
   ['event handler', shape.replace('<rect', '<rect onclick="run()"')],
   [
     'external use',
-    shape.replace(
-      '</svg>',
-      '<use href="file:///private/input.svg#x"/></svg>',
-    ),
+    shape.replace('</svg>', '<use href="file:///private/input.svg#x"/></svg>'),
   ],
   [
     'entity-encoded external reference',
@@ -245,10 +250,7 @@ for (const [name, svg] of [
   ],
   [
     'image',
-    shape.replace(
-      '</svg>',
-      '<image href="data:image/png;base64,AA=="/></svg>',
-    ),
+    shape.replace('</svg>', '<image href="data:image/png;base64,AA=="/></svg>'),
   ],
   [
     'external CSS paint',

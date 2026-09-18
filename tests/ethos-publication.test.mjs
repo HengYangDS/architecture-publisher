@@ -51,6 +51,7 @@ test(
     );
     const { planEthosPublication } = await import(module),
       plan = JSON.parse(await fs.readFile(process.env.ETHOS_PAIR_PLAN));
+    plan.browser.reports = [];
     const work = fileURLToPath(new URL('../build/test-work/', import.meta.url));
     await fs.mkdir(work, { recursive: true });
     const temporary = await fs.mkdtemp(path.join(work, 'pair-negative '));
@@ -202,6 +203,7 @@ test(
     );
     assert.equal(install.status, 0, install.stderr);
     const plan = JSON.parse(await fs.readFile(process.env.ETHOS_PAIR_PLAN));
+    plan.browser.reports = [];
     plan.deployment.destinations = {
       native: path.join(tmp, 'native'),
       atlas: path.join(tmp, 'atlas'),

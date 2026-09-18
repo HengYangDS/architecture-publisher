@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { fail } from '../source/manifest.mjs';
 
 export const RASTER_SUPPLY_SHA256 =
-  '99982a6900c3821483390b8f5276efcd694e9f4d772fbe013995e25c3610a6aa';
+  'eab8b350cf12dcd6d64ed44764621719135ab4a7f60f647d4c4c526d9a5c3e7e';
 const root = fileURLToPath(new URL('../../assets/raster/', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
