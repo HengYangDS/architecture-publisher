@@ -3,10 +3,18 @@ import { verifyMeaningCarriers } from '../evolution.mjs';
 
 /** One source-bound authored view. Grouping is editorial ownership, never
  * effect authority. Type and spacing obligations remain source-owned. */
-export function composeNaturalOverview(input, measure, quality, options = {}) {
+export function composeNaturalOverview(
+  input,
+  measure,
+  quality,
+  options = {},
+) {
   const refresh = options.refresh;
   if (refresh) {
-    if (Object.keys(refresh).sort().join(',') !== 'merge,pending,replay,sha256')
+    if (
+      Object.keys(refresh).sort().join(',') !==
+      'merge,pending,replay,sha256'
+    )
       throw Error('Explicit refresh meaning and carriers required');
     verifyMeaningCarriers(
       input,
@@ -68,7 +76,12 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       );
       if (found.length !== 1)
         throw Error(
-          'Ambiguous local protocol relation ' + row.id + ':' + from + '/' + to,
+          'Ambiguous local protocol relation ' +
+            row.id +
+            ':' +
+            from +
+            '/' +
+            to,
         );
       return found[0].id;
     };
@@ -91,7 +104,9 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       relations: [
         {
           view: 'protocol-admit-recheck',
-          source: [sourceRelation(c.pass_verdict, c.fresh_recheck, 'admits')],
+          source: [
+            sourceRelation(c.pass_verdict, c.fresh_recheck, 'admits'),
+          ],
         },
         {
           view: 'protocol-state-recheck',
@@ -119,7 +134,11 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
         {
           view: 'protocol-observe-receipt',
           source: [
-            sourceRelation(c.post_observation, c.effect_attestation, 'attests'),
+            sourceRelation(
+              c.post_observation,
+              c.effect_attestation,
+              'attests',
+            ),
           ],
         },
         {
@@ -263,7 +282,8 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     weight = '400',
     about,
   ) => {
-    if (d.labels.some((l) => l.id === id)) throw Error('Duplicate label ' + id);
+    if (d.labels.some((l) => l.id === id))
+      throw Error('Duplicate label ' + id);
     const replacement = options.labels?.[id];
     if (replacement !== undefined) {
       value = replacement;
@@ -376,20 +396,10 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       b = measuredLabel(reference);
     a.label.x = b.label.x + b.ink.x - a.ink.x;
   };
-  const adjacentInk = (left, right) => {
-    const a = measuredLabel(left),
-      b = measuredLabel(right);
-    b.label.x =
-      a.label.x +
-      a.ink.x +
-      a.ink.width * (1 + growth) +
-      quality.hard_gates.geometry_each_scale
-        .semantic_peer_group_gap_px_at_reference_min -
-      b.ink.x;
-  };
   const mark = (id, kind, x, y, r, sourceIds) => {
     for (const s of sourceIds)
-      if (!input.semantics.nodes[s]) throw Error('Unknown source mark ' + s);
+      if (!input.semantics.nodes[s])
+        throw Error('Unknown source mark ' + s);
     d.marks.push({
       id,
       kind,
@@ -397,7 +407,11 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       y: placeY(y),
       r,
       tone:
-        kind === 'gate' ? 'accepted' : kind === 'evidence' ? 'proof' : 'line',
+        kind === 'gate'
+          ? 'accepted'
+          : kind === 'evidence'
+            ? 'proof'
+            : 'line',
     });
     witnesses.marks[id] = sourceIds;
   };
@@ -491,11 +505,10 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     12.5,
   );
   if (refresh) {
-    for (const id of ['kernel-scope', 'maturity']) {
+    for (const id of ['kernel-scope', 'maturity', 'review-exit']) {
       const { label, ink } = measuredLabel(id);
       label.x = 1552 - ink.x - ink.width;
     }
-    adjacentInk('review', 'review-exit');
   }
   if (
     input.documents.copy.assertions.compile.text.includes(
@@ -548,9 +561,21 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     'research',
     'intent_alignment',
   ]);
-  mark('meaning', 'intent', 212, 275, 10, ['openspec_carrier', 'commitment_n']);
+  mark('meaning', 'intent', 212, 275, 10, [
+    'openspec_carrier',
+    'commitment_n',
+  ]);
   mark('plan', 'state', 356, 275, 5, ['compile_plan', 'transition_plan']);
-  text('compile-title', 'Compile', 292, 250, ['compile'], 18, 'serif', 'plan');
+  text(
+    'compile-title',
+    'Compile',
+    292,
+    250,
+    ['compile'],
+    18,
+    'serif',
+    'plan',
+  );
   edge('align', 'inquiry', 'meaning', 'flow', [
     'research-informs-alignment',
     'alignment-proposes-accepted-intent',
@@ -767,7 +792,14 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     mark('prewrite-' + i, 'gate', 708, y + preparationDepth, 5, [
       'prewrite_admission',
     ]);
-    mark('prewrite-inputs-' + i, 'junction', 669, y + preparationDepth, 2, []);
+    mark(
+      'prewrite-inputs-' + i,
+      'junction',
+      669,
+      y + preparationDepth,
+      2,
+      [],
+    );
     routingMarks['prewrite-inputs-' + i] = {
       role: 'routing-only',
       purpose:
@@ -791,7 +823,10 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       [],
       false,
     );
-    for (const id of ['lane-prewrite-input-' + i, 'tree-prewrite-input-' + i])
+    for (const id of [
+      'lane-prewrite-input-' + i,
+      'tree-prewrite-input-' + i,
+    ])
       routingEdges[id] = {
         role: 'routing-only',
         purpose:
@@ -822,7 +857,15 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
   if (laneCount === 3) {
     for (const i of [0, 2]) {
       edge('fork-' + i, 'fork-1', 'fork-' + i, 'flow', [], [], false);
-      edge('collect-' + i, 'offer-' + i, 'offer-1', 'evidence', [], [], false);
+      edge(
+        'collect-' + i,
+        'offer-' + i,
+        'offer-1',
+        'evidence',
+        [],
+        [],
+        false,
+      );
       busEdges.push('fork-' + i, 'collect-' + i);
     }
   } else {
@@ -928,9 +971,13 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     '400',
     'action-reobserve',
   );
-  edge('action-unknown-branch', 'action-check', 'action-unknown', 'retain', [
+  edge(
     'action-unknown-branch',
-  ]);
+    'action-check',
+    'action-unknown',
+    'retain',
+    ['action-unknown-branch'],
+  );
   edge(
     'action-unknown-recovery',
     'action-unknown',
@@ -978,7 +1025,8 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       1058 - 4 - 0.85 - clearance - m.width * (1 + growth) - 1,
     );
     const peer = measure('Zero or one', 12.5, '400');
-    const peerRight = 848 + (peer.glyph?.width ?? peer.width) * (1 + growth);
+    const peerRight =
+      848 + (peer.glyph?.width ?? peer.width) * (1 + growth);
     modeGroupShift = Math.max(
       0,
       peerRight - (proofGroupX + (m.glyph?.x ?? 0)) + 1,
@@ -1344,7 +1392,8 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
   );
   routingEdges['review-object-input'] = {
     role: 'routing-only',
-    purpose: 'Carry the same candidate object to its two separate consumers.',
+    purpose:
+      'Carry the same candidate object to its two separate consumers.',
   };
   edge(
     'review-object',
@@ -1363,14 +1412,30 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
   );
   d.apertures.find((a) => a.mark === 'accepted-cas').objectInput =
     'review-fork';
-  text('same-object', 'Exact reviewed object', 1112, 250, ['accepted'], 12.5);
+  text(
+    'same-object',
+    'Exact reviewed object',
+    1112,
+    250,
+    ['accepted'],
+    12.5,
+  );
 
   section('outcomes');
   mark('use', 'outcome', 1500, 275, 8, ['use_outcome']);
   edge('use', 'accepted-next', 'use', 'observation', [
     'accepted-identifies-use',
   ]);
-  text('use-title', 'Actual use', 1474, 245, ['outcomes'], 22, 'serif', 'use');
+  text(
+    'use-title',
+    'Actual use',
+    1474,
+    245,
+    ['outcomes'],
+    22,
+    'serif',
+    'use',
+  );
   paragraph(
     'benefit',
     'Benefit, not delivery. Bind deployed identity, context, baseline and time window.',
@@ -1386,7 +1451,10 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       'No silent authority/history edits.',
       'Can invalidate applicability.',
     ].entries())
-      text('feedback-' + i, line, 1370, 156 + i * 18, ['feedback', 'outcomes']);
+      text('feedback-' + i, line, 1370, 156 + i * 18, [
+        'feedback',
+        'outcomes',
+      ]);
   } else
     paragraph(
       'feedback',
@@ -1492,7 +1560,13 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     text(
       'protocol-' + id + '-label',
       label,
-      id === 'recheck' ? 243 : id === 'run' ? 382 : id === 'cas' ? 514 : x - 22,
+      id === 'recheck'
+        ? 243
+        : id === 'run'
+          ? 382
+          : id === 'cas'
+            ? 514
+            : x - 22,
       id === 'recheck' ? 619 : 565,
       ['effect'],
       12.5,
@@ -1598,10 +1672,14 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     'recovery_anchor',
     'fresh_facts',
   ]);
-  mark('protocol-recompile', 'state', 365, trustedPublication ? 695 : 711, 4, [
-    'compile_plan',
-    'transition_plan',
-  ]);
+  mark(
+    'protocol-recompile',
+    'state',
+    365,
+    trustedPublication ? 695 : 711,
+    4,
+    ['compile_plan', 'transition_plan'],
+  );
   edge(
     'missing-facts-reobserve',
     'protocol-refusal',
@@ -1615,7 +1693,10 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
         event: 'protocol-loss',
         anchor: 'protocol-reobserve',
         interrupts: 'session_host',
-        sourceRelations: ['loss-interrupts-session', 'loss-to-recovery-anchor'],
+        sourceRelations: [
+          'loss-interrupts-session',
+          'loss-to-recovery-anchor',
+        ],
         effectAuthority: false,
         visibleLabels: [
           'protocol-loss-label',
@@ -1788,7 +1869,15 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
   }
 
   section('resource-comparison');
-  text('resources-title', 'Local effects', 842, 536, ['effect'], 18, 'serif');
+  text(
+    'resources-title',
+    'Local effects',
+    842,
+    536,
+    ['effect'],
+    18,
+    'serif',
+  );
   const repositoryRows = rows.filter((row) => row.repositoryWorld !== null);
   if (
     repositoryRows.map((row) => row.id).join(',') !==
@@ -1821,7 +1910,14 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     842,
     separateReclamation ? 573 : 576,
     724,
-    ['accepted', 'self', 'greenfield', 'brownfield', 'peers', 'verification'],
+    [
+      'accepted',
+      'self',
+      'greenfield',
+      'brownfield',
+      'peers',
+      'verification',
+    ],
     12.5,
   );
   const repositoryLocalInputs = {
@@ -1861,8 +1957,8 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
                 );
               if (
                 grammar.length !== 1 ||
-                input.semantics.nodes[subject].attributes.reality_boundary !==
-                  row.contract.repository_boundary
+                input.semantics.nodes[subject].attributes
+                  .reality_boundary !== row.contract.repository_boundary
               )
                 throw Error('Wrong local conformance ' + row.id);
               return {
@@ -1880,7 +1976,8 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
   const localInputLabel = (term) => {
     const label = d.labels.find(
       (l) =>
-        repositoryLocalInputs.labels.includes(l.id) && l.text.includes(term),
+        repositoryLocalInputs.labels.includes(l.id) &&
+        l.text.includes(term),
     );
     if (!label) throw Error('Unpainted local input ' + term);
     return label.id;
@@ -1971,7 +2068,8 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     ];
   const inputLabels = {
     candidate_integration_gate: {
-      authority_reference: 'resource-candidate_integration_effect-obligation',
+      authority_reference:
+        'resource-candidate_integration_effect-obligation',
       commitment_n: 'resource-candidate_integration_effect-detail',
       fresh_facts: 'resource-candidate_integration_effect-obligation',
       transition_plan: 'resource-candidate_integration_effect-obligation',
@@ -2017,7 +2115,9 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     if (
       !mapped ||
       row.gate.required_inputs.some((id) => !mapped[id]) ||
-      Object.keys(mapped).some((id) => !row.gate.required_inputs.includes(id))
+      Object.keys(mapped).some(
+        (id) => !row.gate.required_inputs.includes(id),
+      )
     )
       throw Error('Unmapped admission input ' + gateId);
     return {
@@ -2078,7 +2178,8 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       if (measure(next, 12.5, weight).width * (1 + growth) <= c.width)
         line = next;
       else {
-        if (!line) throw Error('Resource cell word exceeds allocation ' + id);
+        if (!line)
+          throw Error('Resource cell word exceeds allocation ' + id);
         parts.push(line);
         line = word;
       }
@@ -2135,7 +2236,11 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       labels,
       protocol: protocolFor(row),
     });
-    resourceTable.rows.push({ contract: row.id, y: placeY(resourceY), cells });
+    resourceTable.rows.push({
+      contract: row.id,
+      y: placeY(resourceY),
+      cells,
+    });
     resourceY +=
       Math.max(...cells.map((c) => c.labels.length)) *
       (separateReclamation ? 16 : 18);
@@ -2555,16 +2660,28 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
   if (refresh) {
     const semantics = ['lanes', 'candidate', 'recovery'];
     text('refresh-key', 'Refresh', 48, 488, semantics, 12.5, '600');
-    text('refresh-replay', refresh.replay, 164, 488, semantics);
-    text('refresh-merge', refresh.merge, 164, 488, semantics);
-    text('refresh-pending-key', 'Pending', 808, 488, semantics, 12.5, '600');
+    text(
+      'refresh-options',
+      [refresh.replay, refresh.merge].join(' · '),
+      164,
+      488,
+      semantics,
+    );
+    text(
+      'refresh-pending-key',
+      'Pending',
+      808,
+      488,
+      semantics,
+      12.5,
+      '600',
+    );
     text('refresh-pending', refresh.pending, 917, 488, semantics);
     alignInkLeft('refresh-key', 'runtime-key');
-    alignInkLeft('refresh-replay', 'runtime-0');
+    alignInkLeft('refresh-options', 'runtime-0');
     alignInkLeft('refresh-pending-key', 'runtime-upgrade-key');
     alignInkLeft('refresh-pending', 'runtime-upgrade-0');
-    adjacentInk('refresh-replay', 'refresh-merge');
-    runtimeRows.push(['refresh-key', 'refresh-replay', 'refresh-merge']);
+    runtimeRows.push(['refresh-key', 'refresh-options']);
     runtimeRows.push(['refresh-pending-key', 'refresh-pending']);
   }
   d.sourceExplanations = [
@@ -2640,11 +2757,24 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       'Fresh authority; own exact preimage; duties met',
       ['recovery', 'exit'],
     ],
-    ['Hold', 'Unknown liveness/drift blocks disposal', ['recovery', 'exit']],
+    [
+      'Hold',
+      'Unknown liveness/drift blocks disposal',
+      ['recovery', 'exit'],
+    ],
   ].entries()) {
     const id = 'continuation-' + i,
       y = 800 + i * (separateReclamation ? 14.2 : 18);
-    text(id + '-key', key, 1210, y, semantic, 12.5, '600', 'exit-conditions');
+    text(
+      id + '-key',
+      key,
+      1210,
+      y,
+      semantic,
+      12.5,
+      '600',
+      'exit-conditions',
+    );
     text(
       id + '-value',
       value,
@@ -2684,17 +2814,24 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
       '400',
       'exit-conditions',
     );
-    exitBinding.conditionLabels.push('exit-discharge-key', 'exit-discharge');
+    exitBinding.conditionLabels.push(
+      'exit-discharge-key',
+      'exit-discharge',
+    );
     continuityRows.push(['exit-discharge-key', 'exit-discharge']);
   }
   const supportMarks = new Set([
     'exit-conditions',
     'exit-retirement',
-    ...d.marks.filter((m) => m.id.startsWith('verification-')).map((m) => m.id),
+    ...d.marks
+      .filter((m) => m.id.startsWith('verification-'))
+      .map((m) => m.id),
   ]);
   const band = (id, ids) => ({
     id,
-    labels: groups.filter((g) => ids.includes(g.id)).flatMap((g) => g.labels),
+    labels: groups
+      .filter((g) => ids.includes(g.id))
+      .flatMap((g) => g.labels),
     marks: d.marks
       .filter((m) =>
         id === 'support'
@@ -2711,7 +2848,8 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
         id === 'support'
           ? supportMarks.has(e.source)
           : id === 'core'
-            ? !e.source.startsWith('protocol-') && !supportMarks.has(e.source)
+            ? !e.source.startsWith('protocol-') &&
+              !supportMarks.has(e.source)
             : id === 'protocol-and-applications'
               ? e.source.startsWith('protocol-')
               : false,
@@ -2729,7 +2867,12 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
             {
               id: 'header-scope',
               edge: 'right',
-              labels: ['kernel-scope', 'maturity'],
+              labels: ['kernel-scope', 'maturity', 'review-exit'],
+            },
+            {
+              id: 'header-review-baseline',
+              edge: 'baseline',
+              labels: ['review', 'review-exit'],
             },
             {
               id: 'refresh-left-key',
@@ -2739,7 +2882,7 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
             {
               id: 'refresh-left-value',
               edge: 'left',
-              labels: ['runtime-0', 'refresh-replay'],
+              labels: ['runtime-0', 'refresh-options'],
             },
             {
               id: 'refresh-right-key',
@@ -2756,19 +2899,11 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
               edge: 'baseline',
               labels: [
                 'refresh-key',
-                'refresh-replay',
-                'refresh-merge',
+                'refresh-options',
                 'refresh-pending-key',
                 'refresh-pending',
               ],
             },
-          ],
-          adjacencies: [
-            {
-              id: 'refresh-alternatives',
-              labels: ['refresh-replay', 'refresh-merge'],
-            },
-            { id: 'review-continuation', labels: ['review', 'review-exit'] },
           ],
         }
       : {}),
@@ -2781,10 +2916,16 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
         'outcomes',
         'runtime',
       ]),
-      band('protocol-and-applications', ['protocol', 'resource-comparison']),
+      band('protocol-and-applications', [
+        'protocol',
+        'resource-comparison',
+      ]),
       band('support', ['responsibilities', 'verification', 'continuity']),
     ],
     tables: [
+      ...(refresh
+        ? [{ id: 'header-review', rows: [['review', 'review-exit']] }]
+        : []),
       { id: 'responsibility-table', rows: responsibilityRows },
       { id: 'lane-admission', rows: laneAdmissionRows },
       { id: 'continuity-conditions', rows: continuityRows },
@@ -2873,7 +3014,7 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
           refresh: {
             ...refresh,
             node: 'candidate_base_stale',
-            labels: ['refresh-replay', 'refresh-merge', 'refresh-pending'],
+            labels: ['refresh-options', 'refresh-pending'],
           },
         }
       : {}),

@@ -1,6 +1,6 @@
 {
   "name": "architecture-publishing",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "private": true,
   "description": "Source-bound architecture publishing with offline rendering and an ETHOS atlas edition",
   "type": "module",

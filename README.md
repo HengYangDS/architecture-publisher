@@ -696,13 +696,13 @@ personal browser profiles or credentials.
 
 The current private GitLab project is
 `dig/research/human-agent-stewardship/ethos-architecture`. Release
-`v0.1.0-alpha.2` selects the `ethos-architecture/0.1.0-alpha.2` package:
+`v0.1.0-alpha.3` selects the `ethos-architecture/0.1.0-alpha.3` package:
 
 | Asset | Purpose |
 | --- | --- |
 | `ETHOS-architecture.html` | Complete standalone interactive atlas |
 | `ETHOS-architecture-6000.png` | High-resolution static overview |
-| `architecture-publishing-0.1.0-alpha.2.tgz` | Exact installed publisher |
+| `architecture-publishing-0.1.0-alpha.3.tgz` | Exact installed publisher |
 | `ETHOS-architecture-recovery.tar.xz` | Selected edition, portable input plans and qualification closure |
 | `recovery-manifest.json`, `SHA256SUMS` | Member identities and release asset checksums |
 | `README-recovery.md`, `qualification.json` | Recovery procedure, observed evidence and explicit limits |
@@ -745,9 +745,9 @@ not a new registry service, autonomous deletion engine or parallel evidence stor
 The existing OpenSpec Changes retain execution state; package descriptions and
 historical reports must not become competing completion ledgers.
 
-The corrected static edition keeps refresh alternatives in one field, separates
-pending-merge recovery, binds proposal-retirement text to its review context and
-aligns scope notes. These measured relationships have explicit regression checks;
+The corrected static edition keeps both refresh alternatives in one continuous
+measured text run and pending-merge recovery in its separate field. The proposal
+retirement note shares the right edge of the two header scope notes. These measured relationships have explicit regression checks;
 non-overlap alone is not visual acceptance. Unchanged interactive bytes retain
 their exact applicable browser observations rather than inheriting approval for
 changed artifacts.

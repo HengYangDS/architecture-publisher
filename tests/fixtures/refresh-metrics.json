@@ -85,6 +85,21 @@
           "y": -3
         }
       }
+    ],
+    [
+      "[\"Unpublished: replay; then re-prove · Preserve history: merge; then re-prove\",12.5,\"400\"]",
+      {
+        "width": 427.76249999999976,
+        "descent": 4.5749664306640625,
+        "height": 17.074966430664062,
+        "ascent": 12.5,
+        "glyph": {
+          "x": 1.125,
+          "width": 425.9374999999999,
+          "y": -3,
+          "height": 12.450000000000001
+        }
+      }
     ]
   ]
 }

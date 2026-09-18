@@ -14,8 +14,12 @@ import {
 async function selected() {
   const read = async (p) =>
     JSON.parse(await fs.readFile(new URL(p, import.meta.url)));
-  const source = await read('./fixtures/ethos-source/projection-input.json');
-  const metrics = await read('../editions/ethos/static/authoring/metrics.json');
+  const source = await read(
+    './fixtures/ethos-source/projection-input.json',
+  );
+  const metrics = await read(
+    '../editions/ethos/static/authoring/metrics.json',
+  );
   const added = await read('./fixtures/refresh-metrics.json');
   const reader = createMetricReader({
     ...metrics,
@@ -41,36 +45,32 @@ async function selected() {
   };
 }
 
-test('refresh options share the left field and pending merge has a right field', async () => {
+test('refresh alternatives form one continuous text run aligned to the value column', async () => {
   const { view, scene, quality } = await selected();
   const text = (id) => scene.texts.find((t) => t.id === id);
-  assert.equal(text('refresh-pending-key')?.text, 'Pending');
   assert.equal(
-    text('refresh-pending')?.text,
-    'Merge: exact continuation or preserved rollback',
+    text('refresh-options')?.text,
+    'Unpublished: replay; then re-prove · Preserve history: merge; then re-prove',
   );
-  const grownRight = (t) =>
-    t.box.x +
-    t.box.width *
-      (1 + quality.hard_gates.geometry_each_scale.font_width_growth_fraction);
-  const gap = text('refresh-merge').box.x - grownRight(text('refresh-replay'));
-  assert(
-    Math.abs(
-      gap -
-        quality.hard_gates.geometry_each_scale
-          .semantic_peer_group_gap_px_at_reference_min,
-    ) < 0.01,
-  );
-  assert(grownRight(text('refresh-merge')) < text('topology-owner-key').box.x);
+  assert.equal(text('refresh-replay'), undefined);
+  assert.equal(text('refresh-merge'), undefined);
   assert.equal(text('refresh-key').box.x, text('runtime-key').box.x);
-  assert.equal(text('refresh-replay').box.x, text('runtime-0').box.x);
+  assert.equal(text('refresh-options').box.x, text('runtime-0').box.x);
+  assert.equal(
+    text('refresh-options').baseline,
+    text('refresh-key').baseline,
+  );
+  assert.equal(text('refresh-pending-key')?.text, 'Pending');
   assert.equal(
     text('refresh-pending-key').box.x,
     text('runtime-upgrade-key').box.x,
   );
-  assert.equal(text('refresh-pending').box.x, text('runtime-upgrade-0').box.x);
   assert.equal(
-    text('refresh-replay').baseline,
+    text('refresh-pending').box.x,
+    text('runtime-upgrade-0').box.x,
+  );
+  assert.equal(
+    text('refresh-options').baseline,
     text('refresh-pending').baseline,
   );
   assert.deepEqual(
@@ -91,33 +91,37 @@ test('pending recovery keeps its visible semantic field name', async () => {
   );
 });
 
-test('header review is one adjacent reading group and scope notes share a right ink edge', async () => {
+test('proposal retirement shares the header right edge and preserves review baseline', async () => {
   const { view, scene, quality } = await selected();
   const text = (id) => scene.texts.find((t) => t.id === id);
   const right = (t) => t.box.x + t.box.width;
   assert(
     Math.abs(right(text('maturity')) - right(text('kernel-scope'))) < 0.01,
   );
+  assert(
+    Math.abs(right(text('review-exit')) - right(text('maturity'))) < 0.01,
+  );
   const gap =
     text('review-exit').box.x -
     (text('review').box.x +
       text('review').box.width *
         (1 +
-          quality.hard_gates.geometry_each_scale.font_width_growth_fraction));
+          quality.hard_gates.geometry_each_scale
+            .font_width_growth_fraction));
   assert(
-    Math.abs(
-      gap -
-        quality.hard_gates.geometry_each_scale
-          .semantic_peer_group_gap_px_at_reference_min,
-    ) < 0.01,
+    gap >=
+      quality.hard_gates.geometry_each_scale
+        .semantic_peer_group_gap_px_at_reference_min,
   );
   assert.equal(text('review').baseline, text('review-exit').baseline);
   const wrong = structuredClone(scene);
   wrong.texts.find((t) => t.id === 'review-exit').box.x += 40;
   assert(
-    auditNaturalSeparation(wrong, view.separation, quality).failures.includes(
-      'adjacency:review-continuation',
-    ),
+    auditNaturalSeparation(
+      wrong,
+      view.separation,
+      quality,
+    ).failures.includes('alignment:header-scope'),
   );
   const unaligned = structuredClone(scene);
   unaligned.texts.find((t) => t.id === 'maturity').box.x -= 16;

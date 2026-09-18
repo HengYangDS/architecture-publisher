@@ -18,7 +18,7 @@
 
 ## 4. Qualification and delivery
 
-- [x] 4.1 Run full repository checks, installed-package and isolated portable qualification on the corrected edition and upgraded supply.
+- [ ] 4.1 Run full repository checks, installed-package and isolated portable qualification on the corrected edition and upgraded supply.
 - [x] 4.2 Exercise upgrade from the real previous edition and verify preserved user content and recovery.
 - [ ] 4.3 Complete native source acceptance and publish the corrected release with verified downloads, preserving existing signed releases.
 - [ ] 4.4 Install and hash-readback the corrected Documents delivery; verify portable recovery and preserved prior inputs.

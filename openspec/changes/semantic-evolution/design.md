@@ -88,9 +88,10 @@ effects and disposable-artifact cleanup are observed. Preserve the release tag
 and package identities when only documentation or archive metadata advances.
 
 User review additionally requires coherent Refresh and proposal-retirement
-grouping. Two refresh alternatives share the left field; pending-merge recovery
-has its own right field. Related review text uses measured adjacency, while scope
-notes share a right edge. Declare these alignment and adjacency constraints at
+grouping. Two refresh alternatives form one continuous measured run in the left field;
+pending-merge recovery has its own right field. The proposal-retirement note
+shares the right edge of both header scope notes and the baseline of the related
+review note. Declare these alignment and minimum-clearance constraints at
 the existing composition/separation owners; collision clearance alone is not
 layout acceptance. Historical releases keep their own pinned source and runtime.
 

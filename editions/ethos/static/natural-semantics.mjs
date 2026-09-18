@@ -27,9 +27,12 @@ export function auditNaturalSemantics(v, input) {
         ],
         carriers,
       );
-      for (const key of ['replay', 'merge', 'pending'])
-        if (carriers['refresh-' + key] !== v.refresh[key])
-          throw Error('Changed refresh carrier');
+      if (
+        carriers['refresh-options'] !==
+          [v.refresh.replay, v.refresh.merge].join(' · ') ||
+        carriers['refresh-pending'] !== v.refresh.pending
+      )
+        throw Error('Changed refresh carrier');
       if (carriers['refresh-pending-key'] !== 'Pending')
         throw Error('Missing pending-merge field name');
     } catch {
@@ -90,7 +93,11 @@ export function auditNaturalSemantics(v, input) {
       ],
       [
         'responsibility-owners-value',
-        ['One owner/current consumer', 'executable rules', 'bounded lifecycle'],
+        [
+          'One owner/current consumer',
+          'executable rules',
+          'bounded lifecycle',
+        ],
         'native-lifecycle-visible',
       ],
       [
@@ -137,7 +144,9 @@ export function auditNaturalSemantics(v, input) {
     )
       failures.push('formation-scope');
     if (
-      !visible('attestation-scope').includes('Binds Commitment/pre/effect/post')
+      !visible('attestation-scope').includes(
+        'Binds Commitment/pre/effect/post',
+      )
     )
       failures.push('attestation-binding-visible');
     if (
@@ -252,23 +261,29 @@ export function auditNaturalSemantics(v, input) {
         label = v.document.labels.find((l) => l.id === binding.label);
       const copy = v.document.labels
         .filter(
-          (l) => l.id === binding.label || l.id.startsWith(binding.label + '-'),
+          (l) =>
+            l.id === binding.label || l.id.startsWith(binding.label + '-'),
         )
         .map((l) => l.text)
         .join(' ');
-      const kind = binding.source === 'lane_proof_claim' ? 'returns' : 'binds';
+      const kind =
+        binding.source === 'lane_proof_claim' ? 'returns' : 'binds';
       if (
         relation?.from !== binding.source ||
         relation?.to !== 'candidate_integration_evaluation' ||
         relation?.kind !== kind ||
         relation?.attributes.guard !== admission?.gate
       )
-        failures.push('candidate-admission-input-relation:' + binding.source);
+        failures.push(
+          'candidate-admission-input-relation:' + binding.source,
+        );
       if (
         !label ||
         !terms[binding.source]?.every((term) => copy.includes(term))
       )
-        failures.push('candidate-admission-input-visible:' + binding.source);
+        failures.push(
+          'candidate-admission-input-visible:' + binding.source,
+        );
     }
     const candidateRow = v.resourceRows?.find(
       (r) => r.contract === 'candidate_integration_effect',
@@ -352,7 +367,10 @@ export function auditNaturalSemantics(v, input) {
       loss.interrupts !== 'session_host' ||
       loss.effectAuthority !== false ||
       JSON.stringify(loss.sourceRelations) !==
-        JSON.stringify(['loss-interrupts-session', 'loss-to-recovery-anchor'])
+        JSON.stringify([
+          'loss-interrupts-session',
+          'loss-to-recovery-anchor',
+        ])
     )
       failures.push('loss-recovery-scope');
     const trigger = v.document.labels.find(
@@ -447,8 +465,8 @@ export function auditNaturalSemantics(v, input) {
     )
       failures.push('candidate-drift-visible');
     if (
-      !['people/Agents', 'Interchangeable', 'Small contracts:'].every((term) =>
-        capabilityCopy.includes(term),
+      !['people/Agents', 'Interchangeable', 'Small contracts:'].every(
+        (term) => capabilityCopy.includes(term),
       )
     )
       failures.push('capability-ecosystem-visible');
@@ -507,14 +525,18 @@ export function auditNaturalSemantics(v, input) {
     v.resourceRows?.some((r) => r.protocol) ||
     v.document.labels.some(
       (l) =>
-        l.id === 'protocol-title' && l.text === 'Per-resource effect protocol',
+        l.id === 'protocol-title' &&
+        l.text === 'Per-resource effect protocol',
     )
   ) {
     const rows = v.resourceRows ?? [],
       contracts = input.semantics.contracts.effect_contracts;
     const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     if (
-      !equal(rows.map((r) => r.contract).sort(), Object.keys(contracts).sort())
+      !equal(
+        rows.map((r) => r.contract).sort(),
+        Object.keys(contracts).sort(),
+      )
     )
       failures.push('resource-protocol-set');
     for (const row of rows) {
@@ -550,7 +572,9 @@ export function auditNaturalSemantics(v, input) {
         failures.push('resource-protocol-stages:' + row.contract);
       for (const [view, ids] of Object.entries(stages))
         if (!marks.has(view) || !equal(p.stages[view], ids))
-          failures.push('resource-protocol-stage:' + row.contract + ':' + view);
+          failures.push(
+            'resource-protocol-stage:' + row.contract + ':' + view,
+          );
       if (
         p.gate !== c.admission_gate ||
         !equal(p.requiredInputs, g.required_inputs) ||
@@ -616,7 +640,8 @@ export function auditNaturalSemantics(v, input) {
         failures.push('resource-protocol-relations:' + row.contract);
       for (const [view, from, to, sourceFrom, sourceTo, kind] of expected) {
         const matches = [...source.values()].filter(
-          (r) => r.from === sourceFrom && r.to === sourceTo && r.kind === kind,
+          (r) =>
+            r.from === sourceFrom && r.to === sourceTo && r.kind === kind,
         );
         const mapping = p.relations.filter((r) => r.view === view),
           edge = edges.find((e) => e.id === view);
@@ -638,11 +663,14 @@ export function auditNaturalSemantics(v, input) {
       const refused = g.failure_outputs.flatMap((to) =>
         [...source.values()]
           .filter(
-            (r) => r.from === admission && r.to === to && r.kind === 'branches',
+            (r) =>
+              r.from === admission && r.to === to && r.kind === 'branches',
           )
           .map((r) => r.id),
       );
-      const refusal = p.relations.filter((r) => r.view === 'protocol-refusal');
+      const refusal = p.relations.filter(
+        (r) => r.view === 'protocol-refusal',
+      );
       if (
         refusal.length !== 1 ||
         refused.length !== g.failure_outputs.length ||
@@ -702,7 +730,9 @@ export function auditNaturalSemantics(v, input) {
       )?.text;
       if (
         !p.labels.includes('protocol-state-label') ||
-        !['Expected state', 'Expected prior state'].includes(stateLabel ?? '')
+        !['Expected state', 'Expected prior state'].includes(
+          stateLabel ?? '',
+        )
       )
         failures.push(
           'resource-protocol-visible:' + row.contract + ':expected-state',
@@ -769,7 +799,9 @@ export function auditNaturalSemantics(v, input) {
             j.grammar !== 'protocol_grammar' ||
             grammar.length !== 1 ||
             JSON.stringify([...j.sourceRelations].sort()) !==
-              JSON.stringify([...conforms, ...grammar].map((r) => r.id).sort())
+              JSON.stringify(
+                [...conforms, ...grammar].map((r) => r.id).sort(),
+              )
           )
             failures.push('conformance-binding:' + row.contract);
           if (j?.effectAuthority !== false)
@@ -823,7 +855,8 @@ export function auditNaturalSemantics(v, input) {
     if (!Object.hasOwn(v.witnesses.marks, id))
       failures.push('unbound-mark:' + id);
   for (const c of v.conditionalConsequences)
-    if (!edgeIds.has(c.edge)) failures.push('missing-condition-edge:' + c.edge);
+    if (!edgeIds.has(c.edge))
+      failures.push('missing-condition-edge:' + c.edge);
   for (const [id, role] of Object.entries(v.routingMarks)) {
     if (
       !marks.has(id) ||
@@ -839,7 +872,11 @@ export function auditNaturalSemantics(v, input) {
     if (edge?.kind === 'effect') failures.push('routing-authority:' + id);
     if (v.witnesses.relations[id]?.length)
       failures.push('routing-source:' + id);
-    if (edge && !v.routingMarks[edge.source] && !v.routingMarks[edge.target])
+    if (
+      edge &&
+      !v.routingMarks[edge.source] &&
+      !v.routingMarks[edge.target]
+    )
       failures.push('routing-without-junction:' + id);
   }
   // A declared lane contribution is conjunctive: its own proof and prewrite
@@ -885,9 +922,11 @@ export function auditNaturalSemantics(v, input) {
         .map((l) => l.text)
         .join(' ');
       if (
-        !['Selected only', 'Base/prewrite', 'one selected Lane proof'].every(
-          (s) => selected.includes(s),
-        )
+        ![
+          'Selected only',
+          'Base/prewrite',
+          'one selected Lane proof',
+        ].every((s) => selected.includes(s))
       )
         failures.push('selected-provenance-visible');
       if (
@@ -922,8 +961,14 @@ export function auditNaturalSemantics(v, input) {
               JSON.stringify(['lane-witnesses-proof']),
         );
         const sources =
-          proof.length === 1 ? exactRoutingSources(proof[0].source) : new Set();
-        if (proof.length !== 1 || sources.size !== 1 || !sources.has(lane.work))
+          proof.length === 1
+            ? exactRoutingSources(proof[0].source)
+            : new Set();
+        if (
+          proof.length !== 1 ||
+          sources.size !== 1 ||
+          !sources.has(lane.work)
+        )
           failures.push('contribution-proof:' + lane.proof);
       }
       if (
@@ -1001,7 +1046,10 @@ export function auditNaturalSemantics(v, input) {
     }
   if (v.lanes?.some((l) => l.lease !== undefined)) {
     const r = v.leasePrewrite,
-      expected = v.lanes.map((l) => ({ lease: l.lease, prewrite: l.prewrite }));
+      expected = v.lanes.map((l) => ({
+        lease: l.lease,
+        prewrite: l.prewrite,
+      }));
     if (
       !r ||
       JSON.stringify(r.appliesTo) !== JSON.stringify(expected) ||
@@ -1059,7 +1107,8 @@ export function auditNaturalSemantics(v, input) {
         !edge ||
         edge.source !== from ||
         edge.target !== to ||
-        JSON.stringify(v.witnesses.relations[id]) !== JSON.stringify([relation])
+        JSON.stringify(v.witnesses.relations[id]) !==
+          JSON.stringify([relation])
       )
         failures.push('verification-wire:' + id);
     }
@@ -1078,11 +1127,14 @@ export function auditNaturalSemantics(v, input) {
       v.capabilityContract
         ? 'optional unless risk/policy requires'
         : 'independent optional unless risk/policy requires',
-      v.capabilityContract ? 'Responsible verifier' : 'responsible verifier',
+      v.capabilityContract
+        ? 'Responsible verifier'
+        : 'responsible verifier',
       'claim IDs',
       'No scope gain',
     ])
-      if (!copy.includes(term)) failures.push('verification-boundary:' + term);
+      if (!copy.includes(term))
+        failures.push('verification-boundary:' + term);
   }
   for (const [id, identities] of Object.entries(v.witnesses.marks)) {
     if (
@@ -1130,7 +1182,8 @@ export function auditNaturalSemantics(v, input) {
       proof[0].kind === 'effect'
     )
       failures.push('contribution-proof:' + id);
-    if (inputs.length !== 2) failures.push('contribution-conjunction:' + id);
+    if (inputs.length !== 2)
+      failures.push('contribution-conjunction:' + id);
   }
   const endpoint = (start, side) => {
     const result = new Set(),
@@ -1166,9 +1219,15 @@ export function auditNaturalSemantics(v, input) {
       routing.push({ id: edge.id, role: 'routing-only' });
       continue;
     }
-    const condition = v.conditionalConsequences.find((c) => c.edge === edge.id);
+    const condition = v.conditionalConsequences.find(
+      (c) => c.edge === edge.id,
+    );
     if (condition) {
-      if (!input.semantics.contracts.effect_contracts[condition.sourceContract])
+      if (
+        !input.semantics.contracts.effect_contracts[
+          condition.sourceContract
+        ]
+      )
         failures.push('condition-contract:' + edge.id);
       if (
         !condition.condition.trim() ||

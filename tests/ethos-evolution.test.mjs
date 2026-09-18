@@ -61,7 +61,9 @@ test('removed or added entities and unknown view dependencies never imply safe r
 });
 test('changed source documents invalidate all views conservatively', async () => {
   const { compareEthosMeaning } = await api();
-  const [a, b] = changed((p) => (p.source.bindings[0].sha256 = 'f'.repeat(64)));
+  const [a, b] = changed(
+    (p) => (p.source.bindings[0].sha256 = 'f'.repeat(64)),
+  );
   const r = compareEthosMeaning(a, b, [
     ...views,
     { id: 'details', nodes: [], relations: [], assertions: [] },
@@ -84,7 +86,10 @@ test('bound semantic carrier rejects stale meaning and missing visible copy', as
   ];
   const carriers = { 'refresh-policy': 'Re-observe before retry' };
   assert.equal(verifyMeaningCarriers(input, bindings, carriers).length, 1);
-  assert.throws(() => verifyMeaningCarriers(input, bindings, {}), /carrier/);
+  assert.throws(
+    () => verifyMeaningCarriers(input, bindings, {}),
+    /carrier/,
+  );
   input.semantics.nodes.attempt.attributes.scope = 'different';
   assert.throws(
     () => verifyMeaningCarriers(input, bindings, carriers),
@@ -121,10 +126,8 @@ test('relationship reversal and actual entity removal are explicit deltas', asyn
   f.input.semantics.relations[0].to = 'other';
   f.refresh();
   const before = structuredClone(f.input);
-  [f.input.semantics.relations[0].from, f.input.semantics.relations[0].to] = [
-    'other',
-    'attempt',
-  ];
+  [f.input.semantics.relations[0].from, f.input.semantics.relations[0].to] =
+    ['other', 'attempt'];
   f.refresh();
   assert.deepEqual(
     compareEthosMeaning(before, f.input, views).changed.relations,
@@ -142,7 +145,10 @@ test('relationship reversal and actual entity removal are explicit deltas', asyn
 test('static refresh authoring carries exact source meaning and rejects changed source', async () => {
   const p = JSON.parse(
     await fs.readFile(
-      new URL('./fixtures/ethos-source/projection-input.json', import.meta.url),
+      new URL(
+        './fixtures/ethos-source/projection-input.json',
+        import.meta.url,
+      ),
     ),
   );
   const q = JSON.parse(p.documents.quality_contract);
@@ -178,9 +184,12 @@ test('static refresh authoring carries exact source meaning and rejects changed 
   assert.match(visible, /Preserve history: merge/);
   assert.match(visible, /exact continuation or preserved rollback/);
   assert.equal(auditNaturalSemantics(c, p).failures.length, 0);
-  c.document.labels.find((l) => l.id === 'refresh-merge').text = '';
+  c.document.labels.find((l) => l.id === 'refresh-options').text =
+    refresh.replay;
   assert(
-    auditNaturalSemantics(c, p).failures.includes('refresh-meaning-visible'),
+    auditNaturalSemantics(c, p).failures.includes(
+      'refresh-meaning-visible',
+    ),
   );
   p.semantics.nodes.candidate_base_stale.attributes.semantics = 'different';
   assert.throws(
