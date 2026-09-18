@@ -154,7 +154,59 @@ const planInput = (plan) => ({
   payload: plan.payload,
   entries: plan.entries,
   dependencies: plan.dependencies,
+  ...(plan.replacement ? { replacement: plan.replacement } : {}),
 });
+
+function previousPayload(plan, medium) {
+  return (
+    plan.replacement?.plan.payload.filter((row) => row.medium === medium) ?? []
+  );
+}
+
+function validateReplacement(replacement, options) {
+  if (
+    !replacement ||
+    Object.keys(replacement).sort().join(',') !== 'authorization,plan'
+  )
+    throw Error('Explicit prior plan and authorization required');
+  let current = replacement,
+    depth = 0;
+  while (current) {
+    if (++depth > 16)
+      throw Error('Prior replacement chain exceeds bounded input');
+    verifyPlanAcceptance(current.plan, current.authorization);
+    if (
+      encode(current.plan.options.destinations) !== encode(options.destinations)
+    )
+      throw Error('Prior plan destination identity mismatch');
+    current = current.plan.replacement;
+  }
+}
+
+function verifyPriorPreimages(replacement, medium, before) {
+  const prior = replacement.plan;
+  const managed = new Set([
+    ...metadata,
+    ...prior.payload.filter((p) => p.medium === medium).map((p) => p.path),
+  ]);
+  const expected = installedInventory(prior, medium, replacement.authorization);
+  for (const name of managed) {
+    const selected = expected.entries.find((e) => e.path === name);
+    const actual = before.entries.find((e) => e.path === name);
+    if (
+      !before.exists ||
+      !selected ||
+      !actual ||
+      actual.kind !== 'file' ||
+      actual.bytes !== selected.bytes ||
+      actual.sha256 !== selected.sha256
+    )
+      throw Error(
+        'Prior managed preimage or receipt changed: ' + medium + ':' + name,
+      );
+  }
+}
+
 export async function planPairFiles(input, replayPrestates) {
   if (
     !input ||
@@ -169,6 +221,8 @@ export async function planPairFiles(input, replayPrestates) {
     payload = [],
     dependencies = new Map(),
     names = new Map();
+  if (Object.hasOwn(input, 'replacement'))
+    validateReplacement(input.replacement, options);
   const entries = structuredClone(input.entries);
   for (const medium of ['native', 'atlas']) {
     if (
@@ -248,6 +302,8 @@ export async function planPairFiles(input, replayPrestates) {
       replayPrestates?.[medium] ??
       (await inventory(options.destinations[medium]));
     prestates[medium] = structuredClone(before);
+    if (input.replacement)
+      verifyPriorPreimages(input.replacement, medium, before);
     if (
       before.entries.some((e) => metadata.includes(e.path) && e.kind !== 'file')
     )
@@ -261,8 +317,14 @@ export async function planPairFiles(input, replayPrestates) {
       throw Error('History path collision');
     for (const row of payload.filter((p) => p.medium === medium)) {
       const key = row.path.normalize('NFC').toLowerCase();
+      const replaced = new Set(
+        input.replacement?.plan.payload
+          .filter((p) => p.medium === medium)
+          .map((p) => p.path) ?? [],
+      );
       if (
         before.entries.some((e) => {
+          if (e.kind === 'file' && replaced.has(e.path)) return false;
           const prior = e.path.normalize('NFC').toLowerCase();
           return (
             key === prior ||
@@ -284,9 +346,17 @@ export async function planPairFiles(input, replayPrestates) {
     entries,
     prestates,
     dependencies: [...dependencies].map(([file, sha256]) => ({ file, sha256 })),
+    ...(input.replacement
+      ? { replacement: structuredClone(input.replacement) }
+      : {}),
     policy: {
-      preserveAllPriorContent: true,
-      replaceOnly: metadata,
+      ...(input.replacement
+        ? {
+            preserveUnknownContent: true,
+            replaceOnly: 'exact-prior-managed-payload-and-metadata',
+            rollback: 'exact-prior-directories',
+          }
+        : { preserveAllPriorContent: true, replaceOnly: metadata }),
       globalAtomicity: false,
     },
   };
@@ -301,7 +371,11 @@ function expectedContents(plan, medium) {
     if (metadata.includes(row.path))
       previousEntries[row.path] = history + '/' + row.path;
   const files = before.entries
-    .filter((e) => e.kind === 'file')
+    .filter(
+      (e) =>
+        e.kind === 'file' &&
+        !previousPayload(plan, medium).some((p) => p.path === e.path),
+    )
     .map((e) => ({ ...e, path: previousEntries[e.path] ?? e.path }));
   for (const row of plan.payload.filter((f) => f.medium === medium))
     files.push({
@@ -406,6 +480,11 @@ async function verifyInstalled(plan, medium, acceptance) {
     'Installed checksum mismatch',
   );
   for (const prior of plan.prestates[medium].entries) {
+    if (
+      prior.kind === 'file' &&
+      previousPayload(plan, medium).some((p) => p.path === prior.path)
+    )
+      continue;
     const p = m.previousEntries[prior.path] ?? prior.path;
     if (prior.kind === 'directory') {
       if (!(await fs.stat(relative(root, p))).isDirectory())
@@ -1033,6 +1112,17 @@ async function publishLockedPair(
           await fs.rename(path.join(out, name), path.join(out, preserved));
           previousEntries[name] = preserved;
         }
+      // Retire only exact prior managed payload in the private staged copy.
+      // The original complete directory remains the existing recovery preimage.
+      for (const prior of previousPayload(plan, medium)) {
+        const file = relative(out, prior.path);
+        equal(
+          sha(await fs.readFile(file)),
+          prior.sha256,
+          'Prior managed payload changed while staging',
+        );
+        await fs.unlink(file);
+      }
       for (const f of plan.payload.filter((f) => f.medium === medium)) {
         const bytes = await fs.readFile(f.source);
         equal(sha(bytes), f.sha256, 'Payload changed');

@@ -226,8 +226,9 @@ is recorded in `editions/ethos/migration.json`. One shared loader supplies font
 bytes; one source integration owns projection validation. Input cannot select
 executable adapters. Other projects and generic rendering do not load this edition.
 
-Every page runs the native checks and must match its selected expected HTML
-hash. Existing output is never overwritten. A failed build retains its partial
+Every page runs the native checks. Frozen replay inputs must match their selected
+expected HTML hashes; explicitly typed candidates emit new identities without
+pretending they were previously accepted. Existing output is never overwritten. A failed build retains its partial
 new directory without a completion manifest. The final scan checks the file set
 and rehashes all pages before writing `manifest.json` last. The complete folder
 includes the original HTML pages plus Archify/font license files. This detects
@@ -610,17 +611,81 @@ entities, relationships and obligations, and produce a new authored edition.
 Source meaning remains with its source owner; each medium owns its expression.
 Static and interactive outputs share semantic identity, not layout coordinates.
 
-The current ETHOS reader is intentionally bound to an accepted edition and exact
-artifact hashes. It must reject an unqualified candidate instead of calling it
-an automatic update. New-candidate compilation, semantic coverage comparison and
-dependency-scoped evidence invalidation remain planned work. Renaming example
-titles does not establish semantic evolution or low-cost adaptation.
+Two input contracts use the same renderer: frozen accepted replay retains exact
+output locks, while explicit candidates bind new source and authored inputs and
+emit new output identities. Neither rendering mode supplies visual approval.
 
-Installation replay is also distinct from edition replacement. A stored plan can
-resume its own operation; a new plan currently rejects occupied managed payload
-paths. Safe upgrades must bind prior ownership and exact preimages, preserve
-unknown or modified files, qualify new outputs and recover interrupted switches.
-Disabling collision checks is not an upgrade implementation.
+```sh
+architecture atlas ethos prepare ./candidate-plan.json
+architecture atlas ethos ./atlas-plan.json
+architecture atlas ethos standalone ./standalone-plan.json
+```
+
+Candidate preparation takes `previous` (the five-field prior atlas selection),
+`source` (`sourceManifest`, `sourceSha256`, `projectionDigest`), `authoring`,
+`authoringSha256`, and an absent `output` directory. Paths resolve from the plan.
+`editions/ethos/refresh.json` is the bounded authored interpretation of the real
+candidate-base refresh change. The adapter supports that node's semantic change;
+unrelated node, relation, assertion, contract or presentation changes require a
+new explicit mapping and are rejected, not silently omitted. This is not a
+universal semantic compiler.
+
+The comparison checks complete semantic values, including conditions, direction,
+scope, quantifiers and maturity. Counts do not establish equivalence. Changed
+source documents conservatively require review of all pages. No incremental
+execution or automatic acceptance reuse is claimed. Source identity and authored
+meaning bindings are checked separately from native layout.
+
+A poster candidate uses `architecture.ethos-poster-candidate/v1`, explicit
+`source`, `metricsSha256`, `authoring`, and `scope`, without frozen `expected`
+output hashes. It uses the same metric, semantic and geometry gates. The existing
+`architecture poster ethos` command consumes it. New text requires measured input;
+the reader never invents glyph widths. The selected refresh composition retains
+the complete map and uses four additional labels rather than another diagram.
+
+Standalone plans contain `atlas` (the seven-field output selection) and an absent
+`output` HTML file. All pages, fonts, native runtime and required licenses are
+embedded, with shared script/style blocks deduplicated losslessly. Navigation,
+history and native `Archify` behavior remain available inside one frame. The
+wrapper is not another visual layer or a set of disconnected diagram excerpts.
+
+`architecture atlas ethos review` accepts either historical review continuity or
+an explicit `current` review report with exact source, quality, edition, every
+page and static artifact identities. A current review states reviewer and limits;
+it does not pretend to be the user's historical visual approval or independent
+execution. New bytes require new applicable browser observations.
+
+Installation replay is distinct from edition replacement. File-publication and
+qualified-publication planning now accept optional `replacement` containing
+`plan` (the previous exact file plan) and `authorization` (its actual authorization).
+These prior absolute coordinates are not rebased. Owned files come from prior
+payload and controlled entries, never all files recorded in a receipt: inventories
+also contain foreign content. Modified or missing managed preimages block before
+effects; unknown contents are preserved. Unchanged removed payload is retired in
+the staged copy, while the old directory remains in the existing recovery record.
+The same lock, journal, local rename and compensation protocol serves installation
+and replacement. Exact replay is a no-op; there is no global atomic pair switch.
+Prior chains are bounded to sixteen replacements and the CLI's existing input
+size limit. This is explicit local file replacement, not a live synchronization
+or conflict-merging service.
+
+Repository browser qualification uses the locked, development-only Playwright
+package and an explicitly selected browser executable:
+
+```sh
+node tools/qualification/browser-run.mjs ./browser-input.json smoke
+node tools/qualification/browser-run.mjs ./browser-input.json full
+```
+
+The input supplies the atlas output selection, `browserExecutable`, standalone
+HTML path and digest, and an existing output parent. It serves only selected
+bytes on loopback, uses a disposable background context with the browser sandbox
+enabled, blocks external requests and closes owned resources. `smoke` checks all
+pages at all declared viewports plus single-file navigation; it is not the full
+story/export proof. `full` additionally observes every natural-clock story beat,
+pause/replay/reset, disclosure and applicable native export. Installation does
+not install Playwright or require a browser. This development tool does not read
+personal browser profiles or credentials.
 
 ### Publication and storage
 

@@ -1,3 +1,5 @@
+import { verifyMeaningCarriers } from '../evolution.mjs';
+
 /** A bounded endpoint/type check, not semantic approval. Structural junctions
  * are contracted before comparing the source and target semantic identities. */
 export function auditNaturalSemantics(v, input) {
@@ -8,6 +10,30 @@ export function auditNaturalSemantics(v, input) {
   const paths = [],
     routing = [],
     conditions = [];
+  if (v.refresh) {
+    try {
+      const carriers = Object.fromEntries(
+        v.document.labels.map((l) => [l.id, l.text]),
+      );
+      verifyMeaningCarriers(
+        input,
+        [
+          {
+            kind: 'node',
+            id: v.refresh.node,
+            sha256: v.refresh.sha256,
+            carriers: v.refresh.labels,
+          },
+        ],
+        carriers,
+      );
+      for (const key of ['replay', 'merge', 'pending'])
+        if (carriers['refresh-' + key] !== v.refresh[key])
+          throw Error('Changed refresh carrier');
+    } catch {
+      failures.push('refresh-meaning-visible');
+    }
+  }
   const edgeIds = new Set(edges.map((e) => e.id));
   if (edgeIds.size !== edges.length)
     failures.push('duplicate-relation-identity');

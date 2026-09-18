@@ -1,8 +1,26 @@
 import { deriveEffectRows } from './effect-matrix.mjs';
+import { verifyMeaningCarriers } from '../evolution.mjs';
 
 /** One source-bound authored view. Grouping is editorial ownership, never
  * effect authority. Type and spacing obligations remain source-owned. */
 export function composeNaturalOverview(input, measure, quality, options = {}) {
+  const refresh = options.refresh;
+  if (refresh) {
+    if (Object.keys(refresh).sort().join(',') !== 'merge,pending,replay,sha256')
+      throw Error('Explicit refresh meaning and carriers required');
+    verifyMeaningCarriers(
+      input,
+      [
+        {
+          kind: 'node',
+          id: 'candidate_base_stale',
+          sha256: refresh.sha256,
+          carriers: ['replay', 'merge', 'pending'],
+        },
+      ],
+      refresh,
+    );
+  }
   const laneCount = options.laneCount ?? 3;
   if (![2, 3, 4].includes(laneCount))
     throw Error(
@@ -220,7 +238,17 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
         ].includes(group)
           ? supportShift
           : 0) -
-        bandLift();
+        bandLift() +
+        (refresh &&
+        [
+          'protocol',
+          'resource-comparison',
+          'responsibilities',
+          'verification',
+          'continuity',
+        ].includes(group)
+          ? 4.5
+          : 0);
   const section = (id) => {
     group = id;
     groups.push({ id, labels: [] });
@@ -2435,7 +2463,7 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
         y =
           408 +
           (laneCount === 4 ? 2 : 0) +
-          (i % 5) * (laneCount === 4 ? 18 : 18.5);
+          (i % 5) * (refresh ? 16 : laneCount === 4 ? 18 : 18.5);
       text(id + '-key', key, right ? 808 : 48, y, semantics, 12.5, '600');
       text(id + '-0', value, right ? 917 : 164, y, semantics);
       runtimeRows.push([id + '-key', id + '-0']);
@@ -2495,6 +2523,19 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     (b) => b.id === 'runner_mutation',
   );
   if (!runnerSource) throw Error('Write-order source required');
+  if (refresh) {
+    const semantics = ['lanes', 'candidate', 'recovery'];
+    text('refresh-key', 'Refresh', 48, 488, semantics, 12.5, '600');
+    text('refresh-replay', refresh.replay, 164, 488, semantics);
+    text('refresh-merge', refresh.merge, 535, 488, semantics);
+    text('refresh-pending', refresh.pending, 917, 488, semantics);
+    runtimeRows.push([
+      'refresh-key',
+      'refresh-replay',
+      'refresh-merge',
+      'refresh-pending',
+    ]);
+  }
   d.sourceExplanations = [
     {
       id: 'tracked-write-order',
@@ -2686,7 +2727,10 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
         ? [
             peer('runtime-columns', 'x', [
               { id: 'write-boundary', labels: runtimeRows.slice(0, 5).flat() },
-              { id: 'runtime-lifecycle', labels: runtimeRows.slice(5).flat() },
+              {
+                id: 'runtime-lifecycle',
+                labels: runtimeRows.slice(5, 10).flat(),
+              },
             ]),
           ]
         : []),
@@ -2735,6 +2779,15 @@ export function composeNaturalOverview(input, measure, quality, options = {}) {
     actionRecovery,
     exitBinding,
     prewriteFacts,
+    ...(refresh
+      ? {
+          refresh: {
+            ...refresh,
+            node: 'candidate_base_stale',
+            labels: ['refresh-replay', 'refresh-merge', 'refresh-pending'],
+          },
+        }
+      : {}),
     resourceRows,
     resourceGrammar,
     resourceTable,

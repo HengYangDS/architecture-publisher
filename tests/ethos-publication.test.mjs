@@ -4,6 +4,21 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+test('qualified publication accepts a replacement selector structurally without bypassing review', async () => {
+  const { planEthosPublication } =
+    await import('../editions/ethos/publication.mjs');
+  await assert.rejects(
+    planEthosPublication({
+      review: {},
+      staticArtifact: {},
+      browser: { reports: [], checker: {} },
+      deployment: { destinations: {}, recoveryRoot: '/unused' },
+      replacement: { plan: {}, authorization: {} },
+    }),
+    (error) => error.code === 'review_fields_invalid',
+  );
+});
+
 test('static-artifact reader exists independently of rendering and never accepts an unbound source', async () => {
   const module = new URL(
     '../editions/ethos/static-artifact.mjs',

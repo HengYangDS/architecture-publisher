@@ -10,6 +10,7 @@ import {
   sha256,
   stableStringify,
   validateProjectionEnvelope,
+  readEthosSource,
 } from '../../src/integrations/ethos/projection.mjs';
 import { readEthosAtlasOutput } from './atlas-output.mjs';
 import { verifyHistoricalReaderReview } from './review-history.mjs';
@@ -106,6 +107,7 @@ export function compareReviewedPage({
 
 /** Preserve old review subject and limits, then observe current exact continuity. */
 export async function readEthosReview(plan) {
+  if (plan?.current) return readCurrentReview(plan);
   fields(plan, ['atlas', 'evidenceBundles', 'history', 'editorial']);
   fields(plan.history, [
     'atlasCandidate',
@@ -307,5 +309,121 @@ export async function readEthosReview(plan) {
     browserAcceptance: 'not-performed',
     publicationAcceptance: 'not-performed',
     notEstablished: binding.notEstablished,
+  };
+}
+
+/** Validate declared current review scope. Authentic inspection is an operator obligation. */
+export function verifyCurrentReview(review, target) {
+  if (
+    review?.schema !== 'architecture.ethos-edition-review/v1' ||
+    !same(review.source, target.source) ||
+    ['qualitySha256', 'editionSha256', 'outputManifestSha256'].some(
+      (k) => review[k] !== target[k],
+    ) ||
+    !same(review.pages, target.pages) ||
+    !same(
+      [...(review.assertions ?? [])].sort(),
+      [...target.requiredAssertions].sort(),
+    ) ||
+    !Array.isArray(review.findings) ||
+    review.findings.length ||
+    !['agent', 'independent-agent', 'human'].includes(review.reviewer?.kind) ||
+    typeof review.reviewer?.id !== 'string' ||
+    !review.reviewer.id.trim() ||
+    !Number.isFinite(Date.parse(review.observedAt))
+  )
+    fail('current_review_identity_or_scope_invalid');
+  for (const key of ['scope', 'notEstablished'])
+    if (
+      !Array.isArray(review[key]) ||
+      !review[key].length ||
+      review[key].some((v) => typeof v !== 'string' || !v.trim())
+    )
+      fail('current_review_limits_missing');
+  if (
+    !Array.isArray(review.evidence) ||
+    !review.evidence.length ||
+    review.evidence.some((e) => !isDigest(e.sha256)) ||
+    new Set(review.evidence.map((e) => e.path)).size !== review.evidence.length
+  )
+    fail('current_review_evidence_missing');
+  review.evidence.forEach((e) => portablePath(e.path));
+  return {
+    semanticAcceptance: 'bounded-current-review',
+    scope: review.scope,
+    notEstablished: review.notEstablished,
+  };
+}
+
+async function readCurrentReview(plan) {
+  fields(plan, ['atlas', 'evidenceBundles', 'current']);
+  fields(plan.current, ['report']);
+  portablePath(plan.current.report);
+  if (!Array.isArray(plan.evidenceBundles) || plan.evidenceBundles.length !== 1)
+    fail('current_review_bundle_required');
+  const selector = plan.evidenceBundles[0];
+  const bundle = await readSourceBundle(selector.manifestPath, selector.sha256);
+  const members = new Map(bundle.members.map((m) => [m.path, m]));
+  const reportMember = members.get(plan.current.report);
+  if (!reportMember) fail('current_review_report_missing');
+  const review = parse(reportMember.content);
+  const output = await readEthosAtlasOutput(plan.atlas);
+  const source = (
+    await readEthosSource(
+      plan.atlas.sourceManifest,
+      plan.atlas.sourceSha256,
+      plan.atlas.projectionDigest,
+    )
+  ).projection;
+  const target = {
+    source: {
+      commit: source.source.git.commit,
+      tree: source.source.git.tree,
+      digest: source.digest,
+    },
+    qualitySha256: sha256(source.documents.quality_contract),
+    editionSha256: plan.atlas.editionSha256,
+    outputManifestSha256: output.manifestSha256,
+    pages: output.pages.map((p) => ({ id: p.id, sha256: p.sha256 })),
+    requiredAssertions: Object.keys(source.documents.copy.assertions),
+  };
+  const result = verifyCurrentReview(review, target);
+  if (!isDigest(review.staticManifestSha256))
+    fail('current_review_static_identity_missing');
+  const used = new Set([plan.current.report]);
+  for (const item of review.evidence) {
+    if (
+      item.path === plan.current.report ||
+      members.get(item.path)?.sha256 !== item.sha256
+    )
+      fail('current_review_evidence_changed');
+    used.add(item.path);
+  }
+  if (!same([...used].sort(), [...members.keys()].sort()))
+    fail('current_review_members_mismatch');
+  return {
+    ...result,
+    scope: 'current-edition-review-binding',
+    source: target.source,
+    outputManifestSha256: target.outputManifestSha256,
+    staticManifestSha256: review.staticManifestSha256,
+    qualitySha256: target.qualitySha256,
+    reviewSha256: reportMember.sha256,
+    reviewBindingSha256: bundle.manifestSha256,
+    pages: output.pages.map((p) => ({
+      id: p.id,
+      path: p.path,
+      htmlSha256: p.sha256,
+    })),
+    reviewer: review.reviewer,
+    independentReview:
+      review.reviewer.kind === 'independent-agent'
+        ? 'declared-current'
+        : 'not-claimed',
+    evidenceBundles: [
+      { manifestPath: selector.manifestPath, sha256: selector.sha256 },
+    ],
+    browserAcceptance: 'not-performed',
+    publicationAcceptance: 'not-performed',
   };
 }

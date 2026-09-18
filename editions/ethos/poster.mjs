@@ -35,7 +35,7 @@ function parse(bytes) {
 const encoded = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
 
 /** Reconstruct one selected authored edition. Never discover a source or font. */
-export async function renderEthosPoster(plan) {
+export async function compileEthosPoster(plan) {
   fields(plan, [
     'sourceManifest',
     'sourceSha256',
@@ -65,19 +65,38 @@ export async function renderEthosPoster(plan) {
     fail('poster_members_invalid');
   const member = (p) => bundle.members.find((m) => m.path === p).content;
   const edition = parse(member('edition.json'));
-  fields(edition, ['schema', 'source', 'metricsSha256', 'expected', 'scope']);
+  const candidate = edition.schema === 'architecture.ethos-poster-candidate/v1';
+  fields(edition, [
+    'schema',
+    'source',
+    'metricsSha256',
+    candidate ? 'authoring' : 'expected',
+    'scope',
+  ]);
   fields(edition.source, ['commit', 'manifestSha256', 'projectionDigest']);
-  fields(edition.expected, ['svgSha256', 'sceneSha256', 'labels']);
+  if (!candidate)
+    fields(edition.expected, ['svgSha256', 'sceneSha256', 'labels']);
   if (
-    edition.schema !== 'architecture.ethos-poster-input/v1' ||
+    candidate &&
+    (!edition.authoring ||
+      typeof edition.authoring !== 'object' ||
+      Array.isArray(edition.authoring) ||
+      Object.keys(edition.authoring).some(
+        (k) => !['labels', 'laneCount', 'refresh'].includes(k),
+      ))
+  )
+    fail('poster_authoring_invalid');
+  if (
+    (!candidate && edition.schema !== 'architecture.ethos-poster-input/v1') ||
     typeof edition.scope !== 'string' ||
     !edition.scope.trim() ||
     !isDigest(edition.metricsSha256) ||
-    !isDigest(edition.expected.svgSha256) ||
-    !isDigest(edition.expected.sceneSha256) ||
-    !Number.isSafeInteger(edition.expected.labels) ||
-    edition.expected.labels < 1 ||
-    edition.expected.labels > 10000
+    (!candidate &&
+      (!isDigest(edition.expected.svgSha256) ||
+        !isDigest(edition.expected.sceneSha256) ||
+        !Number.isSafeInteger(edition.expected.labels) ||
+        edition.expected.labels < 1 ||
+        edition.expected.labels > 10000))
   )
     fail('poster_identity_invalid');
   if (
@@ -95,13 +114,19 @@ export async function renderEthosPoster(plan) {
   const reader = createMetricReader(parse(member('metrics.json'))),
     input = source.projection;
   const quality = parse(Buffer.from(input.documents.quality_contract));
-  const composition = composeNaturalOverview(input, reader.measure, quality);
+  const composition = composeNaturalOverview(
+    input,
+    reader.measure,
+    quality,
+    candidate ? edition.authoring : {},
+  );
   const scene = compileTraceScene(composition.document, reader.measure);
   const svg = Buffer.from(renderTraceSvg(scene));
   if (
-    scene.texts.length !== edition.expected.labels ||
-    sha256(stableStringify(scene)) !== edition.expected.sceneSha256 ||
-    sha256(svg) !== edition.expected.svgSha256
+    !candidate &&
+    (scene.texts.length !== edition.expected.labels ||
+      sha256(stableStringify(scene)) !== edition.expected.sceneSha256 ||
+      sha256(svg) !== edition.expected.svgSha256)
   )
     fail('poster_reconstruction_mismatch');
   const g = quality.hard_gates.geometry_each_scale,
@@ -135,6 +160,7 @@ export async function renderEthosPoster(plan) {
     fail('poster_checks_failed');
   const result = {
     status: 'rendered',
+    mode: candidate ? 'candidate' : 'replay',
     source: edition.source,
     editionSha256: plan.editionSha256,
     labels: scene.texts.length,
@@ -150,11 +176,16 @@ export async function renderEthosPoster(plan) {
     browserAcceptance: 'not-performed',
     semanticAcceptance: 'not-performed',
     scope:
-      'Recompiled source-bound composition and SVG with selected historical metrics. No fresh font measurement, raster output, actual browser paint or new visual approval.',
+      'Recompiled source-bound composition and SVG with selected recorded metrics. Measurement provenance is separate; no raster output, actual browser paint or new visual approval.',
   };
+  return { result, scene, svg, composition };
+}
+
+export async function renderEthosPoster(plan) {
+  const { result, scene, svg } = await compileEthosPoster(plan);
   const output = await writeSourceBundle(
     plan.output,
-    { id: 'ethos:poster', revision: edition.source.commit },
+    { id: 'ethos:poster', revision: result.source.commit },
     [
       { path: 'terminal.svg', content: svg },
       { path: 'scene.json', content: encoded(scene) },

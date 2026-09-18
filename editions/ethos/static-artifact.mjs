@@ -1,6 +1,7 @@
 // Frozen selected static artifacts: identity and retained evidence, no rendering.
 import path from 'node:path';
 import { readSourceBundle } from '../../src/source/bundle.mjs';
+import { compileEthosPoster } from './poster.mjs';
 import {
   readEthosSource,
   sha256,
@@ -34,6 +35,7 @@ export const STATIC_FILES = Object.freeze([
   'provenance/builder.ts',
 ]);
 export async function readStaticArtifact(plan, atlas, review) {
+  if (plan?.poster) return readCandidateStatic(plan, atlas, review);
   if (
     !plan ||
     typeof plan.manifestPath !== 'string' ||
@@ -284,5 +286,143 @@ export async function readStaticArtifact(plan, atlas, review) {
     requiredFont:
       quality.hard_gates.typography_and_accessibility
         .effective_font_px_min_at_reference,
+  };
+}
+
+async function readCandidateStatic(plan, atlas, review) {
+  if (
+    review?.semanticAcceptance !== 'bounded-current-review' ||
+    review.staticManifestSha256 !== plan.sha256
+  )
+    throw Error('Current static review identity required');
+  if (
+    Object.keys(plan).sort().join(',') !== 'manifestPath,poster,sha256' ||
+    !path.isAbsolute(plan.manifestPath ?? '')
+  )
+    throw Error('Explicit candidate static selection required');
+  const bundle = await readSourceBundle(plan.manifestPath, plan.sha256);
+  const members = new Map(bundle.members.map((m) => [m.path, m]));
+  const expected = [
+    'native/terminal.svg',
+    'native/terminal.html',
+    ...[1600, 2400, 6000].map((w) => `native/terminal-${w}.png`),
+    'scene.json',
+    'composition.json',
+    'checks.json',
+    'outline.json',
+    'outlined.svg',
+    'raster.json',
+    'reproduction.json',
+  ];
+  if (!same([...members.keys()].sort(), expected.sort()))
+    throw Error('Candidate static members mismatch');
+  const json = (name) => JSON.parse(members.get(name).content);
+  const source = (
+    await readEthosSource(
+      atlas.sourceManifest,
+      atlas.sourceSha256,
+      atlas.projectionDigest,
+    )
+  ).projection;
+  for (const k of ['sourceManifest', 'sourceSha256', 'projectionDigest'])
+    if (plan.poster[k] !== atlas[k])
+      throw Error('Candidate static source selection differs');
+  const compiled = await compileEthosPoster({
+    ...plan.poster,
+    output: path.join(
+      path.dirname(plan.manifestPath),
+      'verification-not-written',
+    ),
+  });
+  const scene = json('scene.json'),
+    composition = json('composition.json'),
+    checks = json('checks.json');
+  if (
+    !same(scene, compiled.scene) ||
+    !same(composition, compiled.composition) ||
+    members.get('native/terminal.svg').sha256 !== sha256(compiled.svg) ||
+    !same(checks, compiled.result)
+  )
+    throw Error('Candidate static recompiled evidence mismatch');
+  const outline = json('outline.json'),
+    rasters = json('raster.json'),
+    reproduction = json('reproduction.json');
+  if (
+    outline.status !== 'outlined' ||
+    outline.sourceSvg?.sha256 !== compiled.result.svg.sha256 ||
+    outline.outlined?.sha256 !== members.get('outlined.svg').sha256 ||
+    !same(outline.source, compiled.result.source)
+  )
+    throw Error('Candidate outline source differs');
+  if (
+    !Array.isArray(rasters) ||
+    rasters.length !== 3 ||
+    !same(
+      rasters.map((r) => r.width).sort((a, b) => a - b),
+      [1600, 2400, 6000],
+    )
+  )
+    throw Error('Candidate raster coverage incomplete');
+  for (const raster of rasters) {
+    const bytes = members.get(`native/terminal-${raster.width}.png`).content;
+    if (
+      raster.status !== 'rendered' ||
+      raster.svgSha256 !== outline.outlined.sha256 ||
+      raster.artifact?.sha256 !== sha256(bytes) ||
+      raster.artifact?.bytes !== bytes.length ||
+      bytes.length < 33 ||
+      !bytes
+        .subarray(0, 8)
+        .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])) ||
+      bytes.readUInt32BE(16) !== raster.width ||
+      bytes.readUInt32BE(20) !== raster.height
+    )
+      throw Error('Candidate raster identity differs');
+  }
+  if (
+    reproduction.status !== 'PASS' ||
+    !Array.isArray(reproduction.files) ||
+    !same(
+      reproduction.files.map((f) => f.path).sort(),
+      [
+        'native/terminal.svg',
+        ...rasters.map((r) => `native/terminal-${r.width}.png`),
+      ].sort(),
+    )
+  )
+    throw Error('Candidate reproduction coverage incomplete');
+  for (const row of reproduction.files)
+    if (
+      row.sha256 !== row.reproducedSha256 ||
+      members.get(row.path)?.sha256 !== row.sha256
+    )
+      throw Error('Candidate reproduced bytes differ');
+  const html = members.get('native/terminal.html').content.toString('utf8');
+  if (
+    !html.includes(
+      'data:image/png;base64,' +
+        members.get('native/terminal-6000.png').content.toString('base64'),
+    ) ||
+    !html.includes(
+      'Target architecture, not a claim of current implementation.',
+    )
+  )
+    throw Error('Candidate static reader differs');
+  return {
+    scope: 'current-static-recompiled-evidence',
+    source: {
+      commit: source.source.git.commit,
+      tree: source.source.git.tree,
+      digest: source.digest,
+    },
+    qualitySha256: sha256(source.documents.quality_contract),
+    manifestSha256: bundle.manifestSha256,
+    members: bundle.members,
+    semanticAcceptance: 'bounded-current-review',
+    browserAcceptance: 'not-performed',
+    rendering: 'recompiled-svg-only',
+    minimumRecordedFont: compiled.result.checks.geometry.minimumEffectiveFont,
+    requiredFont: JSON.parse(source.documents.quality_contract).hard_gates
+      .typography_and_accessibility.effective_font_px_min_at_reference,
   };
 }

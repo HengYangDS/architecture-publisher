@@ -1,0 +1,19 @@
+{
+  "schema": "architecture.ethos-refresh-authoring/v1",
+  "node": "candidate_base_stale",
+  "sha256": "c671261335d7565a54facf3c8d36eb73d238b9e3b3d35e8f92bb53bca1364443",
+  "static": {
+    "replay": "Unpublished: replay; then re-prove",
+    "merge": "Preserve history: merge; then re-prove",
+    "pending": "Pending merge: exact continuation or preserved rollback"
+  },
+  "interactive": {
+    "summary": "An advanced candidate base requires reconciliation and fresh proof before integration. Unpublished replay and history-preserving merge share this boundary; a pending merge requires exact-state continuation or preserved rollback.",
+    "candidate": {
+      "label": "Candidate head",
+      "sublabel": "If stale: replay or merge; re-prove",
+      "tag": "Unpublished replay / preserved history"
+    }
+  },
+  "scope": "Source-bound authored interpretation, not canonical source meaning or implementation acceptance"
+}

@@ -2,12 +2,49 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
-  'architecture publish files plan <input.json> | publish files apply|recover <plan.json> <authorization.json> | poster ethos outline <plan.json> | measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | publish ethos plan <input.json> | publish ethos apply|recover <plan.json> <acceptance.json> | atlas ethos [verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source pack <plan.json> --sha256 <digest> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
+  'architecture publish files plan <input.json> | publish files apply|recover <plan.json> <authorization.json> | poster ethos outline <plan.json> | measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | publish ethos plan <input.json> | publish ethos apply|recover <plan.json> <acceptance.json> | atlas ethos [prepare|standalone|verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source pack <plan.json> --sha256 <digest> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
-  if (args[0] === 'publish' && args[1] === 'files' &&
-      ((args.length === 4 && args[2] === 'plan') ||
-       (args.length === 5 && ['apply', 'recover'].includes(args[2])))) {
+  if (
+    args.length === 4 &&
+    args[0] === 'atlas' &&
+    args[1] === 'ethos' &&
+    ['prepare', 'standalone'].includes(args[2])
+  ) {
+    const fs = await import('node:fs/promises'),
+      path = await import('node:path');
+    const file = path.resolve(args[3]);
+    const { noSymlinkAncestors, regularBytes } =
+      await import('../source/files.mjs');
+    await noSymlinkAncestors(file);
+    const plan = JSON.parse(await regularBytes(file, 4 * 1024 * 1024));
+    const resolve = (object, key) => {
+      if (typeof object?.[key] !== 'string' || !object[key])
+        throw Error('Explicit candidate path required');
+      object[key] = path.resolve(path.dirname(file), object[key]);
+    };
+    resolve(plan, 'output');
+    if (args[2] === 'prepare') {
+      for (const field of ['source', 'previous'])
+        for (const k of ['sourceManifest']) resolve(plan[field], k);
+      resolve(plan.previous, 'editionManifest');
+      resolve(plan, 'authoring');
+      const { prepareEthosCandidate } =
+        await import('../../editions/ethos/candidate.mjs');
+      return prepareEthosCandidate(plan);
+    }
+    for (const k of ['sourceManifest', 'editionManifest', 'outputManifest'])
+      resolve(plan.atlas, k);
+    const { renderStandaloneAtlas } =
+      await import('../../editions/ethos/standalone.mjs');
+    return renderStandaloneAtlas(plan);
+  }
+  if (
+    args[0] === 'publish' &&
+    args[1] === 'files' &&
+    ((args.length === 4 && args[2] === 'plan') ||
+      (args.length === 5 && ['apply', 'recover'].includes(args[2])))
+  ) {
     const { filePublication } = await import('../publication/input.mjs');
     return filePublication(args[2], args[3], args[4]);
   }
@@ -36,9 +73,8 @@ async function command() {
       resolve(plan.poster, k);
     for (const k of ['renderer', 'fontList']) resolve(plan[k], 'path');
     for (const f of plan.fonts) resolve(f, 'path');
-    const { outlineEthosPoster } = await import(
-      '../../editions/ethos/outline.mjs'
-    );
+    const { outlineEthosPoster } =
+      await import('../../editions/ethos/outline.mjs');
     return outlineEthosPoster(plan);
   }
   if (args.length === 3 && args[0] === 'measure' && args[1] === 'coretext') {
@@ -123,6 +159,9 @@ async function command() {
         throw Object.assign(new Error(), { code: 'publication_input_invalid' });
       for (const b of plan.review.evidenceBundles) resolve(b, 'manifestPath');
       resolve(plan.staticArtifact, 'manifestPath');
+      if (plan.staticArtifact.poster)
+        for (const k of ['sourceManifest', 'editionManifest'])
+          resolve(plan.staticArtifact.poster, k);
       if (plan.browser.checker) resolve(plan.browser.checker, 'manifestPath');
       for (const r of plan.browser.reports) resolve(r, 'manifestPath');
       for (const k of ['native', 'atlas'])
@@ -138,7 +177,8 @@ async function command() {
     )(input.value, acceptance.value);
   }
 
-  const poster = args.length === 3 && args[0] === 'poster' && args[1] === 'ethos';
+  const poster =
+    args.length === 3 && args[0] === 'poster' && args[1] === 'ethos';
   const verifyAtlas =
     args.length === 4 &&
     args[0] === 'atlas' &&
@@ -168,7 +208,9 @@ async function command() {
       ),
       stat = await fs.lstat(file);
     if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024)
-      throw Object.assign(new Error(), { code: poster ? 'poster_plan_invalid' : 'atlas_plan_invalid' });
+      throw Object.assign(new Error(), {
+        code: poster ? 'poster_plan_invalid' : 'atlas_plan_invalid',
+      });
     const plan = JSON.parse(await fs.readFile(file, 'utf8'));
     if (reviewAtlas) {
       if (!plan?.atlas || !Array.isArray(plan.evidenceBundles))
@@ -200,7 +242,9 @@ async function command() {
       verifyAtlas || browserPlan ? 'outputManifest' : 'output',
     ]) {
       if (typeof plan?.[key] !== 'string' || !plan[key])
-        throw Object.assign(new Error(), { code: poster ? 'poster_plan_invalid' : 'atlas_plan_invalid' });
+        throw Object.assign(new Error(), {
+          code: poster ? 'poster_plan_invalid' : 'atlas_plan_invalid',
+        });
       plan[key] = path.resolve(path.dirname(file), plan[key]);
     }
     if (browserPlan) {
@@ -219,7 +263,8 @@ async function command() {
       };
     }
     if (poster) {
-      const { renderEthosPoster } = await import('../../editions/ethos/poster.mjs');
+      const { renderEthosPoster } =
+        await import('../../editions/ethos/poster.mjs');
       return renderEthosPoster(plan);
     }
     const { renderEthosAtlas } = await import('../../editions/ethos/atlas.mjs');

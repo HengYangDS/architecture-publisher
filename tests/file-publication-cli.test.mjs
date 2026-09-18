@@ -156,6 +156,45 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
       'Foreign content\n',
     );
   }
+  const nextBytes = Buffer.from('A second independent edition.\n');
+  await fs.writeFile(path.join(source, 'second.txt'), nextBytes);
+  const updated = structuredClone(input);
+  updated.source.revision = 'r2';
+  updated.payload = updated.payload.map((p) => ({
+    ...p,
+    source: 'second.txt',
+    bytes: nextBytes.length,
+    sha256: sha(nextBytes),
+  }));
+  updated.replacement = {
+    plan: result.plan,
+    authorization: { decision: 'AUTHORIZED', planSha256: result.plan.sha256 },
+  };
+  await fs.writeFile(inputFile, JSON.stringify(updated));
+  const next = invoke(['publish', 'files', 'plan', inputFile]);
+  await fs.writeFile(plan, JSON.stringify(next.plan));
+  await fs.writeFile(
+    authorization,
+    JSON.stringify({ decision: 'AUTHORIZED', planSha256: next.plan.sha256 }),
+  );
+  assert.equal(
+    invoke(['publish', 'files', 'apply', plan, authorization]).status,
+    'INSTALLED',
+  );
+  assert.equal(
+    invoke(['publish', 'files', 'recover', plan, authorization]).status,
+    'ALREADY_INSTALLED',
+  );
+  for (const medium of ['native', 'atlas']) {
+    assert.deepEqual(
+      await fs.readFile(path.join(parent, medium, 'content/artifact.txt')),
+      nextBytes,
+    );
+    assert.equal(
+      await fs.readFile(path.join(parent, medium, 'keep.txt'), 'utf8'),
+      'Foreign content\n',
+    );
+  }
   await fs.writeFile(
     inputFile,
     JSON.stringify({ ...input, grantApproval: true }),

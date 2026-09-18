@@ -84,17 +84,18 @@ export async function readEthosAtlasSelection(plan) {
   };
   const edition = parse(member('edition.json')),
     catalog = parse(member('catalog.json'));
+  const candidate = edition.schema === 'architecture.ethos-atlas-candidate/v1';
   fields(edition, [
     'schema',
     'source',
-    'acceptedAtlasManifestSha256',
+    ...(candidate ? [] : ['acceptedAtlasManifestSha256']),
     'fontSelectionSha256',
     'pages',
     'scope',
   ]);
   fields(edition.source, ['commit', 'projectionDigest', 'manifestSha256']);
   if (
-    edition.schema !== 'architecture.ethos-edition-input/v1' ||
+    (!candidate && edition.schema !== 'architecture.ethos-edition-input/v1') ||
     !same(edition.source, {
       commit: source.projection.source.git.commit,
       projectionDigest: plan.projectionDigest,
@@ -102,7 +103,10 @@ export async function readEthosAtlasSelection(plan) {
     })
   )
     fail('atlas_source_mismatch');
-  for (const key of ['acceptedAtlasManifestSha256', 'fontSelectionSha256'])
+  for (const key of [
+    ...(candidate ? [] : ['acceptedAtlasManifestSha256']),
+    'fontSelectionSha256',
+  ])
     if (!isDigest(edition[key])) fail('atlas_identity_invalid');
   fields(catalog, ['schema', 'sourceDigest', 'pages']);
   validateAtlasCatalog(catalog);
@@ -127,7 +131,7 @@ export async function readEthosAtlasSelection(plan) {
       'bindings',
       'specSha256',
       'bindingsSha256',
-      'acceptedHtmlSha256',
+      ...(candidate ? [] : ['acceptedHtmlSha256']),
       'typography',
       'resourceComparison',
       'verificationDetails',
@@ -146,7 +150,11 @@ export async function readEthosAtlasSelection(plan) {
       'writeBoundary',
     ])
       if (typeof page[key] !== 'boolean') fail('atlas_fields_invalid');
-    for (const key of ['specSha256', 'bindingsSha256', 'acceptedHtmlSha256'])
+    for (const key of [
+      'specSha256',
+      'bindingsSha256',
+      ...(candidate ? [] : ['acceptedHtmlSha256']),
+    ])
       if (!isDigest(page[key])) fail('atlas_identity_invalid');
     for (const key of ['spec', 'bindings']) {
       if (needed.has(page[key])) fail('atlas_member_duplicate');
@@ -272,7 +280,15 @@ export async function readEthosAtlasSelection(plan) {
     lock,
     family: lock.family,
   };
-  return { source, edition, catalog, quality, pages, fonts };
+  return {
+    source,
+    edition,
+    catalog,
+    quality,
+    pages,
+    fonts,
+    mode: candidate ? 'candidate' : 'replay',
+  };
 }
 
 /** Portable ETHOS edition. Byte reproduction is not new semantic or browser acceptance. */
@@ -363,7 +379,10 @@ export async function renderEthosAtlas(plan) {
         await applyNativeFonts(runtime, fonts, { template, renderer });
       },
     );
-    if (result.artifact.sha256 !== page.acceptedHtmlSha256)
+    if (
+      selected.mode === 'replay' &&
+      result.artifact.sha256 !== page.acceptedHtmlSha256
+    )
       fail('atlas_expected_html_mismatch');
     files.push({
       path: page.path,

@@ -1,5 +1,6 @@
 import { exactBindingErrors } from './predicates.mjs';
 import { deriveResourceComparison } from './resource-comparison.mjs';
+import { verifyMeaningCarriers } from './evolution.mjs';
 export function checkBindings(spec, bindings, input) {
   const type = spec.diagram_type;
   if (
@@ -11,6 +12,17 @@ export function checkBindings(spec, bindings, input) {
     );
   const nodes = type === 'sequence' ? spec.participants : spec.components;
   const edges = type === 'sequence' ? spec.messages : spec.connections;
+  if (bindings.meaning !== undefined) {
+    const carriers = {};
+    for (const [i, card] of (spec.cards ?? []).entries())
+      for (const [j, value] of (card.items ?? []).entries())
+        carriers[`cards/${i}/items/${j}`] = value;
+    for (const node of nodes ?? [])
+      for (const key of ['label', 'sublabel', 'tag'])
+        if (typeof node[key] === 'string')
+          carriers[`nodes/${node.id}/${key}`] = node[key];
+    verifyMeaningCarriers(input, bindings.meaning, carriers);
+  }
   if (!Array.isArray(nodes) || !nodes.length || !Array.isArray(edges))
     throw Error('Native typed entities and relations required');
   if (

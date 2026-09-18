@@ -41,7 +41,14 @@ export async function filePublication(operation, inputFile, authorizationFile) {
     semanticAcceptance: 'not-performed',
   };
   if (operation === 'plan') {
-    fields(value, ['options', 'source', 'payload', 'entries', 'dependencies']);
+    fields(value, [
+      'options',
+      'source',
+      'payload',
+      'entries',
+      'dependencies',
+      ...(Object.hasOwn(value, 'replacement') ? ['replacement'] : []),
+    ]);
     fields(value.options, ['sourceRoots', 'destinations', 'recoveryRoot']);
     fields(value.options.destinations, ['native', 'atlas']);
     const resolve = (file) => {

@@ -96,14 +96,14 @@ acceptance, installation and hosted delivery are separate evidence scopes. New
 HTML bytes cannot inherit old browser approval. Inspection does not manufacture
 authorization; a passing parser is not an observed execution.
 
-## Sustainable regeneration: next bounded increments
+## Sustainable regeneration
 
 The accepted edition is frozen; recovery must reproduce it exactly. A new candidate
 must be allowed to produce new bytes without first matching old output hashes.
 Stable semantic identities survive harmless label changes; split/merge/rename
 mappings require explicit source evidence, never guessed identity substitution.
 
-1. Separate authoring intent and candidate generation from accepted-output locks.
+1. Keep explicit candidate inputs separate from accepted-output locks in the same renderer.
 2. Demonstrate one real ETHOS semantic update across source, views, both media,
    qualification and candidate publication without changing generic code or
    editing generated SVG/HTML.
@@ -121,11 +121,20 @@ when meaning changes. Layout infeasibility must trigger explicit regrouping or
 detail views, not silent omission or unreadable type. A new visual grammar may
 require a bounded adapter; effortless arbitrary redesign is not promised.
 
+The first bounded candidate adapter accepts the real candidate-base refresh
+change. It binds source meaning to visible static and interactive carriers and
+reports complete-value differences. Unsupported meaning requires an authored
+mapping, not guessed identity substitution. Source-document changes conservatively
+require all-view review; selective execution and automatic aesthetic optimization
+are not established by this increment.
+
 ## Replacement is not replay
 
-Current recovery resumes its exact operation; it is not an upgrade protocol.
-Future replacement must bind prior ownership and actual preimages, preserve
-unknown/modified files, qualify new outputs and retain bounded rollback material.
+Recovery resumes its exact operation; a different edition requires an explicit
+replacement selection. The same installer derives ownership from the prior plan,
+not its broad preserved-file inventory. Replacement binds actual managed preimages,
+preserves unknown files, refuses modified/missing owned files and retains bounded
+rollback material through the existing journal and local rename boundaries.
 Verify successive editions, no-op updates, dropped managed files, foreign edits,
 interruption at either target and recovery. Never disable collision protection
 or delete a destination to make an upgrade pass.

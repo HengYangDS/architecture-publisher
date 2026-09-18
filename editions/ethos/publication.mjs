@@ -37,7 +37,13 @@ function entry(medium) {
 }
 
 export async function planEthosPublication(input, replayPrestates) {
-  fields(input, ['review', 'staticArtifact', 'browser', 'deployment']);
+  fields(input, [
+    'review',
+    'staticArtifact',
+    'browser',
+    'deployment',
+    ...(Object.hasOwn(input, 'replacement') ? ['replacement'] : []),
+  ]);
   fields(input.deployment, ['destinations', 'recoveryRoot']);
   fields(input.browser, ['reports', 'checker']);
   const review = await readEthosReview(input.review);
@@ -129,6 +135,11 @@ export async function planEthosPublication(input, replayPrestates) {
     input.review.atlas.editionManifest,
     input.review.atlas.editionSha256,
   );
+  if (input.staticArtifact.poster)
+    await bundle(
+      input.staticArtifact.poster.editionManifest,
+      input.staticArtifact.poster.editionSha256,
+    );
   // Qualification remains bound at effect time, but is not reader content.
   for (const item of input.review.evidenceBundles)
     await bundle(item.manifestPath, item.sha256);
@@ -169,6 +180,7 @@ export async function planEthosPublication(input, replayPrestates) {
       source: review.source,
       payload,
       entries,
+      ...(input.replacement ? { replacement: input.replacement } : {}),
       dependencies: [...dependencies]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([file, sha256]) => ({ file, sha256 })),

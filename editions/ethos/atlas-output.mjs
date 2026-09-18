@@ -71,7 +71,10 @@ export async function readEthosAtlasOutput(plan) {
     fail('atlas_output_members_mismatch');
   const members = new Map(result.members.map((m) => [m.path, m]));
   for (const page of selected.pages)
-    if (members.get(page.path).sha256 !== page.acceptedHtmlSha256)
+    if (
+      selected.mode === 'replay' &&
+      members.get(page.path).sha256 !== page.acceptedHtmlSha256
+    )
       fail('atlas_output_page_mismatch');
   const archifyNotice = await fs.readFile(
     fileURLToPath(new URL('../../assets/archify/LICENSE', import.meta.url)),
