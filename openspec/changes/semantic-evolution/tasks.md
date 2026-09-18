@@ -14,11 +14,11 @@
 
 - [x] 3.1 Bind the refresh semantics into the complete overview and interactive mechanism views.
 - [x] 3.2 Generate fresh measured static output and the complete standalone HTML.
-- [ ] 3.3 Verify source coverage, actual geometry, all browser pages and interactions; record update-cost measurements.
+- [x] 3.3 Verify source coverage, actual geometry, all browser pages and interactions; record update-cost measurements.
 
 ## 4. Qualification and delivery
 
-- [ ] 4.1 Run full repository checks, installed-package and isolated portable qualification on selected new inputs.
+- [x] 4.1 Run full repository checks, installed-package and isolated portable qualification on selected new inputs.
 - [x] 4.2 Exercise upgrade from the real previous edition and verify preserved user content and recovery.
-- [ ] 4.3 Complete native source acceptance and publish a separately versioned GitLab release with verified downloads.
-- [ ] 4.4 Install and hash-readback Documents delivery; close the Change, retire the owned lane and verify housekeeping.
+- [x] 4.3 Complete native source acceptance and publish a separately versioned GitLab release with verified downloads.
+- [x] 4.4 Install and hash-readback Documents delivery; verify the portable recovery archive and preserve prior inputs.

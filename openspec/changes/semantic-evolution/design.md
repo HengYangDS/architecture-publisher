@@ -80,6 +80,13 @@ gate. Keep independent file-installation work moving if a renderer boundary is
 blocked. Record edited inputs, manual layout moves, checked views and elapsed
 time in the generated acceptance evidence, not a new progress ledger.
 
+Implementation tasks end with observed delivery and recoverable inputs. Native
+Change archive, source integration/publication and owned-lane retirement follow
+that completion; they must not appear as already completed prerequisites for
+their own archive operation. The enclosing goal remains open until those native
+effects and disposable-artifact cleanup are observed. Preserve the release tag
+and package identities when only documentation or archive metadata advances.
+
 ## Risks / Trade-offs
 
 Historical replay must remain executable; preserving its schema is a reproducible
