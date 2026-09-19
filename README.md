@@ -846,6 +846,36 @@ Computed module dependencies and unknown owners fail rather than silently bypass
 the check. This is a syntax-level dependency guard, not arbitrary data-flow or
 runtime isolation proof; installed-package removal tests remain necessary.
 
+### Explicit qualification selection
+
+`npm test` runs source behavior and installed-package tests. Opt-in release tests
+report skips when their input selectors are absent; this is not full release
+qualification. Select the matching evidence generation rather than substituting
+similarly named files from a newer release.
+
+| Selector | Required input and scope |
+| --- | --- |
+| `ETHOS_ATLAS_PLAN` | Absolute-path atlas verification selection for current 13-page output; browser obligations and missing-evidence refusal, not a fresh browser run |
+| `ETHOS_QUALIFIED_PAIR_PLAN` | Current qualified publication input with exact source, authoring, output, review, static and browser bundles; reader payload and dependency closure |
+| `ETHOS_PAIR_PLAN` | Historical publication input matching the frozen 18-member static bundle used by the legacy tamper matrix; not the current 12-member static generation |
+| `ETHOS_REVIEW_PLAN` | Historical review continuity input, including original review/binding/editorial bundles; not a current review report |
+| `PAIR_PRIOR_NATIVE`, `PAIR_PRIOR_ATLAS` | Explicit real prior-delivery directories; tests copy them into owned temporary destinations and preserve the originals |
+
+Resolve relative release-plan paths from their owning descriptor into a new
+test-owned selection file. Never edit an immutable release plan. A missing
+historical bundle means that historical scope is unqualified, not that current
+source or current artifact checks passed it. Current and historical tests retain
+their own expected contracts; do not modify expected member counts to force a
+newer bundle through an older test.
+
+The installed raster test intentionally replaces only its disposable worker with
+fault-injection programs. One reads actual input, handles SIGTERM and remains
+alive to verify forced termination. Its idle stack is expected test evidence,
+not a diagnosis of a real rendering stall. Production timeouts must be tied to
+the exact unmodified worker, selected input and process identity. The raster
+deadline remains 30 seconds; SIGKILL prevents the owned worker from extending
+that deadline by handling the default termination signal. No retry is hidden.
+
 Create publication-bound commits with the configured signing identity and verify
 the exact object before native publication. A configured public key, successful
 merge, local proof or accepted branch is not evidence of a commit signature.

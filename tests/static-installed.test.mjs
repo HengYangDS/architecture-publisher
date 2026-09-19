@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { writeSourceBundle } from '../src/source/write.mjs';
 import { RASTER_LIMITS } from '../src/static/limits.mjs';
@@ -148,7 +148,10 @@ test('installed raster command needs only explicit input and its pinned static s
   assert.equal(result.semanticAcceptance, 'not-performed');
   const occupied = invoke();
   assert.equal(occupied.status, 1);
-  assert.equal(JSON.parse(occupied.stdout).error.code, 'raster_output_exists');
+  assert.equal(
+    JSON.parse(occupied.stdout).error.code,
+    'raster_output_exists',
+  );
   assert.deepEqual(await fs.readFile(path.join(dir, 'figure.png')), bytes);
   const invalidSource = await writeSourceBundle(
     path.join(dir, 'invalid-input'),
@@ -245,7 +248,9 @@ test('installed raster command needs only explicit input and its pinned static s
     JSON.parse(missingSource.stdout).error.code,
     'raster_supply_invalid',
   );
-  await assert.rejects(fs.stat(path.join(dir, 'bad.png')), { code: 'ENOENT' });
+  await assert.rejects(fs.stat(path.join(dir, 'bad.png')), {
+    code: 'ENOENT',
+  });
   await fs.writeFile(sourcePath, sourceBytes);
   const observedPath = path.join(pkg, observedNoticePath);
   await fs.unlink(observedPath);
@@ -255,7 +260,9 @@ test('installed raster command needs only explicit input and its pinned static s
     JSON.parse(missingObservedNotice.stdout).error.code,
     'raster_supply_invalid',
   );
-  await assert.rejects(fs.stat(path.join(dir, 'bad.png')), { code: 'ENOENT' });
+  await assert.rejects(fs.stat(path.join(dir, 'bad.png')), {
+    code: 'ENOENT',
+  });
   await fs.writeFile(observedPath, observedNotice);
   // A test-only installed worker observes the actual child-process invocation.
   // It does not stand in for the real raster tests above or qualify any artifact.
@@ -277,7 +284,9 @@ test('installed raster command needs only explicit input and its pinned static s
     JSON.parse(boundary.stdout).error.code,
     'resource-boundary-observed',
   );
-  await assert.rejects(fs.stat(path.join(dir, 'bad.png')), { code: 'ENOENT' });
+  await assert.rejects(fs.stat(path.join(dir, 'bad.png')), {
+    code: 'ENOENT',
+  });
   // Inject faults only into this disposable installation, after real rendering.
   // These cases qualify transport rejection, not a replacement renderer.
   const successfulReply = {
@@ -349,32 +358,95 @@ test('installed raster command needs only explicit input and its pinned static s
       await assert.rejects(fs.stat(path.join(outputDir, 'bad.png')), {
         code: 'ENOENT',
       });
-      assert.deepEqual(await fs.readFile(path.join(dir, 'figure.png')), bytes);
+      assert.deepEqual(
+        await fs.readFile(path.join(dir, 'figure.png')),
+        bytes,
+      );
       assert.deepEqual(await fs.readdir(outputDir), []);
     });
   }
-  await t.test('actual deadline stops a non-terminating child', async () => {
-    const outputDir = await fs.mkdtemp(path.join(dir, 'deadline-'));
-    await fs.writeFile(
-      planPath,
-      JSON.stringify({
-        ...plan,
-        output: path.relative(dir, path.join(outputDir, 'bad.png')),
-      }),
-    );
-    await fs.writeFile(worker, consumeInput + 'setInterval(()=>{},1000);');
-    const started = performance.now(),
-      timedOut = invoke();
-    assert.equal(timedOut.status, 1, timedOut.stdout + timedOut.stderr);
-    assert.equal(
-      JSON.parse(timedOut.stdout).error.code,
-      'raster_execution_timeout',
-    );
-    assert(performance.now() - started >= RASTER_LIMITS.executionMs);
-    assert(performance.now() - started < RASTER_LIMITS.executionMs + 15000);
-    await assert.rejects(fs.stat(path.join(outputDir, 'bad.png')), {
-      code: 'ENOENT',
-    });
-    assert.deepEqual(await fs.readdir(outputDir), []);
-  });
+  await t.test(
+    'actual deadline stops a signal-resistant child and leaves no owned process',
+    async () => {
+      const outputDir = await fs.mkdtemp(path.join(dir, 'deadline-'));
+      await fs.writeFile(
+        planPath,
+        JSON.stringify({
+          ...plan,
+          output: path.relative(dir, path.join(outputDir, 'bad.png')),
+        }),
+      );
+      const marker = path.join(outputDir, 'worker-pid.json');
+      await fs.writeFile(
+        worker,
+        `import fs from 'node:fs';const input=JSON.parse(fs.readFileSync(0,'utf8'));process.on('SIGTERM',()=>{});fs.writeFileSync(${JSON.stringify(marker)},JSON.stringify({pid:process.pid,width:input.width}));setInterval(()=>{},1000);`,
+      );
+      const started = performance.now();
+      const child = spawn(
+        process.execPath,
+        [path.join(pkg, 'src/cli/main.mjs'), 'raster', planPath],
+        {
+          cwd: home,
+          env: { HOME: home, PATH: home },
+          detached: process.platform !== 'win32',
+          stdio: ['ignore', 'pipe', 'pipe'],
+        },
+      );
+      let stdout = '',
+        stderr = '',
+        callerDeadline = false;
+      child.stdout.setEncoding('utf8');
+      child.stderr.setEncoding('utf8');
+      child.stdout.on('data', (chunk) => {
+        stdout += chunk;
+      });
+      child.stderr.on('data', (chunk) => {
+        stderr += chunk;
+      });
+      const stopOwned = () => {
+        try {
+          process.kill(
+            process.platform === 'win32' ? child.pid : -child.pid,
+            'SIGKILL',
+          );
+        } catch (error) {
+          if (error.code !== 'ESRCH') throw error;
+        }
+      };
+      const deadline = setTimeout(() => {
+        callerDeadline = true;
+        stopOwned();
+      }, RASTER_LIMITS.executionMs + 7000);
+      let timedOut, observed;
+      try {
+        const status = await new Promise((resolve, reject) => {
+          child.once('error', reject);
+          child.once('close', resolve);
+        });
+        timedOut = { status, stdout, stderr };
+        observed = JSON.parse(await fs.readFile(marker));
+        assert.equal(observed.width, 1200);
+        assert.equal(
+          callerDeadline,
+          false,
+          'raster owner, not the outer test, must terminate the resistant child',
+        );
+        assert.throws(() => process.kill(observed.pid, 0), { code: 'ESRCH' });
+      } finally {
+        clearTimeout(deadline);
+        stopOwned();
+      }
+      assert.equal(timedOut.status, 1, timedOut.stdout + timedOut.stderr);
+      assert.equal(
+        JSON.parse(timedOut.stdout).error.code,
+        'raster_execution_timeout',
+      );
+      assert(performance.now() - started >= RASTER_LIMITS.executionMs);
+      assert(performance.now() - started < RASTER_LIMITS.executionMs + 15000);
+      await assert.rejects(fs.stat(path.join(outputDir, 'bad.png')), {
+        code: 'ENOENT',
+      });
+      assert.deepEqual(await fs.readdir(outputDir), ['worker-pid.json']);
+    },
+  );
 });

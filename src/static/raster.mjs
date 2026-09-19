@@ -111,6 +111,7 @@ export async function rasterize(plan) {
         }),
         encoding: 'utf8',
         timeout: limits.executionMs,
+        killSignal: 'SIGKILL',
         maxBuffer: limits.responseBytes,
       },
     );
