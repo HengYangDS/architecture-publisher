@@ -86,3 +86,21 @@ enforcing the existing semantic and geometry gates.
 - **WHEN** refresh alternatives, pending-merge recovery or proposal-retirement text lose their declared grouping or alignment
 - **THEN** the measured layout check rejects the candidate even when labels do not overlap
 - **AND** numeric spacing minima remain owned by the source quality contract
+
+### Requirement: Non-cooperative renderer termination
+
+The rasterizer SHALL enforce its execution deadline even when its owned renderer
+handles the default termination signal. It SHALL leave no live owned renderer,
+successful PNG or incomplete scratch directory after the timeout is returned.
+
+#### Scenario: Renderer handles the default termination signal
+
+- **WHEN** an input-consuming renderer handles SIGTERM and exceeds its deadline
+- **THEN** the parent forcibly terminates that renderer and returns the timeout error
+- **AND** the requested output remains absent and temporary execution state is removed
+
+#### Scenario: Renderer succeeds within the deadline
+
+- **WHEN** the real renderer consumes valid selected input and exits successfully
+- **THEN** the existing source, supply, pixel and non-overwrite checks still apply
+- **AND** no implicit retry or weaker acceptance is introduced
