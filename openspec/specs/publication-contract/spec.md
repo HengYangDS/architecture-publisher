@@ -1,7 +1,9 @@
 # publication-contract Specification
 
 ## Purpose
-TBD - created by archiving change product-contract-integration. Update Purpose after archive.
+Define the shared publication admission boundary and the replaceable Skill and
+CI projections that invoke it without acquiring intent, lifecycle or effect
+authority.
 
 ## Requirements
 
