@@ -827,7 +827,11 @@ recorded in `docs/research/mechanism-evaluation.md`.
 
 The current private GitLab project is
 `dig/research/human-agent-stewardship/ethos-architecture`. Release
-`v0.1.0-alpha.3` selects the `ethos-architecture/0.1.0-alpha.3` package:
+`v0.1.0-alpha.6` selects the `architecture-publishing/0.1.0-alpha.6` package
+containing the shared publication contract, portable Skill and source-bound
+AIGW examples. It reuses the exact alpha.5 reader bytes rather than claiming a
+new visual edition. Release `v0.1.0-alpha.3` remains the selected complete
+reader recovery package:
 
 | Asset | Purpose |
 | --- | --- |

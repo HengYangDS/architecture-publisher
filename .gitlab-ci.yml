@@ -1,4 +1,4 @@
-image: node:26.9.0-bookworm-slim@sha256:582460f614631b59b824ac6020533b9bf339c7fdf3a6d7db31abb6b4065f0212
+image: node:26.9.0-bookworm@sha256:347d9d5391493c2fc3f0d161b75a9cab64a9805064b1b01b099f8ee97f98ed47
 
 stages:
   - verify
@@ -9,6 +9,8 @@ verify:
   script:
     - node --version
     - npm --version
+    - git --version
+    - python3 --version
     - npm ci --ignore-scripts --no-audit --no-fund
     - npm run check
     - npm test
