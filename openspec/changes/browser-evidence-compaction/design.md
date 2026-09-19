@@ -57,3 +57,7 @@ retains FAIL reports; abrupt termination cannot qualify a partial run.
 
 The codec remains edition-local because only this edition consumes browser reports.
 Do not create a generic verification subsystem before a second real consumer.
+
+The intentional missing standalone-navigation case failed after all 52 page cases,
+retained four decodable FAIL reports and closed the browser. Native exact-product-HEAD
+proof passed at 242c914; integration must re-observe current HEAD proof after archive.
