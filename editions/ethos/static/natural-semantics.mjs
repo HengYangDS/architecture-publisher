@@ -2,7 +2,7 @@ import { verifyMeaningCarriers } from '../evolution.mjs';
 
 /** A bounded endpoint/type check, not semantic approval. Structural junctions
  * are contracted before comparing the source and target semantic identities. */
-export function auditNaturalSemantics(v, input) {
+export function auditNaturalSemantics(v, input, sourceDocuments = []) {
   const failures = [],
     source = new Map(input.semantics.relations.map((r) => [r.id, r]));
   const edges = v.document.relations,
@@ -10,6 +10,23 @@ export function auditNaturalSemantics(v, input) {
   const paths = [],
     routing = [],
     conditions = [];
+  if (v.authoredCarriers) {
+    try {
+      const carriers = Object.fromEntries(
+        v.document.labels.map((l) => [l.id, l.text]),
+      );
+      verifyMeaningCarriers(
+        input,
+        v.authoredCarriers.meaning,
+        carriers,
+        sourceDocuments,
+      );
+      if (v.authoredCarriers.edits.some((e) => carriers[e.id] !== e.after))
+        throw Error('Changed authored carrier');
+    } catch {
+      failures.push('authored-meaning-visible');
+    }
+  }
   if (v.refresh) {
     try {
       const carriers = Object.fromEntries(
@@ -274,16 +291,12 @@ export function auditNaturalSemantics(v, input) {
         relation?.kind !== kind ||
         relation?.attributes.guard !== admission?.gate
       )
-        failures.push(
-          'candidate-admission-input-relation:' + binding.source,
-        );
+        failures.push('candidate-admission-input-relation:' + binding.source);
       if (
         !label ||
         !terms[binding.source]?.every((term) => copy.includes(term))
       )
-        failures.push(
-          'candidate-admission-input-visible:' + binding.source,
-        );
+        failures.push('candidate-admission-input-visible:' + binding.source);
     }
     const candidateRow = v.resourceRows?.find(
       (r) => r.contract === 'candidate_integration_effect',
@@ -367,10 +380,7 @@ export function auditNaturalSemantics(v, input) {
       loss.interrupts !== 'session_host' ||
       loss.effectAuthority !== false ||
       JSON.stringify(loss.sourceRelations) !==
-        JSON.stringify([
-          'loss-interrupts-session',
-          'loss-to-recovery-anchor',
-        ])
+        JSON.stringify(['loss-interrupts-session', 'loss-to-recovery-anchor'])
     )
       failures.push('loss-recovery-scope');
     const trigger = v.document.labels.find(
@@ -730,9 +740,7 @@ export function auditNaturalSemantics(v, input) {
       )?.text;
       if (
         !p.labels.includes('protocol-state-label') ||
-        !['Expected state', 'Expected prior state'].includes(
-          stateLabel ?? '',
-        )
+        !['Expected state', 'Expected prior state'].includes(stateLabel ?? '')
       )
         failures.push(
           'resource-protocol-visible:' + row.contract + ':expected-state',
@@ -872,11 +880,7 @@ export function auditNaturalSemantics(v, input) {
     if (edge?.kind === 'effect') failures.push('routing-authority:' + id);
     if (v.witnesses.relations[id]?.length)
       failures.push('routing-source:' + id);
-    if (
-      edge &&
-      !v.routingMarks[edge.source] &&
-      !v.routingMarks[edge.target]
-    )
+    if (edge && !v.routingMarks[edge.source] && !v.routingMarks[edge.target])
       failures.push('routing-without-junction:' + id);
   }
   // A declared lane contribution is conjunctive: its own proof and prewrite
@@ -922,11 +926,9 @@ export function auditNaturalSemantics(v, input) {
         .map((l) => l.text)
         .join(' ');
       if (
-        ![
-          'Selected only',
-          'Base/prewrite',
-          'one selected Lane proof',
-        ].every((s) => selected.includes(s))
+        !['Selected only', 'Base/prewrite', 'one selected Lane proof'].every(
+          (s) => selected.includes(s),
+        )
       )
         failures.push('selected-provenance-visible');
       if (
@@ -1127,9 +1129,7 @@ export function auditNaturalSemantics(v, input) {
       v.capabilityContract
         ? 'optional unless risk/policy requires'
         : 'independent optional unless risk/policy requires',
-      v.capabilityContract
-        ? 'Responsible verifier'
-        : 'responsible verifier',
+      v.capabilityContract ? 'Responsible verifier' : 'responsible verifier',
       'claim IDs',
       'No scope gain',
     ])
@@ -1182,8 +1182,7 @@ export function auditNaturalSemantics(v, input) {
       proof[0].kind === 'effect'
     )
       failures.push('contribution-proof:' + id);
-    if (inputs.length !== 2)
-      failures.push('contribution-conjunction:' + id);
+    if (inputs.length !== 2) failures.push('contribution-conjunction:' + id);
   }
   const endpoint = (start, side) => {
     const result = new Set(),
@@ -1224,9 +1223,7 @@ export function auditNaturalSemantics(v, input) {
     );
     if (condition) {
       if (
-        !input.semantics.contracts.effect_contracts[
-          condition.sourceContract
-        ]
+        !input.semantics.contracts.effect_contracts[condition.sourceContract]
       )
         failures.push('condition-contract:' + edge.id);
       if (

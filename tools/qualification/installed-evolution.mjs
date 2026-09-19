@@ -42,13 +42,15 @@ const invoke = (args) => {
 };
 const source = resolveSelection(config.source),
   previous = resolveSelection(config.previous);
+assert.equal(typeof config.authoring?.path, 'string');
+assert.match(config.authoring.sha256, /^[a-f0-9]{64}$/);
+assert.ok(Array.isArray(config.expectedChangedNodes));
+assert.ok(Array.isArray(config.expectedChangedDocuments));
 const preparation = {
   previous,
   source,
-  authoring: path.join(pkg, 'editions/ethos/refresh.json'),
-  authoringSha256: hash(
-    await fs.readFile(path.join(pkg, 'editions/ethos/refresh.json')),
-  ),
+  authoring: path.resolve(root, config.authoring.path),
+  authoringSha256: config.authoring.sha256,
   output: path.join(work, 'candidate'),
 };
 const prepared = invoke([
@@ -58,7 +60,11 @@ const prepared = invoke([
   await write('prepare.json', preparation),
 ]);
 assert.equal(prepared.pages, 13);
-assert.deepEqual(prepared.delta.changed.nodes, ['candidate_base_stale']);
+assert.deepEqual(prepared.delta.changed.nodes, config.expectedChangedNodes);
+assert.deepEqual(
+  prepared.delta.changed.documents,
+  config.expectedChangedDocuments,
+);
 const rendered = invoke([
   'atlas',
   'ethos',
@@ -175,7 +181,10 @@ const prior = await oldModule.planPairFiles({
   entries: entries('previous'),
   dependencies: [],
 });
-const priorAuthorization = { decision: 'AUTHORIZED', planSha256: prior.sha256 };
+const priorAuthorization = {
+  decision: 'AUTHORIZED',
+  planSha256: prior.sha256,
+};
 assert.equal(
   (await oldModule.installPairFiles(prior, priorAuthorization)).status,
   'INSTALLED',
@@ -205,16 +214,61 @@ const replacement = {
   replacement: { plan: prior, authorization: priorAuthorization },
 };
 // Prove file publication remains usable without any ETHOS edition/integration.
-await fs.rename(path.join(pkg, 'editions'), path.join(pkg, 'editions-removed'));
+await fs.rename(
+  path.join(pkg, 'editions'),
+  path.join(pkg, 'editions-removed'),
+);
 await fs.rename(
   path.join(pkg, 'src/integrations'),
   path.join(pkg, 'integrations-removed'),
 );
-const planned = invoke([
+let planned = invoke([
   'publish',
   'files',
   'plan',
   await write('replacement-input.json', replacement),
+]).plan;
+const interruptedFile = await write('interrupted-plan.json', planned);
+const interruptedAuth = await write('interrupted-authorization.json', {
+  decision: 'AUTHORIZED',
+  planSha256: planned.sha256,
+});
+const interruption = spawnSync(
+  process.execPath,
+  [
+    '--input-type=module',
+    '-e',
+    `import fs from 'node:fs/promises';import {installPairFiles} from ${JSON.stringify(pathToFileURL(path.join(pkg, 'src/publication/files.mjs')).href)};
+const p=JSON.parse(await fs.readFile(${JSON.stringify(interruptedFile)})),a=JSON.parse(await fs.readFile(${JSON.stringify(interruptedAuth)}));
+await installPairFiles(p,a,{rename:async(from,to)=>{await fs.rename(from,to);if(to===p.options.destinations.native)process.kill(process.pid,'SIGKILL');}});`,
+  ],
+  {
+    cwd: work,
+    env: { HOME: home, PATH: home },
+    encoding: 'utf8',
+    timeout: 30000,
+    killSignal: 'SIGKILL',
+  },
+);
+assert.equal(interruption.signal, 'SIGKILL', interruption.stderr);
+assert.equal(
+  invoke(['publish', 'files', 'recover', interruptedFile, interruptedAuth])
+    .status,
+  'ROLLED_BACK',
+);
+for (const row of prior.payload)
+  assert.equal(
+    hash(await fs.readFile(path.join(destinations[row.medium], row.path))),
+    row.sha256,
+  );
+// A rolled-back journal is terminal. A deliberate new attempt uses a new
+// explicit recovery location; never erase or silently replay the old operation.
+replacement.options.recoveryRoot = path.join(work, 'recovery-next-attempt');
+planned = invoke([
+  'publish',
+  'files',
+  'plan',
+  await write('resumed-replacement-input.json', replacement),
 ]).plan;
 const planFile = await write('replacement-plan.json', planned),
   authFile = await write('replacement-authorization.json', {
@@ -248,7 +302,7 @@ const report = {
   node: process.version,
   platform: process.platform,
   pages: prepared.pages,
-  semanticChange: prepared.delta.changed.nodes,
+  semanticChange: prepared.delta.changed,
   svgSha256: staticResult.svg.sha256,
   atlasManifestSha256: rendered.manifestSha256,
   standaloneSha256: standalone.sha256,
@@ -256,6 +310,7 @@ const report = {
   previousInstaller: config.previousInstallerRevision,
   installation: 'INSTALLED',
   recovery: 'ALREADY_INSTALLED',
+  interruptedRecovery: 'ROLLED_BACK',
   replay: 'ALREADY_INSTALLED',
   foreignEditsPreserved: true,
   installedPayload: planned.payload.length,

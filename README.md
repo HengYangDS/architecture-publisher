@@ -691,11 +691,28 @@ architecture atlas ethos standalone ./standalone-plan.json
 Candidate preparation takes `previous` (the five-field prior atlas selection),
 `source` (`sourceManifest`, `sourceSha256`, `projectionDigest`), `authoring`,
 `authoringSha256`, and an absent `output` directory. Paths resolve from the plan.
-`editions/ethos/refresh.json` is the bounded authored interpretation of the real
-candidate-base refresh change. The adapter supports that node's semantic change;
-unrelated node, relation, assertion, contract or presentation changes require a
-new explicit mapping and are rejected, not silently omitted. This is not a
-universal semantic compiler.
+The `architecture.ethos-authored-edits/v1` input contains `static`, `interactive`
+and `scope`. `interactive.order` selects a permutation of the complete prior page
+set. Each `interactive.pages` item names its `id`, `edits` and `meaning` bindings.
+Edits bind an exact `carrier`, `before` text and `after` text. Supported sites are
+`nodes/<id>/label|sublabel|tag` and `cards/<index>/items/<index>`; appending an item
+requires `before: null`. Missing pages, unknown sites, duplicate edits and stale
+preimages are rejected. Every edit must have a source-value binding.
+
+`editions/ethos/refresh.json` uses this same authored-input contract for the
+candidate-base refresh example. Other existing node attributes, relation
+conditions and assertions can be mapped explicitly. Entity/edge insertion,
+removal, relation reversal or type changes, and contract/presentation changes
+remain unsupported. Mapping a digest to text proves neither equivalent meaning
+nor visual quality; all existing checks and new review obligations still apply.
+
+A `meaning` binding may identify a `node`, `relation`, `assertion`, or an existing
+canonical source `document`. Document bindings additionally require a verbatim
+`excerpt`; the actual imported bytes, source path and digest are rechecked at
+preparation and rendering. Such a binding does not promote prose into a formal
+graph condition. `editions/ethos/verification-policy.json` demonstrates this
+distinction for committed ETHOS independent-verification policy. The graph's
+missing selection condition remains an explicit source-projection limitation.
 
 The ETHOS adapter uses the same comparison owner and preserves complete values,
 including conditions, direction, scope, quantifiers, maturity and extensions.
@@ -711,6 +728,10 @@ output hashes. It uses the same metric, semantic and geometry gates. The existin
 `architecture poster ethos` command consumes it. New text requires measured input;
 the reader never invents glyph widths. The selected refresh composition retains
 the complete map and uses four additional labels rather than another diagram.
+Other existing static sites use `authoring.carriers` with `edits` containing
+`id`, `before`, `after`, and `meaning` bindings to those label IDs. Unknown or stale
+sites fail; incorrect copy can still fail semantic gates, and text growth must
+pass measured geometry. This is bounded authorship, not automatic layout.
 
 Standalone plans contain `atlas` (the seven-field output selection) and an absent
 `output` HTML file. All pages, fonts, native runtime and required licenses are

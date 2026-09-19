@@ -13,7 +13,10 @@ import {
 
 const root = path.resolve(import.meta.dirname, '..');
 const source = {
-  sourceManifest: path.join(root, 'tests/fixtures/ethos-source/manifest.json'),
+  sourceManifest: path.join(
+    root,
+    'tests/fixtures/ethos-source/manifest.json',
+  ),
   sourceSha256:
     '58121ad168a314af94b55f557435ffb7d9828ca7c476411f18467731ae9d1db0',
   projectionDigest:
@@ -106,12 +109,18 @@ test('authored HTML semantic carriers refuse stale source or missing visible exp
   );
   const spec = JSON.parse(
     await fs.readFile(
-      path.join(root, 'editions/ethos/authoring/pages/candidate/diagram.json'),
+      path.join(
+        root,
+        'editions/ethos/authoring/pages/candidate/diagram.json',
+      ),
     ),
   );
   const bindings = JSON.parse(
     await fs.readFile(
-      path.join(root, 'editions/ethos/authoring/pages/candidate/bindings.json'),
+      path.join(
+        root,
+        'editions/ethos/authoring/pages/candidate/bindings.json',
+      ),
     ),
   );
   const meaning = input.semantics.nodes.candidate_base_stale;
@@ -140,36 +149,24 @@ test('candidate preparation rebinds explicit source and preserves all pages with
   await fs.mkdir(base, { recursive: true });
   const dir = await fs.mkdtemp(path.join(base, 'prepare-'));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
-  const authoring = {
-    schema: 'architecture.ethos-refresh-authoring/v1',
-    node: 'candidate_base_stale',
-    sha256: sha256(
-      stableStringify(
-        JSON.parse(
-          await fs.readFile(
-            source.sourceManifest.replace(
-              'manifest.json',
-              'projection-input.json',
-            ),
+  const authoring = JSON.parse(
+    await fs.readFile(path.join(root, 'editions/ethos/refresh.json')),
+  );
+  const meaningSha256 = sha256(
+    stableStringify(
+      JSON.parse(
+        await fs.readFile(
+          source.sourceManifest.replace(
+            'manifest.json',
+            'projection-input.json',
           ),
-        ).semantics.nodes.candidate_base_stale,
-      ),
+        ),
+      ).semantics.nodes.candidate_base_stale,
     ),
-    static: {
-      replay: 'Unpublished: replay; then re-prove',
-      merge: 'Preserve history: merge; then re-prove',
-      pending: 'Pending merge: exact continuation or preserved rollback',
-    },
-    interactive: {
-      summary: 'Explicit authored summary',
-      candidate: {
-        label: 'Reconcile the selected lane',
-        sublabel: 'Select replay or merge',
-        tag: 'Re-prove',
-      },
-    },
-    scope: 'Test candidate input',
-  };
+  );
+  authoring.static.refresh.sha256 = meaningSha256;
+  for (const page of authoring.interactive.pages)
+    page.meaning[0].sha256 = meaningSha256;
   const file = path.join(dir, 'refresh.json');
   await fs.writeFile(file, JSON.stringify(authoring));
   const atlas = path.join(root, 'editions/ethos/authoring/manifest.json');

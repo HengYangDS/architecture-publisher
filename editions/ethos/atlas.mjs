@@ -32,19 +32,28 @@ import {
   deriveVerificationDetails,
   applyVerificationDetails,
 } from './verification-details.mjs';
-import { deriveWriteBoundary, applyWriteBoundary } from './write-boundary.mjs';
+import {
+  deriveWriteBoundary,
+  applyWriteBoundary,
+} from './write-boundary.mjs';
 import { applyNativeFonts } from './fonts.mjs';
 import { checkBindings } from './bindings.mjs';
 
-const object = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+const object = (v) =>
+  v !== null && typeof v === 'object' && !Array.isArray(v);
 const same = (a, b) => stableStringify(a) === stableStringify(b);
 function fields(value, required) {
-  if (!object(value) || !same(Object.keys(value).sort(), [...required].sort()))
+  if (
+    !object(value) ||
+    !same(Object.keys(value).sort(), [...required].sort())
+  )
     fail('atlas_fields_invalid');
 }
 function parse(bytes) {
   try {
-    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+    return JSON.parse(
+      new TextDecoder('utf-8', { fatal: true }).decode(bytes),
+    );
   } catch {
     fail('atlas_json_invalid');
   }
@@ -84,7 +93,8 @@ export async function readEthosAtlasSelection(plan) {
   };
   const edition = parse(member('edition.json')),
     catalog = parse(member('catalog.json'));
-  const candidate = edition.schema === 'architecture.ethos-atlas-candidate/v1';
+  const candidate =
+    edition.schema === 'architecture.ethos-atlas-candidate/v1';
   fields(edition, [
     'schema',
     'source',
@@ -95,7 +105,8 @@ export async function readEthosAtlasSelection(plan) {
   ]);
   fields(edition.source, ['commit', 'projectionDigest', 'manifestSha256']);
   if (
-    (!candidate && edition.schema !== 'architecture.ethos-edition-input/v1') ||
+    (!candidate &&
+      edition.schema !== 'architecture.ethos-edition-input/v1') ||
     !same(edition.source, {
       commit: source.projection.source.git.commit,
       projectionDigest: plan.projectionDigest,
@@ -169,7 +180,10 @@ export async function readEthosAtlasSelection(plan) {
       fail('atlas_member_digest_mismatch');
     const spec = parse(specBytes),
       bindings = parse(bindingBytes);
-    if (checkBindings(spec, bindings, input) !== 'architecture')
+    if (
+      checkBindings(spec, bindings, input, source.sourceDocuments) !==
+      'architecture'
+    )
       fail('atlas_type_unsupported');
     if (
       !object(bindings.relations) ||
@@ -226,7 +240,8 @@ export async function readEthosAtlasSelection(plan) {
     if (page.verificationDetails) deriveVerificationDetails(input);
     let writeBoundary;
     const required = bindings.writeBoundaryRequired;
-    if (Boolean(required) !== page.writeBoundary) fail('atlas_detail_required');
+    if (Boolean(required) !== page.writeBoundary)
+      fail('atlas_detail_required');
     if (required) {
       const doc = source.sourceDocuments.find(
         (d) => d.id === 'runner_mutation',
@@ -366,11 +381,19 @@ export async function renderEthosAtlas(plan) {
         ).after;
         if (page.resourceComparison)
           template = (
-            await applyResourceComparison(runtime, source.projection, template)
+            await applyResourceComparison(
+              runtime,
+              source.projection,
+              template,
+            )
           ).after;
         if (page.verificationDetails)
           template = (
-            await applyVerificationDetails(runtime, source.projection, template)
+            await applyVerificationDetails(
+              runtime,
+              source.projection,
+              template,
+            )
           ).after;
         if (page.writeBoundary)
           template = (
@@ -400,7 +423,9 @@ export async function renderEthosAtlas(plan) {
     [
       'ARCHIFY-LICENSE.txt',
       await fs.readFile(
-        fileURLToPath(new URL('../../assets/archify/LICENSE', import.meta.url)),
+        fileURLToPath(
+          new URL('../../assets/archify/LICENSE', import.meta.url),
+        ),
       ),
     ],
     ['FONT-LICENSE.txt', fonts.license.bytes],
@@ -411,7 +436,9 @@ export async function renderEthosAtlas(plan) {
   }
   const observed = new Set();
   async function walk(directory, prefix = '') {
-    for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
+    for (const entry of await fs.readdir(directory, {
+      withFileTypes: true,
+    })) {
       const name = prefix + entry.name;
       if (entry.isSymbolicLink()) fail('atlas_output_changed');
       if (entry.isDirectory())

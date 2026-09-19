@@ -8,7 +8,10 @@ import {
   stableStringify,
 } from '../../src/integrations/ethos/projection.mjs';
 import { createMetricReader } from '../../src/static/metrics.mjs';
-import { auditScene, auditCanvasEnvelope } from '../../src/geometry/scene.mjs';
+import {
+  auditScene,
+  auditCanvasEnvelope,
+} from '../../src/geometry/scene.mjs';
 import { auditNaturalSeparation } from '../../src/geometry/separation.mjs';
 import { auditEmittedEdges } from '../../src/geometry/emitted-path.mjs';
 import { composeNaturalOverview } from './static/natural-overview.mjs';
@@ -27,7 +30,9 @@ function fields(value, keys) {
 }
 function parse(bytes) {
   try {
-    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+    return JSON.parse(
+      new TextDecoder('utf-8', { fatal: true }).decode(bytes),
+    );
   } catch {
     fail('poster_json_invalid');
   }
@@ -65,7 +70,8 @@ export async function compileEthosPoster(plan) {
     fail('poster_members_invalid');
   const member = (p) => bundle.members.find((m) => m.path === p).content;
   const edition = parse(member('edition.json'));
-  const candidate = edition.schema === 'architecture.ethos-poster-candidate/v1';
+  const candidate =
+    edition.schema === 'architecture.ethos-poster-candidate/v1';
   fields(edition, [
     'schema',
     'source',
@@ -82,7 +88,7 @@ export async function compileEthosPoster(plan) {
       typeof edition.authoring !== 'object' ||
       Array.isArray(edition.authoring) ||
       Object.keys(edition.authoring).some(
-        (k) => !['labels', 'laneCount', 'refresh'].includes(k),
+        (k) => !['labels', 'laneCount', 'refresh', 'carriers'].includes(k),
       ))
   )
     fail('poster_authoring_invalid');
@@ -119,6 +125,7 @@ export async function compileEthosPoster(plan) {
     reader.measure,
     quality,
     candidate ? edition.authoring : {},
+    source.sourceDocuments,
   );
   const scene = compileTraceScene(composition.document, reader.measure);
   const svg = Buffer.from(renderTraceSvg(scene));
@@ -134,8 +141,16 @@ export async function compileEthosPoster(plan) {
   const scale = quality.scales.find((s) => s.name === 'source');
   if (!scale) fail('poster_quality_invalid');
   const checks = {
-    sourceBindings: auditNaturalSemantics(composition, input),
-    separation: auditNaturalSeparation(scene, composition.separation, quality),
+    sourceBindings: auditNaturalSemantics(
+      composition,
+      input,
+      source.sourceDocuments,
+    ),
+    separation: auditNaturalSeparation(
+      scene,
+      composition.separation,
+      quality,
+    ),
     geometry: auditScene(scene, {
       minimumFont: Math.max(
         t.effective_font_px_min_at_reference,
@@ -143,8 +158,10 @@ export async function compileEthosPoster(plan) {
           ? 0
           : (t.source_font_px_min * scene.referenceWidth) / scale.width,
       ),
-      ownerClearance: g.inside_glyph_to_owner_inner_stroke_px_at_reference_min,
-      textClearance: g.text_to_nonowner_geometry_clearance_px_at_reference_min,
+      ownerClearance:
+        g.inside_glyph_to_owner_inner_stroke_px_at_reference_min,
+      textClearance:
+        g.text_to_nonowner_geometry_clearance_px_at_reference_min,
       endpointTolerance: g.arrow_tip_error_px_max,
       minimumTerminal: g.arrow_terminal_straight_run_px_at_reference_min,
       widthGrowth: g.font_width_growth_fraction,

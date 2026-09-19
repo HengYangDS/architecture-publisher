@@ -85,7 +85,12 @@ export function compareEthosMeaning(before, after, views) {
 }
 
 /** Bind reviewed meaning to visible authored carriers; text truth needs review. */
-export function verifyMeaningCarriers(input, bindings, carriers) {
+export function verifyMeaningCarriers(
+  input,
+  bindings,
+  carriers,
+  sourceDocuments = [],
+) {
   if (!Array.isArray(bindings) || !carriers || typeof carriers !== 'object')
     throw Error('Explicit meaning carriers required');
   const sections = {
@@ -96,11 +101,33 @@ export function verifyMeaningCarriers(input, bindings, carriers) {
   const seen = new Set();
   for (const binding of bindings) {
     const key = binding.kind + ':' + binding.id;
-    const meaning = sections[binding.kind]?.[binding.id];
+    const document = binding.kind === 'document';
+    const meaning = document
+      ? input.source.bindings.find((d) => d.id === binding.id)
+      : sections[binding.kind]?.[binding.id];
+    if (document) {
+      const selected = sourceDocuments.filter((d) => d.id === binding.id);
+      if (
+        !meaning ||
+        selected.length !== 1 ||
+        !Buffer.isBuffer(selected[0].content) ||
+        selected[0].path !== meaning.path ||
+        selected[0].sha256 !== meaning.sha256 ||
+        sha256(selected[0].content) !== meaning.sha256
+      )
+        throw Error('Missing or stale source document: ' + binding.id);
+      if (
+        typeof binding.excerpt !== 'string' ||
+        !binding.excerpt.trim() ||
+        !selected[0].content.toString('utf8').includes(binding.excerpt)
+      )
+        throw Error('Missing exact document excerpt: ' + binding.id);
+    }
     if (
       !meaning ||
       seen.has(key) ||
-      sha256(stableStringify(meaning)) !== binding.sha256
+      (document ? meaning.sha256 : sha256(stableStringify(meaning))) !==
+        binding.sha256
     )
       throw Error('Stale, unknown or duplicate meaning binding: ' + key);
     seen.add(key);

@@ -9,7 +9,10 @@ import {
   stableStringify,
 } from '../src/integrations/ethos/projection.mjs';
 import { prepareEthosCandidate } from '../editions/ethos/candidate.mjs';
-import { readEthosAtlasSelection } from '../editions/ethos/atlas.mjs';
+import {
+  readEthosAtlasSelection,
+  renderEthosAtlas,
+} from '../editions/ethos/atlas.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const fixture = path.join(root, 'tests/fixtures/ethos-source/manifest.json');
@@ -81,9 +84,12 @@ async function changedSource(t, mutate) {
   const authoring = JSON.parse(
     await fs.readFile(path.join(root, 'editions/ethos/refresh.json')),
   );
-  authoring.sha256 = sha256(
+  const meaningSha256 = sha256(
     stableStringify(input.semantics.nodes.candidate_base_stale),
   );
+  authoring.static.refresh.sha256 = meaningSha256;
+  for (const page of authoring.interactive.pages)
+    page.meaning[0].sha256 = meaningSha256;
   const file = path.join(dir, 'authoring.json');
   await fs.writeFile(file, encode(authoring));
   return {
@@ -118,6 +124,220 @@ test('real-shaped source refresh propagates compiler obligations through complet
     13,
   );
   assert.equal(result.semanticAcceptance, 'not-performed');
+});
+
+test('explicit non-refresh condition edits preserve a complete candidate and reject stale carriers', async (t) => {
+  const plan = await changedSource(t, (p) => {
+    p.semantics.nodes.independent_verifier.attributes.selection =
+      'Committed policy selects whether independent verification is required.';
+  });
+  const selected = await readEthosAtlasSelection(plan.previous);
+  const page = selected.pages.find((p) => p.id === 'verification');
+  const node = page.spec.components.find(
+    (n) => n.id === 'independent-verifier',
+  );
+  assert.ok(node, 'fixture contains the actual independent verifier carrier');
+  const input = JSON.parse(
+    await fs.readFile(
+      plan.source.sourceManifest.replace(
+        'manifest.json',
+        'projection-input.json',
+      ),
+    ),
+  );
+  const authoring = {
+    schema: 'architecture.ethos-authored-edits/v1',
+    static: {},
+    interactive: {
+      order: selected.pages.map((p) => p.id),
+      pages: [
+        {
+          id: page.id,
+          edits: [
+            {
+              carrier: 'nodes/independent-verifier/tag',
+              before: node.tag,
+              after: 'Required by committed policy',
+            },
+          ],
+          meaning: [
+            {
+              kind: 'node',
+              id: 'independent_verifier',
+              sha256: sha256(
+                stableStringify(input.semantics.nodes.independent_verifier),
+              ),
+              carriers: ['nodes/independent-verifier/tag'],
+            },
+          ],
+        },
+      ],
+    },
+    scope: 'Synthetic condition fixture; not a real committed ETHOS export',
+  };
+  const write = async () => {
+    await fs.writeFile(plan.authoring, encode(authoring));
+    plan.authoringSha256 = sha256(await fs.readFile(plan.authoring));
+  };
+  await write();
+  const result = await prepareEthosCandidate(plan);
+  assert.deepEqual(result.delta.changed.nodes, ['independent_verifier']);
+  const next = await readEthosAtlasSelection(result.atlas);
+  assert.deepEqual(
+    next.pages.map((p) => p.id),
+    selected.pages.map((p) => p.id),
+  );
+  assert.equal(
+    next.pages
+      .find((p) => p.id === page.id)
+      .spec.components.find((n) => n.id === node.id).tag,
+    'Required by committed policy',
+  );
+  assert.equal(result.semanticAcceptance, 'not-performed');
+  const renderedRoot = plan.output + '-rendered';
+  const rendered = await renderEthosAtlas({
+    ...result.atlas,
+    output: renderedRoot,
+  });
+  assert.equal(rendered.pages.length, selected.pages.length);
+  assert.match(
+    await fs.readFile(path.join(renderedRoot, page.path), 'utf8'),
+    /Required by committed policy/,
+  );
+  authoring.interactive.pages[0].edits[0].before = 'Stale prior text';
+  await write();
+  const output = plan.output + '-stale';
+  await assert.rejects(
+    prepareEthosCandidate({ ...plan, output }),
+    /Stale authored carrier/,
+  );
+  await assert.rejects(fs.access(output));
+  const valid = structuredClone(authoring);
+  valid.interactive.pages[0].edits[0].before = node.tag;
+  for (const [name, mutate, error] of [
+    [
+      'unknown-static',
+      (a) => {
+        a.static.invented = true;
+      },
+      /Unsupported authored edits/,
+    ],
+    [
+      'duplicate',
+      (a) =>
+        a.interactive.pages[0].edits.push(a.interactive.pages[0].edits[0]),
+      /duplicate authored carrier/,
+    ],
+    [
+      'unknown',
+      (a) => {
+        a.interactive.pages[0].edits[0].carrier = 'nodes/missing/tag';
+      },
+      /Unknown authored carrier/,
+    ],
+    [
+      'missing-page',
+      (a) => a.interactive.order.pop(),
+      /Complete distinct page order/,
+    ],
+    [
+      'stale-meaning',
+      (a) => {
+        a.interactive.pages[0].meaning[0].sha256 = '0'.repeat(64);
+      },
+      /meaning binding/,
+    ],
+    [
+      'empty-meaning',
+      (a) => {
+        a.interactive.pages[0].meaning = [];
+      },
+      /authored page/,
+    ],
+  ]) {
+    const candidate = structuredClone(valid);
+    mutate(candidate);
+    await fs.writeFile(plan.authoring, encode(candidate));
+    const rejected = {
+      ...plan,
+      output: plan.output + '-' + name,
+      authoringSha256: sha256(await fs.readFile(plan.authoring)),
+    };
+    await assert.rejects(prepareEthosCandidate(rejected), error);
+    await assert.rejects(fs.access(rejected.output));
+  }
+});
+
+test('explicit relation condition and page order retain source direction and full navigation', async (t) => {
+  const id = 'candidate-state-to-independent';
+  const plan = await changedSource(t, (p) => {
+    p.semantics.relations.find((r) => r.id === id).attributes.guard =
+      'Independent verification selected by committed policy';
+  });
+  const selected = await readEthosAtlasSelection(plan.previous);
+  const page = selected.pages.find((p) => p.id === 'verification');
+  const node = page.spec.components.find(
+    (n) => n.id === 'independent-verifier',
+  );
+  const input = JSON.parse(
+    await fs.readFile(
+      plan.source.sourceManifest.replace(
+        'manifest.json',
+        'projection-input.json',
+      ),
+    ),
+  );
+  const order = selected.pages.map((p) => p.id);
+  [order[1], order[2]] = [order[2], order[1]];
+  const authoring = {
+    schema: 'architecture.ethos-authored-edits/v1',
+    static: {},
+    interactive: {
+      order,
+      pages: [
+        {
+          id: page.id,
+          edits: [
+            {
+              carrier: 'nodes/independent-verifier/tag',
+              before: node.tag,
+              after: 'Selected by committed policy',
+            },
+          ],
+          meaning: [
+            {
+              kind: 'relation',
+              id,
+              sha256: sha256(
+                stableStringify(
+                  input.semantics.relations.find((r) => r.id === id),
+                ),
+              ),
+              carriers: ['nodes/independent-verifier/tag'],
+            },
+          ],
+        },
+      ],
+    },
+    scope: 'Synthetic relation fixture; no real source approval',
+  };
+  await fs.writeFile(plan.authoring, encode(authoring));
+  plan.authoringSha256 = sha256(await fs.readFile(plan.authoring));
+  const result = await prepareEthosCandidate(plan);
+  assert.deepEqual(result.delta.changed.relations, [id]);
+  const next = await readEthosAtlasSelection(result.atlas);
+  assert.deepEqual(
+    next.pages.map((p) => p.id),
+    order,
+  );
+  assert.deepEqual(
+    next.catalog.pages.map((p) => p.id),
+    order,
+  );
+  assert.deepEqual(
+    next.source.projection.semantics.relations.find((r) => r.id === id),
+    input.semantics.relations.find((r) => r.id === id),
+  );
 });
 
 for (const [name, mutate] of [

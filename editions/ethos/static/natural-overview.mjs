@@ -8,12 +8,51 @@ export function composeNaturalOverview(
   measure,
   quality,
   options = {},
+  sourceDocuments = [],
 ) {
   const refresh = options.refresh;
+  const authored = options.carriers;
+  const authoredEdits = new Map();
+  if (authored !== undefined) {
+    if (
+      !authored ||
+      Object.keys(authored).sort().join(',') !== 'edits,meaning' ||
+      !Array.isArray(authored.edits) ||
+      !authored.edits.length ||
+      !Array.isArray(authored.meaning) ||
+      !authored.meaning.length
+    )
+      throw Error('Explicit authored static carriers required');
+    for (const edit of authored.edits) {
+      if (
+        !edit ||
+        Object.keys(edit).sort().join(',') !== 'after,before,id' ||
+        typeof edit.id !== 'string' ||
+        authoredEdits.has(edit.id) ||
+        typeof edit.before !== 'string' ||
+        typeof edit.after !== 'string' ||
+        !edit.after.trim() ||
+        edit.after.length > 10000 ||
+        /[\r\n]/.test(edit.after) ||
+        Object.hasOwn(options.labels ?? {}, edit.id)
+      )
+        throw Error('Invalid or duplicate authored static carrier');
+      authoredEdits.set(edit.id, edit);
+    }
+    verifyMeaningCarriers(
+      input,
+      authored.meaning,
+      Object.fromEntries(authored.edits.map((e) => [e.id, e.after])),
+      sourceDocuments,
+    );
+    const bound = new Set(authored.meaning.flatMap((m) => m.carriers));
+    if (authored.edits.some((e) => !bound.has(e.id)))
+      throw Error('Unbound authored static carrier');
+  }
+  const consumedAuthored = new Set();
   if (refresh) {
     if (
-      Object.keys(refresh).sort().join(',') !==
-      'merge,pending,replay,sha256'
+      Object.keys(refresh).sort().join(',') !== 'merge,pending,replay,sha256'
     )
       throw Error('Explicit refresh meaning and carriers required');
     verifyMeaningCarriers(
@@ -104,9 +143,7 @@ export function composeNaturalOverview(
       relations: [
         {
           view: 'protocol-admit-recheck',
-          source: [
-            sourceRelation(c.pass_verdict, c.fresh_recheck, 'admits'),
-          ],
+          source: [sourceRelation(c.pass_verdict, c.fresh_recheck, 'admits')],
         },
         {
           view: 'protocol-state-recheck',
@@ -284,7 +321,13 @@ export function composeNaturalOverview(
   ) => {
     if (d.labels.some((l) => l.id === id))
       throw Error('Duplicate label ' + id);
-    const replacement = options.labels?.[id];
+    const authoredEdit = authoredEdits.get(id);
+    if (authoredEdit) {
+      if (authoredEdit.before !== value)
+        throw Error('Stale authored label ' + id);
+      consumedAuthored.add(id);
+    }
+    const replacement = authoredEdit?.after ?? options.labels?.[id];
     if (replacement !== undefined) {
       value = replacement;
       const width = measure(value, size, weight).width * (1 + growth);
@@ -398,8 +441,7 @@ export function composeNaturalOverview(
   };
   const mark = (id, kind, x, y, r, sourceIds) => {
     for (const s of sourceIds)
-      if (!input.semantics.nodes[s])
-        throw Error('Unknown source mark ' + s);
+      if (!input.semantics.nodes[s]) throw Error('Unknown source mark ' + s);
     d.marks.push({
       id,
       kind,
@@ -407,11 +449,7 @@ export function composeNaturalOverview(
       y: placeY(y),
       r,
       tone:
-        kind === 'gate'
-          ? 'accepted'
-          : kind === 'evidence'
-            ? 'proof'
-            : 'line',
+        kind === 'gate' ? 'accepted' : kind === 'evidence' ? 'proof' : 'line',
     });
     witnesses.marks[id] = sourceIds;
   };
@@ -823,10 +861,7 @@ export function composeNaturalOverview(
       [],
       false,
     );
-    for (const id of [
-      'lane-prewrite-input-' + i,
-      'tree-prewrite-input-' + i,
-    ])
+    for (const id of ['lane-prewrite-input-' + i, 'tree-prewrite-input-' + i])
       routingEdges[id] = {
         role: 'routing-only',
         purpose:
@@ -971,13 +1006,9 @@ export function composeNaturalOverview(
     '400',
     'action-reobserve',
   );
-  edge(
+  edge('action-unknown-branch', 'action-check', 'action-unknown', 'retain', [
     'action-unknown-branch',
-    'action-check',
-    'action-unknown',
-    'retain',
-    ['action-unknown-branch'],
-  );
+  ]);
   edge(
     'action-unknown-recovery',
     'action-unknown',
@@ -1025,8 +1056,7 @@ export function composeNaturalOverview(
       1058 - 4 - 0.85 - clearance - m.width * (1 + growth) - 1,
     );
     const peer = measure('Zero or one', 12.5, '400');
-    const peerRight =
-      848 + (peer.glyph?.width ?? peer.width) * (1 + growth);
+    const peerRight = 848 + (peer.glyph?.width ?? peer.width) * (1 + growth);
     modeGroupShift = Math.max(
       0,
       peerRight - (proofGroupX + (m.glyph?.x ?? 0)) + 1,
@@ -1392,8 +1422,7 @@ export function composeNaturalOverview(
   );
   routingEdges['review-object-input'] = {
     role: 'routing-only',
-    purpose:
-      'Carry the same candidate object to its two separate consumers.',
+    purpose: 'Carry the same candidate object to its two separate consumers.',
   };
   edge(
     'review-object',
@@ -1412,14 +1441,7 @@ export function composeNaturalOverview(
   );
   d.apertures.find((a) => a.mark === 'accepted-cas').objectInput =
     'review-fork';
-  text(
-    'same-object',
-    'Exact reviewed object',
-    1112,
-    250,
-    ['accepted'],
-    12.5,
-  );
+  text('same-object', 'Exact reviewed object', 1112, 250, ['accepted'], 12.5);
 
   section('outcomes');
   mark('use', 'outcome', 1500, 275, 8, ['use_outcome']);
@@ -1869,15 +1891,7 @@ export function composeNaturalOverview(
   }
 
   section('resource-comparison');
-  text(
-    'resources-title',
-    'Local effects',
-    842,
-    536,
-    ['effect'],
-    18,
-    'serif',
-  );
+  text('resources-title', 'Local effects', 842, 536, ['effect'], 18, 'serif');
   const repositoryRows = rows.filter((row) => row.repositoryWorld !== null);
   if (
     repositoryRows.map((row) => row.id).join(',') !==
@@ -1910,14 +1924,7 @@ export function composeNaturalOverview(
     842,
     separateReclamation ? 573 : 576,
     724,
-    [
-      'accepted',
-      'self',
-      'greenfield',
-      'brownfield',
-      'peers',
-      'verification',
-    ],
+    ['accepted', 'self', 'greenfield', 'brownfield', 'peers', 'verification'],
     12.5,
   );
   const repositoryLocalInputs = {
@@ -1957,8 +1964,8 @@ export function composeNaturalOverview(
                 );
               if (
                 grammar.length !== 1 ||
-                input.semantics.nodes[subject].attributes
-                  .reality_boundary !== row.contract.repository_boundary
+                input.semantics.nodes[subject].attributes.reality_boundary !==
+                  row.contract.repository_boundary
               )
                 throw Error('Wrong local conformance ' + row.id);
               return {
@@ -1976,8 +1983,7 @@ export function composeNaturalOverview(
   const localInputLabel = (term) => {
     const label = d.labels.find(
       (l) =>
-        repositoryLocalInputs.labels.includes(l.id) &&
-        l.text.includes(term),
+        repositoryLocalInputs.labels.includes(l.id) && l.text.includes(term),
     );
     if (!label) throw Error('Unpainted local input ' + term);
     return label.id;
@@ -2068,8 +2074,7 @@ export function composeNaturalOverview(
     ];
   const inputLabels = {
     candidate_integration_gate: {
-      authority_reference:
-        'resource-candidate_integration_effect-obligation',
+      authority_reference: 'resource-candidate_integration_effect-obligation',
       commitment_n: 'resource-candidate_integration_effect-detail',
       fresh_facts: 'resource-candidate_integration_effect-obligation',
       transition_plan: 'resource-candidate_integration_effect-obligation',
@@ -2115,9 +2120,7 @@ export function composeNaturalOverview(
     if (
       !mapped ||
       row.gate.required_inputs.some((id) => !mapped[id]) ||
-      Object.keys(mapped).some(
-        (id) => !row.gate.required_inputs.includes(id),
-      )
+      Object.keys(mapped).some((id) => !row.gate.required_inputs.includes(id))
     )
       throw Error('Unmapped admission input ' + gateId);
     return {
@@ -2178,8 +2181,7 @@ export function composeNaturalOverview(
       if (measure(next, 12.5, weight).width * (1 + growth) <= c.width)
         line = next;
       else {
-        if (!line)
-          throw Error('Resource cell word exceeds allocation ' + id);
+        if (!line) throw Error('Resource cell word exceeds allocation ' + id);
         parts.push(line);
         line = word;
       }
@@ -2667,15 +2669,7 @@ export function composeNaturalOverview(
       488,
       semantics,
     );
-    text(
-      'refresh-pending-key',
-      'Pending',
-      808,
-      488,
-      semantics,
-      12.5,
-      '600',
-    );
+    text('refresh-pending-key', 'Pending', 808, 488, semantics, 12.5, '600');
     text('refresh-pending', refresh.pending, 917, 488, semantics);
     alignInkLeft('refresh-key', 'runtime-key');
     alignInkLeft('refresh-options', 'runtime-0');
@@ -2757,24 +2751,11 @@ export function composeNaturalOverview(
       'Fresh authority; own exact preimage; duties met',
       ['recovery', 'exit'],
     ],
-    [
-      'Hold',
-      'Unknown liveness/drift blocks disposal',
-      ['recovery', 'exit'],
-    ],
+    ['Hold', 'Unknown liveness/drift blocks disposal', ['recovery', 'exit']],
   ].entries()) {
     const id = 'continuation-' + i,
       y = 800 + i * (separateReclamation ? 14.2 : 18);
-    text(
-      id + '-key',
-      key,
-      1210,
-      y,
-      semantic,
-      12.5,
-      '600',
-      'exit-conditions',
-    );
+    text(id + '-key', key, 1210, y, semantic, 12.5, '600', 'exit-conditions');
     text(
       id + '-value',
       value,
@@ -2814,10 +2795,7 @@ export function composeNaturalOverview(
       '400',
       'exit-conditions',
     );
-    exitBinding.conditionLabels.push(
-      'exit-discharge-key',
-      'exit-discharge',
-    );
+    exitBinding.conditionLabels.push('exit-discharge-key', 'exit-discharge');
     continuityRows.push(['exit-discharge-key', 'exit-discharge']);
   }
   const supportMarks = new Set([
@@ -2829,9 +2807,7 @@ export function composeNaturalOverview(
   ]);
   const band = (id, ids) => ({
     id,
-    labels: groups
-      .filter((g) => ids.includes(g.id))
-      .flatMap((g) => g.labels),
+    labels: groups.filter((g) => ids.includes(g.id)).flatMap((g) => g.labels),
     marks: d.marks
       .filter((m) =>
         id === 'support'
@@ -2848,8 +2824,7 @@ export function composeNaturalOverview(
         id === 'support'
           ? supportMarks.has(e.source)
           : id === 'core'
-            ? !e.source.startsWith('protocol-') &&
-              !supportMarks.has(e.source)
+            ? !e.source.startsWith('protocol-') && !supportMarks.has(e.source)
             : id === 'protocol-and-applications'
               ? e.source.startsWith('protocol-')
               : false,
@@ -2916,10 +2891,7 @@ export function composeNaturalOverview(
         'outcomes',
         'runtime',
       ]),
-      band('protocol-and-applications', [
-        'protocol',
-        'resource-comparison',
-      ]),
+      band('protocol-and-applications', ['protocol', 'resource-comparison']),
       band('support', ['responsibilities', 'verification', 'continuity']),
     ],
     tables: [
@@ -2995,8 +2967,11 @@ export function composeNaturalOverview(
       ),
     ],
   };
+  if (consumedAuthored.size !== authoredEdits.size)
+    throw Error('Unknown authored static carrier');
   return {
     document: d,
+    ...(authored ? { authoredCarriers: structuredClone(authored) } : {}),
     groups,
     lanes,
     leasePrewrite,

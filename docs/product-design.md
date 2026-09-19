@@ -141,18 +141,19 @@ when meaning changes. Layout infeasibility must trigger explicit regrouping or
 detail views, not silent omission or unreadable type. A new visual grammar may
 require a bounded adapter; effortless arbitrary redesign is not promised.
 
-The first bounded candidate adapter accepts the real candidate-base refresh
-change. It binds source meaning to visible static and interactive carriers and
-reports complete-value differences. Unsupported meaning requires an authored
-mapping, not guessed identity substitution. Source-document changes conservatively
-require all-view review; selective execution and automatic aesthetic optimization
-are not established by this increment.
+Candidate preparation binds explicit authored text sites and complete-value
+source identities. Checked preimages prevent stale edits, and a complete page
+permutation preserves the atlas while allowing explicit reading order. The
+refresh example uses this same contract. Unsupported topology requires a future
+bounded composition change, not guessed identity substitution. Source-document
+changes conservatively require all-view review; selective execution and automatic
+aesthetic optimization are not established by this increment.
 
 The shared semantic compiler admits a finite typed vocabulary, complete JSON
 qualifiers, byte-bound provenance, explicit propositions and opaque assertions.
 Opaque prose retains unknown dependency coverage, never inferred formal meaning.
 The ETHOS adapter preserves source extensions and invokes this one comparison
-owner. It does not add a second diff engine or widen the refresh-only renderer.
+owner. It does not add a second diff engine or infer semantic equivalence.
 Change propagates over both source versions and explicit view dependencies;
 unknown coverage or unrepresented change broadens obligations. The output lists
 rebuild, verification and review separately without executing or approving them.

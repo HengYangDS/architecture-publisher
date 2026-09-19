@@ -48,9 +48,12 @@ test('installed candidate command accepts explicit relative inputs without Git o
     copy = JSON.parse(
       await fs.readFile(path.join(pkg, 'editions/ethos/refresh.json')),
     );
-  copy.sha256 = sha256(
+  const meaningSha256 = sha256(
     stableStringify(source.semantics.nodes.candidate_base_stale),
   );
+  copy.static.refresh.sha256 = meaningSha256;
+  for (const page of copy.interactive.pages)
+    page.meaning[0].sha256 = meaningSha256;
   await fs.writeFile(path.join(dir, 'authoring.json'), JSON.stringify(copy));
   const selector = {
     sourceManifest: path.relative(

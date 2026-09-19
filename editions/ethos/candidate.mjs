@@ -28,7 +28,11 @@ export async function prepareEthosCandidate(plan) {
       'authoringSha256',
       'output',
     ]) ||
-    !exact(plan.source, ['sourceManifest', 'sourceSha256', 'projectionDigest'])
+    !exact(plan.source, [
+      'sourceManifest',
+      'sourceSha256',
+      'projectionDigest',
+    ])
   )
     throw Error('Explicit candidate preparation inputs required');
   if (
@@ -59,43 +63,116 @@ export async function prepareEthosCandidate(plan) {
     throw Error('Candidate authoring identity changed');
   const authoring = JSON.parse(bytes);
   if (
-    !exact(authoring, [
-      'schema',
-      'node',
-      'sha256',
-      'static',
-      'interactive',
-      'scope',
-    ]) ||
-    authoring.schema !== 'architecture.ethos-refresh-authoring/v1' ||
-    authoring.node !== 'candidate_base_stale' ||
-    !exact(authoring.static, ['replay', 'merge', 'pending']) ||
-    !exact(authoring.interactive, ['summary', 'candidate']) ||
-    !exact(authoring.interactive.candidate, ['label', 'sublabel', 'tag']) ||
+    !exact(authoring, ['schema', 'static', 'interactive', 'scope']) ||
+    authoring.schema !== 'architecture.ethos-authored-edits/v1' ||
+    !authoring.static ||
+    typeof authoring.static !== 'object' ||
+    Array.isArray(authoring.static) ||
+    Object.keys(authoring.static).some(
+      (key) => !['labels', 'laneCount', 'refresh', 'carriers'].includes(key),
+    ) ||
+    !exact(authoring.interactive, ['order', 'pages']) ||
+    !Array.isArray(authoring.interactive.order) ||
+    !Array.isArray(authoring.interactive.pages) ||
     typeof authoring.scope !== 'string' ||
     !authoring.scope.trim()
   )
-    throw Error('Unsupported refresh authoring');
-  verifyMeaningCarriers(
-    source.projection,
-    [
-      {
-        kind: 'node',
-        id: authoring.node,
-        sha256: authoring.sha256,
-        carriers: ['summary', ...Object.keys(authoring.static)],
-      },
-    ],
-    { ...authoring.static, summary: authoring.interactive.summary },
-  );
-  const views = previous.pages.map((p) => ({
-    id: p.id,
-    nodes: Object.values(p.bindings.nodes).flat(),
-    relations: Object.values(p.bindings.relations).flatMap(
-      (r) => r.sourceRelations ?? [],
-    ),
-    assertions: Object.values(p.bindings.connections).flat(),
-  }));
+    throw Error('Unsupported authored edits');
+  const order = authoring.interactive.order;
+  if (
+    order.length !== previous.pages.length ||
+    new Set(order).size !== order.length ||
+    order.some((id) => !previous.pages.some((p) => p.id === id))
+  )
+    throw Error('Complete distinct page order required');
+  const edits = new Map();
+  const represented = new Set();
+  for (const page of authoring.interactive.pages) {
+    if (
+      !exact(page, ['id', 'edits', 'meaning']) ||
+      !order.includes(page.id) ||
+      edits.has(page.id) ||
+      !Array.isArray(page.edits) ||
+      !page.edits.length ||
+      !Array.isArray(page.meaning) ||
+      !page.meaning.length
+    )
+      throw Error('Explicit distinct authored page required');
+    const spec = structuredClone(
+      previous.pages.find((p) => p.id === page.id).spec,
+    );
+    const carriers = {};
+    for (const edit of page.edits) {
+      if (
+        !exact(edit, ['carrier', 'before', 'after']) ||
+        typeof edit.carrier !== 'string' ||
+        Object.hasOwn(carriers, edit.carrier) ||
+        typeof edit.after !== 'string' ||
+        !edit.after.trim() ||
+        edit.after.length > 10000 ||
+        /[\r\n]/.test(edit.after)
+      )
+        throw Error('Invalid or duplicate authored carrier');
+      const node = /^nodes\/([^/]+)\/(label|sublabel|tag)$/.exec(
+        edit.carrier,
+      );
+      const card = /^cards\/(0|[1-9][0-9]*)\/items\/(0|[1-9][0-9]*)$/.exec(
+        edit.carrier,
+      );
+      let owner, field;
+      if (node) {
+        owner = (spec.components ?? spec.participants)?.find(
+          (n) => n.id === node[1],
+        );
+        field = node[2];
+      } else if (card) {
+        owner = spec.cards?.[Number(card[1])]?.items;
+        field = Number(card[2]);
+        if (!Array.isArray(owner) || field > owner.length) owner = undefined;
+      }
+      if (!owner) throw Error('Unknown authored carrier ' + edit.carrier);
+      const before = owner[field] === undefined ? null : owner[field];
+      if (before !== edit.before)
+        throw Error('Stale authored carrier ' + edit.carrier);
+      if (before === null && !card)
+        throw Error('Unknown authored carrier ' + edit.carrier);
+      owner[field] = edit.after;
+      carriers[edit.carrier] = edit.after;
+    }
+    for (const key of verifyMeaningCarriers(
+      source.projection,
+      page.meaning,
+      carriers,
+      source.sourceDocuments,
+    ))
+      represented.add(key);
+    const bound = new Set(page.meaning.flatMap((m) => m.carriers));
+    if (Object.keys(carriers).some((id) => !bound.has(id)))
+      throw Error('Unbound authored carrier');
+    edits.set(page.id, { spec, meaning: page.meaning });
+  }
+  const views = previous.pages.map((p) => {
+    const meaning = [
+      ...(p.bindings.meaning ?? []),
+      ...(edits.get(p.id)?.meaning ?? []),
+    ];
+    const ids = (kind) =>
+      meaning.filter((m) => m.kind === kind).map((m) => m.id);
+    return {
+      id: p.id,
+      nodes: [...Object.values(p.bindings.nodes).flat(), ...ids('node')],
+      relations: [
+        ...Object.values(p.bindings.relations).flatMap(
+          (r) => r.sourceRelations ?? [],
+        ),
+        ...ids('relation'),
+      ],
+      assertions: [
+        ...Object.values(p.bindings.connections).flat(),
+        ...ids('assertion'),
+      ],
+    };
+  });
   const delta = compareEthosMeaning(
     previous.source.projection,
     source.projection,
@@ -104,8 +181,32 @@ export async function prepareEthosCandidate(plan) {
   const supported =
     delta.added.nodes.length === 0 &&
     delta.removed.nodes.length === 0 &&
-    delta.changed.nodes.every((id) => id === authoring.node) &&
-    ['relations', 'assertions', 'contracts', 'presentation'].every(
+    delta.changed.nodes.every(
+      (id) =>
+        represented.has('node:' + id) &&
+        previous.source.projection.semantics.nodes[id].kind ===
+          source.projection.semantics.nodes[id].kind,
+    ) &&
+    delta.changed.relations.every(
+      (id) =>
+        represented.has('relation:' + id) &&
+        ['from', 'to', 'kind'].every(
+          (key) =>
+            previous.source.projection.semantics.relations.find(
+              (r) => r.id === id,
+            )[key] ===
+            source.projection.semantics.relations.find((r) => r.id === id)[
+              key
+            ],
+        ),
+    ) &&
+    delta.changed.assertions.every((id) =>
+      represented.has('assertion:' + id),
+    ) &&
+    ['relations', 'assertions'].every(
+      (k) => !delta.added[k].length && !delta.removed[k].length,
+    ) &&
+    ['contracts', 'presentation'].every(
       (k) =>
         !delta.added[k].length &&
         !delta.removed[k].length &&
@@ -115,6 +216,7 @@ export async function prepareEthosCandidate(plan) {
     throw Error('Unsupported semantic delta requires authored mapping');
   const members = new Map(selected.members.map((m) => [m.path, m.content]));
   const edition = structuredClone(previous.edition);
+  edition.pages = order.map((id) => edition.pages.find((p) => p.id === id));
   edition.schema = 'architecture.ethos-atlas-candidate/v1';
   delete edition.acceptedAtlasManifestSha256;
   edition.source = {
@@ -123,11 +225,12 @@ export async function prepareEthosCandidate(plan) {
     manifestSha256: plan.source.sourceSha256,
   };
   const catalog = structuredClone(previous.catalog);
+  catalog.pages = order.map((id) => catalog.pages.find((p) => p.id === id));
   catalog.sourceDigest = plan.source.projectionDigest;
   for (const page of edition.pages) {
     delete page.acceptedHtmlSha256;
     const original = previous.pages.find((p) => p.id === page.id),
-      spec = structuredClone(original.spec),
+      spec = edits.get(page.id)?.spec ?? structuredClone(original.spec),
       bindings = structuredClone(original.bindings);
     bindings.sourceRevision = edition.source.commit;
     bindings.sourceDigest = edition.source.projectionDigest;
@@ -138,31 +241,29 @@ export async function prepareEthosCandidate(plan) {
           (b) => b.id === sourceId,
         )?.sha256;
     }
-    if (['overview', 'lanes', 'candidate'].includes(page.id)) {
-      const card = page.id === 'overview' ? 1 : 0;
-      const item = spec.cards[card].items.length;
-      spec.cards[card].items.push(authoring.interactive.summary);
-      bindings.meaning = [
-        {
-          kind: 'node',
-          id: authoring.node,
-          sha256: authoring.sha256,
-          carriers: [`cards/${card}/items/${item}`],
-        },
-      ];
-      if (page.id === 'candidate') {
-        const node = spec.components.find((c) => c.id === 'expected');
-        if (!node) throw Error('Missing candidate refresh carrier');
-        Object.assign(node, authoring.interactive.candidate);
-        if (!bindings.nodes.expected.includes(authoring.node))
-          bindings.nodes.expected.push(authoring.node);
-        bindings.meaning[0].carriers.push(
-          'nodes/expected/sublabel',
-          'nodes/expected/tag',
+    if (edits.has(page.id)) {
+      const selectedMeaning = edits.get(page.id).meaning;
+      for (const old of bindings.meaning ?? []) {
+        const replacement = selectedMeaning.find(
+          (m) => old.kind === m.kind && old.id === m.id,
         );
+        if (
+          replacement &&
+          old.carriers.some((id) => !replacement.carriers.includes(id))
+        )
+          throw Error('Existing semantic carrier would be orphaned');
       }
+      bindings.meaning = [
+        ...(bindings.meaning ?? []).filter(
+          (old) =>
+            !selectedMeaning.some(
+              (m) => old.kind === m.kind && old.id === m.id,
+            ),
+        ),
+        ...structuredClone(selectedMeaning),
+      ];
     }
-    checkBindings(spec, bindings, source.projection);
+    checkBindings(spec, bindings, source.projection, source.sourceDocuments);
     members.set(page.spec, encode(spec));
     members.set(page.bindings, encode(bindings));
     page.specSha256 = sha256(members.get(page.spec));
@@ -185,9 +286,7 @@ export async function prepareEthosCandidate(plan) {
       editionSha256: written.manifestSha256,
     },
     delta,
-    posterAuthoring: {
-      refresh: { sha256: authoring.sha256, ...authoring.static },
-    },
+    posterAuthoring: structuredClone(authoring.static),
     authoringSha256: plan.authoringSha256,
     semanticAcceptance: 'not-performed',
     browserAcceptance: 'not-performed',

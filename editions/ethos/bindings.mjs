@@ -1,7 +1,7 @@
 import { exactBindingErrors } from './predicates.mjs';
 import { deriveResourceComparison } from './resource-comparison.mjs';
 import { verifyMeaningCarriers } from './evolution.mjs';
-export function checkBindings(spec, bindings, input) {
+export function checkBindings(spec, bindings, input, sourceDocuments = []) {
   const type = spec.diagram_type;
   if (
     !['architecture', 'sequence'].includes(type) ||
@@ -21,7 +21,7 @@ export function checkBindings(spec, bindings, input) {
       for (const key of ['label', 'sublabel', 'tag'])
         if (typeof node[key] === 'string')
           carriers[`nodes/${node.id}/${key}`] = node[key];
-    verifyMeaningCarriers(input, bindings.meaning, carriers);
+    verifyMeaningCarriers(input, bindings.meaning, carriers, sourceDocuments);
   }
   if (!Array.isArray(nodes) || !nodes.length || !Array.isArray(edges))
     throw Error('Native typed entities and relations required');
@@ -90,7 +90,8 @@ export function checkBindings(spec, bindings, input) {
     if (
       !visibleNodeIds.has(relation.to) &&
       !bindings.repositoryJudgments?.some(
-        (r) => r.repository === relation.from && r.conformance === relation.to,
+        (r) =>
+          r.repository === relation.from && r.conformance === relation.to,
       )
     )
       throw Error('Missing separate repository judgment carrier');
@@ -125,7 +126,9 @@ export function checkBindings(spec, bindings, input) {
     }
     for (const ids of Object.values(bindings.nodes))
       for (const id of ids) {
-        const local = compared.find((r) => r.resource === id && r.conformance);
+        const local = compared.find(
+          (r) => r.resource === id && r.conformance,
+        );
         if (local && !seen.has(local.conformance.id))
           throw Error('Missing separate repository judgment carrier');
       }
@@ -134,7 +137,9 @@ export function checkBindings(spec, bindings, input) {
     scopes = bindings.scopes ?? [];
   if (scopes.length !== boundaries.length)
     throw Error('Native boundary scope set is not fully bound');
-  const semanticRelations = new Set(input.semantics.relations.map((e) => e.id));
+  const semanticRelations = new Set(
+    input.semantics.relations.map((e) => e.id),
+  );
   for (const [index, boundary] of boundaries.entries()) {
     const matches = scopes.filter((s) => s.boundaryIndex === index);
     if (matches.length !== 1)

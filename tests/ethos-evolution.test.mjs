@@ -121,6 +121,50 @@ test('bound semantic carrier rejects stale meaning and missing visible copy', as
     /meaning/,
   );
 });
+
+test('canonical document carriers require exact source bytes and a verbatim locator', async () => {
+  const { verifyMeaningCarriers } = await api();
+  const { input } = fixture();
+  const content = Buffer.from(
+    'Canonical rule.\nOptional verification remains local without a receipt.\n',
+  );
+  const row = { ...input.source.bindings[0], sha256: sha(content) };
+  input.source.bindings[0] = row;
+  const binding = {
+    kind: 'document',
+    id: row.id,
+    sha256: row.sha256,
+    excerpt: 'Optional verification remains local without a receipt.',
+    carriers: ['policy'],
+  };
+  const carriers = { policy: 'Optional, without receipt → local' };
+  const documents = [{ ...row, content }];
+  assert.deepEqual(
+    verifyMeaningCarriers(input, [binding], carriers, documents),
+    ['document:' + row.id],
+  );
+  assert.throws(
+    () => verifyMeaningCarriers(input, [binding], carriers),
+    /document/,
+  );
+  assert.throws(
+    () =>
+      verifyMeaningCarriers(
+        input,
+        [{ ...binding, excerpt: 'Invented rule' }],
+        carriers,
+        documents,
+      ),
+    /excerpt/,
+  );
+  assert.throws(
+    () =>
+      verifyMeaningCarriers(input, [binding], carriers, [
+        { ...row, content: Buffer.from('Changed bytes') },
+      ]),
+    /document/,
+  );
+});
 test('unchanged identities and meaning report no semantic changes, without claiming approval', async () => {
   const { compareEthosMeaning } = await api();
   const { input } = fixture();
@@ -219,6 +263,73 @@ test('static refresh authoring carries exact source meaning and rejects changed 
   p.semantics.nodes.candidate_base_stale.attributes.semantics = 'different';
   assert.throws(
     () => composeNaturalOverview(p, m.measure, q, { refresh }),
+    /meaning/,
+  );
+});
+
+test('static authored carrier checks its preimage and binds actual emitted text', async () => {
+  const p = JSON.parse(
+    await fs.readFile(
+      new URL(
+        './fixtures/ethos-source/projection-input.json',
+        import.meta.url,
+      ),
+    ),
+  );
+  const q = JSON.parse(p.documents.quality_contract);
+  const metrics = JSON.parse(
+    await fs.readFile(
+      new URL(
+        '../editions/ethos/static/authoring/metrics.json',
+        import.meta.url,
+      ),
+    ),
+  );
+  const measure = createMetricReader(metrics).measure;
+  const baseline = composeNaturalOverview(p, measure, q);
+  const site = baseline.document.labels.find(
+    (l) => l.id === 'verification-verifier-label',
+  );
+  const carriers = {
+    edits: [{ id: site.id, before: site.text, after: 'Receipt' }],
+    meaning: [
+      {
+        kind: 'node',
+        id: 'independent_verifier',
+        sha256: sha(stable(p.semantics.nodes.independent_verifier)),
+        carriers: [site.id],
+      },
+    ],
+  };
+  const composed = composeNaturalOverview(p, measure, q, { carriers });
+  assert.equal(
+    composed.document.labels.find((l) => l.id === site.id).text,
+    'Receipt',
+  );
+  assert.ok(
+    auditNaturalSemantics(composed, p).failures.length > 0,
+    'A digest binding must not override the existing semantic checks for incorrect copy',
+  );
+  assert.ok(
+    !auditNaturalSemantics(composed, p).failures.includes(
+      'authored-meaning-visible',
+    ),
+  );
+  composed.document.labels.find((l) => l.id === site.id).text = 'Tampered';
+  assert.ok(
+    auditNaturalSemantics(composed, p).failures.includes(
+      'authored-meaning-visible',
+    ),
+  );
+  carriers.edits[0].before = 'Stale preimage';
+  assert.throws(
+    () => composeNaturalOverview(p, measure, q, { carriers }),
+    /Stale authored label/,
+  );
+  carriers.edits[0].before = site.text;
+  p.semantics.nodes.independent_verifier.attributes.selection = 'Different';
+  assert.throws(
+    () => composeNaturalOverview(p, measure, q, { carriers }),
     /meaning/,
   );
 });
