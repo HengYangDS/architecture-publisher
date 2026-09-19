@@ -7,4 +7,4 @@
 ## 2. Acceptance and publication
 
 - [x] 2.1 Run repository gates, installed package replay and the exact pinned CI container.
-- [ ] 2.2 Complete candidate review and exact-HEAD proof with the release identity and tag policy intact.
+- [x] 2.2 Complete candidate review and exact-HEAD proof with the release identity and tag policy intact.
