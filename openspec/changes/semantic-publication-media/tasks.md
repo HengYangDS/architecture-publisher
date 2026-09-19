@@ -18,4 +18,4 @@
 - [x] 3.3 Reproduce AIGW initial and evolved HTML, SVG and PNG in a relocated offline installation.
 - [x] 3.4 Run separate static geometry/raster and interactive browser qualification, then record their evidence and limits.
 - [x] 3.5 Run package, full repository and pinned Linux gates; update current guidance.
-- [ ] 3.6 Record the signed implementation commit and exact-commit proof before the archive transition.
+- [x] 3.6 Record the signed implementation commit and exact-commit proof before the archive transition.
