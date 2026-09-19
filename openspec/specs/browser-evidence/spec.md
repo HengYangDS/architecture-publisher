@@ -1,7 +1,9 @@
 # browser-evidence Specification
 
 ## Purpose
-TBD - created by archiving change browser-evidence-compaction. Update Purpose after archive.
+Define the lossless, bounded evidence transport used to carry complete browser
+observations into the existing identity and coverage checks without granting
+partial progress, compressed bytes, or historical replay any acceptance authority.
 
 ## Requirements
 
