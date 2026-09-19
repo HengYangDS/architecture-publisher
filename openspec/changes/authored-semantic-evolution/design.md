@@ -95,3 +95,37 @@ manual repositioning, regenerated views and elapsed build/check costs.
 The real source decision precedes claims of E1 completion, not the reusable input
 implementation. Remote backup physical storage and independent restoration remain
 unproved; do not mistake source-ref synchronization for disaster recovery.
+
+## Observed acceptance
+
+Product source 373bb0c023088f4c8a60fa5a13666c5a4d1ead94 passed exact-HEAD
+native proof: 492 tests, 483 passing and nine explicit opt-in skips; syntax
+passed. A preceding full run hit the existing duplicate-font timeout; its
+targeted recheck passed and the later native proof passed. The root cause of
+that intermittent stall is not established by the separate SIGKILL repair.
+
+The real candidate passed all 52 page/viewport cases in document and presentation
+states, natural-clock story controls, applicable exports, disclosures and
+standalone navigation. All owned browsers closed. Current atlas and reader-payload
+opt-in contracts ran separately. Static glyph, spacing, endpoint and canvas
+checks passed with current recorded font measurements. Alpha.3 atlas replay
+remained byte-identical. New human or independent reviewer acceptance is not claimed.
+
+One authored input changed one static label and two interactive pages, with zero
+manual anchor repositioning and unchanged static nodes, edges and decorations.
+A single warm local run measured 107 ms preparation, 4.19 s complete atlas rendering
+and 32 ms static composition/checking, excluding raster and browser qualification.
+These are observations, not general performance claims.
+
+Installed offline relocated use reproduced all selected output identities.
+SIGKILL after the first target replacement recovered exact prior payload;
+a deliberate new attempt used a new recovery location rather than deleting the
+terminal rollback journal. Installation, recovery replay and foreign-file
+preservation then passed. Qualified dual-medium publication additionally passed
+the current review, static and full-browser evidence consumers and verified all
+21 installed reader payload files.
+
+The largest browser evidence bundle exceeded its existing size limit. Selected
+screenshots were losslessly recompressed, every decoded RGBA byte was compared,
+and original/encoded/pixel hashes were retained. Export bytes and all observations
+were unchanged. No size limit, visual threshold or acceptance gate was relaxed.
