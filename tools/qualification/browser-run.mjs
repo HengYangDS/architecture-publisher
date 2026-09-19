@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import http from 'node:http';
+import {encodeBrowserReport} from '../../editions/ethos/browser-report.mjs';
 import {chromium} from 'playwright-core';
 import {sha256} from '../../src/integrations/ethos/projection.mjs';
 import {readEthosAtlasOutput} from '../../editions/ethos/atlas-output.mjs';
@@ -74,7 +75,7 @@ try{
         }
         progress.completed.push({viewport,page:item.id,mode,status:'PASS_BOUNDED'});
       }finally{await context.close();}
-      await fs.writeFile(path.join(destination,'report.partial.json'),JSON.stringify(report)+'\n');await checkpoint();console.log(JSON.stringify(progress.completed.at(-1)));
+      await checkpoint();console.log(JSON.stringify(progress.completed.at(-1)));
     }
   }
   const context=await browser.newContext({viewport:{width:1600,height:1000},serviceWorkers:'block'});
@@ -104,7 +105,8 @@ finally{
       const gaps=browserCoverageGaps(report,target.pages,report.viewports[0],target.typography);
       if(gaps.length){report.status='FAIL';progress.status='FAIL';progress.errors.push(...gaps);process.exitCode=1;}
     }
-    await fs.writeFile(path.join(destination,'report.json'),JSON.stringify(report)+'\n',{flag:'wx'});
+    const encoded=encodeBrowserReport(report);
+    await fs.writeFile(path.join(destination,encoded.name),encoded.content,{flag:'wx'});
   }
   await checkpoint();console.log(JSON.stringify({status:progress.status,completed:progress.completed.length,errors:progress.errors,browserClosed:true}));
 }

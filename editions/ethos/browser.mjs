@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { decodeBrowserReport } from './browser-report.mjs';
 import { readSourceBundle } from '../../src/source/bundle.mjs';
 // ETHOS edition browser obligations. No browser launch, credentials or host discovery.
 import { portablePath, isDigest } from '../../src/source/manifest.mjs';
@@ -41,7 +42,9 @@ export async function describeEthosBrowser(atlas) {
       id: p.id,
       path: p.path,
       htmlSha256: p.sha256,
-      obligations: derivePageObligations(members.get(p.path).toString('utf8')),
+      obligations: derivePageObligations(
+        members.get(p.path).toString('utf8'),
+      ),
     })),
     browserExecuted: false,
     browserAcceptance: 'not-performed',
@@ -81,7 +84,8 @@ export function validateEthosBrowserReport(
     viewport,
     target.typography,
   );
-  if (gaps.length) throw Error('Browser coverage failure: ' + gaps.join(', '));
+  if (gaps.length)
+    throw Error('Browser coverage failure: ' + gaps.join(', '));
   if (!Array.isArray(report.evidenceFiles) || !Array.isArray(members))
     throw Error('Browser evidence files missing');
   const supplied = new Map(),
@@ -126,7 +130,10 @@ export function validateEthosBrowserReport(
         portablePath(item.file);
         references.push(item.file);
         const identity = supplied.get(item.file);
-        if (identity?.sha256 !== item.sha256 || identity?.bytes !== item.bytes)
+        if (
+          identity?.sha256 !== item.sha256 ||
+          identity?.bytes !== item.bytes
+        )
           throw Error('Browser export identity mismatch');
       }
   for (const ref of references) portablePath(ref);
@@ -176,13 +183,12 @@ export async function readEthosBrowserEvidence({ atlas, reports, checker }) {
     const bundle = await readSourceBundle(item.manifestPath, item.sha256);
     const member = bundle.members.find((m) => m.path === item.report);
     if (!member) throw Error('Browser report missing');
-    const report = JSON.parse(
-      new TextDecoder('utf-8', { fatal: true }).decode(member.content),
-    );
-    if (item.report !== 'report.json')
-      throw Error('Browser report must be the bundle root report.json');
+    const report = decodeBrowserReport(item.report, member.content);
     const observed = validateEthosBrowserReport(
-      { report, members: bundle.members.filter((m) => m.path !== item.report) },
+      {
+        report,
+        members: bundle.members.filter((m) => m.path !== item.report),
+      },
       target,
       item.viewport,
     );

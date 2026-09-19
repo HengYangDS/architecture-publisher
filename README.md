@@ -777,6 +777,13 @@ pause/replay/reset, disclosure and applicable native export. Installation does
 not install Playwright or require a browser. This development tool does not read
 personal browser profiles or credentials.
 
+New runs write `report.json.gz`: lossless JSON with compressed and expanded
+32 MiB limits, decoded before the unchanged identity and coverage checks.
+Immutable historical `report.json` remains readable. Small progress checkpoints
+are not acceptance evidence. Finalization retains the collected report on success
+or failure; abrupt termination without finalization requires a fresh run. No
+viewport, observation, export or natural-clock story check is skipped.
+
 ### Publication and storage
 
 The current private GitLab project is

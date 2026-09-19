@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -66,7 +66,25 @@ test('packed CLI verifies relocated non-Git input without development executable
   await assert.rejects(fs.stat(path.join(pkg, 'node_modules')), {
     code: 'ENOENT',
   });
-  await assert.rejects(fs.stat(path.join(install, '.git')), { code: 'ENOENT' });
+  await assert.rejects(fs.stat(path.join(install, '.git')), {
+    code: 'ENOENT',
+  });
+  const reportProbe = spawnSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '-e',
+      `import {encodeBrowserReport,decodeBrowserReport} from ${JSON.stringify(pathToFileURL(path.join(pkg, 'editions/ethos/browser-report.mjs')).href)}; const encoded=encodeBrowserReport({scope:'installed'}); if(decodeBrowserReport(encoded.name,encoded.content).scope!=='installed')process.exit(1); console.log('installed-report-roundtrip');`,
+    ],
+    {
+      cwd: install,
+      env: { HOME: install, PATH: install },
+      encoding: 'utf8',
+      timeout: 15000,
+    },
+  );
+  assert.equal(reportProbe.status, 0, reportProbe.stderr);
+  assert.equal(reportProbe.stdout.trim(), 'installed-report-roundtrip');
   const input = path.join(tmp, 'relocated input');
   await fs.mkdir(input);
   const data = Buffer.from(
@@ -84,11 +102,15 @@ test('packed CLI verifies relocated non-Git input without development executable
   const home = path.join(tmp, 'empty-home');
   await fs.mkdir(home);
   const run = (args) =>
-    spawnSync(process.execPath, [path.join(pkg, 'src/cli/main.mjs'), ...args], {
-      cwd: install,
-      env: { HOME: home, PATH: home, LANG: 'C.UTF-8' },
-      encoding: 'utf8',
-    });
+    spawnSync(
+      process.execPath,
+      [path.join(pkg, 'src/cli/main.mjs'), ...args],
+      {
+        cwd: install,
+        env: { HOME: home, PATH: home, LANG: 'C.UTF-8' },
+        encoding: 'utf8',
+      },
+    );
   const args = [
     'source',
     'verify',
