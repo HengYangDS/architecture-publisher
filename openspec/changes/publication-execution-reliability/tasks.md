@@ -8,4 +8,4 @@
 
 - [x] 2.1 Document explicit current and historical qualification profiles.
 - [x] 2.2 Preserve timeout uncertainty and distinguish fault injection from production evidence.
-- [ ] 2.3 Complete review, native proof and signed governed source integration.
+- [x] 2.3 Complete review, native proof and signed governed source integration.

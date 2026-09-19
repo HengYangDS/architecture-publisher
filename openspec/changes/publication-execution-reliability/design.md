@@ -59,3 +59,16 @@ retain unresolved operator requirements. Continue source/constraint mechanism
 research and a real ETHOS architecture change beyond refresh through authored
 static/interactive views and recoverable candidate publication. Second adopter,
 arbitrary layout, editor and ecosystem expansion remain later bounded stages.
+
+## Acceptance boundary
+
+The signed repair was integrated into candidate and accepted source at
+`cc194e3ce20d62ea6057b205f8c2cd8fc75d2eec`. Native test/syntax proof passed;
+the full default suite reported 479 passing tests, zero failures and nine
+explicit historical-input skips. Installed/raster observed regression passed
+77 tests. The implementing agent reviewed the single-line production change and
+test cleanup, ensuring the child-exit assertion precedes outer cleanup. Two
+independent reviewer attempts failed at the tool transport layer before returning
+a review; no independent review is claimed. The source integration is not a
+new package release or final tranche completion. Native archive, remote metadata
+synchronization and owned-lane retirement remain required closeout effects.
