@@ -1,0 +1,70 @@
+{
+  "schema": "architecture.semantic-compare-input/v1",
+  "before": {
+    "path": "initial/semantic.json",
+    "sha256": "458ca6a967c8eba701ea5646d9efc925612080aeb6c5fc3496cf5969dea49e39"
+  },
+  "after": {
+    "path": "evolved/semantic.json",
+    "sha256": "3a3aa2b31ffe66d193c2ca1a0db0abd88848bbbc2e4e5ae0f431949b4fc63f80"
+  },
+  "views": [
+    {
+      "id": "overview",
+      "dependsOn": [],
+      "views": [],
+      "coverage": "unknown"
+    },
+    {
+      "id": "registry",
+      "dependsOn": [
+        {
+          "section": "entities",
+          "id": "registry"
+        },
+        {
+          "section": "entities",
+          "id": "adapter-contract"
+        },
+        {
+          "section": "relations",
+          "id": "registry-contract"
+        },
+        {
+          "section": "relations",
+          "id": "contract-codex"
+        },
+        {
+          "section": "relations",
+          "id": "contract-claude"
+        }
+      ],
+      "views": [
+        "overview"
+      ],
+      "coverage": "complete"
+    },
+    {
+      "id": "coordination",
+      "dependsOn": [
+        {
+          "section": "entities",
+          "id": "synchronizer"
+        },
+        {
+          "section": "entities",
+          "id": "registry"
+        },
+        {
+          "section": "relations",
+          "id": "synchronizer-registry"
+        }
+      ],
+      "views": [
+        "overview"
+      ],
+      "coverage": "complete"
+    }
+  ],
+  "correspondences": []
+}

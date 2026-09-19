@@ -1,0 +1,34 @@
+{
+  "schema": "architecture.source-bundle/v1",
+  "source": {
+    "id": "aigw-cli",
+    "revision": "069c2a655a5a1b9124d656e64b2d323ff53baf11"
+  },
+  "files": [
+    {
+      "path": "semantic.json",
+      "bytes": 3608,
+      "sha256": "3a3aa2b31ffe66d193c2ca1a0db0abd88848bbbc2e4e5ae0f431949b4fc63f80"
+    },
+    {
+      "path": "source/LICENSE",
+      "bytes": 1078,
+      "sha256": "35e7e1bfe59ab4b6122410767dea9de995077af273b695d075743a45dcb0e07a"
+    },
+    {
+      "path": "source/internal/client/adapters.go",
+      "bytes": 16377,
+      "sha256": "6435a2929f58c1f53e4af15ee80888e6b9021b04d12ce70777d1c5614b2e6b6f"
+    },
+    {
+      "path": "source/internal/client/registry.go",
+      "bytes": 9788,
+      "sha256": "b9b81087b69b8c38a32a8bc46ee3a04948d71bf19e81172981374f17e8f5921a"
+    },
+    {
+      "path": "source/internal/synchronization/synchronizer.go",
+      "bytes": 3924,
+      "sha256": "54156affde734344e387388662c86e84c924ba2ea0a81de9f951b15c3bcaec23"
+    }
+  ]
+}

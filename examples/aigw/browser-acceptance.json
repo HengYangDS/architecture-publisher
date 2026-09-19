@@ -1,0 +1,43 @@
+{
+  "schema": "architecture.semantic-browser-acceptance/v1",
+  "observedAt": "2026-09-19",
+  "hostScope": "macOS arm64 local acceptance host",
+  "browser": {
+    "name": "Chromium",
+    "version": "153.0.8010.53",
+    "viewport": [1440, 1000]
+  },
+  "verifier": {
+    "observerSha256": "ba57e067ae431ef02beaf4f82c6440c1ece4e2b1899080e498c2512f1a50c6b8",
+    "checksSha256": "0cbd0f21f61b7f17ba2c1bf40e139efa4825fdf734481f27971d045ed5c7812c"
+  },
+  "runs": [
+    {
+      "id": "initial",
+      "publicationManifestSha256": "e3f0e7ac3464a69ab57f94c7c2c2488dfbb801d9181c8d96c7fb44c493de88aa",
+      "semanticDigest": "eafce60e39c46bb016d4d41c76a2b2fbc46992699bd46d3806ba6d683e7eea17",
+      "browserReportSha256": "9bbbfa00f98dc662149302186857b74ae2316a82700fff35edea9e5a91638b29",
+      "views": ["overview", "projection", "overview-static"],
+      "status": "PASS_BOUNDED"
+    },
+    {
+      "id": "evolved",
+      "publicationManifestSha256": "b9afabda64f2af123a57d1c97f8c7cfade0babbe7bbe5dbcb5948114472f7ad9",
+      "semanticDigest": "eba1c6837bd87accf49c0f65e503eb4ac2c5be95a922ef0baa83232b076157cf",
+      "browserReportSha256": "4b7cff99842bdf56ed0083461d6078245261384f5cc75ccd9af39b37d8b6427b",
+      "views": [
+        "overview",
+        "registry",
+        "coordination",
+        "overview-static"
+      ],
+      "status": "PASS_BOUNDED"
+    }
+  ],
+  "commands": [
+    "architecture publish semantic <absolute-plan.json> --sha256 <plan-sha256>",
+    "node tools/qualification/semantic-browser.mjs <absolute-browser-input.json>"
+  ],
+  "scope": "Every declared HTML view and direct image/svg+xml overview paint; visible node and directed relation identities, declared endpoint attachment, text overlap and overflow, minimum font, viewport width, theme, focus, no page error and no external request.",
+  "limits": "Local bounded execution only. Not human visual approval, arbitrary viewport/browser support, source-intent proof, independent-host verification or hosted delivery. Raw reports and screenshots remain disposable build evidence and are identified here by digest."
+}

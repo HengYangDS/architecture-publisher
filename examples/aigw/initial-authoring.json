@@ -1,0 +1,45 @@
+{
+  "schema": "architecture.semantic-publication/v1",
+  "semanticDigest": "eafce60e39c46bb016d4d41c76a2b2fbc46992699bd46d3806ba6d683e7eea17",
+  "title": "AIGW Client Projection",
+  "entityTypes": {
+    "interface": "external",
+    "coordinator": "backend",
+    "client": "cloud"
+  },
+  "relationTypes": {
+    "delegates": { "label": "delegates", "variant": "emphasis" },
+    "projects": { "label": "projects", "variant": "default" }
+  },
+  "views": [
+    {
+      "id": "overview",
+      "label": "Direct client-specific paths",
+      "purpose": "overview",
+      "groups": [
+        { "id": "command", "label": "Command", "entities": ["cli"] },
+        { "id": "coordination", "label": "Coordination", "entities": ["synchronizer"] },
+        { "id": "clients", "label": "Native clients", "entities": ["codex", "claude"] }
+      ],
+      "relations": [
+        { "id": "cli-synchronizer", "fromSide": "bottom", "toSide": "top", "route": "orthogonal-v" },
+        { "id": "synchronizer-codex", "fromSide": "bottom", "toSide": "top", "route": "orthogonal-v" },
+        { "id": "synchronizer-claude", "fromSide": "bottom", "toSide": "top", "route": "orthogonal-v" }
+      ]
+    },
+    {
+      "id": "projection",
+      "label": "Direct projection mechanism",
+      "purpose": "mechanism",
+      "groups": [
+        { "id": "coordination", "label": "Coordinator", "entities": ["synchronizer"] },
+        { "id": "clients", "label": "Client-specific branches", "entities": ["codex", "claude"] }
+      ],
+      "relations": [
+        { "id": "synchronizer-codex", "fromSide": "bottom", "toSide": "top", "route": "orthogonal-v" },
+        { "id": "synchronizer-claude", "fromSide": "bottom", "toSide": "top", "route": "orthogonal-v" }
+      ]
+    }
+  ],
+  "scope": "AIGW commit 36a6a28336280b71c4dc8d793a75bdb2671bb73c; curated from exact code, not inferred implementation completeness"
+}

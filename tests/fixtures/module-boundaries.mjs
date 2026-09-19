@@ -7,6 +7,12 @@ const owners = {
   'src/source/': ['src/source/'],
   'src/semantics/': ['src/semantics/', 'src/source/'],
   'src/geometry/': ['src/geometry/'],
+  'src/composition/': [
+    'src/composition/',
+    'src/source/',
+    'src/semantics/',
+    'src/interactive/',
+  ],
   'src/publication/': ['src/publication/', 'src/source/'],
   'src/interactive/': [
     'src/interactive/',

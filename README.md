@@ -784,6 +784,38 @@ are not acceptance evidence. Finalization retains the collected report on succes
 or failure; abrupt termination without finalization requires a fresh run. No
 viewport, observation, export or natural-clock story check is skipped.
 
+### Source-bound semantic publication
+
+`architecture publish semantic <plan.json> --sha256 <plan-sha256>` compiles a
+validated `architecture.semantic-document/v1` into one complete overview SVG
+and one complete standalone HTML diagram per declared view. The plan selects an
+exact source bundle, semantic member, authored publication and new output path.
+Every semantic source digest must match the selected bundle bytes.
+
+The authored publication declares the complete overview, optional mechanism
+subgraphs, grouping, within-group order, endpoint sides and finite route style.
+It does not provide labels or endpoints independently of the semantic document.
+The compiler rejects stale identities, source mismatch, contradictory
+propositions, incomplete or duplicate membership, unsupported cardinality and
+native renderer geometry failure. It validates explicit meaning; it does not
+infer architecture from code or promise arbitrary layouts.
+
+`examples/aigw/` is the first non-ETHOS adopter evidence. It binds the parent
+and registry-introduction AIGW revisions to selected source bytes and records
+the addition of the ordered registry and adapter contract. The portable package
+tests replay both structures from a relocated offline installation. Browser
+qualification remains a separate development operation:
+
+```sh
+node tools/qualification/semantic-browser.mjs ./semantic-browser-input.json
+```
+
+That observer serves only selected bundle members on loopback, blocks external
+requests, verifies visible node/relation identity, text geometry, theme and
+focus behavior, and separately loads the overview as `image/svg+xml` to verify
+actual SVG paint. Its bounded result is not human approval, general browser
+compatibility, source-intent truth or independent product acceptance.
+
 ### Publication and storage
 
 The current private GitLab project is
