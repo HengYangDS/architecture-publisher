@@ -1,0 +1,32 @@
+{
+  "schema": "architecture.semantic-browser-acceptance/v1",
+  "observedAt": "2026-09-20",
+  "hostScope": "macOS arm64 local acceptance host",
+  "adoptionRole": "self-hosted",
+  "independentAdopterEvidence": false,
+  "browser": {
+    "name": "Chromium",
+    "version": "153.0.8010.53",
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  "verifier": {
+    "observerSha256": "da1ff70bb98042440d0f6512d9634014158b81fe66243ecf5d4ab1f88ee2c1e9",
+    "checksSha256": "2d43190ed9e136b8047d6d80fb4c00916b44700a608d96a2321a91bd560e8218"
+  },
+  "publicationManifestSha256": "c2ae35d014176e50718e507e1d1d47987555a427167ebf9692c99b8439ae5548",
+  "semanticDigest": "136dda9b115391aec5cbc28f14ed9248dfb2c0b7bc2b47b8603835f32e96dfb4",
+  "browserReportSha256": "bc496ea82939b6816356029ad5effe8e81e634ac90ed5af7bf0254d7044cab89",
+  "staticSvgSha256": "d7d853d7caffe1a1b61dd20e5ae3b58867bcd7d72f370241355c7c678e8f8c3d",
+  "staticPngSha256": "e8a1de7f2123a462cd1d185a60a0b7467958c71c7419c6f1c5218f16ae4bb2f6",
+  "views": [
+    "overview",
+    "media",
+    "overview-static"
+  ],
+  "status": "PASS_BOUNDED",
+  "scope": "Selected installed package modules at one exact source-set identity; complete declared HTML views and independent static SVG at 1440x1000.",
+  "limits": "Self-use and local bounded browser evidence only. Not independent adopter proof, independent-host recovery, hosted delivery or human aesthetic approval."
+}

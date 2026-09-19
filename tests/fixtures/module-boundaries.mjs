@@ -11,9 +11,15 @@ const owners = {
     'src/composition/',
     'src/source/',
     'src/semantics/',
-    'src/interactive/',
   ],
-  'src/publication/': ['src/publication/', 'src/source/'],
+  'src/publication/': [
+    'src/publication/',
+    'src/source/',
+    'src/semantics/',
+    'src/composition/',
+    'src/interactive/',
+    'src/static/',
+  ],
   'src/interactive/': [
     'src/interactive/',
     'src/source/',

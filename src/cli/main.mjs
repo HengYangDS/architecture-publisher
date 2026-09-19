@@ -13,9 +13,9 @@ async function command() {
     args[1] === 'semantic' &&
     args[3] === '--sha256'
   ) {
-    const { compileSemanticAtlasInput } =
-      await import('../composition/architecture.mjs');
-    return compileSemanticAtlasInput(args[2], args[4]);
+    const { compileSemanticPublicationInput } =
+      await import('../publication/semantic.mjs');
+    return compileSemanticPublicationInput(args[2], args[4]);
   }
   if (
     args.length === 5 &&

@@ -38,7 +38,10 @@ const html = {
   overflow: [],
   minimumFont: 8,
   scrollWidth: 1000,
+  scrollHeight: 800,
   viewportWidth: 1000,
+  viewportHeight: 800,
+  surfaceBadges: ['none', 'none'],
 };
 
 test('HTML acceptance rejects runtime errors and directed endpoint drift', () => {
@@ -55,16 +58,32 @@ test('HTML acceptance rejects runtime errors and directed endpoint drift', () =>
       ),
     /directed endpoint mismatch/,
   );
+  assert.throws(
+    () =>
+      validateHtmlObservation(
+        { ...html, surfaceBadges: ['"ARCHIFY / PLATE 04"', 'none'] },
+        view,
+        [],
+      ),
+    /Browser geometry failed/,
+  );
 });
 
 test('static acceptance rejects detached endpoints and missing paint', () => {
   const observed = {
+    fontFaces: ['400', '600'].map((weight) => ({ family: 'JetBrains Mono', weight, status: 'loaded' })),
     root: 'svg',
     width: 300,
     height: 100,
     viewBox: [0, 0, 300, 100],
     nodeIds: ['source', 'target'],
     edges: [edge],
+    overlap: [],
+    labelNodeOverlap: [],
+    labelStrokeOverlap: [],
+    edgeNodeOverlap: [],
+    overflow: [],
+    minimumFont: 8,
   };
   validateStaticObservation(observed, view, []);
   assert.throws(
@@ -88,4 +107,36 @@ test('static acceptance rejects detached endpoints and missing paint', () => {
       ),
     /Static SVG paint failed/,
   );
+  assert.throws(
+    () =>
+      validateStaticObservation(
+        { ...observed, labelNodeOverlap: [['edge', 'target']] },
+        view,
+        [],
+      ),
+    /Static SVG paint failed/,
+  );
+});
+
+test('static acceptance fails closed on missing stroke coverage', () => {
+  assert.throws(() => validateStaticObservation({
+    fontFaces: ['400', '600'].map((weight) => ({ family: 'JetBrains Mono', weight, status: 'loaded' })),
+    root: 'svg', width: 300, height: 100, viewBox: [0, 0, 300, 100],
+    nodeIds: ['source', 'target'], edges: [edge], overlap: [],
+    labelNodeOverlap: [], overflow: [], minimumFont: 13,
+  }, view, []), /Static SVG stroke coverage missing/);
+});
+
+test('static acceptance rejects glyph or node obstruction by strokes', () => {
+  const observed = {
+    fontFaces: ['400', '600'].map((weight) => ({ family: 'JetBrains Mono', weight, status: 'loaded' })),
+    root: 'svg', width: 300, height: 100, viewBox: [0, 0, 300, 100],
+    nodeIds: ['source', 'target'], edges: [edge], overlap: [],
+    labelNodeOverlap: [], labelStrokeOverlap: [], edgeNodeOverlap: [],
+    overflow: [], minimumFont: 13,
+  };
+  for (const field of ['labelStrokeOverlap', 'edgeNodeOverlap'])
+    assert.throws(() => validateStaticObservation({
+      ...observed, [field]: [['edge', 'obstacle']],
+    }, view, []), /Static SVG paint failed/);
 });

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { writeSourceBundle } from '../src/source/write.mjs';
 import { readSourceBundle } from '../src/source/bundle.mjs';
 import { semanticDigest } from '../src/semantics/document.mjs';
-import { compileSemanticAtlas } from '../src/composition/architecture.mjs';
+import { compileSemanticPublication } from '../src/publication/semantic.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -82,7 +82,7 @@ async function fixture(t, mutateDocument = () => {}) {
     ],
   );
   const authoring = {
-    schema: 'architecture.semantic-publication/v1',
+    schema: 'architecture.semantic-publication/v2',
     semanticDigest: (() => {
       try {
         return semanticDigest(document);
@@ -95,7 +95,32 @@ async function fixture(t, mutateDocument = () => {}) {
     relationTypes: {
       delegates: { label: 'delegates', variant: 'emphasis' },
     },
-    views: [
+    staticOverview: {
+      id: 'overview',
+      label: 'Complete static overview',
+      groups: [
+        {
+          id: 'control',
+          label: 'Control plane',
+          entities: ['cli', 'registry', 'adapter'],
+        },
+      ],
+      relations: [
+        {
+          id: 'cli-registry',
+          fromSide: 'right',
+          toSide: 'left',
+          route: 'orthogonal-h',
+        },
+        {
+          id: 'registry-adapter',
+          fromSide: 'right',
+          toSide: 'left',
+          route: 'orthogonal-h',
+        },
+      ],
+    },
+    interactiveViews: [
       {
         id: 'overview',
         label: 'Complete overview',
@@ -164,7 +189,7 @@ async function fixture(t, mutateDocument = () => {}) {
 
 test('compiles complete source-bound structure into static and interactive media', async (t) => {
   const value = await fixture(t);
-  const result = await compileSemanticAtlas(value.plan);
+  const result = await compileSemanticPublication(value.plan);
   const output = await readSourceBundle(
     result.manifestPath,
     result.manifestSha256,
@@ -179,6 +204,12 @@ test('compiles complete source-bound structure into static and interactive media
     publication.views.map((view) => view.id),
     ['overview', 'registry-flow'],
   );
+  assert.equal(publication.static.id, 'overview');
+  assert.deepEqual(publication.static.nodeIds, ['cli', 'registry', 'adapter']);
+  assert.deepEqual(publication.static.relationIds, [
+    'cli-registry',
+    'registry-adapter',
+  ]);
   assert.deepEqual(publication.views[0].relations, [
     {
       id: 'cli-registry',
@@ -200,9 +231,27 @@ test('compiles complete source-bound structure into static and interactive media
   const overview = members.get('views/overview.html').toString();
   const mechanism = members.get('views/registry-flow.html').toString();
   const svg = members.get('overview.svg').toString();
+  const png = members.get('overview.png');
+  assert.match(svg, /@font-face/);
+  assert.match(svg, /data:font\/ttf;base64,/);
+  assert.match(svg, /SIL OPEN FONT LICENSE/);
   assert.match(svg, /xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
-  assert.match(svg, /<style><!\[CDATA\[[\s\S]*\.c-backend/);
-  assert.match(svg, /<rect width="100%" height="100%" fill="var\(--bg\)"/);
+  assert.doesNotMatch(svg, /var\(--|data-preset=|archify/i);
+  assert.match(svg, /font-family="JetBrains Mono"/);
+  const dimensions = svg.match(/<svg[^>]* width="([0-9]+)" height="([0-9]+)"/);
+  assert(dimensions);
+  assert.match(
+    svg,
+    new RegExp(
+      `<rect width="${dimensions[1]}" height="${dimensions[2]}" fill="#181611"`,
+    ),
+  );
+  assert(png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])));
+  assert.equal(png.readUInt32BE(16), 2400);
+  assert.equal(publication.overviewPngSha256, sha(png));
+  assert.equal(publication.staticWidth, 2400);
+  assert.doesNotMatch(overview, /data-preset-badge-/);
+  assert.doesNotMatch(overview, /content:\s*attr\(data-preset-badge-/);
   for (const text of [overview, svg]) {
     for (const id of ['cli', 'registry', 'adapter'])
       assert.match(text, new RegExp(`data-node-id="${id}"`));
@@ -212,23 +261,94 @@ test('compiles complete source-bound structure into static and interactive media
   assert.match(mechanism, /data-node-id="registry"/);
   assert.match(mechanism, /data-node-id="adapter"/);
   assert.doesNotMatch(mechanism, /data-node-id="cli"/);
+  assert.doesNotMatch(mechanism, /data-preset-badge-/);
   assert.equal(result.semanticAcceptance, 'source-bound-structure');
   assert.equal(result.browserAcceptance, 'not-performed');
+});
+
+test('static and interactive projections are compositionally independent', async (t) => {
+  const baseline = await fixture(t);
+  const first = await compileSemanticPublication(baseline.plan);
+  const firstBundle = await readSourceBundle(
+    first.manifestPath,
+    first.manifestSha256,
+  );
+  const firstMembers = new Map(
+    firstBundle.members.map((item) => [item.path, item.content]),
+  );
+
+  const interactive = await fixture(t);
+  interactive.authoring.interactiveViews[0].groups[0].label =
+    'Interactive control plane';
+  await fs.writeFile(interactive.plan.authoring, encode(interactive.authoring));
+  interactive.plan.authoringSha256 = sha(
+    await fs.readFile(interactive.plan.authoring),
+  );
+  const second = await compileSemanticPublication(interactive.plan);
+  const secondBundle = await readSourceBundle(
+    second.manifestPath,
+    second.manifestSha256,
+  );
+  const secondMembers = new Map(
+    secondBundle.members.map((item) => [item.path, item.content]),
+  );
+  assert(firstMembers.get('overview.svg').equals(secondMembers.get('overview.svg')));
+  assert(firstMembers.get('overview.png').equals(secondMembers.get('overview.png')));
+  assert(
+    !firstMembers
+      .get('views/overview.html')
+      .equals(secondMembers.get('views/overview.html')),
+  );
+
+  const staticOnly = await fixture(t);
+  staticOnly.authoring.staticOverview.groups[0].label =
+    'Static control plane';
+  await fs.writeFile(staticOnly.plan.authoring, encode(staticOnly.authoring));
+  staticOnly.plan.authoringSha256 = sha(
+    await fs.readFile(staticOnly.plan.authoring),
+  );
+  const third = await compileSemanticPublication(staticOnly.plan);
+  const thirdBundle = await readSourceBundle(
+    third.manifestPath,
+    third.manifestSha256,
+  );
+  const thirdMembers = new Map(
+    thirdBundle.members.map((item) => [item.path, item.content]),
+  );
+  assert(!firstMembers.get('overview.svg').equals(thirdMembers.get('overview.svg')));
+  assert(!firstMembers.get('overview.png').equals(thirdMembers.get('overview.png')));
+  assert(
+    firstMembers
+      .get('views/overview.html')
+      .equals(thirdMembers.get('views/overview.html')),
+  );
+});
+
+test('rejects cross-medium semantic drift before rendering', async (t) => {
+  const value = await fixture(t);
+  value.authoring.interactiveViews[0].groups[0].entities.pop();
+  value.authoring.interactiveViews[0].relations.pop();
+  await fs.writeFile(value.plan.authoring, encode(value.authoring));
+  value.plan.authoringSha256 = sha(await fs.readFile(value.plan.authoring));
+  await assert.rejects(compileSemanticPublication(value.plan), {
+    code: 'semantic_publication_projection_drift',
+  });
+  await assert.rejects(fs.access(value.plan.output));
 });
 
 for (const [name, mutate, error] of [
   [
     'omitted overview entity',
     (value) => {
-      value.authoring.views[0].groups[0].entities.pop();
-      value.authoring.views[0].relations.pop();
+      value.authoring.staticOverview.groups[0].entities.pop();
+      value.authoring.staticOverview.relations.pop();
     },
     'semantic_publication_overview_incomplete',
   ],
   [
     'duplicate membership',
     (value) =>
-      value.authoring.views[0].groups.push({
+      value.authoring.staticOverview.groups.push({
         id: 'duplicate',
         label: 'Duplicate',
         entities: ['registry'],
@@ -237,12 +357,12 @@ for (const [name, mutate, error] of [
   ],
   [
     'missing explicit port',
-    (value) => delete value.authoring.views[0].relations[0].fromSide,
+    (value) => delete value.authoring.staticOverview.relations[0].fromSide,
     'semantic_publication_relation_layout_invalid',
   ],
   [
     'unknown relation endpoint selection',
-    (value) => value.authoring.views[1].groups[0].entities.pop(),
+    (value) => value.authoring.interactiveViews[1].groups[0].entities.pop(),
     'semantic_publication_relation_endpoint_missing',
   ],
   [
@@ -256,7 +376,7 @@ for (const [name, mutate, error] of [
     mutate(value);
     await fs.writeFile(value.plan.authoring, encode(value.authoring));
     value.plan.authoringSha256 = sha(await fs.readFile(value.plan.authoring));
-    await assert.rejects(compileSemanticAtlas(value.plan), { code: error });
+    await assert.rejects(compileSemanticPublication(value.plan), { code: error });
     await assert.rejects(fs.access(value.plan.output));
   });
 }
@@ -284,7 +404,7 @@ test('rejects a semantic source whose selected bytes changed', async (t) => {
   );
   value.plan.sourceManifest = changed.manifestPath;
   value.plan.sourceSha256 = changed.manifestSha256;
-  await assert.rejects(compileSemanticAtlas(value.plan), {
+  await assert.rejects(compileSemanticPublication(value.plan), {
     code: 'semantic_source_binding_mismatch',
   });
   await assert.rejects(fs.access(value.plan.output));
@@ -314,7 +434,7 @@ test('rejects contradictory semantic propositions before rendering', async (t) =
       },
     };
   });
-  await assert.rejects(compileSemanticAtlas(value.plan), {
+  await assert.rejects(compileSemanticPublication(value.plan), {
     code: 'semantic_contradiction',
   });
   await assert.rejects(fs.access(value.plan.output));
@@ -322,21 +442,21 @@ test('rejects contradictory semantic propositions before rendering', async (t) =
 
 test('rejects group cardinality beyond the finite compositor bound', async (t) => {
   const value = await fixture(t);
-  value.authoring.views[0].groups[0].entities = Array(9).fill('cli');
+  value.authoring.staticOverview.groups[0].entities = Array(9).fill('cli');
   await fs.writeFile(value.plan.authoring, encode(value.authoring));
   value.plan.authoringSha256 = sha(await fs.readFile(value.plan.authoring));
-  await assert.rejects(compileSemanticAtlas(value.plan), {
+  await assert.rejects(compileSemanticPublication(value.plan), {
     code: 'semantic_publication_group_invalid',
   });
   await assert.rejects(fs.access(value.plan.output));
 });
 
-test('rejects renderer-declared geometric infeasibility', async (t) => {
+test('rejects static geometric infeasibility before rendering', async (t) => {
   const value = await fixture(t, (document) => {
     document.entities.registry.label = 'Unbreakable'.repeat(80);
   });
-  await assert.rejects(compileSemanticAtlas(value.plan), {
-    code: 'render_native_rejected',
+  await assert.rejects(compileSemanticPublication(value.plan), {
+    code: 'semantic_publication_static_label_infeasible',
   });
   await assert.rejects(fs.access(value.plan.output));
 });

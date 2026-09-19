@@ -1,0 +1,226 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import { writeSourceBundle } from '../../src/source/write.mjs';
+import { semanticDigest } from '../../src/semantics/document.mjs';
+
+const root = fileURLToPath(new URL('../../', import.meta.url));
+const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
+const selectedFiles = Object.freeze({
+  'public-cli': 'src/cli/main.mjs',
+  'source-bundle': 'src/source/bundle.mjs',
+  'semantic-contract': 'src/semantics/document.mjs',
+  'publication-coordinator': 'src/publication/semantic.mjs',
+  'static-compositor': 'src/composition/static-overview.mjs',
+  'interactive-renderer': 'src/interactive/archify.mjs',
+  'raster-boundary': 'src/static/raster.mjs',
+  'publication-writer': 'src/source/write.mjs',
+});
+
+async function main() {
+  const output = process.argv[2];
+  if (!output || !path.isAbsolute(output)) throw new Error('absolute output required');
+  await fs.mkdir(output);
+  const members = [],
+    sources = {};
+  for (const [id, locator] of Object.entries(selectedFiles)) {
+    const content = await fs.readFile(path.join(root, locator));
+    members.push({ path: `source/${locator}`, content });
+    sources[id] = {
+      sha256: sha(content),
+      locator: `source/${locator}`,
+      authority: 'selected installed architecture-publishing package member',
+    };
+  }
+  const selectedRevision = sha(
+    Buffer.from(
+      Object.entries(sources)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([id, source]) => `${id}\t${source.locator}\t${source.sha256}`)
+        .join('\n') + '\n',
+    ),
+  );
+  const entity = (type, label, provenance) => ({
+      type,
+      label,
+      qualifiers: {},
+      provenance: [provenance],
+    }),
+    relation = (type, subject, object, provenance) => ({
+      type,
+      subject,
+      object,
+      qualifiers: {},
+      provenance: [provenance],
+    }),
+    semantic = {
+      schema: 'architecture.semantic-document/v1',
+      owner: 'architecture-publishing',
+      vocabulary: {
+        entities: [
+          'interface',
+          'source',
+          'contract',
+          'coordinator',
+          'renderer',
+          'boundary',
+          'writer',
+        ],
+        relations: [
+          'invokes',
+          'supplies',
+          'validates',
+          'delegates',
+          'rasterizes',
+          'publishes',
+        ],
+      },
+      entities: {
+        'public-cli': entity('interface', 'Public CLI', 'public-cli'),
+        'source-bundle': entity('source', 'Source bundle', 'source-bundle'),
+        'semantic-contract': entity('contract', 'Semantic contract', 'semantic-contract'),
+        'publication-coordinator': entity('coordinator', 'Publication coordinator', 'publication-coordinator'),
+        'static-compositor': entity('renderer', 'Static compositor', 'static-compositor'),
+        'interactive-renderer': entity('renderer', 'Interactive renderer', 'interactive-renderer'),
+        'raster-boundary': entity('boundary', 'Raster boundary', 'raster-boundary'),
+        'publication-writer': entity('writer', 'Publication writer', 'publication-writer'),
+      },
+      relations: {
+        'cli-coordinator': relation('invokes', 'public-cli', 'publication-coordinator', 'public-cli'),
+        'source-coordinator': relation('supplies', 'source-bundle', 'publication-coordinator', 'source-bundle'),
+        'contract-coordinator': relation('validates', 'semantic-contract', 'publication-coordinator', 'semantic-contract'),
+        'coordinator-static': relation('delegates', 'publication-coordinator', 'static-compositor', 'publication-coordinator'),
+        'coordinator-interactive': relation('delegates', 'publication-coordinator', 'interactive-renderer', 'publication-coordinator'),
+        'static-raster': relation('rasterizes', 'static-compositor', 'raster-boundary', 'raster-boundary'),
+        'interactive-writer': relation('publishes', 'interactive-renderer', 'publication-writer', 'publication-writer'),
+        'raster-writer': relation('publishes', 'raster-boundary', 'publication-writer', 'publication-writer'),
+      },
+      assertions: {},
+      sources,
+      context: {
+        adoptionRole: 'self-hosted',
+        independentAdopterEvidence: false,
+        scope: 'Selected installed package modules; not an exhaustive code graph',
+      },
+    },
+    relationTypes = {
+      invokes: { label: 'invokes', variant: 'emphasis' },
+      supplies: { label: 'supplies', variant: 'default' },
+      validates: { label: 'validates', variant: 'default' },
+      delegates: { label: 'delegates', variant: 'emphasis' },
+      rasterizes: { label: 'rasterizes', variant: 'default' },
+      publishes: { label: 'publishes', variant: 'default' },
+    },
+    authoring = {
+      schema: 'architecture.semantic-publication/v2',
+      semanticDigest: semanticDigest(semantic),
+      title: 'Architecture Publishing',
+      entityTypes: {
+        interface: 'external',
+        source: 'database',
+        contract: 'security',
+        coordinator: 'backend',
+        renderer: 'frontend',
+        boundary: 'messagebus',
+        writer: 'database',
+      },
+      relationTypes,
+      staticOverview: {
+        id: 'overview',
+        label: 'One semantic authority, two independent media',
+        groups: [
+          { id: 'inputs', label: 'Selected inputs', entities: ['public-cli', 'source-bundle', 'semantic-contract'] },
+          { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
+          { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
+          { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
+        ],
+        relations: [
+          { id: 'cli-coordinator', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+          { id: 'source-coordinator', fromSide: 'bottom', toSide: 'top', route: 'straight' },
+          { id: 'contract-coordinator', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+          { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+          { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+          { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+          { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+          { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'straight' },
+        ],
+      },
+      interactiveViews: [
+        {
+          id: 'overview',
+          label: 'Semantic publication pipeline',
+          purpose: 'overview',
+          groups: [
+            { id: 'inputs', label: 'Selected inputs', entities: ['public-cli', 'source-bundle', 'semantic-contract'] },
+            { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
+            { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
+            { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
+          ],
+          relations: [
+            { id: 'cli-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+            { id: 'source-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [460, 220] },
+            { id: 'contract-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+            { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+            { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+            { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [365, 676] },
+            { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [605, 676] },
+            { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'auto' },
+          ],
+        },
+        {
+          id: 'media',
+          label: 'Independent composition boundaries',
+          purpose: 'mechanism',
+          groups: [
+            { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
+            { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
+            { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
+          ],
+          relations: [
+            { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+            { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+            { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [365, 466] },
+            { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [605, 466] },
+            { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'auto' },
+          ],
+        },
+      ],
+      scope: 'Self-hosted selected package architecture; not independent adoption or exhaustive implementation coverage',
+    };
+  members.unshift({ path: 'semantic.json', content: encode(semantic) });
+  const bundle = await writeSourceBundle(
+      path.join(output, 'source'),
+      { id: 'architecture-publishing', revision: `source-set:${selectedRevision}` },
+      members,
+    ),
+    authoringPath = path.join(output, 'authoring.json'),
+    planPath = path.join(output, 'plan.json');
+  await fs.writeFile(authoringPath, encode(authoring), { flag: 'wx' });
+  const plan = {
+    sourceManifest: bundle.manifestPath,
+    sourceSha256: bundle.manifestSha256,
+    semanticMember: 'semantic.json',
+    authoring: authoringPath,
+    authoringSha256: sha(await fs.readFile(authoringPath)),
+    output: path.join(output, 'publication'),
+  };
+  const planBytes = encode(plan);
+  await fs.writeFile(planPath, planBytes, { flag: 'wx' });
+  process.stdout.write(
+    JSON.stringify({
+      status: 'prepared',
+      sourceManifest: bundle.manifestPath,
+      sourceSha256: bundle.manifestSha256,
+      authoring: authoringPath,
+      semanticDigest: authoring.semanticDigest,
+      plan: planPath,
+      planSha256: sha(planBytes),
+      adoptionRole: 'self-hosted',
+      independentAdopterEvidence: false,
+    }) + '\n',
+  );
+}
+
+await main();

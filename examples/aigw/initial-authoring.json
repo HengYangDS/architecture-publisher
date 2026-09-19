@@ -1,5 +1,5 @@
 {
-  "schema": "architecture.semantic-publication/v1",
+  "schema": "architecture.semantic-publication/v2",
   "semanticDigest": "eafce60e39c46bb016d4d41c76a2b2fbc46992699bd46d3806ba6d683e7eea17",
   "title": "AIGW Client Projection",
   "entityTypes": {
@@ -8,23 +8,111 @@
     "client": "cloud"
   },
   "relationTypes": {
-    "delegates": { "label": "delegates", "variant": "emphasis" },
-    "projects": { "label": "projects", "variant": "default" }
+    "delegates": {
+      "label": "delegates",
+      "variant": "emphasis"
+    },
+    "projects": {
+      "label": "projects",
+      "variant": "default"
+    }
   },
-  "views": [
+  "staticOverview": {
+    "id": "overview",
+    "label": "Direct client-specific paths",
+    "groups": [
+      {
+        "id": "command",
+        "label": "Command",
+        "entities": [
+          "cli"
+        ]
+      },
+      {
+        "id": "coordination",
+        "label": "Coordination",
+        "entities": [
+          "synchronizer"
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Native clients",
+        "entities": [
+          "codex",
+          "claude"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "cli-synchronizer",
+        "fromSide": "bottom",
+        "toSide": "top",
+        "route": "orthogonal-v"
+      },
+      {
+        "id": "synchronizer-codex",
+        "fromSide": "bottom",
+        "toSide": "top",
+        "route": "orthogonal-v"
+      },
+      {
+        "id": "synchronizer-claude",
+        "fromSide": "bottom",
+        "toSide": "top",
+        "route": "orthogonal-v"
+      }
+    ]
+  },
+  "interactiveViews": [
     {
       "id": "overview",
       "label": "Direct client-specific paths",
       "purpose": "overview",
       "groups": [
-        { "id": "command", "label": "Command", "entities": ["cli"] },
-        { "id": "coordination", "label": "Coordination", "entities": ["synchronizer"] },
-        { "id": "clients", "label": "Native clients", "entities": ["codex", "claude"] }
+        {
+          "id": "command",
+          "label": "Command",
+          "entities": [
+            "cli"
+          ]
+        },
+        {
+          "id": "coordination",
+          "label": "Coordination",
+          "entities": [
+            "synchronizer"
+          ]
+        },
+        {
+          "id": "clients",
+          "label": "Native clients",
+          "entities": [
+            "codex",
+            "claude"
+          ]
+        }
       ],
       "relations": [
-        { "id": "cli-synchronizer", "fromSide": "bottom", "toSide": "top", "route": "orthogonal-v" },
-        { "id": "synchronizer-codex", "fromSide": "bottom", "toSide": "top", "route": "orthogonal-v" },
-        { "id": "synchronizer-claude", "fromSide": "bottom", "toSide": "top", "route": "orthogonal-v" }
+        {
+          "id": "cli-synchronizer",
+          "fromSide": "bottom",
+          "toSide": "top",
+          "route": "orthogonal-v"
+        },
+        {
+          "id": "synchronizer-codex",
+          "fromSide": "bottom",
+          "toSide": "top",
+          "route": "orthogonal-v"
+        },
+        {
+          "id": "synchronizer-claude",
+          "fromSide": "bottom",
+          "toSide": "top",
+          "route": "orthogonal-v"
+        }
       ]
     },
     {
@@ -32,12 +120,35 @@
       "label": "Direct projection mechanism",
       "purpose": "mechanism",
       "groups": [
-        { "id": "coordination", "label": "Coordinator", "entities": ["synchronizer"] },
-        { "id": "clients", "label": "Client-specific branches", "entities": ["codex", "claude"] }
+        {
+          "id": "coordination",
+          "label": "Coordinator",
+          "entities": [
+            "synchronizer"
+          ]
+        },
+        {
+          "id": "clients",
+          "label": "Client-specific branches",
+          "entities": [
+            "codex",
+            "claude"
+          ]
+        }
       ],
       "relations": [
-        { "id": "synchronizer-codex", "fromSide": "bottom", "toSide": "top", "route": "orthogonal-v" },
-        { "id": "synchronizer-claude", "fromSide": "bottom", "toSide": "top", "route": "orthogonal-v" }
+        {
+          "id": "synchronizer-codex",
+          "fromSide": "bottom",
+          "toSide": "top",
+          "route": "orthogonal-v"
+        },
+        {
+          "id": "synchronizer-claude",
+          "fromSide": "bottom",
+          "toSide": "top",
+          "route": "orthogonal-v"
+        }
       ]
     }
   ],

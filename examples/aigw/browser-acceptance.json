@@ -1,30 +1,41 @@
 {
   "schema": "architecture.semantic-browser-acceptance/v1",
-  "observedAt": "2026-09-19",
+  "observedAt": "2026-09-20",
   "hostScope": "macOS arm64 local acceptance host",
   "browser": {
     "name": "Chromium",
     "version": "153.0.8010.53",
-    "viewport": [1440, 1000]
+    "viewport": [
+      1440,
+      1000
+    ]
   },
   "verifier": {
-    "observerSha256": "ba57e067ae431ef02beaf4f82c6440c1ece4e2b1899080e498c2512f1a50c6b8",
-    "checksSha256": "0cbd0f21f61b7f17ba2c1bf40e139efa4825fdf734481f27971d045ed5c7812c"
+    "observerSha256": "da1ff70bb98042440d0f6512d9634014158b81fe66243ecf5d4ab1f88ee2c1e9",
+    "checksSha256": "2d43190ed9e136b8047d6d80fb4c00916b44700a608d96a2321a91bd560e8218"
   },
   "runs": [
     {
       "id": "initial",
-      "publicationManifestSha256": "e3f0e7ac3464a69ab57f94c7c2c2488dfbb801d9181c8d96c7fb44c493de88aa",
+      "publicationManifestSha256": "47fdeb51fc5206afd0f02f9bd0aa2216c333494ad984bc973d0d3479ec3fbd2d",
       "semanticDigest": "eafce60e39c46bb016d4d41c76a2b2fbc46992699bd46d3806ba6d683e7eea17",
-      "browserReportSha256": "9bbbfa00f98dc662149302186857b74ae2316a82700fff35edea9e5a91638b29",
-      "views": ["overview", "projection", "overview-static"],
+      "browserReportSha256": "b43c0f6c54a82c292748932e3b99a72a7b8d34a5786a19f567f172511cac0b81",
+      "staticSvgSha256": "1bd015d61f34b66fb4d90076750ab0dd1d25b3e18303de56c4facbfeeab819f0",
+      "staticPngSha256": "5db705a598051fb184c72269850e8f15a0e49a249c8fcdf318fce5b5311a48c8",
+      "views": [
+        "overview",
+        "projection",
+        "overview-static"
+      ],
       "status": "PASS_BOUNDED"
     },
     {
       "id": "evolved",
-      "publicationManifestSha256": "b9afabda64f2af123a57d1c97f8c7cfade0babbe7bbe5dbcb5948114472f7ad9",
+      "publicationManifestSha256": "b5e733ad4ad97c86871e1b6be383a8667cda92da5caeb26ecc16f87db4fb6fea",
       "semanticDigest": "eba1c6837bd87accf49c0f65e503eb4ac2c5be95a922ef0baa83232b076157cf",
-      "browserReportSha256": "4b7cff99842bdf56ed0083461d6078245261384f5cc75ccd9af39b37d8b6427b",
+      "browserReportSha256": "0b4ab08e6107221013ab6eea9fe9aab11ad8953bc81af93ad979bfa8c77cb61f",
+      "staticSvgSha256": "ee532f84a60645666bdfee05a25850ad77cbd19be50ead22eb72bb1c8bb1dde6",
+      "staticPngSha256": "5b51c465354870034be334de1f038df024226a632babcedca031e7c4148e3dc3",
       "views": [
         "overview",
         "registry",

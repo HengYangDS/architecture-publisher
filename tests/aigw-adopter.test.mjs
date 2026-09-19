@@ -140,27 +140,51 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
       response.manifestSha256,
     );
     observed[state] = new Map(
-      output.members.map((item) => [item.path, item.content.toString()]),
+      output.members.map((item) => [item.path, item.content]),
     );
+    const acceptance = JSON.parse(await fs.readFile(
+      path.join(root, 'examples/aigw/browser-acceptance.json'), 'utf8'));
+    const selectedAcceptance = acceptance.runs.find((run) => run.id === state);
+    assert.equal(selectedAcceptance.publicationManifestSha256, output.manifestSha256);
+    assert.equal(selectedAcceptance.semanticDigest, response.semanticDigest);
+    assert.equal(selectedAcceptance.staticSvgSha256, sha(observed[state].get('overview.svg')));
+    assert.equal(selectedAcceptance.staticPngSha256, sha(observed[state].get('overview.png')));
+    assert.equal(acceptance.verifier.observerSha256,
+      sha(await fs.readFile(path.join(root, 'tools/qualification/semantic-browser.mjs'))));
+    assert.equal(acceptance.verifier.checksSha256,
+      sha(await fs.readFile(path.join(root, 'tools/qualification/semantic-browser-checks.mjs'))));
     assert.equal(response.semanticAcceptance, 'source-bound-structure');
     assert.equal(response.browserAcceptance, 'not-performed');
-    assert(!observed[state].get('views/overview.html').includes(root));
+    assert(!observed[state].get('views/overview.html').toString().includes(root));
+    assert(
+      observed[state]
+        .get('overview.png')
+        .subarray(0, 8)
+        .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])),
+    );
+    assert.equal(observed[state].get('overview.png').readUInt32BE(16), 2400);
+    for (const page of [...output.members]
+      .filter((item) => item.path.startsWith('views/'))
+      .map((item) => item.content.toString())) {
+      assert.doesNotMatch(page, /data-preset-badge-/);
+      assert.doesNotMatch(page, /content:\s*attr\(data-preset-badge-/);
+    }
   }
   for (const output of [
-    observed.evolved.get('views/overview.html'),
-    observed.evolved.get('overview.svg'),
-    observed.evolved.get('views/registry.html'),
+    observed.evolved.get('views/overview.html').toString(),
+    observed.evolved.get('overview.svg').toString(),
+    observed.evolved.get('views/registry.html').toString(),
   ]) {
     assert.match(output, /data-node-id="registry"/);
     assert.match(output, /data-node-id="adapter-contract"/);
     assert.match(output, /data-edge-id="registry-contract"/);
   }
   assert.doesNotMatch(
-    observed.initial.get('views/overview.html'),
+    observed.initial.get('views/overview.html').toString(),
     /data-node-id="registry"/,
   );
   assert.doesNotMatch(
-    observed.initial.get('overview.svg'),
+    observed.initial.get('overview.svg').toString(),
     /data-node-id="registry"/,
   );
 });

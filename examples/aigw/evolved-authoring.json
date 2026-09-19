@@ -1,5 +1,5 @@
 {
-  "schema": "architecture.semantic-publication/v1",
+  "schema": "architecture.semantic-publication/v2",
   "semanticDigest": "eba1c6837bd87accf49c0f65e503eb4ac2c5be95a922ef0baa83232b076157cf",
   "title": "AIGW Client Projection",
   "entityTypes": {
@@ -23,7 +23,75 @@
       "variant": "default"
     }
   },
-  "views": [
+  "staticOverview": {
+    "id": "overview",
+    "label": "One ordered operational registry",
+    "groups": [
+      {
+        "id": "command",
+        "label": "Command",
+        "entities": [
+          "cli"
+        ]
+      },
+      {
+        "id": "coordination",
+        "label": "Coordination",
+        "entities": [
+          "synchronizer",
+          "registry"
+        ]
+      },
+      {
+        "id": "protocol",
+        "label": "Client protocol",
+        "entities": [
+          "adapter-contract"
+        ]
+      },
+      {
+        "id": "clients",
+        "label": "Native adapters",
+        "entities": [
+          "codex",
+          "claude"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "cli-synchronizer",
+        "fromSide": "bottom",
+        "toSide": "top",
+        "route": "orthogonal-v"
+      },
+      {
+        "id": "synchronizer-registry",
+        "fromSide": "right",
+        "toSide": "left",
+        "route": "orthogonal-h"
+      },
+      {
+        "id": "registry-contract",
+        "fromSide": "bottom",
+        "toSide": "top",
+        "route": "orthogonal-v"
+      },
+      {
+        "id": "contract-codex",
+        "fromSide": "bottom",
+        "toSide": "top",
+        "route": "orthogonal-v"
+      },
+      {
+        "id": "contract-claude",
+        "fromSide": "bottom",
+        "toSide": "top",
+        "route": "orthogonal-v"
+      }
+    ]
+  },
+  "interactiveViews": [
     {
       "id": "overview",
       "label": "One ordered operational registry",

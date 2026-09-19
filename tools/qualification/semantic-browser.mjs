@@ -140,6 +140,11 @@ try {
           minimumFont: Math.min(...texts.map((text) => text.font)),
           scrollWidth: document.documentElement.scrollWidth,
           viewportWidth: innerWidth,
+          surfaceBadges: [
+            getComputedStyle(document.querySelector('.header-row'), '::after')
+              .content,
+            getComputedStyle(panel, '::after').content,
+          ],
           title: document.title,
         };
 
@@ -203,9 +208,59 @@ try {
     const observed = await page.evaluate(() => {
       const svg = document.documentElement,
         rect = svg.getBoundingClientRect(),
-        viewBox = svg.viewBox.baseVal;
+        viewBox = svg.viewBox.baseVal,
+        texts = [...svg.querySelectorAll('text')].map((element) => ({
+          text: element.textContent.trim(),
+          box: box(element),
+          font: Number.parseFloat(getComputedStyle(element).fontSize),
+        })),
+        nodes = [...svg.querySelectorAll('[data-node-id]')].map((node) => ({
+          id: node.getAttribute('data-node-id'),
+          box: box(node),
+        })),
+        labels = [...svg.querySelectorAll('[data-edge-label]')].map((label) => ({
+          id: label.getAttribute('data-edge-label'),
+          box: box(label),
+        })),
+        overlaps = (left, right) =>
+          Math.min(left.right, right.right) - Math.max(left.x, right.x) > 0.5 &&
+          Math.min(left.bottom, right.bottom) - Math.max(left.y, right.y) > 0.5,
+        overlap = [],
+        labelNodeOverlap = [];
+      for (let left = 0; left < texts.length; left++)
+        for (let right = left + 1; right < texts.length; right++)
+          if (overlaps(texts[left].box, texts[right].box))
+            overlap.push([texts[left].text, texts[right].text]);
+      for (const label of labels)
+        for (const node of nodes)
+          if (overlaps(label.box, node.box))
+            labelNodeOverlap.push([label.id, node.id]);
+      const labelStrokeOverlap = [], edgeNodeOverlap = [];
+      const inside = (point, box, padding = 3) =>
+        point.x >= box.x - padding && point.x <= box.right + padding &&
+        point.y >= box.y - padding && point.y <= box.bottom + padding;
+      const painted = [...svg.querySelectorAll('path[data-edge-id], rect[stroke]')];
+      for (const stroke of painted) {
+        const id = stroke.getAttribute('data-edge-id') ??
+          stroke.getAttribute('data-node-id') ?? 'group-border';
+        const length = stroke.getTotalLength();
+        const count = Math.ceil(length / 2);
+        const points = Array.from({ length: count + 1 }, (_, index) =>
+          point(stroke, length * index / count));
+        for (const text of texts)
+          if (points.some((p) => inside(p, text.box)))
+            labelStrokeOverlap.push([text.text, id]);
+        if (stroke.hasAttribute('data-edge-id')) {
+          const from = stroke.getAttribute('data-edge-from');
+          const to = stroke.getAttribute('data-edge-to');
+          for (const node of nodes)
+            if (node.id !== from && node.id !== to && points.some((p) => inside(p, node.box)))
+              edgeNodeOverlap.push([id, node.id]);
+        }
+      }
       return {
         root: svg.localName,
+        fontFaces: [...document.fonts].map((font) => ({ family: font.family, weight: font.weight, status: font.status })),
         width: rect.width,
         height: rect.height,
         viewBox: [viewBox.x, viewBox.y, viewBox.width, viewBox.height],
@@ -231,6 +286,20 @@ try {
             ),
           ),
         })),
+        overlap,
+        labelNodeOverlap,
+        labelStrokeOverlap,
+        edgeNodeOverlap,
+        overflow: texts
+          .filter(
+            (text) =>
+              text.box.x < rect.x - 0.5 ||
+              text.box.right > rect.right + 0.5 ||
+              text.box.y < rect.y - 0.5 ||
+              text.box.bottom > rect.bottom + 0.5,
+          )
+          .map((text) => text.text),
+        minimumFont: Math.min(...texts.map((text) => text.font)),
       };
 
       function box(element) {
@@ -252,7 +321,7 @@ try {
         return { x: selected.x, y: selected.y };
       }
     });
-    const overview = publication.views.find((view) => view.purpose === 'overview');
+    const overview = publication.static;
     if (!overview) throw Error('Static overview declaration missing');
     validateStaticObservation(observed, overview, errors);
     const screenshot = path.join(config.output, 'overview-static.png');

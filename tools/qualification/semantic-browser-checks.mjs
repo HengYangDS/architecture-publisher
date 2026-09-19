@@ -15,12 +15,20 @@ export function validateHtmlObservation(observed, view, errors) {
     observed.overflow.length ||
     observed.minimumFont < 8 ||
     observed.scrollWidth > observed.viewportWidth ||
+    observed.surfaceBadges.some(
+      (value) => !['none', 'normal', '""'].includes(value),
+    ) ||
     errors.length
   )
     throw Error('Browser geometry failed: ' + JSON.stringify(observed));
 }
 
 export function validateStaticObservation(observed, overview, errors) {
+  if (!Array.isArray(observed.labelStrokeOverlap) || !Array.isArray(observed.edgeNodeOverlap))
+    throw Error('Static SVG stroke coverage missing');
+  if (!Array.isArray(observed.fontFaces) || !['400', '600'].every((weight) =>
+    observed.fontFaces.some((font) => font.family.replaceAll(/["']/g, '') === 'JetBrains Mono' && font.weight === weight && font.status === 'loaded')))
+    throw Error('Static SVG embedded fonts missing');
   assertSet(observed.nodeIds, overview.nodeIds, 'static SVG node');
   assertSet(
     observed.edges.map((edge) => edge.id),
@@ -36,6 +44,12 @@ export function validateStaticObservation(observed, overview, errors) {
     observed.height <= 0 ||
     observed.viewBox[2] <= 0 ||
     observed.viewBox[3] <= 0 ||
+    observed.overlap.length ||
+    observed.labelNodeOverlap.length ||
+    observed.labelStrokeOverlap.length ||
+    observed.edgeNodeOverlap.length ||
+    observed.overflow.length ||
+    observed.minimumFont < 8 ||
     observed.edges.some(
       (edge) =>
         !edge.path?.startsWith('M ') ||

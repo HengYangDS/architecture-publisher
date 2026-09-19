@@ -13,8 +13,10 @@ const paths = new Set([
   'src/source/bridge.mjs',
   'src/geometry/scene.mjs',
   'src/composition/architecture.mjs',
+  'src/composition/static-overview.mjs',
   'src/publication/files.mjs',
   'src/publication/contract.mjs',
+  'src/publication/semantic.mjs',
   'src/interactive/archify.mjs',
   'src/static/raster.mjs',
   'src/static/worker.mjs',
@@ -46,6 +48,11 @@ const rejected = [
     'dynamic import',
     'src/interactive/archify.mjs',
     "await import('../static/raster.mjs');",
+  ],
+  [
+    'static compositor importing interactive renderer',
+    'src/composition/static-overview.mjs',
+    "import '../interactive/archify.mjs';",
   ],
   [
     'literal template import',

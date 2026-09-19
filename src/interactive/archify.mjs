@@ -117,6 +117,58 @@ export async function renderDiagram(plan) {
   );
 }
 
+function semanticPublicationTemplate(template) {
+  const names = [
+      'signal-flow',
+      'blueprint',
+      'editorial',
+      'editorial-plate',
+    ],
+    counts = Object.fromEntries(
+      names.map((name) => [
+        name,
+        [...template.matchAll(new RegExp(`data-preset-badge-${name}=`, 'g'))]
+          .length,
+      ]),
+    );
+  if (Object.values(counts).some((count) => count !== 1))
+    fail('render_semantic_template_seam_invalid');
+  const result = template
+    .replace(
+      /\s+data-preset-badge-(?:signal-flow|blueprint|editorial|editorial-plate)="[^"]*"/g,
+      '',
+    )
+    .replace(
+      /content:\s*attr\(data-preset-badge-(?:signal-flow|blueprint|editorial|editorial-plate)\);/g,
+      'content: none;',
+    );
+  if (
+    /data-preset-badge-/.test(result) ||
+    /content:\s*attr\(data-preset-badge-/.test(result)
+  )
+    fail('render_semantic_template_seam_invalid');
+  return result;
+}
+
+/** Render one interactive semantic projection without renderer identity badges. */
+export async function renderSemanticDiagram(plan) {
+  if (!plan || !types.has(plan.type)) fail('render_type_unsupported');
+  if (!Buffer.isBuffer(plan.inputBytes)) fail('render_input_type_invalid');
+  return renderNativeDiagram(plan, async (native, notice) => {
+      const file = path.join(native, 'assets/template.html'),
+      template = semanticPublicationTemplate(
+        await embedFonts(await fs.readFile(file, 'utf8')),
+      );
+    await fs.writeFile(
+      file,
+      template.replace(
+        '</head>',
+        '<!-- ' + notice.replaceAll('--', '—') + ' -->\n</head>',
+      ),
+    );
+  });
+}
+
 /** Internal code-owned edition seam. Never selected by input data or plugin paths. */
 export async function renderNativeDiagram(plan, adaptRuntime) {
   if (!plan || !types.has(plan.type)) fail('render_type_unsupported');

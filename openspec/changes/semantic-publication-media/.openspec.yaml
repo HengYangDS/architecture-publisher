@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-09-20
+goal: Every semantic publication produces verified HTML, self-contained SVG and
+  deterministic PNG; visible diagram semantics come only from authored/domain
+  inputs, while viewer tooling remains non-domain chrome.
