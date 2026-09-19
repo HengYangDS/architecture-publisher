@@ -6,14 +6,14 @@ import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(import.meta.dirname, '..');
 
-test('release identity is projected once for alpha.6', async () => {
+test('release identity is projected once for alpha.7', async () => {
   const packageJson = JSON.parse(
     await fs.readFile(path.join(root, 'package.json'), 'utf8'),
   );
   const packageLock = JSON.parse(
     await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'),
   );
-  assert.equal(packageJson.version, '0.1.0-alpha.6');
+  assert.equal(packageJson.version, '0.1.0-alpha.7');
   assert.equal(packageLock.version, packageJson.version);
   assert.equal(packageLock.packages[''].version, packageJson.version);
 
@@ -21,12 +21,23 @@ test('release identity is projected once for alpha.6', async () => {
     path.join(root, '.ethos/release.toml'),
     'utf8',
   );
-  assert.match(releaseToml, /"v0\.1\.0-alpha\.6"/);
-  assert.equal((releaseToml.match(/v0\.1\.0-alpha\.6/g) ?? []).length, 1);
+  assert.match(releaseToml, /"v0\.1\.0-alpha\.7"/);
+  assert.equal((releaseToml.match(/v0\.1\.0-alpha\.7/g) ?? []).length, 1);
 
   const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
-  assert.match(readme, /v0\.1\.0-alpha\.6/);
-  assert.match(readme, /reuses the exact alpha\.5 reader bytes/i);
+  assert.match(readme, /v0\.1\.0-alpha\.7/);
+  assert.match(readme, /links the immutable\s+alpha\.5 reader release/i);
+  assert.match(readme, /Published reader[\s\S]*v0\.1\.0-alpha\.5/);
+  assert.match(readme, /Candidate viewing copy[\s\S]*VIEWING_COPY_NOT_QUALIFIED_RELEASE/i);
+  assert.match(readme, /Complete recovery[\s\S]*v0\.1\.0-alpha\.3/);
+  assert.match(
+    readme,
+    /804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa/,
+  );
+  assert.match(
+    readme,
+    /5f4ea104b95112d84635881600d2c75ae3eae65a45b4b61a4fe5936df3ee3cda/,
+  );
 });
 
 test('the packaged Skill remains a thin public CLI projection', async () => {

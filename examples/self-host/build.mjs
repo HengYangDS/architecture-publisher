@@ -20,9 +20,11 @@ const selectedFiles = Object.freeze({
 });
 
 async function main() {
-  const output = process.argv[2];
-  if (!output || !path.isAbsolute(output)) throw new Error('absolute output required');
-  await fs.mkdir(output);
+  const requestedOutput = process.argv[2];
+  if (!requestedOutput || !path.isAbsolute(requestedOutput))
+    throw new Error('absolute output required');
+  await fs.mkdir(requestedOutput);
+  const output = await fs.realpath(requestedOutput);
   const members = [],
     sources = {};
   for (const [id, locator] of Object.entries(selectedFiles)) {

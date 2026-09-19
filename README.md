@@ -833,10 +833,29 @@ recorded in `docs/research/mechanism-evaluation.md`.
 
 The current private GitLab project is
 `dig/research/human-agent-stewardship/ethos-architecture`. Release
-`v0.1.0-alpha.6` selects the `architecture-publishing/0.1.0-alpha.6` package
-containing the shared publication contract, portable Skill and source-bound
-AIGW examples. It reuses the exact alpha.5 reader bytes rather than claiming a
-new visual edition. Release `v0.1.0-alpha.3` remains the selected complete
+`v0.1.0-alpha.7` selects the `architecture-publishing/0.1.0-alpha.7` package.
+It adds independent static SVG/PNG and interactive HTML composition, a
+source-bound self-host edition, and complete initial/evolved AIGW publications
+with strengthened glyph, stroke and endpoint checks. It links the immutable
+alpha.5 reader release rather than claiming a new visual edition or uploading a
+duplicate.
+
+The current delivery surfaces have distinct identities:
+
+| Role | Canonical entry | Current status |
+| --- | --- | --- |
+| Published reader | GitLab release `v0.1.0-alpha.5` assets `ETHOS-architecture.html` and `ETHOS-architecture-6000.png` | Immutable published bytes; alpha.7 links them by URL and SHA-256 |
+| Candidate viewing copy | Local delivery `ETHOS-architecture-viewing/README.md` | `VIEWING_COPY_NOT_QUALIFIED_RELEASE`; owner visual acceptance only, with browser qualification incomplete and publication not promoted |
+| Documents convenience delivery | Local files `ETHOS-architecture.html` and `ETHOS-architecture-6000.png` | Preserved exact local bytes; distinct from alpha.5 and not promoted by alpha.7 |
+| Complete recovery | GitLab release `v0.1.0-alpha.3` asset `ETHOS-architecture-recovery.tar.xz` | Selected complete reader and publisher recovery closure |
+
+The locally preserved Documents convenience delivery currently has SHA-256
+`804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa`
+for HTML and
+`5f4ea104b95112d84635881600d2c75ae3eae65a45b4b61a4fe5936df3ee3cda`
+for PNG. Their current provenance is insufficient for release promotion, so
+these identities remain local custody and do not inherit release or automated
+browser qualification. Release `v0.1.0-alpha.3` remains the selected complete
 reader recovery package:
 
 | Asset | Purpose |

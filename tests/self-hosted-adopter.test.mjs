@@ -52,7 +52,11 @@ test('the installed product publishes its own architecture through the public co
     consumer,
   );
   const pkg = path.join(consumer, 'node_modules/architecture-publishing'),
-    inputs = path.join(directory, 'inputs'),
+    physicalParent = path.join(directory, 'physical-inputs'),
+    aliasedParent = path.join(directory, 'aliased-inputs');
+  await fs.mkdir(physicalParent);
+  await fs.symlink(physicalParent, aliasedParent, 'dir');
+  const inputs = path.join(aliasedParent, 'inputs'),
     publication = path.join(directory, 'publication'),
     selected = JSON.parse(
       run(
@@ -63,6 +67,8 @@ test('the installed product publishes its own architecture through the public co
       ),
     ),
     plan = JSON.parse(await fs.readFile(selected.plan, 'utf8'));
+  assert.equal(path.dirname(selected.plan), path.join(physicalParent, 'inputs'));
+  assert.equal(path.dirname(selected.sourceManifest), path.join(physicalParent, 'inputs', 'source'));
   plan.output = publication;
   const planBytes = Buffer.from(JSON.stringify(plan, null, 2) + '\n'),
     planPath = path.join(directory, 'plan.json');
