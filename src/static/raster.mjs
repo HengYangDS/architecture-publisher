@@ -86,7 +86,21 @@ export async function rasterize(plan) {
   const scratch = await fs.mkdtemp(
     path.join(parent, '.architecture-raster-'),
   );
+  let request;
   try {
+    // A completed regular file gives the child an explicit EOF without the
+    // synchronous parent's pipe writer participating in input consumption.
+    const requestPath = path.join(scratch, 'request.json');
+    await fs.writeFile(
+      requestPath,
+      JSON.stringify({
+        svg: svg.toString('base64'),
+        fonts,
+        width: plan.width,
+      }),
+      { flag: 'wx', mode: 0o600 },
+    );
+    request = await fs.open(requestPath, 'r');
     const result = spawnSync(
       process.execPath,
       [
@@ -104,11 +118,7 @@ export async function rasterize(plan) {
           TEMP: scratch,
           LANG: 'C.UTF-8',
         },
-        input: JSON.stringify({
-          svg: svg.toString('base64'),
-          fonts,
-          width: plan.width,
-        }),
+        stdio: [request.fd, 'pipe', 'pipe'],
         encoding: 'utf8',
         timeout: limits.executionMs,
         killSignal: 'SIGKILL',
@@ -200,6 +210,10 @@ export async function rasterize(plan) {
       semanticAcceptance: 'not-performed',
     };
   } finally {
-    await fs.rm(scratch, { recursive: true, force: true });
+    try {
+      await request?.close();
+    } finally {
+      await fs.rm(scratch, { recursive: true, force: true });
+    }
   }
 }

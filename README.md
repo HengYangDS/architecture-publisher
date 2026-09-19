@@ -896,6 +896,10 @@ not a diagnosis of a real rendering stall. Production timeouts must be tied to
 the exact unmodified worker, selected input and process identity. The raster
 deadline remains 30 seconds; SIGKILL prevents the owned worker from extending
 that deadline by handling the default termination signal. No retry is hidden.
+The parent completes a private request file and passes its read-only descriptor
+as stdin. This avoids the reproduced synchronous-pipe input stall while preserving
+the worker's JSON input contract. The descriptor closes and scratch is removed
+on every exit. This does not claim a general Node or operating-system pipe fix.
 
 Create publication-bound commits with the configured signing identity and verify
 the exact object before native publication. A configured public key, successful

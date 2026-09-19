@@ -271,10 +271,12 @@ test('installed raster command needs only explicit input and its pinned static s
     worker,
     `
     import fs from 'node:fs';
+    const regular=fs.fstatSync(0).isFile();
     const forwarded=JSON.parse(fs.readFileSync(0,'utf8'));
+    const eof=fs.readSync(0,Buffer.alloc(1),0,1,null)===0;
     const bounded=process.execArgv.includes('--max-old-space-size=${RASTER_LIMITS.heapMiB}') &&
       process.execArgv.includes('--wasm-max-mem-pages=${RASTER_LIMITS.wasmPages}');
-    console.log(JSON.stringify({status:'error',code:bounded && forwarded.width===1200 ? 'resource-boundary-observed' : 'resource-boundary-missing'}));
+    console.log(JSON.stringify({status:'error',code:bounded && regular && eof && forwarded.width===1200 ? 'resource-boundary-observed' : 'resource-boundary-missing'}));
     process.exitCode=1;
   `,
   );
