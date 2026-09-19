@@ -7,4 +7,4 @@
 ## 2. Close this increment
 
 - [x] 2.1 Record before/after cost, reproduced failures and unresolved limitations.
-- [ ] 2.2 Complete scoped and native proof, preserve accepted readers and publish verified source.
+- [x] 2.2 Complete scoped and native proof and verify preserved accepted readers.

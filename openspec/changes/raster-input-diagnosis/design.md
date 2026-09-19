@@ -68,3 +68,13 @@ Keep source proof, installed behavior, independent review, reader acceptance,
 remote publication and disaster recovery separate. GitLab physical host/storage
 identity remains unknown; verify an independent restore before claiming disaster
 recovery, and advance independent implementation while awaiting that fact.
+
+## Integration boundary
+
+Exact product commit proof passed at 0fa4079b9915824d98b99ae8104b5d05c038e907.
+Accepted Documents hashes and predecessor HEADs remained unchanged. Source
+publication is the following governed campaign transition, not a prerequisite
+inside this Change: archiving requires completed implementation tasks before
+accepted-branch publication can occur. The earlier combined task imposed a
+cyclic dependency; separating the transition does not mark publication complete.
+Do not create a work-branch remote merely to satisfy that bookkeeping cycle.
