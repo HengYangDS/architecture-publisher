@@ -14,20 +14,17 @@ import {
   recoverPairFiles,
   noLinks,
 } from '../../src/publication/files.mjs';
+import {
+  exactFields,
+  requireExplicitAcceptance,
+} from '../../src/publication/contract.mjs';
 const encode = (value) => JSON.stringify(value, null, 2) + '\n';
 const equal = (a, b, why) => {
   if (a !== b) throw Error(why);
 };
 const packageRoot = fileURLToPath(new URL('../../', import.meta.url));
-function fields(value, names) {
-  if (
-    !value ||
-    typeof value !== 'object' ||
-    Array.isArray(value) ||
-    Object.keys(value).sort().join(',') !== [...names].sort().join(',')
-  )
-    throw Error('Invalid publication plan fields');
-}
+const fields = (value, names) =>
+  exactFields(value, names, 'Invalid publication plan fields');
 function entry(medium) {
   const target =
     medium === 'native'
@@ -214,10 +211,15 @@ export async function planEthosPublication(input, replayPrestates) {
 function admitted(plan, acceptance) {
   const { sha256: digest, ...body } = plan;
   equal(sha256(encode(body)), digest, 'Publication plan digest mismatch');
+  if (plan.schema !== 'architecture.ethos-pair-publication/v1')
+    throw Error('Exact owner publication acceptance required');
+  requireExplicitAcceptance(
+    acceptance,
+    digest,
+    'ACCEPTED',
+    'Exact owner publication acceptance required',
+  );
   if (
-    plan.schema !== 'architecture.ethos-pair-publication/v1' ||
-    acceptance?.decision !== 'ACCEPTED' ||
-    acceptance.planSha256 !== digest ||
     acceptance.authority?.kind !== 'human_product_owner' ||
     acceptance.authority?.source !== 'explicit_user_instruction' ||
     !acceptance.authority.statement

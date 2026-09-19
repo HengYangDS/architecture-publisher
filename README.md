@@ -816,6 +816,13 @@ focus behavior, and separately loads the overview as `image/svg+xml` to verify
 actual SVG paint. Its bounded result is not human approval, general browser
 compatibility, source-intent truth or independent product acceptance.
 
+The packaged `architecture-publication` Skill is a thin, replaceable caller of
+these public commands. It owns no intent, lifecycle state, acceptance or
+generated artifact. GitLab CI likewise projects the repository-native
+`npm run check` and `npm test` gates without publishing or changing refs.
+Implementation-level mechanism decisions and their adoption boundaries are
+recorded in `docs/research/mechanism-evaluation.md`.
+
 ### Publication and storage
 
 The current private GitLab project is

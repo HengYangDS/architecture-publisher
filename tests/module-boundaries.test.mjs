@@ -14,6 +14,7 @@ const paths = new Set([
   'src/geometry/scene.mjs',
   'src/composition/architecture.mjs',
   'src/publication/files.mjs',
+  'src/publication/contract.mjs',
   'src/interactive/archify.mjs',
   'src/static/raster.mjs',
   'src/static/worker.mjs',

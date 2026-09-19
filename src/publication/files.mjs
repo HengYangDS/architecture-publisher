@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { createHash, randomUUID } from 'node:crypto';
+import { requireExplicitAcceptance } from './contract.mjs';
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const encode = (v) => JSON.stringify(v, null, 2) + '\n';
 const inside = (a, b) => a === b || b.startsWith(a + path.sep);
@@ -525,8 +526,12 @@ function verifyPlanAcceptance(plan, acceptance) {
   if (plan.schema !== 'architecture.pair-files/v2')
     throw Error('Unsupported file installation plan');
   validateOptions(plan.options);
-  if (acceptance?.decision !== 'AUTHORIZED' || acceptance.planSha256 !== digest)
-    throw Error('Exact file installation authorization required');
+  requireExplicitAcceptance(
+    acceptance,
+    digest,
+    'AUTHORIZED',
+    'Exact file installation authorization required',
+  );
   return digest;
 }
 async function withPairWriter(plan, acceptance, recover, action) {

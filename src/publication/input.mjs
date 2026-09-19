@@ -7,18 +7,15 @@ import {
   installPairFiles,
   recoverPairFiles,
 } from './files.mjs';
+import { exactFields } from './contract.mjs';
 
-function fields(value, names) {
-  if (
-    !value ||
-    typeof value !== 'object' ||
-    Array.isArray(value) ||
-    Object.keys(value).sort().join(',') !== [...names].sort().join(',')
-  )
-    throw Object.assign(new Error('Unsupported file-publication fields'), {
-      code: 'file_publication_input_invalid',
-    });
-}
+const fields = (value, names) =>
+  exactFields(
+    value,
+    names,
+    'Unsupported file-publication fields',
+    'file_publication_input_invalid',
+  );
 
 async function read(file) {
   const selected = path.resolve(file);

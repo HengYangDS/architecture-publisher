@@ -31,11 +31,13 @@ test('packed CLI verifies relocated non-Git input without development executable
       (f) =>
         f.path === 'README.md' ||
         f.path === 'docs/product-design.md' ||
+        f.path === 'docs/research/mechanism-evaluation.md' ||
         f.path === 'package.json' ||
         f.path.startsWith('src/') ||
         f.path.startsWith('assets/') ||
         f.path.startsWith('examples/') ||
-        f.path.startsWith('editions/'),
+        f.path.startsWith('editions/') ||
+        f.path.startsWith('skills/'),
     ),
   );
   const install = path.join(tmp, 'consumer');
