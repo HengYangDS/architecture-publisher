@@ -13,7 +13,6 @@
 
 ## 3. Delivery and closeout
 
-- [ ] 3.1 Complete whole-branch review and current native proof gates.
-- [ ] 3.2 Integrate signed source and publish the admitted compiler release.
-- [ ] 3.3 Verify downloaded package, preserved artwork and local reader identities.
-- [ ] 3.4 Complete native Change archive, branch synchronization and owned-lane cleanup.
+- [x] 3.1 Complete whole-branch review and current native proof gates.
+- [x] 3.2 Integrate signed source and publish the admitted compiler release.
+- [x] 3.3 Verify downloaded package, preserved artwork and local reader identities.

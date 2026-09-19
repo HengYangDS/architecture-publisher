@@ -1,3 +1,8 @@
+## Purpose
+
+Compile explicit source-bound architectural meaning into deterministic changes
+and conservative view obligations without inventing equivalence or acceptance.
+
 ## ADDED Requirements
 
 ### Requirement: Explicit portable semantic contract

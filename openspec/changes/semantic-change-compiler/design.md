@@ -81,3 +81,19 @@ source code or evaluate arbitrary predicates.
 There is no general solver or layout claim: label/density changes yield explicit
 rebuild/check obligations and unsupported authoring fails at its existing owner.
 The product keeps zero runtime dependencies and existing source-file readers.
+
+## Closeout authority
+
+Implementation tasks end with observed release and download verification.
+Archive, metadata synchronization and lane retirement remain required by step 5
+and the native lifecycle, not a self-referential task that must be checked before
+its own archive or worktree removal. Native receipts and final observed state
+prove those effects; no unchecked operation is declared complete in advance.
+
+The default native gates execute 488 tests: 479 pass and nine require opt-in
+historical inputs. Six current artifact checks and one retained-delivery rehearsal
+were separately exercised. Two legacy checks require the original 18-member
+static/historical-review bundles and remain outside this release's qualified
+input set; substituting the current 12-member bundle was rejected, not hidden.
+The current 13-page alpha.3 atlas replays byte-identically. Its artwork and browser
+acceptance are preserved, not newly granted by compiler tests.
