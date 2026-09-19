@@ -10,4 +10,4 @@
 
 - [x] 2.1 Canonicalize the self-host output directory and verify installed replay succeeds through a filesystem alias while the generic writer remains strict.
 - [x] 2.2 Run syntax, behavior, installed self-host/AIGW, package dry-run and pinned Linux checks on frozen release inputs.
-- [ ] 2.3 Complete signed exact-commit proof and candidate review with the release identity intact.
+- [x] 2.3 Complete signed exact-commit proof and candidate review with the release identity intact.
