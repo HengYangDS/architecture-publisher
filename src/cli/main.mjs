@@ -2,9 +2,19 @@
 import { readSourceBundle } from '../source/bundle.mjs';
 
 const usage =
+  'architecture semantic compare <plan.json> --sha256 <digest> | ' +
   'architecture publish files plan <input.json> | publish files apply|recover <plan.json> <authorization.json> | poster ethos outline <plan.json> | measure coretext <plan.json> | raster <plan.json> | poster ethos <plan.json> | publish ethos plan <input.json> | publish ethos apply|recover <plan.json> <acceptance.json> | atlas ethos [prepare|standalone|verify|review|browser-plan] <plan.json> | render <type> <input.json> --sha256 <digest> --output <new.html> | source pack <plan.json> --sha256 <digest> | source verify <manifest> --sha256 <digest> | source ethos verify <manifest> --sha256 <digest> --projection <digest> | source ethos import <plan.json>';
 const args = process.argv.slice(2);
 async function command() {
+  if (
+    args.length === 5 &&
+    args[0] === 'semantic' &&
+    args[1] === 'compare' &&
+    args[3] === '--sha256'
+  ) {
+    const { compareSemanticInput } = await import('../semantics/input.mjs');
+    return compareSemanticInput(args[2], args[4]);
+  }
   if (
     args.length === 4 &&
     args[0] === 'atlas' &&
@@ -82,7 +92,11 @@ async function command() {
       path = await import('node:path');
     const file = path.resolve(args[2]),
       stat = await fs.lstat(file);
-    if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 8 * 1024 * 1024)
+    if (
+      !stat.isFile() ||
+      stat.isSymbolicLink() ||
+      stat.size > 8 * 1024 * 1024
+    )
       throw Object.assign(new Error(), { code: 'coretext_plan_invalid' });
     const plan = JSON.parse(await fs.readFile(file, 'utf8'));
     const resolve = (value) => {
@@ -135,7 +149,9 @@ async function command() {
         stat.isSymbolicLink() ||
         stat.size > 4 * 1024 * 1024
       )
-        throw Object.assign(new Error(), { code: 'publication_input_invalid' });
+        throw Object.assign(new Error(), {
+          code: 'publication_input_invalid',
+        });
       return { file, value: JSON.parse(await fs.readFile(file, 'utf8')) };
     }
     const input = await read(args[3]);
@@ -150,13 +166,19 @@ async function command() {
           });
         object[key] = path.resolve(base, object[key]);
       }
-      for (const key of ['sourceManifest', 'editionManifest', 'outputManifest'])
+      for (const key of [
+        'sourceManifest',
+        'editionManifest',
+        'outputManifest',
+      ])
         resolve(plan.review?.atlas, key);
       if (
         !Array.isArray(plan.review?.evidenceBundles) ||
         !Array.isArray(plan.browser?.reports)
       )
-        throw Object.assign(new Error(), { code: 'publication_input_invalid' });
+        throw Object.assign(new Error(), {
+          code: 'publication_input_invalid',
+        });
       for (const b of plan.review.evidenceBundles) resolve(b, 'manifestPath');
       resolve(plan.staticArtifact, 'manifestPath');
       if (plan.staticArtifact.poster)
@@ -267,7 +289,8 @@ async function command() {
         await import('../../editions/ethos/poster.mjs');
       return renderEthosPoster(plan);
     }
-    const { renderEthosAtlas } = await import('../../editions/ethos/atlas.mjs');
+    const { renderEthosAtlas } =
+      await import('../../editions/ethos/atlas.mjs');
     return renderEthosAtlas(plan);
   }
   if (

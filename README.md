@@ -610,6 +610,68 @@ evidence, not another mutable design authority or a runtime dependency.
 
 ### Architecture evolution
 
+#### Portable semantic comparison
+
+```sh
+architecture semantic compare ./compare.json --sha256 <plan-sha256>
+```
+
+The strict `architecture.semantic-compare-input/v1` plan selects `before` and
+`after` as `{ "path": "before.json", "sha256": "<file-digest>" }`, plus `views`
+and `correspondences` arrays. Paths resolve from the plan, not the process working
+directory. The plan is bounded to 1 MiB and each document to 16 MiB. Symlinks,
+non-regular files and changed selected bytes fail. Comparison writes only JSON
+to stdout and runs offline in an installed package without ETHOS or Git.
+
+In-process admission also limits nesting to 64 levels, traversal to 500,000
+JSON values per input, selected document rows to 20,000 and views to 2,000.
+These are compiler resource bounds, not an operating-system sandbox.
+
+`architecture.semantic-document/v1` has exactly these fields, plus `schema`:
+
+| Field | Meaning |
+| --- | --- |
+| `owner` | Stable source-owner identity; comparison cannot cross owners |
+| `vocabulary` | Admitted entity and relation type arrays |
+| `sources` | Identity-keyed `{sha256, locator, authority}` provenance declarations |
+| `entities` | Identity-keyed `{type, label, qualifiers, provenance}` |
+| `relations` | Identity-keyed `{type, subject, object, qualifiers, provenance}` |
+| `assertions` | Identity-keyed `{value, proposition, dependsOn, coverage, provenance}` |
+| `context` | Explicit opaque source/presentation values requiring conservative review |
+
+An assertion proposition is `{subject, predicate, object, polarity, qualifiers}`,
+or `null` for opaque prose. Polarity is `positive` or `negative`; endpoints refer
+to entity IDs, and predicates use the relation vocabulary. Opposite polarity
+under identical endpoints, predicate and qualifiers is rejected. No general
+natural-language contradiction detection is claimed. Opaque assertions require
+`coverage: "unknown"`; formal assertions may declare `complete` or `unknown`.
+References are `{section, id}`. Provenance is a nonempty source-ID array; binding
+a digest establishes selected identity, not authenticity or trust.
+
+Views are `{id, dependsOn, views, coverage}`: semantic references, dependent view
+IDs and explicit coverage. Identity-keyed maps and declared sets are order-neutral;
+arrays inside opaque values/qualifiers retain order. IDs survive label changes.
+Correspondences are `{kind, section, from, to, evidence}` with `rename`, `split`
+or `merge`, removed/added ID arrays and nonempty evidence entries:
+`{version: "before" | "after", source, sha256, locator}`. The compiler validates
+the selected source digest and declared location, not the truth of the mapping.
+It never infers correspondence from labels or transfers old approval.
+
+The result contains complete-value `added`, `removed`, `changed`, correspondences,
+affected assertions/views, unrepresented changes and distinct `obligations` for
+`rebuild`, `verify` and `review`. Both old and new dependency graphs participate.
+Unknown dependencies, source/context changes and unrepresented changes broaden
+all-view obligations. `acceptance` remains `not-performed`; no-op returns no work.
+This is impact compilation, not execution, automatic layout or evidence reuse.
+
+The bundled `examples/semantic/compare.json` is a runnable source/target example.
+Edit copies, recalculate their file digests and the plan digest, then compare.
+
+The alpha.4 compiler package does not replace alpha.3 reader artwork. Source
+compiler qualification and prior artwork/browser acceptance remain separate.
+
+#### ETHOS candidate rendering
+
 The target is reusable publication, not permanent replay of a frozen drawing.
 A source change must explicitly select new source bytes, identify changed
 entities, relationships and obligations, and produce a new authored edition.
@@ -635,9 +697,11 @@ unrelated node, relation, assertion, contract or presentation changes require a
 new explicit mapping and are rejected, not silently omitted. This is not a
 universal semantic compiler.
 
-The comparison checks complete semantic values, including conditions, direction,
-scope, quantifiers and maturity. Counts do not establish equivalence. Changed
-source documents conservatively require review of all pages. No incremental
+The ETHOS adapter uses the same comparison owner and preserves complete values,
+including conditions, direction, scope, quantifiers, maturity and extensions.
+Copy assertions remain opaque: their dependency coverage is unknown, so a change
+conservatively requires obligations for every page. Counts do not establish
+equivalence. Source documents also invalidate all-page review. No incremental
 execution or automatic acceptance reuse is claimed. Source identity and authored
 meaning bindings are checked separately from native layout.
 

@@ -1,0 +1,81 @@
+{
+  "schema": "architecture.semantic-document/v1",
+  "owner": "example:request-service",
+  "vocabulary": {
+    "entities": [
+      "component"
+    ],
+    "relations": [
+      "calls"
+    ]
+  },
+  "sources": {
+    "contract": {
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "locator": "synthetic-example-contract",
+      "authority": "Synthetic example, not a real source proof"
+    }
+  },
+  "entities": {
+    "client": {
+      "type": "component",
+      "label": "Client",
+      "qualifiers": {
+        "maturity": "target"
+      },
+      "provenance": [
+        "contract"
+      ]
+    },
+    "server": {
+      "type": "component",
+      "label": "Server",
+      "qualifiers": {
+        "maturity": "target"
+      },
+      "provenance": [
+        "contract"
+      ]
+    }
+  },
+  "relations": {
+    "request": {
+      "type": "calls",
+      "subject": "client",
+      "object": "server",
+      "qualifiers": {
+        "condition": "authorized",
+        "scope": "local",
+        "quantifier": "one"
+      },
+      "provenance": [
+        "contract"
+      ]
+    }
+  },
+  "assertions": {
+    "admission": {
+      "value": "Authorized requests reach the server",
+      "proposition": {
+        "subject": "client",
+        "predicate": "calls",
+        "object": "server",
+        "polarity": "positive",
+        "qualifiers": {
+          "condition": "authorized"
+        }
+      },
+      "dependsOn": [
+        {
+          "section": "relations",
+          "id": "request"
+        }
+      ],
+      "coverage": "complete",
+      "provenance": [
+        "contract"
+      ]
+    }
+  },
+  "context": {}
+}

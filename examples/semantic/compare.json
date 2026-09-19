@@ -1,0 +1,20 @@
+{
+  "schema": "architecture.semantic-compare-input/v1",
+  "before": {
+    "path": "before.json",
+    "sha256": "5d6e46a2e3023a7ee7678ee62ddfb5caeba03e2f1f1b1a40e5eb2313544dd691"
+  },
+  "after": {
+    "path": "after.json",
+    "sha256": "2ccd46150de4c5a5f5895af082a9ca16eaad069182dc6528b0a26027b1d7aa23"
+  },
+  "views": [
+    {
+      "id": "overview",
+      "dependsOn": [{ "section": "assertions", "id": "admission" }],
+      "views": [],
+      "coverage": "complete"
+    }
+  ],
+  "correspondences": []
+}

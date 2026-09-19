@@ -32,6 +32,34 @@ const views = [
     assertions: ['maturity'],
   },
 ];
+test('ETHOS adapter retains opaque assertions and exposes separate compiler obligations', async () => {
+  const { compareEthosMeaning } = await api();
+  const [a, b] = changed((p) => {
+    p.semantics.nodes.attempt.label = 'Longer attempt label';
+  });
+  const r = compareEthosMeaning(a, b, [
+    ...views,
+    { id: 'unrelated', nodes: [], relations: [], assertions: [] },
+  ]);
+  assert.deepEqual(r.affectedViews, ['overview', 'unrelated']);
+  assert.deepEqual(
+    r.obligations.rebuild.map((o) => o.view),
+    r.affectedViews,
+  );
+  assert(r.obligations.verify.every((o) => o.checks.includes('geometry')));
+  assert.equal(r.semanticAcceptance, 'not-performed');
+});
+
+test('ETHOS adapter preserves source extensions rather than omit unrecognized meaning', async () => {
+  const { compareEthosMeaning } = await api();
+  const [a, b] = changed((p) => {
+    p.semantics.nodes.attempt.newConstraint = 'bounded';
+  });
+  assert.deepEqual(compareEthosMeaning(a, b, views).changed.nodes, [
+    'attempt',
+  ]);
+});
+
 test('same graph counts do not hide changed conditions, quantifiers or direction', async () => {
   const { compareEthosMeaning } = await api();
   for (const [key, value] of [
@@ -86,10 +114,7 @@ test('bound semantic carrier rejects stale meaning and missing visible copy', as
   ];
   const carriers = { 'refresh-policy': 'Re-observe before retry' };
   assert.equal(verifyMeaningCarriers(input, bindings, carriers).length, 1);
-  assert.throws(
-    () => verifyMeaningCarriers(input, bindings, {}),
-    /carrier/,
-  );
+  assert.throws(() => verifyMeaningCarriers(input, bindings, {}), /carrier/);
   input.semantics.nodes.attempt.attributes.scope = 'different';
   assert.throws(
     () => verifyMeaningCarriers(input, bindings, carriers),
@@ -126,8 +151,10 @@ test('relationship reversal and actual entity removal are explicit deltas', asyn
   f.input.semantics.relations[0].to = 'other';
   f.refresh();
   const before = structuredClone(f.input);
-  [f.input.semantics.relations[0].from, f.input.semantics.relations[0].to] =
-    ['other', 'attempt'];
+  [f.input.semantics.relations[0].from, f.input.semantics.relations[0].to] = [
+    'other',
+    'attempt',
+  ];
   f.refresh();
   assert.deepEqual(
     compareEthosMeaning(before, f.input, views).changed.relations,
@@ -187,9 +214,7 @@ test('static refresh authoring carries exact source meaning and rejects changed 
   c.document.labels.find((l) => l.id === 'refresh-options').text =
     refresh.replay;
   assert(
-    auditNaturalSemantics(c, p).failures.includes(
-      'refresh-meaning-visible',
-    ),
+    auditNaturalSemantics(c, p).failures.includes('refresh-meaning-visible'),
   );
   p.semantics.nodes.candidate_base_stale.attributes.semantics = 'different';
   assert.throws(

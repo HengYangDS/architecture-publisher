@@ -13,6 +13,26 @@ edition, not its required runtime or universal semantic model. One publishing
 repository owns both media; ETHOS retains product meaning and its own lifecycle.
 The original two drawing repositories remain preserved local history.
 
+## Program boundaries
+
+The five worklines retain distinct purposes; product phases below belong to E.
+This map defines responsibility, not a second progress ledger.
+
+| Workline | Owner and outcome | Boundary |
+| --- | --- | --- |
+| A: accepted delivery | Preserve qualified artwork, releases and reader installation | Do not redraw unchanged meaning or rewrite released evidence |
+| B: tool availability | Bounded browser, authentication and runtime diagnosis | A usable supported path is not a universal upstream repair |
+| C: ETHOS product | Existing ETHOS contract and building task: intent, norms, adoption, lanes, execution, verification and feedback | The publisher cannot own ETHOS intent compilation or effects |
+| D: mechanism research | Source-level evidence and counterexamples informing C and E | Adopt only with explicit cost and ownership benefit |
+| E: architecture publication | This product: source meaning, authorship, composition, verification and recoverable evolution | One ETHOS edition does not prove arbitrary-domain capability |
+
+E progresses through bounded semantic compilation, explicit authorship and
+composition, a real independent adopter, broader domain qualification, then
+demand-led ecosystem interfaces. Research covers intent, code semantics,
+incremental execution, formal constraints, repository adoption and publication.
+GitLab projection and independently recoverable off-host backup require separate
+failure-domain evidence.
+
 ## One chain, distinct owners
 
 Explicit source → semantic validation → authored views → constrained composition
@@ -127,6 +147,16 @@ reports complete-value differences. Unsupported meaning requires an authored
 mapping, not guessed identity substitution. Source-document changes conservatively
 require all-view review; selective execution and automatic aesthetic optimization
 are not established by this increment.
+
+The shared semantic compiler admits a finite typed vocabulary, complete JSON
+qualifiers, byte-bound provenance, explicit propositions and opaque assertions.
+Opaque prose retains unknown dependency coverage, never inferred formal meaning.
+The ETHOS adapter preserves source extensions and invokes this one comparison
+owner. It does not add a second diff engine or widen the refresh-only renderer.
+Change propagates over both source versions and explicit view dependencies;
+unknown coverage or unrepresented change broadens obligations. The output lists
+rebuild, verification and review separately without executing or approving them.
+Explicit rename/split/merge records lineage, not equivalence or inherited proof.
 
 ## Replacement is not replay
 

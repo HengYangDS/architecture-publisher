@@ -3,8 +3,9 @@ import {
   stableStringify,
   validateProjectionEnvelope,
 } from '../../src/integrations/ethos/projection.mjs';
+import { ethosSemanticDocument } from '../../src/integrations/ethos/semantics.mjs';
+import { compileSemanticChange } from '../../src/semantics/change.mjs';
 
-const same = (a, b) => stableStringify(a) === stableStringify(b);
 const map = (rows) => Object.fromEntries(rows.map((row) => [row.id, row]));
 
 /** Complete-value comparison, not a graph-count or implementation claim. */
@@ -30,75 +31,52 @@ export function compareEthosMeaning(before, after, views) {
     )
       throw Error('Explicit authored view dependencies required');
   }
-  const sections = (input) => ({
-    nodes: input.semantics.nodes,
-    relations: map(input.semantics.relations),
-    assertions: input.documents.copy.assertions,
-    documents: map(input.source.bindings),
-    contracts: input.semantics.contracts,
-    presentation: {
-      title: input.title,
-      authority: input.authority,
-      quality: input.documents.quality_contract,
-      view: input.view,
-      viewProfile: input.documents.view_profile,
-      copy: Object.fromEntries(
-        Object.entries(input.documents.copy).filter(
-          ([k]) => k !== 'assertions',
-        ),
+  const compilation = compileSemanticChange(
+    ethosSemanticDocument(before),
+    ethosSemanticDocument(after),
+    views.map((v) => ({
+      id: v.id,
+      coverage: 'complete',
+      views: [],
+      dependsOn: ['nodes', 'relations', 'assertions'].flatMap((section) =>
+        [...new Set(v[section])].map((id) => ({
+          section: section === 'nodes' ? 'entities' : section,
+          id,
+        })),
       ),
-    },
-  });
-  const a = sections(before),
-    b = sections(after);
-  const added = {},
-    removed = {},
-    changed = {};
-  for (const key of Object.keys(a)) {
-    added[key] = Object.keys(b[key])
-      .filter((id) => !Object.hasOwn(a[key], id))
-      .sort();
-    removed[key] = Object.keys(a[key])
-      .filter((id) => !Object.hasOwn(b[key], id))
-      .sort();
-    changed[key] = Object.keys(a[key])
-      .filter(
-        (id) => Object.hasOwn(b[key], id) && !same(a[key][id], b[key][id]),
-      )
-      .sort();
-  }
-  const affected = (key) => [...added[key], ...removed[key], ...changed[key]];
-  const required = ['nodes', 'relations', 'assertions'];
-  const unrepresented = required.flatMap((key) =>
-    [...added[key], ...changed[key]]
-      .filter((id) => !views.some((v) => v[key].includes(id)))
-      .map((id) => key + ':' + id),
+    })),
   );
-  const requiresCompleteReview =
-    unrepresented.length > 0 ||
-    ['documents', 'contracts', 'presentation'].some(
-      (key) => affected(key).length > 0,
-    );
-  const affectedViews = views
-    .filter(
-      (view) =>
-        requiresCompleteReview ||
-        required.some((key) =>
-          affected(key).some((id) => view[key].includes(id)),
-        ),
-    )
-    .map((v) => v.id)
-    .sort();
+  const project = (delta) => ({
+    nodes: delta.entities,
+    relations: delta.relations,
+    assertions: delta.assertions,
+    documents: [
+      ...delta.sources.filter((id) => id !== 'document:copy'),
+      ...delta.context
+        .filter((id) => id.startsWith('documents:'))
+        .map((id) => id.slice(10)),
+    ].sort(),
+    contracts: delta.context
+      .filter((id) => id.startsWith('contracts:'))
+      .map((id) => id.slice(10)),
+    presentation: delta.context
+      .filter((id) => id.startsWith('presentation:'))
+      .map((id) => id.slice(13)),
+  });
   return {
     schema: 'architecture.ethos-semantic-delta/v1',
     before: before.digest,
     after: after.digest,
-    added,
-    removed,
-    changed,
-    affectedViews,
-    unrepresented,
-    requiresCompleteReview,
+    added: project(compilation.added),
+    removed: project(compilation.removed),
+    changed: project(compilation.changed),
+    affectedViews: compilation.affectedViews,
+    unrepresented: compilation.unrepresented.map((id) =>
+      id.replace(/^entities:/, 'nodes:'),
+    ),
+    requiresCompleteReview: compilation.requiresCompleteReview,
+    obligations: compilation.obligations,
+    compilation,
     reuseAcceptance: false,
     semanticAcceptance: 'not-performed',
     scope:

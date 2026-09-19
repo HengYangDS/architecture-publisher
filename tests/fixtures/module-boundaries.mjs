@@ -5,6 +5,7 @@ import { parse } from 'acorn';
 // This test-only graph admits dependencies by semantic owner, not file order.
 const owners = {
   'src/source/': ['src/source/'],
+  'src/semantics/': ['src/semantics/', 'src/source/'],
   'src/geometry/': ['src/geometry/'],
   'src/publication/': ['src/publication/', 'src/source/'],
   'src/interactive/': [
@@ -19,10 +20,15 @@ const owners = {
     'src/geometry/',
     'assets/raster/',
   ],
-  'src/integrations/ethos/': ['src/integrations/ethos/', 'src/source/'],
+  'src/integrations/ethos/': [
+    'src/integrations/ethos/',
+    'src/source/',
+    'src/semantics/',
+  ],
   'editions/ethos/': [
     'editions/ethos/',
     'src/source/',
+    'src/semantics/',
     'src/geometry/',
     'src/publication/',
     'src/interactive/',
@@ -35,7 +41,9 @@ const owners = {
 
 const property = (node, name) =>
   node?.type === 'MemberExpression' &&
-  (node.computed ? node.property.value === name : node.property.name === name);
+  (node.computed
+    ? node.property.value === name
+    : node.property.name === name);
 const meta = (node) =>
   node?.type === 'MetaProperty' &&
   node.meta.name === 'import' &&
@@ -63,7 +71,11 @@ export function inspectModuleBoundaries(file, source, paths) {
     });
   } catch (error) {
     return [
-      { file, line: error.loc?.line ?? 1, reason: `syntax: ${error.message}` },
+      {
+        file,
+        line: error.loc?.line ?? 1,
+        reason: `syntax: ${error.message}`,
+      },
     ];
   }
 
