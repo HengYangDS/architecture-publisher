@@ -14,4 +14,4 @@
 
 - [x] 3.1 Record bounded source-level adopt/reject/defer decisions.
 - [x] 3.2 Send concise lifecycle feedback to the existing ETHOS building task.
-- [ ] 3.3 Complete candidate review and exact-HEAD proof.
+- [x] 3.3 Complete candidate review and exact-HEAD proof.
