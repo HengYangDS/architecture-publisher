@@ -16,9 +16,9 @@
     "observerSha256": "da1ff70bb98042440d0f6512d9634014158b81fe66243ecf5d4ab1f88ee2c1e9",
     "checksSha256": "2d43190ed9e136b8047d6d80fb4c00916b44700a608d96a2321a91bd560e8218"
   },
-  "publicationManifestSha256": "deb0ec10cc7fd85a8591dabf6c64908ba528fcb8298b429e0e8b27b371e7c15a",
-  "semanticDigest": "9d097ccbcd6ecbd4d3d8b323bff51cda02689e667008772187902a688b3bcb64",
-  "browserReportSha256": "0ed0d34283c855b8ffc2cb7b3f0eae1b395fbe3d29362638021f99b2f0d37a40",
+  "publicationManifestSha256": "84d2efd538178ffb0789d11b8f4d42f82269db317e6b9b721966f13c9cfee21d",
+  "semanticDigest": "57f6c03b3f8df4ca286226d05fe2d12679f1d92a2e43ad58bddbb60ce9db80b3",
+  "browserReportSha256": "71767207df1f482e4695acecbd9d6036d5aa44ff60ea4a6180cdb1e81a5b8965",
   "staticSvgSha256": "dfa900de48c7c004600179e2a2ba7a9f4e9eca3246a54f7749a1b23f7e961b67",
   "staticPngSha256": "bf62fac15fb74c524cf61c0040ca5392e67b68dd33e8b3d7e52beef2eb90b882",
   "views": [
