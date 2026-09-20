@@ -25,17 +25,18 @@ test('current package identity and predecessor release are explicit', async () =
   assert.equal((releaseToml.match(/v0\.1\.0-alpha\.7/g) ?? []).length, 1);
 
   const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
+  const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');
   assert.match(readme, /v0\.1\.0-alpha\.7/);
-  assert.match(readme, /links the immutable\s+alpha\.5 reader release/i);
-  assert.match(readme, /Published reader[\s\S]*v0\.1\.0-alpha\.5/);
-  assert.match(readme, /Candidate viewing copy[\s\S]*VIEWING_COPY_NOT_QUALIFIED_RELEASE/i);
-  assert.match(readme, /Complete recovery[\s\S]*v0\.1\.0-alpha\.3/);
+  assert.match(operations, /links the immutable\s+alpha\.5 reader release/i);
+  assert.match(operations, /Published reader[\s\S]*v0\.1\.0-alpha\.5/);
+  assert.match(operations, /Candidate viewing copy[\s\S]*VIEWING_COPY_NOT_QUALIFIED_RELEASE/i);
+  assert.match(operations, /Complete recovery[\s\S]*v0\.1\.0-alpha\.3/);
   assert.match(
-    readme,
+    operations,
     /804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa/,
   );
   assert.match(
-    readme,
+    operations,
     /5f4ea104b95112d84635881600d2c75ae3eae65a45b4b61a4fe5936df3ee3cda/,
   );
 });

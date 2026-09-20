@@ -116,3 +116,24 @@ test('installed package exposes archpub and no architecture compatibility comman
   assert.equal(usage.status, 2);
   assert.match(JSON.parse(usage.stdout).error.message, /^archpub semantic compare/);
 });
+
+test('product documentation has one semantic owner and a concise entry point', async () => {
+  const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
+  const product = await fs.readFile(path.join(root, 'docs/product-contract.md'), 'utf8');
+  const edition = await fs.readFile(path.join(root, 'docs/edition-contract.md'), 'utf8');
+  const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');
+  const packageJson = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+
+  assert(readme.split('\n').length <= 260, 'README is an entry point, not an operations archive');
+  assert.match(readme, /\[Product contract\]\(docs\/product-contract\.md\)/);
+  assert.match(readme, /\[Edition contract\]\(docs\/edition-contract\.md\)/);
+  assert.match(readme, /\[Operational reference\]\(docs\/reference\/operations\.md\)/);
+  assert.match(product, /^subject: architecture-publisher:product-contract$/m);
+  assert.match(product, /^state: canonical$/m);
+  assert.match(product, /Source Bundle[\s\S]*Claim Model[\s\S]*Edition[\s\S]*Scene[\s\S]*Artifact[\s\S]*Qualification[\s\S]*Publication/);
+  assert.match(edition, /audience[\s\S]*questions[\s\S]*required claims[\s\S]*omission policy[\s\S]*static scene[\s\S]*interactive scenes/i);
+  assert.match(operations, /Historical alpha\.7 identity/i);
+  assert(packageJson.files.includes('docs/'));
+  assert(!packageJson.files.includes('docs/product-design.md'));
+  await assert.rejects(fs.stat(path.join(root, 'docs/product-design.md')), { code: 'ENOENT' });
+});

@@ -206,5 +206,5 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
   await fs.writeFile(inputFile, ' '.repeat(4 * 1024 * 1024 + 1));
   invoke(['publish', 'files', 'plan', inputFile], 1);
   invoke(['publish', 'files', 'delete', plan], 2);
-  assert(info.files.some((f) => f.path === 'docs/product-design.md'));
+  assert(info.files.some((f) => f.path === 'docs/product-contract.md'));
 });

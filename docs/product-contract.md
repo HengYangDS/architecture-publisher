@@ -1,17 +1,179 @@
-# Architecture publication: product design
+---
+subject: architecture-publisher:product-contract
+role: policy
+state: canonical
+relations:
+  canonical_for: product meaning, semantic roots, and authority boundaries
+---
 
-## Authority and purpose
+# Architecture Publisher product contract
 
-This document owns the successor's current product design. Behavioral contracts
-live in OpenSpec; README owns command usage and tested implementation limits.
-The predecessor's architecture-product-design document is historical decision
-evidence, not a required checkout or a second mutable design authority.
+## Product
 
-The product turns explicit architectural meaning and authored views into
-understandable, verifiable, recoverable publications. ETHOS is its first complex
-edition, not its required runtime or universal semantic model. One publishing
-repository owns both media; ETHOS retains product meaning and its own lifecycle.
-The original two drawing repositories remain preserved local history.
+Architecture Publisher turns explicit, source-bound system meaning into
+understandable, verifiable, recoverable Architecture Editions for people and
+Agents. It occupies the boundary between authoritative system knowledge and
+reader-facing representations: it preserves semantic identity while allowing
+static and interactive media to use different compositions.
+
+The product does not discover truth by looking at code, screenshots, or tool
+output. Source owners provide claims and provenance. Editions decide what a
+particular audience must understand. Scenes express those decisions in a medium.
+Renderers produce bytes. Qualification makes bounded judgments. Publication
+performs explicit, recoverable effects. No downstream layer grants authority to
+an upstream one.
+
+## Promise
+
+A published Edition answers three questions without conflation:
+
+1. **What is asserted?** — exact claims, their plane, scope, condition,
+   maturity, validity, provenance, unknowns, and contradictions.
+2. **What must this reader understand?** — audience, questions, coverage,
+   omissions, narrative, and reading order.
+3. **What was actually delivered and checked?** — medium-specific artifacts,
+   observations, qualifications, publication effects, and limits.
+
+The promise is not automatic architecture inference or automatic beauty. It is
+preserved meaning, explicit editorial judgment, independently composed media,
+and evidence that names exactly what it establishes.
+
+## Semantic roots
+
+The seven product values are:
+
+| Value | Owns | Does not own |
+| --- | --- | --- |
+| `Source Bundle` | Exact selected bytes, revision, location, and source authority | Interpretation or acceptance |
+| `Claim Model` | Typed meaning across intended, implemented, observed, governed, and published planes | Layout or permission |
+| `Edition` | Audience, questions, required claims, omission policy, narrative, visual grammar, scenes, and obligations | Source truth |
+| `Scene` | Medium-specific hierarchy, geometry, routes, typography, and interaction | Semantic identity |
+| `Artifact` | Exact emitted SVG, PNG, HTML, and supporting bytes | Its own qualification |
+| `Qualification` | Predicate-specific judgment over exact subjects, evidence, verifier, scope, and limits | General truth or reusable authority |
+| `Publication` | Authorized, recoverable installation of selected artifacts | Rendering, intent, or acceptance |
+
+```text
+Source Bundle -> Claim Model -> Edition -> Scene -> Artifact
+                                      \          /
+                                       Qualification
+                                             |
+                                        Publication
+```
+
+Every durable value has one semantic owner. Derived views remain rebuildable.
+A contradiction or unrepresentable meaning fails closed; it is not hidden by a
+layout choice, compatibility alias, or optimistic inference.
+
+## Product identity
+
+The product is **Architecture Publisher**. The package is
+`architecture-publisher`; the public command is `archpub`; the canonical
+repository is `architecture-publisher`. ETHOS, AIGW, and the product itself are
+Editions or adopters. `ETHOS Architecture` names the ETHOS publication, never
+the publishing product.
+
+Historical releases retain the identities under which they were published. The
+current runtime does not retain aliases or a second mutable product identity.
+
+## Product boundary
+
+Architecture Publisher is downstream of source truth and upstream of reader
+artifacts.
+
+- ETHOS owns governed repository evolution, authority, lanes, proof, CAS effects,
+  and Attestations.
+- OpenSpec and other SDD carriers own accepted intent in their source domains.
+- Git owns object identity, history, refs, and repository-local CAS.
+- Code graphs and telemetry supply observations, never product intent.
+- Skills supply replaceable methods, never lifecycle or acceptance authority.
+- Archify, SVG, rasterizers, and browsers are rendering or observation backends.
+
+Architecture Publisher may reject, explain, project, qualify, install, replace,
+and recover an Edition. It may not authorize a source-system transition or
+silently write feedback into a source authority.
+
+## Construction discipline
+
+The implementation follows the causal dependency direction:
+
+```text
+source -> semantics -> edition -> scene -> renderer -> qualification -> publication
+```
+
+Adapters point inward to public contracts. Editions depend on public contracts
+and selected renderers. Generic modules never import a concrete Edition.
+Renderers never infer semantic truth. The CLI is a composition root, not a
+domain owner.
+
+Abstractions must reduce the number of concepts a consumer needs to understand.
+No `core`, `common`, `shared`, `utils`, `legacy`, or compatibility owner is
+created without a demonstrated, independently testable responsibility.
+
+## Media
+
+Static and interactive publications are sibling projections. They share source
+and Claim identities but not coordinates, DOM, page shape, layout constraints,
+or acceptance evidence.
+
+- Static composition optimizes one-frame causal comprehension, stable print-scale
+  typography, vector geometry, and high-resolution raster delivery.
+- Interactive composition optimizes a complete first-screen overview, focus,
+  trace, source inspection, progressive disclosure, and complete mechanism views.
+
+Neither medium is generated by capturing or serializing the other.
+
+## Quality
+
+`faithful`, `intelligible`, and `restrained` are non-compensating gates.
+
+- **Faithful**: visible claims are source-bound; planes and uncertainty are not
+  collapsed; required meaning is covered; limits are explicit.
+- **Intelligible**: purpose and causal spine are immediate; hierarchy, grouping,
+  routes, and detail views answer named reader questions.
+- **Restrained**: proportion, typography, whitespace, rhythm, color, and motion
+  support meaning without decorative noise.
+
+Machine checks reject known semantic, geometry, browser, accessibility,
+installation, and recovery defects. Human review judges perceptual hierarchy and
+character for an exact artifact digest. Neither substitutes for the other.
+
+## Evolution
+
+An exact semantic change produces conservative obligations:
+
+```text
+source delta
+-> affected claims
+-> affected Editions and scenes
+-> rebuild
+-> semantic and medium verification
+-> human review when required
+-> explicit acceptance
+-> publication
+```
+
+Unknown dependencies broaden review. Changed artifact bytes invalidate their
+prior qualification. Generated artifacts are never authoring inputs. Persistent
+graph storage, incremental query runtimes, and general constraint solvers remain
+out until a named adopter proves an irreducible need and lower ownership cost.
+
+## Product modes
+
+- A **structural Edition** promises deterministic source binding, declared
+  coverage, and technical readability.
+- A **flagship Edition** additionally promises deliberate art direction,
+  reader-tested hierarchy, accessibility, and exact-artifact human acceptance.
+
+The minimal structural examples remain useful protocol demonstrations. They are
+not the public self-portrait and must not be presented as flagship work.
+
+## Completion
+
+A release is complete only when exact source, package, static and interactive
+artifacts, qualification, installed replay, recoverable publication, signed tag,
+remote readback, and declared human acceptance are independently accounted for.
+Local existence, a clean tree, a green test suite, or a package upload proves
+only its own boundary.
 
 ## Program boundaries
 

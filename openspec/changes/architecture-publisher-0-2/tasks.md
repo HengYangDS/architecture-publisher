@@ -4,7 +4,7 @@
 
 - [x] 1.1 Record alpha.7 source, tag, release, package, static, HTML, repository-path, and remote-project identities in an immutable migration baseline; verify every selected local byte and current remote object by digest or provider readback.
 - [x] 1.2 Add failing identity tests covering `Architecture Publisher`, package `architecture-publisher`, sole CLI `archpub`, subordinate Edition names, and absence of a runtime `architecture` alias; then implement the identity change and pass focused plus full tests.
-- [ ] 1.3 Replace the canonical product contract, README, Skill, profile, CI, release, and package descriptions with one consistent identity and boundary; verify a repository-wide semantic scan reports no current product use of `ethos-architecture` or old CLI guidance outside explicitly historical evidence.
+- [x] 1.3 Replace the canonical product contract, README, Skill, profile, CI, release, and package descriptions with one consistent identity and boundary; verify a repository-wide semantic scan reports no current product use of `ethos-architecture` or old CLI guidance outside explicitly historical evidence.
 
 ## 2. Claim Model and Edition contracts
 
