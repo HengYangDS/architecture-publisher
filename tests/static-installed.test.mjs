@@ -5,9 +5,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { writeSourceBundle } from '../src/source/write.mjs';
-import { RASTER_LIMITS } from '../renderers/resvg/limits.mjs';
+import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
+import { RASTER_LIMITS } from '../packages/publisher/renderers/resvg/limits.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
+const publisher = path.join(root, 'packages/publisher');
 const hash = (b) => createHash('sha256').update(b).digest('hex');
 
 test('installed raster command needs only explicit input and its pinned static supply', async (t) => {
@@ -27,7 +28,7 @@ test('installed raster command needs only explicit input and its pinned static s
       '--json',
       '--pack-destination',
       dir,
-    ]),
+    ], publisher),
   )[0];
   assert(pack.files.some((f) => f.path === 'renderers/resvg/index.mjs'));
   assert(
@@ -79,7 +80,7 @@ test('installed raster command needs only explicit input and its pinned static s
     rendererSource.source.archiveSha256,
     JSON.parse(
       await fs.readFile(
-        path.join(root, 'assets/raster/resvg/source.json'),
+        path.join(root, 'packages/publisher/assets/raster/resvg/source.json'),
         'utf8',
       ),
     ).source.archiveSha256,
@@ -95,8 +96,6 @@ test('installed raster command needs only explicit input and its pinned static s
   // Static execution must never load those independent capability owners.
   for (const name of [
     'renderers/archify',
-    'adapters',
-    'editions',
     'assets/archify',
   ])
     await fs.rm(path.join(pkg, name), { recursive: true });
@@ -129,7 +128,7 @@ test('installed raster command needs only explicit input and its pinned static s
   const invoke = () =>
     spawnSync(
       process.execPath,
-      [path.join(pkg, 'src/cli/main.mjs'), 'raster', planPath],
+      [path.join(pkg, 'src/cli/main.mjs'), 'render', 'raster', planPath],
       {
         cwd: home,
         env: { HOME: home, PATH: home },
@@ -386,7 +385,7 @@ test('installed raster command needs only explicit input and its pinned static s
       const started = performance.now();
       const child = spawn(
         process.execPath,
-        [path.join(pkg, 'src/cli/main.mjs'), 'raster', planPath],
+        [path.join(pkg, 'src/cli/main.mjs'), 'render', 'raster', planPath],
         {
           cwd: home,
           env: { HOME: home, PATH: home },

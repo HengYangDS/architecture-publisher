@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { fixture } from './fixtures/ethos-source.mjs';
 
 async function api() {
-  const m = await import('../editions/ethos/review.mjs');
+  const m = await import('../packages/extensions/ethos/src/edition/review.mjs');
   assert.equal(
     typeof m.verifyCurrentReview,
     'function',

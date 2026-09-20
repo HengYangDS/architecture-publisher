@@ -5,9 +5,10 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { readSourceBundle } from '../src/source/bundle.mjs';
+import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+const publisher = path.join(root, 'packages/publisher');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 function run(command, args, cwd, env = process.env) {
@@ -21,7 +22,7 @@ function run(command, args, cwd, env = process.env) {
   return result.stdout;
 }
 
-test('the installed product publishes its own architecture through the public contract', async (t) => {
+test('the installed product builds its structural self-portrait through the public contract', async (t) => {
   const parent = path.join(root, 'build/test-work');
   await fs.mkdir(parent, { recursive: true });
   const directory = await fs.mkdtemp(path.join(parent, 'self-hosted-'));
@@ -30,7 +31,7 @@ test('the installed product publishes its own architecture through the public co
       run(
         'npm',
         ['pack', '--ignore-scripts', '--json', '--pack-destination', directory],
-        root,
+        publisher,
       ),
     )[0],
     consumer = path.join(directory, 'consumer'),
@@ -61,7 +62,7 @@ test('the installed product publishes its own architecture through the public co
     selected = JSON.parse(
       run(
         process.execPath,
-        [path.join(pkg, 'examples/self-host/build.mjs'), inputs],
+        [path.join(root, 'examples/self-host/build.mjs'), inputs],
         directory,
         { HOME: home, PATH: home, LANG: 'C.UTF-8' },
       ),
@@ -86,8 +87,8 @@ test('the installed product publishes its own architecture through the public co
         process.execPath,
         [
           path.join(pkg, 'src/cli/main.mjs'),
-          'publish',
-          'semantic',
+          'edition',
+          'build',
           planPath,
           '--sha256',
           sha(planBytes),
@@ -101,7 +102,7 @@ test('the installed product publishes its own architecture through the public co
       response.manifestSha256,
     ),
     members = new Map(output.members.map((item) => [item.path, item.content])),
-    receipt = JSON.parse(members.get('publication.json')),
+    candidate = JSON.parse(members.get('candidate.json')),
     semantic = JSON.parse(members.get('semantic.json')),
     edition = JSON.parse(members.get('edition.json')),
     svg = members.get('overview.svg').toString(),
@@ -109,41 +110,24 @@ test('the installed product publishes its own architecture through the public co
   assert.equal(output.source.id, 'architecture-publisher');
   assert.equal(semantic.context.adoptionRole, 'self-hosted');
   assert.equal(semantic.context.independentAdopterEvidence, false);
-  assert.equal(receipt.semanticDigest, selected.semanticDigest);
+  assert.equal(candidate.semanticDigest, selected.semanticDigest);
   assert.equal(plan.edition, selected.edition);
   assert.equal(plan.editionSha256, sha(await fs.readFile(selected.edition)));
   assert.deepEqual(
     edition,
     JSON.parse(await fs.readFile(selected.edition, 'utf8')),
   );
-  assert.equal(receipt.editionSha256, plan.editionSha256);
-  assert.equal(receipt.editionDigest, response.editionDigest);
-  assert.equal(receipt.staticSceneDigest, response.staticSceneDigest);
+  assert.equal(candidate.editionSha256, plan.editionSha256);
+  assert.equal(candidate.editionDigest, response.editionDigest);
+  assert.equal(candidate.staticSceneDigest, response.staticSceneDigest);
   assert.equal(
-    receipt.interactiveSceneDigest,
+    candidate.interactiveSceneDigest,
     response.interactiveSceneDigest,
   );
-  const acceptance = JSON.parse(await fs.readFile(
-    path.join(root, 'examples/self-host/browser-acceptance.json'), 'utf8'));
-  assert.equal(acceptance.adoptionRole, 'self-hosted');
-  assert.equal(acceptance.independentAdopterEvidence, false);
-  assert.equal(acceptance.semanticDigest, selected.semanticDigest);
-  assert.equal(acceptance.editionSha256, receipt.editionSha256);
-  assert.equal(acceptance.editionDigest, response.editionDigest);
-  assert.equal(acceptance.staticSceneDigest, response.staticSceneDigest);
-  assert.equal(
-    acceptance.interactiveSceneDigest,
-    response.interactiveSceneDigest,
-  );
-  assert.equal(acceptance.publicationManifestSha256, output.manifestSha256);
-  assert.equal(acceptance.staticSvgSha256, sha(members.get('overview.svg')));
-  assert.equal(acceptance.staticPngSha256, sha(members.get('overview.png')));
-  assert.equal(acceptance.verifier.observerSha256,
-    sha(await fs.readFile(path.join(root, 'tools/qualification/semantic-browser.mjs'))));
-  assert.equal(acceptance.verifier.checksSha256,
-    sha(await fs.readFile(path.join(root, 'tools/qualification/semantic-browser-checks.mjs'))));
-  assert.deepEqual(acceptance.views,
-    [...receipt.views.map((view) => view.id), 'overview-static']);
+  assert.equal(response.status, 'built');
+  assert.equal(response.semanticValidation, 'passed');
+  assert.equal(response.qualification, 'not-performed');
+  assert.equal(response.publication, 'not-performed');
 
   for (const id of [
     'public-cli',

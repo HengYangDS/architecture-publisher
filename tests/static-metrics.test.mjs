@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 async function api() {
-  const entry = new URL('../renderers/svg/metrics.mjs', import.meta.url);
+  const entry = new URL('../packages/publisher/renderers/svg/metrics.mjs', import.meta.url);
   const { access } = await import('node:fs/promises');
   await assert.doesNotReject(
     access(entry),

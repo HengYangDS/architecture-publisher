@@ -2,17 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { readSourceBundle } from '../src/source/bundle.mjs';
-import { writeSourceBundle } from '../src/source/write.mjs';
+import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
+import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
 import {
   sha256,
   stableStringify,
-} from '../adapters/ethos/projection.mjs';
-import { prepareEthosCandidate } from '../editions/ethos/candidate.mjs';
+} from '../packages/extensions/ethos/src/adapter/projection.mjs';
+import { prepareEthosCandidate } from '../packages/extensions/ethos/src/edition/candidate.mjs';
 import {
   readEthosAtlasSelection,
   renderEthosAtlas,
-} from '../editions/ethos/atlas.mjs';
+} from '../packages/extensions/ethos/src/edition/atlas.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const fixture = path.join(root, 'tests/fixtures/ethos-source/manifest.json');
@@ -33,7 +33,7 @@ async function changedSource(t, mutate) {
     projectionDigest: input.digest,
     editionManifest: path.join(
       root,
-      'editions/ethos/authoring/manifest.json',
+      'packages/extensions/ethos/src/edition/authoring/manifest.json',
     ),
   };
   previous.editionSha256 = sha256(
@@ -82,7 +82,7 @@ async function changedSource(t, mutate) {
     [...members].map(([path, content]) => ({ path, content })),
   );
   const authoring = JSON.parse(
-    await fs.readFile(path.join(root, 'editions/ethos/refresh.json')),
+    await fs.readFile(path.join(root, 'packages/extensions/ethos/src/edition/refresh.json')),
   );
   const meaningSha256 = sha256(
     stableStringify(input.semantics.nodes.candidate_base_stale),

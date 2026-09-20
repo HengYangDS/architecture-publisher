@@ -1,0 +1,35 @@
+{
+  "name": "architecture-publisher",
+  "version": "0.2.0-alpha.0",
+  "description": "Source-bound semantic architecture editions with independent static and interactive publication",
+  "type": "module",
+  "bin": {
+    "archpub": "src/cli/main.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./source": "./src/source/index.mjs",
+    "./semantics": "./src/semantics/index.mjs",
+    "./edition": "./src/edition/index.mjs",
+    "./scene": "./src/scene/index.mjs",
+    "./compiler": "./src/compiler/index.mjs",
+    "./rendering": "./src/rendering/index.mjs",
+    "./qualification": "./src/qualification/index.mjs",
+    "./publication": "./src/publication/index.mjs",
+    "./runtime": "./src/runtime.mjs",
+    "./renderers/archify": "./renderers/archify/public.mjs",
+    "./renderers/resvg": "./renderers/resvg/public.mjs",
+    "./renderers/svg": "./renderers/svg/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/",
+    "renderers/",
+    "assets/",
+    "README.md"
+  ],
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  }
+}

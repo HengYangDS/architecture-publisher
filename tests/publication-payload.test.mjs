@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { planEthosPublication } from '../editions/ethos/publication.mjs';
+import { planEthosPublication } from '../packages/extensions/ethos/src/edition/publication.mjs';
 
 const selected = process.env.ETHOS_QUALIFIED_PAIR_PLAN;
 
@@ -13,7 +13,10 @@ test('reader payload excludes qualification while retaining complete effect-time
   t.after(() => fs.rm(temporary, { recursive: true, force: true }));
   const input = JSON.parse(await fs.readFile(selected));
   input.deployment = {
-    destinations: { native: path.join(temporary, 'native'), atlas: path.join(temporary, 'atlas') },
+    destinations: {
+      static: path.join(temporary, 'static'),
+      interactive: path.join(temporary, 'interactive'),
+    },
     recoveryRoot: path.join(temporary, 'recovery'),
   };
   const result = await planEthosPublication(input);

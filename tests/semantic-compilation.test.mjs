@@ -7,10 +7,10 @@ import {
 } from './fixtures/claim-change.mjs';
 
 async function api() {
-  const contract = await import('../src/semantics/document.mjs').catch(
+  const contract = await import('../packages/publisher/src/semantics/document.mjs').catch(
     () => ({}),
   );
-  const compiler = await import('../src/semantics/change.mjs').catch(
+  const compiler = await import('../packages/publisher/src/semantics/change.mjs').catch(
     () => ({}),
   );
   assert.equal(
@@ -28,7 +28,7 @@ async function api() {
 
 test('in-process shared graphs cannot expand beyond the admission work budget', () => {
   const program = `
-    import { validateClaimModel } from './src/semantics/document.mjs';
+    import { validateClaimModel } from './packages/publisher/src/semantics/document.mjs';
     import { claimChangeModel } from './tests/fixtures/claim-change.mjs';
     const document = claimChangeModel();
     let shared = 'x';

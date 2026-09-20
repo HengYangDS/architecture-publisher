@@ -1,125 +1,145 @@
 # Architecture Publisher
 
 Architecture Publisher compiles explicit, source-bound system meaning into
-truthful, audience-specific, independently rendered Architecture Editions.
+truthful, audience-specific Architecture Editions.
 
-It is not an architecture inference engine, a drawing editor, an SDD authority,
-or an ETHOS subsystem. Source systems own truth. Editions own communication.
-Renderers produce bytes. Qualification records exactly what was checked.
+It is not an architecture inference engine, drawing editor, SDD authority, or
+ETHOS subsystem. Source systems own truth. Editions own communication. Scenes
+own composition. Renderers produce bytes. Qualification records exact judgments.
 Publication performs bounded, recoverable effects.
 
 ## Product chain
 
 ```text
-Source Bundle
-  -> Claim Model
-  -> Edition
-  -> independent static and interactive scenes
-  -> artifacts
-  -> qualification
-  -> recoverable publication
-  -> readers and feedback
+Source Bundle + Claim Model + Edition
+                 |
+                 v
+          Edition Candidate
+          /               \
+  static scene        interactive scenes
+       |                     |
+  SVG / PNG          standalone HTML
+          \               /
+           Qualification Set
+                  |
+           Publication Plan
+                  |
+       publication and recovery receipts
 ```
 
-- [Product contract](docs/product-contract.md) — canonical product meaning and
-  authority boundaries.
-- [Edition contract](docs/edition-contract.md) — audience, coverage, scenes, and
-  qualification.
-- [Operational reference](docs/reference/operations.md) — detailed commands,
-  implementation limits, and historical alpha.7 delivery facts.
-- [Mechanism evaluation](docs/research/mechanism-evaluation.md) — source-level
-  adopt, reject, and defer decisions.
+Each arrow is a contract boundary. A later layer may project an earlier value;
+it cannot reinterpret it or grant authority to it.
+
+- [Product contract](docs/product-contract.md) defines the canonical product
+  meaning and authority boundaries.
+- [Edition contract](docs/edition-contract.md) defines audience, coverage,
+  independent scenes, and qualification obligations.
+- [Operational reference](docs/reference/operations.md) documents the current
+  public command surface and historical release boundaries.
+- [Mechanism evaluation](docs/research/mechanism-evaluation.md) records
+  source-level adopt, reject, and defer decisions.
 
 ## Identity
 
-| Surface | Current identity |
+| Surface | Identity |
 | --- | --- |
 | Product | Architecture Publisher |
-| Package | `architecture-publisher` |
-| CLI | `archpub` |
-| Canonical repository | `architecture-publisher` after the accepted migration |
+| Core package | `architecture-publisher` |
+| Public CLI | `archpub` |
+| ETHOS extension | `@architecture-publisher/ethos` |
+| Canonical repository | `architecture-publisher` after accepted migration |
 | ETHOS publication | `ETHOS Architecture` / `ETHOS · 问道` |
 
-The current checkout retains its historical path until the governed rename
-closure. Signed alpha.7 tags and released bytes remain immutable predecessor
-evidence.
+The checkout retains its historical path until the governed rename. Signed
+alpha.7 tags and release bytes remain immutable predecessor evidence.
 
-## Quick start
+## Install and inspect
 
 ```sh
 npm ci --ignore-scripts --no-audit --no-fund
 npm run check
 npm test
-npm pack --ignore-scripts --pack-destination build
+npm pack --ignore-scripts --workspace architecture-publisher
+node packages/publisher/src/cli/main.mjs --help
 ```
 
-After installing the package:
+The current generic journeys are:
 
 ```sh
-archpub source verify /chosen/input/manifest.json --sha256 <digest>
-archpub semantic compare /chosen/compare.json --sha256 <digest>
-archpub publish semantic /chosen/publication.json --sha256 <digest>
+archpub source pack <request.json> --sha256 <digest>
+archpub source verify <manifest.json> --sha256 <digest>
+archpub edition build <request.json> --sha256 <digest>
+archpub evolution plan <request.json> --sha256 <digest>
+archpub render interactive <type> <input.json> --sha256 <digest> --output <artifact.html>
+archpub render raster <request.json>
+archpub render measure <request.json>
+archpub qualify verify <qualification-set.json> --sha256 <digest>
+archpub publish plan <request.json>
+archpub publish apply <plan.json> <authorization.json>
+archpub publish recover <plan.json> <authorization.json>
 ```
 
-All paths and digests are caller-selected. Ordinary installed use is offline and
-does not require Git, ETHOS, adjacent checkouts, personal credentials, or an
-agent session. Commands return scoped JSON results; success never implies source
-truth, aesthetic approval, or external authorization beyond the named predicate.
+Every path and digest is caller-selected. Installed operation is designed to be
+offline and independent of Git, ETHOS, adjacent checkouts, personal credentials,
+and ambient repository discovery.
 
-`archpub semantic compare` selects exact before/after Claim Models and Edition
-sets. It reports semantic delta, affected Editions and scenes, and six separate
-obligation classes: rebuild, semantic verification, medium verification, human
-review, acceptance, and publication. It performs none of those effects. The
-runnable files under `examples/semantic/` also show how each Edition binds its
-independently verifiable source-manifest digest.
+## Workspace boundaries
 
-## Editions
+```text
+packages/publisher/          generic product package
+packages/extensions/ethos/   independently installable ETHOS adapter and Edition
+examples/self-host/          bounded structural self-use
+examples/aigw/               independent adopter evidence under migration
+```
 
-- `editions/architecture-publisher/` — first-party product self-portrait and
-  flagship quality reference.
-- `editions/ethos/` — ETHOS flagship static publication and interactive atlas.
-- `editions/aigw/` — independent adopter and semantic-evolution proof.
-- `examples/structural/` — small protocol examples without flagship claims.
+The root is a private development and conformance workspace, not the published
+package. The core never imports a concrete extension. An extension may depend
+inward only through exported core contracts. The ETHOS package owns no ETHOS
+intent, lane, proof, CAS, Attestation, or acceptance authority.
 
-The first-party self-Edition and AIGW Edition are introduced by the active 0.2
-Change. Until that Change is accepted, their current implementation status is
-reported by OpenSpec rather than inferred from this roadmap.
+The first-party flagship self-Edition and complete AIGW Edition remain work of
+the active 0.2 Change. The task ledger, not this README, owns their completion
+state.
 
 ## Media independence
 
-Static and interactive publications share semantic identities and coverage
-obligations, not coordinates or implementation structure.
+Static and interactive publications share selected semantic identities and
+coverage obligations, not coordinates, DOM, screenshots, or approval.
 
-- Static output is authored for one-frame comprehension and deterministic SVG/
-  high-resolution PNG delivery.
-- Interactive output is authored for a complete overview, exploration, source
-  inspection, and complete mechanism pages.
+- Static output is composed for one-frame causal comprehension and deterministic
+  SVG/high-resolution PNG delivery.
+- Interactive output is composed for a complete first screen, exploration,
+  focus, trace, source inspection, and complete mechanism pages.
 
-Neither medium is a screenshot or serialization of the other.
+Neither medium is generated from the other.
+
+## State boundaries
+
+An `Edition Candidate` is built, not accepted. A `Qualification Set` records
+external predicate judgments, but does not authorize publication. A
+`Publication Plan` describes an effect, and apply/recovery require explicit
+caller-owned authorization.
+
+```text
+built ≠ qualified ≠ authorized ≠ published ≠ hosted-observed
+```
 
 ## Governance
 
-This repository is governed by ETHOS. OpenSpec owns active Change intent and task
-progress. Work occurs only in an owned Work Lane after exact path admission.
-Skills, CI, renderers, browsers, and source adapters are replaceable projections;
-none grants semantic or mutation authority.
-
-Current work:
-
-```sh
-openspec list --json
-archpub --help
-```
+This repository is governed by ETHOS. OpenSpec owns active Change intent and
+`openspec/changes/architecture-publisher-0-2/tasks.md` is the sole progress
+ledger. Work occurs only in an owned Work Lane after exact-path admission.
+Skills, CI, renderers, browsers, and adapters are replaceable capabilities; none
+is a semantic or mutation authority.
 
 ## Historical alpha.7 identity
 
 Release `v0.1.0-alpha.7` remains bound to commit
 `375c58ad49fb693de36c753b8a6d77b772b73a7c`, package
-`architecture-publishing/0.1.0-alpha.7`, and the former repository path
-`dig/research/human-agent-stewardship/ethos-architecture`. It links the immutable
-alpha.5 ETHOS reader and retains alpha.3 as the complete recovery release.
-Exact local and remote identities are recorded in
-[`docs/migration/alpha7-baseline.json`](docs/migration/alpha7-baseline.json).
+`architecture-publishing/0.1.0-alpha.7`, and former repository path
+`dig/research/human-agent-stewardship/ethos-architecture`. Exact identities are
+recorded in [`docs/migration/alpha7-baseline.json`](docs/migration/alpha7-baseline.json).
 
-Independent off-host disaster recovery is not yet proved; it requires an
-operator-selected destination, custody policy, and bounded credential.
+Independent off-host disaster recovery remains explicitly unproved and outside
+this Change until an operator selects its destination, custody policy, and
+credential boundary.

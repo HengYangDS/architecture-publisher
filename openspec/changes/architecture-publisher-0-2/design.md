@@ -205,53 +205,53 @@ small verified commits and one final release closure.
 ## Target Physical Structure
 
 ```text
-architecture-publisher/
-├── docs/
-│   ├── product-contract.md
-│   ├── edition-contract.md
-│   └── research/
-├── src/
-│   ├── source/
-│   ├── semantics/
-│   ├── edition/
-│   ├── scene/
-│   │   ├── static/
-│   │   └── interactive/
-│   ├── qualification/
-│   ├── publication/
-│   └── cli/
-├── renderers/
-│   ├── svg/
-│   ├── archify/
-│   └── resvg/
+architecture-publisher/                 # private development workspace
 ├── packages/
-│   └── editions/
-│       ├── architecture-publisher/
-│       ├── ethos/
-│       │   ├── adapter/
-│       │   └── edition/
-│       └── aigw/
-│           ├── adapter/
-│           └── edition/
+│   ├── publisher/                      # published architecture-publisher core
+│   │   ├── src/
+│   │   │   ├── source/
+│   │   │   ├── semantics/
+│   │   │   ├── edition/
+│   │   │   ├── scene/
+│   │   │   │   ├── static/
+│   │   │   │   └── interactive/
+│   │   │   ├── compiler/
+│   │   │   ├── rendering/
+│   │   │   ├── qualification/
+│   │   │   ├── publication/
+│   │   │   └── cli/
+│   │   ├── renderers/
+│   │   │   ├── svg/
+│   │   │   ├── archify/
+│   │   │   └── resvg/
+│   │   └── assets/                     # exact bundled supply, not authorities
+│   └── extensions/
+│       ├── architecture-publisher/     # first-party flagship self-Edition
+│       ├── ethos/                      # ETHOS adapter and authored Edition
+│       └── aigw/                       # independent adopter Edition
 ├── examples/
-│   ├── structural/
+│   ├── self-host/                      # bounded structural conformance journey
 │   ├── greenfield/
 │   └── brownfield/
-└── tests/
-    ├── semantics/
-    ├── editions/
-    ├── scenes/
-    ├── qualification/
-    ├── publication/
-    └── adoption/
+├── tests/                              # contract and installed-product proof
+├── docs/
+├── openspec/
+└── package.json                        # private workspace only
 ```
 
-Physical migration follows semantic ownership. There will be no `core`,
-`common`, `shared`, `utils`, compatibility, or legacy runtime directory. Existing
-modules move only where the owner is materially clearer; a directory diagram is
-not a reason to churn stable code. The repository is a development and
-conformance monorepo; the root package is the domain-neutral product, while each
-directory below `packages/editions` is a separate downstream package boundary.
+The root is never a distributable product package. `packages/publisher` is the
+only generic runtime authority. Every concrete source adapter and Edition is an
+independently installable downstream package and depends inward only through
+exported public contracts. Keeping first-party conformance packages in this
+repository does not transfer their source-product authority to the core; they
+remain extractable without changing the generic package or CLI.
+
+Physical migration follows semantic ownership. There is no `core`, `common`,
+`shared`, `utils`, compatibility, or legacy runtime directory. Vendored renderer
+supply stays below the owning adapter and is verified as exact supply rather than
+participating as another product surface. Existing modules move only where the
+owner becomes materially clearer; a directory diagram alone is not a reason for
+churn.
 
 ## Flagship Self-Edition
 

@@ -4,17 +4,17 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { writeSourceBundle } from '../src/source/write.mjs';
-import { readEthosSource } from '../adapters/ethos/projection.mjs';
-import { createMetricReader } from '../renderers/svg/metrics.mjs';
-import { composeNaturalOverview } from '../editions/ethos/static/natural-overview.mjs';
+import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
+import { readEthosSource } from '../packages/extensions/ethos/src/adapter/projection.mjs';
+import { createMetricReader } from '../packages/publisher/renderers/svg/metrics.mjs';
+import { composeNaturalOverview } from '../packages/extensions/ethos/src/edition/static/natural-overview.mjs';
 import {
   compileTraceScene,
   renderTraceSvg,
-} from '../editions/ethos/static/trace-scene.mjs';
-import { auditNaturalSemantics } from '../editions/ethos/static/natural-semantics.mjs';
-import { auditScene, auditCanvasEnvelope } from '../src/qualification/static/scene.mjs';
-import { auditEmittedEdges } from '../src/qualification/static/emitted-path.mjs';
+} from '../packages/extensions/ethos/src/edition/static/trace-scene.mjs';
+import { auditNaturalSemantics } from '../packages/extensions/ethos/src/edition/static/natural-semantics.mjs';
+import { auditScene, auditCanvasEnvelope } from '../packages/publisher/src/qualification/static/scene.mjs';
+import { auditEmittedEdges } from '../packages/publisher/src/qualification/static/emitted-path.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const hash = (b) => createHash('sha256').update(b).digest('hex');
 const sourceSha256 =
@@ -22,7 +22,7 @@ const sourceSha256 =
 const projectionDigest =
   '4ea40f421434106948f1e1d2d9ae5ee6c8b9868edc5538ff755876fd01d37ef8';
 async function api() {
-  const entry = new URL('../editions/ethos/poster.mjs', import.meta.url);
+  const entry = new URL('../packages/extensions/ethos/src/edition/poster.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(entry),
     'source-bound poster implementation exists',
@@ -34,7 +34,7 @@ async function setup(t, mutate) {
   await fs.mkdir(base, { recursive: true });
   const dir = await fs.mkdtemp(path.join(base, 'poster '));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
-  const authoring = path.join(root, 'editions/ethos/static/authoring');
+  const authoring = path.join(root, 'packages/extensions/ethos/src/edition/static/authoring');
   const members = await Promise.all(
     ['edition.json', 'metrics.json'].map(async (p) => ({
       path: p,
@@ -158,7 +158,7 @@ test('retained checks detect changed meaning, actual emitted edges and painted o
   const metrics = createMetricReader(
     JSON.parse(
       await fs.readFile(
-        path.join(root, 'editions/ethos/static/authoring/metrics.json'),
+        path.join(root, 'packages/extensions/ethos/src/edition/static/authoring/metrics.json'),
       ),
     ),
   );

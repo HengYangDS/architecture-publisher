@@ -1,5 +1,5 @@
 import { claimModel } from './claim-model.mjs';
-import { claimModelDigest } from '../../src/semantics/document.mjs';
+import { claimModelDigest } from '../../packages/publisher/src/semantics/document.mjs';
 
 export function editionFixture() {
   const model = claimModel(),

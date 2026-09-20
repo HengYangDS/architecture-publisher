@@ -4,11 +4,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { claimModelDigest } from '../src/semantics/document.mjs';
-import { readSourceBundle } from '../src/source/bundle.mjs';
+import { claimModelDigest } from '../packages/publisher/src/semantics/document.mjs';
+import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { editionFixture } from './fixtures/edition.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
+const publisher = path.join(root, 'packages/publisher');
 const sha = (v) => createHash('sha256').update(v).digest('hex');
 
 test('bundled comparison example uses Claim Model and Edition selections', async () => {
@@ -18,9 +19,9 @@ test('bundled comparison example uses Claim Model and Edition selections', async
     result = spawnSync(
       process.execPath,
       [
-        path.join(root, 'src/cli/main.mjs'),
-        'semantic',
-        'compare',
+        path.join(root, 'packages/publisher/src/cli/main.mjs'),
+        'evolution',
+        'plan',
         path.join(directory, 'compare.json'),
         '--sha256',
         sha(bytes),
@@ -101,9 +102,9 @@ async function setup(t) {
     const result = spawnSync(
       process.execPath,
       [
-        options.cli ?? path.join(root, 'src/cli/main.mjs'),
-        'semantic',
-        'compare',
+        options.cli ?? path.join(root, 'packages/publisher/src/cli/main.mjs'),
+        'evolution',
+        'plan',
         options.file ?? path.join(dir, 'plan.json'),
         '--sha256',
         options.sha256 ?? sha(bytes),
@@ -187,7 +188,7 @@ test('packed compiler relocates and runs offline without ETHOS-specific modules'
   const pack = spawnSync(
     'npm',
     ['pack', '--json', '--ignore-scripts', '--pack-destination', f.dir],
-    { cwd: root, encoding: 'utf8', timeout: 60000 },
+    { cwd: publisher, encoding: 'utf8', timeout: 60000 },
   );
   assert.equal(pack.status, 0, pack.stderr);
   const info = JSON.parse(pack.stdout)[0],
@@ -209,8 +210,6 @@ test('packed compiler relocates and runs offline without ETHOS-specific modules'
   );
   assert.equal(install.status, 0, install.stderr);
   const pkg = path.join(consumer, 'node_modules/architecture-publisher');
-  await fs.rm(path.join(pkg, 'editions'), { recursive: true });
-  await fs.rm(path.join(pkg, 'adapters'), { recursive: true });
   const relocated = path.join(f.dir, 'different location');
   await fs.rename(consumer, relocated);
   const cli = path.join(

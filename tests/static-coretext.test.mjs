@@ -6,9 +6,10 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 const root = fileURLToPath(new URL('../', import.meta.url));
+const publisher = path.join(root, 'packages/publisher');
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 async function api() {
-  const entry = new URL('../renderers/svg/coretext.mjs', import.meta.url);
+  const entry = new URL('../packages/publisher/renderers/svg/coretext.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(entry),
     'explicit CoreText adapter exists',
@@ -33,7 +34,7 @@ async function setup(t) {
   const compiler = select(['--find', 'swiftc']);
   const sdk = await fs.realpath(select(['--show-sdk-path']));
   const font = await fs.realpath(
-    path.join(root, 'assets/fonts/JetBrainsMono-Regular.ttf'),
+    path.join(root, 'packages/publisher/assets/fonts/JetBrainsMono-Regular.ttf'),
   );
   return {
     dir,
@@ -184,7 +185,7 @@ test(
     const f = await setup(t);
     const runNpm = (args) => {
       const r = spawnSync('npm', args, {
-        cwd: root,
+        cwd: publisher,
         encoding: 'utf8',
         timeout: 60000,
         env: {
@@ -225,9 +226,7 @@ test(
     // the drawing backends, their fonts, or ETHOS-specific edition code.
     for (const name of [
       'assets',
-      'editions',
       'renderers/archify',
-      'adapters',
     ])
       await fs.rm(path.join(pkg, name), { recursive: true });
     const plan = structuredClone(f.plan);
@@ -242,7 +241,7 @@ test(
     const run = () =>
       spawnSync(
         process.execPath,
-        [path.join(pkg, 'src/cli/main.mjs'), 'measure', 'coretext', planPath],
+        [path.join(pkg, 'src/cli/main.mjs'), 'render', 'measure', planPath],
         {
           cwd: home,
           env: { HOME: home, PATH: home },

@@ -37,7 +37,7 @@ async function setup(t) {
     const r = spawnSync(
       process.execPath,
       [
-        path.join(root, 'src/cli/main.mjs'),
+        path.join(root, 'packages/publisher/src/cli/main.mjs'),
         'source',
         'pack',
         options.planFile ?? file,

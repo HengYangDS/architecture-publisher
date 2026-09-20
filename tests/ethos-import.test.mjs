@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { importEthosSource } from '../adapters/ethos/import.mjs';
-import { readEthosSource } from '../adapters/ethos/projection.mjs';
+import { importEthosSource } from '../packages/extensions/ethos/src/adapter/import.mjs';
+import { readEthosSource } from '../packages/extensions/ethos/src/adapter/projection.mjs';
 import { fixture, encode, sha } from './fixtures/ethos-source.mjs';
 
 async function setup(t) {
@@ -144,21 +144,17 @@ test('failed Python execution never produces a consumable output', async (t) => 
   await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
 });
 
-test('explicit import CLI resolves plan paths from the plan location', async (t) => {
+test('explicit import API resolves plan paths from the plan location', async (t) => {
   const f = await setup(t),
     plan = path.join(f.root, 'plan.json');
   await fs.writeFile(
     plan,
     JSON.stringify({ ...f.plan, repository: 'source', output: 'bundle' }),
   );
-  const cli = new URL('../src/cli/main.mjs', import.meta.url);
-  const result = spawnSync(
-    process.execPath,
-    [cli.pathname, 'source', 'ethos', 'import', plan],
-    { cwd: path.dirname(f.root), encoding: 'utf8' },
+  const { importEthosSourceInput } = await import(
+    '../packages/extensions/ethos/src/adapter/input.mjs'
   );
-  assert.equal(result.status, 0, result.stdout + result.stderr);
-  const receipt = JSON.parse(result.stdout);
+  const receipt = await importEthosSourceInput(plan);
   assert.equal(receipt.officialReplay, 'performed');
   assert.equal(receipt.manifestPath, path.join(f.root, 'bundle/manifest.json'));
 });

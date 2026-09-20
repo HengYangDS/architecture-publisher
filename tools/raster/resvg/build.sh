@@ -11,7 +11,7 @@ output=$2
 script_dir=$(CDPATH='' cd -- "$(dirname "$0")" && pwd -P)
 repo=$(CDPATH='' cd -- "$script_dir/../../.." && pwd -P)
 manifest="$script_dir/source.json"
-[ -f "$manifest" ] || manifest="$repo/assets/raster/resvg/source.json"
+[ -f "$manifest" ] || manifest="$repo/packages/publisher/assets/raster/resvg/source.json"
 stage=$(mktemp -d "${TMPDIR:-/tmp}/architecture-resvg-build.XXXXXX")
 trap 'rm -rf "$stage"' EXIT HUP INT TERM
 

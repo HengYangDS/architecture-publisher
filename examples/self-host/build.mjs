@@ -2,21 +2,21 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { writeSourceBundle } from '../../src/source/write.mjs';
-import { claimModelDigest } from '../../src/semantics/document.mjs';
+import { writeSourceBundle } from '../../packages/publisher/src/source/write.mjs';
+import { claimModelDigest } from '../../packages/publisher/src/semantics/document.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
 const selectedFiles = Object.freeze({
-  'public-cli': 'src/cli/main.mjs',
-  'source-bundle': 'src/source/bundle.mjs',
-  'semantic-contract': 'src/semantics/document.mjs',
-  'publication-coordinator': 'src/publication/semantic.mjs',
-  'static-compositor': 'renderers/svg/architecture.mjs',
-  'interactive-renderer': 'renderers/archify/index.mjs',
-  'raster-boundary': 'renderers/resvg/index.mjs',
-  'publication-writer': 'src/source/write.mjs',
+  'public-cli': 'packages/publisher/src/cli/main.mjs',
+  'source-bundle': 'packages/publisher/src/source/bundle.mjs',
+  'semantic-contract': 'packages/publisher/src/semantics/document.mjs',
+  'publication-coordinator': 'packages/publisher/src/compiler/edition.mjs',
+  'static-compositor': 'packages/publisher/renderers/svg/architecture.mjs',
+  'interactive-renderer': 'packages/publisher/renderers/archify/index.mjs',
+  'raster-boundary': 'packages/publisher/renderers/resvg/index.mjs',
+  'publication-writer': 'packages/publisher/src/publication/files.mjs',
 });
 
 async function main() {

@@ -1,15 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import { createMetricReader } from '../renderers/svg/metrics.mjs';
-import { composeNaturalOverview } from '../editions/ethos/static/natural-overview.mjs';
-import { compileTraceScene } from '../editions/ethos/static/trace-scene.mjs';
-import { auditNaturalSeparation } from '../src/qualification/static/separation.mjs';
-import { auditNaturalSemantics } from '../editions/ethos/static/natural-semantics.mjs';
+import { createMetricReader } from '../packages/publisher/renderers/svg/metrics.mjs';
+import { composeNaturalOverview } from '../packages/extensions/ethos/src/edition/static/natural-overview.mjs';
+import { compileTraceScene } from '../packages/extensions/ethos/src/edition/static/trace-scene.mjs';
+import { auditNaturalSeparation } from '../packages/publisher/src/qualification/static/separation.mjs';
+import { auditNaturalSemantics } from '../packages/extensions/ethos/src/edition/static/natural-semantics.mjs';
 import {
   sha256,
   stableStringify,
-} from '../adapters/ethos/projection.mjs';
+} from '../packages/extensions/ethos/src/adapter/projection.mjs';
 
 async function selected() {
   const read = async (p) =>
@@ -18,7 +18,7 @@ async function selected() {
     './fixtures/ethos-source/projection-input.json',
   );
   const metrics = await read(
-    '../editions/ethos/static/authoring/metrics.json',
+    '../packages/extensions/ethos/src/edition/static/authoring/metrics.json',
   );
   const added = await read('./fixtures/refresh-metrics.json');
   const reader = createMetricReader({

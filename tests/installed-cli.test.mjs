@@ -4,8 +4,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
+const publisher = path.join(root, 'packages/publisher');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 test('packed CLI verifies relocated non-Git input without development executables', async (t) => {
@@ -21,7 +22,7 @@ test('packed CLI verifies relocated non-Git input without development executable
   const pack = spawnSync(
     'npm',
     ['pack', '--json', '--ignore-scripts', '--pack-destination', tmp],
-    { cwd: root, env, encoding: 'utf8' },
+    { cwd: publisher, env, encoding: 'utf8' },
   );
   assert.equal(pack.status, 0, pack.stderr);
   const info = JSON.parse(pack.stdout)[0];
@@ -30,15 +31,10 @@ test('packed CLI verifies relocated non-Git input without development executable
     info.files.every(
       (f) =>
         f.path === 'README.md' ||
-        f.path.startsWith('docs/') ||
         f.path === 'package.json' ||
         f.path.startsWith('src/') ||
         f.path.startsWith('assets/') ||
-        f.path.startsWith('adapters/') ||
-        f.path.startsWith('examples/') ||
-        f.path.startsWith('editions/') ||
-        f.path.startsWith('renderers/') ||
-        f.path.startsWith('skills/'),
+        f.path.startsWith('renderers/'),
     ),
   );
   const install = path.join(tmp, 'consumer');
@@ -72,22 +68,6 @@ test('packed CLI verifies relocated non-Git input without development executable
   await assert.rejects(fs.stat(path.join(install, '.git')), {
     code: 'ENOENT',
   });
-  const reportProbe = spawnSync(
-    process.execPath,
-    [
-      '--input-type=module',
-      '-e',
-      `import {encodeBrowserReport,decodeBrowserReport} from ${JSON.stringify(pathToFileURL(path.join(pkg, 'editions/ethos/browser-report.mjs')).href)}; const encoded=encodeBrowserReport({scope:'installed'}); if(decodeBrowserReport(encoded.name,encoded.content).scope!=='installed')process.exit(1); console.log('installed-report-roundtrip');`,
-    ],
-    {
-      cwd: install,
-      env: { HOME: install, PATH: install },
-      encoding: 'utf8',
-      timeout: 15000,
-    },
-  );
-  assert.equal(reportProbe.status, 0, reportProbe.stderr);
-  assert.equal(reportProbe.stdout.trim(), 'installed-report-roundtrip');
   const input = path.join(tmp, 'relocated input');
   await fs.mkdir(input);
   const data = Buffer.from(
@@ -129,6 +109,64 @@ test('packed CLI verifies relocated non-Git input without development executable
   assert.equal(result.members[0].sha256, sha(data));
   assert(!ok.stdout.includes(tmp));
   assert.equal(result.officialReplay, 'not-performed');
+
+  const qualification = {
+    schema: 'architecture.qualification-set/v1',
+    candidateSha256: sha(Buffer.from('candidate')),
+    editionSha256: sha(Buffer.from('edition')),
+    sourceSha256: sha(Buffer.from('source')),
+    semanticSha256: sha(Buffer.from('semantic')),
+    records: [
+      {
+        id: 'semantic.integrity',
+        subject: {
+          kind: 'edition-candidate',
+          sha256: sha(Buffer.from('candidate')),
+        },
+        editionSha256: sha(Buffer.from('edition')),
+        sourceSha256: sha(Buffer.from('source')),
+        semanticSha256: sha(Buffer.from('semantic')),
+        verifier: {
+          id: 'installed-test',
+          implementationSha256: sha(Buffer.from('installed-test')),
+        },
+        predicate: 'semantic-integrity',
+        scope: { kind: 'document', value: 'candidate.json' },
+        environment: null,
+        observations: [{ name: 'result', value: 'valid' }],
+        verdict: 'PASS',
+        limitations: [],
+      },
+    ],
+  };
+  const qualificationBytes = Buffer.from(
+    JSON.stringify(qualification, null, 2) + '\n',
+  );
+  const qualificationPath = path.join(tmp, 'qualification.json');
+  await fs.writeFile(qualificationPath, qualificationBytes);
+  const qualified = run([
+    'qualify',
+    'verify',
+    qualificationPath,
+    '--sha256',
+    sha(qualificationBytes),
+  ]);
+  assert.equal(qualified.status, 0, qualified.stdout + qualified.stderr);
+  assert.deepEqual(
+    {
+      status: JSON.parse(qualified.stdout).status,
+      verdict: JSON.parse(qualified.stdout).verdict,
+      authorization: JSON.parse(qualified.stdout).authorization,
+      publication: JSON.parse(qualified.stdout).publication,
+    },
+    {
+      status: 'verified',
+      verdict: 'PASS',
+      authorization: 'not-performed',
+      publication: 'not-performed',
+    },
+  );
+
   await fs.writeFile(path.join(input, 'extra.txt'), 'undeclared');
   const bad = run(args);
   assert.equal(bad.status, 1);

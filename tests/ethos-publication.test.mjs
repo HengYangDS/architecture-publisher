@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 test('qualified publication accepts a replacement selector structurally without bypassing review', async () => {
   const { planEthosPublication } =
-    await import('../editions/ethos/publication.mjs');
+    await import('../packages/extensions/ethos/src/edition/publication.mjs');
   await assert.rejects(
     planEthosPublication({
       review: {},
@@ -21,7 +21,7 @@ test('qualified publication accepts a replacement selector structurally without 
 
 test('static-artifact reader exists independently of rendering and never accepts an unbound source', async () => {
   const module = new URL(
-    '../editions/ethos/static-artifact.mjs',
+    '../packages/extensions/ethos/src/edition/static-artifact.mjs',
     import.meta.url,
   );
   await assert.doesNotReject(
@@ -42,7 +42,7 @@ test(
   { skip: !process.env.ETHOS_PAIR_PLAN },
   async (t) => {
     const module = new URL(
-      '../editions/ethos/publication.mjs',
+      '../packages/extensions/ethos/src/edition/publication.mjs',
       import.meta.url,
     );
     await assert.doesNotReject(
@@ -57,7 +57,7 @@ test(
     const temporary = await fs.mkdtemp(path.join(work, 'pair-negative '));
     t.after(() => fs.rm(temporary, { recursive: true, force: true }));
     plan.deployment.destinations = {
-      native: path.join(temporary, 'static'),
+      static: path.join(temporary, 'static'),
       atlas: path.join(temporary, 'atlas'),
     };
     plan.deployment.recoveryRoot = path.join(temporary, 'recovery');
@@ -75,10 +75,10 @@ test(
   { skip: !process.env.ETHOS_PAIR_PLAN },
   async (t) => {
     const { readStaticArtifact } =
-        await import('../editions/ethos/static-artifact.mjs'),
-      { readEthosReview } = await import('../editions/ethos/review.mjs'),
-      { readSourceBundle } = await import('../src/source/bundle.mjs'),
-      { writeSourceBundle } = await import('../src/source/write.mjs');
+        await import('../packages/extensions/ethos/src/edition/static-artifact.mjs'),
+      { readEthosReview } = await import('../packages/extensions/ethos/src/edition/review.mjs'),
+      { readSourceBundle } = await import('../packages/publisher/src/source/bundle.mjs'),
+      { writeSourceBundle } = await import('../packages/publisher/src/source/write.mjs');
     const plan = JSON.parse(await fs.readFile(process.env.ETHOS_PAIR_PLAN)),
       review = await readEthosReview(plan.review),
       original = await readSourceBundle(
@@ -205,8 +205,8 @@ test(
     const plan = JSON.parse(await fs.readFile(process.env.ETHOS_PAIR_PLAN));
     plan.browser.reports = [];
     plan.deployment.destinations = {
-      native: path.join(tmp, 'native'),
-      atlas: path.join(tmp, 'atlas'),
+      static: path.join(tmp, 'static'),
+      atlas: path.join(tmp, 'interactive'),
     };
     plan.deployment.recoveryRoot = path.join(tmp, 'recovery');
     const file = path.join(tmp, 'pair.json');
@@ -239,8 +239,8 @@ test(
 
 test('publication effects reject absent acceptance before touching a file target', async () => {
   const { publishEthosPublication, recoverEthosPublication } =
-      await import('../editions/ethos/publication.mjs'),
-    { sha256 } = await import('../adapters/ethos/projection.mjs');
+      await import('../packages/extensions/ethos/src/edition/publication.mjs'),
+    { sha256 } = await import('../packages/extensions/ethos/src/adapter/projection.mjs');
   const body = {
     schema: 'architecture.ethos-pair-publication/v1',
     filePlan: {},

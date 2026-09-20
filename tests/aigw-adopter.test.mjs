@@ -5,10 +5,11 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { readSourceBundle } from '../src/source/bundle.mjs';
-import { compareEditionInput } from '../src/edition/input.mjs';
+import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
+import { compareEditionInput } from '../packages/publisher/src/edition/input.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+const publisher = path.join(root, 'packages/publisher');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 async function selected(state, base = root) {
@@ -101,7 +102,7 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
     run(
       'npm',
       ['pack', '--ignore-scripts', '--json', '--pack-destination', directory],
-      root,
+      publisher,
     ),
   )[0];
   const consumer = path.join(directory, 'consumer'),
@@ -129,7 +130,7 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
     code: 'ENOENT',
   });
   for (const state of ['initial', 'evolved']) {
-    const selection = await selected(state, pkg),
+    const selection = await selected(state),
       plan = {
         ...selection,
         sourceManifest: path.relative(directory, selection.sourceManifest),
@@ -142,7 +143,7 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
     const response = JSON.parse(
       run(
         process.execPath,
-        [cli, 'publish', 'semantic', planPath, '--sha256', sha(planBytes)],
+        [cli, 'edition', 'build', planPath, '--sha256', sha(planBytes)],
         directory,
         { HOME: home, PATH: home, LANG: 'C.UTF-8' },
       ),
@@ -154,38 +155,22 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
     observed[state] = new Map(
       output.members.map((item) => [item.path, item.content]),
     );
-    const receipt = JSON.parse(observed[state].get('publication.json'));
+    const candidate = JSON.parse(observed[state].get('candidate.json'));
     assert.deepEqual(
       JSON.parse(observed[state].get('edition.json')),
       JSON.parse(await fs.readFile(selection.edition, 'utf8')),
     );
-    assert.equal(receipt.editionSha256, selection.editionSha256);
-    assert.equal(response.editionDigest, receipt.editionDigest);
-    assert.equal(response.staticSceneDigest, receipt.staticSceneDigest);
+    assert.equal(candidate.editionSha256, selection.editionSha256);
+    assert.equal(response.editionDigest, candidate.editionDigest);
+    assert.equal(response.staticSceneDigest, candidate.staticSceneDigest);
     assert.equal(
       response.interactiveSceneDigest,
-      receipt.interactiveSceneDigest,
+      candidate.interactiveSceneDigest,
     );
-    const acceptance = JSON.parse(await fs.readFile(
-      path.join(root, 'examples/aigw/browser-acceptance.json'), 'utf8'));
-    const selectedAcceptance = acceptance.runs.find((run) => run.id === state);
-    assert.equal(selectedAcceptance.publicationManifestSha256, output.manifestSha256);
-    assert.equal(selectedAcceptance.semanticDigest, response.semanticDigest);
-    assert.equal(selectedAcceptance.editionSha256, receipt.editionSha256);
-    assert.equal(selectedAcceptance.editionDigest, response.editionDigest);
-    assert.equal(selectedAcceptance.staticSceneDigest, response.staticSceneDigest);
-    assert.equal(
-      selectedAcceptance.interactiveSceneDigest,
-      response.interactiveSceneDigest,
-    );
-    assert.equal(selectedAcceptance.staticSvgSha256, sha(observed[state].get('overview.svg')));
-    assert.equal(selectedAcceptance.staticPngSha256, sha(observed[state].get('overview.png')));
-    assert.equal(acceptance.verifier.observerSha256,
-      sha(await fs.readFile(path.join(root, 'tools/qualification/semantic-browser.mjs'))));
-    assert.equal(acceptance.verifier.checksSha256,
-      sha(await fs.readFile(path.join(root, 'tools/qualification/semantic-browser-checks.mjs'))));
-    assert.equal(response.semanticAcceptance, 'source-bound-structure');
-    assert.equal(response.browserAcceptance, 'not-performed');
+    assert.equal(response.status, 'built');
+    assert.equal(response.semanticValidation, 'passed');
+    assert.equal(response.qualification, 'not-performed');
+    assert.equal(response.publication, 'not-performed');
     assert(!observed[state].get('views/overview.html').toString().includes(root));
     assert(
       observed[state]

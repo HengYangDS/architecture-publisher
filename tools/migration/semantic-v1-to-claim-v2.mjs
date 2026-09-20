@@ -10,7 +10,7 @@ import {
   strings,
   text,
   validateClaimModel,
-} from '../../src/semantics/document.mjs';
+} from '../../packages/publisher/src/semantics/document.mjs';
 
 const LEGACY_SECTIONS = Object.freeze([
   'entities',

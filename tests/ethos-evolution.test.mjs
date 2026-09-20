@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fixture, sha, stable } from './fixtures/ethos-source.mjs';
 import fs from 'node:fs/promises';
-import { composeNaturalOverview } from '../editions/ethos/static/natural-overview.mjs';
-import { createMetricReader } from '../renderers/svg/metrics.mjs';
-import { auditNaturalSemantics } from '../editions/ethos/static/natural-semantics.mjs';
+import { composeNaturalOverview } from '../packages/extensions/ethos/src/edition/static/natural-overview.mjs';
+import { createMetricReader } from '../packages/publisher/renderers/svg/metrics.mjs';
+import { auditNaturalSemantics } from '../packages/extensions/ethos/src/edition/static/natural-semantics.mjs';
 
 async function api() {
-  const module = await import('../editions/ethos/evolution.mjs').catch(
+  const module = await import('../packages/extensions/ethos/src/edition/evolution.mjs').catch(
     () => ({}),
   );
   assert.equal(
@@ -337,7 +337,7 @@ test('static refresh authoring carries exact source meaning and rejects changed 
   const metrics = JSON.parse(
     await fs.readFile(
       new URL(
-        '../editions/ethos/static/authoring/metrics.json',
+        '../packages/extensions/ethos/src/edition/static/authoring/metrics.json',
         import.meta.url,
       ),
     ),
@@ -391,7 +391,7 @@ test('static authored carrier checks its preimage and binds actual emitted text'
   const metrics = JSON.parse(
     await fs.readFile(
       new URL(
-        '../editions/ethos/static/authoring/metrics.json',
+        '../packages/extensions/ethos/src/edition/static/authoring/metrics.json',
         import.meta.url,
       ),
     ),

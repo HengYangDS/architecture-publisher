@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(import.meta.dirname, '..');
+const publisher = path.join(root, 'packages/publisher');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 test('installed file publication preserves explicit non-ETHOS pairs without project modules', async (t) => {
@@ -25,7 +26,7 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
   const packed = run(
     'npm',
     ['pack', '--json', '--ignore-scripts', '--pack-destination', temporary],
-    root,
+    publisher,
   );
   assert.equal(packed.status, 0, packed.stderr);
   const info = JSON.parse(packed.stdout)[0];
@@ -49,8 +50,6 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
   );
   assert.equal(installed.status, 0, installed.stderr);
   const pkg = path.join(consumer, 'node_modules/architecture-publisher');
-  await fs.rm(path.join(pkg, 'editions'), { recursive: true });
-  await fs.rm(path.join(pkg, 'adapters'), { recursive: true });
   const invoke = (args, expected = 0) => {
     const result = run(
       process.execPath,
@@ -104,7 +103,7 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
   };
   const inputFile = path.join(source, 'input.json');
   await fs.writeFile(inputFile, JSON.stringify(input));
-  const result = invoke(['publish', 'files', 'plan', inputFile]);
+  const result = invoke(['publish', 'plan', inputFile]);
   assert.equal(result.scope, 'file-integrity');
   assert.equal(result.semanticAcceptance, 'not-performed');
   assert.equal(
@@ -125,22 +124,21 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
     authorization,
     JSON.stringify({ decision: 'AUTHORIZED', planSha256: '0'.repeat(64) }),
   );
-  invoke(['publish', 'files', 'apply', plan, authorization], 1);
+  invoke(['publish', 'apply', plan, authorization], 1);
   await fs.writeFile(
     authorization,
     JSON.stringify({ decision: 'AUTHORIZED', planSha256: result.plan.sha256 }),
   );
   await fs.writeFile(path.join(source, 'artifact.txt'), 'Changed');
-  invoke(['publish', 'files', 'apply', plan, authorization], 1);
+  invoke(['publish', 'apply', plan, authorization], 1);
   for (const medium of ['native', 'atlas'])
     assert.deepEqual(await fs.readdir(path.join(parent, medium)), ['keep.txt']);
   await fs.writeFile(path.join(source, 'artifact.txt'), bytes);
-  const applied = invoke(['publish', 'files', 'apply', plan, authorization]);
+  const applied = invoke(['publish', 'apply', plan, authorization]);
   assert.equal(applied.status, 'INSTALLED');
   assert.equal(applied.semanticAcceptance, 'not-performed');
   const recovered = invoke([
     'publish',
-    'files',
     'recover',
     plan,
     authorization,
@@ -171,18 +169,18 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
     authorization: { decision: 'AUTHORIZED', planSha256: result.plan.sha256 },
   };
   await fs.writeFile(inputFile, JSON.stringify(updated));
-  const next = invoke(['publish', 'files', 'plan', inputFile]);
+  const next = invoke(['publish', 'plan', inputFile]);
   await fs.writeFile(plan, JSON.stringify(next.plan));
   await fs.writeFile(
     authorization,
     JSON.stringify({ decision: 'AUTHORIZED', planSha256: next.plan.sha256 }),
   );
   assert.equal(
-    invoke(['publish', 'files', 'apply', plan, authorization]).status,
+    invoke(['publish', 'apply', plan, authorization]).status,
     'INSTALLED',
   );
   assert.equal(
-    invoke(['publish', 'files', 'recover', plan, authorization]).status,
+    invoke(['publish', 'recover', plan, authorization]).status,
     'ALREADY_INSTALLED',
   );
   for (const medium of ['native', 'atlas']) {
@@ -199,12 +197,12 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
     inputFile,
     JSON.stringify({ ...input, grantApproval: true }),
   );
-  invoke(['publish', 'files', 'plan', inputFile], 1);
+  invoke(['publish', 'plan', inputFile], 1);
   const link = path.join(temporary, 'linked-input.json');
   await fs.symlink(inputFile, link);
-  invoke(['publish', 'files', 'plan', link], 1);
+  invoke(['publish', 'plan', link], 1);
   await fs.writeFile(inputFile, ' '.repeat(4 * 1024 * 1024 + 1));
-  invoke(['publish', 'files', 'plan', inputFile], 1);
-  invoke(['publish', 'files', 'delete', plan], 2);
-  assert(info.files.some((f) => f.path === 'docs/product-contract.md'));
+  invoke(['publish', 'plan', inputFile], 1);
+  invoke(['publish', 'delete', plan], 2);
+  assert(info.files.every((f) => !/(^|\/)(?:ethos|aigw)(\/|$)/i.test(f.path)));
 });

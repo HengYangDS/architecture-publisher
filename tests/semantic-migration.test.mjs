@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import * as semantics from '../src/semantics/document.mjs';
+import * as semantics from '../packages/publisher/src/semantics/document.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
@@ -132,14 +132,18 @@ test('current runtime exposes only the v2 Claim Model contract', async () => {
   assert.equal(semantics.SECTIONS, undefined);
   assert.equal(semantics.validReference, undefined);
   const source = await fs.readFile(
-    path.join(root, 'src/semantics/document.mjs'),
+    path.join(root, 'packages/publisher/src/semantics/document.mjs'),
     'utf8',
   );
   assert.doesNotMatch(source, /architecture\.semantic-document\/v1/);
 });
 
 test('current runtime and examples contain no v1 reader or dual-schema residue', async () => {
-  const roots = ['src', 'editions', 'examples'],
+  const roots = [
+      'packages/publisher/src',
+      'packages/extensions/ethos/src',
+      'examples',
+    ],
     forbidden = [
       /architecture\.semantic-document\/v1/,
       /\bvalidateSemanticDocument\b/,
@@ -168,7 +172,11 @@ test('the development-only migration tool is excluded from the package', () => {
   const result = spawnSync(
     'npm',
     ['pack', '--dry-run', '--ignore-scripts', '--json'],
-    { cwd: root, encoding: 'utf8', timeout: 60000 },
+    {
+      cwd: path.join(root, 'packages/publisher'),
+      encoding: 'utf8',
+      timeout: 60000,
+    },
   );
   assert.equal(result.status, 0, result.stderr);
   const files = JSON.parse(result.stdout)[0].files.map((item) => item.path);

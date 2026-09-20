@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 async function api() {
-  const m = await import('../editions/ethos/standalone.mjs').catch(() => ({}));
+  const m = await import('../packages/extensions/ethos/src/edition/standalone.mjs').catch(() => ({}));
   assert.equal(
     typeof m.composeStandaloneAtlas,
     'function',

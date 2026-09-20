@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { serviceTopology } from './fixtures/diagrams.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
+const publisher = path.join(root, 'packages/publisher');
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 test('installed render CLI works offline and rejects corrupted renderer supply', async (t) => {
   const base = path.join(root, 'build/test-work');
@@ -25,7 +26,7 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
       '--ignore-scripts',
       '--pack-destination',
       out,
-    ]),
+    ], publisher),
   )[0];
   const consumer = path.join(out, 'consumer');
   await fs.mkdir(consumer);
@@ -53,6 +54,7 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
   await fs.writeFile(input, content);
   const args = [
     'render',
+    'interactive',
     'architecture',
     input,
     '--sha256',
@@ -77,11 +79,12 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
     ['service-topology', 'architecture'],
     ['job-lifecycle', 'lifecycle'],
   ]) {
-    const source = path.join(pkg, 'examples', name + '.json'),
+    const source = path.join(root, 'examples', name + '.json'),
       data = await fs.readFile(source),
       target = path.join(out, name + '.html');
     const example = invoke([
       'render',
+      'interactive',
       type,
       source,
       '--sha256',
@@ -111,6 +114,7 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
   await fs.writeFile(input, badBytes);
   const rejected = invoke([
     'render',
+    'interactive',
     'architecture',
     input,
     '--sha256',

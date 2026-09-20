@@ -6,7 +6,7 @@ import {
   CLAIM_PLANES,
   claimModelDigest,
   validateClaimModel,
-} from '../src/semantics/document.mjs';
+} from '../packages/publisher/src/semantics/document.mjs';
 
 test('v2 admits one explicit claim in every plane without mutating input', () => {
   const model = claimModel(),
@@ -370,7 +370,7 @@ test('hostile JSON, cycles, excessive depth and size fail closed within bounded 
   assert.throws(() => validateClaimModel(model), /semantic_json_cycle/);
 
   const program = `
-    import { validateClaimModel } from './src/semantics/document.mjs';
+    import { validateClaimModel } from './packages/publisher/src/semantics/document.mjs';
     import { claimModel } from './tests/fixtures/claim-model.mjs';
     const model = claimModel();
     let shared = 'x';

@@ -3,7 +3,7 @@ import path from 'node:path';
 import http from 'node:http';
 import { chromium } from 'playwright-core';
 import { createHash } from 'node:crypto';
-import { readSourceBundle } from '../../src/source/bundle.mjs';
+import { readSourceBundle } from '../../packages/publisher/src/source/bundle.mjs';
 import {
   validateHtmlObservation,
   validateStaticObservation,

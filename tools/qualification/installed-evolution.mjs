@@ -1,20 +1,111 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
-// Explicit installed-package acceptance. No developer checkout or credentials.
-const root = path.resolve(process.argv[2]),
-  pkg = path.resolve(process.argv[3]);
-const hash = (b) => createHash('sha256').update(b).digest('hex');
-const cli = path.join(pkg, 'src/cli/main.mjs');
-const config = JSON.parse(await fs.readFile(path.join(root, 'input.json')));
-const work = path.join(root, 'run');
+// Installed-product acceptance. Inputs are explicit; no checkout is discovered.
+const inputRoot = await fs.realpath(path.resolve(process.argv[2])),
+  consumer = await fs.realpath(path.resolve(process.argv[3])),
+  work = path.join(inputRoot, 'run'),
+  home = path.join(work, 'empty-home'),
+  artifactRoot = path.join(inputRoot, 'artifacts'),
+  effectRoot = path.join(path.dirname(inputRoot), 'effects'),
+  coreRoot = path.join(consumer, 'node_modules/architecture-publisher'),
+  extensionRoot = path.join(
+    consumer,
+    'node_modules/@architecture-publisher/ethos',
+  ),
+  cli = path.join(coreRoot, 'src/cli/main.mjs'),
+  config = JSON.parse(await fs.readFile(path.join(inputRoot, 'input.json')));
+
+const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const exact = (value, keys) =>
+  value &&
+  typeof value === 'object' &&
+  !Array.isArray(value) &&
+  Object.keys(value).sort().join(',') === [...keys].sort().join(',');
+const digest = (value) => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+const selected = (value) => {
+  assert(exact(value, ['sourceManifest', 'sourceSha256', 'projectionDigest']));
+  assert(digest(value.sourceSha256));
+  assert(digest(value.projectionDigest));
+  return {
+    ...value,
+    sourceManifest: path.resolve(inputRoot, value.sourceManifest),
+  };
+};
+const edition = (value) => {
+  assert(exact(value, ['manifest', 'sha256']));
+  assert(digest(value.sha256));
+  return {
+    editionManifest: path.resolve(inputRoot, value.manifest),
+    editionSha256: value.sha256,
+  };
+};
+const artifact = async (value) => {
+  assert(exact(value, ['path', 'sha256']));
+  assert(digest(value.sha256));
+  const file = path.resolve(inputRoot, value.path);
+  assert.equal(hash(await fs.readFile(file)), value.sha256);
+  return file;
+};
+
+assert(
+  exact(config, [
+    'schema',
+    'previous',
+    'source',
+    'authoring',
+    'staticEdition',
+    'outline',
+    'expected',
+    'previousArtifacts',
+    'rasterWidths',
+  ]),
+);
+assert.equal(config.schema, 'architecture.installed-evolution-input/v1');
+assert(exact(config.authoring, ['path', 'sha256']));
+assert(digest(config.authoring.sha256));
+assert(
+  exact(config.expected, [
+    'changedNodes',
+    'changedDocuments',
+    'affectedInteractiveScenes',
+    'staticAffected',
+    'pages',
+  ]),
+);
+assert(
+  [
+    config.expected.changedNodes,
+    config.expected.changedDocuments,
+    config.expected.affectedInteractiveScenes,
+  ].every(Array.isArray),
+);
+assert.equal(typeof config.expected.staticAffected, 'boolean');
+assert(Number.isSafeInteger(config.expected.pages));
+assert(config.expected.pages > 0);
+assert(exact(config.previousArtifacts, ['static', 'interactive']));
+assert(
+  exact(config.outline, [
+    'renderer',
+    'fontList',
+    'fonts',
+    'reference',
+  ]),
+);
+assert(
+  Array.isArray(config.rasterWidths) &&
+    config.rasterWidths.length > 0 &&
+    config.rasterWidths.every((width) => Number.isSafeInteger(width) && width > 0),
+);
+
 await fs.mkdir(work);
-const home = path.join(work, 'empty-home');
 await fs.mkdir(home);
+await fs.mkdir(artifactRoot);
+await fs.mkdir(effectRoot);
+
 const write = async (name, data) => {
   const file = path.join(work, name);
   await fs.writeFile(file, JSON.stringify(data, null, 2) + '\n', {
@@ -22,292 +113,384 @@ const write = async (name, data) => {
   });
   return file;
 };
-const resolveSelection = (s) =>
-  Object.fromEntries(
-    Object.entries(s).map(([k, v]) => [
-      k,
-      k.endsWith('Manifest') ? path.resolve(root, v) : v,
-    ]),
+const environment = { HOME: home, PATH: home, LANG: 'C.UTF-8' };
+const result = (run) => {
+  assert.equal(run.error, undefined);
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+  return JSON.parse(run.stdout);
+};
+const invokeCli = (args) =>
+  result(
+    spawnSync(process.execPath, [cli, ...args], {
+      cwd: work,
+      env: environment,
+      timeout: 120000,
+      maxBuffer: 64 * 1024 * 1024,
+      encoding: 'utf8',
+    }),
   );
-const invoke = (args) => {
-  const result = spawnSync(process.execPath, [cli, ...args], {
-    cwd: work,
-    env: { HOME: home, PATH: home, LANG: 'C.UTF-8' },
-    timeout: 90000,
-    maxBuffer: 32 * 1024 * 1024,
-    encoding: 'utf8',
-  });
-  assert.equal(result.status, 0, result.stdout + result.stderr);
-  return JSON.parse(result.stdout);
-};
-const source = resolveSelection(config.source),
-  previous = resolveSelection(config.previous);
-assert.equal(typeof config.authoring?.path, 'string');
-assert.match(config.authoring.sha256, /^[a-f0-9]{64}$/);
-assert.ok(Array.isArray(config.expectedChangedNodes));
-assert.ok(Array.isArray(config.expectedChangedDocuments));
-const preparation = {
-  previous,
-  source,
-  authoring: path.resolve(root, config.authoring.path),
-  authoringSha256: config.authoring.sha256,
-  output: path.join(work, 'candidate'),
-};
-const prepared = invoke([
-  'atlas',
-  'ethos',
-  'prepare',
-  await write('prepare.json', preparation),
+const extensionMethods = new Set([
+  'prepareEthosCandidateInput',
+  'renderEthosAtlasInput',
+  'renderStandaloneAtlasInput',
+  'renderEthosPosterInput',
+  'outlineEthosPosterInput',
 ]);
-assert.equal(prepared.pages, 13);
-assert.deepEqual(prepared.delta.changed.nodes, config.expectedChangedNodes);
-assert.deepEqual(
-  prepared.delta.changed.documents,
-  config.expectedChangedDocuments,
-);
-const rendered = invoke([
-  'atlas',
-  'ethos',
-  await write('render.json', {
-    ...prepared.atlas,
-    output: path.join(work, 'atlas'),
+const invokeExtension = (name, args) => {
+  assert(extensionMethods.has(name));
+  const program = `import * as api from '@architecture-publisher/ethos/edition';
+try {
+  const value = await api[process.argv[1]](...JSON.parse(process.argv[2]));
+  process.stdout.write(JSON.stringify(value) + '\\n');
+} catch (error) {
+  console.error(error?.stack ?? error);
+  process.exitCode = 1;
+}`;
+  return result(
+    spawnSync(process.execPath, ['--input-type=module', '-e', program, name, JSON.stringify(args)], {
+      cwd: consumer,
+      env: environment,
+      timeout: 120000,
+      maxBuffer: 64 * 1024 * 1024,
+      encoding: 'utf8',
+    }),
+  );
+};
+
+assert(exact(config.previous, ['source', 'edition']));
+const source = selected(config.source),
+  previous = {
+    ...selected(config.previous.source),
+    ...edition(config.previous.edition),
+  },
+  authoring = path.resolve(inputRoot, config.authoring.path);
+assert.equal(hash(await fs.readFile(authoring)), config.authoring.sha256);
+const prepared = invokeExtension('prepareEthosCandidateInput', [
+  await write('prepare.json', {
+    previous,
+    source,
+    authoring,
+    authoringSha256: config.authoring.sha256,
+    output: path.join(artifactRoot, 'candidate'),
   }),
 ]);
-assert.equal(rendered.manifestSha256, config.atlasManifestSha256);
+assert.equal(prepared.pages, config.expected.pages);
+assert.deepEqual(
+  prepared.evolution.ethos.changed.nodes,
+  config.expected.changedNodes,
+);
+assert.deepEqual(
+  prepared.evolution.ethos.changed.documents,
+  config.expected.changedDocuments,
+);
+assert.deepEqual(
+  prepared.evolution.editions.affected[0].interactive,
+  config.expected.affectedInteractiveScenes,
+);
+assert.equal(
+  prepared.evolution.editions.affected[0].static,
+  config.expected.staticAffected,
+);
+
+const rendered = invokeExtension('renderEthosAtlasInput', [
+  await write('atlas.json', {
+    ...prepared.atlas,
+    output: path.join(artifactRoot, 'atlas'),
+  }),
+]);
 const atlas = {
   ...prepared.atlas,
-  outputManifest: path.join(work, 'atlas/manifest.json'),
+  outputManifest: path.join(artifactRoot, 'atlas/manifest.json'),
   outputSha256: rendered.manifestSha256,
 };
-const standalone = invoke([
-  'atlas',
-  'ethos',
-  'standalone',
+const standalone = invokeExtension('renderStandaloneAtlasInput', [
   await write('standalone.json', {
     atlas,
-    output: path.join(work, 'standalone.html'),
+    output: path.join(artifactRoot, 'architecture.html'),
   }),
 ]);
-assert.equal(standalone.sha256, config.standaloneSha256);
-const poster = {
-  ...source,
-  editionManifest: path.resolve(root, config.poster.editionManifest),
-  editionSha256: config.poster.editionSha256,
-  output: path.join(work, 'poster'),
-};
-const staticResult = invoke([
-  'poster',
-  'ethos',
-  await write('poster.json', poster),
+const posterSelection = edition(config.staticEdition);
+const poster = invokeExtension('renderEthosPosterInput', [
+  await write('poster.json', {
+    ...source,
+    ...posterSelection,
+    output: path.join(artifactRoot, 'poster'),
+  }),
 ]);
-assert.equal(staticResult.svg.sha256, config.poster.svgSha256);
-const outline = path.resolve(root, config.outline.manifest);
+const outline = structuredClone(config.outline);
+for (const key of ['renderer', 'fontList'])
+  outline[key].path = path.resolve(inputRoot, outline[key].path);
+for (const font of outline.fonts)
+  font.path = path.resolve(inputRoot, font.path);
+const outlined = invokeExtension('outlineEthosPosterInput', [
+  await write('outline.json', {
+    poster: { ...source, ...posterSelection },
+    ...outline,
+    output: path.join(artifactRoot, 'outlined'),
+  }),
+]);
+
+// Everything below is generic product work. Removing the domain extension now
+// makes any accidental reverse dependency observable in this installed journey.
+const removedExtension = path.join(work, 'removed-ethos-extension');
+await fs.rename(extensionRoot, removedExtension);
+await assert.rejects(fs.access(extensionRoot));
+
+const rasterInputs = [
+  {
+    input: path.join(artifactRoot, 'outlined/outlined.svg'),
+    path: 'poster/outlined.svg',
+  },
+];
+for (const item of rasterInputs) {
+  const bytes = await fs.readFile(item.input);
+  item.bytes = bytes.length;
+  item.sha256 = hash(bytes);
+}
+const packFile = await write('raster-source.json', {
+  schema: 'architecture.pack-input/v1',
+  source: {
+    id: 'ethos:installed-evolution-static',
+    revision: source.projectionDigest,
+  },
+  files: rasterInputs,
+  output: path.join(artifactRoot, 'raster-source'),
+});
+const packed = invokeCli([
+  'source',
+  'pack',
+  packFile,
+  '--sha256',
+  hash(await fs.readFile(packFile)),
+]);
+
 const rasters = [];
-for (const width of [1600, 2400, 6000]) {
-  const result = invoke([
+for (const width of config.rasterWidths) {
+  const output = path.join(artifactRoot, `architecture-${width}.png`);
+  const renderedRaster = invokeCli([
+    'render',
     'raster',
     await write(`raster-${width}.json`, {
-      manifest: outline,
-      manifestSha256: config.outline.manifestSha256,
-      svg: 'outlined.svg',
+      manifest: packed.manifestPath,
+      manifestSha256: packed.manifestSha256,
+      svg: 'poster/outlined.svg',
       fonts: [],
       width,
-      output: path.join(work, `poster-${width}.png`),
+      output,
     }),
   ]);
-  assert.equal(result.artifact.sha256, config.rasters[String(width)]);
-  rasters.push({ width, sha256: result.artifact.sha256 });
+  rasters.push({ width, output, ...renderedRaster.artifact });
 }
+
 const destinations = {
-  native: path.join(work, 'delivery-native'),
-  atlas: path.join(work, 'delivery-atlas'),
+  native: path.join(effectRoot, 'delivery-static'),
+  atlas: path.join(effectRoot, 'delivery-interactive'),
 };
-for (const dir of Object.values(destinations)) {
-  await fs.mkdir(dir);
+for (const directory of Object.values(destinations)) {
+  await fs.mkdir(directory);
   await fs.writeFile(
-    path.join(dir, 'personal.txt'),
+    path.join(directory, 'personal.txt'),
     'Preserve this foreign original.\n',
   );
 }
-const oldModule = await import(
-  pathToFileURL(path.resolve(root, config.priorInstaller)).href
-);
-async function payloadFrom(base, paths, medium) {
-  return Promise.all(
-    paths.map(async (name) => {
-      const source = path.join(base, name),
-        bytes = await fs.readFile(source);
-      return {
-        medium,
-        path: (medium === 'native' ? 'terminal/' : 'atlas/') + name,
-        source,
-        bytes: bytes.length,
-        sha256: hash(bytes),
-      };
-    }),
-  );
-}
-const oldStaticRoot = path.resolve(root, config.priorStatic),
-  oldAtlasRoot = path.resolve(root, config.priorAtlas);
-const oldPages = JSON.parse(
-  await fs.readFile(path.join(oldAtlasRoot, 'manifest.json')),
-).files.map((f) => f.path);
-const staticNames = [
-  'native/terminal.svg',
-  'native/terminal.html',
-  ...[1600, 2400, 6000].map((w) => `native/terminal-${w}.png`),
-];
-const entries = (label) =>
-  Object.fromEntries(
-    ['native', 'atlas'].map((m) => [
-      m,
-      {
-        'index.html': `<p>${label} ${m}</p>`,
-        'README.md': 'Bounded installed evolution acceptance.\n',
-      },
-    ]),
-  );
-const prior = await oldModule.planPairFiles({
-  options: {
-    sourceRoots: [oldStaticRoot, oldAtlasRoot],
-    destinations,
-    recoveryRoot: path.join(work, 'recovery'),
-  },
-  source: { id: 'ethos', revision: 'v0.1.0-alpha.0' },
-  payload: [
-    ...(await payloadFrom(oldStaticRoot, staticNames, 'native')),
-    ...(await payloadFrom(oldAtlasRoot, oldPages, 'atlas')),
-  ],
-  entries: entries('previous'),
-  dependencies: [],
-});
-const priorAuthorization = {
-  decision: 'AUTHORIZED',
-  planSha256: prior.sha256,
+const payload = async (medium, sourcePath, target) => {
+  const bytes = await fs.readFile(sourcePath);
+  return {
+    medium,
+    path: target,
+    source: sourcePath,
+    bytes: bytes.length,
+    sha256: hash(bytes),
+  };
 };
+const entries = (label) => ({
+  native: {
+    'index.html': `<p>${label} static</p>`,
+    'README.md': 'Installed evolution acceptance; not semantic approval.\n',
+  },
+  atlas: {
+    'index.html': `<p>${label} interactive</p>`,
+    'README.md': 'Installed evolution acceptance; not semantic approval.\n',
+  },
+});
+const previousStatic = await artifact(config.previousArtifacts.static),
+  previousInteractive = await artifact(config.previousArtifacts.interactive);
+const priorInput = {
+  options: {
+    sourceRoots: [inputRoot],
+    destinations,
+    recoveryRoot: path.join(effectRoot, 'recovery-prior'),
+  },
+  source: { id: 'ethos:prior-edition', revision: previous.projectionDigest },
+  payload: [
+    await payload('native', previousStatic, 'edition/architecture.txt'),
+    await payload('atlas', previousInteractive, 'edition/architecture.html'),
+  ],
+  entries: entries('Previous'),
+  dependencies: [],
+};
+const priorPlan = invokeCli([
+  'publish',
+  'plan',
+  await write('prior-publication.json', priorInput),
+]).plan;
+const priorPlanFile = await write('prior-plan.json', priorPlan),
+  priorAuthorization = {
+    decision: 'AUTHORIZED',
+    planSha256: priorPlan.sha256,
+  },
+  priorAuthorizationFile = await write(
+    'prior-authorization.json',
+    priorAuthorization,
+  );
 assert.equal(
-  (await oldModule.installPairFiles(prior, priorAuthorization)).status,
+  invokeCli(['publish', 'apply', priorPlanFile, priorAuthorizationFile]).status,
   'INSTALLED',
 );
-for (const dir of Object.values(destinations))
+for (const directory of Object.values(destinations))
   await fs.writeFile(
-    path.join(dir, 'personal.txt'),
+    path.join(directory, 'personal.txt'),
     'Preserve the later user edit.\n',
   );
-const staticRoot = path.resolve(root, config.currentStatic);
-const files = JSON.parse(
-  await fs.readFile(path.join(work, 'atlas/manifest.json')),
-).files.map((f) => f.path);
-const replacement = {
+
+const atlasManifest = JSON.parse(
+  await fs.readFile(path.join(artifactRoot, 'atlas/manifest.json')),
+);
+const currentPayload = [
+  await payload(
+    'native',
+    path.join(artifactRoot, 'outlined/outlined.svg'),
+    'terminal/terminal.svg',
+  ),
+  ...(await Promise.all(
+    rasters.map(({ width, output }) =>
+      payload('native', output, `terminal/terminal-${width}.png`),
+    ),
+  )),
+  await payload(
+    'atlas',
+    path.join(artifactRoot, 'architecture.html'),
+    'atlas/standalone.html',
+  ),
+  await payload(
+    'atlas',
+    path.join(artifactRoot, 'atlas/manifest.json'),
+    'atlas/manifest.json',
+  ),
+  ...(await Promise.all(
+    atlasManifest.files.map((member) =>
+      payload(
+        'atlas',
+        path.join(artifactRoot, 'atlas', member.path),
+        'atlas/' + member.path,
+      ),
+    ),
+  )),
+];
+const currentInput = {
   options: {
-    sourceRoots: [staticRoot, path.join(work, 'atlas')],
+    sourceRoots: [artifactRoot],
     destinations,
-    recoveryRoot: path.join(work, 'recovery'),
+    recoveryRoot: path.join(effectRoot, 'recovery-interrupted'),
   },
-  source: { id: 'ethos', revision: source.projectionDigest },
-  payload: [
-    ...(await payloadFrom(staticRoot, staticNames, 'native')),
-    ...(await payloadFrom(path.join(work, 'atlas'), files, 'atlas')),
-  ],
-  entries: entries('current'),
+  source: { id: 'ethos:edition', revision: source.projectionDigest },
+  payload: currentPayload,
+  entries: entries('Current'),
   dependencies: [],
-  replacement: { plan: prior, authorization: priorAuthorization },
+  replacement: { plan: priorPlan, authorization: priorAuthorization },
 };
-// Prove file publication remains usable without any ETHOS edition/integration.
-await fs.rename(
-  path.join(pkg, 'editions'),
-  path.join(pkg, 'editions-removed'),
-);
-await fs.rename(
-  path.join(pkg, 'adapters'),
-  path.join(pkg, 'integrations-removed'),
-);
-let planned = invoke([
+
+let planned = invokeCli([
   'publish',
-  'files',
   'plan',
-  await write('replacement-input.json', replacement),
+  await write('replacement-input.json', currentInput),
 ]).plan;
-const interruptedFile = await write('interrupted-plan.json', planned);
-const interruptedAuth = await write('interrupted-authorization.json', {
-  decision: 'AUTHORIZED',
-  planSha256: planned.sha256,
-});
-const interruption = spawnSync(
+let planFile = await write('interrupted-plan.json', planned),
+  authorizationFile = await write('interrupted-authorization.json', {
+    decision: 'AUTHORIZED',
+    planSha256: planned.sha256,
+  });
+const interruptionProgram = `import fs from 'node:fs/promises';
+import { installPairFiles } from 'architecture-publisher/publication';
+const plan=JSON.parse(await fs.readFile(process.argv[1]));
+const authorization=JSON.parse(await fs.readFile(process.argv[2]));
+await installPairFiles(plan,authorization,{rename:async(from,to)=>{
+  await fs.rename(from,to);
+  if(to===plan.options.destinations.native)process.kill(process.pid,'SIGKILL');
+}});`;
+const interrupted = spawnSync(
   process.execPath,
   [
     '--input-type=module',
     '-e',
-    `import fs from 'node:fs/promises';import {installPairFiles} from ${JSON.stringify(pathToFileURL(path.join(pkg, 'src/publication/files.mjs')).href)};
-const p=JSON.parse(await fs.readFile(${JSON.stringify(interruptedFile)})),a=JSON.parse(await fs.readFile(${JSON.stringify(interruptedAuth)}));
-await installPairFiles(p,a,{rename:async(from,to)=>{await fs.rename(from,to);if(to===p.options.destinations.native)process.kill(process.pid,'SIGKILL');}});`,
+    interruptionProgram,
+    planFile,
+    authorizationFile,
   ],
   {
-    cwd: work,
-    env: { HOME: home, PATH: home },
+    cwd: consumer,
+    env: environment,
     encoding: 'utf8',
     timeout: 30000,
+    maxBuffer: 8 * 1024 * 1024,
     killSignal: 'SIGKILL',
   },
 );
-assert.equal(interruption.signal, 'SIGKILL', interruption.stderr);
+assert.equal(interrupted.signal, 'SIGKILL', interrupted.stderr);
 assert.equal(
-  invoke(['publish', 'files', 'recover', interruptedFile, interruptedAuth])
-    .status,
+  invokeCli(['publish', 'recover', planFile, authorizationFile]).status,
   'ROLLED_BACK',
 );
-for (const row of prior.payload)
-  assert.equal(
-    hash(await fs.readFile(path.join(destinations[row.medium], row.path))),
-    row.sha256,
-  );
-// A rolled-back journal is terminal. A deliberate new attempt uses a new
-// explicit recovery location; never erase or silently replay the old operation.
-replacement.options.recoveryRoot = path.join(work, 'recovery-next-attempt');
-planned = invoke([
+
+currentInput.options.recoveryRoot = path.join(effectRoot, 'recovery-final');
+planned = invokeCli([
   'publish',
-  'files',
   'plan',
-  await write('resumed-replacement-input.json', replacement),
+  await write('final-replacement-input.json', currentInput),
 ]).plan;
-const planFile = await write('replacement-plan.json', planned),
-  authFile = await write('replacement-authorization.json', {
-    decision: 'AUTHORIZED',
-    planSha256: planned.sha256,
-  });
+planFile = await write('final-plan.json', planned);
+authorizationFile = await write('final-authorization.json', {
+  decision: 'AUTHORIZED',
+  planSha256: planned.sha256,
+});
 assert.equal(
-  invoke(['publish', 'files', 'apply', planFile, authFile]).status,
+  invokeCli(['publish', 'apply', planFile, authorizationFile]).status,
   'INSTALLED',
 );
 assert.equal(
-  invoke(['publish', 'files', 'recover', planFile, authFile]).status,
+  invokeCli(['publish', 'recover', planFile, authorizationFile]).status,
   'ALREADY_INSTALLED',
 );
 assert.equal(
-  invoke(['publish', 'files', 'apply', planFile, authFile]).status,
+  invokeCli(['publish', 'apply', planFile, authorizationFile]).status,
   'ALREADY_INSTALLED',
 );
-for (const dir of Object.values(destinations))
+for (const directory of Object.values(destinations))
   assert.equal(
-    await fs.readFile(path.join(dir, 'personal.txt'), 'utf8'),
+    await fs.readFile(path.join(directory, 'personal.txt'), 'utf8'),
     'Preserve the later user edit.\n',
   );
-for (const row of planned.payload)
+for (const member of planned.payload)
   assert.equal(
-    hash(await fs.readFile(path.join(destinations[row.medium], row.path))),
-    row.sha256,
+    hash(await fs.readFile(path.join(destinations[member.medium], member.path))),
+    member.sha256,
   );
+
 const report = {
   status: 'PASS',
   node: process.version,
   platform: process.platform,
   pages: prepared.pages,
-  semanticChange: prepared.delta.changed,
-  svgSha256: staticResult.svg.sha256,
+  semanticChange: prepared.evolution.ethos.changed,
+  affectedInteractiveScenes:
+    prepared.evolution.editions.affected[0].interactive,
+  staticAffected: prepared.evolution.editions.affected[0].static,
+  svgSha256: poster.svg.sha256,
+  outlinedSvgSha256: outlined.outlined.sha256,
   atlasManifestSha256: rendered.manifestSha256,
   standaloneSha256: standalone.sha256,
-  rasters,
-  previousInstaller: config.previousInstallerRevision,
+  rasters: rasters.map(({ width, bytes, sha256 }) => ({ width, bytes, sha256 })),
+  extensionRemovedBeforeCorePublication: true,
   installation: 'INSTALLED',
   recovery: 'ALREADY_INSTALLED',
   interruptedRecovery: 'ROLLED_BACK',
@@ -315,11 +498,11 @@ const report = {
   foreignEditsPreserved: true,
   installedPayload: planned.payload.length,
   scope:
-    'Actual source semantic evolution and real successive edition files through installed commands; not browser or hosted proof',
+    'Installed ETHOS authoring and rendering followed by extension-free core rasterization, replacement, interrupted recovery, and exact replay; not browser, semantic, visual, hosted, or release acceptance.',
 };
 await fs.writeFile(
-  path.join(root, 'report.json'),
+  path.join(inputRoot, 'report.json'),
   JSON.stringify(report, null, 2) + '\n',
   { flag: 'wx' },
 );
-console.log(JSON.stringify(report));
+process.stdout.write(JSON.stringify(report) + '\n');

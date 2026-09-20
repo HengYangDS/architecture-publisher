@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { claimModelDigest } from '../src/semantics/document.mjs';
+import { claimModelDigest } from '../packages/publisher/src/semantics/document.mjs';
 import { editionFixture } from './fixtures/edition.mjs';
 
 async function api() {
-  const module = await import('../src/edition/evolution.mjs').catch(() => ({}));
+  const module = await import('../packages/publisher/src/edition/evolution.mjs').catch(() => ({}));
   assert.equal(
     typeof module.compileEditionEvolution,
     'function',

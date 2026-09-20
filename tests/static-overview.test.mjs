@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { composeStaticOverview } from '../renderers/svg/architecture.mjs';
+import { composeStaticOverview } from '../packages/publisher/renderers/svg/architecture.mjs';
 
 function fixture() {
   return {

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   exactFields,
   requireExplicitAcceptance,
-} from '../src/publication/contract.mjs';
+} from '../packages/publisher/src/publication/contract.mjs';
 
 test('shared contract rejects parallel fields and unbound acceptance', () => {
   assert.throws(

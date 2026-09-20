@@ -1,13 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import http from 'node:http';
-import {encodeBrowserReport} from '../../editions/ethos/browser-report.mjs';
+import {encodeBrowserReport} from '../../packages/extensions/ethos/src/edition/browser-report.mjs';
 import {chromium} from 'playwright-core';
-import {sha256} from '../../adapters/ethos/projection.mjs';
-import {readEthosAtlasOutput} from '../../editions/ethos/atlas-output.mjs';
-import {describeEthosBrowser} from '../../editions/ethos/browser.mjs';
-import {observationName,browserCoverageGaps} from '../../editions/ethos/browser-obligations.mjs';
-import {viewportFindings} from '../../editions/ethos/browser-viewport.mjs';
+import {sha256} from '../../packages/extensions/ethos/src/adapter/projection.mjs';
+import {readEthosAtlasOutput} from '../../packages/extensions/ethos/src/edition/atlas-output.mjs';
+import {describeEthosBrowser} from '../../packages/extensions/ethos/src/edition/browser.mjs';
+import {observationName,browserCoverageGaps} from '../../packages/extensions/ethos/src/edition/browser-obligations.mjs';
+import {viewportFindings} from '../../packages/extensions/ethos/src/edition/browser-viewport.mjs';
 import {measureViewport,exerciseStory,exerciseExports,exerciseDisclosures} from './browser-observer.mjs';
 
 const file=path.resolve(process.argv[2]),mode=process.argv[3];

@@ -4,9 +4,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { writeSourceBundle } from '../src/source/write.mjs';
-import { validateSvg } from '../renderers/resvg/validation.mjs';
-import { RASTER_LIMITS } from '../renderers/resvg/limits.mjs';
+import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
+import { validateSvg } from '../packages/publisher/renderers/resvg/validation.mjs';
+import { RASTER_LIMITS } from '../packages/publisher/renderers/resvg/limits.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const hash = (b) => createHash('sha256').update(b).digest('hex');
 const shape =
@@ -22,7 +22,7 @@ test('the supplied XML parser rejects character references outside XML Char', ()
   }
 });
 async function api() {
-  const entry = new URL('../renderers/resvg/index.mjs', import.meta.url);
+  const entry = new URL('../packages/publisher/renderers/resvg/index.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(entry),
     'public raster implementation exists',
@@ -43,7 +43,7 @@ async function setup(t, svg = shape, fonts = false, extraMembers = []) {
     members.push({
       path: 'fonts/regular.ttf',
       content: await fs.readFile(
-        path.join(root, 'assets/fonts/JetBrainsMono-Regular.ttf'),
+        path.join(root, 'packages/publisher/assets/fonts/JetBrainsMono-Regular.ttf'),
       ),
     });
     selection.push({
@@ -473,7 +473,7 @@ test('rejects excess font count, individual bytes and aggregate bytes before ren
 });
 test('rejects corrupt, duplicated and unsupported font selections', async (t) => {
   const bytes = await fs.readFile(
-    path.join(root, 'assets/fonts/JetBrainsMono-Regular.ttf'),
+    path.join(root, 'packages/publisher/assets/fonts/JetBrainsMono-Regular.ttf'),
   );
   for (const [name, content, fonts, code] of [
     [

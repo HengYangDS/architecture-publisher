@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { editionFixture } from './fixtures/edition.mjs';
-import { semanticArchitectureProjections } from '../src/scene/contract.mjs';
+import { semanticArchitectureProjections } from '../packages/publisher/src/scene/contract.mjs';
 import {
   interactiveArchitectureScene,
   validateInteractiveArchitectureScene,
-} from '../src/scene/interactive/architecture.mjs';
-import { adaptArchitectureScene } from '../renderers/archify/architecture.mjs';
+} from '../packages/publisher/src/scene/interactive/architecture.mjs';
+import { adaptArchitectureScene } from '../packages/publisher/renderers/archify/architecture.mjs';
 
 test('interactive scene is renderer-neutral and Archify adaptation is renderer-owned', () => {
   const { model, edition } = editionFixture(),

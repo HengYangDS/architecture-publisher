@@ -5,9 +5,9 @@ import {
   interactiveSceneDigest,
   staticSceneDigest,
   validateEdition,
-} from '../src/edition/contract.mjs';
-import { semanticArchitectureProjections } from '../src/scene/contract.mjs';
-import { claimModelDigest } from '../src/semantics/document.mjs';
+} from '../packages/publisher/src/edition/contract.mjs';
+import { semanticArchitectureProjections } from '../packages/publisher/src/scene/contract.mjs';
+import { claimModelDigest } from '../packages/publisher/src/semantics/document.mjs';
 import { editionFixture } from './fixtures/edition.mjs';
 
 test('Edition binds audience, questions, claims, scenes and obligations', () => {

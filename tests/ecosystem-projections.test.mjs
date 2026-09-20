@@ -46,27 +46,68 @@ test('the packaged Skill remains a thin public CLI projection', async () => {
     path.join(root, 'skills/architecture-publisher/SKILL.md'),
     'utf8',
   );
-  assert.match(skill, /archpub publish semantic/);
-  assert.match(skill, /archpub publish files plan/);
+  assert.match(skill, /archpub edition build/);
+  assert.match(skill, /archpub publish plan/);
   assert.match(skill, /does not grant acceptance or authority/i);
   assert.doesNotMatch(skill, /\.architecture-state|\.comet|sqlite|daemon/i);
 
   const packed = spawnSync(
     'npm',
     ['pack', '--ignore-scripts', '--json', '--dry-run'],
-    { cwd: root, encoding: 'utf8', timeout: 60000 },
+    {
+      cwd: path.join(root, 'packages/publisher'),
+      encoding: 'utf8',
+      timeout: 60000,
+    },
   );
   assert.equal(packed.status, 0, packed.stderr);
-  assert(
-    JSON.parse(packed.stdout)[0].files.some(
-      (file) => file.path === 'skills/architecture-publisher/SKILL.md',
+  assert.equal(
+    JSON.parse(packed.stdout)[0].files.some((file) =>
+      /(^|\/)skills\//.test(file.path),
     ),
+    false,
   );
   assert(
-    JSON.parse(packed.stdout)[0].files.some(
-      (file) => file.path === 'docs/research/mechanism-evaluation.md',
+    JSON.parse(packed.stdout)[0].files.every(
+      (file) => !file.path.startsWith('docs/research/'),
     ),
   );
+});
+
+test('current guidance names only the public 0.2 command and package boundaries', async () => {
+  const files = [
+    'README.md',
+    'docs/reference/operations.md',
+    'examples/README.md',
+    'examples/self-host/README.md',
+    'packages/publisher/README.md',
+    'packages/extensions/ethos/README.md',
+    'skills/architecture-publisher/SKILL.md',
+  ];
+  const source = (
+    await Promise.all(files.map((file) => fs.readFile(path.join(root, file), 'utf8')))
+  ).join('\n');
+  for (const obsolete of [
+    'archpub semantic compare',
+    'archpub publish semantic',
+    'archpub publish files',
+    'archpub source ethos',
+    'archpub atlas ethos',
+    'archpub poster ethos',
+    'editions/ethos/',
+  ])
+    assert.equal(source.includes(obsolete), false, obsolete);
+  for (const current of [
+    'archpub source pack',
+    'archpub source verify',
+    'archpub edition build',
+    'archpub evolution plan',
+    'archpub qualify verify',
+    'archpub publish plan',
+    'packages/publisher',
+    'packages/extensions/ethos',
+  ])
+    assert.equal(source.includes(current), true, current);
 });
 
 test('GitLab CI only projects repository-native gates', async () => {

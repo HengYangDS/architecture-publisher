@@ -4,10 +4,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { writeSourceBundle } from '../src/source/write.mjs';
-import { readSourceBundle } from '../src/source/bundle.mjs';
-import { claimModelDigest } from '../src/semantics/document.mjs';
-import { compileSemanticPublication } from '../src/publication/semantic.mjs';
+import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
+import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
+import { claimModelDigest } from '../packages/publisher/src/semantics/document.mjs';
+import { compileEditionCandidate } from '../packages/publisher/src/compiler/edition.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -289,7 +289,7 @@ async function fixture(t, mutateDocument = () => {}) {
 
 test('compiles complete source-bound structure into static and interactive media', async (t) => {
   const value = await fixture(t);
-  const result = await compileSemanticPublication(value.plan);
+  const result = await compileEditionCandidate(value.plan);
   const output = await readSourceBundle(
     result.manifestPath,
     result.manifestSha256,
@@ -297,28 +297,28 @@ test('compiles complete source-bound structure into static and interactive media
   const members = new Map(
     output.members.map((item) => [item.path, item.content]),
   );
-  const publication = JSON.parse(members.get('publication.json'));
+  const candidate = JSON.parse(members.get('candidate.json'));
   assert.deepEqual(JSON.parse(members.get('semantic.json')), value.document);
   assert.deepEqual(JSON.parse(members.get('edition.json')), value.edition);
-  assert.equal(publication.schema, 'architecture.edition-publication/v1');
-  assert.equal(publication.semanticDigest, claimModelDigest(value.document));
-  assert.equal(result.editionDigest, publication.editionDigest);
-  assert.equal(result.staticSceneDigest, publication.staticSceneDigest);
+  assert.equal(candidate.schema, 'architecture.edition-candidate/v1');
+  assert.equal(candidate.semanticDigest, claimModelDigest(value.document));
+  assert.equal(result.editionDigest, candidate.editionDigest);
+  assert.equal(result.staticSceneDigest, candidate.staticSceneDigest);
   assert.equal(
     result.interactiveSceneDigest,
-    publication.interactiveSceneDigest,
+    candidate.interactiveSceneDigest,
   );
   assert.deepEqual(
-    publication.views.map((view) => view.id),
+    candidate.views.map((view) => view.id),
     ['overview', 'registry-flow'],
   );
-  assert.equal(publication.static.id, 'overview');
-  assert.deepEqual(publication.static.nodeIds, ['cli', 'registry', 'adapter']);
-  assert.deepEqual(publication.static.relationIds, [
+  assert.equal(candidate.static.id, 'overview');
+  assert.deepEqual(candidate.static.nodeIds, ['cli', 'registry', 'adapter']);
+  assert.deepEqual(candidate.static.relationIds, [
     'cli-registry',
     'registry-adapter',
   ]);
-  assert.deepEqual(publication.views[0].relations, [
+  assert.deepEqual(candidate.views[0].relations, [
     {
       id: 'cli-registry',
       from: 'cli',
@@ -356,8 +356,8 @@ test('compiles complete source-bound structure into static and interactive media
   );
   assert(png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])));
   assert.equal(png.readUInt32BE(16), 2400);
-  assert.equal(publication.overviewPngSha256, sha(png));
-  assert.equal(publication.staticWidth, 2400);
+  assert.equal(candidate.overviewPngSha256, sha(png));
+  assert.equal(candidate.staticWidth, 2400);
   assert.doesNotMatch(overview, /data-preset-badge-/);
   assert.doesNotMatch(overview, /content:\s*attr\(data-preset-badge-/);
   for (const text of [overview, svg]) {
@@ -370,13 +370,13 @@ test('compiles complete source-bound structure into static and interactive media
   assert.match(mechanism, /data-node-id="adapter"/);
   assert.doesNotMatch(mechanism, /data-node-id="cli"/);
   assert.doesNotMatch(mechanism, /data-preset-badge-/);
-  assert.equal(result.semanticAcceptance, 'source-bound-structure');
-  assert.equal(result.browserAcceptance, 'not-performed');
+  assert.equal(result.semanticValidation, 'passed');
+  assert.equal(result.qualification, 'not-performed');
 });
 
 test('static and interactive projections are compositionally independent', async (t) => {
   const baseline = await fixture(t);
-  const first = await compileSemanticPublication(baseline.plan);
+  const first = await compileEditionCandidate(baseline.plan);
   const firstBundle = await readSourceBundle(
     first.manifestPath,
     first.manifestSha256,
@@ -392,7 +392,7 @@ test('static and interactive projections are compositionally independent', async
   interactive.plan.editionSha256 = sha(
     await fs.readFile(interactive.plan.edition),
   );
-  const second = await compileSemanticPublication(interactive.plan);
+  const second = await compileEditionCandidate(interactive.plan);
   const secondBundle = await readSourceBundle(
     second.manifestPath,
     second.manifestSha256,
@@ -415,7 +415,7 @@ test('static and interactive projections are compositionally independent', async
   staticOnly.plan.editionSha256 = sha(
     await fs.readFile(staticOnly.plan.edition),
   );
-  const third = await compileSemanticPublication(staticOnly.plan);
+  const third = await compileEditionCandidate(staticOnly.plan);
   const thirdBundle = await readSourceBundle(
     third.manifestPath,
     third.manifestSha256,
@@ -438,7 +438,7 @@ test('rejects cross-medium semantic drift before rendering', async (t) => {
   value.edition.scenes.interactive.overview.composition.relations.pop();
   await fs.writeFile(value.plan.edition, encode(value.edition));
   value.plan.editionSha256 = sha(await fs.readFile(value.plan.edition));
-  await assert.rejects(compileSemanticPublication(value.plan), {
+  await assert.rejects(compileEditionCandidate(value.plan), {
     code: 'edition_scene_claim_carrier_missing',
   });
   await assert.rejects(fs.access(value.plan.output));
@@ -487,7 +487,7 @@ for (const [name, mutate, error] of [
     mutate(value);
     await fs.writeFile(value.plan.edition, encode(value.edition));
     value.plan.editionSha256 = sha(await fs.readFile(value.plan.edition));
-    await assert.rejects(compileSemanticPublication(value.plan), { code: error });
+    await assert.rejects(compileEditionCandidate(value.plan), { code: error });
     await assert.rejects(fs.access(value.plan.output));
   });
 }
@@ -515,7 +515,7 @@ test('rejects a semantic source whose selected bytes changed', async (t) => {
   );
   value.plan.sourceManifest = changed.manifestPath;
   value.plan.sourceSha256 = changed.manifestSha256;
-  await assert.rejects(compileSemanticPublication(value.plan), {
+  await assert.rejects(compileEditionCandidate(value.plan), {
     code: 'semantic_source_binding_mismatch',
   });
   await assert.rejects(fs.access(value.plan.output));
@@ -529,7 +529,7 @@ test('rejects contradictory semantic claims before rendering', async (t) => {
       coverage: 'complete',
     };
   });
-  await assert.rejects(compileSemanticPublication(value.plan), {
+  await assert.rejects(compileEditionCandidate(value.plan), {
     code: 'semantic_contradiction',
   });
   await assert.rejects(fs.access(value.plan.output));
@@ -549,7 +549,7 @@ test('rejects group cardinality beyond the finite compositor bound', async (t) =
     Object.keys(value.document.entities);
   await fs.writeFile(value.plan.edition, encode(value.edition));
   value.plan.editionSha256 = sha(await fs.readFile(value.plan.edition));
-  await assert.rejects(compileSemanticPublication(value.plan), {
+  await assert.rejects(compileEditionCandidate(value.plan), {
     code: 'edition_scene_group_invalid',
   });
   await assert.rejects(fs.access(value.plan.output));
@@ -559,7 +559,7 @@ test('rejects static geometric infeasibility before rendering', async (t) => {
   const value = await fixture(t, (document) => {
     document.entities.registry.label = 'Unbreakable'.repeat(80);
   });
-  await assert.rejects(compileSemanticPublication(value.plan), {
+  await assert.rejects(compileEditionCandidate(value.plan), {
     code: 'semantic_publication_static_label_infeasible',
   });
   await assert.rejects(fs.access(value.plan.output));

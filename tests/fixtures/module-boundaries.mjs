@@ -2,95 +2,56 @@ import path from 'node:path';
 import { isBuiltin } from 'node:module';
 import { parse } from 'acorn';
 
-// This test-only graph admits dependencies by semantic owner, not file order.
-const owners = {
-  'src/source/': ['src/source/'],
-  'src/semantics/': ['src/semantics/', 'src/source/'],
-  'src/edition/': [
-    'src/edition/',
-    'src/semantics/',
-    'src/source/',
-  ],
-  'src/scene/': [
-    'src/scene/',
-    'src/edition/',
-    'src/source/',
-    'src/semantics/',
-  ],
-  'src/qualification/': [
-    'src/qualification/',
-    'src/scene/',
-  ],
-  'src/publication/': [
-    'src/publication/',
-    'src/edition/',
-    'src/source/',
-    'src/semantics/',
-    'src/scene/',
-    'renderers/',
-  ],
-  'renderers/archify/': [
-    'renderers/archify/',
-    'src/scene/',
-    'src/source/',
-    'assets/archify/',
-    'assets/fonts/',
-  ],
-  'renderers/svg/': [
-    'renderers/svg/',
-    'src/source/',
-    'src/scene/',
-  ],
-  'renderers/resvg/': [
-    'renderers/resvg/',
-    'renderers/svg/',
-    'src/source/',
-    'assets/raster/',
-  ],
-  'adapters/ethos/': [
-    'adapters/ethos/',
-    'src/source/',
-    'src/semantics/',
-  ],
-  'editions/ethos/': [
-    'editions/ethos/',
-    'src/edition/',
-    'src/source/',
-    'src/semantics/',
-    'src/scene/',
-    'src/qualification/',
-    'src/publication/',
-    'renderers/',
-    'adapters/ethos/',
-    'assets/',
-  ],
-  'examples/self-host/': [
-    'examples/self-host/',
-    'src/source/',
-    'src/semantics/',
-  ],
-  'tools/migration/': ['tools/migration/', 'src/semantics/'],
-  'tools/qualification/': [
-    'tools/qualification/',
-    'src/source/',
-    'editions/ethos/',
-    'adapters/ethos/',
-  ],
-  'src/cli/': ['src/', 'adapters/', 'renderers/', 'editions/'],
-};
+const packageExports = new Map([
+  ['architecture-publisher', 'packages/publisher/src/index.mjs'],
+  ['architecture-publisher/source', 'packages/publisher/src/source/index.mjs'],
+  ['architecture-publisher/semantics', 'packages/publisher/src/semantics/index.mjs'],
+  ['architecture-publisher/edition', 'packages/publisher/src/edition/index.mjs'],
+  ['architecture-publisher/scene', 'packages/publisher/src/scene/index.mjs'],
+  ['architecture-publisher/compiler', 'packages/publisher/src/compiler/index.mjs'],
+  ['architecture-publisher/rendering', 'packages/publisher/src/rendering/index.mjs'],
+  ['architecture-publisher/qualification', 'packages/publisher/src/qualification/index.mjs'],
+  ['architecture-publisher/publication', 'packages/publisher/src/publication/index.mjs'],
+  ['architecture-publisher/runtime', 'packages/publisher/src/runtime.mjs'],
+  ['architecture-publisher/renderers/archify', 'packages/publisher/renderers/archify/public.mjs'],
+  ['architecture-publisher/renderers/resvg', 'packages/publisher/renderers/resvg/public.mjs'],
+  ['architecture-publisher/renderers/svg', 'packages/publisher/renderers/svg/index.mjs'],
+  ['@architecture-publisher/ethos/adapter', 'packages/extensions/ethos/src/adapter/index.mjs'],
+  ['@architecture-publisher/ethos/edition', 'packages/extensions/ethos/src/edition/index.mjs'],
+  ['@architecture-publisher/ethos/runtime', 'packages/extensions/ethos/src/runtime.mjs'],
+]);
+
+const owners = [
+  ['packages/publisher/src/index.mjs', ['packages/publisher/src/']],
+  ['packages/publisher/src/runtime.mjs', ['packages/publisher/']],
+  ['packages/publisher/src/source/', ['packages/publisher/src/source/']],
+  ['packages/publisher/src/semantics/', ['packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
+  ['packages/publisher/src/edition/', ['packages/publisher/src/edition/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
+  ['packages/publisher/src/scene/', ['packages/publisher/src/scene/', 'packages/publisher/src/edition/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
+  ['packages/publisher/src/compiler/', ['packages/publisher/src/compiler/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/', 'packages/publisher/src/edition/', 'packages/publisher/src/scene/', 'packages/publisher/renderers/']],
+  ['packages/publisher/src/rendering/', ['packages/publisher/src/rendering/', 'packages/publisher/src/source/', 'packages/publisher/renderers/']],
+  ['packages/publisher/src/qualification/', ['packages/publisher/src/qualification/', 'packages/publisher/src/scene/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
+  ['packages/publisher/src/publication/', ['packages/publisher/src/publication/', 'packages/publisher/src/edition/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/', 'packages/publisher/src/scene/', 'packages/publisher/renderers/']],
+  ['packages/publisher/src/cli/', ['packages/publisher/src/', 'packages/publisher/renderers/']],
+  ['packages/publisher/renderers/archify/', ['packages/publisher/renderers/archify/', 'packages/publisher/src/scene/', 'packages/publisher/src/source/', 'packages/publisher/assets/archify/', 'packages/publisher/assets/fonts/']],
+  ['packages/publisher/renderers/svg/', ['packages/publisher/renderers/svg/', 'packages/publisher/src/source/', 'packages/publisher/src/scene/']],
+  ['packages/publisher/renderers/resvg/', ['packages/publisher/renderers/resvg/', 'packages/publisher/renderers/svg/', 'packages/publisher/src/source/', 'packages/publisher/assets/raster/']],
+  ['packages/extensions/ethos/src/runtime.mjs', ['packages/extensions/ethos/']],
+  ['packages/extensions/ethos/src/adapter/', ['packages/extensions/ethos/src/adapter/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/']],
+  ['packages/extensions/ethos/src/edition/', ['packages/extensions/ethos/src/edition/', 'packages/extensions/ethos/src/adapter/', 'packages/extensions/ethos/src/runtime.mjs', 'packages/publisher/src/', 'packages/publisher/renderers/']],
+  ['examples/self-host/', ['examples/self-host/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/']],
+  ['tools/', ['tools/', 'packages/publisher/', 'packages/extensions/']],
+];
 
 const property = (node, name) =>
   node?.type === 'MemberExpression' &&
-  (node.computed
-    ? node.property.value === name
-    : node.property.name === name);
+  (node.computed ? node.property.value === name : node.property.name === name);
 const meta = (node) =>
   node?.type === 'MetaProperty' &&
   node.meta.name === 'import' &&
   node.property.name === 'meta';
 const literal = (node) => {
-  if (node?.type === 'Literal' && typeof node.value === 'string')
-    return node.value;
+  if (node?.type === 'Literal' && typeof node.value === 'string') return node.value;
   if (node?.type === 'TemplateLiteral' && node.expressions.length === 0)
     return node.quasis[0].value.cooked;
   return null;
@@ -105,7 +66,7 @@ export function inspectModuleBoundaries(
   const problems = [];
   const issue = (node, reason) =>
     problems.push({ file, line: node?.loc?.start.line ?? 1, reason });
-  const owner = Object.keys(owners).find((prefix) => file.startsWith(prefix));
+  const owner = owners.find(([prefix]) => file.startsWith(prefix));
   if (!owner) issue(null, 'unknown module owner');
   let ast;
   try {
@@ -115,63 +76,29 @@ export function inspectModuleBoundaries(
       locations: true,
     });
   } catch (error) {
-    return [
-      {
-        file,
-        line: error.loc?.line ?? 1,
-        reason: `syntax: ${error.message}`,
-      },
-    ];
+    return [{ file, line: error.loc?.line ?? 1, reason: `syntax: ${error.message}` }];
   }
 
-  const historicalInstallerImports = new Set();
-  function selectedHistoricalInstaller(node) {
-    const argument = node?.source;
-    if (
-      file !== 'tools/qualification/installed-evolution.mjs' ||
-      argument?.type !== 'MemberExpression' ||
-      argument.computed ||
-      argument.property.name !== 'href'
-    )
-      return false;
-    const pathToFileURL = argument.object;
-    if (
-      pathToFileURL?.type !== 'CallExpression' ||
-      pathToFileURL.callee.name !== 'pathToFileURL' ||
-      pathToFileURL.arguments.length !== 1
-    )
-      return false;
-    const resolve = pathToFileURL.arguments[0];
-    if (
-      resolve?.type !== 'CallExpression' ||
-      !property(resolve.callee, 'resolve') ||
-      resolve.callee.object?.type !== 'Identifier' ||
-      resolve.callee.object.name !== 'path' ||
-      resolve.arguments.length !== 2 ||
-      resolve.arguments[0]?.type !== 'Identifier' ||
-      resolve.arguments[0].name !== 'root'
-    )
-      return false;
-    const selected = resolve.arguments[1];
-    return (
-      property(selected, 'priorInstaller') &&
-      selected.object?.type === 'Identifier' &&
-      selected.object.name === 'config'
-    );
+  function admit(node, target) {
+    if (!paths.has(target) && !paths.has(`${target.replace(/\/$/, '')}/`))
+      return issue(node, `missing dependency: ${target}`);
+    if (!owner || !owner[1].some((prefix) => target.startsWith(prefix)))
+      issue(node, `forbidden dependency: ${target}`);
   }
 
-  function reference(node, value, resource = false) {
+  function reference(node, value) {
     const specifier = literal(value);
     if (specifier === null)
       return issue(node, 'computed dependency requires explicit admission');
-    if (!resource && isBuiltin(specifier)) {
+    if (isBuiltin(specifier)) {
       if (specifier === 'module' || specifier === 'node:module')
         issue(node, 'alternate module loaders require explicit admission');
       return;
     }
     if (!specifier.startsWith('./') && !specifier.startsWith('../')) {
+      if (packageExports.has(specifier)) return admit(node, packageExports.get(specifier));
       if (declaredExternals.has(specifier)) return;
-      return issue(node, 'dependency must be relative or a declared external');
+      return issue(node, 'dependency must be a public package export or declared external');
     }
     if (/[\\%?#\x00-\x1f]/.test(specifier))
       return issue(node, 'dependency path must be literal and portable');
@@ -179,39 +106,25 @@ export function inspectModuleBoundaries(
       path.posix.join(path.posix.dirname(file), specifier),
     );
     if (target === '..' || target.startsWith('../'))
-      return issue(node, 'dependency escapes package');
+      return issue(node, 'dependency escapes repository');
     const normalized = target === '.' || target === './' ? '' : target;
-    const directory = `${normalized.replace(/\/$/, '')}/`;
-    if (!paths.has(normalized) && !(resource && paths.has(directory)))
-      return issue(node, `missing dependency: ${normalized}`);
-    // Edition composition may locate its package root; generic owners may not.
     if (
-      resource &&
-      normalized === '' &&
-      ['editions/ethos/', 'examples/self-host/'].includes(owner)
+      file.startsWith('packages/extensions/') &&
+      normalized.startsWith('packages/publisher/')
     )
-      return;
-    if (
-      !owner ||
-      !owners[owner].some((prefix) => normalized.startsWith(prefix))
-    )
-      issue(node, `forbidden dependency: ${normalized}`);
+      return issue(node, 'cross-package dependency must use a public export');
+    admit(node, normalized);
   }
 
   function visit(node) {
     if (!node || typeof node !== 'object') return;
     if (
-      [
-        'ImportDeclaration',
-        'ExportNamedDeclaration',
-        'ExportAllDeclaration',
-      ].includes(node.type) &&
+      ['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration'].includes(node.type) &&
       node.source
     )
       reference(node, node.source);
     if (node.type === 'ImportExpression') {
-      if (selectedHistoricalInstaller(node)) historicalInstallerImports.add(node);
-      else reference(node, node.source);
+      reference(node, node.source);
     }
     if (
       node.type === 'NewExpression' &&
@@ -219,7 +132,7 @@ export function inspectModuleBoundaries(
       property(node.arguments[1], 'url') &&
       meta(node.arguments[1].object)
     )
-      reference(node, node.arguments[0], true);
+      reference(node, node.arguments[0]);
     if (node.type === 'CallExpression') {
       if (property(node.callee, 'resolve') && meta(node.callee.object))
         reference(node, node.arguments[0]);
@@ -227,16 +140,10 @@ export function inspectModuleBoundaries(
         issue(node, 'CommonJS loader requires explicit admission');
     }
     for (const value of Object.values(node)) {
-      if (Array.isArray(value))
-        value.forEach((child) => child?.type && visit(child));
+      if (Array.isArray(value)) value.forEach((child) => child?.type && visit(child));
       else if (value?.type) visit(value);
     }
   }
   visit(ast);
-  if (
-    file === 'tools/qualification/installed-evolution.mjs' &&
-    historicalInstallerImports.size !== 1
-  )
-    issue(ast, 'historical installer dependency must have one exact binding');
   return problems;
 }

@@ -5,16 +5,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { writeSourceBundle } from '../src/source/write.mjs';
-import { readSourceBundle } from '../src/source/bundle.mjs';
-import { rasterize } from '../renderers/resvg/index.mjs';
+import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
+import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
+import { rasterize } from '../packages/publisher/renderers/resvg/index.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const shape =
   '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><path d="M20 20 H100" stroke="black"/></svg>';
 async function api() {
-  const entry = new URL('../editions/ethos/outline.mjs', import.meta.url);
+  const entry = new URL('../packages/extensions/ethos/src/edition/outline.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(entry),
     'explicit outline adapter exists',
@@ -43,7 +43,7 @@ async function setup(t) {
   const renderer = path.join(dir, 'renderer.cjs');
   const listing = path.join(dir, 'font-list.cjs');
   const font = await fs.realpath(
-    path.join(root, 'assets/fonts/JetBrainsMono-Regular.ttf'),
+    path.join(root, 'packages/publisher/assets/fonts/JetBrainsMono-Regular.ttf'),
   );
   const png = await fs.readFile(path.join(dir, 'reference.png'));
   async function executable(file, program) {
@@ -81,7 +81,7 @@ fs.writeSync(1,process.argv.includes('svg')?${JSON.stringify(shape)}:Buffer.from
           '4ea40f421434106948f1e1d2d9ae5ee6c8b9868edc5538ff755876fd01d37ef8',
         editionManifest: path.join(
           root,
-          'editions/ethos/static/authoring/manifest.json',
+          'packages/extensions/ethos/src/edition/static/authoring/manifest.json',
         ),
         editionSha256:
           '62317d11b19994090a1c7ae65eae3a092ebc783b9702cc687f5e4d33ace15a43',
@@ -306,7 +306,7 @@ else process.stdout.write(Buffer.from(${JSON.stringify(png.toString('base64'))},
   );
   assert.deepEqual(await fs.readdir(path.join(f.dir, 'nested')), []);
 });
-test('outline CLI resolves explicit input paths from the plan, not cwd', async (t) => {
+test('outline input adapter resolves explicit paths from the plan', async (t) => {
   await api();
   const f = await setup(t);
   const log = path.join(f.dir, 'child-io.log');
@@ -327,26 +327,10 @@ fs.writeSync(1,process.argv.includes('svg')?${JSON.stringify(shape)}:Buffer.from
   plan.output = 'outlined';
   const p = path.join(f.dir, 'plan.json');
   await fs.writeFile(p, JSON.stringify(plan));
-  const r = spawnSync(
-    process.execPath,
-    [path.join(root, 'src/cli/main.mjs'), 'poster', 'ethos', 'outline', p],
-    {
-      cwd: path.dirname(root),
-      encoding: 'utf8',
-      timeout: 120000,
-      env: { HOME: f.dir, PATH: f.dir },
-    },
+  const { outlineEthosPosterInput } = await import(
+    '../packages/extensions/ethos/src/edition/input.mjs'
   );
-  assert.equal(
-    r.status,
-    0,
-    r.stdout +
-      r.stderr +
-      '\n' +
-      (await fs.readFile(log, 'utf8').catch(() => 'no child log')) +
-      '\n' +
-      r.error?.code,
-  );
+  const result = await outlineEthosPosterInput(p);
   const observed = (await fs.readFile(log, 'utf8'))
     .trim()
     .split('\n')
@@ -365,6 +349,6 @@ fs.writeSync(1,process.argv.includes('svg')?${JSON.stringify(shape)}:Buffer.from
         '87594199a5b3182860d6ed1a16b446082a2862cc52b8ed8c1731111f3e600bfa',
     ),
   );
-  assert.equal(JSON.parse(r.stdout).status, 'outlined');
-  assert.equal(JSON.parse(r.stdout).visualAcceptance, 'not-performed');
+  assert.equal(result.status, 'outlined');
+  assert.equal(result.visualAcceptance, 'not-performed');
 });

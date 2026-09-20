@@ -17,8 +17,8 @@
 
 - [x] 3.1 Move ETHOS source integration behind `adapters/ethos`, renderer implementations behind `renderers`, scene ownership below `src/scene`, and Edition-owned behavior below `editions`; update imports under one prewrite admission and verify module-boundary tests reject every reverse dependency.
 - [x] 3.2 Remove ambiguous or superseded implementation owners and current compatibility identities rather than retaining wrappers; verify source and test scans contain one owner for each public invariant and no `core`, `common`, `shared`, `utils`, `legacy`, or `compat` catch-all introduced by the migration.
-- [ ] 3.3 Refactor the public CLI into a generic composition root over source, semantic, Edition, rendering, qualification, and publication contracts; verify one declarative command/help owner, concise layered help, actionable errors, sole `archpub` identity, offline installed operation, and no Edition, adopter, repository, schema, or renderer-vendor logic in the CLI.
-- [ ] 3.4 Make the root `architecture-publisher` distribution domain-neutral and move first-party source adapters and Editions behind independently installable monorepo package boundaries; verify a packed core excludes concrete domain code, remains fully functional without those packages, and every extension depends inward through exported public contracts only.
+- [x] 3.3 Refactor the public CLI into a generic composition root over source, semantic, Edition, rendering, qualification, and publication contracts; verify one declarative command/help owner, concise layered help, actionable errors, sole `archpub` identity, offline installed operation, and no Edition, adopter, repository, schema, or renderer-vendor logic in the CLI.
+- [x] 3.4 Make the root `architecture-publisher` distribution domain-neutral and move first-party source adapters and Editions behind independently installable monorepo package boundaries; verify a packed core excludes concrete domain code, remains fully functional without those packages, and every extension depends inward through exported public contracts only.
 
 ## 4. First-party Architecture Publisher Edition
 

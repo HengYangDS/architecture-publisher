@@ -42,8 +42,11 @@ test('alpha.7 migration baseline preserves exact local and remote identities', a
 });
 
 test('current product surfaces expose one Architecture Publisher identity', async () => {
-  const packageJson = JSON.parse(
+  const workspace = JSON.parse(
     await fs.readFile(path.join(root, 'package.json'), 'utf8'),
+  );
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(root, 'packages/publisher/package.json'), 'utf8'),
   );
   const packageLock = JSON.parse(
     await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'),
@@ -55,26 +58,28 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
     path.join(root, 'skills/architecture-publisher/SKILL.md'),
     'utf8',
   );
-  const cli = await fs.readFile(path.join(root, 'src/cli/main.mjs'), 'utf8');
+  const cli = await fs.readFile(path.join(root, 'packages/publisher/src/cli/main.mjs'), 'utf8');
   const commonDirectory = runGit('rev-parse', '--path-format=absolute', '--git-common-dir');
   const repositoryName = path.basename(path.dirname(commonDirectory));
 
   assert.equal(packageJson.name, 'architecture-publisher');
   assert.equal(packageJson.version, '0.2.0-alpha.0');
   assert.deepEqual(packageJson.bin, { archpub: 'src/cli/main.mjs' });
-  assert.equal(packageLock.name, packageJson.name);
-  assert.equal(packageLock.version, packageJson.version);
-  assert.deepEqual(packageLock.packages[''].bin, packageJson.bin);
+  assert.equal(workspace.name, 'architecture-publisher-workspace');
+  assert.equal(workspace.private, true);
+  assert.equal(packageLock.name, workspace.name);
+  assert.equal(packageLock.version, workspace.version);
+  assert.deepEqual(packageLock.packages['packages/publisher'].bin, packageJson.bin);
   assert.match(profile, new RegExp(`^profile_id = "${repositoryName}"$`, 'm'));
   assert.match(openspec, /Govern Architecture Publisher changes through ETHOS\./);
   assert.match(readme, /^# Architecture Publisher$/m);
   assert.match(readme, /\barchpub source verify\b/);
   assert.doesNotMatch(readme, /^architecture (?:source|publish|render|atlas|poster|measure|semantic|raster)\b/m);
   assert.match(skill, /^name: architecture-publisher$/m);
-  assert.match(skill, /\barchpub publish semantic\b/);
+  assert.match(skill, /\barchpub edition build\b/);
   assert.doesNotMatch(skill, /\barchitecture publish\b/);
-  assert.match(cli, /archpub semantic compare/);
-  assert.doesNotMatch(cli, /'architecture semantic compare/);
+  assert.match(cli, /runCli/);
+  assert.doesNotMatch(cli, /\b(?:ethos|aigw|archify|resvg|coretext)\b/i);
 });
 
 test('installed package exposes archpub and no architecture compatibility command', async (t) => {
@@ -85,7 +90,7 @@ test('installed package exposes archpub and no architecture compatibility comman
   const packed = spawnSync(
     'npm',
     ['pack', '--json', '--ignore-scripts', '--pack-destination', out],
-    { cwd: root, encoding: 'utf8' },
+    { cwd: path.join(root, 'packages/publisher'), encoding: 'utf8' },
   );
   assert.equal(packed.status, 0, packed.stderr);
   const info = JSON.parse(packed.stdout)[0];
@@ -113,8 +118,8 @@ test('installed package exposes archpub and no architecture compatibility comman
     cwd: consumer,
     encoding: 'utf8',
   });
-  assert.equal(usage.status, 2);
-  assert.match(JSON.parse(usage.stdout).error.message, /^archpub semantic compare/);
+  assert.equal(usage.status, 0);
+  assert.match(usage.stdout, /^Architecture Publisher$/m);
 });
 
 test('product documentation has one semantic owner and a concise entry point', async () => {
@@ -126,7 +131,9 @@ test('product documentation has one semantic owner and a concise entry point', a
     path.join(root, 'skills/architecture-publisher/SKILL.md'),
     'utf8',
   );
-  const packageJson = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(root, 'packages/publisher/package.json'), 'utf8'),
+  );
 
   assert(readme.split('\n').length <= 260, 'README is an entry point, not an operations archive');
   assert.match(readme, /\[Product contract\]\(docs\/product-contract\.md\)/);
@@ -142,7 +149,7 @@ test('product documentation has one semantic owner and a concise entry point', a
   assert.match(skill, /Edition file/);
   assert.doesNotMatch(skill, /semantic member, authoring file/);
   assert.match(operations, /Historical alpha\.7 identity/i);
-  assert(packageJson.files.includes('docs/'));
+  assert(packageJson.files.includes('README.md'));
   assert(!packageJson.files.includes('docs/product-design.md'));
   await assert.rejects(fs.stat(path.join(root, 'docs/product-design.md')), { code: 'ENOENT' });
 });

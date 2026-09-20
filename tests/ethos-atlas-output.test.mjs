@@ -3,9 +3,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
-import { sha256 } from '../adapters/ethos/projection.mjs';
-import { renderEthosAtlas } from '../editions/ethos/atlas.mjs';
+import { sha256 } from '../packages/extensions/ethos/src/adapter/projection.mjs';
+import { renderEthosAtlas } from '../packages/extensions/ethos/src/edition/atlas.mjs';
+import {
+  installCoreAndEthos,
+  runInstalledExport,
+} from './fixtures/installed-packages.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sourceSha256 =
@@ -16,7 +19,7 @@ const editionSha256 =
   'bcfc207b0f7dc3c56d2bbb8d9a4c7fa43985c43c155e485955c2681bd792a279';
 
 test('current atlas admission binds actual producer output and refuses drift without legacy sidecars', async (t) => {
-  const module = new URL('../editions/ethos/atlas-output.mjs', import.meta.url);
+  const module = new URL('../packages/extensions/ethos/src/edition/atlas-output.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(module),
     'current output must have a direct read-only consumer',
@@ -33,7 +36,7 @@ test('current atlas admission binds actual producer output and refuses drift wit
     ),
     sourceSha256,
     projectionDigest,
-    editionManifest: path.join(root, 'editions/ethos/authoring/manifest.json'),
+    editionManifest: path.join(root, 'packages/extensions/ethos/src/edition/authoring/manifest.json'),
     editionSha256,
     output: path.join(directory, 'atlas'),
   };
@@ -256,34 +259,11 @@ test('current atlas admission binds actual producer output and refuses drift wit
     },
   );
   await t.test(
-    'installed CLI reads relocated current output without development tools',
+    'installed extension reads relocated current output without development tools',
     async () => {
-      const pack = spawnSync(
-        'npm',
-        ['pack', '--json', '--ignore-scripts', '--pack-destination', directory],
-        { cwd: root, encoding: 'utf8' },
-      );
-      assert.equal(pack.status, 0, pack.stderr);
-      const packed = JSON.parse(pack.stdout)[0];
-      const consumer = path.join(directory, 'consumer'),
-        home = path.join(directory, 'empty-home');
-      await fs.mkdir(consumer);
+      const home = path.join(directory, 'empty-home');
       await fs.mkdir(home);
-      const installed = spawnSync(
-        'npm',
-        [
-          'install',
-          '--offline',
-          '--ignore-scripts',
-          '--no-audit',
-          '--no-fund',
-          '--prefix',
-          consumer,
-          path.join(directory, packed.filename),
-        ],
-        { cwd: consumer, encoding: 'utf8' },
-      );
-      assert.equal(installed.status, 0, installed.stderr);
+      const { consumer } = await installCoreAndEthos(root, directory);
       const source = path.join(directory, 'relocated source'),
         edition = path.join(directory, 'relocated edition');
       await fs.cp(path.dirname(plan.sourceManifest), source, {
@@ -300,21 +280,15 @@ test('current atlas admission binds actual producer output and refuses drift wit
       };
       const planFile = path.join(directory, 'read-plan.json');
       await fs.writeFile(planFile, JSON.stringify(relocated));
-      const command = path.join(
-        consumer,
-        'node_modules/architecture-publisher/src/cli/main.mjs',
-      );
       const run = () =>
-        spawnSync(
-          process.execPath,
-          [command, 'atlas', 'ethos', 'verify', planFile],
-          {
-            cwd: consumer,
-            env: { HOME: home, PATH: home, LANG: 'C.UTF-8' },
-            encoding: 'utf8',
-          },
-        );
-      const ok = run();
+        runInstalledExport({
+          consumer,
+          module: '@architecture-publisher/ethos/edition',
+          name: 'readEthosAtlasOutputInput',
+          args: [planFile],
+          cwd: home,
+        });
+      const ok = await run();
       assert.equal(ok.status, 0, ok.stdout + ok.stderr);
       const observation = JSON.parse(ok.stdout);
       assert.equal(observation.scope, 'artifact-file-integrity');
@@ -327,7 +301,7 @@ test('current atlas admission binds actual producer output and refuses drift wit
         old = await fs.readFile(notice);
       await fs.writeFile(notice, 'substitution');
       try {
-        const bad = run();
+        const bad = await run();
         assert.equal(bad.status, 1, bad.stdout);
         assert.equal(JSON.parse(bad.stdout).error.code, 'member_size_mismatch');
       } finally {

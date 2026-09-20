@@ -3,11 +3,14 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
-import { readSourceBundle } from '../src/source/bundle.mjs';
-import { writeSourceBundle } from '../src/source/write.mjs';
-import { sha256 } from '../adapters/ethos/projection.mjs';
-import { readEthosSource } from '../adapters/ethos/projection.mjs';
+import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
+import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
+import { sha256 } from '../packages/extensions/ethos/src/adapter/projection.mjs';
+import { readEthosSource } from '../packages/extensions/ethos/src/adapter/projection.mjs';
+import {
+  installCoreAndEthos,
+  runInstalledExport,
+} from './fixtures/installed-packages.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sourceSha256 =
@@ -23,11 +26,11 @@ test('every page uses only the source-owned maturity notice as its subtitle', as
     projectionDigest,
   );
   const edition = JSON.parse(
-    await fs.readFile(path.join(root, 'editions/ethos/authoring/edition.json')),
+    await fs.readFile(path.join(root, 'packages/extensions/ethos/src/edition/authoring/edition.json')),
   );
   for (const page of edition.pages) {
     const spec = JSON.parse(
-      await fs.readFile(path.join(root, 'editions/ethos/authoring', page.spec)),
+      await fs.readFile(path.join(root, 'packages/extensions/ethos/src/edition/authoring', page.spec)),
     );
     assert.equal(
       spec.meta.subtitle,
@@ -43,7 +46,7 @@ async function setup(t, edit) {
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   let editionManifest = path.join(
       root,
-      'editions/ethos/authoring/manifest.json',
+      'packages/extensions/ethos/src/edition/authoring/manifest.json',
     ),
     selected = editionSha256;
   if (edit) {
@@ -87,7 +90,7 @@ async function setup(t, edit) {
   };
 }
 async function api() {
-  const module = new URL('../editions/ethos/atlas.mjs', import.meta.url);
+  const module = new URL('../packages/extensions/ethos/src/edition/atlas.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(module),
     'formal ETHOS atlas entry must exist',
@@ -106,7 +109,7 @@ test('formal edition reproduces all 13 accepted pages without the original check
     await fs.readFile(path.join(f.plan.output, 'manifest.json')),
   );
   const edition = JSON.parse(
-    await fs.readFile(path.join(root, 'editions/ethos/authoring/edition.json')),
+    await fs.readFile(path.join(root, 'packages/extensions/ethos/src/edition/authoring/edition.json')),
   );
   for (const p of edition.pages) {
     const bytes = await fs.readFile(path.join(f.plan.output, p.path));
@@ -299,68 +302,39 @@ test('a previously rendered page changed during the build prevents final manifes
     code: 'ENOENT',
   });
 });
-test('CLI resolves atlas plan inputs relative to the plan, not cwd', async (t) => {
+test('extension API resolves atlas plan inputs relative to the plan', async (t) => {
   const f = await setup(t);
   const plan = { ...f.plan };
   for (const key of ['sourceManifest', 'editionManifest', 'output'])
     plan[key] = path.relative(f.directory, plan[key]);
   const file = path.join(f.directory, 'plan.json');
   await fs.writeFile(file, JSON.stringify(plan));
-  const run = spawnSync(
-    process.execPath,
-    [path.join(root, 'src/cli/main.mjs'), 'atlas', 'ethos', file],
-    {
-      cwd: f.directory,
-      encoding: 'utf8',
-      timeout: 60000,
-      env: { HOME: f.directory, PATH: f.directory },
-    },
+  const { renderEthosAtlasInput } = await import(
+    '../packages/extensions/ethos/src/edition/input.mjs'
   );
-  assert.equal(run.status, 0, run.stdout + run.stderr);
-  assert.equal(JSON.parse(run.stdout).pages.length, 13);
+  assert.equal((await renderEthosAtlasInput(file)).pages.length, 13);
 });
 
 test('installed atlas uses only its package and explicitly supplied source', async (t) => {
   const f = await setup(t),
-    consumer = path.join(f.directory, 'consumer'),
     home = path.join(f.directory, 'empty home');
-  await fs.mkdir(consumer);
   await fs.mkdir(home);
-  const pack = spawnSync(
-    'npm',
-    ['pack', '--json', '--ignore-scripts', '--pack-destination', f.directory],
-    { cwd: root, encoding: 'utf8' },
-  );
-  assert.equal(pack.status, 0, pack.stderr);
-  const info = JSON.parse(pack.stdout)[0];
-  assert(
-    info.files.some((x) => x.path === 'editions/ethos/atlas.mjs'),
-    'installed archive includes edition implementation',
+  const { consumer, ethosRoot, extension } = await installCoreAndEthos(
+    root,
+    f.directory,
   );
   assert(
-    info.files.every(
+    extension.files.some((x) => x.path === 'src/edition/atlas.mjs'),
+    'installed extension includes its Edition implementation',
+  );
+  assert(
+    extension.files.every(
       (x) =>
         !x.path.startsWith('tests/') &&
         !x.path.startsWith('build/') &&
         !x.path.startsWith('.ethos/'),
     ),
   );
-  const install = spawnSync(
-    'npm',
-    [
-      'install',
-      '--offline',
-      '--ignore-scripts',
-      '--no-audit',
-      '--no-fund',
-      '--prefix',
-      consumer,
-      path.join(f.directory, info.filename),
-    ],
-    { cwd: consumer, encoding: 'utf8' },
-  );
-  assert.equal(install.status, 0, install.stderr);
-  const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   await fs.cp(
     path.dirname(f.plan.sourceManifest),
     path.join(f.directory, 'input'),
@@ -371,28 +345,25 @@ test('installed atlas uses only its package and explicitly supplied source', asy
     sourceManifest: 'input/manifest.json',
     editionManifest: path.relative(
       f.directory,
-      path.join(pkg, 'editions/ethos/authoring/manifest.json'),
+      path.join(ethosRoot, 'src/edition/authoring/manifest.json'),
     ),
     output: 'installed atlas',
   };
   const file = path.join(f.directory, 'installed-plan.json');
   await fs.writeFile(file, JSON.stringify(plan));
-  const run = spawnSync(
-    process.execPath,
-    [path.join(pkg, 'src/cli/main.mjs'), 'atlas', 'ethos', file],
-    {
-      cwd: home,
-      encoding: 'utf8',
-      timeout: 60000,
-      env: { HOME: home, PATH: home },
-    },
-  );
+  const run = await runInstalledExport({
+    consumer,
+    module: path.join(ethosRoot, 'src/edition/index.mjs'),
+    name: 'renderEthosAtlasInput',
+    args: [file],
+    cwd: home,
+  });
   assert.equal(run.status, 0, run.stdout + run.stderr);
   const result = JSON.parse(run.stdout);
   assert.equal(result.pages.length, 13);
   assert.equal(result.browserAcceptance, 'not-performed');
   const edition = JSON.parse(
-    await fs.readFile(path.join(pkg, 'editions/ethos/authoring/edition.json')),
+    await fs.readFile(path.join(ethosRoot, 'src/edition/authoring/edition.json')),
   );
   for (const page of edition.pages)
     assert.equal(

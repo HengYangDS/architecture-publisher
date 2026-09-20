@@ -10,9 +10,10 @@ import {
   planPairFiles,
   installPairFiles,
   recoverPairFiles,
-} from '../src/publication/files.mjs';
+} from '../packages/publisher/src/publication/files.mjs';
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const root = path.resolve(import.meta.dirname, '..');
+const publisher = path.join(root, 'packages/publisher');
 async function fixture(t) {
   const dir = await fs.realpath(
     await fs.mkdtemp(path.join(os.tmpdir(), 'pair-files-')),
@@ -26,7 +27,7 @@ async function fixture(t) {
     '<html>file fixture</html>',
   );
   const destinations = {
-    native: path.join(dir, 'static'),
+    native: path.join(dir, 'native'),
     atlas: path.join(dir, 'atlas'),
   };
   for (const target of Object.values(destinations)) {
@@ -96,8 +97,8 @@ async function interruptWriter(
   await fs.writeFile(
     child,
     `import fs from 'node:fs/promises';import path from 'node:path';
-import {installPairFiles,recoverPairFiles} from ${JSON.stringify(new URL('../src/publication/files.mjs', import.meta.url).href)};
-const {plan,acceptance,phase,side,mode}=JSON.parse(await fs.readFile(process.argv[2])),lock=path.join(path.dirname(plan.options.destinations.native),'.ethos-pair-writer');
+import {installPairFiles,recoverPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
+const {plan,acceptance,phase,side,mode}=JSON.parse(await fs.readFile(process.argv[2])),lock=path.join(path.dirname(plan.options.destinations.native),'.architecture-publication-writer');
 const native={mkdir:fs.mkdir,writeFile:fs.writeFile,rename:fs.rename,unlink:fs.unlink};
 async function invoke(name,args,event){if(event===phase&&side==='before')process.kill(process.pid,'SIGKILL');const result=await native[name](...args);if(event===phase&&side==='after')process.kill(process.pid,'SIGKILL');return result;}
 fs.mkdir=(a,...args)=>invoke('mkdir',[a,...args],a===lock?'activation':'');
@@ -174,7 +175,7 @@ for (const side of ['before', 'after'])
 test('an ambiguous empty writer lock is never replaced by an installation', async (t) => {
   const { dir, options } = await fixture(t),
     plan = await planFiles(options),
-    lock = path.join(dir, '.ethos-pair-writer');
+    lock = path.join(dir, '.architecture-publication-writer');
   await fs.mkdir(lock);
   await assert.rejects(installPairFiles(plan, approve(plan)));
   assert.deepEqual(await fs.readdir(lock), []);
@@ -190,7 +191,7 @@ test('a delayed stale reclaimer cannot move a newer active writer', async (t) =>
     plan = await planFiles(options),
     acceptance = approve(plan);
   await interruptWriter(dir, plan, acceptance, 'save-native', 'after');
-  const lock = path.join(dir, '.ethos-pair-writer'),
+  const lock = path.join(dir, '.architecture-publication-writer'),
     rename = fs.rename;
   let raced = false;
   fs.rename = async (a, b) => {
@@ -251,9 +252,9 @@ test('a delayed stale reclaimer cannot move a newer active writer', async (t) =>
 test('writer control locations cannot be selected as user destinations', async (t) => {
   const { dir, options } = await fixture(t);
   for (const name of [
-    '.ethos-pair-writer',
-    '.ethos-pair-writer-history',
-    '.ethos-pair-stage-conflict',
+    '.architecture-publication-writer',
+    '.architecture-publication-writer-history',
+    '.architecture-publication-stage-conflict',
   ])
     await assert.rejects(
       planFiles({
@@ -263,8 +264,8 @@ test('writer control locations cannot be selected as user destinations', async (
       /reserved.*namespace/i,
     );
   for (const name of [
-    '.ethos-pair-writer-history/nested',
-    '.ETHOS-PAIR-WRITER-HISTORY',
+    '.architecture-publication-writer-history/nested',
+    '.ARCHITECTURE-PUBLICATION-WRITER-HISTORY',
   ])
     await assert.rejects(
       planFiles({ ...options, recoveryRoot: path.join(dir, name) }),
@@ -277,7 +278,7 @@ test('foreign-host and different-plan writer records are preserved and refused',
     plan = await planFiles(options),
     acceptance = approve(plan);
   await interruptWriter(dir, plan, acceptance, 'save-native', 'after');
-  const file = path.join(dir, '.ethos-pair-writer/owner.json'),
+  const file = path.join(dir, '.architecture-publication-writer/owner.json'),
     original = JSON.parse(await fs.readFile(file));
   for (const changed of [
     { ...original, host: 'another-host.invalid' },
@@ -823,7 +824,7 @@ for (const phase of [
       );
       await fs.writeFile(
         child,
-        `import fs from 'node:fs/promises';import path from 'node:path';import {installPairFiles} from ${JSON.stringify(new URL('../src/publication/files.mjs', import.meta.url).href)};
+        `import fs from 'node:fs/promises';import path from 'node:path';import {installPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
 const {plan,acceptance,phase,side}=JSON.parse(await fs.readFile(process.argv[2])),op=path.join(plan.options.recoveryRoot,plan.sha256.slice(0,20)),native={mkdir:fs.mkdir,rename:fs.rename};
 async function invoke(method,args,event){if(event===phase&&side==='before')process.kill(process.pid,'SIGKILL');const value=await native[method](...args);if(event===phase&&side==='after')process.kill(process.pid,'SIGKILL');return value;}
 fs.mkdir=(file,...args)=>invoke('mkdir',[file,...args],file===op?'activation':'');
@@ -869,7 +870,7 @@ for (const status of ['PREPARING', 'INSTALLING', 'INSTALLED'])
       await fs.writeFile(acceptanceFile, JSON.stringify(acceptance));
       await fs.writeFile(
         child,
-        `import fs from 'node:fs/promises';import {installPairFiles} from ${JSON.stringify(new URL('../src/publication/files.mjs', import.meta.url).href)};
+        `import fs from 'node:fs/promises';import {installPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
 const plan=JSON.parse(await fs.readFile(process.argv[2])),acceptance=JSON.parse(await fs.readFile(process.argv[3]));
 const rename=fs.rename;fs.rename=async(a,b)=>{const hit=b.endsWith('/operation.json')&&JSON.parse(await fs.readFile(a)).status===process.argv[4];if(hit&&process.argv[5]==='before')process.kill(process.pid,'SIGKILL');await rename(a,b);if(hit&&process.argv[5]==='after')process.kill(process.pid,'SIGKILL');};
 await installPairFiles(plan,acceptance);`,
@@ -983,7 +984,7 @@ for (const boundary of [
     const child = path.join(dir, 'interrupt.mjs');
     await fs.writeFile(
       child,
-      `import fs from 'node:fs/promises';import {installPairFiles} from ${JSON.stringify(new URL('../src/publication/files.mjs', import.meta.url).href)};
+      `import fs from 'node:fs/promises';import {installPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
 const plan=JSON.parse(await fs.readFile(process.argv[2])),acceptance=JSON.parse(await fs.readFile(process.argv[3])),boundary=process.argv[4];
 await installPairFiles(plan,acceptance,{rename:async(a,b)=>{let event='';for(const m of ['native','atlas']){if(a===plan.options.destinations[m])event='save-'+m;else if(b===plan.options.destinations[m])event='install-'+m;}if(boundary==='before-'+event)process.kill(process.pid,'SIGKILL');await fs.rename(a,b);if(boundary==='after-'+event)process.kill(process.pid,'SIGKILL');}});`,
     );
@@ -1038,7 +1039,7 @@ await installPairFiles(plan,acceptance,{rename:async(a,b)=>{let event='';for(con
       const recoveryChild = path.join(dir, 'interrupt-recovery.mjs');
       await fs.writeFile(
         recoveryChild,
-        `import fs from 'node:fs/promises';import {recoverPairFiles} from ${JSON.stringify(new URL('../src/publication/files.mjs', import.meta.url).href)};
+        `import fs from 'node:fs/promises';import {recoverPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
 const plan=JSON.parse(await fs.readFile(process.argv[2])),acceptance=JSON.parse(await fs.readFile(process.argv[3]));
 await recoverPairFiles(plan,acceptance,{rename:async(a,b)=>{await fs.rename(a,b);if(a===plan.options.destinations.atlas)process.kill(process.pid,'SIGKILL');}});`,
       );
@@ -1185,7 +1186,7 @@ test('installed file engine handles explicit roots with no developer executables
     pack = spawnSync(
       'npm',
       ['pack', '--json', '--ignore-scripts', '--pack-destination', dir],
-      { cwd: root, encoding: 'utf8' },
+      { cwd: publisher, encoding: 'utf8' },
     );
   assert.equal(pack.status, 0, pack.stderr);
   const info = JSON.parse(pack.stdout)[0],

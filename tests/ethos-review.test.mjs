@@ -4,9 +4,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { sha256 } from '../adapters/ethos/projection.mjs';
+import { sha256 } from '../packages/extensions/ethos/src/adapter/projection.mjs';
 
-const module = new URL('../editions/ethos/review.mjs', import.meta.url);
+const module = new URL('../packages/extensions/ethos/src/edition/review.mjs', import.meta.url);
 async function api() {
   await assert.doesNotReject(
     fs.access(module),
@@ -135,7 +135,7 @@ for (const [name, edit] of [
 
 test('historical verifier remains independently imported rather than copied into tests', async () => {
   const module = new URL(
-    '../editions/ethos/review-history.mjs',
+    '../packages/extensions/ethos/src/edition/review-history.mjs',
     import.meta.url,
   );
   await assert.doesNotReject(
@@ -174,8 +174,8 @@ test(
     );
     assert.equal(good.independentReview, 'preserved-not-rerun');
     assert.equal(good.browserAcceptance, 'not-performed');
-    const { readSourceBundle } = await import('../src/source/bundle.mjs');
-    const { writeSourceBundle } = await import('../src/source/write.mjs');
+    const { readSourceBundle } = await import('../packages/publisher/src/source/bundle.mjs');
+    const { writeSourceBundle } = await import('../packages/publisher/src/source/write.mjs');
     const bundle = await readSourceBundle(
       plan.evidenceBundles[0].manifestPath,
       plan.evidenceBundles[0].sha256,
@@ -387,7 +387,7 @@ test(
 
 test('historical verifier positive and negative paths run in the ordinary offline suite', async () => {
   const { verifyHistoricalReaderReview } =
-    await import('../editions/ethos/review-history.mjs');
+    await import('../packages/extensions/ethos/src/edition/review-history.mjs');
   const { reviewHistoryFixture } =
     await import('./fixtures/review-history.mjs');
   const run = (f) =>

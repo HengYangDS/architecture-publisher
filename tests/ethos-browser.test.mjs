@@ -1,10 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  installCoreAndEthos,
+  runInstalledExport,
+} from './fixtures/installed-packages.mjs';
+
+const root = fileURLToPath(new URL('../', import.meta.url));
 
 async function api() {
   const file = new URL(
-    '../editions/ethos/browser-obligations.mjs',
+    '../packages/extensions/ethos/src/edition/browser-obligations.mjs',
     import.meta.url,
   );
   await assert.doesNotReject(
@@ -203,8 +211,8 @@ test('pure coverage predicate accepts complete data and rejects coordinated omis
   };
   assert.deepEqual(browserCoverageGaps(report, [page], [1600, 900], floor), []);
   const { validateEthosBrowserReport } =
-    await import('../editions/ethos/browser.mjs');
-  const { sha256 } = await import('../adapters/ethos/projection.mjs');
+    await import('../packages/extensions/ethos/src/edition/browser.mjs');
+  const { sha256 } = await import('../packages/extensions/ethos/src/adapter/projection.mjs');
   const portable = structuredClone(report),
     members = [];
   portable.source = {
@@ -346,7 +354,7 @@ test(
   'browser plan consumes current artifact output and does not execute a browser',
   { skip: !process.env.ETHOS_ATLAS_PLAN },
   async () => {
-    const module = new URL('../editions/ethos/browser.mjs', import.meta.url);
+    const module = new URL('../packages/extensions/ethos/src/edition/browser.mjs', import.meta.url);
     await assert.doesNotReject(
       fs.access(module),
       'browser plan must use current output directly',
@@ -367,7 +375,7 @@ test(
 );
 
 test('runtime evidence validator rejects a forged passing summary', async () => {
-  const module = await import('../editions/ethos/browser.mjs');
+  const module = await import('../packages/extensions/ethos/src/edition/browser.mjs');
   assert.equal(typeof module.validateEthosBrowserReport, 'function');
   const target = {
     source: { digest: 'a'.repeat(64), qualitySha256: 'b'.repeat(64) },
@@ -399,7 +407,7 @@ test(
   'current atlas cannot publish with no observed viewport reports',
   { skip: !process.env.ETHOS_ATLAS_PLAN },
   async () => {
-    const module = await import('../editions/ethos/browser.mjs');
+    const module = await import('../packages/extensions/ethos/src/edition/browser.mjs');
     assert.equal(typeof module.readEthosBrowserEvidence, 'function');
     const atlas = JSON.parse(await fs.readFile(process.env.ETHOS_ATLAS_PLAN));
     await assert.rejects(
@@ -413,38 +421,11 @@ test(
   'installed browser-plan command derives current obligations without launching a browser',
   { skip: !process.env.ETHOS_ATLAS_PLAN },
   async (t) => {
-    const { spawnSync } = await import('node:child_process'),
-      path = await import('node:path'),
-      { fileURLToPath } = await import('node:url');
-    const root = fileURLToPath(new URL('../', import.meta.url)),
-      base = path.join(root, 'build/test-work');
+    const base = path.join(root, 'build/test-work');
     await fs.mkdir(base, { recursive: true });
     const tmp = await fs.mkdtemp(path.join(base, 'browser-plan '));
     t.after(() => fs.rm(tmp, { recursive: true, force: true }));
-    const pack = spawnSync(
-      'npm',
-      ['pack', '--json', '--ignore-scripts', '--pack-destination', tmp],
-      { cwd: root, encoding: 'utf8' },
-    );
-    assert.equal(pack.status, 0, pack.stderr);
-    const info = JSON.parse(pack.stdout)[0],
-      consumer = path.join(tmp, 'consumer');
-    await fs.mkdir(consumer);
-    const install = spawnSync(
-      'npm',
-      [
-        'install',
-        '--offline',
-        '--ignore-scripts',
-        '--no-audit',
-        '--no-fund',
-        '--prefix',
-        consumer,
-        path.join(tmp, info.filename),
-      ],
-      { cwd: consumer, encoding: 'utf8' },
-    );
-    assert.equal(install.status, 0, install.stderr);
+    const { consumer } = await installCoreAndEthos(root, tmp);
     const plan = JSON.parse(await fs.readFile(process.env.ETHOS_ATLAS_PLAN));
     for (const key of ['sourceManifest', 'editionManifest', 'outputManifest']) {
       const dest = path.join(tmp, key);
@@ -454,24 +435,13 @@ test(
     await fs.writeFile(path.join(tmp, 'plan.json'), JSON.stringify(plan));
     const home = path.join(tmp, 'home');
     await fs.mkdir(home);
-    const result = spawnSync(
-      process.execPath,
-      [
-        path.join(
-          consumer,
-          'node_modules/architecture-publisher/src/cli/main.mjs',
-        ),
-        'atlas',
-        'ethos',
-        'browser-plan',
-        path.join(tmp, 'plan.json'),
-      ],
-      {
-        cwd: consumer,
-        env: { HOME: home, PATH: home, LANG: 'C.UTF-8' },
-        encoding: 'utf8',
-      },
-    );
+    const result = await runInstalledExport({
+      consumer,
+      module: '@architecture-publisher/ethos/edition',
+      name: 'describeEthosBrowserInput',
+      args: [path.join(tmp, 'plan.json')],
+      cwd: home,
+    });
     assert.equal(result.status, 0, result.stdout + result.stderr);
     const value = JSON.parse(result.stdout);
     assert.equal(value.scope, 'required-browser-observations');

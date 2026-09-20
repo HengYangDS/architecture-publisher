@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-import {validateManifest} from '../src/source/manifest.mjs';
-import {readSourceBundle} from '../src/source/bundle.mjs';
+import {validateManifest} from '../packages/publisher/src/source/manifest.mjs';
+import {readSourceBundle} from '../packages/publisher/src/source/bundle.mjs';
 
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const evidence = new URL('../build/test-work/', import.meta.url);

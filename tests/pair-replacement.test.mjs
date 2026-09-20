@@ -10,7 +10,7 @@ import {
   installPairFiles,
   recoverPairFiles,
   inventory,
-} from '../src/publication/files.mjs';
+} from '../packages/publisher/src/publication/files.mjs';
 
 const hash = (b) => createHash('sha256').update(b).digest('hex');
 const authorize = (plan) => ({
@@ -169,7 +169,7 @@ for (const medium of ['native', 'atlas'])
           if (
             !injected &&
             b === f.options.destinations[medium] &&
-            a.includes('.ethos-pair-stage-')
+            a.includes('.architecture-publication-stage-')
           ) {
             injected = true;
             throw Error('injected interruption');
@@ -201,7 +201,7 @@ for (const boundary of [
         ]),
       ),
     );
-    const entry = new URL('../src/publication/files.mjs', import.meta.url).href;
+    const entry = new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href;
     const file = path.join(f.root, 'interrupt.mjs');
     await fs.writeFile(
       file,

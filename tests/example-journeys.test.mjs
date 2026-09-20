@@ -5,11 +5,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import sax from '../assets/raster/sax/sax.cjs';
-import { parse as parseFont } from '../assets/raster/opentype/opentype.mjs';
-import { auditScene } from '../src/qualification/static/scene.mjs';
+import sax from '../packages/publisher/assets/raster/sax/sax.cjs';
+import { parse as parseFont } from '../packages/publisher/assets/raster/opentype/opentype.mjs';
+import { auditScene } from '../packages/publisher/src/qualification/static/scene.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+const publisher = path.join(root, 'packages/publisher');
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const examples = [
   ['service-topology', 'architecture'],
@@ -19,7 +20,7 @@ const examples = [
 async function checkGeometry(svg) {
   const fonts = new Map();
   for (const [weight, name] of [[400, 'Regular'], [700, 'Bold']]) {
-    const b = await fs.readFile(path.join(root, 'assets/fonts',
+    const b = await fs.readFile(path.join(root, 'packages/publisher/assets/fonts',
       'JetBrainsMono-' + name + '.ttf'));
     fonts.set(weight, parseFont(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)));
   }
@@ -259,7 +260,7 @@ test('installed non-ETHOS examples support both media, updates and local bundles
       '--json',
       '--pack-destination',
       dir,
-    ]),
+    ], publisher),
   )[0];
   const consumer = path.join(dir, 'independent consumer'),
     home = path.join(dir, 'empty home');
@@ -280,8 +281,6 @@ test('installed non-ETHOS examples support both media, updates and local bundles
     consumer,
   );
   const pkg = path.join(consumer, 'node_modules/architecture-publisher');
-  for (const p of ['editions', 'adapters'])
-    await fs.rm(path.join(pkg, p), { recursive: true });
   const invoke = (args) =>
     JSON.parse(
       run(
@@ -326,9 +325,9 @@ test('installed non-ETHOS examples support both media, updates and local bundles
     const workspace = path.join(dir, name);
     await fs.mkdir(workspace);
     const source = await fs.readFile(
-      path.join(pkg, 'examples', name + '.json'),
+      path.join(root, 'examples', name + '.json'),
     );
-    const svg = await fs.readFile(path.join(pkg, 'examples', name + '.svg'));
+    const svg = await fs.readFile(path.join(root, 'examples', name + '.svg'));
     const diagram = JSON.parse(source);
     compareMeaning(diagram, svg.toString());
     const revisions = [];
@@ -337,12 +336,12 @@ test('installed non-ETHOS examples support both media, updates and local bundles
       const selected = update
         ? JSON.parse(
             await fs.readFile(
-              path.join(pkg, 'examples', name + '-updated.json'),
+              path.join(root, 'examples', name + '-updated.json'),
             ),
           )
         : structuredClone(diagram);
       const staticInput = update
-        ? await fs.readFile(path.join(pkg, 'examples', name + '-updated.svg'))
+        ? await fs.readFile(path.join(root, 'examples', name + '-updated.svg'))
         : Buffer.from(svg);
       if (update) assertSemanticUpdate(name, diagram, selected);
       const input = Buffer.from(JSON.stringify(selected, null, 2) + '\n');
@@ -355,6 +354,7 @@ test('installed non-ETHOS examples support both media, updates and local bundles
       const html = path.join(workspace, revision + '.html');
       const interactive = invoke([
         'render',
+        'interactive',
         type,
         file,
         '--sha256',
@@ -367,6 +367,7 @@ test('installed non-ETHOS examples support both media, updates and local bundles
       const repeatedHtml = path.join(workspace, revision + '-repeat.html');
       const repeated = invoke([
         'render',
+        'interactive',
         type,
         file,
         '--sha256',
@@ -395,7 +396,7 @@ test('installed non-ETHOS examples support both media, updates and local bundles
           output: revision + '.png',
         }),
       );
-      const staticResult = invoke(['raster', planFile]);
+      const staticResult = invoke(['render', 'raster', planFile]);
       assert.equal(staticResult.width, 2400);
       assert.equal(staticResult.semanticAcceptance, 'not-performed');
       const png = await fs.readFile(path.join(workspace, revision + '.png'));
@@ -427,7 +428,7 @@ test('installed non-ETHOS examples support both media, updates and local bundles
         JSON.stringify({ ...plan, output: revision + '-repeat.png' }),
       );
       assert.equal(
-        invoke(['raster', repeatPlan]).artifact.sha256,
+        invoke(['render', 'raster', repeatPlan]).artifact.sha256,
         staticResult.artifact.sha256,
       );
       const publication = await packFiles(
@@ -473,12 +474,13 @@ test('installed non-ETHOS examples support both media, updates and local bundles
         }),
       );
       assert.equal(
-        invoke(['raster', replayPlan]).artifact.sha256,
+        invoke(['render', 'raster', replayPlan]).artifact.sha256,
         staticResult.artifact.sha256,
       );
       assert.equal(
         invoke([
           'render',
+          'interactive',
           type,
           path.join(relocated, 'diagram.json'),
           '--sha256',
