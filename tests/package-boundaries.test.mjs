@@ -108,6 +108,19 @@ test('the generic command surface has no domain or renderer identity', async () 
   assert.doesNotMatch(cli, /packages\/editions|\.\.\/\.\.\/editions/);
 });
 
+test('shared font supply belongs to its own renderer capability', async () => {
+  const product = await json(path.join(publisher, 'package.json')),
+    archify = await fs.readFile(
+      path.join(publisher, 'renderers/archify/public.mjs'),
+      'utf8',
+    );
+  assert.equal(
+    product.exports['./renderers/fonts'],
+    './renderers/fonts/index.mjs',
+  );
+  assert.doesNotMatch(archify, /fonts\.mjs|loadBundledFonts/);
+});
+
 test('the published pair-files v2 protocol retains native and atlas media keys', async () => {
   const source = (
     await Promise.all(

@@ -8,10 +8,10 @@ import {
   stableStringify,
 } from '../adapter/projection.mjs';
 import {
-  loadBundledFonts,
   readArchifyLicense,
   renderNativeDiagram,
 } from 'architecture-publisher/renderers/archify';
+import { loadBundledFonts } from 'architecture-publisher/renderers/fonts';
 import { applyNativeTypography, nativeTypography } from './typography.mjs';
 import {
   applyNativeAnnotations,

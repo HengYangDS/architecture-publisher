@@ -30,14 +30,22 @@ const selectedSources = Object.freeze({
     'packages/extensions/architecture-publisher/src/edition/model.mjs',
   'self-static-scene-owner':
     'packages/extensions/architecture-publisher/src/edition/static-scene.mjs',
+  'self-static-composition-owner':
+    'packages/extensions/architecture-publisher/src/edition/static/composition.mjs',
+  'self-static-compiler-owner':
+    'packages/extensions/architecture-publisher/src/edition/static/scene.mjs',
+  'self-static-svg-owner':
+    'packages/extensions/architecture-publisher/src/edition/static/svg.mjs',
+  'self-static-flagship-owner':
+    'packages/extensions/architecture-publisher/src/edition/static-flagship.mjs',
+  'self-static-metrics':
+    'packages/extensions/architecture-publisher/src/edition/static/authoring/metrics.json',
   'self-interactive-scene-owner':
     'packages/extensions/architecture-publisher/src/edition/interactive-scenes.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
   'compiler-owner': 'packages/publisher/src/compiler/edition.mjs',
-  'static-renderer-owner':
-    'packages/publisher/renderers/svg/architecture.mjs',
   'interactive-renderer-owner':
     'packages/publisher/renderers/archify/index.mjs',
   'qualification-owner': 'packages/publisher/src/qualification/contract.mjs',
@@ -225,7 +233,7 @@ test('the first-party self Edition covers the complete product chain and authori
   assert.deepEqual(
     [role('static-artifact').plane, role('static-artifact').maturity],
     ['intended', 'target'],
-    'the 6000px flagship remains a target until its exact artifact exists',
+    'the selected source model does not treat renderer implementation as an existing accepted artifact',
   );
   assert.deepEqual(
     [role('interactive-atlas').plane, role('interactive-atlas').maturity],

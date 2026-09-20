@@ -15,7 +15,10 @@ import {
   validateEdition,
 } from 'architecture-publisher/edition';
 import { architecturePublisherClaimModel } from './model.mjs';
-import { architecturePublisherStaticScene } from './static-scene.mjs';
+import {
+  architecturePublisherStaticScene,
+  staticAuthoringDigest,
+} from './static-scene.mjs';
 import { architecturePublisherInteractiveScenes } from './interactive-scenes.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -33,14 +36,19 @@ const sourceAuthorities = Object.freeze({
   'core-package': 'Installed generic product identity and public package surface',
   'self-prepare-owner': 'Explicit self-Edition source selection and preparation',
   'self-model-owner': 'First-party product self-model authorship',
-  'self-static-scene-owner': 'Independent flagship static scene authorship',
+  'self-static-scene-owner': 'Flagship static Edition scene contract',
+  'self-static-composition-owner': 'Flagship static authored composition',
+  'self-static-compiler-owner': 'Flagship measured scene compiler',
+  'self-static-svg-owner': 'Flagship SVG renderer',
+  'self-static-flagship-owner': 'Flagship static build composition root',
+  'self-static-metrics':
+    'Recorded typography input; not fresh runtime observation',
   'self-interactive-scene-owner':
     'Independent flagship interactive scene authorship',
   'source-owner': 'Source Bundle validation and exclusive output implementation',
   'claim-owner': 'Claim Model schema, validation, and canonical identity owner',
   'evolution-owner': 'Semantic delta and Edition evolution obligation compiler',
   'compiler-owner': 'Edition candidate compilation implementation',
-  'static-renderer-owner': 'Static SVG renderer implementation',
   'interactive-renderer-owner': 'Interactive HTML renderer implementation',
   'qualification-owner': 'Qualification schema and validation owner',
   'publication-owner': 'Recoverable publication effect implementation',
@@ -126,7 +134,7 @@ function claimsFor(scene) {
   return scene.claims;
 }
 
-function editionFor(model, sourceSha256) {
+function editionFor(model, sourceSha256, sources) {
   const interactive = architecturePublisherInteractiveScenes(),
     question = (id, prompt, risk) => ({
       audience: 'steward',
@@ -260,7 +268,7 @@ function editionFor(model, sourceSha256) {
       ],
     },
     scenes: {
-      static: architecturePublisherStaticScene(),
+      static: architecturePublisherStaticScene(staticAuthoringDigest(sources)),
       interactive,
     },
     qualification: {
@@ -321,7 +329,10 @@ export async function prepareArchitecturePublisherEdition(input) {
         structuredClone(input.source),
         [{ path: 'semantic.json', content: semanticBytes }, ...members],
       ),
-      edition = validateEdition(model, editionFor(model, bundle.manifestSha256)),
+      edition = validateEdition(
+        model,
+        editionFor(model, bundle.manifestSha256, selected),
+      ),
       editionBytes = encode(edition),
       plan = {
         sourceManifest: path.join(final, 'source/manifest.json'),

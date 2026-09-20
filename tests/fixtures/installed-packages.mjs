@@ -24,6 +24,46 @@ function archive(directory, result) {
   return path.join(directory, JSON.parse(result.stdout)[0].filename);
 }
 
+export async function installCoreAndSelf(root, directory) {
+  const core = run(
+      'npm',
+      ['pack', '--json', '--ignore-scripts', '--pack-destination', directory],
+      path.join(root, 'packages/publisher'),
+    ),
+    extension = run(
+      'npm',
+      ['pack', '--json', '--ignore-scripts', '--pack-destination', directory],
+      path.join(root, 'packages/extensions/architecture-publisher'),
+    ),
+    consumer = path.join(directory, 'consumer');
+  await fs.mkdir(consumer);
+  run(
+    'npm',
+    [
+      'install',
+      '--offline',
+      '--ignore-scripts',
+      '--no-audit',
+      '--no-fund',
+      '--prefix',
+      consumer,
+      archive(directory, core),
+      archive(directory, extension),
+    ],
+    consumer,
+  );
+  return {
+    consumer,
+    coreRoot: path.join(consumer, 'node_modules/architecture-publisher'),
+    selfRoot: path.join(
+      consumer,
+      'node_modules/@architecture-publisher/self-edition',
+    ),
+    core: JSON.parse(core.stdout)[0],
+    extension: JSON.parse(extension.stdout)[0],
+  };
+}
+
 export async function installCoreAndEthos(root, directory) {
   const core = run(
       'npm',

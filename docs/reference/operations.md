@@ -226,9 +226,26 @@ architecture-publisher/qualification
 architecture-publisher/publication
 architecture-publisher/runtime
 architecture-publisher/renderers/archify
+architecture-publisher/renderers/fonts
 architecture-publisher/renderers/resvg
 architecture-publisher/renderers/svg
 ```
+
+The font-supply export owns verified font and license bytes shared by sibling
+renderers. Archify consumes that capability but does not own or re-export it.
+
+The first-party self-Edition exports:
+
+```text
+@architecture-publisher/self-edition
+@architecture-publisher/self-edition/edition
+@architecture-publisher/self-edition/runtime
+```
+
+Its public Edition surface prepares explicit source-bound inputs and renders the
+independent flagship static candidate. The render result remains unqualified
+and unpublished until the later qualification and publication contracts admit
+those exact bytes.
 
 The ETHOS extension exports:
 

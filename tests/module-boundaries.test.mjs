@@ -11,6 +11,7 @@ const runtimeRoots = [
   'packages/publisher/src',
   'packages/publisher/renderers',
   'packages/publisher/assets',
+  'packages/extensions/architecture-publisher/src',
   'packages/extensions/ethos/src',
 ];
 
@@ -18,6 +19,7 @@ async function inventory(roots) {
   const paths = new Set([
     '',
     'packages/publisher/',
+    'packages/extensions/architecture-publisher/',
     'packages/extensions/ethos/',
   ]);
   const modules = [];
@@ -53,6 +55,7 @@ test('runtime owners are package-scoped and old owner roots are absent', async (
     'packages/publisher/src/qualification',
     'packages/publisher/src/publication',
     'packages/publisher/renderers',
+    'packages/extensions/architecture-publisher/src/edition',
     'packages/extensions/ethos/src/adapter',
     'packages/extensions/ethos/src/edition',
   ])
@@ -90,6 +93,14 @@ test('extensions depend inward through public package exports', async () => {
     deep.some(({ reason }) =>
       reason.includes('cross-package dependency must use a public export'),
     ),
+  );
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      'packages/extensions/architecture-publisher/src/edition/static-flagship.mjs',
+      "import { loadBundledFonts } from 'architecture-publisher/renderers/fonts';",
+      paths,
+    ),
+    [],
   );
 });
 

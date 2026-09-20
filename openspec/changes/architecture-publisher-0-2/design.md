@@ -222,6 +222,7 @@ architecture-publisher/                 # private development workspace
 │   │   │   └── cli/
 │   │   ├── renderers/
 │   │   │   ├── svg/
+│   │   │   ├── fonts/
 │   │   │   ├── archify/
 │   │   │   └── resvg/
 │   │   └── assets/                     # exact bundled supply, not authorities
@@ -305,6 +306,15 @@ Required flagship predicates are:
 - installed offline build and reader use;
 - replacement, interrupted-effect recovery, and exact replay;
 - human `faithful`, `intelligible`, and `restrained` decision.
+
+Static authoring closes only when its delivery-resolution candidate proves
+semantic coverage, measured source geometry, emitted paths, actual raster
+canvas bounds, paint presence for every declared glyph, node, stroke,
+arrowhead, and rule, and absence of raster paint outside their declared
+envelopes. These build-time checks are candidate evidence, not qualification
+records. Task 5 promotes the applicable checks into independent,
+digest-bound predicates, adds hostile fixtures and cross-medium observation,
+and alone may support later acceptance.
 
 The human decision applies only to exact bytes. Automated acceptance cannot set
 it. User review of the final artifacts is the product's final aesthetic gate.

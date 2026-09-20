@@ -19,7 +19,7 @@ import {
   validateEdition,
 } from '../edition/contract.mjs';
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
-import { loadBundledFonts } from '../../renderers/archify/fonts.mjs';
+import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
 import { rasterize } from '../../renderers/resvg/index.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');

@@ -1,174 +1,45 @@
+import { createHash } from 'node:crypto';
 import { SELF_ENTITY_IDS, SELF_RELATION_IDS } from './model.mjs';
+import { composeArchitecturePublisherFlagship } from './static/composition.mjs';
 
-const edge = (id, fromSide, toSide, route) => ({
-  id,
-  fromSide,
-  toSide,
-  route,
-});
+const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 
-export function architecturePublisherStaticScene() {
+export function staticAuthoringDigest(sources) {
+  for (const id of [
+    'self-static-composition-owner',
+    'self-static-metrics',
+  ])
+    if (typeof sources?.[id]?.sha256 !== 'string')
+      throw Object.assign(new Error('self_static_authoring_source_missing'), {
+        code: 'self_static_authoring_source_missing',
+      });
+  return sha256(
+    Buffer.from(
+      JSON.stringify({
+        compositionSha256: sources['self-static-composition-owner'].sha256,
+        metricsSha256: sources['self-static-metrics'].sha256,
+      }),
+    ),
+  );
+}
+
+export function architecturePublisherStaticScene(authoredInputSha256) {
+  if (
+    typeof authoredInputSha256 !== 'string' ||
+    !/^[a-f0-9]{64}$/.test(authoredInputSha256)
+  )
+    throw Object.assign(new Error('self_static_authoring_digest_invalid'), {
+      code: 'self_static_authoring_digest_invalid',
+    });
+  const authored = composeArchitecturePublisherFlagship();
   return {
-    label: 'Meaning becomes trustworthy Architecture Editions',
+    label: authored.subtitle,
     questions: ['overview'],
     claims: [
       ...SELF_ENTITY_IDS.map((id) => 'role-' + id),
       ...SELF_RELATION_IDS.map((id) => 'flow-' + id),
     ],
-    composition: {
-      groups: [
-        {
-          id: 'source-field',
-          label: 'Authoritative source field',
-          entities: [
-            'accepted-intent',
-            'implementation',
-            'runtime-observation',
-            'evidence',
-          ],
-        },
-        {
-          id: 'meaning',
-          label: 'Meaning and authorship',
-          entities: [
-            'source-adapter',
-            'source-bundle',
-            'claim-model',
-            'edition',
-            'build-request',
-            'publisher-core',
-            'uncertainty',
-          ],
-        },
-        {
-          id: 'media',
-          label: 'Independent media',
-          entities: ['static-scene', 'interactive-scenes'],
-        },
-        {
-          id: 'rendering',
-          label: 'Replaceable rendering',
-          entities: ['static-renderer', 'interactive-renderer'],
-        },
-        {
-          id: 'artifacts',
-          label: 'Exact artifacts',
-          entities: ['static-artifact', 'interactive-atlas', 'edition-candidate'],
-        },
-        {
-          id: 'qualification',
-          label: 'Non-compensating qualification',
-          entities: ['human-review', 'qualification-set', 'acceptance'],
-        },
-        {
-          id: 'authorization',
-          label: 'Explicit effect admission',
-          entities: ['authorization'],
-        },
-        {
-          id: 'effects',
-          label: 'Authorized and recoverable effects',
-          entities: [
-            'publication',
-            'recovery',
-            'off-host-recovery',
-          ],
-        },
-        {
-          id: 'ecosystem',
-          label: 'Independent consumers and return',
-          entities: [
-            'self-consumer',
-            'ethos-consumer',
-            'aigw-consumer',
-            'feedback',
-          ],
-        },
-        {
-          id: 'evolution',
-          label: 'Conservative evolution obligations',
-          entities: [
-            'evolution-inputs',
-            'semantic-delta',
-            'affected-views',
-          ],
-        },
-        {
-          id: 'renewal',
-          label: 'Independent renewal obligations',
-          entities: [
-            'rebuild-obligations',
-            'semantic-verification-obligations',
-            'medium-verification-obligations',
-            'human-review-obligations',
-            'acceptance-obligations',
-            'publication-obligations',
-          ],
-        },
-      ],
-      relations: [
-        edge('intent-enters-adapter', 'bottom', 'top', 'orthogonal-v'),
-        edge('implementation-enters-adapter', 'bottom', 'top', 'orthogonal-v'),
-        edge('observation-enters-adapter', 'bottom', 'top', 'orthogonal-v'),
-        edge('evidence-enters-bundle', 'bottom', 'top', 'orthogonal-v'),
-        edge('adapter-builds-bundle', 'right', 'left', 'straight'),
-        edge('bundle-binds-claims', 'right', 'left', 'straight'),
-        edge('claims-inform-edition', 'right', 'left', 'straight'),
-        edge('uncertainty-broadens-edition', 'left', 'right', 'straight'),
-        edge('edition-authors-static', 'bottom', 'top', 'orthogonal-v'),
-        edge('edition-authors-interactive', 'bottom', 'top', 'orthogonal-v'),
-        edge('core-compiles-static', 'bottom', 'top', 'orthogonal-v'),
-        edge('core-compiles-interactive', 'bottom', 'top', 'orthogonal-v'),
-        edge('bundle-selects-build', 'right', 'left', 'straight'),
-        edge('claims-select-build', 'right', 'left', 'straight'),
-        edge('edition-selects-build', 'right', 'left', 'straight'),
-        edge('build-invokes-core', 'right', 'left', 'straight'),
-        edge('static-scene-enters-renderer', 'bottom', 'top', 'orthogonal-v'),
-        edge('interactive-scenes-enter-renderer', 'bottom', 'top', 'orthogonal-v'),
-        edge('backend-renders-static', 'bottom', 'top', 'orthogonal-v'),
-        edge('backend-renders-interactive', 'bottom', 'top', 'orthogonal-v'),
-        edge('static-enters-candidate', 'right', 'left', 'straight'),
-        edge('interactive-enters-candidate', 'left', 'right', 'straight'),
-        edge('candidate-enters-qualification', 'bottom', 'top', 'orthogonal-v'),
-        edge('human-review-enters-qualification', 'right', 'left', 'straight'),
-        edge(
-          'qualification-precedes-acceptance',
-          'bottom',
-          'top',
-          'orthogonal-h',
-        ),
-        edge('acceptance-precedes-authorization', 'bottom', 'top', 'orthogonal-v'),
-        edge(
-          'authorization-precedes-publication',
-          'bottom',
-          'top',
-          'orthogonal-v',
-        ),
-        edge('publication-supports-recovery', 'right', 'left', 'straight'),
-        edge('publication-serves-self', 'bottom', 'top', 'orthogonal-v'),
-        edge('publication-serves-ethos', 'bottom', 'top', 'orthogonal-v'),
-        edge('publication-serves-aigw', 'bottom', 'top', 'orthogonal-v'),
-        edge('publication-returns-feedback', 'bottom', 'top', 'orthogonal-v'),
-        edge('feedback-returns-to-adapter', 'top', 'bottom', 'orthogonal-v'),
-        edge('recovery-excludes-off-host', 'right', 'left', 'straight'),
-        edge('models-enter-evolution', 'bottom', 'top', 'orthogonal-v'),
-        edge('edition-enters-evolution', 'bottom', 'top', 'orthogonal-v'),
-        edge('evolution-produces-delta', 'right', 'left', 'straight'),
-        edge('delta-identifies-affected-views', 'right', 'left', 'straight'),
-        edge('affected-views-require-rebuild', 'bottom', 'top', 'orthogonal-v'),
-        edge('affected-views-require-semantic-verification', 'bottom', 'top', 'orthogonal-v'),
-        edge('affected-views-require-medium-verification', 'bottom', 'top', 'orthogonal-v'),
-        edge('affected-views-require-human-review', 'bottom', 'top', 'orthogonal-v'),
-        edge('affected-views-require-acceptance', 'bottom', 'top', 'orthogonal-v'),
-        edge('affected-views-require-publication', 'bottom', 'top', 'orthogonal-v'),
-        edge('rebuild-renews-static', 'top', 'bottom', 'orthogonal-v'),
-        edge('rebuild-renews-interactive', 'top', 'bottom', 'orthogonal-v'),
-        edge('semantic-verification-renews-claims', 'top', 'bottom', 'orthogonal-v'),
-        edge('medium-verification-renews-qualification', 'top', 'bottom', 'orthogonal-v'),
-        edge('human-review-obligation-renews-review', 'top', 'bottom', 'orthogonal-v'),
-        edge('acceptance-obligation-renews-acceptance', 'top', 'bottom', 'orthogonal-v'),
-        edge('publication-obligation-renews-publication', 'top', 'bottom', 'orthogonal-v'),
-      ],
-    },
+    composition: structuredClone(authored.editionComposition),
+    authoredInputSha256,
   };
 }

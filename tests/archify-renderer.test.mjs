@@ -5,7 +5,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { renderDiagram } from '../packages/publisher/renderers/archify/index.mjs';
 import * as renderer from '../packages/publisher/renderers/archify/index.mjs';
-import * as fontSupply from '../packages/publisher/renderers/archify/fonts.mjs';
+import * as fontSupply from '../packages/publisher/renderers/fonts/index.mjs';
 import { serviceTopology } from './fixtures/diagrams.mjs';
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 test('editions reuse the verified bundled font bytes without a second loader', async () => {
