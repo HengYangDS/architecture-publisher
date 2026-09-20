@@ -3,7 +3,7 @@ import {
   stableStringify,
   validateProjectionEnvelope,
 } from '../../src/integrations/ethos/projection.mjs';
-import { ethosSemanticDocument } from '../../src/integrations/ethos/semantics.mjs';
+import { ethosClaimModel } from '../../src/integrations/ethos/semantics.mjs';
 import { compileSemanticChange } from '../../src/semantics/change.mjs';
 
 const map = (rows) => Object.fromEntries(rows.map((row) => [row.id, row]));
@@ -32,15 +32,20 @@ export function compareEthosMeaning(before, after, views) {
       throw Error('Explicit authored view dependencies required');
   }
   const compilation = compileSemanticChange(
-    ethosSemanticDocument(before),
-    ethosSemanticDocument(after),
+    ethosClaimModel(before),
+    ethosClaimModel(after),
     views.map((v) => ({
       id: v.id,
       coverage: 'complete',
       views: [],
       dependsOn: ['nodes', 'relations', 'assertions'].flatMap((section) =>
         [...new Set(v[section])].map((id) => ({
-          section: section === 'nodes' ? 'entities' : section,
+          section:
+            section === 'nodes'
+              ? 'entities'
+              : section === 'assertions'
+                ? 'claims'
+                : section,
           id,
         })),
       ),
@@ -49,7 +54,7 @@ export function compareEthosMeaning(before, after, views) {
   const project = (delta) => ({
     nodes: delta.entities,
     relations: delta.relations,
-    assertions: delta.assertions,
+    assertions: delta.claims,
     documents: [
       ...delta.sources.filter((id) => id !== 'document:copy'),
       ...delta.context

@@ -1,17 +1,22 @@
 {
-  "schema": "architecture.semantic-compare-input/v1",
+  "schema": "architecture.semantic-compare-input/v2",
   "before": {
     "path": "before.json",
-    "sha256": "5d6e46a2e3023a7ee7678ee62ddfb5caeba03e2f1f1b1a40e5eb2313544dd691"
+    "sha256": "c9beab33f7659ddf958186ab0b6f3b93f88ab2e5004a38016579634375ebfce4"
   },
   "after": {
     "path": "after.json",
-    "sha256": "2ccd46150de4c5a5f5895af082a9ca16eaad069182dc6528b0a26027b1d7aa23"
+    "sha256": "254532df6ebdefb5e6d67f8718381dc56954a36b682addb3510048d2adc51019"
   },
   "views": [
     {
       "id": "overview",
-      "dependsOn": [{ "section": "assertions", "id": "admission" }],
+      "dependsOn": [
+        {
+          "section": "claims",
+          "id": "admission"
+        }
+      ],
       "views": [],
       "coverage": "complete"
     }

@@ -1,6 +1,6 @@
 {
   "schema": "architecture.semantic-publication/v2",
-  "semanticDigest": "eafce60e39c46bb016d4d41c76a2b2fbc46992699bd46d3806ba6d683e7eea17",
+  "semanticDigest": "be5770127b0e379ea9f28431d3fb43e64cff2e0832392e9776d5dd126bd4f4eb",
   "title": "AIGW Client Projection",
   "entityTypes": {
     "interface": "external",

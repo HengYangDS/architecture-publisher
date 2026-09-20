@@ -1,60 +1,38 @@
 {
-  "schema": "architecture.semantic-document/v1",
+  "schema": "architecture.claim-model/v2",
   "owner": "aigw-cli",
   "vocabulary": {
-    "entities": ["interface", "coordinator", "client"],
-    "relations": ["delegates", "projects"]
-  },
-  "entities": {
-    "cli": {
-      "type": "interface",
-      "label": "CLI",
-      "qualifiers": { "role": "command composition" },
-      "provenance": ["synchronizer"]
-    },
-    "synchronizer": {
-      "type": "coordinator",
-      "label": "Synchronizer",
-      "qualifiers": { "role": "client-specific coordination" },
-      "provenance": ["synchronizer"]
-    },
-    "codex": {
-      "type": "client",
-      "label": "Codex",
-      "qualifiers": { "projection": "native client configuration" },
-      "provenance": ["synchronizer"]
-    },
-    "claude": {
-      "type": "client",
-      "label": "Claude Code",
-      "qualifiers": { "projection": "native client configuration" },
-      "provenance": ["synchronizer"]
+    "entities": [
+      "interface",
+      "coordinator",
+      "client"
+    ],
+    "relations": [
+      "delegates",
+      "projects"
+    ],
+    "maturities": [
+      "implemented"
+    ],
+    "predicates": {
+      "delegates": {
+        "valueKind": "entity",
+        "cardinality": "multiple",
+        "values": [],
+        "provenance": [
+          "synchronizer"
+        ]
+      },
+      "projects": {
+        "valueKind": "entity",
+        "cardinality": "multiple",
+        "values": [],
+        "provenance": [
+          "synchronizer"
+        ]
+      }
     }
   },
-  "relations": {
-    "cli-synchronizer": {
-      "type": "delegates",
-      "subject": "cli",
-      "object": "synchronizer",
-      "qualifiers": {},
-      "provenance": ["synchronizer"]
-    },
-    "synchronizer-codex": {
-      "type": "projects",
-      "subject": "synchronizer",
-      "object": "codex",
-      "qualifiers": { "implementation": "direct client-specific path" },
-      "provenance": ["synchronizer"]
-    },
-    "synchronizer-claude": {
-      "type": "projects",
-      "subject": "synchronizer",
-      "object": "claude",
-      "qualifiers": { "implementation": "direct client-specific path" },
-      "provenance": ["synchronizer"]
-    }
-  },
-  "assertions": {},
   "sources": {
     "synchronizer": {
       "sha256": "f012cb44a90df4295c89b235d6f61fefe81c99a3dfd9148719ebb79f30987a8c",
@@ -65,6 +43,150 @@
       "sha256": "35e7e1bfe59ab4b6122410767dea9de995077af273b695d075743a45dcb0e07a",
       "locator": "source/LICENSE",
       "authority": "AIGW source license at the selected revision"
+    }
+  },
+  "entities": {
+    "cli": {
+      "type": "interface",
+      "label": "CLI",
+      "qualifiers": {
+        "role": "command composition"
+      },
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "synchronizer": {
+      "type": "coordinator",
+      "label": "Synchronizer",
+      "qualifiers": {
+        "role": "client-specific coordination"
+      },
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "codex": {
+      "type": "client",
+      "label": "Codex",
+      "qualifiers": {
+        "projection": "native client configuration"
+      },
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "claude": {
+      "type": "client",
+      "label": "Claude Code",
+      "qualifiers": {
+        "projection": "native client configuration"
+      },
+      "provenance": [
+        "synchronizer"
+      ]
+    }
+  },
+  "relations": {
+    "cli-synchronizer": {
+      "type": "delegates",
+      "subject": "cli",
+      "object": "synchronizer",
+      "qualifiers": {},
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "synchronizer-codex": {
+      "type": "projects",
+      "subject": "synchronizer",
+      "object": "codex",
+      "qualifiers": {
+        "implementation": "direct client-specific path"
+      },
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "synchronizer-claude": {
+      "type": "projects",
+      "subject": "synchronizer",
+      "object": "claude",
+      "qualifiers": {
+        "implementation": "direct client-specific path"
+      },
+      "provenance": [
+        "synchronizer"
+      ]
+    }
+  },
+  "claims": {
+    "cli-synchronizer": {
+      "subject": "cli",
+      "predicate": "delegates",
+      "object": "synchronizer",
+      "value": null,
+      "plane": "implemented",
+      "condition": {},
+      "scope": {},
+      "maturity": "implemented",
+      "validity": "affirmed",
+      "dependsOn": [
+        {
+          "section": "relations",
+          "id": "cli-synchronizer"
+        }
+      ],
+      "coverage": "complete",
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "synchronizer-codex": {
+      "subject": "synchronizer",
+      "predicate": "projects",
+      "object": "codex",
+      "value": null,
+      "plane": "implemented",
+      "condition": {},
+      "scope": {
+        "implementation": "direct client-specific path"
+      },
+      "maturity": "implemented",
+      "validity": "affirmed",
+      "dependsOn": [
+        {
+          "section": "relations",
+          "id": "synchronizer-codex"
+        }
+      ],
+      "coverage": "complete",
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "synchronizer-claude": {
+      "subject": "synchronizer",
+      "predicate": "projects",
+      "object": "claude",
+      "value": null,
+      "plane": "implemented",
+      "condition": {},
+      "scope": {
+        "implementation": "direct client-specific path"
+      },
+      "maturity": "implemented",
+      "validity": "affirmed",
+      "dependsOn": [
+        {
+          "section": "relations",
+          "id": "synchronizer-claude"
+        }
+      ],
+      "coverage": "complete",
+      "provenance": [
+        "synchronizer"
+      ]
     }
   },
   "context": {

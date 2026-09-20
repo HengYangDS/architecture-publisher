@@ -27,7 +27,7 @@ export async function compareSemanticInput(file, digest) {
   const plan = await selectedJSON(planPath, digest, 'plan', 1024 * 1024);
   if (
     !exact(plan, ['schema', 'before', 'after', 'views', 'correspondences']) ||
-    plan.schema !== 'architecture.semantic-compare-input/v1'
+    plan.schema !== 'architecture.semantic-compare-input/v2'
   )
     semanticError('semantic_plan_invalid');
   const documents = [];

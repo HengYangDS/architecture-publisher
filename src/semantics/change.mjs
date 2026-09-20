@@ -1,14 +1,14 @@
 import {
-  SECTIONS,
+  CLAIM_MODEL_SECTIONS,
   canonical,
   exact,
   strings,
   text,
   semanticError,
-  normalizedDocument,
-  semanticDigest,
+  normalizedClaimModel,
+  claimModelDigest,
   referenceKey,
-  validReference,
+  validClaimReference,
   jsonValue,
 } from './document.mjs';
 
@@ -24,7 +24,7 @@ function correspondence(rows, a, b, added, removed) {
       if (
         !exact(row, ['kind', 'section', 'from', 'to', 'evidence']) ||
         !['rename', 'split', 'merge'].includes(row.kind) ||
-        !['entities', 'relations', 'assertions'].includes(row.section) ||
+        !['entities', 'relations', 'claims'].includes(row.section) ||
         !strings(row.from, true) ||
         !strings(row.to, true) ||
         !{
@@ -84,13 +84,13 @@ export function compileSemanticChange(
 ) {
   jsonValue(views);
   jsonValue(correspondences);
-  const a = normalizedDocument(before),
-    b = normalizedDocument(after);
+  const a = normalizedClaimModel(before),
+    b = normalizedClaimModel(after);
   if (a.owner !== b.owner) semanticError('semantic_owner_changed');
   const added = {},
     removed = {},
     changed = {};
-  for (const section of SECTIONS) {
+  for (const section of CLAIM_MODEL_SECTIONS) {
     added[section] = Object.keys(b[section])
       .filter((id) => !Object.hasOwn(a[section], id))
       .sort();
@@ -116,7 +116,7 @@ export function compileSemanticChange(
         !['complete', 'unknown'].includes(v.coverage) ||
         !strings(v.views) ||
         !Array.isArray(v.dependsOn) ||
-        v.dependsOn.some((r) => !validReference(r)) ||
+        v.dependsOn.some((r) => !validClaimReference(r)) ||
         new Set(v.dependsOn.map(referenceKey)).size !== v.dependsOn.length,
     ) ||
     new Set(views.map((v) => v.id)).size !== views.length
@@ -133,7 +133,7 @@ export function compileSemanticChange(
     dependencies.get(dependent).add(dependency);
   };
   for (const doc of [a, b]) {
-    for (const section of ['entities', 'relations', 'assertions']) {
+    for (const section of ['entities', 'relations', 'claims']) {
       for (const [id, value] of Object.entries(doc[section])) {
         const dependent = key(section, id);
         for (const source of value.provenance)
@@ -142,15 +142,11 @@ export function compileSemanticChange(
           edge(key('entities', value.subject), dependent);
           edge(key('entities', value.object), dependent);
         }
-        if (section === 'assertions') {
+        if (section === 'claims') {
           for (const ref of value.dependsOn)
             edge(referenceKey(ref), dependent);
-          if (value.proposition) {
-            edge(key('entities', value.proposition.subject), dependent);
-            edge(key('entities', value.proposition.object), dependent);
-          }
           if (value.coverage === 'unknown')
-            reasons.add('unknown-assertion-dependencies');
+            reasons.add('unknown-claim-dependencies');
         }
       }
     }
@@ -181,7 +177,7 @@ export function compileSemanticChange(
         }
     return reached;
   };
-  const changes = SECTIONS.flatMap((section) =>
+  const changes = CLAIM_MODEL_SECTIONS.flatMap((section) =>
     [...added[section], ...removed[section], ...changed[section]].map(
       (id) => ({ section, id }),
     ),
@@ -190,7 +186,7 @@ export function compileSemanticChange(
   const represented = closure(viewKeys.values(), dependencies);
   const unrepresented = changes
     .filter((r) =>
-      ['entities', 'relations', 'assertions'].includes(r.section),
+      ['entities', 'relations', 'claims'].includes(r.section),
     )
     .filter((r) => !represented.has(referenceKey(r)))
     .map((r) => r.section + ':' + r.id)
@@ -221,18 +217,18 @@ export function compileSemanticChange(
     review: affectedViews.map((view) => ({ view, reasons: [...why] })),
   };
   return {
-    schema: 'architecture.semantic-change/v1',
-    before: semanticDigest(a),
-    after: semanticDigest(b),
+    schema: 'architecture.semantic-change/v2',
+    before: claimModelDigest(a),
+    after: claimModelDigest(b),
     added,
     removed,
     changed,
     correspondences: mappings,
-    affectedAssertions: sorted([
-      ...Object.keys(a.assertions),
-      ...Object.keys(b.assertions),
+    affectedClaims: sorted([
+      ...Object.keys(a.claims),
+      ...Object.keys(b.claims),
     ]).filter(
-      (id) => requiresCompleteReview || reached.has(key('assertions', id)),
+      (id) => requiresCompleteReview || reached.has(key('claims', id)),
     ),
     affectedViews,
     unrepresented,

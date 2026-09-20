@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { writeSourceBundle } from '../src/source/write.mjs';
 import { readSourceBundle } from '../src/source/bundle.mjs';
-import { semanticDigest } from '../src/semantics/document.mjs';
+import { claimModelDigest } from '../src/semantics/document.mjs';
 import { compileSemanticPublication } from '../src/publication/semantic.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -20,11 +20,20 @@ async function fixture(t, mutateDocument = () => {}) {
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const source = Buffer.from('type Registry struct { ids []string }\n');
   const document = {
-    schema: 'architecture.semantic-document/v1',
+    schema: 'architecture.claim-model/v2',
     owner: 'example:control-plane',
     vocabulary: {
       entities: ['component'],
       relations: ['delegates'],
+      maturities: ['implemented'],
+      predicates: {
+        delegates: {
+          valueKind: 'entity',
+          cardinality: 'multiple',
+          values: [],
+          provenance: ['registry-source'],
+        },
+      },
     },
     entities: {
       cli: {
@@ -62,7 +71,36 @@ async function fixture(t, mutateDocument = () => {}) {
         provenance: ['registry-source'],
       },
     },
-    assertions: {},
+    claims: {
+      'cli-registry': {
+        subject: 'cli',
+        predicate: 'delegates',
+        object: 'registry',
+        value: null,
+        plane: 'implemented',
+        condition: {},
+        scope: {},
+        maturity: 'implemented',
+        validity: 'affirmed',
+        dependsOn: [{ section: 'relations', id: 'cli-registry' }],
+        coverage: 'complete',
+        provenance: ['registry-source'],
+      },
+      'registry-adapter': {
+        subject: 'registry',
+        predicate: 'delegates',
+        object: 'adapter',
+        value: null,
+        plane: 'implemented',
+        condition: {},
+        scope: {},
+        maturity: 'implemented',
+        validity: 'affirmed',
+        dependsOn: [{ section: 'relations', id: 'registry-adapter' }],
+        coverage: 'complete',
+        provenance: ['registry-source'],
+      },
+    },
     sources: {
       'registry-source': {
         sha256: sha(source),
@@ -85,7 +123,7 @@ async function fixture(t, mutateDocument = () => {}) {
     schema: 'architecture.semantic-publication/v2',
     semanticDigest: (() => {
       try {
-        return semanticDigest(document);
+        return claimModelDigest(document);
       } catch {
         return '0'.repeat(64);
       }
@@ -199,7 +237,7 @@ test('compiles complete source-bound structure into static and interactive media
   );
   const publication = JSON.parse(members.get('publication.json'));
   assert.deepEqual(JSON.parse(members.get('semantic.json')), value.document);
-  assert.equal(publication.semanticDigest, semanticDigest(value.document));
+  assert.equal(publication.semanticDigest, claimModelDigest(value.document));
   assert.deepEqual(
     publication.views.map((view) => view.id),
     ['overview', 'registry-flow'],
@@ -410,28 +448,12 @@ test('rejects a semantic source whose selected bytes changed', async (t) => {
   await assert.rejects(fs.access(value.plan.output));
 });
 
-test('rejects contradictory semantic propositions before rendering', async (t) => {
+test('rejects contradictory semantic claims before rendering', async (t) => {
   const value = await fixture(t, (document) => {
-    document.assertions.allowed = {
-      value: true,
-      proposition: {
-        subject: 'cli',
-        predicate: 'delegates',
-        object: 'registry',
-        polarity: 'positive',
-        qualifiers: {},
-      },
-      dependsOn: [],
+    document.claims.denied = {
+      ...structuredClone(document.claims['cli-registry']),
+      validity: 'refuted',
       coverage: 'complete',
-      provenance: ['registry-source'],
-    };
-    document.assertions.denied = {
-      ...structuredClone(document.assertions.allowed),
-      value: false,
-      proposition: {
-        ...document.assertions.allowed.proposition,
-        polarity: 'negative',
-      },
     };
   });
   await assert.rejects(compileSemanticPublication(value.plan), {

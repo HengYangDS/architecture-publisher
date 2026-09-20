@@ -1,7 +1,7 @@
 import { fail, isDigest } from '../source/manifest.mjs';
 import {
-  semanticDigest,
-  validateSemanticDocument,
+  claimModelDigest,
+  validateClaimModel,
 } from '../semantics/document.mjs';
 const record = (value) =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -108,7 +108,7 @@ function validateView(view, document, purposeRequired) {
 }
 
 export function semanticArchitectureProjections(document, authoring) {
-  validateSemanticDocument(document);
+  validateClaimModel(document);
   if (
     !exact(authoring, [
       'schema',
@@ -134,7 +134,7 @@ export function semanticArchitectureProjections(document, authoring) {
     authoring.interactiveViews.length > 12
   )
     fail('semantic_publication_authoring_invalid');
-  if (authoring.semanticDigest !== semanticDigest(document))
+  if (authoring.semanticDigest !== claimModelDigest(document))
     fail('semantic_publication_semantic_digest_mismatch');
   for (const type of document.vocabulary.entities)
     if (!componentType.has(authoring.entityTypes[type]))

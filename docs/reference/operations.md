@@ -627,7 +627,7 @@ evidence, not another mutable design authority or a runtime dependency.
 archpub semantic compare ./compare.json --sha256 <plan-sha256>
 ```
 
-The strict `architecture.semantic-compare-input/v1` plan selects `before` and
+The strict `architecture.semantic-compare-input/v2` plan selects `before` and
 `after` as `{ "path": "before.json", "sha256": "<file-digest>" }`, plus `views`
 and `correspondences` arrays. Paths resolve from the plan, not the process working
 directory. The plan is bounded to 1 MiB and each document to 16 MiB. Symlinks,
@@ -638,26 +638,28 @@ In-process admission also limits nesting to 64 levels, traversal to 500,000
 JSON values per input, selected document rows to 20,000 and views to 2,000.
 These are compiler resource bounds, not an operating-system sandbox.
 
-`architecture.semantic-document/v1` has exactly these fields, plus `schema`:
+`architecture.claim-model/v2` has exactly these fields, plus `schema`:
 
 | Field | Meaning |
 | --- | --- |
 | `owner` | Stable source-owner identity; comparison cannot cross owners |
-| `vocabulary` | Admitted entity and relation type arrays |
+| `vocabulary` | Admitted entity, relation and maturity sets plus typed predicate declarations |
 | `sources` | Identity-keyed `{sha256, locator, authority}` provenance declarations |
 | `entities` | Identity-keyed `{type, label, qualifiers, provenance}` |
 | `relations` | Identity-keyed `{type, subject, object, qualifiers, provenance}` |
-| `assertions` | Identity-keyed `{value, proposition, dependsOn, coverage, provenance}` |
+| `claims` | Identity-keyed subject/predicate/object-or-value statements with plane, condition, scope, maturity, validity, dependencies, coverage and provenance |
 | `context` | Explicit opaque source/presentation values requiring conservative review |
 
-An assertion proposition is `{subject, predicate, object, polarity, qualifiers}`,
-or `null` for opaque prose. Polarity is `positive` or `negative`; endpoints refer
-to entity IDs, and predicates use the relation vocabulary. Opposite polarity
-under identical endpoints, predicate and qualifiers is rejected. No general
-natural-language contradiction detection is claimed. Opaque assertions require
-`coverage: "unknown"`; formal assertions may declare `complete` or `unknown`.
-References are `{section, id}`. Provenance is a nonempty source-ID array; binding
-a digest establishes selected identity, not authenticity or trust.
+A claim selects exactly one typed predicate. Entity-valued predicates bind an
+entity object; scalar predicates bind an admitted scalar value; opaque predicates
+retain unformalized JSON only with `coverage: "unknown"`. Validity is `affirmed`
+or `refuted`. The five planes are `intended`, `implemented`, `observed`,
+`governed` and `published`; the compiler never equates them. Condition and scope
+are closed scalar conjunctions, and maturity comes from the model vocabulary.
+References are `{section, id}` and cannot target another claim until an explicit
+typed dependency role exists. Claim provenance must cover every predicate and
+dependency source. Binding a digest establishes selected identity, not truth,
+authenticity or authority.
 
 Views are `{id, dependsOn, views, coverage}`: semantic references, dependent view
 IDs and explicit coverage. Identity-keyed maps and declared sets are order-neutral;
@@ -669,7 +671,7 @@ the selected source digest and declared location, not the truth of the mapping.
 It never infers correspondence from labels or transfers old approval.
 
 The result contains complete-value `added`, `removed`, `changed`, correspondences,
-affected assertions/views, unrepresented changes and distinct `obligations` for
+affected claims/views, unrepresented changes and distinct `obligations` for
 `rebuild`, `verify` and `review`. Both old and new dependency graphs participate.
 Unknown dependencies, source/context changes and unrepresented changes broaden
 all-view obligations. `acceptance` remains `not-performed`; no-op returns no work.
@@ -677,6 +679,11 @@ This is impact compilation, not execution, automatic layout or evidence reuse.
 
 The bundled `examples/semantic/compare.json` is a runnable source/target example.
 Edit copies, recalculate their file digests and the plan digest, then compare.
+
+The development-only `tools/migration/semantic-v1-to-claim-v2.mjs` converts
+selected alpha.7 fixtures when supplied explicit predicate, relation and claim
+mappings. It is excluded from the installed package. Current runtime readers do
+not accept the v1 schema, aliases or fallback representations.
 
 The alpha.4 compiler package does not replace alpha.3 reader artwork. Source
 compiler qualification and prior artwork/browser acceptance remain separate.
@@ -798,7 +805,7 @@ viewport, observation, export or natural-clock story check is skipped.
 ### Source-bound semantic publication
 
 `archpub publish semantic <plan.json> --sha256 <plan-sha256>` compiles a
-validated `architecture.semantic-document/v1` into one complete static overview
+validated `architecture.claim-model/v2` into one complete static overview
 as SVG and PNG plus one complete standalone HTML diagram per interactive view.
 The plan selects an exact source bundle, semantic member,
 `architecture.semantic-publication/v2` authoring and a new output path. Every
@@ -810,8 +817,8 @@ identity, but own different grouping, order, ports, routes, density and layout.
 The static compositor consumes the semantic document directly; it never parses
 or extracts the HTML renderer output. Changing only one medium's authoring does
 not change the other medium's bytes.
-The compiler rejects stale identities, source mismatch, contradictory
-propositions, incomplete or duplicate membership, unsupported cardinality and
+The compiler rejects stale identities, source mismatch, contradictory claims,
+incomplete or duplicate membership, unsupported cardinality and
 native renderer geometry failure. It validates explicit meaning; it does not
 infer architecture from code or promise arbitrary layouts.
 

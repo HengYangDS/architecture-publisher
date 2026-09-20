@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import {
-  semanticDocument,
-  semanticViews,
+  claimChangeModel,
+  claimViews,
   ref,
-} from './fixtures/semantic-document.mjs';
+} from './fixtures/claim-change.mjs';
 
 async function api() {
   const contract = await import('../src/semantics/document.mjs').catch(
@@ -15,9 +15,9 @@ async function api() {
     () => ({}),
   );
   assert.equal(
-    typeof contract.validateSemanticDocument,
+    typeof contract.validateClaimModel,
     'function',
-    'portable semantic contract must exist',
+    'portable Claim Model contract must exist',
   );
   assert.equal(
     typeof compiler.compileSemanticChange,
@@ -29,13 +29,13 @@ async function api() {
 
 test('in-process shared graphs cannot expand beyond the admission work budget', () => {
   const program = `
-    import { validateSemanticDocument } from './src/semantics/document.mjs';
-    import { semanticDocument } from './tests/fixtures/semantic-document.mjs';
-    const document = semanticDocument();
+    import { validateClaimModel } from './src/semantics/document.mjs';
+    import { claimChangeModel } from './tests/fixtures/claim-change.mjs';
+    const document = claimChangeModel();
     let shared = 'x';
     for (let i = 0; i < 35; i++) shared = [shared, shared];
     document.context.shared = shared;
-    try { validateSemanticDocument(document); process.exitCode = 2; }
+    try { validateClaimModel(document); process.exitCode = 2; }
     catch (error) { process.stdout.write(error.code); }
   `;
   const result = spawnSync(
@@ -49,15 +49,15 @@ test('in-process shared graphs cannot expand beyond the admission work budget', 
   );
   assert.equal(result.error, undefined);
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.stdout, 'semantic_size_exceeded');
+  assert.equal(result.stdout, 'semantic_json_alias');
 });
 
 test('portable semantics preserve qualifiers, reject unknown fields and bind provenance', async () => {
-  const { validateSemanticDocument, semanticDigest } = await api();
-  const input = semanticDocument(),
+  const { validateClaimModel, claimModelDigest } = await api();
+  const input = claimChangeModel(),
     before = structuredClone(input);
-  assert.deepEqual(validateSemanticDocument(input), input);
-  assert.equal(semanticDigest(input).length, 64);
+  assert.deepEqual(validateClaimModel(input), input);
+  assert.equal(claimModelDigest(input).length, 64);
   assert.deepEqual(input, before);
   for (const mutate of [
     (p) => {
@@ -82,7 +82,7 @@ test('portable semantics preserve qualifiers, reject unknown fields and bind pro
       p.sources.contract.sha256 = ['1'.repeat(64)];
     },
     (p) => {
-      p.assertions.admission.dependsOn = [ref('entities', 'absent')];
+      p.claims.admission.dependsOn = [ref('entities', 'absent')];
     },
     (p) => {
       p.entities.client.qualifiers.bad = Number.NaN;
@@ -90,18 +90,18 @@ test('portable semantics preserve qualifiers, reject unknown fields and bind pro
   ]) {
     const invalid = structuredClone(input);
     mutate(invalid);
-    assert.throws(() => validateSemanticDocument(invalid), /semantic_/);
+    assert.throws(() => validateClaimModel(invalid), /semantic_/);
   }
 });
 
 test('identity digest is deterministic under map and set ordering, not label similarity', async () => {
-  const { semanticDigest, compileSemanticChange } = await api();
-  const a = semanticDocument(),
+  const { claimModelDigest, compileSemanticChange } = await api();
+  const a = claimChangeModel(),
     b = structuredClone(a);
   b.entities = Object.fromEntries(Object.entries(b.entities).reverse());
-  assert.equal(semanticDigest(a), semanticDigest(b));
+  assert.equal(claimModelDigest(a), claimModelDigest(b));
   b.entities.client.label = 'server';
-  const delta = compileSemanticChange(a, b, semanticViews());
+  const delta = compileSemanticChange(a, b, claimViews());
   assert.deepEqual(delta.changed.entities, ['client']);
   assert.deepEqual(delta.added.entities, []);
   assert.deepEqual(delta.correspondences, []);
@@ -117,12 +117,12 @@ test('all qualifiers and direction affect assertion-only and transitive views', 
     ['maturity', 'implemented'],
     ['direction', 'bidirectional'],
   ]) {
-    const a = semanticDocument(),
+    const a = claimChangeModel(),
       b = structuredClone(a);
     b.relations.request.qualifiers[key] = value;
-    const delta = compileSemanticChange(a, b, semanticViews());
+    const delta = compileSemanticChange(a, b, claimViews());
     assert.deepEqual(delta.changed.relations, ['request']);
-    assert.deepEqual(delta.affectedAssertions, ['admission']);
+    assert.deepEqual(delta.affectedClaims, ['admission']);
     assert.deepEqual(delta.affectedViews, ['claim', 'detail']);
     for (const kind of ['rebuild', 'verify', 'review'])
       assert.deepEqual(
@@ -130,30 +130,37 @@ test('all qualifiers and direction affect assertion-only and transitive views', 
         ['claim', 'detail'],
       );
   }
-  const a = semanticDocument(),
+  const a = claimChangeModel(),
     b = structuredClone(a);
   b.entities.client.label = 'A much longer component label '.repeat(20);
   assert.deepEqual(
-    compileSemanticChange(a, b, semanticViews()).affectedViews,
+    compileSemanticChange(a, b, claimViews()).affectedViews,
     ['claim', 'detail'],
   );
   [b.relations.request.subject, b.relations.request.object] = [
     'server',
     'client',
   ];
+  [b.claims.admission.subject, b.claims.admission.object] = [
+    'server',
+    'client',
+  ];
   assert.deepEqual(
-    compileSemanticChange(a, b, semanticViews()).changed.relations,
+    compileSemanticChange(a, b, claimViews()).changed.relations,
     ['request'],
   );
 });
 
 test('deletion and rewiring traverse the old graph rather than lose dependencies', async () => {
   const { compileSemanticChange } = await api();
-  const a = semanticDocument(),
+  const a = claimChangeModel(),
     b = structuredClone(a);
   delete b.relations.request;
-  b.assertions.admission.dependsOn = [];
-  const delta = compileSemanticChange(a, b, semanticViews());
+  b.claims.admission.dependsOn = [ref('entities', 'client')];
+  b.claims.admission.object = null;
+  b.claims.admission.value = 'removed relation';
+  b.claims.admission.predicate = 'tag';
+  const delta = compileSemanticChange(a, b, claimViews());
   assert.deepEqual(delta.removed.relations, ['request']);
   assert.deepEqual(delta.affectedViews, ['claim', 'detail']);
 });
@@ -162,7 +169,7 @@ test('unknown coverage, unrepresented additions and source changes broaden every
   const { compileSemanticChange } = await api();
   for (const mutate of [
     (b) => {
-      b.assertions.admission.coverage = 'unknown';
+      b.claims.admission.coverage = 'unknown';
     },
     (b) => {
       b.entities.new = structuredClone(b.entities.client);
@@ -174,10 +181,10 @@ test('unknown coverage, unrepresented additions and source changes broaden every
       b.context.policy = { text: 'Changed policy' };
     },
   ]) {
-    const a = semanticDocument(),
+    const a = claimChangeModel(),
       b = structuredClone(a);
     mutate(b);
-    const delta = compileSemanticChange(a, b, semanticViews());
+    const delta = compileSemanticChange(a, b, claimViews());
     assert.equal(delta.requiresCompleteReview, true);
     assert.deepEqual(delta.affectedViews, ['claim', 'detail', 'other']);
     assert.equal(delta.acceptance, 'not-performed');
@@ -186,9 +193,9 @@ test('unknown coverage, unrepresented additions and source changes broaden every
 
 test('no-op has no obligations, unknown references are conservative, dependency cycles terminate', async () => {
   const { compileSemanticChange } = await api();
-  const a = semanticDocument(),
+  const a = claimChangeModel(),
     b = structuredClone(a),
-    views = semanticViews();
+    views = claimViews();
   views[0].views = ['detail'];
   assert.deepEqual(compileSemanticChange(a, b, views).obligations, {
     rebuild: [],
@@ -208,24 +215,32 @@ test('no-op has no obligations, unknown references are conservative, dependency 
   ]);
 });
 
-test('explicit contradiction detection is qualifier scoped and opaque prose remains unknown', async () => {
-  const { validateSemanticDocument } = await api();
-  const p = semanticDocument();
-  p.assertions.denial = structuredClone(p.assertions.admission);
-  p.assertions.denial.proposition.polarity = 'negative';
+test('explicit contradiction detection is applicability scoped and opaque prose remains unknown', async () => {
+  const { validateClaimModel } = await api();
+  const p = claimChangeModel();
+  p.claims.denial = structuredClone(p.claims.admission);
+  p.claims.denial.validity = 'refuted';
   assert.throws(
-    () => validateSemanticDocument(p),
+    () => validateClaimModel(p),
     /semantic_contradiction.*admission.*denial/,
   );
-  p.assertions.denial.proposition.qualifiers.condition = 'unauthorized';
-  assert.doesNotThrow(() => validateSemanticDocument(p));
-  p.assertions.denial.proposition = null;
-  assert.throws(
-    () => validateSemanticDocument(p),
-    /semantic_opaque_coverage/,
-  );
-  p.assertions.denial.coverage = 'unknown';
-  assert.doesNotThrow(() => validateSemanticDocument(p));
+  p.claims.denial.condition.authorization = 'denied';
+  assert.doesNotThrow(() => validateClaimModel(p));
+  p.vocabulary.predicates.statement = {
+    valueKind: 'opaque',
+    cardinality: 'multiple',
+    values: [],
+    provenance: ['contract'],
+  };
+  p.claims.denial = {
+    ...p.claims.denial,
+    predicate: 'statement',
+    object: null,
+    value: { text: 'Legacy prose remains opaque.' },
+    coverage: 'unknown',
+    dependsOn: [],
+  };
+  assert.doesNotThrow(() => validateClaimModel(p));
 });
 
 test('rename, split and merge require disjoint source-backed removed and added identities', async () => {
@@ -235,9 +250,24 @@ test('rename, split and merge require disjoint source-backed removed and added i
     ['split', ['other'], ['one', 'two']],
     ['merge', ['client', 'other'], ['merged']],
   ]) {
-    const a = semanticDocument();
+    const a = claimChangeModel();
     a.relations = {};
-    a.assertions = {};
+    a.claims = {
+      baseline: {
+        subject: 'server',
+        predicate: 'tag',
+        object: null,
+        value: 'baseline',
+        plane: 'published',
+        condition: {},
+        scope: {},
+        maturity: 'target',
+        validity: 'affirmed',
+        dependsOn: [ref('entities', 'server')],
+        coverage: 'complete',
+        provenance: ['contract'],
+      },
+    };
     const b = structuredClone(a),
       value = a.entities.other;
     for (const id of from) delete b.entities[id];
@@ -286,69 +316,70 @@ test('rename, split and merge require disjoint source-backed removed and added i
 });
 
 test('declared set ordering is not meaning and complete-value arrays remain ordered', async () => {
-  const { semanticDigest, compileSemanticChange } = await api();
-  const a = semanticDocument();
+  const { claimModelDigest, compileSemanticChange } = await api();
+  const a = claimChangeModel();
   a.sources.second = { ...a.sources.contract, locator: 'second.md' };
   a.entities.client.provenance.push('second');
+  a.claims.admission.provenance.push('second');
   a.vocabulary.entities.push('process');
-  a.assertions.admission.dependsOn.push(ref('entities', 'client'));
+  a.claims.admission.dependsOn.push(ref('entities', 'client'));
   a.entities.client.qualifiers.order = ['observe', 'act'];
   const b = structuredClone(a);
   b.entities.client.provenance.reverse();
   b.vocabulary.entities.reverse();
-  b.assertions.admission.dependsOn.reverse();
-  assert.equal(semanticDigest(a), semanticDigest(b));
+  b.claims.admission.dependsOn.reverse();
+  assert.equal(claimModelDigest(a), claimModelDigest(b));
   assert.deepEqual(
-    compileSemanticChange(a, b, semanticViews()).affectedViews,
+    compileSemanticChange(a, b, claimViews()).affectedViews,
     [],
   );
   b.entities.client.qualifiers.order.reverse();
   assert.deepEqual(
-    compileSemanticChange(a, b, semanticViews()).changed.entities,
+    compileSemanticChange(a, b, claimViews()).changed.entities,
     ['client'],
   );
 });
 
 test('invalid owner, view declarations and oversized or cyclic documents fail explicitly', async () => {
-  const { validateSemanticDocument, compileSemanticChange } = await api();
-  const a = semanticDocument(),
+  const { validateClaimModel, compileSemanticChange } = await api();
+  const a = claimChangeModel(),
     b = structuredClone(a);
   b.owner = 'other:system';
   assert.throws(
-    () => compileSemanticChange(a, b, semanticViews()),
+    () => compileSemanticChange(a, b, claimViews()),
     /semantic_owner_changed/,
   );
   for (const views of [
     null,
     [null],
-    [...semanticViews(), semanticViews()[0]],
+    [...claimViews(), claimViews()[0]],
     [
       {
-        ...semanticViews()[0],
+        ...claimViews()[0],
         dependsOn: [{ section: 'typo', id: 'request' }],
       },
     ],
-    [{ ...semanticViews()[0], views: ['claim', 'claim'] }],
+    [{ ...claimViews()[0], views: ['claim', 'claim'] }],
   ])
     assert.throws(
       () => compileSemanticChange(a, a, views),
       /semantic_views_invalid/,
     );
   a.context.loop = a;
-  assert.throws(() => validateSemanticDocument(a), /semantic_json_cycle/);
+  assert.throws(() => validateClaimModel(a), /semantic_json_cycle/);
   delete a.context.loop;
   a.context.long = 'x'.repeat(16 * 1024 * 1024);
-  assert.throws(() => validateSemanticDocument(a), /semantic_size_exceeded/);
+  assert.throws(() => validateClaimModel(a), /semantic_size_exceeded/);
 });
 
 test('sparse and decorated arrays cannot hide meaning or supply absent correspondence evidence', async () => {
-  const { validateSemanticDocument, compileSemanticChange } = await api();
-  const a = semanticDocument(),
+  const { validateClaimModel, compileSemanticChange } = await api();
+  const a = claimChangeModel(),
     values = new Array(2);
   values[0] = 'visible';
   values.extra = 'hidden';
   a.entities.client.qualifiers.values = values;
-  assert.throws(() => validateSemanticDocument(a), /semantic_json_required/);
+  assert.throws(() => validateClaimModel(a), /semantic_json_required/);
   delete a.entities.client.qualifiers.values;
   const b = structuredClone(a);
   delete b.entities.other;
@@ -368,11 +399,11 @@ test('sparse and decorated arrays cannot hide meaning or supply absent correspon
 
 test('growth is reported rather than silently omitted or treated as an automatic layout', async () => {
   const { compileSemanticChange } = await api();
-  const a = semanticDocument(),
+  const a = claimChangeModel(),
     b = structuredClone(a);
   for (let i = 0; i < 80; i++)
     b.entities['extra-' + i] = structuredClone(b.entities.other);
-  const delta = compileSemanticChange(a, b, semanticViews());
+  const delta = compileSemanticChange(a, b, claimViews());
   assert.equal(delta.added.entities.length, 80);
   assert.equal(delta.unrepresented.length, 80);
   assert.deepEqual(delta.affectedViews, ['claim', 'detail', 'other']);

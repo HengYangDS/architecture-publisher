@@ -3,7 +3,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { writeSourceBundle } from '../../src/source/write.mjs';
-import { semanticDigest } from '../../src/semantics/document.mjs';
+import { claimModelDigest } from '../../src/semantics/document.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -58,7 +58,7 @@ async function main() {
       provenance: [provenance],
     }),
     semantic = {
-      schema: 'architecture.semantic-document/v1',
+      schema: 'architecture.claim-model/v2',
       owner: 'architecture-publisher',
       vocabulary: {
         entities: [
@@ -78,6 +78,25 @@ async function main() {
           'rasterizes',
           'publishes',
         ],
+        maturities: ['implemented'],
+        predicates: Object.fromEntries(
+          Object.entries({
+            invokes: 'single',
+            supplies: 'single',
+            validates: 'single',
+            delegates: 'multiple',
+            rasterizes: 'single',
+            publishes: 'single',
+          }).map(([id, cardinality]) => [
+            id,
+            {
+              valueKind: 'entity',
+              cardinality,
+              values: [],
+              provenance: ['semantic-contract'],
+            },
+          ]),
+        ),
       },
       entities: {
         'public-cli': entity('interface', 'Public CLI', 'public-cli'),
@@ -99,7 +118,7 @@ async function main() {
         'interactive-writer': relation('publishes', 'interactive-renderer', 'publication-writer', 'publication-writer'),
         'raster-writer': relation('publishes', 'raster-boundary', 'publication-writer', 'publication-writer'),
       },
-      assertions: {},
+      claims: {},
       sources,
       context: {
         adoptionRole: 'self-hosted',
@@ -114,10 +133,25 @@ async function main() {
       delegates: { label: 'delegates', variant: 'emphasis' },
       rasterizes: { label: 'rasterizes', variant: 'default' },
       publishes: { label: 'publishes', variant: 'default' },
-    },
-    authoring = {
+    };
+  for (const [id, value] of Object.entries(semantic.relations))
+    semantic.claims[id] = {
+      subject: value.subject,
+      predicate: value.type,
+      object: value.object,
+      value: null,
+      plane: 'implemented',
+      condition: {},
+      scope: structuredClone(value.qualifiers),
+      maturity: 'implemented',
+      validity: 'affirmed',
+      dependsOn: [{ section: 'relations', id }],
+      coverage: 'complete',
+      provenance: [...new Set([...value.provenance, 'semantic-contract'])],
+    };
+  const authoring = {
       schema: 'architecture.semantic-publication/v2',
-      semanticDigest: semanticDigest(semantic),
+      semanticDigest: claimModelDigest(semantic),
       title: 'Architecture Publisher',
       entityTypes: {
         interface: 'external',

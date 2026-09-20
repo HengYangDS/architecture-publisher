@@ -1,11 +1,29 @@
 export const ref = (section, id) => ({ section, id });
 
-export function semanticDocument() {
+export function claimChangeModel() {
   const provenance = ['contract'];
   return {
-    schema: 'architecture.semantic-document/v1',
+    schema: 'architecture.claim-model/v2',
     owner: 'example:system',
-    vocabulary: { entities: ['component'], relations: ['calls'] },
+    vocabulary: {
+      entities: ['component'],
+      relations: ['calls'],
+      maturities: ['target'],
+      predicates: {
+        calls: {
+          valueKind: 'entity',
+          cardinality: 'single',
+          values: [],
+          provenance: [...provenance],
+        },
+        tag: {
+          valueKind: 'scalar',
+          cardinality: 'multiple',
+          values: [],
+          provenance: [...provenance],
+        },
+      },
+    },
     sources: {
       contract: {
         sha256: '1'.repeat(64),
@@ -37,16 +55,17 @@ export function semanticDocument() {
         provenance: [...provenance],
       },
     },
-    assertions: {
+    claims: {
       admission: {
-        value: { text: 'Only authorized requests call the server' },
-        proposition: {
-          subject: 'client',
-          predicate: 'calls',
-          object: 'server',
-          polarity: 'positive',
-          qualifiers: { condition: 'authorized' },
-        },
+        subject: 'client',
+        predicate: 'calls',
+        object: 'server',
+        value: null,
+        plane: 'intended',
+        condition: { authorization: 'granted' },
+        scope: { environment: 'local' },
+        maturity: 'target',
+        validity: 'affirmed',
         dependsOn: [ref('relations', 'request')],
         coverage: 'complete',
         provenance: [...provenance],
@@ -56,10 +75,10 @@ export function semanticDocument() {
   };
 }
 
-export const semanticViews = () => [
+export const claimViews = () => [
   {
     id: 'claim',
-    dependsOn: [ref('assertions', 'admission')],
+    dependsOn: [ref('claims', 'admission')],
     views: [],
     coverage: 'complete',
   },

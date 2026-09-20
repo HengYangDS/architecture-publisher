@@ -114,7 +114,7 @@ test('real-shaped source refresh propagates compiler obligations through complet
   assert.deepEqual(result.delta.changed.nodes, ['candidate_base_stale']);
   assert.equal(
     result.delta.compilation.schema,
-    'architecture.semantic-change/v1',
+    'architecture.semantic-change/v2',
   );
   assert.equal(result.delta.obligations.rebuild.length, 13);
   assert.equal(result.delta.obligations.verify.length, 13);

@@ -1,86 +1,49 @@
 {
-  "schema": "architecture.semantic-document/v1",
+  "schema": "architecture.claim-model/v2",
   "owner": "aigw-cli",
   "vocabulary": {
-    "entities": ["interface", "coordinator", "registry", "contract", "client"],
-    "relations": ["delegates", "dispatches", "realized-by"]
-  },
-  "entities": {
-    "cli": {
-      "type": "interface",
-      "label": "CLI",
-      "qualifiers": { "role": "command composition" },
-      "provenance": ["synchronizer"]
-    },
-    "synchronizer": {
-      "type": "coordinator",
-      "label": "Synchronizer",
-      "qualifiers": { "role": "transaction coordination" },
-      "provenance": ["synchronizer"]
-    },
-    "registry": {
-      "type": "registry",
-      "label": "Ordered client registry",
-      "qualifiers": { "role": "sole admitted operational registry" },
-      "provenance": ["registry"]
-    },
-    "adapter-contract": {
-      "type": "contract",
-      "label": "Adapter contract",
-      "qualifiers": { "operations": ["discover", "converge", "plan", "apply", "inspect", "verify", "withdraw"] },
-      "provenance": ["registry"]
-    },
-    "codex": {
-      "type": "client",
-      "label": "Codex adapter",
-      "qualifiers": { "projection": "native Codex configuration" },
-      "provenance": ["adapters"]
-    },
-    "claude": {
-      "type": "client",
-      "label": "Claude Code adapter",
-      "qualifiers": { "projection": "native Claude Code configuration" },
-      "provenance": ["adapters"]
+    "entities": [
+      "interface",
+      "coordinator",
+      "registry",
+      "contract",
+      "client"
+    ],
+    "relations": [
+      "delegates",
+      "dispatches",
+      "realized-by"
+    ],
+    "maturities": [
+      "implemented"
+    ],
+    "predicates": {
+      "delegates": {
+        "valueKind": "entity",
+        "cardinality": "multiple",
+        "values": [],
+        "provenance": [
+          "synchronizer"
+        ]
+      },
+      "dispatches": {
+        "valueKind": "entity",
+        "cardinality": "single",
+        "values": [],
+        "provenance": [
+          "registry"
+        ]
+      },
+      "realized-by": {
+        "valueKind": "entity",
+        "cardinality": "multiple",
+        "values": [],
+        "provenance": [
+          "adapters"
+        ]
+      }
     }
   },
-  "relations": {
-    "cli-synchronizer": {
-      "type": "delegates",
-      "subject": "cli",
-      "object": "synchronizer",
-      "qualifiers": {},
-      "provenance": ["synchronizer"]
-    },
-    "synchronizer-registry": {
-      "type": "delegates",
-      "subject": "synchronizer",
-      "object": "registry",
-      "qualifiers": { "selection": "requested clients in admission order" },
-      "provenance": ["synchronizer", "registry"]
-    },
-    "registry-contract": {
-      "type": "dispatches",
-      "subject": "registry",
-      "object": "adapter-contract",
-      "qualifiers": { "order": "admission order" },
-      "provenance": ["registry"]
-    },
-    "contract-codex": {
-      "type": "realized-by",
-      "subject": "adapter-contract",
-      "object": "codex",
-      "qualifiers": {},
-      "provenance": ["adapters"]
-    },
-    "contract-claude": {
-      "type": "realized-by",
-      "subject": "adapter-contract",
-      "object": "claude",
-      "qualifiers": {},
-      "provenance": ["adapters"]
-    }
-  },
-  "assertions": {},
   "sources": {
     "synchronizer": {
       "sha256": "54156affde734344e387388662c86e84c924ba2ea0a81de9f951b15c3bcaec23",
@@ -101,6 +64,240 @@
       "sha256": "35e7e1bfe59ab4b6122410767dea9de995077af273b695d075743a45dcb0e07a",
       "locator": "source/LICENSE",
       "authority": "AIGW source license at the selected revision"
+    }
+  },
+  "entities": {
+    "cli": {
+      "type": "interface",
+      "label": "CLI",
+      "qualifiers": {
+        "role": "command composition"
+      },
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "synchronizer": {
+      "type": "coordinator",
+      "label": "Synchronizer",
+      "qualifiers": {
+        "role": "transaction coordination"
+      },
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "registry": {
+      "type": "registry",
+      "label": "Ordered client registry",
+      "qualifiers": {
+        "role": "sole admitted operational registry"
+      },
+      "provenance": [
+        "registry"
+      ]
+    },
+    "adapter-contract": {
+      "type": "contract",
+      "label": "Adapter contract",
+      "qualifiers": {
+        "operations": [
+          "discover",
+          "converge",
+          "plan",
+          "apply",
+          "inspect",
+          "verify",
+          "withdraw"
+        ]
+      },
+      "provenance": [
+        "registry"
+      ]
+    },
+    "codex": {
+      "type": "client",
+      "label": "Codex adapter",
+      "qualifiers": {
+        "projection": "native Codex configuration"
+      },
+      "provenance": [
+        "adapters"
+      ]
+    },
+    "claude": {
+      "type": "client",
+      "label": "Claude Code adapter",
+      "qualifiers": {
+        "projection": "native Claude Code configuration"
+      },
+      "provenance": [
+        "adapters"
+      ]
+    }
+  },
+  "relations": {
+    "cli-synchronizer": {
+      "type": "delegates",
+      "subject": "cli",
+      "object": "synchronizer",
+      "qualifiers": {},
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "synchronizer-registry": {
+      "type": "delegates",
+      "subject": "synchronizer",
+      "object": "registry",
+      "qualifiers": {
+        "selection": "requested clients in admission order"
+      },
+      "provenance": [
+        "synchronizer",
+        "registry"
+      ]
+    },
+    "registry-contract": {
+      "type": "dispatches",
+      "subject": "registry",
+      "object": "adapter-contract",
+      "qualifiers": {
+        "order": "admission order"
+      },
+      "provenance": [
+        "registry"
+      ]
+    },
+    "contract-codex": {
+      "type": "realized-by",
+      "subject": "adapter-contract",
+      "object": "codex",
+      "qualifiers": {},
+      "provenance": [
+        "adapters"
+      ]
+    },
+    "contract-claude": {
+      "type": "realized-by",
+      "subject": "adapter-contract",
+      "object": "claude",
+      "qualifiers": {},
+      "provenance": [
+        "adapters"
+      ]
+    }
+  },
+  "claims": {
+    "cli-synchronizer": {
+      "subject": "cli",
+      "predicate": "delegates",
+      "object": "synchronizer",
+      "value": null,
+      "plane": "implemented",
+      "condition": {},
+      "scope": {},
+      "maturity": "implemented",
+      "validity": "affirmed",
+      "dependsOn": [
+        {
+          "section": "relations",
+          "id": "cli-synchronizer"
+        }
+      ],
+      "coverage": "complete",
+      "provenance": [
+        "synchronizer"
+      ]
+    },
+    "synchronizer-registry": {
+      "subject": "synchronizer",
+      "predicate": "delegates",
+      "object": "registry",
+      "value": null,
+      "plane": "implemented",
+      "condition": {},
+      "scope": {
+        "selection": "requested clients in admission order"
+      },
+      "maturity": "implemented",
+      "validity": "affirmed",
+      "dependsOn": [
+        {
+          "section": "relations",
+          "id": "synchronizer-registry"
+        }
+      ],
+      "coverage": "complete",
+      "provenance": [
+        "synchronizer",
+        "registry"
+      ]
+    },
+    "registry-contract": {
+      "subject": "registry",
+      "predicate": "dispatches",
+      "object": "adapter-contract",
+      "value": null,
+      "plane": "implemented",
+      "condition": {},
+      "scope": {
+        "order": "admission order"
+      },
+      "maturity": "implemented",
+      "validity": "affirmed",
+      "dependsOn": [
+        {
+          "section": "relations",
+          "id": "registry-contract"
+        }
+      ],
+      "coverage": "complete",
+      "provenance": [
+        "registry"
+      ]
+    },
+    "contract-codex": {
+      "subject": "adapter-contract",
+      "predicate": "realized-by",
+      "object": "codex",
+      "value": null,
+      "plane": "implemented",
+      "condition": {},
+      "scope": {},
+      "maturity": "implemented",
+      "validity": "affirmed",
+      "dependsOn": [
+        {
+          "section": "relations",
+          "id": "contract-codex"
+        }
+      ],
+      "coverage": "complete",
+      "provenance": [
+        "adapters"
+      ]
+    },
+    "contract-claude": {
+      "subject": "adapter-contract",
+      "predicate": "realized-by",
+      "object": "claude",
+      "value": null,
+      "plane": "implemented",
+      "condition": {},
+      "scope": {},
+      "maturity": "implemented",
+      "validity": "affirmed",
+      "dependsOn": [
+        {
+          "section": "relations",
+          "id": "contract-claude"
+        }
+      ],
+      "coverage": "complete",
+      "provenance": [
+        "adapters"
+      ]
     }
   },
   "context": {

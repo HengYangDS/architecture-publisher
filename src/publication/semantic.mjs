@@ -11,8 +11,8 @@ import {
 } from '../composition/architecture.mjs';
 import { composeStaticOverview } from '../composition/static-overview.mjs';
 import {
-  semanticDigest,
-  validateSemanticDocument,
+  claimModelDigest,
+  validateClaimModel,
 } from '../semantics/document.mjs';
 import { renderSemanticDiagram } from '../interactive/archify.mjs';
 import { loadBundledFonts } from '../interactive/fonts.mjs';
@@ -115,10 +115,10 @@ export async function compileSemanticPublication(plan) {
     members = new Map(source.members.map((item) => [item.path, item.content])),
     semanticBytes = members.get(plan.semanticMember);
   if (!semanticBytes) fail('semantic_publication_document_missing');
-  const document = validateSemanticDocument(
+  const document = validateClaimModel(
       json(semanticBytes, 'semantic_publication_document_invalid'),
     ),
-    digest = semanticDigest(document),
+    digest = claimModelDigest(document),
     bindings = sourceBindings(document, members),
     selected = await selectedAuthoring(plan.authoring, plan.authoringSha256),
     projections = semanticArchitectureProjections(document, selected.value),

@@ -5,9 +5,9 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import {
-  semanticDocument,
-  semanticViews,
-} from './fixtures/semantic-document.mjs';
+  claimChangeModel,
+  claimViews,
+} from './fixtures/claim-change.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const sha = (v) => createHash('sha256').update(v).digest('hex');
@@ -17,12 +17,12 @@ async function setup(t) {
   await fs.mkdir(parent, { recursive: true });
   const dir = await fs.mkdtemp(path.join(parent, 'semantic cli '));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
-  const a = semanticDocument(),
+  const a = claimChangeModel(),
     b = structuredClone(a);
   b.entities.client.label = 'Changed client';
   const plan = {
-    schema: 'architecture.semantic-compare-input/v1',
-    views: semanticViews(),
+    schema: 'architecture.semantic-compare-input/v2',
+    views: claimViews(),
     correspondences: [],
   };
   for (const [key, doc] of [
@@ -68,7 +68,7 @@ test('public comparison binds plan and document bytes without writing output', a
   const f = await setup(t),
     result = await f.run();
   assert.equal(result.status, 0, result.stdout);
-  assert.equal(result.value.schema, 'architecture.semantic-change/v1');
+  assert.equal(result.value.schema, 'architecture.semantic-change/v2');
   assert.deepEqual(result.value.changed.entities, ['client']);
   assert.equal(result.value.acceptance, 'not-performed');
   assert(!result.stdout.includes(f.dir));

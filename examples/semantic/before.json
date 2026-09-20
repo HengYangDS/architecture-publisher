@@ -1,5 +1,5 @@
 {
-  "schema": "architecture.semantic-document/v1",
+  "schema": "architecture.claim-model/v2",
   "owner": "example:request-service",
   "vocabulary": {
     "entities": [
@@ -7,7 +7,21 @@
     ],
     "relations": [
       "calls"
-    ]
+    ],
+    "maturities": [
+      "implemented",
+      "target"
+    ],
+    "predicates": {
+      "calls": {
+        "valueKind": "entity",
+        "cardinality": "single",
+        "values": [],
+        "provenance": [
+          "contract"
+        ]
+      }
+    }
   },
   "sources": {
     "contract": {
@@ -53,18 +67,44 @@
       ]
     }
   },
-  "assertions": {
-    "admission": {
-      "value": "Authorized requests reach the server",
-      "proposition": {
-        "subject": "client",
-        "predicate": "calls",
-        "object": "server",
-        "polarity": "positive",
-        "qualifiers": {
-          "condition": "authorized"
-        }
+  "claims": {
+    "request": {
+      "subject": "client",
+      "predicate": "calls",
+      "object": "server",
+      "value": null,
+      "plane": "implemented",
+      "condition": {},
+      "scope": {
+        "condition": "authorized",
+        "scope": "local",
+        "quantifier": "one"
       },
+      "maturity": "implemented",
+      "validity": "affirmed",
+      "dependsOn": [
+        {
+          "section": "relations",
+          "id": "request"
+        }
+      ],
+      "coverage": "complete",
+      "provenance": [
+        "contract"
+      ]
+    },
+    "admission": {
+      "subject": "client",
+      "predicate": "calls",
+      "object": "server",
+      "value": null,
+      "plane": "intended",
+      "condition": {
+        "condition": "authorized"
+      },
+      "scope": {},
+      "maturity": "target",
+      "validity": "affirmed",
       "dependsOn": [
         {
           "section": "relations",
@@ -77,5 +117,9 @@
       ]
     }
   },
-  "context": {}
+  "context": {
+    "migration:assertion-values": {
+      "admission": "Authorized requests reach the server"
+    }
+  }
 }

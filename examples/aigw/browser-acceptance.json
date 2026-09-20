@@ -17,9 +17,9 @@
   "runs": [
     {
       "id": "initial",
-      "publicationManifestSha256": "47fdeb51fc5206afd0f02f9bd0aa2216c333494ad984bc973d0d3479ec3fbd2d",
-      "semanticDigest": "eafce60e39c46bb016d4d41c76a2b2fbc46992699bd46d3806ba6d683e7eea17",
-      "browserReportSha256": "b43c0f6c54a82c292748932e3b99a72a7b8d34a5786a19f567f172511cac0b81",
+      "publicationManifestSha256": "b6e549c5b2877f31cd641c97cb01cfbfc44a04f9c1424806f7c00cea96c25894",
+      "semanticDigest": "be5770127b0e379ea9f28431d3fb43e64cff2e0832392e9776d5dd126bd4f4eb",
+      "browserReportSha256": "7de9327c40d24a146d8932fe16d9031f89604a1ed5df216d5e10e7006aa112b0",
       "staticSvgSha256": "1bd015d61f34b66fb4d90076750ab0dd1d25b3e18303de56c4facbfeeab819f0",
       "staticPngSha256": "5db705a598051fb184c72269850e8f15a0e49a249c8fcdf318fce5b5311a48c8",
       "views": [
@@ -31,9 +31,9 @@
     },
     {
       "id": "evolved",
-      "publicationManifestSha256": "b5e733ad4ad97c86871e1b6be383a8667cda92da5caeb26ecc16f87db4fb6fea",
-      "semanticDigest": "eba1c6837bd87accf49c0f65e503eb4ac2c5be95a922ef0baa83232b076157cf",
-      "browserReportSha256": "0b4ab08e6107221013ab6eea9fe9aab11ad8953bc81af93ad979bfa8c77cb61f",
+      "publicationManifestSha256": "b4694a3b8347bb07bbebcecbef809cc1583e0a256c7b4a94142c0c14ff2a2754",
+      "semanticDigest": "452838f749a959887a1c2f35567f2ce5d84f9c6ae2f08879649296ea25805b3f",
+      "browserReportSha256": "87ffbc2042312fe376b997f5e89317f874813a46305f0549d3b3367b26263ab5",
       "staticSvgSha256": "ee532f84a60645666bdfee05a25850ad77cbd19be50ead22eb72bb1c8bb1dde6",
       "staticPngSha256": "5b51c465354870034be334de1f038df024226a632babcedca031e7c4148e3dc3",
       "views": [
@@ -49,6 +49,6 @@
     "archpub publish semantic <absolute-plan.json> --sha256 <plan-sha256>",
     "node tools/qualification/semantic-browser.mjs <absolute-browser-input.json>"
   ],
-  "scope": "Every declared HTML view and direct image/svg+xml overview paint; visible node and directed relation identities, declared endpoint attachment, text overlap and overflow, minimum font, viewport width, theme, focus, no page error and no external request.",
+  "scope": "Every declared HTML view and direct image/svg+xml overview paint; visible node and directed relation identities, declared endpoint attachment, text overlap and overflow, minimum font, viewport width, theme, focus and source binding.",
   "limits": "Local bounded execution only. Not human visual approval, arbitrary viewport/browser support, source-intent proof, independent-host verification or hosted delivery. Raw reports and screenshots remain disposable build evidence and are identified here by digest."
 }

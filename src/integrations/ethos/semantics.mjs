@@ -5,7 +5,7 @@ const omit = (value, keys) =>
   Object.fromEntries(entries(value).filter(([key]) => !keys.includes(key)));
 
 /** Loss-aware adaptation: preserve prose, extensions and opaque contracts verbatim. */
-export function ethosSemanticDocument(input) {
+export function ethosClaimModel(input) {
   validateProjectionEnvelope(input, input?.digest);
   const sources = Object.fromEntries(
     input.source.bindings.map((row) => [
@@ -26,6 +26,7 @@ export function ethosSemanticDocument(input) {
     locator: copy.path,
     authority: input.authority.semantic_owner,
   };
+  const claimSubject = 'document:architecture-claims';
   const presentation = {
     title: input.title,
     authority: input.authority,
@@ -53,19 +54,29 @@ export function ethosSemanticDocument(input) {
     },
   };
   return {
-    schema: 'architecture.semantic-document/v1',
+    schema: 'architecture.claim-model/v2',
     owner: input.source.id,
     vocabulary: {
       entities: [
         ...new Set(Object.values(input.semantics.nodes).map((v) => v.kind)),
+        'semantic-subject',
       ].sort(),
       relations: [
         ...new Set(input.semantics.relations.map((v) => v.kind)),
       ].sort(),
+      maturities: ['declared'],
+      predicates: {
+        statement: {
+          valueKind: 'opaque',
+          cardinality: 'multiple',
+          values: [],
+          provenance: [copyId],
+        },
+      },
     },
     sources,
-    entities: Object.fromEntries(
-      entries(input.semantics.nodes).map(([id, value]) => [
+    entities: Object.fromEntries([
+      ...entries(input.semantics.nodes).map(([id, value]) => [
         id,
         {
           type: value.kind,
@@ -82,7 +93,16 @@ export function ethosSemanticDocument(input) {
           },
         },
       ]),
-    ),
+      [
+        claimSubject,
+        {
+          type: 'semantic-subject',
+          label: 'Published architecture claims',
+          qualifiers: {},
+          provenance: [copyId],
+        },
+      ],
+    ]),
     relations: Object.fromEntries(
       input.semantics.relations.map((value) => [
         value.id,
@@ -105,12 +125,19 @@ export function ethosSemanticDocument(input) {
         },
       ]),
     ),
-    assertions: Object.fromEntries(
+    claims: Object.fromEntries(
       entries(input.documents.copy.assertions).map(([id, value]) => [
         id,
         {
+          subject: claimSubject,
+          predicate: 'statement',
+          object: null,
           value,
-          proposition: null,
+          plane: 'published',
+          condition: {},
+          scope: {},
+          maturity: 'declared',
+          validity: 'affirmed',
           dependsOn: [],
           coverage: 'unknown',
           provenance: [copyId],

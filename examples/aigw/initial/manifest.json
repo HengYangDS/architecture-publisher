@@ -7,8 +7,8 @@
   "files": [
     {
       "path": "semantic.json",
-      "bytes": 2264,
-      "sha256": "458ca6a967c8eba701ea5646d9efc925612080aeb6c5fc3496cf5969dea49e39"
+      "bytes": 4496,
+      "sha256": "0986d8b6b0dcbb01a38eed1fda9d08fc758f939af67b20b8769aa5ec590db770"
     },
     {
       "path": "source/LICENSE",
