@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { readSourceBundle } from '../src/source/bundle.mjs';
 import { writeSourceBundle } from '../src/source/write.mjs';
-import { sha256 } from '../src/integrations/ethos/projection.mjs';
-import { readEthosSource } from '../src/integrations/ethos/projection.mjs';
+import { sha256 } from '../adapters/ethos/projection.mjs';
+import { readEthosSource } from '../adapters/ethos/projection.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sourceSha256 =

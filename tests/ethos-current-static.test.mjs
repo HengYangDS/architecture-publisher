@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { writeSourceBundle } from '../src/source/write.mjs';
 import { compileEthosPoster } from '../editions/ethos/poster.mjs';
-import { sha256 } from '../src/integrations/ethos/projection.mjs';
+import { sha256 } from '../adapters/ethos/projection.mjs';
 
 test('candidate static intake requires exact review binding before reading selected artifacts', async () => {
   await assert.rejects(

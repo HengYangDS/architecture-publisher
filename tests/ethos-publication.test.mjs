@@ -240,7 +240,7 @@ test(
 test('publication effects reject absent acceptance before touching a file target', async () => {
   const { publishEthosPublication, recoverEthosPublication } =
       await import('../editions/ethos/publication.mjs'),
-    { sha256 } = await import('../src/integrations/ethos/projection.mjs');
+    { sha256 } = await import('../adapters/ethos/projection.mjs');
   const body = {
     schema: 'architecture.ethos-pair-publication/v1',
     filePlan: {},

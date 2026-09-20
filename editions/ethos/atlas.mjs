@@ -7,9 +7,9 @@ import {
   readEthosSource,
   sha256,
   stableStringify,
-} from '../../src/integrations/ethos/projection.mjs';
-import { renderNativeDiagram } from '../../src/interactive/archify.mjs';
-import { loadBundledFonts } from '../../src/interactive/fonts.mjs';
+} from '../../adapters/ethos/projection.mjs';
+import { renderNativeDiagram } from '../../renderers/archify/index.mjs';
+import { loadBundledFonts } from '../../renderers/archify/fonts.mjs';
 import { applyNativeTypography, nativeTypography } from './typography.mjs';
 import {
   applyNativeAnnotations,

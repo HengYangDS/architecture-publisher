@@ -219,7 +219,7 @@ await fs.rename(
   path.join(pkg, 'editions-removed'),
 );
 await fs.rename(
-  path.join(pkg, 'src/integrations'),
+  path.join(pkg, 'adapters'),
   path.join(pkg, 'integrations-removed'),
 );
 let planned = invoke([

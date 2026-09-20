@@ -210,7 +210,7 @@ test('packed compiler relocates and runs offline without ETHOS-specific modules'
   assert.equal(install.status, 0, install.stderr);
   const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   await fs.rm(path.join(pkg, 'editions'), { recursive: true });
-  await fs.rm(path.join(pkg, 'src/integrations'), { recursive: true });
+  await fs.rm(path.join(pkg, 'adapters'), { recursive: true });
   const relocated = path.join(f.dir, 'different location');
   await fs.rename(consumer, relocated);
   const cli = path.join(

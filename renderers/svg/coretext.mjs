@@ -3,8 +3,8 @@ import { constants } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { fail } from '../source/manifest.mjs';
-import { writeSourceBundle } from '../source/write.mjs';
+import { fail } from '../../src/source/manifest.mjs';
+import { writeSourceBundle } from '../../src/source/write.mjs';
 import { createMetricReader } from './metrics.mjs';
 import { fileIdentity } from './files.mjs';
 

@@ -6,7 +6,7 @@ import { readFileEnvelope } from '../../src/source/files.mjs';
 import {
   sha256,
   stableStringify,
-} from '../../src/integrations/ethos/projection.mjs';
+} from '../../adapters/ethos/projection.mjs';
 import { readEthosAtlasSelection } from './atlas.mjs';
 const same = (a, b) => stableStringify(a) === stableStringify(b);
 function fields(value, required) {

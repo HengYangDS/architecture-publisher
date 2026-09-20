@@ -1,8 +1,8 @@
 import sax from '../../assets/raster/sax/sax.cjs';
 import { parse as parseFont } from '../../assets/raster/opentype/opentype.mjs';
-import { fail } from '../source/manifest.mjs';
+import { fail } from '../../src/source/manifest.mjs';
 import { RASTER_LIMITS } from './limits.mjs';
-import { isSvgAttribute, validateSvgValues } from './svg-values.mjs';
+import { isSvgAttribute, validateSvgValues } from './values.mjs';
 
 const SVG = 'http://www.w3.org/2000/svg',
   XLINK = 'http://www.w3.org/1999/xlink',

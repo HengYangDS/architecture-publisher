@@ -6,6 +6,35 @@ import { fileURLToPath } from 'node:url';
 import { inspectModuleBoundaries } from './fixtures/module-boundaries.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+
+test('runtime implementation uses the declared semantic owner roots', async () => {
+  const required = [
+    'src/scene',
+    'src/qualification',
+    'adapters/ethos',
+    'renderers/svg',
+    'renderers/archify',
+    'renderers/resvg',
+  ];
+  for (const directory of required)
+    assert(
+      (await fs.stat(path.join(root, directory))).isDirectory(),
+      `${directory} must be a runtime owner`,
+    );
+
+  const superseded = [
+    'src/composition',
+    'src/geometry',
+    'src/integrations',
+    'src/interactive',
+    'src/static',
+  ];
+  for (const directory of superseded)
+    await assert.rejects(fs.access(path.join(root, directory)), {
+      code: 'ENOENT',
+    });
+});
+
 const paths = new Set([
   '',
   'src/cli/main.mjs',
@@ -16,18 +45,22 @@ const paths = new Set([
   'src/edition/contract.mjs',
   'src/edition/evolution.mjs',
   'src/edition/input.mjs',
-  'src/geometry/scene.mjs',
-  'src/composition/architecture.mjs',
-  'src/composition/static-overview.mjs',
+  'src/scene/contract.mjs',
+  'src/scene/interactive/architecture.mjs',
+  'src/scene/static/architecture.mjs',
+  'src/qualification/static/scene.mjs',
   'src/publication/files.mjs',
   'src/publication/contract.mjs',
   'src/publication/semantic.mjs',
-  'src/interactive/archify.mjs',
-  'src/static/raster.mjs',
-  'src/static/worker.mjs',
-  'src/static/coretext.swift',
-  'src/integrations/ethos/projection.mjs',
+  'renderers/archify/index.mjs',
+  'renderers/archify/architecture.mjs',
+  'renderers/svg/architecture.mjs',
+  'renderers/svg/coretext.swift',
+  'renderers/resvg/index.mjs',
+  'renderers/resvg/worker.mjs',
+  'adapters/ethos/projection.mjs',
   'editions/ethos/atlas.mjs',
+  'examples/self-host/build.mjs',
   'assets/archify/',
   'assets/fonts/',
   'assets/raster/resvg/index.mjs',
@@ -42,27 +75,32 @@ const rejected = [
   [
     'named re-export',
     'src/source/files.mjs',
-    "export { atlas } from '../integrations/ethos/projection.mjs';",
+    "export { atlas } from '../../adapters/ethos/projection.mjs';",
   ],
   [
     'namespace re-export',
-    'src/geometry/scene.mjs',
-    "export * from '../static/raster.mjs';",
+    'src/qualification/static/scene.mjs',
+    "export * from '../../../renderers/resvg/index.mjs';",
   ],
   [
     'dynamic import',
-    'src/interactive/archify.mjs',
-    "await import('../static/raster.mjs');",
+    'renderers/archify/index.mjs',
+    "await import('../resvg/index.mjs');",
   ],
   [
-    'static compositor importing interactive renderer',
-    'src/composition/static-overview.mjs',
-    "import '../interactive/archify.mjs';",
+    'scene importing an interactive renderer',
+    'src/scene/static/architecture.mjs',
+    "import '../../../renderers/archify/index.mjs';",
+  ],
+  [
+    'shipped self-host example bypassing public contracts',
+    'examples/self-host/build.mjs',
+    "import '../../renderers/archify/index.mjs';",
   ],
   [
     'literal template import',
-    'src/static/raster.mjs',
-    'await import(`../interactive/archify.mjs`);',
+    'renderers/resvg/index.mjs',
+    'await import(`../archify/index.mjs`);',
   ],
   [
     'resource URL',
@@ -72,12 +110,12 @@ const rejected = [
   [
     'import.meta.resolve',
     'src/source/files.mjs',
-    "import.meta.resolve('../integrations/ethos/projection.mjs');",
+    "import.meta.resolve('../../adapters/ethos/projection.mjs');",
   ],
   ['computed import', 'src/source/files.mjs', 'await import(selected);'],
   [
     'computed resource URL',
-    'src/static/raster.mjs',
+    'renderers/resvg/index.mjs',
     'new URL(selected, import.meta.url);',
   ],
   ['undeclared runtime dependency', 'src/source/files.mjs', "import 'acorn';"],
@@ -118,7 +156,7 @@ test('module boundaries allow composition, independent backends and declared res
     ['src/cli/main.mjs', "await import('../../editions/ethos/atlas.mjs');"],
     [
       'editions/ethos/atlas.mjs',
-      "import '../../src/integrations/ethos/projection.mjs';",
+      "import '../../adapters/ethos/projection.mjs';",
     ],
     ['editions/ethos/atlas.mjs', "new URL('../../', import.meta.url);"],
     ['src/source/files.mjs', "import fs from 'node:fs/promises';"],
@@ -127,26 +165,29 @@ test('module boundaries allow composition, independent backends and declared res
       "import '../semantics/document.mjs'; import '../source/manifest.mjs';",
     ],
     [
-      'src/composition/architecture.mjs',
+      'src/scene/contract.mjs',
       "import '../edition/contract.mjs';",
     ],
     [
-      'src/static/raster.mjs',
-      "import '../source/files.mjs'; import '../geometry/scene.mjs';",
+      'renderers/svg/architecture.mjs',
+      "import '../../src/scene/static/architecture.mjs';",
     ],
     [
-      'src/static/raster.mjs',
-      "await import('./worker.mjs'); new URL('./coretext.swift', import.meta.url);",
+      'renderers/resvg/index.mjs',
+      "await import('./worker.mjs');",
     ],
     [
-      'src/interactive/archify.mjs',
+      'renderers/archify/index.mjs',
       "new URL('../../assets/archify/', import.meta.url);",
     ],
     [
-      'src/interactive/archify.mjs',
+      'renderers/archify/index.mjs',
       "new URL('../../assets/fonts/', import.meta.url);",
     ],
-    ['src/static/raster.mjs', "import '../../assets/raster/resvg/index.mjs';"],
+    [
+      'renderers/resvg/worker.mjs',
+      "import '../../assets/raster/resvg/index.mjs';",
+    ],
     [
       'src/source/files.mjs',
       "// import '../../editions/ethos/atlas.mjs'\nconst message = 'editions/ethos';",
@@ -163,8 +204,8 @@ test('module boundaries allow composition, independent backends and declared res
 test('a permitted intermediary cannot hide its reverse dependency', () => {
   assert.deepEqual(
     inspectModuleBoundaries(
-      'src/static/raster.mjs',
-      "import '../source/bridge.mjs';",
+      'renderers/resvg/index.mjs',
+      "import '../../src/source/bridge.mjs';",
       paths,
     ),
     [],
@@ -207,7 +248,15 @@ test('all first-party JavaScript modules satisfy the same dependency rules', asy
       }
     }
   }
-  for (const dir of ['src', 'editions', 'assets']) await visit(dir);
+  for (const dir of [
+    'src',
+    'adapters',
+    'renderers',
+    'editions',
+    'examples',
+    'assets',
+  ])
+    await visit(dir);
   assert(modules.length > 0);
   const problems = [];
   for (const file of modules)

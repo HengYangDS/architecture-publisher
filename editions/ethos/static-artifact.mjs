@@ -7,7 +7,7 @@ import {
   sha256,
   stableStringify,
   validateProjectionEnvelope,
-} from '../../src/integrations/ethos/projection.mjs';
+} from '../../adapters/ethos/projection.mjs';
 const same = (a, b) => stableStringify(a) === stableStringify(b);
 const equal = (a, b, why) => {
   if (a !== b) throw Error(why);

@@ -15,7 +15,7 @@
 
 ## 3. Semantic and physical convergence
 
-- [ ] 3.1 Move ETHOS source integration behind `adapters/ethos`, renderer implementations behind `renderers`, scene ownership below `src/scene`, and Edition-owned behavior below `editions`; update imports under one prewrite admission and verify module-boundary tests reject every reverse dependency.
+- [x] 3.1 Move ETHOS source integration behind `adapters/ethos`, renderer implementations behind `renderers`, scene ownership below `src/scene`, and Edition-owned behavior below `editions`; update imports under one prewrite admission and verify module-boundary tests reject every reverse dependency.
 - [ ] 3.2 Remove ambiguous or superseded implementation owners and current compatibility identities rather than retaining wrappers; verify source and test scans contain one owner for each public invariant and no `core`, `common`, `shared`, `utils`, `legacy`, or `compat` catch-all introduced by the migration.
 - [ ] 3.3 Refactor the public CLI into a composition root over source, semantic, Edition, qualification, and publication contracts; verify public help is concise, all commands use `archpub`, installed operation is offline, and no domain-specific logic is implemented in the CLI.
 

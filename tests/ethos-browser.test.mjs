@@ -204,7 +204,7 @@ test('pure coverage predicate accepts complete data and rejects coordinated omis
   assert.deepEqual(browserCoverageGaps(report, [page], [1600, 900], floor), []);
   const { validateEthosBrowserReport } =
     await import('../editions/ethos/browser.mjs');
-  const { sha256 } = await import('../src/integrations/ethos/projection.mjs');
+  const { sha256 } = await import('../adapters/ethos/projection.mjs');
   const portable = structuredClone(report),
     members = [];
   portable.source = {

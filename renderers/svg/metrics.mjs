@@ -1,4 +1,4 @@
-import { fail } from '../source/manifest.mjs';
+import { fail } from '../../src/source/manifest.mjs';
 
 const fields = (v, keys) =>
   v &&

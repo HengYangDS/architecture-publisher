@@ -13,9 +13,9 @@ const selectedFiles = Object.freeze({
   'source-bundle': 'src/source/bundle.mjs',
   'semantic-contract': 'src/semantics/document.mjs',
   'publication-coordinator': 'src/publication/semantic.mjs',
-  'static-compositor': 'src/composition/static-overview.mjs',
-  'interactive-renderer': 'src/interactive/archify.mjs',
-  'raster-boundary': 'src/static/raster.mjs',
+  'static-compositor': 'renderers/svg/architecture.mjs',
+  'interactive-renderer': 'renderers/archify/index.mjs',
+  'raster-boundary': 'renderers/resvg/index.mjs',
   'publication-writer': 'src/source/write.mjs',
 });
 

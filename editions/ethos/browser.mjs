@@ -7,7 +7,7 @@ import { readEthosAtlasOutput } from './atlas-output.mjs';
 import {
   readEthosSource,
   sha256,
-} from '../../src/integrations/ethos/projection.mjs';
+} from '../../adapters/ethos/projection.mjs';
 import {
   ATLAS_VIEWPORTS,
   ATLAS_EXPORTS,

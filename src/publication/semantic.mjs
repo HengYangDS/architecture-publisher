@@ -5,11 +5,9 @@ import { readSourceBundle } from '../source/bundle.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { fail, isDigest, portablePath } from '../source/manifest.mjs';
-import {
-  interactiveArchitectureDiagram,
-  semanticArchitectureProjections,
-} from '../composition/architecture.mjs';
-import { composeStaticOverview } from '../composition/static-overview.mjs';
+import { interactiveArchitectureScene } from '../scene/interactive/architecture.mjs';
+import { semanticArchitectureProjections } from '../scene/contract.mjs';
+import { composeStaticOverview } from '../../renderers/svg/architecture.mjs';
 import {
   claimModelDigest,
   validateClaimModel,
@@ -20,9 +18,9 @@ import {
   staticSceneDigest,
   validateEdition,
 } from '../edition/contract.mjs';
-import { renderSemanticDiagram } from '../interactive/archify.mjs';
-import { loadBundledFonts } from '../interactive/fonts.mjs';
-import { rasterize } from '../static/raster.mjs';
+import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
+import { loadBundledFonts } from '../../renderers/archify/fonts.mjs';
+import { rasterize } from '../../renderers/resvg/index.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const exact = (value, fields) =>
@@ -170,16 +168,9 @@ export async function compileSemanticPublication(plan) {
       );
     for (const view of projections.interactiveScenes) {
       const output = path.join(scratch, view.id + '.html'),
-        inputBytes = Buffer.from(
-          JSON.stringify(
-            interactiveArchitectureDiagram(document, selected.value, view),
-            null,
-            2,
-          ) + '\n',
-        ),
-        receipt = await renderSemanticDiagram({
-          type: 'architecture',
-          inputBytes,
+        scene = interactiveArchitectureScene(document, selected.value, view),
+        receipt = await renderArchitectureScene({
+          scene,
           output,
         }),
         html = await fs.readFile(output);

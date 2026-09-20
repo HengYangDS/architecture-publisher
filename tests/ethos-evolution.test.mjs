@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { fixture, sha, stable } from './fixtures/ethos-source.mjs';
 import fs from 'node:fs/promises';
 import { composeNaturalOverview } from '../editions/ethos/static/natural-overview.mjs';
-import { createMetricReader } from '../src/static/metrics.mjs';
+import { createMetricReader } from '../renderers/svg/metrics.mjs';
 import { auditNaturalSemantics } from '../editions/ethos/static/natural-semantics.mjs';
 
 async function api() {

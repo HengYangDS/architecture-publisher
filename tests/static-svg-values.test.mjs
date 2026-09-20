@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateSvg } from '../src/static/svg.mjs';
+import { validateSvg } from '../renderers/resvg/validation.mjs';
 
 const document = (body) =>
   Buffer.from(

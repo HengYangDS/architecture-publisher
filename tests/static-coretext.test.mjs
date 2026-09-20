@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 async function api() {
-  const entry = new URL('../src/static/coretext.mjs', import.meta.url);
+  const entry = new URL('../renderers/svg/coretext.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(entry),
     'explicit CoreText adapter exists',
@@ -205,7 +205,7 @@ test(
         f.dir,
       ]),
     )[0];
-    assert(packed.files.some((x) => x.path === 'src/static/coretext.swift'));
+    assert(packed.files.some((x) => x.path === 'renderers/svg/coretext.swift'));
     const consumer = path.join(f.dir, 'consumer');
     await fs.mkdir(consumer);
     runNpm([
@@ -226,8 +226,8 @@ test(
     for (const name of [
       'assets',
       'editions',
-      'src/interactive',
-      'src/integrations',
+      'renderers/archify',
+      'adapters',
     ])
       await fs.rm(path.join(pkg, name), { recursive: true });
     const plan = structuredClone(f.plan);

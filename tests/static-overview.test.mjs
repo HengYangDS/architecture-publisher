@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { composeStaticOverview } from '../src/composition/static-overview.mjs';
+import { composeStaticOverview } from '../renderers/svg/architecture.mjs';
 
 function fixture() {
   return {
@@ -52,5 +52,19 @@ test('a relation through an unrelated node is rejected before publication', () =
   };
   assert.throws(() => composeStaticOverview(document, edition, view), {
     code: 'semantic_publication_static_route_infeasible',
+  });
+});
+
+test('SVG renderer owns its supported visual-role vocabulary', () => {
+  const { document, edition, view } = fixture();
+  edition.visualGrammar.entityTypes.component = 'brand-primary';
+  assert.throws(() => composeStaticOverview(document, edition, view), {
+    code: 'render_scene_visual_role_unsupported',
+  });
+
+  edition.visualGrammar.entityTypes.component = 'backend';
+  edition.visualGrammar.relationTypes.calls.variant = 'ambient';
+  assert.throws(() => composeStaticOverview(document, edition, view), {
+    code: 'render_scene_edge_role_unsupported',
   });
 });

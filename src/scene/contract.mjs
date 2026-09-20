@@ -21,17 +21,6 @@ const interactiveRoute = new Set([
   'orthogonal-h',
   'orthogonal-v',
 ]);
-const componentType = new Set([
-  'frontend',
-  'backend',
-  'database',
-  'cloud',
-  'security',
-  'messagebus',
-  'external',
-]);
-const variant = new Set(['default', 'emphasis', 'security', 'dashed']);
-
 function validateView(view, document, purposeRequired) {
   const fields = purposeRequired
     ? ['id', 'label', 'purpose', 'groups', 'relations']
@@ -106,32 +95,6 @@ function validateView(view, document, purposeRequired) {
 
 export function semanticArchitectureProjections(document, edition) {
   validateEdition(document, edition);
-  const grammar = edition.visualGrammar;
-  for (const type of document.vocabulary.entities)
-    if (!componentType.has(grammar.entityTypes[type]))
-      fail('semantic_publication_entity_style_missing');
-  if (
-    Object.keys(grammar.entityTypes).some(
-      (type) => !document.vocabulary.entities.includes(type),
-    )
-  )
-    fail('semantic_publication_entity_style_unknown');
-  for (const type of document.vocabulary.relations) {
-    const style = grammar.relationTypes[type];
-    if (
-      !exact(style, ['label', 'variant']) ||
-      typeof style.label !== 'string' ||
-      !style.label.trim() ||
-      !variant.has(style.variant)
-    )
-      fail('semantic_publication_relation_style_missing');
-  }
-  if (
-    Object.keys(grammar.relationTypes).some(
-      (type) => !document.vocabulary.relations.includes(type),
-    )
-  )
-    fail('semantic_publication_relation_style_unknown');
   const overviewId = edition.narrative[0],
     staticScene = {
       id: overviewId,
@@ -173,78 +136,4 @@ export function semanticArchitectureProjections(document, edition) {
     staticScene,
     interactiveScenes,
   };
-}
-
-export function interactiveArchitectureDiagram(document, edition, view) {
-  const widest = Math.max(
-    ...view.groups.map((group) => group.entities.length),
-  );
-  const cellWidth = 170,
-    columnGap = 70,
-    contentWidth = widest * cellWidth + (widest - 1) * columnGap;
-  const width = Math.max(920, contentWidth + 240);
-  const height = 170 + view.groups.length * 210;
-  const components = [];
-  for (const [row, group] of view.groups.entries())
-    for (const [col, id] of group.entities.entries()) {
-      const entity = document.entities[id];
-      const rowWidth =
-          group.entities.length * cellWidth +
-          (group.entities.length - 1) * columnGap,
-        rowX = (width - rowWidth) / 2;
-      components.push({
-        id,
-        type: edition.visualGrammar.entityTypes[entity.type],
-        label: entity.label,
-        pos: [rowX + col * (cellWidth + columnGap), 110 + row * 210],
-        size: [cellWidth, 82],
-      });
-    }
-  return {
-    schema_version: 1,
-    diagram_type: 'architecture',
-    meta: {
-      title: edition.title,
-      subtitle: view.label,
-      locale: 'en',
-      quality_profile: 'showcase',
-      visual_preset: 'editorial',
-      viewBox: [width, height],
-      legend: { mode: 'hidden' },
-    },
-    components,
-    boundaries: view.groups.map((group) => ({
-      kind: 'region',
-      label: group.label,
-      wraps: group.entities,
-      pad: 24,
-    })),
-    connections: view.relations.map((layout) => {
-      const relation = document.relations[layout.id],
-        style = edition.visualGrammar.relationTypes[relation.type];
-      return {
-        id: layout.id,
-        from: relation.subject,
-        to: relation.object,
-        label: style.label,
-        variant: style.variant,
-        fromSide: layout.fromSide,
-        toSide: layout.toSide,
-        route: layout.route,
-        ...(layout.labelAt ? { labelAt: layout.labelAt } : {}),
-        ...(layout.labelDx === undefined ? {} : { labelDx: layout.labelDx }),
-        ...(layout.labelDy === undefined ? {} : { labelDy: layout.labelDy }),
-        ...(layout.labelSegment === undefined
-          ? {}
-          : { labelSegment: layout.labelSegment }),
-      };
-    }),
-  };
-}
-
-export function semanticArchitectureDiagram(document, edition, viewId) {
-  const projections = semanticArchitectureProjections(document, edition),
-    view = projections.interactiveScenes.find((item) => item.id === viewId);
-  if (!view) fail('semantic_publication_view_missing');
-  return interactiveArchitectureDiagram(document, edition, view);
 }

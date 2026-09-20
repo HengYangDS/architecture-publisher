@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {sha256} from '../../src/integrations/ethos/projection.mjs';
+import {sha256} from '../../adapters/ethos/projection.mjs';
 import {readEthosAtlasOutput} from './atlas-output.mjs';
 import {portablePath} from '../../src/source/manifest.mjs';
 

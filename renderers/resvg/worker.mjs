@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import * as resvg from '../../assets/raster/resvg/index.mjs';
-import { validateSvg } from './svg.mjs';
+import { validateSvg } from './validation.mjs';
 
 try {
   const request = JSON.parse(fs.readFileSync(0, 'utf8'));

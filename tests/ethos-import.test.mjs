@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { importEthosSource } from '../src/integrations/ethos/import.mjs';
-import { readEthosSource } from '../src/integrations/ethos/projection.mjs';
+import { importEthosSource } from '../adapters/ethos/import.mjs';
+import { readEthosSource } from '../adapters/ethos/projection.mjs';
 import { fixture, encode, sha } from './fixtures/ethos-source.mjs';
 
 async function setup(t) {

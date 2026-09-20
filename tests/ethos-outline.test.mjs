@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { writeSourceBundle } from '../src/source/write.mjs';
 import { readSourceBundle } from '../src/source/bundle.mjs';
-import { rasterize } from '../src/static/raster.mjs';
+import { rasterize } from '../renderers/resvg/index.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (b) => createHash('sha256').update(b).digest('hex');

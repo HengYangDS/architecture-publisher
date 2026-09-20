@@ -30,19 +30,19 @@
     {
       "source": "compiler/src/natural-separation.ts",
       "sourceSha256": "e7f3d1573759d07bc31ffff18b6337899bfc6cf54bb0ba0213c1dd120f6e5203",
-      "target": "src/geometry/separation.mjs",
+      "target": "src/qualification/static/separation.mjs",
       "typeErasedSha256": "d95d146f553f6f59a132b24ab5d8aba39d0d11222b31a04c7859413737cdc2f1"
     },
     {
       "source": "compiler/src/visual-contract.ts",
       "sourceSha256": "ae35755dfbdbde364f4396df26cefd82227473de3450cb85b054b0f00d2fa00d",
-      "target": "src/geometry/scene.mjs",
+      "target": "src/qualification/static/scene.mjs",
       "typeErasedSha256": "a0814bb24e824076019098909d8a2d192b016b8fda5bf163a5e618827b978c84"
     },
     {
       "source": "compiler/src/emitted-path.ts",
       "sourceSha256": "8501aa28c4f97b30d5f493c001aa75cf5167b1cf2fabd570914fec5779ba0a1d",
-      "target": "src/geometry/emitted-path.mjs",
+      "target": "src/qualification/static/emitted-path.mjs",
       "typeErasedSha256": "dd9128774e0a158bf7a2118c981b700b4708364096d1523108f9c9b1acfabdd1"
     }
   ]

@@ -125,7 +125,7 @@ async function command() {
         throw Object.assign(new Error(), { code: 'coretext_plan_invalid' });
       font.path = resolve(font.path);
     }
-    const { measureCoreText } = await import('../static/coretext.mjs');
+    const { measureCoreText } = await import('../../renderers/svg/coretext.mjs');
     return measureCoreText(plan);
   }
   if (args.length === 2 && args[0] === 'raster') {
@@ -141,7 +141,7 @@ async function command() {
         throw Object.assign(new Error(), { code: 'raster_plan_invalid' });
       plan[key] = path.resolve(path.dirname(file), plan[key]);
     }
-    const { rasterize } = await import('../static/raster.mjs');
+    const { rasterize } = await import('../../renderers/resvg/index.mjs');
     return rasterize(plan);
   }
   if (
@@ -311,7 +311,7 @@ async function command() {
     args[5] === '--output'
   ) {
     const path = await import('node:path');
-    const { renderDiagram } = await import('../interactive/archify.mjs');
+    const { renderDiagram } = await import('../../renderers/archify/index.mjs');
     return renderDiagram({
       type: args[1],
       input: path.resolve(args[2]),
@@ -350,7 +350,7 @@ async function command() {
     args[6] === '--projection'
   ) {
     const { readEthosSource } =
-      await import('../integrations/ethos/projection.mjs');
+      await import('../../adapters/ethos/projection.mjs');
     const value = await readEthosSource(args[3], args[5], args[7]);
     return {
       status: 'verified',
@@ -381,7 +381,7 @@ async function command() {
       plan[key] = path.resolve(path.dirname(planPath), plan[key]);
     }
     const { importEthosSource } =
-      await import('../integrations/ethos/import.mjs');
+      await import('../../adapters/ethos/import.mjs');
     return { status: 'imported', ...(await importEthosSource(plan)) };
   }
   throw Object.assign(new Error(usage), { code: 'usage' });

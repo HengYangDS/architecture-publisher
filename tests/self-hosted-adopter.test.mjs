@@ -67,6 +67,14 @@ test('the installed product publishes its own architecture through the public co
       ),
     ),
     plan = JSON.parse(await fs.readFile(selected.plan, 'utf8'));
+  await assert.rejects(
+    fs.stat(path.join(pkg, 'examples/self-host/browser-acceptance.json')),
+    { code: 'ENOENT' },
+  );
+  await assert.rejects(
+    fs.stat(path.join(pkg, 'examples/aigw/browser-acceptance.json')),
+    { code: 'ENOENT' },
+  );
   assert.equal(path.dirname(selected.plan), path.join(physicalParent, 'inputs'));
   assert.equal(path.dirname(selected.sourceManifest), path.join(physicalParent, 'inputs', 'source'));
   plan.output = publication;

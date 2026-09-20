@@ -5,8 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { writeSourceBundle } from '../src/source/write.mjs';
-import { validateSvg } from '../src/static/svg.mjs';
-import { RASTER_LIMITS } from '../src/static/limits.mjs';
+import { validateSvg } from '../renderers/resvg/validation.mjs';
+import { RASTER_LIMITS } from '../renderers/resvg/limits.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const hash = (b) => createHash('sha256').update(b).digest('hex');
 const shape =
@@ -22,7 +22,7 @@ test('the supplied XML parser rejects character references outside XML Char', ()
   }
 });
 async function api() {
-  const entry = new URL('../src/static/raster.mjs', import.meta.url);
+  const entry = new URL('../renderers/resvg/index.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(entry),
     'public raster implementation exists',

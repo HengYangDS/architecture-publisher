@@ -77,6 +77,11 @@ and relation values that its renderer consumes. A scene may also bind one exact
 authored-input digest; changing that input invalidates only the owning scene and
 medium unless another declared Edition dependency also changed.
 
+Scene contracts use renderer-neutral nodes, groups, edges, viewports and visual
+roles. A selected renderer owns its supported-role vocabulary and translation to
+backend protocol fields; an Edition or generic scene never emits an Archify,
+SVG, browser or raster protocol directly.
+
 ## Visual grammar
 
 A flagship visual grammar declares:

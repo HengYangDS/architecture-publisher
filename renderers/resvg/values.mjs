@@ -1,4 +1,4 @@
-import { fail } from '../source/manifest.mjs';
+import { fail } from '../../src/source/manifest.mjs';
 
 const invalid = () => fail('raster_svg_value_invalid');
 const number = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?/;

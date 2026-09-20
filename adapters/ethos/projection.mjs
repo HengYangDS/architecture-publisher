@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { readSourceBundle } from '../../source/bundle.mjs';
-import { fail, isDigest, portablePath } from '../../source/manifest.mjs';
+import { readSourceBundle } from '../../src/source/bundle.mjs';
+import { fail, isDigest, portablePath } from '../../src/source/manifest.mjs';
 
 export const SOURCE_PATHS = Object.freeze({
   license: 'LICENSE',

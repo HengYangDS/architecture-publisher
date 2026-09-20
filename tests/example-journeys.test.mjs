@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import sax from '../assets/raster/sax/sax.cjs';
 import { parse as parseFont } from '../assets/raster/opentype/opentype.mjs';
-import { auditScene } from '../src/geometry/scene.mjs';
+import { auditScene } from '../src/qualification/static/scene.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (b) => createHash('sha256').update(b).digest('hex');
@@ -280,7 +280,7 @@ test('installed non-ETHOS examples support both media, updates and local bundles
     consumer,
   );
   const pkg = path.join(consumer, 'node_modules/architecture-publisher');
-  for (const p of ['editions', 'src/integrations'])
+  for (const p of ['editions', 'adapters'])
     await fs.rm(path.join(pkg, p), { recursive: true });
   const invoke = (args) =>
     JSON.parse(

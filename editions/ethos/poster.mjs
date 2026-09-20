@@ -6,14 +6,14 @@ import {
   readEthosSource,
   sha256,
   stableStringify,
-} from '../../src/integrations/ethos/projection.mjs';
-import { createMetricReader } from '../../src/static/metrics.mjs';
+} from '../../adapters/ethos/projection.mjs';
+import { createMetricReader } from '../../renderers/svg/metrics.mjs';
 import {
   auditScene,
   auditCanvasEnvelope,
-} from '../../src/geometry/scene.mjs';
-import { auditNaturalSeparation } from '../../src/geometry/separation.mjs';
-import { auditEmittedEdges } from '../../src/geometry/emitted-path.mjs';
+} from '../../src/qualification/static/scene.mjs';
+import { auditNaturalSeparation } from '../../src/qualification/static/separation.mjs';
+import { auditEmittedEdges } from '../../src/qualification/static/emitted-path.mjs';
 import { composeNaturalOverview } from './static/natural-overview.mjs';
 import { compileTraceScene, renderTraceSvg } from './static/trace-scene.mjs';
 import { auditNaturalSemantics } from './static/natural-semantics.mjs';

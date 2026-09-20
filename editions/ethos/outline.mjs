@@ -5,9 +5,9 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fail, isDigest } from '../../src/source/manifest.mjs';
 import { writeSourceBundle } from '../../src/source/write.mjs';
-import { fileIdentity } from '../../src/static/files.mjs';
-import { validateSvg } from '../../src/static/svg.mjs';
-import { RASTER_LIMITS as limits } from '../../src/static/limits.mjs';
+import { fileIdentity } from '../../renderers/svg/files.mjs';
+import { validateSvg } from '../../renderers/resvg/validation.mjs';
+import { RASTER_LIMITS as limits } from '../../renderers/resvg/limits.mjs';
 import { renderEthosPoster } from './poster.mjs';
 
 const sha = (b) => createHash('sha256').update(b).digest('hex');

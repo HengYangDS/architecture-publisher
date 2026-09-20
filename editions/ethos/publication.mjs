@@ -7,7 +7,7 @@ import { readEthosAtlasOutput } from './atlas-output.mjs';
 import { readEthosReview } from './review.mjs';
 import { readStaticArtifact } from './static-artifact.mjs';
 import { readEthosBrowserEvidence } from './browser.mjs';
-import { sha256 } from '../../src/integrations/ethos/projection.mjs';
+import { sha256 } from '../../adapters/ethos/projection.mjs';
 import {
   planPairFiles,
   installPairFiles,

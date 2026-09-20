@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { sha256 } from '../src/integrations/ethos/projection.mjs';
+import { sha256 } from '../adapters/ethos/projection.mjs';
 import { renderEthosAtlas } from '../editions/ethos/atlas.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { writeSourceBundle } from '../src/source/write.mjs';
-import { readEthosSource } from '../src/integrations/ethos/projection.mjs';
+import { readEthosSource } from '../adapters/ethos/projection.mjs';
 import { fixture, encode, sha } from './fixtures/ethos-source.mjs';
 
 async function setup(t) {

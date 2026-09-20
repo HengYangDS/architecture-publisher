@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import {
   sha256,
   stableStringify,
-} from '../src/integrations/ethos/projection.mjs';
+} from '../adapters/ethos/projection.mjs';
 const root = path.resolve(import.meta.dirname, '..');
 test('installed candidate command accepts explicit relative inputs without Git or ETHOS', async (t) => {
   const base = path.join(root, 'build/test-work');

@@ -4,8 +4,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { fail, isDigest, portablePath } from '../source/manifest.mjs';
+import { fail, isDigest, portablePath } from '../../src/source/manifest.mjs';
 import { embedFonts } from './fonts.mjs';
+import { adaptArchitectureScene } from './architecture.mjs';
 
 const supplyRoot = fileURLToPath(
   new URL('../../assets/archify/', import.meta.url),
@@ -166,6 +167,18 @@ export async function renderSemanticDiagram(plan) {
         '<!-- ' + notice.replaceAll('--', '—') + ' -->\n</head>',
       ),
     );
+  });
+}
+
+/** Render one backend-neutral architecture scene through the Archify adapter. */
+export async function renderArchitectureScene(plan) {
+  if (!plan || typeof plan !== 'object') fail('render_scene_plan_invalid');
+  const diagram = adaptArchitectureScene(plan.scene),
+    inputBytes = Buffer.from(JSON.stringify(diagram, null, 2) + '\n');
+  return renderSemanticDiagram({
+    type: 'architecture',
+    inputBytes,
+    output: plan.output,
   });
 }
 

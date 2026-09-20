@@ -1,7 +1,7 @@
 {
   "schema": "architecture.semantic-browser-acceptance/v1",
   "observedAt": "2026-09-20",
-  "hostScope": "macOS arm64 local acceptance host",
+  "hostScope": "darwin arm64 local acceptance host",
   "adoptionRole": "self-hosted",
   "independentAdopterEvidence": false,
   "browser": {
@@ -16,13 +16,13 @@
     "observerSha256": "da1ff70bb98042440d0f6512d9634014158b81fe66243ecf5d4ab1f88ee2c1e9",
     "checksSha256": "2d43190ed9e136b8047d6d80fb4c00916b44700a608d96a2321a91bd560e8218"
   },
-  "publicationManifestSha256": "379c868b7bea60040dbbf7b473d4b7ac2b630d358b05d4339a6edc8ba5f4b50b",
-  "semanticDigest": "0d02eb4aad839e2f52eb02062cce385ccb35ffa232df21a32e92eeafaa4900b2",
-  "editionSha256": "0fba31924f0ab0ab3db91eaf739a7ad3803621d4d02afe3e04ba408de96923a7",
-  "editionDigest": "c285c0e41100a227238f6c0c58eabe475d4b0b2018788cdfb7867efe052441d6",
+  "publicationManifestSha256": "3b6c4774b548e005305cd8610429af0a9322b53d8c3a80c9d7ae054bd43b798a",
+  "semanticDigest": "4de123bfc583f54fae22a72380abc6e862cf775bc885a05e4c6ccbd4a724e146",
+  "editionSha256": "680526ae629d4ac254961e76f04251400d1c47cdc688ae78f0808734eb83a750",
+  "editionDigest": "7edbb66271c9058d578ab60bcae2ae9c3889d3515a67ddeb0c4a3b09b7d39c71",
   "staticSceneDigest": "1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d",
   "interactiveSceneDigest": "b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b",
-  "browserReportSha256": "a672e0db72214adf66418ec177e13556fc72da6111b5d0a2d4011265c0c72d79",
+  "browserReportSha256": "d6cd5d65f7cd7a348ef769ad034778c9fb5efca528e98786ba5a7ace29c803dd",
   "staticSvgSha256": "dfa900de48c7c004600179e2a2ba7a9f4e9eca3246a54f7749a1b23f7e961b67",
   "staticPngSha256": "bf62fac15fb74c524cf61c0040ca5392e67b68dd33e8b3d7e52beef2eb90b882",
   "views": [

@@ -34,8 +34,10 @@ test('packed CLI verifies relocated non-Git input without development executable
         f.path === 'package.json' ||
         f.path.startsWith('src/') ||
         f.path.startsWith('assets/') ||
+        f.path.startsWith('adapters/') ||
         f.path.startsWith('examples/') ||
         f.path.startsWith('editions/') ||
+        f.path.startsWith('renderers/') ||
         f.path.startsWith('skills/'),
     ),
   );

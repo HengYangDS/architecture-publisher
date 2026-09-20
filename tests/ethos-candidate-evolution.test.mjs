@@ -7,7 +7,7 @@ import { writeSourceBundle } from '../src/source/write.mjs';
 import {
   sha256,
   stableStringify,
-} from '../src/integrations/ethos/projection.mjs';
+} from '../adapters/ethos/projection.mjs';
 import { prepareEthosCandidate } from '../editions/ethos/candidate.mjs';
 import {
   readEthosAtlasSelection,

@@ -1,15 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import { createMetricReader } from '../src/static/metrics.mjs';
+import { createMetricReader } from '../renderers/svg/metrics.mjs';
 import { composeNaturalOverview } from '../editions/ethos/static/natural-overview.mjs';
 import { compileTraceScene } from '../editions/ethos/static/trace-scene.mjs';
-import { auditNaturalSeparation } from '../src/geometry/separation.mjs';
+import { auditNaturalSeparation } from '../src/qualification/static/separation.mjs';
 import { auditNaturalSemantics } from '../editions/ethos/static/natural-semantics.mjs';
 import {
   sha256,
   stableStringify,
-} from '../src/integrations/ethos/projection.mjs';
+} from '../adapters/ethos/projection.mjs';
 
 async function selected() {
   const read = async (p) =>

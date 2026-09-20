@@ -11,36 +11,44 @@ const owners = {
     'src/semantics/',
     'src/source/',
   ],
-  'src/geometry/': ['src/geometry/'],
-  'src/composition/': [
-    'src/composition/',
+  'src/scene/': [
+    'src/scene/',
     'src/edition/',
     'src/source/',
     'src/semantics/',
+  ],
+  'src/qualification/': [
+    'src/qualification/',
+    'src/scene/',
   ],
   'src/publication/': [
     'src/publication/',
     'src/edition/',
     'src/source/',
     'src/semantics/',
-    'src/composition/',
-    'src/interactive/',
-    'src/static/',
+    'src/scene/',
+    'renderers/',
   ],
-  'src/interactive/': [
-    'src/interactive/',
+  'renderers/archify/': [
+    'renderers/archify/',
+    'src/scene/',
     'src/source/',
     'assets/archify/',
     'assets/fonts/',
   ],
-  'src/static/': [
-    'src/static/',
+  'renderers/svg/': [
+    'renderers/svg/',
     'src/source/',
-    'src/geometry/',
+    'src/scene/',
+  ],
+  'renderers/resvg/': [
+    'renderers/resvg/',
+    'renderers/svg/',
+    'src/source/',
     'assets/raster/',
   ],
-  'src/integrations/ethos/': [
-    'src/integrations/ethos/',
+  'adapters/ethos/': [
+    'adapters/ethos/',
     'src/source/',
     'src/semantics/',
   ],
@@ -49,14 +57,19 @@ const owners = {
     'src/edition/',
     'src/source/',
     'src/semantics/',
-    'src/geometry/',
+    'src/scene/',
+    'src/qualification/',
     'src/publication/',
-    'src/interactive/',
-    'src/static/',
-    'src/integrations/ethos/',
+    'renderers/',
+    'adapters/ethos/',
     'assets/',
   ],
-  'src/cli/': ['src/', 'editions/'],
+  'examples/self-host/': [
+    'examples/self-host/',
+    'src/source/',
+    'src/semantics/',
+  ],
+  'src/cli/': ['src/', 'adapters/', 'renderers/', 'editions/'],
 };
 
 const property = (node, name) =>
@@ -122,7 +135,12 @@ export function inspectModuleBoundaries(file, source, paths) {
     if (!paths.has(normalized) && !(resource && paths.has(directory)))
       return issue(node, `missing dependency: ${normalized}`);
     // Edition composition may locate its package root; generic owners may not.
-    if (resource && normalized === '' && owner === 'editions/ethos/') return;
+    if (
+      resource &&
+      normalized === '' &&
+      ['editions/ethos/', 'examples/self-host/'].includes(owner)
+    )
+      return;
     if (
       !owner ||
       !owners[owner].some((prefix) => normalized.startsWith(prefix))

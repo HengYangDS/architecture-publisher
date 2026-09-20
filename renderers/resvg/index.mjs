@@ -4,8 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { readSourceBundle } from '../source/bundle.mjs';
-import { fail, portablePath } from '../source/manifest.mjs';
+import { readSourceBundle } from '../../src/source/bundle.mjs';
+import { fail, portablePath } from '../../src/source/manifest.mjs';
 import { verifyRasterSupply } from './supply.mjs';
 import { RASTER_LIMITS as limits } from './limits.mjs';
 

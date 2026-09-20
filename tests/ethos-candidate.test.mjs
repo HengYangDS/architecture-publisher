@@ -9,7 +9,7 @@ import { checkBindings } from '../editions/ethos/bindings.mjs';
 import {
   sha256,
   stableStringify,
-} from '../src/integrations/ethos/projection.mjs';
+} from '../adapters/ethos/projection.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const source = {

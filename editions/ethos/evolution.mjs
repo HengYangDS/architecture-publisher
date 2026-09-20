@@ -2,8 +2,8 @@ import {
   sha256,
   stableStringify,
   validateProjectionEnvelope,
-} from '../../src/integrations/ethos/projection.mjs';
-import { ethosClaimModel } from '../../src/integrations/ethos/semantics.mjs';
+} from '../../adapters/ethos/projection.mjs';
+import { ethosClaimModel } from '../../adapters/ethos/semantics.mjs';
 import { claimModelDigest, exact, record, text } from '../../src/semantics/document.mjs';
 import { compileEditionEvolution } from '../../src/edition/evolution.mjs';
 import { validateEdition } from '../../src/edition/contract.mjs';

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { writeSourceBundle } from '../src/source/write.mjs';
-import { RASTER_LIMITS } from '../src/static/limits.mjs';
+import { RASTER_LIMITS } from '../renderers/resvg/limits.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const hash = (b) => createHash('sha256').update(b).digest('hex');
 
@@ -29,7 +29,7 @@ test('installed raster command needs only explicit input and its pinned static s
       dir,
     ]),
   )[0];
-  assert(pack.files.some((f) => f.path === 'src/static/raster.mjs'));
+  assert(pack.files.some((f) => f.path === 'renderers/resvg/index.mjs'));
   assert(
     pack.files.some((f) => f.path === 'assets/raster/resvg/index_bg.wasm'),
   );
@@ -94,8 +94,8 @@ test('installed raster command needs only explicit input and its pinned static s
   // This disposable installed copy deliberately lacks the interactive and ETHOS code.
   // Static execution must never load those independent capability owners.
   for (const name of [
-    'src/interactive',
-    'src/integrations',
+    'renderers/archify',
+    'adapters',
     'editions',
     'assets/archify',
   ])
@@ -266,7 +266,7 @@ test('installed raster command needs only explicit input and its pinned static s
   await fs.writeFile(observedPath, observedNotice);
   // A test-only installed worker observes the actual child-process invocation.
   // It does not stand in for the real raster tests above or qualify any artifact.
-  const worker = path.join(pkg, 'src/static/worker.mjs');
+  const worker = path.join(pkg, 'renderers/resvg/worker.mjs');
   await fs.writeFile(
     worker,
     `

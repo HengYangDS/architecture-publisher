@@ -3,7 +3,7 @@ import path from 'node:path';
 import http from 'node:http';
 import {encodeBrowserReport} from '../../editions/ethos/browser-report.mjs';
 import {chromium} from 'playwright-core';
-import {sha256} from '../../src/integrations/ethos/projection.mjs';
+import {sha256} from '../../adapters/ethos/projection.mjs';
 import {readEthosAtlasOutput} from '../../editions/ethos/atlas-output.mjs';
 import {describeEthosBrowser} from '../../editions/ethos/browser.mjs';
 import {observationName,browserCoverageGaps} from '../../editions/ethos/browser-obligations.mjs';

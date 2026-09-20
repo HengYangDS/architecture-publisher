@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { fail, isDigest } from '../source/manifest.mjs';
+import { fail, isDigest } from '../../src/source/manifest.mjs';
 
 /** Explicit host capability identity, not a dependency closure or OS sandbox. */
 export async function fileIdentity(file, expected, maximum, code) {

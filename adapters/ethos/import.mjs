@@ -2,8 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { devNull } from 'node:os';
 import { spawnSync } from 'node:child_process';
-import { writeSourceBundle } from '../../source/write.mjs';
-import { fail, isDigest, portablePath } from '../../source/manifest.mjs';
+import { writeSourceBundle } from '../../src/source/write.mjs';
+import { fail, isDigest, portablePath } from '../../src/source/manifest.mjs';
 import {
   SOURCE_PATHS,
   sha256,

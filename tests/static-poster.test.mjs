@@ -5,16 +5,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { writeSourceBundle } from '../src/source/write.mjs';
-import { readEthosSource } from '../src/integrations/ethos/projection.mjs';
-import { createMetricReader } from '../src/static/metrics.mjs';
+import { readEthosSource } from '../adapters/ethos/projection.mjs';
+import { createMetricReader } from '../renderers/svg/metrics.mjs';
 import { composeNaturalOverview } from '../editions/ethos/static/natural-overview.mjs';
 import {
   compileTraceScene,
   renderTraceSvg,
 } from '../editions/ethos/static/trace-scene.mjs';
 import { auditNaturalSemantics } from '../editions/ethos/static/natural-semantics.mjs';
-import { auditScene, auditCanvasEnvelope } from '../src/geometry/scene.mjs';
-import { auditEmittedEdges } from '../src/geometry/emitted-path.mjs';
+import { auditScene, auditCanvasEnvelope } from '../src/qualification/static/scene.mjs';
+import { auditEmittedEdges } from '../src/qualification/static/emitted-path.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const hash = (b) => createHash('sha256').update(b).digest('hex');
 const sourceSha256 =

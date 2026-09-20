@@ -503,8 +503,8 @@ Missing or invalid measurements, mismatched source identities, changed expected
 scene/SVG identities, undeclared members or executable adapters fail before
 creating output. The reader never estimates missing glyph widths or invokes
 host font services. Original module provenance is in
-`editions/ethos/static/migration.json`; generic geometry does not import the
-ETHOS edition.
+`editions/ethos/static/migration.json`; generic static qualification does not import the
+ETHOS Edition.
 
 **Exact SVG bytes are not standalone font portability.** The preserved SVG
 references Avenir Next and Georgia without embedding them. A viewer still needs
@@ -865,6 +865,10 @@ ports, routes, density, layout, and artifact identity. Their separate scene
 digests make a presentation-only change local to its medium. The static
 compositor consumes the Claim Model and static scene directly; it never parses,
 screenshots, or extracts the HTML renderer output.
+The generic interactive compositor emits a renderer-neutral scene of nodes,
+groups, edges, viewport and visual roles. The Archify renderer alone translates
+that scene into its native `diagram_type`, `components`, `boundaries`,
+`connections`, quality-profile and preset fields, and rejects unsupported roles.
 The compiler rejects stale identities, source mismatch, contradictory claims,
 unclassified omissions, incomplete questions or scenes, unsupported
 cardinality, and native renderer geometry failure. A successful bundle contains
@@ -885,6 +889,10 @@ qualification remains a separate development operation:
 ```sh
 node tools/qualification/semantic-browser.mjs ./semantic-browser-input.json
 ```
+
+Tracked browser-acceptance records describe repository verification and are not
+installed as package inputs; otherwise refreshing evidence would recursively
+change the package being evidenced.
 
 That observer serves only selected bundle members on loopback, blocks external
 requests, verifies visible node/relation identity, text geometry, theme and
@@ -1006,8 +1014,9 @@ install or invoke them.
 Run `npm ci --ignore-scripts` before the repository tests. The locked Acorn
 development dependency powers the test-only module-boundary check; consumer
 installation does not install it. That check scans first-party JavaScript imports,
-re-exports, dynamic imports and module-relative resource URLs. Generic source,
-geometry, publication and rendering owners must not depend on the ETHOS edition
+re-exports, dynamic imports and module-relative resource URLs, including shipped
+executable examples. Generic source, scene,
+qualification, publication and renderer owners must not depend on the ETHOS edition
 or adapter; static and interactive backends remain independent. CLI and edition
 composition are the explicit consumers of those separate capabilities.
 Computed module dependencies and unknown owners fail rather than silently bypass

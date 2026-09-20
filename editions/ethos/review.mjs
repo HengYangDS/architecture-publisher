@@ -11,7 +11,7 @@ import {
   stableStringify,
   validateProjectionEnvelope,
   readEthosSource,
-} from '../../src/integrations/ethos/projection.mjs';
+} from '../../adapters/ethos/projection.mjs';
 import { readEthosAtlasOutput } from './atlas-output.mjs';
 import { verifyHistoricalReaderReview } from './review-history.mjs';
 const same = (a, b) => stableStringify(a) === stableStringify(b);
