@@ -6,14 +6,21 @@ import { parse } from 'acorn';
 const owners = {
   'src/source/': ['src/source/'],
   'src/semantics/': ['src/semantics/', 'src/source/'],
+  'src/edition/': [
+    'src/edition/',
+    'src/semantics/',
+    'src/source/',
+  ],
   'src/geometry/': ['src/geometry/'],
   'src/composition/': [
     'src/composition/',
+    'src/edition/',
     'src/source/',
     'src/semantics/',
   ],
   'src/publication/': [
     'src/publication/',
+    'src/edition/',
     'src/source/',
     'src/semantics/',
     'src/composition/',

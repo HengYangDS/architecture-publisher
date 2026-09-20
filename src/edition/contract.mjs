@@ -1,0 +1,411 @@
+import { createHash } from 'node:crypto';
+import { isDigest } from '../source/manifest.mjs';
+import {
+  canonical,
+  claimModelDigest,
+  exact,
+  jsonValue,
+  record,
+  strings,
+  text,
+  validateClaimModel,
+} from '../semantics/document.mjs';
+
+const EDITION_FIELDS = Object.freeze([
+  'schema',
+  'id',
+  'owner',
+  'class',
+  'product',
+  'source',
+  'claimModel',
+  'title',
+  'audiences',
+  'questions',
+  'requiredClaims',
+  'omissions',
+  'narrative',
+  'visualGrammar',
+  'scenes',
+  'qualification',
+  'scope',
+]);
+const QUALIFICATION_KINDS = Object.freeze([
+  'semantic',
+  'coverage',
+  'static',
+  'interactive',
+  'accessibility',
+  'installed',
+  'recovery',
+  'human',
+]);
+const SIDES = Object.freeze(['top', 'right', 'bottom', 'left']);
+const ROUTES = Object.freeze(['auto', 'straight', 'orthogonal-h', 'orthogonal-v']);
+
+const editionError = (code, detail = '') => {
+  throw Object.assign(new Error(code + (detail ? ': ' + detail : '')), {
+    code,
+  });
+};
+const identifier = (value) =>
+  typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
+const sameSet = (left, right) =>
+  [...left].sort().join('\n') === [...right].sort().join('\n');
+
+function validateJson(edition) {
+  try {
+    jsonValue(edition, 0, new Set(), { nodes: 0, bytes: 0 }, new Set());
+  } catch (error) {
+    if (error?.code === 'semantic_json_alias')
+      editionError('edition_json_alias');
+    if (error?.code === 'semantic_size_exceeded')
+      editionError('edition_size_exceeded');
+    editionError('edition_json_invalid', error?.code ?? 'unknown');
+  }
+}
+
+function validateComposition(composition, model, sceneId) {
+  if (
+    !exact(composition, ['groups', 'relations']) ||
+    !Array.isArray(composition.groups) ||
+    !composition.groups.length ||
+    !Array.isArray(composition.relations)
+  )
+    editionError('edition_scene_composition_invalid', sceneId);
+  const groups = new Set(),
+    entities = new Set(),
+    relations = new Set();
+  for (const group of composition.groups) {
+    if (
+      !exact(group, ['id', 'label', 'entities']) ||
+      !identifier(group.id) ||
+      groups.has(group.id) ||
+      !text(group.label) ||
+      !strings(group.entities, true)
+    )
+      editionError('edition_scene_group_invalid', sceneId);
+    groups.add(group.id);
+    for (const id of group.entities) {
+      if (!Object.hasOwn(model.entities, id) || entities.has(id))
+        editionError('edition_scene_entity_invalid', sceneId + ', ' + id);
+      entities.add(id);
+    }
+  }
+  for (const relation of composition.relations) {
+    if (
+      !record(relation) ||
+      !['id', 'fromSide', 'toSide', 'route'].every((key) =>
+        Object.hasOwn(relation, key),
+      ) ||
+      Object.keys(relation).some(
+        (key) =>
+          ![
+            'id',
+            'fromSide',
+            'toSide',
+            'route',
+            'labelAt',
+            'labelDx',
+            'labelDy',
+            'labelSegment',
+          ].includes(key),
+      ) ||
+      !text(relation.id) ||
+      relations.has(relation.id) ||
+      !Object.hasOwn(model.relations, relation.id) ||
+      !SIDES.includes(relation.fromSide) ||
+      !SIDES.includes(relation.toSide) ||
+      !ROUTES.includes(relation.route)
+    )
+      editionError('edition_scene_relation_invalid', sceneId);
+    const source = model.relations[relation.id];
+    if (!entities.has(source.subject) || !entities.has(source.object))
+      editionError('edition_scene_endpoint_missing', sceneId + ', ' + relation.id);
+    if (
+      (Object.hasOwn(relation, 'labelAt') &&
+        (!Array.isArray(relation.labelAt) ||
+          relation.labelAt.length !== 2 ||
+          relation.labelAt.some((value) => !Number.isFinite(value)))) ||
+      (Object.hasOwn(relation, 'labelDx') &&
+        !Number.isFinite(relation.labelDx)) ||
+      (Object.hasOwn(relation, 'labelDy') &&
+        !Number.isFinite(relation.labelDy)) ||
+      (Object.hasOwn(relation, 'labelSegment') &&
+        (!Number.isSafeInteger(relation.labelSegment) ||
+          relation.labelSegment < 0))
+    )
+      editionError('edition_scene_relation_invalid', sceneId);
+    relations.add(relation.id);
+  }
+  return { entities, relations };
+}
+
+function validateScene(scene, model, questions, id, purposeRequired) {
+  const fields = purposeRequired
+    ? ['label', 'purpose', 'questions', 'claims', 'composition']
+    : ['label', 'questions', 'claims', 'composition'];
+  if (
+    !exact(scene, fields) ||
+    !text(scene.label) ||
+    (purposeRequired && !['overview', 'mechanism'].includes(scene.purpose)) ||
+    !strings(scene.questions, true) ||
+    !strings(scene.claims) ||
+    scene.questions.some((question) => !Object.hasOwn(questions, question)) ||
+    scene.claims.some((claim) => !Object.hasOwn(model.claims, claim))
+  )
+    editionError('edition_scene_invalid', id);
+  const composition = validateComposition(scene.composition, model, id);
+  for (const claimId of scene.claims) {
+    const claim = model.claims[claimId];
+    if (
+      !composition.entities.has(claim.subject) ||
+      (claim.object !== null && !composition.entities.has(claim.object)) ||
+      claim.dependsOn.some(
+        (reference) =>
+          reference.section === 'relations' &&
+          !composition.relations.has(reference.id),
+      )
+    )
+      editionError('edition_scene_claim_carrier_missing', id + ', ' + claimId);
+  }
+  return { ...composition, claims: new Set(scene.claims) };
+}
+
+function validateVisualGrammar(grammar, model) {
+  if (
+    !exact(grammar, ['entityTypes', 'relationTypes', 'principles']) ||
+    !record(grammar.entityTypes) ||
+    !record(grammar.relationTypes) ||
+    !strings(grammar.principles, true) ||
+    !sameSet(Object.keys(grammar.entityTypes), model.vocabulary.entities) ||
+    !sameSet(Object.keys(grammar.relationTypes), model.vocabulary.relations) ||
+    Object.values(grammar.entityTypes).some((value) => !text(value)) ||
+    Object.values(grammar.relationTypes).some(
+      (value) =>
+        !exact(value, ['label', 'variant']) ||
+        !text(value.label) ||
+        !text(value.variant),
+    )
+  )
+    editionError('edition_visual_grammar_invalid');
+}
+
+function validateQualification(qualification, editionClass) {
+  if (
+    !exact(qualification, QUALIFICATION_KINDS) ||
+    QUALIFICATION_KINDS.some((kind) => !strings(qualification[kind])) ||
+    [
+      'semantic',
+      'coverage',
+      'static',
+      'interactive',
+      'accessibility',
+      'installed',
+    ].some((kind) => !qualification[kind].length)
+  )
+    editionError('edition_qualification_invalid');
+  if (
+    editionClass === 'flagship' &&
+    !['faithful', 'intelligible', 'restrained'].every((predicate) =>
+      qualification.human.includes(predicate),
+    )
+  )
+    editionError('edition_human_qualification_required');
+}
+
+/** Validate one complete audience-specific Edition without mutating it. */
+export function validateEdition(model, edition) {
+  validateClaimModel(model);
+  validateJson(edition);
+  if (
+    !exact(edition, EDITION_FIELDS) ||
+    edition.schema !== 'architecture.edition/v1' ||
+    !identifier(edition.id) ||
+    !text(edition.owner) ||
+    !['structural', 'flagship'].includes(edition.class) ||
+    !exact(edition.product, ['name', 'schema', 'version']) ||
+    edition.product.name !== 'Architecture Publisher' ||
+    edition.product.schema !== 'architecture.publisher/v1' ||
+    !/^0\.2\.0(?:-[0-9A-Za-z.-]+)?$/.test(edition.product.version) ||
+    !exact(edition.source, ['manifestSha256']) ||
+    !isDigest(edition.source.manifestSha256) ||
+    !exact(edition.claimModel, ['schema', 'digest']) ||
+    edition.claimModel.schema !== 'architecture.claim-model/v2' ||
+    edition.claimModel.digest !== claimModelDigest(model) ||
+    !text(edition.title) ||
+    !text(edition.scope) ||
+    !record(edition.audiences) ||
+    !Object.keys(edition.audiences).length ||
+    !record(edition.questions) ||
+    !Object.keys(edition.questions).length ||
+    !strings(edition.requiredClaims, true) ||
+    !record(edition.omissions) ||
+    !Array.isArray(edition.narrative) ||
+    !edition.narrative.length ||
+    edition.narrative.some((id) => !text(id)) ||
+    !exact(edition.scenes, ['static', 'interactive']) ||
+    !record(edition.scenes.interactive)
+  )
+    editionError('edition_contract_invalid');
+
+  for (const [id, audience] of Object.entries(edition.audiences))
+    if (!identifier(id) || !exact(audience, ['label']) || !text(audience.label))
+      editionError('edition_audience_invalid', id);
+
+  for (const [id, question] of Object.entries(edition.questions))
+    if (
+      !identifier(id) ||
+      !exact(question, ['audience', 'prompt', 'claims', 'detail', 'risk']) ||
+      !Object.hasOwn(edition.audiences, question.audience) ||
+      !text(question.prompt) ||
+      !strings(question.claims, true) ||
+      question.claims.some((claim) => !Object.hasOwn(model.claims, claim)) ||
+      !['overview', 'mechanism'].includes(question.detail) ||
+      !text(question.risk)
+    )
+      editionError('edition_question_invalid', id);
+
+  const modelClaims = Object.keys(model.claims),
+    required = new Set(edition.requiredClaims),
+    omitted = new Set(Object.keys(edition.omissions));
+  if (
+    edition.requiredClaims.some((id) => !Object.hasOwn(model.claims, id)) ||
+    Object.keys(edition.omissions).some(
+      (id) => !Object.hasOwn(model.claims, id),
+    )
+  )
+    editionError('edition_claim_unknown');
+  if ([...required].some((id) => omitted.has(id)))
+    editionError('edition_claim_classification_overlap');
+  if (!modelClaims.every((id) => required.has(id) || omitted.has(id)))
+    editionError('edition_claim_classification_incomplete');
+
+  validateVisualGrammar(edition.visualGrammar, model);
+  validateQualification(edition.qualification, edition.class);
+  const staticScene = validateScene(
+      edition.scenes.static,
+      model,
+      edition.questions,
+      'static',
+      false,
+    ),
+    interactive = new Map();
+  for (const [id, scene] of Object.entries(edition.scenes.interactive)) {
+    if (!identifier(id)) editionError('edition_scene_invalid', id);
+    interactive.set(
+      id,
+      validateScene(scene, model, edition.questions, id, true),
+    );
+  }
+  if (
+    !interactive.size ||
+    !sameSet(edition.narrative, interactive.keys()) ||
+    edition.scenes.interactive[edition.narrative[0]]?.purpose !== 'overview' ||
+    [...interactive.keys()].filter(
+      (id) => edition.scenes.interactive[id].purpose === 'overview',
+    ).length !== 1
+  )
+    editionError('edition_narrative_invalid');
+
+  const overviewId = edition.narrative[0],
+    overview = interactive.get(overviewId);
+  if (
+    !sameSet(staticScene.claims, required) ||
+    !sameSet(overview.claims, required)
+  )
+    editionError('edition_overview_incomplete');
+
+  const overviewQuestions = Object.entries(edition.questions)
+    .filter(([, question]) => question.detail === 'overview')
+    .map(([id]) => id);
+  if (
+    !sameSet(edition.scenes.static.questions, overviewQuestions) ||
+    !sameSet(edition.scenes.interactive[overviewId].questions, overviewQuestions)
+  )
+    editionError('edition_overview_questions_incomplete');
+
+  for (const [id, omission] of Object.entries(edition.omissions)) {
+    if (
+      !exact(omission, ['disposition', 'reason', 'view']) ||
+      !['out-of-scope', 'represented-by'].includes(omission.disposition) ||
+      !text(omission.reason) ||
+      (omission.disposition === 'out-of-scope' && omission.view !== null) ||
+      (omission.disposition === 'represented-by' &&
+        (!text(omission.view) || !interactive.has(omission.view)))
+    )
+      editionError('edition_omission_invalid', id);
+    const represented = [...interactive.entries()]
+      .filter(([, scene]) => scene.claims.has(id))
+      .map(([sceneId]) => sceneId);
+    if (
+      (omission.disposition === 'out-of-scope' && represented.length) ||
+      (omission.disposition === 'represented-by' &&
+        !represented.includes(omission.view))
+    )
+      editionError('edition_omission_invalid', id);
+  }
+
+  for (const [id, question] of Object.entries(edition.questions)) {
+    const scenes = [
+      ...(question.detail === 'overview'
+        ? [
+            edition.scenes.static,
+            edition.scenes.interactive[overviewId],
+          ]
+        : Object.values(edition.scenes.interactive).filter(
+            (scene) =>
+              scene.purpose === 'mechanism' && scene.questions.includes(id),
+          )),
+    ];
+    if (
+      !scenes.length ||
+      scenes.some(
+        (scene) =>
+          !scene.questions.includes(id) ||
+          question.claims.some((claim) => !scene.claims.includes(claim)),
+      )
+    )
+      editionError('edition_question_incomplete', id);
+  }
+  return edition;
+}
+
+function normalizedEdition(model, edition) {
+  validateEdition(model, edition);
+  const result = structuredClone(edition);
+  result.requiredClaims.sort();
+  for (const question of Object.values(result.questions)) question.claims.sort();
+  for (const kind of QUALIFICATION_KINDS) result.qualification[kind].sort();
+  result.visualGrammar.principles.sort();
+  result.scenes.static.claims.sort();
+  result.scenes.static.questions.sort();
+  for (const scene of Object.values(result.scenes.interactive)) {
+    scene.claims.sort();
+    scene.questions.sort();
+  }
+  return result;
+}
+
+const digest = (value) =>
+  createHash('sha256').update(canonical(value)).digest('hex');
+
+export const editionDigest = (model, edition) =>
+  digest(normalizedEdition(model, edition));
+
+export const staticSceneDigest = (model, edition) => {
+  validateEdition(model, edition);
+  return digest({
+    visualGrammar: edition.visualGrammar,
+    scene: edition.scenes.static,
+  });
+};
+
+export const interactiveSceneDigest = (model, edition) => {
+  validateEdition(model, edition);
+  return digest({
+    visualGrammar: edition.visualGrammar,
+    narrative: edition.narrative,
+    scenes: edition.scenes.interactive,
+  });
+};

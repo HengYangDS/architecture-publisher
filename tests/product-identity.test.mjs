@@ -122,6 +122,10 @@ test('product documentation has one semantic owner and a concise entry point', a
   const product = await fs.readFile(path.join(root, 'docs/product-contract.md'), 'utf8');
   const edition = await fs.readFile(path.join(root, 'docs/edition-contract.md'), 'utf8');
   const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');
+  const skill = await fs.readFile(
+    path.join(root, 'skills/architecture-publisher/SKILL.md'),
+    'utf8',
+  );
   const packageJson = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
 
   assert(readme.split('\n').length <= 260, 'README is an entry point, not an operations archive');
@@ -132,6 +136,11 @@ test('product documentation has one semantic owner and a concise entry point', a
   assert.match(product, /^state: canonical$/m);
   assert.match(product, /Source Bundle[\s\S]*Claim Model[\s\S]*Edition[\s\S]*Scene[\s\S]*Artifact[\s\S]*Qualification[\s\S]*Publication/);
   assert.match(edition, /audience[\s\S]*questions[\s\S]*required claims[\s\S]*omission policy[\s\S]*static scene[\s\S]*interactive scenes/i);
+  assert.match(operations, /architecture\.edition\/v1/);
+  assert.match(operations, /editionSha256/);
+  assert.doesNotMatch(operations, /architecture\.semantic-publication\/v2/);
+  assert.match(skill, /Edition file/);
+  assert.doesNotMatch(skill, /semantic member, authoring file/);
   assert.match(operations, /Historical alpha\.7 identity/i);
   assert(packageJson.files.includes('docs/'));
   assert(!packageJson.files.includes('docs/product-design.md'));

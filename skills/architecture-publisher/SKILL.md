@@ -9,12 +9,12 @@ Use this Skill only after the source project has supplied explicit architecture
 meaning and an authored view plan. The Skill is a replaceable caller; it does
 not own intent, workflow state, authorization, or generated artifacts.
 
-1. Select the source manifest, semantic member, authoring file and their current
-   SHA-256 digests. Do not discover sibling repositories or infer architecture
-   from code.
+1. Select the source manifest, semantic member, Edition file and their current
+   SHA-256 digests. The Edition must bind its exact source manifest and Claim
+   Model. Do not discover sibling repositories or infer architecture from code.
 2. Run `archpub publish semantic <plan.json> --sha256 <plan-sha256>` and
-   inspect the JSON result. A successful compile establishes only the reported
-   source-bound structure.
+   inspect the JSON result and bundled publication receipt. A successful compile
+   establishes only the reported source-bound structure and Edition identities.
 3. When browser evidence is required, run the repository's explicit observer
    against the exact output manifest. Keep browser, human and hosted acceptance
    separate.

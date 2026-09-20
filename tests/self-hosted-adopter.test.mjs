@@ -95,17 +95,38 @@ test('the installed product publishes its own architecture through the public co
     members = new Map(output.members.map((item) => [item.path, item.content])),
     receipt = JSON.parse(members.get('publication.json')),
     semantic = JSON.parse(members.get('semantic.json')),
+    edition = JSON.parse(members.get('edition.json')),
     svg = members.get('overview.svg').toString(),
     html = members.get('views/overview.html').toString();
   assert.equal(output.source.id, 'architecture-publisher');
   assert.equal(semantic.context.adoptionRole, 'self-hosted');
   assert.equal(semantic.context.independentAdopterEvidence, false);
   assert.equal(receipt.semanticDigest, selected.semanticDigest);
+  assert.equal(plan.edition, selected.edition);
+  assert.equal(plan.editionSha256, sha(await fs.readFile(selected.edition)));
+  assert.deepEqual(
+    edition,
+    JSON.parse(await fs.readFile(selected.edition, 'utf8')),
+  );
+  assert.equal(receipt.editionSha256, plan.editionSha256);
+  assert.equal(receipt.editionDigest, response.editionDigest);
+  assert.equal(receipt.staticSceneDigest, response.staticSceneDigest);
+  assert.equal(
+    receipt.interactiveSceneDigest,
+    response.interactiveSceneDigest,
+  );
   const acceptance = JSON.parse(await fs.readFile(
     path.join(root, 'examples/self-host/browser-acceptance.json'), 'utf8'));
   assert.equal(acceptance.adoptionRole, 'self-hosted');
   assert.equal(acceptance.independentAdopterEvidence, false);
   assert.equal(acceptance.semanticDigest, selected.semanticDigest);
+  assert.equal(acceptance.editionSha256, receipt.editionSha256);
+  assert.equal(acceptance.editionDigest, response.editionDigest);
+  assert.equal(acceptance.staticSceneDigest, response.staticSceneDigest);
+  assert.equal(
+    acceptance.interactiveSceneDigest,
+    response.interactiveSceneDigest,
+  );
   assert.equal(acceptance.publicationManifestSha256, output.manifestSha256);
   assert.equal(acceptance.staticSvgSha256, sha(members.get('overview.svg')));
   assert.equal(acceptance.staticPngSha256, sha(members.get('overview.png')));

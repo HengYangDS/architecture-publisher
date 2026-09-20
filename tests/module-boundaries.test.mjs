@@ -9,8 +9,11 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const paths = new Set([
   '',
   'src/cli/main.mjs',
+  'src/semantics/document.mjs',
+  'src/source/manifest.mjs',
   'src/source/files.mjs',
   'src/source/bridge.mjs',
+  'src/edition/contract.mjs',
   'src/geometry/scene.mjs',
   'src/composition/architecture.mjs',
   'src/composition/static-overview.mjs',
@@ -117,6 +120,14 @@ test('module boundaries allow composition, independent backends and declared res
     ],
     ['editions/ethos/atlas.mjs', "new URL('../../', import.meta.url);"],
     ['src/source/files.mjs', "import fs from 'node:fs/promises';"],
+    [
+      'src/edition/contract.mjs',
+      "import '../semantics/document.mjs'; import '../source/manifest.mjs';",
+    ],
+    [
+      'src/composition/architecture.mjs',
+      "import '../edition/contract.mjs';",
+    ],
     [
       'src/static/raster.mjs',
       "import '../source/files.mjs'; import '../geometry/scene.mjs';",

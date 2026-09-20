@@ -115,7 +115,7 @@ function composeRoutes(document, view, layout) {
   });
 }
 
-function placeLabels(routes, authoring, layout) {
+function placeLabels(routes, edition, layout) {
   const occupied = [...layout.nodes.values()], borders = [];
   for (const group of layout.groups) {
     const { x, y, w, h } = group;
@@ -125,7 +125,7 @@ function placeLabels(routes, authoring, layout) {
   }
   const strokes = routes.flatMap((route) => segments(route.points));
   return routes.map((route) => {
-    const label = authoring.relationTypes[route.relation.type].label;
+    const label = edition.visualGrammar.relationTypes[route.relation.type].label;
     const w = label.length * 8 + 16, h = 24;
     const candidates = segments(route.points).sort((a, b) =>
       Math.hypot(b[1][0] - b[0][0], b[1][1] - b[0][1]) -
@@ -152,7 +152,7 @@ function placeLabels(routes, authoring, layout) {
   });
 }
 
-function groupLayout(document, authoring, view) {
+function groupLayout(document, edition, view) {
   const longestNode = Math.max(
       ...view.groups.flatMap((group) =>
         group.entities.map((id) => [...document.entities[id].label].length),
@@ -162,7 +162,11 @@ function groupLayout(document, authoring, view) {
       0,
       ...view.relations.map(
         (item) =>
-          [...authoring.relationTypes[document.relations[item.id].type].label]
+          [
+            ...edition.visualGrammar.relationTypes[
+              document.relations[item.id].type
+            ].label,
+          ]
             .length,
       ),
     );
@@ -201,16 +205,16 @@ function groupLayout(document, authoring, view) {
   return { width, height: y - groupGap + 100, groups, nodes };
 }
 
-/** Compose a bounded static overview directly from semantic and static authoring. */
-export function composeStaticOverview(document, authoring, view) {
-  const layout = groupLayout(document, authoring, view),
-    routes = placeLabels(composeRoutes(document, view, layout), authoring, layout),
+/** Compose a bounded static overview directly from a Claim Model and static scene. */
+export function composeStaticOverview(document, edition, view) {
+  const layout = groupLayout(document, edition, view),
+    routes = placeLabels(composeRoutes(document, view, layout), edition, layout),
     lines = [
       `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="0 0 ${layout.width} ${layout.height}" role="img" aria-labelledby="diagram-title diagram-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">`,
-      `<title id="diagram-title">${escape(authoring.title)}</title>`,
+      `<title id="diagram-title">${escape(edition.title)}</title>`,
       `<desc id="diagram-description">${escape(view.label)}</desc>`,
       `<rect width="${layout.width}" height="${layout.height}" fill="#181611"/>`,
-      `<text x="80" y="76" fill="#f4eddf" font-size="34" font-weight="600">${escape(authoring.title)}</text>`,
+      `<text x="80" y="76" fill="#f4eddf" font-size="34" font-weight="600">${escape(edition.title)}</text>`,
       `<text x="80" y="112" fill="#b9ae9b" font-size="17">${escape(view.label)}</text>`,
       '<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 10 4 L 0 8 Z" fill="#a89d8b"/></marker></defs>',
     ];
@@ -224,7 +228,7 @@ export function composeStaticOverview(document, authoring, view) {
   }
   for (const [id, box] of layout.nodes) {
     const entity = document.entities[id],
-      style = palette[authoring.entityTypes[entity.type]];
+      style = palette[edition.visualGrammar.entityTypes[entity.type]];
     if (!style) fail('semantic_publication_entity_style_missing');
     lines.push(
       `<g>`,
@@ -234,7 +238,7 @@ export function composeStaticOverview(document, authoring, view) {
     );
   }
   for (const { authored, relation, points, label } of routes) {
-    const style = authoring.relationTypes[relation.type],
+    const style = edition.visualGrammar.relationTypes[relation.type],
       color = edge[style.variant],
       dash = ['security', 'dashed'].includes(style.variant)
         ? ' stroke-dasharray="9 7"'

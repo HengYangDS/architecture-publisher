@@ -14,13 +14,13 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 async function selected(state, base = root) {
   const directory = path.join(base, 'examples/aigw'),
     manifest = path.join(directory, state, 'manifest.json'),
-    authoring = path.join(directory, state + '-authoring.json');
+    edition = path.join(directory, state + '-edition.json');
   return {
     sourceManifest: manifest,
     sourceSha256: sha(await fs.readFile(manifest)),
     semanticMember: 'semantic.json',
-    authoring,
-    authoringSha256: sha(await fs.readFile(authoring)),
+    edition,
+    editionSha256: sha(await fs.readFile(edition)),
   };
 }
 
@@ -121,7 +121,7 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
       plan = {
         ...selection,
         sourceManifest: path.relative(directory, selection.sourceManifest),
-        authoring: path.relative(directory, selection.authoring),
+        edition: path.relative(directory, selection.edition),
         output: state,
       },
       planBytes = Buffer.from(JSON.stringify(plan, null, 2) + '\n'),
@@ -142,11 +142,30 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
     observed[state] = new Map(
       output.members.map((item) => [item.path, item.content]),
     );
+    const receipt = JSON.parse(observed[state].get('publication.json'));
+    assert.deepEqual(
+      JSON.parse(observed[state].get('edition.json')),
+      JSON.parse(await fs.readFile(selection.edition, 'utf8')),
+    );
+    assert.equal(receipt.editionSha256, selection.editionSha256);
+    assert.equal(response.editionDigest, receipt.editionDigest);
+    assert.equal(response.staticSceneDigest, receipt.staticSceneDigest);
+    assert.equal(
+      response.interactiveSceneDigest,
+      receipt.interactiveSceneDigest,
+    );
     const acceptance = JSON.parse(await fs.readFile(
       path.join(root, 'examples/aigw/browser-acceptance.json'), 'utf8'));
     const selectedAcceptance = acceptance.runs.find((run) => run.id === state);
     assert.equal(selectedAcceptance.publicationManifestSha256, output.manifestSha256);
     assert.equal(selectedAcceptance.semanticDigest, response.semanticDigest);
+    assert.equal(selectedAcceptance.editionSha256, receipt.editionSha256);
+    assert.equal(selectedAcceptance.editionDigest, response.editionDigest);
+    assert.equal(selectedAcceptance.staticSceneDigest, response.staticSceneDigest);
+    assert.equal(
+      selectedAcceptance.interactiveSceneDigest,
+      response.interactiveSceneDigest,
+    );
     assert.equal(selectedAcceptance.staticSvgSha256, sha(observed[state].get('overview.svg')));
     assert.equal(selectedAcceptance.staticPngSha256, sha(observed[state].get('overview.png')));
     assert.equal(acceptance.verifier.observerSha256,

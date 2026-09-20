@@ -807,20 +807,26 @@ viewport, observation, export or natural-clock story check is skipped.
 `archpub publish semantic <plan.json> --sha256 <plan-sha256>` compiles a
 validated `architecture.claim-model/v2` into one complete static overview
 as SVG and PNG plus one complete standalone HTML diagram per interactive view.
-The plan selects an exact source bundle, semantic member,
-`architecture.semantic-publication/v2` authoring and a new output path. Every
+The plan selects an exact source bundle, semantic member, source-bound
+`architecture.edition/v1` file, `editionSha256`, and a new output path. Every
 semantic source digest must match the selected bundle bytes.
 
-The authoring envelope has two explicit children: `staticOverview` and
-`interactiveViews`. They share semantic entity, relation, endpoint and source
-identity, but own different grouping, order, ports, routes, density and layout.
-The static compositor consumes the semantic document directly; it never parses
-or extracts the HTML renderer output. Changing only one medium's authoring does
-not change the other medium's bytes.
+The Edition binds audience, questions, required claims, explicit omissions,
+narrative order, visual grammar, qualification obligations, one static scene,
+and an ordered set of interactive scenes. Static and interactive scenes share
+semantic identities and coverage obligations, but own different grouping,
+ports, routes, density, layout, and artifact identity. Their separate scene
+digests make a presentation-only change local to its medium. The static
+compositor consumes the Claim Model and static scene directly; it never parses,
+screenshots, or extracts the HTML renderer output.
 The compiler rejects stale identities, source mismatch, contradictory claims,
-incomplete or duplicate membership, unsupported cardinality and
-native renderer geometry failure. It validates explicit meaning; it does not
-infer architecture from code or promise arbitrary layouts.
+unclassified omissions, incomplete questions or scenes, unsupported
+cardinality, and native renderer geometry failure. A successful bundle contains
+`semantic.json`, `edition.json`, `publication.json`, the independent static
+artifacts, and every declared interactive view. Its receipt binds
+`semanticDigest`, `editionSha256`, `editionDigest`, `staticSceneDigest`, and
+`interactiveSceneDigest`. It validates explicit meaning; it does not infer
+architecture from code, transfer human approval, or promise arbitrary layouts.
 
 `examples/self-host/` publishes this package's own selected architecture through
 the same public command. It proves self-use and portability, not independent

@@ -1,8 +1,5 @@
-import { fail, isDigest } from '../source/manifest.mjs';
-import {
-  claimModelDigest,
-  validateClaimModel,
-} from '../semantics/document.mjs';
+import { fail } from '../source/manifest.mjs';
+import { validateEdition } from '../edition/contract.mjs';
 const record = (value) =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 const exact = (value, fields) =>
@@ -107,46 +104,20 @@ function validateView(view, document, purposeRequired) {
   return { entities, relations };
 }
 
-export function semanticArchitectureProjections(document, authoring) {
-  validateClaimModel(document);
-  if (
-    !exact(authoring, [
-      'schema',
-      'semanticDigest',
-      'title',
-      'entityTypes',
-      'relationTypes',
-      'staticOverview',
-      'interactiveViews',
-      'scope',
-    ]) ||
-    authoring.schema !== 'architecture.semantic-publication/v2' ||
-    !isDigest(authoring.semanticDigest) ||
-    typeof authoring.title !== 'string' ||
-    !authoring.title.trim() ||
-    typeof authoring.scope !== 'string' ||
-    !authoring.scope.trim() ||
-    !record(authoring.entityTypes) ||
-    !record(authoring.relationTypes) ||
-    !record(authoring.staticOverview) ||
-    !Array.isArray(authoring.interactiveViews) ||
-    !authoring.interactiveViews.length ||
-    authoring.interactiveViews.length > 12
-  )
-    fail('semantic_publication_authoring_invalid');
-  if (authoring.semanticDigest !== claimModelDigest(document))
-    fail('semantic_publication_semantic_digest_mismatch');
+export function semanticArchitectureProjections(document, edition) {
+  validateEdition(document, edition);
+  const grammar = edition.visualGrammar;
   for (const type of document.vocabulary.entities)
-    if (!componentType.has(authoring.entityTypes[type]))
+    if (!componentType.has(grammar.entityTypes[type]))
       fail('semantic_publication_entity_style_missing');
   if (
-    Object.keys(authoring.entityTypes).some(
+    Object.keys(grammar.entityTypes).some(
       (type) => !document.vocabulary.entities.includes(type),
     )
   )
     fail('semantic_publication_entity_style_unknown');
   for (const type of document.vocabulary.relations) {
-    const style = authoring.relationTypes[type];
+    const style = grammar.relationTypes[type];
     if (
       !exact(style, ['label', 'variant']) ||
       typeof style.label !== 'string' ||
@@ -156,12 +127,24 @@ export function semanticArchitectureProjections(document, authoring) {
       fail('semantic_publication_relation_style_missing');
   }
   if (
-    Object.keys(authoring.relationTypes).some(
+    Object.keys(grammar.relationTypes).some(
       (type) => !document.vocabulary.relations.includes(type),
     )
   )
     fail('semantic_publication_relation_style_unknown');
-  const staticIds = validateView(authoring.staticOverview, document, false);
+  const overviewId = edition.narrative[0],
+    staticScene = {
+      id: overviewId,
+      label: edition.scenes.static.label,
+      ...edition.scenes.static.composition,
+    },
+    interactiveScenes = edition.narrative.map((id) => ({
+      id,
+      label: edition.scenes.interactive[id].label,
+      purpose: edition.scenes.interactive[id].purpose,
+      ...edition.scenes.interactive[id].composition,
+    })),
+    staticIds = validateView(staticScene, document, false);
   if (
     staticIds.entities.size !== Object.keys(document.entities).length ||
     staticIds.relations.size !== Object.keys(document.relations).length
@@ -169,7 +152,7 @@ export function semanticArchitectureProjections(document, authoring) {
     fail('semantic_publication_overview_incomplete');
   const viewIds = new Set();
   let overview = 0;
-  for (const view of authoring.interactiveViews) {
+  for (const view of interactiveScenes) {
     const selected = validateView(view, document, true);
     if (viewIds.has(view.id)) fail('semantic_publication_view_invalid');
     viewIds.add(view.id);
@@ -187,12 +170,12 @@ export function semanticArchitectureProjections(document, authoring) {
   }
   if (overview !== 1) fail('semantic_publication_overview_required');
   return {
-    staticOverview: authoring.staticOverview,
-    interactiveViews: authoring.interactiveViews,
+    staticScene,
+    interactiveScenes,
   };
 }
 
-export function interactiveArchitectureDiagram(document, authoring, view) {
+export function interactiveArchitectureDiagram(document, edition, view) {
   const widest = Math.max(
     ...view.groups.map((group) => group.entities.length),
   );
@@ -211,7 +194,7 @@ export function interactiveArchitectureDiagram(document, authoring, view) {
         rowX = (width - rowWidth) / 2;
       components.push({
         id,
-        type: authoring.entityTypes[entity.type],
+        type: edition.visualGrammar.entityTypes[entity.type],
         label: entity.label,
         pos: [rowX + col * (cellWidth + columnGap), 110 + row * 210],
         size: [cellWidth, 82],
@@ -221,7 +204,7 @@ export function interactiveArchitectureDiagram(document, authoring, view) {
     schema_version: 1,
     diagram_type: 'architecture',
     meta: {
-      title: authoring.title,
+      title: edition.title,
       subtitle: view.label,
       locale: 'en',
       quality_profile: 'showcase',
@@ -238,7 +221,7 @@ export function interactiveArchitectureDiagram(document, authoring, view) {
     })),
     connections: view.relations.map((layout) => {
       const relation = document.relations[layout.id],
-        style = authoring.relationTypes[relation.type];
+        style = edition.visualGrammar.relationTypes[relation.type];
       return {
         id: layout.id,
         from: relation.subject,
@@ -259,9 +242,9 @@ export function interactiveArchitectureDiagram(document, authoring, view) {
   };
 }
 
-export function semanticArchitectureDiagram(document, authoring, viewId) {
-  const projections = semanticArchitectureProjections(document, authoring),
-    view = projections.interactiveViews.find((item) => item.id === viewId);
+export function semanticArchitectureDiagram(document, edition, viewId) {
+  const projections = semanticArchitectureProjections(document, edition),
+    view = projections.interactiveScenes.find((item) => item.id === viewId);
   if (!view) fail('semantic_publication_view_missing');
-  return interactiveArchitectureDiagram(document, authoring, view);
+  return interactiveArchitectureDiagram(document, edition, view);
 }

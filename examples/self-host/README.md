@@ -2,7 +2,9 @@
 
 This example makes Architecture Publisher a user of its own public contract.
 It selects package-owned source files, constructs a source-bound semantic
-document and medium-specific authoring, then emits a normal publication plan.
+Claim Model and structural Edition, then emits a normal publication plan. The
+Edition contains independent static and interactive scenes over shared semantic
+identities; it does not reuse layout or artifact bytes between media.
 
 Run it from an installed package:
 

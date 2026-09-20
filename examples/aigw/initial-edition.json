@@ -1,0 +1,265 @@
+{
+  "schema": "architecture.edition/v1",
+  "id": "aigw-client-projection",
+  "owner": "aigw-cli",
+  "class": "structural",
+  "product": {
+    "name": "Architecture Publisher",
+    "schema": "architecture.publisher/v1",
+    "version": "0.2.0-alpha.0"
+  },
+  "source": {
+    "manifestSha256": "0281b8137bce0a0763b37c0a73a37ec79dbed02759bc8ce946b91e1a2f4a91b7"
+  },
+  "claimModel": {
+    "schema": "architecture.claim-model/v2",
+    "digest": "be5770127b0e379ea9f28431d3fb43e64cff2e0832392e9776d5dd126bd4f4eb"
+  },
+  "title": "AIGW Client Projection",
+  "audiences": {
+    "maintainer": {
+      "label": "AIGW maintainers"
+    }
+  },
+  "questions": {
+    "overview": {
+      "audience": "maintainer",
+      "prompt": "How does the complete selected AIGW client projection work?",
+      "claims": [
+        "cli-synchronizer",
+        "synchronizer-claude",
+        "synchronizer-codex"
+      ],
+      "detail": "overview",
+      "risk": "Omission would hide part of the selected architecture."
+    },
+    "projection": {
+      "audience": "maintainer",
+      "prompt": "How does direct projection mechanism work?",
+      "claims": [
+        "synchronizer-claude",
+        "synchronizer-codex"
+      ],
+      "detail": "mechanism",
+      "risk": "Omission would hide the named mechanism boundary."
+    }
+  },
+  "requiredClaims": [
+    "cli-synchronizer",
+    "synchronizer-claude",
+    "synchronizer-codex"
+  ],
+  "omissions": {},
+  "narrative": [
+    "overview",
+    "projection"
+  ],
+  "visualGrammar": {
+    "entityTypes": {
+      "interface": "external",
+      "coordinator": "backend",
+      "client": "cloud"
+    },
+    "relationTypes": {
+      "delegates": {
+        "label": "delegates",
+        "variant": "emphasis"
+      },
+      "projects": {
+        "label": "projects",
+        "variant": "default"
+      }
+    },
+    "principles": [
+      "Complete selected structure",
+      "Independent medium composition",
+      "No inferred implementation completeness"
+    ]
+  },
+  "scenes": {
+    "static": {
+      "label": "Direct client-specific paths",
+      "questions": [
+        "overview"
+      ],
+      "claims": [
+        "cli-synchronizer",
+        "synchronizer-claude",
+        "synchronizer-codex"
+      ],
+      "composition": {
+        "groups": [
+          {
+            "id": "command",
+            "label": "Command",
+            "entities": [
+              "cli"
+            ]
+          },
+          {
+            "id": "coordination",
+            "label": "Coordination",
+            "entities": [
+              "synchronizer"
+            ]
+          },
+          {
+            "id": "clients",
+            "label": "Native clients",
+            "entities": [
+              "codex",
+              "claude"
+            ]
+          }
+        ],
+        "relations": [
+          {
+            "id": "cli-synchronizer",
+            "fromSide": "bottom",
+            "toSide": "top",
+            "route": "orthogonal-v"
+          },
+          {
+            "id": "synchronizer-codex",
+            "fromSide": "bottom",
+            "toSide": "top",
+            "route": "orthogonal-v"
+          },
+          {
+            "id": "synchronizer-claude",
+            "fromSide": "bottom",
+            "toSide": "top",
+            "route": "orthogonal-v"
+          }
+        ]
+      }
+    },
+    "interactive": {
+      "overview": {
+        "label": "Direct client-specific paths",
+        "purpose": "overview",
+        "questions": [
+          "overview"
+        ],
+        "claims": [
+          "cli-synchronizer",
+          "synchronizer-claude",
+          "synchronizer-codex"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "command",
+              "label": "Command",
+              "entities": [
+                "cli"
+              ]
+            },
+            {
+              "id": "coordination",
+              "label": "Coordination",
+              "entities": [
+                "synchronizer"
+              ]
+            },
+            {
+              "id": "clients",
+              "label": "Native clients",
+              "entities": [
+                "codex",
+                "claude"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "cli-synchronizer",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "orthogonal-v"
+            },
+            {
+              "id": "synchronizer-codex",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "orthogonal-v"
+            },
+            {
+              "id": "synchronizer-claude",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "orthogonal-v"
+            }
+          ]
+        }
+      },
+      "projection": {
+        "label": "Direct projection mechanism",
+        "purpose": "mechanism",
+        "questions": [
+          "projection"
+        ],
+        "claims": [
+          "synchronizer-claude",
+          "synchronizer-codex"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "coordination",
+              "label": "Coordinator",
+              "entities": [
+                "synchronizer"
+              ]
+            },
+            {
+              "id": "clients",
+              "label": "Client-specific branches",
+              "entities": [
+                "codex",
+                "claude"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "synchronizer-codex",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "orthogonal-v"
+            },
+            {
+              "id": "synchronizer-claude",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "orthogonal-v"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "qualification": {
+    "semantic": [
+      "claim-model-valid"
+    ],
+    "coverage": [
+      "required-claims-visible"
+    ],
+    "static": [
+      "static-geometry"
+    ],
+    "interactive": [
+      "browser-behavior"
+    ],
+    "accessibility": [
+      "keyboard-and-reduced-motion"
+    ],
+    "installed": [
+      "offline-reproduction"
+    ],
+    "recovery": [],
+    "human": []
+  },
+  "scope": "AIGW commit 36a6a28336280b71c4dc8d793a75bdb2671bb73c; curated from exact code, not inferred implementation completeness"
+}

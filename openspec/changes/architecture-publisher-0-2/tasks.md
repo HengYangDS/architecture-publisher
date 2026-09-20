@@ -10,7 +10,7 @@
 
 - [x] 2.1 Add failing tests for the v2 Claim Model covering all five planes, condition, scope, maturity, provenance, validity, unknown coverage, cross-plane distinction, contradiction, limits, canonicalization, and hostile JSON; implement one strict validator and digest owner and pass the full semantic suite.
 - [x] 2.2 Implement and test the one-shot v1-to-v2 fixture migration; prove current runtime readers reject v1 and no compatibility parser, alias, fallback, or dual schema remains.
-- [ ] 2.3 Add failing tests for the Edition contract covering audience, questions, required claims, omissions, narrative order, visual grammar, independent scenes, qualification obligations, complete overview, and complete mechanism views; implement validation and digest ownership.
+- [x] 2.3 Add failing tests for the Edition contract covering audience, questions, required claims, omissions, narrative order, visual grammar, independent scenes, qualification obligations, complete overview, and complete mechanism views; implement validation and digest ownership.
 - [ ] 2.4 Extend semantic change compilation with claim and Edition dependencies; verify plane-only, condition-only, source-only, omission, unknown, rename, split, merge, addition, removal, and contradiction cases yield separate rebuild, verification, human-review, acceptance, and publication obligations.
 
 ## 3. Semantic and physical convergence

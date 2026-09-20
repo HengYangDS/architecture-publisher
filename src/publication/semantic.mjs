@@ -14,6 +14,12 @@ import {
   claimModelDigest,
   validateClaimModel,
 } from '../semantics/document.mjs';
+import {
+  editionDigest,
+  interactiveSceneDigest,
+  staticSceneDigest,
+  validateEdition,
+} from '../edition/contract.mjs';
 import { renderSemanticDiagram } from '../interactive/archify.mjs';
 import { loadBundledFonts } from '../interactive/fonts.mjs';
 import { rasterize } from '../static/raster.mjs';
@@ -35,12 +41,20 @@ function json(bytes, code) {
   }
 }
 
-async function selectedAuthoring(file, digest) {
-  if (!isDigest(digest)) fail('semantic_authoring_digest_required');
+async function selectedEdition(file, digest) {
+  if (!isDigest(digest)) fail('edition_digest_required');
   await noSymlinkAncestors(file);
   const bytes = await regularBytes(file, 4 * 1024 * 1024);
-  if (sha(bytes) !== digest) fail('semantic_authoring_digest_mismatch');
-  return { bytes, value: json(bytes, 'semantic_authoring_json_invalid') };
+  if (sha(bytes) !== digest) fail('edition_digest_mismatch');
+  return { bytes, value: json(bytes, 'edition_json_invalid') };
+}
+
+async function selectedPlan(file, digest) {
+  if (!isDigest(digest)) fail('semantic_plan_digest_required');
+  await noSymlinkAncestors(file);
+  const bytes = await regularBytes(file, 1024 * 1024);
+  if (sha(bytes) !== digest) fail('semantic_plan_digest_mismatch');
+  return json(bytes, 'semantic_plan_json_invalid');
 }
 
 function sourceBindings(document, members) {
@@ -98,12 +112,12 @@ export async function compileSemanticPublication(plan) {
       'sourceManifest',
       'sourceSha256',
       'semanticMember',
-      'authoring',
-      'authoringSha256',
+      'edition',
+      'editionSha256',
       'output',
     ]) ||
     !path.isAbsolute(plan.sourceManifest ?? '') ||
-    !path.isAbsolute(plan.authoring ?? '') ||
+    !path.isAbsolute(plan.edition ?? '') ||
     !path.isAbsolute(plan.output ?? '')
   )
     fail('semantic_publication_plan_invalid');
@@ -120,10 +134,16 @@ export async function compileSemanticPublication(plan) {
     ),
     digest = claimModelDigest(document),
     bindings = sourceBindings(document, members),
-    selected = await selectedAuthoring(plan.authoring, plan.authoringSha256),
+    selected = await selectedEdition(plan.edition, plan.editionSha256),
+    edition = validateEdition(document, selected.value),
+    selectedEditionDigest = editionDigest(document, edition),
+    selectedStaticSceneDigest = staticSceneDigest(document, edition),
+    selectedInteractiveSceneDigest = interactiveSceneDigest(document, edition),
     projections = semanticArchitectureProjections(document, selected.value),
     parent = path.dirname(plan.output),
     parentStat = await fs.lstat(parent);
+  if (edition.source.manifestSha256 !== source.manifestSha256)
+    fail('edition_source_mismatch');
   if (
     !parentStat.isDirectory() ||
     parentStat.isSymbolicLink() ||
@@ -137,7 +157,7 @@ export async function compileSemanticPublication(plan) {
       staticResult = composeStaticOverview(
         document,
         selected.value,
-        projections.staticOverview,
+        projections.staticScene,
       ),
       selectedFonts = await loadBundledFonts(),
       fonts = selectedFonts.fonts.filter((font) => [400, 600].includes(font.weight)),
@@ -148,7 +168,7 @@ export async function compileSemanticPublication(plan) {
         source.source,
         fonts,
       );
-    for (const view of projections.interactiveViews) {
+    for (const view of projections.interactiveScenes) {
       const output = path.join(scratch, view.id + '.html'),
         inputBytes = Buffer.from(
           JSON.stringify(
@@ -188,25 +208,29 @@ export async function compileSemanticPublication(plan) {
       { path: 'overview.svg', content: overviewSvg },
       { path: 'overview.png', content: overviewPng.bytes },
       { path: 'semantic.json', content: semanticBytes },
+      { path: 'edition.json', content: selected.bytes },
     );
     const publication = {
-      schema: 'architecture.semantic-publication-output/v2',
+      schema: 'architecture.edition-publication/v1',
       sourceManifestSha256: source.manifestSha256,
       source: source.source,
       semanticMember: plan.semanticMember,
       semanticSha256: sha(semanticBytes),
       semanticDigest: digest,
       sourceBindings: bindings,
-      authoringSha256: plan.authoringSha256,
+      editionSha256: plan.editionSha256,
+      editionDigest: selectedEditionDigest,
+      staticSceneDigest: selectedStaticSceneDigest,
+      interactiveSceneDigest: selectedInteractiveSceneDigest,
       static: {
-        id: projections.staticOverview.id,
+        id: projections.staticScene.id,
         svgSha256: sha(overviewSvg),
         pngSha256: sha(overviewPng.bytes),
         width: overviewPng.result.width,
         height: overviewPng.result.height,
         nodeIds: staticResult.nodeIds,
         relationIds: staticResult.relationIds,
-        relations: projections.staticOverview.relations.map((layout) => {
+        relations: projections.staticScene.relations.map((layout) => {
           const relation = document.relations[layout.id];
           return {
             id: layout.id,
@@ -224,7 +248,7 @@ export async function compileSemanticPublication(plan) {
       overviewSvgSha256: sha(overviewSvg),
       overviewPngSha256: sha(overviewPng.bytes),
       staticWidth: overviewPng.result.width,
-      scope: selected.value.scope,
+      scope: edition.scope,
       semanticAcceptance: 'source-bound-structure',
       browserAcceptance: 'not-performed',
     };
@@ -242,6 +266,9 @@ export async function compileSemanticPublication(plan) {
       ...written,
       views: receipts.length,
       semanticDigest: digest,
+      editionDigest: selectedEditionDigest,
+      staticSceneDigest: selectedStaticSceneDigest,
+      interactiveSceneDigest: selectedInteractiveSceneDigest,
       semanticAcceptance: publication.semanticAcceptance,
       browserAcceptance: publication.browserAcceptance,
     };
@@ -252,9 +279,8 @@ export async function compileSemanticPublication(plan) {
 
 export async function compileSemanticPublicationInput(file, digest) {
   const planPath = path.resolve(file),
-    selected = await selectedAuthoring(planPath, digest),
-    plan = selected.value;
-  for (const key of ['sourceManifest', 'authoring', 'output']) {
+    plan = await selectedPlan(planPath, digest);
+  for (const key of ['sourceManifest', 'edition', 'output']) {
     if (typeof plan?.[key] !== 'string' || !plan[key])
       fail('semantic_publication_plan_invalid');
     plan[key] = path.resolve(path.dirname(planPath), plan[key]);

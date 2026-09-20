@@ -12,10 +12,12 @@ function fixture() {
         (id) => [id, { subject: id, object: 'target', type: 'calls' }],
       )),
     },
-    authoring: {
+    edition: {
       title: 'Converging calls',
-      entityTypes: { component: 'backend' },
-      relationTypes: { calls: { label: 'calls', variant: 'default' } },
+      visualGrammar: {
+        entityTypes: { component: 'backend' },
+        relationTypes: { calls: { label: 'calls', variant: 'default' } },
+      },
     },
     view: {
       label: 'Three distinct callers',
@@ -31,8 +33,8 @@ function fixture() {
 }
 
 test('converging relations retain distinct target ports and unmasked labels', () => {
-  const { document, authoring, view } = fixture();
-  const svg = composeStaticOverview(document, authoring, view).bytes.toString();
+  const { document, edition, view } = fixture();
+  const svg = composeStaticOverview(document, edition, view).bytes.toString();
   const ends = [...svg.matchAll(/data-edge-to="target" d="([^"]+)"/g)]
     .map((match) => match[1].split(' L ').at(-1));
   assert.equal(ends.length, 3);
@@ -41,14 +43,14 @@ test('converging relations retain distinct target ports and unmasked labels', ()
 });
 
 test('a relation through an unrelated node is rejected before publication', () => {
-  const { document, authoring } = fixture();
+  const { document, edition } = fixture();
   document.relations = { skip: { subject: 'left', object: 'right', type: 'calls' } };
   const view = {
     label: 'Invalid skipped neighbor',
     groups: [{ id: 'row', label: 'Peers', entities: ['left', 'center', 'right'] }],
     relations: [{ id: 'skip', fromSide: 'right', toSide: 'left', route: 'straight' }],
   };
-  assert.throws(() => composeStaticOverview(document, authoring, view), {
+  assert.throws(() => composeStaticOverview(document, edition, view), {
     code: 'semantic_publication_static_route_infeasible',
   });
 });

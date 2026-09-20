@@ -149,80 +149,150 @@ async function main() {
       coverage: 'complete',
       provenance: [...new Set([...value.provenance, 'semantic-contract'])],
     };
-  const authoring = {
-      schema: 'architecture.semantic-publication/v2',
-      semanticDigest: claimModelDigest(semantic),
+  const allClaims = Object.keys(semantic.claims),
+    mediaClaims = [
+      'coordinator-static',
+      'coordinator-interactive',
+      'static-raster',
+      'interactive-writer',
+      'raster-writer',
+    ],
+    edition = {
+      schema: 'architecture.edition/v1',
+      id: 'architecture-publisher-structural',
+      owner: semantic.owner,
+      class: 'structural',
+      product: {
+        name: 'Architecture Publisher',
+        schema: 'architecture.publisher/v1',
+        version: '0.2.0-alpha.0',
+      },
+      source: { manifestSha256: '' },
+      claimModel: {
+        schema: 'architecture.claim-model/v2',
+        digest: claimModelDigest(semantic),
+      },
       title: 'Architecture Publisher',
-      entityTypes: {
-        interface: 'external',
-        source: 'database',
-        contract: 'security',
-        coordinator: 'backend',
-        renderer: 'frontend',
-        boundary: 'messagebus',
-        writer: 'database',
+      audiences: {
+        maintainer: { label: 'Maintainers' },
       },
-      relationTypes,
-      staticOverview: {
-        id: 'overview',
-        label: 'One semantic authority, two independent media',
-        groups: [
-          { id: 'inputs', label: 'Selected inputs', entities: ['public-cli', 'source-bundle', 'semantic-contract'] },
-          { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
-          { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
-          { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
-        ],
-        relations: [
-          { id: 'cli-coordinator', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
-          { id: 'source-coordinator', fromSide: 'bottom', toSide: 'top', route: 'straight' },
-          { id: 'contract-coordinator', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
-          { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
-          { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
-          { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
-          { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
-          { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'straight' },
+      questions: {
+        overview: {
+          audience: 'maintainer',
+          prompt: 'How does selected meaning become two published media?',
+          claims: [...allClaims],
+          detail: 'overview',
+          risk: 'Omission would hide part of the declared publication chain.',
+        },
+        media: {
+          audience: 'maintainer',
+          prompt: 'How do static and interactive media remain independent?',
+          claims: [...mediaClaims],
+          detail: 'mechanism',
+          risk: 'Omission would hide a medium-specific composition boundary.',
+        },
+      },
+      requiredClaims: [...allClaims],
+      omissions: {},
+      narrative: ['overview', 'media'],
+      visualGrammar: {
+        entityTypes: {
+          interface: 'external',
+          source: 'database',
+          contract: 'security',
+          coordinator: 'backend',
+          renderer: 'frontend',
+          boundary: 'messagebus',
+          writer: 'database',
+        },
+        relationTypes,
+        principles: [
+          'One semantic authority',
+          'Independent medium composition',
+          'Visible source-bound structure',
         ],
       },
-      interactiveViews: [
-        {
-          id: 'overview',
-          label: 'Semantic publication pipeline',
-          purpose: 'overview',
-          groups: [
-            { id: 'inputs', label: 'Selected inputs', entities: ['public-cli', 'source-bundle', 'semantic-contract'] },
-            { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
-            { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
-            { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
-          ],
-          relations: [
-            { id: 'cli-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto' },
-            { id: 'source-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [460, 220] },
-            { id: 'contract-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto' },
-            { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'auto' },
-            { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'auto' },
-            { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [365, 676] },
-            { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [605, 676] },
-            { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'auto' },
-          ],
+      scenes: {
+        static: {
+          label: 'One semantic authority, two independent media',
+          questions: ['overview'],
+          claims: [...allClaims],
+          composition: {
+            groups: [
+              { id: 'inputs', label: 'Selected inputs', entities: ['public-cli', 'source-bundle', 'semantic-contract'] },
+              { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
+              { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
+              { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
+            ],
+            relations: [
+              { id: 'cli-coordinator', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+              { id: 'source-coordinator', fromSide: 'bottom', toSide: 'top', route: 'straight' },
+              { id: 'contract-coordinator', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+              { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+              { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+              { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+              { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+              { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'straight' },
+            ],
+          },
         },
-        {
-          id: 'media',
-          label: 'Independent composition boundaries',
-          purpose: 'mechanism',
-          groups: [
-            { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
-            { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
-            { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
-          ],
-          relations: [
-            { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'auto' },
-            { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'auto' },
-            { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [365, 466] },
-            { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [605, 466] },
-            { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'auto' },
-          ],
+        interactive: {
+          overview: {
+            label: 'Semantic publication pipeline',
+            purpose: 'overview',
+            questions: ['overview'],
+            claims: [...allClaims],
+            composition: {
+              groups: [
+                { id: 'inputs', label: 'Selected inputs', entities: ['public-cli', 'source-bundle', 'semantic-contract'] },
+                { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
+                { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
+                { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
+              ],
+              relations: [
+                { id: 'cli-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+                { id: 'source-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [460, 220] },
+                { id: 'contract-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+                { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+                { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+                { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [365, 676] },
+                { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [605, 676] },
+                { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'auto' },
+              ],
+            },
+          },
+          media: {
+            label: 'Independent composition boundaries',
+            purpose: 'mechanism',
+            questions: ['media'],
+            claims: [...mediaClaims],
+            composition: {
+              groups: [
+                { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
+                { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
+                { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
+              ],
+              relations: [
+                { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+                { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'auto' },
+                { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [365, 466] },
+                { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [605, 466] },
+                { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'auto' },
+              ],
+            },
+          },
         },
-      ],
+      },
+      qualification: {
+        semantic: ['claim-model-valid'],
+        coverage: ['required-claims-visible'],
+        static: ['static-geometry'],
+        interactive: ['browser-behavior'],
+        accessibility: ['keyboard-and-reduced-motion'],
+        installed: ['offline-reproduction'],
+        recovery: [],
+        human: [],
+      },
       scope: 'Self-hosted selected package architecture; not independent adoption or exhaustive implementation coverage',
     };
   members.unshift({ path: 'semantic.json', content: encode(semantic) });
@@ -231,15 +301,16 @@ async function main() {
       { id: 'architecture-publisher', revision: `source-set:${selectedRevision}` },
       members,
     ),
-    authoringPath = path.join(output, 'authoring.json'),
+    editionPath = path.join(output, 'edition.json'),
     planPath = path.join(output, 'plan.json');
-  await fs.writeFile(authoringPath, encode(authoring), { flag: 'wx' });
+  edition.source.manifestSha256 = bundle.manifestSha256;
+  await fs.writeFile(editionPath, encode(edition), { flag: 'wx' });
   const plan = {
     sourceManifest: bundle.manifestPath,
     sourceSha256: bundle.manifestSha256,
     semanticMember: 'semantic.json',
-    authoring: authoringPath,
-    authoringSha256: sha(await fs.readFile(authoringPath)),
+    edition: editionPath,
+    editionSha256: sha(await fs.readFile(editionPath)),
     output: path.join(output, 'publication'),
   };
   const planBytes = encode(plan);
@@ -249,8 +320,8 @@ async function main() {
       status: 'prepared',
       sourceManifest: bundle.manifestPath,
       sourceSha256: bundle.manifestSha256,
-      authoring: authoringPath,
-      semanticDigest: authoring.semanticDigest,
+      edition: editionPath,
+      semanticDigest: edition.claimModel.digest,
       plan: planPath,
       planSha256: sha(planBytes),
       adoptionRole: 'self-hosted',

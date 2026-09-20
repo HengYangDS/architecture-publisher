@@ -119,107 +119,169 @@ async function fixture(t, mutateDocument = () => {}) {
       { path: 'source/internal/client/registry.go', content: source },
     ],
   );
-  const authoring = {
-    schema: 'architecture.semantic-publication/v2',
-    semanticDigest: (() => {
+  const edition = {
+    schema: 'architecture.edition/v1',
+    id: 'bounded-control-plane',
+    owner: document.owner,
+    class: 'structural',
+    product: {
+      name: 'Architecture Publisher',
+      schema: 'architecture.publisher/v1',
+      version: '0.2.0-alpha.0',
+    },
+    source: { manifestSha256: sourceBundle.manifestSha256 },
+    claimModel: {
+      schema: 'architecture.claim-model/v2',
+      digest: (() => {
       try {
         return claimModelDigest(document);
       } catch {
         return '0'.repeat(64);
       }
     })(),
+    },
     title: 'A bounded control plane',
-    entityTypes: { component: 'backend' },
-    relationTypes: {
-      delegates: { label: 'delegates', variant: 'emphasis' },
+    audiences: {
+      maintainer: { label: 'Maintainers' },
     },
-    staticOverview: {
-      id: 'overview',
-      label: 'Complete static overview',
-      groups: [
-        {
-          id: 'control',
-          label: 'Control plane',
-          entities: ['cli', 'registry', 'adapter'],
-        },
-      ],
-      relations: [
-        {
-          id: 'cli-registry',
-          fromSide: 'right',
-          toSide: 'left',
-          route: 'orthogonal-h',
-        },
-        {
-          id: 'registry-adapter',
-          fromSide: 'right',
-          toSide: 'left',
-          route: 'orthogonal-h',
-        },
+    questions: {
+      system: {
+        audience: 'maintainer',
+        prompt: 'How does the complete control plane delegate work?',
+        claims: ['cli-registry', 'registry-adapter'],
+        detail: 'overview',
+        risk: 'Omission would hide a declared delegation.',
+      },
+      registry: {
+        audience: 'maintainer',
+        prompt: 'How does the registry delegate to the adapter?',
+        claims: ['registry-adapter'],
+        detail: 'mechanism',
+        risk: 'Omission would hide the selected registry mechanism.',
+      },
+    },
+    requiredClaims: ['cli-registry', 'registry-adapter'],
+    omissions: {},
+    narrative: ['overview', 'registry-flow'],
+    visualGrammar: {
+      entityTypes: { component: 'backend' },
+      relationTypes: {
+        delegates: { label: 'delegates', variant: 'emphasis' },
+      },
+      principles: [
+        'Complete overview',
+        'Independent media composition',
+        'No decorative meaning',
       ],
     },
-    interactiveViews: [
-      {
-        id: 'overview',
-        label: 'Complete overview',
-        purpose: 'overview',
-        groups: [
-          {
-            id: 'control',
-            label: 'Control plane',
-            entities: ['cli', 'registry', 'adapter'],
-          },
-        ],
-        relations: [
-          {
-            id: 'cli-registry',
-            fromSide: 'right',
-            toSide: 'left',
-            route: 'orthogonal-h',
-          },
-          {
-            id: 'registry-adapter',
-            fromSide: 'right',
-            toSide: 'left',
-            route: 'orthogonal-h',
-          },
-        ],
+    scenes: {
+      static: {
+        label: 'Complete static overview',
+        questions: ['system'],
+        claims: ['cli-registry', 'registry-adapter'],
+        composition: {
+          groups: [
+            {
+              id: 'control',
+              label: 'Control plane',
+              entities: ['cli', 'registry', 'adapter'],
+            },
+          ],
+          relations: [
+            {
+              id: 'cli-registry',
+              fromSide: 'right',
+              toSide: 'left',
+              route: 'orthogonal-h',
+            },
+            {
+              id: 'registry-adapter',
+              fromSide: 'right',
+              toSide: 'left',
+              route: 'orthogonal-h',
+            },
+          ],
+        },
       },
-      {
-        id: 'registry-flow',
-        label: 'Registry mechanism',
-        purpose: 'mechanism',
-        groups: [
-          {
-            id: 'dispatch',
-            label: 'Ordered dispatch',
-            entities: ['registry', 'adapter'],
+      interactive: {
+        overview: {
+          label: 'Complete overview',
+          purpose: 'overview',
+          questions: ['system'],
+          claims: ['cli-registry', 'registry-adapter'],
+          composition: {
+            groups: [
+              {
+                id: 'control',
+                label: 'Control plane',
+                entities: ['cli', 'registry', 'adapter'],
+              },
+            ],
+            relations: [
+              {
+                id: 'cli-registry',
+                fromSide: 'right',
+                toSide: 'left',
+                route: 'orthogonal-h',
+              },
+              {
+                id: 'registry-adapter',
+                fromSide: 'right',
+                toSide: 'left',
+                route: 'orthogonal-h',
+              },
+            ],
           },
-        ],
-        relations: [
-          {
-            id: 'registry-adapter',
-            fromSide: 'right',
-            toSide: 'left',
-            route: 'orthogonal-h',
+        },
+        'registry-flow': {
+          label: 'Registry mechanism',
+          purpose: 'mechanism',
+          questions: ['registry'],
+          claims: ['registry-adapter'],
+          composition: {
+            groups: [
+              {
+                id: 'dispatch',
+                label: 'Ordered dispatch',
+                entities: ['registry', 'adapter'],
+              },
+            ],
+            relations: [
+              {
+                id: 'registry-adapter',
+                fromSide: 'right',
+                toSide: 'left',
+                route: 'orthogonal-h',
+              },
+            ],
           },
-        ],
+        },
       },
-    ],
+    },
+    qualification: {
+      semantic: ['claim-model-valid'],
+      coverage: ['required-claims-visible'],
+      static: ['static-geometry'],
+      interactive: ['browser-behavior'],
+      accessibility: ['keyboard-and-reduced-motion'],
+      installed: ['offline-reproduction'],
+      recovery: [],
+      human: [],
+    },
     scope: 'Explicit fixture structure; no repository inference or approval',
   };
-  const authoringFile = path.join(directory, 'authoring.json');
-  await fs.writeFile(authoringFile, encode(authoring));
+  const editionFile = path.join(directory, 'edition.json');
+  await fs.writeFile(editionFile, encode(edition));
   return {
     directory,
     document,
-    authoring,
+    edition,
     plan: {
       sourceManifest: sourceBundle.manifestPath,
       sourceSha256: sourceBundle.manifestSha256,
       semanticMember: 'semantic.json',
-      authoring: authoringFile,
-      authoringSha256: sha(await fs.readFile(authoringFile)),
+      edition: editionFile,
+      editionSha256: sha(await fs.readFile(editionFile)),
       output: path.join(directory, 'publication'),
     },
   };
@@ -237,7 +299,15 @@ test('compiles complete source-bound structure into static and interactive media
   );
   const publication = JSON.parse(members.get('publication.json'));
   assert.deepEqual(JSON.parse(members.get('semantic.json')), value.document);
+  assert.deepEqual(JSON.parse(members.get('edition.json')), value.edition);
+  assert.equal(publication.schema, 'architecture.edition-publication/v1');
   assert.equal(publication.semanticDigest, claimModelDigest(value.document));
+  assert.equal(result.editionDigest, publication.editionDigest);
+  assert.equal(result.staticSceneDigest, publication.staticSceneDigest);
+  assert.equal(
+    result.interactiveSceneDigest,
+    publication.interactiveSceneDigest,
+  );
   assert.deepEqual(
     publication.views.map((view) => view.id),
     ['overview', 'registry-flow'],
@@ -316,11 +386,11 @@ test('static and interactive projections are compositionally independent', async
   );
 
   const interactive = await fixture(t);
-  interactive.authoring.interactiveViews[0].groups[0].label =
+  interactive.edition.scenes.interactive.overview.composition.groups[0].label =
     'Interactive control plane';
-  await fs.writeFile(interactive.plan.authoring, encode(interactive.authoring));
-  interactive.plan.authoringSha256 = sha(
-    await fs.readFile(interactive.plan.authoring),
+  await fs.writeFile(interactive.plan.edition, encode(interactive.edition));
+  interactive.plan.editionSha256 = sha(
+    await fs.readFile(interactive.plan.edition),
   );
   const second = await compileSemanticPublication(interactive.plan);
   const secondBundle = await readSourceBundle(
@@ -339,11 +409,11 @@ test('static and interactive projections are compositionally independent', async
   );
 
   const staticOnly = await fixture(t);
-  staticOnly.authoring.staticOverview.groups[0].label =
+  staticOnly.edition.scenes.static.composition.groups[0].label =
     'Static control plane';
-  await fs.writeFile(staticOnly.plan.authoring, encode(staticOnly.authoring));
-  staticOnly.plan.authoringSha256 = sha(
-    await fs.readFile(staticOnly.plan.authoring),
+  await fs.writeFile(staticOnly.plan.edition, encode(staticOnly.edition));
+  staticOnly.plan.editionSha256 = sha(
+    await fs.readFile(staticOnly.plan.edition),
   );
   const third = await compileSemanticPublication(staticOnly.plan);
   const thirdBundle = await readSourceBundle(
@@ -364,12 +434,12 @@ test('static and interactive projections are compositionally independent', async
 
 test('rejects cross-medium semantic drift before rendering', async (t) => {
   const value = await fixture(t);
-  value.authoring.interactiveViews[0].groups[0].entities.pop();
-  value.authoring.interactiveViews[0].relations.pop();
-  await fs.writeFile(value.plan.authoring, encode(value.authoring));
-  value.plan.authoringSha256 = sha(await fs.readFile(value.plan.authoring));
+  value.edition.scenes.interactive.overview.composition.groups[0].entities.pop();
+  value.edition.scenes.interactive.overview.composition.relations.pop();
+  await fs.writeFile(value.plan.edition, encode(value.edition));
+  value.plan.editionSha256 = sha(await fs.readFile(value.plan.edition));
   await assert.rejects(compileSemanticPublication(value.plan), {
-    code: 'semantic_publication_projection_drift',
+    code: 'edition_scene_claim_carrier_missing',
   });
   await assert.rejects(fs.access(value.plan.output));
 });
@@ -378,42 +448,45 @@ for (const [name, mutate, error] of [
   [
     'omitted overview entity',
     (value) => {
-      value.authoring.staticOverview.groups[0].entities.pop();
-      value.authoring.staticOverview.relations.pop();
+      value.edition.scenes.static.composition.groups[0].entities.pop();
+      value.edition.scenes.static.composition.relations.pop();
     },
-    'semantic_publication_overview_incomplete',
+    'edition_scene_claim_carrier_missing',
   ],
   [
     'duplicate membership',
     (value) =>
-      value.authoring.staticOverview.groups.push({
+      value.edition.scenes.static.composition.groups.push({
         id: 'duplicate',
         label: 'Duplicate',
         entities: ['registry'],
       }),
-    'semantic_publication_membership_invalid',
+    'edition_scene_entity_invalid',
   ],
   [
     'missing explicit port',
-    (value) => delete value.authoring.staticOverview.relations[0].fromSide,
-    'semantic_publication_relation_layout_invalid',
+    (value) =>
+      delete value.edition.scenes.static.composition.relations[0].fromSide,
+    'edition_scene_relation_invalid',
   ],
   [
     'unknown relation endpoint selection',
-    (value) => value.authoring.interactiveViews[1].groups[0].entities.pop(),
-    'semantic_publication_relation_endpoint_missing',
+    (value) =>
+      value.edition.scenes.interactive['registry-flow'].composition.groups[0]
+        .entities.pop(),
+    'edition_scene_endpoint_missing',
   ],
   [
     'stale semantic identity',
-    (value) => (value.authoring.semanticDigest = '0'.repeat(64)),
-    'semantic_publication_semantic_digest_mismatch',
+    (value) => (value.edition.claimModel.digest = '0'.repeat(64)),
+    'edition_contract_invalid',
   ],
 ]) {
   test('rejects ' + name + ' before successful output', async (t) => {
     const value = await fixture(t);
     mutate(value);
-    await fs.writeFile(value.plan.authoring, encode(value.authoring));
-    value.plan.authoringSha256 = sha(await fs.readFile(value.plan.authoring));
+    await fs.writeFile(value.plan.edition, encode(value.edition));
+    value.plan.editionSha256 = sha(await fs.readFile(value.plan.edition));
     await assert.rejects(compileSemanticPublication(value.plan), { code: error });
     await assert.rejects(fs.access(value.plan.output));
   });
@@ -464,11 +537,12 @@ test('rejects contradictory semantic claims before rendering', async (t) => {
 
 test('rejects group cardinality beyond the finite compositor bound', async (t) => {
   const value = await fixture(t);
-  value.authoring.staticOverview.groups[0].entities = Array(9).fill('cli');
-  await fs.writeFile(value.plan.authoring, encode(value.authoring));
-  value.plan.authoringSha256 = sha(await fs.readFile(value.plan.authoring));
+  value.edition.scenes.static.composition.groups[0].entities =
+    Array(9).fill('cli');
+  await fs.writeFile(value.plan.edition, encode(value.edition));
+  value.plan.editionSha256 = sha(await fs.readFile(value.plan.edition));
   await assert.rejects(compileSemanticPublication(value.plan), {
-    code: 'semantic_publication_group_invalid',
+    code: 'edition_scene_group_invalid',
   });
   await assert.rejects(fs.access(value.plan.output));
 });
