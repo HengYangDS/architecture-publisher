@@ -29,7 +29,7 @@ The evaluation therefore asks five questions:
 | Spec Kit | `v1.0.8`, `0cc9a6a1159471a3108b9bad718ba17006dd6039` | 184,138 | Constitution, templates and agent-oriented specification workflow |
 | SpecD | `0c1053f635b7a206aaa7c66ff86720aa2224c1b7`; core `0.2.0`, code graph `0.3.0` | 217,160 | Context compilation, lifecycle and SQLite-backed multi-language code/spec graph |
 | ETHOS | `75d997cadcb306077f77ad710080363a9f65c69f` | 117,362 | Repository authority, owned lanes, proof, controlled effects and attestation |
-| Architecture Publishing | `2009af0e0398403d610873e2286823873b4c8097` baseline | 81,041 | Source-bound semantics, composition, rendering, observation and recoverable publication |
+| Architecture Publisher | `2009af0e0398403d610873e2286823873b4c8097` baseline | 81,041 | Source-bound semantics, composition, rendering, observation and recoverable publication |
 
 The COMET, OpenSpec and Spec Kit repositories had later default-branch commits
 when checked, but their latest stable releases remained `0.4.1`, `v1.13.1` and

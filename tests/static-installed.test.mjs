@@ -65,7 +65,7 @@ test('installed raster command needs only explicit input and its pinned static s
     ],
     consumer,
   );
-  const pkg = path.join(consumer, 'node_modules/architecture-publishing');
+  const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   const rendererSource = JSON.parse(
     await fs.readFile(
       path.join(pkg, 'assets/raster/resvg/source.json'),

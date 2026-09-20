@@ -279,7 +279,7 @@ test('installed non-ETHOS examples support both media, updates and local bundles
     ],
     consumer,
   );
-  const pkg = path.join(consumer, 'node_modules/architecture-publishing');
+  const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   for (const p of ['editions', 'src/integrations'])
     await fs.rm(path.join(pkg, p), { recursive: true });
   const invoke = (args) =>

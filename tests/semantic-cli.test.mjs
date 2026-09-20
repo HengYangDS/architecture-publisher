@@ -140,14 +140,14 @@ test('packed compiler relocates and runs offline without ETHOS or edition module
     { cwd: consumer, encoding: 'utf8', timeout: 60000 },
   );
   assert.equal(install.status, 0, install.stderr);
-  const pkg = path.join(consumer, 'node_modules/architecture-publishing');
+  const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   await fs.rm(path.join(pkg, 'editions'), { recursive: true });
   await fs.rm(path.join(pkg, 'src/integrations'), { recursive: true });
   const relocated = path.join(f.dir, 'different location');
   await fs.rename(consumer, relocated);
   const cli = path.join(
     relocated,
-    'node_modules/architecture-publishing/src/cli/main.mjs',
+    'node_modules/architecture-publisher/src/cli/main.mjs',
   );
   const actual = await f.run({ cli, cwd: relocated, file: '../plan.json' });
   assert.equal(actual.status, 0, actual.stdout);

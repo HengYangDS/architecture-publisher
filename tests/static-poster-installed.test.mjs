@@ -54,7 +54,7 @@ test('installed poster CLI reconstructs all 180 labels without legacy checkout o
     ],
     consumer,
   );
-  const pkg = path.join(consumer, 'node_modules/architecture-publishing');
+  const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   // Remove only this disposable installation's unrelated rendering capabilities.
   for (const name of [
     'src/interactive',

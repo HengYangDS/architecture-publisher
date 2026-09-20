@@ -45,7 +45,7 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
   );
   const home = path.join(out, 'home');
   await fs.mkdir(home);
-  const pkg = path.join(consumer, 'node_modules/architecture-publishing'),
+  const pkg = path.join(consumer, 'node_modules/architecture-publisher'),
     cli = path.join(pkg, 'src/cli/main.mjs');
   const input = path.join(out, 'service.json'),
     output = path.join(out, 'service.html');

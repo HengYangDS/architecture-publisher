@@ -33,8 +33,8 @@ inputs when rasterizing, rather than relying on system font installation.
    relationship IDs bind the two views; neither command automatically updates
    the other view. The repository's example tests detect missing labels,
    conditions and changed relationship endpoints.
-2. Calculate the JSON SHA-256 and run `architecture render architecture` for
-   the service or `architecture render lifecycle` for the job, following the
+2. Calculate the JSON SHA-256 and run `archpub render architecture` for
+   the service or `archpub render lifecycle` for the job, following the
    root README's `--sha256` and `--output` contract.
 3. For static output, make a closed source bundle containing the SVG and selected
    font files. Use the documented `architecture.source-bundle/v1` manifest:
@@ -42,11 +42,11 @@ inputs when rasterizing, rather than relying on system font installation.
    manifest itself is not a member. The root README defines this format.
 4. Create the raster plan **outside** that closed bundle. Select its manifest
    digest, SVG member, Regular font at weight 400, Bold font at weight 700,
-   width 2400 and an absent output PNG. Run `architecture raster <plan.json>`.
+   width 2400 and an absent output PNG. Run `archpub raster <plan.json>`.
    Its paths resolve from the plan file, not the shell's working directory.
 5. A local publication bundle can contain JSON, SVG, PNG, self-contained HTML,
    both font files and the OFL notice. Write one manifest over these seven
-   members and run `architecture source verify <manifest> --sha256 <digest>`.
+   members and run `archpub source verify <manifest> --sha256 <digest>`.
    This verifies file identity, not semantic approval or recoverable installation.
 6. Relocate that complete bundle. Select its digest in an external raster plan
    and render the same PNG; rerender its JSON to the same HTML. Updating content

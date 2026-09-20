@@ -1217,7 +1217,7 @@ test('installed file engine handles explicit roots with no developer executables
   );
   const module = path.join(
     consumer,
-    'node_modules/architecture-publishing/src/publication/files.mjs',
+    'node_modules/architecture-publisher/src/publication/files.mjs',
   );
   await fs.writeFile(
     entry,

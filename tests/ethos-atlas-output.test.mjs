@@ -302,7 +302,7 @@ test('current atlas admission binds actual producer output and refuses drift wit
       await fs.writeFile(planFile, JSON.stringify(relocated));
       const command = path.join(
         consumer,
-        'node_modules/architecture-publishing/src/cli/main.mjs',
+        'node_modules/architecture-publisher/src/cli/main.mjs',
       );
       const run = () =>
         spawnSync(

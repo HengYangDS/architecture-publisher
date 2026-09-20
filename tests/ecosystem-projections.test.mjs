@@ -6,14 +6,14 @@ import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(import.meta.dirname, '..');
 
-test('release identity is projected once for alpha.7', async () => {
+test('current package identity and predecessor release are explicit', async () => {
   const packageJson = JSON.parse(
     await fs.readFile(path.join(root, 'package.json'), 'utf8'),
   );
   const packageLock = JSON.parse(
     await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'),
   );
-  assert.equal(packageJson.version, '0.1.0-alpha.7');
+  assert.equal(packageJson.version, '0.2.0-alpha.0');
   assert.equal(packageLock.version, packageJson.version);
   assert.equal(packageLock.packages[''].version, packageJson.version);
 
@@ -42,11 +42,11 @@ test('release identity is projected once for alpha.7', async () => {
 
 test('the packaged Skill remains a thin public CLI projection', async () => {
   const skill = await fs.readFile(
-    path.join(root, 'skills/architecture-publication/SKILL.md'),
+    path.join(root, 'skills/architecture-publisher/SKILL.md'),
     'utf8',
   );
-  assert.match(skill, /architecture publish semantic/);
-  assert.match(skill, /architecture publish files plan/);
+  assert.match(skill, /archpub publish semantic/);
+  assert.match(skill, /archpub publish files plan/);
   assert.match(skill, /does not grant acceptance or authority/i);
   assert.doesNotMatch(skill, /\.architecture-state|\.comet|sqlite|daemon/i);
 
@@ -58,7 +58,7 @@ test('the packaged Skill remains a thin public CLI projection', async () => {
   assert.equal(packed.status, 0, packed.stderr);
   assert(
     JSON.parse(packed.stdout)[0].files.some(
-      (file) => file.path === 'skills/architecture-publication/SKILL.md',
+      (file) => file.path === 'skills/architecture-publisher/SKILL.md',
     ),
   );
   assert(
@@ -80,5 +80,5 @@ test('GitLab CI only projects repository-native gates', async () => {
   assert.match(ci, /npm ci --ignore-scripts --no-audit --no-fund/);
   assert.match(ci, /npm run check/);
   assert.match(ci, /npm test/);
-  assert.doesNotMatch(ci, /git push|architecture publish files apply|ethos publish/);
+  assert.doesNotMatch(ci, /git push|archpub publish files apply|ethos publish/);
 });

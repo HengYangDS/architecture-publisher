@@ -215,7 +215,7 @@ test(
     await fs.mkdir(home);
     const command = path.join(
       consumer,
-      'node_modules/architecture-publishing/src/cli/main.mjs',
+      'node_modules/architecture-publisher/src/cli/main.mjs',
     );
     const result = spawnSync(
       process.execPath,

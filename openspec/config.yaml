@@ -1,5 +1,5 @@
 schema: spec-driven
-context: Govern ethos-architecture changes through ETHOS.
+context: Govern Architecture Publisher changes through ETHOS.
 rules:
   proposal: [state intent and scope]
   specs: [state behavioral requirements]

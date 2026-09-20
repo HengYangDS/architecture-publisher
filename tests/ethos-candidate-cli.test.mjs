@@ -37,7 +37,7 @@ test('installed candidate command accepts explicit relative inputs without Git o
     { encoding: 'utf8', timeout: 60000 },
   );
   assert.equal(installation.status, 0, installation.stderr);
-  const pkg = path.join(consumer, 'node_modules/architecture-publishing'),
+  const pkg = path.join(consumer, 'node_modules/architecture-publisher'),
     home = path.join(dir, 'home');
   await fs.mkdir(home);
   const source = JSON.parse(

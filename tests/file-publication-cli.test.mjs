@@ -48,7 +48,7 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
     consumer,
   );
   assert.equal(installed.status, 0, installed.stderr);
-  const pkg = path.join(consumer, 'node_modules/architecture-publishing');
+  const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   await fs.rm(path.join(pkg, 'editions'), { recursive: true });
   await fs.rm(path.join(pkg, 'src/integrations'), { recursive: true });
   const invoke = (args, expected = 0) => {

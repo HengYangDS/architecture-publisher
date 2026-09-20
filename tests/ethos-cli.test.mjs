@@ -46,7 +46,7 @@ test('packed offline ETHOS command reads selected source without Git or Python',
   await fs.mkdir(home);
   const cli = path.join(
     consumer,
-    'node_modules/architecture-publishing/src/cli/main.mjs',
+    'node_modules/architecture-publisher/src/cli/main.mjs',
   );
   const args = [
     'source',

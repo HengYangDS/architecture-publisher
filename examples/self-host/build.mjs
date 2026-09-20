@@ -33,7 +33,7 @@ async function main() {
     sources[id] = {
       sha256: sha(content),
       locator: `source/${locator}`,
-      authority: 'selected installed architecture-publishing package member',
+      authority: 'selected installed architecture-publisher package member',
     };
   }
   const selectedRevision = sha(
@@ -59,7 +59,7 @@ async function main() {
     }),
     semantic = {
       schema: 'architecture.semantic-document/v1',
-      owner: 'architecture-publishing',
+      owner: 'architecture-publisher',
       vocabulary: {
         entities: [
           'interface',
@@ -118,7 +118,7 @@ async function main() {
     authoring = {
       schema: 'architecture.semantic-publication/v2',
       semanticDigest: semanticDigest(semantic),
-      title: 'Architecture Publishing',
+      title: 'Architecture Publisher',
       entityTypes: {
         interface: 'external',
         source: 'database',
@@ -194,7 +194,7 @@ async function main() {
   members.unshift({ path: 'semantic.json', content: encode(semantic) });
   const bundle = await writeSourceBundle(
       path.join(output, 'source'),
-      { id: 'architecture-publishing', revision: `source-set:${selectedRevision}` },
+      { id: 'architecture-publisher', revision: `source-set:${selectedRevision}` },
       members,
     ),
     authoringPath = path.join(output, 'authoring.json'),

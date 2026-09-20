@@ -110,7 +110,7 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
     ],
     consumer,
   );
-  const pkg = path.join(consumer, 'node_modules/architecture-publishing'),
+  const pkg = path.join(consumer, 'node_modules/architecture-publisher'),
     cli = path.join(pkg, 'src/cli/main.mjs'),
     observed = {};
   await assert.rejects(fs.access(path.join(consumer, '.git')), {

@@ -1,7 +1,6 @@
-# Architecture publishing
+# Architecture Publisher
 
-An independently usable architecture publication tool under construction.
-ETHOS is its first full application, not a required product runtime dependency.
+A source-bound system for compiling architectural meaning into truthful, audience-specific, independently rendered Editions. ETHOS is its first flagship Edition, not a required runtime or product owner.
 
 ## Available now: data-only source verification
 
@@ -21,7 +20,7 @@ npm test
 npm run check
 npm pack --ignore-scripts --pack-destination build
 # Install the resulting archive in a consumer project, then:
-architecture source verify /chosen/input/manifest.json --sha256 <selected-digest>
+archpub source verify /chosen/input/manifest.json --sha256 <selected-digest>
 ```
 
 The caller selects the manifest's SHA-256. A minimal file envelope is:
@@ -51,7 +50,7 @@ not protect against a hostile concurrent writer with equal OS privileges.
 
 ### Package selected files through the installed CLI
 
-`architecture source pack ./pack.json --sha256 <selected-plan-digest>` prepares
+`archpub source pack ./pack.json --sha256 <selected-plan-digest>` prepares
 the same portable bundle from explicitly selected local files. It is also the
 local packaging entry for rendered HTML, SVG, PNG and required licenses; it does
 not grant release or installation approval.
@@ -80,7 +79,7 @@ or a rendering plan. Member identities do not contain input or output host paths
 Consume a selected bundle without an ETHOS installation or source checkout:
 
 ```sh
-architecture source ethos verify /chosen/input/manifest.json \
+archpub source ethos verify /chosen/input/manifest.json \
   --sha256 <selected-manifest-digest> --projection <selected-projection-digest>
 ```
 
@@ -92,7 +91,7 @@ offline read always reports `officialReplay: not-performed`.
 Creating a bundle from source is an **opt-in execution** of caller-trusted code:
 
 ```sh
-architecture source ethos import /chosen/import-plan.json
+archpub source ethos import /chosen/import-plan.json
 ```
 
 The plan contains exactly these fields; paths resolve from the plan's directory:
@@ -132,9 +131,9 @@ projection/source bundles are inputs, not installed runtime code.
 Render explicit typed JSON through the pinned Archify backend:
 
 ```sh
-architecture render architecture ./service-topology.json \
+archpub render architecture ./service-topology.json \
   --sha256 <input-file-sha256> --output ./new-service.html
-architecture render lifecycle ./job-lifecycle.json \
+archpub render lifecycle ./job-lifecycle.json \
   --sha256 <input-file-sha256> --output ./new-lifecycle.html
 ```
 
@@ -191,7 +190,7 @@ layout adaptation. The original title-only observations remain historical.
 ## Source-bound ETHOS atlas
 
 ```sh
-architecture atlas ethos ./atlas-plan.json
+archpub atlas ethos ./atlas-plan.json
 ```
 
 The plan contains exactly these fields. Paths resolve from the plan's directory,
@@ -241,7 +240,7 @@ changing expected hashes is not a substitute for reviewing a redesigned diagram.
 
 ### Read an existing atlas without rendering it
 
-`architecture atlas ethos verify ./read-plan.json` consumes the same explicit
+`archpub atlas ethos verify ./read-plan.json` consumes the same explicit
 source/edition identity fields as rendering. Replace `output` with
 `outputManifest` and its independently selected `outputSha256`.
 Paths are relative to that plan. The current `architecture.atlas-output/v1`
@@ -256,7 +255,7 @@ current browser evidence and effect-time revalidation before installation.
 
 ### Retained review applicability
 
-`architecture atlas ethos review ./review-plan.json` observes whether a frozen
+`archpub atlas ethos review ./review-plan.json` observes whether a frozen
 review still applies within its original scope. Its explicit inputs are an
 `atlas` verification plan, digest-selected `evidenceBundles`, historical path
 roles under `history`, and exact `editorial` selections. Original report,
@@ -273,7 +272,7 @@ independent trusted signature or permission to install.
 
 ### Current browser obligations and reported evidence
 
-`architecture atlas ethos browser-plan ./read-plan.json` accepts the current
+`archpub atlas ethos browser-plan ./read-plan.json` accepts the current
 atlas verification plan and derives required document/Present, story, export
 and disclosure observations from the actual HTML and source-owned quality
 contract. It does not launch a browser. No host browser path, adjacent checkout
@@ -291,7 +290,7 @@ a passing input test is not browser acceptance for a new edition.
 
 ## Independent paired-file installation
 
-`architecture publish files plan ./files.json` exposes the existing file
+`archpub publish files plan ./files.json` exposes the existing file
 installer without loading ETHOS edition or integration modules. It returns
 `status: PLANNED`, `scope: file-integrity`, `semanticAcceptance: not-performed`
 and a `plan` object. Save that object unchanged for application and recovery.
@@ -331,8 +330,8 @@ file containing `{"decision":"AUTHORIZED","planSha256":"<plan.sha256>"}`.
 The tool does not create this authorization or infer it from a successful check.
 
 ```sh
-architecture publish files apply ./plan.json ./authorization.json
-architecture publish files recover ./plan.json ./authorization.json
+archpub publish files apply ./plan.json ./authorization.json
+archpub publish files recover ./plan.json ./authorization.json
 ```
 
 Emitted plans bind absolute physical targets. Moving a plan file does not change
@@ -345,7 +344,7 @@ the explicit previous-plan selection described under Architecture evolution.
 
 ## Qualified paired publication
 
-`architecture publish ethos plan ./pair-input.json` composes the existing
+`archpub publish ethos plan ./pair-input.json` composes the existing
 atlas, retained review, static evidence and browser-report consumers. The input
 contains `review`, `staticArtifact`, `browser` (checker and reports) and
 `deployment` (two target directories and a recovery directory). Relative input
@@ -361,12 +360,12 @@ bounded process-interruption recovery. It does not claim global atomicity,
 power-loss durability or protection from hostile filesystem races. The retained
 control-directory namespace preserves cooperating-writer exclusion.
 
-`architecture publish ethos apply <plan.json> <acceptance.json>` requires
+`archpub publish ethos apply <plan.json> <acceptance.json>` requires
 exact plan acceptance plus an explicit observed-browser-run reference bound to
 the artifact, checker and reports. It rederives qualification before invoking
 the file engine. This operator assertion is not a cryptographic proof of browser
 execution and must never be generated from a passing parser alone.
-`architecture publish ethos recover <plan.json> <acceptance.json>` uses the
+`archpub publish ethos recover <plan.json> <acceptance.json>` uses the
 persisted file plan without needing changed source inputs to pass again.
 
 Reader-facing static HTML, SVG and PNG files retain their original relative paths
@@ -384,7 +383,7 @@ File-effect tests alone do not qualify semantic, visual or browser acceptance.
 Rasterize an authored SVG through a separate public entry:
 
 ```sh
-architecture raster ./raster-plan.json
+archpub raster ./raster-plan.json
 ```
 
 Its plan selects a closed source bundle and resolves filesystem paths relative
@@ -471,7 +470,7 @@ qualify only their tested cases, not every SVG or platform.
 ## Selected static-poster reconstruction
 
 ```sh
-architecture poster ethos ./poster-plan.json
+archpub poster ethos ./poster-plan.json
 ```
 
 Use the same six plan fields as `atlas ethos`: `sourceManifest`,
@@ -513,8 +512,8 @@ not a claim about portable font rendering or fresh measurement.
 ### Optional outlined projection
 
 ```sh
-architecture poster ethos outline ./outline-plan.json
-architecture raster ./raster-plan.json
+archpub poster ethos outline ./outline-plan.json
+archpub raster ./raster-plan.json
 ```
 
 The outline plan has six fields:
@@ -559,7 +558,7 @@ the original raster. The source metric/SVG checks do not validate every new pixe
 ### Explicit fresh measurement on macOS
 
 ```sh
-architecture measure coretext ./measurement-plan.json
+archpub measure coretext ./measurement-plan.json
 ```
 
 The opt-in plan contains `compiler: {path, sha256}`, `sdk: {path,
@@ -613,7 +612,7 @@ evidence, not another mutable design authority or a runtime dependency.
 #### Portable semantic comparison
 
 ```sh
-architecture semantic compare ./compare.json --sha256 <plan-sha256>
+archpub semantic compare ./compare.json --sha256 <plan-sha256>
 ```
 
 The strict `architecture.semantic-compare-input/v1` plan selects `before` and
@@ -683,9 +682,9 @@ output locks, while explicit candidates bind new source and authored inputs and
 emit new output identities. Neither rendering mode supplies visual approval.
 
 ```sh
-architecture atlas ethos prepare ./candidate-plan.json
-architecture atlas ethos ./atlas-plan.json
-architecture atlas ethos standalone ./standalone-plan.json
+archpub atlas ethos prepare ./candidate-plan.json
+archpub atlas ethos ./atlas-plan.json
+archpub atlas ethos standalone ./standalone-plan.json
 ```
 
 Candidate preparation takes `previous` (the five-field prior atlas selection),
@@ -725,7 +724,7 @@ meaning bindings are checked separately from native layout.
 A poster candidate uses `architecture.ethos-poster-candidate/v1`, explicit
 `source`, `metricsSha256`, `authoring`, and `scope`, without frozen `expected`
 output hashes. It uses the same metric, semantic and geometry gates. The existing
-`architecture poster ethos` command consumes it. New text requires measured input;
+`archpub poster ethos` command consumes it. New text requires measured input;
 the reader never invents glyph widths. The selected refresh composition retains
 the complete map and uses four additional labels rather than another diagram.
 Other existing static sites use `authoring.carriers` with `edits` containing
@@ -739,7 +738,7 @@ embedded, with shared script/style blocks deduplicated losslessly. Navigation,
 history and native `Archify` behavior remain available inside one frame. The
 wrapper is not another visual layer or a set of disconnected diagram excerpts.
 
-`architecture atlas ethos review` accepts either historical review continuity or
+`archpub atlas ethos review` accepts either historical review continuity or
 an explicit `current` review report with exact source, quality, edition, every
 page and static artifact identities. A current review states reviewer and limits;
 it does not pretend to be the user's historical visual approval or independent
@@ -786,7 +785,7 @@ viewport, observation, export or natural-clock story check is skipped.
 
 ### Source-bound semantic publication
 
-`architecture publish semantic <plan.json> --sha256 <plan-sha256>` compiles a
+`archpub publish semantic <plan.json> --sha256 <plan-sha256>` compiles a
 validated `architecture.semantic-document/v1` into one complete static overview
 as SVG and PNG plus one complete standalone HTML diagram per interactive view.
 The plan selects an exact source bundle, semantic member,
@@ -822,7 +821,7 @@ focus behavior, and separately loads the overview as `image/svg+xml` to verify
 actual SVG paint. Its bounded result is not human approval, general browser
 compatibility, source-intent truth or independent product acceptance.
 
-The packaged `architecture-publication` Skill is a thin, replaceable caller of
+The packaged `architecture-publisher` Skill is a thin, replaceable caller of
 these public commands. It owns no intent, lifecycle state, acceptance or
 generated artifact. GitLab CI likewise projects the repository-native
 `npm run check` and `npm test` gates without publishing or changing refs.

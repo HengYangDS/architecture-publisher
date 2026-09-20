@@ -459,7 +459,7 @@ test(
       [
         path.join(
           consumer,
-          'node_modules/architecture-publishing/src/cli/main.mjs',
+          'node_modules/architecture-publisher/src/cli/main.mjs',
         ),
         'atlas',
         'ethos',

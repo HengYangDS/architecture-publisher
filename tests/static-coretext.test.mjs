@@ -218,7 +218,7 @@ test(
       consumer,
       path.join(f.dir, packed.filename),
     ]);
-    const pkg = path.join(consumer, 'node_modules/architecture-publishing');
+    const pkg = path.join(consumer, 'node_modules/architecture-publisher');
     const font = path.join(f.dir, 'selected font.ttf');
     await fs.copyFile(f.plan.fonts[0].path, font);
     // Only this disposable installation is changed. Measurement must not load

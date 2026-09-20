@@ -46,7 +46,7 @@
     }
   ],
   "commands": [
-    "architecture publish semantic <absolute-plan.json> --sha256 <plan-sha256>",
+    "archpub publish semantic <absolute-plan.json> --sha256 <plan-sha256>",
     "node tools/qualification/semantic-browser.mjs <absolute-browser-input.json>"
   ],
   "scope": "Every declared HTML view and direct image/svg+xml overview paint; visible node and directed relation identities, declared endpoint attachment, text overlap and overflow, minimum font, viewport width, theme, focus, no page error and no external request.",

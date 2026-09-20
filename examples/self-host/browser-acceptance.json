@@ -16,11 +16,11 @@
     "observerSha256": "da1ff70bb98042440d0f6512d9634014158b81fe66243ecf5d4ab1f88ee2c1e9",
     "checksSha256": "2d43190ed9e136b8047d6d80fb4c00916b44700a608d96a2321a91bd560e8218"
   },
-  "publicationManifestSha256": "c2ae35d014176e50718e507e1d1d47987555a427167ebf9692c99b8439ae5548",
-  "semanticDigest": "136dda9b115391aec5cbc28f14ed9248dfb2c0b7bc2b47b8603835f32e96dfb4",
-  "browserReportSha256": "bc496ea82939b6816356029ad5effe8e81e634ac90ed5af7bf0254d7044cab89",
-  "staticSvgSha256": "d7d853d7caffe1a1b61dd20e5ae3b58867bcd7d72f370241355c7c678e8f8c3d",
-  "staticPngSha256": "e8a1de7f2123a462cd1d185a60a0b7467958c71c7419c6f1c5218f16ae4bb2f6",
+  "publicationManifestSha256": "deb0ec10cc7fd85a8591dabf6c64908ba528fcb8298b429e0e8b27b371e7c15a",
+  "semanticDigest": "9d097ccbcd6ecbd4d3d8b323bff51cda02689e667008772187902a688b3bcb64",
+  "browserReportSha256": "0ed0d34283c855b8ffc2cb7b3f0eae1b395fbe3d29362638021f99b2f0d37a40",
+  "staticSvgSha256": "dfa900de48c7c004600179e2a2ba7a9f4e9eca3246a54f7749a1b23f7e961b67",
+  "staticPngSha256": "bf62fac15fb74c524cf61c0040ca5392e67b68dd33e8b3d7e52beef2eb90b882",
   "views": [
     "overview",
     "media",

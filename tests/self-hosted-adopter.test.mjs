@@ -51,7 +51,7 @@ test('the installed product publishes its own architecture through the public co
     ],
     consumer,
   );
-  const pkg = path.join(consumer, 'node_modules/architecture-publishing'),
+  const pkg = path.join(consumer, 'node_modules/architecture-publisher'),
     physicalParent = path.join(directory, 'physical-inputs'),
     aliasedParent = path.join(directory, 'aliased-inputs');
   await fs.mkdir(physicalParent);
@@ -97,7 +97,7 @@ test('the installed product publishes its own architecture through the public co
     semantic = JSON.parse(members.get('semantic.json')),
     svg = members.get('overview.svg').toString(),
     html = members.get('views/overview.html').toString();
-  assert.equal(output.source.id, 'architecture-publishing');
+  assert.equal(output.source.id, 'architecture-publisher');
   assert.equal(semantic.context.adoptionRole, 'self-hosted');
   assert.equal(semantic.context.independentAdopterEvidence, false);
   assert.equal(receipt.semanticDigest, selected.semanticDigest);

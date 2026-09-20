@@ -362,7 +362,7 @@ test(
         await fs.writeFile(file, JSON.stringify(relocated));
         const command = path.join(
           consumer,
-          'node_modules/architecture-publishing/src/cli/main.mjs',
+          'node_modules/architecture-publisher/src/cli/main.mjs',
         );
         const result = spawnSync(
           process.execPath,

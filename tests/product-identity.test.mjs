@@ -40,3 +40,79 @@ test('alpha.7 migration baseline preserves exact local and remote identities', a
   assert.equal(baseline.documents.staticPng.height, 3375);
   assert.equal(baseline.limits.independentOffHostRestore, 'UNPROVED');
 });
+
+test('current product surfaces expose one Architecture Publisher identity', async () => {
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(root, 'package.json'), 'utf8'),
+  );
+  const packageLock = JSON.parse(
+    await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'),
+  );
+  const profile = await fs.readFile(path.join(root, '.ethos/profile.toml'), 'utf8');
+  const openspec = await fs.readFile(path.join(root, 'openspec/config.yaml'), 'utf8');
+  const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
+  const skill = await fs.readFile(
+    path.join(root, 'skills/architecture-publisher/SKILL.md'),
+    'utf8',
+  );
+  const cli = await fs.readFile(path.join(root, 'src/cli/main.mjs'), 'utf8');
+  const commonDirectory = runGit('rev-parse', '--path-format=absolute', '--git-common-dir');
+  const repositoryName = path.basename(path.dirname(commonDirectory));
+
+  assert.equal(packageJson.name, 'architecture-publisher');
+  assert.equal(packageJson.version, '0.2.0-alpha.0');
+  assert.deepEqual(packageJson.bin, { archpub: 'src/cli/main.mjs' });
+  assert.equal(packageLock.name, packageJson.name);
+  assert.equal(packageLock.version, packageJson.version);
+  assert.deepEqual(packageLock.packages[''].bin, packageJson.bin);
+  assert.match(profile, new RegExp(`^profile_id = "${repositoryName}"$`, 'm'));
+  assert.match(openspec, /Govern Architecture Publisher changes through ETHOS\./);
+  assert.match(readme, /^# Architecture Publisher$/m);
+  assert.match(readme, /\barchpub source verify\b/);
+  assert.doesNotMatch(readme, /^architecture (?:source|publish|render|atlas|poster|measure|semantic|raster)\b/m);
+  assert.match(skill, /^name: architecture-publisher$/m);
+  assert.match(skill, /\barchpub publish semantic\b/);
+  assert.doesNotMatch(skill, /\barchitecture publish\b/);
+  assert.match(cli, /archpub semantic compare/);
+  assert.doesNotMatch(cli, /'architecture semantic compare/);
+});
+
+test('installed package exposes archpub and no architecture compatibility command', async (t) => {
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const out = await fs.mkdtemp(path.join(scratch, 'identity-'));
+  t.after(() => fs.rm(out, { recursive: true, force: true }));
+  const packed = spawnSync(
+    'npm',
+    ['pack', '--json', '--ignore-scripts', '--pack-destination', out],
+    { cwd: root, encoding: 'utf8' },
+  );
+  assert.equal(packed.status, 0, packed.stderr);
+  const info = JSON.parse(packed.stdout)[0];
+  const consumer = path.join(out, 'consumer');
+  await fs.mkdir(consumer);
+  const installed = spawnSync(
+    'npm',
+    [
+      'install',
+      '--offline',
+      '--ignore-scripts',
+      '--no-audit',
+      '--no-fund',
+      '--prefix',
+      consumer,
+      path.join(out, info.filename),
+    ],
+    { cwd: consumer, encoding: 'utf8' },
+  );
+  assert.equal(installed.status, 0, installed.stderr);
+  const bin = path.join(consumer, 'node_modules/.bin');
+  assert.equal((await fs.lstat(path.join(bin, 'archpub'))).isSymbolicLink(), true);
+  await assert.rejects(fs.lstat(path.join(bin, 'architecture')), { code: 'ENOENT' });
+  const usage = spawnSync(path.join(bin, 'archpub'), [], {
+    cwd: consumer,
+    encoding: 'utf8',
+  });
+  assert.equal(usage.status, 2);
+  assert.match(JSON.parse(usage.stdout).error.message, /^archpub semantic compare/);
+});

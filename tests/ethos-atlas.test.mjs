@@ -360,7 +360,7 @@ test('installed atlas uses only its package and explicitly supplied source', asy
     { cwd: consumer, encoding: 'utf8' },
   );
   assert.equal(install.status, 0, install.stderr);
-  const pkg = path.join(consumer, 'node_modules/architecture-publishing');
+  const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   await fs.cp(
     path.dirname(f.plan.sourceManifest),
     path.join(f.directory, 'input'),

@@ -57,7 +57,7 @@ test('packed CLI verifies relocated non-Git input without development executable
     { cwd: install, env, encoding: 'utf8' },
   );
   assert.equal(installed.status, 0, installed.stderr);
-  const pkg = path.join(install, 'node_modules/architecture-publishing');
+  const pkg = path.join(install, 'node_modules/architecture-publisher');
   const packageJson = JSON.parse(
     await fs.readFile(path.join(pkg, 'package.json'), 'utf8'),
   );
