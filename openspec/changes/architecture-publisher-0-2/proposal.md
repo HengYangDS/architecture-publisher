@@ -32,9 +32,11 @@ qualification, publication, and evolution.
   static and interactive scenes, and qualification obligations.
 - Make the distributable `architecture-publisher` package domain-neutral. A
   project repository is a source selected outside the compiler, not a runtime
-  dependency. Concrete source adapters and Editions remain first-party
-  monorepo packages, but they depend on the generic product and never enter its
-  package or `archpub` command surface.
+  dependency. The Publisher self-Edition remains with its source product;
+  ETHOS and AIGW live Editions move to their own source repositories. They
+  depend on the generic product and never enter its package or `archpub`
+  command surface. Existing central extension directories are migration
+  staging, not the terminal ownership model.
 - Produce an independently composed 6000-pixel flagship static overview and a
   standalone interactive atlas. They share semantic identities, not geometry,
   DOM, screenshots, or a common presentation layout.
@@ -82,15 +84,17 @@ qualification, publication, and evolution.
 - Semantic document and publication inputs change incompatibly; the accepted
   alpha.7 artifacts and tags remain immutable historical releases.
 - Generic semantic, composition, verification, and publication owners are
-  reorganized by responsibility; ETHOS-specific behavior stays in
-  a separately installable first-party Edition package.
+  reorganized by responsibility. ETHOS- and AIGW-specific behavior becomes a
+  source-owned live Edition in the corresponding product repository and is
+  exercised here only through portable standard values or an independently
+  installed package selected by exact identity.
 - The core package accepts exact Source Bundle, Claim Model, Edition, build,
   qualification, and publication values. Compilation emits an unqualified
   Edition candidate; only a later qualified and authorized effect is a
   publication.
-- A new `editions/architecture-publisher` source becomes the canonical product
-  self-portrait. Static and interactive outputs are built and accepted
-  independently.
+- A new `editions/self` source becomes the canonical product self-portrait.
+  Static and interactive outputs are built and accepted independently. Compact
+  conformance fixtures remain here; mutable adopter copies do not.
 - The active implementation occurs in one ETHOS-owned Work Lane and one
   OpenSpec Change. No predecessor repository, generated output, or compatibility
   facade becomes a parallel authority.

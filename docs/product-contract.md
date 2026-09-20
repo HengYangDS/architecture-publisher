@@ -150,12 +150,27 @@ Architecture Publisher may reject, explain, project, qualify, install, replace,
 and recover an Edition. It may not authorize a source-system transition or
 silently write feedback into a source authority.
 
-The repository is a development and conformance monorepo. The root
-`architecture-publisher` distribution contains only generic contracts,
-renderers, qualification, publication, and the `archpub` composition root.
-First-party Architecture Publisher, ETHOS, and AIGW adapters and Editions are
-separately installable downstream packages. Sharing a repository does not grant
-them entry into the core package or command surface.
+The Architecture Publisher repository is a development and conformance
+workspace. Its distributable product contains generic contracts, renderer
+capabilities, qualification, publication, and the `archpub` composition root.
+It also owns the source-owned live Edition for Architecture Publisher itself,
+because that Edition describes this source product.
+
+A live adopter Edition belongs to the repository whose architecture it states.
+ETHOS owns its adapter, Claim Model authoring, Edition, native authorization,
+and release decision; AIGW owns the corresponding AIGW values. The Publisher
+repository may keep compact immutable protocol fixtures and exact conformance
+receipts, but it may not retain a second mutable implementation of an adopter's
+Edition. During the 0.2 migration, existing central extension packages are
+migration staging only and are removed after source-owned installed parity is
+proved.
+
+Cross-repository use occurs through portable standard values or an independently
+installed package selected by exact identity. Ordinary `archpub` execution has
+no adjacent checkout dependency, repository-name dispatch, local-user path, or
+implicit source discovery. The source repository's native lifecycle authorizes
+its own changes; Publisher qualification and release consume exact outputs
+without copying that lifecycle or its progress ledger.
 
 ## Construction discipline
 

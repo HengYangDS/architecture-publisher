@@ -41,6 +41,22 @@ or product-specific schema SHALL NOT be an implicit input to the generic build.
 - **AND** a changed selected byte fails identity verification rather than being
   rediscovered from the environment
 
+### Requirement: Concrete Edition authority remains with its source product
+
+Architecture Publisher SHALL own the Edition schema, validation, compilation,
+qualification, and publication contracts. A source-owned live Edition SHALL own
+its audience, questions, claims, omissions, narrative, scenes, and native
+authorization in the repository whose architecture it states. A central
+migration copy SHALL NOT remain as a parallel mutable authority after parity.
+
+#### Scenario: A source product publishes an Edition package
+
+- **WHEN** the package emits valid portable standard values through the public
+  contract
+- **THEN** Architecture Publisher can build and qualify it without source-repo
+  discovery or product-specific branches
+- **AND** Publisher records do not authorize or reinterpret the source product
+
 ### Requirement: Candidate, qualification, and publication are distinct values
 
 Compilation SHALL emit an `Edition Candidate` that binds source, Claim Model,

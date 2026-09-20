@@ -18,7 +18,8 @@
 - [x] 3.1 Move ETHOS source integration behind `adapters/ethos`, renderer implementations behind `renderers`, scene ownership below `src/scene`, and Edition-owned behavior below `editions`; update imports under one prewrite admission and verify module-boundary tests reject every reverse dependency.
 - [x] 3.2 Remove ambiguous or superseded implementation owners and current compatibility identities rather than retaining wrappers; verify source and test scans contain one owner for each public invariant and no `core`, `common`, `shared`, `utils`, `legacy`, or `compat` catch-all introduced by the migration.
 - [x] 3.3 Refactor the public CLI into a generic composition root over source, semantic, Edition, rendering, qualification, and publication contracts; verify one declarative command/help owner, concise layered help, actionable errors, sole `archpub` identity, offline installed operation, and no Edition, adopter, repository, schema, or renderer-vendor logic in the CLI.
-- [x] 3.4 Make the root `architecture-publisher` distribution domain-neutral and move first-party source adapters and Editions behind independently installable monorepo package boundaries; verify a packed core excludes concrete domain code, remains fully functional without those packages, and every extension depends inward through exported public contracts only.
+- [x] 3.4 Make the root `architecture-publisher` distribution domain-neutral and isolate concrete source adapters and Editions behind independently installable migration package boundaries; verify a packed core excludes concrete domain code, remains fully functional without those packages, and every extension depends inward through exported public contracts only.
+- [ ] 3.5 Converge the terminal repository topology: move the source-owned self-Edition to `editions/self`, place bundled supply below its owning renderer, establish compact conformance fixtures and installed journeys, and reject `packages/extensions`, central live adopter copies, adjacent-checkout runtime dependencies, and generic asset ownership without retaining compatibility paths.
 
 ## 4. First-party Architecture Publisher Edition
 
@@ -36,9 +37,9 @@
 
 ## 6. Ecosystem and installed-product proof
 
-- [ ] 6.1 Migrate the ETHOS Edition to the new Claim and Edition contracts while consuming its existing exact source projection downstream; verify no ETHOS authority, Commitment compilation, lane control, proof minting, or CAS effect enters Architecture Publisher.
-- [ ] 6.2 Promote AIGW from a bounded example to a first-party adopter Edition with independent static and interactive composition and one real semantic evolution; verify it has no dependency on ETHOS-specific Edition or renderer modules.
-- [ ] 6.3 Run the self, ETHOS, and AIGW contract matrix from a packed installed package under relocated offline inputs and empty user configuration; verify source, semantic, scene, qualification, publication, replacement, interruption recovery, and reader journeys.
+- [ ] 6.1 In an ETHOS-owned Work Lane, migrate the ETHOS adapter and live Edition to the ETHOS repository while consuming its existing exact source projection downstream; prove the same immutable candidate digests or explicitly review every semantic difference, remove the migrated central ETHOS package, and verify no ETHOS authority, Commitment compilation, lane control, proof minting, or CAS effect enters Architecture Publisher.
+- [ ] 6.2 Under AIGW's native repository governance, promote AIGW from a bounded example to a source-owned live Edition with independent static and interactive composition and one real semantic evolution; prove the same immutable candidate digests or explicitly review every semantic difference, remove the migrated central AIGW package or example, and verify it has no dependency on ETHOS-specific Edition or renderer modules.
+- [ ] 6.3 Run the self, ETHOS, and AIGW contract matrix from exact independently packed packages under relocated offline inputs and empty user configuration, with no adjacent checkout discovery; verify source, semantic, scene, qualification, publication, replacement, interruption recovery, reader journeys, and the same immutable candidate digests selected by each source owner.
 - [ ] 6.4 Measure complete rebuild and affected-view cost across all three consumers; record defer/adopt decisions for persistent graph storage, incremental queries, and constraint solving against named failing cases rather than anticipated scale.
 
 ## 7. Acceptance, migration, and release

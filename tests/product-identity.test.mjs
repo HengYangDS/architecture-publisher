@@ -153,3 +153,42 @@ test('product documentation has one semantic owner and a concise entry point', a
   assert(!packageJson.files.includes('docs/product-design.md'));
   await assert.rejects(fs.stat(path.join(root, 'docs/product-design.md')), { code: 'ENOENT' });
 });
+
+test('terminal topology keeps live Editions with their source products', async () => {
+  const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
+  const product = await fs.readFile(
+    path.join(root, 'docs/product-contract.md'),
+    'utf8',
+  );
+  const edition = await fs.readFile(
+    path.join(root, 'docs/edition-contract.md'),
+    'utf8',
+  );
+  const proposal = await fs.readFile(
+    path.join(
+      root,
+      'openspec/changes/architecture-publisher-0-2/proposal.md',
+    ),
+    'utf8',
+  );
+  const design = await fs.readFile(
+    path.join(root, 'openspec/changes/architecture-publisher-0-2/design.md'),
+    'utf8',
+  );
+  const tasks = await fs.readFile(
+    path.join(root, 'openspec/changes/architecture-publisher-0-2/tasks.md'),
+    'utf8',
+  );
+  const contract = [readme, product, edition, proposal, design].join('\n');
+
+  assert.match(contract, /source-owned live Edition/i);
+  assert.match(
+    contract,
+    /portable standard values or an independently\s+installed package/i,
+  );
+  assert.match(contract, /no adjacent checkout/i);
+  assert.match(contract, /migration staging/i);
+  assert.match(tasks, /remove the migrated central ETHOS package/i);
+  assert.match(tasks, /remove the migrated central AIGW package or example/i);
+  assert.match(tasks, /same immutable candidate digests/i);
+});

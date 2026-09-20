@@ -171,7 +171,7 @@ engine initially. First measure full-build cost over self, ETHOS, and AIGW. A
 future mechanism must enter through a named public interface and prove lower
 whole-life cost on an irreducible adopter case.
 
-### 8. Generic kernel and first-party extensions remain acyclic
+### 8. Generic kernel and source-owned Editions remain acyclic
 
 Target dependency direction:
 
@@ -183,7 +183,8 @@ source -> semantics -> edition -> scene
                           \          /
                            publication
 
-first-party packages -> exported public contracts
+source-owned Edition packages -> exported public contracts
+conformance -> portable values or exact installed packages
 cli -> generic composition root only
 ```
 
@@ -192,7 +193,10 @@ adapters. Adapters cannot grant semantic or publication authority. The generic
 `archpub` CLI consumes only standard contract files and does not dispatch on an
 Edition, repository, or adopter identity. Concrete Edition packages may produce
 standard inputs and call exported public APIs; they are never required core
-dependencies and do not register a second truth or command plane.
+dependencies and do not register a second truth or command plane. Live adopter
+Editions stay with their source product. Cross-repository conformance selects
+portable standard values or exact installed packages and never imports an
+adjacent checkout.
 
 ### 9. One repository, one Change, one lane, staged commits
 
@@ -205,7 +209,7 @@ small verified commits and one final release closure.
 ## Target Physical Structure
 
 ```text
-architecture-publisher/                 # private development workspace
+architecture-publisher/                 # private product and conformance workspace
 ├── packages/
 │   ├── publisher/                      # published architecture-publisher core
 │   │   ├── src/
@@ -220,16 +224,16 @@ architecture-publisher/                 # private development workspace
 │   │   │   ├── qualification/
 │   │   │   ├── publication/
 │   │   │   └── cli/
-│   │   ├── renderers/
-│   │   │   ├── svg/
-│   │   │   ├── fonts/
-│   │   │   ├── archify/
-│   │   │   └── resvg/
-│   │   └── assets/                     # exact bundled supply, not authorities
-│   └── extensions/
-│       ├── architecture-publisher/     # first-party flagship self-Edition
-│       ├── ethos/                      # ETHOS adapter and authored Edition
-│       └── aigw/                       # independent adopter Edition
+│   │   └── renderers/
+│   │       ├── svg/
+│   │       ├── fonts/
+│   │       ├── archify/
+│   │       └── resvg/                  # each owns its exact bundled supply
+├── editions/
+│   └── self/                           # source-owned flagship self-Edition
+├── conformance/
+│   ├── fixtures/                       # compact immutable protocol inputs
+│   └── journeys/                       # installed cross-product exercises
 ├── examples/
 │   ├── self-host/                      # bounded structural conformance journey
 │   ├── greenfield/
@@ -241,18 +245,27 @@ architecture-publisher/                 # private development workspace
 ```
 
 The root is never a distributable product package. `packages/publisher` is the
-only generic runtime authority. Every concrete source adapter and Edition is an
-independently installable downstream package and depends inward only through
-exported public contracts. Keeping first-party conformance packages in this
-repository does not transfer their source-product authority to the core; they
-remain extractable without changing the generic package or CLI.
+only generic runtime authority. `editions/self` is a real downstream consumer
+owned here because its source product is Architecture Publisher. ETHOS and AIGW
+own their live adapters and Editions in their native repositories; this
+repository retains only immutable protocol fixtures and exact conformance
+receipts. Conformance consumes portable standard values or an independently
+installed package, so no adjacent checkout, hard-coded user path, or repository
+name becomes a runtime dependency.
 
 Physical migration follows semantic ownership. There is no `core`, `common`,
 `shared`, `utils`, compatibility, or legacy runtime directory. Vendored renderer
-supply stays below the owning adapter and is verified as exact supply rather than
+supply stays below the owning renderer and is verified as exact supply rather than
 participating as another product surface. Existing modules move only where the
 owner becomes materially clearer; a directory diagram alone is not a reason for
 churn.
+
+The current `packages/extensions/*` and `examples/aigw` paths are migration
+staging. Before release, the self package moves to `editions/self`; ETHOS and
+AIGW are recreated under their own repository-native module policies, exercised
+as independently packed consumers, and then removed from this repository. The
+migration compares the same immutable candidate digests or explicitly explains
+any intended semantic change before deleting the central copy.
 
 ## Flagship Self-Edition
 
@@ -329,16 +342,21 @@ it. User review of the final artifacts is the product's final aesthetic gate.
 4. Reorganize generic owners and enforce dependency direction.
 5. Build the Architecture Publisher first-party Edition and static scene under
    test, then generate and inspect the 6000-pixel candidate.
-6. Build the independent interactive atlas and browser/accessibility checks.
-7. Exercise exact semantic evolution across both media and all three consumers.
-8. Run full source, package, installed, recovery, geometry, browser, and human
+6. Move the self-Edition to its terminal source-owned root and consolidate each
+   renderer's supply below that renderer without changing public semantics.
+7. Build the independent interactive atlas and browser/accessibility checks.
+8. Move the ETHOS and AIGW live Editions into their source repositories under
+   native governance; prove independently installed parity, then remove the
+   mutable central copies and retain only compact conformance fixtures.
+9. Exercise exact semantic evolution across both media and all three consumers.
+10. Run full source, package, installed, recovery, geometry, browser, and human
    acceptance; commit applicable evidence.
-9. Prove and land the Work Lane, close accepted source, and archive the Change.
-10. Rename the local repository and GitLab project with preflight, dry-run where
+11. Prove and land the Work Lane, close accepted source, and archive the Change.
+12. Rename the local repository and GitLab project with preflight, dry-run where
     available, exact remote/path readback, and no history copy.
-11. Create signed `v0.2.0-alpha.0`, publish immutable assets, independently read
+13. Create signed `v0.2.0-alpha.0`, publish immutable assets, independently read
     back their bytes, and install the final PNG/HTML into Documents.
-12. Retire the landed Work Lane and remove only classified disposable build
+14. Retire the landed Work Lane and remove only classified disposable build
     residue. Keep alpha.7 releases and local predecessor archives unchanged.
 
 Rollback before accepted closeout is ordinary Work Lane abandonment. After the
@@ -352,6 +370,9 @@ not retagged: correct source and publish a later immutable prerelease.
   runtime dual-schema support.
 - **Flagship work dominates generic product design** -> Make Edition the owner of
   art direction and require AIGW plus self-use to exercise generic contracts.
+- **Source-owned Editions create cross-repository coordination cost** -> Keep
+  portable values and package identities as the only integration seam; do not
+  introduce an adjacent-checkout runtime or copy source-repository task state.
 - **Automated quality metrics produce false confidence** -> Treat them as hard
   defect gates and retain exact-artifact human acceptance.
 - **Over-generalization introduces a graph database or solver too early** ->

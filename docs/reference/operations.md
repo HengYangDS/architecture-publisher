@@ -311,10 +311,15 @@ generation. Evidence is applicable only to its exact bytes and declared scope.
 
 - `examples/self-host/` is a bounded structural self-use journey through the
   public generic contracts. It is not the final flagship self-Edition.
-- `packages/extensions/ethos/` is an independently installable ETHOS source
-  adapter and authored Edition.
-- `examples/aigw/` currently supplies independent adopter evidence; promotion to
-  its complete first-party Edition is tracked by the active 0.2 Change.
+- `packages/extensions/architecture-publisher/` currently holds the source-owned
+  self-Edition before its terminal move to the repository's Edition root.
+- `packages/extensions/ethos/` is migration staging for the ETHOS adapter and
+  Edition. The live owner is the ETHOS repository; the central package is
+  removed after installed parity is proved.
+- `examples/aigw/` currently supplies migration evidence. The live AIGW Edition
+  is completed in the AIGW repository, then consumed here through portable
+  standard values or an independently installed package with no adjacent
+  checkout dependency.
 
 ## Historical alpha.7 identity
 

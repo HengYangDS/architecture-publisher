@@ -33,6 +33,37 @@ or reinterpret ETHOS acceptance.
 - **THEN** Architecture Publisher may publish their declared visual projection
 - **AND** the result neither changes ETHOS state nor proves an ETHOS transition
 
+### Requirement: Live Editions are source-owned
+
+Each mutable first-party adopter Edition SHALL live with the source product
+whose architecture it states. The Architecture Publisher repository MAY retain
+its own self-Edition, compact immutable fixtures, and exact conformance receipts,
+but SHALL NOT retain a second mutable ETHOS or AIGW Edition after source-owned
+parity is proved.
+
+#### Scenario: A central migration package reaches source-owned parity
+
+- **WHEN** the source repository package produces the same immutable candidate
+  digests or an explicitly reviewed semantic successor
+- **THEN** the central mutable adapter and Edition are removed
+- **AND** conformance retains only the exact package identity, portable inputs,
+  compact fixtures, and qualification evidence needed to reproduce the claim
+
+### Requirement: Cross-repository conformance is portable
+
+An adopter SHALL cross the product boundary as portable standard values or an
+independently installed package selected by exact identity. Ordinary Publisher
+runtime and release tests SHALL NOT import an adjacent checkout, search sibling
+repositories, embed a workstation user path, or infer an adopter from its
+repository name.
+
+#### Scenario: An installed adopter is relocated
+
+- **WHEN** its selected Source Bundle, Claim Model, Edition, package, and renderer
+  supply are copied to an isolated directory with empty user configuration
+- **THEN** the same candidate is produced offline
+- **AND** the source repository remains unnecessary to the runtime invocation
+
 ### Requirement: AIGW remains a distinct adopter
 
 The AIGW Edition SHALL use the same generic claim and Edition contracts to

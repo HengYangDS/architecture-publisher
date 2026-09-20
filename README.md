@@ -46,7 +46,7 @@ it cannot reinterpret it or grant authority to it.
 | Product | Architecture Publisher |
 | Core package | `architecture-publisher` |
 | Public CLI | `archpub` |
-| ETHOS extension | `@architecture-publisher/ethos` |
+| ETHOS migration package | `@architecture-publisher/ethos`, removed after source-owned adoption |
 | Canonical repository | `architecture-publisher` after accepted migration |
 | ETHOS publication | `ETHOS Architecture` / `ETHOS · 问道` |
 
@@ -85,23 +85,31 @@ and ambient repository discovery.
 
 ## Workspace boundaries
 
+The current checkout is migration staging, not the terminal ownership model:
+
 ```text
 packages/publisher/          generic product package
 packages/extensions/architecture-publisher/
-                             first-party product self-Edition
-packages/extensions/ethos/   independently installable ETHOS adapter and Edition
+                             self-Edition before its final in-repository move
+packages/extensions/ethos/   temporary central ETHOS migration package
 examples/self-host/          bounded structural self-use
-examples/aigw/               independent adopter evidence under migration
+examples/aigw/               temporary AIGW adoption evidence
 ```
 
-The root is a private development and conformance workspace, not the published
-package. The core never imports a concrete extension. An extension may depend
-inward only through exported core contracts. The ETHOS package owns no ETHOS
-intent, lane, proof, CAS, Attestation, or acceptance authority.
+The terminal product repository keeps the generic package, renderer supply,
+the source-owned live Edition for Architecture Publisher itself, and compact
+conformance fixtures. The live ETHOS and AIGW Editions belong to their source
+repositories. Conformance consumes portable standard values or an independently
+installed package; ordinary runtime has no adjacent checkout dependency.
 
-The first-party flagship self-Edition and complete AIGW Edition remain work of
-the active 0.2 Change. The task ledger, not this README, owns their completion
-state.
+The root remains a private development and conformance workspace, not the
+published package. The core never imports a concrete Edition. A source-owned
+Edition depends inward only through exported core contracts and retains its
+source product's native authorization and release lifecycle.
+
+The first-party flagship self-Edition, source-repository migration, and complete
+AIGW Edition remain work of the active 0.2 Change. The task ledger, not this
+README, owns their completion state.
 
 ## Media independence
 
