@@ -1,70 +1,28 @@
 {
   "schema": "architecture.semantic-compare-input/v2",
   "before": {
-    "path": "initial/semantic.json",
-    "sha256": "0986d8b6b0dcbb01a38eed1fda9d08fc758f939af67b20b8769aa5ec590db770"
+    "claimModel": {
+      "path": "initial/semantic.json",
+      "sha256": "0986d8b6b0dcbb01a38eed1fda9d08fc758f939af67b20b8769aa5ec590db770"
+    },
+    "editions": [
+      {
+        "path": "initial-edition.json",
+        "sha256": "61b53ce4b2f6e098c43d9914fc8ec2e83daae8aca8a4f689356668c62fe7cb62"
+      }
+    ]
   },
   "after": {
-    "path": "evolved/semantic.json",
-    "sha256": "fcf53d33ff84472141754277f347d3e2af04df72ddecfc08125881c72ac6a968"
+    "claimModel": {
+      "path": "evolved/semantic.json",
+      "sha256": "fcf53d33ff84472141754277f347d3e2af04df72ddecfc08125881c72ac6a968"
+    },
+    "editions": [
+      {
+        "path": "evolved-edition.json",
+        "sha256": "f9d8a06409f7da65e9208e34fad98d15c3b7faf56ac1c88f7529be700698d1d9"
+      }
+    ]
   },
-  "views": [
-    {
-      "id": "overview",
-      "dependsOn": [],
-      "views": [],
-      "coverage": "unknown"
-    },
-    {
-      "id": "registry",
-      "dependsOn": [
-        {
-          "section": "entities",
-          "id": "registry"
-        },
-        {
-          "section": "entities",
-          "id": "adapter-contract"
-        },
-        {
-          "section": "relations",
-          "id": "registry-contract"
-        },
-        {
-          "section": "relations",
-          "id": "contract-codex"
-        },
-        {
-          "section": "relations",
-          "id": "contract-claude"
-        }
-      ],
-      "views": [
-        "overview"
-      ],
-      "coverage": "complete"
-    },
-    {
-      "id": "coordination",
-      "dependsOn": [
-        {
-          "section": "entities",
-          "id": "synchronizer"
-        },
-        {
-          "section": "entities",
-          "id": "registry"
-        },
-        {
-          "section": "relations",
-          "id": "synchronizer-registry"
-        }
-      ],
-      "views": [
-        "overview"
-      ],
-      "coverage": "complete"
-    }
-  ],
   "correspondences": []
 }

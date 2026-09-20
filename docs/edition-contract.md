@@ -72,6 +72,10 @@ single diagram into incomplete fragments.
 
 Static and interactive scenes reuse semantic identities and design tokens where
 useful. They never share required coordinates, DOM structure, or artifact bytes.
+Each medium identity binds the normalized scene declaration and the exact entity
+and relation values that its renderer consumes. A scene may also bind one exact
+authored-input digest; changing that input invalidates only the owning scene and
+medium unless another declared Edition dependency also changed.
 
 ## Visual grammar
 
@@ -109,8 +113,29 @@ verdict, and limitations. A changed artifact needs fresh applicable evidence.
 
 ## Evolution
 
-An Edition declares dependencies from claims to views. A semantic compiler may
-therefore compute conservative rebuild and review obligations. It does not edit
-generated artifacts, infer equivalence, or approve new bytes. Stable identities
-preserve the reader's mental model; explicit rename, split, and merge evidence
-handles genuine structural change.
+The complete before and after Editions are the sole authority for dependencies
+from claims and questions to static and interactive scenes. Claim Model
+comparison reports semantic identity and dependency changes; Edition evolution
+combines that result with authored Edition changes and computes six independent
+obligation classes:
+
+- `rebuild` selects the publication bundle, atlas, and affected scenes;
+- `semanticVerification` rechecks meaning and coverage;
+- `mediumVerification` rechecks only the applicable static, interactive,
+  installed-use, and recovery predicates;
+- `humanReview` is required when the Edition's declared human predicates apply;
+- `acceptance` records the need to accept, reaccept, or withdraw the Edition;
+- `publication` records the need to publish, replace, or withdraw selected
+  output.
+
+Compilation performs none of these effects and never edits generated artifacts,
+infers equivalence, or approves new bytes. Unknown coverage and unrepresented
+meaning broaden the affected Edition. Stable identities preserve the reader's
+mental model; explicit rename, split, and merge evidence records genuine
+structural change without transferring prior approval. Removed scenes and
+Editions produce explicit withdrawal obligations.
+
+Unknown claim coverage is detected independently of declared graph reachability.
+When model meaning changes, only Editions and scenes that actually represent the
+unknown claim are broadened; an explicit out-of-scope omission and a source-only
+identity change do not fabricate scene work.

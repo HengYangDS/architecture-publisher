@@ -11,9 +11,14 @@ async function api() {
     () => ({}),
   );
   assert.equal(
-    typeof module.compareEthosMeaning,
+    typeof module.compileEthosEditionEvolution,
     'function',
-    'semantic comparison must exist',
+    'ETHOS Edition evolution compiler must exist',
+  );
+  assert.equal(
+    typeof module.selectEthosEditionDependencies,
+    'function',
+    'ETHOS Edition dependency adapter must exist',
   );
   return module;
 }
@@ -24,44 +29,77 @@ function changed(mutate) {
   f.refresh();
   return [before, f.input];
 }
-const views = [
+const pages = [
   {
     id: 'overview',
+    label: 'Overview',
     nodes: ['attempt'],
     relations: ['retry'],
-    assertions: ['maturity'],
+    claims: ['maturity'],
   },
 ];
+
+function selection(input, selectedPages = pages) {
+  return {
+    static: {
+      label: 'Complete overview',
+      nodes: Object.keys(input.semantics.nodes),
+      relations: input.semantics.relations.map((relation) => relation.id),
+      claims: Object.keys(input.documents.copy.assertions),
+    },
+    pages: selectedPages,
+    narrative: selectedPages.map((page) => page.id),
+  };
+}
+
+function compare(compiler, before, after, selectedPages = pages) {
+  return compiler({
+    before: {
+      projection: before,
+      sourceManifestSha256: before.digest,
+      selection: selection(before, selectedPages),
+    },
+    after: {
+      projection: after,
+      sourceManifestSha256: after.digest,
+      selection: selection(after, selectedPages),
+    },
+    correspondences: [],
+  });
+}
+
 test('ETHOS adapter retains opaque assertions and exposes separate compiler obligations', async () => {
-  const { compareEthosMeaning } = await api();
+  const { compileEthosEditionEvolution } = await api();
   const [a, b] = changed((p) => {
     p.semantics.nodes.attempt.label = 'Longer attempt label';
   });
-  const r = compareEthosMeaning(a, b, [
-    ...views,
-    { id: 'unrelated', nodes: [], relations: [], assertions: [] },
+  const r = compare(compileEthosEditionEvolution, a, b);
+  assert.deepEqual(r.delta.changed.entities, ['attempt']);
+  assert.deepEqual(r.editions.affected[0].interactive, ['overview']);
+  assert.deepEqual(Object.keys(r.obligations), [
+    'rebuild',
+    'semanticVerification',
+    'mediumVerification',
+    'humanReview',
+    'acceptance',
+    'publication',
   ]);
-  assert.deepEqual(r.affectedViews, ['overview', 'unrelated']);
-  assert.deepEqual(
-    r.obligations.rebuild.map((o) => o.view),
-    r.affectedViews,
-  );
-  assert(r.obligations.verify.every((o) => o.checks.includes('geometry')));
-  assert.equal(r.semanticAcceptance, 'not-performed');
+  assert.equal(r.obligations.humanReview.length, 1);
 });
 
 test('ETHOS adapter preserves source extensions rather than omit unrecognized meaning', async () => {
-  const { compareEthosMeaning } = await api();
+  const { compileEthosEditionEvolution } = await api();
   const [a, b] = changed((p) => {
     p.semantics.nodes.attempt.newConstraint = 'bounded';
   });
-  assert.deepEqual(compareEthosMeaning(a, b, views).changed.nodes, [
-    'attempt',
-  ]);
+  assert.deepEqual(
+    compare(compileEthosEditionEvolution, a, b).delta.changed.entities,
+    ['attempt'],
+  );
 });
 
 test('same graph counts do not hide changed conditions, quantifiers or direction', async () => {
-  const { compareEthosMeaning } = await api();
+  const { compileEthosEditionEvolution } = await api();
   for (const [key, value] of [
     ['condition', 'only after explicit re-observation'],
     ['quantifier', 'Zero or one'],
@@ -70,35 +108,103 @@ test('same graph counts do not hide changed conditions, quantifiers or direction
     const [a, b] = changed(
       (p) => (p.semantics.relations[0].attributes[key] = value),
     );
-    const r = compareEthosMeaning(a, b, views);
-    assert.deepEqual(r.changed.relations, ['retry']);
-    assert.deepEqual(r.affectedViews, ['overview']);
-    assert.equal(r.reuseAcceptance, false);
+    const r = compare(compileEthosEditionEvolution, a, b);
+    assert.deepEqual(r.delta.changed.relations, ['retry']);
+    assert.deepEqual(r.editions.affected[0].interactive, ['overview']);
+    assert.equal(Object.hasOwn(r, 'reuseAcceptance'), false);
   }
 });
 test('removed or added entities and unknown view dependencies never imply safe reuse', async () => {
-  const { compareEthosMeaning } = await api();
+  const { compileEthosEditionEvolution } = await api();
   const [a, b] = changed((p) => {
     p.semantics.nodes.extra = structuredClone(p.semantics.nodes.attempt);
     p.view.nodes.extra = { project: { witness: 'maturity' } };
   });
-  const r = compareEthosMeaning(a, b, views);
-  assert.deepEqual(r.added.nodes, ['extra']);
-  assert.deepEqual(r.unrepresented, ['nodes:extra']);
-  assert.equal(r.requiresCompleteReview, true);
+  const r = compare(compileEthosEditionEvolution, a, b);
+  assert.deepEqual(r.delta.added.entities, ['extra']);
+  assert.equal(r.editions.affected[0].scope, 'complete');
+  assert.equal(r.obligations.acceptance[0].action, 'reaccept');
 });
-test('changed source documents invalidate all views conservatively', async () => {
-  const { compareEthosMeaning } = await api();
+test('changed source bytes rebind the Edition without inventing scene work', async () => {
+  const { compileEthosEditionEvolution } = await api();
   const [a, b] = changed(
     (p) => (p.source.bindings[0].sha256 = 'f'.repeat(64)),
   );
-  const r = compareEthosMeaning(a, b, [
-    ...views,
-    { id: 'details', nodes: [], relations: [], assertions: [] },
-  ]);
-  assert.deepEqual(r.changed.documents, ['contract']);
-  assert.deepEqual(r.affectedViews, ['details', 'overview']);
-  assert.equal(r.requiresCompleteReview, true);
+  const selectedPages = [
+    ...pages,
+    {
+      id: 'details',
+      label: 'Details',
+      nodes: ['attempt'],
+      relations: [],
+      claims: ['maturity'],
+    },
+  ];
+  const r = compare(compileEthosEditionEvolution, a, b, selectedPages);
+  assert.deepEqual(r.delta.changed.sources, ['contract']);
+  assert.deepEqual(r.editions.affected[0].interactive, []);
+  assert.deepEqual(
+    r.obligations.rebuild.map((item) => item.target),
+    ['publication-bundle'],
+  );
+});
+
+test('ETHOS authored inputs participate in shared Edition evolution', async () => {
+  const {
+      compileEthosEditionEvolution,
+      selectEthosEditionDependencies,
+    } = await api(),
+    { input } = fixture(),
+    authoredPages = [
+      {
+        id: 'overview',
+        label: 'Overview',
+        spec: {
+          schema_version: 1,
+          diagram_type: 'architecture',
+          meta: { title: 'Overview' },
+          components: [{ id: 'attempt', label: 'Attempt' }],
+          connections: [],
+        },
+        bindings: {
+          semanticNodes: ['attempt'],
+          sourceRelations: ['retry'],
+          assertions: ['maturity'],
+        },
+      },
+    ],
+    changedPages = structuredClone(authoredPages);
+  changedPages[0].spec.components[0].label = 'Changed authored label';
+  const compareSelections = (before, after) =>
+    compileEthosEditionEvolution({
+      before: {
+        projection: input,
+        sourceManifestSha256: input.digest,
+        selection: before,
+      },
+      after: {
+        projection: structuredClone(input),
+        sourceManifestSha256: input.digest,
+        selection: after,
+      },
+      correspondences: [],
+    });
+
+  let result = compareSelections(
+    selectEthosEditionDependencies(input, authoredPages, {}),
+    selectEthosEditionDependencies(input, changedPages, {}),
+  );
+  assert.deepEqual(result.editions.affected[0].interactive, ['overview']);
+  assert.equal(result.editions.affected[0].static, false);
+  assert.equal(result.obligations.humanReview.length, 1);
+
+  result = compareSelections(
+    selectEthosEditionDependencies(input, authoredPages, {}),
+    selectEthosEditionDependencies(input, authoredPages, { laneCount: 7 }),
+  );
+  assert.equal(result.editions.affected[0].static, true);
+  assert.deepEqual(result.editions.affected[0].interactive, []);
+  assert.equal(result.obligations.humanReview.length, 1);
 });
 test('bound semantic carrier rejects stale meaning and missing visible copy', async () => {
   const { verifyMeaningCarriers } = await api();
@@ -166,27 +272,31 @@ test('canonical document carriers require exact source bytes and a verbatim loca
   );
 });
 test('unchanged identities and meaning report no semantic changes, without claiming approval', async () => {
-  const { compareEthosMeaning } = await api();
+  const { compileEthosEditionEvolution } = await api();
   const { input } = fixture();
-  const r = compareEthosMeaning(input, structuredClone(input), views);
-  assert.deepEqual(r.affectedViews, []);
-  assert.equal(r.semanticAcceptance, 'not-performed');
+  const r = compare(
+    compileEthosEditionEvolution,
+    input,
+    structuredClone(input),
+  );
+  assert.deepEqual(r.editions.affected, []);
+  assert.deepEqual(r.obligations.acceptance, []);
 });
 
 test('unhandled top-level source claims conservatively invalidate meaning reuse', async () => {
-  const { compareEthosMeaning } = await api();
+  const { compileEthosEditionEvolution } = await api();
   const [a, b] = changed((p) => {
     p.title = 'Different architectural claim';
     p.authority.scope = 'narrower selected scope';
   });
-  const r = compareEthosMeaning(a, b, views);
-  assert(r.requiresCompleteReview);
-  assert(r.changed.presentation.includes('title'));
-  assert(r.changed.presentation.includes('authority'));
+  const r = compare(compileEthosEditionEvolution, a, b);
+  assert.equal(r.editions.affected[0].scope, 'complete');
+  assert(r.delta.changed.context.includes('presentation:title'));
+  assert(r.delta.changed.context.includes('presentation:authority'));
 });
 
-test('relationship reversal and actual entity removal are explicit deltas', async () => {
-  const { compareEthosMeaning } = await api();
+test('relationship reversal is explicit and stale removed dependencies fail closed', async () => {
+  const { compileEthosEditionEvolution } = await api();
   const f = fixture();
   f.input.semantics.nodes.other = structuredClone(
     f.input.semantics.nodes.attempt,
@@ -201,7 +311,7 @@ test('relationship reversal and actual entity removal are explicit deltas', asyn
   ];
   f.refresh();
   assert.deepEqual(
-    compareEthosMeaning(before, f.input, views).changed.relations,
+    compare(compileEthosEditionEvolution, before, f.input).delta.changed.relations,
     ['retry'],
   );
   delete f.input.semantics.nodes.other;
@@ -209,9 +319,10 @@ test('relationship reversal and actual entity removal are explicit deltas', asyn
   f.input.semantics.relations = [];
   f.input.view.relations = {};
   f.refresh();
-  const removed = compareEthosMeaning(before, f.input, views);
-  assert.deepEqual(removed.removed.nodes, ['other']);
-  assert.deepEqual(removed.removed.relations, ['retry']);
+  assert.throws(
+    () => compare(compileEthosEditionEvolution, before, f.input),
+    /Unknown ETHOS scene relation: retry/,
+  );
 });
 test('static refresh authoring carries exact source meaning and rejects changed source', async () => {
   const p = JSON.parse(

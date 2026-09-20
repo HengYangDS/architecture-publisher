@@ -6,6 +6,7 @@ import {
   staticSceneDigest,
   validateEdition,
 } from '../src/edition/contract.mjs';
+import { claimModelDigest } from '../src/semantics/document.mjs';
 import { editionFixture } from './fixtures/edition.mjs';
 
 test('Edition binds audience, questions, claims, scenes and obligations', () => {
@@ -155,6 +156,66 @@ test('static and interactive scenes have independent identities', () => {
   assert.throws(
     () => validateEdition(aliased.model, aliased.edition),
     /edition_json_alias/,
+  );
+});
+
+test('rendered title participates in both medium identities', () => {
+  const { model, edition } = editionFixture(),
+    staticBefore = staticSceneDigest(model, edition),
+    interactiveBefore = interactiveSceneDigest(model, edition);
+  edition.title = 'Changed rendered title';
+  assert.notEqual(staticSceneDigest(model, edition), staticBefore);
+  assert.notEqual(interactiveSceneDigest(model, edition), interactiveBefore);
+});
+
+test('medium identities bind selected semantic renderer inputs and normalize scene sets', () => {
+  const baseline = editionFixture(),
+    label = editionFixture(),
+    endpoint = editionFixture(),
+    reordered = editionFixture();
+
+  label.model.entities.server.label = 'Renamed rendered server';
+  label.edition.claimModel.digest = claimModelDigest(label.model);
+  assert.notEqual(
+    staticSceneDigest(label.model, label.edition),
+    staticSceneDigest(baseline.model, baseline.edition),
+  );
+  assert.notEqual(
+    interactiveSceneDigest(label.model, label.edition),
+    interactiveSceneDigest(baseline.model, baseline.edition),
+  );
+
+  [
+    endpoint.model.relations.request.subject,
+    endpoint.model.relations.request.object,
+  ] = ['server', 'client'];
+  for (const id of ['intended', 'implemented', 'governed'])
+    [
+      endpoint.model.claims[id].subject,
+      endpoint.model.claims[id].object,
+    ] = ['server', 'client'];
+  endpoint.edition.claimModel.digest = claimModelDigest(endpoint.model);
+  assert.notEqual(
+    staticSceneDigest(endpoint.model, endpoint.edition),
+    staticSceneDigest(baseline.model, baseline.edition),
+  );
+  assert.notEqual(
+    interactiveSceneDigest(endpoint.model, endpoint.edition),
+    interactiveSceneDigest(baseline.model, baseline.edition),
+  );
+
+  reordered.edition.scenes.static.claims.reverse();
+  for (const scene of Object.values(reordered.edition.scenes.interactive)) {
+    scene.claims.reverse();
+    scene.questions.reverse();
+  }
+  assert.equal(
+    staticSceneDigest(reordered.model, reordered.edition),
+    staticSceneDigest(baseline.model, baseline.edition),
+  );
+  assert.equal(
+    interactiveSceneDigest(reordered.model, reordered.edition),
+    interactiveSceneDigest(baseline.model, baseline.edition),
   );
 });
 

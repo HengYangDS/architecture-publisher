@@ -74,19 +74,3 @@ export function claimChangeModel() {
     context: {},
   };
 }
-
-export const claimViews = () => [
-  {
-    id: 'claim',
-    dependsOn: [ref('claims', 'admission')],
-    views: [],
-    coverage: 'complete',
-  },
-  { id: 'detail', dependsOn: [], views: ['claim'], coverage: 'complete' },
-  {
-    id: 'other',
-    dependsOn: [ref('entities', 'other')],
-    views: [],
-    coverage: 'complete',
-  },
-];

@@ -1,25 +1,28 @@
 {
   "schema": "architecture.semantic-compare-input/v2",
   "before": {
-    "path": "before.json",
-    "sha256": "c9beab33f7659ddf958186ab0b6f3b93f88ab2e5004a38016579634375ebfce4"
+    "claimModel": {
+      "path": "before/model.json",
+      "sha256": "c9beab33f7659ddf958186ab0b6f3b93f88ab2e5004a38016579634375ebfce4"
+    },
+    "editions": [
+      {
+        "path": "before-edition.json",
+        "sha256": "12fe5b2d842d2d77f4d1b75e6f35a756914139f818ab13c05ee85e571e2a1e22"
+      }
+    ]
   },
   "after": {
-    "path": "after.json",
-    "sha256": "254532df6ebdefb5e6d67f8718381dc56954a36b682addb3510048d2adc51019"
+    "claimModel": {
+      "path": "after/model.json",
+      "sha256": "254532df6ebdefb5e6d67f8718381dc56954a36b682addb3510048d2adc51019"
+    },
+    "editions": [
+      {
+        "path": "after-edition.json",
+        "sha256": "cd60f8d11be6b84d4805de23068192ffecd94265e6f19b865433148d788f5d78"
+      }
+    ]
   },
-  "views": [
-    {
-      "id": "overview",
-      "dependsOn": [
-        {
-          "section": "claims",
-          "id": "admission"
-        }
-      ],
-      "views": [],
-      "coverage": "complete"
-    }
-  ],
   "correspondences": []
 }

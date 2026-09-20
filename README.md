@@ -66,6 +66,13 @@ does not require Git, ETHOS, adjacent checkouts, personal credentials, or an
 agent session. Commands return scoped JSON results; success never implies source
 truth, aesthetic approval, or external authorization beyond the named predicate.
 
+`archpub semantic compare` selects exact before/after Claim Models and Edition
+sets. It reports semantic delta, affected Editions and scenes, and six separate
+obligation classes: rebuild, semantic verification, medium verification, human
+review, acceptance, and publication. It performs none of those effects. The
+runnable files under `examples/semantic/` also show how each Edition binds its
+independently verifiable source-manifest digest.
+
 ## Editions
 
 - `editions/architecture-publisher/` — first-party product self-portrait and

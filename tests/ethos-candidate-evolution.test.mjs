@@ -111,14 +111,22 @@ test('real-shaped source refresh propagates compiler obligations through complet
       'Re-observe. Replay unpublished work or merge preserved history, then prove again.';
   });
   const result = await prepareEthosCandidate(plan);
-  assert.deepEqual(result.delta.changed.nodes, ['candidate_base_stale']);
-  assert.equal(
-    result.delta.compilation.schema,
-    'architecture.semantic-change/v2',
-  );
-  assert.equal(result.delta.obligations.rebuild.length, 13);
-  assert.equal(result.delta.obligations.verify.length, 13);
-  assert.equal(result.delta.obligations.review.length, 13);
+  assert.deepEqual(result.evolution.ethos.changed.nodes, [
+    'candidate_base_stale',
+  ]);
+  assert.equal(result.evolution.schema, 'architecture.semantic-change/v2');
+  assert.deepEqual(Object.keys(result.evolution.obligations), [
+    'rebuild',
+    'semanticVerification',
+    'mediumVerification',
+    'humanReview',
+    'acceptance',
+    'publication',
+  ]);
+  assert.equal(result.evolution.editions.affected[0].interactive.length, 13);
+  assert.equal(result.evolution.obligations.humanReview.length, 1);
+  assert.equal(result.evolution.obligations.acceptance[0].action, 'reaccept');
+  assert.equal(result.evolution.obligations.publication[0].action, 'replace');
   assert.equal(
     (await readEthosAtlasSelection(result.atlas)).pages.length,
     13,
@@ -181,7 +189,9 @@ test('explicit non-refresh condition edits preserve a complete candidate and rej
   };
   await write();
   const result = await prepareEthosCandidate(plan);
-  assert.deepEqual(result.delta.changed.nodes, ['independent_verifier']);
+  assert.deepEqual(result.evolution.ethos.changed.nodes, [
+    'independent_verifier',
+  ]);
   const next = await readEthosAtlasSelection(result.atlas);
   assert.deepEqual(
     next.pages.map((p) => p.id),
@@ -324,7 +334,7 @@ test('explicit relation condition and page order retain source direction and ful
   await fs.writeFile(plan.authoring, encode(authoring));
   plan.authoringSha256 = sha256(await fs.readFile(plan.authoring));
   const result = await prepareEthosCandidate(plan);
-  assert.deepEqual(result.delta.changed.relations, [id]);
+  assert.deepEqual(result.evolution.ethos.changed.relations, [id]);
   const next = await readEthosAtlasSelection(result.atlas);
   assert.deepEqual(
     next.pages.map((p) => p.id),

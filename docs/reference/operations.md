@@ -615,9 +615,10 @@ release publication and installed delivery remain distinct obligations.
 
 This repository is a new implementation baseline. Original architecture
 repositories and their histories remain preserved, not merged or rewritten.
-The current product design is [Product design](docs/product-design.md), included
-in the installed package. Predecessor design documents remain historical decision
-evidence, not another mutable design authority or a runtime dependency.
+The current product authority is the [product contract](../product-contract.md),
+included in the installed package. Predecessor design documents remain
+historical decision evidence, not another mutable design authority or a runtime
+dependency.
 
 ### Architecture evolution
 
@@ -627,16 +628,42 @@ evidence, not another mutable design authority or a runtime dependency.
 archpub semantic compare ./compare.json --sha256 <plan-sha256>
 ```
 
-The strict `architecture.semantic-compare-input/v2` plan selects `before` and
-`after` as `{ "path": "before.json", "sha256": "<file-digest>" }`, plus `views`
-and `correspondences` arrays. Paths resolve from the plan, not the process working
-directory. The plan is bounded to 1 MiB and each document to 16 MiB. Symlinks,
-non-regular files and changed selected bytes fail. Comparison writes only JSON
-to stdout and runs offline in an installed package without ETHOS or Git.
+The strict `architecture.semantic-compare-input/v2` plan has four fields:
 
-In-process admission also limits nesting to 64 levels, traversal to 500,000
-JSON values per input, selected document rows to 20,000 and views to 2,000.
-These are compiler resource bounds, not an operating-system sandbox.
+```json
+{
+  "schema": "architecture.semantic-compare-input/v2",
+  "before": {
+    "claimModel": {"path": "before/model.json", "sha256": "<file-digest>"},
+    "editions": [
+      {"path": "before-edition.json", "sha256": "<file-digest>"}
+    ]
+  },
+  "after": {
+    "claimModel": {"path": "after/model.json", "sha256": "<file-digest>"},
+    "editions": [
+      {"path": "after-edition.json", "sha256": "<file-digest>"}
+    ]
+  },
+  "correspondences": []
+}
+```
+
+Paths resolve from the plan, not the process working directory. The plan is
+bounded to 1 MiB, each Claim Model to 16 MiB, each Edition to 4 MiB, and each
+side to at most 256 Editions. Symlinks, non-regular files, changed selected
+bytes, duplicate Edition IDs, invalid contracts, and owner changes fail.
+Comparison writes only JSON to stdout and runs offline in an installed package
+without ETHOS or Git.
+
+Each Edition binds a source-manifest digest. Source bundle validation remains a
+separate explicit operation through `archpub source verify`; comparison detects
+source-only evolution from the changed digest but does not reopen or reinterpret
+the source bundle.
+
+In-process Claim Model admission also limits nesting to 64 levels and traversal
+to 500,000 JSON values per input. These are compiler resource bounds, not an
+operating-system sandbox.
 
 `architecture.claim-model/v2` has exactly these fields, plus `schema`:
 
@@ -661,32 +688,49 @@ typed dependency role exists. Claim provenance must cover every predicate and
 dependency source. Binding a digest establishes selected identity, not truth,
 authenticity or authority.
 
-Views are `{id, dependsOn, views, coverage}`: semantic references, dependent view
-IDs and explicit coverage. Identity-keyed maps and declared sets are order-neutral;
-arrays inside opaque values/qualifiers retain order. IDs survive label changes.
+The Edition is the scene-dependency SSOT. Its required claims, omissions,
+questions, static scene and interactive scene set classify which meaning is
+represented and which exact projections are affected. Identity-keyed maps and
+declared sets are order-neutral; arrays inside opaque values and qualifiers
+retain order. Stable IDs survive label changes.
+Each scene identity also binds the normalized entity labels and types and the
+relation types and endpoints actually consumed by that renderer. An optional
+`authoredInputSha256` binds the exact medium-specific authoring input without
+coupling static and interactive geometry.
 Correspondences are `{kind, section, from, to, evidence}` with `rename`, `split`
 or `merge`, removed/added ID arrays and nonempty evidence entries:
 `{version: "before" | "after", source, sha256, locator}`. The compiler validates
 the selected source digest and declared location, not the truth of the mapping.
 It never infers correspondence from labels or transfers old approval.
 
-The result contains complete-value `added`, `removed`, `changed`, correspondences,
-affected claims/views, unrepresented changes and distinct `obligations` for
-`rebuild`, `verify` and `review`. Both old and new dependency graphs participate.
-Unknown dependencies, source/context changes and unrepresented changes broaden
-all-view obligations. `acceptance` remains `not-performed`; no-op returns no work.
-This is impact compilation, not execution, automatic layout or evidence reuse.
+The result contains complete-value Claim Model additions, removals and changes;
+explicit correspondences; affected claims and references; affected Editions and
+scenes; unrepresented meaning; and six distinct obligation arrays:
+`rebuild`, `semanticVerification`, `mediumVerification`, `humanReview`,
+`acceptance`, and `publication`. Both old and new Claim Models and Editions
+participate. Unknown coverage or unrepresented meaning broadens the affected
+Edition; removal creates explicit withdrawal obligations. A no-op returns six
+empty arrays. This is impact compilation, not execution, automatic layout,
+approval, evidence production, acceptance, or publication.
+Unknown claims are identified even when their declared dependency list cannot
+reach a changed entity or relation. Conservative expansion applies only to
+Editions and scenes that represent such a claim; explicit out-of-scope omissions
+and source-manifest-only rebinding remain local.
 
-The bundled `examples/semantic/compare.json` is a runnable source/target example.
-Edit copies, recalculate their file digests and the plan digest, then compare.
+The bundled `examples/semantic/compare.json` is a runnable before/after example.
+Its Edition files bind the digests of `before/manifest.json` and
+`after/manifest.json`; those closed source bundles each bind their colocated
+`model.json`. Edit copies, recalculate the source-manifest, Claim Model,
+Edition, and plan digests, verify the manifests, then compare.
 
 The development-only `tools/migration/semantic-v1-to-claim-v2.mjs` converts
 selected alpha.7 fixtures when supplied explicit predicate, relation and claim
 mappings. It is excluded from the installed package. Current runtime readers do
 not accept the v1 schema, aliases or fallback representations.
 
-The alpha.4 compiler package does not replace alpha.3 reader artwork. Source
-compiler qualification and prior artwork/browser acceptance remain separate.
+Current comparison output does not qualify or replace predecessor reader
+artwork. Semantic compiler qualification and prior artwork/browser acceptance
+remain separate evidence scopes.
 
 #### ETHOS candidate rendering
 
@@ -734,11 +778,13 @@ missing selection condition remains an explicit source-projection limitation.
 
 The ETHOS adapter uses the same comparison owner and preserves complete values,
 including conditions, direction, scope, quantifiers, maturity and extensions.
-Copy assertions remain opaque: their dependency coverage is unknown, so a change
-conservatively requires obligations for every page. Counts do not establish
-equivalence. Source documents also invalidate all-page review. No incremental
-execution or automatic acceptance reuse is claimed. Source identity and authored
-meaning bindings are checked separately from native layout.
+Copy assertions remain opaque: their dependency coverage is unknown, so a
+semantic change broadens only pages that represent the affected assertion;
+explicit out-of-scope omissions remain excluded. Counts do not establish
+equivalence. A source-manifest-only change rebinds the publication bundle and
+installed-use checks without fabricating page or human-review work. No
+incremental execution or automatic acceptance reuse is claimed. Source identity
+and authored meaning bindings are checked separately from native layout.
 
 A poster candidate uses `architecture.ethos-poster-candidate/v1`, explicit
 `source`, `metricsSha256`, `authoring`, and `scope`, without frozen `expected`

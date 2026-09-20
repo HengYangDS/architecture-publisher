@@ -307,9 +307,11 @@ Candidate preparation binds explicit authored text sites and complete-value
 source identities. Checked preimages prevent stale edits, and a complete page
 permutation preserves the atlas while allowing explicit reading order. The
 refresh example uses this same contract. Unsupported topology requires a future
-bounded composition change, not guessed identity substitution. Source-document
-changes conservatively require all-view review; selective execution and automatic
-aesthetic optimization are not established by this increment.
+bounded composition change, not guessed identity substitution. A source-manifest
+change rebinds the Edition, invalidates acceptance and publication, and requires
+fresh semantic plus installed-use verification. It does not by itself imply that
+scene geometry changed; changed or unrepresented meaning determines the affected
+scenes. Automatic aesthetic optimization is not established by this increment.
 
 The shared semantic compiler admits one v2 Claim Model: a finite typed
 vocabulary, complete JSON qualifiers, byte-bound provenance, explicit planes,
@@ -317,10 +319,15 @@ conditions, scope, maturity and validity, plus opaque claims whose dependency
 coverage remains unknown. The ETHOS adapter preserves source extensions and
 invokes this one comparison owner. It does not add a second diff engine, accept
 the retired v1 document at runtime or infer semantic equivalence.
-Change propagates over both source versions and explicit view dependencies;
-unknown coverage or unrepresented change broadens obligations. The output lists
-rebuild, verification and review separately without executing or approving them.
-Explicit rename/split/merge records lineage, not equivalence or inherited proof.
+
+Claim Model comparison reports meaning change only. Edition evolution then uses
+the complete before/after Editions as the sole scene-dependency authority. It
+propagates changed meaning through required claims, explicit omissions, static
+composition and interactive scenes, broadening work when coverage is unknown or
+meaning is unrepresented. Its result keeps `rebuild`, `semanticVerification`,
+`mediumVerification`, `humanReview`, `acceptance`, and `publication` as six
+separate obligations. Compilation executes none of them. Explicit rename,
+split, and merge records lineage, not equivalence or inherited proof.
 
 ## Replacement is not replay
 

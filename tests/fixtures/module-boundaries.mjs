@@ -46,6 +46,7 @@ const owners = {
   ],
   'editions/ethos/': [
     'editions/ethos/',
+    'src/edition/',
     'src/source/',
     'src/semantics/',
     'src/geometry/',

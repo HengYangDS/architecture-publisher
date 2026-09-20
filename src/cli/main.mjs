@@ -23,8 +23,8 @@ async function command() {
     args[1] === 'compare' &&
     args[3] === '--sha256'
   ) {
-    const { compareSemanticInput } = await import('../semantics/input.mjs');
-    return compareSemanticInput(args[2], args[4]);
+    const { compareEditionInput } = await import('../edition/input.mjs');
+    return compareEditionInput(args[2], args[4]);
   }
   if (
     args.length === 4 &&

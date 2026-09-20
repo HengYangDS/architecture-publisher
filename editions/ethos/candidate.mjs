@@ -9,7 +9,11 @@ import {
 } from '../../src/integrations/ethos/projection.mjs';
 import { readEthosAtlasSelection } from './atlas.mjs';
 import { checkBindings } from './bindings.mjs';
-import { compareEthosMeaning, verifyMeaningCarriers } from './evolution.mjs';
+import {
+  compileEthosEditionEvolution,
+  selectEthosEditionDependencies,
+  verifyMeaningCarriers,
+} from './evolution.mjs';
 
 const encode = (v) => Buffer.from(JSON.stringify(v, null, 2) + '\n');
 const exact = (v, keys) =>
@@ -151,43 +155,64 @@ export async function prepareEthosCandidate(plan) {
       throw Error('Unbound authored carrier');
     edits.set(page.id, { spec, meaning: page.meaning });
   }
-  const views = previous.pages.map((p) => {
-    const meaning = [
-      ...(p.bindings.meaning ?? []),
-      ...(edits.get(p.id)?.meaning ?? []),
-    ];
-    const ids = (kind) =>
-      meaning.filter((m) => m.kind === kind).map((m) => m.id);
-    return {
-      id: p.id,
-      nodes: [...Object.values(p.bindings.nodes).flat(), ...ids('node')],
-      relations: [
-        ...Object.values(p.bindings.relations).flatMap(
-          (r) => r.sourceRelations ?? [],
+  const nextPages = previous.pages.map((page) => {
+      const authored = edits.get(page.id);
+      if (!authored) return page;
+      const bindings = structuredClone(page.bindings),
+        selectedMeaning = authored.meaning;
+      bindings.meaning = [
+        ...(bindings.meaning ?? []).filter(
+          (old) =>
+            !selectedMeaning.some(
+              (item) => old.kind === item.kind && old.id === item.id,
+            ),
         ),
-        ...ids('relation'),
-      ],
-      assertions: [
-        ...Object.values(p.bindings.connections).flat(),
-        ...ids('assertion'),
-      ],
-    };
-  });
-  const delta = compareEthosMeaning(
-    previous.source.projection,
-    source.projection,
-    views,
-  );
+        ...structuredClone(selectedMeaning),
+      ];
+      return { ...page, spec: authored.spec, bindings };
+    }),
+    previousSelection = selectEthosEditionDependencies(
+      previous.source.projection,
+      previous.pages,
+      {},
+    );
+  let nextSelection;
+  try {
+    nextSelection = selectEthosEditionDependencies(
+      source.projection,
+      nextPages,
+      authoring.static,
+    );
+  } catch (error) {
+    throw new Error(
+      'Unsupported semantic delta requires authored mapping: ' + error.message,
+      { cause: error },
+    );
+  }
+  nextSelection.narrative = [...order];
+  const evolution = compileEthosEditionEvolution({
+      before: {
+        projection: previous.source.projection,
+        sourceManifestSha256: plan.previous.sourceSha256,
+        selection: previousSelection,
+      },
+      after: {
+        projection: source.projection,
+        sourceManifestSha256: plan.source.sourceSha256,
+        selection: nextSelection,
+      },
+      correspondences: [],
+    });
   const supported =
-    delta.added.nodes.length === 0 &&
-    delta.removed.nodes.length === 0 &&
-    delta.changed.nodes.every(
+    evolution.ethos.added.nodes.length === 0 &&
+    evolution.ethos.removed.nodes.length === 0 &&
+    evolution.ethos.changed.nodes.every(
       (id) =>
         represented.has('node:' + id) &&
         previous.source.projection.semantics.nodes[id].kind ===
           source.projection.semantics.nodes[id].kind,
     ) &&
-    delta.changed.relations.every(
+    evolution.ethos.changed.relations.every(
       (id) =>
         represented.has('relation:' + id) &&
         ['from', 'to', 'kind'].every(
@@ -200,19 +225,21 @@ export async function prepareEthosCandidate(plan) {
             ],
         ),
     ) &&
-    delta.changed.assertions.every((id) =>
+    evolution.ethos.changed.assertions.every((id) =>
       represented.has('assertion:' + id),
     ) &&
     ['relations', 'assertions'].every(
-      (k) => !delta.added[k].length && !delta.removed[k].length,
+      (k) =>
+        !evolution.ethos.added[k].length &&
+        !evolution.ethos.removed[k].length,
     ) &&
     ['contracts', 'presentation'].every(
       (k) =>
-        !delta.added[k].length &&
-        !delta.removed[k].length &&
-        !delta.changed[k].length,
+        !evolution.ethos.added[k].length &&
+        !evolution.ethos.removed[k].length &&
+        !evolution.ethos.changed[k].length,
     );
-  if (!supported || delta.unrepresented.length)
+  if (!supported || evolution.editions.affected[0]?.unrepresented.length)
     throw Error('Unsupported semantic delta requires authored mapping');
   const members = new Map(selected.members.map((m) => [m.path, m.content]));
   const edition = structuredClone(previous.edition);
@@ -285,7 +312,7 @@ export async function prepareEthosCandidate(plan) {
       editionManifest: written.manifestPath,
       editionSha256: written.manifestSha256,
     },
-    delta,
+    evolution,
     posterAuthoring: structuredClone(authoring.static),
     authoringSha256: plan.authoringSha256,
     semanticAcceptance: 'not-performed',

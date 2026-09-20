@@ -2,20 +2,28 @@ import {
   CLAIM_MODEL_SECTIONS,
   canonical,
   exact,
+  record,
   strings,
   text,
   semanticError,
   normalizedClaimModel,
   claimModelDigest,
   referenceKey,
-  validClaimReference,
   jsonValue,
 } from './document.mjs';
 
 const key = (section, id) => referenceKey({ section, id });
 const sorted = (values) => [...new Set(values)].sort();
+const lexical = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
 
-function correspondence(rows, a, b, added, removed) {
+function changedFieldNames(before, after) {
+  if (!record(before) || !record(after)) return ['$'];
+  return sorted([...Object.keys(before), ...Object.keys(after)]).filter(
+    (field) => canonical(before[field]) !== canonical(after[field]),
+  );
+}
+
+function correspondence(rows, before, after, added, removed) {
   if (!Array.isArray(rows)) semanticError('semantic_correspondence_invalid');
   const seenFrom = new Set(),
     seenTo = new Set();
@@ -46,50 +54,87 @@ function correspondence(rows, a, b, added, removed) {
             semanticError('semantic_correspondence_overlap');
           seen.add(identity);
         }
-      const evidence = row.evidence.map((e) => {
+      const evidence = row.evidence.map((item) => {
         if (
-          !exact(e, ['version', 'source', 'sha256', 'locator']) ||
-          !['before', 'after'].includes(e.version) ||
-          !text(e.source) ||
-          !text(e.locator) ||
+          !exact(item, ['version', 'source', 'sha256', 'locator']) ||
+          !['before', 'after'].includes(item.version) ||
+          !text(item.source) ||
+          !text(item.locator) ||
           !Object.hasOwn(
-            (e.version === 'before' ? a : b).sources,
-            e.source,
+            (item.version === 'before' ? before : after).sources,
+            item.source,
           ) ||
-          (e.version === 'before' ? a : b).sources[e.source].sha256 !==
-            e.sha256
+          (item.version === 'before' ? before : after).sources[item.source]
+            .sha256 !== item.sha256
         )
           semanticError('semantic_correspondence_evidence');
-        return structuredClone(e);
+        return {
+          version: item.version,
+          source: item.source,
+          sha256: item.sha256,
+          locator: item.locator,
+        };
       });
       if (new Set(evidence.map(canonical)).size !== evidence.length)
         semanticError('semantic_correspondence_evidence');
-      evidence.sort((x, y) => (canonical(x) < canonical(y) ? -1 : 1));
+      evidence.sort((left, right) => lexical(canonical(left), canonical(right)));
       return {
-        ...row,
+        kind: row.kind,
+        section: row.section,
         from: [...row.from].sort(),
         to: [...row.to].sort(),
         evidence,
       };
     })
-    .sort((x, y) => (canonical(x) < canonical(y) ? -1 : 1));
+    .sort((left, right) => lexical(canonical(left), canonical(right)));
 }
 
-/** One complete-value diff and conservative dependency compiler; no execution authority. */
-export function compileSemanticChange(
-  before,
-  after,
-  views,
-  correspondences = [],
-) {
-  jsonValue(views);
+function dependencyGraph(model, reverse) {
+  const edge = (dependency, dependent) => {
+    if (!reverse.has(dependency)) reverse.set(dependency, new Set());
+    reverse.get(dependency).add(dependent);
+  };
+  for (const section of ['entities', 'relations', 'claims'])
+    for (const [id, value] of Object.entries(model[section])) {
+      const dependent = key(section, id);
+      for (const source of value.provenance)
+        edge(key('sources', source), dependent);
+      if (section === 'relations') {
+        edge(key('entities', value.subject), dependent);
+        edge(key('entities', value.object), dependent);
+      }
+      if (section === 'claims') {
+        edge(key('entities', value.subject), dependent);
+        if (value.object !== null)
+          edge(key('entities', value.object), dependent);
+        for (const reference of value.dependsOn)
+          edge(referenceKey(reference), dependent);
+      }
+    }
+}
+
+function closure(seeds, reverse) {
+  const queue = [...seeds],
+    reached = new Set(queue);
+  for (let index = 0; index < queue.length; index++)
+    for (const dependent of reverse.get(queue[index]) ?? [])
+      if (!reached.has(dependent)) {
+        reached.add(dependent);
+        queue.push(dependent);
+      }
+  return reached;
+}
+
+/** Compare two valid Claim Models; this owner has no Edition or effect policy. */
+export function compileClaimModelDelta(before, after, correspondences = []) {
   jsonValue(correspondences);
   const a = normalizedClaimModel(before),
     b = normalizedClaimModel(after);
   if (a.owner !== b.owner) semanticError('semantic_owner_changed');
   const added = {},
     removed = {},
-    changed = {};
+    changed = {},
+    changedFields = {};
   for (const section of CLAIM_MODEL_SECTIONS) {
     added[section] = Object.keys(b[section])
       .filter((id) => !Object.hasOwn(a[section], id))
@@ -104,138 +149,74 @@ export function compileSemanticChange(
           canonical(a[section][id]) !== canonical(b[section][id]),
       )
       .sort();
+    changedFields[section] = Object.fromEntries(
+      changed[section].map((id) => [
+        id,
+        changedFieldNames(a[section][id], b[section][id]),
+      ]),
+    );
   }
-  const mappings = correspondence(correspondences, a, b, added, removed);
-  if (
-    !Array.isArray(views) ||
-    views.length > 2000 ||
-    views.some(
-      (v) =>
-        !exact(v, ['id', 'dependsOn', 'views', 'coverage']) ||
-        !text(v.id) ||
-        !['complete', 'unknown'].includes(v.coverage) ||
-        !strings(v.views) ||
-        !Array.isArray(v.dependsOn) ||
-        v.dependsOn.some((r) => !validClaimReference(r)) ||
-        new Set(v.dependsOn.map(referenceKey)).size !== v.dependsOn.length,
-    ) ||
-    new Set(views.map((v) => v.id)).size !== views.length
-  )
-    semanticError('semantic_views_invalid');
-  const reasons = new Set(),
-    reverse = new Map(),
-    dependencies = new Map(),
-    viewKeys = new Map(views.map((v) => [v.id, key('views', v.id)]));
-  const edge = (dependency, dependent) => {
-    if (!reverse.has(dependency)) reverse.set(dependency, new Set());
-    reverse.get(dependency).add(dependent);
-    if (!dependencies.has(dependent)) dependencies.set(dependent, new Set());
-    dependencies.get(dependent).add(dependency);
-  };
-  for (const doc of [a, b]) {
-    for (const section of ['entities', 'relations', 'claims']) {
-      for (const [id, value] of Object.entries(doc[section])) {
-        const dependent = key(section, id);
-        for (const source of value.provenance)
-          edge(key('sources', source), dependent);
-        if (section === 'relations') {
-          edge(key('entities', value.subject), dependent);
-          edge(key('entities', value.object), dependent);
-        }
-        if (section === 'claims') {
-          for (const ref of value.dependsOn)
-            edge(referenceKey(ref), dependent);
-          if (value.coverage === 'unknown')
-            reasons.add('unknown-claim-dependencies');
-        }
-      }
-    }
-  }
-  for (const view of views) {
-    if (view.coverage === 'unknown') reasons.add('unknown-view-dependencies');
-    for (const ref of view.dependsOn) {
-      if (
-        !Object.hasOwn(a[ref.section], ref.id) &&
-        !Object.hasOwn(b[ref.section], ref.id)
-      )
-        reasons.add('unknown-view-reference');
-      edge(referenceKey(ref), viewKeys.get(view.id));
-    }
-    for (const dependency of view.views) {
-      if (!viewKeys.has(dependency)) reasons.add('unknown-view-reference');
-      else edge(viewKeys.get(dependency), viewKeys.get(view.id));
-    }
-  }
-  const closure = (seeds, graph = reverse) => {
-    const queue = [...seeds],
-      reached = new Set(queue);
-    for (let i = 0; i < queue.length; i++)
-      for (const dependent of graph.get(queue[i]) ?? [])
-        if (!reached.has(dependent)) {
-          reached.add(dependent);
-          queue.push(dependent);
-        }
-    return reached;
-  };
-  const changes = CLAIM_MODEL_SECTIONS.flatMap((section) =>
-    [...added[section], ...removed[section], ...changed[section]].map(
-      (id) => ({ section, id }),
+  const mappings = correspondence(correspondences, a, b, added, removed),
+    changes = CLAIM_MODEL_SECTIONS.flatMap((section) =>
+      [...added[section], ...removed[section], ...changed[section]].map(
+        (id) => ({ section, id }),
+      ),
     ),
-  );
-  const reached = closure(changes.map(referenceKey));
-  const represented = closure(viewKeys.values(), dependencies);
-  const unrepresented = changes
-    .filter((r) =>
-      ['entities', 'relations', 'claims'].includes(r.section),
-    )
-    .filter((r) => !represented.has(referenceKey(r)))
-    .map((r) => r.section + ':' + r.id)
-    .sort();
-  if (unrepresented.length) reasons.add('unrepresented-change');
+    reverse = new Map();
+  dependencyGraph(a, reverse);
+  dependencyGraph(b, reverse);
+  const reached = closure(changes.map(referenceKey), reverse),
+    renderChanges = changes.filter(
+      ({ section }) => !['sources'].includes(section),
+    ),
+    renderReached = closure(renderChanges.map(referenceKey), reverse),
+    affectedClaims = sorted([
+      ...Object.keys(a.claims),
+      ...Object.keys(b.claims),
+    ]).filter((id) => reached.has(key('claims', id))),
+    renderAffectedClaims = sorted([
+      ...Object.keys(a.claims),
+      ...Object.keys(b.claims),
+    ]).filter((id) => renderReached.has(key('claims', id))),
+    unknownClaims = sorted([
+      ...Object.keys(a.claims),
+      ...Object.keys(b.claims),
+    ]).filter(
+      (id) =>
+        a.claims[id]?.coverage === 'unknown' ||
+        b.claims[id]?.coverage === 'unknown',
+    ),
+    globalReasons = [];
   if (
-    changes.some((r) =>
-      ['sources', 'context', 'vocabulary'].includes(r.section),
-    )
+    added.context.length ||
+    removed.context.length ||
+    changed.context.length
   )
-    reasons.add('source-or-context-change');
-  if (!changes.length) reasons.clear();
-  const requiresCompleteReview = reasons.size > 0;
-  const affectedViews = views
-    .filter((v) => requiresCompleteReview || reached.has(viewKeys.get(v.id)))
-    .map((v) => v.id)
-    .sort();
-  const why = requiresCompleteReview
-    ? [...reasons].sort()
-    : ['transitive-semantic-change'];
-  const obligations = {
-    rebuild: affectedViews.map((view) => ({ view, reasons: [...why] })),
-    verify: affectedViews.map((view) => ({
-      view,
-      reasons: [...why],
-      checks: ['meaning', 'geometry', 'medium-behavior', 'output-identity'],
-    })),
-    review: affectedViews.map((view) => ({ view, reasons: [...why] })),
-  };
+    globalReasons.push('opaque-context-change');
+  if (
+    added.vocabulary.length ||
+    removed.vocabulary.length ||
+    changed.vocabulary.length
+  )
+    globalReasons.push('vocabulary-change');
+  if (renderChanges.length && unknownClaims.length)
+    globalReasons.push('unknown-claim-dependencies');
   return {
-    schema: 'architecture.semantic-change/v2',
+    schema: 'architecture.claim-model-change/v1',
     before: claimModelDigest(a),
     after: claimModelDigest(b),
     added,
     removed,
     changed,
+    changedFields,
     correspondences: mappings,
-    affectedClaims: sorted([
-      ...Object.keys(a.claims),
-      ...Object.keys(b.claims),
-    ]).filter(
-      (id) => requiresCompleteReview || reached.has(key('claims', id)),
-    ),
-    affectedViews,
-    unrepresented,
-    requiresCompleteReview,
-    obligations,
-    acceptance: 'not-performed',
+    affectedClaims,
+    renderAffectedClaims,
+    affectedReferences: [...reached].sort(),
+    unknownClaims,
+    globalReasons: sorted(globalReasons),
+    hasChanges: changes.length > 0,
     scope:
-      'Declared meaning and dependencies; not equivalence, layout, executed verification or approval',
+      'Claim Model identity and dependency change only; no Edition, artifact, verification, acceptance or publication effect',
   };
 }

@@ -143,12 +143,32 @@ function validateComposition(composition, model, sceneId) {
 
 function validateScene(scene, model, questions, id, purposeRequired) {
   const fields = purposeRequired
+    ? [
+        'label',
+        'purpose',
+        'questions',
+        'claims',
+        'composition',
+        'authoredInputSha256',
+      ]
+    : [
+        'label',
+        'questions',
+        'claims',
+        'composition',
+        'authoredInputSha256',
+      ];
+  const required = purposeRequired
     ? ['label', 'purpose', 'questions', 'claims', 'composition']
     : ['label', 'questions', 'claims', 'composition'];
   if (
-    !exact(scene, fields) ||
+    !record(scene) ||
+    !required.every((field) => Object.hasOwn(scene, field)) ||
+    Object.keys(scene).some((field) => !fields.includes(field)) ||
     !text(scene.label) ||
     (purposeRequired && !['overview', 'mechanism'].includes(scene.purpose)) ||
+    (Object.hasOwn(scene, 'authoredInputSha256') &&
+      !isDigest(scene.authoredInputSha256)) ||
     !strings(scene.questions, true) ||
     !strings(scene.claims) ||
     scene.questions.some((question) => !Object.hasOwn(questions, question)) ||
@@ -371,7 +391,7 @@ export function validateEdition(model, edition) {
   return edition;
 }
 
-function normalizedEdition(model, edition) {
+export function normalizedEdition(model, edition) {
   validateEdition(model, edition);
   const result = structuredClone(edition);
   result.requiredClaims.sort();
@@ -390,22 +410,64 @@ function normalizedEdition(model, edition) {
 const digest = (value) =>
   createHash('sha256').update(canonical(value)).digest('hex');
 
+function sceneSemanticProjection(model, scene) {
+  const entityIds = [
+      ...new Set(
+        scene.composition.groups.flatMap((group) => group.entities),
+      ),
+    ].sort(),
+    relationIds = [
+      ...new Set(scene.composition.relations.map((relation) => relation.id)),
+    ].sort();
+  return {
+    entities: Object.fromEntries(
+      entityIds.map((id) => [
+        id,
+        {
+          type: model.entities[id].type,
+          label: model.entities[id].label,
+        },
+      ]),
+    ),
+    relations: Object.fromEntries(
+      relationIds.map((id) => [
+        id,
+        {
+          type: model.relations[id].type,
+          subject: model.relations[id].subject,
+          object: model.relations[id].object,
+        },
+      ]),
+    ),
+  };
+}
+
 export const editionDigest = (model, edition) =>
   digest(normalizedEdition(model, edition));
 
 export const staticSceneDigest = (model, edition) => {
-  validateEdition(model, edition);
+  const normalized = normalizedEdition(model, edition),
+    scene = normalized.scenes.static;
   return digest({
-    visualGrammar: edition.visualGrammar,
-    scene: edition.scenes.static,
+    title: normalized.title,
+    visualGrammar: normalized.visualGrammar,
+    scene,
+    semantics: sceneSemanticProjection(model, scene),
   });
 };
 
 export const interactiveSceneDigest = (model, edition) => {
-  validateEdition(model, edition);
+  const normalized = normalizedEdition(model, edition);
   return digest({
-    visualGrammar: edition.visualGrammar,
-    narrative: edition.narrative,
-    scenes: edition.scenes.interactive,
+    title: normalized.title,
+    visualGrammar: normalized.visualGrammar,
+    narrative: normalized.narrative,
+    scenes: normalized.scenes.interactive,
+    semantics: Object.fromEntries(
+      normalized.narrative.map((id) => [
+        id,
+        sceneSemanticProjection(model, normalized.scenes.interactive[id]),
+      ]),
+    ),
   });
 };

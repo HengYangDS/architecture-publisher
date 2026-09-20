@@ -1,0 +1,187 @@
+{
+  "schema": "architecture.edition/v1",
+  "id": "request-service",
+  "owner": "example:request-service",
+  "class": "structural",
+  "product": {
+    "name": "Architecture Publisher",
+    "schema": "architecture.publisher/v1",
+    "version": "0.2.0-alpha.0"
+  },
+  "source": {
+    "manifestSha256": "af0e8f927fd2350b2b9cf43aee8499d445f75176f4b87d88ede3c81628d0bbf3"
+  },
+  "claimModel": {
+    "schema": "architecture.claim-model/v2",
+    "digest": "41ee8c280feff60cb094a0213a569d5953388ece44608c4305ba35ec896a3066"
+  },
+  "title": "Request service",
+  "audiences": {
+    "maintainer": {
+      "label": "Maintainers"
+    }
+  },
+  "questions": {
+    "overview": {
+      "audience": "maintainer",
+      "prompt": "How is an authorized request admitted and executed?",
+      "claims": [
+        "admission",
+        "request"
+      ],
+      "detail": "overview",
+      "risk": "Omission would hide the declared request path."
+    },
+    "admission": {
+      "audience": "maintainer",
+      "prompt": "What condition admits the request?",
+      "claims": [
+        "admission"
+      ],
+      "detail": "mechanism",
+      "risk": "Omission would hide the authorization condition."
+    }
+  },
+  "requiredClaims": [
+    "admission",
+    "request"
+  ],
+  "omissions": {},
+  "narrative": [
+    "overview",
+    "admission"
+  ],
+  "visualGrammar": {
+    "entityTypes": {
+      "component": "backend"
+    },
+    "relationTypes": {
+      "calls": {
+        "label": "calls",
+        "variant": "emphasis"
+      }
+    },
+    "principles": [
+      "Meaning before decoration",
+      "One causal path"
+    ]
+  },
+  "scenes": {
+    "static": {
+      "label": "Authorized request path",
+      "questions": [
+        "overview"
+      ],
+      "claims": [
+        "admission",
+        "request"
+      ],
+      "composition": {
+        "groups": [
+          {
+            "id": "request-path",
+            "label": "Request path",
+            "entities": [
+              "client",
+              "server"
+            ]
+          }
+        ],
+        "relations": [
+          {
+            "id": "request",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "orthogonal-h"
+          }
+        ]
+      }
+    },
+    "interactive": {
+      "overview": {
+        "label": "Authorized request path",
+        "purpose": "overview",
+        "questions": [
+          "overview"
+        ],
+        "claims": [
+          "admission",
+          "request"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "request-path",
+              "label": "Request path",
+              "entities": [
+                "client",
+                "server"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "request",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "orthogonal-h"
+            }
+          ]
+        }
+      },
+      "admission": {
+        "label": "Admission condition",
+        "purpose": "mechanism",
+        "questions": [
+          "admission"
+        ],
+        "claims": [
+          "admission"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "request-path",
+              "label": "Request path",
+              "entities": [
+                "client",
+                "server"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "request",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "orthogonal-h"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "qualification": {
+    "semantic": [
+      "claim-model-valid"
+    ],
+    "coverage": [
+      "required-claims-visible"
+    ],
+    "static": [
+      "painted-geometry"
+    ],
+    "interactive": [
+      "browser-behavior"
+    ],
+    "accessibility": [
+      "keyboard-and-reduced-motion"
+    ],
+    "installed": [
+      "offline-reproduction"
+    ],
+    "recovery": [],
+    "human": []
+  },
+  "scope": "Synthetic runnable example; no implementation or aesthetic acceptance."
+}

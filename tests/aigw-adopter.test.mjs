@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { readSourceBundle } from '../src/source/bundle.mjs';
-import { compareSemanticInput } from '../src/semantics/input.mjs';
+import { compareEditionInput } from '../src/edition/input.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -55,19 +55,31 @@ test('AIGW inputs bind a real ordered-registry source evolution', async () => {
     /sole ordered operational registry/,
   );
   const plan = path.join(root, 'examples/aigw/evolution.json'),
-    delta = await compareSemanticInput(plan, sha(await fs.readFile(plan)));
-  assert.deepEqual(delta.added.entities, ['adapter-contract', 'registry']);
-  assert.deepEqual(delta.added.relations, [
+    delta = await compareEditionInput(plan, sha(await fs.readFile(plan)));
+  assert.deepEqual(delta.delta.added.entities, ['adapter-contract', 'registry']);
+  assert.deepEqual(delta.delta.added.relations, [
     'contract-claude',
     'contract-codex',
     'registry-contract',
     'synchronizer-registry',
   ]);
-  assert.deepEqual(delta.removed.relations, [
+  assert.deepEqual(delta.delta.removed.relations, [
     'synchronizer-claude',
     'synchronizer-codex',
   ]);
-  assert.equal(delta.requiresCompleteReview, true);
+  assert.deepEqual(delta.editions.changed, ['aigw-client-projection']);
+  assert.equal(delta.editions.affected[0].scope, 'complete');
+  assert(delta.obligations.rebuild.length > 0);
+  assert.equal(delta.obligations.semanticVerification.length, 1);
+  assert(delta.obligations.mediumVerification.length > 0);
+  assert.equal(delta.obligations.acceptance.length, 1);
+  assert.deepEqual(
+    delta.obligations.publication.map(({ action, scene }) => [action, scene]),
+    [
+      ['replace', null],
+      ['withdraw', 'projection'],
+    ],
+  );
 });
 
 test('packed CLI replays both AIGW structures in a relocated offline home', async (t) => {

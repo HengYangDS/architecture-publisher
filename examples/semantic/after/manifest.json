@@ -1,0 +1,14 @@
+{
+  "schema": "architecture.source-bundle/v1",
+  "source": {
+    "id": "example:request-service",
+    "revision": "after"
+  },
+  "files": [
+    {
+      "path": "model.json",
+      "bytes": 2563,
+      "sha256": "254532df6ebdefb5e6d67f8718381dc56954a36b682addb3510048d2adc51019"
+    }
+  ]
+}

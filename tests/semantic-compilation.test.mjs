@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import {
   claimChangeModel,
-  claimViews,
   ref,
 } from './fixtures/claim-change.mjs';
 
@@ -20,9 +19,9 @@ async function api() {
     'portable Claim Model contract must exist',
   );
   assert.equal(
-    typeof compiler.compileSemanticChange,
+    typeof compiler.compileClaimModelDelta,
     'function',
-    'single change compiler must exist',
+    'single Claim Model delta compiler must exist',
   );
   return { ...contract, ...compiler };
 }
@@ -95,21 +94,22 @@ test('portable semantics preserve qualifiers, reject unknown fields and bind pro
 });
 
 test('identity digest is deterministic under map and set ordering, not label similarity', async () => {
-  const { claimModelDigest, compileSemanticChange } = await api();
+  const { claimModelDigest, compileClaimModelDelta } = await api();
   const a = claimChangeModel(),
     b = structuredClone(a);
   b.entities = Object.fromEntries(Object.entries(b.entities).reverse());
   assert.equal(claimModelDigest(a), claimModelDigest(b));
   b.entities.client.label = 'server';
-  const delta = compileSemanticChange(a, b, claimViews());
+  const delta = compileClaimModelDelta(a, b);
   assert.deepEqual(delta.changed.entities, ['client']);
   assert.deepEqual(delta.added.entities, []);
   assert.deepEqual(delta.correspondences, []);
-  assert.equal(delta.acceptance, 'not-performed');
+  assert.equal(delta.schema, 'architecture.claim-model-change/v1');
+  assert.equal(Object.hasOwn(delta, 'obligations'), false);
 });
 
-test('all qualifiers and direction affect assertion-only and transitive views', async () => {
-  const { compileSemanticChange } = await api();
+test('all qualifiers and direction affect dependent claims', async () => {
+  const { compileClaimModelDelta } = await api();
   for (const [key, value] of [
     ['condition', 'reobserved'],
     ['quantifier', 'zero-or-one'],
@@ -120,22 +120,16 @@ test('all qualifiers and direction affect assertion-only and transitive views', 
     const a = claimChangeModel(),
       b = structuredClone(a);
     b.relations.request.qualifiers[key] = value;
-    const delta = compileSemanticChange(a, b, claimViews());
+    const delta = compileClaimModelDelta(a, b);
     assert.deepEqual(delta.changed.relations, ['request']);
     assert.deepEqual(delta.affectedClaims, ['admission']);
-    assert.deepEqual(delta.affectedViews, ['claim', 'detail']);
-    for (const kind of ['rebuild', 'verify', 'review'])
-      assert.deepEqual(
-        delta.obligations[kind].map((o) => o.view),
-        ['claim', 'detail'],
-      );
   }
   const a = claimChangeModel(),
     b = structuredClone(a);
   b.entities.client.label = 'A much longer component label '.repeat(20);
   assert.deepEqual(
-    compileSemanticChange(a, b, claimViews()).affectedViews,
-    ['claim', 'detail'],
+    compileClaimModelDelta(a, b).affectedClaims,
+    ['admission'],
   );
   [b.relations.request.subject, b.relations.request.object] = [
     'server',
@@ -146,13 +140,13 @@ test('all qualifiers and direction affect assertion-only and transitive views', 
     'client',
   ];
   assert.deepEqual(
-    compileSemanticChange(a, b, claimViews()).changed.relations,
+    compileClaimModelDelta(a, b).changed.relations,
     ['request'],
   );
 });
 
 test('deletion and rewiring traverse the old graph rather than lose dependencies', async () => {
-  const { compileSemanticChange } = await api();
+  const { compileClaimModelDelta } = await api();
   const a = claimChangeModel(),
     b = structuredClone(a);
   delete b.relations.request;
@@ -160,59 +154,53 @@ test('deletion and rewiring traverse the old graph rather than lose dependencies
   b.claims.admission.object = null;
   b.claims.admission.value = 'removed relation';
   b.claims.admission.predicate = 'tag';
-  const delta = compileSemanticChange(a, b, claimViews());
+  const delta = compileClaimModelDelta(a, b);
   assert.deepEqual(delta.removed.relations, ['request']);
-  assert.deepEqual(delta.affectedViews, ['claim', 'detail']);
+  assert.deepEqual(delta.affectedClaims, ['admission']);
 });
 
-test('unknown coverage, unrepresented additions and source changes broaden every obligation', async () => {
-  const { compileSemanticChange } = await api();
-  for (const mutate of [
-    (b) => {
-      b.claims.admission.coverage = 'unknown';
-    },
-    (b) => {
-      b.entities.new = structuredClone(b.entities.client);
-    },
-    (b) => {
-      b.sources.contract.sha256 = '2'.repeat(64);
-    },
-    (b) => {
-      b.context.policy = { text: 'Changed policy' };
-    },
-  ]) {
-    const a = claimChangeModel(),
-      b = structuredClone(a);
-    mutate(b);
-    const delta = compileSemanticChange(a, b, claimViews());
-    assert.equal(delta.requiresCompleteReview, true);
-    assert.deepEqual(delta.affectedViews, ['claim', 'detail', 'other']);
-    assert.equal(delta.acceptance, 'not-performed');
+test('unknown coverage and opaque context are explicit delta reasons', async () => {
+  const { compileClaimModelDelta } = await api();
+  const a = claimChangeModel(),
+    unknown = structuredClone(a);
+  unknown.claims.admission.coverage = 'unknown';
+  unknown.claims.admission.dependsOn = [];
+  let delta = compileClaimModelDelta(a, unknown);
+  assert.deepEqual(delta.unknownClaims, ['admission']);
+  assert(delta.globalReasons.includes('unknown-claim-dependencies'));
+
+  const context = structuredClone(a);
+  context.context.policy = { text: 'Changed policy' };
+  delta = compileClaimModelDelta(a, context);
+  assert(delta.globalReasons.includes('opaque-context-change'));
+});
+
+test('opaque context transitions retain stable whole-value change reporting', async () => {
+  const { compileClaimModelDelta } = await api(),
+    transitions = [
+      [null, 'enabled'],
+      ['enabled', ['enabled', 'observed']],
+      [['enabled'], { state: 'observed' }],
+    ];
+  for (const [before, after] of transitions) {
+    const left = claimChangeModel(),
+      right = structuredClone(left);
+    left.context.policy = before;
+    right.context.policy = after;
+    const delta = compileClaimModelDelta(left, right);
+    assert.deepEqual(delta.changed.context, ['policy']);
+    assert.deepEqual(delta.changedFields.context.policy, ['$']);
+    assert(delta.globalReasons.includes('opaque-context-change'));
   }
 });
 
-test('no-op has no obligations, unknown references are conservative, dependency cycles terminate', async () => {
-  const { compileSemanticChange } = await api();
+test('no-op has no delta or effect policy', async () => {
+  const { compileClaimModelDelta } = await api();
   const a = claimChangeModel(),
-    b = structuredClone(a),
-    views = claimViews();
-  views[0].views = ['detail'];
-  assert.deepEqual(compileSemanticChange(a, b, views).obligations, {
-    rebuild: [],
-    verify: [],
-    review: [],
-  });
-  b.entities.client.label = 'Changed';
-  assert.deepEqual(compileSemanticChange(a, b, views).affectedViews, [
-    'claim',
-    'detail',
-  ]);
-  views[2].dependsOn = [ref('entities', 'unknown')];
-  assert.deepEqual(compileSemanticChange(a, b, views).affectedViews, [
-    'claim',
-    'detail',
-    'other',
-  ]);
+    delta = compileClaimModelDelta(a, structuredClone(a));
+  assert.equal(delta.hasChanges, false);
+  assert.deepEqual(delta.affectedClaims, []);
+  assert.equal(Object.hasOwn(delta, 'affectedViews'), false);
 });
 
 test('explicit contradiction detection is applicability scoped and opaque prose remains unknown', async () => {
@@ -244,7 +232,7 @@ test('explicit contradiction detection is applicability scoped and opaque prose 
 });
 
 test('rename, split and merge require disjoint source-backed removed and added identities', async () => {
-  const { compileSemanticChange } = await api();
+  const { compileClaimModelDelta } = await api();
   for (const [kind, from, to] of [
     ['rename', ['other'], ['renamed']],
     ['split', ['other'], ['one', 'two']],
@@ -286,11 +274,10 @@ test('rename, split and merge require disjoint source-backed removed and added i
         },
       ],
     };
-    const delta = compileSemanticChange(a, b, [], [mapping]);
+    const delta = compileClaimModelDelta(a, b, [mapping]);
     assert.deepEqual(delta.correspondences, [mapping]);
     assert.deepEqual(delta.removed.entities, [...from].sort());
     assert.deepEqual(delta.added.entities, [...to].sort());
-    assert.equal(delta.acceptance, 'not-performed');
     for (const invalid of [
       { ...mapping, evidence: [] },
       {
@@ -305,18 +292,75 @@ test('rename, split and merge require disjoint source-backed removed and added i
       })),
     ])
       assert.throws(
-        () => compileSemanticChange(a, b, [], [invalid]),
+        () => compileClaimModelDelta(a, b, [invalid]),
         /semantic_correspondence/,
       );
     assert.throws(
-      () => compileSemanticChange(a, b, [], [mapping, mapping]),
+      () => compileClaimModelDelta(a, b, [mapping, mapping]),
       /semantic_correspondence/,
     );
   }
 });
 
+test('correspondence serialization is independent of input property order', async () => {
+  const { compileClaimModelDelta } = await api(),
+    before = claimChangeModel();
+  before.relations = {};
+  before.claims = {
+    baseline: {
+      subject: 'server',
+      predicate: 'tag',
+      object: null,
+      value: 'baseline',
+      plane: 'published',
+      condition: {},
+      scope: {},
+      maturity: 'target',
+      validity: 'affirmed',
+      dependsOn: [ref('entities', 'server')],
+      coverage: 'complete',
+      provenance: ['contract'],
+    },
+  };
+  const after = structuredClone(before);
+  delete after.entities.other;
+  after.entities.renamed = structuredClone(before.entities.other);
+  const ordered = {
+      kind: 'rename',
+      section: 'entities',
+      from: ['other'],
+      to: ['renamed'],
+      evidence: [
+        {
+          version: 'after',
+          source: 'contract',
+          sha256: after.sources.contract.sha256,
+          locator: '#migration',
+        },
+      ],
+    },
+    reordered = {
+      section: 'entities',
+      kind: 'rename',
+      to: ['renamed'],
+      from: ['other'],
+      evidence: [
+        {
+          locator: '#migration',
+          sha256: after.sources.contract.sha256,
+          source: 'contract',
+          version: 'after',
+        },
+      ],
+    };
+  assert.equal(
+    JSON.stringify(compileClaimModelDelta(before, after, [ordered])),
+    JSON.stringify(compileClaimModelDelta(before, after, [reordered])),
+  );
+});
+
 test('declared set ordering is not meaning and complete-value arrays remain ordered', async () => {
-  const { claimModelDigest, compileSemanticChange } = await api();
+  const { claimModelDigest, compileClaimModelDelta } = await api();
   const a = claimChangeModel();
   a.sources.second = { ...a.sources.contract, locator: 'second.md' };
   a.entities.client.provenance.push('second');
@@ -330,41 +374,25 @@ test('declared set ordering is not meaning and complete-value arrays remain orde
   b.claims.admission.dependsOn.reverse();
   assert.equal(claimModelDigest(a), claimModelDigest(b));
   assert.deepEqual(
-    compileSemanticChange(a, b, claimViews()).affectedViews,
+    compileClaimModelDelta(a, b).affectedClaims,
     [],
   );
   b.entities.client.qualifiers.order.reverse();
   assert.deepEqual(
-    compileSemanticChange(a, b, claimViews()).changed.entities,
+    compileClaimModelDelta(a, b).changed.entities,
     ['client'],
   );
 });
 
-test('invalid owner, view declarations and oversized or cyclic documents fail explicitly', async () => {
-  const { validateClaimModel, compileSemanticChange } = await api();
+test('invalid owner and oversized or cyclic documents fail explicitly', async () => {
+  const { validateClaimModel, compileClaimModelDelta } = await api();
   const a = claimChangeModel(),
     b = structuredClone(a);
   b.owner = 'other:system';
   assert.throws(
-    () => compileSemanticChange(a, b, claimViews()),
+    () => compileClaimModelDelta(a, b),
     /semantic_owner_changed/,
   );
-  for (const views of [
-    null,
-    [null],
-    [...claimViews(), claimViews()[0]],
-    [
-      {
-        ...claimViews()[0],
-        dependsOn: [{ section: 'typo', id: 'request' }],
-      },
-    ],
-    [{ ...claimViews()[0], views: ['claim', 'claim'] }],
-  ])
-    assert.throws(
-      () => compileSemanticChange(a, a, views),
-      /semantic_views_invalid/,
-    );
   a.context.loop = a;
   assert.throws(() => validateClaimModel(a), /semantic_json_cycle/);
   delete a.context.loop;
@@ -373,7 +401,7 @@ test('invalid owner, view declarations and oversized or cyclic documents fail ex
 });
 
 test('sparse and decorated arrays cannot hide meaning or supply absent correspondence evidence', async () => {
-  const { validateClaimModel, compileSemanticChange } = await api();
+  const { validateClaimModel, compileClaimModelDelta } = await api();
   const a = claimChangeModel(),
     values = new Array(2);
   values[0] = 'visible';
@@ -392,23 +420,19 @@ test('sparse and decorated arrays cannot hide meaning or supply absent correspon
     evidence: new Array(1),
   };
   assert.throws(
-    () => compileSemanticChange(a, b, [], [row]),
+    () => compileClaimModelDelta(a, b, [row]),
     /semantic_json_required/,
   );
 });
 
 test('growth is reported rather than silently omitted or treated as an automatic layout', async () => {
-  const { compileSemanticChange } = await api();
+  const { compileClaimModelDelta } = await api();
   const a = claimChangeModel(),
     b = structuredClone(a);
   for (let i = 0; i < 80; i++)
     b.entities['extra-' + i] = structuredClone(b.entities.other);
-  const delta = compileSemanticChange(a, b, claimViews());
+  const delta = compileClaimModelDelta(a, b);
   assert.equal(delta.added.entities.length, 80);
-  assert.equal(delta.unrepresented.length, 80);
-  assert.deepEqual(delta.affectedViews, ['claim', 'detail', 'other']);
-  assert.equal(
-    delta.obligations.verify.every((o) => o.checks.includes('geometry')),
-    true,
-  );
+  assert.deepEqual(delta.affectedClaims, []);
+  assert.equal(Object.hasOwn(delta, 'obligations'), false);
 });
