@@ -64,6 +64,64 @@ Every durable value has one semantic owner. Derived views remain rebuildable.
 A contradiction or unrepresentable meaning fails closed; it is not hidden by a
 layout choice, compatibility alias, or optimistic inference.
 
+## Inputs
+
+The generic compiler accepts four explicit values:
+
+1. **Source Bundle** — exact selected evidence bytes, provenance, source
+   identity, and revision.
+2. **Claim Model** — typed assertions bound to those bytes, including plane,
+   condition, scope, maturity, validity, unknowns, and contradictions.
+3. **Edition** — audience, reader questions, required claims, explicit
+   omissions, narrative, visual grammar, independent scenes, and qualification
+   obligations.
+4. **Build Request** — exact source, Claim Model, Edition, and output selections.
+
+A Git repository, SDD tool, documentation service, code graph, telemetry store,
+or project-specific schema is a possible upstream source, not a hidden compiler
+dependency. Its adapter must emit the standard values explicitly and preserve
+loss, uncertainty, and provenance. Manual authoring of those standard values is
+also valid.
+
+## Processing
+
+```text
+verify selected evidence
+-> validate source-bound meaning
+-> resolve Edition coverage and omissions
+-> compile independent static and interactive scenes
+-> render exact artifacts
+-> qualify each exact subject
+-> plan and authorize publication
+-> apply, replace, or recover
+```
+
+Each arrow crosses a narrow contract. Adapters cannot grant source authority;
+Editions cannot change claims; scenes cannot change meaning; renderers cannot
+add product claims; qualification cannot manufacture human acceptance; and
+publication cannot infer intent.
+
+## Outputs
+
+The output is not merely a PNG or HTML file and not every generated directory is
+a publication. The product distinguishes:
+
+- **Edition Candidate** — exact source, Claim Model, Edition, scene, renderer,
+  and artifact identities; it is rendered but not thereby qualified.
+- **Qualification Set** — non-compensating semantic, coverage, geometry,
+  browser, accessibility, installed-use, recovery, and human-review judgments
+  over exact subjects.
+- **Publication Plan** — selected qualified bytes, destinations, authorization,
+  preservation, replacement, and recovery state without performing the effect.
+- **Edition Publication** — reader artifacts plus exact build, qualification,
+  publication, and recovery identities after the authorized effect.
+
+Reader-facing artifacts normally include an independent static SVG/PNG and a
+standalone interactive HTML atlas. Their manifest and receipts explain what the
+bytes mean, where they came from, which checks passed, which limits remain, and
+which effect occurred. Installation, hosted availability, and release are
+separate claims.
+
 ## Product identity
 
 The product is **Architecture Publisher**. The package is
@@ -91,6 +149,13 @@ artifacts.
 Architecture Publisher may reject, explain, project, qualify, install, replace,
 and recover an Edition. It may not authorize a source-system transition or
 silently write feedback into a source authority.
+
+The repository is a development and conformance monorepo. The root
+`architecture-publisher` distribution contains only generic contracts,
+renderers, qualification, publication, and the `archpub` composition root.
+First-party Architecture Publisher, ETHOS, and AIGW adapters and Editions are
+separately installable downstream packages. Sharing a repository does not grant
+them entry into the core package or command surface.
 
 ## Construction discipline
 

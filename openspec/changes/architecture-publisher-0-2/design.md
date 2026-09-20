@@ -88,9 +88,52 @@ judgment. Publication owns effects. No layer may silently absorb another.
 
 Edition source is data where possible and narrow executable composition where a
 flagship requires genuine authored geometry. Executable Edition code remains
-first-party, package-bound, and unavailable to untrusted input.
+first-party, package-bound, and unavailable to untrusted input. The Edition
+contract belongs to the generic product; a concrete Edition implementation does
+not. First-party Editions may share this repository for development and
+conformance, but each is an independently installable downstream package.
 
-### 4. Static and interactive outputs are sibling compilers
+### 4. Input, compilation, and output states are explicit
+
+The generic product consumes four exact input values:
+
+1. a `Source Bundle` containing selected evidence bytes and provenance;
+2. a `Claim Model` bound to members of that bundle;
+3. an `Edition` selecting audience, questions, coverage, omissions, narrative,
+   independent scenes, and qualification obligations; and
+4. a build request binding the exact source, Claim Model, Edition, and output
+   location.
+
+A repository, Git checkout, SDD tool, telemetry service, or domain-specific
+schema is not a compiler input. A source adapter may convert such a source into
+the standard values, but the adapter remains upstream and cannot invent intent
+or grant publication authority.
+
+The processing chain is:
+
+```text
+verify source -> validate claims -> resolve Edition coverage
+-> compile independent scenes -> render exact artifacts
+-> qualify exact subjects -> plan and authorize publication
+-> apply, replace, or recover
+```
+
+The chain produces distinct values rather than one overloaded "publication":
+
+- an `Edition Candidate` binds source, Claim Model, Edition, scenes, renderer
+  supply, and emitted artifact identities, but carries no implied acceptance;
+- a `Qualification Set` records non-compensating judgments and evidence over an
+  exact candidate;
+- a `Publication Plan` binds qualified bytes, destinations, authorization
+  requirements, preservation, replacement, and recovery state; and
+- an `Edition Publication` is the resulting reader delivery plus effect and
+  recovery receipts.
+
+Writing a candidate directory is not publication. A successful renderer is not
+qualification. Qualification is not authorization. Application is not hosted
+availability or release publication.
+
+### 5. Static and interactive outputs are sibling compilers
 
 Both media consume the same selected Claim Model and Edition coverage, but each
 has an independent scene contract and compositor:
@@ -103,7 +146,7 @@ has an independent scene contract and compositor:
 Neither medium is derived from the other. Shared code is limited to semantic
 selection, identity, typography tokens, and renderer-neutral verification data.
 
-### 5. Flagship quality is an admission class, not a visual preset
+### 6. Flagship quality is an admission class, not a visual preset
 
 `structural` and `flagship` are Edition promises. Flagship acceptance is a
 conjunction of semantic, coverage, geometry, browser, accessibility,
@@ -116,7 +159,7 @@ measured whitespace, and no generic card grid. The HTML atlas receives its own
 responsive composition and may use focus and trace interaction without motion
 that changes geometry or distracts from reading.
 
-### 6. Conservative evolution uses explicit dependencies before caching
+### 7. Conservative evolution uses explicit dependencies before caching
 
 Compile exact before/after Claim Models plus Edition dependencies into separate
 obligations: rebuild, semantic verification, medium verification, human review,
@@ -128,7 +171,7 @@ engine initially. First measure full-build cost over self, ETHOS, and AIGW. A
 future mechanism must enter through a named public interface and prove lower
 whole-life cost on an irreducible adopter case.
 
-### 7. Generic kernel and first-party adapters remain acyclic
+### 8. Generic kernel and first-party extensions remain acyclic
 
 Target dependency direction:
 
@@ -140,17 +183,18 @@ source -> semantics -> edition -> scene
                           \          /
                            publication
 
-adapters/* -> public contracts
-editions/* -> public contracts + selected renderers
-cli -> composition root only
+first-party packages -> exported public contracts
+cli -> generic composition root only
 ```
 
 The generic kernel never imports an Edition. Renderers never import source
-adapters. Adapters cannot grant semantic or publication authority. The CLI
-selects explicit built-in Edition commands and generic data-driven commands; it
-does not contain domain behavior.
+adapters. Adapters cannot grant semantic or publication authority. The generic
+`archpub` CLI consumes only standard contract files and does not dispatch on an
+Edition, repository, or adopter identity. Concrete Edition packages may produce
+standard inputs and call exported public APIs; they are never required core
+dependencies and do not register a second truth or command plane.
 
-### 8. One repository, one Change, one lane, staged commits
+### 9. One repository, one Change, one lane, staged commits
 
 The change is large but semantically coupled: identity affects every public
 surface, the Claim Model shapes Editions, and flagship artifacts exercise the
@@ -176,17 +220,19 @@ architecture-publisher/
 │   ├── qualification/
 │   ├── publication/
 │   └── cli/
-├── adapters/
-│   ├── ethos/
-│   └── repository/
 ├── renderers/
 │   ├── svg/
 │   ├── archify/
 │   └── resvg/
-├── editions/
-│   ├── architecture-publisher/
-│   ├── ethos/
-│   └── aigw/
+├── packages/
+│   └── editions/
+│       ├── architecture-publisher/
+│       ├── ethos/
+│       │   ├── adapter/
+│       │   └── edition/
+│       └── aigw/
+│           ├── adapter/
+│           └── edition/
 ├── examples/
 │   ├── structural/
 │   ├── greenfield/
@@ -203,7 +249,9 @@ architecture-publisher/
 Physical migration follows semantic ownership. There will be no `core`,
 `common`, `shared`, `utils`, compatibility, or legacy runtime directory. Existing
 modules move only where the owner is materially clearer; a directory diagram is
-not a reason to churn stable code.
+not a reason to churn stable code. The repository is a development and
+conformance monorepo; the root package is the domain-neutral product, while each
+directory below `packages/editions` is a separate downstream package boundary.
 
 ## Flagship Self-Edition
 

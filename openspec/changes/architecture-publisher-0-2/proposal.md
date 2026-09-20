@@ -30,6 +30,11 @@ qualification, publication, and evolution.
 - Make `Edition` the first-class publication unit: audience, questions,
   required claims, omission policy, reading order, visual grammar, independent
   static and interactive scenes, and qualification obligations.
+- Make the distributable `architecture-publisher` package domain-neutral. A
+  project repository is a source selected outside the compiler, not a runtime
+  dependency. Concrete source adapters and Editions remain first-party
+  monorepo packages, but they depend on the generic product and never enter its
+  package or `archpub` command surface.
 - Produce an independently composed 6000-pixel flagship static overview and a
   standalone interactive atlas. They share semantic identities, not geometry,
   DOM, screenshots, or a common presentation layout.
@@ -78,7 +83,11 @@ qualification, publication, and evolution.
   alpha.7 artifacts and tags remain immutable historical releases.
 - Generic semantic, composition, verification, and publication owners are
   reorganized by responsibility; ETHOS-specific behavior stays in
-  `editions/ethos` and `adapters/ethos`.
+  a separately installable first-party Edition package.
+- The core package accepts exact Source Bundle, Claim Model, Edition, build,
+  qualification, and publication values. Compilation emits an unqualified
+  Edition candidate; only a later qualified and authorized effect is a
+  publication.
 - A new `editions/architecture-publisher` source becomes the canonical product
   self-portrait. Static and interactive outputs are built and accepted
   independently.

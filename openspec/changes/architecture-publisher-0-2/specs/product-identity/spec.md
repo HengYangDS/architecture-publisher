@@ -62,7 +62,30 @@ package, repository, renderer, and source project identities.
 
 #### Scenario: ETHOS and Architecture Publisher editions coexist
 
-- **WHEN** both Editions are installed or rendered by the same package
+- **WHEN** both Edition packages are installed with the same compatible core
 - **THEN** neither Edition changes the product identity
 - **AND** their source, authoring, artifact, and qualification identities remain
   independently selectable
+
+### Requirement: The core distribution is domain-neutral
+
+The `architecture-publisher` package and `archpub` command SHALL depend only on
+generic source, semantic, Edition, scene, renderer, qualification, and
+publication contracts. A concrete repository, source adapter, or Edition MAY be
+developed in the same monorepo, but SHALL be an independently installable
+downstream package and SHALL NOT be included in or required by the core package.
+
+#### Scenario: A caller installs only the core package
+
+- **WHEN** all concrete Edition and adapter packages are absent
+- **THEN** the installed generic source, Edition-build, evolution, rendering,
+  qualification, and publication journeys remain available offline
+- **AND** `archpub --help` contains no ETHOS, AIGW, repository-specific, or
+  renderer-vendor command
+
+#### Scenario: A concrete Edition evolves
+
+- **WHEN** ETHOS, AIGW, or the Architecture Publisher self-Edition changes
+- **THEN** its package can be rebuilt and versioned without changing the generic
+  package unless a public contract itself changed
+- **AND** the dependency direction remains from the concrete package to the core
