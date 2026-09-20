@@ -8,6 +8,10 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
 const ethos = path.join(root, 'packages/extensions/ethos');
+const selfEdition = path.join(
+  root,
+  'packages/extensions/architecture-publisher',
+);
 
 async function json(file) {
   return JSON.parse(await fs.readFile(file, 'utf8'));
@@ -30,6 +34,51 @@ test('workspace separates the generic product from concrete Editions', async () 
     edition.dependencies['architecture-publisher'],
     product.version,
   );
+});
+
+test('the first-party self Edition is an independent package below the generic core', async () => {
+  const product = await json(path.join(publisher, 'package.json'));
+  const edition = await json(path.join(selfEdition, 'package.json'));
+  assert.equal(edition.name, '@architecture-publisher/self-edition');
+  assert.deepEqual(edition.dependencies, {
+    'architecture-publisher': product.version,
+  });
+  const files = [];
+  async function walk(directory) {
+    for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
+      const file = path.join(directory, entry.name);
+      if (entry.isDirectory()) await walk(file);
+      else if (entry.isFile() && entry.name.endsWith('.mjs')) files.push(file);
+    }
+  }
+  await walk(path.join(selfEdition, 'src'));
+  const source = (
+    await Promise.all(files.map((file) => fs.readFile(file, 'utf8')))
+  ).join('\n');
+  assert.match(source, /from ['"]architecture-publisher\//);
+  assert.doesNotMatch(source, /packages\/publisher|(?:\.\.\/){3,}(?:src|renderers)/);
+  const core = (
+    await Promise.all(
+      [path.join(publisher, 'src'), path.join(publisher, 'renderers')].map(
+        async function collect(directory) {
+          const found = [];
+          async function visit(current) {
+            for (const entry of await fs.readdir(current, {
+              withFileTypes: true,
+            })) {
+              const file = path.join(current, entry.name);
+              if (entry.isDirectory()) await visit(file);
+              else if (entry.isFile() && entry.name.endsWith('.mjs'))
+                found.push(await fs.readFile(file, 'utf8'));
+            }
+          }
+          await visit(directory);
+          return found;
+        },
+      ),
+    )
+  ).flat().join('\n');
+  assert.doesNotMatch(core, /architecture-publisher-self|self-edition/);
 });
 
 test('the packed generic product contains no concrete domain package', () => {

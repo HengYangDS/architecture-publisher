@@ -1,0 +1,598 @@
+const OWNER = 'architecture-publisher:self-edition';
+const PRODUCT_CONTRACT = 'product-contract';
+const PRODUCT_SCOPE = Object.freeze({ product: 'architecture-publisher' });
+
+const fact = (plane, maturity, condition, coverage = 'complete') =>
+  Object.freeze({
+    plane,
+    maturity,
+    validity: 'affirmed',
+    condition: Object.freeze(condition),
+    scope: PRODUCT_SCOPE,
+    coverage,
+  });
+const entity = (type, label, sourceId, responsibility, claim) =>
+  Object.freeze({ type, label, sourceId, responsibility, claim });
+const relation = (type, subject, object, sourceId, claim) =>
+  Object.freeze({ type, subject, object, sourceId, claim });
+
+export const SELF_ENTITY_IDS = Object.freeze([
+  'accepted-intent',
+  'implementation',
+  'runtime-observation',
+  'evidence',
+  'source-adapter',
+  'source-bundle',
+  'claim-model',
+  'edition',
+  'build-request',
+  'publisher-core',
+  'uncertainty',
+  'static-scene',
+  'static-artifact',
+  'static-renderer',
+  'interactive-scenes',
+  'interactive-atlas',
+  'interactive-renderer',
+  'edition-candidate',
+  'qualification-set',
+  'human-review',
+  'acceptance',
+  'authorization',
+  'publication',
+  'recovery',
+  'off-host-recovery',
+  'self-consumer',
+  'ethos-consumer',
+  'aigw-consumer',
+  'feedback',
+  'evolution-inputs',
+  'semantic-delta',
+  'affected-views',
+  'rebuild-obligations',
+  'semantic-verification-obligations',
+  'medium-verification-obligations',
+  'human-review-obligations',
+  'acceptance-obligations',
+  'publication-obligations',
+]);
+
+export const SELF_RELATION_IDS = Object.freeze([
+  'intent-enters-adapter',
+  'implementation-enters-adapter',
+  'observation-enters-adapter',
+  'evidence-enters-bundle',
+  'adapter-builds-bundle',
+  'bundle-binds-claims',
+  'claims-inform-edition',
+  'uncertainty-broadens-edition',
+  'edition-authors-static',
+  'edition-authors-interactive',
+  'bundle-selects-build',
+  'claims-select-build',
+  'edition-selects-build',
+  'build-invokes-core',
+  'core-compiles-static',
+  'core-compiles-interactive',
+  'static-scene-enters-renderer',
+  'interactive-scenes-enter-renderer',
+  'backend-renders-static',
+  'backend-renders-interactive',
+  'static-enters-candidate',
+  'interactive-enters-candidate',
+  'candidate-enters-qualification',
+  'human-review-enters-qualification',
+  'qualification-precedes-acceptance',
+  'acceptance-precedes-authorization',
+  'authorization-precedes-publication',
+  'publication-supports-recovery',
+  'publication-serves-self',
+  'publication-serves-ethos',
+  'publication-serves-aigw',
+  'publication-returns-feedback',
+  'feedback-returns-to-adapter',
+  'recovery-excludes-off-host',
+  'models-enter-evolution',
+  'edition-enters-evolution',
+  'evolution-produces-delta',
+  'delta-identifies-affected-views',
+  'affected-views-require-rebuild',
+  'affected-views-require-semantic-verification',
+  'affected-views-require-medium-verification',
+  'affected-views-require-human-review',
+  'affected-views-require-acceptance',
+  'affected-views-require-publication',
+  'rebuild-renews-static',
+  'rebuild-renews-interactive',
+  'semantic-verification-renews-claims',
+  'medium-verification-renews-qualification',
+  'human-review-obligation-renews-review',
+  'acceptance-obligation-renews-acceptance',
+  'publication-obligation-renews-publication',
+]);
+
+const entityDefinitions = Object.freeze({
+  'accepted-intent': entity(
+    'authority',
+    'Accepted intent',
+    'active-design',
+    'Defines target behavior without claiming implementation.',
+    fact('intended', 'target', { change: 'architecture-publisher-0-2' }),
+  ),
+  implementation: entity(
+    'authority',
+    'Implementation',
+    'compiler-owner',
+    'Owns current executable behavior and boundaries.',
+    fact('implemented', 'implemented', { evidence: 'selected-source-bytes' }),
+  ),
+  'runtime-observation': entity(
+    'authority',
+    'Runtime observation receipts',
+    'installed-test-owner',
+    'Require executed digest-bound results; test source alone is not observation.',
+    fact('intended', 'target', { evidence: 'execution-receipt-required' }),
+  ),
+  evidence: entity(
+    'authority',
+    'Bound evidence',
+    PRODUCT_CONTRACT,
+    'Supports only the exact subject and predicate it records.',
+    fact('governed', 'ratified', { identity: 'digest-bound' }),
+  ),
+  'source-adapter': entity(
+    'adapter',
+    'Loss-aware adapter',
+    'self-prepare-owner',
+    'Maps explicit source facts without inventing intent.',
+    fact('implemented', 'implemented', { input: 'explicit-digest-bound' }),
+  ),
+  'source-bundle': entity(
+    'semantic',
+    'Source Bundle',
+    'source-owner',
+    'Binds selected bytes, source identity, revision, and provenance.',
+    fact('implemented', 'implemented', {
+      schema: 'architecture.source-bundle/v1',
+    }),
+  ),
+  'claim-model': entity(
+    'semantic',
+    'Claim Model',
+    'claim-owner',
+    'Owns typed assertions, planes, conditions, scope, unknowns, and contradictions.',
+    fact('implemented', 'implemented', {
+      schema: 'architecture.claim-model/v2',
+    }),
+  ),
+  edition: entity(
+    'editorial',
+    'Edition',
+    'edition-contract',
+    'Owns audience, questions, coverage, omissions, narrative, and visual grammar.',
+    fact('implemented', 'implemented', { schema: 'architecture.edition/v1' }),
+  ),
+  'build-request': entity(
+    'semantic',
+    'Build Request',
+    'compiler-owner',
+    'Binds one exact Source Bundle, Claim Model, Edition, and output selection.',
+    fact('implemented', 'implemented', { input: 'explicit-digest-bound' }),
+  ),
+  'publisher-core': entity(
+    'semantic',
+    'Generic compiler',
+    'core-package',
+    'Composes standard contracts and remains independent of concrete Editions.',
+    fact('implemented', 'implemented', { package: 'architecture-publisher' }),
+  ),
+  uncertainty: entity(
+    'limit',
+    'Explicit uncertainty',
+    PRODUCT_CONTRACT,
+    'Broadens obligations instead of being hidden by presentation.',
+    fact('governed', 'ratified', { handling: 'fail-closed' }),
+  ),
+  'static-scene': entity(
+    'scene',
+    'Static scene program',
+    'self-static-scene-owner',
+    'Owns the single-frame composition independently.',
+    fact('implemented', 'implemented', { medium: 'static' }),
+  ),
+  'static-artifact': entity(
+    'artifact',
+    'Flagship SVG and 6000px PNG',
+    'active-design',
+    'Names the required final static delivery; current generic output does not satisfy it.',
+    fact('intended', 'target', { delivery: 'flagship-6000px' }),
+  ),
+  'static-renderer': entity(
+    'capability',
+    'Static renderer',
+    'static-renderer-owner',
+    'Translates the static scene into vector bytes without owning meaning.',
+    fact('implemented', 'implemented', { medium: 'svg' }),
+  ),
+  'interactive-scenes': entity(
+    'scene',
+    'Interactive scene programs',
+    'self-interactive-scene-owner',
+    'Own complete overview and mechanism compositions independently.',
+    fact('implemented', 'implemented', { medium: 'interactive' }),
+  ),
+  'interactive-atlas': entity(
+    'artifact',
+    'Standalone flagship HTML atlas',
+    'active-design',
+    'Names the required final responsive atlas and complete mechanism pages.',
+    fact('intended', 'target', { delivery: 'flagship-standalone-html' }),
+  ),
+  'interactive-renderer': entity(
+    'capability',
+    'Interactive renderer',
+    'interactive-renderer-owner',
+    'Translates interactive scenes into standalone HTML without owning meaning.',
+    fact('implemented', 'implemented', { medium: 'html' }),
+  ),
+  'edition-candidate': entity(
+    'artifact',
+    'Edition Candidate',
+    'compiler-owner',
+    'Binds exact source, semantics, Edition, scenes, renderer supply, and emitted bytes.',
+    fact('implemented', 'implemented', { acceptance: 'not-implied' }),
+  ),
+  'qualification-set': entity(
+    'verification',
+    'Qualification Set contract',
+    'qualification-owner',
+    'Validates non-compensating judgments over exact subjects without granting authority.',
+    fact('implemented', 'implemented', {
+      schema: 'architecture.qualification-set/v1',
+    }),
+  ),
+  'human-review': entity(
+    'verification',
+    'Exact-artifact human review',
+    PRODUCT_CONTRACT,
+    'Must judge faithful, intelligible, and restrained for exact artifact bytes.',
+    fact('governed', 'ratified', { decision: 'human-only' }),
+  ),
+  acceptance: entity(
+    'verification',
+    'Acceptance',
+    PRODUCT_CONTRACT,
+    'Records an explicit decision over exact qualified artifact bytes.',
+    fact('governed', 'ratified', { identity: 'exact-artifact' }),
+  ),
+  authorization: entity(
+    'authorization',
+    'Effect authorization',
+    'publication-owner',
+    'Permits one exact publication plan without becoming semantic truth.',
+    fact('implemented', 'implemented', { subject: 'publication-plan-digest' }),
+  ),
+  publication: entity(
+    'publication',
+    'Filesystem publication effect',
+    'publication-owner',
+    'Applies an exact bounded reader delivery; it is not hosted or release proof.',
+    fact('implemented', 'implemented', {
+      destination: 'caller-selected-filesystem',
+    }),
+  ),
+  recovery: entity(
+    'publication',
+    'Publication recovery',
+    'publication-owner',
+    'Resumes or confirms an interrupted exact filesystem publication.',
+    fact('implemented', 'implemented', { operation: 'same-plan' }),
+  ),
+  'off-host-recovery': entity(
+    'limit',
+    'Independent off-host recovery',
+    PRODUCT_CONTRACT,
+    'Remains unproved until an operator selects custody and destination.',
+    fact('intended', 'target', { operatorSelection: 'absent' }, 'unknown'),
+  ),
+  'self-consumer': entity(
+    'consumer',
+    'Publisher self-Edition',
+    'self-prepare-owner',
+    'Prepares portable self-model inputs; flagship acceptance remains separate work.',
+    fact('implemented', 'implemented', {
+      role: 'self-use-not-independent-adoption',
+    }),
+  ),
+  'ethos-consumer': entity(
+    'consumer',
+    'ETHOS v2 adopter',
+    'active-design',
+    'Will consume generic contracts without transferring ETHOS authority.',
+    fact('intended', 'target', { migration: 'required' }),
+  ),
+  'aigw-consumer': entity(
+    'consumer',
+    'AIGW first-party adopter',
+    'active-design',
+    'Will demonstrate a materially different consumer and real semantic evolution.',
+    fact('intended', 'target', { promotion: 'required' }),
+  ),
+  feedback: entity(
+    'feedback',
+    'Native lifecycle feedback',
+    PRODUCT_CONTRACT,
+    'Returns findings through each source owner rather than mutating source truth.',
+    fact('intended', 'target', { effect: 'source-owner-mediated' }),
+  ),
+  'evolution-inputs': entity(
+    'evolution',
+    'Exact before and after inputs',
+    'evolution-owner',
+    'Bind before and after Claim Models, Editions, and explicit correspondences.',
+    fact('implemented', 'implemented', { operation: 'compare' }),
+  ),
+  'semantic-delta': entity(
+    'evolution',
+    'Semantic delta',
+    'evolution-owner',
+    'Reports meaning change and dependency reach without performing effects.',
+    fact('implemented', 'implemented', { effect: 'none' }),
+  ),
+  'affected-views': entity(
+    'evolution',
+    'Affected Editions and scenes',
+    'evolution-owner',
+    'Identifies impacted views and broadens work on unknown coverage.',
+    fact('implemented', 'implemented', { unknowns: 'broaden' }),
+  ),
+  'rebuild-obligations': entity(
+    'obligation',
+    'Rebuild obligations',
+    'evolution-owner',
+    'Names candidate and medium rebuilds without executing them.',
+    fact('implemented', 'implemented', { effect: 'planned-not-executed' }),
+  ),
+  'semantic-verification-obligations': entity(
+    'obligation',
+    'Semantic verification',
+    'evolution-owner',
+    'Requires renewed semantic and coverage verification.',
+    fact('implemented', 'implemented', { effect: 'planned-not-executed' }),
+  ),
+  'medium-verification-obligations': entity(
+    'obligation',
+    'Medium verification',
+    'evolution-owner',
+    'Requires renewed medium, installed-use, or recovery verification.',
+    fact('implemented', 'implemented', { effect: 'planned-not-executed' }),
+  ),
+  'human-review-obligations': entity(
+    'obligation',
+    'Human re-review',
+    'evolution-owner',
+    'Requires renewed exact-artifact visual judgment when affected.',
+    fact('implemented', 'implemented', { effect: 'planned-not-executed' }),
+  ),
+  'acceptance-obligations': entity(
+    'obligation',
+    'Acceptance renewal',
+    'evolution-owner',
+    'Requires explicit acceptance or withdrawal after change.',
+    fact('implemented', 'implemented', { effect: 'planned-not-executed' }),
+  ),
+  'publication-obligations': entity(
+    'obligation',
+    'Publication renewal',
+    'evolution-owner',
+    'Requires publication, replacement, or withdrawal without performing it.',
+    fact('implemented', 'implemented', { effect: 'planned-not-executed' }),
+  ),
+});
+
+export const SELF_RELATIONS = Object.freeze({
+  'intent-enters-adapter': relation('selects', 'accepted-intent', 'source-adapter', 'self-prepare-owner', fact('implemented', 'implemented', { input: 'active-design-bytes' })),
+  'implementation-enters-adapter': relation('selects', 'implementation', 'source-adapter', 'self-prepare-owner', fact('implemented', 'implemented', { input: 'implementation-bytes' })),
+  'observation-enters-adapter': relation('selects', 'runtime-observation', 'source-adapter', 'active-design', fact('intended', 'target', { evidence: 'execution-receipt-required' })),
+  'evidence-enters-bundle': relation('binds', 'evidence', 'source-bundle', 'source-owner', fact('implemented', 'implemented', { identity: 'sha256' })),
+  'adapter-builds-bundle': relation('maps', 'source-adapter', 'source-bundle', 'self-prepare-owner', fact('implemented', 'implemented', { discovery: 'not-performed' })),
+  'bundle-binds-claims': relation('binds', 'source-bundle', 'claim-model', 'self-model-owner', fact('implemented', 'implemented', { provenance: 'selected-members' })),
+  'claims-inform-edition': relation('informs', 'claim-model', 'edition', 'self-prepare-owner', fact('implemented', 'implemented', { authorityTransfer: 'none' })),
+  'uncertainty-broadens-edition': relation('broadens', 'uncertainty', 'edition', 'evolution-owner', fact('implemented', 'implemented', { unknowns: 'broaden-obligations' })),
+  'edition-authors-static': relation('authors', 'edition', 'static-scene', 'self-static-scene-owner', fact('implemented', 'implemented', { medium: 'static' })),
+  'edition-authors-interactive': relation('authors', 'edition', 'interactive-scenes', 'self-interactive-scene-owner', fact('implemented', 'implemented', { medium: 'interactive' })),
+  'bundle-selects-build': relation('selects', 'source-bundle', 'build-request', 'compiler-owner', fact('implemented', 'implemented', { identity: 'manifest-digest' })),
+  'claims-select-build': relation('selects', 'claim-model', 'build-request', 'compiler-owner', fact('implemented', 'implemented', { member: 'semantic.json' })),
+  'edition-selects-build': relation('selects', 'edition', 'build-request', 'compiler-owner', fact('implemented', 'implemented', { identity: 'edition-digest' })),
+  'build-invokes-core': relation('invokes', 'build-request', 'publisher-core', 'compiler-owner', fact('implemented', 'implemented', { command: 'archpub-edition-build' })),
+  'core-compiles-static': relation('compiles', 'publisher-core', 'static-scene', 'compiler-owner', fact('implemented', 'implemented', { medium: 'static' })),
+  'core-compiles-interactive': relation('compiles', 'publisher-core', 'interactive-scenes', 'compiler-owner', fact('implemented', 'implemented', { medium: 'interactive' })),
+  'static-scene-enters-renderer': relation('feeds', 'static-scene', 'static-renderer', 'static-renderer-owner', fact('implemented', 'implemented', { medium: 'static' })),
+  'interactive-scenes-enter-renderer': relation('feeds', 'interactive-scenes', 'interactive-renderer', 'interactive-renderer-owner', fact('implemented', 'implemented', { medium: 'interactive' })),
+  'backend-renders-static': relation('renders', 'static-renderer', 'static-artifact', 'active-design', fact('intended', 'target', { delivery: 'flagship-6000px' })),
+  'backend-renders-interactive': relation('renders', 'interactive-renderer', 'interactive-atlas', 'active-design', fact('intended', 'target', { delivery: 'flagship-standalone-html' })),
+  'static-enters-candidate': relation('bundles', 'static-artifact', 'edition-candidate', 'active-design', fact('intended', 'target', { artifact: 'flagship-static' })),
+  'interactive-enters-candidate': relation('bundles', 'interactive-atlas', 'edition-candidate', 'active-design', fact('intended', 'target', { artifact: 'flagship-interactive' })),
+  'candidate-enters-qualification': relation('qualifies', 'edition-candidate', 'qualification-set', 'active-design', fact('intended', 'target', { qualification: 'external' })),
+  'human-review-enters-qualification': relation('qualifies', 'human-review', 'qualification-set', PRODUCT_CONTRACT, fact('governed', 'ratified', { reviewer: 'human' })),
+  'qualification-precedes-acceptance': relation('gates', 'qualification-set', 'acceptance', PRODUCT_CONTRACT, fact('governed', 'ratified', { predicates: 'conjunctive' })),
+  'acceptance-precedes-authorization': relation('gates', 'acceptance', 'authorization', 'active-design', fact('intended', 'target', { implementation: 'not-yet-enforced' })),
+  'authorization-precedes-publication': relation('authorizes', 'authorization', 'publication', 'publication-owner', fact('implemented', 'implemented', { binding: 'plan-digest' })),
+  'publication-supports-recovery': relation('recovers', 'publication', 'recovery', 'publication-owner', fact('implemented', 'implemented', { operation: 'same-plan' })),
+  'publication-serves-self': relation('serves', 'publication', 'self-consumer', 'active-design', fact('intended', 'target', { release: '0.2-pending' })),
+  'publication-serves-ethos': relation('serves', 'publication', 'ethos-consumer', 'active-design', fact('intended', 'target', { adoption: 'v2-pending' })),
+  'publication-serves-aigw': relation('serves', 'publication', 'aigw-consumer', 'active-design', fact('intended', 'target', { adoption: 'first-party-pending' })),
+  'publication-returns-feedback': relation('returns', 'publication', 'feedback', PRODUCT_CONTRACT, fact('intended', 'target', { effect: 'finding-only' })),
+  'feedback-returns-to-adapter': relation('returns', 'feedback', 'source-adapter', PRODUCT_CONTRACT, fact('intended', 'target', { authority: 'source-owner' })),
+  'recovery-excludes-off-host': relation('excludes', 'recovery', 'off-host-recovery', PRODUCT_CONTRACT, fact('governed', 'ratified', { proof: 'absent' })),
+  'models-enter-evolution': relation('compares', 'claim-model', 'evolution-inputs', 'evolution-owner', fact('implemented', 'implemented', { sides: 'before-and-after' })),
+  'edition-enters-evolution': relation('compares', 'edition', 'evolution-inputs', 'evolution-owner', fact('implemented', 'implemented', { sides: 'before-and-after' })),
+  'evolution-produces-delta': relation('derives', 'evolution-inputs', 'semantic-delta', 'evolution-owner', fact('implemented', 'implemented', { effect: 'none' })),
+  'delta-identifies-affected-views': relation('propagates', 'semantic-delta', 'affected-views', 'evolution-owner', fact('implemented', 'implemented', { unknowns: 'broaden' })),
+  'affected-views-require-rebuild': relation('requires', 'affected-views', 'rebuild-obligations', 'evolution-owner', fact('implemented', 'implemented', { effect: 'planned-not-executed' })),
+  'affected-views-require-semantic-verification': relation('requires', 'affected-views', 'semantic-verification-obligations', 'evolution-owner', fact('implemented', 'implemented', { effect: 'planned-not-executed' })),
+  'affected-views-require-medium-verification': relation('requires', 'affected-views', 'medium-verification-obligations', 'evolution-owner', fact('implemented', 'implemented', { effect: 'planned-not-executed' })),
+  'affected-views-require-human-review': relation('requires', 'affected-views', 'human-review-obligations', 'evolution-owner', fact('implemented', 'implemented', { effect: 'planned-not-executed' })),
+  'affected-views-require-acceptance': relation('requires', 'affected-views', 'acceptance-obligations', 'evolution-owner', fact('implemented', 'implemented', { effect: 'planned-not-executed' })),
+  'affected-views-require-publication': relation('requires', 'affected-views', 'publication-obligations', 'evolution-owner', fact('implemented', 'implemented', { effect: 'planned-not-executed' })),
+  'rebuild-renews-static': relation('renews', 'rebuild-obligations', 'static-scene', 'evolution-owner', fact('implemented', 'implemented', { medium: 'static' })),
+  'rebuild-renews-interactive': relation('renews', 'rebuild-obligations', 'interactive-scenes', 'evolution-owner', fact('implemented', 'implemented', { medium: 'interactive' })),
+  'semantic-verification-renews-claims': relation('renews', 'semantic-verification-obligations', 'claim-model', 'evolution-owner', fact('implemented', 'implemented', { proofTransfer: 'forbidden' })),
+  'medium-verification-renews-qualification': relation('renews', 'medium-verification-obligations', 'qualification-set', 'evolution-owner', fact('implemented', 'implemented', { proofTransfer: 'forbidden' })),
+  'human-review-obligation-renews-review': relation('renews', 'human-review-obligations', 'human-review', 'evolution-owner', fact('implemented', 'implemented', { approvalTransfer: 'forbidden' })),
+  'acceptance-obligation-renews-acceptance': relation('renews', 'acceptance-obligations', 'acceptance', 'evolution-owner', fact('implemented', 'implemented', { approvalTransfer: 'forbidden' })),
+  'publication-obligation-renews-publication': relation('renews', 'publication-obligations', 'publication', 'evolution-owner', fact('implemented', 'implemented', { effect: 'planned-not-executed' })),
+});
+
+const predicateDefinitions = Object.freeze({
+  responsibility: ['scalar', 'single'],
+  selects: ['entity', 'multiple'],
+  maps: ['entity', 'multiple'],
+  binds: ['entity', 'multiple'],
+  informs: ['entity', 'multiple'],
+  broadens: ['entity', 'multiple'],
+  authors: ['entity', 'multiple'],
+  invokes: ['entity', 'multiple'],
+  compiles: ['entity', 'multiple'],
+  feeds: ['entity', 'multiple'],
+  renders: ['entity', 'multiple'],
+  bundles: ['entity', 'multiple'],
+  qualifies: ['entity', 'multiple'],
+  gates: ['entity', 'multiple'],
+  authorizes: ['entity', 'multiple'],
+  recovers: ['entity', 'multiple'],
+  serves: ['entity', 'multiple'],
+  returns: ['entity', 'multiple'],
+  excludes: ['entity', 'multiple'],
+  compares: ['entity', 'multiple'],
+  derives: ['entity', 'multiple'],
+  propagates: ['entity', 'multiple'],
+  requires: ['entity', 'multiple'],
+  renews: ['entity', 'multiple'],
+});
+
+function unique(...values) {
+  return [...new Set(values.flat())];
+}
+
+function sourceIdentity(sources, id) {
+  const source = sources[id];
+  if (!source) throw Object.assign(new Error('self_source_missing: ' + id), {
+    code: 'self_source_missing',
+  });
+  return source;
+}
+
+function claimFields(definition, dependency, sources) {
+  sourceIdentity(sources, definition.sourceId);
+  return {
+    plane: definition.claim.plane,
+    condition: structuredClone(definition.claim.condition),
+    scope: structuredClone(definition.claim.scope),
+    maturity: definition.claim.maturity,
+    validity: definition.claim.validity,
+    dependsOn: [dependency],
+    coverage: definition.claim.coverage,
+    provenance: unique(PRODUCT_CONTRACT, definition.sourceId),
+  };
+}
+
+export function architecturePublisherClaimModel(sources) {
+  const modelSources = Object.fromEntries(
+      Object.entries(sources).map(([id, source]) => [
+        id,
+        {
+          sha256: source.sha256,
+          locator: source.locator,
+          authority: source.authority,
+        },
+      ]),
+    ),
+    predicates = Object.fromEntries(
+      Object.entries(predicateDefinitions).map(([id, [valueKind, cardinality]]) => [
+        id,
+        {
+          valueKind,
+          cardinality,
+          values: [],
+          provenance: [PRODUCT_CONTRACT],
+        },
+      ]),
+    ),
+    entities = {},
+    relations = {},
+    claims = {};
+
+  for (const id of SELF_ENTITY_IDS) {
+    const definition = entityDefinitions[id];
+    sourceIdentity(modelSources, definition.sourceId);
+    entities[id] = {
+      type: definition.type,
+      label: definition.label,
+      qualifiers: {},
+      provenance: [definition.sourceId],
+    };
+    claims['role-' + id] = {
+      subject: id,
+      predicate: 'responsibility',
+      object: null,
+      value: definition.responsibility,
+      ...claimFields(
+        definition,
+        { section: 'entities', id },
+        modelSources,
+      ),
+    };
+  }
+
+  for (const id of SELF_RELATION_IDS) {
+    const definition = SELF_RELATIONS[id];
+    sourceIdentity(modelSources, definition.sourceId);
+    relations[id] = {
+      type: definition.type,
+      subject: definition.subject,
+      object: definition.object,
+      qualifiers: {},
+      provenance: unique(PRODUCT_CONTRACT, definition.sourceId),
+    };
+    claims['flow-' + id] = {
+      subject: definition.subject,
+      predicate: definition.type,
+      object: definition.object,
+      value: null,
+      ...claimFields(
+        definition,
+        { section: 'relations', id },
+        modelSources,
+      ),
+    };
+  }
+
+  return {
+    schema: 'architecture.claim-model/v2',
+    owner: OWNER,
+    vocabulary: {
+      entities: [
+        ...new Set(Object.values(entityDefinitions).map(({ type }) => type)),
+      ],
+      relations: Object.keys(predicateDefinitions).filter(
+        (id) => id !== 'responsibility',
+      ),
+      maturities: ['implemented', 'ratified', 'target'],
+      predicates,
+    },
+    entities,
+    relations,
+    claims,
+    sources: modelSources,
+    context: {
+      selfUse: true,
+      independentAdopterEvidence: false,
+      inference: 'not-performed',
+      authority:
+        'Source owners retain truth and lifecycle authority; this Edition selects and communicates exact claims.',
+      excluded:
+        'Repository mutation, source acceptance, implicit intent inference, current flagship acceptance, hosted observation, and unproved off-host recovery.',
+    },
+  };
+}

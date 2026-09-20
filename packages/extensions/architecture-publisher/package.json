@@ -1,0 +1,22 @@
+{
+  "name": "@architecture-publisher/self-edition",
+  "version": "0.2.0-alpha.0",
+  "description": "First-party Architecture Publisher flagship Edition",
+  "type": "module",
+  "exports": {
+    ".": "./src/edition/index.mjs",
+    "./edition": "./src/edition/index.mjs",
+    "./runtime": "./src/runtime.mjs"
+  },
+  "files": [
+    "src/",
+    "README.md"
+  ],
+  "dependencies": {
+    "architecture-publisher": "0.2.0-alpha.0"
+  },
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  }
+}

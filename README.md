@@ -87,6 +87,8 @@ and ambient repository discovery.
 
 ```text
 packages/publisher/          generic product package
+packages/extensions/architecture-publisher/
+                             first-party product self-Edition
 packages/extensions/ethos/   independently installable ETHOS adapter and Edition
 examples/self-host/          bounded structural self-use
 examples/aigw/               independent adopter evidence under migration
