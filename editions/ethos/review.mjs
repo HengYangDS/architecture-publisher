@@ -39,7 +39,8 @@ function utf8(bytes) {
   }
 }
 
-/** The only admitted editorial continuation: restore the source maturity subtitle. */
+/** The only admitted editorial continuation: restore the source maturity subtitle.
+ * @internal Focused verification seam; publication consumes the enclosing reader. */
 export function compareReviewedPage({
   id,
   notice,
@@ -312,7 +313,8 @@ export async function readEthosReview(plan) {
   };
 }
 
-/** Validate declared current review scope. Authentic inspection is an operator obligation. */
+/** Validate declared current review scope. Authentic inspection is an operator obligation.
+ * @internal Focused verification seam; publication consumes the enclosing reader. */
 export function verifyCurrentReview(review, target) {
   if (
     review?.schema !== 'architecture.ethos-edition-review/v1' ||

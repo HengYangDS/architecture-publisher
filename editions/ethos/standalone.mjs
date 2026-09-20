@@ -4,7 +4,8 @@ import {sha256} from '../../adapters/ethos/projection.mjs';
 import {readEthosAtlasOutput} from './atlas-output.mjs';
 import {portablePath} from '../../src/source/manifest.mjs';
 
-/** Lossless content packing. Reader locations are adapted only inside the frame. */
+/** Lossless content packing. Reader locations are adapted only inside the frame.
+ * @internal Focused verification seam; renderStandaloneAtlas owns the effect. */
 export function composeStandaloneAtlas(selected) {
   if(!Array.isArray(selected.pages)||!selected.pages.length||selected.pages.length>64)
     throw Error('Explicit complete atlas pages required');

@@ -1,7 +1,7 @@
 /** Parses only the exact absolute M/L/Q vocabulary emitted by these renderers.
  * Unsupported grammar fails closed rather than yielding a guessed geometry.
  */
-export function inspectPath(d) {
+function inspectPath(d) {
   const tokens =
     d.match(/[A-Za-z]|[-+]?(?:\d*\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/g) ?? [];
   const residual = d.replace(

@@ -6,6 +6,7 @@ import {
   staticSceneDigest,
   validateEdition,
 } from '../src/edition/contract.mjs';
+import { semanticArchitectureProjections } from '../src/scene/contract.mjs';
 import { claimModelDigest } from '../src/semantics/document.mjs';
 import { editionFixture } from './fixtures/edition.mjs';
 
@@ -156,6 +157,139 @@ test('static and interactive scenes have independent identities', () => {
   assert.throws(
     () => validateEdition(aliased.model, aliased.edition),
     /edition_json_alias/,
+  );
+});
+
+test('complete overview media carry the same semantic identities', () => {
+  const missingUnclaimedEntity = editionFixture();
+  missingUnclaimedEntity.model.entities.worker = {
+    type: 'component',
+    label: 'worker',
+    qualifiers: {},
+    provenance: ['contract'],
+  };
+  missingUnclaimedEntity.edition.claimModel.digest = claimModelDigest(
+    missingUnclaimedEntity.model,
+  );
+
+  assert.throws(
+    () =>
+      validateEdition(
+        missingUnclaimedEntity.model,
+        missingUnclaimedEntity.edition,
+      ),
+    /edition_overview_incomplete/,
+  );
+
+  const missingUnclaimedRelation = editionFixture();
+  missingUnclaimedRelation.model.relations.observes = {
+    type: 'calls',
+    subject: 'server',
+    object: 'other',
+    qualifiers: {},
+    provenance: ['contract'],
+  };
+  missingUnclaimedRelation.edition.claimModel.digest = claimModelDigest(
+    missingUnclaimedRelation.model,
+  );
+
+  assert.throws(
+    () =>
+      validateEdition(
+        missingUnclaimedRelation.model,
+        missingUnclaimedRelation.edition,
+      ),
+    /edition_overview_incomplete/,
+  );
+
+  const entityDrift = editionFixture();
+  entityDrift.model.entities.worker = {
+    type: 'component',
+    label: 'worker',
+    qualifiers: {},
+    provenance: ['contract'],
+  };
+  entityDrift.edition.claimModel.digest = claimModelDigest(entityDrift.model);
+  entityDrift.edition.scenes.static.composition.groups[0].entities.push('worker');
+
+  assert.throws(
+    () => validateEdition(entityDrift.model, entityDrift.edition),
+    /edition_overview_carrier_drift/,
+  );
+
+  const relationDrift = editionFixture();
+  relationDrift.model.relations.observes = {
+    type: 'calls',
+    subject: 'server',
+    object: 'other',
+    qualifiers: {},
+    provenance: ['contract'],
+  };
+  relationDrift.edition.claimModel.digest = claimModelDigest(relationDrift.model);
+  relationDrift.edition.scenes.static.composition.relations.push({
+    id: 'observes',
+    fromSide: 'right',
+    toSide: 'left',
+    route: 'orthogonal-h',
+  });
+
+  assert.throws(
+    () => validateEdition(relationDrift.model, relationDrift.edition),
+    /edition_overview_carrier_drift/,
+  );
+});
+
+test('Edition owns medium-specific composition admission', () => {
+  const staticAuto = editionFixture();
+  staticAuto.edition.scenes.static.composition.relations[0].route = 'auto';
+  assert.throws(
+    () => validateEdition(staticAuto.model, staticAuto.edition),
+    /edition_scene_relation_invalid.*static/,
+  );
+
+  const staticLabelPlacement = editionFixture();
+  staticLabelPlacement.edition.scenes.static.composition.relations[0].labelAt = [
+    420,
+    240,
+  ];
+  assert.throws(
+    () => validateEdition(staticLabelPlacement.model, staticLabelPlacement.edition),
+    /edition_scene_relation_invalid.*static/,
+  );
+
+  const interactiveAuto = editionFixture();
+  const relation =
+    interactiveAuto.edition.scenes.interactive.overview.composition.relations[0];
+  relation.route = 'auto';
+  relation.labelAt = [420, 240];
+  assert.equal(
+    validateEdition(interactiveAuto.model, interactiveAuto.edition),
+    interactiveAuto.edition,
+  );
+  assert.equal(
+    semanticArchitectureProjections(
+      interactiveAuto.model,
+      interactiveAuto.edition,
+    ).interactiveScenes[0].relations[0].route,
+    'auto',
+  );
+
+  const overfull = editionFixture();
+  for (let index = 0; index < 6; index++)
+    overfull.model.entities[`extra-${index}`] = {
+      type: 'component',
+      label: `Extra ${index}`,
+      qualifiers: {},
+      provenance: ['contract'],
+    };
+  overfull.edition.claimModel.digest = claimModelDigest(overfull.model);
+  const entityIds = Object.keys(overfull.model.entities);
+  overfull.edition.scenes.static.composition.groups[0].entities = [...entityIds];
+  overfull.edition.scenes.interactive.overview.composition.groups[0].entities =
+    [...entityIds];
+  assert.throws(
+    () => validateEdition(overfull.model, overfull.edition),
+    /edition_scene_group_invalid.*static/,
   );
 });
 

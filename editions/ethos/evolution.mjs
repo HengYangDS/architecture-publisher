@@ -6,7 +6,6 @@ import {
 import { ethosClaimModel } from '../../adapters/ethos/semantics.mjs';
 import { claimModelDigest, exact, record, text } from '../../src/semantics/document.mjs';
 import { compileEditionEvolution } from '../../src/edition/evolution.mjs';
-import { validateEdition } from '../../src/edition/contract.mjs';
 import { isDigest } from '../../src/source/manifest.mjs';
 
 const map = (rows) => Object.fromEntries(rows.map((row) => [row.id, row]));
@@ -211,7 +210,32 @@ function dependencies(value, model, name) {
   return completeDependencies(value, model, name);
 }
 
-const scene = (value) => ({
+function sceneGroups(value, model) {
+  const byType = new Map();
+  for (const id of value.nodes) {
+    const type = model.entities[id].type;
+    if (!byType.has(type)) byType.set(type, []);
+    byType.get(type).push(id);
+  }
+  const groups = [];
+  for (const [type, ids] of [...byType].sort(([left], [right]) =>
+    left < right ? -1 : left > right ? 1 : 0,
+  )) {
+    const count = Math.ceil(ids.length / 8),
+      label = type.replaceAll('_', ' ').replaceAll('-', ' ');
+    for (let offset = 0; offset < ids.length; offset += 8) {
+      const part = offset / 8 + 1;
+      groups.push({
+        id: `semantic-scope-${groups.length + 1}`,
+        label: count === 1 ? label : `${label} ${part}/${count}`,
+        entities: ids.slice(offset, offset + 8),
+      });
+    }
+  }
+  return groups;
+}
+
+const scene = (value, model) => ({
   label: value.label,
   questions: [value.id],
   claims: [...value.claims],
@@ -219,13 +243,7 @@ const scene = (value) => ({
     ? { authoredInputSha256: value.authoredInputSha256 }
     : {}),
   composition: {
-    groups: [
-      {
-        id: 'semantic-scope',
-        label: 'Selected semantic scope',
-        entities: [...value.nodes],
-      },
-    ],
+    groups: sceneGroups(value, model),
     relations: value.relations.map((id) => ({
       id,
       fromSide: 'right',
@@ -236,7 +254,7 @@ const scene = (value) => ({
 });
 
 /** Adapt explicit ETHOS publication dependencies into the public Edition contract. */
-export function createEthosEvolutionEdition(
+function createEthosEvolutionEdition(
   projection,
   sourceManifestSha256,
   selection,
@@ -344,14 +362,14 @@ export function createEthosEvolutionEdition(
     },
     scenes: {
       static: {
-        ...scene({ id: 'overview', ...staticSelection }),
+        ...scene({ id: 'overview', ...staticSelection }, model),
         questions: ['overview'],
       },
       interactive: Object.fromEntries(
         selection.narrative.map((id) => [
           id,
           {
-            ...scene({ id, ...pages.get(id) }),
+            ...scene({ id, ...pages.get(id) }, model),
             purpose: id === 'overview' ? 'overview' : 'mechanism',
           },
         ]),
@@ -370,7 +388,6 @@ export function createEthosEvolutionEdition(
     scope:
       'Selected ETHOS publication dependencies; not source, effect, proof or acceptance authority.',
   };
-  validateEdition(model, edition);
   return edition;
 }
 

@@ -69,6 +69,13 @@ const owners = {
     'src/source/',
     'src/semantics/',
   ],
+  'tools/migration/': ['tools/migration/', 'src/semantics/'],
+  'tools/qualification/': [
+    'tools/qualification/',
+    'src/source/',
+    'editions/ethos/',
+    'adapters/ethos/',
+  ],
   'src/cli/': ['src/', 'adapters/', 'renderers/', 'editions/'],
 };
 
@@ -89,7 +96,12 @@ const literal = (node) => {
   return null;
 };
 
-export function inspectModuleBoundaries(file, source, paths) {
+export function inspectModuleBoundaries(
+  file,
+  source,
+  paths,
+  declaredExternals = new Set(),
+) {
   const problems = [];
   const issue = (node, reason) =>
     problems.push({ file, line: node?.loc?.start.line ?? 1, reason });
@@ -112,6 +124,42 @@ export function inspectModuleBoundaries(file, source, paths) {
     ];
   }
 
+  const historicalInstallerImports = new Set();
+  function selectedHistoricalInstaller(node) {
+    const argument = node?.source;
+    if (
+      file !== 'tools/qualification/installed-evolution.mjs' ||
+      argument?.type !== 'MemberExpression' ||
+      argument.computed ||
+      argument.property.name !== 'href'
+    )
+      return false;
+    const pathToFileURL = argument.object;
+    if (
+      pathToFileURL?.type !== 'CallExpression' ||
+      pathToFileURL.callee.name !== 'pathToFileURL' ||
+      pathToFileURL.arguments.length !== 1
+    )
+      return false;
+    const resolve = pathToFileURL.arguments[0];
+    if (
+      resolve?.type !== 'CallExpression' ||
+      !property(resolve.callee, 'resolve') ||
+      resolve.callee.object?.type !== 'Identifier' ||
+      resolve.callee.object.name !== 'path' ||
+      resolve.arguments.length !== 2 ||
+      resolve.arguments[0]?.type !== 'Identifier' ||
+      resolve.arguments[0].name !== 'root'
+    )
+      return false;
+    const selected = resolve.arguments[1];
+    return (
+      property(selected, 'priorInstaller') &&
+      selected.object?.type === 'Identifier' &&
+      selected.object.name === 'config'
+    );
+  }
+
   function reference(node, value, resource = false) {
     const specifier = literal(value);
     if (specifier === null)
@@ -121,8 +169,10 @@ export function inspectModuleBoundaries(file, source, paths) {
         issue(node, 'alternate module loaders require explicit admission');
       return;
     }
-    if (!specifier.startsWith('./') && !specifier.startsWith('../'))
-      return issue(node, 'dependency must be relative or a Node builtin');
+    if (!specifier.startsWith('./') && !specifier.startsWith('../')) {
+      if (declaredExternals.has(specifier)) return;
+      return issue(node, 'dependency must be relative or a declared external');
+    }
     if (/[\\%?#\x00-\x1f]/.test(specifier))
       return issue(node, 'dependency path must be literal and portable');
     const target = path.posix.normalize(
@@ -159,7 +209,10 @@ export function inspectModuleBoundaries(file, source, paths) {
       node.source
     )
       reference(node, node.source);
-    if (node.type === 'ImportExpression') reference(node, node.source);
+    if (node.type === 'ImportExpression') {
+      if (selectedHistoricalInstaller(node)) historicalInstallerImports.add(node);
+      else reference(node, node.source);
+    }
     if (
       node.type === 'NewExpression' &&
       node.callee.name === 'URL' &&
@@ -180,5 +233,10 @@ export function inspectModuleBoundaries(file, source, paths) {
     }
   }
   visit(ast);
+  if (
+    file === 'tools/qualification/installed-evolution.mjs' &&
+    historicalInstallerImports.size !== 1
+  )
+    issue(ast, 'historical installer dependency must have one exact binding');
   return problems;
 }

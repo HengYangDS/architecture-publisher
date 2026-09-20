@@ -712,6 +712,12 @@ participate. Unknown coverage or unrepresented meaning broadens the affected
 Edition; removal creates explicit withdrawal obligations. A no-op returns six
 empty arrays. This is impact compilation, not execution, automatic layout,
 approval, evidence production, acceptance, or publication.
+The accepted `before` Edition and every newly introduced Edition must satisfy
+the complete publication contract. For an existing Edition only, comparison may
+inspect an `after` overview that has not yet incorporated newly added or removed
+structural identities, solely to report conservative rebuild obligations. It
+never relaxes claim coverage or permits unchanged structure to disappear, and
+the resulting Edition still cannot publish until normal strict validation passes.
 Unknown claims are identified even when their declared dependency list cannot
 reach a changed entity or relation. Conservative expansion applies only to
 Editions and scenes that represent such a claim; explicit out-of-scope omissions
@@ -1001,9 +1007,11 @@ dependencies retained reported high-severity vulnerabilities that native
 corresponding upstream fixes and remains the explicit security exception to
 latest-tag selection. Do not replace a host-managed npm installation, add a
 second package manager or silently downgrade through `audit fix --force`.
-The publisher still has no runtime npm dependencies; development locks retain
-only Acorn and Playwright. Exact supply and installed behavior are verified
-independently of a successful package-manager audit.
+The publisher still has no runtime npm dependencies. Development locks retain
+Acorn for the repository-owned semantic boundary parser, Playwright for explicit
+browser qualification, and Knip for entry-aware unused file/export/dependency
+analysis. Exact supply and installed behavior are verified independently of a
+successful package-manager audit.
 
 Development is governed by ETHOS with native repository-owned test/syntax gates.
 Use the current repository-local runtime, an owned Work Lane, official OpenSpec
@@ -1011,9 +1019,15 @@ Change and passing prewrite for the exact paths. `.ethos` and `openspec` are
 engineering inputs, excluded from the installed package. Runtime users do not
 install or invoke them.
 
-Run `npm ci --ignore-scripts` before the repository tests. The locked Acorn
-development dependency powers the test-only module-boundary check; consumer
-installation does not install it. That check scans first-party JavaScript imports,
+Run `npm ci --ignore-scripts` before the repository tests. `npm run check` is the
+single repository-owned static gate: it runs syntax coverage first, then Knip's
+default graph for development/test seams and its strict production graph for
+shipped files, exports, and dependency closure. Runtime modules may use only
+dependencies shipped to consumers; development tools may additionally use the
+locked development dependencies. Knip is an observation engine only; it
+never auto-fixes files or defines semantic ownership. The locked Acorn dependency
+powers the test-owned module-boundary policy; consumer installation receives none
+of these development dependencies. That policy scans first-party JavaScript imports,
 re-exports, dynamic imports and module-relative resource URLs, including shipped
 executable examples. Generic source, scene,
 qualification, publication and renderer owners must not depend on the ETHOS edition

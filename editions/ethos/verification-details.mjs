@@ -92,7 +92,7 @@ export function deriveVerificationDetails(raw) {
   };
 }
 
-export function renderVerificationDetails(d) {
+function renderVerificationDetails(d) {
   return `<style id="ethos-verification-details-style">
 .verification-details{margin:48px 0 0;color:var(--text);font:14px/1.7 system-ui,sans-serif}
 .verification-details h2{font:400 28px/1.2 Georgia,serif;margin:0 0 16px}

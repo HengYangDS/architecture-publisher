@@ -96,7 +96,7 @@ export function deriveResourceComparison(raw) {
   });
 }
 
-export function renderResourceComparison(rows, sourceDigest) {
+function renderResourceComparison(rows, sourceDigest) {
   const stages = [
     ['prestate', 'Exact prestate'],
     ['pass', 'Own admission'],

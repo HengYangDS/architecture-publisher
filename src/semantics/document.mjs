@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 
+/** @internal Schema test seam; the JSON contract remains the public boundary. */
 export const CLAIM_PLANES = Object.freeze([
   'intended',
   'implemented',
@@ -60,7 +61,7 @@ export const strings = (values, nonempty = false) =>
   new Set(values).size === values.length;
 export const referenceKey = ({ section, id }) =>
   JSON.stringify([section, id]);
-export const validClaimReference = (value) =>
+const validClaimReference = (value) =>
   exact(value, ['section', 'id']) &&
   CLAIM_MODEL_SECTIONS.includes(value.section) &&
   value.section !== 'vocabulary' &&

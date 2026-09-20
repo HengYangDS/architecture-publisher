@@ -14,7 +14,7 @@ const TEMPLATE_SHA256 =
 
 /** Remove only pinned template marks with no product or reader function.
  * Locale payloads, native controls, attribution and SVG slots remain exact. */
-export function removeTemplateDecorations(template) {
+function removeTemplateDecorations(template) {
   if (digest(template) !== TEMPLATE_SHA256)
     throw Error('Unsupported native template digest');
   const seams = [
@@ -96,7 +96,7 @@ export async function applyNativePresentation(toolRoot) {
 }
 
 /** Atlas is a long-form document, not a single-screen slide. Keep one native owner. */
-export function accountForAtlasNavigation(template) {
+function accountForAtlasNavigation(template) {
   const changes = [
     [
       '      function detailLevel() {',
@@ -131,7 +131,7 @@ export function accountForAtlasNavigation(template) {
 
 /** Chapter controls describe reading actions, not graph-set arithmetic.
  * Keep native focus/handoff/playback ownership; remove only their diagnostic copy. */
-export function clarifyAtlasReader(template) {
+function clarifyAtlasReader(template) {
   const functions = [
     [
       'buildChapterIndex',
@@ -289,7 +289,7 @@ function clarifyAtlasMessages(source) {
 }
 
 /** Correct native camera/follow coordination; preserve one playback owner. */
-export function adaptAtlasStoryCamera(template) {
+function adaptAtlasStoryCamera(template) {
   const changes = [
     [
       '        state.y = Math.min(0, Math.max(height - height * state.scale, state.y));',
@@ -390,7 +390,7 @@ export function adaptAtlasStoryCamera(template) {
 
 /** Native exporter policy: readable full diagram, never a fixed-height thumbnail.
  * The caller supplies the admitted source typography floor. No new exporter. */
-export function adaptAtlasExports(template, minimumFontPx) {
+function adaptAtlasExports(template, minimumFontPx) {
   if (!Number.isFinite(minimumFontPx) || minimumFontPx <= 0)
     throw Error('Source export typography floor required');
   const changes = [
@@ -581,7 +581,7 @@ export function validateAtlasCatalog(catalog) {
   return catalog;
 }
 
-export function renderAtlasNavigation(catalog, pageId) {
+function renderAtlasNavigation(catalog, pageId) {
   validateAtlasCatalog(catalog);
   const current = catalog.pages.find((p) => p.id === pageId);
   if (!current) throw Error('Unknown atlas page');

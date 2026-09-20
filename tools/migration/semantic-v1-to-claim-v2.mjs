@@ -125,7 +125,8 @@ function partitionQualifiers(qualifiers, mapping, id) {
   );
 }
 
-/** Development-only, explicit conversion. It is not a current runtime reader. */
+/** Development-only, explicit conversion; never a current runtime reader.
+ * @internal Test seam for the one-shot migration executable. */
 export function migrateSemanticV1(document, plan) {
   validateLegacyDocument(document);
   if (

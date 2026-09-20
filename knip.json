@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "examples/self-host/build.mjs!",
+    "tools/migration/semantic-v1-to-claim-v2.mjs",
+    "tools/qualification/browser-run.mjs",
+    "tools/qualification/installed-evolution.mjs",
+    "tools/qualification/semantic-browser.mjs",
+    "tests/*.test.mjs"
+  ],
+  "project": [
+    "src/**/*.mjs!",
+    "adapters/**/*.mjs!",
+    "renderers/**/*.mjs!",
+    "editions/**/*.mjs!",
+    "examples/self-host/**/*.mjs!",
+    "tools/**/*.mjs",
+    "tests/**/*.mjs"
+  ],
+  "includeEntryExports": true,
+  "treatConfigHintsAsErrors": true
+}

@@ -41,7 +41,18 @@ const QUALIFICATION_KINDS = Object.freeze([
   'human',
 ]);
 const SIDES = Object.freeze(['top', 'right', 'bottom', 'left']);
-const ROUTES = Object.freeze(['auto', 'straight', 'orthogonal-h', 'orthogonal-v']);
+const STATIC_ROUTES = Object.freeze([
+  'straight',
+  'orthogonal-h',
+  'orthogonal-v',
+]);
+const INTERACTIVE_ROUTES = Object.freeze(['auto', ...STATIC_ROUTES]);
+const LABEL_PLACEMENT_FIELDS = Object.freeze([
+  'labelAt',
+  'labelDx',
+  'labelDy',
+  'labelSegment',
+]);
 
 const editionError = (code, detail = '') => {
   throw Object.assign(new Error(code + (detail ? ': ' + detail : '')), {
@@ -65,7 +76,7 @@ function validateJson(edition) {
   }
 }
 
-function validateComposition(composition, model, sceneId) {
+function validateComposition(composition, model, sceneId, medium) {
   if (
     !exact(composition, ['groups', 'relations']) ||
     !Array.isArray(composition.groups) ||
@@ -82,7 +93,8 @@ function validateComposition(composition, model, sceneId) {
       !identifier(group.id) ||
       groups.has(group.id) ||
       !text(group.label) ||
-      !strings(group.entities, true)
+      !strings(group.entities, true) ||
+      group.entities.length > 8
     )
       editionError('edition_scene_group_invalid', sceneId);
     groups.add(group.id);
@@ -92,6 +104,9 @@ function validateComposition(composition, model, sceneId) {
       entities.add(id);
     }
   }
+  const labelPlacementFields =
+      medium === 'interactive' ? LABEL_PLACEMENT_FIELDS : [],
+    routes = medium === 'interactive' ? INTERACTIVE_ROUTES : STATIC_ROUTES;
   for (const relation of composition.relations) {
     if (
       !record(relation) ||
@@ -100,23 +115,16 @@ function validateComposition(composition, model, sceneId) {
       ) ||
       Object.keys(relation).some(
         (key) =>
-          ![
-            'id',
-            'fromSide',
-            'toSide',
-            'route',
-            'labelAt',
-            'labelDx',
-            'labelDy',
-            'labelSegment',
-          ].includes(key),
+          !['id', 'fromSide', 'toSide', 'route', ...labelPlacementFields].includes(
+            key,
+          ),
       ) ||
       !text(relation.id) ||
       relations.has(relation.id) ||
       !Object.hasOwn(model.relations, relation.id) ||
       !SIDES.includes(relation.fromSide) ||
       !SIDES.includes(relation.toSide) ||
-      !ROUTES.includes(relation.route)
+      !routes.includes(relation.route)
     )
       editionError('edition_scene_relation_invalid', sceneId);
     const source = model.relations[relation.id];
@@ -141,7 +149,7 @@ function validateComposition(composition, model, sceneId) {
   return { entities, relations };
 }
 
-function validateScene(scene, model, questions, id, purposeRequired) {
+function validateScene(scene, model, questions, id, medium, purposeRequired) {
   const fields = purposeRequired
     ? [
         'label',
@@ -175,7 +183,7 @@ function validateScene(scene, model, questions, id, purposeRequired) {
     scene.claims.some((claim) => !Object.hasOwn(model.claims, claim))
   )
     editionError('edition_scene_invalid', id);
-  const composition = validateComposition(scene.composition, model, id);
+  const composition = validateComposition(scene.composition, model, id, medium);
   for (const claimId of scene.claims) {
     const claim = model.claims[claimId];
     if (
@@ -234,8 +242,7 @@ function validateQualification(qualification, editionClass) {
     editionError('edition_human_qualification_required');
 }
 
-/** Validate one complete audience-specific Edition without mutating it. */
-export function validateEdition(model, edition) {
+function validateEditionContract(model, edition, completeOverviewRequired) {
   validateClaimModel(model);
   validateJson(edition);
   if (
@@ -308,6 +315,7 @@ export function validateEdition(model, edition) {
       model,
       edition.questions,
       'static',
+      'static',
       false,
     ),
     interactive = new Map();
@@ -315,7 +323,7 @@ export function validateEdition(model, edition) {
     if (!identifier(id)) editionError('edition_scene_invalid', id);
     interactive.set(
       id,
-      validateScene(scene, model, edition.questions, id, true),
+      validateScene(scene, model, edition.questions, id, 'interactive', true),
     );
   }
   if (
@@ -329,12 +337,26 @@ export function validateEdition(model, edition) {
     editionError('edition_narrative_invalid');
 
   const overviewId = edition.narrative[0],
-    overview = interactive.get(overviewId);
+    overview = interactive.get(overviewId),
+    modelEntities = Object.keys(model.entities),
+    modelRelations = Object.keys(model.relations);
   if (
     !sameSet(staticScene.claims, required) ||
     !sameSet(overview.claims, required)
   )
     editionError('edition_overview_incomplete');
+  if (completeOverviewRequired) {
+    if (
+      !sameSet(staticScene.entities, modelEntities) ||
+      !sameSet(staticScene.relations, modelRelations)
+    )
+      editionError('edition_overview_incomplete');
+    if (
+      !sameSet(staticScene.entities, overview.entities) ||
+      !sameSet(staticScene.relations, overview.relations)
+    )
+      editionError('edition_overview_carrier_drift');
+  }
 
   const overviewQuestions = Object.entries(edition.questions)
     .filter(([, question]) => question.detail === 'overview')
@@ -391,8 +413,13 @@ export function validateEdition(model, edition) {
   return edition;
 }
 
-export function normalizedEdition(model, edition) {
-  validateEdition(model, edition);
+/** Validate one complete audience-specific Edition without mutating it. */
+export function validateEdition(model, edition) {
+  return validateEditionContract(model, edition, true);
+}
+
+function normalizeEdition(model, edition, completeOverviewRequired) {
+  validateEditionContract(model, edition, completeOverviewRequired);
   const result = structuredClone(edition);
   result.requiredClaims.sort();
   for (const question of Object.values(result.questions)) question.claims.sort();
@@ -407,8 +434,22 @@ export function normalizedEdition(model, edition) {
   return result;
 }
 
+export function normalizedEdition(model, edition) {
+  return normalizeEdition(model, edition, true);
+}
+
 const digest = (value) =>
   createHash('sha256').update(canonical(value)).digest('hex');
+
+/**
+ * Admit one Edition side for conservative evolution analysis. Publication
+ * remains strict; this path permits only overview coverage drift so the
+ * compiler can report the rebuild required to restore a complete Edition.
+ */
+export function inspectEditionForEvolution(model, edition) {
+  const normalized = normalizeEdition(model, edition, false);
+  return { edition: normalized, digest: digest(normalized) };
+}
 
 function sceneSemanticProjection(model, scene) {
   const entityIds = [

@@ -51,7 +51,8 @@ export async function describeEthosBrowser(atlas) {
   };
 }
 
-/** Consume observed values and exact evidence bytes; no execution authenticity claim. */
+/** Consume observed values and exact evidence bytes; no execution authenticity claim.
+ * @internal Focused verification seam; readEthosBrowserEvidence is the reader. */
 export function validateEthosBrowserReport(
   { report, members },
   target,

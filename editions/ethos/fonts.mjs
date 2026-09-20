@@ -7,7 +7,7 @@ const family = 'ETHOS JetBrains Mono';
 const escape = (s) =>
   s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
-export function fontFaceCss(supply) {
+function fontFaceCss(supply) {
   return supply.fonts
     .map(
       (f) =>

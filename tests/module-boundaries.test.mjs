@@ -219,6 +219,96 @@ test('a permitted intermediary cannot hide its reverse dependency', () => {
   );
 });
 
+test('development tools are adapters over declared product owners', async () => {
+  const packageJson = JSON.parse(
+      await fs.readFile(path.join(root, 'package.json'), 'utf8'),
+    ),
+    declaredExternals = new Set([
+      ...Object.keys(packageJson.dependencies ?? {}),
+      ...Object.keys(packageJson.devDependencies ?? {}),
+      ...Object.keys(packageJson.optionalDependencies ?? {}),
+      ...Object.keys(packageJson.peerDependencies ?? {}),
+    ]);
+  const toolPaths = new Set(['']);
+  async function visit(relative) {
+    for (const entry of await fs.readdir(path.join(root, relative), {
+      withFileTypes: true,
+    })) {
+      const file = path.posix.join(relative, entry.name);
+      if (entry.isDirectory()) {
+        toolPaths.add(`${file}/`);
+        await visit(file);
+      } else toolPaths.add(file);
+    }
+  }
+  for (const directory of [
+    'src',
+    'adapters',
+    'renderers',
+    'editions',
+    'examples',
+    'assets',
+    'tools',
+  ])
+    await visit(directory);
+  const allowed = [
+    [
+      'tools/migration/semantic-v1-to-claim-v2.mjs',
+      "import '../../src/semantics/document.mjs';",
+    ],
+    [
+      'tools/qualification/browser-run.mjs',
+      "import '../../editions/ethos/browser.mjs';",
+    ],
+    [
+      'tools/qualification/browser-run.mjs',
+      "import './browser-observer.mjs';",
+    ],
+    [
+      'tools/qualification/semantic-browser.mjs',
+      "import '../../src/source/bundle.mjs';",
+    ],
+    [
+      'tools/qualification/semantic-browser.mjs',
+      "import './semantic-browser-checks.mjs';",
+    ],
+    [
+      'tools/qualification/browser-run.mjs',
+      "import { chromium } from 'playwright-core';",
+    ],
+  ];
+  for (const [file, source] of allowed)
+    assert.deepEqual(
+      inspectModuleBoundaries(file, source, toolPaths, declaredExternals),
+      [],
+      source,
+    );
+
+  const rejected = [
+    [
+      'migration bypasses its semantic owner',
+      'tools/migration/semantic-v1-to-claim-v2.mjs',
+      "import '../../editions/ethos/atlas.mjs';",
+    ],
+    [
+      'qualification mutates through publication',
+      'tools/qualification/browser-run.mjs',
+      "import '../../src/publication/files.mjs';",
+    ],
+    [
+      'qualification imports an undeclared external',
+      'tools/qualification/browser-run.mjs',
+      "import 'browser-driver';",
+    ],
+  ];
+  for (const [label, file, source] of rejected)
+    assert(
+      inspectModuleBoundaries(file, source, toolPaths, declaredExternals)
+        .length,
+      `${label} must not pass dependency admission`,
+    );
+});
+
 test('syntax errors fail the boundary check instead of disappearing', () => {
   const problems = inspectModuleBoundaries(
     'src/source/files.mjs',
@@ -255,17 +345,198 @@ test('all first-party JavaScript modules satisfy the same dependency rules', asy
     'editions',
     'examples',
     'assets',
+    'tools',
   ])
     await visit(dir);
   assert(modules.length > 0);
-  const problems = [];
+  const packageJson = JSON.parse(
+      await fs.readFile(path.join(root, 'package.json'), 'utf8'),
+    ),
+    runtimeExternals = new Set([
+      ...Object.keys(packageJson.dependencies ?? {}),
+      ...Object.keys(packageJson.optionalDependencies ?? {}),
+      ...Object.keys(packageJson.peerDependencies ?? {}),
+    ]),
+    developmentExternals = new Set([
+      ...runtimeExternals,
+      ...Object.keys(packageJson.devDependencies ?? {}),
+    ]),
+    problems = [];
   for (const file of modules)
     problems.push(
       ...inspectModuleBoundaries(
         file,
         await fs.readFile(path.join(root, file), 'utf8'),
         inventory,
+        file.startsWith('tools/') ? developmentExternals : runtimeExternals,
       ),
     );
   assert.deepEqual(problems, []);
+});
+
+test('shipped runtime owners cannot import development-only dependencies', async () => {
+  const packageJson = JSON.parse(
+      await fs.readFile(path.join(root, 'package.json'), 'utf8'),
+    ),
+    runtimeExternals = new Set([
+      ...Object.keys(packageJson.dependencies ?? {}),
+      ...Object.keys(packageJson.optionalDependencies ?? {}),
+      ...Object.keys(packageJson.peerDependencies ?? {}),
+    ]),
+    developmentOnly = Object.keys(packageJson.devDependencies ?? {}).filter(
+      (name) => !runtimeExternals.has(name),
+    );
+  assert.deepEqual(developmentOnly.sort(), [
+    'acorn',
+    'knip',
+    'playwright-core',
+  ]);
+  for (const dependency of developmentOnly)
+    assert(
+      inspectModuleBoundaries(
+        'src/source/files.mjs',
+        `import '${dependency}';`,
+        paths,
+        runtimeExternals,
+      ).some(
+        ({ reason }) =>
+          reason === 'dependency must be relative or a declared external',
+      ),
+      `runtime import of ${dependency} must fail dependency admission`,
+    );
+});
+
+test('installed evolution admits only the selected historical installer module', async () => {
+  const file = 'tools/qualification/installed-evolution.mjs',
+    source = await fs.readFile(path.join(root, file), 'utf8'),
+    inventory = new Set(['', file]);
+  assert.deepEqual(inspectModuleBoundaries(file, source, inventory), []);
+
+  for (const unbound of [
+    source.replace(
+      'path.resolve(root, config.priorInstaller)',
+      'path.resolve(root, config.otherInstaller)',
+    ),
+    source.replace(
+      'pathToFileURL(path.resolve(root, config.priorInstaller)).href',
+      'process.env.PRIOR_INSTALLER',
+    ),
+    source + '\nawait import(process.env.UNRELATED_INSTALLER);\n',
+  ])
+    assert(
+      inspectModuleBoundaries(file, unbound, inventory).some(
+        ({ reason }) => reason === 'computed dependency requires explicit admission',
+      ),
+    );
+});
+
+test('first-party owner paths are precise', async () => {
+  const authoredRoots = [
+    'src',
+    'adapters',
+    'renderers',
+    'editions',
+    'examples/self-host',
+    'tools',
+  ];
+  const forbiddenOwner =
+    /(?:^|\/)(?:core|common|shared|utils|legacy|compat)(?:\/|$)/;
+  const forbiddenModules = [
+    'src/composition',
+    'src/geometry',
+    'src/integrations',
+    'src/interactive',
+    'src/static',
+  ];
+  const modules = [];
+  async function visit(relative) {
+    for (const entry of await fs.readdir(path.join(root, relative), {
+      withFileTypes: true,
+    })) {
+      const file = path.posix.join(relative, entry.name);
+      if (entry.isDirectory()) await visit(file);
+      else if (/\.(?:mjs|cjs|js)$/.test(file)) modules.push(file);
+    }
+  }
+  for (const directory of authoredRoots) await visit(directory);
+
+  assert.deepEqual(
+    modules.filter((file) => forbiddenOwner.test(file)),
+    [],
+  );
+  for (const directory of forbiddenModules)
+    await assert.rejects(fs.access(path.join(root, directory)), {
+      code: 'ENOENT',
+    });
+
+});
+
+test('repository syntax gate covers every authored JavaScript module', async () => {
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(root, 'package.json'), 'utf8'),
+  );
+  const checked = new Set(
+    [...packageJson.scripts['check:syntax'].matchAll(/node --check ([^ &]+)/g)].map(
+      (match) => match[1],
+    ),
+  );
+  const modules = [];
+  async function visit(relative) {
+    for (const entry of await fs.readdir(path.join(root, relative), {
+      withFileTypes: true,
+    })) {
+      const file = path.posix.join(relative, entry.name);
+      if (entry.isDirectory()) await visit(file);
+      else if (/\.(?:mjs|cjs|js)$/.test(file)) modules.push(file);
+    }
+  }
+  for (const directory of [
+    'src',
+    'adapters',
+    'renderers',
+    'editions',
+    'examples/self-host',
+    'tools',
+  ])
+    await visit(directory);
+  assert.deepEqual(
+    modules.filter((file) => !checked.has(file)),
+    [],
+  );
+});
+
+test('the repository check composes syntax and dead-code gates once', async () => {
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(root, 'package.json'), 'utf8'),
+  );
+  const knip = JSON.parse(
+    await fs.readFile(path.join(root, 'knip.json'), 'utf8'),
+  );
+  assert.equal(
+    packageJson.scripts.check,
+    'npm run check:syntax && npm run check:dead-code',
+  );
+  assert.match(packageJson.scripts['check:dead-code'], /^knip /);
+  assert.doesNotMatch(packageJson.scripts['check:dead-code'], /--fix/);
+  assert.equal(knip.ignoreExportsUsedInFile, undefined);
+  assert(
+    knip.project
+      .filter((pattern) => !pattern.startsWith('tests/'))
+      .filter((pattern) => !pattern.startsWith('tools/'))
+      .every((pattern) => pattern.endsWith('!')),
+    'shipped runtime owners must remain in the production dead-code graph',
+  );
+  assert(
+    knip.project
+      .filter((pattern) => pattern.startsWith('tools/'))
+      .every((pattern) => !pattern.endsWith('!')),
+    'development-only tools must stay outside the shipped runtime graph',
+  );
+  assert.match(
+    packageJson.scripts['check:dead-code'],
+    /--production --strict --include [^&]*\bexports\b/,
+  );
+  const ci = await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8');
+  assert.match(ci, /npm run check/);
+  assert.doesNotMatch(ci, /check:syntax|check:dead-code|\bknip\b/);
 });

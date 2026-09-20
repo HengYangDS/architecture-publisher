@@ -62,7 +62,7 @@ function playbackState(){
 }
 
 /** Target state can settle before CSS transform/opacity paint. Compare paint. */
-export function storyPaintStable(previous,current){
+function storyPaintStable(previous,current){
  if(!previous||previous.story?.nodeId!==current.story?.nodeId)return false;
  const signature=m=>({svg:m.svg,panel:m.panel,texts:m.texts.filter(t=>t.owner===m.story.nodeId).map(t=>({box:t.box,opacity:t.opacity}))});
  const before=signature(previous),after=signature(current);

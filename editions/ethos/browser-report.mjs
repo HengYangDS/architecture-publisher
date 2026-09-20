@@ -28,6 +28,7 @@ export function decodeBrowserReport(name, content) {
   return value;
 }
 
+/** @internal Development observer seam; not part of the installed runtime. */
 export function encodeBrowserReport(report) {
   if (!record(report)) fail('browser_report_record');
   const raw = Buffer.from(JSON.stringify(report) + '\n');

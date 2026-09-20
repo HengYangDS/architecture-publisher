@@ -62,7 +62,7 @@ export function deriveWriteBoundary(raw, sourceBytes) {
     semanticAcceptance: 'UNVERIFIED',
   };
 }
-export function renderWriteBoundary(d) {
+function renderWriteBoundary(d) {
   return `<style id="ethos-write-boundary-style">
 .write-boundary{margin:40px 0;color:var(--text);font:14px/1.6 system-ui,sans-serif}
 .write-boundary h2{font:400 26px/1.2 Georgia,serif;margin:0 0 16px}

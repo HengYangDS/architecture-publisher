@@ -170,7 +170,7 @@ export function deriveEffectRows(input) {
   return rows;
 }
 
-export function composeEffectMatrix(rows, binding, notice) {
+function composeEffectMatrix(rows, binding, notice) {
   if (
     rows.length !== Object.keys(display).length ||
     new Set(rows.map((r) => r.id)).size !== rows.length ||

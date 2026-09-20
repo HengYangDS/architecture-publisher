@@ -536,9 +536,17 @@ test('rejects contradictory semantic claims before rendering', async (t) => {
 });
 
 test('rejects group cardinality beyond the finite compositor bound', async (t) => {
-  const value = await fixture(t);
+  const value = await fixture(t, (document) => {
+    for (let index = 0; index < 6; index++)
+      document.entities[`worker-${index}`] = {
+        type: 'component',
+        label: `Worker ${index}`,
+        qualifiers: {},
+        provenance: ['registry-source'],
+      };
+  });
   value.edition.scenes.static.composition.groups[0].entities =
-    Array(9).fill('cli');
+    Object.keys(value.document.entities);
   await fs.writeFile(value.plan.edition, encode(value.edition));
   value.plan.editionSha256 = sha(await fs.readFile(value.plan.edition));
   await assert.rejects(compileSemanticPublication(value.plan), {

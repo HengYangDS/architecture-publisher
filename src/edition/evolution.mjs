@@ -1,6 +1,9 @@
 import { canonical, exact, record } from '../semantics/document.mjs';
 import { compileClaimModelDelta } from '../semantics/change.mjs';
-import { editionDigest, normalizedEdition } from './contract.mjs';
+import {
+  inspectEditionForEvolution,
+  normalizedEdition,
+} from './contract.mjs';
 
 const obligationKeys = Object.freeze([
   'rebuild',
@@ -18,21 +21,67 @@ const evolutionError = (code, detail = '') => {
   });
 };
 
-function side(value) {
+function side(value, inspect = false) {
   if (
     !exact(value, ['claimModel', 'editions']) ||
     !Array.isArray(value.editions) ||
     value.editions.length > 256
   )
     evolutionError('edition_evolution_input_invalid');
-  const editions = new Map();
+  const editions = new Map(),
+    digests = {};
   for (const edition of value.editions) {
-    const normalized = normalizedEdition(value.claimModel, edition);
+    const inspected = inspect
+        ? inspectEditionForEvolution(value.claimModel, edition)
+        : {
+            edition: normalizedEdition(value.claimModel, edition),
+            digest: null,
+          },
+      normalized = inspected.edition;
     if (editions.has(normalized.id))
       evolutionError('edition_evolution_duplicate', normalized.id);
     editions.set(normalized.id, normalized);
+    digests[normalized.id] =
+      inspected.digest ?? inspectEditionForEvolution(value.claimModel, normalized).digest;
   }
-  return { claimModel: value.claimModel, editions };
+  return { claimModel: value.claimModel, editions, digests };
+}
+
+function sceneReferences(scene) {
+  return {
+    entities: new Set(scene.composition.groups.flatMap((group) => group.entities)),
+    relations: new Set(scene.composition.relations.map((relation) => relation.id)),
+  };
+}
+
+function admitExistingEvolutionEdition(beforeModel, afterModel, edition) {
+  try {
+    normalizedEdition(afterModel, edition);
+    return;
+  } catch (error) {
+    if (
+      !['edition_overview_incomplete', 'edition_overview_carrier_drift'].includes(
+        error?.code,
+      )
+    )
+      throw error;
+    const overview = edition.scenes.interactive[edition.narrative[0]],
+      staticReferences = sceneReferences(edition.scenes.static),
+      interactiveReferences = sceneReferences(overview);
+    for (const section of ['entities', 'relations']) {
+      const retained = Object.keys(beforeModel[section]).filter((id) =>
+        Object.hasOwn(afterModel[section], id),
+      );
+      if (
+        retained.some(
+          (id) =>
+            !staticReferences[section].has(id) ||
+            !interactiveReferences[section].has(id),
+        )
+      )
+        throw error;
+    }
+  }
 }
 
 const different = (left, right) => canonical(left) !== canonical(right);
@@ -97,11 +146,30 @@ function unrepresentedChanges(delta, beforeEdition, afterEdition, beforeModel, a
       ...representedReferences(beforeEdition, beforeModel),
       ...representedReferences(afterEdition, afterModel),
     ]),
+    overviewCarries = (edition, section, id) => {
+      const overview = edition.scenes.interactive[edition.narrative[0]],
+        selected = (scene) =>
+          section === 'entities'
+            ? scene.composition.groups.flatMap((group) => group.entities)
+            : scene.composition.relations.map((relation) => relation.id);
+      return selected(edition.scenes.static).includes(id) &&
+        selected(overview).includes(id);
+    },
+    structurallyRepresented = (section, id) =>
+      [
+        [beforeEdition, beforeModel],
+        [afterEdition, afterModel],
+      ]
+        .filter(([, model]) => Object.hasOwn(model[section], id))
+        .every(([edition]) => overviewCarries(edition, section, id)),
     unrepresented = [];
   for (const section of ['entities', 'relations', 'claims'])
     for (const kind of ['added', 'removed', 'changed'])
       for (const id of delta[kind][section])
-        if (!represented.has(`${section}:${id}`))
+        if (
+          (section === 'claims' && !represented.has(`${section}:${id}`)) ||
+          (section !== 'claims' && !structurallyRepresented(section, id))
+        )
           unrepresented.push(`${section}:${id}`);
   return sorted(unrepresented);
 }
@@ -376,23 +444,21 @@ export function compileEditionEvolution(input) {
   if (!record(input) || !exact(input, ['before', 'after', 'correspondences']))
     evolutionError('edition_evolution_input_invalid');
   const before = side(input.before),
-    after = side(input.after),
+    after = side(input.after, true),
     delta = compileClaimModelDelta(
       before.claimModel,
       after.claimModel,
       input.correspondences,
     ),
     beforeDigests = Object.fromEntries(
-      [...before.editions].sort(([left], [right]) => lexical(left, right)).map(([id, edition]) => [
-        id,
-        editionDigest(before.claimModel, edition),
-      ]),
+      Object.entries(before.digests).sort(([left], [right]) =>
+        lexical(left, right),
+      ),
     ),
     afterDigests = Object.fromEntries(
-      [...after.editions].sort(([left], [right]) => lexical(left, right)).map(([id, edition]) => [
-        id,
-        editionDigest(after.claimModel, edition),
-      ]),
+      Object.entries(after.digests).sort(([left], [right]) =>
+        lexical(left, right),
+      ),
     ),
     ids = sorted([...before.editions.keys(), ...after.editions.keys()]),
     added = ids.filter(
@@ -409,6 +475,17 @@ export function compileEditionEvolution(input) {
     ),
     affected = [],
     obligations = Object.fromEntries(obligationKeys.map((key) => [key, []]));
+
+  for (const [id, edition] of after.editions) {
+    const prior = before.editions.get(id);
+    if (prior)
+      admitExistingEvolutionEdition(
+        before.claimModel,
+        after.claimModel,
+        edition,
+      );
+    else normalizedEdition(after.claimModel, edition);
+  }
 
   for (const id of ids) {
     const prior = before.editions.get(id),

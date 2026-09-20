@@ -103,7 +103,8 @@ function standaloneSvg(svg, fonts, license) {
     xml(license.bytes.toString('utf8')) + '</metadata></svg>'));
 }
 
-/** Coordinate one atomic semantic publication across independent media. */
+/** Coordinate one atomic semantic publication across independent media.
+ * @internal Focused verification seam; compileSemanticPublicationInput is public. */
 export async function compileSemanticPublication(plan) {
   if (
     !exact(plan, [

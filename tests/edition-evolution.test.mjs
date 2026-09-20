@@ -550,6 +550,51 @@ test('unrepresented structural meaning broadens every scene explicitly', async (
   assert(affected.reasons.includes('unrepresented-change:entities:detached'));
 });
 
+test('evolution trusts only a complete accepted baseline Edition', async () => {
+  const { compileEditionEvolution } = await api(),
+    { before, after } = pair();
+  before.edition.scenes.static.composition.groups[0].entities.pop();
+  assert.throws(
+    () => compile(compileEditionEvolution, before, after),
+    /edition_overview_incomplete/,
+  );
+});
+
+test('a newly introduced Edition must already provide complete overviews', async () => {
+  const { compileEditionEvolution } = await api(),
+    { after } = pair();
+  after.edition.scenes.static.composition.groups[0].entities.pop();
+  assert.throws(
+    () =>
+      compileEditionEvolution({
+        before: { claimModel: after.model, editions: [] },
+        after: { claimModel: after.model, editions: [after.edition] },
+        correspondences: [],
+      }),
+    /edition_overview_incomplete/,
+  );
+});
+
+test('an existing Edition cannot hide unchanged structure during evolution', async () => {
+  const { compileEditionEvolution } = await api(),
+    { before, after } = pair();
+  after.edition.scenes.static.composition.groups[0].entities.pop();
+  assert.throws(
+    () => compile(compileEditionEvolution, before, after),
+    /edition_overview_incomplete/,
+  );
+});
+
+test('evolution analysis never relaxes required claim coverage', async () => {
+  const { compileEditionEvolution } = await api(),
+    { before, after } = pair();
+  after.edition.scenes.static.claims.pop();
+  assert.throws(
+    () => compile(compileEditionEvolution, before, after),
+    /edition_overview_incomplete/,
+  );
+});
+
 test('after Edition must classify every newly introduced claim', async () => {
   const { compileEditionEvolution } = await api(),
     { before, after } = pair();

@@ -12,7 +12,7 @@ const same = (a, b) => stableStringify(a) === stableStringify(b);
 const equal = (a, b, why) => {
   if (a !== b) throw Error(why);
 };
-export const STATIC_FILES = Object.freeze([
+const STATIC_FILES = Object.freeze([
   'document.json',
   'explanation.json',
   'reproduction-inputs.json',

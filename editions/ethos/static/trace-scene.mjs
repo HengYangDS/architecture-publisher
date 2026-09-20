@@ -19,8 +19,8 @@ const kinds = new Set([
   'worktree',
   'outcome',
 ]);
-export const TRACE_ARROW = { length: 8, halfWidth: 4, strokeWidth: 1.25 };
-export const TRACE_CORNER_RADIUS = 4;
+const TRACE_ARROW = { length: 8, halfWidth: 4, strokeWidth: 1.25 };
+const TRACE_CORNER_RADIUS = 4;
 const markStroke = (kind) =>
   kind === 'evidence'
     ? 1.3
@@ -42,7 +42,7 @@ function markPaintBox(m) {
 }
 const esc = (s) =>
   s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('"', '&quot;');
-export function validateTraceDocument(d) {
+function validateTraceDocument(d) {
   const marks = new Set();
   for (const m of d.marks) {
     if (marks.has(m.id)) throw new Error('duplicate mark');

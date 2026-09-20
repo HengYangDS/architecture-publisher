@@ -2,8 +2,6 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 
-export const RENDERER_ADAPTER_SCHEMA = 'ethos.archify-renderer-adapter/v1';
-
 /** An explicit authoring budget, not a claim about a browser's actual scale. */
 export function nativeTypography(
   contract,

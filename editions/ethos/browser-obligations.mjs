@@ -20,6 +20,7 @@ export const ATLAS_EXPORTS = Object.freeze([
   'route',
   'reach',
 ]);
+/** @internal Development observer vocabulary; not an installed-runtime API. */
 export const ATLAS_DISCLOSURES =
   '.container > [data-resource-comparison] details,.container > [data-write-boundary] details,.container > [data-verification-details] details';
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -303,6 +304,7 @@ export function browserCoverageGaps(report, pages, viewport, typography) {
   return [...new Set(gaps)];
 }
 
+/** @internal Development observer identity; not an installed-runtime API. */
 export function observationName({ page, htmlSha256, viewport, state, part }) {
   if (
     !identifier(page) ||

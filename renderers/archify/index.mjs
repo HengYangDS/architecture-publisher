@@ -152,7 +152,7 @@ function semanticPublicationTemplate(template) {
 }
 
 /** Render one interactive semantic projection without renderer identity badges. */
-export async function renderSemanticDiagram(plan) {
+async function renderSemanticDiagram(plan) {
   if (!plan || !types.has(plan.type)) fail('render_type_unsupported');
   if (!Buffer.isBuffer(plan.inputBytes)) fail('render_input_type_invalid');
   return renderNativeDiagram(plan, async (native, notice) => {

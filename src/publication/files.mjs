@@ -1261,4 +1261,6 @@ async function publishLockedPair(
   }
 }
 
-export { noLinks, inventory, validateOptions, canonicalOptions };
+export { noLinks };
+/** @internal Focused verification seam for preservation and rollback behavior. */
+export { inventory };

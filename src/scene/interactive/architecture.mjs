@@ -1,5 +1,4 @@
 import { fail } from '../../source/manifest.mjs';
-import { semanticArchitectureProjections } from '../contract.mjs';
 
 const record = (value) =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -219,11 +218,4 @@ export function interactiveArchitectureScene(document, edition, view) {
       };
     }),
   });
-}
-
-export function semanticInteractiveArchitectureScene(document, edition, viewId) {
-  const projections = semanticArchitectureProjections(document, edition),
-    view = projections.interactiveScenes.find((item) => item.id === viewId);
-  if (!view) fail('semantic_publication_view_missing');
-  return interactiveArchitectureScene(document, edition, view);
 }
