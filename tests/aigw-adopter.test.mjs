@@ -433,5 +433,67 @@ test(
       (await publicationApi.recoverPairFiles(replacement, replacementAuthorization)).status,
       'ALREADY_INSTALLED',
     );
+
+    const interruptedInput = structuredClone(publicationInput);
+    interruptedInput.options.destinations = {
+      native: path.join(temporary, 'interrupted-delivery', 'native'),
+      atlas: path.join(temporary, 'interrupted-delivery', 'atlas'),
+    };
+    interruptedInput.options.recoveryRoot = path.join(temporary, 'interrupted-recovery');
+    await fs.mkdir(path.dirname(interruptedInput.options.destinations.native));
+    const interrupted = await publicationApi.planPairFiles(interruptedInput);
+    const interruptedAuthorization = {
+      decision: 'AUTHORIZED',
+      planSha256: interrupted.sha256,
+    };
+    const interruptRequest = path.join(temporary, 'interrupt-request.json');
+    const interruptDriver = path.join(consumer, 'interrupt-publication.mjs');
+    await fs.writeFile(
+      interruptRequest,
+      JSON.stringify({ plan: interrupted, authorization: interruptedAuthorization }),
+    );
+    await fs.writeFile(
+      interruptDriver,
+      [
+        "import fs from 'node:fs/promises';",
+        `import { installPairFiles } from ${JSON.stringify(
+          pathToFileURL(resolve('architecture-publisher/publication')).href,
+        )};`,
+        "const request=JSON.parse(await fs.readFile(process.argv[2],'utf8'));",
+        'const rename=fs.rename;',
+        'fs.rename=async(source,target)=>{',
+        '  const result=await rename(source,target);',
+        "  if(target===request.plan.options.destinations.native)process.kill(process.pid,'SIGKILL');",
+        '  return result;',
+        '};',
+        'await installPairFiles(request.plan,request.authorization);',
+        '',
+      ].join('\n'),
+    );
+    const terminated = spawnSync(process.execPath, [interruptDriver, interruptRequest], {
+      cwd: consumer,
+      env: runtimeEnv,
+      encoding: 'utf8',
+      timeout: 30_000,
+    });
+    assert.equal(terminated.signal, 'SIGKILL', terminated.stdout + terminated.stderr);
+    assert.equal(
+      (await publicationApi.recoverPairFiles(interrupted, interruptedAuthorization)).status,
+      'ROLLED_BACK',
+    );
+    for (const target of Object.values(interrupted.options.destinations))
+      await assert.rejects(fs.stat(target), { code: 'ENOENT' });
+    assert.equal(
+      (await publicationApi.recoverPairFiles(interrupted, interruptedAuthorization)).status,
+      'ALREADY_ROLLED_BACK',
+    );
+    const resumedInput = structuredClone(interruptedInput);
+    resumedInput.source.revision = `${handoff.aigw.source.semanticRevision}:recovered`;
+    const resumed = await publicationApi.planPairFiles(resumedInput);
+    const resumedAuthorization = { decision: 'AUTHORIZED', planSha256: resumed.sha256 };
+    assert.equal(
+      (await publicationApi.installPairFiles(resumed, resumedAuthorization)).status,
+      'INSTALLED',
+    );
   },
 );
