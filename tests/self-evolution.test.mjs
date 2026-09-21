@@ -13,7 +13,8 @@ const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const selectedSources = Object.freeze({
   'product-contract': 'docs/product-contract.md',
   'edition-contract': 'docs/edition-contract.md',
-  'active-design': 'openspec/changes/architecture-publisher-0-2/design.md',
+  'ethos-source-owned-handoff': 'conformance/fixtures/ethos-source-owned-handoff.json',
+  'aigw-source-owned-handoff': 'conformance/fixtures/aigw-source-owned-handoff.json',
   'core-package': 'packages/publisher/package.json',
   'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
   'self-model-owner': 'editions/self/src/edition/model.mjs',

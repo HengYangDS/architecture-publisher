@@ -22,7 +22,8 @@ const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
 const selectedSources = Object.freeze({
   'product-contract': 'docs/product-contract.md',
   'edition-contract': 'docs/edition-contract.md',
-  'active-design': 'openspec/changes/architecture-publisher-0-2/design.md',
+  'ethos-source-owned-handoff': 'conformance/fixtures/ethos-source-owned-handoff.json',
+  'aigw-source-owned-handoff': 'conformance/fixtures/aigw-source-owned-handoff.json',
   'core-package': 'packages/publisher/package.json',
   'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
   'self-model-owner': 'editions/self/src/edition/model.mjs',
@@ -187,12 +188,21 @@ test('the first-party self Edition covers the complete product chain and authori
   );
   const role = (id) => model.claims['role-' + id],
     flow = (id) => model.claims['flow-' + id];
-  assert.deepEqual(
-    Object.entries(model.claims)
-      .filter(([, claim]) => ['observed', 'published'].includes(claim.plane))
-      .map(([id]) => id),
-    [],
-    'source code, tests, design, and package metadata are not execution or publication receipts',
+  const externallyObserved = Object.entries(model.claims).filter(([, claim]) =>
+    ['observed', 'published'].includes(claim.plane),
+  );
+  assert(
+    externallyObserved.every(([, claim]) =>
+      claim.provenance.some((source) =>
+        ['ethos-source-owned-handoff', 'aigw-source-owned-handoff'].includes(source),
+      ),
+    ),
+    'only explicit source-owned handoff evidence may support observed adopter claims',
+  );
+  assert.equal(
+    externallyObserved.some(([, claim]) => claim.plane === 'published'),
+    false,
+    'local handoff evidence is not remote publication evidence',
   );
   assert.deepEqual(
     [role('static-artifact').plane, role('static-artifact').maturity],
@@ -213,7 +223,11 @@ test('the first-party self Edition covers the complete product chain and authori
   );
   assert.equal(role('runtime-observation').plane, 'intended');
   assert.equal(role('publisher-core').plane, 'implemented');
-  assert.equal(role('aigw-consumer').plane, 'intended');
+  assert.deepEqual(
+    [role('ethos-consumer').plane, role('aigw-consumer').plane],
+    ['observed', 'observed'],
+    'source-owned handoff records support adopter observations without claiming publication',
+  );
   assert.equal(
     model.sources['installed-test-owner']?.authority,
     'Installed-use test implementation; not an execution observation',

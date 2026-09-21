@@ -187,3 +187,21 @@ test('terminal topology keeps live Editions with their source products', async (
   assert.match(tasks, /remove the migrated central AIGW package or example/i);
   assert.match(tasks, /same immutable candidate digests/i);
 });
+
+test('the released self Edition depends only on durable source authorities', async () => {
+  const selfSources = await Promise.all(
+    [
+      'editions/self/src/edition/model.mjs',
+      'editions/self/src/edition/prepare.mjs',
+      'tests/self-edition.test.mjs',
+      'tests/self-static-flagship.test.mjs',
+      'tests/self-interactive-atlas.test.mjs',
+      'tests/self-evolution.test.mjs',
+    ].map((file) => fs.readFile(path.join(root, file), 'utf8')),
+  );
+  const current = selfSources.join('\n');
+  assert.doesNotMatch(current, /active-design/u);
+  assert.doesNotMatch(current, /openspec\/changes\/architecture-publisher-0-2/u);
+  assert.match(current, /ethos-source-owned-handoff/u);
+  assert.match(current, /aigw-source-owned-handoff/u);
+});
