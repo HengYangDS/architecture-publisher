@@ -73,6 +73,8 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
   assert.match(profile, new RegExp(`^profile_id = "${repositoryName}"$`, 'm'));
   assert.match(openspec, /Govern Architecture Publisher changes through ETHOS\./);
   assert.match(readme, /^# Architecture Publisher$/m);
+  assert.match(readme, /\| Canonical repository \| `architecture-publisher` \|/);
+  assert.doesNotMatch(readme, /retains its historical path until the governed rename/i);
   assert.match(readme, /\barchpub source verify\b/);
   assert.doesNotMatch(readme, /^architecture (?:source|publish|render|atlas|poster|measure|semantic|raster)\b/m);
   assert.match(skill, /^name: architecture-publisher$/m);

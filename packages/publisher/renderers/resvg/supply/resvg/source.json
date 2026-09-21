@@ -5,7 +5,7 @@
     "version": "0.48.1",
     "registry": {
       "provider": "gitlab",
-      "projectPath": "dig/research/human-agent-stewardship/ethos-architecture",
+      "projectPath": "dig/research/human-agent-stewardship/architecture-publisher",
       "package": "architecture-raster-resvg-source",
       "version": "0.48.1-9c1219f8e903",
       "file": "source.tar.xz"

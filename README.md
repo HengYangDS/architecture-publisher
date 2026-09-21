@@ -47,11 +47,12 @@ it cannot reinterpret it or grant authority to it.
 | Core package | `architecture-publisher` |
 | Public CLI | `archpub` |
 | ETHOS migration package | `@architecture-publisher/ethos`, removed after source-owned adoption |
-| Canonical repository | `architecture-publisher` after accepted migration |
+| Canonical repository | `architecture-publisher` |
 | ETHOS publication | `ETHOS Architecture` / `ETHOS · 问道` |
 
-The checkout retains its historical path until the governed rename. Signed
-alpha.7 tags and release bytes remain immutable predecessor evidence.
+The local checkout and GitLab project are the same history-preserving repository
+object under the canonical `architecture-publisher` identity. Signed alpha.7
+tags and release bytes remain immutable predecessor evidence.
 
 ## Install and inspect
 

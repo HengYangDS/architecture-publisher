@@ -47,7 +47,7 @@ test('raster renderer is bound to a reproducible source closure', async () => {
   assert.match(source.source.archiveSha256, /^[a-f0-9]{64}$/);
   assert.deepEqual(source.source.registry, {
     provider: 'gitlab',
-    projectPath: 'dig/research/human-agent-stewardship/ethos-architecture',
+    projectPath: 'dig/research/human-agent-stewardship/architecture-publisher',
     package: 'architecture-raster-resvg-source',
     version: `0.48.1-${source.source.archiveSha256.slice(0, 12)}`,
     file: 'source.tar.xz',

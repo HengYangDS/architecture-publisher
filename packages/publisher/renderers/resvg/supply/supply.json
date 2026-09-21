@@ -4,7 +4,7 @@
     {
       "name": "resvg",
       "version": "0.48.1",
-      "archive": "gitlab-generic://dig/research/human-agent-stewardship/ethos-architecture/architecture-raster-resvg-source/0.48.1-9c1219f8e903/source.tar.xz",
+      "archive": "gitlab-generic://dig/research/human-agent-stewardship/architecture-publisher/architecture-raster-resvg-source/0.48.1-9c1219f8e903/source.tar.xz",
       "integrity": "sha256-9c1219f8e9037730a51e95c1dd905137987f8b084c7f0e3666642f52b93260e8",
       "license": "MIT OR Apache-2.0",
       "sourceCommit": "crates.io:resvg@0.48.1"
@@ -60,14 +60,14 @@
     {
       "path": "resvg/THIRD-PARTY-NOTICES.txt",
       "source": "license texts for every Cargo.lock package in the pinned source closure",
-      "bytes": 172526,
-      "sha256": "d71666f354b46e7802d33c2b0beada6e8f9f26ea3bcfa02f3c6e2a238755989b"
+      "bytes": 172534,
+      "sha256": "41efdf2cc099de3529cc9cb6c9dddb043f207bf89033dcb5e3cd9f459c1275e4"
     },
     {
       "path": "resvg/source.json",
       "source": "source, toolchain, build and output identity binding",
-      "bytes": 2254,
-      "sha256": "317bc943f32ab4f8464c8ad1972d710e9d889d1a9bce26ca52e152c01e10eebe"
+      "bytes": 2258,
+      "sha256": "24ef098d90d750881895333490191cdb9251815d83a6d4386444b7d35c3fc26d"
     },
     {
       "path": "sax/sax.cjs",

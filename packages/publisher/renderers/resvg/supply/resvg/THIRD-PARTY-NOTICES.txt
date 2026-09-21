@@ -1,6 +1,6 @@
-ETHOS Architecture raster renderer third-party notices
+Architecture Publisher raster renderer third-party notices
 
-Source closure: gitlab-generic://dig/research/human-agent-stewardship/ethos-architecture/architecture-raster-resvg-source/0.48.1-9c1219f8e903/source.tar.xz
+Source closure: gitlab-generic://dig/research/human-agent-stewardship/architecture-publisher/architecture-raster-resvg-source/0.48.1-9c1219f8e903/source.tar.xz
 Source archive SHA-256: 9c1219f8e9037730a51e95c1dd905137987f8b084c7f0e3666642f52b93260e8
 Cargo.lock SHA-256: fc00bd3f4b30b69c25f87446123deb4335261c392a73f4a816bc0dea8f218578
 
