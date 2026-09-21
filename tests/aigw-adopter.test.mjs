@@ -51,7 +51,7 @@ async function copyHandoffFiles(source, destination, files) {
   }
 }
 
-test('Publisher retains only immutable AIGW source-ownership evidence', async () => {
+test('Publisher retains only immutable AIGW source-ownership evidence', async (t) => {
   const handoff = await json(handoffPath);
   assert.equal(handoff.schema, 'aigw.architecture-publisher-handoff/v1');
   assert.equal(handoff.publisher.package.name, 'architecture-publisher');
@@ -77,6 +77,36 @@ test('Publisher retains only immutable AIGW source-ownership evidence', async ()
   assert.equal(
     tracked.some((file) => file.startsWith('migration/aigw/')),
     false,
+  );
+
+  const historical = await fs.mkdtemp(path.join(os.tmpdir(), 'aigw-publisher-handoff-'));
+  t.after(() => fs.rm(historical, { recursive: true, force: true }));
+  const source = path.join(historical, 'source');
+  await fs.mkdir(source);
+  const archived = spawnSync(
+    'git',
+    [
+      'archive',
+      '--format=tar',
+      `${handoff.publisher.source.commit}:${handoff.publisher.source.path}`,
+    ],
+    { cwd: root, encoding: null, maxBuffer: 32 * 1024 * 1024 },
+  );
+  assert.equal(archived.status, 0, archived.stderr?.toString());
+  const extracted = spawnSync('tar', ['-xf', '-', '-C', source], {
+    input: archived.stdout,
+    encoding: null,
+  });
+  assert.equal(extracted.status, 0, extracted.stderr?.toString());
+  const packed = JSON.parse(
+    run('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', historical], {
+      cwd: source,
+    }),
+  )[0];
+  assert.equal(packed.filename, handoff.publisher.package.file);
+  assert.equal(
+    sha(await fs.readFile(path.join(historical, packed.filename))),
+    handoff.publisher.package.sha256,
   );
 });
 
@@ -133,7 +163,9 @@ test(
       }),
     )[0];
     const archivePath = path.join(temporary, archive.filename);
-    assert.equal(sha(await fs.readFile(archivePath)), handoff.publisher.package.sha256);
+    assert.equal(archive.name, handoff.publisher.package.name);
+    assert.equal(archive.version, handoff.publisher.package.version);
+    assert.match(sha(await fs.readFile(archivePath)), /^[0-9a-f]{64}$/u);
 
     const consumer = path.join(temporary, 'consumer');
     const home = path.join(temporary, 'home');
