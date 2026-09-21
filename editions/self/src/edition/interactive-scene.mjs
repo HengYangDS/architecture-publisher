@@ -157,7 +157,20 @@ const OVERVIEW_RELATIONS = Object.freeze([
       'core-compiles-interactive',
     ],
   ],
-  ['media-assurance', 'media', 'assurance', 'qualifies', ['candidate-enters-qualification']],
+  [
+    'media-assurance',
+    'media',
+    'assurance',
+    'qualifies',
+    ['candidate-enters-qualification'],
+    {
+      fromSide: 'right',
+      toSide: 'right',
+      route: 'auto',
+      waypoints: [point(1160, 144), point(1160, 504)],
+      labelPlacement: { at: [1138, 324] },
+    },
+  ],
   ['assurance-delivery', 'assurance', 'delivery', 'authorizes', ['authorization-precedes-publication']],
   [
     'delivery-adoption',
@@ -181,13 +194,8 @@ const OVERVIEW_RELATIONS = Object.freeze([
       fromSide: 'left',
       toSide: 'left',
       route: 'auto',
-      waypoints: [
-        point(330, 436),
-        point(330, 560),
-        point(28, 560),
-        point(28, 146),
-      ],
-      labelPlacement: { at: [56, 330] },
+      waypoints: [point(20, 504), point(20, 144)],
+      labelPlacement: { at: [44, 324] },
     },
   ],
   [
@@ -197,15 +205,11 @@ const OVERVIEW_RELATIONS = Object.freeze([
     'compares',
     ['models-enter-evolution', 'edition-enters-evolution'],
     {
-      fromSide: 'top',
-      toSide: 'right',
+      fromSide: 'bottom',
+      toSide: 'left',
       route: 'auto',
-      waypoints: [
-        point(438, 52),
-        point(1160, 52),
-        point(1160, 696),
-      ],
-      labelPlacement: { at: [1140, 330] },
+      waypoints: [point(410, 240), point(580, 240), point(580, 324)],
+      labelPlacement: { at: [500, 228] },
     },
   ],
   [
@@ -223,10 +227,15 @@ const OVERVIEW_RELATIONS = Object.freeze([
       'publication-obligation-renews-publication',
     ],
     {
-      fromSide: 'top',
-      toSide: 'bottom',
-      route: 'straight',
-      labelPlacement: { at: [1048, 566] },
+      fromSide: 'right',
+      toSide: 'top',
+      route: 'auto',
+      waypoints: [
+        point(870, 324),
+        point(870, 410),
+        point(1010, 410),
+      ],
+      labelPlacement: { at: [930, 398] },
     },
   ],
 ]);
@@ -367,15 +376,15 @@ const ADOPTION_RELATIONS = Object.freeze([
 
 const SLOTS = Object.freeze({
   overview: Object.freeze({
-    viewport: [1240, 820],
-    source: [70, 100],
-    meaning: [340, 100],
-    authorship: [630, 100],
-    media: [930, 100],
-    assurance: [930, 390],
-    delivery: [650, 390],
-    adoption: [370, 390],
-    evolution: [930, 650],
+    viewport: [1240, 700],
+    source: [40, 90],
+    meaning: [300, 85],
+    authorship: [570, 85],
+    media: [860, 85],
+    assurance: [900, 445],
+    delivery: [620, 450],
+    adoption: [340, 450],
+    evolution: [620, 270],
   }),
   semantics: Object.freeze({
     viewport: [1100, 620],
@@ -565,9 +574,18 @@ const EVOLUTION_RELATIONS = Object.freeze([
   ],
 ]);
 
-function nodeWidth(label) {
-  const required = String(label).length * 6.6 - 8;
-  return [196, 220, 244].find((width) => width >= required) ?? 244;
+function nodeWidth(label, viewId) {
+  const required = String(label).length * (viewId === 'overview' ? 7.2 : 6.6) +
+    (viewId === 'overview' ? 20 : -8),
+    widths = viewId === 'overview' ? [220, 248, 276] : [196, 220, 244];
+  return widths.find((width) => width >= required) ?? widths.at(-1);
+}
+
+function nodeHeight(id, viewId) {
+  if (viewId !== 'overview') return 92;
+  return ['meaning', 'authorship', 'media', 'assurance'].includes(id)
+    ? 118
+    : 108;
 }
 
 function point(x, y) {
@@ -785,14 +803,14 @@ export function composeArchitecturePublisherInteractiveScene(
         }
       }
       const [x, y] = slots[id],
-        width = nodeWidth(label);
+        width = nodeWidth(label, view.id);
       return {
         id,
         label,
         detail: DETAILS[id] ?? `${entities.length} semantic subjects`,
         visualRole: ROLES[id] ?? 'backend',
         position: { x, y },
-        size: { width, height: 92 },
+        size: { width, height: nodeHeight(id, view.id) },
         semanticIds,
       };
     }),

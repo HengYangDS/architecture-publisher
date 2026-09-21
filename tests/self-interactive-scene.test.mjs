@@ -83,6 +83,25 @@ test('self overview is a complete visual system map, not an atomic box dump', ()
   assert(scene.nodes.length <= 8);
   assert(scene.nodes.length < atomicNodes);
   assert(scene.viewport.width / scene.viewport.height >= 1.5);
+  assert(scene.nodes.every(({size}) => size.width >= 220 && size.height >= 108));
+  const byId = new Map(scene.nodes.map((node) => [node.id, node])),
+    meaning = byId.get('meaning'),
+    evolution = byId.get('evolution'),
+    adoption = byId.get('adoption'),
+    delivery = byId.get('delivery'),
+    assurance = byId.get('assurance'),
+    meaningEvolution = scene.edges.find(({id}) => id === 'meaning-evolution');
+  assert(evolution.position.y > meaning.position.y);
+  assert(evolution.position.y < adoption.position.y);
+  assert(evolution.position.x > adoption.position.x);
+  assert(evolution.position.x < assurance.position.x);
+  assert(delivery.position.x < assurance.position.x);
+  assert(
+    meaningEvolution.waypoints.every(
+      ({ y }) => y >= 220 && y < adoption.position.y,
+    ),
+    'evolution must be reached through the body, not an outer header detour',
+  );
 });
 
 test('mechanism pages expose their causal boundaries instead of collapsing them', () => {

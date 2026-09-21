@@ -120,8 +120,9 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
   assert.equal(png.readUInt32BE(16), 6000);
   assert.equal(png.readUInt32BE(20), 3375);
   assert.match(svg, /width="1600" height="900" viewBox="0 0 1600 900"/);
-  assert.match(svg, /Architecture Publisher/);
-  assert.match(svg, /Meaning becomes a trustworthy Architecture Edition/);
+  assert.match(svg, /ARCHITECTURE PUBLISHER/);
+  assert.match(svg, /Source-bound meaning, explicitly trusted/);
+  assert.match(svg, /Independent media · exact qualification · recoverable publication/);
   assert.match(svg, /@font-face/);
   assert.match(svg, /data:font\/ttf;base64,/);
   assert.doesNotMatch(svg, /archify|plate\d+|template|debug|v0\.2/i);
@@ -134,14 +135,46 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
       'source-field',
       'semantic-contract',
       'editorial-contract',
-      'independent-scenes',
-      'exact-media',
+      'static-scene',
+      'interactive-scenes',
+      'static-artifact',
+      'interactive-artifact',
+      'edition-candidate',
       'qualification',
       'acceptance',
       'authorization',
       'recoverable-publication',
       'consumers-feedback',
     ],
+  );
+  const topology = Object.fromEntries(
+    scene.edges.map(({id, source, target}) => [id, {source, target}]),
+  );
+  assert.deepEqual(topology['edition-to-static'], {
+    source: 'editorial-contract',
+    target: 'static-scene',
+  });
+  assert.deepEqual(topology['edition-to-interactive'], {
+    source: 'editorial-contract',
+    target: 'interactive-scenes',
+  });
+  assert.deepEqual(topology['static-to-candidate'], {
+    source: 'static-artifact',
+    target: 'edition-candidate',
+  });
+  assert.deepEqual(topology['interactive-to-candidate'], {
+    source: 'interactive-artifact',
+    target: 'edition-candidate',
+  });
+  assert.equal(
+    scene.nodes.find(({id}) => id === 'edition-candidate').radius >
+      scene.nodes.find(({id}) => id === 'source-field').radius,
+    true,
+  );
+  assert.equal(
+    scene.edges.every(({points}) => points.slice(1).every((point, index) =>
+      point.x === points[index].x || point.y === points[index].y)),
+    true,
   );
   const feedback = scene.edges.find((edge) => edge.id === 'feedback-return');
   assert.deepEqual(
@@ -152,12 +185,15 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
       points: feedback?.points,
     },
     {
-      source: 'feedback-return-start',
-      target: 'feedback-return-end',
+      source: 'consumers-feedback',
+      target: 'source-field',
       kind: 'feedback',
       points: [
-        { x: 1483, y: 430 },
-        { x: 117, y: 430 },
+        { x: 1480, y: 468 },
+        { x: 1480, y: 530 },
+        { x: 40, y: 530 },
+        { x: 40, y: 300 },
+        { x: 104, y: 300 },
       ],
     },
   );
