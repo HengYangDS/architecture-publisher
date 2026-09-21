@@ -19,19 +19,19 @@
     "self": {
       "transport": "independent-core-and-edition-packages",
       "edition": {
-        "tree": "1c866e2b80d3e62700ea7388aaa3afd24f1706a6",
-        "packageSha256": "6cf48edfc09258cd2f794941c03fdd4387b5e5e75391e1ac22950ec461d50d8a"
+        "tree": "89c458cf29aa53b63045321e2fab04d389489a15",
+        "packageSha256": "d506b1976a468cdc58d3bb64f32ada46a4fe07cc62507d994626554acb75ae73"
       },
       "candidate": {
-        "manifestSha256": "4e5970eefe29f4c7f35d5eb690d79de7307829522ac3053ddb00a34294e2dc10",
-        "candidateSha256": "3d50125d0824c2b5b06fb0ab7c0ed6f37c2a7916aa698b1840b85e766d84caa9",
-        "editionDigest": "2cf9bc3e9422dcb6b412a50fc68650cca15be5b6e42566ddcd0585c85526f97c",
-        "staticSceneDigest": "b0799668fe4b79632769aab27f24467ca3e573ad1ac134e8431a941e61b29cc1",
+        "manifestSha256": "7f9b2987516909aa936e6a1dfb714a1fcb853319434e08e5af0ea65bf6e1611f",
+        "candidateSha256": "f5a2c42ffae39d1b583d979c34a0e1fa6c345b609cce0dd00ecdbc788c07a0f4",
+        "editionDigest": "1de2a7ed13fcf28a7094be87853460d0e594be2a9099fee3b1404ca6e139293d",
+        "staticSceneDigest": "543f8af3ef055f334054fe8d8c279e2ccf5a84370375070c20147e2a217e10ff",
         "interactiveSceneDigest": "fac89f6d1ffb00f8f6ac197b690af7ff252fc29310b2ac7005d82ecd02a15717"
       },
       "evidence": {
-        "resultSha256": "101d341a15a0b36ad0c996a650e45ff3f2dac63ec5d1eff8ac5f8635fc21e521",
-        "logSha256": "101d341a15a0b36ad0c996a650e45ff3f2dac63ec5d1eff8ac5f8635fc21e521"
+        "resultSha256": "f53bade8f46122f9017229266983a0a06c96be35fc3dbb2264b807b42c8fdbba",
+        "logSha256": "f53bade8f46122f9017229266983a0a06c96be35fc3dbb2264b807b42c8fdbba"
       }
     },
     "ethos": {
