@@ -138,6 +138,24 @@ test(
   },
 );
 test(
+  'CoreText emits identical metric bytes for identical selected inputs',
+  { skip: process.platform !== 'darwin' },
+  async (t) => {
+    const measure = await api(),
+      first = await setup(t),
+      second = structuredClone(first.plan);
+    second.output = path.join(first.dir, 'repeated-metrics');
+
+    await measure(first.plan);
+    await measure(second);
+
+    assert.deepEqual(
+      await fs.readFile(path.join(first.plan.output, 'metrics.json')),
+      await fs.readFile(path.join(second.output, 'metrics.json')),
+    );
+  },
+);
+test(
   'CoreText accepts the selected font through the macOS private tmp path alias',
   { skip: process.platform !== 'darwin' },
   async (t) => {

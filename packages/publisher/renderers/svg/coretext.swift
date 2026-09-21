@@ -17,6 +17,12 @@ struct Output: Encodable { let status: String; let observations: [Observation] }
 struct Failure: Encodable { let status: String; let code: String }
 enum MeasureError: String, Error { case font = "coretext_font_unbound", glyph = "coretext_glyph_missing", input = "coretext_input_invalid" }
 
+func encoded<T: Encodable>(_ value: T) throws -> Data {
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.sortedKeys]
+    return try encoder.encode(value)
+}
+
 func measure(_ input: Input) throws -> [Observation] {
     var selections: [String: FontSelection] = [:]
     var descriptors: [String: CTFontDescriptor] = [:]
@@ -75,9 +81,9 @@ func measure(_ input: Input) throws -> [Observation] {
 do {
     let input = try JSONDecoder().decode(Input.self, from: FileHandle.standardInput.readDataToEndOfFile())
     let result = try measure(input)
-    FileHandle.standardOutput.write(try JSONEncoder().encode(Output(status: "measured", observations: result)))
+    FileHandle.standardOutput.write(try encoded(Output(status: "measured", observations: result)))
 } catch {
     let code = (error as? MeasureError)?.rawValue ?? "coretext_measurement_failed"
-    FileHandle.standardOutput.write(try JSONEncoder().encode(Failure(status: "error", code: code)))
+    FileHandle.standardOutput.write(try encoded(Failure(status: "error", code: code)))
     exit(1)
 }
