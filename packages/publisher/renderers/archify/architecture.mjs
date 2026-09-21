@@ -54,18 +54,10 @@ export function adaptArchitectureScene(scene) {
       fromSide: edge.fromSide,
       toSide: edge.toSide,
       route: edge.route,
-      ...(edge.waypoints
-        ? { via: edge.waypoints.map(({ x, y }) => [x, y]) }
-        : {}),
-      ...(edge.labelPlacement?.at
-        ? { labelAt: edge.labelPlacement.at }
-        : {}),
-      ...(edge.labelPlacement?.dx === undefined
-        ? {}
-        : { labelDx: edge.labelPlacement.dx }),
-      ...(edge.labelPlacement?.dy === undefined
-        ? {}
-        : { labelDy: edge.labelPlacement.dy }),
+      ...(edge.waypoints ? { via: edge.waypoints.map(({ x, y }) => [x, y]) } : {}),
+      ...(edge.labelPlacement?.at ? { labelAt: edge.labelPlacement.at } : {}),
+      ...(edge.labelPlacement?.dx === undefined ? {} : { labelDx: edge.labelPlacement.dx }),
+      ...(edge.labelPlacement?.dy === undefined ? {} : { labelDy: edge.labelPlacement.dy }),
       ...(edge.labelPlacement?.segment === undefined
         ? {}
         : { labelSegment: edge.labelPlacement.segment }),

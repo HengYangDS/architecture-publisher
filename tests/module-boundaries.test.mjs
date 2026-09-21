@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { inspectModuleBoundaries } from './fixtures/module-boundaries.mjs';
 
@@ -11,14 +10,24 @@ const runtimeRoots = [
   'packages/publisher/src',
   'packages/publisher/renderers',
   'editions/self/src',
+  'conformance/journeys/self-host',
 ];
 
+async function declaredPackageExports() {
+  const exports = new Map();
+  for (const directory of ['packages/publisher', 'editions/self']) {
+    const manifest = JSON.parse(await fs.readFile(path.join(root, directory, 'package.json')));
+    for (const [subpath, target] of Object.entries(manifest.exports)) {
+      assert.equal(typeof target, 'string', `${manifest.name}:${subpath}`);
+      const specifier = subpath === '.' ? manifest.name : `${manifest.name}/${subpath.slice(2)}`;
+      exports.set(specifier, path.posix.join(directory, target));
+    }
+  }
+  return exports;
+}
+
 async function inventory(roots) {
-  const paths = new Set([
-    '',
-    'packages/publisher/',
-    'editions/self/',
-  ]);
+  const paths = new Set(['', 'packages/publisher/', 'editions/self/']);
   const modules = [];
   async function visit(relative) {
     paths.add(`${relative.replace(/\/$/, '')}/`);
@@ -71,21 +80,25 @@ test('runtime owners are package-scoped and old owner roots are absent', async (
 
 test('core owners cannot import concrete extensions', async () => {
   const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
   const problems = inspectModuleBoundaries(
     'packages/publisher/src/source/files.mjs',
     "import '@architecture-publisher/self-edition/edition';",
     paths,
+    packageExports,
   );
   assert(problems.some(({ reason }) => reason.includes('forbidden dependency')));
 });
 
 test('extensions depend inward through public package exports', async () => {
   const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
   assert.deepEqual(
     inspectModuleBoundaries(
       'editions/self/src/edition/static-flagship.mjs',
       "import { loadBundledFonts } from 'architecture-publisher/renderers/fonts';",
       paths,
+      packageExports,
     ),
     [],
   );
@@ -93,16 +106,16 @@ test('extensions depend inward through public package exports', async () => {
     'editions/self/src/edition/static-flagship.mjs',
     "import '../../../../packages/publisher/src/source/bundle.mjs';",
     paths,
+    packageExports,
   );
   assert(
-    deep.some(({ reason }) =>
-      reason.includes('cross-package dependency must use a public export'),
-    ),
+    deep.some(({ reason }) => reason.includes('cross-package dependency must use a public export')),
   );
 });
 
 test('all shipped modules satisfy the package and semantic dependency graph', async () => {
   const { paths, modules } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
   const problems = [];
   for (const file of modules)
     problems.push(
@@ -110,6 +123,7 @@ test('all shipped modules satisfy the package and semantic dependency graph', as
         file,
         await fs.readFile(path.join(root, file), 'utf8'),
         paths,
+        packageExports,
       ),
     );
   assert.deepEqual(problems, []);
@@ -117,6 +131,7 @@ test('all shipped modules satisfy the package and semantic dependency graph', as
 
 test('development tools use declared package owners and dependencies', async () => {
   const { paths, modules } = await inventory([...runtimeRoots, 'tools']);
+  const packageExports = await declaredPackageExports();
   const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json')));
   const declared = new Set(Object.keys(workspace.devDependencies ?? {}));
   const problems = [];
@@ -126,6 +141,7 @@ test('development tools use declared package owners and dependencies', async () 
         file,
         await fs.readFile(path.join(root, file), 'utf8'),
         paths,
+        packageExports,
         declared,
       ),
     );
@@ -134,11 +150,13 @@ test('development tools use declared package owners and dependencies', async () 
 
 test('syntax failures and computed dependencies fail closed', async () => {
   const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
   assert.match(
     inspectModuleBoundaries(
       'packages/publisher/src/source/files.mjs',
       'export {',
       paths,
+      packageExports,
     )[0].reason,
     /syntax/,
   );
@@ -147,6 +165,7 @@ test('syntax failures and computed dependencies fail closed', async () => {
       'packages/publisher/src/source/files.mjs',
       'await import(selected);',
       paths,
+      packageExports,
     ).some(({ reason }) => reason.includes('computed dependency')),
   );
 });
@@ -154,21 +173,22 @@ test('syntax failures and computed dependencies fail closed', async () => {
 test('first-party owner names stay precise outside vendored assets', async () => {
   const { modules } = await inventory([...runtimeRoots, 'conformance/journeys/self-host', 'tools']);
   const forbidden = /(?:^|\/)(?:core|common|shared|utils|legacy|compat)(?:\/|$)/;
-  assert.deepEqual(modules.filter((file) => forbidden.test(file)), []);
+  assert.deepEqual(
+    modules.filter((file) => forbidden.test(file)),
+    [],
+  );
 });
 
-test('repository syntax gate covers all tracked JavaScript modules', () => {
-  const checked = spawnSync(process.execPath, ['tools/check-syntax.mjs'], {
-    cwd: root,
-    encoding: 'utf8',
-  });
-  assert.equal(checked.status, 0, checked.stdout + checked.stderr);
-});
-
-test('repository check composes syntax and dead-code gates once', async () => {
+test('repository check composes one fail-closed static and acceptance graph', async () => {
   const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json')));
   const knip = JSON.parse(await fs.readFile(path.join(root, 'knip.json')));
-  assert.equal(workspace.scripts.check, 'npm run check:syntax && npm run check:dead-code');
+  assert.equal(
+    workspace.scripts.check,
+    'npm run check:static && npm run test:coverage && npm run check:package',
+  );
+  assert.match(workspace.scripts['check:static'], /check:lint/);
+  assert.match(workspace.scripts['check:static'], /check:types/);
+  assert.match(workspace.scripts['check:static'], /check:imports/);
   assert.match(workspace.scripts['check:dead-code'], /^knip /);
   assert.doesNotMatch(workspace.scripts['check:dead-code'], /--fix/);
   assert.equal(knip.ignoreExportsUsedInFile, undefined);

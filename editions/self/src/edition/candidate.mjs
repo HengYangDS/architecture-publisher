@@ -1,15 +1,8 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {
-  createEditionCandidate,
-  editionCandidateDigest,
-} from 'architecture-publisher/compiler';
-import {
-  editionDigest,
-  staticSceneDigest,
-  validateEdition,
-} from 'architecture-publisher/edition';
+import { createEditionCandidate, editionCandidateDigest } from 'architecture-publisher/compiler';
+import { editionDigest, staticSceneDigest, validateEdition } from 'architecture-publisher/edition';
 import { claimModelDigest, validateClaimModel } from 'architecture-publisher/semantics';
 import {
   fail,
@@ -114,9 +107,7 @@ export async function buildArchitecturePublisherCandidate(plan) {
         staticResult.output.manifestPath,
         staticResult.output.manifestSha256,
       ),
-      staticMembers = new Map(
-        staticBundle.members.map((member) => [member.path, member.content]),
-      ),
+      staticMembers = new Map(staticBundle.members.map((member) => [member.path, member.content])),
       svg = staticMembers.get('architecture-publisher.svg'),
       png = staticMembers.get('architecture-publisher-6000.png'),
       html = await fs.readFile(interactiveOutput);

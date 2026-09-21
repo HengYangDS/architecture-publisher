@@ -1,34 +1,19 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {
-  noSymlinkAncestors,
-  regularBytes,
-  writeSourceBundle,
-} from 'architecture-publisher/source';
-import {
-  claimModelDigest,
-  validateClaimModel,
-} from 'architecture-publisher/semantics';
-import {
-  editionDigest,
-  validateEdition,
-} from 'architecture-publisher/edition';
+import { noSymlinkAncestors, regularBytes, writeSourceBundle } from 'architecture-publisher/source';
+import { claimModelDigest, validateClaimModel } from 'architecture-publisher/semantics';
+import { editionDigest, validateEdition } from 'architecture-publisher/edition';
 import { architecturePublisherClaimModel } from './model.mjs';
-import {
-  architecturePublisherStaticScene,
-  staticAuthoringDigest,
-} from './static-scene.mjs';
+import { architecturePublisherStaticScene, staticAuthoringDigest } from './static-scene.mjs';
 import { architecturePublisherInteractiveScenes } from './interactive-scenes.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
 const digest = (value) => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
-const record = (value) =>
-  value !== null && typeof value === 'object' && !Array.isArray(value);
+const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const exact = (value, fields) =>
-  record(value) &&
-  Object.keys(value).sort().join('\n') === [...fields].sort().join('\n');
+  record(value) && Object.keys(value).sort().join('\n') === [...fields].sort().join('\n');
 const sourceAuthorities = Object.freeze({
   'product-contract': 'Canonical product meaning and authority boundary',
   'edition-contract': 'Canonical Edition authorship and coverage boundary',
@@ -41,10 +26,8 @@ const sourceAuthorities = Object.freeze({
   'self-static-compiler-owner': 'Flagship measured scene compiler',
   'self-static-svg-owner': 'Flagship SVG renderer',
   'self-static-flagship-owner': 'Flagship static build composition root',
-  'self-static-metrics':
-    'Recorded typography input; not fresh runtime observation',
-  'self-interactive-scene-owner':
-    'Independent flagship interactive scene authorship',
+  'self-static-metrics': 'Recorded typography input; not fresh runtime observation',
+  'self-interactive-scene-owner': 'Independent flagship interactive scene authorship',
   'self-interactive-composition-owner':
     'Flagship interactive visual-carrier composition and routing',
   'self-interactive-atlas-owner':
@@ -56,8 +39,7 @@ const sourceAuthorities = Object.freeze({
   'interactive-renderer-owner': 'Interactive HTML renderer implementation',
   'qualification-owner': 'Qualification schema and validation owner',
   'publication-owner': 'Recoverable publication effect implementation',
-  'installed-test-owner':
-    'Installed-use test implementation; not an execution observation',
+  'installed-test-owner': 'Installed-use test implementation; not an execution observation',
 });
 
 export async function installPreparedOutput(
@@ -79,8 +61,7 @@ export async function installPreparedOutput(
         await fs.mkdir(target);
       } catch (error) {
         if (error.code !== 'EEXIST') throw error;
-        if (!(await fs.lstat(target)).isDirectory())
-          fail('self_output_member_exists');
+        if (!(await fs.lstat(target)).isDirectory()) fail('self_output_member_exists');
       }
       await afterReservation({ phase: 'directory-reserved', path: relative });
       for (const entry of await fs.readdir(source))
@@ -100,19 +81,11 @@ export async function installPreparedOutput(
     }
     await fs.rm(source);
   }
-  try {
-    for (const entry of await fs.readdir(staged))
-      await install(
-        path.join(staged, entry),
-        path.join(destination, entry),
-        entry,
-      );
-    await fs.rmdir(staged);
-  } catch (error) {
-    // The destination name was exclusively reserved by this invocation. Keep
-    // any incomplete state visible rather than deleting bytes after a failure.
-    throw error;
-  }
+  // The destination name was exclusively reserved by this invocation. Keep
+  // any incomplete state visible rather than deleting bytes after a failure.
+  for (const entry of await fs.readdir(staged))
+    await install(path.join(staged, entry), path.join(destination, entry), entry);
+  await fs.rmdir(staged);
 }
 
 function fail(code) {
@@ -120,8 +93,7 @@ function fail(code) {
 }
 
 async function physicalParent(output) {
-  if (typeof output !== 'string' || !path.isAbsolute(output))
-    fail('self_output_path_invalid');
+  if (typeof output !== 'string' || !path.isAbsolute(output)) fail('self_output_path_invalid');
   const requested = path.resolve(output),
     parent = await fs.realpath(path.dirname(requested));
   if (!(await fs.lstat(parent)).isDirectory()) fail('self_output_parent_invalid');
@@ -354,10 +326,7 @@ export async function prepareArchitecturePublisherEdition(input) {
         structuredClone(input.source),
         [{ path: 'semantic.json', content: semanticBytes }, ...members],
       ),
-      edition = validateEdition(
-        model,
-        editionFor(model, bundle.manifestSha256, selected),
-      ),
+      edition = validateEdition(model, editionFor(model, bundle.manifestSha256, selected)),
       editionBytes = encode(edition),
       plan = {
         sourceManifest: path.join(final, 'source/manifest.json'),
@@ -405,8 +374,7 @@ export async function prepareArchitecturePublisherEditionInput(file) {
     fail('self_input_invalid');
   }
   const base = path.dirname(selected);
-  if (typeof input.output !== 'string' || !input.output)
-    fail('self_output_path_invalid');
+  if (typeof input.output !== 'string' || !input.output) fail('self_output_path_invalid');
   input.output = path.resolve(base, input.output);
   if (!record(input.sources)) fail('self_input_invalid');
   for (const source of Object.values(input.sources)) {

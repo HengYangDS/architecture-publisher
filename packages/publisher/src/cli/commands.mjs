@@ -33,9 +33,7 @@ export const commandCatalog = Object.freeze([
     'archpub edition build <request.json> --sha256 <digest>',
     digestSelection,
     async ({ file, '--sha256': digest }) => {
-      const { compileEditionCandidateInput } = await import(
-        '../compiler/edition.mjs'
-      );
+      const { compileEditionCandidateInput } = await import('../compiler/edition.mjs');
       return compileEditionCandidateInput(file, digest);
     },
   ),
@@ -55,9 +53,7 @@ export const commandCatalog = Object.freeze([
     'archpub qualify verify <request.json> --sha256 <digest>',
     digestSelection,
     async ({ file, '--sha256': digest }) => {
-      const { verifyQualificationInput } = await import(
-        '../qualification/input.mjs'
-      );
+      const { verifyQualificationInput } = await import('../qualification/input.mjs');
       return verifyQualificationInput(file, digest);
     },
   ),
@@ -140,8 +136,7 @@ function parse(entry, tail) {
   for (const parameter of entry.parameters) {
     if (parameter.kind === 'value') {
       const value = tail[index++];
-      if (!value || value.startsWith('--'))
-        throw usageError(entry.path[0], entry.usage);
+      if (!value || value.startsWith('--')) throw usageError(entry.path[0], entry.usage);
       values[parameter.name] = value;
       continue;
     }
@@ -161,9 +156,10 @@ function rows(entries) {
 
 export function helpFor(scope = []) {
   if (!scope.length) {
-    const groups = [...new Set(commandCatalog.map(({ path }) => path[0]))].map(
-      (name) => ({ name, summary: scopeSummaries[name] }),
-    );
+    const groups = [...new Set(commandCatalog.map(({ path }) => path[0]))].map((name) => ({
+      name,
+      summary: scopeSummaries[name],
+    }));
     return [
       'Architecture Publisher',
       '',
@@ -178,9 +174,7 @@ export function helpFor(scope = []) {
   }
   const prefix = scope.join(' ');
   const matches = commandCatalog.filter(
-    ({ path }) =>
-      path.length > scope.length &&
-      path.slice(0, scope.length).join(' ') === prefix,
+    ({ path }) => path.length > scope.length && path.slice(0, scope.length).join(' ') === prefix,
   );
   if (!matches.length) {
     const exact = commandCatalog.find(({ path }) => path.join(' ') === prefix);

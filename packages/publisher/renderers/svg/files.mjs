@@ -6,8 +6,7 @@ import { fail, isDigest } from '../../src/source/manifest.mjs';
 
 /** Explicit host capability identity, not a dependency closure or OS sandbox. */
 export async function fileIdentity(file, expected, maximum, code) {
-  if (typeof file !== 'string' || !path.isAbsolute(file) || !isDigest(expected))
-    fail(code);
+  if (typeof file !== 'string' || !path.isAbsolute(file) || !isDigest(expected)) fail(code);
   const resolved = await fs.realpath(file),
     stat = await fs.stat(resolved);
   if (!stat.isFile() || stat.size > maximum) fail(code);

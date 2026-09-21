@@ -1,6 +1,7 @@
 # source-intake Specification
 
 ## Purpose
+
 Verify explicitly selected source files as a closed, portable, content-bound bundle without executing their contents or requiring a development checkout. Report file integrity separately from semantic acceptance and official source replay.
 
 ## Requirements

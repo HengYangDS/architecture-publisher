@@ -4,9 +4,7 @@ import { validateSvg } from '../packages/publisher/renderers/resvg/validation.mj
 
 const document = (body) =>
   Buffer.from(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">' +
-      body +
-      '</svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">' + body + '</svg>',
   );
 
 for (const [label, body] of [
@@ -38,10 +36,7 @@ for (const [label, body] of [
   ['missing points separator', '<polygon points="1.2.3"/>'],
   ['missing transform separator', '<g transform="translate(1.2.3)"/>'],
   ['missing angle separator', '<path d="M0 0 A10 10 .50110 20"/>'],
-  [
-    'invalid aspect-ratio whitespace',
-    '<symbol preserveAspectRatio="xMidYMid,meet"/>',
-  ],
+  ['invalid aspect-ratio whitespace', '<symbol preserveAspectRatio="xMidYMid,meet"/>'],
   ['invalid aspect ratio', '<symbol preserveAspectRatio="center"/>'],
 ]) {
   test(`SVG value admission rejects ${label}`, () => {

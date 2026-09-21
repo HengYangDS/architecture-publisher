@@ -6,8 +6,9 @@ import {
   readSourceBundle,
   regularBytes,
   writeSourceBundle,
+  fail,
+  isDigest,
 } from 'architecture-publisher/source';
-import { fail, isDigest } from 'architecture-publisher/source';
 import { canonical, validateClaimModel } from 'architecture-publisher/semantics';
 import { editionDigest, validateEdition } from 'architecture-publisher/edition';
 import {
@@ -20,10 +21,7 @@ import {
 import { createMetricReader } from 'architecture-publisher/renderers/svg';
 import { loadBundledFonts } from 'architecture-publisher/renderers/fonts';
 import { rasterize } from 'architecture-publisher/renderers/resvg';
-import {
-  architecturePublisherStaticScene,
-  staticAuthoringDigest,
-} from './static-scene.mjs';
+import { architecturePublisherStaticScene, staticAuthoringDigest } from './static-scene.mjs';
 import { composeArchitecturePublisherFlagship } from './static/composition.mjs';
 import { compileArchitecturePublisherStaticScene } from './static/scene.mjs';
 import {
@@ -48,8 +46,7 @@ const runtimeSources = Object.freeze({
 });
 
 async function selectedJson(file, digest, code) {
-  if (typeof file !== 'string' || !path.isAbsolute(file) || !isDigest(digest))
-    fail(code);
+  if (typeof file !== 'string' || !path.isAbsolute(file) || !isDigest(digest)) fail(code);
   const bytes = await fs.readFile(file);
   if (sha256(bytes) !== digest) fail(code);
   try {
@@ -91,13 +88,7 @@ function envelopeFraction(canvas) {
 
 export async function renderArchitecturePublisherFlagship(plan) {
   if (
-    !exact(plan, [
-      'sourceManifest',
-      'sourceSha256',
-      'edition',
-      'editionSha256',
-      'output',
-    ]) ||
+    !exact(plan, ['sourceManifest', 'sourceSha256', 'edition', 'editionSha256', 'output']) ||
     !path.isAbsolute(plan.sourceManifest ?? '') ||
     !path.isAbsolute(plan.edition ?? '') ||
     !path.isAbsolute(plan.output ?? '') ||
@@ -137,9 +128,7 @@ export async function renderArchitecturePublisherFlagship(plan) {
 
   if (
     canonical(edition.scenes.static) !==
-    canonical(
-      architecturePublisherStaticScene(staticAuthoringDigest(model.sources)),
-    )
+    canonical(architecturePublisherStaticScene(staticAuthoringDigest(model.sources)))
   )
     fail('self_flagship_scene_mismatch');
   const metrics = JSON.parse(
@@ -147,10 +136,7 @@ export async function renderArchitecturePublisherFlagship(plan) {
     ),
     reader = createMetricReader(metrics),
     composition = composeArchitecturePublisherFlagship();
-  if (
-    edition.scenes.static.authoredInputSha256 !==
-    staticAuthoringDigest(model.sources)
-  )
+  if (edition.scenes.static.authoredInputSha256 !== staticAuthoringDigest(model.sources))
     fail('self_flagship_scene_mismatch');
   const scene = compileArchitecturePublisherStaticScene(composition, reader.measure),
     supply = await loadBundledFonts(),
@@ -248,29 +234,26 @@ export async function renderArchitecturePublisherFlagship(plan) {
         paintTolerance: 18,
       }),
       svg = embedArchitecturePublisherStaticFonts(rasterSvg, selectedFonts),
-      paintedFailures = [
-        ...rasterCanvas.failures,
-        ...rasterElements.failures,
-      ];
+      paintedFailures = [...rasterCanvas.failures, ...rasterElements.failures];
     if (paintedFailures.length) fail('self_flagship_painted_output_failed');
     const output = await writeSourceBundle(
-        plan.output,
+      plan.output,
+      {
+        id: 'architecture-publisher:self-static',
+        revision: plan.editionSha256,
+      },
+      [
+        { path: 'architecture-publisher.svg', content: svg },
+        { path: 'architecture-publisher-6000.png', content: png },
+        { path: 'scene.json', content: encode(scene) },
+        { path: 'coverage.json', content: encode(coverage) },
         {
-          id: 'architecture-publisher:self-static',
-          revision: plan.editionSha256,
+          path: 'checks.json',
+          content: encode({ ...checks, rasterCanvas, rasterElements }),
         },
-        [
-          { path: 'architecture-publisher.svg', content: svg },
-          { path: 'architecture-publisher-6000.png', content: png },
-          { path: 'scene.json', content: encode(scene) },
-          { path: 'coverage.json', content: encode(coverage) },
-          {
-            path: 'checks.json',
-            content: encode({ ...checks, rasterCanvas, rasterElements }),
-          },
-          { path: 'FONT-LICENSE.txt', content: supply.license.bytes },
-        ],
-      );
+        { path: 'FONT-LICENSE.txt', content: supply.license.bytes },
+      ],
+    );
     return {
       status: 'rendered',
       sourceSha256: plan.sourceSha256,

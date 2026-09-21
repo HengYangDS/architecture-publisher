@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import {execFileSync} from 'node:child_process';
-import {createHash} from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
@@ -17,10 +17,10 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 async function filesBelow(directory, prefix = '') {
   const files = [];
-  for (const item of await fs.readdir(directory, {withFileTypes: true})) {
+  for (const item of await fs.readdir(directory, { withFileTypes: true })) {
     const relative = prefix + item.name;
     if (item.isDirectory())
-      files.push(...await filesBelow(path.join(directory, item.name), relative + '/'));
+      files.push(...(await filesBelow(path.join(directory, item.name), relative + '/')));
     else if (item.isFile()) files.push(relative);
     else assert.fail(`unexpected packed entry: ${relative}`);
   }
@@ -30,10 +30,7 @@ async function filesBelow(directory, prefix = '') {
 test('source-owned ETHOS handoff binds exact packages, parity and successor limits', async (t) => {
   const handoff = await readJson(handoffPath);
   assert.equal(handoff.schema, 'ethos.architecture-publisher-handoff/v2');
-  assert.deepEqual(Object.keys(handoff.publisher).sort(), [
-    'core',
-    'retiredEthosStaging',
-  ]);
+  assert.deepEqual(Object.keys(handoff.publisher).sort(), ['core', 'retiredEthosStaging']);
   assert.deepEqual(handoff.publisher.core, {
     source: {
       repository: 'dig/research/human-agent-stewardship/architecture-publisher',
@@ -82,8 +79,7 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   assert.deepEqual(handoff.ethos.acceptance, {
     repositoryTree: '4211ba560b6c6291ad9290ed8aa3d2565e620eec',
     acceptedRefs: ['dev', 'main'],
-    runtimeDigest:
-      'ab7ad09e9522ca7f8e883405f8d09633fef5d08cc2b2c761c73976f622571704',
+    runtimeDigest: 'ab7ad09e9522ca7f8e883405f8d09633fef5d08cc2b2c761c73976f622571704',
     packageReproducibility: 2,
     proof: {
       verdict: 'pass',
@@ -111,10 +107,13 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
     ...Object.values(handoff.terminalCandidate).filter((value) => typeof value === 'string'),
   ])
     assert.match(value, /^[0-9a-f]{40}$|^[0-9a-f]{64}$/);
-  assert.equal(execFileSync('git', ['cat-file', '-t', handoff.publisher.core.source.commit], {
-    cwd: root,
-    encoding: 'utf8',
-  }).trim(), 'commit');
+  assert.equal(
+    execFileSync('git', ['cat-file', '-t', handoff.publisher.core.source.commit], {
+      cwd: root,
+      encoding: 'utf8',
+    }).trim(),
+    'commit',
+  );
   assert.equal(
     execFileSync(
       'git',
@@ -135,14 +134,27 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   );
 
   const base = path.join(root, 'build/test-work');
-  await fs.mkdir(base, {recursive: true});
+  await fs.mkdir(base, { recursive: true });
   const work = await fs.mkdtemp(path.join(base, 'core-provenance-'));
-  t.after(() => fs.rm(work, {recursive: true, force: true}));
-  const pack = JSON.parse(execFileSync(
-    'npm',
-    ['pack', '--json', '--ignore-scripts', '--pack-destination', work],
-    {cwd: path.join(root, handoff.publisher.core.source.path), encoding: 'utf8'},
-  ))[0];
+  t.after(() => fs.rm(work, { recursive: true, force: true }));
+  const source = path.join(work, 'source');
+  await fs.mkdir(source);
+  const sourceArchive = execFileSync(
+    'git',
+    [
+      'archive',
+      '--format=tar',
+      `${handoff.publisher.core.source.commit}:${handoff.publisher.core.source.path}`,
+    ],
+    { cwd: root, maxBuffer: 32 * 1024 * 1024 },
+  );
+  execFileSync('tar', ['-xf', '-', '-C', source], { input: sourceArchive });
+  const pack = JSON.parse(
+    execFileSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', work], {
+      cwd: source,
+      encoding: 'utf8',
+    }),
+  )[0];
   const archive = path.join(work, pack.filename);
   assert.equal(sha(await fs.readFile(archive)), handoff.publisher.core.package.sha256);
   execFileSync('tar', ['-xzf', archive, '-C', work]);
@@ -154,7 +166,7 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
     const committed = execFileSync(
       'git',
       ['show', `${handoff.publisher.core.source.oid}:${file}`],
-      {cwd: root, maxBuffer: 16 * 1024 * 1024},
+      { cwd: root, maxBuffer: 16 * 1024 * 1024 },
     );
     assert.deepEqual(selected, committed, file);
   }
@@ -175,20 +187,32 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
 });
 
 test('Publisher retains only immutable ETHOS conformance evidence', async () => {
-  await assert.rejects(fs.stat(path.join(root, 'migration/ethos')), {code: 'ENOENT'});
-  const tracked = execFileSync('git', ['ls-files'], {cwd: root, encoding: 'utf8'})
+  await assert.rejects(fs.stat(path.join(root, 'migration/ethos')), { code: 'ENOENT' });
+  const tracked = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
     .trim()
     .split('\n');
-  assert.equal(tracked.some((file) => file.startsWith('migration/ethos/')), false);
-  const current = await Promise.all(
-    tracked
-      .filter(
-        (file) =>
-          /\.(?:json|md|mjs)$/.test(file) &&
-          ![path.relative(root, handoffPath), thisTest].includes(file),
-      )
-      .map(async (file) => [file, await fs.readFile(path.join(root, file), 'utf8')]),
+  assert.equal(
+    tracked.some((file) => file.startsWith('migration/ethos/')),
+    false,
   );
+  const current = (
+    await Promise.all(
+      tracked
+        .filter(
+          (file) =>
+            /\.(?:json|md|mjs)$/.test(file) &&
+            ![path.relative(root, handoffPath), thisTest].includes(file),
+        )
+        .map(async (file) => {
+          try {
+            return [file, await fs.readFile(path.join(root, file), 'utf8')];
+          } catch (error) {
+            if (error?.code === 'ENOENT') return null;
+            throw error;
+          }
+        }),
+    )
+  ).filter(Boolean);
   const references = current
     .filter(([, content]) => content.includes('migration/ethos'))
     .map(([file]) => file);

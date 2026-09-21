@@ -11,10 +11,7 @@ import {
   inspectRgbaPngElements,
 } from '../packages/publisher/src/qualification/static/png.mjs';
 import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
-import {
-  SELF_ENTITY_IDS,
-  SELF_RELATION_IDS,
-} from '../editions/self/src/edition/model.mjs';
+import { SELF_ENTITY_IDS, SELF_RELATION_IDS } from '../editions/self/src/edition/model.mjs';
 import { composeArchitecturePublisherFlagship } from '../editions/self/src/edition/static/composition.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -24,45 +21,34 @@ const selectedSources = Object.freeze({
   'edition-contract': 'docs/edition-contract.md',
   'active-design': 'openspec/changes/architecture-publisher-0-2/design.md',
   'core-package': 'packages/publisher/package.json',
-  'self-prepare-owner':
-    'editions/self/src/edition/prepare.mjs',
-  'self-model-owner':
-    'editions/self/src/edition/model.mjs',
-  'self-static-scene-owner':
-    'editions/self/src/edition/static-scene.mjs',
-  'self-static-composition-owner':
-    'editions/self/src/edition/static/composition.mjs',
-  'self-static-compiler-owner':
-    'editions/self/src/edition/static/scene.mjs',
-  'self-static-svg-owner':
-    'editions/self/src/edition/static/svg.mjs',
-  'self-static-flagship-owner':
-    'editions/self/src/edition/static-flagship.mjs',
-  'self-static-metrics':
-    'editions/self/src/edition/static/authoring/metrics.json',
-  'self-interactive-scene-owner':
-    'editions/self/src/edition/interactive-scenes.mjs',
-  'self-interactive-composition-owner':
-    'editions/self/src/edition/interactive-scene.mjs',
+  'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
+  'self-model-owner': 'editions/self/src/edition/model.mjs',
+  'self-static-scene-owner': 'editions/self/src/edition/static-scene.mjs',
+  'self-static-composition-owner': 'editions/self/src/edition/static/composition.mjs',
+  'self-static-compiler-owner': 'editions/self/src/edition/static/scene.mjs',
+  'self-static-svg-owner': 'editions/self/src/edition/static/svg.mjs',
+  'self-static-flagship-owner': 'editions/self/src/edition/static-flagship.mjs',
+  'self-static-metrics': 'editions/self/src/edition/static/authoring/metrics.json',
+  'self-interactive-scene-owner': 'editions/self/src/edition/interactive-scenes.mjs',
+  'self-interactive-composition-owner': 'editions/self/src/edition/interactive-scene.mjs',
   'self-interactive-atlas-owner': 'editions/self/src/edition/atlas.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
   'compiler-owner': 'packages/publisher/src/compiler/edition.mjs',
-  'interactive-renderer-owner':
-    'packages/publisher/renderers/archify/index.mjs',
+  'interactive-renderer-owner': 'packages/publisher/renderers/archify/index.mjs',
   'qualification-owner': 'packages/publisher/src/qualification/contract.mjs',
   'publication-owner': 'packages/publisher/src/publication/files.mjs',
   'installed-test-owner': 'tests/self-hosted-adopter.test.mjs',
 });
 
 async function prepare(output) {
-  const { prepareArchitecturePublisherEdition } = await import(
-    '../editions/self/src/edition/prepare.mjs'
-  );
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
   const sources = {};
   for (const [id, relative] of Object.entries(selectedSources)) {
-    const file = path.join(root, relative), bytes = await fs.readFile(file);
+    const file = path.join(root, relative),
+      bytes = await fs.readFile(file);
     sources[id] = { path: file, sha256: sha256(bytes) };
   }
   return prepareArchitecturePublisherEdition({
@@ -86,9 +72,8 @@ async function build(t) {
     editionSha256: prepared.editionSha256,
     output: path.join(directory, 'static'),
   };
-  const { renderArchitecturePublisherFlagship } = await import(
-    '../editions/self/src/edition/static-flagship.mjs'
-  );
+  const { renderArchitecturePublisherFlagship } =
+    await import('../editions/self/src/edition/static-flagship.mjs');
   return {
     directory,
     plan,
@@ -98,10 +83,7 @@ async function build(t) {
 
 test('the self flagship emits a complete restrained 6000px static Edition', async (t) => {
   const { plan, result } = await build(t),
-    bundle = await readSourceBundle(
-      result.output.manifestPath,
-      result.output.manifestSha256,
-    ),
+    bundle = await readSourceBundle(result.output.manifestPath, result.output.manifestSha256),
     members = new Map(bundle.members.map((member) => [member.path, member.content])),
     scene = JSON.parse(members.get('scene.json')),
     coverage = JSON.parse(members.get('coverage.json')),
@@ -129,26 +111,23 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
   assert.doesNotMatch(svg, /#181611|#211e18/);
 
   assert.equal(scene.schema, 'architecture.publisher-static-scene/v1');
-  assert.deepEqual(
-    scene.spine,
-    [
-      'source-field',
-      'semantic-contract',
-      'editorial-contract',
-      'static-scene',
-      'interactive-scenes',
-      'static-artifact',
-      'interactive-artifact',
-      'edition-candidate',
-      'qualification',
-      'acceptance',
-      'authorization',
-      'recoverable-publication',
-      'consumers-feedback',
-    ],
-  );
+  assert.deepEqual(scene.spine, [
+    'source-field',
+    'semantic-contract',
+    'editorial-contract',
+    'static-scene',
+    'interactive-scenes',
+    'static-artifact',
+    'interactive-artifact',
+    'edition-candidate',
+    'qualification',
+    'acceptance',
+    'authorization',
+    'recoverable-publication',
+    'consumers-feedback',
+  ]);
   const topology = Object.fromEntries(
-    scene.edges.map(({id, source, target}) => [id, {source, target}]),
+    scene.edges.map(({ id, source, target }) => [id, { source, target }]),
   );
   assert.deepEqual(topology['edition-to-static'], {
     source: 'editorial-contract',
@@ -167,13 +146,16 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
     target: 'edition-candidate',
   });
   assert.equal(
-    scene.nodes.find(({id}) => id === 'edition-candidate').radius >
-      scene.nodes.find(({id}) => id === 'source-field').radius,
+    scene.nodes.find(({ id }) => id === 'edition-candidate').radius >
+      scene.nodes.find(({ id }) => id === 'source-field').radius,
     true,
   );
   assert.equal(
-    scene.edges.every(({points}) => points.slice(1).every((point, index) =>
-      point.x === points[index].x || point.y === points[index].y)),
+    scene.edges.every(({ points }) =>
+      points
+        .slice(1)
+        .every((point, index) => point.x === points[index].x || point.y === points[index].y),
+    ),
     true,
   );
   const feedback = scene.edges.find((edge) => edge.id === 'feedback-return');
@@ -200,20 +182,14 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
   assert.match(svg, /marker-end="url\(#arrow-feedback\)"/);
   const metrics = JSON.parse(
       await fs.readFile(
-        path.join(
-          root,
-          'editions/self/src/edition/static/authoring/metrics.json',
-        ),
+        path.join(root, 'editions/self/src/edition/static/authoring/metrics.json'),
         'utf8',
       ),
     ),
-    expectedMetrics = composeArchitecturePublisherFlagship().labels.map(
-      ({ text, size, weight }) => JSON.stringify([text, size, weight]),
+    expectedMetrics = composeArchitecturePublisherFlagship().labels.map(({ text, size, weight }) =>
+      JSON.stringify([text, size, weight]),
     );
-  assert.deepEqual(
-    metrics.records.map(([key]) => key).sort(),
-    expectedMetrics.sort(),
-  );
+  assert.deepEqual(metrics.records.map(([key]) => key).sort(), expectedMetrics.sort());
   assert.deepEqual(coverage.entities, [...SELF_ENTITY_IDS].sort());
   assert.deepEqual(coverage.relations, [...SELF_RELATION_IDS].sort());
   assert.deepEqual(coverage.missingEntities, []);
@@ -233,10 +209,7 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
   assert.equal(checks.rasterCanvas.inkPixels > 0, true);
   assert.equal(checks.rasterCanvas.envelopeFraction >= 0.65, true);
   assert.equal(
-    Math.max(
-      checks.rasterCanvas.centerOffset.x,
-      checks.rasterCanvas.centerOffset.y,
-    ) <= 0.05,
+    Math.max(checks.rasterCanvas.centerOffset.x, checks.rasterCanvas.centerOffset.y) <= 0.05,
     true,
   );
   assert.equal(
@@ -254,11 +227,10 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
   assert.equal(result.status, 'rendered');
   assert.equal(result.staticWidth, 6000);
   assert.equal(result.staticHeight, 3375);
-  assert.deepEqual(result.supplies.map(({ id }) => id), [
-    'font-supply',
-    'raster-supply',
-    'self-static-runtime',
-  ]);
+  assert.deepEqual(
+    result.supplies.map(({ id }) => id),
+    ['font-supply', 'raster-supply', 'self-static-runtime'],
+  );
   assert(result.supplies.every(({ sha256 }) => /^[a-f0-9]{64}$/.test(sha256)));
   assert.equal(result.qualification, 'not-performed');
   assert.equal(result.humanAcceptance, 'not-performed');
@@ -275,9 +247,8 @@ test('the self flagship preserves an occupied destination', async (t) => {
     output = path.join(directory, 'static');
   await fs.mkdir(output);
   await fs.writeFile(path.join(output, 'foreign'), 'owned elsewhere');
-  const { renderArchitecturePublisherFlagship } = await import(
-    '../editions/self/src/edition/static-flagship.mjs'
-  );
+  const { renderArchitecturePublisherFlagship } =
+    await import('../editions/self/src/edition/static-flagship.mjs');
   await assert.rejects(
     renderArchitecturePublisherFlagship({
       sourceManifest: prepared.sourceManifest,
@@ -288,10 +259,7 @@ test('the self flagship preserves an occupied destination', async (t) => {
     }),
     { code: 'output_exists' },
   );
-  assert.equal(
-    await fs.readFile(path.join(output, 'foreign'), 'utf8'),
-    'owned elsewhere',
-  );
+  assert.equal(await fs.readFile(path.join(output, 'foreign'), 'utf8'), 'owned elsewhere');
 });
 
 test('the self flagship rejects a source bundle that does not bind its executing composition', async (t) => {
@@ -300,10 +268,7 @@ test('the self flagship rejects a source bundle that does not bind its executing
   const directory = await fs.mkdtemp(path.join(base, 'publisher-flagship-runtime-drift-'));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const prepared = await prepare(path.join(directory, 'prepared')),
-    source = await readSourceBundle(
-      prepared.sourceManifest,
-      prepared.sourceSha256,
-    ),
+    source = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256),
     members = source.members.map((member) => ({
       path: member.path,
       content: Buffer.from(member.content),
@@ -312,9 +277,7 @@ test('the self flagship rejects a source bundle that does not bind its executing
       ({ path: name }) => name === 'sources/self-static-composition-owner.source',
     );
   selected.content = Buffer.concat([selected.content, Buffer.from('\n')]);
-  const { writeSourceBundle } = await import(
-      '../packages/publisher/src/source/write.mjs'
-    ),
+  const { writeSourceBundle } = await import('../packages/publisher/src/source/write.mjs'),
     changed = await writeSourceBundle(
       path.join(directory, 'changed-source'),
       source.source,
@@ -325,9 +288,8 @@ test('the self flagship rejects a source bundle that does not bind its executing
   const changedEdition = path.join(directory, 'changed-edition.json'),
     changedEditionBytes = Buffer.from(JSON.stringify(edition, null, 2) + '\n');
   await fs.writeFile(changedEdition, changedEditionBytes);
-  const { renderArchitecturePublisherFlagship } = await import(
-    '../editions/self/src/edition/static-flagship.mjs'
-  );
+  const { renderArchitecturePublisherFlagship } =
+    await import('../editions/self/src/edition/static-flagship.mjs');
   await assert.rejects(
     renderArchitecturePublisherFlagship({
       sourceManifest: changed.manifestPath,
@@ -351,9 +313,8 @@ test('the self flagship rejects an Edition whose selected composition digest dri
   const changedEdition = path.join(directory, 'changed-edition.json'),
     changedEditionBytes = Buffer.from(JSON.stringify(edition, null, 2) + '\n');
   await fs.writeFile(changedEdition, changedEditionBytes);
-  const { renderArchitecturePublisherFlagship } = await import(
-    '../editions/self/src/edition/static-flagship.mjs'
-  );
+  const { renderArchitecturePublisherFlagship } =
+    await import('../editions/self/src/edition/static-flagship.mjs');
   await assert.rejects(
     renderArchitecturePublisherFlagship({
       sourceManifest: prepared.sourceManifest,
@@ -377,9 +338,8 @@ test('the self flagship rejects static scene declarations not consumed by the re
   const changedEdition = path.join(directory, 'changed-edition.json'),
     changedEditionBytes = Buffer.from(JSON.stringify(edition, null, 2) + '\n');
   await fs.writeFile(changedEdition, changedEditionBytes);
-  const { renderArchitecturePublisherFlagship } = await import(
-    '../editions/self/src/edition/static-flagship.mjs'
-  );
+  const { renderArchitecturePublisherFlagship } =
+    await import('../editions/self/src/edition/static-flagship.mjs');
   await assert.rejects(
     renderArchitecturePublisherFlagship({
       sourceManifest: prepared.sourceManifest,
@@ -424,7 +384,7 @@ test('the installed self package renders the flagship offline from relocated inp
       "import { prepareArchitecturePublisherEditionInput, renderArchitecturePublisherFlagshipInput } from '@architecture-publisher/self-edition';",
       'const prepared = await prepareArchitecturePublisherEditionInput(process.argv[2]);',
       "const plan = JSON.parse(await fs.readFile(prepared.plan, 'utf8'));",
-      "await fs.writeFile(prepared.plan, JSON.stringify({...plan, output:process.argv[3]}));",
+      'await fs.writeFile(prepared.plan, JSON.stringify({...plan, output:process.argv[3]}));',
       'const result = await renderArchitecturePublisherFlagshipInput(prepared.plan);',
       "process.stdout.write(JSON.stringify(result) + '\\n');",
       '',
@@ -573,15 +533,7 @@ test('delivery-resolution canvas inspection rejects empty and edge-bound raster 
     { background: contract.background, sourcePadding: 0 },
   );
   assert.deepEqual(
-    absentPaint.failures
-      .filter(({ code }) => code === 'png-element-empty')
-      .map(({ id }) => id),
-    [
-      'text:label',
-      'node:node',
-      'edge:edge:stroke',
-      'edge:edge:arrow',
-      'rule:rule',
-    ],
+    absentPaint.failures.filter(({ code }) => code === 'png-element-empty').map(({ id }) => id),
+    ['text:label', 'node:node', 'edge:edge:stroke', 'edge:edge:arrow', 'rule:rule'],
   );
 });

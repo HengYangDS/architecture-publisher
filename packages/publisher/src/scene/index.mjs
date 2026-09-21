@@ -1,3 +1,6 @@
-export * from './contract.mjs';
-export * from './interactive/architecture.mjs';
-export * from './static/architecture.mjs';
+export { semanticArchitectureProjections } from './contract.mjs';
+export {
+  interactiveArchitectureScene,
+  validateInteractiveArchitectureScene,
+} from './interactive/architecture.mjs';
+export { composeStaticArchitectureScene } from './static/architecture.mjs';

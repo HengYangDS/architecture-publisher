@@ -10,10 +10,7 @@ const publisher = path.join(root, 'packages/publisher');
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 async function api() {
   const entry = new URL('../packages/publisher/renderers/svg/coretext.mjs', import.meta.url);
-  await assert.doesNotReject(
-    fs.access(entry),
-    'explicit CoreText adapter exists',
-  );
+  await assert.doesNotReject(fs.access(entry), 'explicit CoreText adapter exists');
   return (await import(entry)).measureCoreText;
 }
 async function setup(t) {
@@ -42,9 +39,7 @@ async function setup(t) {
       compiler: { path: compiler, sha256: sha(await fs.readFile(compiler)) },
       sdk: {
         path: sdk,
-        settingsSha256: sha(
-          await fs.readFile(path.join(sdk, 'SDKSettings.json')),
-        ),
+        settingsSha256: sha(await fs.readFile(path.join(sdk, 'SDKSettings.json'))),
       },
       fonts: [
         {
@@ -63,10 +58,7 @@ async function setup(t) {
 test('CoreText adapter refuses implicit selection and unsupported hosts', async () => {
   const measure = await api();
   await assert.rejects(measure({}), {
-    code:
-      process.platform === 'darwin'
-        ? 'coretext_plan_invalid'
-        : 'coretext_platform_unsupported',
+    code: process.platform === 'darwin' ? 'coretext_plan_invalid' : 'coretext_platform_unsupported',
   });
 });
 test(
@@ -88,13 +80,7 @@ test(
       ],
       output: '/not-selected/output',
     };
-    for (const record of [
-      null,
-      false,
-      [],
-      {},
-      { text: 'x', size: 12, font: 'missing' },
-    ])
+    for (const record of [null, false, [], {}, { text: 'x', size: 12, font: 'missing' }])
       await assert.rejects(measure({ ...plan, requests: [record] }), {
         code: 'coretext_plan_invalid',
       });
@@ -110,30 +96,16 @@ test(
     assert.equal(result.status, 'measured');
     assert.equal(result.requestCount, 1);
     assert.equal(result.freshMeasurement, 'performed');
-    assert.equal(
-      result.observations[0].fonts[0].postscript,
-      'JetBrainsMono-Regular',
-    );
-    assert.equal(
-      result.observations[0].fonts[0].sha256,
-      f.plan.fonts[0].sha256,
-    );
-    const table = JSON.parse(
-      await fs.readFile(path.join(f.plan.output, 'metrics.json')),
-    );
+    assert.equal(result.observations[0].fonts[0].postscript, 'JetBrainsMono-Regular');
+    assert.equal(result.observations[0].fonts[0].sha256, f.plan.fonts[0].sha256);
+    const table = JSON.parse(await fs.readFile(path.join(f.plan.output, 'metrics.json')));
     assert.equal(table.provenance.method, 'recorded');
-    assert.equal(
-      table.records[0][0],
-      JSON.stringify(['Reliable work', 18, '400']),
-    );
+    assert.equal(table.records[0][0], JSON.stringify(['Reliable work', 18, '400']));
     assert(table.records[0][1].width > 100);
     assert(table.records[0][1].glyph.height > 0);
     const before = await fs.readFile(path.join(f.plan.output, 'manifest.json'));
     await assert.rejects(measure(f.plan), { code: 'output_exists' });
-    assert.deepEqual(
-      await fs.readFile(path.join(f.plan.output, 'manifest.json')),
-      before,
-    );
+    assert.deepEqual(await fs.readFile(path.join(f.plan.output, 'manifest.json')), before);
     assert.deepEqual((await fs.readdir(f.dir)).sort(), ['metrics']);
   },
 );
@@ -216,13 +188,7 @@ test(
       return r.stdout;
     };
     const packed = JSON.parse(
-      runNpm([
-        'pack',
-        '--ignore-scripts',
-        '--json',
-        '--pack-destination',
-        f.dir,
-      ]),
+      runNpm(['pack', '--ignore-scripts', '--json', '--pack-destination', f.dir]),
     )[0];
     assert(packed.files.some((x) => x.path === 'renderers/svg/coretext.swift'));
     const consumer = path.join(f.dir, 'consumer');

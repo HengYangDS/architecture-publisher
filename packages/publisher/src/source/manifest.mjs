@@ -20,9 +20,7 @@ function keys(value, required, optional = []) {
   return (
     record(value) &&
     required.every((key) => Object.hasOwn(value, key)) &&
-    Object.keys(value).every(
-      (key) => required.includes(key) || optional.includes(key),
-    )
+    Object.keys(value).every((key) => required.includes(key) || optional.includes(key))
   );
 }
 export function portablePath(value) {
@@ -54,17 +52,14 @@ export function portableKey(value) {
   return value.normalize('NFC').toLowerCase();
 }
 export function validateManifest(value) {
-  if (!keys(value, ['schema', 'source', 'files']))
-    fail('manifest_fields_invalid');
-  if (value.schema !== 'architecture.source-bundle/v1')
-    fail('schema_unsupported');
+  if (!keys(value, ['schema', 'source', 'files'])) fail('manifest_fields_invalid');
+  if (value.schema !== 'architecture.source-bundle/v1') fail('schema_unsupported');
   if (
     !keys(value.source, ['id'], ['revision']) ||
     typeof value.source.id !== 'string' ||
     !value.source.id.trim() ||
     (Object.hasOwn(value.source, 'revision') &&
-      (typeof value.source.revision !== 'string' ||
-        !value.source.revision.trim()))
+      (typeof value.source.revision !== 'string' || !value.source.revision.trim()))
   )
     fail('source_invalid');
   validateFileMembers(value.files);
@@ -79,15 +74,13 @@ export function validateFileMembers(files) {
   const directories = new Map();
   let total = 0;
   for (const member of files) {
-    if (!keys(member, ['path', 'bytes', 'sha256']))
-      fail('member_fields_invalid');
+    if (!keys(member, ['path', 'bytes', 'sha256'])) fail('member_fields_invalid');
     const name = portableKey(portablePath(member.path));
     const parts = member.path.split('/');
     for (let i = 1; i < parts.length; i++) {
       const directory = parts.slice(0, i).join('/');
       const key = portableKey(directory);
-      if (directories.has(key) && directories.get(key) !== directory)
-        fail('member_path_duplicate');
+      if (directories.has(key) && directories.get(key) !== directory) fail('member_path_duplicate');
       directories.set(key, directory);
     }
     if (names.has(name)) fail('member_path_duplicate');

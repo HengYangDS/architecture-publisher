@@ -5,8 +5,7 @@ import { createHash } from 'node:crypto';
 import { fail } from '../../src/source/manifest.mjs';
 
 const root = fileURLToPath(new URL('./supply/', import.meta.url));
-const digest =
-  'fdf4df13d28e4161b937162bbe31ef05be3c4db88d82f490fa1305a6e353d08a';
+const digest = 'fdf4df13d28e4161b937162bbe31ef05be3c4db88d82f490fa1305a6e353d08a';
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 /** Exact bundled font supply shared by independent media renderers. */

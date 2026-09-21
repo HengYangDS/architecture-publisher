@@ -46,11 +46,7 @@ function routePath(points) {
 
 /** Compose a bounded static overview directly from a Claim Model and static scene. */
 export function composeStaticOverview(document, edition, view) {
-  const { layout, routes } = composeStaticArchitectureScene(
-      document,
-      edition,
-      view,
-    ),
+  const { layout, routes } = composeStaticArchitectureScene(document, edition, view),
     lines = [
       `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="0 0 ${layout.width} ${layout.height}" role="img" aria-labelledby="diagram-title diagram-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">`,
       `<title id="diagram-title">${escape(edition.title)}</title>`,
@@ -81,11 +77,9 @@ export function composeStaticOverview(document, edition, view) {
   for (const { authored, relation, points, label } of routes) {
     const grammar = edition.visualGrammar.relationTypes[relation.type],
       style = edgeStyle(grammar.variant),
-      dash = style.dashed
-        ? ' stroke-dasharray="9 7"'
-        : '';
+      dash = style.dashed ? ' stroke-dasharray="9 7"' : '';
     lines.push(
-      `<path data-edge-id="${escape(authored.id)}" data-edge-from="${escape(relation.subject)}" data-edge-to="${escape(relation.object)}" d="${routePath(points)}" fill="none" stroke="${style.color}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"${dash}/>` ,
+      `<path data-edge-id="${escape(authored.id)}" data-edge-from="${escape(relation.subject)}" data-edge-to="${escape(relation.object)}" d="${routePath(points)}" fill="none" stroke="${style.color}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"${dash}/>`,
       `<g data-edge-label="${escape(authored.id)}"><text x="${label[0]}" y="${label[1]}" fill="${style.color}" font-size="13" font-weight="600" text-anchor="middle">${escape(grammar.label)}</text></g>`,
     );
   }

@@ -7,10 +7,7 @@
   "browser": {
     "name": "Chromium",
     "version": "153.0.8010.53",
-    "viewport": [
-      1440,
-      1000
-    ]
+    "viewport": [1440, 1000]
   },
   "verifier": {
     "observerSha256": "da1ff70bb98042440d0f6512d9634014158b81fe66243ecf5d4ab1f88ee2c1e9",
@@ -25,11 +22,7 @@
   "browserReportSha256": "ef71b13bcbbbab6c7677b192259b89d451285828cf20959e1170bb92993e7e2a",
   "staticSvgSha256": "dfa900de48c7c004600179e2a2ba7a9f4e9eca3246a54f7749a1b23f7e961b67",
   "staticPngSha256": "bf62fac15fb74c524cf61c0040ca5392e67b68dd33e8b3d7e52beef2eb90b882",
-  "views": [
-    "overview",
-    "media",
-    "overview-static"
-  ],
+  "views": ["overview", "media", "overview-static"],
   "status": "PASS_BOUNDED",
   "scope": "Selected installed package modules at one exact source-set identity; complete declared HTML views and independent static SVG at 1440x1000.",
   "limits": "Self-use and local bounded browser evidence only. Not independent adopter proof, independent-host recovery, hosted delivery or human aesthetic approval."

@@ -137,12 +137,12 @@ async function fixture(t, mutateDocument = () => {}) {
     claimModel: {
       schema: 'architecture.claim-model/v2',
       digest: (() => {
-      try {
-        return claimModelDigest(document);
-      } catch {
-        return '0'.repeat(64);
-      }
-    })(),
+        try {
+          return claimModelDigest(document);
+        } catch {
+          return '0'.repeat(64);
+        }
+      })(),
     },
     title: 'A bounded control plane',
     audiences: {
@@ -172,11 +172,7 @@ async function fixture(t, mutateDocument = () => {}) {
       relationTypes: {
         delegates: { label: 'delegates', variant: 'emphasis' },
       },
-      principles: [
-        'Complete overview',
-        'Independent media composition',
-        'No decorative meaning',
-      ],
+      principles: ['Complete overview', 'Independent media composition', 'No decorative meaning'],
     },
     scenes: {
       static: {
@@ -294,16 +290,9 @@ async function fixture(t, mutateDocument = () => {}) {
 test('compiles complete source-bound structure into static and interactive media', async (t) => {
   const value = await fixture(t);
   const result = await compileEditionCandidate(value.plan);
-  const output = await readSourceBundle(
-    result.manifestPath,
-    result.manifestSha256,
-  );
-  const members = new Map(
-    output.members.map((item) => [item.path, item.content]),
-  );
-  const candidate = validateEditionCandidate(
-    JSON.parse(members.get('candidate.json')),
-  );
+  const output = await readSourceBundle(result.manifestPath, result.manifestSha256);
+  const members = new Map(output.members.map((item) => [item.path, item.content]));
+  const candidate = validateEditionCandidate(JSON.parse(members.get('candidate.json')));
   assert.deepEqual(JSON.parse(members.get('semantic.json')), value.document);
   assert.deepEqual(JSON.parse(members.get('edition.json')), value.edition);
   assert.equal(candidate.schema, 'architecture.edition-candidate/v1');
@@ -327,7 +316,9 @@ test('compiles complete source-bound structure into static and interactive media
     ['overview', 'registry-flow'],
   );
   for (const medium of Object.values(candidate.media)) {
-    assert(medium.artifacts.every(({ bytes, sha256 }) => bytes > 0 && /^[a-f0-9]{64}$/.test(sha256)));
+    assert(
+      medium.artifacts.every(({ bytes, sha256 }) => bytes > 0 && /^[a-f0-9]{64}$/.test(sha256)),
+    );
     assert(medium.supplies.every(({ sha256 }) => /^[a-f0-9]{64}$/.test(sha256)));
   }
   const overview = members.get('views/overview.html').toString();
@@ -344,9 +335,7 @@ test('compiles complete source-bound structure into static and interactive media
   assert(dimensions);
   assert.match(
     svg,
-    new RegExp(
-      `<rect width="${dimensions[1]}" height="${dimensions[2]}" fill="#181611"`,
-    ),
+    new RegExp(`<rect width="${dimensions[1]}" height="${dimensions[2]}" fill="#181611"`),
   );
   assert(png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])));
   assert.equal(png.readUInt32BE(16), 2400);
@@ -373,59 +362,31 @@ test('compiles complete source-bound structure into static and interactive media
 test('static and interactive projections are compositionally independent', async (t) => {
   const baseline = await fixture(t);
   const first = await compileEditionCandidate(baseline.plan);
-  const firstBundle = await readSourceBundle(
-    first.manifestPath,
-    first.manifestSha256,
-  );
-  const firstMembers = new Map(
-    firstBundle.members.map((item) => [item.path, item.content]),
-  );
+  const firstBundle = await readSourceBundle(first.manifestPath, first.manifestSha256);
+  const firstMembers = new Map(firstBundle.members.map((item) => [item.path, item.content]));
 
   const interactive = await fixture(t);
   interactive.edition.scenes.interactive.overview.composition.groups[0].label =
     'Interactive control plane';
   await fs.writeFile(interactive.plan.edition, encode(interactive.edition));
-  interactive.plan.editionSha256 = sha(
-    await fs.readFile(interactive.plan.edition),
-  );
+  interactive.plan.editionSha256 = sha(await fs.readFile(interactive.plan.edition));
   const second = await compileEditionCandidate(interactive.plan);
-  const secondBundle = await readSourceBundle(
-    second.manifestPath,
-    second.manifestSha256,
-  );
-  const secondMembers = new Map(
-    secondBundle.members.map((item) => [item.path, item.content]),
-  );
+  const secondBundle = await readSourceBundle(second.manifestPath, second.manifestSha256);
+  const secondMembers = new Map(secondBundle.members.map((item) => [item.path, item.content]));
   assert(firstMembers.get('overview.svg').equals(secondMembers.get('overview.svg')));
   assert(firstMembers.get('overview.png').equals(secondMembers.get('overview.png')));
-  assert(
-    !firstMembers
-      .get('views/overview.html')
-      .equals(secondMembers.get('views/overview.html')),
-  );
+  assert(!firstMembers.get('views/overview.html').equals(secondMembers.get('views/overview.html')));
 
   const staticOnly = await fixture(t);
-  staticOnly.edition.scenes.static.composition.groups[0].label =
-    'Static control plane';
+  staticOnly.edition.scenes.static.composition.groups[0].label = 'Static control plane';
   await fs.writeFile(staticOnly.plan.edition, encode(staticOnly.edition));
-  staticOnly.plan.editionSha256 = sha(
-    await fs.readFile(staticOnly.plan.edition),
-  );
+  staticOnly.plan.editionSha256 = sha(await fs.readFile(staticOnly.plan.edition));
   const third = await compileEditionCandidate(staticOnly.plan);
-  const thirdBundle = await readSourceBundle(
-    third.manifestPath,
-    third.manifestSha256,
-  );
-  const thirdMembers = new Map(
-    thirdBundle.members.map((item) => [item.path, item.content]),
-  );
+  const thirdBundle = await readSourceBundle(third.manifestPath, third.manifestSha256);
+  const thirdMembers = new Map(thirdBundle.members.map((item) => [item.path, item.content]));
   assert(!firstMembers.get('overview.svg').equals(thirdMembers.get('overview.svg')));
   assert(!firstMembers.get('overview.png').equals(thirdMembers.get('overview.png')));
-  assert(
-    firstMembers
-      .get('views/overview.html')
-      .equals(thirdMembers.get('views/overview.html')),
-  );
+  assert(firstMembers.get('views/overview.html').equals(thirdMembers.get('views/overview.html')));
 });
 
 test('rejects cross-medium semantic drift before rendering', async (t) => {
@@ -461,15 +422,13 @@ for (const [name, mutate, error] of [
   ],
   [
     'missing explicit port',
-    (value) =>
-      delete value.edition.scenes.static.composition.relations[0].fromSide,
+    (value) => delete value.edition.scenes.static.composition.relations[0].fromSide,
     'edition_scene_relation_invalid',
   ],
   [
     'unknown relation endpoint selection',
     (value) =>
-      value.edition.scenes.interactive['registry-flow'].composition.groups[0]
-        .entities.pop(),
+      value.edition.scenes.interactive['registry-flow'].composition.groups[0].entities.pop(),
     'edition_scene_endpoint_missing',
   ],
   [
@@ -491,10 +450,7 @@ for (const [name, mutate, error] of [
 test('rejects a semantic source whose selected bytes changed', async (t) => {
   const value = await fixture(t);
   const manifest = JSON.parse(
-    await fs.readFile(
-      path.join(value.directory, 'source/manifest.json'),
-      'utf8',
-    ),
+    await fs.readFile(path.join(value.directory, 'source/manifest.json'), 'utf8'),
   );
   const changed = await writeSourceBundle(
     path.join(value.directory, 'changed-source'),
@@ -503,9 +459,7 @@ test('rejects a semantic source whose selected bytes changed', async (t) => {
       { path: 'semantic.json', content: encode(value.document) },
       {
         path: 'source/internal/client/registry.go',
-        content: Buffer.from(
-          'changed while retaining the semantic source identity\n',
-        ),
+        content: Buffer.from('changed while retaining the semantic source identity\n'),
       },
     ],
   );
@@ -541,8 +495,7 @@ test('rejects group cardinality beyond the finite compositor bound', async (t) =
         provenance: ['registry-source'],
       };
   });
-  value.edition.scenes.static.composition.groups[0].entities =
-    Object.keys(value.document.entities);
+  value.edition.scenes.static.composition.groups[0].entities = Object.keys(value.document.entities);
   await fs.writeFile(value.plan.edition, encode(value.edition));
   value.plan.editionSha256 = sha(await fs.readFile(value.plan.edition));
   await assert.rejects(compileEditionCandidate(value.plan), {

@@ -18,25 +18,19 @@ const selectedSources = Object.freeze({
   'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
   'self-model-owner': 'editions/self/src/edition/model.mjs',
   'self-static-scene-owner': 'editions/self/src/edition/static-scene.mjs',
-  'self-static-composition-owner':
-    'editions/self/src/edition/static/composition.mjs',
+  'self-static-composition-owner': 'editions/self/src/edition/static/composition.mjs',
   'self-static-compiler-owner': 'editions/self/src/edition/static/scene.mjs',
   'self-static-svg-owner': 'editions/self/src/edition/static/svg.mjs',
-  'self-static-flagship-owner':
-    'editions/self/src/edition/static-flagship.mjs',
-  'self-static-metrics':
-    'editions/self/src/edition/static/authoring/metrics.json',
-  'self-interactive-scene-owner':
-    'editions/self/src/edition/interactive-scenes.mjs',
-  'self-interactive-composition-owner':
-    'editions/self/src/edition/interactive-scene.mjs',
+  'self-static-flagship-owner': 'editions/self/src/edition/static-flagship.mjs',
+  'self-static-metrics': 'editions/self/src/edition/static/authoring/metrics.json',
+  'self-interactive-scene-owner': 'editions/self/src/edition/interactive-scenes.mjs',
+  'self-interactive-composition-owner': 'editions/self/src/edition/interactive-scene.mjs',
   'self-interactive-atlas-owner': 'editions/self/src/edition/atlas.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
   'compiler-owner': 'packages/publisher/src/compiler/edition.mjs',
-  'interactive-renderer-owner':
-    'packages/publisher/renderers/archify/index.mjs',
+  'interactive-renderer-owner': 'packages/publisher/renderers/archify/index.mjs',
   'qualification-owner': 'packages/publisher/src/qualification/contract.mjs',
   'publication-owner': 'packages/publisher/src/publication/files.mjs',
   'installed-test-owner': 'tests/self-hosted-adopter.test.mjs',
@@ -72,9 +66,7 @@ async function mutateSelfModel(install) {
 function atlasPages(bytes) {
   const match = bytes
     .toString('utf8')
-    .match(
-      /<script id="architecture-atlas-data" type="application\/json">([\s\S]*?)<\/script>/,
-    );
+    .match(/<script id="architecture-atlas-data" type="application\/json">([\s\S]*?)<\/script>/);
   assert(match, 'standalone Atlas data is embedded');
   return JSON.parse(match[1]).pages;
 }
@@ -111,17 +103,9 @@ async function buildInstalledCandidate(directory, revision, mutate = false) {
       ...plan,
       output: candidateRoot,
     }),
-    source = await readSourceBundle(
-      prepared.sourceManifest,
-      prepared.sourceSha256,
-    ),
-    sourceMembers = new Map(
-      source.members.map((member) => [member.path, member.content]),
-    ),
-    candidateBundle = await readSourceBundle(
-      result.manifestPath,
-      result.manifestSha256,
-    ),
+    source = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256),
+    sourceMembers = new Map(source.members.map((member) => [member.path, member.content])),
+    candidateBundle = await readSourceBundle(result.manifestPath, result.manifestSha256),
     candidateMembers = new Map(
       candidateBundle.members.map((member) => [member.path, member.content]),
     ),
@@ -133,9 +117,7 @@ async function buildInstalledCandidate(directory, revision, mutate = false) {
     model: JSON.parse(sourceMembers.get('semantic.json')),
     edition: JSON.parse(await fs.readFile(prepared.edition, 'utf8')),
     candidate,
-    pages: atlasPages(
-      candidateMembers.get('interactive/architecture-publisher.html'),
-    ),
+    pages: atlasPages(candidateMembers.get('interactive/architecture-publisher.html')),
   };
 }
 
@@ -164,9 +146,7 @@ test('a source-authored self-model change rebuilds only affected projections and
     changedPages = Object.keys(before.pages).filter(
       (id) => before.pages[id].sha256 !== after.pages[id].sha256,
     ),
-    unaffectedPages = Object.keys(before.pages).filter(
-      (id) => !affected.interactive.includes(id),
-    );
+    unaffectedPages = Object.keys(before.pages).filter((id) => !affected.interactive.includes(id));
 
   assert.deepEqual(evolution.delta.changed.entities, ['qualification-set']);
   assert.equal(affected.static, true);
@@ -187,11 +167,7 @@ test('a source-authored self-model change rebuilds only affected projections and
   assert(changedPages.length > 0);
   assert(changedPages.every((id) => affected.interactive.includes(id)));
   assert(unaffectedPages.length > 0);
-  assert(
-    unaffectedPages.every(
-      (id) => before.pages[id].sha256 === after.pages[id].sha256,
-    ),
-  );
+  assert(unaffectedPages.every((id) => before.pages[id].sha256 === after.pages[id].sha256));
   assert.deepEqual(
     new Set(evolution.obligations.mediumVerification.map(({ medium }) => medium)),
     new Set(['static', 'interactive', 'installed-use', 'recovery']),

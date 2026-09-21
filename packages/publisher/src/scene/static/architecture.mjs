@@ -20,7 +20,8 @@ function routePoints(from, to, route) {
 }
 
 function intersectsSegment(from, to, box, padding = 0) {
-  let low = 0, high = 1;
+  let low = 0,
+    high = 1;
   for (const [axis, minimum, maximum] of [
     [0, box.x - padding, box.x + box.w + padding],
     [1, box.y - padding, box.y + box.h + padding],
@@ -44,8 +45,12 @@ function segments(points) {
 }
 
 function boxesOverlap(a, b, padding = 0) {
-  return a.x < b.x + b.w + padding && a.x + a.w + padding > b.x &&
-    a.y < b.y + b.h + padding && a.y + a.h + padding > b.y;
+  return (
+    a.x < b.x + b.w + padding &&
+    a.x + a.w + padding > b.x &&
+    a.y < b.y + b.h + padding &&
+    a.y + a.h + padding > b.y
+  );
 }
 
 function composeRoutes(document, view, layout) {
@@ -56,27 +61,43 @@ function composeRoutes(document, view, layout) {
       [relation.subject, authored.fromSide, relation.object, 'from'],
       [relation.object, authored.toSide, relation.subject, 'to'],
     ]) {
-      const key = id + ':' + side, entries = slots.get(key) ?? [];
+      const key = id + ':' + side,
+        entries = slots.get(key) ?? [];
       entries.push({ authored, peer: layout.nodes.get(peer), endpoint });
       slots.set(key, entries);
     }
   }
   const offsets = new Map();
   for (const [key, entries] of slots) {
-    const side = key.split(':').at(-1), horizontal = ['top', 'bottom'].includes(side);
-    entries.sort((a, b) =>
-      (horizontal ? a.peer.x - b.peer.x : a.peer.y - b.peer.y) ||
-      a.authored.id.localeCompare(b.authored.id));
+    const side = key.split(':').at(-1),
+      horizontal = ['top', 'bottom'].includes(side);
+    entries.sort(
+      (a, b) =>
+        (horizontal ? a.peer.x - b.peer.x : a.peer.y - b.peer.y) ||
+        a.authored.id.localeCompare(b.authored.id),
+    );
     const box = layout.nodes.get(key.slice(0, key.lastIndexOf(':')));
     if ((entries.length - 1) * 22 > (horizontal ? box.w : box.h) - 40)
       fail('semantic_publication_static_port_infeasible');
-    entries.forEach((entry, index) => offsets.set(
-      entry.authored.id + ':' + entry.endpoint, (index - (entries.length - 1) / 2) * 22));
+    entries.forEach((entry, index) =>
+      offsets.set(
+        entry.authored.id + ':' + entry.endpoint,
+        (index - (entries.length - 1) / 2) * 22,
+      ),
+    );
   }
   return view.relations.map((authored) => {
     const relation = document.relations[authored.id];
-    const from = point(layout.nodes.get(relation.subject), authored.fromSide, offsets.get(authored.id + ':from'));
-    const to = point(layout.nodes.get(relation.object), authored.toSide, offsets.get(authored.id + ':to'));
+    const from = point(
+      layout.nodes.get(relation.subject),
+      authored.fromSide,
+      offsets.get(authored.id + ':from'),
+    );
+    const to = point(
+      layout.nodes.get(relation.object),
+      authored.toSide,
+      offsets.get(authored.id + ':to'),
+    );
     const points = routePoints(from, to, authored.route);
     for (const [id, box] of layout.nodes) {
       if ([relation.subject, relation.object].includes(id)) continue;
@@ -88,20 +109,40 @@ function composeRoutes(document, view, layout) {
 }
 
 function placeLabels(routes, edition, layout) {
-  const occupied = [...layout.nodes.values()], borders = [];
+  const occupied = [...layout.nodes.values()],
+    borders = [];
   for (const group of layout.groups) {
     const { x, y, w, h } = group;
-    borders.push([[x, y], [x + w, y]], [[x, y + h], [x + w, y + h]],
-      [[x, y], [x, y + h]], [[x + w, y], [x + w, y + h]]);
+    borders.push(
+      [
+        [x, y],
+        [x + w, y],
+      ],
+      [
+        [x, y + h],
+        [x + w, y + h],
+      ],
+      [
+        [x, y],
+        [x, y + h],
+      ],
+      [
+        [x + w, y],
+        [x + w, y + h],
+      ],
+    );
     occupied.push({ x: x + 20, y: y + 17, w: group.label.length * 9 + 12, h: 24 });
   }
   const strokes = routes.flatMap((route) => segments(route.points));
   return routes.map((route) => {
     const label = edition.visualGrammar.relationTypes[route.relation.type].label;
-    const w = label.length * 8 + 16, h = 24;
-    const candidates = segments(route.points).sort((a, b) =>
-      Math.hypot(b[1][0] - b[0][0], b[1][1] - b[0][1]) -
-      Math.hypot(a[1][0] - a[0][0], a[1][1] - a[0][1]));
+    const w = label.length * 8 + 16,
+      h = 24;
+    const candidates = segments(route.points).sort(
+      (a, b) =>
+        Math.hypot(b[1][0] - b[0][0], b[1][1] - b[0][1]) -
+        Math.hypot(a[1][0] - a[0][0], a[1][1] - a[0][1]),
+    );
     for (const [from, to] of candidates) {
       const horizontal = from[1] === to[1];
       for (const fraction of [0.5, 0.35, 0.65, 0.2, 0.8]) {
@@ -111,10 +152,15 @@ function placeLabels(routes, edition, layout) {
           const box = horizontal
             ? { x: x - w / 2, y: sign < 0 ? y - h - 10 : y + 10, w, h }
             : { x: sign < 0 ? x - w - 10 : x + 10, y: y - h / 2, w, h };
-          if (box.x < 40 || box.x + w > layout.width - 40 ||
-              box.y < 140 || box.y + h > layout.height - 40 ||
-              occupied.some((other) => boxesOverlap(box, other, 6)) ||
-              [...strokes, ...borders].some(([a, b]) => intersectsSegment(a, b, box, 6))) continue;
+          if (
+            box.x < 40 ||
+            box.x + w > layout.width - 40 ||
+            box.y < 140 ||
+            box.y + h > layout.height - 40 ||
+            occupied.some((other) => boxesOverlap(box, other, 6)) ||
+            [...strokes, ...borders].some(([a, b]) => intersectsSegment(a, b, box, 6))
+          )
+            continue;
           occupied.push(box);
           return { ...route, label: [box.x + w / 2, box.y + 16] };
         }
@@ -134,12 +180,7 @@ function groupLayout(document, edition, view) {
       0,
       ...view.relations.map(
         (item) =>
-          [
-            ...edition.visualGrammar.relationTypes[
-              document.relations[item.id].type
-            ].label,
-          ]
-            .length,
+          [...edition.visualGrammar.relationTypes[document.relations[item.id].type].label].length,
       ),
     );
   if (longestNode > 32 || longestRelation > 32)
@@ -151,16 +192,14 @@ function groupLayout(document, edition, view) {
     groupPad = 34,
     headerHeight = 54,
     widest = Math.max(...view.groups.map((group) => group.entities.length)),
-    groupWidth =
-      widest * nodeWidth + Math.max(0, widest - 1) * nodeGap + groupPad * 2,
+    groupWidth = widest * nodeWidth + Math.max(0, widest - 1) * nodeGap + groupPad * 2,
     width = Math.max(1200, groupWidth + 160),
     groups = [],
     nodes = new Map();
   let y = 190;
   for (const group of view.groups) {
     const rowWidth =
-        group.entities.length * nodeWidth +
-        Math.max(0, group.entities.length - 1) * nodeGap,
+        group.entities.length * nodeWidth + Math.max(0, group.entities.length - 1) * nodeGap,
       height = headerHeight + nodeHeight + groupPad * 2,
       x = (width - groupWidth) / 2,
       rowX = (width - rowWidth) / 2;
@@ -180,10 +219,6 @@ function groupLayout(document, edition, view) {
 /** Compile deterministic layout and routes without painting a medium. */
 export function composeStaticArchitectureScene(document, edition, view) {
   const layout = groupLayout(document, edition, view),
-    routes = placeLabels(
-      composeRoutes(document, view, layout),
-      edition,
-      layout,
-    );
+    routes = placeLabels(composeRoutes(document, view, layout), edition, layout);
   return { layout, routes };
 }

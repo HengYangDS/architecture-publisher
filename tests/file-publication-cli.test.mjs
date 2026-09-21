@@ -51,12 +51,11 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
   assert.equal(installed.status, 0, installed.stderr);
   const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   const invoke = (args, expected = 0) => {
-    const result = run(
-      process.execPath,
-      [path.join(pkg, 'src/cli/main.mjs'), ...args],
-      home,
-      { HOME: home, PATH: home, LANG: 'C.UTF-8' },
-    );
+    const result = run(process.execPath, [path.join(pkg, 'src/cli/main.mjs'), ...args], home, {
+      HOME: home,
+      PATH: home,
+      LANG: 'C.UTF-8',
+    });
     assert.equal(result.status, expected, result.stdout + result.stderr);
     return JSON.parse(result.stdout);
   };
@@ -66,10 +65,7 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
   await fs.mkdir(parent);
   for (const medium of ['native', 'atlas']) {
     await fs.mkdir(path.join(parent, medium));
-    await fs.writeFile(
-      path.join(parent, medium, 'keep.txt'),
-      'Foreign content\n',
-    );
+    await fs.writeFile(path.join(parent, medium, 'keep.txt'), 'Foreign content\n');
   }
   const bytes = Buffer.from('An independent project artifact.\n');
   await fs.writeFile(path.join(source, 'artifact.txt'), bytes);
@@ -106,14 +102,8 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
   const result = invoke(['publish', 'plan', inputFile]);
   assert.equal(result.scope, 'file-integrity');
   assert.equal(result.semanticAcceptance, 'not-performed');
-  assert.equal(
-    result.plan.options.destinations.native,
-    path.join(parent, 'native'),
-  );
-  assert.equal(
-    result.plan.payload[0].source,
-    path.join(source, 'artifact.txt'),
-  );
+  assert.equal(result.plan.options.destinations.native, path.join(parent, 'native'));
+  assert.equal(result.plan.payload[0].source, path.join(source, 'artifact.txt'));
   await assert.rejects(fs.stat(path.join(parent, 'native/content')), {
     code: 'ENOENT',
   });
@@ -137,18 +127,10 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
   const applied = invoke(['publish', 'apply', plan, authorization]);
   assert.equal(applied.status, 'INSTALLED');
   assert.equal(applied.semanticAcceptance, 'not-performed');
-  const recovered = invoke([
-    'publish',
-    'recover',
-    plan,
-    authorization,
-  ]);
+  const recovered = invoke(['publish', 'recover', plan, authorization]);
   assert.equal(recovered.status, 'ALREADY_INSTALLED');
   for (const medium of ['native', 'atlas']) {
-    assert.deepEqual(
-      await fs.readFile(path.join(parent, medium, 'content/artifact.txt')),
-      bytes,
-    );
+    assert.deepEqual(await fs.readFile(path.join(parent, medium, 'content/artifact.txt')), bytes);
     assert.equal(
       await fs.readFile(path.join(parent, medium, 'keep.txt'), 'utf8'),
       'Foreign content\n',
@@ -175,14 +157,8 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
     authorization,
     JSON.stringify({ decision: 'AUTHORIZED', planSha256: next.plan.sha256 }),
   );
-  assert.equal(
-    invoke(['publish', 'apply', plan, authorization]).status,
-    'INSTALLED',
-  );
-  assert.equal(
-    invoke(['publish', 'recover', plan, authorization]).status,
-    'ALREADY_INSTALLED',
-  );
+  assert.equal(invoke(['publish', 'apply', plan, authorization]).status, 'INSTALLED');
+  assert.equal(invoke(['publish', 'recover', plan, authorization]).status, 'ALREADY_INSTALLED');
   for (const medium of ['native', 'atlas']) {
     assert.deepEqual(
       await fs.readFile(path.join(parent, medium, 'content/artifact.txt')),
@@ -193,10 +169,7 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
       'Foreign content\n',
     );
   }
-  await fs.writeFile(
-    inputFile,
-    JSON.stringify({ ...input, grantApproval: true }),
-  );
+  await fs.writeFile(inputFile, JSON.stringify({ ...input, grantApproval: true }));
   invoke(['publish', 'plan', inputFile], 1);
   const link = path.join(temporary, 'linked-input.json');
   await fs.symlink(inputFile, link);

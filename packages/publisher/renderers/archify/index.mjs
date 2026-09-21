@@ -8,23 +8,13 @@ import { fail, isDigest, portablePath } from '../../src/source/manifest.mjs';
 import { embedFonts } from './fonts.mjs';
 import { adaptArchitectureScene } from './architecture.mjs';
 
-const supplyRoot = fileURLToPath(
-  new URL('./supply/', import.meta.url),
-);
-const supplyDigest =
-  '091c49f7b7c95fd8a022705f743cb6b0701fefc4abb1cad588b09a91e4a36484';
-const types = new Set([
-  'architecture',
-  'workflow',
-  'sequence',
-  'dataflow',
-  'lifecycle',
-]);
+const supplyRoot = fileURLToPath(new URL('./supply/', import.meta.url));
+const supplyDigest = '091c49f7b7c95fd8a022705f743cb6b0701fefc4abb1cad588b09a91e4a36484';
+const types = new Set(['architecture', 'workflow', 'sequence', 'dataflow', 'lifecycle']);
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 async function bytes(file, maximum, code) {
   const stat = await fs.lstat(file);
-  if (!stat.isFile() || stat.isSymbolicLink() || stat.size > maximum)
-    fail(code);
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.size > maximum) fail(code);
   const result = await fs.readFile(file);
   if (result.length !== stat.size) fail(code);
   return result;
@@ -46,8 +36,7 @@ async function supply() {
       4 * 1024 * 1024,
       'render_supply_invalid',
     );
-    if (value.length !== file.bytes || sha(value) !== file.sha256)
-      fail('render_supply_invalid');
+    if (value.length !== file.bytes || sha(value) !== file.sha256) fail('render_supply_invalid');
     members.push({ path: file.path, content: value });
     expected.add(file.path);
   }
@@ -55,10 +44,8 @@ async function supply() {
     for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
       const name = prefix + entry.name;
       if (entry.isSymbolicLink()) fail('render_supply_invalid');
-      if (entry.isDirectory())
-        await walk(path.join(directory, entry.name), name + '/');
-      else if (!entry.isFile() || !expected.delete(name))
-        fail('render_supply_invalid');
+      if (entry.isDirectory()) await walk(path.join(directory, entry.name), name + '/');
+      else if (!entry.isFile() || !expected.delete(name)) fail('render_supply_invalid');
     }
   }
   await walk(supplyRoot);
@@ -66,15 +53,13 @@ async function supply() {
   return members;
 }
 
-
 async function runtimeDigest(directory) {
   const members = [];
   async function collect(root, prefix = '') {
     for (const entry of await fs.readdir(root, { withFileTypes: true })) {
       const name = prefix + entry.name;
       if (entry.isSymbolicLink()) fail('render_adaptation_receipt_invalid');
-      if (entry.isDirectory())
-        await collect(path.join(root, entry.name), name + '/');
+      if (entry.isDirectory()) await collect(path.join(root, entry.name), name + '/');
       else if (entry.isFile()) {
         const value = await bytes(
           path.join(root, entry.name),
@@ -120,11 +105,7 @@ export async function renderDiagram(plan) {
     !path.isAbsolute(plan.output)
   )
     fail('render_path_required');
-  const input = await bytes(
-    plan.input,
-    4 * 1024 * 1024,
-    'render_input_type_invalid',
-  );
+  const input = await bytes(plan.input, 4 * 1024 * 1024, 'render_input_type_invalid');
   if (sha(input) !== plan.inputSha256) fail('render_input_digest_mismatch');
   return renderNativeDiagram(
     { type: plan.type, inputBytes: input, output: plan.output },
@@ -133,10 +114,7 @@ export async function renderDiagram(plan) {
         embedded = await embedFonts(await fs.readFile(file, 'utf8'));
       await fs.writeFile(
         file,
-        embedded.html.replace(
-          '</head>',
-          '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>',
-        ),
+        embedded.html.replace('</head>', '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>'),
       );
       return { supplies: [embedded.supply] };
     },
@@ -144,17 +122,11 @@ export async function renderDiagram(plan) {
 }
 
 function semanticPublicationTemplate(template) {
-  const names = [
-      'signal-flow',
-      'blueprint',
-      'editorial',
-      'editorial-plate',
-    ],
+  const names = ['signal-flow', 'blueprint', 'editorial', 'editorial-plate'],
     counts = Object.fromEntries(
       names.map((name) => [
         name,
-        [...template.matchAll(new RegExp(`data-preset-badge-${name}=`, 'g'))]
-          .length,
+        [...template.matchAll(new RegExp(`data-preset-badge-${name}=`, 'g'))].length,
       ]),
     );
   if (Object.values(counts).some((count) => count !== 1))
@@ -168,10 +140,7 @@ function semanticPublicationTemplate(template) {
       /content:\s*attr\(data-preset-badge-(?:signal-flow|blueprint|editorial|editorial-plate)\);/g,
       'content: none;',
     );
-  if (
-    /data-preset-badge-/.test(result) ||
-    /content:\s*attr\(data-preset-badge-/.test(result)
-  )
+  if (/data-preset-badge-/.test(result) || /content:\s*attr\(data-preset-badge-/.test(result))
     fail('render_semantic_template_seam_invalid');
   return result;
 }
@@ -186,10 +155,7 @@ async function renderSemanticDiagram(plan) {
       template = semanticPublicationTemplate(embedded.html);
     await fs.writeFile(
       file,
-      template.replace(
-        '</head>',
-        '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>',
-      ),
+      template.replace('</head>', '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>'),
     );
     return { supplies: [embedded.supply] };
   });
@@ -210,10 +176,7 @@ export async function renderArchitectureScene(plan) {
 /** Internal code-owned edition seam. Never selected by input data or plugin paths. */
 export async function renderNativeDiagram(plan, adaptRuntime) {
   if (!plan || !types.has(plan.type)) fail('render_type_unsupported');
-  if (
-    !Buffer.isBuffer(plan.inputBytes) ||
-    plan.inputBytes.length > 4 * 1024 * 1024
-  )
+  if (!Buffer.isBuffer(plan.inputBytes) || plan.inputBytes.length > 4 * 1024 * 1024)
     fail('render_input_type_invalid');
   if (typeof plan.output !== 'string' || !path.isAbsolute(plan.output))
     fail('render_path_required');
@@ -222,23 +185,16 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
     inputSha256 = sha(input);
   let diagram;
   try {
-    diagram = JSON.parse(
-      new TextDecoder('utf-8', { fatal: true }).decode(input),
-    );
+    diagram = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(input));
   } catch {
     fail('render_input_json_invalid');
   }
   if (diagram?.diagram_type !== plan.type) fail('render_type_mismatch');
-  if (diagram?.meta?.quality_profile !== 'showcase')
-    fail('render_showcase_required');
+  if (diagram?.meta?.quality_profile !== 'showcase') fail('render_showcase_required');
   offlineInput(diagram);
   const parent = path.dirname(plan.output),
     stat = await fs.lstat(parent);
-  if (
-    !stat.isDirectory() ||
-    stat.isSymbolicLink() ||
-    (await fs.realpath(parent)) !== parent
-  )
+  if (!stat.isDirectory() || stat.isSymbolicLink() || (await fs.realpath(parent)) !== parent)
     fail('render_output_parent_invalid');
   try {
     await fs.lstat(plan.output);
@@ -247,9 +203,7 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
     if (error.code !== 'ENOENT') throw error;
   }
   const runtime = await supply();
-  const notice = runtime
-    .find((member) => member.path === 'LICENSE')
-    .content.toString('utf8');
+  const notice = runtime.find((member) => member.path === 'LICENSE').content.toString('utf8');
   const scratch = await fs.mkdtemp(path.join(parent, '.architecture-render-'));
   try {
     const native = path.join(scratch, 'runtime'),
@@ -337,15 +291,8 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
       checks.warnings !== 0
     )
       fail('render_receipt_invalid');
-    const rendered = await bytes(
-      candidate,
-      32 * 1024 * 1024,
-      'render_artifact_invalid',
-    );
-    if (
-      receipt.artifact?.sha256 !== sha(rendered) ||
-      receipt.artifact.bytes !== rendered.length
-    )
+    const rendered = await bytes(candidate, 32 * 1024 * 1024, 'render_artifact_invalid');
+    if (receipt.artifact?.sha256 !== sha(rendered) || receipt.artifact.bytes !== rendered.length)
       fail('render_artifact_invalid');
     try {
       await fs.copyFile(candidate, plan.output, constants.COPYFILE_EXCL);

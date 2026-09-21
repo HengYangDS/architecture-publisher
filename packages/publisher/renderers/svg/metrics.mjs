@@ -29,8 +29,7 @@ export function createMetricReader(input) {
   const records = new Map(),
     used = new Set();
   for (const row of input.records) {
-    if (!Array.isArray(row) || row.length !== 2 || typeof row[0] !== 'string')
-      invalid();
+    if (!Array.isArray(row) || row.length !== 2 || typeof row[0] !== 'string') invalid();
     const [key, value] = row;
     let parts;
     try {
@@ -69,10 +68,7 @@ export function createMetricReader(input) {
       value.glyph.height < 0
     )
       invalid();
-    records.set(
-      key,
-      Object.freeze({ ...value, glyph: Object.freeze({ ...value.glyph }) }),
-    );
+    records.set(key, Object.freeze({ ...value, glyph: Object.freeze({ ...value.glyph }) }));
   }
   return {
     recordCount: records.size,

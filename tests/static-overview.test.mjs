@@ -5,12 +5,15 @@ import { composeStaticOverview } from '../packages/publisher/renderers/svg/archi
 function fixture() {
   return {
     document: {
-      entities: Object.fromEntries(['left', 'center', 'right', 'target'].map(
-        (id) => [id, { label: id, type: 'component' }],
-      )),
-      relations: Object.fromEntries(['left', 'center', 'right'].map(
-        (id) => [id, { subject: id, object: 'target', type: 'calls' }],
-      )),
+      entities: Object.fromEntries(
+        ['left', 'center', 'right', 'target'].map((id) => [id, { label: id, type: 'component' }]),
+      ),
+      relations: Object.fromEntries(
+        ['left', 'center', 'right'].map((id) => [
+          id,
+          { subject: id, object: 'target', type: 'calls' },
+        ]),
+      ),
     },
     edition: {
       title: 'Converging calls',
@@ -26,7 +29,10 @@ function fixture() {
         { id: 'output', label: 'Target', entities: ['target'] },
       ],
       relations: ['left', 'center', 'right'].map((id) => ({
-        id, fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v',
+        id,
+        fromSide: 'bottom',
+        toSide: 'top',
+        route: 'orthogonal-v',
       })),
     },
   };
@@ -35,8 +41,9 @@ function fixture() {
 test('converging relations retain distinct target ports and unmasked labels', () => {
   const { document, edition, view } = fixture();
   const svg = composeStaticOverview(document, edition, view).bytes.toString();
-  const ends = [...svg.matchAll(/data-edge-to="target" d="([^"]+)"/g)]
-    .map((match) => match[1].split(' L ').at(-1));
+  const ends = [...svg.matchAll(/data-edge-to="target" d="([^"]+)"/g)].map((match) =>
+    match[1].split(' L ').at(-1),
+  );
   assert.equal(ends.length, 3);
   assert.equal(new Set(ends).size, 3);
   assert.doesNotMatch(svg, /data-edge-label="[^"]+"><rect/);

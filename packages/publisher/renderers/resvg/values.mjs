@@ -11,9 +11,7 @@ const lengths = words(
 const nonnegative = words(
   'width height r rx ry fr stroke-width markerWidth markerHeight font-size textLength',
 );
-const fractions = words(
-  'opacity fill-opacity stroke-opacity stop-opacity offset',
-);
+const fractions = words('opacity fill-opacity stroke-opacity stop-opacity offset');
 const enums = Object.fromEntries(
   Object.entries({
     'fill-rule': 'nonzero evenodd',
@@ -36,8 +34,7 @@ const enums = Object.fromEntries(
       'inline block list-item run-in compact marker table inline-table table-row-group table-header-group table-footer-group table-row table-column-group table-column table-cell table-caption none',
     'vector-effect': 'none non-scaling-stroke',
     'shape-rendering': 'auto optimizeSpeed crispEdges geometricPrecision',
-    'text-rendering':
-      'auto optimizeSpeed optimizeLegibility geometricPrecision',
+    'text-rendering': 'auto optimizeSpeed optimizeLegibility geometricPrecision',
   }).map(([key, value]) => [key, words(value)]),
 );
 const inheritable = words(
@@ -84,12 +81,7 @@ class Numbers {
     requiredSeparator = false,
     negativePair = false,
   } = {}) {
-    if (
-      !first &&
-      !this.separator() &&
-      requiredSeparator &&
-      !(negativePair && this.rest[0] === '-')
-    )
+    if (!first && !this.separator() && requiredSeparator && !(negativePair && this.rest[0] === '-'))
       invalid();
     const match = (flag ? /^[01]/ : number).exec(this.rest);
     if (!match) invalid();
@@ -140,8 +132,7 @@ function pathData(value) {
   let initial = true;
   while (input.rest) {
     const command = input.rest[0].toUpperCase();
-    if ((initial && command !== 'M') || !(command in counts || command === 'Z'))
-      invalid();
+    if ((initial && command !== 'M') || !(command in counts || command === 'Z')) invalid();
     initial = false;
     input.rest = input.rest.slice(1);
     input.space();
@@ -199,13 +190,8 @@ function color(value) {
   if (items[3]?.unit) invalid();
   if (type.startsWith('rgb')) {
     const unit = items[0].unit;
-    if (
-      !['', '%'].includes(unit) ||
-      items.slice(0, 3).some((x) => x.unit !== unit)
-    )
-      invalid();
-    if (!unit && items.slice(1, 3).some((x) => !Number.isInteger(x.value)))
-      invalid();
+    if (!['', '%'].includes(unit) || items.slice(0, 3).some((x) => x.unit !== unit)) invalid();
+    if (!unit && items.slice(1, 3).some((x) => !Number.isInteger(x.value))) invalid();
   } else {
     if (
       items[0].unit ||
@@ -220,29 +206,15 @@ function color(value) {
 export function validateSvgValues(tag, attributes) {
   for (const [key, original] of Object.entries(attributes)) {
     const value = original.trim();
-    if (
-      key === 'id' ||
-      key === 'href' ||
-      key === 'role' ||
-      /^data-|^aria-/.test(key)
-    )
-      continue;
+    if (key === 'id' || key === 'href' || key === 'role' || /^data-|^aria-/.test(key)) continue;
     if (value === 'inherit' && inheritable.has(key)) continue;
     if (lengths.has(key)) {
-      if (
-        ['letter-spacing', 'word-spacing'].includes(key) &&
-        value === 'normal'
-      )
-        continue;
+      if (['letter-spacing', 'word-spacing'].includes(key) && value === 'normal') continue;
       const items =
         ['text', 'tspan'].includes(tag) && ['x', 'y', 'dx', 'dy'].includes(key)
           ? list(value, true)
           : [scalar(value, true)];
-      if (
-        !items.length ||
-        (nonnegative.has(key) && items.some((x) => x.value < 0))
-      )
-        invalid();
+      if (!items.length || (nonnegative.has(key) && items.some((x) => x.value < 0))) invalid();
     } else if (fractions.has(key)) {
       const item = scalar(value, true);
       if (item.unit && item.unit !== '%') invalid();
@@ -258,8 +230,7 @@ export function validateSvgValues(tag, attributes) {
     } else if (key === 'd') pathData(value);
     else if (key === 'points') {
       if (list(value, false, true).length % 2) invalid();
-    } else if (key === 'transform' || key === 'gradientTransform')
-      transform(value);
+    } else if (key === 'transform' || key === 'gradientTransform') transform(value);
     else if (key === 'viewBox') {
       const box = list(value);
       if (box.length !== 4 || box[2].value <= 0 || box[3].value <= 0) invalid();
@@ -282,8 +253,7 @@ export function validateSvgValues(tag, attributes) {
         continue;
       color(value);
     } else if (key === 'clip-path' || key.startsWith('marker-')) {
-      if (value !== 'none' && !/^url\(\s*#[A-Za-z_][\w.:-]*\s*\)$/.test(value))
-        invalid();
+      if (value !== 'none' && !/^url\(\s*#[A-Za-z_][\w.:-]*\s*\)$/.test(value)) invalid();
     } else if (key === 'font-weight') {
       if (!/^(?:normal|bold|bolder|lighter|[1-9]00)$/.test(value)) invalid();
     } else if (key === 'font-family') {

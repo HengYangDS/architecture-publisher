@@ -69,7 +69,7 @@ The request schema is `architecture.pack-input/v1` and contains:
 ```json
 {
   "schema": "architecture.pack-input/v1",
-  "source": {"id": "system", "revision": "selected-revision"},
+  "source": { "id": "system", "revision": "selected-revision" },
   "files": [
     {
       "input": "./selected/model.json",
@@ -293,10 +293,12 @@ npm run check
 npm test
 ```
 
-`npm run check` performs repository syntax coverage and workspace-aware Knip
-analysis over the private root, core product, and extensions. Vendored Archify
-and raster supply are verified by their supply-chain and behavior tests rather
-than misclassified as first-party dead-code entries.
+`npm run check` is the repository's fail-closed quality entry. It composes
+Prettier, zero-warning ESLint, checked JavaScript contracts, module-direction
+and dead-code analysis, Markdown and strict OpenSpec validation, measured test
+coverage, and packed-package validation. Vendored Archify, font, and raster
+supply remain outside first-party rewrite and dead-code ownership; their pinned
+bytes are verified through supply-chain and behavior tests.
 
 `npm test` includes ordinary offline source, semantic, Edition, scene, rendering,
 package, installed-use, publication, replacement, and recovery behavior. Tests
@@ -305,12 +307,12 @@ selectors are absent; a skip is not a pass for that qualification.
 
 Current opt-in selectors include:
 
-| Selector | Scope |
-| --- | --- |
-| `ETHOS_ATLAS_PLAN` | Exact current atlas and browser-obligation selection |
-| `ETHOS_QUALIFIED_PAIR_PLAN` | Exact current qualified paired publication |
-| `ETHOS_PAIR_PLAN` | Frozen historical paired-publication generation |
-| `ETHOS_REVIEW_PLAN` | Historical review-continuity generation |
+| Selector                                | Scope                                                    |
+| --------------------------------------- | -------------------------------------------------------- |
+| `ETHOS_ATLAS_PLAN`                      | Exact current atlas and browser-obligation selection     |
+| `ETHOS_QUALIFIED_PAIR_PLAN`             | Exact current qualified paired publication               |
+| `ETHOS_PAIR_PLAN`                       | Frozen historical paired-publication generation          |
+| `ETHOS_REVIEW_PLAN`                     | Historical review-continuity generation                  |
 | `PAIR_PRIOR_NATIVE`, `PAIR_PRIOR_ATLAS` | Explicit copied prior deliveries for migration rehearsal |
 
 Never edit immutable release plans or substitute a similarly named newer
@@ -337,12 +339,12 @@ The private GitLab predecessor project is
 links the immutable alpha.5 reader release. These facts describe historical
 objects and do not define the current command surface.
 
-| Role | Canonical entry | Historical status |
-| --- | --- | --- |
-| Published reader | GitLab release `v0.1.0-alpha.5` assets `ETHOS-architecture.html` and `ETHOS-architecture-6000.png` | Immutable published bytes; alpha.7 links them by URL and SHA-256 |
-| Candidate viewing copy | Local delivery `ETHOS-architecture-viewing/README.md` | `VIEWING_COPY_NOT_QUALIFIED_RELEASE`; not promoted |
-| Documents convenience delivery | Local `ETHOS-architecture.html` and `ETHOS-architecture-6000.png` | Preserved local bytes; not promoted by alpha.7 |
-| Complete recovery | GitLab release `v0.1.0-alpha.3` asset `ETHOS-architecture-recovery.tar.xz` | Selected complete reader and publisher recovery closure |
+| Role                           | Canonical entry                                                                                    | Historical status                                                |
+| ------------------------------ | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Published reader               | GitLab release `v0.1.0-alpha.5` assets `ETHOS-architecture.html` and `ETHOS-architecture-6000.png` | Immutable published bytes; alpha.7 links them by URL and SHA-256 |
+| Candidate viewing copy         | Local delivery `ETHOS-architecture-viewing/README.md`                                              | `VIEWING_COPY_NOT_QUALIFIED_RELEASE`; not promoted               |
+| Documents convenience delivery | Local `ETHOS-architecture.html` and `ETHOS-architecture-6000.png`                                  | Preserved local bytes; not promoted by alpha.7                   |
+| Complete recovery              | GitLab release `v0.1.0-alpha.3` asset `ETHOS-architecture-recovery.tar.xz`                         | Selected complete reader and publisher recovery closure          |
 
 The preserved local convenience digests are:
 

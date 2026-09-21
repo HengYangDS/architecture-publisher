@@ -17,8 +17,7 @@ import {
 import { claimModelDigest } from '../packages/publisher/src/semantics/document.mjs';
 import { editionFixture } from './fixtures/edition.mjs';
 
-const digest = (value) =>
-  createHash('sha256').update(Buffer.from(value)).digest('hex');
+const digest = (value) => createHash('sha256').update(Buffer.from(value)).digest('hex');
 
 function candidate() {
   return {
@@ -163,7 +162,8 @@ function candidate() {
 }
 
 test('Edition Candidate is the single exact identity across sibling media', () => {
-  const value = candidate(), before = structuredClone(value),
+  const value = candidate(),
+    before = structuredClone(value),
     selected = validateEditionCandidate(value);
   assert.deepEqual(value, before);
   assert.equal(selected.schema, 'architecture.edition-candidate/v1');
@@ -175,9 +175,8 @@ test('Edition Candidate is the single exact identity across sibling media', () =
 });
 
 test('Qualification owns exact subjects rather than the Candidate compiler', async () => {
-  const { qualificationSubject } = await import(
-    '../packages/publisher/src/qualification/contract.mjs'
-  );
+  const { qualificationSubject } =
+    await import('../packages/publisher/src/qualification/contract.mjs');
   const value = candidate();
   assert.deepEqual(qualificationSubject(value, 'semantic'), {
     kind: 'claim-model',
@@ -194,7 +193,8 @@ test('Qualification owns exact subjects rather than the Candidate compiler', asy
 });
 
 test('Candidate identity normalizes declared sets but preserves exact artifacts', () => {
-  const left = candidate(), right = structuredClone(left);
+  const left = candidate(),
+    right = structuredClone(left);
   right.obligations.reverse();
   right.media.static.artifacts.reverse();
   right.media.static.supplies.reverse();
@@ -218,7 +218,6 @@ test('Candidate rejects parallel state, incomplete media and duplicate obligatio
     assert.throws(() => validateEditionCandidate(value), /candidate_/);
   }
 });
-
 
 test('Candidate uses one portable artifact namespace across sibling media', () => {
   const caseCollision = candidate();
@@ -245,43 +244,34 @@ test('validated Candidate values are deeply immutable', () => {
   assert.equal(Object.isFrozen(selected.media.static.artifacts[0]), true);
   assert.equal(Object.isFrozen(selected.obligations), true);
   assert.equal(Object.isFrozen(selected.obligations[0]), true);
-  assert.throws(
-    () => {
-      selected.media.static.artifacts[0].sha256 = digest('mutated');
-    },
-    TypeError,
-  );
+  assert.throws(() => {
+    selected.media.static.artifacts[0].sha256 = digest('mutated');
+  }, TypeError);
 });
 
 test('Candidate obligations and scenes are projections of the exact Edition authority', () => {
-  const selected = editionFixture(), value = candidate();
+  const selected = editionFixture(),
+    value = candidate();
   value.source.manifestSha256 = selected.edition.source.manifestSha256;
   value.claimModel.digest = claimModelDigest(selected.model);
   value.edition.digest = editionDigest(selected.model, selected.edition);
-  value.media.static.sceneSha256 = staticSceneDigest(
-    selected.model,
-    selected.edition,
+  value.media.static.sceneSha256 = staticSceneDigest(selected.model, selected.edition);
+  value.media.interactive.sceneSha256 = interactiveSceneDigest(selected.model, selected.edition);
+  value.obligations = structuredClone(
+    editionQualificationObligations(selected.model, selected.edition),
   );
-  value.media.interactive.sceneSha256 = interactiveSceneDigest(
-    selected.model,
-    selected.edition,
-  );
-  value.obligations = structuredClone(editionQualificationObligations(
-    selected.model,
-    selected.edition,
-  ));
   assert.doesNotThrow(() =>
     validateEditionCandidateBinding(selected.model, selected.edition, value),
   );
   value.obligations.pop();
-  assert.throws(
-    () => validateEditionCandidateBinding(selected.model, selected.edition, value),
-    { code: 'candidate_obligation_mismatch' },
-  );
+  assert.throws(() => validateEditionCandidateBinding(selected.model, selected.edition, value), {
+    code: 'candidate_obligation_mismatch',
+  });
 });
 
 test('Candidate creation derives all copied authority from the exact Edition', () => {
-  const selected = editionFixture(), template = candidate(),
+  const selected = editionFixture(),
+    template = candidate(),
     created = createEditionCandidate({
       sourceManifestSha256: selected.edition.source.manifestSha256,
       claimModelSha256: template.claimModel.sha256,

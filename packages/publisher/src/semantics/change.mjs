@@ -60,12 +60,8 @@ function correspondence(rows, before, after, added, removed) {
           !['before', 'after'].includes(item.version) ||
           !text(item.source) ||
           !text(item.locator) ||
-          !Object.hasOwn(
-            (item.version === 'before' ? before : after).sources,
-            item.source,
-          ) ||
-          (item.version === 'before' ? before : after).sources[item.source]
-            .sha256 !== item.sha256
+          !Object.hasOwn((item.version === 'before' ? before : after).sources, item.source) ||
+          (item.version === 'before' ? before : after).sources[item.source].sha256 !== item.sha256
         )
           semanticError('semantic_correspondence_evidence');
         return {
@@ -97,18 +93,15 @@ function dependencyGraph(model, reverse) {
   for (const section of ['entities', 'relations', 'claims'])
     for (const [id, value] of Object.entries(model[section])) {
       const dependent = key(section, id);
-      for (const source of value.provenance)
-        edge(key('sources', source), dependent);
+      for (const source of value.provenance) edge(key('sources', source), dependent);
       if (section === 'relations') {
         edge(key('entities', value.subject), dependent);
         edge(key('entities', value.object), dependent);
       }
       if (section === 'claims') {
         edge(key('entities', value.subject), dependent);
-        if (value.object !== null)
-          edge(key('entities', value.object), dependent);
-        for (const reference of value.dependsOn)
-          edge(referenceKey(reference), dependent);
+        if (value.object !== null) edge(key('entities', value.object), dependent);
+        for (const reference of value.dependsOn) edge(referenceKey(reference), dependent);
       }
     }
 }
@@ -145,59 +138,36 @@ export function compileClaimModelDelta(before, after, correspondences = []) {
     changed[section] = Object.keys(a[section])
       .filter(
         (id) =>
-          Object.hasOwn(b[section], id) &&
-          canonical(a[section][id]) !== canonical(b[section][id]),
+          Object.hasOwn(b[section], id) && canonical(a[section][id]) !== canonical(b[section][id]),
       )
       .sort();
     changedFields[section] = Object.fromEntries(
-      changed[section].map((id) => [
-        id,
-        changedFieldNames(a[section][id], b[section][id]),
-      ]),
+      changed[section].map((id) => [id, changedFieldNames(a[section][id], b[section][id])]),
     );
   }
   const mappings = correspondence(correspondences, a, b, added, removed),
     changes = CLAIM_MODEL_SECTIONS.flatMap((section) =>
-      [...added[section], ...removed[section], ...changed[section]].map(
-        (id) => ({ section, id }),
-      ),
+      [...added[section], ...removed[section], ...changed[section]].map((id) => ({ section, id })),
     ),
     reverse = new Map();
   dependencyGraph(a, reverse);
   dependencyGraph(b, reverse);
   const reached = closure(changes.map(referenceKey), reverse),
-    renderChanges = changes.filter(
-      ({ section }) => !['sources'].includes(section),
-    ),
+    renderChanges = changes.filter(({ section }) => !['sources'].includes(section)),
     renderReached = closure(renderChanges.map(referenceKey), reverse),
-    affectedClaims = sorted([
-      ...Object.keys(a.claims),
-      ...Object.keys(b.claims),
-    ]).filter((id) => reached.has(key('claims', id))),
-    renderAffectedClaims = sorted([
-      ...Object.keys(a.claims),
-      ...Object.keys(b.claims),
-    ]).filter((id) => renderReached.has(key('claims', id))),
-    unknownClaims = sorted([
-      ...Object.keys(a.claims),
-      ...Object.keys(b.claims),
-    ]).filter(
-      (id) =>
-        a.claims[id]?.coverage === 'unknown' ||
-        b.claims[id]?.coverage === 'unknown',
+    affectedClaims = sorted([...Object.keys(a.claims), ...Object.keys(b.claims)]).filter((id) =>
+      reached.has(key('claims', id)),
+    ),
+    renderAffectedClaims = sorted([...Object.keys(a.claims), ...Object.keys(b.claims)]).filter(
+      (id) => renderReached.has(key('claims', id)),
+    ),
+    unknownClaims = sorted([...Object.keys(a.claims), ...Object.keys(b.claims)]).filter(
+      (id) => a.claims[id]?.coverage === 'unknown' || b.claims[id]?.coverage === 'unknown',
     ),
     globalReasons = [];
-  if (
-    added.context.length ||
-    removed.context.length ||
-    changed.context.length
-  )
+  if (added.context.length || removed.context.length || changed.context.length)
     globalReasons.push('opaque-context-change');
-  if (
-    added.vocabulary.length ||
-    removed.vocabulary.length ||
-    changed.vocabulary.length
-  )
+  if (added.vocabulary.length || removed.vocabulary.length || changed.vocabulary.length)
     globalReasons.push('vocabulary-change');
   if (renderChanges.length && unknownClaims.length)
     globalReasons.push('unknown-claim-dependencies');

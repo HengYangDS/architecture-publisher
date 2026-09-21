@@ -20,32 +20,22 @@ test('top-level help presents the domain-neutral task surface', () => {
   const result = run(['--help']);
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /^Architecture Publisher\n/m);
-  for (const command of [
-    'source',
-    'edition',
-    'evolution',
-    'render',
-    'qualify',
-    'publish',
-  ])
+  for (const command of ['source', 'edition', 'evolution', 'render', 'qualify', 'publish'])
     assert.match(result.stdout, new RegExp(`^  ${command}\\b`, 'm'));
-  assert.doesNotMatch(
-    result.stdout,
-    /\b(?:ethos|aigw|archify|resvg|coretext)\b/i,
-  );
+  assert.doesNotMatch(result.stdout, /\b(?:ethos|aigw|archify|resvg|coretext)\b/i);
 });
 
 test('scoped help is concise and derived from the routed commands', () => {
   const source = run(['source', '--help']);
   assert.equal(source.status, 0, source.stderr);
   assert.match(source.stdout, /^Usage: archpub source <command>/m);
-  assert.match(source.stdout, /^  pack\b/m);
-  assert.match(source.stdout, /^  verify\b/m);
-  assert.doesNotMatch(source.stdout, /^  publish\b/m);
+  assert.match(source.stdout, /^ {2}pack\b/m);
+  assert.match(source.stdout, /^ {2}verify\b/m);
+  assert.doesNotMatch(source.stdout, /^ {2}publish\b/m);
 
   const edition = run(['edition', '--help']);
   assert.equal(edition.status, 0, edition.stderr);
-  assert.match(edition.stdout, /^  build\b/m);
+  assert.match(edition.stdout, /^ {2}build\b/m);
 });
 
 test('usage errors identify the failing invocation and next help action', () => {
@@ -59,9 +49,7 @@ test('usage errors identify the failing invocation and next help action', () => 
 });
 
 test('one command catalog owns both dispatch and help', async () => {
-  const { commandCatalog, helpFor } = await import(
-    '../packages/publisher/src/cli/commands.mjs'
-  );
+  const { commandCatalog, helpFor } = await import('../packages/publisher/src/cli/commands.mjs');
   const paths = commandCatalog.map(({ path: parts }) => parts.join(' '));
   assert.equal(new Set(paths).size, paths.length);
   for (const entry of commandCatalog) {

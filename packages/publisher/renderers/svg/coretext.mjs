@@ -53,9 +53,7 @@ export async function measureCoreText(plan) {
       fail('coretext_plan_invalid');
     ids.add(font.id);
   }
-  if (
-    plan.fonts.some((f) => f.cascade.some((id) => !ids.has(id) || id === f.id))
-  )
+  if (plan.fonts.some((f) => f.cascade.some((id) => !ids.has(id) || id === f.id)))
     fail('coretext_plan_invalid');
   const requests = structuredClone(plan.requests),
     keys = new Set();
@@ -120,13 +118,9 @@ export async function measureCoreText(plan) {
   } catch (e) {
     if (e.code !== 'ENOENT') throw e;
   }
-  const scratch = await fs.mkdtemp(
-    path.join(parent, '.architecture-coretext-'),
-  );
+  const scratch = await fs.mkdtemp(path.join(parent, '.architecture-coretext-'));
   try {
-    const helper = await fs.readFile(
-      new URL('./coretext.swift', import.meta.url),
-    );
+    const helper = await fs.readFile(new URL('./coretext.swift', import.meta.url));
     const script = path.join(scratch, 'measure.swift'),
       executable = path.join(scratch, 'measure');
     await fs.writeFile(script, helper, { flag: 'wx' });
@@ -187,25 +181,17 @@ export async function measureCoreText(plan) {
     }
     if (response.status !== 0 || measured.status !== 'measured')
       fail(measured.code ?? 'coretext_measurement_failed');
-    if (
-      !Array.isArray(measured.observations) ||
-      measured.observations.length !== requests.length
-    )
+    if (!Array.isArray(measured.observations) || measured.observations.length !== requests.length)
       fail('coretext_response_invalid');
     const observations = measured.observations.map((o, i) => {
-      if (
-        !fields(o, ['fonts', 'metric']) ||
-        !Array.isArray(o.fonts) ||
-        !o.fonts.length
-      )
+      if (!fields(o, ['fonts', 'metric']) || !Array.isArray(o.fonts) || !o.fonts.length)
         fail('coretext_response_invalid');
       const primary = fonts.find((f) => f.id === requests[i].font);
       const selected = new Set([primary.id, ...primary.cascade]);
       return {
         ...o,
         fonts: o.fonts.map((f) => {
-          if (!fields(f, ['id', 'path', 'postscript']))
-            fail('coretext_response_invalid');
+          if (!fields(f, ['id', 'path', 'postscript'])) fail('coretext_response_invalid');
           const bound = fonts.find((x) => x.id === f.id);
           if (
             !bound ||
@@ -222,8 +208,7 @@ export async function measureCoreText(plan) {
       schema: 'architecture.text-metrics/v1',
       provenance: {
         method: 'recorded',
-        environment:
-          'CoreText measured data; reading this table later is not fresh execution',
+        environment: 'CoreText measured data; reading this table later is not fresh execution',
         fonts: fonts.map((f) => f.postscript + ':' + f.sha256),
       },
       records: requests.map((r, i) => [
@@ -245,12 +230,7 @@ export async function measureCoreText(plan) {
       'coretext_sdk_changed',
     );
     for (const f of fonts)
-      await fileIdentity(
-        f.path,
-        f.sha256,
-        128 * 1024 * 1024,
-        'coretext_font_changed',
-      );
+      await fileIdentity(f.path, f.sha256, 128 * 1024 * 1024, 'coretext_font_changed');
     const result = {
       status: 'measured',
       freshMeasurement: 'performed',
@@ -270,9 +250,7 @@ export async function measureCoreText(plan) {
       plan.output,
       {
         id: 'coretext:measurements',
-        revision: sha(
-          encode({ requests, fonts, compiler, sdk, helper: sha(helper) }),
-        ),
+        revision: sha(encode({ requests, fonts, compiler, sdk, helper: sha(helper) })),
       },
       [
         { path: 'metrics.json', content: encode(metrics) },

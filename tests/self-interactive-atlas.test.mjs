@@ -18,24 +18,19 @@ const selectedSources = Object.freeze({
   'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
   'self-model-owner': 'editions/self/src/edition/model.mjs',
   'self-static-scene-owner': 'editions/self/src/edition/static-scene.mjs',
-  'self-static-composition-owner':
-    'editions/self/src/edition/static/composition.mjs',
+  'self-static-composition-owner': 'editions/self/src/edition/static/composition.mjs',
   'self-static-compiler-owner': 'editions/self/src/edition/static/scene.mjs',
   'self-static-svg-owner': 'editions/self/src/edition/static/svg.mjs',
   'self-static-flagship-owner': 'editions/self/src/edition/static-flagship.mjs',
-  'self-static-metrics':
-    'editions/self/src/edition/static/authoring/metrics.json',
-  'self-interactive-scene-owner':
-    'editions/self/src/edition/interactive-scenes.mjs',
-  'self-interactive-composition-owner':
-    'editions/self/src/edition/interactive-scene.mjs',
+  'self-static-metrics': 'editions/self/src/edition/static/authoring/metrics.json',
+  'self-interactive-scene-owner': 'editions/self/src/edition/interactive-scenes.mjs',
+  'self-interactive-composition-owner': 'editions/self/src/edition/interactive-scene.mjs',
   'self-interactive-atlas-owner': 'editions/self/src/edition/atlas.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
   'compiler-owner': 'packages/publisher/src/compiler/edition.mjs',
-  'interactive-renderer-owner':
-    'packages/publisher/renderers/archify/index.mjs',
+  'interactive-renderer-owner': 'packages/publisher/renderers/archify/index.mjs',
   'qualification-owner': 'packages/publisher/src/qualification/contract.mjs',
   'publication-owner': 'packages/publisher/src/publication/files.mjs',
   'installed-test-owner': 'tests/self-hosted-adopter.test.mjs',
@@ -57,20 +52,15 @@ async function request(output, sourceRoot = root) {
 }
 
 async function prepare(directory) {
-  const { prepareArchitecturePublisherEdition } = await import(
-    '../editions/self/src/edition/prepare.mjs'
-  );
-  return prepareArchitecturePublisherEdition(
-    await request(path.join(directory, 'prepared')),
-  );
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
+  return prepareArchitecturePublisherEdition(await request(path.join(directory, 'prepared')));
 }
 
 function atlasData(bytes) {
   const match = bytes
     .toString('utf8')
-    .match(
-      /<script id="architecture-atlas-data" type="application\/json">([\s\S]*?)<\/script>/,
-    );
+    .match(/<script id="architecture-atlas-data" type="application\/json">([\s\S]*?)<\/script>/);
   assert(match, 'standalone Atlas data is embedded');
   return JSON.parse(match[1]);
 }
@@ -82,9 +72,7 @@ test('the self Edition builds one complete source-bound interactive Atlas', asyn
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const prepared = await prepare(directory),
     output = path.join(directory, 'architecture-publisher.html'),
-    { renderArchitecturePublisherAtlas } = await import(
-      '../editions/self/src/edition/atlas.mjs'
-    ),
+    { renderArchitecturePublisherAtlas } = await import('../editions/self/src/edition/atlas.mjs'),
     result = await renderArchitecturePublisherAtlas({
       sourceManifest: prepared.sourceManifest,
       sourceSha256: prepared.sourceSha256,
@@ -99,12 +87,10 @@ test('the self Edition builds one complete source-bound interactive Atlas', asyn
   assert.equal(result.status, 'rendered');
   assert.equal(result.sha256, sha256(bytes));
   assert.equal(result.pages, 8);
-  assert.deepEqual(result.supplies.map(({ id }) => id), [
-    'archify',
-    'font-supply',
-    'runtime',
-    'self-interactive-runtime',
-  ]);
+  assert.deepEqual(
+    result.supplies.map(({ id }) => id),
+    ['archify', 'font-supply', 'runtime', 'self-interactive-runtime'],
+  );
   assert(result.supplies.every(({ sha256 }) => /^[a-f0-9]{64}$/.test(sha256)));
   assert.deepEqual(data.order, [
     'overview',
@@ -126,11 +112,12 @@ test('the self Edition builds one complete source-bound interactive Atlas', asyn
       sourceIds = new Set(page.sourceIds);
     assert(Object.keys(page.subjectSources).length > 0, id);
     for (const values of Object.values(page.subjectSources))
-      assert(values.every((sourceId) => sourceIds.has(sourceId)), id);
+      assert(
+        values.every((sourceId) => sourceIds.has(sourceId)),
+        id,
+      );
     const rebuilt = Buffer.from(
-      page.pieces
-        .map((part) => (typeof part === 'number' ? data.blocks[part] : part))
-        .join(''),
+      page.pieces.map((part) => (typeof part === 'number' ? data.blocks[part] : part)).join(''),
     );
     assert.equal(sha256(rebuilt), page.sha256, id);
     assert.match(rebuilt.toString(), /var Archify = \{\};/);
@@ -151,9 +138,7 @@ test('the self Atlas preserves an occupied destination and rejects source drift'
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const prepared = await prepare(directory),
     output = path.join(directory, 'architecture-publisher.html'),
-    { renderArchitecturePublisherAtlas } = await import(
-      '../editions/self/src/edition/atlas.mjs'
-    ),
+    { renderArchitecturePublisherAtlas } = await import('../editions/self/src/edition/atlas.mjs'),
     plan = {
       sourceManifest: prepared.sourceManifest,
       sourceSha256: prepared.sourceSha256,
@@ -208,7 +193,7 @@ test('the installed self package renders the standalone Atlas offline', async (t
       "import { prepareArchitecturePublisherEditionInput, renderArchitecturePublisherAtlasInput } from '@architecture-publisher/self-edition';",
       'const prepared = await prepareArchitecturePublisherEditionInput(process.argv[2]);',
       "const plan = JSON.parse(await fs.readFile(prepared.plan, 'utf8'));",
-      "await fs.writeFile(prepared.plan, JSON.stringify({...plan, output:process.argv[3]}));",
+      'await fs.writeFile(prepared.plan, JSON.stringify({...plan, output:process.argv[3]}));',
       'const result = await renderArchitecturePublisherAtlasInput(prepared.plan);',
       "process.stdout.write(JSON.stringify(result) + '\\n');",
       '',

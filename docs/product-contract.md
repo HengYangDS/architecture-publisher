@@ -42,15 +42,15 @@ and evidence that names exactly what it establishes.
 
 The seven product values are:
 
-| Value | Owns | Does not own |
-| --- | --- | --- |
-| `Source Bundle` | Exact selected bytes, revision, location, and source authority | Interpretation or acceptance |
-| `Claim Model` | Typed meaning across intended, implemented, observed, governed, and published planes | Layout or permission |
-| `Edition` | Audience, questions, required claims, omission policy, narrative, visual grammar, scenes, and obligations | Source truth |
-| `Scene` | Medium-specific hierarchy, geometry, routes, typography, and interaction | Semantic identity |
-| `Artifact` | Exact emitted SVG, PNG, HTML, and supporting bytes | Its own qualification |
-| `Qualification` | Predicate-specific judgment over exact subjects, evidence, verifier, scope, and limits | General truth or reusable authority |
-| `Publication` | Authorized, recoverable installation of selected artifacts | Rendering, intent, or acceptance |
+| Value           | Owns                                                                                                      | Does not own                        |
+| --------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `Source Bundle` | Exact selected bytes, revision, location, and source authority                                            | Interpretation or acceptance        |
+| `Claim Model`   | Typed meaning across intended, implemented, observed, governed, and published planes                      | Layout or permission                |
+| `Edition`       | Audience, questions, required claims, omission policy, narrative, visual grammar, scenes, and obligations | Source truth                        |
+| `Scene`         | Medium-specific hierarchy, geometry, routes, typography, and interaction                                  | Semantic identity                   |
+| `Artifact`      | Exact emitted SVG, PNG, HTML, and supporting bytes                                                        | Its own qualification               |
+| `Qualification` | Predicate-specific judgment over exact subjects, evidence, verifier, scope, and limits                    | General truth or reusable authority |
+| `Publication`   | Authorized, recoverable installation of selected artifacts                                                | Rendering, intent, or acceptance    |
 
 ```text
 Source Bundle -> Claim Model -> Edition -> Scene -> Artifact
@@ -260,13 +260,13 @@ only its own boundary.
 The five worklines retain distinct purposes; product phases below belong to E.
 This map defines responsibility, not a second progress ledger.
 
-| Workline | Owner and outcome | Boundary |
-| --- | --- | --- |
-| A: accepted delivery | Preserve qualified artwork, releases and reader installation | Do not redraw unchanged meaning or rewrite released evidence |
-| B: tool availability | Bounded browser, authentication and runtime diagnosis | A usable supported path is not a universal upstream repair |
-| C: ETHOS product | Existing ETHOS contract and building task: intent, norms, adoption, lanes, execution, verification and feedback | The publisher cannot own ETHOS intent compilation or effects |
-| D: mechanism research | Source-level evidence and counterexamples informing C and E | Adopt only with explicit cost and ownership benefit |
-| E: architecture publication | This product: source meaning, authorship, composition, verification and recoverable evolution | One ETHOS edition does not prove arbitrary-domain capability |
+| Workline                    | Owner and outcome                                                                                               | Boundary                                                     |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| A: accepted delivery        | Preserve qualified artwork, releases and reader installation                                                    | Do not redraw unchanged meaning or rewrite released evidence |
+| B: tool availability        | Bounded browser, authentication and runtime diagnosis                                                           | A usable supported path is not a universal upstream repair   |
+| C: ETHOS product            | Existing ETHOS contract and building task: intent, norms, adoption, lanes, execution, verification and feedback | The publisher cannot own ETHOS intent compilation or effects |
+| D: mechanism research       | Source-level evidence and counterexamples informing C and E                                                     | Adopt only with explicit cost and ownership benefit          |
+| E: architecture publication | This product: source meaning, authorship, composition, verification and recoverable evolution                   | One ETHOS edition does not prove arbitrary-domain capability |
 
 E progresses through bounded semantic compilation, explicit authorship and
 composition, a real independent adopter, broader domain qualification, then
@@ -280,14 +280,14 @@ failure-domain evidence.
 Explicit source → semantic validation → authored views → constrained composition
 → medium-specific rendering → artifact observations → authorized publication.
 
-| Owner | Responsibility | Does not own |
-| --- | --- | --- |
-| Source project | Entities, relations, conditions, quantifiers, scope, maturity, obligations | Publisher geometry or cached approval |
-| Source adapter | Explicit, loss-aware mapping and provenance | Invented intent or automatic execution of untrusted source |
-| Authoring | View purpose, grouping, selection, reading order and visual constraints | Changed product meaning |
-| Rendering | Typography, routes, layout and static/interactive expression | Source authority or publication approval |
-| Verification | Scoped checks against actual selected inputs and outputs | Human acceptance or unsupported universal correctness |
-| Publication | Exact file plans, preservation and recoverable effects | Rendering, semantic inference or implicit target authorization |
+| Owner          | Responsibility                                                             | Does not own                                                   |
+| -------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Source project | Entities, relations, conditions, quantifiers, scope, maturity, obligations | Publisher geometry or cached approval                          |
+| Source adapter | Explicit, loss-aware mapping and provenance                                | Invented intent or automatic execution of untrusted source     |
+| Authoring      | View purpose, grouping, selection, reading order and visual constraints    | Changed product meaning                                        |
+| Rendering      | Typography, routes, layout and static/interactive expression               | Source authority or publication approval                       |
+| Verification   | Scoped checks against actual selected inputs and outputs                   | Human acceptance or unsupported universal correctness          |
+| Publication    | Exact file plans, preservation and recoverable effects                     | Rendering, semantic inference or implicit target authorization |
 
 These are modules and data contracts, not services, a graph database, an event
 bus or another governance kernel. Source adapters, backends and skills remain

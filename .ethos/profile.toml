@@ -6,17 +6,17 @@ material_paths = [
 ]
 
 [proof]
-code_correctness_gates = ["node-behavior", "node-syntax"]
+code_correctness_gates = ["node-behavior", "node-static", "node-package"]
 
 [proof.code_correctness_map]
 behavior = "node-behavior"
-static-analysis = "node-syntax"
+static-analysis = "node-static"
 
 [[proof.gates]]
 id = "node-behavior"
 kind = "test"
-command = ["npm", "test"]
-dimensions = ["behavior", "test"]
+command = ["npm", "run", "test:coverage"]
+dimensions = ["behavior", "test", "coverage"]
 execution_mode = "subprocess"
 evidence_class = "proof"
 trust_bearing = true
@@ -25,12 +25,23 @@ writes_files = true
 network_policy = "offline"
 
 [[proof.gates]]
-id = "node-syntax"
+id = "node-static"
 kind = "syntax"
-command = ["npm", "run", "check"]
+command = ["npm", "run", "check:static"]
 dimensions = ["static-analysis"]
 execution_mode = "subprocess"
 evidence_class = "contract"
+trust_bearing = true
+tool_adapter = "repository-native"
+network_policy = "offline"
+
+[[proof.gates]]
+id = "node-package"
+kind = "package"
+command = ["npm", "run", "check:package"]
+dimensions = ["package", "installability"]
+execution_mode = "subprocess"
+evidence_class = "proof"
 trust_bearing = true
 tool_adapter = "repository-native"
 network_policy = "offline"

@@ -32,11 +32,7 @@ const tags = new Set([
   'desc',
 ]);
 const positive = (value) => {
-  if (
-    typeof value !== 'string' ||
-    !/^(?:\d+(?:\.\d*)?|\.\d+)(?:px)?$/.test(value)
-  )
-    return NaN;
+  if (typeof value !== 'string' || !/^(?:\d+(?:\.\d*)?|\.\d+)(?:px)?$/.test(value)) return NaN;
   return Number(value.replace(/px$/, ''));
 };
 const familyName = (value) => value.trim().replace(/^(['"])(.*?)\1$/, '$2');
@@ -57,9 +53,7 @@ function selectedFonts(fonts) {
     let font;
     try {
       const b = selected.bytes;
-      font = parseFont(
-        b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength),
-      );
+      font = parseFont(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
     } catch {
       fail('raster_font_invalid');
     }
@@ -131,18 +125,11 @@ export function validateSvg(bytes, fonts, width) {
         continue;
       }
       if (attribute.uri === XML) {
-        if (
-          attribute.local !== 'space' ||
-          !['default', 'preserve'].includes(attribute.value)
-        )
+        if (attribute.local !== 'space' || !['default', 'preserve'].includes(attribute.value))
           reject();
         continue;
       }
-      if (
-        attribute.uri &&
-        !(attribute.uri === XLINK && attribute.local === 'href')
-      )
-        reject();
+      if (attribute.uri && !(attribute.uri === XLINK && attribute.local === 'href')) reject();
       const key = attribute.local,
         value = attribute.value;
       if (key === 'href') {
@@ -156,25 +143,14 @@ export function validateSvg(bytes, fonts, width) {
       if (Object.hasOwn(values, key)) reject();
       values[key] = value;
       if (
-        [
-          'fill',
-          'stroke',
-          'clip-path',
-          'marker-start',
-          'marker-mid',
-          'marker-end',
-        ].includes(key) &&
+        ['fill', 'stroke', 'clip-path', 'marker-start', 'marker-mid', 'marker-end'].includes(key) &&
         /url\s*\(/i.test(value)
       ) {
         const match = /^url\(\s*#([A-Za-z_][\w.:-]*)\s*\)$/.exec(value);
         if (!match) reject();
         references.push({ from: count, to: match[1], kind: key });
       }
-      if (
-        /\\|@import|expression\s*\(/i.test(value) &&
-        !/^data-|^aria-/.test(key)
-      )
-        reject();
+      if (/\\|@import|expression\s*\(/i.test(value) && !/^data-|^aria-/.test(key)) reject();
     }
     if (values.id !== undefined) {
       if (!/^[A-Za-z_][\w.:-]*$/.test(values.id) || ids.has(values.id))
@@ -200,20 +176,11 @@ export function validateSvg(bytes, fonts, width) {
           .trim()
           .split(/[\s,]+/)
           .map(Number);
-        if (
-          box.length !== 4 ||
-          box.some((n) => !Number.isFinite(n)) ||
-          box[2] <= 0 ||
-          box[3] <= 0
-        )
+        if (box.length !== 4 || box.some((n) => !Number.isFinite(n)) || box[2] <= 0 || box[3] <= 0)
           fail('raster_dimensions_invalid');
       }
       const height = Math.round((width * h) / w);
-      if (
-        height < 1 ||
-        height > RASTER_LIMITS.height ||
-        width * height > RASTER_LIMITS.pixels
-      )
+      if (height < 1 || height > RASTER_LIMITS.height || width * height > RASTER_LIMITS.pixels)
         fail('raster_dimensions_invalid');
       extent = { width, height };
     }
@@ -264,8 +231,7 @@ export function validateSvg(bytes, fonts, width) {
     if (!font) fail('raster_font_unbound');
     usedFonts.add(key);
     for (const char of value)
-      if (!/\s/u.test(char) && !font.charToGlyphIndex(char))
-        fail('raster_glyph_missing');
+      if (!/\s/u.test(char) && !font.charToGlyphIndex(char)) fail('raster_glyph_missing');
   };
   parser.ontext = text;
   parser.oncdata = text;
@@ -277,13 +243,7 @@ export function validateSvg(bytes, fonts, width) {
   for (const reference of references) {
     const target = ids.get(reference.to);
     if (!target) fail('raster_svg_reference_missing');
-    if (
-      !validReferenceTarget(
-        nodes.get(reference.from).tag,
-        reference.kind,
-        nodes.get(target).tag,
-      )
-    )
+    if (!validReferenceTarget(nodes.get(reference.from).tag, reference.kind, nodes.get(target).tag))
       fail('raster_svg_reference_type_invalid');
     graph.get(reference.from).push(target);
     nodes.get(reference.from).references.push({ target, kind: reference.kind });
@@ -296,8 +256,7 @@ export function validateSvg(bytes, fonts, width) {
     if (heights.has(id)) return heights.get(id);
     active.add(id);
     let height = 0;
-    for (const next of graph.get(id))
-      height = Math.max(height, 1 + visit(next, depth + 1));
+    for (const next of graph.get(id)) height = Math.max(height, 1 + visit(next, depth + 1));
     active.delete(id);
     if (height > RASTER_LIMITS.referenceDepth) fail('raster_svg_limit');
     heights.set(id, height);
@@ -335,9 +294,7 @@ export function validateSvg(bytes, fonts, width) {
     for (const { target, kind } of node.references)
       checkInstance(
         target,
-        node.tag === 'use' && kind === 'href'
-          ? font
-          : nodes.get(target).inherited,
+        node.tag === 'use' && kind === 'href' ? font : nodes.get(target).inherited,
       );
   }
   checkInstance(1, { family: '', weight: '400', style: 'normal' });

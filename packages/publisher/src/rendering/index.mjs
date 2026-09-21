@@ -1,2 +1,2 @@
-export * from './atlas.mjs';
-export * from './input.mjs';
+export { composeStandaloneAtlas } from './atlas.mjs';
+export { measureTypographyInput, renderInteractiveInput, renderRasterInput } from './input.mjs';

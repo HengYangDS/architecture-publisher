@@ -2,19 +2,19 @@ import { createHash } from 'node:crypto';
 import { fail, isDigest, LIMITS, portablePath } from '../source/manifest.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const record = (value) =>
-  value !== null && typeof value === 'object' && !Array.isArray(value);
+const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const exact = (value, required, optional = []) =>
   record(value) &&
   required.every((field) => Object.hasOwn(value, field)) &&
-  Object.keys(value).every(
-    (field) => required.includes(field) || optional.includes(field),
-  );
+  Object.keys(value).every((field) => required.includes(field) || optional.includes(field));
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
-const identifier = (value) =>
-  typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
+const identifier = (value) => typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
 const escapeHtml = (value) =>
-  String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+  String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
 const scriptJson = (value) =>
   JSON.stringify(value)
     .replaceAll('<', '\\u003c')
@@ -22,8 +22,7 @@ const scriptJson = (value) =>
     .replaceAll('&', '\\u0026');
 
 function selectedBytes(value, digest, mismatch) {
-  if (!Buffer.isBuffer(value) || !isDigest(digest) || sha256(value) !== digest)
-    fail(mismatch);
+  if (!Buffer.isBuffer(value) || !isDigest(digest) || sha256(value) !== digest) fail(mismatch);
   return value;
 }
 
@@ -39,16 +38,7 @@ function validatePage(page, ids, paths, sourceIds) {
   if (
     !exact(
       page,
-      [
-        'id',
-        'label',
-        'shortLabel',
-        'purpose',
-        'path',
-        'sha256',
-        'sourceIds',
-        'content',
-      ],
+      ['id', 'label', 'shortLabel', 'purpose', 'path', 'sha256', 'sourceIds', 'content'],
       ['subjectSources'],
     ) ||
     !identifier(page.id) ||
@@ -76,20 +66,15 @@ function validatePage(page, ids, paths, sourceIds) {
       !Array.isArray(values) ||
       !values.length ||
       new Set(values).size !== values.length ||
-      values.some(
-        (sourceId) =>
-          !sourceIds.has(sourceId) || !pageSources.has(sourceId),
-      )
+      values.some((sourceId) => !sourceIds.has(sourceId) || !pageSources.has(sourceId))
     )
       fail('atlas_page_source_invalid');
     nodes[id] = [...values];
   }
   const visibleSubjects = new Set(
-    [
-      ...pageHtml(page.content).matchAll(
-        /\bdata-(?:node|edge)-id=["']([^"']+)["']/g,
-      ),
-    ].map((match) => match[1]),
+    [...pageHtml(page.content).matchAll(/\bdata-(?:node|edge)-id=["']([^"']+)["']/g)].map(
+      (match) => match[1],
+    ),
   );
   if (
     visibleSubjects.size !== Object.keys(nodes).length ||
@@ -101,10 +86,7 @@ function validatePage(page, ids, paths, sourceIds) {
 
 function pagePieces(bytes, shared, blocks) {
   const html = pageHtml(bytes);
-  if (
-    /<(?:script|iframe)\b[^>]*\bsrc\s*=/i.test(html) ||
-    /<link\b[^>]*\bhref\s*=/i.test(html)
-  )
+  if (/<(?:script|iframe)\b[^>]*\bsrc\s*=/i.test(html) || /<link\b[^>]*\bhref\s*=/i.test(html))
     fail('atlas_external_dependency');
   const pieces = [];
   let cursor = 0;
@@ -124,9 +106,7 @@ function pagePieces(bytes, shared, blocks) {
 
 function atlasReader() {
   'use strict';
-  const data = JSON.parse(
-    document.getElementById('architecture-atlas-data').textContent,
-  );
+  const data = JSON.parse(document.getElementById('architecture-atlas-data').textContent);
   const frame = document.getElementById('atlas-frame');
   const pageLabel = document.getElementById('atlas-page-label');
   const sourcePanel = document.getElementById('atlas-source-panel');
@@ -145,9 +125,7 @@ function atlasReader() {
     try {
       const value = new URL(location.href).hash.match(/^#page=([^&]+)/)?.[1];
       const decoded = value ? decodeURIComponent(value) : data.overview;
-      return Object.prototype.hasOwnProperty.call(data.pages, decoded)
-        ? decoded
-        : data.overview;
+      return Object.prototype.hasOwnProperty.call(data.pages, decoded) ? decoded : data.overview;
     } catch (_) {
       return data.overview;
     }
@@ -216,7 +194,8 @@ function atlasReader() {
     parsed.documentElement.setAttribute('data-atlas-member', 'true');
     parsed.documentElement.setAttribute('data-theme', 'light');
     const style = parsed.createElement('style');
-    style.textContent = 'html[data-atlas-member]{height:100%;overflow:hidden}html[data-atlas-member] body{height:100%;min-height:0;padding:.65rem;background:#f3f0e8;overflow:hidden}html[data-atlas-member] .toolbar,html[data-atlas-member] .header,html[data-atlas-member] .no-print,html[data-atlas-member] .archify-toast{display:none!important}html[data-atlas-member] .container{height:100%;max-width:none;margin:0;padding:0}html[data-atlas-member] .diagram-container{display:flex;height:100%;min-height:0;margin:0;padding:.5rem;align-items:center;justify-content:center;overflow:hidden}html[data-atlas-member] .diagram-container>svg{width:100%;height:100%;max-height:100%;object-fit:contain}';
+    style.textContent =
+      'html[data-atlas-member]{height:100%;overflow:hidden}html[data-atlas-member] body{height:100%;min-height:0;padding:.65rem;background:#f3f0e8;overflow:hidden}html[data-atlas-member] .toolbar,html[data-atlas-member] .header,html[data-atlas-member] .no-print,html[data-atlas-member] .archify-toast{display:none!important}html[data-atlas-member] .container{height:100%;max-width:none;margin:0;padding:0}html[data-atlas-member] .diagram-container{display:flex;height:100%;min-height:0;margin:0;padding:.5rem;align-items:center;justify-content:center;overflow:hidden}html[data-atlas-member] .diagram-container>svg{width:100%;height:100%;max-height:100%;object-fit:contain}';
     parsed.head.appendChild(style);
     for (const script of parsed.scripts) {
       if (script.src) throw new Error('External script is not embedded');
@@ -291,8 +270,7 @@ function atlasReader() {
       Array.isArray(event.data)
     )
       return;
-    if (event.data.type === 'architecture-atlas:navigate')
-      navigate(event.data.page);
+    if (event.data.type === 'architecture-atlas:navigate') navigate(event.data.page);
     if (
       event.data.type === 'architecture-atlas:sources' &&
       event.data.page === active &&
@@ -331,7 +309,7 @@ function atlasReader() {
 function shell(input, data) {
   const navigation = input.pages
     .map(
-      (page, index) =>
+      (page) =>
         `<button type="button" data-atlas-page="${escapeHtml(page.id)}">${escapeHtml(page.shortLabel)}</button>`,
     )
     .join('\n');
@@ -360,8 +338,7 @@ export function composeStandaloneAtlas(input) {
     !text(input.title) ||
     !exact(input.source, ['id'], ['revision', 'manifestSha256']) ||
     !text(input.source.id) ||
-    (Object.hasOwn(input.source, 'manifestSha256') &&
-      !isDigest(input.source.manifestSha256)) ||
+    (Object.hasOwn(input.source, 'manifestSha256') && !isDigest(input.source.manifestSha256)) ||
     !isDigest(input.semanticDigest) ||
     !isDigest(input.editionSha256) ||
     !isDigest(input.editionDigest) ||
@@ -371,11 +348,7 @@ export function composeStandaloneAtlas(input) {
     input.pages.length > 64 ||
     !Array.isArray(input.sources) ||
     !input.sources.length ||
-    !exact(input.state, [
-      'qualification',
-      'humanAcceptance',
-      'publication',
-    ]) ||
+    !exact(input.state, ['qualification', 'humanAcceptance', 'publication']) ||
     Object.values(input.state).some((value) => value !== 'not-performed')
   )
     fail('atlas_composition_invalid');
@@ -384,24 +357,14 @@ export function composeStandaloneAtlas(input) {
   let total = 0;
   for (const source of input.sources) {
     if (
-      !exact(source, [
-        'id',
-        'path',
-        'sha256',
-        'authority',
-        'content',
-      ]) ||
+      !exact(source, ['id', 'path', 'sha256', 'authority', 'content']) ||
       !identifier(source.id) ||
       Object.hasOwn(sources, source.id) ||
       !portablePath(source.path) ||
       !text(source.authority)
     )
       fail('atlas_source_invalid');
-    const content = selectedBytes(
-      source.content,
-      source.sha256,
-      'atlas_source_digest_mismatch',
-    );
+    const content = selectedBytes(source.content, source.sha256, 'atlas_source_digest_mismatch');
     total += content.length;
     sources[source.id] = {
       path: source.path,

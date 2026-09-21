@@ -1,6 +1,7 @@
 # archify-renderer Specification
 
 ## Purpose
+
 Render explicit typed diagram inputs through a pinned offline native backend,
 independent of ETHOS, developer checkouts and undeclared host tooling.
 

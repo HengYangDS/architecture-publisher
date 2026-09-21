@@ -3,10 +3,7 @@ import { createHash } from 'node:crypto';
 import { exact } from '../semantics/document.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { isDigest, portablePath } from '../source/manifest.mjs';
-import {
-  admitQualificationSet,
-  qualificationSetDigest,
-} from './contract.mjs';
+import { admitQualificationSet, qualificationSetDigest } from './contract.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -16,10 +13,7 @@ function fail(code) {
 
 /** Verify an exact external Qualification Set; never execute or infer a predicate. */
 async function selectedJson(parent, selector, kind) {
-  if (
-    !exact(selector, ['path', 'sha256']) ||
-    !isDigest(selector?.sha256)
-  )
+  if (!exact(selector, ['path', 'sha256']) || !isDigest(selector?.sha256))
     fail('qualification_input_invalid');
   try {
     portablePath(selector.path);
@@ -29,8 +23,7 @@ async function selectedJson(parent, selector, kind) {
   const selected = path.resolve(parent, selector.path);
   await noSymlinkAncestors(selected);
   const bytes = await regularBytes(selected, 16 * 1024 * 1024);
-  if (sha256(bytes) !== selector.sha256)
-    fail(`qualification_${kind}_digest_mismatch`);
+  if (sha256(bytes) !== selector.sha256) fail(`qualification_${kind}_digest_mismatch`);
   try {
     return {
       value: JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)),
@@ -40,7 +33,6 @@ async function selectedJson(parent, selector, kind) {
     fail(`qualification_${kind}_json_invalid`);
   }
 }
-
 
 export async function verifyQualificationInput(file, expectedSha256) {
   if (!isDigest(expectedSha256)) fail('qualification_digest_required');
@@ -56,13 +48,7 @@ export async function verifyQualificationInput(file, expectedSha256) {
     fail('qualification_json_invalid');
   }
   if (
-    !exact(plan, [
-      'schema',
-      'claimModel',
-      'edition',
-      'candidate',
-      'qualification',
-    ]) ||
+    !exact(plan, ['schema', 'claimModel', 'edition', 'candidate', 'qualification']) ||
     plan.schema !== 'architecture.qualification-input/v1'
   )
     fail('qualification_input_invalid');

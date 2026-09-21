@@ -33,12 +33,7 @@ const CLAIM_FIELDS = Object.freeze([
 const VALIDITIES = Object.freeze(['affirmed', 'refuted']);
 const PREDICATE_VALUE_KINDS = Object.freeze(['entity', 'scalar', 'opaque']);
 const PREDICATE_CARDINALITIES = Object.freeze(['single', 'multiple']);
-const PREDICATE_FIELDS = Object.freeze([
-  'valueKind',
-  'cardinality',
-  'values',
-  'provenance',
-]);
+const PREDICATE_FIELDS = Object.freeze(['valueKind', 'cardinality', 'values', 'provenance']);
 export const semanticError = (code, detail = '') => {
   throw Object.assign(new Error(code + (detail ? ': ' + detail : '')), {
     code,
@@ -49,18 +44,15 @@ export const record = (value) =>
   typeof value === 'object' &&
   !Array.isArray(value) &&
   [Object.prototype, null].includes(Object.getPrototypeOf(value));
-export const text = (value) =>
-  typeof value === 'string' && Boolean(value.trim());
+export const text = (value) => typeof value === 'string' && Boolean(value.trim());
 export const exact = (value, keys) =>
-  record(value) &&
-  Object.keys(value).sort().join('\n') === [...keys].sort().join('\n');
+  record(value) && Object.keys(value).sort().join('\n') === [...keys].sort().join('\n');
 export const strings = (values, nonempty = false) =>
   Array.isArray(values) &&
   (!nonempty || values.length > 0) &&
   values.every(text) &&
   new Set(values).size === values.length;
-export const referenceKey = ({ section, id }) =>
-  JSON.stringify([section, id]);
+export const referenceKey = ({ section, id }) => JSON.stringify([section, id]);
 const validClaimReference = (value) =>
   exact(value, ['section', 'id']) &&
   CLAIM_MODEL_SECTIONS.includes(value.section) &&
@@ -69,8 +61,7 @@ const validClaimReference = (value) =>
 
 /** Canonical JSON preserves array order; only declared sets are normalized below. */
 export function canonical(value) {
-  if (value === null || typeof value !== 'object')
-    return JSON.stringify(value);
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
   if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
   return (
     '{' +
@@ -82,15 +73,21 @@ export function canonical(value) {
   );
 }
 
-
 /** Freeze a validated JSON value recursively so derived identities cannot drift. */
 export function deepFreeze(value) {
-  if (value === null || typeof value !== 'object' || Object.isFrozen(value))
-    return value;
+  if (value === null || typeof value !== 'object' || Object.isFrozen(value)) return value;
   for (const child of Object.values(value)) deepFreeze(child);
   return Object.freeze(value);
 }
 
+/**
+ * Validate one bounded JSON value.
+ * @param {any} value
+ * @param {number} depth
+ * @param {Set<object>} ancestors
+ * @param {{nodes: number, bytes: number}} budget
+ * @param {Set<object> | null} seen
+ */
 export function jsonValue(
   value,
   depth = 0,
@@ -103,28 +100,18 @@ export function jsonValue(
   if (budget.nodes > 500000 || budget.bytes > 16 * 1024 * 1024)
     semanticError('semantic_size_exceeded');
   if (depth > 64) semanticError('semantic_depth_exceeded');
-  if (
-    value === null ||
-    typeof value === 'string' ||
-    typeof value === 'boolean'
-  )
-    return;
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') return;
   if (typeof value === 'number' && Number.isFinite(value)) return;
-  if (!Array.isArray(value) && !record(value))
-    semanticError('semantic_json_required');
+  if (!Array.isArray(value) && !record(value)) semanticError('semantic_json_required');
   if (ancestors.has(value)) semanticError('semantic_json_cycle');
   if (seen?.has(value)) semanticError('semantic_json_alias');
   seen?.add(value);
   ancestors.add(value);
-  if (Object.getOwnPropertySymbols(value).length)
-    semanticError('semantic_json_required');
+  if (Object.getOwnPropertySymbols(value).length) semanticError('semantic_json_required');
   const descriptors = Object.getOwnPropertyDescriptors(value),
     ownKeys = Object.getOwnPropertyNames(value),
-    arrayKeys = Array.isArray(value)
-      ? ownKeys.filter((key) => key !== 'length')
-      : ownKeys;
-  if (arrayKeys.length !== Object.keys(value).length)
-    semanticError('semantic_json_required');
+    arrayKeys = Array.isArray(value) ? ownKeys.filter((key) => key !== 'length') : ownKeys;
+  if (arrayKeys.length !== Object.keys(value).length) semanticError('semantic_json_required');
   for (const key of arrayKeys) {
     const descriptor = descriptors[key];
     if (
@@ -157,12 +144,7 @@ function validateClaimModelTopLevel(model) {
   )
     semanticError('semantic_document_invalid');
   if (
-    !exact(model.vocabulary, [
-      'entities',
-      'relations',
-      'predicates',
-      'maturities',
-    ]) ||
+    !exact(model.vocabulary, ['entities', 'relations', 'predicates', 'maturities']) ||
     !strings(model.vocabulary.entities) ||
     !strings(model.vocabulary.relations) ||
     !strings(model.vocabulary.maturities, true) ||
@@ -180,25 +162,19 @@ function validateClaimModelTopLevel(model) {
     )
       semanticError('semantic_vocabulary_invalid');
   for (const section of CLAIM_MODEL_SECTIONS) {
-    if (
-      !record(model[section]) ||
-      Object.keys(model[section]).some((id) => !text(id))
-    )
+    if (!record(model[section]) || Object.keys(model[section]).some((id) => !text(id)))
       semanticError('semantic_section_invalid', section);
   }
   if (
-    CLAIM_MODEL_SECTIONS.reduce(
-      (count, section) => count + Object.keys(model[section]).length,
-      0,
-    ) > 20000 ||
+    CLAIM_MODEL_SECTIONS.reduce((count, section) => count + Object.keys(model[section]).length, 0) >
+      20000 ||
     Buffer.byteLength(canonical(model)) > 16 * 1024 * 1024
   )
     semanticError('semantic_size_exceeded');
 }
 
 function validateClaimModelSources(model) {
-  if (!Object.keys(model.sources).length)
-    semanticError('semantic_provenance_required');
+  if (!Object.keys(model.sources).length) semanticError('semantic_provenance_required');
   for (const source of Object.values(model.sources)) {
     if (
       !exact(source, ['sha256', 'locator', 'authority']) ||
@@ -214,10 +190,7 @@ function validateClaimModelSources(model) {
 }
 
 function validateClaimProvenance(model, references) {
-  if (
-    !strings(references, true) ||
-    references.some((id) => !Object.hasOwn(model.sources, id))
-  )
+  if (!strings(references, true) || references.some((id) => !Object.hasOwn(model.sources, id)))
     semanticError('semantic_provenance_invalid');
 }
 
@@ -235,13 +208,7 @@ function validateClaimStructure(model) {
   }
   for (const relation of Object.values(model.relations)) {
     if (
-      !exact(relation, [
-        'type',
-        'subject',
-        'object',
-        'qualifiers',
-        'provenance',
-      ]) ||
+      !exact(relation, ['type', 'subject', 'object', 'qualifiers', 'provenance']) ||
       !model.vocabulary.relations.includes(relation.type) ||
       !endpoint(relation.subject) ||
       !endpoint(relation.object) ||
@@ -305,8 +272,7 @@ function dependencyMatchesClaim(model, claim, reference) {
 function completeDependencyCoverage(model, claim, references) {
   if (claim.object === null)
     return references.some(
-      (reference) =>
-        reference.section === 'entities' && reference.id === claim.subject,
+      (reference) => reference.section === 'entities' && reference.id === claim.subject,
     );
   return references.some((reference) => {
     if (reference.section !== 'relations') return false;
@@ -320,8 +286,7 @@ function completeDependencyCoverage(model, claim, references) {
 }
 
 const valueAllowed = (predicate, value) =>
-  predicate.values.length === 0 ||
-  (typeof value === 'string' && predicate.values.includes(value));
+  predicate.values.length === 0 || (typeof value === 'string' && predicate.values.includes(value));
 
 const scalar = (value) =>
   value === null ||
@@ -330,22 +295,17 @@ const scalar = (value) =>
   (typeof value === 'number' && Number.isFinite(value));
 
 function validateApplicability(value, kind, claimId) {
-  if (
-    !record(value) ||
-    Object.keys(value).some((key) => !text(key) || !scalar(value[key]))
-  )
+  if (!record(value) || Object.keys(value).some((key) => !text(key) || !scalar(value[key])))
     semanticError('semantic_claim_' + kind + '_invalid', claimId);
 }
 
 const dimensionsOverlap = (left, right) =>
   Object.keys(left).every(
-    (key) =>
-      !Object.hasOwn(right, key) || canonical(left[key]) === canonical(right[key]),
+    (key) => !Object.hasOwn(right, key) || canonical(left[key]) === canonical(right[key]),
   );
 
 function applicabilityRelation(left, right) {
-  const conditionsOverlap =
-      dimensionsOverlap(left.condition, right.condition),
+  const conditionsOverlap = dimensionsOverlap(left.condition, right.condition),
     scopesOverlap = dimensionsOverlap(left.scope, right.scope);
   if (!conditionsOverlap || !scopesOverlap) return 'disjoint';
   if (
@@ -383,10 +343,8 @@ function validateClaims(model, endpoint) {
     validateApplicability(claim.scope, 'scope', id);
     const hasObject = claim.object !== null,
       hasValue = claim.value !== null;
-    if (hasObject === hasValue)
-      semanticError('semantic_claim_object_or_value', id);
-    if (hasObject && !endpoint(claim.object))
-      semanticError('semantic_claim_invalid', id);
+    if (hasObject === hasValue) semanticError('semantic_claim_object_or_value', id);
+    if (hasObject && !endpoint(claim.object)) semanticError('semantic_claim_invalid', id);
     if (
       (predicate.valueKind === 'entity') !== hasObject ||
       (predicate.valueKind === 'scalar' &&
@@ -415,29 +373,19 @@ function validateClaims(model, endpoint) {
       references.add(referenceKey(reference));
       for (const source of dependencySources(model, reference))
         if (!claim.provenance.includes(source))
-          semanticError(
-            'semantic_claim_provenance_incomplete',
-            id + ', ' + source,
-          );
+          semanticError('semantic_claim_provenance_incomplete', id + ', ' + source);
     }
-    if (
-      claim.coverage === 'complete' &&
-      !completeDependencyCoverage(model, claim, claim.dependsOn)
-    )
+    if (claim.coverage === 'complete' && !completeDependencyCoverage(model, claim, claim.dependsOn))
       semanticError('semantic_claim_dependency_required', id);
 
     for (const source of predicate.provenance)
       if (!claim.provenance.includes(source))
-        semanticError(
-          'semantic_claim_provenance_incomplete',
-          id + ', ' + source,
-        );
+        semanticError('semantic_claim_provenance_incomplete', id + ', ' + source);
 
     if (claim.coverage === 'complete') {
       const identity = claimIdentity(claim, true),
         duplicate = identities.get(identity);
-      if (duplicate)
-        semanticError('semantic_claim_duplicate', duplicate + ', ' + id);
+      if (duplicate) semanticError('semantic_claim_duplicate', duplicate + ', ' + id);
       identities.set(identity, id);
 
       const position = contradictionSubject(claim),
@@ -469,8 +417,7 @@ export function validateClaimModel(model) {
 export function normalizedClaimModel(model) {
   validateClaimModel(model);
   const result = structuredClone(model);
-  for (const key of ['entities', 'relations', 'maturities'])
-    result.vocabulary[key].sort();
+  for (const key of ['entities', 'relations', 'maturities']) result.vocabulary[key].sort();
   for (const predicate of Object.values(result.vocabulary.predicates)) {
     predicate.values.sort();
     predicate.provenance.sort();

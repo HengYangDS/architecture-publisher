@@ -49,9 +49,7 @@ export function auditNaturalSeparation(scene, groups, quality) {
       if (!e || !e.points.length) throw Error('Unmeasured path ' + id);
       const pad = Math.max(
         (e.strokeWidth ?? 1) / 2,
-        e.arrowGeometry
-          ? e.arrowGeometry.halfWidth + e.arrowGeometry.strokeWidth / 2
-          : 0,
+        e.arrowGeometry ? e.arrowGeometry.halfWidth + e.arrowGeometry.strokeWidth / 2 : 0,
       );
       b.push({
         left: Math.min(...e.points.map((p) => p.x)) - pad,
@@ -69,13 +67,9 @@ export function auditNaturalSeparation(scene, groups, quality) {
       paths: g.paths?.length ?? 0,
     };
   });
-  if (
-    groups.bands.some((b) => b.marks !== undefined || b.paths !== undefined)
-  ) {
-    for (const id of nodes.keys())
-      if (!seen.has('mark:' + id)) throw Error('Ungrouped mark ' + id);
-    for (const id of edges.keys())
-      if (!seen.has('path:' + id)) throw Error('Ungrouped path ' + id);
+  if (groups.bands.some((b) => b.marks !== undefined || b.paths !== undefined)) {
+    for (const id of nodes.keys()) if (!seen.has('mark:' + id)) throw Error('Ungrouped mark ' + id);
+    for (const id of edges.keys()) if (!seen.has('path:' + id)) throw Error('Ungrouped path ' + id);
   }
   const gaps = bands.slice(1).map((b, i) => ({
     from: bands[i].id,
@@ -114,9 +108,7 @@ export function auditNaturalSeparation(scene, groups, quality) {
     }));
   });
   const failures = [
-    ...gaps
-      .filter((g) => g.actual < g.minimum)
-      .map((g) => 'group-gap:' + g.from + '/' + g.to),
+    ...gaps.filter((g) => g.actual < g.minimum).map((g) => 'group-gap:' + g.from + '/' + g.to),
     ...tableGaps
       .filter((g) => g.actual < g.minimum)
       .map((g) => 'table-gap:' + g.table + ':' + g.left + '/' + g.right),
@@ -125,10 +117,7 @@ export function auditNaturalSeparation(scene, groups, quality) {
       .map((g) => 'peer-gap:' + g.group + ':' + g.from + '/' + g.to),
   ];
   const alignments = (groups.alignments ?? []).map((group) => {
-    if (
-      !['left', 'right', 'baseline'].includes(group.edge) ||
-      group.labels.length < 2
-    )
+    if (!['left', 'right', 'baseline'].includes(group.edge) || group.labels.length < 2)
       throw Error('Invalid alignment group');
     const values = group.labels.map((id) => {
       const t = texts.get(id);
@@ -138,8 +127,7 @@ export function auditNaturalSeparation(scene, groups, quality) {
         : t.box.x + (group.edge === 'right' ? t.box.width : 0);
     });
     const residual = Math.max(...values) - Math.min(...values);
-    if (!Number.isFinite(residual) || residual > 1e-6)
-      failures.push('alignment:' + group.id);
+    if (!Number.isFinite(residual) || residual > 1e-6) failures.push('alignment:' + group.id);
     return { id: group.id, edge: group.edge, residual };
   });
   const adjacencies = (groups.adjacencies ?? []).map((group) => {
@@ -148,8 +136,7 @@ export function auditNaturalSeparation(scene, groups, quality) {
     const gap = box(right).left - box(left).right;
     const expected = q.semantic_peer_group_gap_px_at_reference_min;
     const sameBaseline = texts.get(left).baseline === texts.get(right).baseline;
-    if (Math.abs(gap - expected) > 1e-6 || !sameBaseline)
-      failures.push('adjacency:' + group.id);
+    if (Math.abs(gap - expected) > 1e-6 || !sameBaseline) failures.push('adjacency:' + group.id);
     return { id: group.id, gap, expected, sameBaseline };
   });
   const cellTables = (groups.cellTables ?? []).map((t) => {
@@ -181,9 +168,7 @@ export function auditNaturalSeparation(scene, groups, quality) {
         const c = t.columns[i];
         for (const b of bounds)
           if (b.left < c.x || b.right > c.x + c.width)
-            failures.push(
-              'cell-overflow:' + t.id + ':' + r.id + ':' + i + ':' + b.id,
-            );
+            failures.push('cell-overflow:' + t.id + ':' + r.id + ':' + i + ':' + b.id);
         for (let k = 1; k < bounds.length; k++)
           if (bounds[k].top < bounds[k - 1].bottom)
             failures.push('cell-line-overlap:' + t.id + ':' + r.id + ':' + i);
@@ -196,13 +181,8 @@ export function auditNaturalSeparation(scene, groups, quality) {
         };
       });
       for (let i = 1; i < cells.length; i++)
-        if (
-          cells[i].left - cells[i - 1].right <
-          q.semantic_peer_group_gap_px_at_reference_min
-        )
-          failures.push(
-            'cell-gap:' + t.id + ':' + r.id + ':' + (i - 1) + '/' + i,
-          );
+        if (cells[i].left - cells[i - 1].right < q.semantic_peer_group_gap_px_at_reference_min)
+          failures.push('cell-gap:' + t.id + ':' + r.id + ':' + (i - 1) + '/' + i);
       return {
         id: r.id,
         cells,
@@ -212,9 +192,7 @@ export function auditNaturalSeparation(scene, groups, quality) {
     });
     for (let i = 1; i < rows.length; i++)
       if (rows[i].top < rows[i - 1].bottom)
-        failures.push(
-          'row-overlap:' + t.id + ':' + rows[i - 1].id + '/' + rows[i].id,
-        );
+        failures.push('row-overlap:' + t.id + ':' + rows[i - 1].id + '/' + rows[i].id);
     return {
       id: t.id,
       rows,

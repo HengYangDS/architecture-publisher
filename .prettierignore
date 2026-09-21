@@ -1,0 +1,10 @@
+build/
+node_modules/
+openspec/changes/archive/
+conformance/fixtures/
+examples/
+migration/
+packages/publisher/renderers/archify/supply/
+packages/publisher/renderers/fonts/supply/
+packages/publisher/renderers/resvg/supply/
+editions/self/src/edition/static/authoring/metrics.json

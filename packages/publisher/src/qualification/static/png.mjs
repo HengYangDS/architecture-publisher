@@ -132,14 +132,13 @@ function matchesPaint(pixels, offset, background, paint, tolerance) {
     0,
     Math.min(
       1,
-      observed.reduce((sum, value, index) => sum + value * direction[index], 0) /
-        magnitude,
+      observed.reduce((sum, value, index) => sum + value * direction[index], 0) / magnitude,
     ),
   );
   if (alpha < 0.015) return false;
-  return Math.hypot(
-    ...observed.map((value, index) => value - alpha * direction[index]),
-  ) <= tolerance;
+  return (
+    Math.hypot(...observed.map((value, index) => value - alpha * direction[index])) <= tolerance
+  );
 }
 
 const expanded = (box, padding) => ({
@@ -235,10 +234,7 @@ function sceneRegions(scene, padding) {
           id: `edge:${edge.id}:arrow`,
           kind: 'arrowhead',
           paint: tone(edgeTone),
-          box: pathBox(
-            arrowPoints(edge),
-            padding + edge.arrowGeometry.strokeWidth / 2,
-          ),
+          box: pathBox(arrowPoints(edge), padding + edge.arrowGeometry.strokeWidth / 2),
         },
       ];
     }),
@@ -268,24 +264,18 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
     contract.background !== undefined &&
     (!Array.isArray(contract.background) ||
       contract.background.length !== 4 ||
-      contract.background.some(
-        (value) => !Number.isSafeInteger(value) || value < 0 || value > 255,
-      ))
+      contract.background.some((value) => !Number.isSafeInteger(value) || value < 0 || value > 255))
   )
     fail('png_canvas_contract_invalid');
   const background = contract.background ? [...contract.background] : [],
-    threshold = Number.isFinite(contract.colorDistance)
-      ? contract.colorDistance
-      : 8,
+    threshold = Number.isFinite(contract.colorDistance) ? contract.colorDistance : 8,
     minimumClearance = Number.isSafeInteger(contract.minimumClearance)
       ? contract.minimumClearance
       : 0,
     minimumEnvelopeFraction = Number.isFinite(contract.minimumEnvelopeFraction)
       ? contract.minimumEnvelopeFraction
       : 0,
-    maximumCenterOffsetFraction = Number.isFinite(
-      contract.maximumCenterOffsetFraction,
-    )
+    maximumCenterOffsetFraction = Number.isFinite(contract.maximumCenterOffsetFraction)
       ? contract.maximumCenterOffsetFraction
       : 0.5;
   if (
@@ -321,8 +311,7 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
       bottom: height - 1 - bottom,
     },
     actualMinimum = Math.min(...Object.values(clearance)),
-    envelopeFraction =
-      ((right - left + 1) * (bottom - top + 1)) / (width * height),
+    envelopeFraction = ((right - left + 1) * (bottom - top + 1)) / (width * height),
     centerOffset = {
       x: Math.abs((left + right) / 2 - (width - 1) / 2) / width,
       y: Math.abs((top + bottom) / 2 - (height - 1) / 2) / height,
@@ -379,27 +368,18 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
  * prove semantic correctness, perceptual quality or formal qualification. */
 export function inspectRgbaPngElements(bytes, scene, contract = {}) {
   const { width, height, pixels } = decodeRgbaPng(bytes),
-    background = contract.background ?? [
-      pixels[0],
-      pixels[1],
-      pixels[2],
-      pixels[3],
-    ];
+    background = contract.background ?? [pixels[0], pixels[1], pixels[2], pixels[3]];
   if (
     !Array.isArray(background) ||
     background.length !== 4 ||
-    background.some(
-      (value) => !Number.isSafeInteger(value) || value < 0 || value > 255,
-    ) ||
+    background.some((value) => !Number.isSafeInteger(value) || value < 0 || value > 255) ||
     !Number.isFinite(contract.sourcePadding ?? 2) ||
     (contract.sourcePadding ?? 2) < 0 ||
     !Number.isFinite(contract.paintTolerance ?? 18) ||
     (contract.paintTolerance ?? 18) < 0
   )
     fail('png_elements_contract_invalid');
-  const threshold = Number.isFinite(contract.colorDistance)
-      ? contract.colorDistance
-      : 8,
+  const threshold = Number.isFinite(contract.colorDistance) ? contract.colorDistance : 8,
     sourcePadding = contract.sourcePadding ?? 2,
     paintTolerance = contract.paintTolerance ?? 18,
     scaleX = width / scene.width,
@@ -417,8 +397,8 @@ export function inspectRgbaPngElements(bytes, scene, contract = {}) {
     for (let y = top; y <= bottom; y++) byRow[y].push(index);
   }
   let inkPixels = 0,
-    unassignedInkPixels = 0,
-    unassignedSamples = [];
+    unassignedInkPixels = 0;
+  const unassignedSamples = [];
   for (let y = 0; y < height; y++)
     for (let x = 0; x < width; x++) {
       const offset = (y * width + x) * 4;

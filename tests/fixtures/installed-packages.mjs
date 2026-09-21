@@ -54,10 +54,7 @@ export async function installCoreAndSelf(root, directory) {
   return {
     consumer,
     coreRoot: path.join(consumer, 'node_modules/architecture-publisher'),
-    selfRoot: path.join(
-      consumer,
-      'node_modules/@architecture-publisher/self-edition',
-    ),
+    selfRoot: path.join(consumer, 'node_modules/@architecture-publisher/self-edition'),
     core: JSON.parse(core.stdout)[0],
     extension: JSON.parse(extension.stdout)[0],
   };

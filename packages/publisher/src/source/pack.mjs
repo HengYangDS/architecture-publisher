@@ -14,8 +14,7 @@ const fields = (value, names) =>
 /** Package explicit file bytes; selection does not authorize code or publication. */
 export async function packSourceFiles(planPath, expectedSha256) {
   if (!isDigest(expectedSha256)) fail('pack_plan_digest_required');
-  if (typeof planPath !== 'string' || !planPath)
-    fail('pack_plan_path_required');
+  if (typeof planPath !== 'string' || !planPath) fail('pack_plan_path_required');
   const file = path.resolve(planPath);
   await noSymlinkAncestors(file);
   const raw = await regularBytes(file, LIMITS.manifestBytes);

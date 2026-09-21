@@ -17,8 +17,7 @@ export async function noSymlinkAncestors(file) {
   let current = path.parse(absolute).root;
   for (const part of absolute.slice(current.length).split(path.sep)) {
     current = path.join(current, part);
-    if ((await fs.lstat(current)).isSymbolicLink())
-      fail('bundle_symlink_forbidden');
+    if ((await fs.lstat(current)).isSymbolicLink()) fail('bundle_symlink_forbidden');
   }
 }
 export async function regularBytes(file, maximum) {
@@ -28,28 +27,17 @@ export async function regularBytes(file, maximum) {
   if (before.size > maximum) fail('file_size_exceeded');
   const handle = await fs.open(
     file,
-    constants.O_RDONLY |
-      (constants.O_NOFOLLOW ?? 0) |
-      (constants.O_NONBLOCK ?? 0),
+    constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0),
   );
   try {
     const opened = await handle.stat();
     if (!opened.isFile()) fail('bundle_type_unsupported');
-    if (
-      before.dev !== opened.dev ||
-      before.ino !== opened.ino ||
-      before.size !== opened.size
-    )
+    if (before.dev !== opened.dev || before.ino !== opened.ino || before.size !== opened.size)
       fail('bundle_changed');
     const bytes = Buffer.alloc(opened.size);
     let offset = 0;
     while (offset < bytes.length) {
-      const read = await handle.read(
-        bytes,
-        offset,
-        bytes.length - offset,
-        offset,
-      );
+      const read = await handle.read(bytes, offset, bytes.length - offset, offset);
       if (!read.bytesRead) fail('bundle_changed');
       offset += read.bytesRead;
     }
@@ -96,8 +84,7 @@ async function inventory(root) {
 /** Return verified bytes, not a promise that later reads of the paths are unchanged. */
 export async function readFileEnvelope(manifestPath, expectedSha256, decode) {
   if (!isDigest(expectedSha256)) fail('manifest_digest_required');
-  if (typeof manifestPath !== 'string' || !manifestPath)
-    fail('manifest_path_required');
+  if (typeof manifestPath !== 'string' || !manifestPath) fail('manifest_path_required');
   const file = path.resolve(manifestPath);
   const root = path.dirname(file);
   await noSymlinkAncestors(file);
@@ -116,19 +103,11 @@ export async function readFileEnvelope(manifestPath, expectedSha256, decode) {
   const manifest = decode(decoded);
   const selectedFiles = validateFileMembers(manifest.files);
   const manifestName = portablePath(path.basename(file));
-  if (
-    selectedFiles.some(
-      (member) => portableKey(member.path) === portableKey(manifestName),
-    )
-  )
+  if (selectedFiles.some((member) => portableKey(member.path) === portableKey(manifestName)))
     fail('manifest_self_member');
-  const required = [
-    manifestName,
-    ...selectedFiles.map((member) => member.path),
-  ].sort();
+  const required = [manifestName, ...selectedFiles.map((member) => member.path)].sort();
   const before = await inventory(root);
-  if (JSON.stringify(before) !== JSON.stringify(required))
-    fail('bundle_members_mismatch');
+  if (JSON.stringify(before) !== JSON.stringify(required)) fail('bundle_members_mismatch');
   const members = [];
   for (const member of selectedFiles) {
     const content = await regularBytes(

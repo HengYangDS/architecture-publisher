@@ -1,16 +1,7 @@
 import { createHash } from 'node:crypto';
-import {
-  canonical,
-  deepFreeze,
-  exact,
-  jsonValue,
-  text,
-} from '../semantics/document.mjs';
+import { canonical, deepFreeze, exact, jsonValue, text } from '../semantics/document.mjs';
 import { isDigest } from '../source/manifest.mjs';
-import {
-  QUALIFICATION_KINDS,
-  isHumanReviewScope,
-} from '../edition/contract.mjs';
+import { QUALIFICATION_KINDS, isHumanReviewScope } from '../edition/contract.mjs';
 import {
   editionCandidateDigest,
   mediaCandidateDigest,
@@ -48,20 +39,16 @@ function fail(code) {
 }
 
 function selectedIdentity(value, code) {
-  if (!exact(value, ['kind', 'sha256']) || !text(value.kind) || !isDigest(value.sha256))
-    fail(code);
+  if (!exact(value, ['kind', 'sha256']) || !text(value.kind) || !isDigest(value.sha256)) fail(code);
 }
 
 function selectedScope(value, code) {
-  if (!exact(value, ['kind', 'value']) || !text(value.kind) || !text(value.value))
-    fail(code);
+  if (!exact(value, ['kind', 'value']) || !text(value.kind) || !text(value.value)) fail(code);
 }
-
 
 function selectedHumanScope(value, code) {
   if (!isHumanReviewScope(value)) fail(code);
 }
-
 
 function obligationKey({ kind, predicate, scope = null }) {
   return canonical({
@@ -73,9 +60,7 @@ function obligationKey({ kind, predicate, scope = null }) {
 
 function humanArtifact(candidate, scope) {
   selectedHumanScope(scope, 'qualification_human_scope_invalid');
-  const artifact = candidate?.media[scope.medium].artifacts.find(
-    ({ id }) => id === scope.artifact,
-  );
+  const artifact = candidate?.media[scope.medium].artifacts.find(({ id }) => id === scope.artifact);
   if (!artifact) fail('qualification_human_scope_invalid');
   return artifact;
 }
@@ -151,8 +136,7 @@ function validateRecord(value, identities) {
         ? 'qualification_human_verifier_required'
         : 'qualification_machine_verifier_required',
     );
-  if (value.kind === 'human')
-    selectedHumanScope(value.scope, 'qualification_human_scope_invalid');
+  if (value.kind === 'human') selectedHumanScope(value.scope, 'qualification_human_scope_invalid');
   else selectedScope(value.scope, 'qualification_scope_invalid');
   if (value.environment !== null)
     selectedScope(value.environment, 'qualification_environment_invalid');
@@ -177,12 +161,6 @@ function validateRecord(value, identities) {
   if (!VERDICTS.includes(value.verdict)) fail('qualification_verdict_invalid');
   if (!strings(value.limitations) || new Set(value.limitations).size !== value.limitations.length)
     fail('qualification_limitations_invalid');
-}
-
-function conjunction(records) {
-  if (records.some(({ verdict }) => verdict === 'FAIL')) return 'FAIL';
-  if (records.some(({ verdict }) => verdict === 'UNKNOWN')) return 'UNKNOWN';
-  return 'PASS';
 }
 
 /** Validate externally produced predicate judgments without executing a verifier. */
@@ -268,10 +246,7 @@ export function bindQualificationSet(candidateValue, records) {
   if (!Array.isArray(records)) fail('qualification_records_invalid');
   for (const selected of records) {
     const expected = qualificationSubject(candidate, selected?.kind, selected?.scope);
-    if (
-      selected?.subject?.kind !== expected.kind ||
-      selected.subject.sha256 !== expected.sha256
-    )
+    if (selected?.subject?.kind !== expected.kind || selected.subject.sha256 !== expected.sha256)
       fail('qualification_subject_mismatch');
   }
   return validateQualificationSet({
@@ -291,11 +266,7 @@ export function admitQualificationSet(
   candidateValue,
   qualificationValue,
 ) {
-  const candidate = validateEditionCandidateBinding(
-      modelValue,
-      editionValue,
-      candidateValue,
-    ),
+  const candidate = validateEditionCandidateBinding(modelValue, editionValue, candidateValue),
     qualification = validateQualificationSet(qualificationValue),
     candidateSha256 = editionCandidateDigest(candidate);
   if (
@@ -306,24 +277,15 @@ export function admitQualificationSet(
   )
     fail('qualification_identity_mismatch');
 
-  const declared = new Map(
-      candidate.obligations.map((item) => [obligationKey(item), item]),
-    ),
+  const declared = new Map(candidate.obligations.map((item) => [obligationKey(item), item])),
     observed = new Set();
   for (const selected of qualification.records) {
     const key = obligationKey(selected);
     if (observed.has(key)) fail('qualification_obligation_duplicate');
     if (!declared.has(key)) fail('qualification_obligation_undeclared');
     observed.add(key);
-    const expected = qualificationSubject(
-      candidate,
-      selected.kind,
-      selected.scope,
-    );
-    if (
-      selected.subject.kind !== expected.kind ||
-      selected.subject.sha256 !== expected.sha256
-    )
+    const expected = qualificationSubject(candidate, selected.kind, selected.scope);
+    if (selected.subject.kind !== expected.kind || selected.subject.sha256 !== expected.sha256)
       fail('qualification_subject_mismatch');
   }
   const missing = candidate.obligations.filter(

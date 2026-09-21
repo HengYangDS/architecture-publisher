@@ -1,31 +1,54 @@
-import {
-  SELF_ENTITY_IDS,
-  SELF_RELATION_IDS,
-  SELF_RELATIONS,
-} from './model.mjs';
+import { SELF_ENTITY_IDS, SELF_RELATION_IDS, SELF_RELATIONS } from './model.mjs';
 
 const overviewGroups = Object.freeze([
-  ['source-field', 'Source field', ['accepted-intent', 'implementation', 'runtime-observation', 'evidence']],
+  [
+    'source-field',
+    'Source field',
+    ['accepted-intent', 'implementation', 'runtime-observation', 'evidence'],
+  ],
   ['intake', 'Loss-aware intake', ['source-adapter', 'source-bundle']],
   ['semantic-contract', 'Semantic contract', ['claim-model', 'uncertainty']],
   ['authorship', 'Editorial contract', ['edition', 'build-request', 'publisher-core']],
   ['scenes', 'Independent scenes', ['static-scene', 'interactive-scenes']],
-  ['rendering', 'Replaceable rendering', ['static-artifact', 'static-renderer', 'interactive-renderer', 'interactive-atlas']],
+  [
+    'rendering',
+    'Replaceable rendering',
+    ['static-artifact', 'static-renderer', 'interactive-renderer', 'interactive-atlas'],
+  ],
   ['candidate', 'Exact candidate', ['edition-candidate']],
-  ['qualification', 'Non-compensating qualification', ['human-review', 'qualification-set', 'acceptance']],
+  [
+    'qualification',
+    'Non-compensating qualification',
+    ['human-review', 'qualification-set', 'acceptance'],
+  ],
   ['authorization', 'Explicit effect admission', ['authorization']],
   ['effects', 'Recoverable publication', ['publication', 'recovery', 'off-host-recovery']],
   ['adoption', 'Independent consumers', ['self-consumer', 'ethos-consumer', 'aigw-consumer']],
   ['return', 'Native source lifecycle', ['feedback']],
   ['evolution', 'Conservative evolution', ['evolution-inputs', 'semantic-delta', 'affected-views']],
-  ['renewal', 'Independent renewal obligations', ['rebuild-obligations', 'semantic-verification-obligations', 'medium-verification-obligations', 'human-review-obligations', 'acceptance-obligations', 'publication-obligations']],
+  [
+    'renewal',
+    'Independent renewal obligations',
+    [
+      'rebuild-obligations',
+      'semantic-verification-obligations',
+      'medium-verification-obligations',
+      'human-review-obligations',
+      'acceptance-obligations',
+      'publication-obligations',
+    ],
+  ],
 ]);
 
 const mechanisms = Object.freeze({
   semantics: {
     label: 'Source-bound meaning and uncertainty',
     groups: [
-      ['sources', 'Source evidence', ['accepted-intent', 'implementation', 'runtime-observation', 'evidence']],
+      [
+        'sources',
+        'Source evidence',
+        ['accepted-intent', 'implementation', 'runtime-observation', 'evidence'],
+      ],
       ['adapter', 'Loss-aware adapter', ['source-adapter']],
       ['bundle', 'Source Bundle', ['source-bundle']],
       ['claims', 'Claim Model', ['claim-model']],
@@ -151,10 +174,25 @@ const mechanisms = Object.freeze({
       ['delta', 'Meaning change', ['semantic-delta']],
       ['impact', 'Affected Editions and scenes', ['affected-views']],
       ['rebuild', 'Rebuild', ['rebuild-obligations']],
-      ['verification', 'Fresh verification', ['semantic-verification-obligations', 'medium-verification-obligations']],
+      [
+        'verification',
+        'Fresh verification',
+        ['semantic-verification-obligations', 'medium-verification-obligations'],
+      ],
       ['review', 'Fresh judgment', ['human-review-obligations', 'acceptance-obligations']],
       ['effect', 'Publication renewal', ['publication-obligations']],
-      ['renewed-values', 'Renewed values', ['static-scene', 'interactive-scenes', 'qualification-set', 'human-review', 'acceptance', 'publication']],
+      [
+        'renewed-values',
+        'Renewed values',
+        [
+          'static-scene',
+          'interactive-scenes',
+          'qualification-set',
+          'human-review',
+          'acceptance',
+          'publication',
+        ],
+      ],
     ],
     relations: [
       'models-enter-evolution',
@@ -215,9 +253,7 @@ function relationsFor(groups, ids) {
   }
   const offsets = new Map();
   for (const siblings of bySource.values())
-    siblings.forEach((id, index) =>
-      offsets.set(id, (index - (siblings.length - 1) / 2) * 128),
-    );
+    siblings.forEach((id, index) => offsets.set(id, (index - (siblings.length - 1) / 2) * 128));
   return ids.map((id) => relation(groups, id, offsets.get(id)));
 }
 const claimsFor = (groups, relations) => [

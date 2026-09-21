@@ -42,15 +42,11 @@ test('alpha.7 migration baseline preserves exact local and remote identities', a
 });
 
 test('current product surfaces expose one Architecture Publisher identity', async () => {
-  const workspace = JSON.parse(
-    await fs.readFile(path.join(root, 'package.json'), 'utf8'),
-  );
+  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
   const packageJson = JSON.parse(
     await fs.readFile(path.join(root, 'packages/publisher/package.json'), 'utf8'),
   );
-  const packageLock = JSON.parse(
-    await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'),
-  );
+  const packageLock = JSON.parse(await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'));
   const profile = await fs.readFile(path.join(root, '.ethos/profile.toml'), 'utf8');
   const openspec = await fs.readFile(path.join(root, 'openspec/config.yaml'), 'utf8');
   const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
@@ -73,10 +69,13 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
   assert.match(profile, new RegExp(`^profile_id = "${repositoryName}"$`, 'm'));
   assert.match(openspec, /Govern Architecture Publisher changes through ETHOS\./);
   assert.match(readme, /^# Architecture Publisher$/m);
-  assert.match(readme, /\| Canonical repository \| `architecture-publisher` \|/);
+  assert.match(readme, /\|\s*Canonical repository\s*\|\s*`architecture-publisher`\s*\|/);
   assert.doesNotMatch(readme, /retains its historical path until the governed rename/i);
   assert.match(readme, /\barchpub source verify\b/);
-  assert.doesNotMatch(readme, /^architecture (?:source|publish|render|atlas|poster|measure|semantic|raster)\b/m);
+  assert.doesNotMatch(
+    readme,
+    /^architecture (?:source|publish|render|atlas|poster|measure|semantic|raster)\b/m,
+  );
   assert.match(skill, /^name: architecture-publisher$/m);
   assert.match(skill, /\barchpub edition build\b/);
   assert.doesNotMatch(skill, /\barchitecture publish\b/);
@@ -143,8 +142,14 @@ test('product documentation has one semantic owner and a concise entry point', a
   assert.match(readme, /\[Operational reference\]\(docs\/reference\/operations\.md\)/);
   assert.match(product, /^subject: architecture-publisher:product-contract$/m);
   assert.match(product, /^state: canonical$/m);
-  assert.match(product, /Source Bundle[\s\S]*Claim Model[\s\S]*Edition[\s\S]*Scene[\s\S]*Artifact[\s\S]*Qualification[\s\S]*Publication/);
-  assert.match(edition, /audience[\s\S]*questions[\s\S]*required claims[\s\S]*omission policy[\s\S]*static scene[\s\S]*interactive scenes/i);
+  assert.match(
+    product,
+    /Source Bundle[\s\S]*Claim Model[\s\S]*Edition[\s\S]*Scene[\s\S]*Artifact[\s\S]*Qualification[\s\S]*Publication/,
+  );
+  assert.match(
+    edition,
+    /audience[\s\S]*questions[\s\S]*required claims[\s\S]*omission policy[\s\S]*static scene[\s\S]*interactive scenes/i,
+  );
   assert.match(operations, /architecture\.edition\/v1/);
   assert.match(operations, /editionSha256/);
   assert.doesNotMatch(operations, /architecture\.semantic-publication\/v2/);
@@ -158,19 +163,10 @@ test('product documentation has one semantic owner and a concise entry point', a
 
 test('terminal topology keeps live Editions with their source products', async () => {
   const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
-  const product = await fs.readFile(
-    path.join(root, 'docs/product-contract.md'),
-    'utf8',
-  );
-  const edition = await fs.readFile(
-    path.join(root, 'docs/edition-contract.md'),
-    'utf8',
-  );
+  const product = await fs.readFile(path.join(root, 'docs/product-contract.md'), 'utf8');
+  const edition = await fs.readFile(path.join(root, 'docs/edition-contract.md'), 'utf8');
   const proposal = await fs.readFile(
-    path.join(
-      root,
-      'openspec/changes/architecture-publisher-0-2/proposal.md',
-    ),
+    path.join(root, 'openspec/changes/architecture-publisher-0-2/proposal.md'),
     'utf8',
   );
   const design = await fs.readFile(
@@ -184,10 +180,7 @@ test('terminal topology keeps live Editions with their source products', async (
   const contract = [readme, product, edition, proposal, design].join('\n');
 
   assert.match(contract, /source-owned live Edition/i);
-  assert.match(
-    contract,
-    /portable standard values or an independently\s+installed package/i,
-  );
+  assert.match(contract, /portable standard values or an independently\s+installed package/i);
   assert.match(contract, /no adjacent checkout/i);
   assert.match(contract, /migration staging/i);
   assert.match(tasks, /remove the migrated central ETHOS package/i);

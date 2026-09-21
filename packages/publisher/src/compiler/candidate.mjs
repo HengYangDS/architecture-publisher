@@ -17,11 +17,7 @@ import {
   text,
   validateClaimModel,
 } from '../semantics/document.mjs';
-import {
-  isDigest,
-  portablePath,
-  validateFileMembers,
-} from '../source/manifest.mjs';
+import { isDigest, portablePath, validateFileMembers } from '../source/manifest.mjs';
 
 const CANDIDATE_FIELDS = Object.freeze([
   'schema',
@@ -32,13 +28,7 @@ const CANDIDATE_FIELDS = Object.freeze([
   'obligations',
 ]);
 const MEDIA_FIELDS = Object.freeze(['sceneSha256', 'artifacts', 'supplies']);
-const ARTIFACT_FIELDS = Object.freeze([
-  'id',
-  'path',
-  'mediaType',
-  'bytes',
-  'sha256',
-]);
+const ARTIFACT_FIELDS = Object.freeze(['id', 'path', 'mediaType', 'bytes', 'sha256']);
 const SUPPLY_FIELDS = Object.freeze(['id', 'sha256']);
 const OBLIGATION_FIELDS = Object.freeze(['kind', 'predicate']);
 const HUMAN_OBLIGATION_FIELDS = Object.freeze(['kind', 'predicate', 'scope']);
@@ -107,9 +97,7 @@ function normalizedCandidate(value) {
   const selected = structuredClone(value);
   selected.media.static = normalizedMedium(selected.media.static);
   selected.media.interactive = normalizedMedium(selected.media.interactive);
-  selected.obligations.sort((left, right) =>
-    canonical(left).localeCompare(canonical(right)),
-  );
+  selected.obligations.sort((left, right) => canonical(left).localeCompare(canonical(right)));
   return selected;
 }
 
@@ -190,10 +178,7 @@ export function validateEditionCandidateBinding(modelValue, editionValue, candid
     fail('candidate_edition_mismatch');
   if (candidate.media.static.sceneSha256 !== staticSceneDigest(model, edition))
     fail('candidate_static_scene_mismatch');
-  if (
-    candidate.media.interactive.sceneSha256 !==
-    interactiveSceneDigest(model, edition)
-  )
+  if (candidate.media.interactive.sceneSha256 !== interactiveSceneDigest(model, edition))
     fail('candidate_interactive_scene_mismatch');
   if (canonical(candidate.obligations) !== canonical(obligations))
     fail('candidate_obligation_mismatch');
@@ -238,7 +223,9 @@ export function createEditionCandidate(input) {
 /** Digest one exact medium after normalizing its declared sets. */
 export function mediaCandidateDigest(value) {
   validateMedium(value);
-  return createHash('sha256').update(canonical(normalizedMedium(value))).digest('hex');
+  return createHash('sha256')
+    .update(canonical(normalizedMedium(value)))
+    .digest('hex');
 }
 
 /** Canonical identity of the normalized Edition Candidate value. */

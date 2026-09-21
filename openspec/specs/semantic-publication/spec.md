@@ -1,6 +1,7 @@
 # semantic-publication Specification
 
 ## Purpose
+
 Publish explicit source-bound architecture through complete static and
 interactive views without inferring intent or creating another product authority.
 

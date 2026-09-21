@@ -42,18 +42,9 @@ export const QUALIFICATION_KINDS = Object.freeze([
   'human',
 ]);
 const SIDES = Object.freeze(['top', 'right', 'bottom', 'left']);
-const STATIC_ROUTES = Object.freeze([
-  'straight',
-  'orthogonal-h',
-  'orthogonal-v',
-]);
+const STATIC_ROUTES = Object.freeze(['straight', 'orthogonal-h', 'orthogonal-v']);
 const INTERACTIVE_ROUTES = Object.freeze(['auto', ...STATIC_ROUTES]);
-const LABEL_PLACEMENT_FIELDS = Object.freeze([
-  'labelAt',
-  'labelDx',
-  'labelDy',
-  'labelSegment',
-]);
+const LABEL_PLACEMENT_FIELDS = Object.freeze(['labelAt', 'labelDx', 'labelDy', 'labelSegment']);
 
 const editionError = (code, detail = '') => {
   throw Object.assign(new Error(code + (detail ? ': ' + detail : '')), {
@@ -61,20 +52,17 @@ const editionError = (code, detail = '') => {
   });
 };
 const lexical = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
-const identifier = (value) =>
-  typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
-const sameSet = (left, right) =>
-  [...left].sort().join('\n') === [...right].sort().join('\n');
+const identifier = (value) => typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
+const sameSet = (left, right) => [...left].sort().join('\n') === [...right].sort().join('\n');
 
 function validateJson(edition) {
   try {
     jsonValue(edition, 0, new Set(), { nodes: 0, bytes: 0 }, new Set());
   } catch (error) {
-    if (error?.code === 'semantic_json_alias')
-      editionError('edition_json_alias');
-    if (error?.code === 'semantic_size_exceeded')
-      editionError('edition_size_exceeded');
-    editionError('edition_json_invalid', error?.code ?? 'unknown');
+    const code = error && typeof error === 'object' && 'code' in error ? error.code : undefined;
+    if (code === 'semantic_json_alias') editionError('edition_json_alias');
+    if (code === 'semantic_size_exceeded') editionError('edition_size_exceeded');
+    editionError('edition_json_invalid', String(code ?? 'unknown'));
   }
 }
 
@@ -106,20 +94,14 @@ function validateComposition(composition, model, sceneId, medium) {
       entities.add(id);
     }
   }
-  const labelPlacementFields =
-      medium === 'interactive' ? LABEL_PLACEMENT_FIELDS : [],
+  const labelPlacementFields = medium === 'interactive' ? LABEL_PLACEMENT_FIELDS : [],
     routes = medium === 'interactive' ? INTERACTIVE_ROUTES : STATIC_ROUTES;
   for (const relation of composition.relations) {
     if (
       !record(relation) ||
-      !['id', 'fromSide', 'toSide', 'route'].every((key) =>
-        Object.hasOwn(relation, key),
-      ) ||
+      !['id', 'fromSide', 'toSide', 'route'].every((key) => Object.hasOwn(relation, key)) ||
       Object.keys(relation).some(
-        (key) =>
-          !['id', 'fromSide', 'toSide', 'route', ...labelPlacementFields].includes(
-            key,
-          ),
+        (key) => !['id', 'fromSide', 'toSide', 'route', ...labelPlacementFields].includes(key),
       ) ||
       !text(relation.id) ||
       relations.has(relation.id) ||
@@ -137,13 +119,10 @@ function validateComposition(composition, model, sceneId, medium) {
         (!Array.isArray(relation.labelAt) ||
           relation.labelAt.length !== 2 ||
           relation.labelAt.some((value) => !Number.isFinite(value)))) ||
-      (Object.hasOwn(relation, 'labelDx') &&
-        !Number.isFinite(relation.labelDx)) ||
-      (Object.hasOwn(relation, 'labelDy') &&
-        !Number.isFinite(relation.labelDy)) ||
+      (Object.hasOwn(relation, 'labelDx') && !Number.isFinite(relation.labelDx)) ||
+      (Object.hasOwn(relation, 'labelDy') && !Number.isFinite(relation.labelDy)) ||
       (Object.hasOwn(relation, 'labelSegment') &&
-        (!Number.isSafeInteger(relation.labelSegment) ||
-          relation.labelSegment < 0))
+        (!Number.isSafeInteger(relation.labelSegment) || relation.labelSegment < 0))
     )
       editionError('edition_scene_relation_invalid', sceneId);
     relations.add(relation.id);
@@ -153,21 +132,8 @@ function validateComposition(composition, model, sceneId, medium) {
 
 function validateScene(scene, model, questions, id, medium, purposeRequired) {
   const fields = purposeRequired
-    ? [
-        'label',
-        'purpose',
-        'questions',
-        'claims',
-        'composition',
-        'authoredInputSha256',
-      ]
-    : [
-        'label',
-        'questions',
-        'claims',
-        'composition',
-        'authoredInputSha256',
-      ];
+    ? ['label', 'purpose', 'questions', 'claims', 'composition', 'authoredInputSha256']
+    : ['label', 'questions', 'claims', 'composition', 'authoredInputSha256'];
   const required = purposeRequired
     ? ['label', 'purpose', 'questions', 'claims', 'composition']
     : ['label', 'questions', 'claims', 'composition'];
@@ -177,8 +143,7 @@ function validateScene(scene, model, questions, id, medium, purposeRequired) {
     Object.keys(scene).some((field) => !fields.includes(field)) ||
     !text(scene.label) ||
     (purposeRequired && !['overview', 'mechanism'].includes(scene.purpose)) ||
-    (Object.hasOwn(scene, 'authoredInputSha256') &&
-      !isDigest(scene.authoredInputSha256)) ||
+    (Object.hasOwn(scene, 'authoredInputSha256') && !isDigest(scene.authoredInputSha256)) ||
     !strings(scene.questions, true) ||
     !strings(scene.claims) ||
     scene.questions.some((question) => !Object.hasOwn(questions, question)) ||
@@ -193,8 +158,7 @@ function validateScene(scene, model, questions, id, medium, purposeRequired) {
       (claim.object !== null && !composition.entities.has(claim.object)) ||
       claim.dependsOn.some(
         (reference) =>
-          reference.section === 'relations' &&
-          !composition.relations.has(reference.id),
+          reference.section === 'relations' && !composition.relations.has(reference.id),
       )
     )
       editionError('edition_scene_claim_carrier_missing', id + ', ' + claimId);
@@ -212,10 +176,7 @@ function validateVisualGrammar(grammar, model) {
     !sameSet(Object.keys(grammar.relationTypes), model.vocabulary.relations) ||
     Object.values(grammar.entityTypes).some((value) => !text(value)) ||
     Object.values(grammar.relationTypes).some(
-      (value) =>
-        !exact(value, ['label', 'variant']) ||
-        !text(value.label) ||
-        !text(value.variant),
+      (value) => !exact(value, ['label', 'variant']) || !text(value.label) || !text(value.variant),
     )
   )
     editionError('edition_visual_grammar_invalid');
@@ -237,7 +198,6 @@ export function isHumanReviewScope(value) {
   );
 }
 
-
 function humanQualificationEntry(value) {
   return (
     record(value) &&
@@ -246,7 +206,6 @@ function humanQualificationEntry(value) {
     isHumanReviewScope(value.scope)
   );
 }
-
 
 function validateQualification(qualification, editionClass) {
   const machineKinds = QUALIFICATION_KINDS.filter((kind) => kind !== 'human');
@@ -257,25 +216,19 @@ function validateQualification(qualification, editionClass) {
     qualification.human.some((item) => !humanQualificationEntry(item)) ||
     new Set(qualification.human.map((item) => canonical(item))).size !==
       qualification.human.length ||
-    [
-      'semantic',
-      'coverage',
-      'static',
-      'interactive',
-      'accessibility',
-      'installed',
-    ].some((kind) => !qualification[kind].length)
+    ['semantic', 'coverage', 'static', 'interactive', 'accessibility', 'installed'].some(
+      (kind) => !qualification[kind].length,
+    )
   )
     editionError('edition_qualification_invalid');
   if (
     editionClass === 'flagship' &&
     ['faithful', 'intelligible', 'restrained'].some((predicate) =>
-      ['static', 'interactive'].some((medium) =>
-        !qualification.human.some(
-          (item) =>
-            item.predicate === predicate &&
-            item.scope.medium === medium,
-        ),
+      ['static', 'interactive'].some(
+        (medium) =>
+          !qualification.human.some(
+            (item) => item.predicate === predicate && item.scope.medium === medium,
+          ),
       ),
     )
   )
@@ -338,9 +291,7 @@ function validateEditionContract(model, edition, completeOverviewRequired) {
     omitted = new Set(Object.keys(edition.omissions));
   if (
     edition.requiredClaims.some((id) => !Object.hasOwn(model.claims, id)) ||
-    Object.keys(edition.omissions).some(
-      (id) => !Object.hasOwn(model.claims, id),
-    )
+    Object.keys(edition.omissions).some((id) => !Object.hasOwn(model.claims, id))
   )
     editionError('edition_claim_unknown');
   if ([...required].some((id) => omitted.has(id)))
@@ -361,18 +312,14 @@ function validateEditionContract(model, edition, completeOverviewRequired) {
     interactive = new Map();
   for (const [id, scene] of Object.entries(edition.scenes.interactive)) {
     if (!identifier(id)) editionError('edition_scene_invalid', id);
-    interactive.set(
-      id,
-      validateScene(scene, model, edition.questions, id, 'interactive', true),
-    );
+    interactive.set(id, validateScene(scene, model, edition.questions, id, 'interactive', true));
   }
   if (
     !interactive.size ||
     !sameSet(edition.narrative, interactive.keys()) ||
     edition.scenes.interactive[edition.narrative[0]]?.purpose !== 'overview' ||
-    [...interactive.keys()].filter(
-      (id) => edition.scenes.interactive[id].purpose === 'overview',
-    ).length !== 1
+    [...interactive.keys()].filter((id) => edition.scenes.interactive[id].purpose === 'overview')
+      .length !== 1
   )
     editionError('edition_narrative_invalid');
 
@@ -380,10 +327,7 @@ function validateEditionContract(model, edition, completeOverviewRequired) {
     overview = interactive.get(overviewId),
     modelEntities = Object.keys(model.entities),
     modelRelations = Object.keys(model.relations);
-  if (
-    !sameSet(staticScene.claims, required) ||
-    !sameSet(overview.claims, required)
-  )
+  if (!sameSet(staticScene.claims, required) || !sameSet(overview.claims, required))
     editionError('edition_overview_incomplete');
   if (completeOverviewRequired) {
     if (
@@ -422,8 +366,7 @@ function validateEditionContract(model, edition, completeOverviewRequired) {
       .map(([sceneId]) => sceneId);
     if (
       (omission.disposition === 'out-of-scope' && represented.length) ||
-      (omission.disposition === 'represented-by' &&
-        !represented.includes(omission.view))
+      (omission.disposition === 'represented-by' && !represented.includes(omission.view))
     )
       editionError('edition_omission_invalid', id);
   }
@@ -431,13 +374,9 @@ function validateEditionContract(model, edition, completeOverviewRequired) {
   for (const [id, question] of Object.entries(edition.questions)) {
     const scenes = [
       ...(question.detail === 'overview'
-        ? [
-            edition.scenes.static,
-            edition.scenes.interactive[overviewId],
-          ]
+        ? [edition.scenes.static, edition.scenes.interactive[overviewId]]
         : Object.values(edition.scenes.interactive).filter(
-            (scene) =>
-              scene.purpose === 'mechanism' && scene.questions.includes(id),
+            (scene) => scene.purpose === 'mechanism' && scene.questions.includes(id),
           )),
     ];
     if (
@@ -465,9 +404,7 @@ function normalizeEdition(model, edition, completeOverviewRequired) {
   for (const question of Object.values(result.questions)) question.claims.sort();
   for (const kind of QUALIFICATION_KINDS)
     if (kind === 'human')
-      result.qualification.human.sort((left, right) =>
-        lexical(canonical(left), canonical(right)),
-      );
+      result.qualification.human.sort((left, right) => lexical(canonical(left), canonical(right)));
     else result.qualification[kind].sort();
   result.visualGrammar.principles.sort();
   result.scenes.static.claims.sort();
@@ -483,7 +420,6 @@ export function normalizedEdition(model, edition) {
   return normalizeEdition(model, edition, true);
 }
 
-
 function qualificationObligations(edition) {
   const obligations = QUALIFICATION_KINDS.flatMap((kind) =>
     kind === 'human'
@@ -494,19 +430,15 @@ function qualificationObligations(edition) {
         }))
       : edition.qualification[kind].map((predicate) => ({ kind, predicate })),
   );
-  obligations.sort((left, right) =>
-    lexical(canonical(left), canonical(right)),
-  );
+  obligations.sort((left, right) => lexical(canonical(left), canonical(right)));
   return deepFreeze(obligations);
 }
-
 
 export function editionQualificationObligations(modelValue, editionValue) {
   return qualificationObligations(normalizedEdition(modelValue, editionValue));
 }
 
-const digest = (value) =>
-  createHash('sha256').update(canonical(value)).digest('hex');
+const digest = (value) => createHash('sha256').update(canonical(value)).digest('hex');
 
 /**
  * Admit one Edition side for conservative evolution analysis. Publication
@@ -524,13 +456,9 @@ export function inspectEditionForEvolution(model, edition) {
 
 function sceneSemanticProjection(model, scene) {
   const entityIds = [
-      ...new Set(
-        scene.composition.groups.flatMap((group) => group.entities),
-      ),
+      ...new Set(scene.composition.groups.flatMap((group) => group.entities)),
     ].sort(),
-    relationIds = [
-      ...new Set(scene.composition.relations.map((relation) => relation.id)),
-    ].sort();
+    relationIds = [...new Set(scene.composition.relations.map((relation) => relation.id))].sort();
   return {
     entities: Object.fromEntries(
       entityIds.map((id) => [
@@ -554,8 +482,7 @@ function sceneSemanticProjection(model, scene) {
   };
 }
 
-export const editionDigest = (model, edition) =>
-  digest(normalizedEdition(model, edition));
+export const editionDigest = (model, edition) => digest(normalizedEdition(model, edition));
 
 export const staticSceneDigest = (model, edition) => {
   const normalized = normalizedEdition(model, edition),

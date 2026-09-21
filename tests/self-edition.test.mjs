@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import {
   editionCandidateDigest,
@@ -13,10 +12,7 @@ import {
 } from '../packages/publisher/src/compiler/candidate.mjs';
 import { validateEdition } from '../packages/publisher/src/edition/contract.mjs';
 import { validateClaimModel } from '../packages/publisher/src/semantics/document.mjs';
-import {
-  SELF_ENTITY_IDS,
-  SELF_RELATION_IDS,
-} from '../editions/self/src/edition/model.mjs';
+import { SELF_ENTITY_IDS } from '../editions/self/src/edition/model.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const packageRoot = path.join(root, 'editions/self');
@@ -28,33 +24,22 @@ const selectedSources = Object.freeze({
   'edition-contract': 'docs/edition-contract.md',
   'active-design': 'openspec/changes/architecture-publisher-0-2/design.md',
   'core-package': 'packages/publisher/package.json',
-  'self-prepare-owner':
-    'editions/self/src/edition/prepare.mjs',
-  'self-model-owner':
-    'editions/self/src/edition/model.mjs',
-  'self-static-scene-owner':
-    'editions/self/src/edition/static-scene.mjs',
-  'self-static-composition-owner':
-    'editions/self/src/edition/static/composition.mjs',
-  'self-static-compiler-owner':
-    'editions/self/src/edition/static/scene.mjs',
-  'self-static-svg-owner':
-    'editions/self/src/edition/static/svg.mjs',
-  'self-static-flagship-owner':
-    'editions/self/src/edition/static-flagship.mjs',
-  'self-static-metrics':
-    'editions/self/src/edition/static/authoring/metrics.json',
-  'self-interactive-scene-owner':
-    'editions/self/src/edition/interactive-scenes.mjs',
-  'self-interactive-composition-owner':
-    'editions/self/src/edition/interactive-scene.mjs',
+  'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
+  'self-model-owner': 'editions/self/src/edition/model.mjs',
+  'self-static-scene-owner': 'editions/self/src/edition/static-scene.mjs',
+  'self-static-composition-owner': 'editions/self/src/edition/static/composition.mjs',
+  'self-static-compiler-owner': 'editions/self/src/edition/static/scene.mjs',
+  'self-static-svg-owner': 'editions/self/src/edition/static/svg.mjs',
+  'self-static-flagship-owner': 'editions/self/src/edition/static-flagship.mjs',
+  'self-static-metrics': 'editions/self/src/edition/static/authoring/metrics.json',
+  'self-interactive-scene-owner': 'editions/self/src/edition/interactive-scenes.mjs',
+  'self-interactive-composition-owner': 'editions/self/src/edition/interactive-scene.mjs',
   'self-interactive-atlas-owner': 'editions/self/src/edition/atlas.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
   'compiler-owner': 'packages/publisher/src/compiler/edition.mjs',
-  'interactive-renderer-owner':
-    'packages/publisher/renderers/archify/index.mjs',
+  'interactive-renderer-owner': 'packages/publisher/renderers/archify/index.mjs',
   'qualification-owner': 'packages/publisher/src/qualification/contract.mjs',
   'publication-owner': 'packages/publisher/src/publication/files.mjs',
   'installed-test-owner': 'tests/self-hosted-adopter.test.mjs',
@@ -75,49 +60,37 @@ async function request(output, sourceRoot = root) {
 }
 
 function directedPath(relations, from, to) {
-  const pending = [[from, []]], seen = new Set();
+  const pending = [[from, []]],
+    seen = new Set();
   while (pending.length) {
     const [current, path] = pending.shift();
     if (current === to) return path;
     if (seen.has(current)) continue;
     seen.add(current);
     for (const [id, relation] of Object.entries(relations))
-      if (relation.subject === current)
-        pending.push([relation.object, [...path, id]]);
+      if (relation.subject === current) pending.push([relation.object, [...path, id]]);
   }
   return null;
 }
 
 test('the first-party self Edition covers the complete product chain and authority boundaries', async (t) => {
-  const { prepareArchitecturePublisherEdition } = await import(
-    '../editions/self/src/edition/prepare.mjs'
-  );
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
   const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-'));
   t.after(() => fs.rm(parent, { recursive: true, force: true }));
   const output = path.join(parent, 'prepared');
-  const prepared = await prepareArchitecturePublisherEdition(
-    await request(output),
-  );
-  const bundle = await readSourceBundle(
-      prepared.sourceManifest,
-      prepared.sourceSha256,
-    ),
+  const prepared = await prepareArchitecturePublisherEdition(await request(output));
+  const bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256),
     members = new Map(bundle.members.map((member) => [member.path, member.content])),
     model = validateClaimModel(JSON.parse(members.get('semantic.json'))),
-    edition = validateEdition(
-      model,
-      JSON.parse(await fs.readFile(prepared.edition, 'utf8')),
-    );
+    edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8')));
 
   assert.equal(edition.id, 'architecture-publisher-self');
   assert.equal(edition.class, 'flagship');
   assert.deepEqual(Object.keys(edition.omissions), []);
-  assert.deepEqual(
-    [...edition.requiredClaims].sort(),
-    Object.keys(model.claims).sort(),
-  );
+  assert.deepEqual([...edition.requiredClaims].sort(), Object.keys(model.claims).sort());
   for (const id of [
     'accepted-intent',
     'implementation',
@@ -154,10 +127,7 @@ test('the first-party self Edition covers the complete product chain and authori
   ])
     assert(model.entities[id], `missing complete self-model entity: ${id}`);
   const connected = new Set(
-    Object.values(model.relations).flatMap(({ subject, object }) => [
-      subject,
-      object,
-    ]),
+    Object.values(model.relations).flatMap(({ subject, object }) => [subject, object]),
   );
   assert.deepEqual(
     SELF_ENTITY_IDS.filter((id) => !connected.has(id)),
@@ -192,36 +162,23 @@ test('the first-party self Edition covers the complete product chain and authori
     'publication-obligation-renews-publication',
   ])
     assert(model.relations[id], `missing complete self-model relation: ${id}`);
+  assert.deepEqual(directedPath(model.relations, 'edition', 'static-artifact'), [
+    'edition-authors-static',
+    'static-scene-enters-renderer',
+    'backend-renders-static',
+  ]);
+  assert.deepEqual(directedPath(model.relations, 'edition', 'interactive-atlas'), [
+    'edition-authors-interactive',
+    'interactive-scenes-enter-renderer',
+    'backend-renders-interactive',
+  ]);
+  assert.deepEqual(directedPath(model.relations, 'evolution-inputs', 'rebuild-obligations'), [
+    'evolution-produces-delta',
+    'delta-identifies-affected-views',
+    'affected-views-require-rebuild',
+  ]);
   assert.deepEqual(
-    directedPath(model.relations, 'edition', 'static-artifact'),
-    [
-      'edition-authors-static',
-      'static-scene-enters-renderer',
-      'backend-renders-static',
-    ],
-  );
-  assert.deepEqual(
-    directedPath(model.relations, 'edition', 'interactive-atlas'),
-    [
-      'edition-authors-interactive',
-      'interactive-scenes-enter-renderer',
-      'backend-renders-interactive',
-    ],
-  );
-  assert.deepEqual(
-    directedPath(model.relations, 'evolution-inputs', 'rebuild-obligations'),
-    [
-      'evolution-produces-delta',
-      'delta-identifies-affected-views',
-      'affected-views-require-rebuild',
-    ],
-  );
-  assert.deepEqual(
-    directedPath(
-      model.relations,
-      'evolution-inputs',
-      'medium-verification-obligations',
-    ),
+    directedPath(model.relations, 'evolution-inputs', 'medium-verification-obligations'),
     [
       'evolution-produces-delta',
       'delta-identifies-affected-views',
@@ -247,8 +204,10 @@ test('the first-party self Edition covers the complete product chain and authori
     ['implemented', 'implemented'],
   );
   assert.deepEqual(
-    [flow('acceptance-precedes-authorization').plane,
-      flow('acceptance-precedes-authorization').maturity],
+    [
+      flow('acceptance-precedes-authorization').plane,
+      flow('acceptance-precedes-authorization').maturity,
+    ],
     ['intended', 'target'],
     'the current file publisher must not be presented as qualification-gated',
   );
@@ -299,10 +258,8 @@ test('the first-party self Edition covers the complete product chain and authori
 });
 
 test('the first-party self Edition emits one exact candidate from independent sibling media', async (t) => {
-  const {
-      buildArchitecturePublisherCandidate,
-      prepareArchitecturePublisherEdition,
-    } = await import('../editions/self/src/edition/index.mjs'),
+  const { buildArchitecturePublisherCandidate, prepareArchitecturePublisherEdition } =
+      await import('../editions/self/src/edition/index.mjs'),
     scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
   const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-candidate-'));
@@ -315,9 +272,7 @@ test('the first-party self Edition emits one exact candidate from independent si
     result = await buildArchitecturePublisherCandidate({ ...plan, output }),
     bundle = await readSourceBundle(result.manifestPath, result.manifestSha256),
     members = new Map(bundle.members.map((member) => [member.path, member.content])),
-    candidate = validateEditionCandidate(
-      JSON.parse(members.get('candidate.json')),
-    );
+    candidate = validateEditionCandidate(JSON.parse(members.get('candidate.json')));
 
   assert.equal(result.status, 'built');
   assert.equal(result.candidateSha256, editionCandidateDigest(candidate));
@@ -340,19 +295,12 @@ test('the first-party self Edition emits one exact candidate from independent si
     candidate.media.interactive.supplies.map(({ id }) => id),
     ['archify', 'font-supply', 'runtime', 'self-interactive-runtime'],
   );
-  assert.notEqual(
-    candidate.media.static.sceneSha256,
-    candidate.media.interactive.sceneSha256,
-  );
+  assert.notEqual(candidate.media.static.sceneSha256, candidate.media.interactive.sceneSha256);
   assert.equal(candidate.obligations.length, 13);
   assert.deepEqual(
     candidate.obligations
       .filter(({ kind }) => kind === 'human')
-      .map(({ predicate, scope }) => [
-        predicate,
-        scope.medium,
-        scope.artifact,
-      ]),
+      .map(({ predicate, scope }) => [predicate, scope.medium, scope.artifact]),
     [
       ['faithful', 'static', 'flagship-png'],
       ['faithful', 'interactive', 'standalone-atlas'],
@@ -369,18 +317,13 @@ test('the first-party self Edition emits one exact candidate from independent si
       assert.equal(artifact.bytes, bytes.length);
       assert.equal(artifact.sha256, sha256(bytes));
     }
-  for (const forbidden of [
-    'qualification',
-    'humanAcceptance',
-    'publication',
-  ])
+  for (const forbidden of ['qualification', 'humanAcceptance', 'publication'])
     assert.equal(candidate[forbidden], undefined);
 });
 
 test('the evolution view carries semantic delta and distinct renewal obligations', async (t) => {
-  const { prepareArchitecturePublisherEdition } = await import(
-    '../editions/self/src/edition/prepare.mjs'
-  );
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
   const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-evolution-'));
@@ -388,23 +331,13 @@ test('the evolution view carries semantic delta and distinct renewal obligations
   const prepared = await prepareArchitecturePublisherEdition(
       await request(path.join(parent, 'prepared')),
     ),
-    bundle = await readSourceBundle(
-      prepared.sourceManifest,
-      prepared.sourceSha256,
-    ),
+    bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256),
     members = new Map(bundle.members.map((member) => [member.path, member.content])),
     model = validateClaimModel(JSON.parse(members.get('semantic.json'))),
-    edition = validateEdition(
-      model,
-      JSON.parse(await fs.readFile(prepared.edition, 'utf8')),
-    ),
+    edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8'))),
     evolution = edition.scenes.interactive.evolution,
-    entities = new Set(
-      evolution.composition.groups.flatMap((group) => group.entities),
-    ),
-    relations = new Set(
-      evolution.composition.relations.map((relation) => relation.id),
-    );
+    entities = new Set(evolution.composition.groups.flatMap((group) => group.entities)),
+    relations = new Set(evolution.composition.relations.map((relation) => relation.id));
   for (const id of [
     'evolution-inputs',
     'semantic-delta',
@@ -431,9 +364,8 @@ test('the evolution view carries semantic delta and distinct renewal obligations
 });
 
 test('the semantics view connects uncertainty and claims to Edition authorship', async (t) => {
-  const { prepareArchitecturePublisherEdition } = await import(
-    '../editions/self/src/edition/prepare.mjs'
-  );
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
   const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-semantics-'));
@@ -441,20 +373,12 @@ test('the semantics view connects uncertainty and claims to Edition authorship',
   const prepared = await prepareArchitecturePublisherEdition(
       await request(path.join(parent, 'prepared')),
     ),
-    bundle = await readSourceBundle(
-      prepared.sourceManifest,
-      prepared.sourceSha256,
-    ),
+    bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256),
     members = new Map(bundle.members.map((member) => [member.path, member.content])),
     model = validateClaimModel(JSON.parse(members.get('semantic.json'))),
-    edition = validateEdition(
-      model,
-      JSON.parse(await fs.readFile(prepared.edition, 'utf8')),
-    ),
+    edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8'))),
     semantics = edition.scenes.interactive.semantics,
-    relations = new Set(
-      semantics.composition.relations.map((relation) => relation.id),
-    );
+    relations = new Set(semantics.composition.relations.map((relation) => relation.id));
   assert(relations.has('claims-inform-edition'));
   assert(relations.has('uncertainty-broadens-edition'));
 });
@@ -462,9 +386,7 @@ test('the semantics view connects uncertainty and claims to Edition authorship',
 test('the installed self Edition prepares portable standard inputs and leaves Core independent', async (t) => {
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
-  const parent = await fs.mkdtemp(
-    path.join(scratch, 'publisher-self-installed-'),
-  );
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-installed-'));
   t.after(() => fs.rm(parent, { recursive: true, force: true }));
   const packedCore = spawnSync(
       'npm',
@@ -549,23 +471,19 @@ test('the installed self Edition prepares portable standard inputs and leaves Co
       "import { validateEdition } from 'architecture-publisher/edition';",
       'const prepared = JSON.parse(process.argv[2]);',
       'const bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256);',
-      "const members = new Map(bundle.members.map((member) => [member.path, member.content]));",
+      'const members = new Map(bundle.members.map((member) => [member.path, member.content]));',
       "const model = validateClaimModel(JSON.parse(members.get('semantic.json')));",
       "const edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8')));",
       "process.stdout.write(JSON.stringify({status:'verified', edition:edition.id, views:Object.keys(edition.scenes.interactive).length}) + '\\n');",
       '',
     ].join('\n'),
   );
-  const verified = spawnSync(
-    process.execPath,
-    [verifyDriver, JSON.stringify(prepared)],
-    {
-      cwd: consumer,
-      encoding: 'utf8',
-      env: { HOME: parent, PATH: parent, LANG: 'C.UTF-8' },
-      timeout: 120000,
-    },
-  );
+  const verified = spawnSync(process.execPath, [verifyDriver, JSON.stringify(prepared)], {
+    cwd: consumer,
+    encoding: 'utf8',
+    env: { HOME: parent, PATH: parent, LANG: 'C.UTF-8' },
+    timeout: 120000,
+  });
   assert.equal(verified.status, 0, verified.stdout + verified.stderr);
   assert.deepEqual(JSON.parse(verified.stdout), {
     status: 'verified',
@@ -580,9 +498,8 @@ test('the installed self Edition prepares portable standard inputs and leaves Co
 });
 
 test('the self-publication entry canonicalizes an absent output below a filesystem alias', async (t) => {
-  const { prepareArchitecturePublisherEdition } = await import(
-    '../editions/self/src/edition/prepare.mjs'
-  );
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
   const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-alias-'));
@@ -594,20 +511,12 @@ test('the self-publication entry canonicalizes an absent output below a filesyst
   const prepared = await prepareArchitecturePublisherEdition(
     await request(path.join(alias, 'prepared')),
   );
-  assert.equal(
-    path.dirname(prepared.edition),
-    path.join(physical, 'prepared'),
-  );
-  assert.equal(
-    path.dirname(prepared.sourceManifest),
-    path.join(physical, 'prepared', 'source'),
-  );
+  assert.equal(path.dirname(prepared.edition), path.join(physical, 'prepared'));
+  assert.equal(path.dirname(prepared.sourceManifest), path.join(physical, 'prepared', 'source'));
 });
 
 test('prepared output admission never replaces a concurrently created destination', async (t) => {
-  const { installPreparedOutput } = await import(
-    '../editions/self/src/edition/prepare.mjs'
-  );
+  const { installPreparedOutput } = await import('../editions/self/src/edition/prepare.mjs');
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
   const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-race-'));
@@ -623,16 +532,11 @@ test('prepared output admission never replaces a concurrently created destinatio
     code: 'self_output_exists',
   });
   assert.equal(await fs.readFile(marker, 'utf8'), 'foreign bytes');
-  assert.equal(
-    await fs.readFile(path.join(staged, 'edition.json'), 'utf8'),
-    'owned staged bytes',
-  );
+  assert.equal(await fs.readFile(path.join(staged, 'edition.json'), 'utf8'), 'owned staged bytes');
 });
 
 test('prepared output installation never replaces a member arriving after reservation', async (t) => {
-  const { installPreparedOutput } = await import(
-    '../editions/self/src/edition/prepare.mjs'
-  );
+  const { installPreparedOutput } = await import('../editions/self/src/edition/prepare.mjs');
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
   const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-member-race-'));
@@ -652,16 +556,11 @@ test('prepared output installation never replaces a member arriving after reserv
   );
   assert.equal(injected, true);
   assert.equal(await fs.readFile(marker, 'utf8'), 'foreign bytes');
-  assert.equal(
-    await fs.readFile(path.join(staged, 'edition.json'), 'utf8'),
-    'owned staged bytes',
-  );
+  assert.equal(await fs.readFile(path.join(staged, 'edition.json'), 'utf8'), 'owned staged bytes');
 });
 
 test('prepared output installation never replaces a nested member arriving during copy', async (t) => {
-  const { installPreparedOutput } = await import(
-    '../editions/self/src/edition/prepare.mjs'
-  );
+  const { installPreparedOutput } = await import('../editions/self/src/edition/prepare.mjs');
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
   const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-nested-race-'));
@@ -673,8 +572,7 @@ test('prepared output installation never replaces a nested member arriving durin
   await fs.writeFile(path.join(staged, 'source', 'semantic.json'), 'owned staged bytes');
   await assert.rejects(
     installPreparedOutput(staged, destination, async (event) => {
-      if (event?.phase !== 'directory-reserved' || event.path !== 'source')
-        return;
+      if (event?.phase !== 'directory-reserved' || event.path !== 'source') return;
       await fs.writeFile(marker, 'foreign bytes', { flag: 'wx' });
     }),
     { code: 'self_output_member_exists' },

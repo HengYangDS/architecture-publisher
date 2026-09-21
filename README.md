@@ -41,14 +41,14 @@ it cannot reinterpret it or grant authority to it.
 
 ## Identity
 
-| Surface | Identity |
-| --- | --- |
-| Product | Architecture Publisher |
-| Core package | `architecture-publisher` |
-| Public CLI | `archpub` |
-| ETHOS integration | Source-owned `@architecture-publisher/ethos`; immutable handoff retained here |
-| Canonical repository | `architecture-publisher` |
-| ETHOS publication | `ETHOS Architecture` / `ETHOS · 问道` |
+| Surface              | Identity                                                                      |
+| -------------------- | ----------------------------------------------------------------------------- |
+| Product              | Architecture Publisher                                                        |
+| Core package         | `architecture-publisher`                                                      |
+| Public CLI           | `archpub`                                                                     |
+| ETHOS integration    | Source-owned `@architecture-publisher/ethos`; immutable handoff retained here |
+| Canonical repository | `architecture-publisher`                                                      |
+| ETHOS publication    | `ETHOS Architecture` / `ETHOS · 问道`                                         |
 
 The local checkout and GitLab project are the same history-preserving repository
 object under the canonical `architecture-publisher` identity. Signed alpha.7

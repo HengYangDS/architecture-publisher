@@ -72,9 +72,7 @@ function fixture() {
 function contrast(left, right) {
   const channel = (value) => {
     const normalized = value / 255;
-    return normalized <= 0.04045
-      ? normalized / 12.92
-      : ((normalized + 0.055) / 1.055) ** 2.4;
+    return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
   };
   const luminance = (value) => {
     const rgb = value.match(/[a-f\d]{2}/gi).map((part) => parseInt(part, 16));
@@ -128,19 +126,13 @@ test('standalone Atlas retains exact page bytes and one source-bound navigation 
   );
   assert.match(text, /window\.__architectureAtlas/);
   const colors = Object.fromEntries(
-    [...text.matchAll(/--([a-z]+):(#[a-f\d]{6})/gi)].map((match) => [
-      match[1],
-      match[2],
-    ]),
+    [...text.matchAll(/--([a-z]+):(#[a-f\d]{6})/gi)].map((match) => [match[1], match[2]]),
   );
   assert(contrast(colors.muted, colors.paper) >= 4.5);
   assert(contrast(colors.muted, colors.panel) >= 4.5);
   assert.match(text, /frame\.srcdoc/);
   assert.match(text, /html\[data-atlas-member\]\{height:100%;overflow:hidden\}/);
-  assert.match(
-    text,
-    /html\[data-atlas-member\] body\{[^}]*height:100%;[^}]*overflow:hidden/,
-  );
+  assert.match(text, /html\[data-atlas-member\] body\{[^}]*height:100%;[^}]*overflow:hidden/);
   assert.match(text, /html\[data-atlas-member\] \.toolbar[^}]*display:none!important/);
   assert.match(text, /html\[data-atlas-member\] \.no-print[^}]*display:none!important/);
   assert.match(

@@ -42,9 +42,14 @@ export function compileArchitecturePublisherStaticScene(composition, measure) {
       kind: mark.id.startsWith('feedback-return')
         ? 'feedback'
         : mark.id.startsWith('evolution') ||
-        ['semantic-delta', 'affected-views', 'rebuild-verification', 'review-publication'].includes(mark.id)
-        ? 'evolution'
-        : 'spine',
+            [
+              'semantic-delta',
+              'affected-views',
+              'rebuild-verification',
+              'review-publication',
+            ].includes(mark.id)
+          ? 'evolution'
+          : 'spine',
       tone: mark.tone,
       center: { x: mark.x, y: mark.y },
       radius: mark.r,
@@ -81,8 +86,7 @@ export function compileArchitecturePublisherStaticScene(composition, measure) {
       source: edge.source,
       target: edge.target,
       points: edge.points.map((point) => ({ ...point })),
-      strokeWidth:
-        edge.kind === 'trust' ? 2 : edge.kind === 'feedback' ? 1.2 : 1.5,
+      strokeWidth: edge.kind === 'trust' ? 2 : edge.kind === 'feedback' ? 1.2 : 1.5,
       arrow: true,
       arrowGeometry: { ...ARROW },
       semanticIds: [...edge.semantics],

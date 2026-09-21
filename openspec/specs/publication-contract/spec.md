@@ -1,6 +1,7 @@
 # publication-contract Specification
 
 ## Purpose
+
 Define the shared publication admission boundary and the replaceable Skill and
 CI projections that invoke it without acquiring intent, lifecycle or effect
 authority.

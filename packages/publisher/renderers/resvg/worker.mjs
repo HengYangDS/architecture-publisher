@@ -11,9 +11,7 @@ try {
   }));
   const checked = validateSvg(input, fonts, request.width);
   const module = new WebAssembly.Module(
-    fs.readFileSync(
-      new URL('./supply/resvg/index_bg.wasm', import.meta.url),
-    ),
+    fs.readFileSync(new URL('./supply/resvg/index_bg.wasm', import.meta.url)),
   );
   const instance = new WebAssembly.Instance(module, { './index_bg.js': resvg });
   resvg.__wbg_set_wasm(instance.exports);

@@ -2,55 +2,132 @@ import path from 'node:path';
 import { isBuiltin } from 'node:module';
 import { parse } from 'acorn';
 
-const packageExports = new Map([
-  ['architecture-publisher', 'packages/publisher/src/index.mjs'],
-  ['architecture-publisher/source', 'packages/publisher/src/source/index.mjs'],
-  ['architecture-publisher/semantics', 'packages/publisher/src/semantics/index.mjs'],
-  ['architecture-publisher/edition', 'packages/publisher/src/edition/index.mjs'],
-  ['architecture-publisher/scene', 'packages/publisher/src/scene/index.mjs'],
-  ['architecture-publisher/compiler', 'packages/publisher/src/compiler/index.mjs'],
-  ['architecture-publisher/rendering', 'packages/publisher/src/rendering/index.mjs'],
-  ['architecture-publisher/qualification', 'packages/publisher/src/qualification/index.mjs'],
-  ['architecture-publisher/publication', 'packages/publisher/src/publication/index.mjs'],
-  ['architecture-publisher/runtime', 'packages/publisher/src/runtime.mjs'],
-  ['architecture-publisher/renderers/archify', 'packages/publisher/renderers/archify/public.mjs'],
-  ['architecture-publisher/renderers/fonts', 'packages/publisher/renderers/fonts/index.mjs'],
-  ['architecture-publisher/renderers/resvg', 'packages/publisher/renderers/resvg/public.mjs'],
-  ['architecture-publisher/renderers/svg', 'packages/publisher/renderers/svg/index.mjs'],
-  ['@architecture-publisher/self-edition', 'editions/self/src/edition/index.mjs'],
-  ['@architecture-publisher/self-edition/edition', 'editions/self/src/edition/index.mjs'],
-  ['@architecture-publisher/self-edition/runtime', 'editions/self/src/runtime.mjs'],
-]);
-
 const owners = [
-  ['packages/publisher/src/index.mjs', ['packages/publisher/src/']],
   ['packages/publisher/src/runtime.mjs', ['packages/publisher/']],
   ['packages/publisher/src/source/', ['packages/publisher/src/source/']],
-  ['packages/publisher/src/semantics/', ['packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
-  ['packages/publisher/src/edition/', ['packages/publisher/src/edition/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
-  ['packages/publisher/src/scene/', ['packages/publisher/src/scene/', 'packages/publisher/src/edition/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
-  ['packages/publisher/src/compiler/', ['packages/publisher/src/compiler/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/', 'packages/publisher/src/edition/', 'packages/publisher/src/scene/', 'packages/publisher/renderers/']],
-  ['packages/publisher/src/rendering/', ['packages/publisher/src/rendering/', 'packages/publisher/src/source/', 'packages/publisher/renderers/']],
-  ['packages/publisher/src/qualification/', ['packages/publisher/src/qualification/', 'packages/publisher/src/compiler/', 'packages/publisher/src/edition/', 'packages/publisher/src/scene/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
-  ['packages/publisher/src/publication/', ['packages/publisher/src/publication/', 'packages/publisher/src/edition/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/', 'packages/publisher/src/scene/', 'packages/publisher/renderers/']],
+  [
+    'packages/publisher/src/semantics/',
+    ['packages/publisher/src/semantics/', 'packages/publisher/src/source/'],
+  ],
+  [
+    'packages/publisher/src/edition/',
+    [
+      'packages/publisher/src/edition/',
+      'packages/publisher/src/semantics/',
+      'packages/publisher/src/source/',
+    ],
+  ],
+  [
+    'packages/publisher/src/scene/',
+    [
+      'packages/publisher/src/scene/',
+      'packages/publisher/src/edition/',
+      'packages/publisher/src/semantics/',
+      'packages/publisher/src/source/',
+    ],
+  ],
+  [
+    'packages/publisher/src/compiler/',
+    [
+      'packages/publisher/src/compiler/',
+      'packages/publisher/src/source/',
+      'packages/publisher/src/semantics/',
+      'packages/publisher/src/edition/',
+      'packages/publisher/src/scene/',
+      'packages/publisher/renderers/',
+    ],
+  ],
+  [
+    'packages/publisher/src/rendering/',
+    [
+      'packages/publisher/src/rendering/',
+      'packages/publisher/src/source/',
+      'packages/publisher/renderers/',
+    ],
+  ],
+  [
+    'packages/publisher/src/qualification/',
+    [
+      'packages/publisher/src/qualification/',
+      'packages/publisher/src/compiler/',
+      'packages/publisher/src/edition/',
+      'packages/publisher/src/scene/',
+      'packages/publisher/src/semantics/',
+      'packages/publisher/src/source/',
+    ],
+  ],
+  [
+    'packages/publisher/src/publication/',
+    [
+      'packages/publisher/src/publication/',
+      'packages/publisher/src/edition/',
+      'packages/publisher/src/semantics/',
+      'packages/publisher/src/source/',
+      'packages/publisher/src/scene/',
+      'packages/publisher/renderers/',
+    ],
+  ],
   ['packages/publisher/src/cli/', ['packages/publisher/src/', 'packages/publisher/renderers/']],
-  ['packages/publisher/renderers/archify/', ['packages/publisher/renderers/archify/', 'packages/publisher/renderers/fonts/', 'packages/publisher/src/scene/', 'packages/publisher/src/source/', 'packages/publisher/renderers/archify/supply/']],
-  ['packages/publisher/renderers/fonts/', ['packages/publisher/renderers/fonts/', 'packages/publisher/src/source/', 'packages/publisher/renderers/fonts/supply/']],
-  ['packages/publisher/renderers/svg/', ['packages/publisher/renderers/svg/', 'packages/publisher/src/source/', 'packages/publisher/src/scene/']],
-  ['packages/publisher/renderers/resvg/', ['packages/publisher/renderers/resvg/', 'packages/publisher/renderers/svg/', 'packages/publisher/src/source/', 'packages/publisher/renderers/resvg/supply/']],
+  [
+    'packages/publisher/renderers/archify/',
+    [
+      'packages/publisher/renderers/archify/',
+      'packages/publisher/renderers/fonts/',
+      'packages/publisher/src/scene/',
+      'packages/publisher/src/source/',
+      'packages/publisher/renderers/archify/supply/',
+    ],
+  ],
+  [
+    'packages/publisher/renderers/fonts/',
+    [
+      'packages/publisher/renderers/fonts/',
+      'packages/publisher/src/source/',
+      'packages/publisher/renderers/fonts/supply/',
+    ],
+  ],
+  [
+    'packages/publisher/renderers/svg/',
+    [
+      'packages/publisher/renderers/svg/',
+      'packages/publisher/src/source/',
+      'packages/publisher/src/scene/',
+    ],
+  ],
+  [
+    'packages/publisher/renderers/resvg/',
+    [
+      'packages/publisher/renderers/resvg/',
+      'packages/publisher/renderers/svg/',
+      'packages/publisher/src/source/',
+      'packages/publisher/renderers/resvg/supply/',
+    ],
+  ],
   ['editions/self/src/runtime.mjs', ['editions/self/']],
-  ['editions/self/src/edition/', ['editions/self/src/edition/', 'packages/publisher/src/', 'packages/publisher/renderers/']],
-  ['conformance/journeys/self-host/', ['conformance/journeys/self-host/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/']],
+  [
+    'editions/self/src/edition/',
+    ['editions/self/src/edition/', 'packages/publisher/src/', 'packages/publisher/renderers/'],
+  ],
+  [
+    'conformance/journeys/self-host/',
+    [
+      'conformance/journeys/self-host/',
+      'packages/publisher/src/source/',
+      'packages/publisher/src/semantics/',
+    ],
+  ],
   ['tools/', ['tools/', 'packages/publisher/', 'editions/', 'migration/']],
+];
+
+const resourceOwners = [
+  ['conformance/journeys/self-host/', ['conformance/journeys/self-host/', 'packages/publisher/']],
 ];
 
 const property = (node, name) =>
   node?.type === 'MemberExpression' &&
   (node.computed ? node.property.value === name : node.property.name === name);
 const meta = (node) =>
-  node?.type === 'MetaProperty' &&
-  node.meta.name === 'import' &&
-  node.property.name === 'meta';
+  node?.type === 'MetaProperty' && node.meta.name === 'import' && node.property.name === 'meta';
 const literal = (node) => {
   if (node?.type === 'Literal' && typeof node.value === 'string') return node.value;
   if (node?.type === 'TemplateLiteral' && node.expressions.length === 0)
@@ -62,12 +139,13 @@ export function inspectModuleBoundaries(
   file,
   source,
   paths,
+  packageExports,
   declaredExternals = new Set(),
 ) {
   const problems = [];
-  const issue = (node, reason) =>
-    problems.push({ file, line: node?.loc?.start.line ?? 1, reason });
+  const issue = (node, reason) => problems.push({ file, line: node?.loc?.start.line ?? 1, reason });
   const owner = owners.find(([prefix]) => file.startsWith(prefix));
+  const resourceOwner = resourceOwners.find(([prefix]) => file.startsWith(prefix)) ?? owner;
   if (!owner) issue(null, 'unknown module owner');
   let ast;
   try {
@@ -80,17 +158,16 @@ export function inspectModuleBoundaries(
     return [{ file, line: error.loc?.line ?? 1, reason: `syntax: ${error.message}` }];
   }
 
-  function admit(node, target) {
+  function admit(node, target, allowed = owner?.[1] ?? []) {
     if (!paths.has(target) && !paths.has(`${target.replace(/\/$/, '')}/`))
       return issue(node, `missing dependency: ${target}`);
-    if (!owner || !owner[1].some((prefix) => target.startsWith(prefix)))
+    if (!allowed.some((prefix) => target.startsWith(prefix)))
       issue(node, `forbidden dependency: ${target}`);
   }
 
-  function reference(node, value) {
+  function reference(node, value, { resource = false } = {}) {
     const specifier = literal(value);
-    if (specifier === null)
-      return issue(node, 'computed dependency requires explicit admission');
+    if (specifier === null) return issue(node, 'computed dependency requires explicit admission');
     if (isBuiltin(specifier)) {
       if (specifier === 'module' || specifier === 'node:module')
         issue(node, 'alternate module loaders require explicit admission');
@@ -103,9 +180,7 @@ export function inspectModuleBoundaries(
     }
     if (/[\\%?#\x00-\x1f]/.test(specifier))
       return issue(node, 'dependency path must be literal and portable');
-    const target = path.posix.normalize(
-      path.posix.join(path.posix.dirname(file), specifier),
-    );
+    const target = path.posix.normalize(path.posix.join(path.posix.dirname(file), specifier));
     if (target === '..' || target.startsWith('../'))
       return issue(node, 'dependency escapes repository');
     const normalized = target === '.' || target === './' ? '' : target;
@@ -114,7 +189,7 @@ export function inspectModuleBoundaries(
       normalized.startsWith('packages/publisher/')
     )
       return issue(node, 'cross-package dependency must use a public export');
-    admit(node, normalized);
+    admit(node, normalized, resource ? (resourceOwner?.[1] ?? []) : undefined);
   }
 
   function visit(node) {
@@ -133,7 +208,7 @@ export function inspectModuleBoundaries(
       property(node.arguments[1], 'url') &&
       meta(node.arguments[1].object)
     )
-      reference(node, node.arguments[0]);
+      reference(node, node.arguments[0], { resource: true });
     if (node.type === 'CallExpression') {
       if (property(node.callee, 'resolve') && meta(node.callee.object))
         reference(node, node.arguments[0]);

@@ -22,22 +22,11 @@ test('installed raster command needs only explicit input and its pinned static s
     return r.stdout;
   };
   const pack = JSON.parse(
-    run('npm', [
-      'pack',
-      '--ignore-scripts',
-      '--json',
-      '--pack-destination',
-      dir,
-    ], publisher),
+    run('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', dir], publisher),
   )[0];
   assert(pack.files.some((f) => f.path === 'renderers/resvg/index.mjs'));
-  assert(
-    pack.files.some(
-      (f) => f.path === 'renderers/resvg/supply/resvg/index_bg.wasm',
-    ),
-  );
-  const observedNoticePath =
-    'renderers/resvg/supply/resvg/THIRD-PARTY-NOTICES.txt';
+  assert(pack.files.some((f) => f.path === 'renderers/resvg/supply/resvg/index_bg.wasm'));
+  const observedNoticePath = 'renderers/resvg/supply/resvg/THIRD-PARTY-NOTICES.txt';
   assert(
     pack.files.some((f) => f.path === observedNoticePath),
     'installed renderer must retain the verified observed-source notices',
@@ -71,10 +60,7 @@ test('installed raster command needs only explicit input and its pinned static s
   );
   const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   const rendererSource = JSON.parse(
-    await fs.readFile(
-      path.join(pkg, 'renderers/resvg/supply/resvg/source.json'),
-      'utf8',
-    ),
+    await fs.readFile(path.join(pkg, 'renderers/resvg/supply/resvg/source.json'), 'utf8'),
   );
   assert.equal(rendererSource.source.version, '0.48.1');
   assert.equal(rendererSource.toolchain.rust, '1.98.1');
@@ -88,36 +74,25 @@ test('installed raster command needs only explicit input and its pinned static s
       ),
     ).source.archiveSha256,
   );
-  const observedNotice = await fs.readFile(
-    path.join(pkg, observedNoticePath),
-    'utf8',
-  );
+  const observedNotice = await fs.readFile(path.join(pkg, observedNoticePath), 'utf8');
   assert.match(observedNotice, /Resolved Rust packages:/);
   assert.match(observedNotice, /resvg 0\.48\.1/);
   assert.match(observedNotice, /wasm-bindgen 0\.2\.128/);
   // This disposable installed copy deliberately lacks the interactive and ETHOS code.
   // Static execution must never load those independent capability owners.
-  for (const name of ['renderers/archify'])
-    await fs.rm(path.join(pkg, name), { recursive: true });
+  for (const name of ['renderers/archify']) await fs.rm(path.join(pkg, name), { recursive: true });
   const svg = Buffer.from(
     '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="120"><rect width="300" height="120" fill="#f5f3ed"/><text font-family="JetBrains Mono" font-size="20" x="20" y="70" fill="#29372f">Offline delivery</text></svg>',
   );
-  const source = await writeSourceBundle(
-    path.join(dir, 'input'),
-    { id: 'service:independent' },
-    [
-      { path: 'diagram.svg', content: svg },
-      {
-        path: 'font.ttf',
-        content: await fs.readFile(
-          path.join(
-            pkg,
-            'renderers/fonts/supply/JetBrainsMono-Regular.ttf',
-          ),
-        ),
-      },
-    ],
-  );
+  const source = await writeSourceBundle(path.join(dir, 'input'), { id: 'service:independent' }, [
+    { path: 'diagram.svg', content: svg },
+    {
+      path: 'font.ttf',
+      content: await fs.readFile(
+        path.join(pkg, 'renderers/fonts/supply/JetBrainsMono-Regular.ttf'),
+      ),
+    },
+  ]);
   const plan = {
     manifest: 'input/manifest.json',
     manifestSha256: source.manifestSha256,
@@ -150,10 +125,7 @@ test('installed raster command needs only explicit input and its pinned static s
   assert.equal(result.semanticAcceptance, 'not-performed');
   const occupied = invoke();
   assert.equal(occupied.status, 1);
-  assert.equal(
-    JSON.parse(occupied.stdout).error.code,
-    'raster_output_exists',
-  );
+  assert.equal(JSON.parse(occupied.stdout).error.code, 'raster_output_exists');
   assert.deepEqual(await fs.readFile(path.join(dir, 'figure.png')), bytes);
   const invalidSource = await writeSourceBundle(
     path.join(dir, 'invalid-input'),
@@ -179,10 +151,7 @@ test('installed raster command needs only explicit input and its pinned static s
   );
   const invalid = invoke();
   assert.equal(invalid.status, 1);
-  assert.equal(
-    JSON.parse(invalid.stdout).error.code,
-    'raster_svg_value_invalid',
-  );
+  assert.equal(JSON.parse(invalid.stdout).error.code, 'raster_svg_value_invalid');
   await assert.rejects(fs.stat(path.join(dir, 'invalid.png')), {
     code: 'ENOENT',
   });
@@ -210,10 +179,7 @@ test('installed raster command needs only explicit input and its pinned static s
   );
   const wrong = invoke();
   assert.equal(wrong.status, 1);
-  assert.equal(
-    JSON.parse(wrong.stdout).error.code,
-    'raster_svg_reference_type_invalid',
-  );
+  assert.equal(JSON.parse(wrong.stdout).error.code, 'raster_svg_reference_type_invalid');
   await assert.rejects(fs.stat(path.join(dir, 'wrong-reference.png')), {
     code: 'ENOENT',
   });
@@ -241,18 +207,12 @@ test('installed raster command needs only explicit input and its pinned static s
     });
     await fs.writeFile(target, original);
   }
-  const sourcePath = path.join(
-      pkg,
-      'renderers/resvg/supply/resvg/source.json',
-    ),
+  const sourcePath = path.join(pkg, 'renderers/resvg/supply/resvg/source.json'),
     sourceBytes = await fs.readFile(sourcePath);
   await fs.unlink(sourcePath);
   const missingSource = invoke();
   assert.equal(missingSource.status, 1);
-  assert.equal(
-    JSON.parse(missingSource.stdout).error.code,
-    'raster_supply_invalid',
-  );
+  assert.equal(JSON.parse(missingSource.stdout).error.code, 'raster_supply_invalid');
   await assert.rejects(fs.stat(path.join(dir, 'bad.png')), {
     code: 'ENOENT',
   });
@@ -261,10 +221,7 @@ test('installed raster command needs only explicit input and its pinned static s
   await fs.unlink(observedPath);
   const missingObservedNotice = invoke();
   assert.equal(missingObservedNotice.status, 1);
-  assert.equal(
-    JSON.parse(missingObservedNotice.stdout).error.code,
-    'raster_supply_invalid',
-  );
+  assert.equal(JSON.parse(missingObservedNotice.stdout).error.code, 'raster_supply_invalid');
   await assert.rejects(fs.stat(path.join(dir, 'bad.png')), {
     code: 'ENOENT',
   });
@@ -287,10 +244,7 @@ test('installed raster command needs only explicit input and its pinned static s
   );
   const boundary = invoke();
   assert.equal(boundary.status, 1);
-  assert.equal(
-    JSON.parse(boundary.stdout).error.code,
-    'resource-boundary-observed',
-  );
+  assert.equal(JSON.parse(boundary.stdout).error.code, 'resource-boundary-observed');
   await assert.rejects(fs.stat(path.join(dir, 'bad.png')), {
     code: 'ENOENT',
   });
@@ -304,15 +258,10 @@ test('installed raster command needs only explicit input and its pinned static s
     fontCount: 1,
     png: bytes.toString('base64'),
   };
-  const consumeInput =
-    'import fs from "node:fs";JSON.parse(fs.readFileSync(0,"utf8"));';
+  const consumeInput = 'import fs from "node:fs";JSON.parse(fs.readFileSync(0,"utf8"));';
   for (const [label, body, expected] of [
     ['empty stdout', '', 'raster_response_invalid'],
-    [
-      'invalid JSON',
-      'process.stdout.write("{broken");',
-      'raster_response_invalid',
-    ],
+    ['invalid JSON', 'process.stdout.write("{broken");', 'raster_response_invalid'],
     ...[
       null,
       [],
@@ -338,11 +287,7 @@ test('installed raster command needs only explicit input and its pinned static s
       `process.stdout.write(${JSON.stringify(JSON.stringify(successfulReply))});process.exitCode=1;`,
       'raster_render_failed',
     ],
-    [
-      'killed child',
-      'process.kill(process.pid,"SIGKILL");',
-      'raster_process_failed',
-    ],
+    ['killed child', 'process.kill(process.pid,"SIGKILL");', 'raster_process_failed'],
     [
       'bounded child output',
       `const chunk=Buffer.alloc(65536);for(let count=0;count<=${RASTER_LIMITS.responseBytes};count+=chunk.length)fs.writeSync(1,chunk);`,
@@ -365,10 +310,7 @@ test('installed raster command needs only explicit input and its pinned static s
       await assert.rejects(fs.stat(path.join(outputDir, 'bad.png')), {
         code: 'ENOENT',
       });
-      assert.deepEqual(
-        await fs.readFile(path.join(dir, 'figure.png')),
-        bytes,
-      );
+      assert.deepEqual(await fs.readFile(path.join(dir, 'figure.png')), bytes);
       assert.deepEqual(await fs.readdir(outputDir), []);
     });
   }
@@ -412,10 +354,7 @@ test('installed raster command needs only explicit input and its pinned static s
       });
       const stopOwned = () => {
         try {
-          process.kill(
-            process.platform === 'win32' ? child.pid : -child.pid,
-            'SIGKILL',
-          );
+          process.kill(process.platform === 'win32' ? child.pid : -child.pid, 'SIGKILL');
         } catch (error) {
           if (error.code !== 'ESRCH') throw error;
         }
@@ -444,10 +383,7 @@ test('installed raster command needs only explicit input and its pinned static s
         stopOwned();
       }
       assert.equal(timedOut.status, 1, timedOut.stdout + timedOut.stderr);
-      assert.equal(
-        JSON.parse(timedOut.stdout).error.code,
-        'raster_execution_timeout',
-      );
+      assert.equal(JSON.parse(timedOut.stdout).error.code, 'raster_execution_timeout');
       assert(performance.now() - started >= RASTER_LIMITS.executionMs);
       assert(performance.now() - started < RASTER_LIMITS.executionMs + 15000);
       await assert.rejects(fs.stat(path.join(outputDir, 'bad.png')), {

@@ -1,6 +1,7 @@
 # static-publishing Specification
 
 ## Purpose
+
 Provide explicit portable static rendering while preserving source meaning,
 accepted artwork and independently qualified reconstruction paths.
 

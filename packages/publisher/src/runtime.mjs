@@ -4,8 +4,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const sha256 = (bytes) =>
-  createHash('sha256').update(bytes).digest('hex');
+const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 async function visit(directory, prefix, members) {
   for (const entry of await fs.readdir(directory, { withFileTypes: true })) {

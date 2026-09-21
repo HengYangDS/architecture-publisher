@@ -8,10 +8,7 @@ import { fail, isDigest, portablePath } from '../source/manifest.mjs';
 import { interactiveArchitectureScene } from '../scene/interactive/architecture.mjs';
 import { semanticArchitectureProjections } from '../scene/contract.mjs';
 import { composeStaticOverview } from '../../renderers/svg/architecture.mjs';
-import {
-  claimModelDigest,
-  validateClaimModel,
-} from '../semantics/document.mjs';
+import { claimModelDigest, validateClaimModel } from '../semantics/document.mjs';
 import {
   editionDigest,
   editionQualificationObligations,
@@ -22,10 +19,7 @@ import {
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
 import { rasterize } from '../../renderers/resvg/index.mjs';
-import {
-  editionCandidateDigest,
-  validateEditionCandidate,
-} from './candidate.mjs';
+import { editionCandidateDigest, validateEditionCandidate } from './candidate.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const exact = (value, fields) =>
@@ -36,9 +30,7 @@ const exact = (value, fields) =>
 
 function json(bytes, code) {
   try {
-    return JSON.parse(
-      new TextDecoder('utf-8', { fatal: true }).decode(bytes),
-    );
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
   } catch {
     fail(code);
   }
@@ -65,8 +57,7 @@ function sourceBindings(document, members) {
   for (const [id, source] of Object.entries(document.sources)) {
     portablePath(source.locator);
     const content = members.get(source.locator);
-    if (!content || sha(content) !== source.sha256)
-      fail('semantic_source_binding_mismatch', id);
+    if (!content || sha(content) !== source.sha256) fail('semantic_source_binding_mismatch', id);
     bound.push({ id, path: source.locator, sha256: source.sha256 });
   }
   return bound.sort((left, right) => left.id.localeCompare(right.id));
@@ -98,14 +89,30 @@ async function renderOverviewPng(scratch, svg, source, fonts) {
 }
 
 function standaloneSvg(svg, fonts, license) {
-  const xml = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-  const css = fonts.map((font) =>
-    "@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:" + font.weight +
-    ";font-display:block;src:url(data:font/ttf;base64," + font.bytes.toString('base64') +
-    ") format('truetype');}").join('\n');
-  return Buffer.from(svg.toString('utf8').replace('</svg>',
-    '<style>' + css + '</style><metadata id="font-license">' +
-    xml(license.bytes.toString('utf8')) + '</metadata></svg>'));
+  const xml = (value) =>
+    value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+  const css = fonts
+    .map(
+      (font) =>
+        "@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:" +
+        font.weight +
+        ';font-display:block;src:url(data:font/ttf;base64,' +
+        font.bytes.toString('base64') +
+        ") format('truetype');}",
+    )
+    .join('\n');
+  return Buffer.from(
+    svg
+      .toString('utf8')
+      .replace(
+        '</svg>',
+        '<style>' +
+          css +
+          '</style><metadata id="font-license">' +
+          xml(license.bytes.toString('utf8')) +
+          '</metadata></svg>',
+      ),
+  );
 }
 
 /** Compile one exact Edition Candidate across independent media.
@@ -126,16 +133,11 @@ export async function compileEditionCandidate(plan) {
   )
     fail('edition_candidate_plan_invalid');
   portablePath(plan.semanticMember);
-  const source = await readSourceBundle(
-      plan.sourceManifest,
-      plan.sourceSha256,
-    ),
+  const source = await readSourceBundle(plan.sourceManifest, plan.sourceSha256),
     members = new Map(source.members.map((item) => [item.path, item.content])),
     semanticBytes = members.get(plan.semanticMember);
   if (!semanticBytes) fail('edition_candidate_document_missing');
-  const document = validateClaimModel(
-      json(semanticBytes, 'edition_candidate_document_invalid'),
-    ),
+  const document = validateClaimModel(json(semanticBytes, 'edition_candidate_document_invalid')),
     digest = claimModelDigest(document),
     selected = await selectedEdition(plan.edition, plan.editionSha256),
     edition = validateEdition(document, selected.value),
@@ -146,8 +148,7 @@ export async function compileEditionCandidate(plan) {
     parent = path.dirname(plan.output),
     parentStat = await fs.lstat(parent);
   sourceBindings(document, members);
-  if (edition.source.manifestSha256 !== source.manifestSha256)
-    fail('edition_source_mismatch');
+  if (edition.source.manifestSha256 !== source.manifestSha256) fail('edition_source_mismatch');
   if (
     !parentStat.isDirectory() ||
     parentStat.isSymbolicLink() ||
@@ -158,20 +159,11 @@ export async function compileEditionCandidate(plan) {
   try {
     const artifacts = [],
       receipts = [],
-      staticResult = composeStaticOverview(
-        document,
-        selected.value,
-        projections.staticScene,
-      ),
+      staticResult = composeStaticOverview(document, selected.value, projections.staticScene),
       selectedFonts = await loadBundledFonts(),
       fonts = selectedFonts.fonts.filter((font) => [400, 600].includes(font.weight)),
       overviewSvg = standaloneSvg(staticResult.bytes, fonts, selectedFonts.license),
-      overviewPng = await renderOverviewPng(
-        scratch,
-        staticResult.bytes,
-        source.source,
-        fonts,
-      );
+      overviewPng = await renderOverviewPng(scratch, staticResult.bytes, source.source, fonts);
     for (const view of projections.interactiveScenes) {
       const output = path.join(scratch, view.id + '.html'),
         scene = interactiveArchitectureScene(document, selected.value, view),
@@ -256,9 +248,7 @@ export async function compileEditionCandidate(plan) {
           })),
           supplies: [
             ...new Map(
-              receipts
-                .flatMap(({ supplies }) => supplies)
-                .map((supply) => [supply.id, supply]),
+              receipts.flatMap(({ supplies }) => supplies).map((supply) => [supply.id, supply]),
             ).values(),
           ],
         },
@@ -269,11 +259,7 @@ export async function compileEditionCandidate(plan) {
       path: 'candidate.json',
       content: Buffer.from(JSON.stringify(candidate, null, 2) + '\n'),
     });
-    const written = await writeSourceBundle(
-      plan.output,
-      source.source,
-      artifacts,
-    );
+    const written = await writeSourceBundle(plan.output, source.source, artifacts);
     return {
       status: 'built',
       ...written,
@@ -293,8 +279,7 @@ export async function compileEditionCandidateInput(file, digest) {
   const planPath = path.resolve(file),
     plan = await selectedPlan(planPath, digest);
   for (const key of ['sourceManifest', 'edition', 'output']) {
-    if (typeof plan?.[key] !== 'string' || !plan[key])
-      fail('edition_candidate_plan_invalid');
+    if (typeof plan?.[key] !== 'string' || !plan[key]) fail('edition_candidate_plan_invalid');
     plan[key] = path.resolve(path.dirname(planPath), plan[key]);
   }
   return compileEditionCandidate(plan);

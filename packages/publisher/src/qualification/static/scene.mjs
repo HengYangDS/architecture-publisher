@@ -46,8 +46,7 @@ function segmentHitsBox(a, b, box) {
 }
 export function auditScene(scene, contract) {
   const failures = [];
-  const add = (code, id, other) =>
-    failures.push({ code, id, ...(other ? { other } : {}) });
+  const add = (code, id, other) => failures.push({ code, id, ...(other ? { other } : {}) });
   const scale = scene.referenceWidth / scene.width;
   if (
     ![scene.width, scene.height, scene.referenceWidth, scale].every(
@@ -66,9 +65,7 @@ export function auditScene(scene, contract) {
   const nodes = scene.nodes.map((n) => ({
     ...n,
     box: b(n.box),
-    paintBox: n.paintBox
-      ? b(n.paintBox)
-      : expand(b(n.box), ((n.strokeWidth ?? 0) * scale) / 2),
+    paintBox: n.paintBox ? b(n.paintBox) : expand(b(n.box), ((n.strokeWidth ?? 0) * scale) / 2),
   }));
   const byId = new Map(nodes.map((n) => [n.id, n]));
   if (byId.size !== nodes.length) throw new Error('duplicate node identity');
@@ -77,8 +74,7 @@ export function auditScene(scene, contract) {
     .map((t) => {
       const box = b(t.box);
       const growth = box.width * contract.widthGrowth,
-        dx =
-          t.anchor === 'middle' ? growth / 2 : t.anchor === 'end' ? growth : 0,
+        dx = t.anchor === 'middle' ? growth / 2 : t.anchor === 'end' ? growth : 0,
         dy = (box.height * contract.heightGrowth) / 2;
       return {
         ...t,
@@ -93,18 +89,13 @@ export function auditScene(scene, contract) {
     });
   const shown = new Set();
   for (const t of texts) {
-    if (
-      ![t.box.x, t.box.y, t.box.width, t.box.height, t.fontSize].every(
-        Number.isFinite,
-      )
-    ) {
+    if (![t.box.x, t.box.y, t.box.width, t.box.height, t.fontSize].every(Number.isFinite)) {
       add('invalid-geometry', t.id);
       continue;
     }
     if (t.fontSize < contract.minimumFont) add('font-too-small', t.id);
     if (t.box.width <= 0 || t.box.height <= 0) add('empty-glyph-bounds', t.id);
-    else if (t.fontSize >= contract.minimumFont)
-      for (const id of t.semanticIds) shown.add(id);
+    else if (t.fontSize >= contract.minimumFont) for (const id of t.semanticIds) shown.add(id);
     if (
       t.box.x < 0 ||
       t.box.y < 0 ||
@@ -122,27 +113,21 @@ export function auditScene(scene, contract) {
           right(owner.box) - right(t.box),
           bottom(owner.box) - bottom(t.box),
         ];
-        if (Math.min(...margins) < contract.ownerClearance)
-          add('owner-clearance', t.id);
+        if (Math.min(...margins) < contract.ownerClearance) add('owner-clearance', t.id);
       }
     }
     for (const n of nodes)
-      if (
-        n.id !== t.owner &&
-        overlaps(t.box, expand(n.paintBox, contract.textClearance))
-      )
+      if (n.id !== t.owner && overlaps(t.box, expand(n.paintBox, contract.textClearance)))
         add('text-nonowner-collision', t.id, n.id);
   }
   for (const id of scene.requiredSemanticIds)
     if (!shown.has(id)) add('missing-visible-semantic', id);
   for (let i = 0; i < texts.length; i++)
     for (let j = i + 1; j < texts.length; j++)
-      if (overlaps(texts[i].box, texts[j].box))
-        add('text-overlap', texts[i].id, texts[j].id);
+      if (overlaps(texts[i].box, texts[j].box)) add('text-overlap', texts[i].id, texts[j].id);
   for (let i = 0; i < nodes.length; i++)
     for (let j = i + 1; j < nodes.length; j++)
-      if (overlaps(nodes[i].box, nodes[j].box))
-        add('node-overlap', nodes[i].id, nodes[j].id);
+      if (overlaps(nodes[i].box, nodes[j].box)) add('node-overlap', nodes[i].id, nodes[j].id);
   for (const e of scene.edges) {
     const points = e.points.map((p) => ({ x: p.x * scale, y: p.y * scale }));
     if (points.length < 2) {
@@ -168,10 +153,7 @@ export function auditScene(scene, contract) {
           segmentHitsBox(
             a,
             z,
-            expand(
-              t.box,
-              contract.textClearance + ((e.strokeWidth ?? 1) * scale) / 2,
-            ),
+            expand(t.box, contract.textClearance + ((e.strokeWidth ?? 1) * scale) / 2),
           )
         )
           add('edge-text-collision', e.id, t.id);
@@ -194,24 +176,12 @@ export function auditScene(scene, contract) {
       const ux = (tip.x - prev.x) / length,
         uy = (tip.y - prev.y) / length;
       const wing = (sign) => ({
-        x:
-          tip.x -
-          ux * geometry.length * scale -
-          sign * uy * geometry.halfWidth * scale,
-        y:
-          tip.y -
-          uy * geometry.length * scale +
-          sign * ux * geometry.halfWidth * scale,
+        x: tip.x - ux * geometry.length * scale - sign * uy * geometry.halfWidth * scale,
+        y: tip.y - uy * geometry.length * scale + sign * ux * geometry.halfWidth * scale,
       });
       for (const t of texts) {
-        const envelope = expand(
-          t.box,
-          contract.textClearance + (geometry.strokeWidth * scale) / 2,
-        );
-        if (
-          segmentHitsBox(wing(-1), tip, envelope) ||
-          segmentHitsBox(tip, wing(1), envelope)
-        )
+        const envelope = expand(t.box, contract.textClearance + (geometry.strokeWidth * scale) / 2);
+        if (segmentHitsBox(wing(-1), tip, envelope) || segmentHitsBox(tip, wing(1), envelope))
           add('arrow-text-collision', e.id, t.id);
       }
     }
@@ -219,8 +189,7 @@ export function auditScene(scene, contract) {
   const segments = scene.edges.flatMap((e) =>
     e.points.slice(1).map((p, i) => ({ edge: e.id, a: e.points[i], z: p })),
   );
-  const cross = (a, b, c) =>
-    (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+  const cross = (a, b, c) => (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
   for (let i = 0; i < segments.length; i++)
     for (let j = i + 1; j < segments.length; j++) {
       const a = segments[i],
@@ -240,10 +209,7 @@ export function auditScene(scene, contract) {
           segmentHitsBox(
             points[i - 1],
             points[i],
-            expand(
-              t.box,
-              contract.textClearance + ((line.strokeWidth ?? 1) * scale) / 2,
-            ),
+            expand(t.box, contract.textClearance + ((line.strokeWidth ?? 1) * scale) / 2),
           )
         )
           add('decoration-text-collision', line.id, t.id);
@@ -251,9 +217,7 @@ export function auditScene(scene, contract) {
   }
   return {
     failures,
-    minimumEffectiveFont: texts.length
-      ? Math.min(...texts.map((t) => t.fontSize))
-      : null,
+    minimumEffectiveFont: texts.length ? Math.min(...texts.map((t) => t.fontSize)) : null,
     visibleTextCount: texts.length,
     visibleSemanticCount: shown.size,
     referenceScale: scale,
@@ -286,9 +250,7 @@ export function auditCanvasEnvelope(scene, quality) {
     const dx = t.box.width * wg,
       dy = (t.box.height * hg) / 2;
     add(t.id, 'text', {
-      x:
-        t.box.x -
-        (t.anchor === 'middle' ? dx / 2 : t.anchor === 'end' ? dx : 0),
+      x: t.box.x - (t.anchor === 'middle' ? dx / 2 : t.anchor === 'end' ? dx : 0),
       y: t.box.y - dy,
       width: t.box.width + dx,
       height: t.box.height + 2 * dy,
@@ -334,9 +296,7 @@ export function auditCanvasEnvelope(scene, quality) {
       if (
         !tip ||
         !previous ||
-        ![g.length, g.halfWidth, g.strokeWidth].every(
-          (n) => Number.isFinite(n) && n >= 0,
-        )
+        ![g.length, g.halfWidth, g.strokeWidth].every((n) => Number.isFinite(n) && n >= 0)
       )
         throw Error('Invalid arrow envelope ' + e.id);
       const d = Math.hypot(tip.x - previous.x, tip.y - previous.y);
@@ -354,19 +314,12 @@ export function auditCanvasEnvelope(scene, quality) {
     points(line.id, 'rule', line.points, line.strokeWidth ?? 1);
   const measured = envelopes.map((e) => ({
     ...e,
-    clearance: Math.min(
-      e.box.x,
-      e.box.y,
-      scene.width - right(e.box),
-      scene.height - bottom(e.box),
-    ),
+    clearance: Math.min(e.box.x, e.box.y, scene.width - right(e.box), scene.height - bottom(e.box)),
   }));
   return {
     sourceQualitySchema: quality.schema ?? null,
     insetSourceUnits: inset,
-    minimumClearance: measured.length
-      ? Math.min(...measured.map((e) => e.clearance))
-      : null,
+    minimumClearance: measured.length ? Math.min(...measured.map((e) => e.clearance)) : null,
     envelopes: measured,
     failures: measured
       .filter((e) => e.clearance < inset)

@@ -18,9 +18,7 @@ const authorize = (plan) => ({
   planSha256: plan.sha256,
 });
 async function fixture(t) {
-  const root = await fs.realpath(
-    await fs.mkdtemp(path.join(os.tmpdir(), 'managed-edition-')),
-  );
+  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'managed-edition-')));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const sources = path.join(root, 'sources');
   await fs.mkdir(sources);
@@ -99,24 +97,12 @@ test('replacement changes only owned payload, drops retired files and preserves 
       `2: ${m}: current.txt`,
     );
     await assert.rejects(fs.access(path.join(d, 'edition/retired.txt')));
-    assert.equal(
-      await fs.readFile(path.join(d, 'personal.txt'), 'utf8'),
-      'user changed this',
-    );
-    assert.equal(
-      await fs.readFile(path.join(d, 'new-user.txt'), 'utf8'),
-      'new foreign file',
-    );
+    assert.equal(await fs.readFile(path.join(d, 'personal.txt'), 'utf8'), 'user changed this');
+    assert.equal(await fs.readFile(path.join(d, 'new-user.txt'), 'utf8'), 'new foreign file');
   }
   const before = await inventory(f.options.destinations.native);
-  assert.equal(
-    (await installPairFiles(plan, authorize(plan))).status,
-    'ALREADY_INSTALLED',
-  );
-  assert.equal(
-    (await recoverPairFiles(plan, authorize(plan))).status,
-    'ALREADY_INSTALLED',
-  );
+  assert.equal((await installPairFiles(plan, authorize(plan))).status, 'ALREADY_INSTALLED');
+  assert.equal((await recoverPairFiles(plan, authorize(plan))).status, 'ALREADY_INSTALLED');
   assert.deepEqual(await inventory(f.options.destinations.native), before);
 });
 for (const state of ['modified', 'missing', 'receipt'])
@@ -126,15 +112,9 @@ for (const state of ['modified', 'missing', 'receipt'])
     if (state === 'modified') await fs.writeFile(target, 'user edit');
     if (state === 'missing') await fs.unlink(target);
     if (state === 'receipt')
-      await fs.writeFile(
-        path.join(f.options.destinations.native, 'delivery-manifest.json'),
-        '{}',
-      );
+      await fs.writeFile(path.join(f.options.destinations.native, 'delivery-manifest.json'), '{}');
     const before = await inventory(f.options.destinations.native);
-    await assert.rejects(
-      planPairFiles(await f.input(2, f.replacement)),
-      /prior|managed|receipt/i,
-    );
+    await assert.rejects(planPairFiles(await f.input(2, f.replacement)), /prior|managed|receipt/i);
     assert.deepEqual(await inventory(f.options.destinations.native), before);
   });
 test('prior preserved-file inventory does not authorize replacing personal files', async (t) => {
@@ -143,10 +123,7 @@ test('prior preserved-file inventory does not authorize replacing personal files
   input.payload.find((p) => p.medium === 'native').path = 'personal.txt';
   await assert.rejects(planPairFiles(input), /collision/i);
   assert.equal(
-    await fs.readFile(
-      path.join(f.options.destinations.native, 'personal.txt'),
-      'utf8',
-    ),
+    await fs.readFile(path.join(f.options.destinations.native, 'personal.txt'), 'utf8'),
     'first note',
   );
 });
@@ -156,10 +133,7 @@ for (const medium of ['native', 'atlas'])
       plan = await planPairFiles(await f.input(2, f.replacement));
     const before = Object.fromEntries(
       await Promise.all(
-        Object.entries(f.options.destinations).map(async ([m, d]) => [
-          m,
-          await inventory(d),
-        ]),
+        Object.entries(f.options.destinations).map(async ([m, d]) => [m, await inventory(d)]),
       ),
     );
     let injected = false;
@@ -184,21 +158,13 @@ for (const medium of ['native', 'atlas'])
     const recovered = await recoverPairFiles(plan, authorize(plan));
     assert.equal(recovered.status, 'ALREADY_ROLLED_BACK');
   });
-for (const boundary of [
-  'save-native',
-  'install-native',
-  'save-atlas',
-  'install-atlas',
-])
+for (const boundary of ['save-native', 'install-native', 'save-atlas', 'install-atlas'])
   test(`process loss after ${boundary} replacement recovers from the journal`, async (t) => {
     const f = await fixture(t),
       plan = await planPairFiles(await f.input(2, f.replacement));
     const before = Object.fromEntries(
       await Promise.all(
-        Object.entries(f.options.destinations).map(async ([m, d]) => [
-          m,
-          await inventory(d),
-        ]),
+        Object.entries(f.options.destinations).map(async ([m, d]) => [m, await inventory(d)]),
       ),
     );
     const entry = new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href;
@@ -221,14 +187,8 @@ test('replacement rejects post-plan destination edits and forged previous author
   const f = await fixture(t),
     input = await f.input(2, f.replacement),
     plan = await planPairFiles(input);
-  await fs.writeFile(
-    path.join(f.options.destinations.atlas, 'personal.txt'),
-    'newer user edit',
-  );
-  await assert.rejects(
-    installPairFiles(plan, authorize(plan)),
-    /prestate changed/,
-  );
+  await fs.writeFile(path.join(f.options.destinations.atlas, 'personal.txt'), 'newer user edit');
+  await assert.rejects(installPairFiles(plan, authorize(plan)), /prestate changed/);
   const invalid = structuredClone(input);
   invalid.replacement.authorization.planSha256 = '0'.repeat(64);
   await assert.rejects(planPairFiles(invalid), /authorization/);

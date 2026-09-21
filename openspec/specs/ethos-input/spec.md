@@ -1,6 +1,7 @@
 # ethos-input Specification
 
 ## Purpose
+
 Provide an explicitly replayed, byte-bound ETHOS architecture source that can
 subsequently be consumed without executing product source or requiring its checkout.
 

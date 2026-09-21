@@ -5,10 +5,7 @@ import { composeArchitecturePublisherFlagship } from './static/composition.mjs';
 const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 
 export function staticAuthoringDigest(sources) {
-  for (const id of [
-    'self-static-composition-owner',
-    'self-static-metrics',
-  ])
+  for (const id of ['self-static-composition-owner', 'self-static-metrics'])
     if (typeof sources?.[id]?.sha256 !== 'string')
       throw Object.assign(new Error('self_static_authoring_source_missing'), {
         code: 'self_static_authoring_source_missing',
@@ -24,10 +21,7 @@ export function staticAuthoringDigest(sources) {
 }
 
 export function architecturePublisherStaticScene(authoredInputSha256) {
-  if (
-    typeof authoredInputSha256 !== 'string' ||
-    !/^[a-f0-9]{64}$/.test(authoredInputSha256)
-  )
+  if (typeof authoredInputSha256 !== 'string' || !/^[a-f0-9]{64}$/.test(authoredInputSha256))
     throw Object.assign(new Error('self_static_authoring_digest_invalid'), {
       code: 'self_static_authoring_digest_invalid',
     });

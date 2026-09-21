@@ -10,14 +10,10 @@ test('shared contract rejects parallel fields and unbound acceptance', () => {
     () => exactFields({ a: true, 'b,c': true }, ['a,b', 'c'], 'bad fields'),
     /bad fields/,
   );
-  assert.throws(() =>
-    exactFields(
-      { value: true, extra: true },
-      ['value'],
-      'bad fields',
-      'input_invalid',
-    ),
-  { code: 'input_invalid' });
+  assert.throws(
+    () => exactFields({ value: true, extra: true }, ['value'], 'bad fields', 'input_invalid'),
+    { code: 'input_invalid' },
+  );
   assert.throws(
     () =>
       requireExplicitAcceptance(

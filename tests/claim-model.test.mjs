@@ -11,13 +11,7 @@ import {
 test('v2 admits one explicit claim in every plane without mutating input', () => {
   const model = claimModel(),
     before = structuredClone(model);
-  assert.deepEqual(CLAIM_PLANES, [
-    'intended',
-    'implemented',
-    'observed',
-    'governed',
-    'published',
-  ]);
+  assert.deepEqual(CLAIM_PLANES, ['intended', 'implemented', 'observed', 'governed', 'published']);
   assert.deepEqual(validateClaimModel(model), model);
   assert.deepEqual(model, before);
   assert.equal(claimModelDigest(model).length, 64);
@@ -71,10 +65,7 @@ test('unknown coverage preserves opaque value and cannot pretend formal dependen
   model.claims.published.dependsOn = [];
   assert.deepEqual(validateClaimModel(model), model);
   model.claims.published.coverage = 'complete';
-  assert.throws(
-    () => validateClaimModel(model),
-    /semantic_claim_coverage_unknown_required/,
-  );
+  assert.throws(() => validateClaimModel(model), /semantic_claim_coverage_unknown_required/);
 });
 
 test('complete object and literal claims require dependencies matching their meaning', () => {
@@ -102,14 +93,8 @@ test('complete object and literal claims require dependencies matching their mea
 
 test('claim dependencies require a future typed relation and are not inferred', () => {
   const model = claimModel();
-  model.claims.published.dependsOn = [
-    ref('entities', 'client'),
-    ref('claims', 'observed'),
-  ];
-  assert.throws(
-    () => validateClaimModel(model),
-    /semantic_dependency_invalid.*published/,
-  );
+  model.claims.published.dependsOn = [ref('entities', 'client'), ref('claims', 'observed')];
+  assert.throws(() => validateClaimModel(model), /semantic_dependency_invalid.*published/);
 });
 
 test('claim provenance covers every meaning-bearing dependency source', () => {
@@ -150,10 +135,7 @@ test('contradiction is scoped by plane, condition, scope and maturity', () => {
   const model = claimModel();
   model.claims.denial = structuredClone(model.claims.intended);
   model.claims.denial.validity = 'refuted';
-  assert.throws(
-    () => validateClaimModel(model),
-    /semantic_contradiction.*denial.*intended/,
-  );
+  assert.throws(() => validateClaimModel(model), /semantic_contradiction.*denial.*intended/);
   model.claims.denial.condition.authorization = 'denied';
   assert.doesNotThrow(() => validateClaimModel(model));
   model.claims.denial.condition.authorization = 'granted';
@@ -165,10 +147,7 @@ test('claims with incompatible literal values contradict at the same semantic po
   const model = claimModel();
   model.claims.unhealthy = structuredClone(model.claims.observed);
   model.claims.unhealthy.value = 'unhealthy';
-  assert.throws(
-    () => validateClaimModel(model),
-    /semantic_contradiction.*observed.*unhealthy/,
-  );
+  assert.throws(() => validateClaimModel(model), /semantic_contradiction.*observed.*unhealthy/);
 });
 
 test('single entity predicates contradict when affirmed targets differ', () => {
@@ -182,20 +161,14 @@ test('single entity predicates contradict when affirmed targets differ', () => {
     object: 'other',
     dependsOn: [ref('relations', 'alternate')],
   };
-  assert.throws(
-    () => validateClaimModel(model),
-    /semantic_contradiction.*alternate.*intended/,
-  );
+  assert.throws(() => validateClaimModel(model), /semantic_contradiction.*alternate.*intended/);
 });
 
 test('validity contradictions depend on proposition target and predicate cardinality', () => {
   const sameTarget = claimModel();
   sameTarget.claims.denial = structuredClone(sameTarget.claims.tagged);
   sameTarget.claims.denial.validity = 'refuted';
-  assert.throws(
-    () => validateClaimModel(sameTarget),
-    /semantic_contradiction.*denial.*tagged/,
-  );
+  assert.throws(() => validateClaimModel(sameTarget), /semantic_contradiction.*denial.*tagged/);
 
   const differentTarget = claimModel();
   differentTarget.claims.denial = structuredClone(differentTarget.claims.observed);
@@ -219,9 +192,7 @@ test('multi-valued predicates do not invent a single-valued contradiction', () =
 
 test('overlapping applicability never passes as a consistent complete model', () => {
   const conditionOverlap = claimModel();
-  conditionOverlap.claims.unhealthy = structuredClone(
-    conditionOverlap.claims.observed,
-  );
+  conditionOverlap.claims.unhealthy = structuredClone(conditionOverlap.claims.observed);
   conditionOverlap.claims.unhealthy.value = 'unhealthy';
   conditionOverlap.claims.unhealthy.condition.region = 'us';
   assert.throws(
@@ -254,10 +225,7 @@ test('condition and scope dimensions are closed scalar conjunctions', () => {
 
   const arrayScope = claimModel();
   arrayScope.claims.intended.scope.environment = ['local'];
-  assert.throws(
-    () => validateClaimModel(arrayScope),
-    /semantic_claim_scope_invalid.*intended/,
-  );
+  assert.throws(() => validateClaimModel(arrayScope), /semantic_claim_scope_invalid.*intended/);
 });
 
 test('opaque unknown claims are preserved without speculative contradiction checks', () => {
@@ -274,10 +242,7 @@ test('non-enumerable and accessor properties cannot escape validation or identit
     value: 'not canonicalized',
     enumerable: false,
   });
-  assert.throws(
-    () => validateClaimModel(topLevelHidden),
-    /semantic_json_required/,
-  );
+  assert.throws(() => validateClaimModel(topLevelHidden), /semantic_json_required/);
 
   const topLevelAccessor = claimModel();
   Object.defineProperty(topLevelAccessor, 'owner', {
@@ -286,10 +251,7 @@ test('non-enumerable and accessor properties cannot escape validation or identit
     },
     enumerable: true,
   });
-  assert.throws(
-    () => validateClaimModel(topLevelAccessor),
-    /semantic_json_required/,
-  );
+  assert.throws(() => validateClaimModel(topLevelAccessor), /semantic_json_required/);
 
   const hidden = claimModel();
   Object.defineProperty(hidden.claims.intended, 'hiddenMeaning', {
@@ -308,14 +270,8 @@ test('non-enumerable and accessor properties cannot escape validation or identit
   assert.throws(() => validateClaimModel(accessor), /semantic_json_required/);
 
   const nullPrototype = claimModel();
-  nullPrototype.claims.intended = Object.assign(
-    Object.create(null),
-    nullPrototype.claims.intended,
-  );
-  nullPrototype.claims.second = Object.assign(
-    Object.create(null),
-    nullPrototype.claims.intended,
-  );
+  nullPrototype.claims.intended = Object.assign(Object.create(null), nullPrototype.claims.intended);
+  nullPrototype.claims.second = Object.assign(Object.create(null), nullPrototype.claims.intended);
   assert.throws(() => validateClaimModel(nullPrototype), /semantic_/);
 });
 
@@ -379,11 +335,11 @@ test('hostile JSON, cycles, excessive depth and size fail closed within bounded 
     try { validateClaimModel(model); process.exitCode = 2; }
     catch (error) { process.stdout.write(error.code); }
   `;
-  const result = spawnSync(
-    process.execPath,
-    ['--input-type=module', '-e', program],
-    { cwd: new URL('../', import.meta.url), encoding: 'utf8', timeout: 2000 },
-  );
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', program], {
+    cwd: new URL('../', import.meta.url),
+    encoding: 'utf8',
+    timeout: 2000,
+  });
   assert.equal(result.error, undefined);
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stdout, 'semantic_json_alias');

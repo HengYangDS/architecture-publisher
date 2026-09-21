@@ -7,7 +7,6 @@
     "archpub": "src/cli/main.mjs"
   },
   "exports": {
-    ".": "./src/index.mjs",
     "./source": "./src/source/index.mjs",
     "./semantics": "./src/semantics/index.mjs",
     "./edition": "./src/edition/index.mjs",

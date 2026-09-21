@@ -66,9 +66,7 @@ export async function filePublication(operation, inputFile, authorizationFile) {
       });
     value.options.sourceRoots = value.options.sourceRoots.map(resolve);
     for (const medium of PUBLICATION_MEDIA)
-      value.options.destinations[medium] = resolve(
-        value.options.destinations[medium],
-      );
+      value.options.destinations[medium] = resolve(value.options.destinations[medium]);
     value.options.recoveryRoot = resolve(value.options.recoveryRoot);
     for (const member of value.payload) {
       fields(member, ['medium', 'path', 'source', 'bytes', 'sha256']);
@@ -80,12 +78,12 @@ export async function filePublication(operation, inputFile, authorizationFile) {
     }
     return { status: 'PLANNED', ...scope, plan: await planPairFiles(value) };
   }
-  if (!['apply', 'recover'].includes(operation))
-    throw new Error('Unsupported file operation');
+  if (!['apply', 'recover'].includes(operation)) throw new Error('Unsupported file operation');
   const authorization = (await read(authorizationFile)).value;
   fields(authorization, ['decision', 'planSha256']);
-  const result = await (
-    operation === 'apply' ? installPairFiles : recoverPairFiles
-  )(value, authorization);
+  const result = await (operation === 'apply' ? installPairFiles : recoverPairFiles)(
+    value,
+    authorization,
+  );
   return { ...result, ...scope };
 }

@@ -28,12 +28,7 @@ test('bundled comparison example uses Claim Model and Edition selections', async
       ],
       { cwd: root, encoding: 'utf8', timeout: 10000 },
     );
-  assert.deepEqual(Object.keys(plan).sort(), [
-    'after',
-    'before',
-    'correspondences',
-    'schema',
-  ]);
+  assert.deepEqual(Object.keys(plan).sort(), ['after', 'before', 'correspondences', 'schema']);
   for (const side of ['before', 'after']) {
     assert.deepEqual(Object.keys(plan[side]).sort(), ['claimModel', 'editions']);
     assert.equal(plan[side].editions.length, 1);
@@ -41,24 +36,21 @@ test('bundled comparison example uses Claim Model and Edition selections', async
       sourcePath = path.join(sourceDirectory, 'manifest.json'),
       sourceBytes = await fs.readFile(sourcePath),
       source = await readSourceBundle(sourcePath, sha(sourceBytes)),
-      editionBytes = await fs.readFile(
-        path.join(directory, plan[side].editions[0].path),
-      ),
+      editionBytes = await fs.readFile(path.join(directory, plan[side].editions[0].path)),
       edition = JSON.parse(editionBytes);
     assert.equal(source.source.revision, side);
     assert.equal(edition.source.manifestSha256, sha(sourceBytes));
     assert.equal(source.members.length, 1);
     assert.equal(source.members[0].path, 'model.json');
-    assert.equal(edition.claimModel.digest, claimModelDigest(
-      JSON.parse(
-        await fs.readFile(path.join(directory, plan[side].claimModel.path)),
+    assert.equal(
+      edition.claimModel.digest,
+      claimModelDigest(
+        JSON.parse(await fs.readFile(path.join(directory, plan[side].claimModel.path))),
       ),
-    ));
+    );
   }
   assert.equal(result.status, 0, result.stdout + result.stderr);
-  assert.deepEqual(JSON.parse(result.stdout).editions.changed, [
-    'request-service',
-  ]);
+  assert.deepEqual(JSON.parse(result.stdout).editions.changed, ['request-service']);
 });
 
 async function setup(t) {
@@ -147,10 +139,7 @@ test('public comparison binds Claim Model and Edition bytes without writing outp
   assert.equal(wrongPlan.value.error.code, 'semantic_plan_digest_mismatch');
   await fs.appendFile(path.join(f.dir, 'after-model.json'), ' ');
   const wrongDoc = await f.run();
-  assert.equal(
-    wrongDoc.value.error.code,
-    'semantic_document_digest_mismatch',
-  );
+  assert.equal(wrongDoc.value.error.code, 'semantic_document_digest_mismatch');
 });
 
 test('comparison rejects symlink, directory, unknown plan fields and invalid document', async (t) => {
@@ -160,25 +149,16 @@ test('comparison rejects symlink, directory, unknown plan fields and invalid doc
   await fs.symlink('before-model.json', path.join(f.dir, 'link.json'));
   const plan = structuredClone(f.plan);
   plan.before.claimModel.path = 'link.json';
-  assert.equal(
-    (await f.run({ plan })).value.error.code,
-    'bundle_symlink_forbidden',
-  );
+  assert.equal((await f.run({ plan })).value.error.code, 'bundle_symlink_forbidden');
   plan.before.claimModel.path = 'home';
-  assert.equal(
-    (await f.run({ plan })).value.error.code,
-    'bundle_type_unsupported',
-  );
+  assert.equal((await f.run({ plan })).value.error.code, 'bundle_type_unsupported');
   const invalid = Buffer.from('{"schema":"unsupported"}');
   await fs.writeFile(path.join(f.dir, 'before-model.json'), invalid);
   plan.before.claimModel = {
     path: 'before-model.json',
     sha256: sha(invalid),
   };
-  assert.equal(
-    (await f.run({ plan })).value.error.code,
-    'semantic_document_invalid',
-  );
+  assert.equal((await f.run({ plan })).value.error.code, 'semantic_document_invalid');
 });
 
 test('packed compiler relocates and runs offline without ETHOS-specific modules', async (t) => {
@@ -209,13 +189,9 @@ test('packed compiler relocates and runs offline without ETHOS-specific modules'
     { cwd: consumer, encoding: 'utf8', timeout: 60000 },
   );
   assert.equal(install.status, 0, install.stderr);
-  const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   const relocated = path.join(f.dir, 'different location');
   await fs.rename(consumer, relocated);
-  const cli = path.join(
-    relocated,
-    'node_modules/architecture-publisher/src/cli/main.mjs',
-  );
+  const cli = path.join(relocated, 'node_modules/architecture-publisher/src/cli/main.mjs');
   const actual = await f.run({ cli, cwd: relocated, file: '../plan.json' });
   assert.equal(actual.status, 0, actual.stdout);
   assert.deepEqual(actual.value, initial.value);

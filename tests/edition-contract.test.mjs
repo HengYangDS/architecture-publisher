@@ -39,10 +39,7 @@ test('Edition is closed and binds the exact product and Claim Model', () => {
 test('every Claim Model claim is required or explicitly omitted exactly once', () => {
   const { model, edition } = editionFixture();
   edition.requiredClaims.pop();
-  assert.throws(
-    () => validateEdition(model, edition),
-    /edition_claim_classification_incomplete/,
-  );
+  assert.throws(() => validateEdition(model, edition), /edition_claim_classification_incomplete/);
 
   const classified = editionFixture();
   const omitted = classified.edition.requiredClaims.pop();
@@ -56,11 +53,10 @@ test('every Claim Model claim is required or explicitly omitted exactly once', (
     ...Object.values(classified.edition.scenes.interactive),
   ])
     scene.claims = scene.claims.filter((id) => id !== omitted);
-  classified.edition.questions.system.claims =
-    classified.edition.questions.system.claims.filter((id) => id !== omitted);
-  assert.doesNotThrow(() =>
-    validateEdition(classified.model, classified.edition),
+  classified.edition.questions.system.claims = classified.edition.questions.system.claims.filter(
+    (id) => id !== omitted,
   );
+  assert.doesNotThrow(() => validateEdition(classified.model, classified.edition));
 
   classified.edition.requiredClaims.push(omitted);
   assert.throws(
@@ -92,9 +88,7 @@ test('overview and mechanism scenes completely answer their questions', () => {
   );
 
   const carrierGap = editionFixture();
-  carrierGap.edition.scenes.interactive.runtime.composition.groups[0].entities = [
-    'server',
-  ];
+  carrierGap.edition.scenes.interactive.runtime.composition.groups[0].entities = ['server'];
   assert.throws(
     () => validateEdition(carrierGap.model, carrierGap.edition),
     /edition_scene_claim_carrier_missing.*runtime.*observed/,
@@ -151,20 +145,15 @@ test('visual grammar and qualification obligations are explicit', () => {
       height: 1000,
     },
   ];
-  flagship.edition.qualification.human = [
-    'faithful',
-    'intelligible',
-    'restrained',
-  ].flatMap((predicate) =>
-    targets.map((scope) => ({ predicate, scope: { ...scope } })),
+  flagship.edition.qualification.human = ['faithful', 'intelligible', 'restrained'].flatMap(
+    (predicate) => targets.map((scope) => ({ predicate, scope: { ...scope } })),
   );
   assert.doesNotThrow(() => validateEdition(flagship.model, flagship.edition));
 
   const oneMedium = structuredClone(flagship);
-  oneMedium.edition.qualification.human =
-    oneMedium.edition.qualification.human.filter(
-      ({ scope }) => scope.medium === 'static',
-    );
+  oneMedium.edition.qualification.human = oneMedium.edition.qualification.human.filter(
+    ({ scope }) => scope.medium === 'static',
+  );
   assert.throws(
     () => validateEdition(oneMedium.model, oneMedium.edition),
     /edition_human_qualification_required/,
@@ -191,10 +180,7 @@ test('static and interactive scenes have independent identities', () => {
 
   const aliased = editionFixture();
   aliased.edition.scenes.interactive.overview = aliased.edition.scenes.static;
-  assert.throws(
-    () => validateEdition(aliased.model, aliased.edition),
-    /edition_json_alias/,
-  );
+  assert.throws(() => validateEdition(aliased.model, aliased.edition), /edition_json_alias/);
 });
 
 test('complete overview media carry the same semantic identities', () => {
@@ -205,16 +191,10 @@ test('complete overview media carry the same semantic identities', () => {
     qualifiers: {},
     provenance: ['contract'],
   };
-  missingUnclaimedEntity.edition.claimModel.digest = claimModelDigest(
-    missingUnclaimedEntity.model,
-  );
+  missingUnclaimedEntity.edition.claimModel.digest = claimModelDigest(missingUnclaimedEntity.model);
 
   assert.throws(
-    () =>
-      validateEdition(
-        missingUnclaimedEntity.model,
-        missingUnclaimedEntity.edition,
-      ),
+    () => validateEdition(missingUnclaimedEntity.model, missingUnclaimedEntity.edition),
     /edition_overview_incomplete/,
   );
 
@@ -231,11 +211,7 @@ test('complete overview media carry the same semantic identities', () => {
   );
 
   assert.throws(
-    () =>
-      validateEdition(
-        missingUnclaimedRelation.model,
-        missingUnclaimedRelation.edition,
-      ),
+    () => validateEdition(missingUnclaimedRelation.model, missingUnclaimedRelation.edition),
     /edition_overview_incomplete/,
   );
 
@@ -285,18 +261,14 @@ test('Edition owns medium-specific composition admission', () => {
   );
 
   const staticLabelPlacement = editionFixture();
-  staticLabelPlacement.edition.scenes.static.composition.relations[0].labelAt = [
-    420,
-    240,
-  ];
+  staticLabelPlacement.edition.scenes.static.composition.relations[0].labelAt = [420, 240];
   assert.throws(
     () => validateEdition(staticLabelPlacement.model, staticLabelPlacement.edition),
     /edition_scene_relation_invalid.*static/,
   );
 
   const interactiveAuto = editionFixture();
-  const relation =
-    interactiveAuto.edition.scenes.interactive.overview.composition.relations[0];
+  const relation = interactiveAuto.edition.scenes.interactive.overview.composition.relations[0];
   relation.route = 'auto';
   relation.labelAt = [420, 240];
   assert.equal(
@@ -304,10 +276,8 @@ test('Edition owns medium-specific composition admission', () => {
     interactiveAuto.edition,
   );
   assert.equal(
-    semanticArchitectureProjections(
-      interactiveAuto.model,
-      interactiveAuto.edition,
-    ).interactiveScenes[0].relations[0].route,
+    semanticArchitectureProjections(interactiveAuto.model, interactiveAuto.edition)
+      .interactiveScenes[0].relations[0].route,
     'auto',
   );
 
@@ -322,8 +292,7 @@ test('Edition owns medium-specific composition admission', () => {
   overfull.edition.claimModel.digest = claimModelDigest(overfull.model);
   const entityIds = Object.keys(overfull.model.entities);
   overfull.edition.scenes.static.composition.groups[0].entities = [...entityIds];
-  overfull.edition.scenes.interactive.overview.composition.groups[0].entities =
-    [...entityIds];
+  overfull.edition.scenes.interactive.overview.composition.groups[0].entities = [...entityIds];
   assert.throws(
     () => validateEdition(overfull.model, overfull.edition),
     /edition_scene_group_invalid.*static/,
@@ -356,15 +325,12 @@ test('medium identities bind selected semantic renderer inputs and normalize sce
     interactiveSceneDigest(baseline.model, baseline.edition),
   );
 
-  [
-    endpoint.model.relations.request.subject,
-    endpoint.model.relations.request.object,
-  ] = ['server', 'client'];
+  [endpoint.model.relations.request.subject, endpoint.model.relations.request.object] = [
+    'server',
+    'client',
+  ];
   for (const id of ['intended', 'implemented', 'governed'])
-    [
-      endpoint.model.claims[id].subject,
-      endpoint.model.claims[id].object,
-    ] = ['server', 'client'];
+    [endpoint.model.claims[id].subject, endpoint.model.claims[id].object] = ['server', 'client'];
   endpoint.edition.claimModel.digest = claimModelDigest(endpoint.model);
   assert.notEqual(
     staticSceneDigest(endpoint.model, endpoint.edition),

@@ -4,10 +4,7 @@ import http from 'node:http';
 import { chromium } from 'playwright-core';
 import { createHash } from 'node:crypto';
 import { readSourceBundle } from '../../packages/publisher/src/source/bundle.mjs';
-import {
-  validateHtmlObservation,
-  validateStaticObservation,
-} from './semantic-browser-checks.mjs';
+import { validateHtmlObservation, validateStaticObservation } from './semantic-browser-checks.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const input = path.resolve(process.argv[2] ?? '');
@@ -22,9 +19,7 @@ const bundle = await readSourceBundle(config.manifest, config.manifestSha256),
   publication = JSON.parse(
     bundle.members.find((item) => item.path === 'publication.json')?.content,
   ),
-  members = new Map(
-    bundle.members.map((item) => ['/' + item.path, item.content]),
-  ),
+  members = new Map(bundle.members.map((item) => ['/' + item.path, item.content])),
   reports = [];
 if (publication.semanticDigest !== config.semanticDigest)
   throw Error('Selected semantic identity changed');
@@ -64,8 +59,7 @@ try {
       page.on('pageerror', (error) => errors.push(error.message));
       await context.route('**/*', (route) => {
         const url = new URL(route.request().url());
-        if (url.origin === `http://127.0.0.1:${server.address().port}`)
-          return route.continue();
+        if (url.origin === `http://127.0.0.1:${server.address().port}`) return route.continue();
         errors.push('external-request:' + url.origin);
         return route.abort();
       });
@@ -88,10 +82,8 @@ try {
           };
         };
         const overlaps = (left, right) =>
-          Math.min(left.right, right.right) - Math.max(left.x, right.x) >
-            0.5 &&
-          Math.min(left.bottom, right.bottom) - Math.max(left.y, right.y) >
-            0.5;
+          Math.min(left.right, right.right) - Math.max(left.x, right.x) > 0.5 &&
+          Math.min(left.bottom, right.bottom) - Math.max(left.y, right.y) > 0.5;
         const svg = document.querySelector('.diagram-container > svg'),
           panel = document.querySelector('.diagram-container'),
           panelBox = box(panel),
@@ -117,15 +109,9 @@ try {
             start: point(edge, 0),
             end: point(edge, edge.getTotalLength()),
             fromBox: box(
-              svg.querySelector(
-                `[data-node-id="${edge.getAttribute('data-edge-from')}"]`,
-              ),
+              svg.querySelector(`[data-node-id="${edge.getAttribute('data-edge-from')}"]`),
             ),
-            toBox: box(
-              svg.querySelector(
-                `[data-node-id="${edge.getAttribute('data-edge-to')}"]`,
-              ),
-            ),
+            toBox: box(svg.querySelector(`[data-node-id="${edge.getAttribute('data-edge-to')}"]`)),
           })),
           overlap: overlapsFound,
           overflow: texts
@@ -141,17 +127,14 @@ try {
           scrollWidth: document.documentElement.scrollWidth,
           viewportWidth: innerWidth,
           surfaceBadges: [
-            getComputedStyle(document.querySelector('.header-row'), '::after')
-              .content,
+            getComputedStyle(document.querySelector('.header-row'), '::after').content,
             getComputedStyle(panel, '::after').content,
           ],
           title: document.title,
         };
 
         function point(element, length) {
-          const selected = element.getPointAtLength(length).matrixTransform(
-            element.getScreenCTM(),
-          );
+          const selected = element.getPointAtLength(length).matrixTransform(element.getScreenCTM());
           return { x: selected.x, y: selected.y };
         }
       });
@@ -160,9 +143,7 @@ try {
       if ((await page.locator('html').getAttribute('data-theme')) !== 'dark')
         throw Error('Theme control did not change state');
       const first = view.nodeIds[0];
-      await page
-        .locator(`.diagram-container > svg [data-node-id="${first}"]`)
-        .click();
+      await page.locator(`.diagram-container > svg [data-node-id="${first}"]`).click();
       const focus = await page
         .locator('.diagram-container > svg')
         .getAttribute('data-focus-active');
@@ -190,15 +171,14 @@ try {
     page.on('pageerror', (error) => errors.push(error.message));
     await context.route('**/*', (route) => {
       const url = new URL(route.request().url());
-      if (url.origin === `http://127.0.0.1:${server.address().port}`)
-        return route.continue();
+      if (url.origin === `http://127.0.0.1:${server.address().port}`) return route.continue();
       errors.push('external-request:' + url.origin);
       return route.abort();
     });
-    const response = await page.goto(
-      `http://127.0.0.1:${server.address().port}/overview.svg`,
-      { waitUntil: 'load', timeout: 20000 },
-    );
+    const response = await page.goto(`http://127.0.0.1:${server.address().port}/overview.svg`, {
+      waitUntil: 'load',
+      timeout: 20000,
+    });
     if (
       response.status() !== 200 ||
       !response.headers()['content-type']?.startsWith('image/svg+xml')
@@ -233,23 +213,27 @@ try {
             overlap.push([texts[left].text, texts[right].text]);
       for (const label of labels)
         for (const node of nodes)
-          if (overlaps(label.box, node.box))
-            labelNodeOverlap.push([label.id, node.id]);
-      const labelStrokeOverlap = [], edgeNodeOverlap = [];
+          if (overlaps(label.box, node.box)) labelNodeOverlap.push([label.id, node.id]);
+      const labelStrokeOverlap = [],
+        edgeNodeOverlap = [];
       const inside = (point, box, padding = 3) =>
-        point.x >= box.x - padding && point.x <= box.right + padding &&
-        point.y >= box.y - padding && point.y <= box.bottom + padding;
+        point.x >= box.x - padding &&
+        point.x <= box.right + padding &&
+        point.y >= box.y - padding &&
+        point.y <= box.bottom + padding;
       const painted = [...svg.querySelectorAll('path[data-edge-id], rect[stroke]')];
       for (const stroke of painted) {
-        const id = stroke.getAttribute('data-edge-id') ??
-          stroke.getAttribute('data-node-id') ?? 'group-border';
+        const id =
+          stroke.getAttribute('data-edge-id') ??
+          stroke.getAttribute('data-node-id') ??
+          'group-border';
         const length = stroke.getTotalLength();
         const count = Math.ceil(length / 2);
         const points = Array.from({ length: count + 1 }, (_, index) =>
-          point(stroke, length * index / count));
+          point(stroke, (length * index) / count),
+        );
         for (const text of texts)
-          if (points.some((p) => inside(p, text.box)))
-            labelStrokeOverlap.push([text.text, id]);
+          if (points.some((p) => inside(p, text.box))) labelStrokeOverlap.push([text.text, id]);
         if (stroke.hasAttribute('data-edge-id')) {
           const from = stroke.getAttribute('data-edge-from');
           const to = stroke.getAttribute('data-edge-to');
@@ -260,7 +244,11 @@ try {
       }
       return {
         root: svg.localName,
-        fontFaces: [...document.fonts].map((font) => ({ family: font.family, weight: font.weight, status: font.status })),
+        fontFaces: [...document.fonts].map((font) => ({
+          family: font.family,
+          weight: font.weight,
+          status: font.status,
+        })),
         width: rect.width,
         height: rect.height,
         viewBox: [viewBox.x, viewBox.y, viewBox.width, viewBox.height],
@@ -276,15 +264,9 @@ try {
           start: point(edge, 0),
           end: point(edge, edge.getTotalLength()),
           fromBox: box(
-            svg.querySelector(
-              `[data-node-id="${edge.getAttribute('data-edge-from')}"]`,
-            ),
+            svg.querySelector(`[data-node-id="${edge.getAttribute('data-edge-from')}"]`),
           ),
-          toBox: box(
-            svg.querySelector(
-              `[data-node-id="${edge.getAttribute('data-edge-to')}"]`,
-            ),
-          ),
+          toBox: box(svg.querySelector(`[data-node-id="${edge.getAttribute('data-edge-to')}"]`)),
         })),
         overlap,
         labelNodeOverlap,
@@ -315,9 +297,7 @@ try {
       }
 
       function point(element, length) {
-        const selected = element.getPointAtLength(length).matrixTransform(
-          element.getScreenCTM(),
-        );
+        const selected = element.getPointAtLength(length).matrixTransform(element.getScreenCTM());
         return { x: selected.x, y: selected.y };
       }
     });
@@ -347,8 +327,7 @@ const report = {
   browserVersion: browser.version(),
   reports,
   status: 'PASS_BOUNDED',
-  scope:
-    'Selected pages at 1440x1000; not arbitrary browser or visual approval',
+  scope: 'Selected pages at 1440x1000; not arbitrary browser or visual approval',
 };
 await fs.writeFile(
   path.join(config.output, 'report.json'),

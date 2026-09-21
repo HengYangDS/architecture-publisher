@@ -9,14 +9,12 @@ import * as semantics from '../packages/publisher/src/semantics/document.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 
 test('one-shot migration preserves legacy meaning under explicit v2 choices', async () => {
-  const migration = await import(
-    '../tools/migration/semantic-v1-to-claim-v2.mjs'
-  ).catch(() => ({}));
+  const migration = await import('../tools/migration/semantic-v1-to-claim-v2.mjs').catch(
+    () => ({}),
+  );
   assert.equal(typeof migration.migrateSemanticV1, 'function');
   const legacy = JSON.parse(
-      await fs.readFile(
-        path.join(root, 'tests/fixtures/migration/semantic-document-v1.json'),
-      ),
+      await fs.readFile(path.join(root, 'tests/fixtures/migration/semantic-document-v1.json')),
     ),
     migrated = migration.migrateSemanticV1(legacy, {
       maturities: ['implemented', 'target'],
@@ -86,18 +84,11 @@ test('one-shot migration preserves legacy meaning under explicit v2 choices', as
 });
 
 test('migration refuses to infer missing semantic choices', async () => {
-  const { migrateSemanticV1 } = await import(
-    '../tools/migration/semantic-v1-to-claim-v2.mjs'
-  );
+  const { migrateSemanticV1 } = await import('../tools/migration/semantic-v1-to-claim-v2.mjs');
   const legacy = JSON.parse(
-    await fs.readFile(
-      path.join(root, 'tests/fixtures/migration/semantic-document-v1.json'),
-    ),
+    await fs.readFile(path.join(root, 'tests/fixtures/migration/semantic-document-v1.json')),
   );
-  assert.throws(
-    () => migrateSemanticV1(legacy, {}),
-    /semantic_migration_plan_invalid/,
-  );
+  assert.throws(() => migrateSemanticV1(legacy, {}), /semantic_migration_plan_invalid/);
   legacy.assertions.admission.proposition = null;
   assert.throws(
     () =>
@@ -139,10 +130,7 @@ test('current runtime exposes only the v2 Claim Model contract', async () => {
 });
 
 test('current runtime and examples contain no v1 reader or dual-schema residue', async () => {
-    const roots = [
-      'packages/publisher/src',
-      'examples',
-    ],
+  const roots = ['packages/publisher/src', 'examples'],
     forbidden = [
       /architecture\.semantic-document\/v1/,
       /\bvalidateSemanticDocument\b/,
@@ -158,8 +146,7 @@ test('current runtime and examples contain no v1 reader or dual-schema residue',
       else if (/\.(?:mjs|json|md)$/.test(file)) {
         const source = await fs.readFile(path.join(root, file), 'utf8');
         for (const pattern of forbidden)
-          if (pattern.test(source))
-            findings.push({ file, pattern: String(pattern) });
+          if (pattern.test(source)) findings.push({ file, pattern: String(pattern) });
       }
     }
   }
@@ -168,15 +155,11 @@ test('current runtime and examples contain no v1 reader or dual-schema residue',
 });
 
 test('the development-only migration tool is excluded from the package', () => {
-  const result = spawnSync(
-    'npm',
-    ['pack', '--dry-run', '--ignore-scripts', '--json'],
-    {
-      cwd: path.join(root, 'packages/publisher'),
-      encoding: 'utf8',
-      timeout: 60000,
-    },
-  );
+  const result = spawnSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], {
+    cwd: path.join(root, 'packages/publisher'),
+    encoding: 'utf8',
+    timeout: 60000,
+  });
   assert.equal(result.status, 0, result.stderr);
   const files = JSON.parse(result.stdout)[0].files.map((item) => item.path);
   assert(!files.some((file) => file.startsWith('tools/migration/')));

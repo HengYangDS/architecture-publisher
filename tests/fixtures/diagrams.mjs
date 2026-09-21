@@ -1,11 +1,6 @@
 import { readFileSync } from 'node:fs';
 const example = (name) =>
-  JSON.parse(
-    readFileSync(
-      new URL('../../examples/' + name + '.json', import.meta.url),
-      'utf8',
-    ),
-  );
+  JSON.parse(readFileSync(new URL('../../examples/' + name + '.json', import.meta.url), 'utf8'));
 export const serviceTopology = () => example('service-topology');
 export const jobLifecycle = () => example('job-lifecycle');
 
@@ -79,11 +74,7 @@ export function otherDiagramTypes() {
       schema_version: 1,
       diagram_type: 'dataflow',
       meta: meta('Daily aggregate pipeline'),
-      stages: [
-        { label: 'Capture' },
-        { label: 'Normalize' },
-        { label: 'Aggregate' },
-      ],
+      stages: [{ label: 'Capture' }, { label: 'Normalize' }, { label: 'Aggregate' }],
       nodes: [
         { id: 'events', type: 'messagebus', label: 'Events', stage: 0, row: 0 },
         { id: 'records', type: 'backend', label: 'Records', stage: 1, row: 0 },

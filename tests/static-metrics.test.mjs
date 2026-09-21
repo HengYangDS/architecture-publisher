@@ -4,10 +4,7 @@ import assert from 'node:assert/strict';
 async function api() {
   const entry = new URL('../packages/publisher/renderers/svg/metrics.mjs', import.meta.url);
   const { access } = await import('node:fs/promises');
-  await assert.doesNotReject(
-    access(entry),
-    'recorded measurement reader exists',
-  );
+  await assert.doesNotReject(access(entry), 'recorded measurement reader exists');
   return (await import(entry)).createMetricReader;
 }
 const sample = () => ({

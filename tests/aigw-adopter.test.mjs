@@ -28,27 +28,11 @@ async function selected(state, base = root) {
 test('AIGW inputs bind a real ordered-registry source evolution', async () => {
   const initial = await selected('initial'),
     evolved = await selected('evolved'),
-    initialBundle = await readSourceBundle(
-      initial.sourceManifest,
-      initial.sourceSha256,
-    ),
-    evolvedBundle = await readSourceBundle(
-      evolved.sourceManifest,
-      evolved.sourceSha256,
-    );
-  assert.equal(
-    initialBundle.source.revision,
-    '36a6a28336280b71c4dc8d793a75bdb2671bb73c',
-  );
-  assert.equal(
-    evolvedBundle.source.revision,
-    '069c2a655a5a1b9124d656e64b2d323ff53baf11',
-  );
-  assert(
-    evolvedBundle.members.some(
-      (item) => item.path === 'source/internal/client/registry.go',
-    ),
-  );
+    initialBundle = await readSourceBundle(initial.sourceManifest, initial.sourceSha256),
+    evolvedBundle = await readSourceBundle(evolved.sourceManifest, evolved.sourceSha256);
+  assert.equal(initialBundle.source.revision, '36a6a28336280b71c4dc8d793a75bdb2671bb73c');
+  assert.equal(evolvedBundle.source.revision, '069c2a655a5a1b9124d656e64b2d323ff53baf11');
+  assert(evolvedBundle.members.some((item) => item.path === 'source/internal/client/registry.go'));
   assert.match(
     evolvedBundle.members
       .find((item) => item.path === 'source/internal/client/registry.go')
@@ -64,10 +48,7 @@ test('AIGW inputs bind a real ordered-registry source evolution', async () => {
     'registry-contract',
     'synchronizer-registry',
   ]);
-  assert.deepEqual(delta.delta.removed.relations, [
-    'synchronizer-claude',
-    'synchronizer-codex',
-  ]);
+  assert.deepEqual(delta.delta.removed.relations, ['synchronizer-claude', 'synchronizer-codex']);
   assert.deepEqual(delta.editions.changed, ['aigw-client-projection']);
   assert.equal(delta.editions.affected[0].scope, 'complete');
   assert(delta.obligations.rebuild.length > 0);
@@ -99,11 +80,7 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
     return result.stdout;
   };
   const packed = JSON.parse(
-    run(
-      'npm',
-      ['pack', '--ignore-scripts', '--json', '--pack-destination', directory],
-      publisher,
-    ),
+    run('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', directory], publisher),
   )[0];
   const consumer = path.join(directory, 'consumer'),
     home = path.join(directory, 'empty-home');
@@ -152,9 +129,7 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
       path.join(directory, state, 'manifest.json'),
       response.manifestSha256,
     );
-    observed[state] = new Map(
-      output.members.map((item) => [item.path, item.content]),
-    );
+    observed[state] = new Map(output.members.map((item) => [item.path, item.content]));
     const candidate = JSON.parse(observed[state].get('candidate.json'));
     assert.deepEqual(
       JSON.parse(observed[state].get('edition.json')),
@@ -163,10 +138,7 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
     assert.equal(candidate.edition.sha256, selection.editionSha256);
     assert.equal(response.editionDigest, candidate.edition.digest);
     assert.equal(response.staticSceneDigest, candidate.media.static.sceneSha256);
-    assert.equal(
-      response.interactiveSceneDigest,
-      candidate.media.interactive.sceneSha256,
-    );
+    assert.equal(response.interactiveSceneDigest, candidate.media.interactive.sceneSha256);
     assert.equal(response.status, 'built');
     assert.match(response.candidateSha256, /^[a-f0-9]{64}$/);
     assert.equal(Object.hasOwn(response, 'qualification'), false);
@@ -199,8 +171,5 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
     observed.initial.get('views/overview.html').toString(),
     /data-node-id="registry"/,
   );
-  assert.doesNotMatch(
-    observed.initial.get('overview.svg').toString(),
-    /data-node-id="registry"/,
-  );
+  assert.doesNotMatch(observed.initial.get('overview.svg').toString(), /data-node-id="registry"/);
 });

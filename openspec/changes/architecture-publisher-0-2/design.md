@@ -352,7 +352,7 @@ it. User review of the final artifacts is the product's final aesthetic gate.
    mutable central copies and retain only compact conformance fixtures.
 9. Exercise exact semantic evolution across both media and all three consumers.
 10. Run full source, package, installed, recovery, geometry, browser, and human
-   acceptance; commit applicable evidence.
+    acceptance; commit applicable evidence.
 11. Prove and land the Work Lane, close accepted source, and archive the Change.
 12. Rename the local repository and GitLab project with preflight, dry-run where
     available, exact remote/path readback, and no history copy.

@@ -81,19 +81,11 @@ test('public source pack writes selected files with portable paths and no approv
   const occupied = await f.invoke();
   assert.equal(occupied.status, 1);
   assert.equal(occupied.value.error.code, 'output_exists');
-  assert.deepEqual(
-    await fs.readFile(path.join(f.output, 'manifest.json')),
-    raw,
-  );
+  assert.deepEqual(await fs.readFile(path.join(f.output, 'manifest.json')), raw);
 });
 
 const invalid = [
-  [
-    'wrong plan digest',
-    () => {},
-    { digest: '0'.repeat(64) },
-    'pack_plan_digest_mismatch',
-  ],
+  ['wrong plan digest', () => {}, { digest: '0'.repeat(64) }, 'pack_plan_digest_mismatch'],
   [
     'wrong member digest',
     (p) => {

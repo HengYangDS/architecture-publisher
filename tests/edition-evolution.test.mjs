@@ -101,10 +101,14 @@ test('claim qualifier-only changes propagate through Edition scenes and separate
     ['intended', 'maturity', 'implemented'],
     ['intended', 'validity', 'refuted'],
     ['observed', 'value', 'unhealthy'],
-    ['observed', 'dependsOn', [
-      { section: 'entities', id: 'client' },
-      { section: 'sources', id: 'contract' },
-    ]],
+    [
+      'observed',
+      'dependsOn',
+      [
+        { section: 'entities', id: 'client' },
+        { section: 'sources', id: 'contract' },
+      ],
+    ],
   ]) {
     const { before, after } = pair();
     after.model.claims[claim][field] = value;
@@ -133,9 +137,7 @@ test('claim qualifier-only changes propagate through Edition scenes and separate
   after.model.claims.observed.provenance.push('second');
   rebind(after);
   const provenance = compile(compileEditionEvolution, before, after);
-  assert(
-    provenance.delta.changedFields.claims.observed.includes('provenance'),
-  );
+  assert(provenance.delta.changedFields.claims.observed.includes('provenance'));
 });
 
 test('source-only changes rebind the Edition without unnecessary scene rebuild', async () => {
@@ -222,10 +224,7 @@ test('Edition ordering does not depend on host locale comparison', async () => {
       after: { claimModel: after.model, editions: after.editions },
       correspondences: [],
     });
-    assert.deepEqual(Object.keys(result.before.editions), [
-      'example-system',
-      'zeta-system',
-    ]);
+    assert.deepEqual(Object.keys(result.before.editions), ['example-system', 'zeta-system']);
   } finally {
     String.prototype.localeCompare = localeCompare;
   }
@@ -236,11 +235,7 @@ test('Edition-only changes preserve medium locality and invalidate acceptance ex
 
   const staticOnly = pair();
   staticOnly.after.edition.scenes.static.label = 'Recomposed static overview';
-  let result = compile(
-    compileEditionEvolution,
-    staticOnly.before,
-    staticOnly.after,
-  );
+  let result = compile(compileEditionEvolution, staticOnly.before, staticOnly.after);
   assert.equal(result.editions.affected[0].static, true);
   assert.deepEqual(result.editions.affected[0].interactive, []);
   assert.deepEqual(
@@ -249,13 +244,8 @@ test('Edition-only changes preserve medium locality and invalidate acceptance ex
   );
 
   const interactiveOnly = pair();
-  interactiveOnly.after.edition.scenes.interactive.runtime.label =
-    'Recomposed runtime view';
-  result = compile(
-    compileEditionEvolution,
-    interactiveOnly.before,
-    interactiveOnly.after,
-  );
+  interactiveOnly.after.edition.scenes.interactive.runtime.label = 'Recomposed runtime view';
+  result = compile(compileEditionEvolution, interactiveOnly.before, interactiveOnly.after);
   assert.equal(result.editions.affected[0].static, false);
   assert.deepEqual(result.editions.affected[0].interactive, ['runtime']);
   assert.deepEqual(
@@ -268,11 +258,7 @@ test('Edition-only changes preserve medium locality and invalidate acceptance ex
 
   const qualificationOnly = pair();
   qualificationOnly.after.edition.qualification.static.push('new-static-check');
-  result = compile(
-    compileEditionEvolution,
-    qualificationOnly.before,
-    qualificationOnly.after,
-  );
+  result = compile(compileEditionEvolution, qualificationOnly.before, qualificationOnly.after);
   assert.deepEqual(
     result.obligations.rebuild.map((item) => item.target),
     ['publication-bundle'],
@@ -281,11 +267,7 @@ test('Edition-only changes preserve medium locality and invalidate acceptance ex
     result.obligations.mediumVerification
       .filter((item) => item.medium === 'static')
       .map((item) => item.predicates),
-    [[
-      'keyboard-and-reduced-motion',
-      'new-static-check',
-      'painted-geometry',
-    ]],
+    [['keyboard-and-reduced-motion', 'new-static-check', 'painted-geometry']],
   );
   assert.equal(result.obligations.acceptance.length, 1);
   assert.equal(result.obligations.publication.length, 1);
@@ -298,10 +280,7 @@ test('title, narrative and visual grammar changes affect only their real media',
   title.after.edition.title = 'Changed title';
   let result = compile(compileEditionEvolution, title.before, title.after);
   assert.equal(result.editions.affected[0].static, true);
-  assert.deepEqual(result.editions.affected[0].interactive, [
-    'overview',
-    'runtime',
-  ]);
+  assert.deepEqual(result.editions.affected[0].interactive, ['overview', 'runtime']);
 
   const grammar = pair();
   grammar.after.edition.visualGrammar.relationTypes.calls.label = 'invokes';
@@ -324,9 +303,7 @@ test('title, narrative and visual grammar changes affect only their real media',
       questions: ['delivery'],
       claims: ['implemented'],
       composition: {
-        groups: [
-          { id: 'delivery', label: 'Delivery', entities: ['client', 'server'] },
-        ],
+        groups: [{ id: 'delivery', label: 'Delivery', entities: ['client', 'server'] }],
         relations: [
           {
             id: 'request',
@@ -340,11 +317,7 @@ test('title, narrative and visual grammar changes affect only their real media',
     value.edition.narrative = ['overview', 'runtime', 'delivery'];
   }
   narrative.after.edition.narrative = ['overview', 'delivery', 'runtime'];
-  result = compile(
-    compileEditionEvolution,
-    narrative.before,
-    narrative.after,
-  );
+  result = compile(compileEditionEvolution, narrative.before, narrative.after);
   assert.equal(result.editions.affected[0].interactiveAtlas, true);
   assert.equal(result.editions.affected[0].static, false);
   assert.deepEqual(result.editions.affected[0].interactive, []);
@@ -360,17 +333,15 @@ test('unknown omissions remain conservative without fabricating scene work', asy
   const { compileEditionEvolution } = await api(),
     { before, after } = pair();
   for (const value of [before, after]) {
-    value.edition.requiredClaims = value.edition.requiredClaims.filter(
+    value.edition.requiredClaims = value.edition.requiredClaims.filter((id) => id !== 'published');
+    value.edition.questions.system.claims = value.edition.questions.system.claims.filter(
       (id) => id !== 'published',
     );
-    value.edition.questions.system.claims =
-      value.edition.questions.system.claims.filter((id) => id !== 'published');
-    value.edition.scenes.static.claims =
-      value.edition.scenes.static.claims.filter((id) => id !== 'published');
+    value.edition.scenes.static.claims = value.edition.scenes.static.claims.filter(
+      (id) => id !== 'published',
+    );
     value.edition.scenes.interactive.overview.claims =
-      value.edition.scenes.interactive.overview.claims.filter(
-        (id) => id !== 'published',
-      );
+      value.edition.scenes.interactive.overview.claims.filter((id) => id !== 'published');
     value.edition.omissions.published = {
       disposition: 'out-of-scope',
       reason: 'Opaque release prose is outside this bounded view.',
@@ -404,32 +375,23 @@ test('unchanged unknown dependencies broaden only scenes that carry them', async
   }
   represented.after.model.entities.server.label = 'Changed server';
   rebind(represented.after);
-  let result = compile(
-    compileEditionEvolution,
-    represented.before,
-    represented.after,
-  );
+  let result = compile(compileEditionEvolution, represented.before, represented.after);
   assert(result.delta.unknownClaims.includes('published'));
   assert.equal(result.editions.affected[0].scope, 'complete');
-  assert.deepEqual(result.editions.affected[0].interactive, [
-    'overview',
-    'runtime',
-  ]);
+  assert.deepEqual(result.editions.affected[0].interactive, ['overview', 'runtime']);
 
   const excluded = pair();
   for (const value of [excluded.before, excluded.after]) {
     value.model.claims.published.dependsOn = [];
-    value.edition.requiredClaims = value.edition.requiredClaims.filter(
+    value.edition.requiredClaims = value.edition.requiredClaims.filter((id) => id !== 'published');
+    value.edition.questions.system.claims = value.edition.questions.system.claims.filter(
       (id) => id !== 'published',
     );
-    value.edition.questions.system.claims =
-      value.edition.questions.system.claims.filter((id) => id !== 'published');
-    value.edition.scenes.static.claims =
-      value.edition.scenes.static.claims.filter((id) => id !== 'published');
+    value.edition.scenes.static.claims = value.edition.scenes.static.claims.filter(
+      (id) => id !== 'published',
+    );
     value.edition.scenes.interactive.overview.claims =
-      value.edition.scenes.interactive.overview.claims.filter(
-        (id) => id !== 'published',
-      );
+      value.edition.scenes.interactive.overview.claims.filter((id) => id !== 'published');
     value.edition.omissions.published = {
       disposition: 'out-of-scope',
       reason: 'Opaque release prose is outside this bounded view.',
@@ -439,11 +401,7 @@ test('unchanged unknown dependencies broaden only scenes that carry them', async
   }
   excluded.after.model.entities.server.label = 'Changed server';
   rebind(excluded.after);
-  result = compile(
-    compileEditionEvolution,
-    excluded.before,
-    excluded.after,
-  );
+  result = compile(compileEditionEvolution, excluded.before, excluded.after);
   assert(result.delta.unknownClaims.includes('published'));
   assert.deepEqual(result.editions.affected[0].interactive, ['overview']);
 });
@@ -452,17 +410,15 @@ test('represented-by omissions bind the named interactive scene', async () => {
   const { compileEditionEvolution } = await api(),
     { before, after } = pair();
   for (const value of [before, after]) {
-    value.edition.requiredClaims = value.edition.requiredClaims.filter(
+    value.edition.requiredClaims = value.edition.requiredClaims.filter((id) => id !== 'published');
+    value.edition.questions.system.claims = value.edition.questions.system.claims.filter(
       (id) => id !== 'published',
     );
-    value.edition.questions.system.claims =
-      value.edition.questions.system.claims.filter((id) => id !== 'published');
-    value.edition.scenes.static.claims =
-      value.edition.scenes.static.claims.filter((id) => id !== 'published');
+    value.edition.scenes.static.claims = value.edition.scenes.static.claims.filter(
+      (id) => id !== 'published',
+    );
     value.edition.scenes.interactive.overview.claims =
-      value.edition.scenes.interactive.overview.claims.filter(
-        (id) => id !== 'published',
-      );
+      value.edition.scenes.interactive.overview.claims.filter((id) => id !== 'published');
     value.edition.scenes.interactive.runtime.claims.push('published');
     value.edition.questions.runtime.claims.push('published');
     value.edition.omissions.published = {
@@ -487,9 +443,10 @@ test('added and removed Editions produce publish and withdraw obligations', asyn
     correspondences: [],
   });
   assert.deepEqual(result.editions.added, ['example-system']);
-  assert.deepEqual(result.obligations.publication.map((item) => item.action), [
-    'publish',
-  ]);
+  assert.deepEqual(
+    result.obligations.publication.map((item) => item.action),
+    ['publish'],
+  );
   assert(result.obligations.rebuild.length >= 4);
 
   result = compileEditionEvolution({
@@ -499,9 +456,10 @@ test('added and removed Editions produce publish and withdraw obligations', asyn
   });
   assert.deepEqual(result.editions.removed, ['example-system']);
   assert.deepEqual(result.obligations.rebuild, []);
-  assert.deepEqual(result.obligations.publication.map((item) => item.action), [
-    'withdraw',
-  ]);
+  assert.deepEqual(
+    result.obligations.publication.map((item) => item.action),
+    ['withdraw'],
+  );
 });
 
 test('removed interactive scenes require explicit withdrawal beside Edition replacement', async () => {
@@ -643,14 +601,9 @@ test('rename split and merge propagate both old and new Edition references witho
         value: index ? 'supported' : 'stable',
       };
     for (const edition of [after.edition]) {
-      edition.requiredClaims = edition.requiredClaims.filter(
-        (id) => !from.includes(id),
-      );
+      edition.requiredClaims = edition.requiredClaims.filter((id) => !from.includes(id));
       edition.requiredClaims.push(...to);
-      for (const scene of [
-        edition.scenes.static,
-        ...Object.values(edition.scenes.interactive),
-      ]) {
+      for (const scene of [edition.scenes.static, ...Object.values(edition.scenes.interactive)]) {
         const had = scene.claims.some((id) => from.includes(id));
         scene.claims = scene.claims.filter((id) => !from.includes(id));
         if (had) scene.claims.push(...to);
@@ -676,12 +629,7 @@ test('rename split and merge propagate both old and new Edition references witho
         },
       ],
     };
-    const result = compile(
-      compileEditionEvolution,
-      before,
-      after,
-      [mapping],
-    );
+    const result = compile(compileEditionEvolution, before, after, [mapping]);
     assert.deepEqual(result.delta.correspondences[0].from, [...from].sort());
     assert.deepEqual(result.delta.correspondences[0].to, [...to].sort());
     assert.equal(result.delta.correspondences[0].kind, kind);
@@ -698,8 +646,5 @@ test('invalid contradictory inputs fail before actionable obligations exist', as
     ...structuredClone(after.model.claims.intended),
     validity: 'refuted',
   };
-  assert.throws(
-    () => compile(compileEditionEvolution, before, after),
-    /semantic_contradiction/,
-  );
+  assert.throws(() => compile(compileEditionEvolution, before, after), /semantic_contradiction/);
 });

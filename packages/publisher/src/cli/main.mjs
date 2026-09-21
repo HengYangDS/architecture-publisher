@@ -3,9 +3,7 @@ import { runCli } from './router.mjs';
 
 try {
   const result = await runCli(process.argv.slice(2));
-  process.stdout.write(
-    result.kind === 'help' ? result.text : `${JSON.stringify(result.value)}\n`,
-  );
+  process.stdout.write(result.kind === 'help' ? result.text : `${JSON.stringify(result.value)}\n`);
 } catch (error) {
   const code = error.code ?? 'operation_failed';
   process.stdout.write(

@@ -34,13 +34,7 @@ test('raster renderer is bound to a reproducible source closure', async () => {
       'utf8',
     ),
   );
-  assert.deepEqual(Object.keys(source), [
-    'schema',
-    'source',
-    'toolchain',
-    'build',
-    'outputs',
-  ]);
+  assert.deepEqual(Object.keys(source), ['schema', 'source', 'toolchain', 'build', 'outputs']);
   assert.equal(source.schema, 'architecture.raster-source/v1');
   assert.equal(source.source.name, 'linebender/resvg');
   assert.equal(source.source.version, '0.48.1');
@@ -120,10 +114,7 @@ test('raster binding has no implicit file or network loader', async () => {
 });
 
 test('raster notices cover every locked third-party Rust package', async () => {
-  const lock = await fs.readFile(
-    path.join(root, 'tools/raster/resvg/Cargo.lock'),
-    'utf8',
-  );
+  const lock = await fs.readFile(path.join(root, 'tools/raster/resvg/Cargo.lock'), 'utf8');
   const notices = await fs.readFile(
     path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/THIRD-PARTY-NOTICES.txt'),
     'utf8',

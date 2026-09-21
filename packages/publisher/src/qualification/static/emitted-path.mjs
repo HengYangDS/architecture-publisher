@@ -2,19 +2,14 @@
  * Unsupported grammar fails closed rather than yielding a guessed geometry.
  */
 function inspectPath(d) {
-  const tokens =
-    d.match(/[A-Za-z]|[-+]?(?:\d*\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/g) ?? [];
-  const residual = d.replace(
-    /[MLQ]|[-+]?(?:\d*\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?|[\s,]/g,
-    '',
-  );
+  const tokens = d.match(/[A-Za-z]|[-+]?(?:\d*\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/g) ?? [];
+  const residual = d.replace(/[MLQ]|[-+]?(?:\d*\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?|[\s,]/g, '');
   if (residual) throw new Error('unsupported path syntax');
   let i = 0;
   const point = () => {
     const x = Number(tokens[i++]),
       y = Number(tokens[i++]);
-    if (!Number.isFinite(x) || !Number.isFinite(y))
-      throw new Error('invalid path coordinate');
+    if (!Number.isFinite(x) || !Number.isFinite(y)) throw new Error('invalid path coordinate');
     return { x, y };
   };
   let current,
@@ -51,10 +46,7 @@ function inspectPath(d) {
     lastCommand = command;
   }
   if (!start || !current || !terminalStart) throw new Error('incomplete path');
-  const length = Math.hypot(
-    current.x - terminalStart.x,
-    current.y - terminalStart.y,
-  );
+  const length = Math.hypot(current.x - terminalStart.x, current.y - terminalStart.y);
   if (length === 0) throw new Error('zero terminal segment');
   return {
     start,
@@ -80,8 +72,7 @@ export function auditEmittedEdges(svg, scene, contract) {
     throw Error('invalid emitted-edge limits');
   const intended = new Map(scene.edges.map((e) => [e.id, e])),
     seen = new Set();
-  if (intended.size !== scene.edges.length)
-    throw Error('duplicate intended edge identity');
+  if (intended.size !== scene.edges.length) throw Error('duplicate intended edge identity');
   const failures = [],
     edges = [];
   for (const m of svg.matchAll(/<path\b[^>]*\bdata-edge="([^"]+)"[^>]*>/g)) {
@@ -93,8 +84,7 @@ export function auditEmittedEdges(svg, scene, contract) {
     if (!d) throw Error('emitted path geometry missing');
     const actual = inspectPath(d),
       arrow = /\smarker-end=/.test(m[0]);
-    if (arrow !== (edge.arrow !== false))
-      throw Error('emitted arrow contract mismatch');
+    if (arrow !== (edge.arrow !== false)) throw Error('emitted arrow contract mismatch');
     if (edge.points.length < 2) throw Error('intended edge geometry missing');
     const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
     const delta = Math.max(
@@ -123,8 +113,7 @@ export function auditEmittedEdges(svg, scene, contract) {
       terminalDirection: actual.terminalDirection,
     });
   }
-  if (seen.size !== intended.size)
-    throw Error('emitted edge identity set mismatch');
+  if (seen.size !== intended.size) throw Error('emitted edge identity set mismatch');
   return {
     scope:
       'Actual emitted M/L/Q terminal lengths and intended endpoint equality; no browser, marker envelope or semantic acceptance',

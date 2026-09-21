@@ -8,12 +8,7 @@ const sha = (b) => createHash('sha256').update(b).digest('hex');
 const encode = (v) => JSON.stringify(v, null, 2) + '\n';
 const inside = (a, b) => a === b || b.startsWith(a + path.sep);
 const overlap = (a, b) => inside(a, b) || inside(b, a);
-const metadata = [
-  'index.html',
-  'README.md',
-  'delivery-manifest.json',
-  'SHA256SUMS',
-];
+const metadata = ['index.html', 'README.md', 'delivery-manifest.json', 'SHA256SUMS'];
 export const PUBLICATION_MEDIA = Object.freeze(['native', 'atlas']);
 const exists = (p) =>
   fs.lstat(p).then(
@@ -27,11 +22,7 @@ const equal = (a, b, why) => {
   if (a !== b) throw Error(why);
 };
 const sameSet = (actual, expected, why) =>
-  equal(
-    JSON.stringify([...actual].sort()),
-    JSON.stringify([...expected].sort()),
-    why,
-  );
+  equal(JSON.stringify([...actual].sort()), JSON.stringify([...expected].sort()), why);
 function relative(root, file) {
   if (
     typeof file !== 'string' ||
@@ -56,12 +47,11 @@ async function noLinks(file) {
 async function inventory(root) {
   await noLinks(root);
   if (!(await exists(root))) return { exists: false, entries: [] };
-  if (!(await fs.lstat(root)).isDirectory())
-    throw Error('Destination is not a directory');
+  if (!(await fs.lstat(root)).isDirectory()) throw Error('Destination is not a directory');
   const entries = [];
   async function walk(dir, rel = '') {
-    for (const d of (await fs.readdir(dir, { withFileTypes: true })).sort(
-      (a, b) => a.name.localeCompare(b.name),
+    for (const d of (await fs.readdir(dir, { withFileTypes: true })).sort((a, b) =>
+      a.name.localeCompare(b.name),
     )) {
       const name = rel ? rel + '/' + d.name : d.name,
         p = path.join(dir, d.name),
@@ -95,10 +85,7 @@ function validateOptions(o) {
     throw Error('Explicit absolute source roots required');
   if (Object.hasOwn(o, 'nativeRoot') || Object.hasOwn(o, 'atlasRoot'))
     throw Error('Use explicit sourceRoots, not legacy media roots');
-  if (
-    new Set(o.sourceRoots.map((r) => path.resolve(r))).size !==
-    o.sourceRoots.length
-  )
+  if (new Set(o.sourceRoots.map((r) => path.resolve(r))).size !== o.sourceRoots.length)
     throw Error('Duplicate source roots');
   if (!path.isAbsolute(o.recoveryRoot ?? ''))
     throw Error('Explicit absolute recoveryRoot required');
@@ -109,13 +96,10 @@ function validateOptions(o) {
     b = path.resolve(o.destinations.atlas),
     r = path.resolve(o.recoveryRoot);
   if (overlap(a, b) || overlap(a, r) || overlap(b, r))
-    throw Error(
-      'Destinations and recovery must be distinct and non-overlapping',
-    );
+    throw Error('Destinations and recovery must be distinct and non-overlapping');
   for (const target of [a, b, r])
     for (const source of o.sourceRoots)
-      if (overlap(path.resolve(source), target))
-        throw Error('Source/destination overlap');
+      if (overlap(path.resolve(source), target)) throw Error('Source/destination overlap');
   if (path.dirname(a) !== path.dirname(b))
     throw Error('Pair destinations must share an explicit parent');
   for (const target of [a, b, r])
@@ -133,8 +117,8 @@ function validateOptions(o) {
 async function canonicalOptions(options) {
   async function physical(file) {
     await noLinks(file);
-    let parent = path.resolve(file),
-      suffix = [];
+    let parent = path.resolve(file);
+    const suffix = [];
     while (!(await exists(parent))) {
       suffix.unshift(path.basename(parent));
       parent = path.dirname(parent);
@@ -144,8 +128,7 @@ async function canonicalOptions(options) {
   const o = structuredClone(options);
   o.sourceRoots = await Promise.all(o.sourceRoots.map(physical));
   o.recoveryRoot = await physical(o.recoveryRoot);
-  for (const key of PUBLICATION_MEDIA)
-    o.destinations[key] = await physical(o.destinations[key]);
+  for (const key of PUBLICATION_MEDIA) o.destinations[key] = await physical(o.destinations[key]);
   validateOptions(o);
   return o;
 }
@@ -160,26 +143,18 @@ const planInput = (plan) => ({
 });
 
 function previousPayload(plan, medium) {
-  return (
-    plan.replacement?.plan.payload.filter((row) => row.medium === medium) ?? []
-  );
+  return plan.replacement?.plan.payload.filter((row) => row.medium === medium) ?? [];
 }
 
 function validateReplacement(replacement, options) {
-  if (
-    !replacement ||
-    Object.keys(replacement).sort().join(',') !== 'authorization,plan'
-  )
+  if (!replacement || Object.keys(replacement).sort().join(',') !== 'authorization,plan')
     throw Error('Explicit prior plan and authorization required');
   let current = replacement,
     depth = 0;
   while (current) {
-    if (++depth > 16)
-      throw Error('Prior replacement chain exceeds bounded input');
+    if (++depth > 16) throw Error('Prior replacement chain exceeds bounded input');
     verifyPlanAcceptance(current.plan, current.authorization);
-    if (
-      encode(current.plan.options.destinations) !== encode(options.destinations)
-    )
+    if (encode(current.plan.options.destinations) !== encode(options.destinations))
       throw Error('Prior plan destination identity mismatch');
     current = current.plan.replacement;
   }
@@ -203,9 +178,7 @@ function verifyPriorPreimages(replacement, medium, before) {
       actual.bytes !== selected.bytes ||
       actual.sha256 !== selected.sha256
     )
-      throw Error(
-        'Prior managed preimage or receipt changed: ' + medium + ':' + name,
-      );
+      throw Error('Prior managed preimage or receipt changed: ' + medium + ':' + name);
   }
 }
 
@@ -223,23 +196,18 @@ export async function planPairFiles(input, replayPrestates) {
     payload = [],
     dependencies = new Map(),
     names = new Map();
-  if (Object.hasOwn(input, 'replacement'))
-    validateReplacement(input.replacement, options);
+  if (Object.hasOwn(input, 'replacement')) validateReplacement(input.replacement, options);
   const entries = structuredClone(input.entries);
   for (const medium of PUBLICATION_MEDIA) {
     if (
       !entries?.[medium] ||
-      Object.keys(entries[medium]).sort().join(',') !==
-        'README.md,index.html' ||
+      Object.keys(entries[medium]).sort().join(',') !== 'README.md,index.html' ||
       Object.values(entries[medium]).some(
         (v) => typeof v !== 'string' || Buffer.byteLength(v) > 1048576,
       )
     )
       throw Error('Explicit local entry files required');
-    names.set(
-      medium,
-      new Set(metadata.map((name) => name.normalize('NFC').toLowerCase())),
-    );
+    names.set(medium, new Set(metadata.map((name) => name.normalize('NFC').toLowerCase())));
   }
   for (const item of input.payload) {
     if (
@@ -253,22 +221,15 @@ export async function planPairFiles(input, replayPrestates) {
       throw Error('Invalid payload identity');
     if (path.resolve(item.source) !== item.source)
       throw Error('Payload source path is not canonical');
-    const target = relative(options.destinations[item.medium], item.path),
-      key = item.path.normalize('NFC').toLowerCase();
+    relative(options.destinations[item.medium], item.path);
+    const key = item.path.normalize('NFC').toLowerCase();
     const used = names.get(item.medium);
-    if (
-      [...used].some(
-        (n) => key === n || key.startsWith(n + '/') || n.startsWith(key + '/'),
-      )
-    )
+    if ([...used].some((n) => key === n || key.startsWith(n + '/') || n.startsWith(key + '/')))
       throw Error('Payload path collision');
     used.add(key);
     if (!options.sourceRoots.some((r) => inside(r, item.source)))
       throw Error('Payload source outside declared roots');
-    for (const p of [
-      ...Object.values(options.destinations),
-      options.recoveryRoot,
-    ])
+    for (const p of [...Object.values(options.destinations), options.recoveryRoot])
       if (inside(p, item.source)) throw Error('Payload reads a destination');
     await noLinks(item.source);
     const stat = await fs.lstat(item.source);
@@ -286,43 +247,27 @@ export async function planPairFiles(input, replayPrestates) {
       !/^[a-f0-9]{64}$/.test(dep.sha256)
     )
       throw Error('Invalid dependency identity');
-    if (path.resolve(dep.file) !== dep.file)
-      throw Error('Dependency source path is not canonical');
+    if (path.resolve(dep.file) !== dep.file) throw Error('Dependency source path is not canonical');
     await noLinks(dep.file);
     equal(sha(await fs.readFile(dep.file)), dep.sha256, 'Dependency changed');
     if (dependencies.has(dep.file))
-      equal(
-        dependencies.get(dep.file),
-        dep.sha256,
-        'Conflicting dependency identity',
-      );
+      equal(dependencies.get(dep.file), dep.sha256, 'Conflicting dependency identity');
     dependencies.set(dep.file, dep.sha256);
   }
   const prestates = {};
   for (const medium of PUBLICATION_MEDIA) {
-    const before =
-      replayPrestates?.[medium] ??
-      (await inventory(options.destinations[medium]));
+    const before = replayPrestates?.[medium] ?? (await inventory(options.destinations[medium]));
     prestates[medium] = structuredClone(before);
-    if (input.replacement)
-      verifyPriorPreimages(input.replacement, medium, before);
-    if (
-      before.entries.some((e) => metadata.includes(e.path) && e.kind !== 'file')
-    )
+    if (input.replacement) verifyPriorPreimages(input.replacement, medium, before);
+    if (before.entries.some((e) => metadata.includes(e.path) && e.kind !== 'file'))
       throw Error('Reserved metadata must be a file, not a directory');
     const history = 'history/' + sha(encode(before)).slice(0, 20);
-    if (
-      before.entries.some(
-        (e) => e.path === history || e.path.startsWith(history + '/'),
-      )
-    )
+    if (before.entries.some((e) => e.path === history || e.path.startsWith(history + '/')))
       throw Error('History path collision');
     for (const row of payload.filter((p) => p.medium === medium)) {
       const key = row.path.normalize('NFC').toLowerCase();
       const replaced = new Set(
-        input.replacement?.plan.payload
-          .filter((p) => p.medium === medium)
-          .map((p) => p.path) ?? [],
+        input.replacement?.plan.payload.filter((p) => p.medium === medium).map((p) => p.path) ?? [],
       );
       if (
         before.entries.some((e) => {
@@ -348,9 +293,7 @@ export async function planPairFiles(input, replayPrestates) {
     entries,
     prestates,
     dependencies: [...dependencies].map(([file, sha256]) => ({ file, sha256 })),
-    ...(input.replacement
-      ? { replacement: structuredClone(input.replacement) }
-      : {}),
+    ...(input.replacement ? { replacement: structuredClone(input.replacement) } : {}),
     policy: {
       ...(input.replacement
         ? {
@@ -370,13 +313,10 @@ function expectedContents(plan, medium) {
     history = 'history/' + sha(encode(before)).slice(0, 20),
     previousEntries = {};
   for (const row of before.entries)
-    if (metadata.includes(row.path))
-      previousEntries[row.path] = history + '/' + row.path;
+    if (metadata.includes(row.path)) previousEntries[row.path] = history + '/' + row.path;
   const files = before.entries
     .filter(
-      (e) =>
-        e.kind === 'file' &&
-        !previousPayload(plan, medium).some((p) => p.path === e.path),
+      (e) => e.kind === 'file' && !previousPayload(plan, medium).some((p) => p.path === e.path),
     )
     .map((e) => ({ ...e, path: previousEntries[e.path] ?? e.path }));
   for (const row of plan.payload.filter((f) => f.medium === medium))
@@ -398,11 +338,7 @@ function expectedContents(plan, medium) {
     before.entries.filter((e) => e.kind === 'directory').map((e) => e.path),
   );
   for (const f of files)
-    for (
-      let p = path.posix.dirname(f.path);
-      p !== '.';
-      p = path.posix.dirname(p)
-    )
+    for (let p = path.posix.dirname(f.path); p !== '.'; p = path.posix.dirname(p))
       directories.add(p);
   return { files, previousEntries, directories: [...directories].sort() };
 }
@@ -432,9 +368,7 @@ async function checkFiles(root, rows) {
 }
 async function verifyInstalled(plan, medium, acceptance) {
   const root = plan.options.destinations[medium],
-    m = JSON.parse(
-      await fs.readFile(path.join(root, 'delivery-manifest.json')),
-    );
+    m = JSON.parse(await fs.readFile(path.join(root, 'delivery-manifest.json')));
   equal(
     encode(m),
     encode(expectedManifest(plan, medium, acceptance)),
@@ -457,22 +391,14 @@ async function verifyInstalled(plan, medium, acceptance) {
   );
   equal(
     JSON.stringify(paths),
-    JSON.stringify(
-      [
-        ...m.files.map((f) => f.path),
-        'delivery-manifest.json',
-        'SHA256SUMS',
-      ].sort(),
-    ),
+    JSON.stringify([...m.files.map((f) => f.path), 'delivery-manifest.json', 'SHA256SUMS'].sort()),
     'Installed file set mismatch',
   );
   const expected =
     m.files
       .concat({
         path: 'delivery-manifest.json',
-        sha256: sha(
-          await fs.readFile(path.join(root, 'delivery-manifest.json')),
-        ),
+        sha256: sha(await fs.readFile(path.join(root, 'delivery-manifest.json'))),
       })
       .map((f) => `${f.sha256}  ${f.path}`)
       .join('\n') + '\n';
@@ -482,21 +408,14 @@ async function verifyInstalled(plan, medium, acceptance) {
     'Installed checksum mismatch',
   );
   for (const prior of plan.prestates[medium].entries) {
-    if (
-      prior.kind === 'file' &&
-      previousPayload(plan, medium).some((p) => p.path === prior.path)
-    )
+    if (prior.kind === 'file' && previousPayload(plan, medium).some((p) => p.path === prior.path))
       continue;
     const p = m.previousEntries[prior.path] ?? prior.path;
     if (prior.kind === 'directory') {
       if (!(await fs.stat(relative(root, p))).isDirectory())
         throw Error('Preserved directory missing');
     } else
-      equal(
-        sha(await fs.readFile(relative(root, p))),
-        prior.sha256,
-        'Preserved bytes mismatch',
-      );
+      equal(sha(await fs.readFile(relative(root, p))), prior.sha256, 'Preserved bytes mismatch');
   }
   return m;
 }
@@ -538,11 +457,7 @@ function verifyPlanAcceptance(plan, acceptance) {
 async function withPairWriter(plan, acceptance, recover, action) {
   const digest = verifyPlanAcceptance(plan, acceptance),
     o = plan.options;
-  equal(
-    encode(await canonicalOptions(o)),
-    encode(o),
-    'Canonical writer path changed',
-  );
+  equal(encode(await canonicalOptions(o)), encode(o), 'Canonical writer path changed');
   const parent = path.dirname(o.destinations.native),
     lock = path.join(parent, '.architecture-publication-writer'),
     history = lock + '-history';
@@ -555,10 +470,11 @@ async function withPairWriter(plan, acceptance, recover, action) {
     };
   const ownerFile = path.join(lock, 'owner.json');
   let owned = false,
-    prepared;
+    prepared,
+    result,
+    failure;
   function alive(pid) {
-    if (!Number.isSafeInteger(pid) || pid < 1)
-      throw Error('Invalid writer lock process');
+    if (!Number.isSafeInteger(pid) || pid < 1) throw Error('Invalid writer lock process');
     try {
       process.kill(pid, 0);
       return true;
@@ -574,16 +490,9 @@ async function withPairWriter(plan, acceptance, recover, action) {
       await noLinks(ownerFile);
       const bytes = await fs.readFile(ownerFile, 'utf8'),
         previous = JSON.parse(bytes);
-      if (
-        typeof previous.token !== 'string' ||
-        !/^[a-f0-9-]{36}$/.test(previous.token)
-      )
+      if (typeof previous.token !== 'string' || !/^[a-f0-9-]{36}$/.test(previous.token))
         throw Error('Invalid writer lock identity');
-      sameSet(
-        await fs.readdir(lock),
-        ['owner.json'],
-        'Ambiguous writer lock content',
-      );
+      sameSet(await fs.readdir(lock), ['owner.json'], 'Ambiguous writer lock content');
       if (previous.host !== os.hostname() || alive(previous.pid))
         throw Error('An active installer holds the writer lock');
       if (!recover || previous.planSha256 !== digest)
@@ -591,15 +500,9 @@ async function withPairWriter(plan, acceptance, recover, action) {
       await noLinks(history);
       await fs.mkdir(history, { recursive: true });
       const retained = path.join(history, previous.token);
-      if (await exists(retained))
-        throw Error('Retained writer lock already exists');
-      equal(
-        await fs.readFile(ownerFile, 'utf8'),
-        bytes,
-        'Writer lock changed before recovery',
-      );
-      if (alive(previous.pid))
-        throw Error('An active installer holds the writer lock');
+      if (await exists(retained)) throw Error('Retained writer lock already exists');
+      equal(await fs.readFile(ownerFile, 'utf8'), bytes, 'Writer lock changed before recovery');
+      if (alive(previous.pid)) throw Error('An active installer holds the writer lock');
       // Keep the nonempty token tombstone: a delayed reclaimer cannot rename a
       // newer owner over it, even if it observed the old owner before this move.
       await fs.rename(lock, retained);
@@ -619,21 +522,20 @@ async function withPairWriter(plan, acceptance, recover, action) {
       await handle.close();
     }
     await syncDirectory(prepared);
-    if (await exists(lock))
-      throw Error('Another installer acquired the writer lock');
+    if (await exists(lock)) throw Error('Another installer acquired the writer lock');
     // Cooperating writers only expose complete nonempty directories. A competing
     // rename cannot replace one; unknown legacy locks are refused above.
     await fs.rename(prepared, lock);
     owned = true;
     prepared = null;
     await syncDirectory(parent);
-    equal(
-      await fs.readFile(ownerFile, 'utf8'),
-      encode(owner),
-      'Writer lock ownership changed',
-    );
-    return await action();
-  } finally {
+    equal(await fs.readFile(ownerFile, 'utf8'), encode(owner), 'Writer lock ownership changed');
+    result = await action();
+  } catch (error) {
+    failure = error;
+  }
+  let releaseFailure;
+  try {
     if (owned) {
       equal(
         await fs.readFile(ownerFile, 'utf8'),
@@ -643,8 +545,7 @@ async function withPairWriter(plan, acceptance, recover, action) {
       await noLinks(history);
       await fs.mkdir(history, { recursive: true });
       const retained = path.join(history, token);
-      if (await exists(retained))
-        throw Error('Writer release identity already retained');
+      if (await exists(retained)) throw Error('Writer release identity already retained');
       await fs.rename(lock, retained);
       await syncDirectory(parent);
       await syncDirectory(history);
@@ -655,7 +556,18 @@ async function withPairWriter(plan, acceptance, recover, action) {
         await fs.unlink(path.join(prepared, 'owner.json'));
       await fs.rmdir(prepared);
     }
+  } catch (error) {
+    releaseFailure = error;
   }
+  if (failure && releaseFailure)
+    throw new AggregateError(
+      [failure, releaseFailure],
+      `${failure.message}; writer release failed`,
+      { cause: failure },
+    );
+  if (failure) throw failure;
+  if (releaseFailure) throw releaseFailure;
+  return result;
 }
 function sameInventory(a, b) {
   const normalized = (x) => ({
@@ -701,13 +613,7 @@ function installedInventory(plan, medium, acceptance) {
     ],
   };
 }
-async function rollbackPair(
-  plan,
-  acceptance,
-  journal,
-  op,
-  { rename, writeJournal },
-) {
+async function rollbackPair(plan, acceptance, journal, op, { rename, writeJournal }) {
   const states = [];
   // Inspect every target before the first recovery effect. Never move an unknown
   // or modified directory merely because an old journal says we installed it.
@@ -725,8 +631,7 @@ async function rollbackPair(
     if (abandoned.exists && !sameInventory(abandoned, expected))
       throw Error('Recovery retained output changed: ' + medium);
     if (sameInventory(current, before)) {
-      if (saved.exists)
-        throw Error('Recovery has ambiguous duplicate prior: ' + medium);
+      if (saved.exists) throw Error('Recovery has ambiguous duplicate prior: ' + medium);
       states.push({
         medium,
         target,
@@ -741,8 +646,7 @@ async function rollbackPair(
     }
     if (current.exists && !sameInventory(current, expected))
       throw Error('Recovery destination contains unknown changes: ' + medium);
-    if (before.exists && !saved.exists)
-      throw Error('Recovery prior content missing: ' + medium);
+    if (before.exists && !saved.exists) throw Error('Recovery prior content missing: ' + medium);
     if (current.exists && abandoned.exists)
       throw Error('Recovery retained output already occupied: ' + medium);
     states.push({
@@ -756,8 +660,7 @@ async function rollbackPair(
       action: 'restore',
     });
   }
-  const record = () =>
-    writeJournal(path.join(op, 'operation.json'), encode(journal));
+  const record = () => writeJournal(path.join(op, 'operation.json'), encode(journal));
   for (const s of states) {
     if (s.action === 'none') continue;
     if (s.current.exists) {
@@ -766,8 +669,7 @@ async function rollbackPair(
         true,
         'Recovery target changed at effect boundary',
       );
-      if (await exists(s.failed))
-        throw Error('Recovery retained output arrived concurrently');
+      if (await exists(s.failed)) throw Error('Recovery retained output arrived concurrently');
       journal.intent = {
         action: 'retain-new',
         medium: s.medium,
@@ -785,8 +687,7 @@ async function rollbackPair(
         true,
         'Recovery prior changed at effect boundary',
       );
-      if (await exists(s.target))
-        throw Error('Recovery destination arrived concurrently');
+      if (await exists(s.target)) throw Error('Recovery destination arrived concurrently');
       journal.intent = {
         action: 'restore-prior',
         medium: s.medium,
@@ -798,18 +699,11 @@ async function rollbackPair(
       await syncDirectory(path.dirname(s.target));
       await syncDirectory(op);
     }
-    equal(
-      sameInventory(await inventory(s.target), s.before),
-      true,
-      'Rollback prestate mismatch',
-    );
+    equal(sameInventory(await inventory(s.target), s.before), true, 'Rollback prestate mismatch');
   }
   for (const m of PUBLICATION_MEDIA)
     equal(
-      sameInventory(
-        await inventory(plan.options.destinations[m]),
-        plan.prestates[m],
-      ),
+      sameInventory(await inventory(plan.options.destinations[m]), plan.prestates[m]),
       true,
       'Rollback final prestate mismatch',
     );
@@ -836,20 +730,13 @@ async function recoverLockedPair(
 ) {
   const digest = verifyPlanAcceptance(plan, acceptance),
     o = plan.options;
-  equal(
-    encode(await canonicalOptions(o)),
-    encode(o),
-    'Canonical recovery path changed',
-  );
+  equal(encode(await canonicalOptions(o)), encode(o), 'Canonical recovery path changed');
   const op = path.join(o.recoveryRoot, digest.slice(0, 20));
   await noLinks(op);
   if (!(await exists(op))) {
     for (const medium of PUBLICATION_MEDIA)
       equal(
-        sameInventory(
-          await inventory(o.destinations[medium]),
-          plan.prestates[medium],
-        ),
+        sameInventory(await inventory(o.destinations[medium]), plan.prestates[medium]),
         true,
         'Unstarted destination prestate changed',
       );
@@ -880,10 +767,7 @@ async function recoverLockedPair(
     // Certify only the unchanged prestate; retain incomplete staging for inspection.
     for (const medium of PUBLICATION_MEDIA) {
       equal(
-        sameInventory(
-          await inventory(o.destinations[medium]),
-          plan.prestates[medium],
-        ),
+        sameInventory(await inventory(o.destinations[medium]), plan.prestates[medium]),
         true,
         'Unjournaled destination prestate changed',
       );
@@ -916,8 +800,7 @@ async function recoverLockedPair(
     'Recovery journal destination mismatch',
   );
   if (journal.status === 'INSTALLED') {
-    for (const m of PUBLICATION_MEDIA)
-      await verifyInstalled(plan, m, acceptance);
+    for (const m of PUBLICATION_MEDIA) await verifyInstalled(plan, m, acceptance);
     return { status: 'ALREADY_INSTALLED', planSha256: digest };
   }
   if (journal.status === 'ROLLED_BACK') {
@@ -929,9 +812,7 @@ async function recoverLockedPair(
       );
     return { status: 'ALREADY_ROLLED_BACK', planSha256: digest };
   }
-  if (
-    !['PREPARING', 'INSTALLING', 'RECOVERY_REQUIRED'].includes(journal.status)
-  )
+  if (!['PREPARING', 'INSTALLING', 'RECOVERY_REQUIRED'].includes(journal.status))
     throw Error('Unknown recovery state');
   return rollbackPair(plan, acceptance, journal, op, { rename, writeJournal });
 }
@@ -955,11 +836,7 @@ async function publishLockedPair(
   const o = plan.options;
   for (const d of plan.dependencies) {
     await noLinks(d.file);
-    equal(
-      sha(await fs.readFile(d.file)),
-      d.sha256,
-      'Source/evidence changed: ' + d.file,
-    );
+    equal(sha(await fs.readFile(d.file)), d.sha256, 'Source/evidence changed: ' + d.file);
   }
   const already = await Promise.all(
     PUBLICATION_MEDIA.map(async (m) => {
@@ -969,8 +846,7 @@ async function publishLockedPair(
       try {
         const value = JSON.parse(await fs.readFile(p));
         return (
-          value?.schema === 'architecture.pair-files-receipt/v1' &&
-          value.planSha256 === digest
+          value?.schema === 'architecture.pair-files-receipt/v1' && value.planSha256 === digest
         );
       } catch (error) {
         if (error instanceof SyntaxError) return false;
@@ -979,18 +855,13 @@ async function publishLockedPair(
     }),
   );
   if (already.some(Boolean)) {
-    if (!already.every(Boolean))
-      throw Error('Partial prior install requires recovery, not replay');
+    if (!already.every(Boolean)) throw Error('Partial prior install requires recovery, not replay');
     equal(
       (await planPairFiles(planInput(plan), plan.prestates)).sha256,
       digest,
       'Canonical replay plan changed',
     );
-    const operationFile = path.join(
-      o.recoveryRoot,
-      digest.slice(0, 20),
-      'operation.json',
-    );
+    const operationFile = path.join(o.recoveryRoot, digest.slice(0, 20), 'operation.json');
     await noLinks(operationFile);
     const operation = JSON.parse(await fs.readFile(operationFile));
     if (
@@ -999,8 +870,7 @@ async function publishLockedPair(
       JSON.stringify(operation.destinations) !== JSON.stringify(o.destinations)
     )
       throw Error('Recorded operation does not confirm delivery');
-    for (const m of PUBLICATION_MEDIA)
-      await verifyInstalled(plan, m, acceptance);
+    for (const m of PUBLICATION_MEDIA) await verifyInstalled(plan, m, acceptance);
     return { status: 'ALREADY_INSTALLED', planSha256: digest };
   }
   for (const m of PUBLICATION_MEDIA)
@@ -1012,11 +882,7 @@ async function publishLockedPair(
   // A caller-supplied hash cannot authorize a different payload. Re-derive the
   // controlled plan from the same exact source/evidence and current prestates.
   const currentPlan = await planPairFiles(planInput(plan));
-  equal(
-    currentPlan.sha256,
-    digest,
-    'Canonical plan changed; re-plan and review',
-  );
+  equal(currentPlan.sha256, digest, 'Canonical plan changed; re-plan and review');
   const parent = path.dirname(o.destinations.native);
   await noLinks(parent);
   await noLinks(o.recoveryRoot);
@@ -1029,18 +895,12 @@ async function publishLockedPair(
     'Recovery and destination must share a filesystem',
   );
   if (await exists(op))
-    throw Error(
-      'Recorded operation already exists; inspect or recover its exact state',
-    );
+    throw Error('Recorded operation already exists; inspect or recover its exact state');
   const preparation = await fs.mkdtemp(
     path.join(o.recoveryRoot, '.prepare-' + digest.slice(0, 20) + '-'),
   );
-  const stage = await fs.mkdtemp(
-      path.join(parent, '.architecture-publication-stage-'),
-    ),
-    recovery = Object.fromEntries(
-      PUBLICATION_MEDIA.map((m) => [m, path.join(op, 'prior-' + m)]),
-    ),
+  const stage = await fs.mkdtemp(path.join(parent, '.architecture-publication-stage-')),
+    recovery = Object.fromEntries(PUBLICATION_MEDIA.map((m) => [m, path.join(op, 'prior-' + m)])),
     installed = [],
     saved = [];
   const journal = {
@@ -1053,18 +913,11 @@ async function publishLockedPair(
     saved,
     intent: null,
   };
-  const record = () =>
-    writeJournal(path.join(op, 'operation.json'), encode(journal));
+  const record = () => writeJournal(path.join(op, 'operation.json'), encode(journal));
   try {
     await atomicJournal(path.join(preparation, 'plan.json'), encode(plan));
-    await atomicJournal(
-      path.join(preparation, 'acceptance.json'),
-      encode(acceptance),
-    );
-    await writeJournal(
-      path.join(preparation, 'operation.json'),
-      encode(journal),
-    );
+    await atomicJournal(path.join(preparation, 'acceptance.json'), encode(acceptance));
+    await writeJournal(path.join(preparation, 'operation.json'), encode(journal));
     equal(
       await fs.readFile(path.join(preparation, 'operation.json'), 'utf8'),
       encode(journal),
@@ -1083,6 +936,7 @@ async function publishLockedPair(
         preparation +
         '; stage: ' +
         stage,
+      { cause: error },
     );
   }
   try {
@@ -1105,11 +959,7 @@ async function publishLockedPair(
       );
       const previousEntries = {},
         history = 'history/' + sha(encode(before)).slice(0, 20);
-      if (
-        before.entries.some(
-          (e) => e.path === history || e.path.startsWith(history + '/'),
-        )
-      )
+      if (before.entries.some((e) => e.path === history || e.path.startsWith(history + '/')))
         throw Error('History path collision');
       for (const name of metadata)
         if (await exists(path.join(out, name))) {
@@ -1149,11 +999,9 @@ async function publishLockedPair(
         files.map((f) => f.path),
         'Staged file set mismatch',
       );
-      await fs.writeFile(
-        path.join(out, 'delivery-manifest.json'),
-        encode(manifest),
-        { flag: 'wx' },
-      );
+      await fs.writeFile(path.join(out, 'delivery-manifest.json'), encode(manifest), {
+        flag: 'wx',
+      });
       const sums =
         files
           .concat({
@@ -1167,11 +1015,7 @@ async function publishLockedPair(
       recovery[medium] = path.join(op, 'prior-' + medium);
     }
     for (const d of plan.dependencies)
-      equal(
-        sha(await fs.readFile(d.file)),
-        d.sha256,
-        'Source changed before install',
-      );
+      equal(sha(await fs.readFile(d.file)), d.sha256, 'Source changed before install');
     for (const m of PUBLICATION_MEDIA)
       equal(
         JSON.stringify(await inventory(o.destinations[m])),
@@ -1260,6 +1104,7 @@ async function publishLockedPair(
           ? '; rollback failures: ' + JSON.stringify(failures)
           : '; both prestates restored') +
         (journalError ? '; journal: ' + journalError : ''),
+      { cause: error },
     );
   }
 }

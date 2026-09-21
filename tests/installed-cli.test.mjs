@@ -5,9 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import {
-  createEditionCandidate,
-} from '../packages/publisher/src/compiler/candidate.mjs';
+import { createEditionCandidate } from '../packages/publisher/src/compiler/candidate.mjs';
 import {
   interactiveSceneDigest,
   staticSceneDigest,
@@ -31,11 +29,11 @@ test('packed CLI verifies relocated non-Git input without development executable
     npm_config_update_notifier: 'false',
     npm_config_audit: 'false',
   };
-  const pack = spawnSync(
-    'npm',
-    ['pack', '--json', '--ignore-scripts', '--pack-destination', tmp],
-    { cwd: publisher, env, encoding: 'utf8' },
-  );
+  const pack = spawnSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', tmp], {
+    cwd: publisher,
+    env,
+    encoding: 'utf8',
+  });
   assert.equal(pack.status, 0, pack.stderr);
   const info = JSON.parse(pack.stdout)[0];
   assert(info.files.some((f) => f.path === 'src/cli/main.mjs'));
@@ -67,9 +65,7 @@ test('packed CLI verifies relocated non-Git input without development executable
   );
   assert.equal(installed.status, 0, installed.stderr);
   const pkg = path.join(install, 'node_modules/architecture-publisher');
-  const packageJson = JSON.parse(
-    await fs.readFile(path.join(pkg, 'package.json'), 'utf8'),
-  );
+  const packageJson = JSON.parse(await fs.readFile(path.join(pkg, 'package.json'), 'utf8'));
   assert.deepEqual(packageJson.dependencies ?? {}, {});
   await assert.rejects(fs.stat(path.join(install, 'node_modules/acorn')), {
     code: 'ENOENT',
@@ -82,9 +78,7 @@ test('packed CLI verifies relocated non-Git input without development executable
   });
   const input = path.join(tmp, 'relocated input');
   await fs.mkdir(input);
-  const data = Buffer.from(
-    'all services may retry only on a transient failure\n',
-  );
+  const data = Buffer.from('all services may retry only on a transient failure\n');
   await fs.writeFile(path.join(input, 'source.txt'), data);
   const manifest = Buffer.from(
     JSON.stringify({
@@ -97,15 +91,11 @@ test('packed CLI verifies relocated non-Git input without development executable
   const home = path.join(tmp, 'empty-home');
   await fs.mkdir(home);
   const run = (args) =>
-    spawnSync(
-      process.execPath,
-      [path.join(pkg, 'src/cli/main.mjs'), ...args],
-      {
-        cwd: install,
-        env: { HOME: home, PATH: home, LANG: 'C.UTF-8' },
-        encoding: 'utf8',
-      },
-    );
+    spawnSync(process.execPath, [path.join(pkg, 'src/cli/main.mjs'), ...args], {
+      cwd: install,
+      env: { HOME: home, PATH: home, LANG: 'C.UTF-8' },
+      encoding: 'utf8',
+    });
   const args = [
     'source',
     'verify',
@@ -134,24 +124,28 @@ test('packed CLI verifies relocated non-Git input without development executable
       media: {
         static: {
           sceneSha256: staticSceneDigest(selected.model, selected.edition),
-          artifacts: [{
-            id: 'overview-png',
-            mediaType: 'image/png',
-            bytes: 1,
-            path: 'static/architecture-publisher-6000.png',
-            sha256: sha(Buffer.from('png')),
-          }],
+          artifacts: [
+            {
+              id: 'overview-png',
+              mediaType: 'image/png',
+              bytes: 1,
+              path: 'static/architecture-publisher-6000.png',
+              sha256: sha(Buffer.from('png')),
+            },
+          ],
           supplies: [{ id: 'raster', sha256: sha(Buffer.from('raster')) }],
         },
         interactive: {
           sceneSha256: interactiveSceneDigest(selected.model, selected.edition),
-          artifacts: [{
-            id: 'atlas',
-            mediaType: 'text/html',
-            bytes: 1,
-            path: 'interactive/architecture-publisher.html',
-            sha256: sha(Buffer.from('html')),
-          }],
+          artifacts: [
+            {
+              id: 'atlas',
+              mediaType: 'text/html',
+              bytes: 1,
+              path: 'interactive/architecture-publisher.html',
+              sha256: sha(Buffer.from('html')),
+            },
+          ],
           supplies: [{ id: 'archify', sha256: sha(Buffer.from('archify')) }],
         },
       },
@@ -206,9 +200,7 @@ test('packed CLI verifies relocated non-Git input without development executable
         sha256: sha(qualificationBytes),
       },
     },
-    qualificationRequestBytes = Buffer.from(
-      JSON.stringify(qualificationRequest, null, 2) + '\n',
-    ),
+    qualificationRequestBytes = Buffer.from(JSON.stringify(qualificationRequest, null, 2) + '\n'),
     qualificationRequestPath = path.join(tmp, 'qualification-request.json');
   await fs.writeFile(qualificationRequestPath, qualificationRequestBytes);
   const qualified = run([

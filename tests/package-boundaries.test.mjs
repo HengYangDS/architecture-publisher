@@ -21,6 +21,8 @@ test('workspace separates the generic product from concrete Editions', async () 
   assert.deepEqual(workspace.workspaces, ['packages/publisher', 'editions/self']);
   assert.equal(product.name, 'architecture-publisher');
   assert.deepEqual(product.bin, { archpub: 'src/cli/main.mjs' });
+  assert.equal(Object.hasOwn(product.exports, '.'), false);
+  await assert.rejects(fs.access(path.join(publisher, 'src/index.mjs')), { code: 'ENOENT' });
 });
 
 test('terminal paths make product ownership explicit', async () => {
@@ -37,10 +39,7 @@ test('terminal paths make product ownership explicit', async () => {
   await assert.rejects(fs.stat(path.join(root, 'examples/self-host')), {
     code: 'ENOENT',
   });
-  await assert.rejects(
-    fs.stat(path.join(root, 'packages/publisher/assets')),
-    { code: 'ENOENT' },
-  );
+  await assert.rejects(fs.stat(path.join(root, 'packages/publisher/assets')), { code: 'ENOENT' });
   for (const owner of ['archify', 'fonts', 'resvg'])
     await fs.access(path.join(publisher, 'renderers', owner, 'supply'));
 });
@@ -61,9 +60,7 @@ test('the first-party self Edition is an independent package below the generic c
     }
   }
   await walk(path.join(selfEdition, 'src'));
-  const source = (
-    await Promise.all(files.map((file) => fs.readFile(file, 'utf8')))
-  ).join('\n');
+  const source = (await Promise.all(files.map((file) => fs.readFile(file, 'utf8')))).join('\n');
   assert.match(source, /from ['"]architecture-publisher\//);
   assert.doesNotMatch(source, /packages\/publisher|(?:\.\.\/){3,}(?:src|renderers)/);
   const core = (
@@ -86,16 +83,18 @@ test('the first-party self Edition is an independent package below the generic c
         },
       ),
     )
-  ).flat().join('\n');
+  )
+    .flat()
+    .join('\n');
   assert.doesNotMatch(core, /architecture-publisher-self|self-edition/);
 });
 
 test('the packed generic product contains no concrete domain package', () => {
-  const packed = spawnSync(
-    'npm',
-    ['pack', '--json', '--dry-run', '--ignore-scripts'],
-    { cwd: publisher, encoding: 'utf8', timeout: 30000 },
-  );
+  const packed = spawnSync('npm', ['pack', '--json', '--dry-run', '--ignore-scripts'], {
+    cwd: publisher,
+    encoding: 'utf8',
+    timeout: 30000,
+  });
   assert.equal(
     packed.status,
     0,
@@ -109,38 +108,21 @@ test('the packed generic product contains no concrete domain package', () => {
 });
 
 test('the generic command surface has no domain or renderer identity', async () => {
-  const cli = await fs.readFile(
-    path.join(publisher, 'src/cli/main.mjs'),
-    'utf8',
-  );
+  const cli = await fs.readFile(path.join(publisher, 'src/cli/main.mjs'), 'utf8');
   assert.doesNotMatch(cli, /\b(?:ethos|aigw|archify|resvg|coretext)\b/i);
   assert.doesNotMatch(cli, /packages\/editions|\.\.\/\.\.\/editions/);
 });
 
 test('shared font supply belongs to its own renderer capability', async () => {
   const product = await json(path.join(publisher, 'package.json')),
-    archify = await fs.readFile(
-      path.join(publisher, 'renderers/archify/public.mjs'),
-      'utf8',
-    ),
-    resvgSupply = await json(
-      path.join(publisher, 'renderers/resvg/supply/resvg/package.json'),
-    ),
-    rasterBuild = await fs.readFile(
-      path.join(root, 'tools/raster/resvg/build.sh'),
-      'utf8',
-    ),
-    rasterCargo = await fs.readFile(
-      path.join(root, 'tools/raster/resvg/Cargo.toml'),
-      'utf8',
-    ),
+    archify = await fs.readFile(path.join(publisher, 'renderers/archify/public.mjs'), 'utf8'),
+    resvgSupply = await json(path.join(publisher, 'renderers/resvg/supply/resvg/package.json')),
+    rasterBuild = await fs.readFile(path.join(root, 'tools/raster/resvg/build.sh'), 'utf8'),
+    rasterCargo = await fs.readFile(path.join(root, 'tools/raster/resvg/Cargo.toml'), 'utf8'),
     rasterWasm = await fs.readFile(
       path.join(publisher, 'renderers/resvg/supply/resvg/index_bg.wasm'),
     );
-  assert.equal(
-    product.exports['./renderers/fonts'],
-    './renderers/fonts/index.mjs',
-  );
+  assert.equal(product.exports['./renderers/fonts'], './renderers/fonts/index.mjs');
   assert.doesNotMatch(archify, /fonts\.mjs|loadBundledFonts/);
   assert.equal(resvgSupply.name, '@architecture-publisher/resvg-wasm-supply');
   assert.doesNotMatch(JSON.stringify(resvgSupply), /ethos/i);

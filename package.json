@@ -10,18 +10,35 @@
   ],
   "scripts": {
     "test": "node --test --test-concurrency=2 tests/*.test.mjs",
-    "check": "npm run check:syntax && npm run check:dead-code",
-    "check:syntax": "node tools/check-syntax.mjs",
-    "check:dead-code": "knip --config knip.json && knip --config knip.json --production --strict --include files,unlisted,unresolved,cycles,exports,nsExports"
+    "check": "npm run check:static && npm run test:coverage && npm run check:package",
+    "check:static": "npm run check:format && npm run check:lint && npm run check:types && npm run check:imports && npm run check:dead-code && npm run check:docs && npm run check:spec",
+    "check:format": "prettier --check .",
+    "check:lint": "eslint . --max-warnings 0",
+    "check:types": "tsc --project jsconfig.json --noEmit",
+    "check:imports": "node --test tests/module-boundaries.test.mjs",
+    "check:dead-code": "knip --config knip.json && knip --config knip.json --production --strict --include files,unlisted,unresolved,cycles,exports,nsExports",
+    "check:docs": "markdownlint-cli2 \"README.md\" \"docs/**/*.md\" \"openspec/**/*.md\" \"skills/**/*.md\" \"#openspec/changes/archive/**\"",
+    "check:spec": "openspec validate --all --strict --no-interactive",
+    "test:coverage": "c8 --all --include='packages/publisher/src/**/*.mjs' --exclude='packages/publisher/src/**/index.mjs' --check-coverage --statements=89 --lines=89 --branches=86 --functions=95 npm test",
+    "check:package": "publint packages/publisher"
   },
   "license": "UNLICENSED",
   "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@fission-ai/openspec": "1.13.1",
+    "@types/node": "26.6.2",
     "acorn": "8.18.0",
+    "c8": "12.0.0",
+    "eslint": "10.11.0",
+    "globals": "17.12.0",
+    "knip": "6.37.0",
+    "markdownlint-cli2": "0.23.3",
     "playwright-core": "1.63.0",
-    "knip": "6.37.0"
+    "prettier": "3.9.8",
+    "publint": "0.3.24",
+    "typescript": "7.0.2"
   },
-  "packageManager": "npm@11.19.1"
-  ,
+  "packageManager": "npm@11.19.1",
   "engines": {
     "node": ">=22"
   }

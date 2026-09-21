@@ -15,27 +15,19 @@ const sha = (b) => createHash('sha256').update(b).digest('hex');
 const root = path.resolve(import.meta.dirname, '..');
 const publisher = path.join(root, 'packages/publisher');
 async function fixture(t) {
-  const dir = await fs.realpath(
-    await fs.mkdtemp(path.join(os.tmpdir(), 'pair-files-')),
-  );
+  const dir = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'pair-files-')));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const sources = path.join(dir, 'sources');
   await fs.mkdir(sources);
   await fs.writeFile(path.join(sources, 'figure.svg'), '<svg/>');
-  await fs.writeFile(
-    path.join(sources, 'page.html'),
-    '<html>file fixture</html>',
-  );
+  await fs.writeFile(path.join(sources, 'page.html'), '<html>file fixture</html>');
   const destinations = {
     native: path.join(dir, 'native'),
     atlas: path.join(dir, 'atlas'),
   };
   for (const target of Object.values(destinations)) {
     await fs.mkdir(target);
-    await fs.writeFile(
-      path.join(target, 'owner-note.txt'),
-      'keep this exact byte',
-    );
+    await fs.writeFile(path.join(target, 'owner-note.txt'), 'keep this exact byte');
     await fs.writeFile(path.join(target, '.DS_Store'), 'metadata');
     await fs.mkdir(path.join(target, 'empty'));
     await fs.writeFile(path.join(target, 'index.html'), 'old entry');
@@ -63,8 +55,7 @@ async function planFiles(options) {
     });
   }
   await add('native', 'figure.svg', 'terminal/figure.svg');
-  for (let i = 0; i < 13; i++)
-    await add('atlas', 'page.html', 'atlas/page-' + i + '/index.html');
+  for (let i = 0; i < 13; i++) await add('atlas', 'page.html', 'atlas/page-' + i + '/index.html');
   const entries = Object.fromEntries(
     ['native', 'atlas'].map((m) => [
       m,
@@ -80,20 +71,10 @@ async function planFiles(options) {
   });
 }
 const approve = (plan) => ({ decision: 'AUTHORIZED', planSha256: plan.sha256 });
-async function interruptWriter(
-  dir,
-  plan,
-  acceptance,
-  phase,
-  side,
-  mode = 'install',
-) {
+async function interruptWriter(dir, plan, acceptance, phase, side, mode = 'install') {
   const input = path.join(dir, 'writer-input.json'),
     child = path.join(dir, 'writer-interrupt.mjs');
-  await fs.writeFile(
-    input,
-    JSON.stringify({ plan, acceptance, phase, side, mode }),
-  );
+  await fs.writeFile(input, JSON.stringify({ plan, acceptance, phase, side, mode }));
   await fs.writeFile(
     child,
     `import fs from 'node:fs/promises';import path from 'node:path';
@@ -124,10 +105,7 @@ for (const phase of ['owner-publication', 'activation', 'release'])
         acceptance = approve(plan);
       await interruptWriter(dir, plan, acceptance, phase, side);
       const result = await recoverPairFiles(plan, acceptance);
-      assert.equal(
-        result.status,
-        phase === 'release' ? 'ALREADY_INSTALLED' : 'NOT_STARTED',
-      );
+      assert.equal(result.status, phase === 'release' ? 'ALREADY_INSTALLED' : 'NOT_STARTED');
       if (phase !== 'release') {
         for (const target of Object.values(options.destinations))
           assert.deepEqual((await fs.readdir(target)).sort(), [
@@ -136,10 +114,7 @@ for (const phase of ['owner-publication', 'activation', 'release'])
             'index.html',
             'owner-note.txt',
           ]);
-        assert.equal(
-          (await installPairFiles(plan, acceptance)).status,
-          'INSTALLED',
-        );
+        assert.equal((await installPairFiles(plan, acceptance)).status, 'INSTALLED');
       }
       for (const target of Object.values(options.destinations))
         assert.equal(
@@ -155,14 +130,8 @@ for (const side of ['before', 'after'])
       acceptance = approve(plan);
     await interruptWriter(dir, plan, acceptance, 'save-native', 'after');
     await interruptWriter(dir, plan, acceptance, 'reclaim', side, 'recover');
-    assert.equal(
-      (await recoverPairFiles(plan, acceptance)).status,
-      'ROLLED_BACK',
-    );
-    assert.equal(
-      (await recoverPairFiles(plan, acceptance)).status,
-      'ALREADY_ROLLED_BACK',
-    );
+    assert.equal((await recoverPairFiles(plan, acceptance)).status, 'ROLLED_BACK');
+    assert.equal((await recoverPairFiles(plan, acceptance)).status, 'ALREADY_ROLLED_BACK');
     for (const target of Object.values(options.destinations))
       assert.deepEqual((await fs.readdir(target)).sort(), [
         '.DS_Store',
@@ -180,10 +149,7 @@ test('an ambiguous empty writer lock is never replaced by an installation', asyn
   await assert.rejects(installPairFiles(plan, approve(plan)));
   assert.deepEqual(await fs.readdir(lock), []);
   for (const target of Object.values(options.destinations))
-    assert.equal(
-      await fs.readFile(path.join(target, 'index.html'), 'utf8'),
-      'old entry',
-    );
+    assert.equal(await fs.readFile(path.join(target, 'index.html'), 'utf8'), 'old entry');
 });
 
 test('a delayed stale reclaimer cannot move a newer active writer', async (t) => {
@@ -197,10 +163,7 @@ test('a delayed stale reclaimer cannot move a newer active writer', async (t) =>
   fs.rename = async (a, b) => {
     if (!raced && a === lock) {
       raced = true;
-      assert.equal(
-        (await recoverPairFiles(plan, acceptance)).status,
-        'ROLLED_BACK',
-      );
+      assert.equal((await recoverPairFiles(plan, acceptance)).status, 'ROLLED_BACK');
       const next = await planPairFiles({
         options,
         source: { id: 'next-file-test' },
@@ -213,17 +176,9 @@ test('a delayed stale reclaimer cannot move a newer active writer', async (t) =>
         rename: async (from, to) => {
           if (!checked) {
             checked = true;
-            const owner = await fs.readFile(
-              path.join(lock, 'owner.json'),
-              'utf8',
-            );
-            await assert.rejects(rename(a, b), (e) =>
-              ['EEXIST', 'ENOTEMPTY'].includes(e.code),
-            );
-            assert.equal(
-              await fs.readFile(path.join(lock, 'owner.json'), 'utf8'),
-              owner,
-            );
+            const owner = await fs.readFile(path.join(lock, 'owner.json'), 'utf8');
+            await assert.rejects(rename(a, b), (e) => ['EEXIST', 'ENOTEMPTY'].includes(e.code));
+            assert.equal(await fs.readFile(path.join(lock, 'owner.json'), 'utf8'), owner);
           }
           return rename(from, to);
         },
@@ -234,10 +189,7 @@ test('a delayed stale reclaimer cannot move a newer active writer', async (t) =>
     return rename(a, b);
   };
   try {
-    await assert.rejects(
-      recoverPairFiles(plan, acceptance),
-      /lost exact identity/,
-    );
+    await assert.rejects(recoverPairFiles(plan, acceptance), /lost exact identity/);
   } finally {
     fs.rename = rename;
   }
@@ -286,17 +238,11 @@ test('foreign-host and different-plan writer records are preserved and refused',
   ]) {
     const bytes = JSON.stringify(changed);
     await fs.writeFile(file, bytes);
-    await assert.rejects(
-      recoverPairFiles(plan, acceptance),
-      /active installer|exact prior plan/,
-    );
+    await assert.rejects(recoverPairFiles(plan, acceptance), /active installer|exact prior plan/);
     assert.equal(await fs.readFile(file, 'utf8'), bytes);
   }
   await fs.writeFile(file, JSON.stringify(original));
-  assert.equal(
-    (await recoverPairFiles(plan, acceptance)).status,
-    'ROLLED_BACK',
-  );
+  assert.equal((await recoverPairFiles(plan, acceptance)).status, 'ROLLED_BACK');
 });
 
 test('pair publisher belongs to existing delivery entry and dry-run preserves both targets', async (t) => {
@@ -306,16 +252,10 @@ test('pair publisher belongs to existing delivery entry and dry-run preserves bo
   assert.equal(p.mode, 'dry-run');
   assert.equal(p.source.id, 'file-test:two-media');
   assert.equal(
-    p.payload.filter(
-      (f) => f.medium === 'atlas' && f.path.endsWith('index.html'),
-    ).length,
+    p.payload.filter((f) => f.medium === 'atlas' && f.path.endsWith('index.html')).length,
     13,
   );
-  assert.ok(
-    p.payload.some(
-      (f) => f.medium === 'native' && f.path === 'terminal/figure.svg',
-    ),
-  );
+  assert.ok(p.payload.some((f) => f.medium === 'native' && f.path === 'terminal/figure.svg'));
   assert.equal(p.scope, 'file-installation-only');
   assert.ok(p.payload.every((f) => /^[a-f\d]{64}$/.test(f.sha256)));
   for (const target of Object.values(options.destinations))
@@ -340,33 +280,19 @@ test('exact pair install preserves foreign bytes, previous entries and every atl
       await fs.readFile(path.join(target, 'owner-note.txt'), 'utf8'),
       'keep this exact byte',
     );
-    assert.equal(
-      await fs.readFile(path.join(target, '.DS_Store'), 'utf8'),
-      'metadata',
-    );
+    assert.equal(await fs.readFile(path.join(target, '.DS_Store'), 'utf8'), 'metadata');
     assert.ok((await fs.stat(path.join(target, 'empty'))).isDirectory());
-    const m = JSON.parse(
-      await fs.readFile(path.join(target, 'delivery-manifest.json')),
-    );
+    const m = JSON.parse(await fs.readFile(path.join(target, 'delivery-manifest.json')));
     assert.equal(m.source.digest, p.source.digest);
     assert.equal(m.planSha256, p.sha256);
     assert.equal(
-      await fs.readFile(
-        path.join(target, m.previousEntries['index.html']),
-        'utf8',
-      ),
+      await fs.readFile(path.join(target, m.previousEntries['index.html']), 'utf8'),
       'old entry',
     );
     for (const row of p.payload.filter((f) => f.medium === medium))
-      assert.equal(
-        sha(await fs.readFile(path.join(target, row.path))),
-        row.sha256,
-      );
+      assert.equal(sha(await fs.readFile(path.join(target, row.path))), row.sha256);
     assert.equal(
-      await fs.readFile(
-        path.join(result.recovery[medium], 'index.html'),
-        'utf8',
-      ),
+      await fs.readFile(path.join(result.recovery[medium], 'index.html'), 'utf8'),
       'old entry',
     );
   }
@@ -382,29 +308,14 @@ test('missing or mismatched acceptance, stale plan and destination drift refuse 
     { ...approve(p), decision: 'PENDING' },
     { ...approve(p), planSha256: '0'.repeat(64) },
   ])
-    await assert.rejects(
-      installPairFiles(p, approval),
-      /authorization|approved/i,
-    );
+    await assert.rejects(installPairFiles(p, approval), /authorization|approved/i);
   const tampered = structuredClone(p);
   tampered.payload.pop();
-  await assert.rejects(
-    installPairFiles(tampered, approve(p)),
-    /plan.*digest|plan.*hash/i,
-  );
-  await fs.writeFile(
-    path.join(options.destinations.native, 'late.txt'),
-    'concurrent edit',
-  );
-  await assert.rejects(
-    installPairFiles(p, approve(p)),
-    /destination.*changed|prestate/i,
-  );
+  await assert.rejects(installPairFiles(tampered, approve(p)), /plan.*digest|plan.*hash/i);
+  await fs.writeFile(path.join(options.destinations.native, 'late.txt'), 'concurrent edit');
+  await assert.rejects(installPairFiles(p, approve(p)), /destination.*changed|prestate/i);
   assert.equal(
-    await fs.readFile(
-      path.join(options.destinations.atlas, 'index.html'),
-      'utf8',
-    ),
+    await fs.readFile(path.join(options.destinations.atlas, 'index.html'), 'utf8'),
     'old entry',
   );
   await assert.rejects(fs.stat(options.recoveryRoot), { code: 'ENOENT' });
@@ -421,16 +332,10 @@ test('second installation failure restores both original directory states', asyn
     }
     return fs.rename(a, b);
   };
-  await assert.rejects(
-    installPairFiles(p, approve(p), { rename }),
-    /second installation failure/,
-  );
+  await assert.rejects(installPairFiles(p, approve(p), { rename }), /second installation failure/);
   assert.equal(failed, true);
   for (const target of Object.values(options.destinations)) {
-    assert.equal(
-      await fs.readFile(path.join(target, 'index.html'), 'utf8'),
-      'old entry',
-    );
+    assert.equal(await fs.readFile(path.join(target, 'index.html'), 'utf8'), 'old entry');
     assert.deepEqual((await fs.readdir(target)).sort(), [
       '.DS_Store',
       'empty',
@@ -443,19 +348,11 @@ test('second installation failure restores both original directory states', asyn
 test('source or target symlinks, overlaps and payload collisions fail before writes', async (t) => {
   const { dir, options } = await fixture(t);
   await fs.mkdir(path.join(options.destinations.native, 'terminal'));
-  await fs.writeFile(
-    path.join(options.destinations.native, 'terminal/figure.svg'),
-    'foreign',
-  );
+  await fs.writeFile(path.join(options.destinations.native, 'terminal/figure.svg'), 'foreign');
   await assert.rejects(planFiles(options), /collision/i);
-  await fs.unlink(
-    path.join(options.destinations.native, 'terminal/figure.svg'),
-  );
+  await fs.unlink(path.join(options.destinations.native, 'terminal/figure.svg'));
   await fs.rmdir(path.join(options.destinations.native, 'terminal'));
-  await fs.symlink(
-    '/not-owned',
-    path.join(options.destinations.atlas, 'foreign-link'),
-  );
+  await fs.symlink('/not-owned', path.join(options.destinations.atlas, 'foreign-link'));
   await assert.rejects(planFiles(options), /symlink|symbolic/i);
   await fs.unlink(path.join(options.destinations.atlas, 'foreign-link'));
   await assert.rejects(
@@ -501,10 +398,7 @@ test('a recomputed plan cannot replace the canonical payload with arbitrary cont
   };
   const { sha256: _, ...body } = p;
   p.sha256 = sha(JSON.stringify(body, null, 2) + '\n');
-  await assert.rejects(
-    installPairFiles(p, approve(p)),
-    /canonical|plan.*changed|source outside/i,
-  );
+  await assert.rejects(installPairFiles(p, approve(p)), /canonical|plan.*changed|source outside/i);
   await assert.rejects(fs.stat(options.recoveryRoot), { code: 'ENOENT' });
 });
 
@@ -514,9 +408,7 @@ test('migration rehearsal reads real previous deliveries but writes only tempora
     atlas: process.env.PAIR_PRIOR_ATLAS,
   };
   if (!prior.native && !prior.atlas) {
-    t.skip(
-      'Real delivery rehearsal requires explicit PAIR_PRIOR_NATIVE and PAIR_PRIOR_ATLAS',
-    );
+    t.skip('Real delivery rehearsal requires explicit PAIR_PRIOR_NATIVE and PAIR_PRIOR_ATLAS');
     return;
   }
   for (const [medium, file] of Object.entries(prior))
@@ -536,18 +428,10 @@ test('migration rehearsal reads real previous deliveries but writes only tempora
   assert.equal(result.status, 'INSTALLED');
   for (const medium of ['native', 'atlas']) {
     const target = options.destinations[medium],
-      m = JSON.parse(
-        await fs.readFile(path.join(target, 'delivery-manifest.json')),
-      );
-    for (const before of p.prestates[medium].entries.filter(
-      (e) => e.kind === 'file',
-    ))
+      m = JSON.parse(await fs.readFile(path.join(target, 'delivery-manifest.json')));
+    for (const before of p.prestates[medium].entries.filter((e) => e.kind === 'file'))
       assert.equal(
-        sha(
-          await fs.readFile(
-            path.join(target, m.previousEntries[before.path] ?? before.path),
-          ),
-        ),
+        sha(await fs.readFile(path.join(target, m.previousEntries[before.path] ?? before.path))),
         before.sha256,
       );
   }
@@ -563,16 +447,11 @@ test('unknown manifest text is preserved as data, not parsed as accepted authori
     r = await installPairFiles(p, approve(p));
   assert.equal(r.status, 'INSTALLED');
   const m = JSON.parse(
-    await fs.readFile(
-      path.join(options.destinations.native, 'delivery-manifest.json'),
-    ),
+    await fs.readFile(path.join(options.destinations.native, 'delivery-manifest.json')),
   );
   assert.equal(
     await fs.readFile(
-      path.join(
-        options.destinations.native,
-        m.previousEntries['delivery-manifest.json'],
-      ),
+      path.join(options.destinations.native, m.previousEntries['delivery-manifest.json']),
       'utf8',
     ),
     'owner text, not JSON',
@@ -581,10 +460,7 @@ test('unknown manifest text is preserved as data, not parsed as accepted authori
 
 test('JSON null old metadata is preserved without being treated as a delivery receipt', async (t) => {
   const { options } = await fixture(t);
-  await fs.writeFile(
-    path.join(options.destinations.native, 'delivery-manifest.json'),
-    'null',
-  );
+  await fs.writeFile(path.join(options.destinations.native, 'delivery-manifest.json'), 'null');
   const p = await planFiles(options),
     r = await installPairFiles(p, approve(p));
   assert.equal(r.status, 'INSTALLED');
@@ -593,20 +469,11 @@ test('JSON null old metadata is preserved without being treated as a delivery re
 test('reserved root metadata occupied by a directory is rejected before staging', async (t) => {
   const { options } = await fixture(t);
   await fs.mkdir(path.join(options.destinations.native, 'README.md'));
-  await fs.writeFile(
-    path.join(options.destinations.native, 'README.md', 'child.txt'),
-    'preserve',
-  );
-  await assert.rejects(
-    planFiles(options),
-    /reserved.*directory|metadata.*file/i,
-  );
+  await fs.writeFile(path.join(options.destinations.native, 'README.md', 'child.txt'), 'preserve');
+  await assert.rejects(planFiles(options), /reserved.*directory|metadata.*file/i);
   await assert.rejects(fs.stat(options.recoveryRoot), { code: 'ENOENT' });
   assert.equal(
-    await fs.readFile(
-      path.join(options.destinations.native, 'README.md', 'child.txt'),
-      'utf8',
-    ),
+    await fs.readFile(path.join(options.destinations.native, 'README.md', 'child.txt'), 'utf8'),
     'preserve',
   );
 });
@@ -615,10 +482,7 @@ test('case-insensitive macOS aliases cannot bypass source/destination overlap ch
   const { options } = await fixture(t),
     original = options.sourceRoots[0],
     alias = original.replace('/sources', '/SOURCES');
-  if (
-    (await fs.realpath(alias).catch(() => null)) !==
-    (await fs.realpath(original))
-  ) {
+  if ((await fs.realpath(alias).catch(() => null)) !== (await fs.realpath(original))) {
     t.skip('Case-sensitive filesystem');
     return;
   }
@@ -686,10 +550,7 @@ test('a replay must refer to the actually recorded operation, not a newly invent
         .join('\n') + '\n',
     );
   }
-  await assert.rejects(
-    installPairFiles(p, approve(p)),
-    /recorded|operation|canonical|ENOENT/i,
-  );
+  await assert.rejects(installPairFiles(p, approve(p)), /recorded|operation|canonical|ENOENT/i);
   assert.ok(original !== p.sha256);
 });
 
@@ -703,29 +564,20 @@ test('incomplete rollback still reports recovery paths when writing the journal 
     return fs.rename(a, b);
   };
   const writeJournal = async (file, bytes) => {
-    if (JSON.parse(bytes).status === 'RECOVERY_REQUIRED')
-      throw Error('journal ENOSPC');
+    if (JSON.parse(bytes).status === 'RECOVERY_REQUIRED') throw Error('journal ENOSPC');
     return fs.writeFile(file, bytes);
   };
-  await assert.rejects(
-    installPairFiles(p, approve(p), { rename, writeJournal }),
-    (e) => {
-      assert.match(e.message, /RECOVERY_REQUIRED/);
-      assert.match(e.message, /second install failed/);
-      assert.match(e.message, /restore failed/);
-      assert.match(e.message, /journal ENOSPC/);
-      assert.ok(e.message.includes(options.recoveryRoot));
-      return true;
-    },
-  );
+  await assert.rejects(installPairFiles(p, approve(p), { rename, writeJournal }), (e) => {
+    assert.match(e.message, /RECOVERY_REQUIRED/);
+    assert.match(e.message, /second install failed/);
+    assert.match(e.message, /restore failed/);
+    assert.match(e.message, /journal ENOSPC/);
+    assert.ok(e.message.includes(options.recoveryRoot));
+    return true;
+  });
   assert.equal(
     await fs.readFile(
-      path.join(
-        options.recoveryRoot,
-        p.sha256.slice(0, 20),
-        'prior-atlas',
-        'index.html',
-      ),
+      path.join(options.recoveryRoot, p.sha256.slice(0, 20), 'prior-atlas', 'index.html'),
       'utf8',
     ),
     'old entry',
@@ -740,21 +592,12 @@ test('a missing initial journal can be recovered only while both exact prestates
     journalFile = path.join(op, 'operation.json');
   // Persisted shape emitted by the preceding installer; not publication evidence.
   await fs.mkdir(op, { recursive: true });
-  await fs.writeFile(
-    path.join(op, 'plan.json'),
-    JSON.stringify(plan, null, 2) + '\n',
-  );
-  await fs.writeFile(
-    path.join(op, 'acceptance.json'),
-    JSON.stringify(acceptance, null, 2) + '\n',
-  );
+  await fs.writeFile(path.join(op, 'plan.json'), JSON.stringify(plan, null, 2) + '\n');
+  await fs.writeFile(path.join(op, 'acceptance.json'), JSON.stringify(acceptance, null, 2) + '\n');
   await assert.rejects(fs.stat(journalFile), { code: 'ENOENT' });
   const late = path.join(options.destinations.atlas, 'late.txt');
   await fs.writeFile(late, 'preserve this arrival');
-  await assert.rejects(
-    recoverPairFiles(plan, acceptance),
-    /prestate|destination.*changed/i,
-  );
+  await assert.rejects(recoverPairFiles(plan, acceptance), /prestate|destination.*changed/i);
   assert.equal(await fs.readFile(late, 'utf8'), 'preserve this arrival');
   await assert.rejects(fs.stat(journalFile), { code: 'ENOENT' });
   await fs.unlink(late);
@@ -765,14 +608,8 @@ test('a missing initial journal can be recovered only while both exact prestates
     /journal.*missing|missing.*journal|ambiguous/i,
   );
   await fs.rmdir(retained);
-  assert.equal(
-    (await recoverPairFiles(plan, acceptance)).status,
-    'ROLLED_BACK',
-  );
-  assert.equal(
-    (await recoverPairFiles(plan, acceptance)).status,
-    'ALREADY_ROLLED_BACK',
-  );
+  assert.equal((await recoverPairFiles(plan, acceptance)).status, 'ROLLED_BACK');
+  assert.equal((await recoverPairFiles(plan, acceptance)).status, 'ALREADY_ROLLED_BACK');
   for (const target of Object.values(options.destinations))
     assert.deepEqual((await fs.readdir(target)).sort(), [
       '.DS_Store',
@@ -794,23 +631,14 @@ test('initial journal failure never exposes an incomplete operation', async (t) 
     }),
     /initial journal unavailable/,
   );
-  await assert.rejects(
-    fs.stat(path.join(options.recoveryRoot, plan.sha256.slice(0, 20))),
-    { code: 'ENOENT' },
-  );
-  assert.equal(
-    (await recoverPairFiles(plan, acceptance)).status,
-    'NOT_STARTED',
-  );
+  await assert.rejects(fs.stat(path.join(options.recoveryRoot, plan.sha256.slice(0, 20))), {
+    code: 'ENOENT',
+  });
+  assert.equal((await recoverPairFiles(plan, acceptance)).status, 'NOT_STARTED');
   assert.equal((await installPairFiles(plan, acceptance)).status, 'INSTALLED');
 });
 
-for (const phase of [
-  'plan.json',
-  'acceptance.json',
-  'operation.json',
-  'activation',
-])
+for (const phase of ['plan.json', 'acceptance.json', 'operation.json', 'activation'])
   for (const side of ['before', 'after'])
     test(`initialization termination ${side} ${phase} preserves exact recovery inputs`, async (t) => {
       const { dir, options } = await fixture(t),
@@ -818,10 +646,7 @@ for (const phase of [
         acceptance = approve(plan);
       const input = path.join(dir, 'initialization.json'),
         child = path.join(dir, 'initialization.mjs');
-      await fs.writeFile(
-        input,
-        JSON.stringify({ plan, acceptance, phase, side }),
-      );
+      await fs.writeFile(input, JSON.stringify({ plan, acceptance, phase, side }));
       await fs.writeFile(
         child,
         `import fs from 'node:fs/promises';import path from 'node:path';import {installPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
@@ -850,11 +675,7 @@ await installPairFiles(plan,acceptance);`,
           'index.html',
           'owner-note.txt',
         ]);
-      if (!activated)
-        assert.equal(
-          (await installPairFiles(plan, acceptance)).status,
-          'INSTALLED',
-        );
+      if (!activated) assert.equal((await installPairFiles(plan, acceptance)).status, 'INSTALLED');
     });
 
 for (const status of ['PREPARING', 'INSTALLING', 'INSTALLED'])
@@ -875,30 +696,23 @@ const plan=JSON.parse(await fs.readFile(process.argv[2])),acceptance=JSON.parse(
 const rename=fs.rename;fs.rename=async(a,b)=>{const hit=b.endsWith('/operation.json')&&JSON.parse(await fs.readFile(a)).status===process.argv[4];if(hit&&process.argv[5]==='before')process.kill(process.pid,'SIGKILL');await rename(a,b);if(hit&&process.argv[5]==='after')process.kill(process.pid,'SIGKILL');};
 await installPairFiles(plan,acceptance);`,
       );
-      const run = spawnSync(
-        process.execPath,
-        [child, planFile, acceptanceFile, status, side],
-        { cwd: dir, encoding: 'utf8', timeout: 30000, maxBuffer: 8e6 },
-      );
+      const run = spawnSync(process.execPath, [child, planFile, acceptanceFile, status, side], {
+        cwd: dir,
+        encoding: 'utf8',
+        timeout: 30000,
+        maxBuffer: 8e6,
+      });
       assert.equal(run.signal, 'SIGKILL', run.stderr);
       const result = await recoverPairFiles(plan, acceptance),
         installed = status === 'INSTALLED' && side === 'after',
         unstarted = status === 'PREPARING';
       assert.equal(
         result.status,
-        unstarted
-          ? 'NOT_STARTED'
-          : installed
-            ? 'ALREADY_INSTALLED'
-            : 'ROLLED_BACK',
+        unstarted ? 'NOT_STARTED' : installed ? 'ALREADY_INSTALLED' : 'ROLLED_BACK',
       );
       assert.equal(
         (await recoverPairFiles(plan, acceptance)).status,
-        unstarted
-          ? 'NOT_STARTED'
-          : installed
-            ? 'ALREADY_INSTALLED'
-            : 'ALREADY_ROLLED_BACK',
+        unstarted ? 'NOT_STARTED' : installed ? 'ALREADY_INSTALLED' : 'ALREADY_ROLLED_BACK',
       );
       for (const target of Object.values(options.destinations))
         assert.equal(
@@ -946,18 +760,9 @@ test('an exception after a successful rename restores actual disk state rather t
   );
   assert.equal(interrupted, true);
   for (const target of Object.values(options.destinations))
-    assert.equal(
-      await fs.readFile(path.join(target, 'index.html'), 'utf8'),
-      'old entry',
-    );
+    assert.equal(await fs.readFile(path.join(target, 'index.html'), 'utf8'), 'old entry');
   const journal = JSON.parse(
-    await fs.readFile(
-      path.join(
-        options.recoveryRoot,
-        plan.sha256.slice(0, 20),
-        'operation.json',
-      ),
-    ),
+    await fs.readFile(path.join(options.recoveryRoot, plan.sha256.slice(0, 20), 'operation.json')),
   );
   assert.equal(journal.status, 'ROLLED_BACK');
 });
@@ -988,38 +793,28 @@ for (const boundary of [
 const plan=JSON.parse(await fs.readFile(process.argv[2])),acceptance=JSON.parse(await fs.readFile(process.argv[3])),boundary=process.argv[4];
 await installPairFiles(plan,acceptance,{rename:async(a,b)=>{let event='';for(const m of ['native','atlas']){if(a===plan.options.destinations[m])event='save-'+m;else if(b===plan.options.destinations[m])event='install-'+m;}if(boundary==='before-'+event)process.kill(process.pid,'SIGKILL');await fs.rename(a,b);if(boundary==='after-'+event)process.kill(process.pid,'SIGKILL');}});`,
     );
-    const run = spawnSync(
-      process.execPath,
-      [child, planFile, acceptanceFile, boundary],
-      { cwd: dir, encoding: 'utf8', timeout: 30000, maxBuffer: 8e6 },
-    );
+    const run = spawnSync(process.execPath, [child, planFile, acceptanceFile, boundary], {
+      cwd: dir,
+      encoding: 'utf8',
+      timeout: 30000,
+      maxBuffer: 8e6,
+    });
     assert.equal(run.signal, 'SIGKILL', run.stderr);
     if (boundary === 'after-install-native') {
       await fs.writeFile(
         path.join(options.destinations.native, 'user-arrived.txt'),
         'new user content',
       );
-      await assert.rejects(
-        recoverPairFiles(plan, acceptance),
-        /unknown changes/,
-      );
+      await assert.rejects(recoverPairFiles(plan, acceptance), /unknown changes/);
       assert.equal(
-        await fs.readFile(
-          path.join(options.destinations.native, 'user-arrived.txt'),
-          'utf8',
-        ),
+        await fs.readFile(path.join(options.destinations.native, 'user-arrived.txt'), 'utf8'),
         'new user content',
       );
       assert.equal(
-        await fs.readFile(
-          path.join(options.destinations.atlas, 'index.html'),
-          'utf8',
-        ),
+        await fs.readFile(path.join(options.destinations.atlas, 'index.html'), 'utf8'),
         'old entry',
       );
-      await fs.unlink(
-        path.join(options.destinations.native, 'user-arrived.txt'),
-      );
+      await fs.unlink(path.join(options.destinations.native, 'user-arrived.txt'));
       const op = path.join(options.recoveryRoot, plan.sha256.slice(0, 20));
       let interrupted = false;
       const rename = async (a, b) => {
@@ -1029,10 +824,7 @@ await installPairFiles(plan,acceptance,{rename:async(a,b)=>{let event='';for(con
           throw Error('interrupted recovery');
         }
       };
-      await assert.rejects(
-        recoverPairFiles(plan, acceptance, { rename }),
-        /interrupted recovery/,
-      );
+      await assert.rejects(recoverPairFiles(plan, acceptance, { rename }), /interrupted recovery/);
       assert.equal(interrupted, true);
     }
     if (boundary === 'after-install-atlas') {
@@ -1043,20 +835,18 @@ await installPairFiles(plan,acceptance,{rename:async(a,b)=>{let event='';for(con
 const plan=JSON.parse(await fs.readFile(process.argv[2])),acceptance=JSON.parse(await fs.readFile(process.argv[3]));
 await recoverPairFiles(plan,acceptance,{rename:async(a,b)=>{await fs.rename(a,b);if(a===plan.options.destinations.atlas)process.kill(process.pid,'SIGKILL');}});`,
       );
-      const killed = spawnSync(
-        process.execPath,
-        [recoveryChild, planFile, acceptanceFile],
-        { cwd: dir, encoding: 'utf8', timeout: 30000, maxBuffer: 8e6 },
-      );
+      const killed = spawnSync(process.execPath, [recoveryChild, planFile, acceptanceFile], {
+        cwd: dir,
+        encoding: 'utf8',
+        timeout: 30000,
+        maxBuffer: 8e6,
+      });
       assert.equal(killed.signal, 'SIGKILL', killed.stderr);
     }
     const recovered = await recoverPairFiles(plan, acceptance);
     assert.equal(recovered.status, 'ROLLED_BACK');
     for (const target of Object.values(options.destinations)) {
-      assert.equal(
-        await fs.readFile(path.join(target, 'index.html'), 'utf8'),
-        'old entry',
-      );
+      assert.equal(await fs.readFile(path.join(target, 'index.html'), 'utf8'), 'old entry');
       assert.equal(
         await fs.readFile(path.join(target, 'owner-note.txt'), 'utf8'),
         'keep this exact byte',
@@ -1068,10 +858,7 @@ await recoverPairFiles(plan,acceptance,{rename:async(a,b)=>{await fs.rename(a,b)
         'owner-note.txt',
       ]);
     }
-    assert.equal(
-      (await recoverPairFiles(plan, acceptance)).status,
-      'ALREADY_ROLLED_BACK',
-    );
+    assert.equal((await recoverPairFiles(plan, acceptance)).status, 'ALREADY_ROLLED_BACK');
   });
 
 test('a second writer is refused while the first installer owns the same destination parent', async (t) => {
@@ -1082,33 +869,52 @@ test('a second writer is refused while the first installer owns the same destina
   const rename = async (a, b) => {
     if (!secondObserved && a === options.destinations.native) {
       secondObserved = true;
-      await assert.rejects(
-        installPairFiles(plan, acceptance),
-        /active installer|writer lock/,
-      );
+      await assert.rejects(installPairFiles(plan, acceptance), /active installer|writer lock/);
     }
     await fs.rename(a, b);
   };
-  assert.equal(
-    (await installPairFiles(plan, acceptance, { rename })).status,
-    'INSTALLED',
-  );
+  assert.equal((await installPairFiles(plan, acceptance, { rename })).status, 'INSTALLED');
   assert.equal(secondObserved, true);
-  assert.equal(
-    (await recoverPairFiles(plan, acceptance)).status,
-    'ALREADY_INSTALLED',
-  );
+  assert.equal((await recoverPairFiles(plan, acceptance)).status, 'ALREADY_INSTALLED');
+});
+
+test('writer release failure preserves the publication failure that triggered cleanup', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan),
+    lock = path.join(dir, '.architecture-publication-writer'),
+    nativeRename = fs.rename;
+  fs.rename = async (source, target) => {
+    if (source === lock) throw Error('release failed');
+    return nativeRename(source, target);
+  };
+  try {
+    await assert.rejects(
+      installPairFiles(plan, acceptance, {
+        rename: async () => {
+          throw Error('publication failed');
+        },
+      }),
+      (error) => {
+        assert(error instanceof AggregateError);
+        assert.match(error.cause.message, /^publication failed;/);
+        assert.equal(error.cause.cause.message, 'publication failed');
+        assert.deepEqual(
+          error.errors.map(({ message }) => message.endsWith('release failed')),
+          [false, true],
+        );
+        return true;
+      },
+    );
+  } finally {
+    fs.rename = nativeRename;
+  }
 });
 
 test('file plans reject aliases of reserved metadata and prefix collisions', async (t) => {
   const { options } = await fixture(t),
     plan = await planFiles(options);
-  for (const name of [
-    'readme.md',
-    'ReadMe.Md',
-    'SHA256SUMS/child',
-    'artifact/../escape',
-  ]) {
+  for (const name of ['readme.md', 'ReadMe.Md', 'SHA256SUMS/child', 'artifact/../escape']) {
     const input = {
       options,
       source: plan.source,
@@ -1169,25 +975,19 @@ test('file payload can come from explicit independent media and evidence roots',
     dependencies: [],
   });
   assert.equal(plan.options.sourceRoots.length, 2);
-  assert.equal(
-    (await installPairFiles(plan, approve(plan))).status,
-    'INSTALLED',
-  );
+  assert.equal((await installPairFiles(plan, approve(plan))).status, 'INSTALLED');
   assert.deepEqual(
-    await fs.readFile(
-      path.join(options.destinations.atlas, 'atlas/report.json'),
-    ),
+    await fs.readFile(path.join(options.destinations.atlas, 'atlas/report.json')),
     bytes,
   );
 });
 
 test('installed file engine handles explicit roots with no developer executables', async (t) => {
   const { dir, options } = await fixture(t),
-    pack = spawnSync(
-      'npm',
-      ['pack', '--json', '--ignore-scripts', '--pack-destination', dir],
-      { cwd: publisher, encoding: 'utf8' },
-    );
+    pack = spawnSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', dir], {
+      cwd: publisher,
+      encoding: 'utf8',
+    });
   assert.equal(pack.status, 0, pack.stderr);
   const info = JSON.parse(pack.stdout)[0],
     consumer = path.join(dir, 'installed');
@@ -1212,10 +1012,7 @@ test('installed file engine handles explicit roots with no developer executables
     entry = path.join(dir, 'installed.mjs'),
     home = path.join(dir, 'empty-home');
   await fs.mkdir(home);
-  await fs.writeFile(
-    input,
-    JSON.stringify({ plan, acceptance: approve(plan) }),
-  );
+  await fs.writeFile(input, JSON.stringify({ plan, acceptance: approve(plan) }));
   const module = path.join(
     consumer,
     'node_modules/architecture-publisher/src/publication/files.mjs',

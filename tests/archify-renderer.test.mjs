@@ -16,10 +16,7 @@ test('editions reuse the verified bundled font bytes without a second loader', a
     [400, 500, 600, 700],
   );
   for (const font of selected.fonts) assert.equal(sha(font.bytes), font.sha256);
-  assert.match(
-    selected.license.bytes.toString('utf8'),
-    /SIL OPEN FONT LICENSE/,
-  );
+  assert.match(selected.license.bytes.toString('utf8'), /SIL OPEN FONT LICENSE/);
 });
 async function setup(t, diagram = serviceTopology()) {
   const base = new URL('../build/test-work/', import.meta.url);
@@ -56,10 +53,7 @@ test('trusted edition adapts the private runtime before native validation', asyn
       called = true;
       const file = path.join(runtime, 'assets/template.html');
       const text = await fs.readFile(file, 'utf8');
-      await fs.writeFile(
-        file,
-        text.replace('</head>', '<!-- trusted edition -->\n</head>'),
-      );
+      await fs.writeFile(file, text.replace('</head>', '<!-- trusted edition -->\n</head>'));
     },
   );
   assert.equal(called, true);
@@ -101,10 +95,7 @@ test('private runtime adaptation cannot skip native validation or leak failed ou
         output: f.plan.output,
       },
       async (runtime) => {
-        await fs.writeFile(
-          path.join(runtime, 'assets/template.html'),
-          '<html>invalid</html>',
-        );
+        await fs.writeFile(path.join(runtime, 'assets/template.html'), '<html>invalid</html>');
       },
     ),
   );
@@ -131,17 +122,13 @@ test('renders explicit non-ETHOS data through nine native showcase checks', asyn
   assert.equal(r.semanticAcceptance, 'not-performed');
   assert.match(bytes.toString(), /Order service/);
   assert.match(bytes.toString(), /<svg/);
-  assert.deepEqual((await fs.readdir(f.root)).sort(), [
-    'diagram.html',
-    'diagram.json',
-  ]);
+  assert.deepEqual((await fs.readdir(f.root)).sort(), ['diagram.html', 'diagram.json']);
 });
 test('rejects changed input before creating output', async (t) => {
   const f = await setup(t);
-  await assert.rejects(
-    renderDiagram({ ...f.plan, inputSha256: '0'.repeat(64) }),
-    { code: 'render_input_digest_mismatch' },
-  );
+  await assert.rejects(renderDiagram({ ...f.plan, inputSha256: '0'.repeat(64) }), {
+    code: 'render_input_digest_mismatch',
+  });
   await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
 });
 test('preserves existing output', async (t) => {
@@ -219,10 +206,7 @@ test('delivered HTML embeds fonts and export fallback instead of reading CDN or 
   assert(!/<link\b[^>]*href=["']https?:/i.test(html));
   assert.equal((html.match(/data:font\/ttf;base64,/g) || []).length, 4);
   assert.match(html, /SIL OPEN FONT LICENSE/);
-  assert.match(
-    html,
-    /getElementById\('architecture-font-supply'\)\.textContent/,
-  );
+  assert.match(html, /getElementById\('architecture-font-supply'\)\.textContent/);
   assert(!html.includes("src: local('JetBrains Mono')"));
 });
 test('renders a distinct branching and retrying lifecycle, not renamed service nodes', async (t) => {
@@ -252,8 +236,7 @@ test('native geometry rejection cannot be replaced by successful schema validati
   await assert.rejects(
     renderDiagram(f.plan),
     (e) =>
-      e.code === 'render_native_rejected' &&
-      e.diagnostics.some((d) => /overlap/i.test(d.message)),
+      e.code === 'render_native_rejected' && e.diagnostics.some((d) => /overlap/i.test(d.message)),
   );
   await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
 });
@@ -285,14 +268,8 @@ test('a destination created during rendering remains untouched', async (t) => {
     worker.once('error', reject);
   });
   await assert.rejects(renderDiagram(f.plan), { code: 'render_output_exists' });
-  assert.equal(
-    await fs.readFile(f.plan.output, 'utf8'),
-    'arrived concurrently',
-  );
-  assert.deepEqual((await fs.readdir(f.root)).sort(), [
-    'diagram.html',
-    'diagram.json',
-  ]);
+  assert.equal(await fs.readFile(f.plan.output, 'utf8'), 'arrived concurrently');
+  assert.deepEqual((await fs.readdir(f.root)).sort(), ['diagram.html', 'diagram.json']);
 });
 test('repeated rendering is deterministic and author updates change only new outputs', async (t) => {
   const f = await setup(t),

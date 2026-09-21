@@ -1,6 +1,4 @@
-import {
-  validateInteractiveArchitectureScene,
-} from 'architecture-publisher/scene';
+import { validateInteractiveArchitectureScene } from 'architecture-publisher/scene';
 
 const ROLES = Object.freeze({
   source: 'external',
@@ -63,7 +61,6 @@ const ROLES = Object.freeze({
 const DETAILS = Object.freeze({
   source: 'intent · code · runtime · evidence',
   meaning: 'typed claims · provenance · uncertainty',
-  authorship: 'audience · questions · coverage',
   media: 'independent scenes · exact bytes',
   assurance: 'qualify · accept · authorize',
   delivery: 'publish · replace · recover',
@@ -171,7 +168,13 @@ const OVERVIEW_RELATIONS = Object.freeze([
       labelPlacement: { at: [1138, 324] },
     },
   ],
-  ['assurance-delivery', 'assurance', 'delivery', 'authorizes', ['authorization-precedes-publication']],
+  [
+    'assurance-delivery',
+    'assurance',
+    'delivery',
+    'authorizes',
+    ['authorization-precedes-publication'],
+  ],
   [
     'delivery-adoption',
     'delivery',
@@ -230,11 +233,7 @@ const OVERVIEW_RELATIONS = Object.freeze([
       fromSide: 'right',
       toSide: 'top',
       route: 'auto',
-      waypoints: [
-        point(870, 324),
-        point(870, 410),
-        point(1010, 410),
-      ],
+      waypoints: [point(870, 324), point(870, 410), point(1010, 410)],
       labelPlacement: { at: [930, 398] },
     },
   ],
@@ -255,13 +254,7 @@ const EDITION_RELATIONS = Object.freeze([
       labelPlacement: { at: [240, 214] },
     },
   ],
-  [
-    'reader-static',
-    'reader',
-    'static-scene',
-    'authors',
-    ['edition-authors-static'],
-  ],
+  ['reader-static', 'reader', 'static-scene', 'authors', ['edition-authors-static']],
   [
     'reader-interactive',
     'reader',
@@ -330,13 +323,7 @@ const ADOPTION_RELATIONS = Object.freeze([
       labelPlacement: { at: [208, 94] },
     },
   ],
-  [
-    'publication-ethos',
-    'publication',
-    'ethos',
-    'serves',
-    ['publication-serves-ethos'],
-  ],
+  ['publication-ethos', 'publication', 'ethos', 'serves', ['publication-serves-ethos']],
   [
     'publication-aigw',
     'publication',
@@ -365,13 +352,7 @@ const ADOPTION_RELATIONS = Object.freeze([
       labelPlacement: { at: [774, 38] },
     },
   ],
-  [
-    'feedback-source-owner',
-    'feedback',
-    'source-owner',
-    'returns',
-    ['feedback-returns-to-adapter'],
-  ],
+  ['feedback-source-owner', 'feedback', 'source-owner', 'returns', ['feedback-returns-to-adapter']],
 ]);
 
 const SLOTS = Object.freeze({
@@ -476,10 +457,7 @@ const EVOLUTION_RELATIONS = Object.freeze([
     'impact',
     'verification',
     'verify',
-    [
-      'affected-views-require-semantic-verification',
-      'affected-views-require-medium-verification',
-    ],
+    ['affected-views-require-semantic-verification', 'affected-views-require-medium-verification'],
     {
       fromSide: 'bottom',
       toSide: 'top',
@@ -575,17 +553,16 @@ const EVOLUTION_RELATIONS = Object.freeze([
 ]);
 
 function nodeWidth(label, viewId) {
-  const required = String(label).length * (viewId === 'overview' ? 7.2 : 6.6) +
-    (viewId === 'overview' ? 20 : -8),
+  const required =
+      String(label).length * (viewId === 'overview' ? 7.2 : 6.6) +
+      (viewId === 'overview' ? 20 : -8),
     widths = viewId === 'overview' ? [220, 248, 276] : [196, 220, 244];
   return widths.find((width) => width >= required) ?? widths.at(-1);
 }
 
 function nodeHeight(id, viewId) {
   if (viewId !== 'overview') return 92;
-  return ['meaning', 'authorship', 'media', 'assurance'].includes(id)
-    ? 118
-    : 108;
+  return ['meaning', 'authorship', 'media', 'assurance'].includes(id) ? 118 : 108;
 }
 
 function point(x, y) {
@@ -603,20 +580,14 @@ function route(from, to, viewport, hint) {
     targetTop = to.position.y,
     targetBottom = targetTop + to.size.height,
     sourceCenter = point((left + right) / 2, (top + bottom) / 2),
-    targetCenter = point(
-      (targetLeft + targetRight) / 2,
-      (targetTop + targetBottom) / 2,
-    );
+    targetCenter = point((targetLeft + targetRight) / 2, (targetTop + targetBottom) / 2);
   if (hint === 'outer-left') {
     const channel = 28;
     return {
       fromSide: 'left',
       toSide: 'left',
       route: 'auto',
-      waypoints: [
-        point(channel, sourceCenter.y),
-        point(channel, targetCenter.y),
-      ],
+      waypoints: [point(channel, sourceCenter.y), point(channel, targetCenter.y)],
       labelPlacement: { at: [channel + 26, (sourceCenter.y + targetCenter.y) / 2] },
     };
   }
@@ -626,10 +597,7 @@ function route(from, to, viewport, hint) {
       fromSide: 'bottom',
       toSide: 'bottom',
       route: 'auto',
-      waypoints: [
-        point(sourceCenter.x, channel),
-        point(targetCenter.x, channel),
-      ],
+      waypoints: [point(sourceCenter.x, channel), point(targetCenter.x, channel)],
       labelPlacement: { at: [(sourceCenter.x + targetCenter.x) / 2, channel - 10] },
     };
   }
@@ -685,8 +653,7 @@ function groupsFor(view) {
 
 function relationEndpoints(document, view) {
   const entityGroup = new Map();
-  for (const group of view.groups)
-    for (const id of group.entities) entityGroup.set(id, group.id);
+  for (const group of view.groups) for (const id of group.entities) entityGroup.set(id, group.id);
   return new Map(
     view.relations.map(({ id }) => {
       const relation = document.relations[id];
@@ -718,26 +685,13 @@ function defaultRelations(document, view) {
   }
   return [...pairs.entries()].map(([key, relationIds], index) => {
     const [from, to] = key.split('\u0000'),
-      labels = [
-        ...new Set(
-          relationIds.map(
-            (id) => document.relations[id].type,
-          ),
-        ),
-      ];
-    return [
-      'flow-' + (index + 1),
-      from,
-      to,
-      labels.join(' · '),
-      relationIds,
-    ];
+      labels = [...new Set(relationIds.map((id) => document.relations[id].type))];
+    return ['flow-' + (index + 1), from, to, labels.join(' · '), relationIds];
   });
 }
 
 function programFor(document, view) {
-  if (view.id === 'overview')
-    return { clusters: OVERVIEW_CLUSTERS, relations: OVERVIEW_RELATIONS };
+  if (view.id === 'overview') return { clusters: OVERVIEW_CLUSTERS, relations: OVERVIEW_RELATIONS };
   if (view.id === 'edition')
     return { clusters: defaultClusters(view), relations: EDITION_RELATIONS };
   if (view.id === 'adoption')
@@ -765,15 +719,12 @@ function assertExactCoverage(expected, actual, code) {
 }
 
 /** Compose the source-owned flagship interactive visual carriers. */
-export function composeArchitecturePublisherInteractiveScene(
-  document,
-  edition,
-  view,
-) {
+export function composeArchitecturePublisherInteractiveScene(document, edition, view) {
   const slots = SLOTS[view.id];
-  if (!slots) throw Object.assign(new Error('self_interactive_layout_missing'), {
-    code: 'self_interactive_layout_missing',
-  });
+  if (!slots)
+    throw Object.assign(new Error('self_interactive_layout_missing'), {
+      code: 'self_interactive_layout_missing',
+    });
   const groupMap = groupsFor(view),
     endpoints = relationEndpoints(document, view),
     program = programFor(document, view),
@@ -784,9 +735,10 @@ export function composeArchitecturePublisherInteractiveScene(
       const entities = [];
       for (const groupId of groupIds) {
         const group = groupMap.get(groupId);
-        if (!group) throw Object.assign(new Error('self_interactive_group_missing'), {
-          code: 'self_interactive_group_missing',
-        });
+        if (!group)
+          throw Object.assign(new Error('self_interactive_group_missing'), {
+            code: 'self_interactive_group_missing',
+          });
         representedGroups.push(groupId);
         entities.push(...group.entities);
         nodeByGroup.set(groupId, id);
@@ -794,10 +746,7 @@ export function composeArchitecturePublisherInteractiveScene(
       const semanticIds = entities.map((entity) => 'entity:' + entity);
       for (const { id: relationId } of view.relations) {
         const endpoint = endpoints.get(relationId);
-        if (
-          groupIds.includes(endpoint.from) &&
-          groupIds.includes(endpoint.to)
-        ) {
+        if (groupIds.includes(endpoint.from) && groupIds.includes(endpoint.to)) {
           semanticIds.push('relation:' + relationId);
           representedRelations.add(relationId);
         }
@@ -815,57 +764,64 @@ export function composeArchitecturePublisherInteractiveScene(
       };
     }),
     nodeMap = new Map(nodes.map((node) => [node.id, node])),
-    edges = program.relations.map(
-      ([id, from, to, label, relationIds, hint]) => {
-        if (!nodeMap.has(from) || !nodeMap.has(to))
-          throw Object.assign(new Error('self_interactive_edge_endpoint_missing'), {
-            code: 'self_interactive_edge_endpoint_missing',
+    edges = program.relations.map(([id, from, to, label, relationIds, hint]) => {
+      if (!nodeMap.has(from) || !nodeMap.has(to))
+        throw Object.assign(new Error('self_interactive_edge_endpoint_missing'), {
+          code: 'self_interactive_edge_endpoint_missing',
+        });
+      for (const relationId of relationIds) {
+        if (!endpoints.has(relationId) || representedRelations.has(relationId))
+          throw Object.assign(new Error('self_interactive_relation_invalid'), {
+            code: 'self_interactive_relation_invalid',
           });
-        for (const relationId of relationIds) {
-          if (!endpoints.has(relationId) || representedRelations.has(relationId))
-            throw Object.assign(new Error('self_interactive_relation_invalid'), {
-              code: 'self_interactive_relation_invalid',
-            });
-          representedRelations.add(relationId);
-        }
-        return {
-          id,
-          from,
-          to,
-          label,
-          visualRole: relationIds.some(
-            (relationId) =>
-              document.relations[relationId].type === 'requires' ||
-              document.relations[relationId].type === 'gates' ||
-              document.relations[relationId].type === 'authorizes',
-          )
-            ? 'security'
+        representedRelations.add(relationId);
+      }
+      return {
+        id,
+        from,
+        to,
+        label,
+        visualRole: relationIds.some(
+          (relationId) =>
+            document.relations[relationId].type === 'requires' ||
+            document.relations[relationId].type === 'gates' ||
+            document.relations[relationId].type === 'authorizes',
+        )
+          ? 'security'
+          : relationIds.some(
+                (relationId) =>
+                  document.relations[relationId].type === 'returns' ||
+                  document.relations[relationId].type === 'renews' ||
+                  document.relations[relationId].type === 'excludes',
+              )
+            ? 'dashed'
             : relationIds.some(
                   (relationId) =>
-                    document.relations[relationId].type === 'returns' ||
-                    document.relations[relationId].type === 'renews' ||
-                    document.relations[relationId].type === 'excludes',
+                    document.relations[relationId].type === 'binds' ||
+                    document.relations[relationId].type === 'authors' ||
+                    document.relations[relationId].type === 'compiles' ||
+                    document.relations[relationId].type === 'derives' ||
+                    document.relations[relationId].type === 'propagates',
                 )
-              ? 'dashed'
-              : relationIds.some(
-                    (relationId) =>
-                      document.relations[relationId].type === 'binds' ||
-                      document.relations[relationId].type === 'authors' ||
-                      document.relations[relationId].type === 'compiles' ||
-                      document.relations[relationId].type === 'derives' ||
-                      document.relations[relationId].type === 'propagates',
-                  )
-                ? 'emphasis'
-                : 'default',
-          ...route(nodeMap.get(from), nodeMap.get(to), {
+              ? 'emphasis'
+              : 'default',
+        ...route(
+          nodeMap.get(from),
+          nodeMap.get(to),
+          {
             width: slots.viewport[0],
             height: slots.viewport[1],
-          }, hint),
-          semanticIds: relationIds.map((relationId) => 'relation:' + relationId),
-        };
-      },
-    );
-  assertExactCoverage(groupMap.keys(), representedGroups, 'self_interactive_group_coverage_invalid');
+          },
+          hint,
+        ),
+        semanticIds: relationIds.map((relationId) => 'relation:' + relationId),
+      };
+    });
+  assertExactCoverage(
+    groupMap.keys(),
+    representedGroups,
+    'self_interactive_group_coverage_invalid',
+  );
   assertExactCoverage(
     view.relations.map(({ id }) => id),
     representedRelations,

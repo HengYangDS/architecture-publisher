@@ -1,8 +1,6 @@
 export function exactFields(value, names, message, code) {
   const actual =
-    value && typeof value === 'object' && !Array.isArray(value)
-      ? Object.keys(value).sort()
-      : [];
+    value && typeof value === 'object' && !Array.isArray(value) ? Object.keys(value).sort() : [];
   const expected = [...names].sort();
   if (
     !value ||
@@ -14,12 +12,7 @@ export function exactFields(value, names, message, code) {
     throw Object.assign(new Error(message), code ? { code } : {});
 }
 
-export function requireExplicitAcceptance(
-  acceptance,
-  planSha256,
-  decision,
-  message,
-) {
+export function requireExplicitAcceptance(acceptance, planSha256, decision, message) {
   if (
     !acceptance ||
     typeof acceptance !== 'object' ||

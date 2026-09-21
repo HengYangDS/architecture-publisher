@@ -1,25 +1,17 @@
 import { fail } from '../../source/manifest.mjs';
 
-const record = (value) =>
-  value !== null && typeof value === 'object' && !Array.isArray(value);
+const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const exact = (value, required, optional = []) =>
   record(value) &&
   required.every((field) => Object.hasOwn(value, field)) &&
-  Object.keys(value).every(
-    (field) => required.includes(field) || optional.includes(field),
-  );
+  Object.keys(value).every((field) => required.includes(field) || optional.includes(field));
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
-const identifier = (value) =>
-  typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
+const identifier = (value) => typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
 const side = new Set(['top', 'right', 'bottom', 'left']);
 const route = new Set(['auto', 'straight', 'orthogonal-h', 'orthogonal-v']);
 
 function validPoint(value) {
-  return (
-    exact(value, ['x', 'y']) &&
-    Number.isFinite(value.x) &&
-    Number.isFinite(value.y)
-  );
+  return exact(value, ['x', 'y']) && Number.isFinite(value.x) && Number.isFinite(value.y);
 }
 
 function validSize(value) {
@@ -42,11 +34,7 @@ function validSemanticIds(value) {
 }
 
 function validWaypoints(value) {
-  return (
-    Array.isArray(value) &&
-    value.length > 0 &&
-    value.every(validPoint)
-  );
+  return Array.isArray(value) && value.length > 0 && value.every(validPoint);
 }
 
 function validLabelPlacement(value) {
@@ -60,23 +48,15 @@ function validLabelPlacement(value) {
     return false;
   if (Object.hasOwn(value, 'dx') && !Number.isFinite(value.dx)) return false;
   if (Object.hasOwn(value, 'dy') && !Number.isFinite(value.dy)) return false;
-  return !Object.hasOwn(value, 'segment') ||
-    (Number.isSafeInteger(value.segment) && value.segment >= 0);
+  return (
+    !Object.hasOwn(value, 'segment') || (Number.isSafeInteger(value.segment) && value.segment >= 0)
+  );
 }
 
 /** Validate a backend-neutral interactive architecture scene. */
 export function validateInteractiveArchitectureScene(scene) {
   if (
-    !exact(scene, [
-      'schema',
-      'id',
-      'title',
-      'subtitle',
-      'viewport',
-      'nodes',
-      'groups',
-      'edges',
-    ]) ||
+    !exact(scene, ['schema', 'id', 'title', 'subtitle', 'viewport', 'nodes', 'groups', 'edges']) ||
     scene.schema !== 'architecture.interactive-scene/v1' ||
     !identifier(scene.id) ||
     !text(scene.title) ||
@@ -92,11 +72,7 @@ export function validateInteractiveArchitectureScene(scene) {
   const nodes = new Set();
   for (const node of scene.nodes) {
     if (
-      !exact(
-        node,
-        ['id', 'label', 'visualRole', 'position', 'size'],
-        ['detail', 'semanticIds'],
-      ) ||
+      !exact(node, ['id', 'label', 'visualRole', 'position', 'size'], ['detail', 'semanticIds']) ||
       !identifier(node.id) ||
       nodes.has(node.id) ||
       !text(node.label) ||
@@ -104,8 +80,7 @@ export function validateInteractiveArchitectureScene(scene) {
       !validPoint(node.position) ||
       !validSize(node.size) ||
       (Object.hasOwn(node, 'detail') && !text(node.detail)) ||
-      (Object.hasOwn(node, 'semanticIds') &&
-        !validSemanticIds(node.semanticIds))
+      (Object.hasOwn(node, 'semanticIds') && !validSemanticIds(node.semanticIds))
     )
       fail('interactive_scene_node_invalid');
     nodes.add(node.id);
@@ -127,8 +102,7 @@ export function validateInteractiveArchitectureScene(scene) {
       fail('interactive_scene_group_invalid');
     groups.add(group.id);
     for (const id of group.nodeIds) {
-      if (!nodes.has(id) || grouped.has(id))
-        fail('interactive_scene_group_membership_invalid');
+      if (!nodes.has(id) || grouped.has(id)) fail('interactive_scene_group_membership_invalid');
       grouped.add(id);
     }
   }
@@ -140,16 +114,7 @@ export function validateInteractiveArchitectureScene(scene) {
     if (
       !exact(
         edge,
-        [
-          'id',
-          'from',
-          'to',
-          'label',
-          'visualRole',
-          'fromSide',
-          'toSide',
-          'route',
-        ],
+        ['id', 'from', 'to', 'label', 'visualRole', 'fromSide', 'toSide', 'route'],
         ['labelPlacement', 'semanticIds', 'waypoints'],
       ) ||
       !identifier(edge.id) ||
@@ -161,10 +126,8 @@ export function validateInteractiveArchitectureScene(scene) {
       !side.has(edge.fromSide) ||
       !side.has(edge.toSide) ||
       !route.has(edge.route) ||
-      (Object.hasOwn(edge, 'labelPlacement') &&
-        !validLabelPlacement(edge.labelPlacement)) ||
-      (Object.hasOwn(edge, 'semanticIds') &&
-        !validSemanticIds(edge.semanticIds)) ||
+      (Object.hasOwn(edge, 'labelPlacement') && !validLabelPlacement(edge.labelPlacement)) ||
+      (Object.hasOwn(edge, 'semanticIds') && !validSemanticIds(edge.semanticIds)) ||
       (Object.hasOwn(edge, 'waypoints') && !validWaypoints(edge.waypoints))
     )
       fail('interactive_scene_edge_invalid');
@@ -175,9 +138,7 @@ export function validateInteractiveArchitectureScene(scene) {
 
 /** Compile semantic and Edition input into a backend-neutral interactive scene. */
 export function interactiveArchitectureScene(document, edition, view) {
-  const widest = Math.max(
-    ...view.groups.map((group) => group.entities.length),
-  );
+  const widest = Math.max(...view.groups.map((group) => group.entities.length));
   const cellWidth = 170,
     columnGap = 70,
     contentWidth = widest * cellWidth + (widest - 1) * columnGap;
@@ -187,9 +148,7 @@ export function interactiveArchitectureScene(document, edition, view) {
   for (const [row, group] of view.groups.entries())
     for (const [col, id] of group.entities.entries()) {
       const entity = document.entities[id];
-      const rowWidth =
-          group.entities.length * cellWidth +
-          (group.entities.length - 1) * columnGap,
+      const rowWidth = group.entities.length * cellWidth + (group.entities.length - 1) * columnGap,
         rowX = (width - rowWidth) / 2;
       nodes.push({
         id,
@@ -241,9 +200,7 @@ export function interactiveArchitectureScene(document, edition, view) {
                 ...(layout.labelAt ? { at: layout.labelAt } : {}),
                 ...(layout.labelDx === undefined ? {} : { dx: layout.labelDx }),
                 ...(layout.labelDy === undefined ? {} : { dy: layout.labelDy }),
-                ...(layout.labelSegment === undefined
-                  ? {}
-                  : { segment: layout.labelSegment }),
+                ...(layout.labelSegment === undefined ? {} : { segment: layout.labelSegment }),
               },
             }
           : {}),

@@ -11,19 +11,15 @@ async function selectedJson(file, digest, kind, limit) {
     semanticError('semantic_' + kind + '_digest_required');
   await noSymlinkAncestors(file);
   const bytes = await regularBytes(file, limit);
-  if (sha(bytes) !== digest)
-    semanticError('semantic_' + kind + '_digest_mismatch');
+  if (sha(bytes) !== digest) semanticError('semantic_' + kind + '_digest_mismatch');
   try {
-    return JSON.parse(
-      new TextDecoder('utf-8', { fatal: true }).decode(bytes),
-    );
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
   } catch {
     semanticError('semantic_' + kind + '_json_invalid');
   }
 }
 
-const selection = (value) =>
-  exact(value, ['path', 'sha256']) && text(value.path);
+const selection = (value) => exact(value, ['path', 'sha256']) && text(value.path);
 
 async function selectedSide(planPath, value) {
   if (
@@ -44,12 +40,7 @@ async function selectedSide(planPath, value) {
     editions = [];
   for (const edition of value.editions)
     editions.push(
-      await selectedJson(
-        resolve(edition.path),
-        edition.sha256,
-        'edition',
-        4 * 1024 * 1024,
-      ),
+      await selectedJson(resolve(edition.path), edition.sha256, 'edition', 4 * 1024 * 1024),
     );
   return { claimModel, editions };
 }

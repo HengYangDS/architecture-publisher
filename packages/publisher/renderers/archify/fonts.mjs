@@ -7,14 +7,9 @@ const escape = (text) =>
 export async function embedFonts(template) {
   const selected = await loadBundledFonts(),
     { fonts, license } = selected,
-    block = /  <!-- Async font load:[\s\S]*?<\/noscript>\n/,
-    local =
-      /        \/\/ Prepend a local\(\)-only @font-face block[\s\S]*?        \}\)\.join\('\\n'\);/;
-  if (
-    !block.test(template) ||
-    !local.test(template) ||
-    template.split('</body>').length !== 2
-  )
+    block = / {2}<!-- Async font load:[\s\S]*?<\/noscript>\n/,
+    local = / {8}\/\/ Prepend a local\(\)-only @font-face block[\s\S]*? {8}\}\)\.join\('\\n'\);/;
+  if (!block.test(template) || !local.test(template) || template.split('</body>').length !== 2)
     fail('render_font_seam_invalid');
   const css = fonts
       .map(

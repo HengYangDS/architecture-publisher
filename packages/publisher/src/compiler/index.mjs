@@ -1,2 +1,8 @@
-export * from './candidate.mjs';
-export * from './edition.mjs';
+export {
+  createEditionCandidate,
+  editionCandidateDigest,
+  mediaCandidateDigest,
+  validateEditionCandidate,
+  validateEditionCandidateBinding,
+} from './candidate.mjs';
+export { compileEditionCandidate, compileEditionCandidateInput } from './edition.mjs';

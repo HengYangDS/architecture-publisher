@@ -1,6 +1,7 @@
 # ethos-atlas Specification
 
 ## Purpose
+
 Reproduce the complete source-bound ETHOS HTML atlas from explicit portable
 inputs, keeping project meaning separate from generic rendering.
 

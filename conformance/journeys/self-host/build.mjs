@@ -5,18 +5,41 @@ import { fileURLToPath } from 'node:url';
 import { claimModelDigest } from 'architecture-publisher/semantics';
 import { writeSourceBundle } from 'architecture-publisher/source';
 
-const root = fileURLToPath(new URL('../../../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
 const selectedFiles = Object.freeze({
-  'public-cli': 'packages/publisher/src/cli/main.mjs',
-  'source-bundle': 'packages/publisher/src/source/bundle.mjs',
-  'semantic-contract': 'packages/publisher/src/semantics/document.mjs',
-  'publication-coordinator': 'packages/publisher/src/compiler/edition.mjs',
-  'static-compositor': 'packages/publisher/renderers/svg/architecture.mjs',
-  'interactive-renderer': 'packages/publisher/renderers/archify/index.mjs',
-  'raster-boundary': 'packages/publisher/renderers/resvg/index.mjs',
-  'publication-writer': 'packages/publisher/src/publication/files.mjs',
+  'public-cli': {
+    locator: 'packages/publisher/src/cli/main.mjs',
+    source: new URL('../../../packages/publisher/src/cli/main.mjs', import.meta.url),
+  },
+  'source-bundle': {
+    locator: 'packages/publisher/src/source/bundle.mjs',
+    source: new URL('../../../packages/publisher/src/source/bundle.mjs', import.meta.url),
+  },
+  'semantic-contract': {
+    locator: 'packages/publisher/src/semantics/document.mjs',
+    source: new URL('../../../packages/publisher/src/semantics/document.mjs', import.meta.url),
+  },
+  'publication-coordinator': {
+    locator: 'packages/publisher/src/compiler/edition.mjs',
+    source: new URL('../../../packages/publisher/src/compiler/edition.mjs', import.meta.url),
+  },
+  'static-compositor': {
+    locator: 'packages/publisher/renderers/svg/architecture.mjs',
+    source: new URL('../../../packages/publisher/renderers/svg/architecture.mjs', import.meta.url),
+  },
+  'interactive-renderer': {
+    locator: 'packages/publisher/renderers/archify/index.mjs',
+    source: new URL('../../../packages/publisher/renderers/archify/index.mjs', import.meta.url),
+  },
+  'raster-boundary': {
+    locator: 'packages/publisher/renderers/resvg/index.mjs',
+    source: new URL('../../../packages/publisher/renderers/resvg/index.mjs', import.meta.url),
+  },
+  'publication-writer': {
+    locator: 'packages/publisher/src/publication/files.mjs',
+    source: new URL('../../../packages/publisher/src/publication/files.mjs', import.meta.url),
+  },
 });
 
 async function main() {
@@ -27,8 +50,8 @@ async function main() {
   const output = await fs.realpath(requestedOutput);
   const members = [],
     sources = {};
-  for (const [id, locator] of Object.entries(selectedFiles)) {
-    const content = await fs.readFile(path.join(root, locator));
+  for (const [id, { locator, source }] of Object.entries(selectedFiles)) {
+    const content = await fs.readFile(fileURLToPath(source));
     members.push({ path: `source/${locator}`, content });
     sources[id] = {
       sha256: sha(content),
@@ -70,14 +93,7 @@ async function main() {
           'boundary',
           'writer',
         ],
-        relations: [
-          'invokes',
-          'supplies',
-          'validates',
-          'delegates',
-          'rasterizes',
-          'publishes',
-        ],
+        relations: ['invokes', 'supplies', 'validates', 'delegates', 'rasterizes', 'publishes'],
         maturities: ['implemented'],
         predicates: Object.fromEntries(
           Object.entries({
@@ -102,21 +118,65 @@ async function main() {
         'public-cli': entity('interface', 'Public CLI', 'public-cli'),
         'source-bundle': entity('source', 'Source bundle', 'source-bundle'),
         'semantic-contract': entity('contract', 'Semantic contract', 'semantic-contract'),
-        'publication-coordinator': entity('coordinator', 'Publication coordinator', 'publication-coordinator'),
+        'publication-coordinator': entity(
+          'coordinator',
+          'Publication coordinator',
+          'publication-coordinator',
+        ),
         'static-compositor': entity('renderer', 'Static compositor', 'static-compositor'),
         'interactive-renderer': entity('renderer', 'Interactive renderer', 'interactive-renderer'),
         'raster-boundary': entity('boundary', 'Raster boundary', 'raster-boundary'),
         'publication-writer': entity('writer', 'Publication writer', 'publication-writer'),
       },
       relations: {
-        'cli-coordinator': relation('invokes', 'public-cli', 'publication-coordinator', 'public-cli'),
-        'source-coordinator': relation('supplies', 'source-bundle', 'publication-coordinator', 'source-bundle'),
-        'contract-coordinator': relation('validates', 'semantic-contract', 'publication-coordinator', 'semantic-contract'),
-        'coordinator-static': relation('delegates', 'publication-coordinator', 'static-compositor', 'publication-coordinator'),
-        'coordinator-interactive': relation('delegates', 'publication-coordinator', 'interactive-renderer', 'publication-coordinator'),
-        'static-raster': relation('rasterizes', 'static-compositor', 'raster-boundary', 'raster-boundary'),
-        'interactive-writer': relation('publishes', 'interactive-renderer', 'publication-writer', 'publication-writer'),
-        'raster-writer': relation('publishes', 'raster-boundary', 'publication-writer', 'publication-writer'),
+        'cli-coordinator': relation(
+          'invokes',
+          'public-cli',
+          'publication-coordinator',
+          'public-cli',
+        ),
+        'source-coordinator': relation(
+          'supplies',
+          'source-bundle',
+          'publication-coordinator',
+          'source-bundle',
+        ),
+        'contract-coordinator': relation(
+          'validates',
+          'semantic-contract',
+          'publication-coordinator',
+          'semantic-contract',
+        ),
+        'coordinator-static': relation(
+          'delegates',
+          'publication-coordinator',
+          'static-compositor',
+          'publication-coordinator',
+        ),
+        'coordinator-interactive': relation(
+          'delegates',
+          'publication-coordinator',
+          'interactive-renderer',
+          'publication-coordinator',
+        ),
+        'static-raster': relation(
+          'rasterizes',
+          'static-compositor',
+          'raster-boundary',
+          'raster-boundary',
+        ),
+        'interactive-writer': relation(
+          'publishes',
+          'interactive-renderer',
+          'publication-writer',
+          'publication-writer',
+        ),
+        'raster-writer': relation(
+          'publishes',
+          'raster-boundary',
+          'publication-writer',
+          'publication-writer',
+        ),
       },
       claims: {},
       sources,
@@ -219,19 +279,51 @@ async function main() {
           claims: [...allClaims],
           composition: {
             groups: [
-              { id: 'inputs', label: 'Selected inputs', entities: ['public-cli', 'source-bundle', 'semantic-contract'] },
+              {
+                id: 'inputs',
+                label: 'Selected inputs',
+                entities: ['public-cli', 'source-bundle', 'semantic-contract'],
+              },
               { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
-              { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
-              { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
+              {
+                id: 'projection',
+                label: 'Independent media',
+                entities: ['static-compositor', 'interactive-renderer'],
+              },
+              {
+                id: 'delivery',
+                label: 'Delivery',
+                entities: ['raster-boundary', 'publication-writer'],
+              },
             ],
             relations: [
               { id: 'cli-coordinator', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
               { id: 'source-coordinator', fromSide: 'bottom', toSide: 'top', route: 'straight' },
-              { id: 'contract-coordinator', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
-              { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
-              { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+              {
+                id: 'contract-coordinator',
+                fromSide: 'bottom',
+                toSide: 'top',
+                route: 'orthogonal-v',
+              },
+              {
+                id: 'coordinator-static',
+                fromSide: 'bottom',
+                toSide: 'top',
+                route: 'orthogonal-v',
+              },
+              {
+                id: 'coordinator-interactive',
+                fromSide: 'bottom',
+                toSide: 'top',
+                route: 'orthogonal-v',
+              },
               { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
-              { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'orthogonal-v' },
+              {
+                id: 'interactive-writer',
+                fromSide: 'bottom',
+                toSide: 'top',
+                route: 'orthogonal-v',
+              },
               { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'straight' },
             ],
           },
@@ -244,19 +336,49 @@ async function main() {
             claims: [...allClaims],
             composition: {
               groups: [
-                { id: 'inputs', label: 'Selected inputs', entities: ['public-cli', 'source-bundle', 'semantic-contract'] },
+                {
+                  id: 'inputs',
+                  label: 'Selected inputs',
+                  entities: ['public-cli', 'source-bundle', 'semantic-contract'],
+                },
                 { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
-                { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
-                { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
+                {
+                  id: 'projection',
+                  label: 'Independent media',
+                  entities: ['static-compositor', 'interactive-renderer'],
+                },
+                {
+                  id: 'delivery',
+                  label: 'Delivery',
+                  entities: ['raster-boundary', 'publication-writer'],
+                },
               ],
               relations: [
                 { id: 'cli-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto' },
-                { id: 'source-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [460, 220] },
+                {
+                  id: 'source-coordinator',
+                  fromSide: 'bottom',
+                  toSide: 'top',
+                  route: 'auto',
+                  labelAt: [460, 220],
+                },
                 { id: 'contract-coordinator', fromSide: 'bottom', toSide: 'top', route: 'auto' },
                 { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'auto' },
                 { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'auto' },
-                { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [365, 676] },
-                { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [605, 676] },
+                {
+                  id: 'static-raster',
+                  fromSide: 'bottom',
+                  toSide: 'top',
+                  route: 'auto',
+                  labelAt: [365, 676],
+                },
+                {
+                  id: 'interactive-writer',
+                  fromSide: 'bottom',
+                  toSide: 'top',
+                  route: 'auto',
+                  labelAt: [605, 676],
+                },
                 { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'auto' },
               ],
             },
@@ -269,14 +391,34 @@ async function main() {
             composition: {
               groups: [
                 { id: 'coordination', label: 'Publication', entities: ['publication-coordinator'] },
-                { id: 'projection', label: 'Independent media', entities: ['static-compositor', 'interactive-renderer'] },
-                { id: 'delivery', label: 'Delivery', entities: ['raster-boundary', 'publication-writer'] },
+                {
+                  id: 'projection',
+                  label: 'Independent media',
+                  entities: ['static-compositor', 'interactive-renderer'],
+                },
+                {
+                  id: 'delivery',
+                  label: 'Delivery',
+                  entities: ['raster-boundary', 'publication-writer'],
+                },
               ],
               relations: [
                 { id: 'coordinator-static', fromSide: 'bottom', toSide: 'top', route: 'auto' },
                 { id: 'coordinator-interactive', fromSide: 'bottom', toSide: 'top', route: 'auto' },
-                { id: 'static-raster', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [365, 466] },
-                { id: 'interactive-writer', fromSide: 'bottom', toSide: 'top', route: 'auto', labelAt: [605, 466] },
+                {
+                  id: 'static-raster',
+                  fromSide: 'bottom',
+                  toSide: 'top',
+                  route: 'auto',
+                  labelAt: [365, 466],
+                },
+                {
+                  id: 'interactive-writer',
+                  fromSide: 'bottom',
+                  toSide: 'top',
+                  route: 'auto',
+                  labelAt: [605, 466],
+                },
                 { id: 'raster-writer', fromSide: 'right', toSide: 'left', route: 'auto' },
               ],
             },
@@ -293,7 +435,8 @@ async function main() {
         recovery: [],
         human: [],
       },
-      scope: 'Self-hosted selected package architecture; not independent adoption or exhaustive implementation coverage',
+      scope:
+        'Self-hosted selected package architecture; not independent adoption or exhaustive implementation coverage',
     };
   members.unshift({ path: 'semantic.json', content: encode(semantic) });
   const bundle = await writeSourceBundle(

@@ -7,20 +7,13 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(import.meta.dirname, '..');
 
 test('current package identity and predecessor release are explicit', async () => {
-  const packageJson = JSON.parse(
-    await fs.readFile(path.join(root, 'package.json'), 'utf8'),
-  );
-  const packageLock = JSON.parse(
-    await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'),
-  );
+  const packageJson = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+  const packageLock = JSON.parse(await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'));
   assert.equal(packageJson.version, '0.2.0-alpha.0');
   assert.equal(packageLock.version, packageJson.version);
   assert.equal(packageLock.packages[''].version, packageJson.version);
 
-  const releaseToml = await fs.readFile(
-    path.join(root, '.ethos/release.toml'),
-    'utf8',
-  );
+  const releaseToml = await fs.readFile(path.join(root, '.ethos/release.toml'), 'utf8');
   assert.match(releaseToml, /"v0\.1\.0-alpha\.7"/);
   assert.equal((releaseToml.match(/v0\.1\.0-alpha\.7/g) ?? []).length, 1);
 
@@ -31,14 +24,8 @@ test('current package identity and predecessor release are explicit', async () =
   assert.match(operations, /Published reader[\s\S]*v0\.1\.0-alpha\.5/);
   assert.match(operations, /Candidate viewing copy[\s\S]*VIEWING_COPY_NOT_QUALIFIED_RELEASE/i);
   assert.match(operations, /Complete recovery[\s\S]*v0\.1\.0-alpha\.3/);
-  assert.match(
-    operations,
-    /804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa/,
-  );
-  assert.match(
-    operations,
-    /5f4ea104b95112d84635881600d2c75ae3eae65a45b4b61a4fe5936df3ee3cda/,
-  );
+  assert.match(operations, /804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa/);
+  assert.match(operations, /5f4ea104b95112d84635881600d2c75ae3eae65a45b4b61a4fe5936df3ee3cda/);
 });
 
 test('the packaged Skill remains a thin public CLI projection', async () => {
@@ -51,26 +38,18 @@ test('the packaged Skill remains a thin public CLI projection', async () => {
   assert.match(skill, /does not grant acceptance or authority/i);
   assert.doesNotMatch(skill, /\.architecture-state|\.comet|sqlite|daemon/i);
 
-  const packed = spawnSync(
-    'npm',
-    ['pack', '--ignore-scripts', '--json', '--dry-run'],
-    {
-      cwd: path.join(root, 'packages/publisher'),
-      encoding: 'utf8',
-      timeout: 60000,
-    },
-  );
+  const packed = spawnSync('npm', ['pack', '--ignore-scripts', '--json', '--dry-run'], {
+    cwd: path.join(root, 'packages/publisher'),
+    encoding: 'utf8',
+    timeout: 60000,
+  });
   assert.equal(packed.status, 0, packed.stderr);
   assert.equal(
-    JSON.parse(packed.stdout)[0].files.some((file) =>
-      /(^|\/)skills\//.test(file.path),
-    ),
+    JSON.parse(packed.stdout)[0].files.some((file) => /(^|\/)skills\//.test(file.path)),
     false,
   );
   assert(
-    JSON.parse(packed.stdout)[0].files.every(
-      (file) => !file.path.startsWith('docs/research/'),
-    ),
+    JSON.parse(packed.stdout)[0].files.every((file) => !file.path.startsWith('docs/research/')),
   );
 });
 

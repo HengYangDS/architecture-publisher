@@ -7,13 +7,8 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 /** Exclusive new-directory writer. Incomplete output is retained, never promoted. */
 export async function writeSourceBundle(output, source, members) {
-  if (typeof output !== 'string' || !path.isAbsolute(output))
-    fail('output_path_required');
-  if (
-    !Array.isArray(members) ||
-    !members.length ||
-    members.length > LIMITS.files
-  )
+  if (typeof output !== 'string' || !path.isAbsolute(output)) fail('output_path_required');
+  if (!Array.isArray(members) || !members.length || members.length > LIMITS.files)
     fail('members_invalid');
   let total = 0;
   const copied = members.map((member) => {
@@ -35,16 +30,14 @@ export async function writeSourceBundle(output, source, members) {
   if (
     manifest.files.some(
       (m) =>
-        portableKey(m.path) === 'manifest.json' ||
-        portableKey(m.path).startsWith('manifest.json/'),
+        portableKey(m.path) === 'manifest.json' || portableKey(m.path).startsWith('manifest.json/'),
     )
   )
     fail('manifest_self_member');
   const directories = new Set();
   for (const member of manifest.files) {
     const parts = member.path.split('/');
-    for (let i = 1; i < parts.length; i++)
-      directories.add(parts.slice(0, i).join('/'));
+    for (let i = 1; i < parts.length; i++) directories.add(parts.slice(0, i).join('/'));
   }
   if (1 + manifest.files.length + directories.size > LIMITS.entries)
     fail('bundle_entries_exceeded');
@@ -61,7 +54,8 @@ export async function writeSourceBundle(output, source, members) {
   try {
     await fs.mkdir(output);
   } catch (error) {
-    if (error.code === 'EEXIST') fail('output_exists');
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'EEXIST')
+      fail('output_exists');
     throw error;
   }
   for (const member of copied) {

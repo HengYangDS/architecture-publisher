@@ -9,27 +9,16 @@
         "tools/qualification/semantic-browser.mjs",
         "tests/*.test.mjs"
       ],
-      "project": [
-        "conformance/journeys/self-host/**/*.mjs",
-        "tools/**/*.mjs",
-        "tests/**/*.mjs"
-      ],
+      "project": ["conformance/journeys/self-host/**/*.mjs", "tools/**/*.mjs", "tests/**/*.mjs"],
       "includeEntryExports": true
     },
     "packages/publisher": {
-      "project": [
-        "src/**/*.mjs",
-        "renderers/**/*.mjs"
-      ],
-      "ignore": [
-        "renderers/*/supply/**"
-      ],
+      "project": ["src/**/*.mjs", "renderers/**/*.mjs"],
+      "ignore": ["renderers/*/supply/**"],
       "includeEntryExports": false
     },
     "editions/self": {
-      "project": [
-        "src/**/*.mjs"
-      ],
+      "project": ["src/**/*.mjs"],
       "includeEntryExports": false
     }
   }

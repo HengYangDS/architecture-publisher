@@ -1,18 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import {
-  claimChangeModel,
-  ref,
-} from './fixtures/claim-change.mjs';
+import { claimChangeModel, ref } from './fixtures/claim-change.mjs';
 
 async function api() {
   const contract = await import('../packages/publisher/src/semantics/document.mjs').catch(
     () => ({}),
   );
-  const compiler = await import('../packages/publisher/src/semantics/change.mjs').catch(
-    () => ({}),
-  );
+  const compiler = await import('../packages/publisher/src/semantics/change.mjs').catch(() => ({}));
   assert.equal(
     typeof contract.validateClaimModel,
     'function',
@@ -37,15 +32,11 @@ test('in-process shared graphs cannot expand beyond the admission work budget', 
     try { validateClaimModel(document); process.exitCode = 2; }
     catch (error) { process.stdout.write(error.code); }
   `;
-  const result = spawnSync(
-    process.execPath,
-    ['--input-type=module', '-e', program],
-    {
-      cwd: new URL('../', import.meta.url),
-      encoding: 'utf8',
-      timeout: 2000,
-    },
-  );
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', program], {
+    cwd: new URL('../', import.meta.url),
+    encoding: 'utf8',
+    timeout: 2000,
+  });
   assert.equal(result.error, undefined);
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stdout, 'semantic_json_alias');
@@ -127,22 +118,10 @@ test('all qualifiers and direction affect dependent claims', async () => {
   const a = claimChangeModel(),
     b = structuredClone(a);
   b.entities.client.label = 'A much longer component label '.repeat(20);
-  assert.deepEqual(
-    compileClaimModelDelta(a, b).affectedClaims,
-    ['admission'],
-  );
-  [b.relations.request.subject, b.relations.request.object] = [
-    'server',
-    'client',
-  ];
-  [b.claims.admission.subject, b.claims.admission.object] = [
-    'server',
-    'client',
-  ];
-  assert.deepEqual(
-    compileClaimModelDelta(a, b).changed.relations,
-    ['request'],
-  );
+  assert.deepEqual(compileClaimModelDelta(a, b).affectedClaims, ['admission']);
+  [b.relations.request.subject, b.relations.request.object] = ['server', 'client'];
+  [b.claims.admission.subject, b.claims.admission.object] = ['server', 'client'];
+  assert.deepEqual(compileClaimModelDelta(a, b).changed.relations, ['request']);
 });
 
 test('deletion and rewiring traverse the old graph rather than lose dependencies', async () => {
@@ -208,10 +187,7 @@ test('explicit contradiction detection is applicability scoped and opaque prose 
   const p = claimChangeModel();
   p.claims.denial = structuredClone(p.claims.admission);
   p.claims.denial.validity = 'refuted';
-  assert.throws(
-    () => validateClaimModel(p),
-    /semantic_contradiction.*admission.*denial/,
-  );
+  assert.throws(() => validateClaimModel(p), /semantic_contradiction.*admission.*denial/);
   p.claims.denial.condition.authorization = 'denied';
   assert.doesNotThrow(() => validateClaimModel(p));
   p.vocabulary.predicates.statement = {
@@ -291,10 +267,7 @@ test('rename, split and merge require disjoint source-backed removed and added i
         kind,
       })),
     ])
-      assert.throws(
-        () => compileClaimModelDelta(a, b, [invalid]),
-        /semantic_correspondence/,
-      );
+      assert.throws(() => compileClaimModelDelta(a, b, [invalid]), /semantic_correspondence/);
     assert.throws(
       () => compileClaimModelDelta(a, b, [mapping, mapping]),
       /semantic_correspondence/,
@@ -373,15 +346,9 @@ test('declared set ordering is not meaning and complete-value arrays remain orde
   b.vocabulary.entities.reverse();
   b.claims.admission.dependsOn.reverse();
   assert.equal(claimModelDigest(a), claimModelDigest(b));
-  assert.deepEqual(
-    compileClaimModelDelta(a, b).affectedClaims,
-    [],
-  );
+  assert.deepEqual(compileClaimModelDelta(a, b).affectedClaims, []);
   b.entities.client.qualifiers.order.reverse();
-  assert.deepEqual(
-    compileClaimModelDelta(a, b).changed.entities,
-    ['client'],
-  );
+  assert.deepEqual(compileClaimModelDelta(a, b).changed.entities, ['client']);
 });
 
 test('invalid owner and oversized or cyclic documents fail explicitly', async () => {
@@ -389,10 +356,7 @@ test('invalid owner and oversized or cyclic documents fail explicitly', async ()
   const a = claimChangeModel(),
     b = structuredClone(a);
   b.owner = 'other:system';
-  assert.throws(
-    () => compileClaimModelDelta(a, b),
-    /semantic_owner_changed/,
-  );
+  assert.throws(() => compileClaimModelDelta(a, b), /semantic_owner_changed/);
   a.context.loop = a;
   assert.throws(() => validateClaimModel(a), /semantic_json_cycle/);
   delete a.context.loop;
@@ -419,18 +383,14 @@ test('sparse and decorated arrays cannot hide meaning or supply absent correspon
     to: ['renamed'],
     evidence: new Array(1),
   };
-  assert.throws(
-    () => compileClaimModelDelta(a, b, [row]),
-    /semantic_json_required/,
-  );
+  assert.throws(() => compileClaimModelDelta(a, b, [row]), /semantic_json_required/);
 });
 
 test('growth is reported rather than silently omitted or treated as an automatic layout', async () => {
   const { compileClaimModelDelta } = await api();
   const a = claimChangeModel(),
     b = structuredClone(a);
-  for (let i = 0; i < 80; i++)
-    b.entities['extra-' + i] = structuredClone(b.entities.other);
+  for (let i = 0; i < 80; i++) b.entities['extra-' + i] = structuredClone(b.entities.other);
   const delta = compileClaimModelDelta(a, b);
   assert.equal(delta.added.entities.length, 80);
   assert.deepEqual(delta.affectedClaims, []);

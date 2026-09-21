@@ -72,12 +72,14 @@ test('the installed product builds its structural self-portrait through the publ
     fs.stat(path.join(pkg, 'conformance/journeys/self-host/browser-acceptance.json')),
     { code: 'ENOENT' },
   );
-  await assert.rejects(
-    fs.stat(path.join(pkg, 'migration/aigw/browser-acceptance.json')),
-    { code: 'ENOENT' },
-  );
+  await assert.rejects(fs.stat(path.join(pkg, 'migration/aigw/browser-acceptance.json')), {
+    code: 'ENOENT',
+  });
   assert.equal(path.dirname(selected.plan), path.join(physicalParent, 'inputs'));
-  assert.equal(path.dirname(selected.sourceManifest), path.join(physicalParent, 'inputs', 'source'));
+  assert.equal(
+    path.dirname(selected.sourceManifest),
+    path.join(physicalParent, 'inputs', 'source'),
+  );
   plan.output = publication;
   const planBytes = Buffer.from(JSON.stringify(plan, null, 2) + '\n'),
     planPath = path.join(directory, 'plan.json');
@@ -113,17 +115,11 @@ test('the installed product builds its structural self-portrait through the publ
   assert.equal(candidate.claimModel.digest, selected.semanticDigest);
   assert.equal(plan.edition, selected.edition);
   assert.equal(plan.editionSha256, sha(await fs.readFile(selected.edition)));
-  assert.deepEqual(
-    edition,
-    JSON.parse(await fs.readFile(selected.edition, 'utf8')),
-  );
+  assert.deepEqual(edition, JSON.parse(await fs.readFile(selected.edition, 'utf8')));
   assert.equal(candidate.edition.sha256, plan.editionSha256);
   assert.equal(candidate.edition.digest, response.editionDigest);
   assert.equal(candidate.media.static.sceneSha256, response.staticSceneDigest);
-  assert.equal(
-    candidate.media.interactive.sceneSha256,
-    response.interactiveSceneDigest,
-  );
+  assert.equal(candidate.media.interactive.sceneSha256, response.interactiveSceneDigest);
   assert.equal(response.status, 'built');
   assert.match(response.candidateSha256, /^[a-f0-9]{64}$/);
   assert.equal(Object.hasOwn(response, 'qualification'), false);
@@ -142,8 +138,11 @@ test('the installed product builds its structural self-portrait through the publ
     assert.match(svg, new RegExp(`data-node-id="${id}"`));
     assert.match(html, new RegExp(`data-node-id="${id}"`));
   }
-  assert(members.get('overview.png').subarray(0, 8).equals(
-    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
-  ));
+  assert(
+    members
+      .get('overview.png')
+      .subarray(0, 8)
+      .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])),
+  );
   await assert.rejects(fs.access(path.join(consumer, '.git')), { code: 'ENOENT' });
 });

@@ -1,6 +1,7 @@
 # browser-evidence Specification
 
 ## Purpose
+
 Define the lossless, bounded evidence transport used to carry complete browser
 observations into the existing identity and coverage checks without granting
 partial progress, compressed bytes, or historical replay any acceptance authority.
