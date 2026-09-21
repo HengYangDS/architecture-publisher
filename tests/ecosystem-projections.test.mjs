@@ -16,6 +16,8 @@ test('current package identity and predecessor release are explicit', async () =
   const releaseToml = await fs.readFile(path.join(root, '.ethos/release.toml'), 'utf8');
   assert.match(releaseToml, /"v0\.1\.0-alpha\.7"/);
   assert.equal((releaseToml.match(/v0\.1\.0-alpha\.7/g) ?? []).length, 1);
+  assert.match(releaseToml, /"v0\.2\.0-alpha\.0"/);
+  assert.equal((releaseToml.match(/v0\.2\.0-alpha\.0/g) ?? []).length, 1);
 
   const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
   const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');

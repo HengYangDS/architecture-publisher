@@ -1,6 +1,6 @@
 [protected_refs]
 branches = ["main", "dev"]
-tags = ["v0.1.0-alpha.0", "v0.1.0-alpha.1", "v0.1.0-alpha.2", "v0.1.0-alpha.3", "v0.1.0-alpha.4", "v0.1.0-alpha.5", "v0.1.0-alpha.6", "v0.1.0-alpha.7"]
+tags = ["v0.1.0-alpha.0", "v0.1.0-alpha.1", "v0.1.0-alpha.2", "v0.1.0-alpha.3", "v0.1.0-alpha.4", "v0.1.0-alpha.5", "v0.1.0-alpha.6", "v0.1.0-alpha.7", "v0.2.0-alpha.0"]
 
 [publication]
 local_verification_command = "npm test"
