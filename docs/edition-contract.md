@@ -125,10 +125,12 @@ An Edition lists non-substitutable predicates. At minimum a flagship requires:
 6. keyboard, focus, contrast, text-scale, and reduced-motion accessibility;
 7. installed offline reproduction;
 8. exact replacement and interrupted-effect recovery;
-9. human review of `faithful`, `intelligible`, and `restrained`.
+9. human review of `faithful`, `intelligible`, and `restrained`, declared
+   separately for each exact static artifact and interactive viewport.
 
 Every qualification binds exact subjects, verifier identity, observations,
 verdict, and limitations. A changed artifact needs fresh applicable evidence.
+One medium's human decision never satisfies another medium's obligation.
 
 ## Evolution
 
@@ -142,7 +144,8 @@ obligation classes:
 - `semanticVerification` rechecks meaning and coverage;
 - `mediumVerification` rechecks only the applicable static, interactive,
   installed-use, and recovery predicates;
-- `humanReview` is required when the Edition's declared human predicates apply;
+- `humanReview` emits one exact predicate-and-scope obligation for each affected
+  artifact or viewport declared by the Edition;
 - `acceptance` records the need to accept, reaccept, or withdraw the Edition;
 - `publication` records the need to publish, replace, or withdraw selected
   output.

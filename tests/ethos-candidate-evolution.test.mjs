@@ -124,7 +124,22 @@ test('real-shaped source refresh propagates compiler obligations through complet
     'publication',
   ]);
   assert.equal(result.evolution.editions.affected[0].interactive.length, 13);
-  assert.equal(result.evolution.obligations.humanReview.length, 1);
+  assert.equal(result.evolution.obligations.humanReview.length, 6);
+  assert.deepEqual(
+    new Set(
+      result.evolution.obligations.humanReview.map(
+        ({ predicate, scope }) => `${predicate}:${scope.medium}`,
+      ),
+    ),
+    new Set([
+      'faithful:static',
+      'faithful:interactive',
+      'intelligible:static',
+      'intelligible:interactive',
+      'restrained:static',
+      'restrained:interactive',
+    ]),
+  );
   assert.equal(result.evolution.obligations.acceptance[0].action, 'reaccept');
   assert.equal(result.evolution.obligations.publication[0].action, 'replace');
   assert.equal(

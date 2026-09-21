@@ -2,7 +2,9 @@ import { createHash } from 'node:crypto';
 import {
   QUALIFICATION_KINDS,
   editionDigest,
+  editionQualificationObligations,
   interactiveSceneDigest,
+  isHumanReviewScope,
   staticSceneDigest,
   validateEdition,
 } from '../edition/contract.mjs';
@@ -39,6 +41,7 @@ const ARTIFACT_FIELDS = Object.freeze([
 ]);
 const SUPPLY_FIELDS = Object.freeze(['id', 'sha256']);
 const OBLIGATION_FIELDS = Object.freeze(['kind', 'predicate']);
+const HUMAN_OBLIGATION_FIELDS = Object.freeze(['kind', 'predicate', 'scope']);
 
 function fail(code) {
   throw Object.assign(new Error(code), { code });
@@ -105,9 +108,7 @@ function normalizedCandidate(value) {
   selected.media.static = normalizedMedium(selected.media.static);
   selected.media.interactive = normalizedMedium(selected.media.interactive);
   selected.obligations.sort((left, right) =>
-    `${left.kind}\u0000${left.predicate}`.localeCompare(
-      `${right.kind}\u0000${right.predicate}`,
-    ),
+    canonical(left).localeCompare(canonical(right)),
   );
   return selected;
 }
@@ -150,16 +151,26 @@ export function validateEditionCandidate(value) {
   } catch {
     fail('candidate_artifact_duplicate');
   }
-  for (const obligation of value.obligations)
+  for (const obligation of value.obligations) {
+    const human = obligation?.kind === 'human';
     if (
-      !exact(obligation, OBLIGATION_FIELDS) ||
+      !exact(obligation, human ? HUMAN_OBLIGATION_FIELDS : OBLIGATION_FIELDS) ||
       !QUALIFICATION_KINDS.includes(obligation.kind) ||
-      !text(obligation.predicate)
+      !text(obligation.predicate) ||
+      (human && !isHumanReviewScope(obligation.scope))
     )
       fail('candidate_obligation_invalid');
+    if (
+      human &&
+      !value.media[obligation.scope.medium].artifacts.some(
+        ({ id }) => id === obligation.scope.artifact,
+      )
+    )
+      fail('candidate_human_artifact_missing');
+  }
   unique(
     value.obligations,
-    ({ kind, predicate }) => `${kind}\u0000${predicate}`,
+    (obligation) => canonical(obligation),
     'candidate_obligation_duplicate',
   );
   return deepFreeze(normalizedCandidate(value));
@@ -170,14 +181,7 @@ export function validateEditionCandidateBinding(modelValue, editionValue, candid
   const model = validateClaimModel(modelValue),
     edition = validateEdition(model, editionValue),
     candidate = validateEditionCandidate(candidateValue),
-    obligations = Object.entries(edition.qualification).flatMap(
-      ([kind, predicates]) => predicates.map((predicate) => ({ kind, predicate })),
-    );
-  obligations.sort((left, right) =>
-    `${left.kind}\u0000${left.predicate}`.localeCompare(
-      `${right.kind}\u0000${right.predicate}`,
-    ),
-  );
+    obligations = editionQualificationObligations(model, edition);
   if (candidate.source.manifestSha256 !== edition.source.manifestSha256)
     fail('candidate_source_mismatch');
   if (candidate.claimModel.digest !== claimModelDigest(model))
@@ -226,9 +230,7 @@ export function createEditionCandidate(input) {
         digest: editionDigest(model, edition),
       },
       media: structuredClone(input.media),
-      obligations: Object.entries(edition.qualification).flatMap(
-        ([kind, predicates]) => predicates.map((predicate) => ({ kind, predicate })),
-      ),
+      obligations: editionQualificationObligations(model, edition),
     };
   return validateEditionCandidateBinding(model, edition, candidate);
 }

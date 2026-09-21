@@ -398,10 +398,11 @@ test('qualification admission rederives obligations from exact Edition authority
     selectedCandidate = candidate(selected),
     forgedCandidate = {
       ...selectedCandidate,
-      obligations: [
-        ...selectedCandidate.obligations.slice(0, -1),
-        { kind: 'human', predicate: 'forged-approval' },
-      ],
+      obligations: selectedCandidate.obligations.map((obligation, index) =>
+        index === 0
+          ? { ...obligation, predicate: 'forged-approval' }
+          : obligation
+      ),
     },
     qualification = bindQualificationSet(forgedCandidate, [
       bindQualificationRecord(forgedCandidate, {

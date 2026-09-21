@@ -283,7 +283,28 @@ function editionFor(model, sourceSha256, sources) {
       accessibility: ['keyboard-focus-contrast-text-and-reduced-motion'],
       installed: ['offline-relocated-reproduction'],
       recovery: ['replacement-and-interrupted-effect-recovery'],
-      human: ['faithful', 'intelligible', 'restrained'],
+      human: ['faithful', 'intelligible', 'restrained'].flatMap((predicate) => [
+        {
+          predicate,
+          scope: {
+            kind: 'physical',
+            medium: 'static',
+            artifact: 'flagship-png',
+            width: 6000,
+            height: 3375,
+          },
+        },
+        {
+          predicate,
+          scope: {
+            kind: 'viewport',
+            medium: 'interactive',
+            artifact: 'standalone-atlas',
+            width: 1440,
+            height: 1000,
+          },
+        },
+      ]),
     },
     scope:
       'First-party product self-Edition; source-bound self-use, not independent adoption, source acceptance, or off-host recovery proof.',

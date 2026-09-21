@@ -7,7 +7,10 @@ import {
   text,
 } from '../semantics/document.mjs';
 import { isDigest } from '../source/manifest.mjs';
-import { QUALIFICATION_KINDS } from '../edition/contract.mjs';
+import {
+  QUALIFICATION_KINDS,
+  isHumanReviewScope,
+} from '../edition/contract.mjs';
 import {
   editionCandidateDigest,
   mediaCandidateDigest,
@@ -56,19 +59,16 @@ function selectedScope(value, code) {
 
 
 function selectedHumanScope(value, code) {
-  if (
-    !exact(value, ['kind', 'medium', 'artifact', 'width', 'height']) ||
-    !['viewport', 'physical'].includes(value.kind) ||
-    !['static', 'interactive'].includes(value.medium) ||
-    (value.kind === 'viewport' && value.medium !== 'interactive') ||
-    (value.kind === 'physical' && value.medium !== 'static') ||
-    !text(value.artifact) ||
-    !Number.isSafeInteger(value.width) ||
-    value.width < 1 ||
-    !Number.isSafeInteger(value.height) ||
-    value.height < 1
-  )
-    fail(code);
+  if (!isHumanReviewScope(value)) fail(code);
+}
+
+
+function obligationKey({ kind, predicate, scope = null }) {
+  return canonical({
+    kind,
+    predicate,
+    scope: kind === 'human' ? scope : null,
+  });
 }
 
 function humanArtifact(candidate, scope) {
@@ -307,11 +307,11 @@ export function admitQualificationSet(
     fail('qualification_identity_mismatch');
 
   const declared = new Map(
-      candidate.obligations.map((item) => [`${item.kind}\u0000${item.predicate}`, item]),
+      candidate.obligations.map((item) => [obligationKey(item), item]),
     ),
     observed = new Set();
   for (const selected of qualification.records) {
-    const key = `${selected.kind}\u0000${selected.predicate}`;
+    const key = obligationKey(selected);
     if (observed.has(key)) fail('qualification_obligation_duplicate');
     if (!declared.has(key)) fail('qualification_obligation_undeclared');
     observed.add(key);
@@ -327,7 +327,7 @@ export function admitQualificationSet(
       fail('qualification_subject_mismatch');
   }
   const missing = candidate.obligations.filter(
-      ({ kind, predicate }) => !observed.has(`${kind}\u0000${predicate}`),
+      (obligation) => !observed.has(obligationKey(obligation)),
     ),
     complete = missing.length === 0,
     verdict = qualification.records.some(({ verdict }) => verdict === 'FAIL')

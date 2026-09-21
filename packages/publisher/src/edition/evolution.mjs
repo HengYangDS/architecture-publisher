@@ -29,6 +29,7 @@ function side(value, inspect = false) {
   )
     evolutionError('edition_evolution_input_invalid');
   const editions = new Map(),
+    qualificationObligations = new Map(),
     digests = {};
   for (const edition of value.editions) {
     const inspected = inspect
@@ -36,15 +37,26 @@ function side(value, inspect = false) {
         : {
             edition: normalizedEdition(value.claimModel, edition),
             digest: null,
+            qualificationObligations: null,
           },
       normalized = inspected.edition;
     if (editions.has(normalized.id))
       evolutionError('edition_evolution_duplicate', normalized.id);
     editions.set(normalized.id, normalized);
+    if (inspected.qualificationObligations)
+      qualificationObligations.set(
+        normalized.id,
+        inspected.qualificationObligations,
+      );
     digests[normalized.id] =
       inspected.digest ?? inspectEditionForEvolution(value.claimModel, normalized).digest;
   }
-  return { claimModel: value.claimModel, editions, digests };
+  return {
+    claimModel: value.claimModel,
+    editions,
+    qualificationObligations,
+    digests,
+  };
 }
 
 function sceneReferences(scene) {
@@ -341,6 +353,7 @@ function predicates(edition, ...kinds) {
 function addVerificationObligations(
   obligations,
   edition,
+  editionObligations,
   impact,
   qualificationChanged,
   reasons,
@@ -400,12 +413,21 @@ function addVerificationObligations(
       predicates: predicates(edition, 'recovery'),
       reasons,
     });
-  if (humanReviewRequired && edition.qualification.human.length)
-    addUnique(obligations.humanReview, {
-      edition: edition.id,
-      predicates: predicates(edition, 'human'),
-      reasons,
-    });
+  if (humanReviewRequired)
+    for (const { predicate, scope } of editionObligations.filter(
+      (item) =>
+        item.kind === 'human' &&
+        (qualificationChanged.has('human') ||
+          (item.scope.medium === 'static' && impact.static) ||
+          (item.scope.medium === 'interactive' &&
+            (impact.atlas || impact.interactive.size > 0))),
+    ))
+      addUnique(obligations.humanReview, {
+        edition: edition.id,
+        predicate,
+        scope: structuredClone(scope),
+        reasons,
+      });
 }
 
 function addRebuildObligations(obligations, edition, impact, reasons) {
@@ -514,6 +536,7 @@ export function compileEditionEvolution(input) {
       addVerificationObligations(
         obligations,
         next,
+        after.qualificationObligations.get(id),
         impact,
         new Set(),
         reasons,
@@ -640,6 +663,7 @@ export function compileEditionEvolution(input) {
     addVerificationObligations(
       obligations,
       next,
+      after.qualificationObligations.get(id),
       impact,
       qualificationChanged,
       reasons,

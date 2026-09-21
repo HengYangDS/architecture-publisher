@@ -84,7 +84,24 @@ test('ETHOS adapter retains opaque assertions and exposes separate compiler obli
     'acceptance',
     'publication',
   ]);
-  assert.equal(r.obligations.humanReview.length, 1);
+  assert.deepEqual(
+    r.obligations.humanReview.map(({ predicate, scope }) => [
+      predicate,
+      scope.medium,
+      scope.artifact,
+      scope.kind,
+      scope.width,
+      scope.height,
+    ]),
+    [
+      ['faithful', 'static', 'flagship-png', 'physical', 6000, 3375],
+      ['faithful', 'interactive', 'standalone-atlas', 'viewport', 1920, 1080],
+      ['intelligible', 'static', 'flagship-png', 'physical', 6000, 3375],
+      ['intelligible', 'interactive', 'standalone-atlas', 'viewport', 1920, 1080],
+      ['restrained', 'static', 'flagship-png', 'physical', 6000, 3375],
+      ['restrained', 'interactive', 'standalone-atlas', 'viewport', 1920, 1080],
+    ],
+  );
 });
 
 test('ETHOS adapter preserves source extensions rather than omit unrecognized meaning', async () => {
@@ -196,7 +213,12 @@ test('ETHOS authored inputs participate in shared Edition evolution', async () =
   );
   assert.deepEqual(result.editions.affected[0].interactive, ['overview']);
   assert.equal(result.editions.affected[0].static, false);
-  assert.equal(result.obligations.humanReview.length, 1);
+  assert.equal(result.obligations.humanReview.length, 3);
+  assert(
+    result.obligations.humanReview.every(
+      ({ scope }) => scope.medium === 'interactive',
+    ),
+  );
 
   result = compareSelections(
     selectEthosEditionDependencies(input, authoredPages, {}),
@@ -204,7 +226,12 @@ test('ETHOS authored inputs participate in shared Edition evolution', async () =
   );
   assert.equal(result.editions.affected[0].static, true);
   assert.deepEqual(result.editions.affected[0].interactive, []);
-  assert.equal(result.obligations.humanReview.length, 1);
+  assert.equal(result.obligations.humanReview.length, 3);
+  assert(
+    result.obligations.humanReview.every(
+      ({ scope }) => scope.medium === 'static',
+    ),
+  );
 });
 test('bound semantic carrier rejects stale meaning and missing visible copy', async () => {
   const { verifyMeaningCarriers } = await api();

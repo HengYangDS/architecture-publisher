@@ -10,6 +10,7 @@ import {
 } from '../packages/publisher/src/compiler/candidate.mjs';
 import {
   editionDigest,
+  editionQualificationObligations,
   interactiveSceneDigest,
   staticSceneDigest,
 } from '../packages/publisher/src/edition/contract.mjs';
@@ -91,9 +92,72 @@ function candidate() {
         kind: 'recovery',
         predicate: 'replacement-and-interrupted-effect-recovery',
       },
-      { kind: 'human', predicate: 'faithful' },
-      { kind: 'human', predicate: 'intelligible' },
-      { kind: 'human', predicate: 'restrained' },
+      {
+        kind: 'human',
+        predicate: 'faithful',
+        scope: {
+          kind: 'physical',
+          medium: 'static',
+          artifact: 'overview-png',
+          width: 6000,
+          height: 3375,
+        },
+      },
+      {
+        kind: 'human',
+        predicate: 'faithful',
+        scope: {
+          kind: 'viewport',
+          medium: 'interactive',
+          artifact: 'standalone-atlas',
+          width: 1440,
+          height: 1000,
+        },
+      },
+      {
+        kind: 'human',
+        predicate: 'intelligible',
+        scope: {
+          kind: 'physical',
+          medium: 'static',
+          artifact: 'overview-png',
+          width: 6000,
+          height: 3375,
+        },
+      },
+      {
+        kind: 'human',
+        predicate: 'intelligible',
+        scope: {
+          kind: 'viewport',
+          medium: 'interactive',
+          artifact: 'standalone-atlas',
+          width: 1440,
+          height: 1000,
+        },
+      },
+      {
+        kind: 'human',
+        predicate: 'restrained',
+        scope: {
+          kind: 'physical',
+          medium: 'static',
+          artifact: 'overview-png',
+          width: 6000,
+          height: 3375,
+        },
+      },
+      {
+        kind: 'human',
+        predicate: 'restrained',
+        scope: {
+          kind: 'viewport',
+          medium: 'interactive',
+          artifact: 'standalone-atlas',
+          width: 1440,
+          height: 1000,
+        },
+      },
     ],
   };
 }
@@ -202,9 +266,10 @@ test('Candidate obligations and scenes are projections of the exact Edition auth
     selected.model,
     selected.edition,
   );
-  value.obligations = Object.entries(selected.edition.qualification).flatMap(
-    ([kind, predicates]) => predicates.map((predicate) => ({ kind, predicate })),
-  );
+  value.obligations = structuredClone(editionQualificationObligations(
+    selected.model,
+    selected.edition,
+  ));
   assert.doesNotThrow(() =>
     validateEditionCandidateBinding(selected.model, selected.edition, value),
   );
@@ -236,15 +301,7 @@ test('Candidate creation derives all copied authority from the exact Edition', (
     });
   assert.deepEqual(
     created.obligations,
-    Object.entries(selected.edition.qualification)
-      .flatMap(([kind, predicates]) =>
-        predicates.map((predicate) => ({ kind, predicate })),
-      )
-      .sort((left, right) =>
-        `${left.kind}\u0000${left.predicate}`.localeCompare(
-          `${right.kind}\u0000${right.predicate}`,
-        ),
-      ),
+    editionQualificationObligations(selected.model, selected.edition),
   );
   assert.equal(created.claimModel.digest, claimModelDigest(selected.model));
   assert.equal(created.edition.digest, editionDigest(selected.model, selected.edition));

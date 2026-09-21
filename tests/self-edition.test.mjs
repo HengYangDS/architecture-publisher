@@ -275,8 +275,22 @@ test('the first-party self Edition covers the complete product chain and authori
     edition.scenes.interactive.overview.composition,
   );
   assert.deepEqual(
-    [...edition.qualification.human].sort(),
-    ['faithful', 'intelligible', 'restrained'],
+    edition.qualification.human.map(({ predicate, scope }) => [
+      predicate,
+      scope.medium,
+      scope.artifact,
+      scope.kind,
+      scope.width,
+      scope.height,
+    ]),
+    [
+      ['faithful', 'static', 'flagship-png', 'physical', 6000, 3375],
+      ['faithful', 'interactive', 'standalone-atlas', 'viewport', 1440, 1000],
+      ['intelligible', 'static', 'flagship-png', 'physical', 6000, 3375],
+      ['intelligible', 'interactive', 'standalone-atlas', 'viewport', 1440, 1000],
+      ['restrained', 'static', 'flagship-png', 'physical', 6000, 3375],
+      ['restrained', 'interactive', 'standalone-atlas', 'viewport', 1440, 1000],
+    ],
   );
   assert.equal(model.context.selfUse, true);
   assert.equal(model.context.independentAdopterEvidence, false);
@@ -330,7 +344,24 @@ test('the first-party self Edition emits one exact candidate from independent si
     candidate.media.static.sceneSha256,
     candidate.media.interactive.sceneSha256,
   );
-  assert.equal(candidate.obligations.length, 10);
+  assert.equal(candidate.obligations.length, 13);
+  assert.deepEqual(
+    candidate.obligations
+      .filter(({ kind }) => kind === 'human')
+      .map(({ predicate, scope }) => [
+        predicate,
+        scope.medium,
+        scope.artifact,
+      ]),
+    [
+      ['faithful', 'static', 'flagship-png'],
+      ['faithful', 'interactive', 'standalone-atlas'],
+      ['intelligible', 'static', 'flagship-png'],
+      ['intelligible', 'interactive', 'standalone-atlas'],
+      ['restrained', 'static', 'flagship-png'],
+      ['restrained', 'interactive', 'standalone-atlas'],
+    ],
+  );
   for (const medium of Object.values(candidate.media))
     for (const artifact of medium.artifacts) {
       const bytes = members.get(artifact.path);

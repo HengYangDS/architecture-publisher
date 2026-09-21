@@ -25,6 +25,31 @@ function rebind(value, source = false) {
   return value;
 }
 
+function flagshipHumanQualification() {
+  return ['faithful', 'intelligible', 'restrained'].flatMap((predicate) => [
+    {
+      predicate,
+      scope: {
+        kind: 'physical',
+        medium: 'static',
+        artifact: 'overview-png',
+        width: 6000,
+        height: 3375,
+      },
+    },
+    {
+      predicate,
+      scope: {
+        kind: 'viewport',
+        medium: 'interactive',
+        artifact: 'standalone-atlas',
+        width: 1440,
+        height: 1000,
+      },
+    },
+  ]);
+}
+
 function compile(compiler, before, after, correspondences = []) {
   return compiler({
     before: { claimModel: before.model, editions: [before.edition] },
@@ -141,11 +166,7 @@ test('flagship source-only changes do not fabricate visual review', async () => 
     { before, after } = pair();
   for (const value of [before, after]) {
     value.edition.class = 'flagship';
-    value.edition.qualification.human = [
-      'faithful',
-      'intelligible',
-      'restrained',
-    ];
+    value.edition.qualification.human = flagshipHumanQualification();
   }
   after.model.sources.contract.sha256 = '2'.repeat(64);
   rebind(after, true);
@@ -513,21 +534,19 @@ test('flagship changes require exact human review while structural changes do no
     if (flagship)
       for (const value of [before, after]) {
         value.edition.class = 'flagship';
-        value.edition.qualification.human = [
-          'faithful',
-          'intelligible',
-          'restrained',
-        ];
+        value.edition.qualification.human = flagshipHumanQualification();
       }
     after.edition.title = 'Changed title';
     const result = compile(compileEditionEvolution, before, after);
-    assert.equal(result.obligations.humanReview.length, flagship ? 1 : 0);
+    assert.equal(result.obligations.humanReview.length, flagship ? 6 : 0);
     if (flagship)
-      assert.deepEqual(result.obligations.humanReview[0].predicates, [
-        'faithful',
-        'intelligible',
-        'restrained',
-      ]);
+      assert.deepEqual(
+        result.obligations.humanReview.map(({ predicate, scope }) => ({
+          predicate,
+          scope,
+        })),
+        flagshipHumanQualification(),
+      );
   }
 });
 

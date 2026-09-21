@@ -3,6 +3,7 @@ import { isDigest } from '../source/manifest.mjs';
 import {
   canonical,
   claimModelDigest,
+  deepFreeze,
   exact,
   jsonValue,
   record,
@@ -59,6 +60,7 @@ const editionError = (code, detail = '') => {
     code,
   });
 };
+const lexical = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
 const identifier = (value) =>
   typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
 const sameSet = (left, right) =>
@@ -219,10 +221,42 @@ function validateVisualGrammar(grammar, model) {
     editionError('edition_visual_grammar_invalid');
 }
 
+export function isHumanReviewScope(value) {
+  return (
+    record(value) &&
+    exact(value, ['kind', 'medium', 'artifact', 'width', 'height']) &&
+    ['viewport', 'physical'].includes(value.kind) &&
+    ['static', 'interactive'].includes(value.medium) &&
+    (value.kind !== 'viewport' || value.medium === 'interactive') &&
+    (value.kind !== 'physical' || value.medium === 'static') &&
+    text(value.artifact) &&
+    Number.isSafeInteger(value.width) &&
+    value.width > 0 &&
+    Number.isSafeInteger(value.height) &&
+    value.height > 0
+  );
+}
+
+
+function humanQualificationEntry(value) {
+  return (
+    record(value) &&
+    exact(value, ['predicate', 'scope']) &&
+    text(value.predicate) &&
+    isHumanReviewScope(value.scope)
+  );
+}
+
+
 function validateQualification(qualification, editionClass) {
+  const machineKinds = QUALIFICATION_KINDS.filter((kind) => kind !== 'human');
   if (
     !exact(qualification, QUALIFICATION_KINDS) ||
-    QUALIFICATION_KINDS.some((kind) => !strings(qualification[kind])) ||
+    machineKinds.some((kind) => !strings(qualification[kind])) ||
+    !Array.isArray(qualification.human) ||
+    qualification.human.some((item) => !humanQualificationEntry(item)) ||
+    new Set(qualification.human.map((item) => canonical(item))).size !==
+      qualification.human.length ||
     [
       'semantic',
       'coverage',
@@ -235,8 +269,14 @@ function validateQualification(qualification, editionClass) {
     editionError('edition_qualification_invalid');
   if (
     editionClass === 'flagship' &&
-    !['faithful', 'intelligible', 'restrained'].every((predicate) =>
-      qualification.human.includes(predicate),
+    ['faithful', 'intelligible', 'restrained'].some((predicate) =>
+      ['static', 'interactive'].some((medium) =>
+        !qualification.human.some(
+          (item) =>
+            item.predicate === predicate &&
+            item.scope.medium === medium,
+        ),
+      ),
     )
   )
     editionError('edition_human_qualification_required');
@@ -423,7 +463,12 @@ function normalizeEdition(model, edition, completeOverviewRequired) {
   const result = structuredClone(edition);
   result.requiredClaims.sort();
   for (const question of Object.values(result.questions)) question.claims.sort();
-  for (const kind of QUALIFICATION_KINDS) result.qualification[kind].sort();
+  for (const kind of QUALIFICATION_KINDS)
+    if (kind === 'human')
+      result.qualification.human.sort((left, right) =>
+        lexical(canonical(left), canonical(right)),
+      );
+    else result.qualification[kind].sort();
   result.visualGrammar.principles.sort();
   result.scenes.static.claims.sort();
   result.scenes.static.questions.sort();
@@ -438,6 +483,28 @@ export function normalizedEdition(model, edition) {
   return normalizeEdition(model, edition, true);
 }
 
+
+function qualificationObligations(edition) {
+  const obligations = QUALIFICATION_KINDS.flatMap((kind) =>
+    kind === 'human'
+      ? edition.qualification.human.map(({ predicate, scope }) => ({
+          kind,
+          predicate,
+          scope: structuredClone(scope),
+        }))
+      : edition.qualification[kind].map((predicate) => ({ kind, predicate })),
+  );
+  obligations.sort((left, right) =>
+    lexical(canonical(left), canonical(right)),
+  );
+  return deepFreeze(obligations);
+}
+
+
+export function editionQualificationObligations(modelValue, editionValue) {
+  return qualificationObligations(normalizedEdition(modelValue, editionValue));
+}
+
 const digest = (value) =>
   createHash('sha256').update(canonical(value)).digest('hex');
 
@@ -448,7 +515,11 @@ const digest = (value) =>
  */
 export function inspectEditionForEvolution(model, edition) {
   const normalized = normalizeEdition(model, edition, false);
-  return { edition: normalized, digest: digest(normalized) };
+  return {
+    edition: normalized,
+    digest: digest(normalized),
+    qualificationObligations: qualificationObligations(normalized),
+  };
 }
 
 function sceneSemanticProjection(model, scene) {

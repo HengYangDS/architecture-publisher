@@ -135,12 +135,49 @@ test('visual grammar and qualification obligations are explicit', () => {
     () => validateEdition(flagship.model, flagship.edition),
     /edition_human_qualification_required/,
   );
+  const targets = [
+    {
+      kind: 'physical',
+      medium: 'static',
+      artifact: 'overview-png',
+      width: 6000,
+      height: 3375,
+    },
+    {
+      kind: 'viewport',
+      medium: 'interactive',
+      artifact: 'atlas',
+      width: 1440,
+      height: 1000,
+    },
+  ];
   flagship.edition.qualification.human = [
     'faithful',
     'intelligible',
     'restrained',
-  ];
+  ].flatMap((predicate) =>
+    targets.map((scope) => ({ predicate, scope: { ...scope } })),
+  );
   assert.doesNotThrow(() => validateEdition(flagship.model, flagship.edition));
+
+  const oneMedium = structuredClone(flagship);
+  oneMedium.edition.qualification.human =
+    oneMedium.edition.qualification.human.filter(
+      ({ scope }) => scope.medium === 'static',
+    );
+  assert.throws(
+    () => validateEdition(oneMedium.model, oneMedium.edition),
+    /edition_human_qualification_required/,
+  );
+
+  const duplicate = structuredClone(flagship);
+  duplicate.edition.qualification.human.push(
+    structuredClone(duplicate.edition.qualification.human[0]),
+  );
+  assert.throws(
+    () => validateEdition(duplicate.model, duplicate.edition),
+    /edition_qualification_invalid/,
+  );
 });
 
 test('static and interactive scenes have independent identities', () => {

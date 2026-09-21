@@ -14,6 +14,7 @@ import {
 } from '../semantics/document.mjs';
 import {
   editionDigest,
+  editionQualificationObligations,
   interactiveSceneDigest,
   staticSceneDigest,
   validateEdition,
@@ -262,9 +263,7 @@ export async function compileEditionCandidate(plan) {
           ],
         },
       },
-      obligations: Object.entries(edition.qualification).flatMap(
-        ([kind, predicates]) => predicates.map((predicate) => ({ kind, predicate })),
-      ),
+      obligations: editionQualificationObligations(document, edition),
     });
     artifacts.unshift({
       path: 'candidate.json',

@@ -383,7 +383,28 @@ function createEthosEvolutionEdition(
       accessibility: ['keyboard-and-reduced-motion'],
       installed: ['offline-reproduction'],
       recovery: ['publication-recovery'],
-      human: ['faithful', 'intelligible', 'restrained'],
+      human: ['faithful', 'intelligible', 'restrained'].flatMap((predicate) => [
+        {
+          predicate,
+          scope: {
+            kind: 'physical',
+            medium: 'static',
+            artifact: 'flagship-png',
+            width: 6000,
+            height: 3375,
+          },
+        },
+        {
+          predicate,
+          scope: {
+            kind: 'viewport',
+            medium: 'interactive',
+            artifact: 'standalone-atlas',
+            width: 1920,
+            height: 1080,
+          },
+        },
+      ]),
     },
     scope:
       'Selected ETHOS publication dependencies; not source, effect, proof or acceptance authority.',
