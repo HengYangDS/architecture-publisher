@@ -42,6 +42,7 @@ export default [
   {
     files: [
       'packages/publisher/src/rendering/atlas.mjs',
+      'tests/aigw-adopter.test.mjs',
       'tools/qualification/semantic-browser.mjs',
     ],
     languageOptions: {

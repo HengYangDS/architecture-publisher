@@ -2,11 +2,13 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
+import http from 'node:http';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { chromium } from 'playwright-core';
 import { editionDigest, validateEdition } from '../packages/publisher/src/edition/contract.mjs';
 import { compareEditionInput } from '../packages/publisher/src/edition/input.mjs';
 import {
@@ -112,6 +114,7 @@ test('Publisher retains only immutable AIGW source-ownership evidence', async (t
 
 const aigwEditionRoot = process.env.AIGW_EDITION_ROOT;
 const aigwSourceRoot = process.env.AIGW_SOURCE_ROOT;
+const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
 const externalSelection =
   path.isAbsolute(aigwEditionRoot ?? '') && path.isAbsolute(aigwSourceRoot ?? '');
 
@@ -305,10 +308,101 @@ test(
     }
 
     const candidate = await json(path.join(output, 'candidate.json'));
+    let browserObserved = false;
+    if (path.isAbsolute(browserExecutable ?? '')) {
+      const server = http.createServer(async (request, response) => {
+        try {
+          const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
+          const selected = path.resolve(output, `.${pathname}`);
+          if (selected !== output && !selected.startsWith(`${output}${path.sep}`)) {
+            response.writeHead(404);
+            response.end();
+            return;
+          }
+          const bytes = await fs.readFile(selected);
+          response.writeHead(200, {
+            'Content-Type': selected.endsWith('.html')
+              ? 'text/html; charset=utf-8'
+              : 'application/octet-stream',
+            'Cache-Control': 'no-store',
+          });
+          response.end(bytes);
+        } catch {
+          response.writeHead(404);
+          response.end();
+        }
+      });
+      await new Promise((resolveListen) => server.listen(0, '127.0.0.1', resolveListen));
+      const browser = await chromium.launch({
+        executablePath: browserExecutable,
+        headless: true,
+        chromiumSandbox: true,
+        timeout: 15_000,
+      });
+      try {
+        const port = server.address().port;
+        for (const artifact of candidate.media.interactive.artifacts) {
+          const context = await browser.newContext({
+            viewport: { width: 1440, height: 1000 },
+            reducedMotion: 'reduce',
+            serviceWorkers: 'block',
+          });
+          try {
+            const page = await context.newPage();
+            const errors = [];
+            page.on('pageerror', (error) => errors.push(error.message));
+            await page.route('**/*', (route) => {
+              const url = new URL(route.request().url());
+              if (url.origin === `http://127.0.0.1:${port}`) return route.continue();
+              errors.push(`external-request:${url.origin}`);
+              return route.abort();
+            });
+            const response = await page.goto(
+              `http://127.0.0.1:${port}/${artifact.path}?theme=light`,
+              { waitUntil: 'load', timeout: 20_000 },
+            );
+            assert.equal(response.status(), 200, artifact.path);
+            await page.evaluate(async () => document.fonts.ready);
+            assert.deepEqual(errors, [], artifact.path);
+            assert.equal(
+              await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches),
+              true,
+            );
+            assert.equal((await page.title()).length > 0, true, artifact.path);
+            assert.equal(
+              await page.evaluate(
+                () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+              ),
+              true,
+              artifact.path,
+            );
+            const theme = page.locator('#btn-theme');
+            await theme.focus();
+            await page.keyboard.press('Enter');
+            assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+            const firstNode = page.locator('.diagram-container [data-node-id]').first();
+            await firstNode.focus();
+            await page.keyboard.press('Enter');
+            assert.equal(
+              await page.locator('.diagram-container > svg').getAttribute('data-focus-active'),
+              await firstNode.getAttribute('data-node-id'),
+            );
+          } finally {
+            await context.close();
+          }
+        }
+        browserObserved = true;
+      } finally {
+        await browser.close();
+        await new Promise((resolveClose, rejectClose) =>
+          server.close((error) => (error ? rejectClose(error) : resolveClose())),
+        );
+      }
+    }
     const qualificationApi = await importPublic('architecture-publisher/qualification');
     const verifierSha256 = sha(Buffer.from('aigw-source-owned-conformance/v1'));
     const records = candidate.obligations.map(({ kind, predicate }, index) => {
-      const observed = !['interactive', 'accessibility'].includes(kind);
+      const observed = !['interactive', 'accessibility'].includes(kind) || browserObserved;
       return qualificationApi.bindQualificationRecord(candidate, {
         id: `aigw.${kind}.${index}`,
         kind,
@@ -340,8 +434,8 @@ test(
       qualification,
     );
     assert.equal(admission.complete, true);
-    assert.equal(admission.verdict, 'UNKNOWN');
-    assert.equal(admission.admitted, false);
+    assert.equal(admission.verdict, browserObserved ? 'PASS' : 'UNKNOWN');
+    assert.equal(admission.admitted, browserObserved);
     assert.deepEqual(admission.missing, []);
 
     const overview = await fs.readFile(path.join(output, 'views/overview.html'), 'utf8');
