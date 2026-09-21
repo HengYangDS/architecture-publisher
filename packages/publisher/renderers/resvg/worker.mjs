@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import * as resvg from '../../assets/raster/resvg/index.mjs';
+import * as resvg from './supply/resvg/index.mjs';
 import { validateSvg } from './validation.mjs';
 
 try {
@@ -12,7 +12,7 @@ try {
   const checked = validateSvg(input, fonts, request.width);
   const module = new WebAssembly.Module(
     fs.readFileSync(
-      new URL('../../assets/raster/resvg/index_bg.wasm', import.meta.url),
+      new URL('./supply/resvg/index_bg.wasm', import.meta.url),
     ),
   );
   const instance = new WebAssembly.Instance(module, { './index_bg.js': resvg });

@@ -1,6 +1,6 @@
 // Small synthetic boundary fixture only. It is never publication evidence.
 import path from 'node:path';
-import { sha256 } from '../../packages/extensions/ethos/src/adapter/projection.mjs';
+import { sha256 } from '../../migration/ethos/src/adapter/projection.mjs';
 export function reviewHistoryFixture() {
   const root = path.resolve(path.sep, 'review-fixture'),
     data = new Map(),

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { planEthosPublication } from '../packages/extensions/ethos/src/edition/publication.mjs';
+import { planEthosPublication } from '../migration/ethos/src/edition/publication.mjs';
 
 const selected = process.env.ETHOS_QUALIFIED_PAIR_PLAN;
 

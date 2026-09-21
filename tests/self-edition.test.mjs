@@ -12,10 +12,10 @@ import { validateClaimModel } from '../packages/publisher/src/semantics/document
 import {
   SELF_ENTITY_IDS,
   SELF_RELATION_IDS,
-} from '../packages/extensions/architecture-publisher/src/edition/model.mjs';
+} from '../editions/self/src/edition/model.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const packageRoot = path.join(root, 'packages/extensions/architecture-publisher');
+const packageRoot = path.join(root, 'editions/self');
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
 
@@ -25,23 +25,23 @@ const selectedSources = Object.freeze({
   'active-design': 'openspec/changes/architecture-publisher-0-2/design.md',
   'core-package': 'packages/publisher/package.json',
   'self-prepare-owner':
-    'packages/extensions/architecture-publisher/src/edition/prepare.mjs',
+    'editions/self/src/edition/prepare.mjs',
   'self-model-owner':
-    'packages/extensions/architecture-publisher/src/edition/model.mjs',
+    'editions/self/src/edition/model.mjs',
   'self-static-scene-owner':
-    'packages/extensions/architecture-publisher/src/edition/static-scene.mjs',
+    'editions/self/src/edition/static-scene.mjs',
   'self-static-composition-owner':
-    'packages/extensions/architecture-publisher/src/edition/static/composition.mjs',
+    'editions/self/src/edition/static/composition.mjs',
   'self-static-compiler-owner':
-    'packages/extensions/architecture-publisher/src/edition/static/scene.mjs',
+    'editions/self/src/edition/static/scene.mjs',
   'self-static-svg-owner':
-    'packages/extensions/architecture-publisher/src/edition/static/svg.mjs',
+    'editions/self/src/edition/static/svg.mjs',
   'self-static-flagship-owner':
-    'packages/extensions/architecture-publisher/src/edition/static-flagship.mjs',
+    'editions/self/src/edition/static-flagship.mjs',
   'self-static-metrics':
-    'packages/extensions/architecture-publisher/src/edition/static/authoring/metrics.json',
+    'editions/self/src/edition/static/authoring/metrics.json',
   'self-interactive-scene-owner':
-    'packages/extensions/architecture-publisher/src/edition/interactive-scenes.mjs',
+    'editions/self/src/edition/interactive-scenes.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
@@ -83,7 +83,7 @@ function directedPath(relations, from, to) {
 
 test('the first-party self Edition covers the complete product chain and authority boundaries', async (t) => {
   const { prepareArchitecturePublisherEdition } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/prepare.mjs'
+    '../editions/self/src/edition/prepare.mjs'
   );
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
@@ -279,7 +279,7 @@ test('the first-party self Edition covers the complete product chain and authori
 
 test('the evolution view carries semantic delta and distinct renewal obligations', async (t) => {
   const { prepareArchitecturePublisherEdition } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/prepare.mjs'
+    '../editions/self/src/edition/prepare.mjs'
   );
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
@@ -332,7 +332,7 @@ test('the evolution view carries semantic delta and distinct renewal obligations
 
 test('the semantics view connects uncertainty and claims to Edition authorship', async (t) => {
   const { prepareArchitecturePublisherEdition } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/prepare.mjs'
+    '../editions/self/src/edition/prepare.mjs'
   );
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
@@ -481,7 +481,7 @@ test('the installed self Edition prepares portable standard inputs and leaves Co
 
 test('the self-publication entry canonicalizes an absent output below a filesystem alias', async (t) => {
   const { prepareArchitecturePublisherEdition } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/prepare.mjs'
+    '../editions/self/src/edition/prepare.mjs'
   );
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
@@ -506,7 +506,7 @@ test('the self-publication entry canonicalizes an absent output below a filesyst
 
 test('prepared output admission never replaces a concurrently created destination', async (t) => {
   const { installPreparedOutput } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/prepare.mjs'
+    '../editions/self/src/edition/prepare.mjs'
   );
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
@@ -531,7 +531,7 @@ test('prepared output admission never replaces a concurrently created destinatio
 
 test('prepared output installation never replaces a member arriving after reservation', async (t) => {
   const { installPreparedOutput } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/prepare.mjs'
+    '../editions/self/src/edition/prepare.mjs'
   );
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
@@ -560,7 +560,7 @@ test('prepared output installation never replaces a member arriving after reserv
 
 test('prepared output installation never replaces a nested member arriving during copy', async (t) => {
   const { installPreparedOutput } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/prepare.mjs'
+    '../editions/self/src/edition/prepare.mjs'
   );
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });

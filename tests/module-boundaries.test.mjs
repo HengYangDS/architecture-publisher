@@ -10,17 +10,16 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const runtimeRoots = [
   'packages/publisher/src',
   'packages/publisher/renderers',
-  'packages/publisher/assets',
-  'packages/extensions/architecture-publisher/src',
-  'packages/extensions/ethos/src',
+  'editions/self/src',
+  'migration/ethos/src',
 ];
 
 async function inventory(roots) {
   const paths = new Set([
     '',
     'packages/publisher/',
-    'packages/extensions/architecture-publisher/',
-    'packages/extensions/ethos/',
+    'editions/self/',
+    'migration/ethos/',
   ]);
   const modules = [];
   async function visit(relative) {
@@ -35,7 +34,10 @@ async function inventory(roots) {
         await visit(file);
       } else {
         paths.add(file);
-        if (!file.startsWith('packages/publisher/assets/') && /\.(?:mjs|cjs|js)$/.test(file))
+        if (
+          !/packages\/publisher\/renderers\/[^/]+\/supply\//.test(file) &&
+          /\.(?:mjs|cjs|js)$/.test(file)
+        )
           modules.push(file);
       }
     }
@@ -55,12 +57,19 @@ test('runtime owners are package-scoped and old owner roots are absent', async (
     'packages/publisher/src/qualification',
     'packages/publisher/src/publication',
     'packages/publisher/renderers',
-    'packages/extensions/architecture-publisher/src/edition',
-    'packages/extensions/ethos/src/adapter',
-    'packages/extensions/ethos/src/edition',
+    'editions/self/src/edition',
+    'migration/ethos/src/adapter',
+    'migration/ethos/src/edition',
   ])
     assert((await fs.stat(path.join(root, directory))).isDirectory(), directory);
-  for (const directory of ['src', 'renderers', 'assets', 'adapters', 'editions'])
+  for (const directory of ['src', 'renderers', 'assets', 'adapters'])
+    await assert.rejects(fs.access(path.join(root, directory)), { code: 'ENOENT' });
+  for (const directory of [
+    'packages/extensions',
+    'packages/publisher/assets',
+    'examples/self-host',
+    'examples/aigw',
+  ])
     await assert.rejects(fs.access(path.join(root, directory)), { code: 'ENOENT' });
 });
 
@@ -78,15 +87,15 @@ test('extensions depend inward through public package exports', async () => {
   const { paths } = await inventory(runtimeRoots);
   assert.deepEqual(
     inspectModuleBoundaries(
-      'packages/extensions/ethos/src/edition/atlas.mjs',
+      'migration/ethos/src/edition/atlas.mjs',
       "import { readSourceBundle } from 'architecture-publisher/source';",
       paths,
     ),
     [],
   );
   const deep = inspectModuleBoundaries(
-    'packages/extensions/ethos/src/edition/atlas.mjs',
-    "import '../../../../publisher/src/source/bundle.mjs';",
+    'migration/ethos/src/edition/atlas.mjs',
+    "import '../../../../packages/publisher/src/source/bundle.mjs';",
     paths,
   );
   assert(
@@ -96,7 +105,7 @@ test('extensions depend inward through public package exports', async () => {
   );
   assert.deepEqual(
     inspectModuleBoundaries(
-      'packages/extensions/architecture-publisher/src/edition/static-flagship.mjs',
+      'editions/self/src/edition/static-flagship.mjs',
       "import { loadBundledFonts } from 'architecture-publisher/renderers/fonts';",
       paths,
     ),
@@ -155,7 +164,7 @@ test('syntax failures and computed dependencies fail closed', async () => {
 });
 
 test('first-party owner names stay precise outside vendored assets', async () => {
-  const { modules } = await inventory([...runtimeRoots, 'examples/self-host', 'tools']);
+  const { modules } = await inventory([...runtimeRoots, 'conformance/journeys/self-host', 'tools']);
   const forbidden = /(?:^|\/)(?:core|common|shared|utils|legacy|compat)(?:\/|$)/;
   assert.deepEqual(modules.filter((file) => forbidden.test(file)), []);
 });

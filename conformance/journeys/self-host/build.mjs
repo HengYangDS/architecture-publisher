@@ -2,10 +2,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { writeSourceBundle } from '../../packages/publisher/src/source/write.mjs';
-import { claimModelDigest } from '../../packages/publisher/src/semantics/document.mjs';
+import { claimModelDigest } from 'architecture-publisher/semantics';
+import { writeSourceBundle } from 'architecture-publisher/source';
 
-const root = fileURLToPath(new URL('../../', import.meta.url));
+const root = fileURLToPath(new URL('../../../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
 const selectedFiles = Object.freeze({

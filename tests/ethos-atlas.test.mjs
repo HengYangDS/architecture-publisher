@@ -5,8 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
-import { sha256 } from '../packages/extensions/ethos/src/adapter/projection.mjs';
-import { readEthosSource } from '../packages/extensions/ethos/src/adapter/projection.mjs';
+import { sha256 } from '../migration/ethos/src/adapter/projection.mjs';
+import { readEthosSource } from '../migration/ethos/src/adapter/projection.mjs';
 import {
   installCoreAndEthos,
   runInstalledExport,
@@ -26,11 +26,11 @@ test('every page uses only the source-owned maturity notice as its subtitle', as
     projectionDigest,
   );
   const edition = JSON.parse(
-    await fs.readFile(path.join(root, 'packages/extensions/ethos/src/edition/authoring/edition.json')),
+    await fs.readFile(path.join(root, 'migration/ethos/src/edition/authoring/edition.json')),
   );
   for (const page of edition.pages) {
     const spec = JSON.parse(
-      await fs.readFile(path.join(root, 'packages/extensions/ethos/src/edition/authoring', page.spec)),
+      await fs.readFile(path.join(root, 'migration/ethos/src/edition/authoring', page.spec)),
     );
     assert.equal(
       spec.meta.subtitle,
@@ -46,7 +46,7 @@ async function setup(t, edit) {
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   let editionManifest = path.join(
       root,
-      'packages/extensions/ethos/src/edition/authoring/manifest.json',
+      'migration/ethos/src/edition/authoring/manifest.json',
     ),
     selected = editionSha256;
   if (edit) {
@@ -90,7 +90,7 @@ async function setup(t, edit) {
   };
 }
 async function api() {
-  const module = new URL('../packages/extensions/ethos/src/edition/atlas.mjs', import.meta.url);
+  const module = new URL('../migration/ethos/src/edition/atlas.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(module),
     'formal ETHOS atlas entry must exist',
@@ -109,7 +109,7 @@ test('formal edition reproduces all 13 accepted pages without the original check
     await fs.readFile(path.join(f.plan.output, 'manifest.json')),
   );
   const edition = JSON.parse(
-    await fs.readFile(path.join(root, 'packages/extensions/ethos/src/edition/authoring/edition.json')),
+    await fs.readFile(path.join(root, 'migration/ethos/src/edition/authoring/edition.json')),
   );
   for (const p of edition.pages) {
     const bytes = await fs.readFile(path.join(f.plan.output, p.path));
@@ -310,7 +310,7 @@ test('extension API resolves atlas plan inputs relative to the plan', async (t) 
   const file = path.join(f.directory, 'plan.json');
   await fs.writeFile(file, JSON.stringify(plan));
   const { renderEthosAtlasInput } = await import(
-    '../packages/extensions/ethos/src/edition/input.mjs'
+    '../migration/ethos/src/edition/input.mjs'
   );
   assert.equal((await renderEthosAtlasInput(file)).pages.length, 13);
 });

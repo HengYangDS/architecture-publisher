@@ -7,11 +7,8 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
-const ethos = path.join(root, 'packages/extensions/ethos');
-const selfEdition = path.join(
-  root,
-  'packages/extensions/architecture-publisher',
-);
+const ethos = path.join(root, 'migration/ethos');
+const selfEdition = path.join(root, 'editions/self');
 
 async function json(file) {
   return JSON.parse(await fs.readFile(file, 'utf8'));
@@ -25,7 +22,8 @@ test('workspace separates the generic product from concrete Editions', async () 
   assert.equal(workspace.private, true);
   assert.deepEqual(workspace.workspaces, [
     'packages/publisher',
-    'packages/extensions/*',
+    'editions/self',
+    'migration/ethos',
   ]);
   assert.equal(product.name, 'architecture-publisher');
   assert.deepEqual(product.bin, { archpub: 'src/cli/main.mjs' });
@@ -34,6 +32,28 @@ test('workspace separates the generic product from concrete Editions', async () 
     edition.dependencies['architecture-publisher'],
     product.version,
   );
+});
+
+test('terminal paths make product ownership explicit', async () => {
+  await fs.access(path.join(root, 'editions/self/package.json'));
+  await fs.access(path.join(root, 'migration/ethos/package.json'));
+  await fs.access(path.join(root, 'migration/aigw/README.md'));
+  await fs.access(path.join(root, 'conformance/journeys/self-host/README.md'));
+  await assert.rejects(fs.stat(path.join(root, 'packages/extensions')), {
+    code: 'ENOENT',
+  });
+  await assert.rejects(fs.stat(path.join(root, 'examples/aigw')), {
+    code: 'ENOENT',
+  });
+  await assert.rejects(fs.stat(path.join(root, 'examples/self-host')), {
+    code: 'ENOENT',
+  });
+  await assert.rejects(
+    fs.stat(path.join(root, 'packages/publisher/assets')),
+    { code: 'ENOENT' },
+  );
+  for (const owner of ['archify', 'fonts', 'resvg'])
+    await fs.access(path.join(publisher, 'renderers', owner, 'supply'));
 });
 
 test('the first-party self Edition is an independent package below the generic core', async () => {

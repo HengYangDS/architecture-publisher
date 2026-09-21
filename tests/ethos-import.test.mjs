@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { importEthosSource } from '../packages/extensions/ethos/src/adapter/import.mjs';
-import { readEthosSource } from '../packages/extensions/ethos/src/adapter/projection.mjs';
+import { importEthosSource } from '../migration/ethos/src/adapter/import.mjs';
+import { readEthosSource } from '../migration/ethos/src/adapter/projection.mjs';
 import { fixture, encode, sha } from './fixtures/ethos-source.mjs';
 
 async function setup(t) {
@@ -152,7 +152,7 @@ test('explicit import API resolves plan paths from the plan location', async (t)
     JSON.stringify({ ...f.plan, repository: 'source', output: 'bundle' }),
   );
   const { importEthosSourceInput } = await import(
-    '../packages/extensions/ethos/src/adapter/input.mjs'
+    '../migration/ethos/src/adapter/input.mjs'
   );
   const receipt = await importEthosSourceInput(plan);
   assert.equal(receipt.officialReplay, 'performed');

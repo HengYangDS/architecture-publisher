@@ -17,12 +17,12 @@ const packageExports = new Map([
   ['architecture-publisher/renderers/fonts', 'packages/publisher/renderers/fonts/index.mjs'],
   ['architecture-publisher/renderers/resvg', 'packages/publisher/renderers/resvg/public.mjs'],
   ['architecture-publisher/renderers/svg', 'packages/publisher/renderers/svg/index.mjs'],
-  ['@architecture-publisher/self-edition', 'packages/extensions/architecture-publisher/src/edition/index.mjs'],
-  ['@architecture-publisher/self-edition/edition', 'packages/extensions/architecture-publisher/src/edition/index.mjs'],
-  ['@architecture-publisher/self-edition/runtime', 'packages/extensions/architecture-publisher/src/runtime.mjs'],
-  ['@architecture-publisher/ethos/adapter', 'packages/extensions/ethos/src/adapter/index.mjs'],
-  ['@architecture-publisher/ethos/edition', 'packages/extensions/ethos/src/edition/index.mjs'],
-  ['@architecture-publisher/ethos/runtime', 'packages/extensions/ethos/src/runtime.mjs'],
+  ['@architecture-publisher/self-edition', 'editions/self/src/edition/index.mjs'],
+  ['@architecture-publisher/self-edition/edition', 'editions/self/src/edition/index.mjs'],
+  ['@architecture-publisher/self-edition/runtime', 'editions/self/src/runtime.mjs'],
+  ['@architecture-publisher/ethos/adapter', 'migration/ethos/src/adapter/index.mjs'],
+  ['@architecture-publisher/ethos/edition', 'migration/ethos/src/edition/index.mjs'],
+  ['@architecture-publisher/ethos/runtime', 'migration/ethos/src/runtime.mjs'],
 ]);
 
 const owners = [
@@ -37,17 +37,17 @@ const owners = [
   ['packages/publisher/src/qualification/', ['packages/publisher/src/qualification/', 'packages/publisher/src/scene/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
   ['packages/publisher/src/publication/', ['packages/publisher/src/publication/', 'packages/publisher/src/edition/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/', 'packages/publisher/src/scene/', 'packages/publisher/renderers/']],
   ['packages/publisher/src/cli/', ['packages/publisher/src/', 'packages/publisher/renderers/']],
-  ['packages/publisher/renderers/archify/', ['packages/publisher/renderers/archify/', 'packages/publisher/renderers/fonts/', 'packages/publisher/src/scene/', 'packages/publisher/src/source/', 'packages/publisher/assets/archify/']],
-  ['packages/publisher/renderers/fonts/', ['packages/publisher/renderers/fonts/', 'packages/publisher/src/source/', 'packages/publisher/assets/fonts/']],
+  ['packages/publisher/renderers/archify/', ['packages/publisher/renderers/archify/', 'packages/publisher/renderers/fonts/', 'packages/publisher/src/scene/', 'packages/publisher/src/source/', 'packages/publisher/renderers/archify/supply/']],
+  ['packages/publisher/renderers/fonts/', ['packages/publisher/renderers/fonts/', 'packages/publisher/src/source/', 'packages/publisher/renderers/fonts/supply/']],
   ['packages/publisher/renderers/svg/', ['packages/publisher/renderers/svg/', 'packages/publisher/src/source/', 'packages/publisher/src/scene/']],
-  ['packages/publisher/renderers/resvg/', ['packages/publisher/renderers/resvg/', 'packages/publisher/renderers/svg/', 'packages/publisher/src/source/', 'packages/publisher/assets/raster/']],
-  ['packages/extensions/ethos/src/runtime.mjs', ['packages/extensions/ethos/']],
-  ['packages/extensions/architecture-publisher/src/runtime.mjs', ['packages/extensions/architecture-publisher/']],
-  ['packages/extensions/architecture-publisher/src/edition/', ['packages/extensions/architecture-publisher/src/edition/', 'packages/publisher/src/', 'packages/publisher/renderers/']],
-  ['packages/extensions/ethos/src/adapter/', ['packages/extensions/ethos/src/adapter/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/']],
-  ['packages/extensions/ethos/src/edition/', ['packages/extensions/ethos/src/edition/', 'packages/extensions/ethos/src/adapter/', 'packages/extensions/ethos/src/runtime.mjs', 'packages/publisher/src/', 'packages/publisher/renderers/']],
-  ['examples/self-host/', ['examples/self-host/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/']],
-  ['tools/', ['tools/', 'packages/publisher/', 'packages/extensions/']],
+  ['packages/publisher/renderers/resvg/', ['packages/publisher/renderers/resvg/', 'packages/publisher/renderers/svg/', 'packages/publisher/src/source/', 'packages/publisher/renderers/resvg/supply/']],
+  ['migration/ethos/src/runtime.mjs', ['migration/ethos/']],
+  ['editions/self/src/runtime.mjs', ['editions/self/']],
+  ['editions/self/src/edition/', ['editions/self/src/edition/', 'packages/publisher/src/', 'packages/publisher/renderers/']],
+  ['migration/ethos/src/adapter/', ['migration/ethos/src/adapter/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/']],
+  ['migration/ethos/src/edition/', ['migration/ethos/src/edition/', 'migration/ethos/src/adapter/', 'migration/ethos/src/runtime.mjs', 'packages/publisher/src/', 'packages/publisher/renderers/']],
+  ['conformance/journeys/self-host/', ['conformance/journeys/self-host/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/']],
+  ['tools/', ['tools/', 'packages/publisher/', 'editions/', 'migration/']],
 ];
 
 const property = (node, name) =>
@@ -116,7 +116,7 @@ export function inspectModuleBoundaries(
       return issue(node, 'dependency escapes repository');
     const normalized = target === '.' || target === './' ? '' : target;
     if (
-      file.startsWith('packages/extensions/') &&
+      (file.startsWith('editions/') || file.startsWith('migration/')) &&
       normalized.startsWith('packages/publisher/')
     )
       return issue(node, 'cross-package dependency must use a public export');

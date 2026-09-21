@@ -34,7 +34,7 @@ async function setup(t) {
   const compiler = select(['--find', 'swiftc']);
   const sdk = await fs.realpath(select(['--show-sdk-path']));
   const font = await fs.realpath(
-    path.join(root, 'packages/publisher/assets/fonts/JetBrainsMono-Regular.ttf'),
+    path.join(root, 'packages/publisher/renderers/fonts/supply/JetBrainsMono-Regular.ttf'),
   );
   return {
     dir,
@@ -224,10 +224,7 @@ test(
     await fs.copyFile(f.plan.fonts[0].path, font);
     // Only this disposable installation is changed. Measurement must not load
     // the drawing backends, their fonts, or ETHOS-specific edition code.
-    for (const name of [
-      'assets',
-      'renderers/archify',
-    ])
+    for (const name of ['renderers/archify', 'renderers/fonts', 'renderers/resvg'])
       await fs.rm(path.join(pkg, name), { recursive: true });
     const plan = structuredClone(f.plan);
     plan.compiler.path = path.relative(f.dir, plan.compiler.path);

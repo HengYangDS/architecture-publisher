@@ -12,7 +12,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 
 async function api() {
   const file = new URL(
-    '../packages/extensions/ethos/src/edition/browser-obligations.mjs',
+    '../migration/ethos/src/edition/browser-obligations.mjs',
     import.meta.url,
   );
   await assert.doesNotReject(
@@ -211,8 +211,8 @@ test('pure coverage predicate accepts complete data and rejects coordinated omis
   };
   assert.deepEqual(browserCoverageGaps(report, [page], [1600, 900], floor), []);
   const { validateEthosBrowserReport } =
-    await import('../packages/extensions/ethos/src/edition/browser.mjs');
-  const { sha256 } = await import('../packages/extensions/ethos/src/adapter/projection.mjs');
+    await import('../migration/ethos/src/edition/browser.mjs');
+  const { sha256 } = await import('../migration/ethos/src/adapter/projection.mjs');
   const portable = structuredClone(report),
     members = [];
   portable.source = {
@@ -354,7 +354,7 @@ test(
   'browser plan consumes current artifact output and does not execute a browser',
   { skip: !process.env.ETHOS_ATLAS_PLAN },
   async () => {
-    const module = new URL('../packages/extensions/ethos/src/edition/browser.mjs', import.meta.url);
+    const module = new URL('../migration/ethos/src/edition/browser.mjs', import.meta.url);
     await assert.doesNotReject(
       fs.access(module),
       'browser plan must use current output directly',
@@ -375,7 +375,7 @@ test(
 );
 
 test('runtime evidence validator rejects a forged passing summary', async () => {
-  const module = await import('../packages/extensions/ethos/src/edition/browser.mjs');
+  const module = await import('../migration/ethos/src/edition/browser.mjs');
   assert.equal(typeof module.validateEthosBrowserReport, 'function');
   const target = {
     source: { digest: 'a'.repeat(64), qualitySha256: 'b'.repeat(64) },
@@ -407,7 +407,7 @@ test(
   'current atlas cannot publish with no observed viewport reports',
   { skip: !process.env.ETHOS_ATLAS_PLAN },
   async () => {
-    const module = await import('../packages/extensions/ethos/src/edition/browser.mjs');
+    const module = await import('../migration/ethos/src/edition/browser.mjs');
     assert.equal(typeof module.readEthosBrowserEvidence, 'function');
     const atlas = JSON.parse(await fs.readFile(process.env.ETHOS_ATLAS_PLAN));
     await assert.rejects(

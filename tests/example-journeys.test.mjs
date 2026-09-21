@@ -5,8 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import sax from '../packages/publisher/assets/raster/sax/sax.cjs';
-import { parse as parseFont } from '../packages/publisher/assets/raster/opentype/opentype.mjs';
+import sax from '../packages/publisher/renderers/resvg/supply/sax/sax.cjs';
+import { parse as parseFont } from '../packages/publisher/renderers/resvg/supply/opentype/opentype.mjs';
 import { auditScene } from '../packages/publisher/src/qualification/static/scene.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -20,7 +20,7 @@ const examples = [
 async function checkGeometry(svg) {
   const fonts = new Map();
   for (const [weight, name] of [[400, 'Regular'], [700, 'Bold']]) {
-    const b = await fs.readFile(path.join(root, 'packages/publisher/assets/fonts',
+    const b = await fs.readFile(path.join(root, 'packages/publisher/renderers/fonts/supply',
       'JetBrainsMono-' + name + '.ttf'));
     fonts.set(weight, parseFont(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)));
   }
@@ -292,7 +292,10 @@ test('installed non-ETHOS examples support both media, updates and local bundles
     );
   const fontFiles = ['Regular', 'Bold'].map((weight) => ({
     path: weight + '.ttf',
-    input: path.join(pkg, 'assets/fonts/JetBrainsMono-' + weight + '.ttf'),
+    input: path.join(
+      pkg,
+      'renderers/fonts/supply/JetBrainsMono-' + weight + '.ttf',
+    ),
   }));
   async function packFiles(output, source, selected) {
     const files = [];
@@ -445,7 +448,7 @@ test('installed non-ETHOS examples support both media, updates and local bundles
           ...fontFiles,
           {
             path: 'FONT-LICENSE.txt',
-            input: path.join(pkg, 'assets/fonts/OFL.txt'),
+            input: path.join(pkg, 'renderers/fonts/supply/OFL.txt'),
           },
         ],
       );

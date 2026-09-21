@@ -95,7 +95,10 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
     assert.equal(example.status, 0, example.stdout + example.stderr);
     assert.equal(JSON.parse(example.stdout).nativeValidation.checksPassed, 9);
   }
-  const font = path.join(pkg, 'assets/fonts/JetBrainsMono-Regular.ttf'),
+  const font = path.join(
+      pkg,
+      'renderers/fonts/supply/JetBrainsMono-Regular.ttf',
+    ),
     originalFont = await fs.readFile(font);
   await fs.appendFile(font, 'tamper');
   const missingFont = invoke([
@@ -126,7 +129,7 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
   assert(JSON.parse(rejected.stdout).error.diagnostics.length > 0);
   await fs.writeFile(input, content);
   await fs.appendFile(
-    path.join(pkg, 'assets/archify/renderers/shared/utils.mjs'),
+    path.join(pkg, 'renderers/archify/supply/renderers/shared/utils.mjs'),
     '\n// modified\n',
   );
   const tampered = invoke([

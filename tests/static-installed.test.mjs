@@ -32,17 +32,20 @@ test('installed raster command needs only explicit input and its pinned static s
   )[0];
   assert(pack.files.some((f) => f.path === 'renderers/resvg/index.mjs'));
   assert(
-    pack.files.some((f) => f.path === 'assets/raster/resvg/index_bg.wasm'),
+    pack.files.some(
+      (f) => f.path === 'renderers/resvg/supply/resvg/index_bg.wasm',
+    ),
   );
-  const observedNoticePath = 'assets/raster/resvg/THIRD-PARTY-NOTICES.txt';
+  const observedNoticePath =
+    'renderers/resvg/supply/resvg/THIRD-PARTY-NOTICES.txt';
   assert(
     pack.files.some((f) => f.path === observedNoticePath),
     'installed renderer must retain the verified observed-source notices',
   );
   for (const name of [
-    'assets/raster/resvg/source.json',
-    'assets/raster/resvg/LICENSE-MIT',
-    'assets/raster/resvg/LICENSE-APACHE',
+    'renderers/resvg/supply/resvg/source.json',
+    'renderers/resvg/supply/resvg/LICENSE-MIT',
+    'renderers/resvg/supply/resvg/LICENSE-APACHE',
   ])
     assert(
       pack.files.some((f) => f.path === name),
@@ -69,7 +72,7 @@ test('installed raster command needs only explicit input and its pinned static s
   const pkg = path.join(consumer, 'node_modules/architecture-publisher');
   const rendererSource = JSON.parse(
     await fs.readFile(
-      path.join(pkg, 'assets/raster/resvg/source.json'),
+      path.join(pkg, 'renderers/resvg/supply/resvg/source.json'),
       'utf8',
     ),
   );
@@ -80,7 +83,7 @@ test('installed raster command needs only explicit input and its pinned static s
     rendererSource.source.archiveSha256,
     JSON.parse(
       await fs.readFile(
-        path.join(root, 'packages/publisher/assets/raster/resvg/source.json'),
+        path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/source.json'),
         'utf8',
       ),
     ).source.archiveSha256,
@@ -94,10 +97,7 @@ test('installed raster command needs only explicit input and its pinned static s
   assert.match(observedNotice, /wasm-bindgen 0\.2\.128/);
   // This disposable installed copy deliberately lacks the interactive and ETHOS code.
   // Static execution must never load those independent capability owners.
-  for (const name of [
-    'renderers/archify',
-    'assets/archify',
-  ])
+  for (const name of ['renderers/archify'])
     await fs.rm(path.join(pkg, name), { recursive: true });
   const svg = Buffer.from(
     '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="120"><rect width="300" height="120" fill="#f5f3ed"/><text font-family="JetBrains Mono" font-size="20" x="20" y="70" fill="#29372f">Offline delivery</text></svg>',
@@ -110,7 +110,10 @@ test('installed raster command needs only explicit input and its pinned static s
       {
         path: 'font.ttf',
         content: await fs.readFile(
-          path.join(pkg, 'assets/fonts/JetBrainsMono-Regular.ttf'),
+          path.join(
+            pkg,
+            'renderers/fonts/supply/JetBrainsMono-Regular.ttf',
+          ),
         ),
       },
     ],
@@ -225,7 +228,7 @@ test('installed raster command needs only explicit input and its pinned static s
     'resvg/LICENSE-APACHE',
     'resvg/THIRD-PARTY-NOTICES.txt',
   ]) {
-    const target = path.join(pkg, 'assets/raster', member),
+    const target = path.join(pkg, 'renderers/resvg/supply', member),
       original = await fs.readFile(target);
     await fs.appendFile(target, '\ntampered');
     plan.output = 'bad.png';
@@ -238,7 +241,10 @@ test('installed raster command needs only explicit input and its pinned static s
     });
     await fs.writeFile(target, original);
   }
-  const sourcePath = path.join(pkg, 'assets/raster/resvg/source.json'),
+  const sourcePath = path.join(
+      pkg,
+      'renderers/resvg/supply/resvg/source.json',
+    ),
     sourceBytes = await fs.readFile(sourcePath);
   await fs.unlink(sourcePath);
   const missingSource = invoke();

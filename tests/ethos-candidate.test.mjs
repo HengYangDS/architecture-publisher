@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
-import { readEthosAtlasSelection } from '../packages/extensions/ethos/src/edition/atlas.mjs';
-import { renderEthosPoster } from '../packages/extensions/ethos/src/edition/poster.mjs';
-import { checkBindings } from '../packages/extensions/ethos/src/edition/bindings.mjs';
+import { readEthosAtlasSelection } from '../migration/ethos/src/edition/atlas.mjs';
+import { renderEthosPoster } from '../migration/ethos/src/edition/poster.mjs';
+import { checkBindings } from '../migration/ethos/src/edition/bindings.mjs';
 import {
   sha256,
   stableStringify,
-} from '../packages/extensions/ethos/src/adapter/projection.mjs';
+} from '../migration/ethos/src/adapter/projection.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const source = {
@@ -29,7 +29,7 @@ async function prepare(t, kind, mutate = () => {}) {
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const authoring = path.join(
     root,
-    'packages/extensions/ethos/src/edition',
+    'migration/ethos/src/edition',
     kind === 'poster' ? 'static/authoring' : 'authoring',
   );
   const m = JSON.parse(
@@ -111,7 +111,7 @@ test('authored HTML semantic carriers refuse stale source or missing visible exp
     await fs.readFile(
       path.join(
         root,
-        'packages/extensions/ethos/src/edition/authoring/pages/candidate/diagram.json',
+        'migration/ethos/src/edition/authoring/pages/candidate/diagram.json',
       ),
     ),
   );
@@ -119,7 +119,7 @@ test('authored HTML semantic carriers refuse stale source or missing visible exp
     await fs.readFile(
       path.join(
         root,
-        'packages/extensions/ethos/src/edition/authoring/pages/candidate/bindings.json',
+        'migration/ethos/src/edition/authoring/pages/candidate/bindings.json',
       ),
     ),
   );
@@ -137,7 +137,7 @@ test('authored HTML semantic carriers refuse stale source or missing visible exp
   assert.throws(() => checkBindings(spec, bindings, input), /carrier/);
 });
 test('candidate preparation rebinds explicit source and preserves all pages without accepting them', async (t) => {
-  const module = await import('../packages/extensions/ethos/src/edition/candidate.mjs').catch(
+  const module = await import('../migration/ethos/src/edition/candidate.mjs').catch(
     () => ({}),
   );
   assert.equal(
@@ -150,7 +150,7 @@ test('candidate preparation rebinds explicit source and preserves all pages with
   const dir = await fs.mkdtemp(path.join(base, 'prepare-'));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const authoring = JSON.parse(
-    await fs.readFile(path.join(root, 'packages/extensions/ethos/src/edition/refresh.json')),
+    await fs.readFile(path.join(root, 'migration/ethos/src/edition/refresh.json')),
   );
   const meaningSha256 = sha256(
     stableStringify(
@@ -169,7 +169,7 @@ test('candidate preparation rebinds explicit source and preserves all pages with
     page.meaning[0].sha256 = meaningSha256;
   const file = path.join(dir, 'refresh.json');
   await fs.writeFile(file, JSON.stringify(authoring));
-  const atlas = path.join(root, 'packages/extensions/ethos/src/edition/authoring/manifest.json');
+  const atlas = path.join(root, 'migration/ethos/src/edition/authoring/manifest.json');
   const result = await module.prepareEthosCandidate({
     previous: {
       ...source,

@@ -5,8 +5,8 @@ import { createHash } from 'node:crypto';
 import { fail } from '../../src/source/manifest.mjs';
 
 const RASTER_SUPPLY_SHA256 =
-  'e5a85cc8c0fcdcfb381b0d3c2ff8f26027a7eb4c7639be3c7522ec5d79c55cb3';
-const root = fileURLToPath(new URL('../../assets/raster/', import.meta.url));
+  '0824c82348ec80e7cde4ceed0fffe803c067006f0bfb81e6a9f3fad4a2307e41';
+const root = fileURLToPath(new URL('./supply/', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 /** Installed package integrity, not protection against a malicious installer. */

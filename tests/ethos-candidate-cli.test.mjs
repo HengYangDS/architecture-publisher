@@ -5,7 +5,7 @@ import path from 'node:path';
 import {
   sha256,
   stableStringify,
-} from '../packages/extensions/ethos/src/adapter/projection.mjs';
+} from '../migration/ethos/src/adapter/projection.mjs';
 import {
   installCoreAndEthos,
   runInstalledExport,

@@ -1,5 +1,5 @@
-import sax from '../../assets/raster/sax/sax.cjs';
-import { parse as parseFont } from '../../assets/raster/opentype/opentype.mjs';
+import sax from './supply/sax/sax.cjs';
+import { parse as parseFont } from './supply/opentype/opentype.mjs';
 import { fail } from '../../src/source/manifest.mjs';
 import { RASTER_LIMITS } from './limits.mjs';
 import { isSvgAttribute, validateSvgValues } from './values.mjs';

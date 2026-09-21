@@ -23,7 +23,7 @@ async function visit(directory, prefix, members) {
 /** Return the exact installed product closure without exposing layout assumptions. */
 export async function readPublisherRuntime() {
   const members = [];
-  for (const directory of ['src', 'renderers', 'assets'])
+  for (const directory of ['src', 'renderers'])
     await visit(path.join(root, directory), directory, members);
   const manifest = path.join(root, 'package.json');
   const bytes = await fs.readFile(manifest);

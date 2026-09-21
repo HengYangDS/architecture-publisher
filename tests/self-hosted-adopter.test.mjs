@@ -62,18 +62,18 @@ test('the installed product builds its structural self-portrait through the publ
     selected = JSON.parse(
       run(
         process.execPath,
-        [path.join(root, 'examples/self-host/build.mjs'), inputs],
+        [path.join(root, 'conformance/journeys/self-host/build.mjs'), inputs],
         directory,
         { HOME: home, PATH: home, LANG: 'C.UTF-8' },
       ),
     ),
     plan = JSON.parse(await fs.readFile(selected.plan, 'utf8'));
   await assert.rejects(
-    fs.stat(path.join(pkg, 'examples/self-host/browser-acceptance.json')),
+    fs.stat(path.join(pkg, 'conformance/journeys/self-host/browser-acceptance.json')),
     { code: 'ENOENT' },
   );
   await assert.rejects(
-    fs.stat(path.join(pkg, 'examples/aigw/browser-acceptance.json')),
+    fs.stat(path.join(pkg, 'migration/aigw/browser-acceptance.json')),
     { code: 'ENOENT' },
   );
   assert.equal(path.dirname(selected.plan), path.join(physicalParent, 'inputs'));

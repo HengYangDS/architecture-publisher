@@ -4,7 +4,7 @@ import { gzipSync } from 'node:zlib';
 import {
   decodeBrowserReport,
   encodeBrowserReport,
-} from '../packages/extensions/ethos/src/edition/browser-report.mjs';
+} from '../migration/ethos/src/edition/browser-report.mjs';
 
 const value = {
   observations: [

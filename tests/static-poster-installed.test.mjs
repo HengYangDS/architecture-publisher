@@ -22,9 +22,8 @@ test('installed ETHOS poster reconstructs all 180 labels without legacy checkout
   // Remove only this disposable installation's unrelated rendering capabilities.
   for (const selected of [
     path.join(coreRoot, 'renderers/archify'),
-    path.join(coreRoot, 'assets/archify'),
-    path.join(coreRoot, 'assets/raster'),
-    path.join(coreRoot, 'assets/fonts'),
+    path.join(coreRoot, 'renderers/resvg'),
+    path.join(coreRoot, 'renderers/fonts'),
   ])
     await fs.rm(selected, { recursive: true, force: true });
   await fs.cp(

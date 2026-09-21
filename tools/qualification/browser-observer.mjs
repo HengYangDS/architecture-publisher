@@ -4,8 +4,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-import {viewportFindings,storyFindings} from '../../packages/extensions/ethos/src/edition/browser-viewport.mjs';
-import {ATLAS_EXPORTS,ATLAS_DISCLOSURES,observationName} from '../../packages/extensions/ethos/src/edition/browser-obligations.mjs';
+import {viewportFindings,storyFindings} from '../../migration/ethos/src/edition/browser-viewport.mjs';
+import {ATLAS_EXPORTS,ATLAS_DISCLOSURES,observationName} from '../../migration/ethos/src/edition/browser-obligations.mjs';
 const sha=b=>createHash('sha256').update(b).digest('hex');
 /** Runs in the page; reports bounding boxes and CTM, not exact glyph ink. */
 export function measureViewport(){

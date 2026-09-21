@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 test('qualified publication accepts a replacement selector structurally without bypassing review', async () => {
   const { planEthosPublication } =
-    await import('../packages/extensions/ethos/src/edition/publication.mjs');
+    await import('../migration/ethos/src/edition/publication.mjs');
   await assert.rejects(
     planEthosPublication({
       review: {},
@@ -21,7 +21,7 @@ test('qualified publication accepts a replacement selector structurally without 
 
 test('static-artifact reader exists independently of rendering and never accepts an unbound source', async () => {
   const module = new URL(
-    '../packages/extensions/ethos/src/edition/static-artifact.mjs',
+    '../migration/ethos/src/edition/static-artifact.mjs',
     import.meta.url,
   );
   await assert.doesNotReject(
@@ -42,7 +42,7 @@ test(
   { skip: !process.env.ETHOS_PAIR_PLAN },
   async (t) => {
     const module = new URL(
-      '../packages/extensions/ethos/src/edition/publication.mjs',
+      '../migration/ethos/src/edition/publication.mjs',
       import.meta.url,
     );
     await assert.doesNotReject(
@@ -75,8 +75,8 @@ test(
   { skip: !process.env.ETHOS_PAIR_PLAN },
   async (t) => {
     const { readStaticArtifact } =
-        await import('../packages/extensions/ethos/src/edition/static-artifact.mjs'),
-      { readEthosReview } = await import('../packages/extensions/ethos/src/edition/review.mjs'),
+        await import('../migration/ethos/src/edition/static-artifact.mjs'),
+      { readEthosReview } = await import('../migration/ethos/src/edition/review.mjs'),
       { readSourceBundle } = await import('../packages/publisher/src/source/bundle.mjs'),
       { writeSourceBundle } = await import('../packages/publisher/src/source/write.mjs');
     const plan = JSON.parse(await fs.readFile(process.env.ETHOS_PAIR_PLAN)),
@@ -239,8 +239,8 @@ test(
 
 test('publication effects reject absent acceptance before touching a file target', async () => {
   const { publishEthosPublication, recoverEthosPublication } =
-      await import('../packages/extensions/ethos/src/edition/publication.mjs'),
-    { sha256 } = await import('../packages/extensions/ethos/src/adapter/projection.mjs');
+      await import('../migration/ethos/src/edition/publication.mjs'),
+    { sha256 } = await import('../migration/ethos/src/adapter/projection.mjs');
   const body = {
     schema: 'architecture.ethos-pair-publication/v1',
     filePlan: {},

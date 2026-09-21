@@ -14,7 +14,7 @@ const sha = (b) => createHash('sha256').update(b).digest('hex');
 const shape =
   '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><path d="M20 20 H100" stroke="black"/></svg>';
 async function api() {
-  const entry = new URL('../packages/extensions/ethos/src/edition/outline.mjs', import.meta.url);
+  const entry = new URL('../migration/ethos/src/edition/outline.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(entry),
     'explicit outline adapter exists',
@@ -43,7 +43,7 @@ async function setup(t) {
   const renderer = path.join(dir, 'renderer.cjs');
   const listing = path.join(dir, 'font-list.cjs');
   const font = await fs.realpath(
-    path.join(root, 'packages/publisher/assets/fonts/JetBrainsMono-Regular.ttf'),
+    path.join(root, 'packages/publisher/renderers/fonts/supply/JetBrainsMono-Regular.ttf'),
   );
   const png = await fs.readFile(path.join(dir, 'reference.png'));
   async function executable(file, program) {
@@ -81,7 +81,7 @@ fs.writeSync(1,process.argv.includes('svg')?${JSON.stringify(shape)}:Buffer.from
           '4ea40f421434106948f1e1d2d9ae5ee6c8b9868edc5538ff755876fd01d37ef8',
         editionManifest: path.join(
           root,
-          'packages/extensions/ethos/src/edition/static/authoring/manifest.json',
+          'migration/ethos/src/edition/static/authoring/manifest.json',
         ),
         editionSha256:
           '62317d11b19994090a1c7ae65eae3a092ebc783b9702cc687f5e4d33ace15a43',
@@ -328,7 +328,7 @@ fs.writeSync(1,process.argv.includes('svg')?${JSON.stringify(shape)}:Buffer.from
   const p = path.join(f.dir, 'plan.json');
   await fs.writeFile(p, JSON.stringify(plan));
   const { outlineEthosPosterInput } = await import(
-    '../packages/extensions/ethos/src/edition/input.mjs'
+    '../migration/ethos/src/edition/input.mjs'
   );
   const result = await outlineEthosPosterInput(p);
   const observed = (await fs.readFile(log, 'utf8'))

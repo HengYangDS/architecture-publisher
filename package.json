@@ -6,7 +6,8 @@
   "type": "module",
   "workspaces": [
     "packages/publisher",
-    "packages/extensions/*"
+    "editions/self",
+    "migration/ethos"
   ],
   "scripts": {
     "test": "node --test --test-concurrency=2 tests/*.test.mjs",

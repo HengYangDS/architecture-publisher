@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readStaticArtifact } from '../packages/extensions/ethos/src/edition/static-artifact.mjs';
+import { readStaticArtifact } from '../migration/ethos/src/edition/static-artifact.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
-import { compileEthosPoster } from '../packages/extensions/ethos/src/edition/poster.mjs';
-import { sha256 } from '../packages/extensions/ethos/src/adapter/projection.mjs';
+import { compileEthosPoster } from '../migration/ethos/src/edition/poster.mjs';
+import { sha256 } from '../migration/ethos/src/adapter/projection.mjs';
 
 test('candidate static intake requires exact review binding before reading selected artifacts', async () => {
   await assert.rejects(
@@ -53,7 +53,7 @@ test('current static reader recomputes the real scene and rejects coordinated re
     projectionDigest:
       '4ea40f421434106948f1e1d2d9ae5ee6c8b9868edc5538ff755876fd01d37ef8',
   };
-  const authoring = path.join(root, 'packages/extensions/ethos/src/edition/static/authoring');
+  const authoring = path.join(root, 'migration/ethos/src/edition/static/authoring');
   const editionManifest = path.join(authoring, 'manifest.json');
   const poster = {
     ...source,

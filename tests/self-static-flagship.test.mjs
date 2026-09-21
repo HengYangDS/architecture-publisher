@@ -14,8 +14,8 @@ import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
 import {
   SELF_ENTITY_IDS,
   SELF_RELATION_IDS,
-} from '../packages/extensions/architecture-publisher/src/edition/model.mjs';
-import { composeArchitecturePublisherFlagship } from '../packages/extensions/architecture-publisher/src/edition/static/composition.mjs';
+} from '../editions/self/src/edition/model.mjs';
+import { composeArchitecturePublisherFlagship } from '../editions/self/src/edition/static/composition.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -25,23 +25,23 @@ const selectedSources = Object.freeze({
   'active-design': 'openspec/changes/architecture-publisher-0-2/design.md',
   'core-package': 'packages/publisher/package.json',
   'self-prepare-owner':
-    'packages/extensions/architecture-publisher/src/edition/prepare.mjs',
+    'editions/self/src/edition/prepare.mjs',
   'self-model-owner':
-    'packages/extensions/architecture-publisher/src/edition/model.mjs',
+    'editions/self/src/edition/model.mjs',
   'self-static-scene-owner':
-    'packages/extensions/architecture-publisher/src/edition/static-scene.mjs',
+    'editions/self/src/edition/static-scene.mjs',
   'self-static-composition-owner':
-    'packages/extensions/architecture-publisher/src/edition/static/composition.mjs',
+    'editions/self/src/edition/static/composition.mjs',
   'self-static-compiler-owner':
-    'packages/extensions/architecture-publisher/src/edition/static/scene.mjs',
+    'editions/self/src/edition/static/scene.mjs',
   'self-static-svg-owner':
-    'packages/extensions/architecture-publisher/src/edition/static/svg.mjs',
+    'editions/self/src/edition/static/svg.mjs',
   'self-static-flagship-owner':
-    'packages/extensions/architecture-publisher/src/edition/static-flagship.mjs',
+    'editions/self/src/edition/static-flagship.mjs',
   'self-static-metrics':
-    'packages/extensions/architecture-publisher/src/edition/static/authoring/metrics.json',
+    'editions/self/src/edition/static/authoring/metrics.json',
   'self-interactive-scene-owner':
-    'packages/extensions/architecture-publisher/src/edition/interactive-scenes.mjs',
+    'editions/self/src/edition/interactive-scenes.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
@@ -55,7 +55,7 @@ const selectedSources = Object.freeze({
 
 async function prepare(output) {
   const { prepareArchitecturePublisherEdition } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/prepare.mjs'
+    '../editions/self/src/edition/prepare.mjs'
   );
   const sources = {};
   for (const [id, relative] of Object.entries(selectedSources)) {
@@ -84,7 +84,7 @@ async function build(t) {
     output: path.join(directory, 'static'),
   };
   const { renderArchitecturePublisherFlagship } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/static-flagship.mjs'
+    '../editions/self/src/edition/static-flagship.mjs'
   );
   return {
     directory,
@@ -163,7 +163,7 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
       await fs.readFile(
         path.join(
           root,
-          'packages/extensions/architecture-publisher/src/edition/static/authoring/metrics.json',
+          'editions/self/src/edition/static/authoring/metrics.json',
         ),
         'utf8',
       ),
@@ -223,7 +223,7 @@ test('the self flagship preserves an occupied destination', async (t) => {
   await fs.mkdir(output);
   await fs.writeFile(path.join(output, 'foreign'), 'owned elsewhere');
   const { renderArchitecturePublisherFlagship } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/static-flagship.mjs'
+    '../editions/self/src/edition/static-flagship.mjs'
   );
   await assert.rejects(
     renderArchitecturePublisherFlagship({
@@ -273,7 +273,7 @@ test('the self flagship rejects a source bundle that does not bind its executing
     changedEditionBytes = Buffer.from(JSON.stringify(edition, null, 2) + '\n');
   await fs.writeFile(changedEdition, changedEditionBytes);
   const { renderArchitecturePublisherFlagship } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/static-flagship.mjs'
+    '../editions/self/src/edition/static-flagship.mjs'
   );
   await assert.rejects(
     renderArchitecturePublisherFlagship({
@@ -299,7 +299,7 @@ test('the self flagship rejects an Edition whose selected composition digest dri
     changedEditionBytes = Buffer.from(JSON.stringify(edition, null, 2) + '\n');
   await fs.writeFile(changedEdition, changedEditionBytes);
   const { renderArchitecturePublisherFlagship } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/static-flagship.mjs'
+    '../editions/self/src/edition/static-flagship.mjs'
   );
   await assert.rejects(
     renderArchitecturePublisherFlagship({
@@ -325,7 +325,7 @@ test('the self flagship rejects static scene declarations not consumed by the re
     changedEditionBytes = Buffer.from(JSON.stringify(edition, null, 2) + '\n');
   await fs.writeFile(changedEdition, changedEditionBytes);
   const { renderArchitecturePublisherFlagship } = await import(
-    '../packages/extensions/architecture-publisher/src/edition/static-flagship.mjs'
+    '../editions/self/src/edition/static-flagship.mjs'
   );
   await assert.rejects(
     renderArchitecturePublisherFlagship({

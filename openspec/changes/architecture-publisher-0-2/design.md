@@ -232,12 +232,14 @@ architecture-publisher/                 # private product and conformance worksp
 ├── editions/
 │   └── self/                           # source-owned flagship self-Edition
 ├── conformance/
-│   ├── fixtures/                       # compact immutable protocol inputs
-│   └── journeys/                       # installed cross-product exercises
+│   └── journeys/
+│       └── self-host/                  # installed public-contract exercise
 ├── examples/
-│   ├── self-host/                      # bounded structural conformance journey
 │   ├── greenfield/
 │   └── brownfield/
+├── migration/
+│   ├── ethos/                          # temporary; removed by Task 6.1
+│   └── aigw/                           # temporary; removed by Task 6.2
 ├── tests/                              # contract and installed-product proof
 ├── docs/
 ├── openspec/
@@ -260,8 +262,8 @@ participating as another product surface. Existing modules move only where the
 owner becomes materially clearer; a directory diagram alone is not a reason for
 churn.
 
-The current `packages/extensions/*` and `examples/aigw` paths are migration
-staging. Before release, the self package moves to `editions/self`; ETHOS and
+The current `migration/ethos` and `migration/aigw` paths are explicit migration
+staging. The self package now lives at `editions/self`. Before release, ETHOS and
 AIGW are recreated under their own repository-native module policies, exercised
 as independently packed consumers, and then removed from this repository. The
 migration compares the same immutable candidate digests or explicitly explains

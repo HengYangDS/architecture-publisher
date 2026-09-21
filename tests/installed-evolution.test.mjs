@@ -11,7 +11,7 @@ import {
 import {
   sha256,
   stableStringify,
-} from '../packages/extensions/ethos/src/adapter/projection.mjs';
+} from '../migration/ethos/src/adapter/projection.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -121,7 +121,7 @@ test('installed evolution uses the ETHOS extension, then continues through the c
   await fs.copyFile(
     path.join(
       consumer,
-      'node_modules/architecture-publisher/assets/fonts/JetBrainsMono-Regular.ttf',
+      'node_modules/architecture-publisher/renderers/fonts/supply/JetBrainsMono-Regular.ttf',
     ),
     font,
   );

@@ -4,7 +4,7 @@
   "workspaces": {
     ".": {
       "entry": [
-        "examples/self-host/build.mjs",
+        "conformance/journeys/self-host/build.mjs",
         "tools/migration/semantic-v1-to-claim-v2.mjs",
         "tools/qualification/browser-run.mjs",
         "tools/qualification/installed-evolution.mjs",
@@ -12,7 +12,7 @@
         "tests/*.test.mjs"
       ],
       "project": [
-        "examples/self-host/**/*.mjs",
+        "conformance/journeys/self-host/**/*.mjs",
         "tools/**/*.mjs",
         "tests/**/*.mjs"
       ],
@@ -23,9 +23,18 @@
         "src/**/*.mjs",
         "renderers/**/*.mjs"
       ],
+      "ignore": [
+        "renderers/*/supply/**"
+      ],
       "includeEntryExports": false
     },
-    "packages/extensions/*": {
+    "editions/self": {
+      "project": [
+        "src/**/*.mjs"
+      ],
+      "includeEntryExports": false
+    },
+    "migration/ethos": {
       "project": [
         "src/**/*.mjs"
       ],

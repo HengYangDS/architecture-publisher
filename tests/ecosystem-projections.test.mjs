@@ -79,9 +79,9 @@ test('current guidance names only the public 0.2 command and package boundaries'
     'README.md',
     'docs/reference/operations.md',
     'examples/README.md',
-    'examples/self-host/README.md',
+    'conformance/journeys/self-host/README.md',
     'packages/publisher/README.md',
-    'packages/extensions/ethos/README.md',
+    'migration/ethos/README.md',
     'skills/architecture-publisher/SKILL.md',
   ];
   const source = (
@@ -105,7 +105,7 @@ test('current guidance names only the public 0.2 command and package boundaries'
     'archpub qualify verify',
     'archpub publish plan',
     'packages/publisher',
-    'packages/extensions/ethos',
+    'migration/ethos',
   ])
     assert.equal(source.includes(current), true, current);
 });

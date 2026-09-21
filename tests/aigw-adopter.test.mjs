@@ -13,7 +13,7 @@ const publisher = path.join(root, 'packages/publisher');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 async function selected(state, base = root) {
-  const directory = path.join(base, 'examples/aigw'),
+  const directory = path.join(base, 'migration/aigw'),
     manifest = path.join(directory, state, 'manifest.json'),
     edition = path.join(directory, state + '-edition.json');
   return {
@@ -55,7 +55,7 @@ test('AIGW inputs bind a real ordered-registry source evolution', async () => {
       .content.toString(),
     /sole ordered operational registry/,
   );
-  const plan = path.join(root, 'examples/aigw/evolution.json'),
+  const plan = path.join(root, 'migration/aigw/evolution.json'),
     delta = await compareEditionInput(plan, sha(await fs.readFile(plan)));
   assert.deepEqual(delta.delta.added.entities, ['adapter-contract', 'registry']);
   assert.deepEqual(delta.delta.added.relations, [

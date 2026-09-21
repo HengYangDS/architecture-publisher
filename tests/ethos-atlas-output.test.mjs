@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { sha256 } from '../packages/extensions/ethos/src/adapter/projection.mjs';
-import { renderEthosAtlas } from '../packages/extensions/ethos/src/edition/atlas.mjs';
+import { sha256 } from '../migration/ethos/src/adapter/projection.mjs';
+import { renderEthosAtlas } from '../migration/ethos/src/edition/atlas.mjs';
 import {
   installCoreAndEthos,
   runInstalledExport,
@@ -19,7 +19,7 @@ const editionSha256 =
   'bcfc207b0f7dc3c56d2bbb8d9a4c7fa43985c43c155e485955c2681bd792a279';
 
 test('current atlas admission binds actual producer output and refuses drift without legacy sidecars', async (t) => {
-  const module = new URL('../packages/extensions/ethos/src/edition/atlas-output.mjs', import.meta.url);
+  const module = new URL('../migration/ethos/src/edition/atlas-output.mjs', import.meta.url);
   await assert.doesNotReject(
     fs.access(module),
     'current output must have a direct read-only consumer',
@@ -36,7 +36,7 @@ test('current atlas admission binds actual producer output and refuses drift wit
     ),
     sourceSha256,
     projectionDigest,
-    editionManifest: path.join(root, 'packages/extensions/ethos/src/edition/authoring/manifest.json'),
+    editionManifest: path.join(root, 'migration/ethos/src/edition/authoring/manifest.json'),
     editionSha256,
     output: path.join(directory, 'atlas'),
   };

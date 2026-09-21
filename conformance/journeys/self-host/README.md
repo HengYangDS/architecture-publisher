@@ -5,7 +5,7 @@ contracts. It selects package-owned source files, builds a source-bound Claim
 Model and structural Edition, and writes an exact Edition build request.
 
 ```sh
-node examples/self-host/build.mjs /absolute/input-directory
+node conformance/journeys/self-host/build.mjs /absolute/input-directory
 archpub edition build /absolute/input-directory/plan.json \
   --sha256 <reported-plan-digest>
 ```

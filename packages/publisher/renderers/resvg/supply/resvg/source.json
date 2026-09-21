@@ -50,19 +50,19 @@
       },
       {
         "path": "tools/raster/resvg/build.sh",
-        "bytes": 3234,
-        "sha256": "39c3f332ca31f09c9df644488b2d545925d8f32be56476f1d6f645f4007ff378"
+        "bytes": 3243,
+        "sha256": "dd1adde22b2c53cebc2ae4890844520a24f183d748e5851966bc68c9cdaec09f"
       }
     ]
   },
   "outputs": [
     {
-      "path": "packages/publisher/assets/raster/resvg/index.mjs",
+      "path": "packages/publisher/renderers/resvg/supply/resvg/index.mjs",
       "bytes": 3577,
       "sha256": "4f4218b14ecd618019dbcd768a2ef04fe2f1818e183011a87c242a6a456c81f5"
     },
     {
-      "path": "packages/publisher/assets/raster/resvg/index_bg.wasm",
+      "path": "packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm",
       "bytes": 3425153,
       "sha256": "29217145dc31ddc764ecadfd6dedd1904a14997c659aa2523adc83e161095b3a"
     }

@@ -43,7 +43,7 @@ async function setup(t, svg = shape, fonts = false, extraMembers = []) {
     members.push({
       path: 'fonts/regular.ttf',
       content: await fs.readFile(
-        path.join(root, 'packages/publisher/assets/fonts/JetBrainsMono-Regular.ttf'),
+        path.join(root, 'packages/publisher/renderers/fonts/supply/JetBrainsMono-Regular.ttf'),
       ),
     });
     selection.push({
@@ -473,7 +473,7 @@ test('rejects excess font count, individual bytes and aggregate bytes before ren
 });
 test('rejects corrupt, duplicated and unsupported font selections', async (t) => {
   const bytes = await fs.readFile(
-    path.join(root, 'packages/publisher/assets/fonts/JetBrainsMono-Regular.ttf'),
+    path.join(root, 'packages/publisher/renderers/fonts/supply/JetBrainsMono-Regular.ttf'),
   );
   for (const [name, content, fonts, code] of [
     [

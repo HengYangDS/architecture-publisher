@@ -9,7 +9,7 @@ import { embedFonts } from './fonts.mjs';
 import { adaptArchitectureScene } from './architecture.mjs';
 
 const supplyRoot = fileURLToPath(
-  new URL('../../assets/archify/', import.meta.url),
+  new URL('./supply/', import.meta.url),
 );
 const supplyDigest =
   '091c49f7b7c95fd8a022705f743cb6b0701fefc4abb1cad588b09a91e4a36484';

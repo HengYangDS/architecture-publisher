@@ -33,7 +33,7 @@ export async function installCoreAndSelf(root, directory) {
     extension = run(
       'npm',
       ['pack', '--json', '--ignore-scripts', '--pack-destination', directory],
-      path.join(root, 'packages/extensions/architecture-publisher'),
+      path.join(root, 'editions/self'),
     ),
     consumer = path.join(directory, 'consumer');
   await fs.mkdir(consumer);
@@ -73,7 +73,7 @@ export async function installCoreAndEthos(root, directory) {
     extension = run(
       'npm',
       ['pack', '--json', '--ignore-scripts', '--pack-destination', directory],
-      path.join(root, 'packages/extensions/ethos'),
+      path.join(root, 'migration/ethos'),
     ),
     consumer = path.join(directory, 'consumer');
   await fs.mkdir(consumer);

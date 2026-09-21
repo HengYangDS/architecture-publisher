@@ -89,11 +89,11 @@ The current checkout is migration staging, not the terminal ownership model:
 
 ```text
 packages/publisher/          generic product package
-packages/extensions/architecture-publisher/
-                             self-Edition before its final in-repository move
-packages/extensions/ethos/   temporary central ETHOS migration package
-examples/self-host/          bounded structural self-use
-examples/aigw/               temporary AIGW adoption evidence
+editions/self/
+                             source-owned flagship self-Edition
+migration/ethos/   temporary central ETHOS migration package
+conformance/journeys/self-host/          bounded structural self-use
+migration/aigw/               temporary AIGW adoption evidence
 ```
 
 The terminal product repository keeps the generic package, renderer supply,

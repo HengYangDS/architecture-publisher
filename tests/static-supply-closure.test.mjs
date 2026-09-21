@@ -30,7 +30,7 @@ test('raster rebuild selects the packaged source manifest', async (t) => {
 test('raster renderer is bound to a reproducible source closure', async () => {
   const source = JSON.parse(
     await fs.readFile(
-      path.join(root, 'packages/publisher/assets/raster/resvg/source.json'),
+      path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/source.json'),
       'utf8',
     ),
   );
@@ -85,7 +85,7 @@ test('raster renderer is bound to a reproducible source closure', async () => {
 
 test('raster binding has no implicit file or network loader', async () => {
   const binding = await fs.readFile(
-    path.join(root, 'packages/publisher/assets/raster/resvg/index.mjs'),
+    path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/index.mjs'),
     'utf8',
   );
   for (const forbidden of ['fetch(', 'readFile', 'node:fs', 'require(', 'new URL('])
@@ -94,7 +94,7 @@ test('raster binding has no implicit file or network loader', async () => {
   assert.match(binding, /export function __wbg_set_wasm/);
 
   const wasm = await fs.readFile(
-    path.join(root, 'packages/publisher/assets/raster/resvg/index_bg.wasm'),
+    path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm'),
   );
   const imports = WebAssembly.Module.imports(new WebAssembly.Module(wasm));
   assert.deepEqual(
@@ -125,7 +125,7 @@ test('raster notices cover every locked third-party Rust package', async () => {
     'utf8',
   );
   const notices = await fs.readFile(
-    path.join(root, 'packages/publisher/assets/raster/resvg/THIRD-PARTY-NOTICES.txt'),
+    path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/THIRD-PARTY-NOTICES.txt'),
     'utf8',
   );
   const packages = [...lock.matchAll(/\[\[package\]\]\nname = "([^"]+)"\nversion = "([^"]+)"/g)]
