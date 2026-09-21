@@ -169,6 +169,11 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
       `${id}: explanatory lines must share one left alignment axis`,
     );
   }
+  assert.equal(scene.texts.find(({ id }) => id === 'source-field-title')?.text, 'Source Bundle');
+  assert.deepEqual(
+    scene.texts.filter(({ id }) => id.startsWith('source-field-line-')).map(({ text }) => text),
+    ['accepted intent', 'implementation', 'runtime observation', 'bound evidence'],
+  );
   const feedback = scene.edges.find((edge) => edge.id === 'feedback-return');
   assert.deepEqual(
     {

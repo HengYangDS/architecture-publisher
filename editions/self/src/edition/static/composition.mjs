@@ -9,8 +9,8 @@ const point = (x, y) => ({ x, y });
 const PIPELINE = Object.freeze([
   {
     id: 'source-field',
-    title: 'Source',
-    lines: ['intent · code', 'runtime · evidence', 'adapter · bundle'],
+    title: 'Source Bundle',
+    lines: ['accepted intent', 'implementation', 'runtime observation', 'bound evidence'],
     semantics: entities(
       'accepted-intent',
       'implementation',
