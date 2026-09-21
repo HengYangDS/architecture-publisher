@@ -1,14 +1,21 @@
 {
   "schema": "ethos.architecture-publisher-handoff/v1",
   "publisher": {
-    "commit": "7652d83251ebd33d44a21e935e56972d41482599",
-    "corePackageSha256": "0665e386175b12c680f07f4f7b320add1de3e9c28f60795caa01bc852085c1c0",
-    "stagingPackageSha256": "a8897c64da17fd2e92d5b68b93425245ae283def3f47955c45378d4497c56134"
+    "core": {
+      "tree": "41a4934a9951e80ff23ed2874012dfc7498d31d6",
+      "packageSha256": "3befbb6fa27c05e1295ff46bcddc52d35d52aa70f223b7228aee6285fc171503"
+    },
+    "retiredEthosStaging": {
+      "commit": "7652d83251ebd33d44a21e935e56972d41482599",
+      "tree": "de973462a508c8d213c5ac1143cd52d8bd9576bb",
+      "packageSha256": "a8897c64da17fd2e92d5b68b93425245ae283def3f47955c45378d4497c56134"
+    }
   },
   "ethos": {
-    "commit": "a798079c2a6631bb56851740b1a73fd11be26440",
-    "integrationTree": "fad20d92bb4c04fdba6038a879690a81357fb223",
-    "integrationPackageSha256": "04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044"
+    "integration": {
+      "tree": "fad20d92bb4c04fdba6038a879690a81357fb223",
+      "packageSha256": "04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044"
+    }
   },
   "acceptedParity": {
     "sourceManifestSha256": "58121ad168a314af94b55f557435ffb7d9828ca7c476411f18467731ae9d1db0",
@@ -25,7 +32,7 @@
     "standaloneSha256": "3735757e6467bf1e4a6fe6e9ae9240b979e541e9f80ef178f1621bc300b8fe41",
     "posterSvgSha256": "bec598939083700f522810165749dbda399eabf644cb69fa437735d03f274502",
     "posterSceneSha256": "32c934d1e676b9582a9cee88c108474fc0b2654347606703c2cb3020242a765c",
-    "posterManifestSha256": "452351482dfecc9aeb324311c45aca356107fd3f123fe9aea787ea3b05b5fdbd"
+    "posterManifestSha256": "4c4c60fc243507c3118455a7325c149c82a8b2300efb4db53c8a9f7406310795"
   },
   "semanticSuccessor": {
     "nodes": [
