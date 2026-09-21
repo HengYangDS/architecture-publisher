@@ -3,6 +3,19 @@ import { isBuiltin } from 'node:module';
 import { parse } from 'acorn';
 
 const owners = [
+  [
+    'packages/publisher/src/index.mjs',
+    [
+      'packages/publisher/src/compiler/index.mjs',
+      'packages/publisher/src/edition/index.mjs',
+      'packages/publisher/src/publication/index.mjs',
+      'packages/publisher/src/qualification/index.mjs',
+      'packages/publisher/src/rendering/index.mjs',
+      'packages/publisher/src/scene/index.mjs',
+      'packages/publisher/src/semantics/index.mjs',
+      'packages/publisher/src/source/index.mjs',
+    ],
+  ],
   ['packages/publisher/src/runtime.mjs', ['packages/publisher/']],
   ['packages/publisher/src/source/', ['packages/publisher/src/source/']],
   [

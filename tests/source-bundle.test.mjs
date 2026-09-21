@@ -5,6 +5,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { validateManifest } from '../packages/publisher/src/source/manifest.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
+import { verifySourceInput } from '../packages/publisher/src/source/input.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const evidence = new URL('../build/test-work/', import.meta.url);
@@ -38,6 +39,22 @@ test('reads a source without Git or ETHOS, and binds the selected bytes', async 
   assert.equal(result.scope, 'source-file-integrity');
   assert.equal(result.officialReplay, 'not-performed');
   assert.equal(result.semanticAcceptance, 'not-performed');
+});
+
+test('public source verification returns metadata without exposing selected bytes', async (t) => {
+  const f = await fixture(t);
+  const result = await verifySourceInput(f.file, f.digest);
+
+  assert.equal(result.status, 'verified');
+  assert.equal(result.manifestSha256, f.digest);
+  assert.deepEqual(result.members, [
+    {
+      path: 'input/model.json',
+      bytes: f.bytes.length,
+      sha256: sha(f.bytes),
+    },
+  ]);
+  assert.equal(Object.hasOwn(result.members[0], 'content'), false);
 });
 
 test('manifest validation is data-only and does not require a Git revision', async (t) => {

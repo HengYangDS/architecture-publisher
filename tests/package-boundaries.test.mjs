@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
@@ -21,8 +21,18 @@ test('workspace separates the generic product from concrete Editions', async () 
   assert.deepEqual(workspace.workspaces, ['packages/publisher', 'editions/self']);
   assert.equal(product.name, 'architecture-publisher');
   assert.deepEqual(product.bin, { archpub: 'src/cli/main.mjs' });
-  assert.equal(Object.hasOwn(product.exports, '.'), false);
-  await assert.rejects(fs.access(path.join(publisher, 'src/index.mjs')), { code: 'ENOENT' });
+  assert.equal(product.exports['.'], './src/index.mjs');
+  const publicApi = await import(pathToFileURL(path.join(publisher, 'src/index.mjs')));
+  assert.deepEqual(Object.keys(publicApi).sort(), [
+    'compiler',
+    'edition',
+    'publication',
+    'qualification',
+    'rendering',
+    'scene',
+    'semantics',
+    'source',
+  ]);
 });
 
 test('terminal paths make product ownership explicit', async () => {
