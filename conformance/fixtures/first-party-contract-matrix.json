@@ -1,7 +1,7 @@
 {
   "schema": "architecture.publisher-first-party-contract-matrix/v1",
   "publisher": {
-    "observedCommit": "c22b6d3b9510009215cc689951dac6e1aac015ff",
+    "observedCommit": "1dbabce35ed31a595fea5a37628122c0721f0293",
     "package": {
       "name": "architecture-publisher",
       "version": "0.2.0-alpha.0",
@@ -19,19 +19,19 @@
     "self": {
       "transport": "independent-core-and-edition-packages",
       "edition": {
-        "tree": "89c458cf29aa53b63045321e2fab04d389489a15",
-        "packageSha256": "d506b1976a468cdc58d3bb64f32ada46a4fe07cc62507d994626554acb75ae73"
+        "tree": "ee3d0de9fb0cd4f72346ae1df9ee9f9379e181ed",
+        "packageSha256": "97c21cec2ffa5be7cbc1299e02d4cafb09869f99c74f71d1817ed053fd6d8bac"
       },
       "candidate": {
-        "manifestSha256": "7f9b2987516909aa936e6a1dfb714a1fcb853319434e08e5af0ea65bf6e1611f",
-        "candidateSha256": "f5a2c42ffae39d1b583d979c34a0e1fa6c345b609cce0dd00ecdbc788c07a0f4",
-        "editionDigest": "1de2a7ed13fcf28a7094be87853460d0e594be2a9099fee3b1404ca6e139293d",
-        "staticSceneDigest": "543f8af3ef055f334054fe8d8c279e2ccf5a84370375070c20147e2a217e10ff",
+        "manifestSha256": "6cbe0b100c2db784a87571173b7cf30a04ec6c2e357cef1d7c3e51bcc94ec7ed",
+        "candidateSha256": "b9c72c18e12d98c37798c8c1bc06cf0c9b415edd7474adf5c1e5036856b98f50",
+        "editionDigest": "7bd4c9c958c92a25aef5f998ee50db91ef6c6e18c807275b9aee32cd5ca97879",
+        "staticSceneDigest": "ff55b84278120b14083b88c46ae8c85a62dac4c69f7713c901e8733e28d70f94",
         "interactiveSceneDigest": "fac89f6d1ffb00f8f6ac197b690af7ff252fc29310b2ac7005d82ecd02a15717"
       },
       "evidence": {
-        "resultSha256": "f53bade8f46122f9017229266983a0a06c96be35fc3dbb2264b807b42c8fdbba",
-        "logSha256": "f53bade8f46122f9017229266983a0a06c96be35fc3dbb2264b807b42c8fdbba"
+        "resultSha256": "386ed9b2220646a7845714eb94e7345ec25a89334c67dc952dcced32505784c0",
+        "logSha256": "386ed9b2220646a7845714eb94e7345ec25a89334c67dc952dcced32505784c0"
       }
     },
     "ethos": {
@@ -80,19 +80,35 @@
   "contracts": [
     {
       "id": "source",
-      "consumers": { "self": "pass", "ethos": "pass", "aigw": "pass" }
+      "consumers": {
+        "self": "pass",
+        "ethos": "pass",
+        "aigw": "pass"
+      }
     },
     {
       "id": "semantics",
-      "consumers": { "self": "pass", "ethos": "pass", "aigw": "pass" }
+      "consumers": {
+        "self": "pass",
+        "ethos": "pass",
+        "aigw": "pass"
+      }
     },
     {
       "id": "scenes",
-      "consumers": { "self": "pass", "ethos": "pass", "aigw": "pass" }
+      "consumers": {
+        "self": "pass",
+        "ethos": "pass",
+        "aigw": "pass"
+      }
     },
     {
       "id": "qualification",
-      "consumers": { "self": "pass", "ethos": "pass-source-owned", "aigw": "pass" }
+      "consumers": {
+        "self": "pass",
+        "ethos": "pass-source-owned",
+        "aigw": "pass"
+      }
     },
     {
       "id": "publication",
@@ -120,7 +136,11 @@
     },
     {
       "id": "reader-journeys",
-      "consumers": { "self": "pass", "ethos": "pass", "aigw": "pass" }
+      "consumers": {
+        "self": "pass",
+        "ethos": "pass",
+        "aigw": "pass"
+      }
     }
   ],
   "sharedKernel": {
