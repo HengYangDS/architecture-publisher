@@ -136,6 +136,55 @@
     ],
     "interpretation": "A consumer-specific Edition selects semantic values and artifacts. All three then cross the same identity-free qualification and recoverable file-publication contracts; ETHOS retains an additional owner-acceptance gate above the shared effect kernel."
   },
+  "performance": {
+    "schema": "architecture.publisher-rebuild-cost-decision/v1",
+    "observedPublisherCommit": "2f371efc0f5962841a38d358bd9eff215f64893e",
+    "packageSha256": "1bf9b3400b61b8736e28893b6e5967f7b5f9b156fa614b420ecd7e6e1ebf4c6d",
+    "host": "darwin-arm64",
+    "node": "v26.9.0",
+    "repetitions": 3,
+    "consumers": {
+      "self": {
+        "completeMedianMs": 4918.98,
+        "affectedViewAnalysisMedianMs": 27.361,
+        "analysisFraction": 0.00556,
+        "deterministic": true,
+        "reportSha256": "20b5f29d43ce110e021362e2fda12df241ada26a3bd384891c59a8ef45d4556f"
+      },
+      "ethos": {
+        "completeMedianMs": 5517.154,
+        "affectedViewAnalysisMedianMs": 87.61,
+        "analysisFraction": 0.01588,
+        "deterministic": true,
+        "reportSha256": "a9f3975b6b893512939a4dc97510355be201a45c62109fb97724191e05af78a7"
+      },
+      "aigw": {
+        "completeMedianMs": 2036.866,
+        "affectedViewAnalysisMedianMs": 9.788,
+        "analysisFraction": 0.00481,
+        "deterministic": true,
+        "reportSha256": "1005cf8b5865250f644d0405304ae8bd630ec2a59460faf8d7a0051e2b8bedad"
+      }
+    },
+    "decisions": {
+      "persistentGraphStorage": {
+        "decision": "defer",
+        "reason": "All current semantic graphs are cheaply rebuilt and no consumer has a named persistence or query-latency failure."
+      },
+      "incrementalQueries": {
+        "decision": "defer",
+        "reason": "Affected-view analysis costs at most 1.588 percent of complete build time, while all measured semantic changes still require static and multiple interactive rebuilds."
+      },
+      "constraintSolver": {
+        "decision": "defer",
+        "reason": "All three explicit finite compositions remain deterministic and no consumer supplies an irreducible or unsatisfiable layout case."
+      }
+    },
+    "limits": [
+      "Measurements are local single-host observations, not latency service levels.",
+      "A future named consumer failure may reopen any deferred decision."
+    ]
+  },
   "verdict": "PASS_CONTRACT_MATRIX",
   "limits": [
     "The matrix proves product contracts, not ETHOS or AIGW repository acceptance.",

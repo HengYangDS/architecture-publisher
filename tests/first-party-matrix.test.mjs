@@ -77,6 +77,25 @@ test('the first-party matrix binds all consumers to one exact generic package', 
   assert.equal(matrix.consumers.aigw.edition.tree, aigw.aigw.source.editionTree);
   assert.deepEqual(matrix.consumers.aigw.candidate, aigw.aigw.candidate);
 
+  assert.equal(matrix.performance.packageSha256, matrix.publisher.package.sha256);
+  assert.equal(matrix.performance.repetitions, 3);
+  for (const consumer of Object.values(matrix.performance.consumers)) {
+    assert.equal(consumer.deterministic, true);
+    assert(consumer.completeMedianMs > consumer.affectedViewAnalysisMedianMs);
+    assert.equal(
+      Math.abs(
+        consumer.analysisFraction -
+          consumer.affectedViewAnalysisMedianMs / consumer.completeMedianMs,
+      ) < 0.00001,
+      true,
+    );
+    assert.match(consumer.reportSha256, /^[0-9a-f]{64}$/u);
+  }
+  assert.deepEqual(
+    Object.values(matrix.performance.decisions).map(({ decision }) => decision),
+    ['defer', 'defer', 'defer'],
+  );
+
   assert.doesNotMatch(JSON.stringify(matrix), /\/Users\/|file:\/\//u);
   assert.equal(matrix.verdict, 'PASS_CONTRACT_MATRIX');
   assert.deepEqual(matrix.limits, [

@@ -76,6 +76,24 @@ Primary source locations:
 | Boundary linting             | ESLint `10.11.0` supplies broad zero-warning JavaScript correctness rules; eslint-plugin-boundaries `7.2.0` can classify dependencies by element, file category, and origin.            | **Adopt ESLint; retain the smaller semantic boundary checker.**            | ESLint now owns general first-party linting. The repository's Acorn-based gate separately derives package exports from their manifests and enforces semantic owner direction, computed-import rejection, package escape rules, declared externals, and executable composition roots. Do not add a second boundary authority unless a reproduced missed edge cannot be expressed by the existing checker.                                                                                                                                                                                                                                                                                                                            |
 | Security and data flow       | CodeQL models syntax, control/data flow and taint across supported languages.                                                                                                           | **Use only for security-specific questions.**                              | It complements but does not replace ownership, packaging, installed/offline, recovery or publication-path verification.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
+## Measured terminal decisions
+
+Three independently installed runs per consumer measured the current exact
+`architecture-publisher` package. Median complete build versus affected-view
+analysis was `4918.980 ms / 27.361 ms` for self, `5517.154 ms / 87.610 ms`
+for ETHOS, and `2036.866 ms / 9.788 ms` for source-owned AIGW. Outputs were
+deterministic in every run. Analysis therefore consumed at most `1.588%` of a
+complete build, while each real measured change still selected the static view
+and multiple interactive views for rebuild.
+
+The terminal decision is to defer persistent graph storage, incremental query
+runtime, and a general constraint solver. The present bottleneck is required
+media work, not semantic dependency traversal. No consumer exhibited a
+persistence failure, irreducible query, or unsatisfiable finite composition.
+Reopen a decision only with a named failing consumer case and a benchmark that
+demonstrates lower total ownership cost. Exact observations and report digests
+are bound in `conformance/fixtures/first-party-contract-matrix.json`.
+
 ## Mechanism-wiring audit rule
 
 A mechanism is connected only when all five links are present:
