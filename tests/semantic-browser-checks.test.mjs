@@ -67,6 +67,23 @@ test('HTML acceptance rejects runtime errors and directed endpoint drift', () =>
       ),
     /Browser geometry failed/,
   );
+  assert.throws(
+    () => validateHtmlObservation({ ...html, overflow: ['sidebar'] }, view, []),
+    /Browser geometry failed/,
+  );
+  assert.throws(
+    () => validateHtmlObservation({ ...html, minimumFont: 7 }, view, []),
+    /Browser geometry failed/,
+  );
+  assert.throws(
+    () =>
+      validateHtmlObservation(
+        { ...html, nodeIds: ['source'] },
+        view,
+        [],
+      ),
+    /node identity mismatch/,
+  );
 });
 
 test('static acceptance rejects detached endpoints and missing paint', () => {

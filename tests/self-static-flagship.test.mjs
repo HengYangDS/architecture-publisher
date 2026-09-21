@@ -195,6 +195,14 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
   assert.equal(checks.rasterCanvas.width, 6000);
   assert.equal(checks.rasterCanvas.height, 3375);
   assert.equal(checks.rasterCanvas.inkPixels > 0, true);
+  assert.equal(checks.rasterCanvas.envelopeFraction >= 0.65, true);
+  assert.equal(
+    Math.max(
+      checks.rasterCanvas.centerOffset.x,
+      checks.rasterCanvas.centerOffset.y,
+    ) <= 0.05,
+    true,
+  );
   assert.equal(
     checks.rasterElements.regions.length,
     scene.texts.filter((label) => label.visible && label.text.trim()).length +
@@ -426,12 +434,24 @@ test('delivery-resolution canvas inspection rejects empty and edge-bound raster 
     }).failures,
     [{ code: 'png-canvas-clearance', actual: 0, minimum: 1 }],
   );
+  assert.deepEqual(
+    inspectRgbaPngCanvas(fixture, {
+      ...contract,
+      minimumEnvelopeFraction: 0.75,
+      maximumCenterOffsetFraction: 0.1,
+    }).failures.map(({ code }) => code),
+    ['png-canvas-fill', 'png-canvas-balance'],
+  );
   const missing = inspectRgbaPngElements(
     fixture,
     {
       width: 2,
       height: 1,
-      paint: { paper: '#f3f0e8', ink: '#26362f' },
+      paint: {
+        paper: '#f3f0e8',
+        ink: '#26362f',
+        line: '#26362f',
+      },
       texts: [
         {
           id: 'missing',
@@ -456,5 +476,76 @@ test('delivery-resolution canvas inspection rejects empty and edge-bound raster 
   assert.deepEqual(
     missing.failures[1].samples.map(({ x, y }) => ({ x, y })),
     [{ x: 0, y: 0 }],
+  );
+
+  const absentPaint = inspectRgbaPngElements(
+    fixture,
+    {
+      width: 2,
+      height: 1,
+      paint: {
+        paper: '#f3f0e8',
+        ink: '#26362f',
+        line: '#26362f',
+      },
+      texts: [
+        {
+          id: 'label',
+          text: 'x',
+          visible: true,
+          tone: 'ink',
+          box: { x: 1.2, y: 0, width: 0.2, height: 1 },
+        },
+      ],
+      nodes: [
+        {
+          id: 'node',
+          tone: 'ink',
+          box: { x: 1.2, y: 0, width: 0.2, height: 1 },
+        },
+      ],
+      edges: [
+        {
+          id: 'edge',
+          kind: 'flow',
+          tone: 'ink',
+          arrow: true,
+          strokeWidth: 0.05,
+          points: [
+            { x: 1.5, y: 0.5 },
+            { x: 1.9, y: 0.5 },
+          ],
+          arrowGeometry: {
+            length: 0.1,
+            halfWidth: 0.1,
+            strokeWidth: 0.05,
+          },
+        },
+      ],
+      decorations: [
+        {
+          id: 'rule',
+          tone: 'ink',
+          strokeWidth: 0.05,
+          points: [
+            { x: 1.2, y: 0.25 },
+            { x: 1.8, y: 0.25 },
+          ],
+        },
+      ],
+    },
+    { background: contract.background, sourcePadding: 0 },
+  );
+  assert.deepEqual(
+    absentPaint.failures
+      .filter(({ code }) => code === 'png-element-empty')
+      .map(({ id }) => id),
+    [
+      'text:label',
+      'node:node',
+      'edge:edge:stroke',
+      'edge:edge:arrow',
+      'rule:rule',
+    ],
   );
 });

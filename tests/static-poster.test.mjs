@@ -212,6 +212,15 @@ test('retained checks detect changed meaning, actual emitted edges and painted o
       (x) => x.code === 'emitted-endpoint-mismatch',
     ),
   );
+  const missingArrow = svg.replace(
+    /(<path\b(?=[^>]*data-edge="align")[^>]*)\smarker-end="[^"]+"/,
+    '$1',
+  );
+  assert.notEqual(missingArrow, svg);
+  assert.throws(
+    () => auditEmittedEdges(missingArrow, scene, limits),
+    /emitted arrow contract mismatch/,
+  );
   const misbound = structuredClone(view);
   misbound.witnesses.relations.align = [];
   assert(auditNaturalSemantics(misbound, input).failures.length > 0);

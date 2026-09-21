@@ -31,7 +31,7 @@
 ## 5. Qualification and self-evolution
 
 - [x] 5.1 Implement exact qualification records for semantic, coverage, static geometry, interactive browser, accessibility, installed-use, recovery, and human visual predicates; verify no predicate or weighted score can substitute for another.
-- [ ] 5.2 Add painted-output checks for glyphs, strokes, arrowheads, endpoints, nodes, labels, viewport overflow, canvas balance, template residue, and console errors; verify failures against deliberately malformed static and interactive fixtures before accepting the flagship.
+- [x] 5.2 Add painted-output checks for glyphs, strokes, arrowheads, endpoints, nodes, labels, viewport overflow, canvas balance, template residue, and console errors; verify failures against deliberately malformed static and interactive fixtures before accepting the flagship.
 - [ ] 5.3 Exercise a real source-bound self-model change through semantic delta, affected-view computation, candidate regeneration, separate medium checks, and fresh approval requirements; verify generated files are never inputs to authoring and unaffected artifacts retain identity.
 - [ ] 5.4 Present the exact flagship PNG and standalone HTML for human review against `faithful`, `intelligible`, and `restrained`; bind the user's verdict to exact artifact and Edition digests and keep any rejection open until replacement bytes are approved.
 

@@ -238,6 +238,8 @@ export async function renderArchitecturePublisherFlagship(plan) {
         background: [243, 240, 232, 255],
         colorDistance: 8,
         minimumClearance: 90,
+        minimumEnvelopeFraction: 0.65,
+        maximumCenterOffsetFraction: 0.05,
       }),
       rasterElements = inspectRgbaPngElements(png, scene, {
         background: [243, 240, 232, 255],
@@ -246,7 +248,12 @@ export async function renderArchitecturePublisherFlagship(plan) {
         paintTolerance: 18,
       }),
       svg = embedArchitecturePublisherStaticFonts(rasterSvg, selectedFonts),
-      output = await writeSourceBundle(
+      paintedFailures = [
+        ...rasterCanvas.failures,
+        ...rasterElements.failures,
+      ];
+    if (paintedFailures.length) fail('self_flagship_painted_output_failed');
+    const output = await writeSourceBundle(
         plan.output,
         {
           id: 'architecture-publisher:self-static',

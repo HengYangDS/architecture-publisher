@@ -279,7 +279,22 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
       : 8,
     minimumClearance = Number.isSafeInteger(contract.minimumClearance)
       ? contract.minimumClearance
-      : 0;
+      : 0,
+    minimumEnvelopeFraction = Number.isFinite(contract.minimumEnvelopeFraction)
+      ? contract.minimumEnvelopeFraction
+      : 0,
+    maximumCenterOffsetFraction = Number.isFinite(
+      contract.maximumCenterOffsetFraction,
+    )
+      ? contract.maximumCenterOffsetFraction
+      : 0.5;
+  if (
+    minimumEnvelopeFraction < 0 ||
+    minimumEnvelopeFraction > 1 ||
+    maximumCenterOffsetFraction < 0 ||
+    maximumCenterOffsetFraction > 0.5
+  )
+    fail('png_canvas_contract_invalid');
   let inkPixels = 0,
     left = width,
     top = height,
@@ -305,7 +320,42 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
       right: width - 1 - right,
       bottom: height - 1 - bottom,
     },
-    actualMinimum = Math.min(...Object.values(clearance));
+    actualMinimum = Math.min(...Object.values(clearance)),
+    envelopeFraction =
+      ((right - left + 1) * (bottom - top + 1)) / (width * height),
+    centerOffset = {
+      x: Math.abs((left + right) / 2 - (width - 1) / 2) / width,
+      y: Math.abs((top + bottom) / 2 - (height - 1) / 2) / height,
+    },
+    failures = [
+      ...(actualMinimum < minimumClearance
+        ? [
+            {
+              code: 'png-canvas-clearance',
+              actual: actualMinimum,
+              minimum: minimumClearance,
+            },
+          ]
+        : []),
+      ...(envelopeFraction < minimumEnvelopeFraction
+        ? [
+            {
+              code: 'png-canvas-fill',
+              actual: envelopeFraction,
+              minimum: minimumEnvelopeFraction,
+            },
+          ]
+        : []),
+      ...(Math.max(centerOffset.x, centerOffset.y) > maximumCenterOffsetFraction
+        ? [
+            {
+              code: 'png-canvas-balance',
+              actual: centerOffset,
+              maximum: maximumCenterOffsetFraction,
+            },
+          ]
+        : []),
+    ];
   return {
     width,
     height,
@@ -315,19 +365,12 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
     inkPixels,
     inkFraction: inkPixels / (width * height),
     envelope: { left, top, right, bottom },
+    envelopeFraction,
+    centerOffset,
     clearance,
-    failures:
-      actualMinimum < minimumClearance
-        ? [
-            {
-              code: 'png-canvas-clearance',
-              actual: actualMinimum,
-              minimum: minimumClearance,
-            },
-          ]
-        : [],
+    failures,
     scope:
-      'Actual RGBA raster pixels and non-background canvas envelope. Not per-element glyph, stroke, route, endpoint or aesthetic acceptance.',
+      'Actual RGBA raster pixels, non-background canvas envelope, fill and center balance. Not per-element glyph, stroke, route, endpoint or aesthetic acceptance.',
   };
 }
 

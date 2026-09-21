@@ -131,6 +131,9 @@ An Edition lists non-substitutable predicates. At minimum a flagship requires:
 Every qualification binds exact subjects, verifier identity, observations,
 verdict, and limitations. A changed artifact needs fresh applicable evidence.
 One medium's human decision never satisfies another medium's obligation.
+Static painted-output qualification also checks the delivered raster for
+per-element paint, stray paint, minimum canvas fill, and bounded center offset;
+analytic scene geometry or a valid SVG alone cannot substitute for it.
 
 ## Evolution
 
