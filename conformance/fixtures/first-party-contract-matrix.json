@@ -1,0 +1,144 @@
+{
+  "schema": "architecture.publisher-first-party-contract-matrix/v1",
+  "publisher": {
+    "observedCommit": "c22b6d3b9510009215cc689951dac6e1aac015ff",
+    "package": {
+      "name": "architecture-publisher",
+      "version": "0.2.0-alpha.0",
+      "tree": "4ef070cbd68442f17c53db2549d1f7013b4b0134",
+      "sha256": "1bf9b3400b61b8736e28893b6e5967f7b5f9b156fa614b420ecd7e6e1ebf4c6d"
+    },
+    "execution": {
+      "network": "offline",
+      "userConfiguration": "empty",
+      "inputs": "explicit-relocated",
+      "adjacentCheckoutDiscovery": false
+    }
+  },
+  "consumers": {
+    "self": {
+      "transport": "independent-core-and-edition-packages",
+      "edition": {
+        "tree": "1c866e2b80d3e62700ea7388aaa3afd24f1706a6",
+        "packageSha256": "6cf48edfc09258cd2f794941c03fdd4387b5e5e75391e1ac22950ec461d50d8a"
+      },
+      "candidate": {
+        "manifestSha256": "4e5970eefe29f4c7f35d5eb690d79de7307829522ac3053ddb00a34294e2dc10",
+        "candidateSha256": "3d50125d0824c2b5b06fb0ab7c0ed6f37c2a7916aa698b1840b85e766d84caa9",
+        "editionDigest": "2cf9bc3e9422dcb6b412a50fc68650cca15be5b6e42566ddcd0585c85526f97c",
+        "staticSceneDigest": "b0799668fe4b79632769aab27f24467ca3e573ad1ac134e8431a941e61b29cc1",
+        "interactiveSceneDigest": "fac89f6d1ffb00f8f6ac197b690af7ff252fc29310b2ac7005d82ecd02a15717"
+      },
+      "evidence": {
+        "resultSha256": "101d341a15a0b36ad0c996a650e45ff3f2dac63ec5d1eff8ac5f8635fc21e521",
+        "logSha256": "101d341a15a0b36ad0c996a650e45ff3f2dac63ec5d1eff8ac5f8635fc21e521"
+      }
+    },
+    "ethos": {
+      "transport": "independent-source-owned-package",
+      "edition": {
+        "tree": "fad20d92bb4c04fdba6038a879690a81357fb223",
+        "packageSha256": "04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044"
+      },
+      "candidate": {
+        "projectionDigest": "fa27a64c9ceda4f751ba47643e1709567ad349c82cd02331cc11360aa3339fbd",
+        "sourceManifestSha256": "2364e569e7744716d3aa7825597dceddfdf84bd329e738bfb219fe09f5064652",
+        "atlasManifestSha256": "7b8412abb53fef9198ab8684786a6a64b570d6b822544c8934e89b14702a8c65",
+        "standaloneSha256": "3735757e6467bf1e4a6fe6e9ae9240b979e541e9f80ef178f1621bc300b8fe41",
+        "posterSvgSha256": "bec598939083700f522810165749dbda399eabf644cb69fa437735d03f274502",
+        "posterSceneSha256": "32c934d1e676b9582a9cee88c108474fc0b2654347606703c2cb3020242a765c",
+        "posterManifestSha256": "4c4c60fc243507c3118455a7325c149c82a8b2300efb4db53c8a9f7406310795"
+      },
+      "evidence": {
+        "resultSha256": "981236245a511554a362c9f05bf0632c26ee13ff762bacd6d5d485e384c33514",
+        "logSha256": "9f5375f0a7bb8f1eefb06933f441f1decff30bfee9224d087d3afab0d1c708cf"
+      }
+    },
+    "aigw": {
+      "transport": "portable-standard-values",
+      "edition": {
+        "tree": "2f108ccd365529c16954280eaa246cb2b689130f"
+      },
+      "candidate": {
+        "sourceManifestSha256": "455f20c4c7285fccdf05faeeb6025d4aa56b901df721cc409857590186627414",
+        "manifestSha256": "7abb2c3a1d33d44fccc0148332dd5eefcd4a5496eb1a746e376ce5c784c0d266",
+        "candidateSha256": "b2035f2bde00b790aa1b6e9854d5420e51fa1d1f7a361f538b81d61bb57599b7",
+        "semanticDigest": "1ee3d12f00cd8ccd9795069c0dfdcb377a5f2ea38174ce20282abaa31cc75ed5",
+        "editionDigest": "c1b7368908923d63e9fae77e4ca00aa6b4d6277f3408cec25f2a6eab0f1c82d2",
+        "staticSceneDigest": "445f374686b71c10d52b713a25b2125fef996786f9ff01ff1196d58e2c29927a",
+        "interactiveSceneDigest": "29f15c7116857d78d427a3b6687126c3a1c33543fd6877cc687def694874eea2",
+        "pngSha256": "7330cac6faa872cb5bced514cc7cc848ab1d9d60cca7c0c620f7e339f43e4a04",
+        "svgSha256": "7f9ab1aec2f520dbdc68c9303da9cea0c87e8cf2a566fc6c134b60582be1ffe1",
+        "overviewHtmlSha256": "58d2b76677f4b6e846176c4e2e282686979335b521cf658f0d48a7cb4c9a1278"
+      },
+      "evidence": {
+        "resultSha256": "644643251eee75329a949bc9a771eec39e693fe1880e5d8bd40924b7bd86fd67",
+        "logSha256": "3292afd6b2a5defc7a8103be2e392e476647354792cde82e35c19db3f3f647d6"
+      }
+    }
+  },
+  "contracts": [
+    {
+      "id": "source",
+      "consumers": { "self": "pass", "ethos": "pass", "aigw": "pass" }
+    },
+    {
+      "id": "semantics",
+      "consumers": { "self": "pass", "ethos": "pass", "aigw": "pass" }
+    },
+    {
+      "id": "scenes",
+      "consumers": { "self": "pass", "ethos": "pass", "aigw": "pass" }
+    },
+    {
+      "id": "qualification",
+      "consumers": { "self": "pass", "ethos": "pass-source-owned", "aigw": "pass" }
+    },
+    {
+      "id": "publication",
+      "consumers": {
+        "self": "pass-shared-kernel",
+        "ethos": "pass-owner-gated",
+        "aigw": "pass"
+      }
+    },
+    {
+      "id": "replacement",
+      "consumers": {
+        "self": "pass",
+        "ethos": "pass-shared-kernel",
+        "aigw": "pass"
+      }
+    },
+    {
+      "id": "interruption-recovery",
+      "consumers": {
+        "self": "pass-shared-kernel",
+        "ethos": "pass-shared-kernel",
+        "aigw": "pass"
+      }
+    },
+    {
+      "id": "reader-journeys",
+      "consumers": { "self": "pass", "ethos": "pass", "aigw": "pass" }
+    }
+  ],
+  "sharedKernel": {
+    "packageSha256": "1bf9b3400b61b8736e28893b6e5967f7b5f9b156fa614b420ecd7e6e1ebf4c6d",
+    "identityBranches": false,
+    "publicationScope": "file-installation-only",
+    "proof": [
+      "tests/module-boundaries.test.mjs",
+      "tests/file-publication-cli.test.mjs",
+      "tests/pair-files.test.mjs",
+      "tests/pair-replacement.test.mjs",
+      "tests/aigw-adopter.test.mjs"
+    ],
+    "interpretation": "A consumer-specific Edition selects semantic values and artifacts. All three then cross the same identity-free qualification and recoverable file-publication contracts; ETHOS retains an additional owner-acceptance gate above the shared effect kernel."
+  },
+  "verdict": "PASS_CONTRACT_MATRIX",
+  "limits": [
+    "The matrix proves product contracts, not ETHOS or AIGW repository acceptance.",
+    "Remote publication and final human review remain separate release gates."
+  ]
+}

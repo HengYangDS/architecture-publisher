@@ -331,6 +331,11 @@ generation. Evidence is applicable only to its exact bytes and declared scope.
   and remaining governance limits. The mutable AIGW Edition lives only in the
   AIGW repository. Its opt-in conformance journey accepts explicit relocated
   Edition and source roots; ordinary runtime never discovers an adjacent checkout.
+- `conformance/fixtures/first-party-contract-matrix.json` binds the self, ETHOS,
+  and AIGW observations to one exact generic package. A `pass-shared-kernel`
+  result means the consumer crosses the same identity-free qualification or
+  publication implementation already exercised against exact consumer bytes;
+  it does not manufacture source-repository acceptance or remote publication.
 
 ## Historical alpha.7 identity
 
