@@ -1,4 +1,5 @@
 node_modules/
+.serena/
 build/
 .DS_Store
 .env
