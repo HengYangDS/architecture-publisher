@@ -263,7 +263,11 @@ source import/verification, atlas, poster, review, and publication journeys. It
 is deliberately not a second CLI. It cannot compile ETHOS Commitments, control
 Work Lanes, mint proof, execute CAS effects, or accept ETHOS state. This
 repository retains only the exact digest-bound source-ownership handoff under
-`conformance/fixtures/ethos-source-owned-handoff.json`.
+`conformance/fixtures/ethos-source-owned-handoff.json`. Each package identity
+includes its repository, commit, repository-relative package path, Git tree
+object, archive name, and archive digest; a tree object is never presented as a
+repository root or commit. Testing reconstructs the packed core from that exact
+subtree and compares every packaged file byte-for-byte.
 
 ## Media independence
 

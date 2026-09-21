@@ -105,7 +105,7 @@ test('current guidance names only the public 0.2 command and package boundaries'
     'archpub qualify verify',
     'archpub publish plan',
     'packages/publisher',
-    'ethos.architecture-publisher-handoff/v1',
+    'ethos.architecture-publisher-handoff/v2',
   ])
     assert.equal(source.includes(current), true, current);
 });
