@@ -7,6 +7,10 @@ import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
+import {
+  editionCandidateDigest,
+  validateEditionCandidate,
+} from '../packages/publisher/src/compiler/candidate.mjs';
 import { validateEdition } from '../packages/publisher/src/edition/contract.mjs';
 import { validateClaimModel } from '../packages/publisher/src/semantics/document.mjs';
 import {
@@ -278,6 +282,68 @@ test('the first-party self Edition covers the complete product chain and authori
   assert.equal(model.context.independentAdopterEvidence, false);
   assert.equal(prepared.adoptionRole, 'self-hosted');
   assert.equal(prepared.humanAcceptance, 'not-performed');
+});
+
+test('the first-party self Edition emits one exact candidate from independent sibling media', async (t) => {
+  const {
+      buildArchitecturePublisherCandidate,
+      prepareArchitecturePublisherEdition,
+    } = await import('../editions/self/src/edition/index.mjs'),
+    scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-candidate-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const prepared = await prepareArchitecturePublisherEdition(
+      await request(path.join(parent, 'prepared')),
+    ),
+    plan = JSON.parse(await fs.readFile(prepared.plan, 'utf8')),
+    output = path.join(parent, 'candidate'),
+    result = await buildArchitecturePublisherCandidate({ ...plan, output }),
+    bundle = await readSourceBundle(result.manifestPath, result.manifestSha256),
+    members = new Map(bundle.members.map((member) => [member.path, member.content])),
+    candidate = validateEditionCandidate(
+      JSON.parse(members.get('candidate.json')),
+    );
+
+  assert.equal(result.status, 'built');
+  assert.equal(result.candidateSha256, editionCandidateDigest(candidate));
+  assert.equal(candidate.source.manifestSha256, prepared.sourceSha256);
+  assert.equal(candidate.claimModel.digest, prepared.semanticDigest);
+  assert.equal(candidate.edition.sha256, prepared.editionSha256);
+  assert.equal(candidate.edition.digest, prepared.editionDigest);
+  assert.equal(result.views, 8);
+  assert.deepEqual([...members.keys()].sort(), [
+    'candidate.json',
+    'interactive/architecture-publisher.html',
+    'static/architecture-publisher-6000.png',
+    'static/architecture-publisher.svg',
+  ]);
+  assert.deepEqual(
+    candidate.media.static.supplies.map(({ id }) => id),
+    ['font-supply', 'raster-supply', 'self-static-runtime'],
+  );
+  assert.deepEqual(
+    candidate.media.interactive.supplies.map(({ id }) => id),
+    ['archify', 'font-supply', 'runtime', 'self-interactive-runtime'],
+  );
+  assert.notEqual(
+    candidate.media.static.sceneSha256,
+    candidate.media.interactive.sceneSha256,
+  );
+  assert.equal(candidate.obligations.length, 10);
+  for (const medium of Object.values(candidate.media))
+    for (const artifact of medium.artifacts) {
+      const bytes = members.get(artifact.path);
+      assert(bytes, `missing candidate artifact: ${artifact.path}`);
+      assert.equal(artifact.bytes, bytes.length);
+      assert.equal(artifact.sha256, sha256(bytes));
+    }
+  for (const forbidden of [
+    'qualification',
+    'humanAcceptance',
+    'publication',
+  ])
+    assert.equal(candidate[forbidden], undefined);
 });
 
 test('the evolution view carries semantic delta and distinct renewal obligations', async (t) => {

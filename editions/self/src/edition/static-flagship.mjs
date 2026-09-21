@@ -60,6 +60,7 @@ async function selectedJson(file, digest, code) {
 }
 
 async function verifyRuntimeSources(model, members) {
+  const identities = [];
   for (const [id, file] of Object.entries(runtimeSources)) {
     const selected = model.sources[id],
       bytes = selected && members.get(selected.locator),
@@ -71,7 +72,13 @@ async function verifyRuntimeSources(model, members) {
       sha256(runtime) !== selected.sha256
     )
       fail('self_flagship_runtime_source_mismatch', id);
+    identities.push({ id, sha256: selected.sha256 });
   }
+  identities.sort(({ id: left }, { id: right }) => left.localeCompare(right));
+  return Object.freeze({
+    id: 'self-static-runtime',
+    sha256: sha256(Buffer.from(JSON.stringify(identities))),
+  });
 }
 
 function envelopeFraction(canvas) {
@@ -114,7 +121,7 @@ export async function renderArchitecturePublisherFlagship(plan) {
   } catch {
     fail('self_flagship_semantic_invalid');
   }
-  await verifyRuntimeSources(model, members);
+  const runtimeSupply = await verifyRuntimeSources(model, members);
   const selectedEdition = await selectedJson(
       plan.edition,
       plan.editionSha256,
@@ -268,6 +275,11 @@ export async function renderArchitecturePublisherFlagship(plan) {
       pngSha256: raster.artifact.sha256,
       staticWidth: raster.width,
       staticHeight: raster.height,
+      supplies: [
+        { id: 'font-supply', sha256: supply.sha256 },
+        { id: 'raster-supply', sha256: raster.supply.sha256 },
+        runtimeSupply,
+      ],
       output,
       qualification: 'not-performed',
       humanAcceptance: 'not-performed',

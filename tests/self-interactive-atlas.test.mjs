@@ -99,6 +99,13 @@ test('the self Edition builds one complete source-bound interactive Atlas', asyn
   assert.equal(result.status, 'rendered');
   assert.equal(result.sha256, sha256(bytes));
   assert.equal(result.pages, 8);
+  assert.deepEqual(result.supplies.map(({ id }) => id), [
+    'archify',
+    'font-supply',
+    'runtime',
+    'self-interactive-runtime',
+  ]);
+  assert(result.supplies.every(({ sha256 }) => /^[a-f0-9]{64}$/.test(sha256)));
   assert.deepEqual(data.order, [
     'overview',
     'semantics',

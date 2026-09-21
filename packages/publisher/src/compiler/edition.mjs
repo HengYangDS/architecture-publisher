@@ -21,6 +21,10 @@ import {
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
 import { rasterize } from '../../renderers/resvg/index.mjs';
+import {
+  editionCandidateDigest,
+  validateEditionCandidate,
+} from './candidate.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const exact = (value, fields) =>
@@ -132,7 +136,6 @@ export async function compileEditionCandidate(plan) {
       json(semanticBytes, 'edition_candidate_document_invalid'),
     ),
     digest = claimModelDigest(document),
-    bindings = sourceBindings(document, members),
     selected = await selectedEdition(plan.edition, plan.editionSha256),
     edition = validateEdition(document, selected.value),
     selectedEditionDigest = editionDigest(document, edition),
@@ -141,6 +144,7 @@ export async function compileEditionCandidate(plan) {
     projections = semanticArchitectureProjections(document, selected.value),
     parent = path.dirname(plan.output),
     parentStat = await fs.lstat(parent);
+  sourceBindings(document, members);
   if (edition.source.manifestSha256 !== source.manifestSha256)
     fail('edition_source_mismatch');
   if (
@@ -180,6 +184,7 @@ export async function compileEditionCandidate(plan) {
         id: view.id,
         purpose: view.purpose,
         htmlSha256: sha(html),
+        bytes: html.length,
         nodeIds: view.groups.flatMap((group) => group.entities),
         relationIds: view.relations.map((relation) => relation.id),
         relations: view.relations.map((layout) => {
@@ -193,7 +198,7 @@ export async function compileEditionCandidate(plan) {
             route: layout.route,
           };
         }),
-        renderer: receipt.supply,
+        supplies: receipt.supplies,
       });
     }
     artifacts.push(
@@ -202,49 +207,65 @@ export async function compileEditionCandidate(plan) {
       { path: 'semantic.json', content: semanticBytes },
       { path: 'edition.json', content: selected.bytes },
     );
-    const candidate = {
+    const candidate = validateEditionCandidate({
       schema: 'architecture.edition-candidate/v1',
-      sourceManifestSha256: source.manifestSha256,
-      source: source.source,
-      semanticMember: plan.semanticMember,
-      semanticSha256: sha(semanticBytes),
-      semanticDigest: digest,
-      sourceBindings: bindings,
-      editionSha256: plan.editionSha256,
-      editionDigest: selectedEditionDigest,
-      staticSceneDigest: selectedStaticSceneDigest,
-      interactiveSceneDigest: selectedInteractiveSceneDigest,
-      static: {
-        id: projections.staticScene.id,
-        svgSha256: sha(overviewSvg),
-        pngSha256: sha(overviewPng.bytes),
-        width: overviewPng.result.width,
-        height: overviewPng.result.height,
-        nodeIds: staticResult.nodeIds,
-        relationIds: staticResult.relationIds,
-        relations: projections.staticScene.relations.map((layout) => {
-          const relation = document.relations[layout.id];
-          return {
-            id: layout.id,
-            from: relation.subject,
-            to: relation.object,
-            fromSide: layout.fromSide,
-            toSide: layout.toSide,
-            route: layout.route,
-          };
-        }),
-        renderer: { name: 'architecture-static-overview', version: 1 },
-        raster: overviewPng.result.supply,
+      source: {
+        manifestSha256: source.manifestSha256,
       },
-      views: receipts,
-      overviewSvgSha256: sha(overviewSvg),
-      overviewPngSha256: sha(overviewPng.bytes),
-      staticWidth: overviewPng.result.width,
-      scope: edition.scope,
-      semanticValidation: 'passed',
-      qualification: 'not-performed',
-      publication: 'not-performed',
-    };
+      claimModel: {
+        sha256: sha(semanticBytes),
+        digest,
+      },
+      edition: {
+        sha256: plan.editionSha256,
+        digest: selectedEditionDigest,
+      },
+      media: {
+        static: {
+          sceneSha256: selectedStaticSceneDigest,
+          artifacts: [
+            {
+              id: 'overview-svg',
+              path: 'overview.svg',
+              mediaType: 'image/svg+xml',
+              bytes: overviewSvg.length,
+              sha256: sha(overviewSvg),
+            },
+            {
+              id: 'overview-png',
+              path: 'overview.png',
+              mediaType: 'image/png',
+              bytes: overviewPng.bytes.length,
+              sha256: sha(overviewPng.bytes),
+            },
+          ],
+          supplies: [
+            { id: 'font-supply', sha256: selectedFonts.sha256 },
+            { id: 'raster-supply', sha256: overviewPng.result.supply.sha256 },
+          ],
+        },
+        interactive: {
+          sceneSha256: selectedInteractiveSceneDigest,
+          artifacts: receipts.map(({ id, htmlSha256, bytes }) => ({
+            id,
+            path: `views/${id}.html`,
+            mediaType: 'text/html',
+            bytes,
+            sha256: htmlSha256,
+          })),
+          supplies: [
+            ...new Map(
+              receipts
+                .flatMap(({ supplies }) => supplies)
+                .map((supply) => [supply.id, supply]),
+            ).values(),
+          ],
+        },
+      },
+      obligations: Object.entries(edition.qualification).flatMap(
+        ([kind, predicates]) => predicates.map((predicate) => ({ kind, predicate })),
+      ),
+    });
     artifacts.unshift({
       path: 'candidate.json',
       content: Buffer.from(JSON.stringify(candidate, null, 2) + '\n'),
@@ -258,13 +279,11 @@ export async function compileEditionCandidate(plan) {
       status: 'built',
       ...written,
       views: receipts.length,
+      candidateSha256: editionCandidateDigest(candidate),
       semanticDigest: digest,
       editionDigest: selectedEditionDigest,
       staticSceneDigest: selectedStaticSceneDigest,
       interactiveSceneDigest: selectedInteractiveSceneDigest,
-      semanticValidation: candidate.semanticValidation,
-      qualification: candidate.qualification,
-      publication: candidate.publication,
     };
   } finally {
     await fs.rm(scratch, { recursive: true, force: true });

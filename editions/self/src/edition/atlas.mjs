@@ -102,6 +102,7 @@ async function physicalOutput(output) {
 }
 
 async function verifyRuntimeSources(model, members) {
+  const identities = [];
   for (const [id, file] of Object.entries(runtimeSources)) {
     const selected = model.sources[id],
       source = selected && members.get(selected.locator),
@@ -113,7 +114,13 @@ async function verifyRuntimeSources(model, members) {
       sha256(runtime) !== selected.sha256
     )
       fail('self_atlas_runtime_source_mismatch');
+    identities.push({ id, sha256: selected.sha256 });
   }
+  identities.sort(({ id: left }, { id: right }) => left.localeCompare(right));
+  return Object.freeze({
+    id: 'self-interactive-runtime',
+    sha256: sha256(Buffer.from(JSON.stringify(identities))),
+  });
 }
 
 function sourceIdsFor(document, semanticIds, claimIds) {
@@ -229,12 +236,12 @@ export async function renderArchitecturePublisherAtlas(plan) {
     !same(edition.scenes.interactive, expectedScenes)
   )
     fail('self_atlas_edition_invalid');
-  await verifyRuntimeSources(document, members);
+  const runtimeSupply = await verifyRuntimeSources(document, members);
 
   const parent = path.dirname(output),
     scratch = await fs.mkdtemp(path.join(parent, '.publisher-self-atlas-'));
   try {
-    const pages = [];
+    const pages = [], rendererSupplies = new Map();
     for (const view of projections) {
       const file = path.join(scratch, view.id + '.html'),
         scene = composeArchitecturePublisherInteractiveScene(
@@ -249,6 +256,8 @@ export async function renderArchitecturePublisherAtlas(plan) {
           ...scene.edges.flatMap(({ semanticIds }) => semanticIds),
         ],
         declaration = edition.scenes.interactive[view.id];
+      for (const supply of rendered.supplies)
+        rendererSupplies.set(supply.id, supply);
       pages.push({
         id: view.id,
         label: view.label,
@@ -323,6 +332,10 @@ export async function renderArchitecturePublisherAtlas(plan) {
       output,
       sha256: sha256(bytes),
       bytes: bytes.length,
+      supplies: [
+        ...rendererSupplies.values(),
+        runtimeSupply,
+      ].sort(({ id: left }, { id: right }) => left.localeCompare(right)),
       qualification: 'not-performed',
       humanAcceptance: 'not-performed',
       publication: 'not-performed',

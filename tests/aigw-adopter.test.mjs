@@ -160,17 +160,17 @@ test('packed CLI replays both AIGW structures in a relocated offline home', asyn
       JSON.parse(observed[state].get('edition.json')),
       JSON.parse(await fs.readFile(selection.edition, 'utf8')),
     );
-    assert.equal(candidate.editionSha256, selection.editionSha256);
-    assert.equal(response.editionDigest, candidate.editionDigest);
-    assert.equal(response.staticSceneDigest, candidate.staticSceneDigest);
+    assert.equal(candidate.edition.sha256, selection.editionSha256);
+    assert.equal(response.editionDigest, candidate.edition.digest);
+    assert.equal(response.staticSceneDigest, candidate.media.static.sceneSha256);
     assert.equal(
       response.interactiveSceneDigest,
-      candidate.interactiveSceneDigest,
+      candidate.media.interactive.sceneSha256,
     );
     assert.equal(response.status, 'built');
-    assert.equal(response.semanticValidation, 'passed');
-    assert.equal(response.qualification, 'not-performed');
-    assert.equal(response.publication, 'not-performed');
+    assert.match(response.candidateSha256, /^[a-f0-9]{64}$/);
+    assert.equal(Object.hasOwn(response, 'qualification'), false);
+    assert.equal(Object.hasOwn(response, 'publication'), false);
     assert(!observed[state].get('views/overview.html').toString().includes(root));
     assert(
       observed[state]

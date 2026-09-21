@@ -82,6 +82,15 @@ export function canonical(value) {
   );
 }
 
+
+/** Freeze a validated JSON value recursively so derived identities cannot drift. */
+export function deepFreeze(value) {
+  if (value === null || typeof value !== 'object' || Object.isFrozen(value))
+    return value;
+  for (const child of Object.values(value)) deepFreeze(child);
+  return Object.freeze(value);
+}
+
 export function jsonValue(
   value,
   depth = 0,

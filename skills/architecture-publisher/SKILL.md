@@ -23,9 +23,10 @@ not own intent, workflow state, authorization, or generated artifacts.
    establishes only the reported source-bound structure, Edition, scene,
    renderer, and artifact identities. It performs no qualification or
    publication.
-4. Verify an externally produced exact Qualification Set with
-   `archpub qualify verify <qualification-set.json> --sha256 <digest>`. This
-   validates selected evidence and its conjunctive verdict; it neither executes
+4. Admit an externally produced exact Qualification Set with
+   `archpub qualify verify <request.json> --sha256 <digest>`. The request selects
+   the exact Claim Model, Edition, Candidate, and Qualification Set. Verification
+   rederives Candidate authority and its conjunctive verdict; it neither executes
    predicates nor manufactures acceptance.
 5. When browser evidence is required, run the repository's explicit observer
    against the exact output manifest. Keep browser, human and hosted acceptance

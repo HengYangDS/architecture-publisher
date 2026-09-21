@@ -64,6 +64,30 @@ test('trusted edition adapts the private runtime before native validation', asyn
   );
   assert.equal(called, true);
   assert.equal(result.nativeValidation.checksPassed, 9);
+  assert.deepEqual(
+    result.supplies.map(({ id }) => id),
+    ['archify', 'runtime'],
+  );
+  const changed = await setup(t);
+  const changedResult = await renderer.renderNativeDiagram(
+    {
+      type: changed.plan.type,
+      inputBytes: changed.bytes,
+      output: changed.plan.output,
+    },
+    async (runtime) => {
+      const file = path.join(runtime, 'assets/template.html');
+      const text = await fs.readFile(file, 'utf8');
+      await fs.writeFile(
+        file,
+        text.replace('</head>', '<!-- another trusted edition -->\n</head>'),
+      );
+    },
+  );
+  assert.notEqual(
+    result.supplies.find(({ id }) => id === 'runtime').sha256,
+    changedResult.supplies.find(({ id }) => id === 'runtime').sha256,
+  );
   assert.match(await fs.readFile(f.plan.output, 'utf8'), /trusted edition/);
 });
 test('private runtime adaptation cannot skip native validation or leak failed output', async (t) => {
@@ -98,6 +122,11 @@ test('renders explicit non-ETHOS data through nine native showcase checks', asyn
   assert.equal(r.nativeValidation.checksPassed, 9);
   assert.equal(r.nativeValidation.errors, 0);
   assert.equal(r.nativeValidation.warnings, 0);
+  assert.deepEqual(
+    r.supplies.map(({ id }) => id),
+    ['archify', 'runtime', 'font-supply'],
+  );
+  assert(r.supplies.every(({ sha256 }) => /^[a-f0-9]{64}$/.test(sha256)));
   assert.equal(r.browserAcceptance, 'not-performed');
   assert.equal(r.semanticAcceptance, 'not-performed');
   assert.match(bytes.toString(), /Order service/);

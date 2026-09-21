@@ -1,28 +1,36 @@
 import { createHash } from 'node:crypto';
 import {
   canonical,
+  deepFreeze,
   exact,
   jsonValue,
-  record,
   text,
 } from '../semantics/document.mjs';
 import { isDigest } from '../source/manifest.mjs';
+import { QUALIFICATION_KINDS } from '../edition/contract.mjs';
+import {
+  editionCandidateDigest,
+  mediaCandidateDigest,
+  validateEditionCandidate,
+  validateEditionCandidateBinding,
+} from '../compiler/candidate.mjs';
 
 const VERDICTS = Object.freeze(['PASS', 'FAIL', 'UNKNOWN']);
 const SET_FIELDS = Object.freeze([
   'schema',
   'candidateSha256',
-  'editionSha256',
-  'sourceSha256',
-  'semanticSha256',
+  'editionDigest',
+  'sourceManifestSha256',
+  'claimModelDigest',
   'records',
 ]);
 const RECORD_FIELDS = Object.freeze([
   'id',
+  'kind',
   'subject',
-  'editionSha256',
-  'sourceSha256',
-  'semanticSha256',
+  'editionDigest',
+  'sourceManifestSha256',
+  'claimModelDigest',
   'verifier',
   'predicate',
   'scope',
@@ -46,32 +54,106 @@ function selectedScope(value, code) {
     fail(code);
 }
 
+
+function selectedHumanScope(value, code) {
+  if (
+    !exact(value, ['kind', 'medium', 'artifact', 'width', 'height']) ||
+    !['viewport', 'physical'].includes(value.kind) ||
+    !['static', 'interactive'].includes(value.medium) ||
+    (value.kind === 'viewport' && value.medium !== 'interactive') ||
+    (value.kind === 'physical' && value.medium !== 'static') ||
+    !text(value.artifact) ||
+    !Number.isSafeInteger(value.width) ||
+    value.width < 1 ||
+    !Number.isSafeInteger(value.height) ||
+    value.height < 1
+  )
+    fail(code);
+}
+
+function humanArtifact(candidate, scope) {
+  selectedHumanScope(scope, 'qualification_human_scope_invalid');
+  const artifact = candidate?.media[scope.medium].artifacts.find(
+    ({ id }) => id === scope.artifact,
+  );
+  if (!artifact) fail('qualification_human_scope_invalid');
+  return artifact;
+}
+
+/** Derive the only admissible subject for one Candidate qualification result. */
+export function qualificationSubject(candidateValue, kind, scope = null) {
+  const candidate = validateEditionCandidate(candidateValue);
+  if (!QUALIFICATION_KINDS.includes(kind)) fail('qualification_kind_invalid');
+  if (kind === 'semantic')
+    return deepFreeze({
+      kind: 'claim-model',
+      sha256: candidate.claimModel.digest,
+    });
+  if (kind === 'static')
+    return deepFreeze({
+      kind: 'static-medium',
+      sha256: mediaCandidateDigest(candidate.media.static),
+    });
+  if (kind === 'interactive')
+    return deepFreeze({
+      kind: 'interactive-medium',
+      sha256: mediaCandidateDigest(candidate.media.interactive),
+    });
+  if (kind === 'human')
+    return deepFreeze({ kind: 'artifact', sha256: humanArtifact(candidate, scope).sha256 });
+  return deepFreeze({
+    kind: 'edition-candidate',
+    sha256: editionCandidateDigest(candidate),
+  });
+}
+
 function strings(values) {
   return Array.isArray(values) && values.every(text);
 }
 
 function validateRecord(value, identities) {
-  if (!exact(value, RECORD_FIELDS) || !text(value.id) || !text(value.predicate))
+  if (
+    !exact(value, RECORD_FIELDS) ||
+    !text(value.id) ||
+    !QUALIFICATION_KINDS.includes(value.kind) ||
+    !text(value.predicate)
+  )
     fail('qualification_record_invalid');
   selectedIdentity(value.subject, 'qualification_subject_invalid');
+  const commonSubject = {
+    'edition-candidate': identities.candidateSha256,
+    'claim-model': identities.claimModelDigest,
+  };
   if (
-    value.subject.kind === 'edition-candidate' &&
-    value.subject.sha256 !== identities.candidateSha256
+    Object.hasOwn(commonSubject, value.subject.kind) &&
+    value.subject.sha256 !== commonSubject[value.subject.kind]
   )
     fail('qualification_identity_mismatch');
   if (
-    value.editionSha256 !== identities.editionSha256 ||
-    value.sourceSha256 !== identities.sourceSha256 ||
-    value.semanticSha256 !== identities.semanticSha256
+    value.editionDigest !== identities.editionDigest ||
+    value.sourceManifestSha256 !== identities.sourceManifestSha256 ||
+    value.claimModelDigest !== identities.claimModelDigest
   )
     fail('qualification_identity_mismatch');
   if (
-    !exact(value.verifier, ['id', 'implementationSha256']) ||
+    !exact(value.verifier, ['kind', 'id', 'implementationSha256']) ||
+    !['machine', 'human'].includes(value.verifier.kind) ||
     !text(value.verifier.id) ||
     !isDigest(value.verifier.implementationSha256)
   )
     fail('qualification_verifier_invalid');
-  selectedScope(value.scope, 'qualification_scope_invalid');
+  if (
+    (value.kind === 'human' && value.verifier.kind !== 'human') ||
+    (value.kind !== 'human' && value.verifier.kind !== 'machine')
+  )
+    fail(
+      value.kind === 'human'
+        ? 'qualification_human_verifier_required'
+        : 'qualification_machine_verifier_required',
+    );
+  if (value.kind === 'human')
+    selectedHumanScope(value.scope, 'qualification_human_scope_invalid');
+  else selectedScope(value.scope, 'qualification_scope_invalid');
   if (value.environment !== null)
     selectedScope(value.environment, 'qualification_environment_invalid');
   if (
@@ -109,9 +191,9 @@ export function validateQualificationSet(value) {
     !exact(value, SET_FIELDS) ||
     value.schema !== 'architecture.qualification-set/v1' ||
     !isDigest(value.candidateSha256) ||
-    !isDigest(value.editionSha256) ||
-    !isDigest(value.sourceSha256) ||
-    !isDigest(value.semanticSha256) ||
+    !isDigest(value.editionDigest) ||
+    !isDigest(value.sourceManifestSha256) ||
+    !isDigest(value.claimModelDigest) ||
     !Array.isArray(value.records) ||
     !value.records.length ||
     value.records.length > 4096
@@ -119,9 +201,9 @@ export function validateQualificationSet(value) {
     fail('qualification_set_invalid');
   const identities = {
     candidateSha256: value.candidateSha256,
-    editionSha256: value.editionSha256,
-    sourceSha256: value.sourceSha256,
-    semanticSha256: value.semanticSha256,
+    editionDigest: value.editionDigest,
+    sourceManifestSha256: value.sourceManifestSha256,
+    claimModelDigest: value.claimModelDigest,
   };
   const ids = new Set();
   for (const selected of value.records) {
@@ -130,9 +212,135 @@ export function validateQualificationSet(value) {
     ids.add(selected.id);
   }
   const normalized = structuredClone(value);
-  return Object.freeze({
-    ...normalized,
-    verdict: conjunction(normalized.records),
+  normalized.records.sort((left, right) =>
+    `${left.kind}\u0000${left.predicate}\u0000${left.id}`.localeCompare(
+      `${right.kind}\u0000${right.predicate}\u0000${right.id}`,
+    ),
+  );
+  return deepFreeze(normalized);
+}
+
+/** Bind an external predicate result to one exact Candidate identity. */
+export function bindQualificationRecord(candidateValue, result) {
+  const candidate = validateEditionCandidate(candidateValue);
+  if (
+    !exact(result, [
+      'id',
+      'kind',
+      'verifier',
+      'predicate',
+      'scope',
+      'environment',
+      'observations',
+      'verdict',
+      'limitations',
+    ])
+  )
+    fail('qualification_result_invalid');
+  const identities = {
+      candidateSha256: editionCandidateDigest(candidate),
+      editionDigest: candidate.edition.digest,
+      sourceManifestSha256: candidate.source.manifestSha256,
+      claimModelDigest: candidate.claimModel.digest,
+    },
+    selected = {
+      id: result.id,
+      kind: result.kind,
+      subject: qualificationSubject(candidate, result.kind, result.scope),
+      editionDigest: identities.editionDigest,
+      sourceManifestSha256: identities.sourceManifestSha256,
+      claimModelDigest: identities.claimModelDigest,
+      verifier: structuredClone(result.verifier),
+      predicate: result.predicate,
+      scope: structuredClone(result.scope),
+      environment: structuredClone(result.environment),
+      observations: structuredClone(result.observations),
+      verdict: result.verdict,
+      limitations: structuredClone(result.limitations),
+    };
+  validateRecord(selected, identities);
+  return deepFreeze(selected);
+}
+
+/** Bind externally produced records into one exact Candidate qualification set. */
+export function bindQualificationSet(candidateValue, records) {
+  const candidate = validateEditionCandidate(candidateValue);
+  if (!Array.isArray(records)) fail('qualification_records_invalid');
+  for (const selected of records) {
+    const expected = qualificationSubject(candidate, selected?.kind, selected?.scope);
+    if (
+      selected?.subject?.kind !== expected.kind ||
+      selected.subject.sha256 !== expected.sha256
+    )
+      fail('qualification_subject_mismatch');
+  }
+  return validateQualificationSet({
+    schema: 'architecture.qualification-set/v1',
+    candidateSha256: editionCandidateDigest(candidate),
+    editionDigest: candidate.edition.digest,
+    sourceManifestSha256: candidate.source.manifestSha256,
+    claimModelDigest: candidate.claimModel.digest,
+    records,
+  });
+}
+
+/** Admit records only when they close the exact obligations of one Candidate. */
+export function admitQualificationSet(
+  modelValue,
+  editionValue,
+  candidateValue,
+  qualificationValue,
+) {
+  const candidate = validateEditionCandidateBinding(
+      modelValue,
+      editionValue,
+      candidateValue,
+    ),
+    qualification = validateQualificationSet(qualificationValue),
+    candidateSha256 = editionCandidateDigest(candidate);
+  if (
+    qualification.candidateSha256 !== candidateSha256 ||
+    qualification.editionDigest !== candidate.edition.digest ||
+    qualification.sourceManifestSha256 !== candidate.source.manifestSha256 ||
+    qualification.claimModelDigest !== candidate.claimModel.digest
+  )
+    fail('qualification_identity_mismatch');
+
+  const declared = new Map(
+      candidate.obligations.map((item) => [`${item.kind}\u0000${item.predicate}`, item]),
+    ),
+    observed = new Set();
+  for (const selected of qualification.records) {
+    const key = `${selected.kind}\u0000${selected.predicate}`;
+    if (observed.has(key)) fail('qualification_obligation_duplicate');
+    if (!declared.has(key)) fail('qualification_obligation_undeclared');
+    observed.add(key);
+    const expected = qualificationSubject(
+      candidate,
+      selected.kind,
+      selected.scope,
+    );
+    if (
+      selected.subject.kind !== expected.kind ||
+      selected.subject.sha256 !== expected.sha256
+    )
+      fail('qualification_subject_mismatch');
+  }
+  const missing = candidate.obligations.filter(
+      ({ kind, predicate }) => !observed.has(`${kind}\u0000${predicate}`),
+    ),
+    complete = missing.length === 0,
+    verdict = qualification.records.some(({ verdict }) => verdict === 'FAIL')
+      ? 'FAIL'
+      : !complete || qualification.records.some(({ verdict }) => verdict === 'UNKNOWN')
+        ? 'UNKNOWN'
+        : 'PASS';
+  return deepFreeze({
+    qualification,
+    complete,
+    verdict,
+    admitted: complete && verdict === 'PASS',
+    missing,
   });
 }
 

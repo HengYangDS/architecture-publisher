@@ -74,7 +74,7 @@ archpub evolution plan <request.json> --sha256 <digest>
 archpub render interactive <type> <input.json> --sha256 <digest> --output <artifact.html>
 archpub render raster <request.json>
 archpub render measure <request.json>
-archpub qualify verify <qualification-set.json> --sha256 <digest>
+archpub qualify verify <request.json> --sha256 <digest>
 archpub publish plan <request.json>
 archpub publish apply <plan.json> <authorization.json>
 archpub publish recover <plan.json> <authorization.json>

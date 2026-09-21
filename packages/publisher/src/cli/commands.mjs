@@ -51,8 +51,8 @@ export const commandCatalog = Object.freeze([
   ),
   command(
     ['qualify', 'verify'],
-    'Verify one exact external Qualification Set.',
-    'archpub qualify verify <qualification-set.json> --sha256 <digest>',
+    'Admit one exact Qualification Set against selected authority.',
+    'archpub qualify verify <request.json> --sha256 <digest>',
     digestSelection,
     async ({ file, '--sha256': digest }) => {
       const { verifyQualificationInput } = await import(

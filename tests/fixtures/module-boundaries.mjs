@@ -34,7 +34,7 @@ const owners = [
   ['packages/publisher/src/scene/', ['packages/publisher/src/scene/', 'packages/publisher/src/edition/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
   ['packages/publisher/src/compiler/', ['packages/publisher/src/compiler/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/', 'packages/publisher/src/edition/', 'packages/publisher/src/scene/', 'packages/publisher/renderers/']],
   ['packages/publisher/src/rendering/', ['packages/publisher/src/rendering/', 'packages/publisher/src/source/', 'packages/publisher/renderers/']],
-  ['packages/publisher/src/qualification/', ['packages/publisher/src/qualification/', 'packages/publisher/src/scene/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
+  ['packages/publisher/src/qualification/', ['packages/publisher/src/qualification/', 'packages/publisher/src/compiler/', 'packages/publisher/src/edition/', 'packages/publisher/src/scene/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/']],
   ['packages/publisher/src/publication/', ['packages/publisher/src/publication/', 'packages/publisher/src/edition/', 'packages/publisher/src/semantics/', 'packages/publisher/src/source/', 'packages/publisher/src/scene/', 'packages/publisher/renderers/']],
   ['packages/publisher/src/cli/', ['packages/publisher/src/', 'packages/publisher/renderers/']],
   ['packages/publisher/renderers/archify/', ['packages/publisher/renderers/archify/', 'packages/publisher/renderers/fonts/', 'packages/publisher/src/scene/', 'packages/publisher/src/source/', 'packages/publisher/renderers/archify/supply/']],

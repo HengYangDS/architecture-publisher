@@ -20,3 +20,4 @@ export {
   renderArchitecturePublisherAtlas,
   renderArchitecturePublisherAtlasInput,
 } from './atlas.mjs';
+export { buildArchitecturePublisherCandidate } from './candidate.mjs';

@@ -110,24 +110,24 @@ test('the installed product builds its structural self-portrait through the publ
   assert.equal(output.source.id, 'architecture-publisher');
   assert.equal(semantic.context.adoptionRole, 'self-hosted');
   assert.equal(semantic.context.independentAdopterEvidence, false);
-  assert.equal(candidate.semanticDigest, selected.semanticDigest);
+  assert.equal(candidate.claimModel.digest, selected.semanticDigest);
   assert.equal(plan.edition, selected.edition);
   assert.equal(plan.editionSha256, sha(await fs.readFile(selected.edition)));
   assert.deepEqual(
     edition,
     JSON.parse(await fs.readFile(selected.edition, 'utf8')),
   );
-  assert.equal(candidate.editionSha256, plan.editionSha256);
-  assert.equal(candidate.editionDigest, response.editionDigest);
-  assert.equal(candidate.staticSceneDigest, response.staticSceneDigest);
+  assert.equal(candidate.edition.sha256, plan.editionSha256);
+  assert.equal(candidate.edition.digest, response.editionDigest);
+  assert.equal(candidate.media.static.sceneSha256, response.staticSceneDigest);
   assert.equal(
-    candidate.interactiveSceneDigest,
+    candidate.media.interactive.sceneSha256,
     response.interactiveSceneDigest,
   );
   assert.equal(response.status, 'built');
-  assert.equal(response.semanticValidation, 'passed');
-  assert.equal(response.qualification, 'not-performed');
-  assert.equal(response.publication, 'not-performed');
+  assert.match(response.candidateSha256, /^[a-f0-9]{64}$/);
+  assert.equal(Object.hasOwn(response, 'qualification'), false);
+  assert.equal(Object.hasOwn(response, 'publication'), false);
 
   for (const id of [
     'public-cli',

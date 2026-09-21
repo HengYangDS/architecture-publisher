@@ -1,0 +1,249 @@
+import { createHash } from 'node:crypto';
+import {
+  QUALIFICATION_KINDS,
+  editionDigest,
+  interactiveSceneDigest,
+  staticSceneDigest,
+  validateEdition,
+} from '../edition/contract.mjs';
+import {
+  canonical,
+  claimModelDigest,
+  deepFreeze,
+  exact,
+  jsonValue,
+  text,
+  validateClaimModel,
+} from '../semantics/document.mjs';
+import {
+  isDigest,
+  portablePath,
+  validateFileMembers,
+} from '../source/manifest.mjs';
+
+const CANDIDATE_FIELDS = Object.freeze([
+  'schema',
+  'source',
+  'claimModel',
+  'edition',
+  'media',
+  'obligations',
+]);
+const MEDIA_FIELDS = Object.freeze(['sceneSha256', 'artifacts', 'supplies']);
+const ARTIFACT_FIELDS = Object.freeze([
+  'id',
+  'path',
+  'mediaType',
+  'bytes',
+  'sha256',
+]);
+const SUPPLY_FIELDS = Object.freeze(['id', 'sha256']);
+const OBLIGATION_FIELDS = Object.freeze(['kind', 'predicate']);
+
+function fail(code) {
+  throw Object.assign(new Error(code), { code });
+}
+
+function unique(values, identity, code) {
+  const identities = new Set();
+  for (const value of values) {
+    const selected = identity(value);
+    if (identities.has(selected)) fail(code);
+    identities.add(selected);
+  }
+}
+
+function validateArtifact(value) {
+  if (
+    !exact(value, ARTIFACT_FIELDS) ||
+    !text(value.id) ||
+    !text(value.path) ||
+    !text(value.mediaType) ||
+    !Number.isSafeInteger(value.bytes) ||
+    value.bytes < 1 ||
+    !isDigest(value.sha256)
+  )
+    fail('candidate_artifact_invalid');
+  try {
+    portablePath(value.path);
+  } catch {
+    fail('candidate_artifact_invalid');
+  }
+}
+
+function validateSupply(value) {
+  if (!exact(value, SUPPLY_FIELDS) || !text(value.id) || !isDigest(value.sha256))
+    fail('candidate_supply_invalid');
+}
+
+function validateMedium(value) {
+  if (
+    !exact(value, MEDIA_FIELDS) ||
+    !isDigest(value.sceneSha256) ||
+    !Array.isArray(value.artifacts) ||
+    !value.artifacts.length ||
+    !Array.isArray(value.supplies) ||
+    !value.supplies.length
+  )
+    fail('candidate_medium_invalid');
+  for (const artifact of value.artifacts) validateArtifact(artifact);
+  for (const supply of value.supplies) validateSupply(supply);
+  unique(value.artifacts, ({ id }) => id, 'candidate_artifact_duplicate');
+  unique(value.artifacts, ({ path }) => path, 'candidate_artifact_duplicate');
+  unique(value.supplies, ({ id }) => id, 'candidate_supply_duplicate');
+}
+
+function normalizedMedium(value) {
+  const selected = structuredClone(value);
+  selected.artifacts.sort((left, right) => left.id.localeCompare(right.id));
+  selected.supplies.sort((left, right) => left.id.localeCompare(right.id));
+  return selected;
+}
+
+function normalizedCandidate(value) {
+  const selected = structuredClone(value);
+  selected.media.static = normalizedMedium(selected.media.static);
+  selected.media.interactive = normalizedMedium(selected.media.interactive);
+  selected.obligations.sort((left, right) =>
+    `${left.kind}\u0000${left.predicate}`.localeCompare(
+      `${right.kind}\u0000${right.predicate}`,
+    ),
+  );
+  return selected;
+}
+
+/** Validate one closed, state-free Edition Candidate value. */
+export function validateEditionCandidate(value) {
+  try {
+    jsonValue(value, 0, new Set(), { nodes: 0, bytes: 0 }, new Set());
+  } catch {
+    fail('candidate_json_invalid');
+  }
+  if (
+    !exact(value, CANDIDATE_FIELDS) ||
+    value.schema !== 'architecture.edition-candidate/v1' ||
+    !exact(value.source, ['manifestSha256']) ||
+    !isDigest(value.source.manifestSha256) ||
+    !exact(value.claimModel, ['sha256', 'digest']) ||
+    !isDigest(value.claimModel.sha256) ||
+    !isDigest(value.claimModel.digest) ||
+    !exact(value.edition, ['sha256', 'digest']) ||
+    !isDigest(value.edition.sha256) ||
+    !isDigest(value.edition.digest) ||
+    !exact(value.media, ['static', 'interactive']) ||
+    !Array.isArray(value.obligations) ||
+    !value.obligations.length
+  )
+    fail('candidate_invalid');
+  validateMedium(value.media.static);
+  validateMedium(value.media.interactive);
+  try {
+    validateFileMembers(
+      Object.values(value.media)
+        .flatMap(({ artifacts }) => artifacts)
+        .map(({ path: artifactPath, bytes, sha256 }) => ({
+          path: artifactPath,
+          bytes,
+          sha256,
+        })),
+    );
+  } catch {
+    fail('candidate_artifact_duplicate');
+  }
+  for (const obligation of value.obligations)
+    if (
+      !exact(obligation, OBLIGATION_FIELDS) ||
+      !QUALIFICATION_KINDS.includes(obligation.kind) ||
+      !text(obligation.predicate)
+    )
+      fail('candidate_obligation_invalid');
+  unique(
+    value.obligations,
+    ({ kind, predicate }) => `${kind}\u0000${predicate}`,
+    'candidate_obligation_duplicate',
+  );
+  return deepFreeze(normalizedCandidate(value));
+}
+
+/** Prove that a Candidate is a projection of one exact Claim Model and Edition. */
+export function validateEditionCandidateBinding(modelValue, editionValue, candidateValue) {
+  const model = validateClaimModel(modelValue),
+    edition = validateEdition(model, editionValue),
+    candidate = validateEditionCandidate(candidateValue),
+    obligations = Object.entries(edition.qualification).flatMap(
+      ([kind, predicates]) => predicates.map((predicate) => ({ kind, predicate })),
+    );
+  obligations.sort((left, right) =>
+    `${left.kind}\u0000${left.predicate}`.localeCompare(
+      `${right.kind}\u0000${right.predicate}`,
+    ),
+  );
+  if (candidate.source.manifestSha256 !== edition.source.manifestSha256)
+    fail('candidate_source_mismatch');
+  if (candidate.claimModel.digest !== claimModelDigest(model))
+    fail('candidate_claim_model_mismatch');
+  if (candidate.edition.digest !== editionDigest(model, edition))
+    fail('candidate_edition_mismatch');
+  if (candidate.media.static.sceneSha256 !== staticSceneDigest(model, edition))
+    fail('candidate_static_scene_mismatch');
+  if (
+    candidate.media.interactive.sceneSha256 !==
+    interactiveSceneDigest(model, edition)
+  )
+    fail('candidate_interactive_scene_mismatch');
+  if (canonical(candidate.obligations) !== canonical(obligations))
+    fail('candidate_obligation_mismatch');
+  return candidate;
+}
+
+/** Assemble one Candidate from authoritative semantic values and renderer receipts. */
+export function createEditionCandidate(input) {
+  if (
+    !exact(input, [
+      'sourceManifestSha256',
+      'claimModelSha256',
+      'claimModel',
+      'editionSha256',
+      'edition',
+      'media',
+    ]) ||
+    !isDigest(input.sourceManifestSha256) ||
+    !isDigest(input.claimModelSha256) ||
+    !isDigest(input.editionSha256)
+  )
+    fail('candidate_input_invalid');
+  const model = validateClaimModel(input.claimModel),
+    edition = validateEdition(model, input.edition),
+    candidate = {
+      schema: 'architecture.edition-candidate/v1',
+      source: { manifestSha256: input.sourceManifestSha256 },
+      claimModel: {
+        sha256: input.claimModelSha256,
+        digest: claimModelDigest(model),
+      },
+      edition: {
+        sha256: input.editionSha256,
+        digest: editionDigest(model, edition),
+      },
+      media: structuredClone(input.media),
+      obligations: Object.entries(edition.qualification).flatMap(
+        ([kind, predicates]) => predicates.map((predicate) => ({ kind, predicate })),
+      ),
+    };
+  return validateEditionCandidateBinding(model, edition, candidate);
+}
+
+/** Digest one exact medium after normalizing its declared sets. */
+export function mediaCandidateDigest(value) {
+  validateMedium(value);
+  return createHash('sha256').update(canonical(normalizedMedium(value))).digest('hex');
+}
+
+/** Canonical identity of the normalized Edition Candidate value. */
+export function editionCandidateDigest(value) {
+  return createHash('sha256')
+    .update(canonical(validateEditionCandidate(value)))
+    .digest('hex');
+}
+
+/** Derive the only admissible subject for one qualification kind. */

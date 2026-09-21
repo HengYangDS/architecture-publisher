@@ -5,6 +5,18 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import {
+  createEditionCandidate,
+} from '../packages/publisher/src/compiler/candidate.mjs';
+import {
+  interactiveSceneDigest,
+  staticSceneDigest,
+} from '../packages/publisher/src/edition/contract.mjs';
+import {
+  bindQualificationRecord,
+  bindQualificationSet,
+} from '../packages/publisher/src/qualification/contract.mjs';
+import { editionFixture } from './fixtures/edition.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -110,58 +122,117 @@ test('packed CLI verifies relocated non-Git input without development executable
   assert(!ok.stdout.includes(tmp));
   assert.equal(result.officialReplay, 'not-performed');
 
-  const qualification = {
-    schema: 'architecture.qualification-set/v1',
-    candidateSha256: sha(Buffer.from('candidate')),
-    editionSha256: sha(Buffer.from('edition')),
-    sourceSha256: sha(Buffer.from('source')),
-    semanticSha256: sha(Buffer.from('semantic')),
-    records: [
-      {
-        id: 'semantic.integrity',
-        subject: {
-          kind: 'edition-candidate',
-          sha256: sha(Buffer.from('candidate')),
+  const selected = editionFixture(),
+    claimModelBytes = Buffer.from(JSON.stringify(selected.model, null, 2) + '\n'),
+    editionBytes = Buffer.from(JSON.stringify(selected.edition, null, 2) + '\n'),
+    candidate = createEditionCandidate({
+      sourceManifestSha256: selected.edition.source.manifestSha256,
+      claimModelSha256: sha(claimModelBytes),
+      claimModel: selected.model,
+      editionSha256: sha(editionBytes),
+      edition: selected.edition,
+      media: {
+        static: {
+          sceneSha256: staticSceneDigest(selected.model, selected.edition),
+          artifacts: [{
+            id: 'overview-png',
+            mediaType: 'image/png',
+            bytes: 1,
+            path: 'static/architecture-publisher-6000.png',
+            sha256: sha(Buffer.from('png')),
+          }],
+          supplies: [{ id: 'raster', sha256: sha(Buffer.from('raster')) }],
         },
-        editionSha256: sha(Buffer.from('edition')),
-        sourceSha256: sha(Buffer.from('source')),
-        semanticSha256: sha(Buffer.from('semantic')),
+        interactive: {
+          sceneSha256: interactiveSceneDigest(selected.model, selected.edition),
+          artifacts: [{
+            id: 'atlas',
+            mediaType: 'text/html',
+            bytes: 1,
+            path: 'interactive/architecture-publisher.html',
+            sha256: sha(Buffer.from('html')),
+          }],
+          supplies: [{ id: 'archify', sha256: sha(Buffer.from('archify')) }],
+        },
+      },
+    }),
+    records = candidate.obligations.map(({ kind, predicate }, index) =>
+      bindQualificationRecord(candidate, {
+        id: `${kind}.${index}`,
+        kind,
         verifier: {
-          id: 'installed-test',
-          implementationSha256: sha(Buffer.from('installed-test')),
+          kind: 'machine',
+          id: `installed-test:${kind}`,
+          implementationSha256: sha(Buffer.from(`installed-test:${kind}`)),
         },
-        predicate: 'semantic-integrity',
-        scope: { kind: 'document', value: 'candidate.json' },
+        predicate,
+        scope: { kind: 'fixture', value: predicate },
         environment: null,
         observations: [{ name: 'result', value: 'valid' }],
         verdict: 'PASS',
         limitations: [],
-      },
-    ],
-  };
-  const qualificationBytes = Buffer.from(
-    JSON.stringify(qualification, null, 2) + '\n',
+      }),
+    ),
+    qualification = bindQualificationSet(candidate, records),
+    candidateBytes = Buffer.from(JSON.stringify(candidate, null, 2) + '\n'),
+    qualificationBytes = Buffer.from(JSON.stringify(qualification, null, 2) + '\n'),
+    qualificationFiles = {
+      'claim-model.json': claimModelBytes,
+      'edition.json': editionBytes,
+      'candidate.json': candidateBytes,
+      'qualification.json': qualificationBytes,
+    };
+  await Promise.all(
+    Object.entries(qualificationFiles).map(([name, bytes]) =>
+      fs.writeFile(path.join(tmp, name), bytes),
+    ),
   );
-  const qualificationPath = path.join(tmp, 'qualification.json');
-  await fs.writeFile(qualificationPath, qualificationBytes);
+  const qualificationRequest = {
+      schema: 'architecture.qualification-input/v1',
+      claimModel: {
+        path: 'claim-model.json',
+        sha256: sha(claimModelBytes),
+      },
+      edition: {
+        path: 'edition.json',
+        sha256: sha(editionBytes),
+      },
+      candidate: {
+        path: 'candidate.json',
+        sha256: sha(candidateBytes),
+      },
+      qualification: {
+        path: 'qualification.json',
+        sha256: sha(qualificationBytes),
+      },
+    },
+    qualificationRequestBytes = Buffer.from(
+      JSON.stringify(qualificationRequest, null, 2) + '\n',
+    ),
+    qualificationRequestPath = path.join(tmp, 'qualification-request.json');
+  await fs.writeFile(qualificationRequestPath, qualificationRequestBytes);
   const qualified = run([
     'qualify',
     'verify',
-    qualificationPath,
+    qualificationRequestPath,
     '--sha256',
-    sha(qualificationBytes),
+    sha(qualificationRequestBytes),
   ]);
   assert.equal(qualified.status, 0, qualified.stdout + qualified.stderr);
   assert.deepEqual(
     {
       status: JSON.parse(qualified.stdout).status,
       verdict: JSON.parse(qualified.stdout).verdict,
+      complete: JSON.parse(qualified.stdout).complete,
+      admitted: JSON.parse(qualified.stdout).admitted,
       authorization: JSON.parse(qualified.stdout).authorization,
       publication: JSON.parse(qualified.stdout).publication,
     },
     {
       status: 'verified',
       verdict: 'PASS',
+      complete: true,
+      admitted: true,
       authorization: 'not-performed',
       publication: 'not-performed',
     },

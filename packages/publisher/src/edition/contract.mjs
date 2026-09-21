@@ -30,7 +30,7 @@ const EDITION_FIELDS = Object.freeze([
   'qualification',
   'scope',
 ]);
-const QUALIFICATION_KINDS = Object.freeze([
+export const QUALIFICATION_KINDS = Object.freeze([
   'semantic',
   'coverage',
   'static',

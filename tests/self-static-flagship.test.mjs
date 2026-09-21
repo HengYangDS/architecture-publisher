@@ -210,6 +210,12 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
   assert.equal(result.status, 'rendered');
   assert.equal(result.staticWidth, 6000);
   assert.equal(result.staticHeight, 3375);
+  assert.deepEqual(result.supplies.map(({ id }) => id), [
+    'font-supply',
+    'raster-supply',
+    'self-static-runtime',
+  ]);
+  assert(result.supplies.every(({ sha256 }) => /^[a-f0-9]{64}$/.test(sha256)));
   assert.equal(result.qualification, 'not-performed');
   assert.equal(result.humanAcceptance, 'not-performed');
   assert.equal(result.publication, 'not-performed');

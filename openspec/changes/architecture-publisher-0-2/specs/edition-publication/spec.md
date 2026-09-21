@@ -72,6 +72,15 @@ and recovery receipts. No earlier value SHALL claim a later state.
 - **AND** it makes no browser, accessibility, human-review, authorization,
   installation, hosted-availability, or release claim
 
+#### Scenario: Qualification is admitted against exact authority
+
+- **WHEN** a qualification request selects exact Claim Model, Edition, Candidate,
+  and Qualification Set bytes
+- **THEN** admission rederives Candidate scenes and obligations from the selected
+  Claim Model and Edition before evaluating the records
+- **AND** a bare Qualification Set or a Candidate with copied or forged authority
+  is rejected rather than treated as accepted evidence
+
 #### Scenario: Qualified bytes are installed
 
 - **WHEN** a publication plan binds an exact candidate, applicable qualification

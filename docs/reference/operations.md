@@ -165,11 +165,16 @@ This operation records measurement; it does not infer fonts from the host.
 ### Qualification
 
 Predicate executors produce exact records outside the generic verification
-command. Verify a selected set with:
+command. Admit a selected set against its exact authorities with:
 
 ```sh
-archpub qualify verify <qualification-set.json> --sha256 <digest>
+archpub qualify verify <request.json> --sha256 <digest>
 ```
+
+The portable `architecture.qualification-input/v1` request selects the exact
+Claim Model, Edition, Edition Candidate, and Qualification Set by relative path
+and raw SHA-256. The Candidate must bind those Claim Model and Edition bytes;
+the Qualification Set must bind that Candidate.
 
 `architecture.qualification-set/v1` binds:
 
@@ -180,7 +185,8 @@ archpub qualify verify <qualification-set.json> --sha256 <digest>
 - scope and optional environment;
 - observations, verdict, and limitations.
 
-Verification validates structure, exact common identities, uniqueness, and the
+Verification rederives scenes and obligations from the selected Claim Model and
+Edition, validates record identities and uniqueness, and computes the
 non-compensating conjunction of `PASS`, `FAIL`, and `UNKNOWN`. It does not run a
 verifier, turn self-declaration into evidence, grant authorization, or publish.
 

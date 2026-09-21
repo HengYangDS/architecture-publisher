@@ -65,6 +65,30 @@ async function supply() {
   if (expected.size) fail('render_supply_invalid');
   return members;
 }
+
+
+async function runtimeDigest(directory) {
+  const members = [];
+  async function collect(root, prefix = '') {
+    for (const entry of await fs.readdir(root, { withFileTypes: true })) {
+      const name = prefix + entry.name;
+      if (entry.isSymbolicLink()) fail('render_adaptation_receipt_invalid');
+      if (entry.isDirectory())
+        await collect(path.join(root, entry.name), name + '/');
+      else if (entry.isFile()) {
+        const value = await bytes(
+          path.join(root, entry.name),
+          4 * 1024 * 1024,
+          'render_adaptation_receipt_invalid',
+        );
+        members.push({ path: name, bytes: value.length, sha256: sha(value) });
+      } else fail('render_adaptation_receipt_invalid');
+    }
+  }
+  await collect(directory);
+  members.sort(({ path: left }, { path: right }) => left.localeCompare(right));
+  return sha(Buffer.from(JSON.stringify(members)));
+}
 function offlineInput(value) {
   if (!value || typeof value !== 'object') return;
   for (const [key, child] of Object.entries(value)) {
@@ -105,15 +129,16 @@ export async function renderDiagram(plan) {
   return renderNativeDiagram(
     { type: plan.type, inputBytes: input, output: plan.output },
     async (native, notice) => {
-      const file = path.join(native, 'assets/template.html');
-      const template = await embedFonts(await fs.readFile(file, 'utf8'));
+      const file = path.join(native, 'assets/template.html'),
+        embedded = await embedFonts(await fs.readFile(file, 'utf8'));
       await fs.writeFile(
         file,
-        template.replace(
+        embedded.html.replace(
           '</head>',
-          '<!-- ' + notice.replaceAll('--', '—') + ' -->\n</head>',
+          '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>',
         ),
       );
+      return { supplies: [embedded.supply] };
     },
   );
 }
@@ -156,17 +181,17 @@ async function renderSemanticDiagram(plan) {
   if (!plan || !types.has(plan.type)) fail('render_type_unsupported');
   if (!Buffer.isBuffer(plan.inputBytes)) fail('render_input_type_invalid');
   return renderNativeDiagram(plan, async (native, notice) => {
-      const file = path.join(native, 'assets/template.html'),
-      template = semanticPublicationTemplate(
-        await embedFonts(await fs.readFile(file, 'utf8')),
-      );
+    const file = path.join(native, 'assets/template.html'),
+      embedded = await embedFonts(await fs.readFile(file, 'utf8')),
+      template = semanticPublicationTemplate(embedded.html);
     await fs.writeFile(
       file,
       template.replace(
         '</head>',
-        '<!-- ' + notice.replaceAll('--', '—') + ' -->\n</head>',
+        '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>',
       ),
     );
+    return { supplies: [embedded.supply] };
   });
 }
 
@@ -235,7 +260,27 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
       await fs.mkdir(path.dirname(file), { recursive: true });
       await fs.writeFile(file, member.content, { flag: 'wx' });
     }
-    await adaptRuntime(native, notice);
+    const adaptation = await adaptRuntime(native, notice),
+      adaptedRuntimeSha256 = await runtimeDigest(native),
+      supplies = [
+        { id: 'archify', sha256: supplyDigest },
+        { id: 'runtime', sha256: adaptedRuntimeSha256 },
+        ...(adaptation?.supplies ?? []),
+      ];
+    if (
+      !Array.isArray(adaptation?.supplies ?? []) ||
+      supplies.some(
+        (item) =>
+          !item ||
+          typeof item !== 'object' ||
+          Object.keys(item).sort().join('\n') !== 'id\nsha256' ||
+          typeof item.id !== 'string' ||
+          !item.id ||
+          !isDigest(item.sha256),
+      ) ||
+      new Set(supplies.map(({ id }) => id)).size !== supplies.length
+    )
+      fail('render_adaptation_receipt_invalid');
     const selected = path.join(scratch, 'input.json'),
       candidate = path.join(scratch, 'candidate.html');
     await fs.writeFile(selected, input, { flag: 'wx' });
@@ -317,7 +362,7 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
       output: plan.output,
       artifact: receipt.artifact,
       nativeValidation: checks,
-      supply: { name: 'archify', version: '2.16.0', sha256: supplyDigest },
+      supplies,
       browserAcceptance: 'not-performed',
       semanticAcceptance: 'not-performed',
     };

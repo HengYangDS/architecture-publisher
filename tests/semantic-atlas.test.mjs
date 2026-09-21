@@ -8,6 +8,10 @@ import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { claimModelDigest } from '../packages/publisher/src/semantics/document.mjs';
 import { compileEditionCandidate } from '../packages/publisher/src/compiler/edition.mjs';
+import {
+  editionCandidateDigest,
+  validateEditionCandidate,
+} from '../packages/publisher/src/compiler/candidate.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -297,45 +301,35 @@ test('compiles complete source-bound structure into static and interactive media
   const members = new Map(
     output.members.map((item) => [item.path, item.content]),
   );
-  const candidate = JSON.parse(members.get('candidate.json'));
+  const candidate = validateEditionCandidate(
+    JSON.parse(members.get('candidate.json')),
+  );
   assert.deepEqual(JSON.parse(members.get('semantic.json')), value.document);
   assert.deepEqual(JSON.parse(members.get('edition.json')), value.edition);
   assert.equal(candidate.schema, 'architecture.edition-candidate/v1');
-  assert.equal(candidate.semanticDigest, claimModelDigest(value.document));
-  assert.equal(result.editionDigest, candidate.editionDigest);
-  assert.equal(result.staticSceneDigest, candidate.staticSceneDigest);
-  assert.equal(
-    result.interactiveSceneDigest,
-    candidate.interactiveSceneDigest,
-  );
+  assert.equal(candidate.source.manifestSha256, value.plan.sourceSha256);
+  assert.equal(candidate.claimModel.digest, claimModelDigest(value.document));
+  assert.equal(candidate.edition.sha256, value.plan.editionSha256);
+  assert.equal(result.editionDigest, candidate.edition.digest);
+  assert.equal(result.staticSceneDigest, candidate.media.static.sceneSha256);
+  assert.equal(result.interactiveSceneDigest, candidate.media.interactive.sceneSha256);
+  assert.equal(result.candidateSha256, editionCandidateDigest(candidate));
+  assert.deepEqual(candidate.obligations, [
+    { kind: 'accessibility', predicate: 'keyboard-and-reduced-motion' },
+    { kind: 'coverage', predicate: 'required-claims-visible' },
+    { kind: 'installed', predicate: 'offline-reproduction' },
+    { kind: 'interactive', predicate: 'browser-behavior' },
+    { kind: 'semantic', predicate: 'claim-model-valid' },
+    { kind: 'static', predicate: 'static-geometry' },
+  ]);
   assert.deepEqual(
-    candidate.views.map((view) => view.id),
+    candidate.media.interactive.artifacts.map(({ id }) => id),
     ['overview', 'registry-flow'],
   );
-  assert.equal(candidate.static.id, 'overview');
-  assert.deepEqual(candidate.static.nodeIds, ['cli', 'registry', 'adapter']);
-  assert.deepEqual(candidate.static.relationIds, [
-    'cli-registry',
-    'registry-adapter',
-  ]);
-  assert.deepEqual(candidate.views[0].relations, [
-    {
-      id: 'cli-registry',
-      from: 'cli',
-      to: 'registry',
-      fromSide: 'right',
-      toSide: 'left',
-      route: 'orthogonal-h',
-    },
-    {
-      id: 'registry-adapter',
-      from: 'registry',
-      to: 'adapter',
-      fromSide: 'right',
-      toSide: 'left',
-      route: 'orthogonal-h',
-    },
-  ]);
+  for (const medium of Object.values(candidate.media)) {
+    assert(medium.artifacts.every(({ bytes, sha256 }) => bytes > 0 && /^[a-f0-9]{64}$/.test(sha256)));
+    assert(medium.supplies.every(({ sha256 }) => /^[a-f0-9]{64}$/.test(sha256)));
+  }
   const overview = members.get('views/overview.html').toString();
   const mechanism = members.get('views/registry-flow.html').toString();
   const svg = members.get('overview.svg').toString();
@@ -356,8 +350,10 @@ test('compiles complete source-bound structure into static and interactive media
   );
   assert(png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])));
   assert.equal(png.readUInt32BE(16), 2400);
-  assert.equal(candidate.overviewPngSha256, sha(png));
-  assert.equal(candidate.staticWidth, 2400);
+  assert.equal(
+    candidate.media.static.artifacts.find(({ id }) => id === 'overview-png').sha256,
+    sha(png),
+  );
   assert.doesNotMatch(overview, /data-preset-badge-/);
   assert.doesNotMatch(overview, /content:\s*attr\(data-preset-badge-/);
   for (const text of [overview, svg]) {
@@ -370,8 +366,8 @@ test('compiles complete source-bound structure into static and interactive media
   assert.match(mechanism, /data-node-id="adapter"/);
   assert.doesNotMatch(mechanism, /data-node-id="cli"/);
   assert.doesNotMatch(mechanism, /data-preset-badge-/);
-  assert.equal(result.semanticValidation, 'passed');
-  assert.equal(result.qualification, 'not-performed');
+  assert.equal(Object.hasOwn(result, 'qualification'), false);
+  assert.equal(Object.hasOwn(result, 'publication'), false);
 });
 
 test('static and interactive projections are compositionally independent', async (t) => {
