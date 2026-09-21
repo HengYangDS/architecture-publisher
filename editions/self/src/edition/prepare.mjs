@@ -45,6 +45,10 @@ const sourceAuthorities = Object.freeze({
     'Recorded typography input; not fresh runtime observation',
   'self-interactive-scene-owner':
     'Independent flagship interactive scene authorship',
+  'self-interactive-composition-owner':
+    'Flagship interactive visual-carrier composition and routing',
+  'self-interactive-atlas-owner':
+    'Flagship standalone Atlas composition and source-inspection owner',
   'source-owner': 'Source Bundle validation and exclusive output implementation',
   'claim-owner': 'Claim Model schema, validation, and canonical identity owner',
   'evolution-owner': 'Semantic delta and Edition evolution obligation compiler',

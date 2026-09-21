@@ -26,7 +26,7 @@
 - [x] 4.1 Author a source-bound complete self-model covering source authorities, adapters, Claim Model, Edition, independent media, qualification, recoverable publication, self/ETHOS/AIGW consumers, evolution, feedback, unknowns, and authority exclusions; verify all visible claims have exact provenance and required coverage.
 - [x] 4.2 Build a dedicated first-party Architecture Publisher Edition owner with separate static and interactive scene sources; verify generic modules do not branch on this Edition identity and the old eight-module self-host portrait remains only as a bounded structural example.
 - [x] 4.3 Design and generate the flagship static overview at 6000×3375 with one causal spine, explicit visual hierarchy, restrained palette, measured typography, balanced canvas use, and no template/debug/version residue; verify semantic coverage and painted geometry at delivery resolution.
-- [ ] 4.4 Design and generate a standalone interactive atlas whose first page is a complete overview and whose mechanism pages independently explain semantics, Edition, composition, qualification, publication/recovery, adoption, and evolution; verify navigation, focus, tracing, source inspection, responsive layout, and no geometry-changing motion.
+- [x] 4.4 Design and generate a standalone interactive atlas whose first page is a complete overview and whose mechanism pages independently explain semantics, Edition, composition, qualification, publication/recovery, adoption, and evolution; verify navigation, focus, tracing, source inspection, responsive layout, and no geometry-changing motion.
 
 ## 5. Qualification and self-evolution
 

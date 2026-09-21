@@ -35,6 +35,7 @@ export function adaptArchitectureScene(scene) {
       id: node.id,
       type: node.visualRole,
       label: node.label,
+      ...(node.detail ? { sublabel: node.detail } : {}),
       pos: [node.position.x, node.position.y],
       size: [node.size.width, node.size.height],
     })),
@@ -53,6 +54,9 @@ export function adaptArchitectureScene(scene) {
       fromSide: edge.fromSide,
       toSide: edge.toSide,
       route: edge.route,
+      ...(edge.waypoints
+        ? { via: edge.waypoints.map(({ x, y }) => [x, y]) }
+        : {}),
       ...(edge.labelPlacement?.at
         ? { labelAt: edge.labelPlacement.at }
         : {}),

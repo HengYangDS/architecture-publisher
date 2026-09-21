@@ -42,6 +42,9 @@ const selectedSources = Object.freeze({
     'editions/self/src/edition/static/authoring/metrics.json',
   'self-interactive-scene-owner':
     'editions/self/src/edition/interactive-scenes.mjs',
+  'self-interactive-composition-owner':
+    'editions/self/src/edition/interactive-scene.mjs',
+  'self-interactive-atlas-owner': 'editions/self/src/edition/atlas.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
@@ -237,7 +240,7 @@ test('the first-party self Edition covers the complete product chain and authori
   );
   assert.deepEqual(
     [role('interactive-atlas').plane, role('interactive-atlas').maturity],
-    ['intended', 'target'],
+    ['implemented', 'implemented'],
   );
   assert.deepEqual(
     [flow('acceptance-precedes-authorization').plane,

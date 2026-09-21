@@ -224,9 +224,11 @@ const entityDefinitions = Object.freeze({
   'interactive-atlas': entity(
     'artifact',
     'Standalone flagship HTML atlas',
-    'active-design',
-    'Names the required final responsive atlas and complete mechanism pages.',
-    fact('intended', 'target', { delivery: 'flagship-standalone-html' }),
+    'self-interactive-atlas-owner',
+    'Packages complete responsive overview and mechanism pages with source inspection.',
+    fact('implemented', 'implemented', {
+      delivery: 'flagship-standalone-html',
+    }),
   ),
   'interactive-renderer': entity(
     'capability',
@@ -410,7 +412,7 @@ export const SELF_RELATIONS = Object.freeze({
   'static-scene-enters-renderer': relation('feeds', 'static-scene', 'static-renderer', 'self-static-svg-owner', fact('implemented', 'implemented', { medium: 'static' })),
   'interactive-scenes-enter-renderer': relation('feeds', 'interactive-scenes', 'interactive-renderer', 'interactive-renderer-owner', fact('implemented', 'implemented', { medium: 'interactive' })),
   'backend-renders-static': relation('renders', 'static-renderer', 'static-artifact', 'self-static-flagship-owner', fact('implemented', 'implemented', { delivery: 'flagship-6000px' })),
-  'backend-renders-interactive': relation('renders', 'interactive-renderer', 'interactive-atlas', 'active-design', fact('intended', 'target', { delivery: 'flagship-standalone-html' })),
+  'backend-renders-interactive': relation('renders', 'interactive-renderer', 'interactive-atlas', 'self-interactive-atlas-owner', fact('implemented', 'implemented', { delivery: 'flagship-standalone-html' })),
   'static-enters-candidate': relation('bundles', 'static-artifact', 'edition-candidate', 'active-design', fact('intended', 'target', { artifact: 'flagship-static' })),
   'interactive-enters-candidate': relation('bundles', 'interactive-atlas', 'edition-candidate', 'active-design', fact('intended', 'target', { artifact: 'flagship-interactive' })),
   'candidate-enters-qualification': relation('qualifies', 'edition-candidate', 'qualification-set', 'active-design', fact('intended', 'target', { qualification: 'external' })),

@@ -32,6 +32,23 @@ function validSize(value) {
   );
 }
 
+function validSemanticIds(value) {
+  return (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    new Set(value).size === value.length &&
+    value.every(text)
+  );
+}
+
+function validWaypoints(value) {
+  return (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every(validPoint)
+  );
+}
+
 function validLabelPlacement(value) {
   if (!exact(value, [], ['at', 'dx', 'dy', 'segment'])) return false;
   if (
@@ -68,7 +85,6 @@ export function validateInteractiveArchitectureScene(scene) {
     !Array.isArray(scene.nodes) ||
     !scene.nodes.length ||
     !Array.isArray(scene.groups) ||
-    !scene.groups.length ||
     !Array.isArray(scene.edges)
   )
     fail('interactive_scene_invalid');
@@ -76,13 +92,20 @@ export function validateInteractiveArchitectureScene(scene) {
   const nodes = new Set();
   for (const node of scene.nodes) {
     if (
-      !exact(node, ['id', 'label', 'visualRole', 'position', 'size']) ||
+      !exact(
+        node,
+        ['id', 'label', 'visualRole', 'position', 'size'],
+        ['detail', 'semanticIds'],
+      ) ||
       !identifier(node.id) ||
       nodes.has(node.id) ||
       !text(node.label) ||
       !text(node.visualRole) ||
       !validPoint(node.position) ||
-      !validSize(node.size)
+      !validSize(node.size) ||
+      (Object.hasOwn(node, 'detail') && !text(node.detail)) ||
+      (Object.hasOwn(node, 'semanticIds') &&
+        !validSemanticIds(node.semanticIds))
     )
       fail('interactive_scene_node_invalid');
     nodes.add(node.id);
@@ -109,7 +132,8 @@ export function validateInteractiveArchitectureScene(scene) {
       grouped.add(id);
     }
   }
-  if (grouped.size !== nodes.size) fail('interactive_scene_group_membership_invalid');
+  if (scene.groups.length && grouped.size !== nodes.size)
+    fail('interactive_scene_group_membership_invalid');
 
   const edges = new Set();
   for (const edge of scene.edges) {
@@ -126,7 +150,7 @@ export function validateInteractiveArchitectureScene(scene) {
           'toSide',
           'route',
         ],
-        ['labelPlacement'],
+        ['labelPlacement', 'semanticIds', 'waypoints'],
       ) ||
       !identifier(edge.id) ||
       edges.has(edge.id) ||
@@ -138,7 +162,10 @@ export function validateInteractiveArchitectureScene(scene) {
       !side.has(edge.toSide) ||
       !route.has(edge.route) ||
       (Object.hasOwn(edge, 'labelPlacement') &&
-        !validLabelPlacement(edge.labelPlacement))
+        !validLabelPlacement(edge.labelPlacement)) ||
+      (Object.hasOwn(edge, 'semanticIds') &&
+        !validSemanticIds(edge.semanticIds)) ||
+      (Object.hasOwn(edge, 'waypoints') && !validWaypoints(edge.waypoints))
     )
       fail('interactive_scene_edge_invalid');
     edges.add(edge.id);
@@ -200,6 +227,11 @@ export function interactiveArchitectureScene(document, edition, view) {
         fromSide: layout.fromSide,
         toSide: layout.toSide,
         route: layout.route,
+        ...(Array.isArray(layout.waypoints)
+          ? {
+              waypoints: layout.waypoints.map(({ x, y }) => ({ x, y })),
+            }
+          : {}),
         ...(layout.labelAt ||
         layout.labelDx !== undefined ||
         layout.labelDy !== undefined ||

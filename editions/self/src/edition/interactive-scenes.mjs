@@ -25,10 +25,12 @@ const mechanisms = Object.freeze({
   semantics: {
     label: 'Source-bound meaning and uncertainty',
     groups: [
-      overviewGroups[0],
-      overviewGroups[1],
-      overviewGroups[2],
-      ['audience', 'Reader contract', ['edition']],
+      ['sources', 'Source evidence', ['accepted-intent', 'implementation', 'runtime-observation', 'evidence']],
+      ['adapter', 'Loss-aware adapter', ['source-adapter']],
+      ['bundle', 'Source Bundle', ['source-bundle']],
+      ['claims', 'Claim Model', ['claim-model']],
+      ['uncertainty', 'Explicit uncertainty', ['uncertainty']],
+      ['reader', 'Reader contract', ['edition']],
     ],
     relations: [
       'intent-enters-adapter',
@@ -45,8 +47,11 @@ const mechanisms = Object.freeze({
     label: 'Audience-specific Edition contract',
     groups: [
       ['meaning', 'Meaning', ['claim-model', 'uncertainty']],
-      ['authorship', 'Authorship', ['edition', 'build-request', 'publisher-core']],
-      ['scenes', 'Independent scenes', ['static-scene', 'interactive-scenes']],
+      ['reader', 'Edition authorship', ['edition']],
+      ['build', 'Build Request', ['build-request']],
+      ['compiler', 'Generic compiler', ['publisher-core']],
+      ['static-scene', 'Static scene', ['static-scene']],
+      ['interactive-scene', 'Interactive scenes', ['interactive-scenes']],
     ],
     relations: [
       'claims-inform-edition',
@@ -64,9 +69,12 @@ const mechanisms = Object.freeze({
     label: 'Independent static and interactive composition',
     groups: [
       ['authorship', 'Authorship and compilation', ['edition', 'build-request', 'publisher-core']],
-      ['scenes', 'Scenes', ['static-scene', 'interactive-scenes']],
-      ['rendering', 'Replaceable rendering', ['static-renderer', 'interactive-renderer']],
-      ['artifacts', 'Exact artifacts', ['static-artifact', 'interactive-atlas']],
+      ['static-scene', 'Static scene', ['static-scene']],
+      ['static-renderer', 'Static renderer', ['static-renderer']],
+      ['static-artifact', 'SVG and 6000px PNG', ['static-artifact']],
+      ['interactive-scene', 'Interactive scenes', ['interactive-scenes']],
+      ['interactive-renderer', 'Interactive renderer', ['interactive-renderer']],
+      ['interactive-artifact', 'Standalone HTML atlas', ['interactive-atlas']],
       ['candidate', 'Edition Candidate', ['edition-candidate']],
     ],
     relations: [
@@ -88,8 +96,10 @@ const mechanisms = Object.freeze({
     label: 'Non-compensating qualification',
     groups: [
       ['candidate', 'Exact candidate', ['edition-candidate']],
-      ['judgment', 'Judgment', ['human-review', 'qualification-set', 'acceptance']],
-      ['effect-admission', 'Effect admission', ['authorization']],
+      ['qualification', 'Qualification Set', ['qualification-set']],
+      ['human-review', 'Human review', ['human-review']],
+      ['acceptance', 'Acceptance', ['acceptance']],
+      ['authorization', 'Effect authorization', ['authorization']],
     ],
     relations: [
       'candidate-enters-qualification',
@@ -101,8 +111,12 @@ const mechanisms = Object.freeze({
   'publication-recovery': {
     label: 'Authorized publication and recovery',
     groups: [
-      ['admission', 'Admission', ['qualification-set', 'acceptance', 'authorization']],
-      ['effects', 'Effects', ['publication', 'recovery', 'off-host-recovery']],
+      ['qualification', 'Qualification', ['qualification-set']],
+      ['acceptance', 'Acceptance', ['acceptance']],
+      ['authorization', 'Authorization', ['authorization']],
+      ['publication', 'Publication effect', ['publication']],
+      ['recovery', 'Same-plan recovery', ['recovery']],
+      ['off-host-limit', 'Off-host recovery limit', ['off-host-recovery']],
     ],
     relations: [
       'qualification-precedes-acceptance',
@@ -115,9 +129,12 @@ const mechanisms = Object.freeze({
   adoption: {
     label: 'Independent adoption and native feedback',
     groups: [
-      ['delivery', 'Publication', ['publication']],
-      ['consumers', 'Consumers', ['self-consumer', 'ethos-consumer', 'aigw-consumer']],
-      ['return', 'Native source lifecycle', ['feedback', 'source-adapter']],
+      ['publication', 'Publication', ['publication']],
+      ['self', 'Publisher self-use', ['self-consumer']],
+      ['ethos', 'ETHOS adopter', ['ethos-consumer']],
+      ['aigw', 'AIGW adopter', ['aigw-consumer']],
+      ['feedback', 'Bounded findings', ['feedback']],
+      ['source-owner', 'Native source owner', ['source-adapter']],
     ],
     relations: [
       'publication-serves-self',
