@@ -117,9 +117,17 @@ test('the self Edition builds one complete source-bound interactive Atlas', asyn
         id,
       );
     const rebuilt = Buffer.from(
-      page.pieces.map((part) => (typeof part === 'number' ? data.blocks[part] : part)).join(''),
-    );
+        page.pieces.map((part) => (typeof part === 'number' ? data.blocks[part] : part)).join(''),
+      ),
+      renderedTextSizes = [
+        ...rebuilt.toString().matchAll(/<text\b[^>]*\bfont-size="([\d.]+)"/gu),
+      ].map(([, value]) => Number(value));
     assert.equal(sha256(rebuilt), page.sha256, id);
+    assert(renderedTextSizes.length > 0, id);
+    assert(
+      renderedTextSizes.every((size) => size >= 8),
+      `${id}: rendered text below 8px`,
+    );
     assert.match(rebuilt.toString(), /var Archify = \{\};/);
     assert.doesNotMatch(rebuilt.toString(), /data-preset-badge-/);
   }

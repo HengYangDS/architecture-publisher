@@ -24,6 +24,8 @@ const PIPELINE = Object.freeze([
     r: 8,
     tone: 'ink',
     titleY: 246,
+    lineX: 56,
+    lineAnchor: 'start',
     lineY: 344,
   },
   {
@@ -36,6 +38,8 @@ const PIPELINE = Object.freeze([
     r: 10,
     tone: 'ink',
     titleY: 246,
+    lineX: 185,
+    lineAnchor: 'start',
     lineY: 344,
   },
   {
@@ -48,6 +52,8 @@ const PIPELINE = Object.freeze([
     r: 12,
     tone: 'accent',
     titleY: 242,
+    lineX: 358,
+    lineAnchor: 'start',
     lineY: 346,
   },
   {
@@ -532,7 +538,7 @@ export function composeArchitecturePublisherFlagship() {
           station.lineY + index * 19,
           station.lineSize ?? 10.5,
           '400',
-          station.anchor ?? 'middle',
+          station.lineAnchor ?? station.anchor ?? 'middle',
           'muted',
         ),
       ),

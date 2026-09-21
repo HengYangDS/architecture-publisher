@@ -158,6 +158,16 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
     ),
     true,
   );
+  for (const id of ['source-field', 'semantic-contract', 'editorial-contract']) {
+    const title = scene.texts.find((label) => label.id === `${id}-title`),
+      lines = scene.texts.filter((label) => label.id.startsWith(`${id}-line-`));
+    assert.equal(title?.anchor, 'middle', `${id}: title remains centered`);
+    assert(lines.length > 0, `${id}: explanatory lines missing`);
+    assert(
+      lines.every(({ anchor, x }) => anchor === 'start' && x === lines[0].x),
+      `${id}: explanatory lines must share one left alignment axis`,
+    );
+  }
   const feedback = scene.edges.find((edge) => edge.id === 'feedback-return');
   assert.deepEqual(
     {
