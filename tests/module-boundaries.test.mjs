@@ -11,7 +11,6 @@ const runtimeRoots = [
   'packages/publisher/src',
   'packages/publisher/renderers',
   'editions/self/src',
-  'migration/ethos/src',
 ];
 
 async function inventory(roots) {
@@ -19,7 +18,6 @@ async function inventory(roots) {
     '',
     'packages/publisher/',
     'editions/self/',
-    'migration/ethos/',
   ]);
   const modules = [];
   async function visit(relative) {
@@ -58,8 +56,6 @@ test('runtime owners are package-scoped and old owner roots are absent', async (
     'packages/publisher/src/publication',
     'packages/publisher/renderers',
     'editions/self/src/edition',
-    'migration/ethos/src/adapter',
-    'migration/ethos/src/edition',
   ])
     assert((await fs.stat(path.join(root, directory))).isDirectory(), directory);
   for (const directory of ['src', 'renderers', 'assets', 'adapters'])
@@ -77,7 +73,7 @@ test('core owners cannot import concrete extensions', async () => {
   const { paths } = await inventory(runtimeRoots);
   const problems = inspectModuleBoundaries(
     'packages/publisher/src/source/files.mjs',
-    "import '@architecture-publisher/ethos/edition';",
+    "import '@architecture-publisher/self-edition/edition';",
     paths,
   );
   assert(problems.some(({ reason }) => reason.includes('forbidden dependency')));
@@ -87,14 +83,14 @@ test('extensions depend inward through public package exports', async () => {
   const { paths } = await inventory(runtimeRoots);
   assert.deepEqual(
     inspectModuleBoundaries(
-      'migration/ethos/src/edition/atlas.mjs',
-      "import { readSourceBundle } from 'architecture-publisher/source';",
+      'editions/self/src/edition/static-flagship.mjs',
+      "import { loadBundledFonts } from 'architecture-publisher/renderers/fonts';",
       paths,
     ),
     [],
   );
   const deep = inspectModuleBoundaries(
-    'migration/ethos/src/edition/atlas.mjs',
+    'editions/self/src/edition/static-flagship.mjs',
     "import '../../../../packages/publisher/src/source/bundle.mjs';",
     paths,
   );
@@ -102,14 +98,6 @@ test('extensions depend inward through public package exports', async () => {
     deep.some(({ reason }) =>
       reason.includes('cross-package dependency must use a public export'),
     ),
-  );
-  assert.deepEqual(
-    inspectModuleBoundaries(
-      'editions/self/src/edition/static-flagship.mjs',
-      "import { loadBundledFonts } from 'architecture-publisher/renderers/fonts';",
-      paths,
-    ),
-    [],
   );
 });
 

@@ -139,9 +139,8 @@ test('current runtime exposes only the v2 Claim Model contract', async () => {
 });
 
 test('current runtime and examples contain no v1 reader or dual-schema residue', async () => {
-  const roots = [
+    const roots = [
       'packages/publisher/src',
-      'migration/ethos/src',
       'examples',
     ],
     forbidden = [

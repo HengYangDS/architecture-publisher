@@ -6,8 +6,6 @@
       "entry": [
         "conformance/journeys/self-host/build.mjs",
         "tools/migration/semantic-v1-to-claim-v2.mjs",
-        "tools/qualification/browser-run.mjs",
-        "tools/qualification/installed-evolution.mjs",
         "tools/qualification/semantic-browser.mjs",
         "tests/*.test.mjs"
       ],
@@ -29,12 +27,6 @@
       "includeEntryExports": false
     },
     "editions/self": {
-      "project": [
-        "src/**/*.mjs"
-      ],
-      "includeEntryExports": false
-    },
-    "migration/ethos": {
       "project": [
         "src/**/*.mjs"
       ],

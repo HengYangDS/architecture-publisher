@@ -20,9 +20,6 @@ const packageExports = new Map([
   ['@architecture-publisher/self-edition', 'editions/self/src/edition/index.mjs'],
   ['@architecture-publisher/self-edition/edition', 'editions/self/src/edition/index.mjs'],
   ['@architecture-publisher/self-edition/runtime', 'editions/self/src/runtime.mjs'],
-  ['@architecture-publisher/ethos/adapter', 'migration/ethos/src/adapter/index.mjs'],
-  ['@architecture-publisher/ethos/edition', 'migration/ethos/src/edition/index.mjs'],
-  ['@architecture-publisher/ethos/runtime', 'migration/ethos/src/runtime.mjs'],
 ]);
 
 const owners = [
@@ -41,11 +38,8 @@ const owners = [
   ['packages/publisher/renderers/fonts/', ['packages/publisher/renderers/fonts/', 'packages/publisher/src/source/', 'packages/publisher/renderers/fonts/supply/']],
   ['packages/publisher/renderers/svg/', ['packages/publisher/renderers/svg/', 'packages/publisher/src/source/', 'packages/publisher/src/scene/']],
   ['packages/publisher/renderers/resvg/', ['packages/publisher/renderers/resvg/', 'packages/publisher/renderers/svg/', 'packages/publisher/src/source/', 'packages/publisher/renderers/resvg/supply/']],
-  ['migration/ethos/src/runtime.mjs', ['migration/ethos/']],
   ['editions/self/src/runtime.mjs', ['editions/self/']],
   ['editions/self/src/edition/', ['editions/self/src/edition/', 'packages/publisher/src/', 'packages/publisher/renderers/']],
-  ['migration/ethos/src/adapter/', ['migration/ethos/src/adapter/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/']],
-  ['migration/ethos/src/edition/', ['migration/ethos/src/edition/', 'migration/ethos/src/adapter/', 'migration/ethos/src/runtime.mjs', 'packages/publisher/src/', 'packages/publisher/renderers/']],
   ['conformance/journeys/self-host/', ['conformance/journeys/self-host/', 'packages/publisher/src/source/', 'packages/publisher/src/semantics/']],
   ['tools/', ['tools/', 'packages/publisher/', 'editions/', 'migration/']],
 ];

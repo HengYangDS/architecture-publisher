@@ -29,20 +29,17 @@ applied != hosted-observed or released
 
 ## Installation
 
-The repository root is a private workspace. Pack the core and, during migration,
-the ETHOS migration package independently:
+The repository root is a private workspace. Pack the generic core independently:
 
 ```sh
 npm pack --ignore-scripts --workspace architecture-publisher \
   --pack-destination build/packages
-npm pack --ignore-scripts --workspace @architecture-publisher/ethos \
-  --pack-destination build/packages
 ```
 
-The core package has no runtime npm dependencies. The migration package depends
-inward on the exact compatible core version. Installed journeys accept
-caller-selected files and can run with an empty HOME and no Git, ETHOS, Python,
-or adjacent checkout available through PATH.
+The core package has no runtime npm dependencies. Source repositories own their
+concrete adapter and Edition packages and depend inward on an exact compatible
+core. Installed journeys accept caller-selected files and can run with an empty
+HOME and no adjacent checkout discovery.
 
 ## Public CLI
 
@@ -253,7 +250,7 @@ independent flagship static candidate. The render result remains unqualified
 and unpublished until the later qualification and publication contracts admit
 those exact bytes.
 
-The temporary ETHOS migration package exports:
+The source-owned ETHOS repository exports:
 
 ```text
 @architecture-publisher/ethos/adapter
@@ -261,11 +258,12 @@ The temporary ETHOS migration package exports:
 @architecture-publisher/ethos/runtime
 ```
 
-The migration API consumes explicit ETHOS inputs and exposes input adapters for
+The integration API consumes explicit ETHOS inputs and exposes input adapters for
 source import/verification, atlas, poster, review, and publication journeys. It
 is deliberately not a second CLI. It cannot compile ETHOS Commitments, control
-Work Lanes, mint proof, execute CAS effects, or accept ETHOS state. Task 6.1
-moves the live owner into the ETHOS repository and removes this central copy.
+Work Lanes, mint proof, execute CAS effects, or accept ETHOS state. This
+repository retains only the exact digest-bound source-ownership handoff under
+`conformance/fixtures/ethos-source-owned-handoff.json`.
 
 ## Media independence
 
@@ -319,9 +317,9 @@ generation. Evidence is applicable only to its exact bytes and declared scope.
 - `conformance/journeys/self-host/` is a bounded structural self-use journey through the
   public generic contracts. It is not the final flagship self-Edition.
 - `editions/self/` is the source-owned Architecture Publisher self-Edition.
-- `migration/ethos/` is migration staging for the ETHOS adapter and
-  Edition. The live owner is the ETHOS repository; the central package is
-  removed after installed parity is proved.
+- `conformance/fixtures/ethos-source-owned-handoff.json` records the immutable
+  ETHOS package, parity, semantic-successor, and remaining-acceptance boundary.
+  The mutable ETHOS adapter and Edition live only in the ETHOS repository.
 - `migration/aigw/` currently supplies migration evidence. The live AIGW Edition
   is completed in the AIGW repository, then consumed here through portable
   standard values or an independently installed package with no adjacent

@@ -46,7 +46,7 @@ it cannot reinterpret it or grant authority to it.
 | Product | Architecture Publisher |
 | Core package | `architecture-publisher` |
 | Public CLI | `archpub` |
-| ETHOS migration package | `@architecture-publisher/ethos`, removed after source-owned adoption |
+| ETHOS integration | Source-owned `@architecture-publisher/ethos`; immutable handoff retained here |
 | Canonical repository | `architecture-publisher` |
 | ETHOS publication | `ETHOS Architecture` / `ETHOS · 问道` |
 
@@ -86,14 +86,15 @@ and ambient repository discovery.
 
 ## Workspace boundaries
 
-The current checkout is migration staging, not the terminal ownership model:
+The current checkout separates product ownership from adopter evidence:
 
 ```text
 packages/publisher/          generic product package
 editions/self/
                              source-owned flagship self-Edition
-migration/ethos/   temporary central ETHOS migration package
 conformance/journeys/self-host/          bounded structural self-use
+conformance/fixtures/ethos-source-owned-handoff.json
+                             immutable ETHOS adoption evidence
 migration/aigw/               temporary AIGW adoption evidence
 ```
 

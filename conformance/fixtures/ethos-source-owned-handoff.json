@@ -1,0 +1,54 @@
+{
+  "schema": "ethos.architecture-publisher-handoff/v1",
+  "publisher": {
+    "commit": "7652d83251ebd33d44a21e935e56972d41482599",
+    "corePackageSha256": "0665e386175b12c680f07f4f7b320add1de3e9c28f60795caa01bc852085c1c0",
+    "stagingPackageSha256": "a8897c64da17fd2e92d5b68b93425245ae283def3f47955c45378d4497c56134"
+  },
+  "ethos": {
+    "commit": "a798079c2a6631bb56851740b1a73fd11be26440",
+    "integrationTree": "fad20d92bb4c04fdba6038a879690a81357fb223",
+    "integrationPackageSha256": "04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044"
+  },
+  "acceptedParity": {
+    "sourceManifestSha256": "58121ad168a314af94b55f557435ffb7d9828ca7c476411f18467731ae9d1db0",
+    "atlasManifestSha256": "781efdb7a2ff9abfab67c3a2f3ab25b73da63497b8f9a20d42c6f9267b9712fe",
+    "standaloneSha256": "04ab1e33265bb7c851abd9a30c9379c5065da40b89bc4dc1d7be7039f6f793d8",
+    "posterSvgSha256": "87594199a5b3182860d6ed1a16b446082a2862cc52b8ed8c1731111f3e600bfa",
+    "posterSceneSha256": "fd25f6df9b1c22e495a50fe7dfa5c3251872891eba47c4eb952a54cdf44d89b2",
+    "posterManifestSha256": "3196eaab89266e9f363e75a777bb558f39608cb86328cfb23c5b5619815698c2"
+  },
+  "terminalCandidate": {
+    "projectionDigest": "fa27a64c9ceda4f751ba47643e1709567ad349c82cd02331cc11360aa3339fbd",
+    "sourceManifestSha256": "2364e569e7744716d3aa7825597dceddfdf84bd329e738bfb219fe09f5064652",
+    "atlasManifestSha256": "7b8412abb53fef9198ab8684786a6a64b570d6b822544c8934e89b14702a8c65",
+    "standaloneSha256": "3735757e6467bf1e4a6fe6e9ae9240b979e541e9f80ef178f1621bc300b8fe41",
+    "posterSvgSha256": "bec598939083700f522810165749dbda399eabf644cb69fa437735d03f274502",
+    "posterSceneSha256": "32c934d1e676b9582a9cee88c108474fc0b2654347606703c2cb3020242a765c",
+    "posterManifestSha256": "452351482dfecc9aeb324311c45aca356107fd3f123fe9aea787ea3b05b5fdbd"
+  },
+  "semanticSuccessor": {
+    "nodes": [
+      "adoption_exit",
+      "candidate_base_stale",
+      "mcp_a2a",
+      "skills"
+    ],
+    "relations": [
+      "candidate-state-to-independent"
+    ],
+    "assertions": [
+      "projection",
+      "verification"
+    ],
+    "humanReviewPredicates": 6,
+    "acceptance": "reaccept",
+    "publication": "replace"
+  },
+  "limits": [
+    "semantic acceptance not performed",
+    "browser acceptance not performed",
+    "human visual review not performed",
+    "raster publication not performed"
+  ]
+}

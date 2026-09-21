@@ -80,8 +80,8 @@ test('current guidance names only the public 0.2 command and package boundaries'
     'docs/reference/operations.md',
     'examples/README.md',
     'conformance/journeys/self-host/README.md',
+    'conformance/fixtures/ethos-source-owned-handoff.json',
     'packages/publisher/README.md',
-    'migration/ethos/README.md',
     'skills/architecture-publisher/SKILL.md',
   ];
   const source = (
@@ -105,7 +105,7 @@ test('current guidance names only the public 0.2 command and package boundaries'
     'archpub qualify verify',
     'archpub publish plan',
     'packages/publisher',
-    'migration/ethos',
+    'ethos.architecture-publisher-handoff/v1',
   ])
     assert.equal(source.includes(current), true, current);
 });

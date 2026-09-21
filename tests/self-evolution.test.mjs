@@ -39,7 +39,7 @@ const selectedSources = Object.freeze({
     'packages/publisher/renderers/archify/index.mjs',
   'qualification-owner': 'packages/publisher/src/qualification/contract.mjs',
   'publication-owner': 'packages/publisher/src/publication/files.mjs',
-  'installed-test-owner': 'tests/installed-evolution.test.mjs',
+  'installed-test-owner': 'tests/self-hosted-adopter.test.mjs',
 });
 
 function installedPath(install, relative) {

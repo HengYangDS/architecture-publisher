@@ -7,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
-const ethos = path.join(root, 'migration/ethos');
 const selfEdition = path.join(root, 'editions/self');
 
 async function json(file) {
@@ -17,26 +16,16 @@ async function json(file) {
 test('workspace separates the generic product from concrete Editions', async () => {
   const workspace = await json(path.join(root, 'package.json'));
   const product = await json(path.join(publisher, 'package.json'));
-  const edition = await json(path.join(ethos, 'package.json'));
 
   assert.equal(workspace.private, true);
-  assert.deepEqual(workspace.workspaces, [
-    'packages/publisher',
-    'editions/self',
-    'migration/ethos',
-  ]);
+  assert.deepEqual(workspace.workspaces, ['packages/publisher', 'editions/self']);
   assert.equal(product.name, 'architecture-publisher');
   assert.deepEqual(product.bin, { archpub: 'src/cli/main.mjs' });
-  assert.equal(edition.name, '@architecture-publisher/ethos');
-  assert.equal(
-    edition.dependencies['architecture-publisher'],
-    product.version,
-  );
 });
 
 test('terminal paths make product ownership explicit', async () => {
   await fs.access(path.join(root, 'editions/self/package.json'));
-  await fs.access(path.join(root, 'migration/ethos/package.json'));
+  await fs.access(path.join(root, 'conformance/fixtures/ethos-source-owned-handoff.json'));
   await fs.access(path.join(root, 'migration/aigw/README.md'));
   await fs.access(path.join(root, 'conformance/journeys/self-host/README.md'));
   await assert.rejects(fs.stat(path.join(root, 'packages/extensions')), {
@@ -155,30 +144,4 @@ test('the published pair-files v2 protocol retains native and atlas media keys',
   assert.match(source, /destinations\.native\b/);
   assert.doesNotMatch(source, /destinations\.(?:static|interactive)\b/);
   assert.match(source, /\.architecture-publication-writer/);
-});
-
-test('the ETHOS extension depends inward through package exports', async () => {
-  const files = [];
-  async function walk(directory) {
-    for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
-      const file = path.join(directory, entry.name);
-      if (entry.isDirectory()) await walk(file);
-      else if (entry.isFile() && entry.name.endsWith('.mjs')) files.push(file);
-    }
-  }
-  await walk(path.join(ethos, 'src'));
-  const source = (
-    await Promise.all(files.map((file) => fs.readFile(file, 'utf8')))
-  ).join('\n');
-  assert.match(source, /from ['"]architecture-publisher\//);
-  assert.doesNotMatch(source, /packages\/publisher|(?:\.\.\/){3,}(?:src|renderers)/);
-});
-
-test('extension public inputs do not eagerly load unrelated Edition capabilities', async () => {
-  const index = await fs.readFile(
-    path.join(ethos, 'src/edition/index.mjs'),
-    'utf8',
-  );
-  assert.match(index, /from ['"]\.\/input\.mjs['"]/);
-  assert.doesNotMatch(index, /export \*|from ['"]\.\/(?:atlas|poster|publication|review|standalone)\.mjs['"]/);
 });
