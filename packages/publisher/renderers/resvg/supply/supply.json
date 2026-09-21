@@ -36,14 +36,14 @@
     {
       "path": "resvg/index_bg.wasm",
       "source": "offline frozen Rust 1.98.1 build from the pinned source closure",
-      "bytes": 3425153,
-      "sha256": "29217145dc31ddc764ecadfd6dedd1904a14997c659aa2523adc83e161095b3a"
+      "bytes": 3425187,
+      "sha256": "f350cad80eeadc6f9277708dd4a42ac35cd1c5ff8514f89eb62ecace70c33abe"
     },
     {
       "path": "resvg/package.json",
       "source": "repository-owned package metadata",
-      "bytes": 142,
-      "sha256": "0fdba9f5f8e9dca940cf7873a04df2fcd97c35745af019fad36456356e5e08d4"
+      "bytes": 153,
+      "sha256": "eaa1b6355f1304861e0936b103b47d7cf95f7750206cc608a114c9685176afb8"
     },
     {
       "path": "resvg/LICENSE-MIT",
@@ -67,7 +67,7 @@
       "path": "resvg/source.json",
       "source": "source, toolchain, build and output identity binding",
       "bytes": 2258,
-      "sha256": "24ef098d90d750881895333490191cdb9251815d83a6d4386444b7d35c3fc26d"
+      "sha256": "d4ad9c98bb7d780fa25b1b1869101a1b7fd84bd37e406a94fcfb60380eb56ed0"
     },
     {
       "path": "sax/sax.cjs",

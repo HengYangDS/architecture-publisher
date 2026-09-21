@@ -27,7 +27,7 @@ manifest_value() {
   exit 65
 }
 tar -xf "$archive" -C "$stage"
-set -- "$stage"/ethos-resvg-wasm-*
+set -- "$stage"/architecture-publisher-resvg-wasm-*
 [ "$#" -eq 1 ] && [ -d "$1" ] || {
   echo "source closure root is not unique" >&2
   exit 65
@@ -62,7 +62,7 @@ output=$(cd "$output" && pwd -P)
   export RUSTFLAGS="--remap-path-prefix=$source_root=/workspace"
   cargo build --release --target wasm32-unknown-unknown --offline --frozen
   wasm-bindgen \
-    target/wasm32-unknown-unknown/release/ethos_resvg_wasm.wasm \
+    target/wasm32-unknown-unknown/release/architecture_publisher_resvg_wasm.wasm \
     --target bundler \
     --out-dir "$output" \
     --out-name index \

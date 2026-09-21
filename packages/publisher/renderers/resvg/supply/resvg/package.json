@@ -1,5 +1,5 @@
 {
-  "name": "@ethos/architecture-resvg-wasm",
+  "name": "@architecture-publisher/resvg-wasm-supply",
   "version": "0.1.0",
   "private": true,
   "type": "module",

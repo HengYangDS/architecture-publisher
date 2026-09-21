@@ -122,12 +122,31 @@ test('shared font supply belongs to its own renderer capability', async () => {
     archify = await fs.readFile(
       path.join(publisher, 'renderers/archify/public.mjs'),
       'utf8',
+    ),
+    resvgSupply = await json(
+      path.join(publisher, 'renderers/resvg/supply/resvg/package.json'),
+    ),
+    rasterBuild = await fs.readFile(
+      path.join(root, 'tools/raster/resvg/build.sh'),
+      'utf8',
+    ),
+    rasterCargo = await fs.readFile(
+      path.join(root, 'tools/raster/resvg/Cargo.toml'),
+      'utf8',
+    ),
+    rasterWasm = await fs.readFile(
+      path.join(publisher, 'renderers/resvg/supply/resvg/index_bg.wasm'),
     );
   assert.equal(
     product.exports['./renderers/fonts'],
     './renderers/fonts/index.mjs',
   );
   assert.doesNotMatch(archify, /fonts\.mjs|loadBundledFonts/);
+  assert.equal(resvgSupply.name, '@architecture-publisher/resvg-wasm-supply');
+  assert.doesNotMatch(JSON.stringify(resvgSupply), /ethos/i);
+  assert.doesNotMatch(rasterBuild, /ethos/i);
+  assert.doesNotMatch(rasterCargo, /ethos/i);
+  assert.equal(rasterWasm.includes(Buffer.from('ethos')), false);
 });
 
 test('the published pair-files v2 protocol retains native and atlas media keys', async () => {

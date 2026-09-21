@@ -7,10 +7,10 @@
       "provider": "gitlab",
       "projectPath": "dig/research/human-agent-stewardship/architecture-publisher",
       "package": "architecture-raster-resvg-source",
-      "version": "0.48.1-9c1219f8e903",
+      "version": "0.48.1-38b10c6d9b5a",
       "file": "source.tar.xz"
     },
-    "archiveSha256": "9c1219f8e9037730a51e95c1dd905137987f8b084c7f0e3666642f52b93260e8"
+    "archiveSha256": "38b10c6d9b5a2282f5043d301d9faaf44e3406311646f187be9d9b0a62a7ff06"
   },
   "toolchain": {
     "rust": "1.98.1",
@@ -18,20 +18,20 @@
     "wasmBindgen": "0.2.128"
   },
   "build": {
-    "cargoLockSha256": "fc00bd3f4b30b69c25f87446123deb4335261c392a73f4a816bc0dea8f218578",
+    "cargoLockSha256": "d149719a6fda6c98cbb52d5baac06f31938923c26db8e68eb64879165fd16c7a",
     "network": "offline",
     "frozen": true,
     "pathRemap": "/workspace",
     "inputs": [
       {
         "path": "tools/raster/resvg/Cargo.toml",
-        "bytes": 239,
-        "sha256": "1c575951f063132b4336cc8356122c3fb5c7091bc162364bfa29b26781aa2169"
+        "bytes": 256,
+        "sha256": "6a18c826bc0d0080b05ce4c39149550d674fecd93aaa841d4fc2117b5ccec25a"
       },
       {
         "path": "tools/raster/resvg/Cargo.lock",
-        "bytes": 14030,
-        "sha256": "fc00bd3f4b30b69c25f87446123deb4335261c392a73f4a816bc0dea8f218578"
+        "bytes": 14047,
+        "sha256": "d149719a6fda6c98cbb52d5baac06f31938923c26db8e68eb64879165fd16c7a"
       },
       {
         "path": "tools/raster/resvg/rust-toolchain.toml",
@@ -50,8 +50,8 @@
       },
       {
         "path": "tools/raster/resvg/build.sh",
-        "bytes": 3243,
-        "sha256": "dd1adde22b2c53cebc2ae4890844520a24f183d748e5851966bc68c9cdaec09f"
+        "bytes": 3277,
+        "sha256": "30a88aaaf1d55a0b7e49db583b7c01b750f997c1996fe516594c02f00b1af16e"
       }
     ]
   },
@@ -63,8 +63,8 @@
     },
     {
       "path": "packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm",
-      "bytes": 3425153,
-      "sha256": "29217145dc31ddc764ecadfd6dedd1904a14997c659aa2523adc83e161095b3a"
+      "bytes": 3425187,
+      "sha256": "f350cad80eeadc6f9277708dd4a42ac35cd1c5ff8514f89eb62ecace70c33abe"
     }
   ]
 }

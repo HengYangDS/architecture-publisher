@@ -130,7 +130,7 @@ test('raster notices cover every locked third-party Rust package', async () => {
   );
   const packages = [...lock.matchAll(/\[\[package\]\]\nname = "([^"]+)"\nversion = "([^"]+)"/g)]
     .map(([, name, version]) => `${name} ${version}`)
-    .filter((identity) => identity !== 'ethos-resvg-wasm 0.1.0');
+    .filter((identity) => identity !== 'architecture-publisher-resvg-wasm 0.1.0');
   assert.equal(packages.length, 61);
   for (const identity of packages)
     assert.match(notices, new RegExp(`^- ${identity.replaceAll('.', '\\.')}:`, 'm'));
