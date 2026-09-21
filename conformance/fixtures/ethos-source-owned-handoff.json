@@ -36,7 +36,7 @@
     "integration": {
       "source": {
         "repository": "dig/research/human-agent-stewardship/ethos",
-        "commit": "7190c30a0541917388c234ccacd5ecb6078f92f6",
+        "commit": "2a1e5dd1d01bc536697c9839cde0d5d177f2f0dd",
         "path": "integrations/architecture-publisher",
         "objectType": "tree",
         "oid": "fad20d92bb4c04fdba6038a879690a81357fb223"
@@ -47,6 +47,24 @@
         "file": "architecture-publisher-ethos-0.2.0-alpha.0.tgz",
         "sha256": "04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044"
       }
+    },
+    "acceptance": {
+      "repositoryTree": "4211ba560b6c6291ad9290ed8aa3d2565e620eec",
+      "acceptedRefs": [
+        "dev",
+        "main"
+      ],
+      "runtimeDigest": "ab7ad09e9522ca7f8e883405f8d09633fef5d08cc2b2c761c73976f622571704",
+      "packageReproducibility": 2,
+      "proof": {
+        "verdict": "pass",
+        "gates": 35,
+        "testsPassed": 4328,
+        "testsSkipped": 2,
+        "combinedCoveragePercent": 95.052
+      },
+      "archivedChange": "2026-09-21-architecture-publisher-adoption",
+      "remotePublication": "unproved"
     }
   },
   "acceptedParity": {

@@ -67,7 +67,7 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   assert.deepEqual(handoff.ethos.integration, {
     source: {
       repository: 'dig/research/human-agent-stewardship/ethos',
-      commit: '7190c30a0541917388c234ccacd5ecb6078f92f6',
+      commit: '2a1e5dd1d01bc536697c9839cde0d5d177f2f0dd',
       path: 'integrations/architecture-publisher',
       objectType: 'tree',
       oid: 'fad20d92bb4c04fdba6038a879690a81357fb223',
@@ -79,6 +79,22 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
       sha256: '04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044',
     },
   });
+  assert.deepEqual(handoff.ethos.acceptance, {
+    repositoryTree: '4211ba560b6c6291ad9290ed8aa3d2565e620eec',
+    acceptedRefs: ['dev', 'main'],
+    runtimeDigest:
+      'ab7ad09e9522ca7f8e883405f8d09633fef5d08cc2b2c761c73976f622571704',
+    packageReproducibility: 2,
+    proof: {
+      verdict: 'pass',
+      gates: 35,
+      testsPassed: 4328,
+      testsSkipped: 2,
+      combinedCoveragePercent: 95.052,
+    },
+    archivedChange: '2026-09-21-architecture-publisher-adoption',
+    remotePublication: 'unproved',
+  });
   for (const value of [
     handoff.publisher.core.source.commit,
     handoff.publisher.core.source.oid,
@@ -89,6 +105,8 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
     handoff.ethos.integration.source.commit,
     handoff.ethos.integration.source.oid,
     handoff.ethos.integration.package.sha256,
+    handoff.ethos.acceptance.repositoryTree,
+    handoff.ethos.acceptance.runtimeDigest,
     ...Object.values(handoff.acceptedParity),
     ...Object.values(handoff.terminalCandidate).filter((value) => typeof value === 'string'),
   ])
