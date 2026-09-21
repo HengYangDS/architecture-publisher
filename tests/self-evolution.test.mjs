@@ -1,0 +1,211 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import test from 'node:test';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { compileEditionEvolution } from '../packages/publisher/src/edition/evolution.mjs';
+import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
+import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
+
+const root = fileURLToPath(new URL('../', import.meta.url));
+const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const selectedSources = Object.freeze({
+  'product-contract': 'docs/product-contract.md',
+  'edition-contract': 'docs/edition-contract.md',
+  'active-design': 'openspec/changes/architecture-publisher-0-2/design.md',
+  'core-package': 'packages/publisher/package.json',
+  'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
+  'self-model-owner': 'editions/self/src/edition/model.mjs',
+  'self-static-scene-owner': 'editions/self/src/edition/static-scene.mjs',
+  'self-static-composition-owner':
+    'editions/self/src/edition/static/composition.mjs',
+  'self-static-compiler-owner': 'editions/self/src/edition/static/scene.mjs',
+  'self-static-svg-owner': 'editions/self/src/edition/static/svg.mjs',
+  'self-static-flagship-owner':
+    'editions/self/src/edition/static-flagship.mjs',
+  'self-static-metrics':
+    'editions/self/src/edition/static/authoring/metrics.json',
+  'self-interactive-scene-owner':
+    'editions/self/src/edition/interactive-scenes.mjs',
+  'self-interactive-composition-owner':
+    'editions/self/src/edition/interactive-scene.mjs',
+  'self-interactive-atlas-owner': 'editions/self/src/edition/atlas.mjs',
+  'source-owner': 'packages/publisher/src/source/write.mjs',
+  'claim-owner': 'packages/publisher/src/semantics/document.mjs',
+  'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
+  'compiler-owner': 'packages/publisher/src/compiler/edition.mjs',
+  'interactive-renderer-owner':
+    'packages/publisher/renderers/archify/index.mjs',
+  'qualification-owner': 'packages/publisher/src/qualification/contract.mjs',
+  'publication-owner': 'packages/publisher/src/publication/files.mjs',
+  'installed-test-owner': 'tests/installed-evolution.test.mjs',
+});
+
+function installedPath(install, relative) {
+  if (relative.startsWith('packages/publisher/'))
+    return path.join(install.coreRoot, relative.slice('packages/publisher/'.length));
+  if (relative.startsWith('editions/self/'))
+    return path.join(install.selfRoot, relative.slice('editions/self/'.length));
+  return path.join(root, relative);
+}
+
+async function replaceExact(file, before, after) {
+  const source = await fs.readFile(file, 'utf8');
+  assert(source.includes(before), `missing mutation target in ${file}`);
+  await fs.writeFile(file, source.replace(before, after));
+}
+
+async function mutateSelfModel(install) {
+  await replaceExact(
+    path.join(install.selfRoot, 'src/edition/model.mjs'),
+    "'Qualification Set contract'",
+    "'Conjunctive Qualification contract'",
+  );
+  await replaceExact(
+    path.join(install.selfRoot, 'src/edition/interactive-scenes.mjs'),
+    "['qualification', 'Qualification Set', ['qualification-set']]",
+    "['qualification', 'Conjunctive Qualification', ['qualification-set']]",
+  );
+}
+
+function atlasPages(bytes) {
+  const match = bytes
+    .toString('utf8')
+    .match(
+      /<script id="architecture-atlas-data" type="application\/json">([\s\S]*?)<\/script>/,
+    );
+  assert(match, 'standalone Atlas data is embedded');
+  return JSON.parse(match[1]).pages;
+}
+
+async function buildInstalledCandidate(directory, revision, mutate = false) {
+  await fs.mkdir(directory);
+  const install = await installCoreAndSelf(root, directory);
+  if (mutate) await mutateSelfModel(install);
+  const sourcePaths = Object.fromEntries(
+      Object.entries(selectedSources).map(([id, relative]) => [
+        id,
+        installedPath(install, relative),
+      ]),
+    ),
+    sources = {};
+  for (const [id, file] of Object.entries(sourcePaths)) {
+    const bytes = await fs.readFile(file);
+    sources[id] = { path: file, sha256: sha256(bytes) };
+  }
+  const api = await import(
+      pathToFileURL(path.join(install.selfRoot, 'src/edition/index.mjs')).href +
+        `?revision=${revision}`
+    ),
+    preparedRoot = path.join(directory, 'prepared'),
+    prepared = await api.prepareArchitecturePublisherEdition({
+      schema: 'architecture.publisher-self-input/v1',
+      source: { id: 'architecture-publisher', revision },
+      sources,
+      output: preparedRoot,
+    }),
+    plan = JSON.parse(await fs.readFile(prepared.plan, 'utf8')),
+    candidateRoot = path.join(directory, 'candidate'),
+    result = await api.buildArchitecturePublisherCandidate({
+      ...plan,
+      output: candidateRoot,
+    }),
+    source = await readSourceBundle(
+      prepared.sourceManifest,
+      prepared.sourceSha256,
+    ),
+    sourceMembers = new Map(
+      source.members.map((member) => [member.path, member.content]),
+    ),
+    candidateBundle = await readSourceBundle(
+      result.manifestPath,
+      result.manifestSha256,
+    ),
+    candidateMembers = new Map(
+      candidateBundle.members.map((member) => [member.path, member.content]),
+    ),
+    candidate = JSON.parse(candidateMembers.get('candidate.json'));
+  return {
+    sourcePaths,
+    preparedRoot,
+    candidateRoot,
+    model: JSON.parse(sourceMembers.get('semantic.json')),
+    edition: JSON.parse(await fs.readFile(prepared.edition, 'utf8')),
+    candidate,
+    pages: atlasPages(
+      candidateMembers.get('interactive/architecture-publisher.html'),
+    ),
+  };
+}
+
+test('a source-authored self-model change rebuilds only affected projections and renews exact review', async (t) => {
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const directory = await fs.mkdtemp(path.join(scratch, 'publisher-self-evolution-'));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const before = await buildInstalledCandidate(
+      path.join(directory, 'before'),
+      'self-evolution-before',
+    ),
+    after = await buildInstalledCandidate(
+      path.join(directory, 'after'),
+      'self-evolution-after',
+      true,
+    ),
+    evolution = compileEditionEvolution({
+      before: { claimModel: before.model, editions: [before.edition] },
+      after: { claimModel: after.model, editions: [after.edition] },
+      correspondences: [],
+    }),
+    affected = evolution.editions.affected[0],
+    artifact = (value, medium, id) =>
+      value.candidate.media[medium].artifacts.find((item) => item.id === id),
+    changedPages = Object.keys(before.pages).filter(
+      (id) => before.pages[id].sha256 !== after.pages[id].sha256,
+    ),
+    unaffectedPages = Object.keys(before.pages).filter(
+      (id) => !affected.interactive.includes(id),
+    );
+
+  assert.deepEqual(evolution.delta.changed.entities, ['qualification-set']);
+  assert.equal(affected.static, true);
+  assert(affected.interactive.includes('overview'));
+  assert(affected.interactive.includes('qualification'));
+  assert.notEqual(
+    before.candidate.media.static.sceneSha256,
+    after.candidate.media.static.sceneSha256,
+  );
+  assert.equal(
+    artifact(before, 'static', 'flagship-png').sha256,
+    artifact(after, 'static', 'flagship-png').sha256,
+  );
+  assert.notEqual(
+    artifact(before, 'interactive', 'standalone-atlas').sha256,
+    artifact(after, 'interactive', 'standalone-atlas').sha256,
+  );
+  assert(changedPages.length > 0);
+  assert(changedPages.every((id) => affected.interactive.includes(id)));
+  assert(unaffectedPages.length > 0);
+  assert(
+    unaffectedPages.every(
+      (id) => before.pages[id].sha256 === after.pages[id].sha256,
+    ),
+  );
+  assert.deepEqual(
+    new Set(evolution.obligations.mediumVerification.map(({ medium }) => medium)),
+    new Set(['static', 'interactive', 'installed-use', 'recovery']),
+  );
+  assert.deepEqual(
+    new Set(evolution.obligations.humanReview.map(({ scope }) => scope.medium)),
+    new Set(['static', 'interactive']),
+  );
+  assert.equal(Object.hasOwn(after.candidate, 'qualification'), false);
+  assert.equal(Object.hasOwn(after.candidate, 'humanAcceptance'), false);
+  for (const file of Object.values(after.sourcePaths)) {
+    assert.equal(file.startsWith(before.preparedRoot), false);
+    assert.equal(file.startsWith(before.candidateRoot), false);
+    assert.equal(file.startsWith(after.preparedRoot), false);
+    assert.equal(file.startsWith(after.candidateRoot), false);
+  }
+});
