@@ -6,7 +6,7 @@ import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { editionDigest, validateEdition } from '../packages/publisher/src/edition/contract.mjs';
 import { compareEditionInput } from '../packages/publisher/src/edition/input.mjs';
 import {
@@ -200,6 +200,7 @@ test(
       },
     );
     const resolve = createRequire(path.join(consumer, 'package.json')).resolve;
+    const importPublic = async (specifier) => import(pathToFileURL(resolve(specifier)).href);
     const cli = resolve('architecture-publisher/package.json').replace(
       /package\.json$/u,
       'src/cli/main.mjs',
@@ -302,5 +303,135 @@ test(
       assert.equal(member.content.includes(Buffer.from(aigwSourceRoot)), false, member.path);
       assert.equal(member.content.includes(Buffer.from(root)), false, member.path);
     }
+
+    const candidate = await json(path.join(output, 'candidate.json'));
+    const qualificationApi = await importPublic('architecture-publisher/qualification');
+    const verifierSha256 = sha(Buffer.from('aigw-source-owned-conformance/v1'));
+    const records = candidate.obligations.map(({ kind, predicate }, index) => {
+      const observed = !['interactive', 'accessibility'].includes(kind);
+      return qualificationApi.bindQualificationRecord(candidate, {
+        id: `aigw.${kind}.${index}`,
+        kind,
+        verifier: {
+          kind: 'machine',
+          id: 'aigw-source-owned-conformance',
+          implementationSha256: verifierSha256,
+        },
+        predicate,
+        scope: { kind: 'conformance', value: `aigw-${kind}` },
+        environment: { kind: 'runtime', value: 'relocated-offline-empty-home' },
+        observations: [
+          {
+            name: 'result',
+            value: observed ? 'verified' : 'not-observed-by-this-test',
+          },
+        ],
+        verdict: observed ? 'PASS' : 'UNKNOWN',
+        limitations: observed
+          ? []
+          : ['Browser execution and accessibility observation require their own verifier.'],
+      });
+    });
+    const qualification = qualificationApi.bindQualificationSet(candidate, records);
+    const admission = qualificationApi.admitQualificationSet(
+      model,
+      edition,
+      candidate,
+      qualification,
+    );
+    assert.equal(admission.complete, true);
+    assert.equal(admission.verdict, 'UNKNOWN');
+    assert.equal(admission.admitted, false);
+    assert.deepEqual(admission.missing, []);
+
+    const overview = await fs.readFile(path.join(output, 'views/overview.html'), 'utf8');
+    assert.match(overview, /data-node-id="configuration"/u);
+    assert.match(overview, /data-node-id="transaction"/u);
+    assert.doesNotMatch(overview, /data-preset-badge-|architecture-publisher\/plate/iu);
+
+    const publicationApi = await importPublic('architecture-publisher/publication');
+    const destinations = {
+      native: path.join(temporary, 'delivery', 'native'),
+      atlas: path.join(temporary, 'delivery', 'atlas'),
+    };
+    await fs.mkdir(path.dirname(destinations.native));
+    const payload = [];
+    for (const [candidateMedium, publicationMedium] of [
+      ['static', 'native'],
+      ['interactive', 'atlas'],
+    ])
+      for (const artifact of candidate.media[candidateMedium].artifacts)
+        payload.push({
+          medium: publicationMedium,
+          path: artifact.path,
+          source: path.join(output, ...artifact.path.split('/')),
+          bytes: artifact.bytes,
+          sha256: artifact.sha256,
+        });
+    const publicationInput = {
+      options: {
+        sourceRoots: [output],
+        destinations,
+        recoveryRoot: path.join(temporary, 'recovery'),
+      },
+      source: {
+        id: edition.id,
+        revision: handoff.aigw.source.semanticRevision,
+        candidateSha256: result.candidateSha256,
+        qualification: admission.verdict,
+      },
+      payload,
+      entries: {
+        native: {
+          'index.html': '<p>Open overview.png</p>',
+          'README.md': 'AIGW static candidate; semantic acceptance is not granted.\n',
+        },
+        atlas: {
+          'index.html': '<p>Open views/overview.html</p>',
+          'README.md': 'AIGW interactive candidate; browser acceptance remains unproved.\n',
+        },
+      },
+      dependencies: [
+        {
+          file: path.join(output, 'candidate.json'),
+          sha256: sha(await fs.readFile(path.join(output, 'candidate.json'))),
+        },
+      ],
+    };
+    const publication = await publicationApi.planPairFiles(publicationInput);
+    const authorization = { decision: 'AUTHORIZED', planSha256: publication.sha256 };
+    const installed = await publicationApi.installPairFiles(publication, authorization);
+    assert.equal(installed.status, 'INSTALLED');
+    assert.equal(installed.globalAtomicity, false);
+    assert.equal(
+      (await publicationApi.recoverPairFiles(publication, authorization)).status,
+      'ALREADY_INSTALLED',
+    );
+    for (const item of payload)
+      assert.equal(
+        sha(await fs.readFile(path.join(destinations[item.medium], ...item.path.split('/')))),
+        item.sha256,
+        item.path,
+      );
+
+    const replacementInput = structuredClone(publicationInput);
+    replacementInput.entries.native['README.md'] =
+      'AIGW static candidate revalidated through the same exact package.\n';
+    replacementInput.entries.atlas['README.md'] =
+      'AIGW interactive candidate revalidated; browser acceptance remains unproved.\n';
+    replacementInput.replacement = { plan: publication, authorization };
+    const replacement = await publicationApi.planPairFiles(replacementInput);
+    const replacementAuthorization = {
+      decision: 'AUTHORIZED',
+      planSha256: replacement.sha256,
+    };
+    assert.equal(
+      (await publicationApi.installPairFiles(replacement, replacementAuthorization)).status,
+      'INSTALLED',
+    );
+    assert.equal(
+      (await publicationApi.recoverPairFiles(replacement, replacementAuthorization)).status,
+      'ALREADY_INSTALLED',
+    );
   },
 );
