@@ -95,7 +95,8 @@ editions/self/
 conformance/journeys/self-host/          bounded structural self-use
 conformance/fixtures/ethos-source-owned-handoff.json
                              immutable ETHOS adoption evidence
-migration/aigw/               temporary AIGW adoption evidence
+conformance/fixtures/aigw-source-owned-handoff.json
+                             immutable AIGW adoption evidence
 ```
 
 The terminal product repository keeps the generic package, renderer supply,
@@ -109,9 +110,9 @@ published package. The core never imports a concrete Edition. A source-owned
 Edition depends inward only through exported core contracts and retains its
 source product's native authorization and release lifecycle.
 
-The first-party flagship self-Edition, source-repository migration, and complete
-AIGW Edition remain work of the active 0.2 Change. The task ledger, not this
-README, owns their completion state.
+The first-party flagship review, three-consumer qualification, and release
+closure remain work of the active 0.2 Change. The task ledger, not this README,
+owns their completion state.
 
 ## Media independence
 

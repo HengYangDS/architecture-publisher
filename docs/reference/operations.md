@@ -326,10 +326,11 @@ generation. Evidence is applicable only to its exact bytes and declared scope.
 - `conformance/fixtures/ethos-source-owned-handoff.json` records the immutable
   ETHOS package, parity, semantic-successor, and remaining-acceptance boundary.
   The mutable ETHOS adapter and Edition live only in the ETHOS repository.
-- `migration/aigw/` currently supplies migration evidence. The live AIGW Edition
-  is completed in the AIGW repository, then consumed here through portable
-  standard values or an independently installed package with no adjacent
-  checkout dependency.
+- `conformance/fixtures/aigw-source-owned-handoff.json` records the exact AIGW
+  source owner, current and historical semantic values, reproduced candidate,
+  and remaining governance limits. The mutable AIGW Edition lives only in the
+  AIGW repository. Its opt-in conformance journey accepts explicit relocated
+  Edition and source roots; ordinary runtime never discovers an adjacent checkout.
 
 ## Historical alpha.7 identity
 

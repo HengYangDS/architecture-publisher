@@ -262,12 +262,13 @@ participating as another product surface. Existing modules move only where the
 owner becomes materially clearer; a directory diagram alone is not a reason for
 churn.
 
-The current `migration/ethos` and `migration/aigw` paths are explicit migration
-staging. The self package now lives at `editions/self`. Before release, ETHOS and
-AIGW are recreated under their own repository-native module policies, exercised
-as independently packed consumers, and then removed from this repository. The
-migration compares the same immutable candidate digests or explicitly explains
-any intended semantic change before deleting the central copy.
+The former `migration/ethos` and `migration/aigw` paths were explicit migration
+staging. The self package now lives at `editions/self`; ETHOS and AIGW own their
+live Editions under their repository-native policies. This repository retains
+only compact immutable handoff records. Exact opt-in conformance selects the
+source-owned values and source snapshot explicitly, installs a packed Publisher
+into an isolated directory, and proves the same candidate digests before the
+central mutable copy is deleted.
 
 ## Flagship Self-Edition
 

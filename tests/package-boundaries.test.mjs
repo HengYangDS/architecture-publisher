@@ -28,8 +28,9 @@ test('workspace separates the generic product from concrete Editions', async () 
 test('terminal paths make product ownership explicit', async () => {
   await fs.access(path.join(root, 'editions/self/package.json'));
   await fs.access(path.join(root, 'conformance/fixtures/ethos-source-owned-handoff.json'));
-  await fs.access(path.join(root, 'migration/aigw/README.md'));
+  await fs.access(path.join(root, 'conformance/fixtures/aigw-source-owned-handoff.json'));
   await fs.access(path.join(root, 'conformance/journeys/self-host/README.md'));
+  await assert.rejects(fs.stat(path.join(root, 'migration/aigw')), { code: 'ENOENT' });
   await assert.rejects(fs.stat(path.join(root, 'packages/extensions')), {
     code: 'ENOENT',
   });
