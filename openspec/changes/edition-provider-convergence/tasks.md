@@ -80,7 +80,7 @@
       build reproducible archives, sign the candidate, and verify archive identity,
       portable tar-content identity, manifests, provenance, and installed behavior
       without modifying any `0.2.0-alpha.0` or historical alpha.7 byte.
-- [ ] 6.3 Land through the governed candidate and accepted branches, archive this
+- [x] 6.3 Land through the governed candidate and accepted branches, archive this
       Change, publish signed tag `v0.3.0-alpha.1` and exact release/package assets,
       pass hosted CI and remote readback, then verify all owned Work Lane, proposal,
       temporary-process, scratch, and disposable-build residue is closed.
