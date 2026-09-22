@@ -1,0 +1,315 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { editionDigest, validateEdition } from '../edition/contract.mjs';
+import { compileEditionEvolution } from '../edition/evolution.mjs';
+import { readPublisherIdentity } from '../runtime.mjs';
+import { claimModelDigest, deepFreeze, validateClaimModel } from '../semantics/document.mjs';
+import { writeSourceBundle } from '../source/write.mjs';
+import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
+import { fail, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
+import { readEditionProviderInput, resolveProviderPath } from './input.mjs';
+import {
+  validateProviderMaterialization,
+  validateProviderReply,
+  validateProviderRequest,
+} from './protocol.mjs';
+
+const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const worker = fileURLToPath(new URL('./worker.mjs', import.meta.url));
+const JSON_BYTES = 16 * 1024 * 1024;
+
+function exact(value, fields) {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.keys(value).sort().join('\n') === [...fields].sort().join('\n')
+  );
+}
+
+function json(bytes, code) {
+  try {
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+  } catch {
+    fail(code);
+  }
+}
+
+function below(root, selected, code) {
+  if (selected === root || !selected.startsWith(root + path.sep)) fail(code);
+  return selected;
+}
+
+async function selectPackage(root, selected) {
+  if (typeof root !== 'string' || !path.isAbsolute(root))
+    fail('edition_provider_package_root_required');
+  const packageRoot = path.resolve(root);
+  await noSymlinkAncestors(packageRoot);
+  const stat = await fs.lstat(packageRoot);
+  if (
+    !stat.isDirectory() ||
+    stat.isSymbolicLink() ||
+    (await fs.realpath(packageRoot)) !== packageRoot
+  )
+    fail('edition_provider_package_root_invalid');
+  const packageFile = path.join(packageRoot, 'package.json');
+  await noSymlinkAncestors(packageFile);
+  const packageBytes = await regularBytes(packageFile, LIMITS.manifestBytes);
+  if (sha(packageBytes) !== selected.packageJsonSha256)
+    fail('edition_provider_package_digest_mismatch');
+  const packageJson = json(packageBytes, 'edition_provider_package_json_invalid');
+  if (
+    packageJson === null ||
+    typeof packageJson !== 'object' ||
+    Array.isArray(packageJson) ||
+    packageJson.name !== selected.name ||
+    packageJson.version !== selected.version
+  )
+    fail('edition_provider_package_identity_mismatch');
+  const target = packageJson.exports?.[selected.entrypoint];
+  if (typeof target !== 'string' || !target.startsWith('./'))
+    fail('edition_provider_entrypoint_invalid');
+  let portableTarget;
+  try {
+    portableTarget = portablePath(target.slice(2));
+  } catch {
+    fail('edition_provider_entrypoint_invalid');
+  }
+  const entrypoint = below(
+    packageRoot,
+    path.resolve(packageRoot, ...portableTarget.split('/')),
+    'edition_provider_entrypoint_invalid',
+  );
+  await noSymlinkAncestors(entrypoint);
+  await regularBytes(entrypoint, JSON_BYTES);
+  return { entrypoint, packageBytes };
+}
+
+async function requestFor(manifest, root) {
+  const inputs = [];
+  for (const selected of manifest.delivery.inputs) {
+    const file = resolveProviderPath(root, selected.path, 'edition_provider_input_path_invalid');
+    await noSymlinkAncestors(file);
+    const bytes = await regularBytes(file, manifest.limits.inputBytes);
+    if (bytes.length !== selected.bytes) fail('edition_provider_input_size_mismatch');
+    if (sha(bytes) !== selected.sha256) fail('edition_provider_input_digest_mismatch');
+    inputs.push({
+      id: selected.id,
+      mediaType: selected.mediaType,
+      bytes: selected.bytes,
+      sha256: selected.sha256,
+      contentBase64: bytes.toString('base64'),
+    });
+  }
+  return validateProviderRequest({
+    schema: 'architecture.edition-provider-request/v1',
+    provider: manifest.provider,
+    subject: manifest.subject,
+    inputs,
+  });
+}
+
+function responseLimit(bytes) {
+  return Math.ceil(bytes / 3) * 4 + 64 * 1024;
+}
+
+async function execute(entrypoint, requestPath, scratch, limits) {
+  const handle = await fs.open(requestPath, 'r');
+  try {
+    const result = spawnSync(process.execPath, [worker, entrypoint], {
+      cwd: scratch,
+      env: {
+        HOME: scratch,
+        PATH: scratch,
+        XDG_CONFIG_HOME: path.join(scratch, 'config'),
+        XDG_CACHE_HOME: path.join(scratch, 'cache'),
+        XDG_DATA_HOME: path.join(scratch, 'data'),
+        TMPDIR: path.join(scratch, 'tmp'),
+        TMP: path.join(scratch, 'tmp'),
+        TEMP: path.join(scratch, 'tmp'),
+        LANG: 'C.UTF-8',
+        ...(process.env.NODE_V8_COVERAGE ? { NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE } : {}),
+      },
+      stdio: [handle.fd, 'pipe', 'pipe'],
+      encoding: 'utf8',
+      timeout: limits.timeoutMs,
+      killSignal: 'SIGKILL',
+      maxBuffer: responseLimit(limits.replyBytes),
+    });
+    if (result.error)
+      fail(
+        result.error.code === 'ETIMEDOUT'
+          ? 'edition_provider_timeout'
+          : result.error.code === 'ENOBUFS'
+            ? 'edition_provider_reply_size_invalid'
+            : 'edition_provider_process_failed',
+      );
+    if (result.stderr) fail('edition_provider_stderr_invalid');
+    if (result.signal || result.status === null) fail('edition_provider_process_failed');
+    if (!result.stdout)
+      fail(
+        result.status === 0
+          ? 'edition_provider_response_invalid'
+          : 'edition_provider_process_failed',
+      );
+    if (Buffer.byteLength(result.stdout, 'utf8') >= responseLimit(limits.replyBytes))
+      fail('edition_provider_reply_size_invalid');
+    let envelope;
+    try {
+      envelope = JSON.parse(result.stdout);
+    } catch {
+      if (Buffer.byteLength(result.stdout, 'utf8') > limits.replyBytes)
+        fail('edition_provider_reply_size_invalid');
+      fail('edition_provider_response_invalid');
+    }
+    if (exact(envelope, ['status', 'code']) && envelope.status === 'error') {
+      if (
+        typeof envelope.code !== 'string' ||
+        !/^edition_provider_[a-z0-9_]+$/u.test(envelope.code)
+      )
+        fail('edition_provider_response_invalid');
+      fail(envelope.code);
+    }
+    if (!exact(envelope, ['status', 'reply']) || envelope.status !== 'ok')
+      fail('edition_provider_response_invalid');
+    if (result.status !== 0) fail('edition_provider_process_failed');
+    return { raw: result.stdout, reply: validateProviderReply(envelope.reply) };
+  } finally {
+    await handle.close();
+  }
+}
+
+async function materializedValues(reply, manifest, scratch) {
+  if (
+    reply.source.id !== manifest.subject.id ||
+    reply.source.revision !== manifest.subject.revision
+  )
+    fail('edition_provider_subject_mismatch');
+  const members = reply.source.members.map(({ path: memberPath, contentBase64 }) => ({
+      path: memberPath,
+      content: Buffer.from(contentBase64, 'base64'),
+    })),
+    editionBytes = Buffer.from(reply.edition.contentBase64, 'base64'),
+    evolutionBytes =
+      reply.evolution === null ? null : Buffer.from(reply.evolution.contentBase64, 'base64'),
+    replyBytes =
+      members.reduce((total, member) => total + member.content.length, 0) +
+      editionBytes.length +
+      (evolutionBytes?.length ?? 0);
+  if (replyBytes > manifest.limits.replyBytes) fail('edition_provider_reply_size_invalid');
+  const written = await writeSourceBundle(
+    path.join(scratch, 'materialized-source'),
+    { id: reply.source.id, revision: reply.source.revision },
+    members,
+  );
+  if (written.manifestSha256 !== manifest.expected.sourceManifestSha256)
+    fail('edition_provider_source_identity_mismatch');
+  const semanticMember = reply.source.members.find(
+    ({ path: memberPath }) => portableKey(memberPath) === portableKey(reply.semanticMember),
+  ).path;
+  const semanticBytes = members.find(
+      ({ path: memberPath }) => memberPath === semanticMember,
+    ).content,
+    model = validateClaimModel(json(semanticBytes, 'edition_provider_semantic_json_invalid')),
+    semanticDigest = claimModelDigest(model);
+  if (semanticDigest !== manifest.expected.claimModelDigest)
+    fail('edition_provider_semantic_identity_mismatch');
+  const edition = validateEdition(
+      model,
+      json(editionBytes, 'edition_provider_edition_json_invalid'),
+    ),
+    selectedEditionDigest = editionDigest(model, edition);
+  if (edition.source.manifestSha256 !== written.manifestSha256)
+    fail('edition_provider_edition_source_mismatch');
+  if (selectedEditionDigest !== manifest.expected.editionDigest)
+    fail('edition_provider_edition_identity_mismatch');
+  const editionSha256 = sha(editionBytes);
+  let evolutionSha256 = null;
+  if (evolutionBytes !== null) {
+    compileEditionEvolution(json(evolutionBytes, 'edition_provider_evolution_json_invalid'));
+    evolutionSha256 = sha(evolutionBytes);
+  }
+  if (evolutionSha256 !== manifest.expected.evolutionSha256)
+    fail('edition_provider_evolution_identity_mismatch');
+  return {
+    source: reply.source,
+    semanticMember,
+    edition: reply.edition,
+    evolution: reply.evolution,
+    sourceSha256: written.manifestSha256,
+    semanticDigest,
+    editionSha256,
+    editionDigest: selectedEditionDigest,
+    evolutionSha256,
+  };
+}
+
+/** Execute one exact installed Provider in a bounded child and validate its values. */
+export async function materializeExecutableProvider(
+  selection,
+  options = { verifyDeterminism: false },
+) {
+  if (!exact(selection, ['providerManifest', 'providerManifestSha256', 'providerPackageRoot']))
+    fail('edition_provider_selection_invalid');
+  if (!exact(options, ['verifyDeterminism'])) fail('edition_provider_options_invalid');
+  if (typeof options.verifyDeterminism !== 'boolean') fail('edition_provider_options_invalid');
+  const selected = await readEditionProviderInput(
+      selection.providerManifest,
+      selection.providerManifestSha256,
+    ),
+    { manifest, root } = selected;
+  if (manifest.delivery.kind !== 'executable') fail('edition_provider_delivery_kind_invalid');
+  const packageSelection = await selectPackage(
+      selection.providerPackageRoot,
+      manifest.delivery.package,
+    ),
+    request = await requestFor(manifest, root),
+    temporaryRoot = await fs.realpath(os.tmpdir()),
+    scratch = await fs.mkdtemp(path.join(temporaryRoot, `architecture-provider-${process.pid}-`)),
+    started = performance.now();
+  try {
+    for (const directory of ['config', 'cache', 'data', 'tmp'])
+      await fs.mkdir(path.join(scratch, directory));
+    const requestPath = path.join(scratch, 'request.json');
+    await fs.writeFile(requestPath, JSON.stringify(request), { flag: 'wx', mode: 0o600 });
+    const first = await execute(packageSelection.entrypoint, requestPath, scratch, manifest.limits);
+    if (options.verifyDeterminism) {
+      const second = await execute(
+        packageSelection.entrypoint,
+        requestPath,
+        scratch,
+        manifest.limits,
+      );
+      if (first.raw !== second.raw) fail('edition_provider_nondeterministic');
+    }
+    const values = await materializedValues(first.reply, manifest, scratch),
+      receipt = validateProviderMaterialization({
+        schema: 'architecture.edition-provider-materialization/v1',
+        provider: manifest.provider,
+        subject: manifest.subject,
+        delivery: 'executable',
+        inputs: request.inputs.map(
+          ({ contentBase64: _contentBase64, mediaType: _mediaType, ...input }) => input,
+        ),
+        materialized: {
+          sourceManifestSha256: values.sourceSha256,
+          claimModelDigest: values.semanticDigest,
+          editionDigest: values.editionDigest,
+          evolutionSha256: values.evolutionSha256,
+        },
+        producer: await readPublisherIdentity(),
+        execution: {
+          kind: 'child-process',
+          durationMs: Math.max(0, Math.round(performance.now() - started)),
+          deterministic: options.verifyDeterminism,
+        },
+      });
+    return deepFreeze({ ...values, receipt });
+  } finally {
+    await fs.rm(scratch, { recursive: true, force: true });
+  }
+}

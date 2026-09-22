@@ -1,0 +1,71 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+const selectedInput = (request) => request.inputs.find(({ id }) => id === 'source');
+const fail = (code) => {
+  throw Object.assign(new Error(code), { code });
+};
+
+export async function materializeEditionProvider(request) {
+  globalThis.__providerExecuted = true;
+  const input = selectedInput(request);
+  if (!input) fail('edition_provider_fixture_input_missing');
+  const selected = JSON.parse(Buffer.from(input.contentBase64, 'base64').toString('utf8'));
+  const cwd = process.cwd();
+  if (
+    process.env.HOME !== cwd ||
+    process.env.PATH !== cwd ||
+    process.env.NODE_V8_COVERAGE !== undefined ||
+    !['XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'TMPDIR'].every((name) =>
+      process.env[name]?.startsWith(cwd + path.sep),
+    )
+  )
+    fail('edition_provider_environment_invalid');
+
+  if (selected.scenario === 'exit') process.exit(17);
+  if (selected.scenario === 'signal') process.kill(process.pid, 'SIGKILL');
+  if (selected.scenario === 'throw') fail('edition_provider_fixture_failure');
+  if (selected.scenario === 'nonzero-ok') process.exitCode = 1;
+  if (selected.scenario === 'timeout') {
+    process.on('SIGTERM', () => {});
+    await new Promise(() => setInterval(() => {}, 1000));
+  }
+  if (selected.scenario === 'empty') process.exit(0);
+  if (selected.scenario === 'malformed') {
+    process.stdout.write('{');
+    process.exit(0);
+  }
+  if (selected.scenario === 'oversized') {
+    process.stdout.write('x'.repeat(2 * 1024 * 1024));
+    process.exit(0);
+  }
+  if (selected.scenario === 'stderr') process.stderr.write('unexpected provider diagnostic');
+  if (selected.scenario === 'forbidden') return { ...selected.reply, publication: {} };
+  if (selected.scenario === 'subject-drift') {
+    const reply = structuredClone(selected.reply);
+    reply.source.revision += '-changed';
+    return reply;
+  }
+  if (selected.scenario === 'large-reply') {
+    const reply = structuredClone(selected.reply);
+    reply.source.members.push({
+      path: 'noise.bin',
+      contentBase64: Buffer.alloc(2048).toString('base64'),
+    });
+    return reply;
+  }
+  if (selected.scenario === 'nondeterministic') {
+    const marker = path.join(cwd, 'second-run');
+    if (fs.existsSync(marker)) {
+      const reply = structuredClone(selected.reply);
+      reply.source.members.reverse();
+      return reply;
+    }
+    fs.writeFileSync(marker, '1');
+  }
+  return selected.reply;
+}
+
+export function unselectedExport() {
+  fail('edition_provider_unselected_export_invoked');
+}

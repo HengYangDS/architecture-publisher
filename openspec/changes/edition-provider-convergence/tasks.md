@@ -17,7 +17,7 @@
       Source Bundle and Edition identities, optional evolution, relocation,
       symlinks, escaping paths, extra files, and changed bytes; implement
       declarative materialization and verify the complete focused suite passes.
-- [ ] 2.2 Add RED executable-provider tests for exact installed package identity,
+- [x] 2.2 Add RED executable-provider tests for exact installed package identity,
       public export selection, empty user configuration, bounded stdin/stdout/time,
       deterministic reply, ambient-checkout immunity, forbidden later-stage output,
       interruption, and cleanup; implement the child-process runner and verify no

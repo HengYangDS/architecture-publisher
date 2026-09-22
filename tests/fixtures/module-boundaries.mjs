@@ -224,6 +224,12 @@ export function inspectModuleBoundaries(
     )
       reference(node, node.source);
     if (node.type === 'ImportExpression') {
+      if (
+        file === 'packages/publisher/src/provider/worker.mjs' &&
+        node.source.type === 'Identifier' &&
+        node.source.name === 'selectedEntrypointUrl'
+      )
+        return;
       reference(node, node.source);
     }
     if (

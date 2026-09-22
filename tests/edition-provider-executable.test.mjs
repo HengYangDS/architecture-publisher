@@ -1,0 +1,319 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+import { editionDigest } from '../packages/publisher/src/edition/contract.mjs';
+import { materializeExecutableProvider } from '../packages/publisher/src/provider/index.mjs';
+import { claimModelDigest } from '../packages/publisher/src/semantics/document.mjs';
+import {
+  materializeEditionProvider as fixtureEntrypoint,
+  unselectedExport,
+} from './fixtures/providers/executable/package/provider.mjs';
+
+const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const fixtureRoot = new URL('./fixtures/providers/executable/', import.meta.url);
+const evidence = new URL('../build/test-work/', import.meta.url);
+
+async function copyFixture(t) {
+  await fs.mkdir(evidence, { recursive: true });
+  const root = await fs.mkdtemp(new URL('provider-executable-', evidence));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await fs.cp(fixtureRoot, root, { recursive: true });
+  return root;
+}
+
+async function writeManifest(root, options = {}) {
+  const packageFile = path.join(root, 'package/package.json');
+  const inputFile = path.join(root, 'inputs/source.json');
+  const packageJson = JSON.parse(await fs.readFile(packageFile, 'utf8'));
+  const input = JSON.parse(await fs.readFile(inputFile, 'utf8'));
+  if (options.scenario) {
+    input.scenario = options.scenario;
+    await fs.writeFile(inputFile, JSON.stringify(input, null, 2) + '\n');
+  }
+  const inputBytes = await fs.readFile(inputFile);
+  const semantic = JSON.parse(
+    Buffer.from(
+      input.reply.source.members.find(({ path: member }) => member === input.reply.semanticMember)
+        .contentBase64,
+      'base64',
+    ).toString('utf8'),
+  );
+  const editionBytes = Buffer.from(input.reply.edition.contentBase64, 'base64');
+  const edition = JSON.parse(editionBytes.toString('utf8'));
+  const sourceManifestBytes = Buffer.from(
+    JSON.stringify(
+      {
+        schema: 'architecture.source-bundle/v1',
+        source: { id: input.reply.source.id, revision: input.reply.source.revision },
+        files: input.reply.source.members.map(({ path: member, contentBase64 }) => {
+          const bytes = Buffer.from(contentBase64, 'base64');
+          return { path: member, bytes: bytes.length, sha256: sha(bytes) };
+        }),
+      },
+      null,
+      2,
+    ) + '\n',
+  );
+  const manifest = {
+    schema: 'architecture.edition-provider/v1',
+    provider: { id: 'fixture-executable-provider', revision: '1.0.0' },
+    subject: { id: input.reply.source.id, revision: input.reply.source.revision },
+    contracts: {
+      sourceBundle: 'architecture.source-bundle/v1',
+      claimModel: 'architecture.claim-model/v2',
+      edition: 'architecture.edition/v1',
+      evolution: null,
+    },
+    delivery: {
+      kind: 'executable',
+      package: {
+        name: packageJson.name,
+        version: packageJson.version,
+        packageJsonSha256: sha(await fs.readFile(packageFile)),
+        entrypoint: './provider',
+      },
+      inputs: [
+        {
+          id: 'source',
+          path: 'inputs/source.json',
+          mediaType: 'application/json',
+          bytes: inputBytes.length,
+          sha256: sha(inputBytes),
+        },
+      ],
+    },
+    expected: {
+      sourceManifestSha256: sha(sourceManifestBytes),
+      claimModelDigest: claimModelDigest(semantic),
+      editionDigest: editionDigest(semantic, edition),
+      evolutionSha256: null,
+    },
+    limits: {
+      inputs: 16,
+      inputBytes: 1024 * 1024,
+      replyBytes: options.replyBytes ?? 2 * 1024 * 1024,
+      timeoutMs: options.timeoutMs ?? 2_000,
+    },
+  };
+  const providerManifest = path.join(root, 'provider.json');
+  await fs.writeFile(providerManifest, JSON.stringify(manifest, null, 2) + '\n');
+  return {
+    providerManifest,
+    providerManifestSha256: sha(await fs.readFile(providerManifest)),
+    providerPackageRoot: path.join(root, 'package'),
+  };
+}
+
+async function scratchNames() {
+  const root = await fs.realpath(os.tmpdir());
+  return new Set(
+    (await fs.readdir(root)).filter((name) =>
+      name.startsWith(`architecture-provider-${process.pid}-`),
+    ),
+  );
+}
+
+test('executable fixture exposes one selected and one deliberately unselected export', () => {
+  assert.equal(typeof fixtureEntrypoint, 'function');
+  assert.equal(typeof unselectedExport, 'function');
+  assert.equal(globalThis.__providerExecuted, undefined);
+});
+
+test('executable provider runs only the selected export in a bounded child', async (t) => {
+  const root = await copyFixture(t);
+  const before = await scratchNames();
+  const result = await materializeExecutableProvider(await writeManifest(root), {
+    verifyDeterminism: true,
+  });
+  assert.equal(result.receipt.delivery, 'executable');
+  assert.equal(result.receipt.execution.kind, 'child-process');
+  assert.equal(result.receipt.execution.deterministic, true);
+  assert.equal(result.sourceSha256, result.receipt.materialized.sourceManifestSha256);
+  assert.equal(result.semanticDigest, result.receipt.materialized.claimModelDigest);
+  assert.equal(result.editionDigest, result.receipt.materialized.editionDigest);
+  assert.equal(globalThis.__providerExecuted, undefined);
+  assert.deepEqual(await scratchNames(), before);
+});
+
+test('executable provider selects exact package identity and public export', async (t) => {
+  const nameRoot = await copyFixture(t);
+  const name = await writeManifest(nameRoot);
+  const nameManifest = JSON.parse(await fs.readFile(name.providerManifest, 'utf8'));
+  nameManifest.delivery.package.name = '@example/other-provider';
+  await fs.writeFile(name.providerManifest, JSON.stringify(nameManifest, null, 2) + '\n');
+  name.providerManifestSha256 = sha(await fs.readFile(name.providerManifest));
+  await assert.rejects(materializeExecutableProvider(name), {
+    code: 'edition_provider_package_identity_mismatch',
+  });
+
+  const digestRoot = await copyFixture(t);
+  const digestSelection = await writeManifest(digestRoot);
+  await fs.appendFile(path.join(digestRoot, 'package/package.json'), ' ');
+  await assert.rejects(materializeExecutableProvider(digestSelection), {
+    code: 'edition_provider_package_digest_mismatch',
+  });
+
+  const escapeRoot = await copyFixture(t);
+  const packageFile = path.join(escapeRoot, 'package/package.json');
+  const packageJson = JSON.parse(await fs.readFile(packageFile, 'utf8'));
+  packageJson.exports['./provider'] = '../outside.mjs';
+  await fs.writeFile(packageFile, JSON.stringify(packageJson, null, 2) + '\n');
+  const escape = await writeManifest(escapeRoot);
+  await assert.rejects(materializeExecutableProvider(escape), {
+    code: 'edition_provider_entrypoint_invalid',
+  });
+
+  const symlinkRoot = await copyFixture(t);
+  const actualPackage = path.join(symlinkRoot, 'actual-package');
+  await fs.rename(path.join(symlinkRoot, 'package'), actualPackage);
+  await fs.symlink('actual-package', path.join(symlinkRoot, 'package'));
+  const linked = await writeManifest(symlinkRoot);
+  await assert.rejects(materializeExecutableProvider(linked), {
+    code: 'bundle_symlink_forbidden',
+  });
+});
+
+test('executable provider rejects invalid options, roots, manifests, and exports', async (t) => {
+  await assert.rejects(materializeExecutableProvider({}, { verifyDeterminism: false }), {
+    code: 'edition_provider_selection_invalid',
+  });
+
+  const optionsRoot = await copyFixture(t);
+  const optionsSelection = await writeManifest(optionsRoot);
+  await assert.rejects(materializeExecutableProvider(optionsSelection, {}), {
+    code: 'edition_provider_options_invalid',
+  });
+  await assert.rejects(
+    materializeExecutableProvider(optionsSelection, { verifyDeterminism: 'yes' }),
+    { code: 'edition_provider_options_invalid' },
+  );
+
+  const relativeRoot = await copyFixture(t);
+  const relative = await writeManifest(relativeRoot);
+  relative.providerPackageRoot = 'package';
+  await assert.rejects(materializeExecutableProvider(relative), {
+    code: 'edition_provider_package_root_required',
+  });
+
+  const fileRoot = await copyFixture(t);
+  const fileSelection = await writeManifest(fileRoot);
+  fileSelection.providerPackageRoot = path.join(fileRoot, 'inputs/source.json');
+  await assert.rejects(materializeExecutableProvider(fileSelection), {
+    code: 'edition_provider_package_root_invalid',
+  });
+
+  const invalidJsonRoot = await copyFixture(t);
+  const invalidJson = await writeManifest(invalidJsonRoot);
+  await fs.writeFile(path.join(invalidJsonRoot, 'package/package.json'), '{');
+  const invalidProvider = JSON.parse(await fs.readFile(invalidJson.providerManifest, 'utf8'));
+  invalidProvider.delivery.package.packageJsonSha256 = sha(Buffer.from('{'));
+  await fs.writeFile(invalidJson.providerManifest, JSON.stringify(invalidProvider, null, 2) + '\n');
+  invalidJson.providerManifestSha256 = sha(await fs.readFile(invalidJson.providerManifest));
+  await assert.rejects(materializeExecutableProvider(invalidJson), {
+    code: 'edition_provider_package_json_invalid',
+  });
+
+  const missingExportRoot = await copyFixture(t);
+  const missingPackageFile = path.join(missingExportRoot, 'package/package.json');
+  const missingPackage = JSON.parse(await fs.readFile(missingPackageFile, 'utf8'));
+  missingPackage.exports = {};
+  await fs.writeFile(missingPackageFile, JSON.stringify(missingPackage, null, 2) + '\n');
+  await assert.rejects(materializeExecutableProvider(await writeManifest(missingExportRoot)), {
+    code: 'edition_provider_entrypoint_invalid',
+  });
+
+  const invalidTargetRoot = await copyFixture(t);
+  const invalidTargetFile = path.join(invalidTargetRoot, 'package/package.json');
+  const invalidTargetPackage = JSON.parse(await fs.readFile(invalidTargetFile, 'utf8'));
+  invalidTargetPackage.exports['./provider'] = './../outside.mjs';
+  await fs.writeFile(invalidTargetFile, JSON.stringify(invalidTargetPackage, null, 2) + '\n');
+  await assert.rejects(materializeExecutableProvider(await writeManifest(invalidTargetRoot)), {
+    code: 'edition_provider_entrypoint_invalid',
+  });
+});
+
+test('executable provider reads only exact declared inputs', async (t) => {
+  const changedRoot = await copyFixture(t);
+  const changed = await writeManifest(changedRoot);
+  const inputFile = path.join(changedRoot, 'inputs/source.json');
+  const bytes = await fs.readFile(inputFile);
+  bytes[bytes.length - 2] = bytes[bytes.length - 2] === 0x20 ? 0x21 : 0x20;
+  await fs.writeFile(inputFile, bytes);
+  await assert.rejects(materializeExecutableProvider(changed), {
+    code: 'edition_provider_input_digest_mismatch',
+  });
+
+  const sizeRoot = await copyFixture(t);
+  const size = await writeManifest(sizeRoot);
+  await fs.appendFile(path.join(sizeRoot, 'inputs/source.json'), ' ');
+  await assert.rejects(materializeExecutableProvider(size), {
+    code: 'edition_provider_input_size_mismatch',
+  });
+
+  const duplicateRoot = await copyFixture(t);
+  const duplicate = await writeManifest(duplicateRoot);
+  const manifest = JSON.parse(await fs.readFile(duplicate.providerManifest, 'utf8'));
+  manifest.delivery.inputs.push(structuredClone(manifest.delivery.inputs[0]));
+  await fs.writeFile(duplicate.providerManifest, JSON.stringify(manifest, null, 2) + '\n');
+  duplicate.providerManifestSha256 = sha(await fs.readFile(duplicate.providerManifest));
+  await assert.rejects(materializeExecutableProvider(duplicate), {
+    code: 'edition_provider_input_duplicate',
+  });
+});
+
+for (const [scenario, code, options] of [
+  ['exit', 'edition_provider_process_failed', {}],
+  ['signal', 'edition_provider_process_failed', {}],
+  ['throw', 'edition_provider_execution_failed', {}],
+  ['nonzero-ok', 'edition_provider_process_failed', {}],
+  ['empty', 'edition_provider_response_invalid', {}],
+  ['malformed', 'edition_provider_response_invalid', {}],
+  ['oversized', 'edition_provider_reply_size_invalid', { replyBytes: 1024 }],
+  ['stderr', 'edition_provider_stderr_invalid', {}],
+  ['forbidden', 'edition_provider_reply_fields_invalid', {}],
+  ['subject-drift', 'edition_provider_subject_mismatch', {}],
+  ['large-reply', 'edition_provider_reply_size_invalid', { replyBytes: 1024 }],
+  ['timeout', 'edition_provider_timeout', { timeoutMs: 100 }],
+]) {
+  test(`executable provider rejects ${scenario} without scratch residue`, async (t) => {
+    const root = await copyFixture(t);
+    const before = await scratchNames();
+    await assert.rejects(
+      materializeExecutableProvider(await writeManifest(root, { scenario, ...options })),
+      {
+        code,
+      },
+    );
+    assert.deepEqual(await scratchNames(), before);
+  });
+}
+
+test('executable conformance rejects nondeterministic replies', async (t) => {
+  const root = await copyFixture(t);
+  await assert.rejects(
+    materializeExecutableProvider(await writeManifest(root, { scenario: 'nondeterministic' }), {
+      verifyDeterminism: true,
+    }),
+    { code: 'edition_provider_nondeterministic' },
+  );
+});
+
+test('executable provider ignores a misleading adjacent checkout', async (t) => {
+  const root = await copyFixture(t);
+  const marker = path.join(root, 'ambient-imported');
+  const ambient = path.join(root, 'node_modules/@example/architecture-edition-provider');
+  await fs.mkdir(ambient, { recursive: true });
+  await fs.writeFile(
+    path.join(ambient, 'package.json'),
+    JSON.stringify({ name: '@example/architecture-edition-provider', type: 'module' }),
+  );
+  await fs.writeFile(
+    path.join(ambient, 'provider.mjs'),
+    `await import('node:fs/promises').then(fs => fs.writeFile(${JSON.stringify(marker)}, 'bad'));`,
+  );
+  await materializeExecutableProvider(await writeManifest(root));
+  await assert.rejects(fs.access(marker), { code: 'ENOENT' });
+});
