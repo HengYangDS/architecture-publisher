@@ -2,8 +2,8 @@
 
 ## 1. Restore current authority
 
-- [ ] 1.1 Rebind topology assertions to canonical product, Edition, and ecosystem-adoption owners and verify the focused product-identity tests pass.
-- [ ] 1.2 Separate live reference scanning from archived historical evidence and verify the focused ETHOS handoff tests pass.
+- [x] 1.1 Rebind topology assertions to canonical product, Edition, and ecosystem-adoption owners and verify the focused product-identity tests pass.
+- [x] 1.2 Separate live reference scanning from archived historical evidence and verify the focused ETHOS handoff tests pass.
 
 ## 2. Close the correction
 

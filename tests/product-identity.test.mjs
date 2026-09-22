@@ -168,27 +168,22 @@ test('terminal topology keeps live Editions with their source products', async (
   const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
   const product = await fs.readFile(path.join(root, 'docs/product-contract.md'), 'utf8');
   const edition = await fs.readFile(path.join(root, 'docs/edition-contract.md'), 'utf8');
-  const proposal = await fs.readFile(
-    path.join(root, 'openspec/changes/architecture-publisher-0-2/proposal.md'),
+  const adoption = await fs.readFile(
+    path.join(root, 'openspec/specs/ecosystem-adoption/spec.md'),
     'utf8',
   );
-  const design = await fs.readFile(
-    path.join(root, 'openspec/changes/architecture-publisher-0-2/design.md'),
-    'utf8',
-  );
-  const tasks = await fs.readFile(
-    path.join(root, 'openspec/changes/architecture-publisher-0-2/tasks.md'),
-    'utf8',
-  );
-  const contract = [readme, product, edition, proposal, design].join('\n');
+  await assert.rejects(fs.stat(path.join(root, 'openspec/changes/architecture-publisher-0-2')), {
+    code: 'ENOENT',
+  });
+  const contract = [readme, product, edition, adoption].join('\n');
 
   assert.match(contract, /source-owned live Edition/i);
   assert.match(contract, /portable standard values or an independently\s+installed package/i);
   assert.match(contract, /no adjacent checkout/i);
   assert.match(contract, /migration staging/i);
-  assert.match(tasks, /remove the migrated central ETHOS package/i);
-  assert.match(tasks, /remove the migrated central AIGW package or example/i);
-  assert.match(tasks, /same immutable candidate digests/i);
+  assert.match(adoption, /second mutable ETHOS or AIGW Edition/i);
+  assert.match(adoption, /same immutable candidate\s+digests/i);
+  assert.match(adoption, /central mutable adapter and Edition are removed/i);
 });
 
 test('the released self Edition depends only on durable source authorities', async () => {

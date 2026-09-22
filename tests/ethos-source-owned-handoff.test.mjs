@@ -206,6 +206,7 @@ test('Publisher retains only immutable ETHOS conformance evidence', async () => 
         .filter(
           (file) =>
             /\.(?:json|md|mjs)$/.test(file) &&
+            !file.startsWith('openspec/changes/') &&
             ![path.relative(root, handoffPath), thisTest].includes(file),
         )
         .map(async (file) => {
@@ -221,5 +222,11 @@ test('Publisher retains only immutable ETHOS conformance evidence', async () => 
   const references = current
     .filter(([, content]) => content.includes('migration/ethos'))
     .map(([file]) => file);
-  assert.deepEqual(references, ['openspec/changes/architecture-publisher-0-2/design.md']);
+  assert.deepEqual(references, []);
+
+  const archivedDesign = await fs.readFile(
+    path.join(root, 'openspec/changes/archive/2026-09-22-architecture-publisher-0-2/design.md'),
+    'utf8',
+  );
+  assert.match(archivedDesign, /migration\/ethos/u);
 });
