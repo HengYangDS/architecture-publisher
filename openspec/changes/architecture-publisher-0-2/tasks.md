@@ -46,7 +46,7 @@
 ## 7. Acceptance, migration, and release
 
 - [x] 7.1 Run syntax, full behavior, module-boundary, semantic, geometry, browser, accessibility, packaging, installed-use, replacement, and recovery gates at one exact candidate HEAD; preserve raw scoped evidence and record all unproved limits.
-- [ ] 7.2 Prove and land the Work Lane into `candidate/dev`, close accepted source into `dev`, and archive this one OpenSpec Change through ETHOS public transitions; verify exact HEADs, leases, attestations, clean worktrees, and absence of active proposal or Work Lane residue.
+- [x] 7.2 Prove and land the Work Lane into `candidate/dev`, close accepted source into `dev`, and archive this one OpenSpec Change through ETHOS public transitions; verify exact HEADs, leases, attestations, clean worktrees, and absence of active proposal or Work Lane residue.
 - [x] 7.3 Preflight local and GitLab consumers, then rename the same repository object and accepted checkout to `architecture-publisher`; verify preserved commit/tag history, default branch, remote path, clone URL, package metadata, and absence of a second mutable repository. Do not publish predecessor archives or modify immutable alpha.7 assets.
-- [ ] 7.4 Create and sign `v0.2.0-alpha.0`, publish exact release assets and package, read back remote bytes, reinstall from the published artifact, and verify the selected static and interactive journeys.
-- [ ] 7.5 Install the accepted 6000-pixel PNG and standalone HTML under `/Users/yheng/Documents`, verify their exact digests against the release manifest, classify and remove only disposable build residue, and report independent off-host recovery as unproved and excluded.
+- [x] 7.4 Create and sign `v0.2.0-alpha.0`, publish exact release assets and package, read back remote bytes, reinstall from the published artifact, and verify the selected static and interactive journeys.
+- [x] 7.5 Install the accepted 6000-pixel PNG and standalone HTML under `/Users/yheng/Documents`, verify their exact digests against the release manifest, classify and remove only disposable build residue, and report independent off-host recovery as unproved and excluded.
