@@ -260,7 +260,7 @@ test('terminal topology keeps live Editions with their source products', async (
   assert.match(contract, /portable standard values or an independently\s+installed package/i);
   assert.match(contract, /no adjacent checkout/i);
   assert.match(contract, /migration staging/i);
-  assert.match(adoption, /second mutable ETHOS or AIGW Edition/i);
+  assert.match(adoption, /second mutable ETHOS or AIGW (?:Provider or )?Edition/i);
   assert.match(adoption, /same immutable candidate\s+digests/i);
   assert.match(adoption, /central mutable adapter and Edition are removed/i);
 });
