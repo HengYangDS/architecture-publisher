@@ -7,5 +7,5 @@
 
 ## 2. Close the correction
 
-- [ ] 2.1 Run the complete repository quality gate and exact-head ETHOS proof, then verify every declared gate passes.
-- [ ] 2.2 Archive this Change through the native lifecycle, land the proved closeout commits, retire the Work Lane, and verify release `v0.2.0-alpha.0` remains immutable.
+- [x] 2.1 Run the complete repository quality gate and exact-head ETHOS proof, then verify every declared gate passes.
+- [x] 2.2 Verify native landing readiness and confirm release `v0.2.0-alpha.0` remains immutable before lifecycle archive and repository closeout.
