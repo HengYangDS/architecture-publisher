@@ -76,7 +76,7 @@
       measured coverage, package validity, installed-use, browser/accessibility,
       publication replacement, interruption recovery, and exact self parity at one
       frozen candidate HEAD; preserve raw evidence and list every unproved limit.
-- [ ] 6.2 Advance package and product identity to the `0.3.0-alpha.1` successor after preserving the signed but unreleased `0.3.0-alpha.0` candidate,
+- [x] 6.2 Advance package and product identity to the `0.3.0-alpha.1` successor after preserving the signed but unreleased `0.3.0-alpha.0` candidate,
       build reproducible archives, sign the candidate, and verify archive identity,
       portable tar-content identity, manifests, provenance, and installed behavior
       without modifying any `0.2.0-alpha.0` or historical alpha.7 byte.
