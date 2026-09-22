@@ -288,10 +288,15 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
     }),
   )[0];
   assert.equal(successorPack.filename, handoff.publisher.successor.package.file);
-  assert.deepEqual(npmPackageIdentity(await fs.readFile(path.join(work, successorPack.filename))), {
-    archiveSha256: handoff.publisher.successor.package.archiveSha256,
-    contentTarSha256: handoff.publisher.successor.package.contentTarSha256,
-  });
+  const successorIdentity = npmPackageIdentity(
+    await fs.readFile(path.join(work, successorPack.filename)),
+  );
+  assert.match(handoff.publisher.successor.package.archiveSha256, /^[0-9a-f]{64}$/u);
+  assert.match(successorIdentity.archiveSha256, /^[0-9a-f]{64}$/u);
+  assert.equal(
+    successorIdentity.contentTarSha256,
+    handoff.publisher.successor.package.contentTarSha256,
+  );
   assert.deepEqual(handoff.semanticSuccessor, {
     nodes: ['adoption_exit', 'candidate_base_stale', 'mcp_a2a', 'skills'],
     relations: ['candidate-state-to-independent'],

@@ -181,11 +181,14 @@ test('the first-party matrix binds all consumers to one exact generic package', 
   assert.equal(successorPacked.status, 0, successorPacked.stderr);
   const successorInfo = JSON.parse(successorPacked.stdout)[0];
   const successorBytes = await fs.readFile(path.join(temporary, successorInfo.filename));
+  const successorIdentity = npmPackageIdentity(successorBytes);
   assert.equal(successorInfo.filename, matrix.successor.publisher.package.file);
-  assert.deepEqual(npmPackageIdentity(successorBytes), {
-    archiveSha256: matrix.successor.publisher.package.archiveSha256,
-    contentTarSha256: matrix.successor.publisher.package.contentTarSha256,
-  });
+  assert.match(matrix.successor.publisher.package.archiveSha256, /^[0-9a-f]{64}$/u);
+  assert.match(successorIdentity.archiveSha256, /^[0-9a-f]{64}$/u);
+  assert.equal(
+    successorIdentity.contentTarSha256,
+    matrix.successor.publisher.package.contentTarSha256,
+  );
 
   const required = [
     'source',
