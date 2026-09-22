@@ -5,7 +5,10 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { editionDigest } from '../packages/publisher/src/edition/contract.mjs';
-import { materializeExecutableProvider } from '../packages/publisher/src/provider/index.mjs';
+import {
+  editionProviderPackageDigest,
+  materializeExecutableProvider,
+} from '../packages/publisher/src/provider/index.mjs';
 import { claimModelDigest } from '../packages/publisher/src/semantics/document.mjs';
 import {
   materializeEditionProvider as fixtureEntrypoint,
@@ -25,7 +28,8 @@ async function copyFixture(t) {
 }
 
 async function writeManifest(root, options = {}) {
-  const packageFile = path.join(root, 'package/package.json');
+  const packageRoot = path.join(root, 'package');
+  const packageFile = path.join(packageRoot, 'package.json');
   const inputFile = path.join(root, 'inputs/source.json');
   const packageJson = JSON.parse(await fs.readFile(packageFile, 'utf8'));
   const input = JSON.parse(await fs.readFile(inputFile, 'utf8'));
@@ -73,6 +77,7 @@ async function writeManifest(root, options = {}) {
         name: packageJson.name,
         version: packageJson.version,
         packageJsonSha256: sha(await fs.readFile(packageFile)),
+        contentSha256: await editionProviderPackageDigest(packageRoot),
         entrypoint: './provider',
       },
       inputs: [
@@ -103,7 +108,7 @@ async function writeManifest(root, options = {}) {
   return {
     providerManifest,
     providerManifestSha256: sha(await fs.readFile(providerManifest)),
-    providerPackageRoot: path.join(root, 'package'),
+    providerPackageRoot: packageRoot,
   };
 }
 
@@ -125,7 +130,8 @@ test('executable fixture exposes one selected and one deliberately unselected ex
 test('executable provider runs only the selected export in a bounded child', async (t) => {
   const root = await copyFixture(t);
   const before = await scratchNames();
-  const result = await materializeExecutableProvider(await writeManifest(root), {
+  const selection = await writeManifest(root);
+  const result = await materializeExecutableProvider(selection, {
     verifyDeterminism: true,
   });
   assert.equal(result.receipt.delivery, 'executable');
@@ -134,6 +140,15 @@ test('executable provider runs only the selected export in a bounded child', asy
   assert.equal(result.sourceSha256, result.receipt.materialized.sourceManifestSha256);
   assert.equal(result.semanticDigest, result.receipt.materialized.claimModelDigest);
   assert.equal(result.editionDigest, result.receipt.materialized.editionDigest);
+  assert.deepEqual(
+    result.receipt.inputs.map(({ id }) => id),
+    ['provider-manifest', 'provider-package', 'source'],
+  );
+  assert.equal(
+    result.receipt.inputs.find(({ id }) => id === 'provider-package').sha256,
+    JSON.parse(await fs.readFile(selection.providerManifest, 'utf8')).delivery.package
+      .contentSha256,
+  );
   assert.equal(globalThis.__providerExecuted, undefined);
   assert.deepEqual(await scratchNames(), before);
 });
@@ -156,6 +171,13 @@ test('executable provider selects exact package identity and public export', asy
     code: 'edition_provider_package_digest_mismatch',
   });
 
+  const contentRoot = await copyFixture(t);
+  const contentSelection = await writeManifest(contentRoot);
+  await fs.appendFile(path.join(contentRoot, 'package/provider.mjs'), '\n');
+  await assert.rejects(materializeExecutableProvider(contentSelection), {
+    code: 'edition_provider_package_content_mismatch',
+  });
+
   const escapeRoot = await copyFixture(t);
   const packageFile = path.join(escapeRoot, 'package/package.json');
   const packageJson = JSON.parse(await fs.readFile(packageFile, 'utf8'));
@@ -167,10 +189,10 @@ test('executable provider selects exact package identity and public export', asy
   });
 
   const symlinkRoot = await copyFixture(t);
+  const linked = await writeManifest(symlinkRoot);
   const actualPackage = path.join(symlinkRoot, 'actual-package');
   await fs.rename(path.join(symlinkRoot, 'package'), actualPackage);
   await fs.symlink('actual-package', path.join(symlinkRoot, 'package'));
-  const linked = await writeManifest(symlinkRoot);
   await assert.rejects(materializeExecutableProvider(linked), {
     code: 'bundle_symlink_forbidden',
   });
@@ -210,6 +232,9 @@ test('executable provider rejects invalid options, roots, manifests, and exports
   await fs.writeFile(path.join(invalidJsonRoot, 'package/package.json'), '{');
   const invalidProvider = JSON.parse(await fs.readFile(invalidJson.providerManifest, 'utf8'));
   invalidProvider.delivery.package.packageJsonSha256 = sha(Buffer.from('{'));
+  invalidProvider.delivery.package.contentSha256 = await editionProviderPackageDigest(
+    invalidJson.providerPackageRoot,
+  );
   await fs.writeFile(invalidJson.providerManifest, JSON.stringify(invalidProvider, null, 2) + '\n');
   invalidJson.providerManifestSha256 = sha(await fs.readFile(invalidJson.providerManifest));
   await assert.rejects(materializeExecutableProvider(invalidJson), {

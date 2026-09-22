@@ -194,6 +194,7 @@ test('declarative provider rejects non-declarative delivery and broken bindings'
         name: '@example/provider',
         version: '1.0.0',
         packageJsonSha256: 'a'.repeat(64),
+        contentSha256: 'b'.repeat(64),
         entrypoint: './provider.mjs',
       },
       inputs: [],

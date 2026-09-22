@@ -63,10 +63,12 @@ standard values directly.
 
 ## Executable delivery
 
-An executable Provider selects one exact independently installed package and
-one public export. Architecture Publisher starts a bounded child process with a
-closed JSON request, empty user configuration, no inherited credentials, and no
-ambient repository discovery. The reply may contain only the standard values.
+An executable Provider selects one exact independently installed package, its
+package-manifest digest, a canonical digest over every regular package file, and
+one public export. Architecture Publisher verifies both digests before and after
+execution, then starts a bounded child process with a closed JSON request, empty
+user configuration, no inherited credentials, and no ambient repository
+discovery. The reply may contain only the standard values.
 
 Use this mode only when adaptation cannot be expressed as portable data. The
 Provider package may depend inward on public source, semantics, Edition, and

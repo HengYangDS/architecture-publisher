@@ -39,6 +39,7 @@ function manifest(kind = 'declarative') {
             name: '@example/architecture-provider',
             version: '1.2.3',
             packageJsonSha256: A,
+            contentSha256: B,
             entrypoint: './provider',
           },
           inputs: [
@@ -193,6 +194,12 @@ test('provider manifest binds portable inputs and fixed resource ceilings', () =
   assert.throws(() => validateEditionProvider(excessiveTotal), {
     code: 'edition_provider_input_size_invalid',
   });
+
+  const reserved = manifest('executable');
+  reserved.delivery.inputs[0].id = 'provider-package';
+  assert.throws(() => validateEditionProvider(reserved), {
+    code: 'edition_provider_input_id_reserved',
+  });
 });
 
 test('executable provider identity is exact and product-neutral', () => {
@@ -203,6 +210,7 @@ test('executable provider identity is exact and product-neutral', () => {
     (candidate) => (candidate.delivery.package.version = ''),
     (candidate) => (candidate.delivery.package.entrypoint = '../provider.mjs'),
     (candidate) => (candidate.delivery.package.packageJsonSha256 = '0'),
+    (candidate) => (candidate.delivery.package.contentSha256 = '0'),
     (candidate) => (candidate.delivery.inputs[0].bytes = -1),
     (candidate) => (candidate.delivery.inputs[0].mediaType = ''),
   ]) {

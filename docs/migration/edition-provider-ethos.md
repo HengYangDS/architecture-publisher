@@ -38,7 +38,8 @@ against the selected incumbent output and rollback has been rehearsed.
    Edition, scenes, artifacts, Candidate, qualification, and publication
    identities.
 3. Create one package with one selected public export named
-   `materializeEditionProvider`; bind exact package and input identities.
+   `materializeEditionProvider`; bind the package manifest, complete package
+   content, public export, and input identities.
 4. Run the common Provider profile in a bounded child process with empty user
    configuration, no adjacent checkout, and no inherited credential.
 5. Build with `archpub edition build`; prove either byte-identical parity or an

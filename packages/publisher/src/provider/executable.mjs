@@ -21,6 +21,8 @@ import {
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const worker = fileURLToPath(new URL('./worker.mjs', import.meta.url));
 const JSON_BYTES = 16 * 1024 * 1024;
+const PACKAGE_FILES = 4096;
+const PACKAGE_BYTES = 128 * 1024 * 1024;
 
 function exact(value, fields) {
   return (
@@ -44,23 +46,75 @@ function below(root, selected, code) {
   return selected;
 }
 
-async function selectPackage(root, selected) {
+function compareNames(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+async function editionProviderPackageIdentity(root) {
   if (typeof root !== 'string' || !path.isAbsolute(root))
     fail('edition_provider_package_root_required');
   const packageRoot = path.resolve(root);
   await noSymlinkAncestors(packageRoot);
-  const stat = await fs.lstat(packageRoot);
+  const rootStat = await fs.lstat(packageRoot);
   if (
-    !stat.isDirectory() ||
-    stat.isSymbolicLink() ||
+    !rootStat.isDirectory() ||
+    rootStat.isSymbolicLink() ||
     (await fs.realpath(packageRoot)) !== packageRoot
   )
     fail('edition_provider_package_root_invalid');
+  const files = [];
+  let totalBytes = 0;
+  const pending = [{ directory: packageRoot, relative: '' }];
+  while (pending.length) {
+    const { directory, relative } = pending.pop();
+    const entries = (await fs.readdir(directory, { withFileTypes: true })).sort((left, right) =>
+      compareNames(left.name, right.name),
+    );
+    for (const entry of entries) {
+      if (entry.name === 'node_modules') fail('edition_provider_package_content_invalid');
+      const member = path.join(directory, entry.name),
+        memberPath = path.posix.join(relative, entry.name);
+      if (entry.isSymbolicLink()) fail('edition_provider_package_content_invalid');
+      if (entry.isDirectory()) {
+        pending.push({ directory: member, relative: memberPath });
+        continue;
+      }
+      if (!entry.isFile()) fail('edition_provider_package_content_invalid');
+      const bytes = await regularBytes(member, JSON_BYTES);
+      totalBytes += bytes.length;
+      if (files.length >= PACKAGE_FILES || totalBytes > PACKAGE_BYTES)
+        fail('edition_provider_package_content_invalid');
+      files.push({ path: memberPath, bytes: bytes.length, sha256: sha(bytes) });
+    }
+  }
+  files.sort((left, right) => compareNames(left.path, right.path));
+  return {
+    root: packageRoot,
+    bytes: totalBytes,
+    sha256: sha(
+      Buffer.from(
+        JSON.stringify({ schema: 'architecture.edition-provider-package-content/v1', files }) +
+          '\n',
+      ),
+    ),
+  };
+}
+
+/** Bind every regular file in one independently installed Provider package. */
+export async function editionProviderPackageDigest(root) {
+  return (await editionProviderPackageIdentity(root)).sha256;
+}
+
+async function selectPackage(root, selected) {
+  const packageIdentity = await editionProviderPackageIdentity(root),
+    packageRoot = packageIdentity.root;
   const packageFile = path.join(packageRoot, 'package.json');
   await noSymlinkAncestors(packageFile);
   const packageBytes = await regularBytes(packageFile, LIMITS.manifestBytes);
   if (sha(packageBytes) !== selected.packageJsonSha256)
     fail('edition_provider_package_digest_mismatch');
+  if (packageIdentity.sha256 !== selected.contentSha256)
+    fail('edition_provider_package_content_mismatch');
   const packageJson = json(packageBytes, 'edition_provider_package_json_invalid');
   if (
     packageJson === null ||
@@ -86,7 +140,7 @@ async function selectPackage(root, selected) {
   );
   await noSymlinkAncestors(entrypoint);
   await regularBytes(entrypoint, JSON_BYTES);
-  return { entrypoint, packageBytes };
+  return { entrypoint, packageBytes, packageIdentity };
 }
 
 async function requestFor(manifest, root) {
@@ -286,15 +340,29 @@ export async function materializeExecutableProvider(
       );
       if (first.raw !== second.raw) fail('edition_provider_nondeterministic');
     }
+    if (
+      (await editionProviderPackageDigest(packageSelection.packageIdentity.root)) !==
+      selected.manifest.delivery.package.contentSha256
+    )
+      fail('edition_provider_package_content_mismatch');
     const values = await materializedValues(first.reply, manifest, scratch),
+      providerBytes = await regularBytes(selection.providerManifest, LIMITS.manifestBytes),
       receipt = validateProviderMaterialization({
         schema: 'architecture.edition-provider-materialization/v1',
         provider: manifest.provider,
         subject: manifest.subject,
         delivery: 'executable',
-        inputs: request.inputs.map(
-          ({ contentBase64: _contentBase64, mediaType: _mediaType, ...input }) => input,
-        ),
+        inputs: [
+          { id: 'provider-manifest', bytes: providerBytes.length, sha256: sha(providerBytes) },
+          {
+            id: 'provider-package',
+            bytes: packageSelection.packageIdentity.bytes,
+            sha256: packageSelection.packageIdentity.sha256,
+          },
+          ...request.inputs.map(
+            ({ contentBase64: _contentBase64, mediaType: _mediaType, ...input }) => input,
+          ),
+        ].sort((left, right) => left.id.localeCompare(right.id)),
         materialized: {
           sourceManifestSha256: values.sourceSha256,
           claimModelDigest: values.semanticDigest,

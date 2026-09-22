@@ -4,6 +4,7 @@ import { fail, isDigest, portableKey, portablePath } from '../source/manifest.mj
 import { EDITION_PROVIDER_LIMITS } from './contract.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const MAX_RECEIPT_INPUTS = EDITION_PROVIDER_LIMITS.inputs + 2;
 
 function record(value, code) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail(code);
@@ -200,7 +201,7 @@ export function validateProviderMaterialization(value) {
   identity(selected.subject, 'edition_provider_subject_invalid');
   if (!['declarative', 'executable'].includes(selected.delivery))
     fail('edition_provider_delivery_kind_invalid');
-  if (!Array.isArray(selected.inputs) || selected.inputs.length > EDITION_PROVIDER_LIMITS.inputs)
+  if (!Array.isArray(selected.inputs) || selected.inputs.length > MAX_RECEIPT_INPUTS)
     fail('edition_provider_receipt_inputs_invalid');
   const ids = new Set();
   for (const value of selected.inputs) {

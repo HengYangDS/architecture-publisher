@@ -106,10 +106,10 @@ The envelope is an exact tagged union. Common fields are `schema`, `provider`,
 A declarative delivery selects one relative Source Bundle manifest, semantic
 member, Edition file, and optional evolution file, each with an exact digest.
 An executable delivery selects package name, package version, package-manifest
-digest, public export, and a closed list of relative input files with identifiers,
-media types, sizes, and digests. The build request supplies the absolute package
-root separately; host paths never enter the provider envelope or semantic
-identities.
+digest, a canonical digest over every regular package file, public export, and a
+closed list of relative input files with identifiers, media types, sizes, and
+digests. The build request supplies the absolute package root separately; host
+paths never enter the provider envelope or semantic identities.
 
 The existing Edition build plan becomes an exact union. Its direct form retains
 the current Source Bundle and Edition fields. Its provider form selects

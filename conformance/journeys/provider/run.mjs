@@ -58,11 +58,6 @@ async function rejectedCode(predicate, expected, operation) {
   fail(predicate, `expected ${expected}; received success`);
 }
 
-function packageName(specifier) {
-  const parts = specifier.split('/');
-  return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0];
-}
-
 function sourceSpecifiers(source, relativeFile) {
   let ast;
   try {
@@ -122,6 +117,8 @@ async function inspectExecutableDependencies(packageRoot, selectedPackage) {
     ...Object.keys(packageJson.optionalDependencies ?? {}),
     ...Object.keys(packageJson.peerDependencies ?? {}),
   ]);
+  for (const dependency of declared)
+    if (dependency !== 'architecture-publisher') fail('dependency-direction', dependency);
   const pending = [entrypoint];
   const visited = new Set();
   const externals = new Set();
@@ -152,11 +149,7 @@ async function inspectExecutableDependencies(packageRoot, selectedPackage) {
         externals.add(specifier);
         continue;
       }
-      const dependency = packageName(specifier);
-      if (/^(?:git|isomorphic-git|nodegit|simple-git)$/u.test(dependency))
-        fail('dependency-direction', specifier);
-      if (!declared.has(dependency)) fail('dependency-direction', specifier);
-      externals.add(specifier);
+      fail('dependency-direction', specifier);
     }
   }
   return {

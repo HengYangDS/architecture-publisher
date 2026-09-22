@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 import { runProviderConformance } from '../conformance/journeys/provider/run.mjs';
+import { editionProviderPackageDigest } from '../packages/publisher/src/provider/index.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const evidence = new URL('../build/test-work/', import.meta.url);
@@ -71,4 +72,29 @@ test('dependency conformance rejects the exact forbidden executable import', asy
       message: `provider_conformance_dependency_direction:${specifier}`,
     });
   }
+});
+
+test('dependency conformance rejects declared packages outside the public contract', async (t) => {
+  const selection = await copied(t, 'executable');
+  const packageFile = path.join(selection.providerPackageRoot, 'package.json');
+  const packageJson = JSON.parse(await fs.readFile(packageFile, 'utf8'));
+  packageJson.dependencies = { 'left-pad': '1.3.0' };
+  const packageBytes = Buffer.from(JSON.stringify(packageJson, null, 2) + '\n');
+  await fs.writeFile(packageFile, packageBytes);
+  await fs.writeFile(
+    path.join(selection.providerPackageRoot, 'provider.mjs'),
+    "import leftPad from 'left-pad';\nexport function materializeEditionProvider() { return leftPad; }\n",
+  );
+  const manifest = JSON.parse(await fs.readFile(selection.providerManifest, 'utf8'));
+  manifest.delivery.package.packageJsonSha256 = sha(packageBytes);
+  manifest.delivery.package.contentSha256 = await editionProviderPackageDigest(
+    selection.providerPackageRoot,
+  );
+  const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2) + '\n');
+  await fs.writeFile(selection.providerManifest, manifestBytes);
+  selection.providerManifestSha256 = sha(manifestBytes);
+  await assert.rejects(runProviderConformance(selection), {
+    code: 'provider_conformance_dependency_direction',
+    message: 'provider_conformance_dependency_direction:left-pad',
+  });
 });

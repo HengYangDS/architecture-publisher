@@ -81,11 +81,18 @@ provider implementation.
 #### Scenario: Executable provider entry point is selected
 
 - **WHEN** a valid executable provider manifest binds one installed package,
-  entry point, package identity, and output expectation
+  entry point, package-manifest digest, complete package-content digest, and
+  output expectation
 - **THEN** the generic materializer executes that entry point through its bounded
   provider protocol
 - **AND** no other package export, sibling checkout, or product-specific loader
   participates
+
+#### Scenario: Executable provider package content changes
+
+- **WHEN** any regular file below the selected provider package root changes,
+  appears, or disappears without a new selected content digest
+- **THEN** materialization fails before provider code runs
 
 ### Requirement: Provider execution is portable and fail-closed
 

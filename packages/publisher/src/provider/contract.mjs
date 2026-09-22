@@ -34,8 +34,15 @@ const DECLARATIVE_FIELDS = Object.freeze([
   'evolutionSha256',
 ]);
 const EXECUTABLE_FIELDS = Object.freeze(['kind', 'package', 'inputs']);
-const PACKAGE_FIELDS = Object.freeze(['name', 'version', 'packageJsonSha256', 'entrypoint']);
+const PACKAGE_FIELDS = Object.freeze([
+  'name',
+  'version',
+  'packageJsonSha256',
+  'contentSha256',
+  'entrypoint',
+]);
 const INPUT_FIELDS = Object.freeze(['id', 'path', 'mediaType', 'bytes', 'sha256']);
+const RESERVED_RECEIPT_INPUT_IDS = new Set(['provider-manifest', 'provider-package']);
 const EXPECTED_FIELDS = Object.freeze([
   'sourceManifestSha256',
   'claimModelDigest',
@@ -171,6 +178,7 @@ function packageSelection(value) {
   text(selected.name, 'edition_provider_package_identity_invalid');
   text(selected.version, 'edition_provider_package_identity_invalid');
   selectedDigest(selected.packageJsonSha256, 'edition_provider_package_identity_invalid');
+  selectedDigest(selected.contentSha256, 'edition_provider_package_identity_invalid');
   const entrypoint = text(selected.entrypoint, 'edition_provider_entrypoint_invalid');
   if (
     !entrypoint.startsWith('./') ||
@@ -215,6 +223,7 @@ function executableDelivery(value, selectedLimits) {
   for (const [index, input] of selected.inputs.entries()) {
     const item = executableInput(input, index);
     const key = portableKey(item.path);
+    if (RESERVED_RECEIPT_INPUT_IDS.has(item.id)) fail('edition_provider_input_id_reserved');
     if (ids.has(item.id) || paths.has(key)) fail('edition_provider_input_duplicate');
     ids.add(item.id);
     paths.add(key);
