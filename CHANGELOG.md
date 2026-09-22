@@ -8,7 +8,23 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.3.0-alpha.1] - 2026-09-22
+
+### Fixed
+
+- Source reconstruction now treats each compressed npm archive digest as an
+  exact asset observation while comparing portable package identity through the
+  uncompressed tar-content digest.
+- Hosted Linux verification no longer assumes that different gzip
+  implementations reproduce macOS archive bytes.
+
 ## [0.3.0-alpha.0] - 2026-09-22
+
+### Status
+
+- Signed candidate tag only. No GitLab Release or package assets were published;
+  hosted cross-platform verification failed and this candidate is superseded by
+  `0.3.0-alpha.1`.
 
 ### Added
 
@@ -144,7 +160,8 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
-[Unreleased]: ../../compare/v0.3.0-alpha.0...main
+[Unreleased]: ../../compare/v0.3.0-alpha.1...main
+[0.3.0-alpha.1]: ../../compare/v0.3.0-alpha.0...v0.3.0-alpha.1
 [0.3.0-alpha.0]: ../../compare/v0.2.0-alpha.0...v0.3.0-alpha.0
 [0.2.0-alpha.0]: ../../compare/v0.1.0-alpha.7...v0.2.0-alpha.0
 [0.1.0-alpha.7]: ../../compare/v0.1.0-alpha.6...v0.1.0-alpha.7

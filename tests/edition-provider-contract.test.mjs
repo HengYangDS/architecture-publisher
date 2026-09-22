@@ -128,7 +128,7 @@ function receiptFixture() {
       editionDigest: D,
       evolutionSha256: null,
     },
-    producer: { name: 'architecture-publisher', version: '0.3.0-alpha.0' },
+    producer: { name: 'architecture-publisher', version: '0.3.0-alpha.1' },
     execution: { kind: 'declarative', durationMs: 0, deterministic: true },
   };
 }

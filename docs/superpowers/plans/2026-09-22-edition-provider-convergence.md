@@ -5,7 +5,19 @@
 > superpowers:executing-plans to implement this plan task-by-task. Steps use
 > checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Release Architecture Publisher `0.3.0-alpha.0` with one source-owned,
+**Goal:** Release Architecture Publisher `0.3.0-alpha.1` with one source-owned,
+**Ruling (2026-09-22):** The signed `v0.3.0-alpha.0` candidate reached the
+remote but failed hosted Linux verification before any Forge Release or package
+assets existed. Preserve that tag as an unreleased candidate. The immutable
+SemVer successor for terminal publication is `v0.3.0-alpha.1`; never rewrite the
+published candidate tag.
+
+**Ruling (2026-09-22):** Release handoffs cannot bind their own containing Git
+commit without a circular identity. First commit the complete `alpha.1` product
+and self-Edition source identity without tagging it; then rebuild exact packages
+from that immutable commit and commit the handoff projections separately. The
+source-identity commit is not a release or a completed migration handoff.
+
 provider-neutral Edition Provider contract, prove declarative and executable
 delivery through the same downstream compiler, and freeze exact migration
 inputs for separate AIGW and ETHOS repository Changes.
@@ -657,7 +669,7 @@ git add README.md docs skills/architecture-publisher/SKILL.md \
 git commit -S -m "docs(provider): publish source-owned migration contracts"
 ```
 
-### Task 8: Full qualification and `0.3.0-alpha.0` release
+### Task 8: Full qualification and `0.3.0-alpha.1` release
 
 **Files:**
 
@@ -673,7 +685,7 @@ git commit -S -m "docs(provider): publish source-owned migration contracts"
 **Interfaces:**
 
 - Consumes: the frozen implementation and all prior task evidence.
-- Produces: signed `v0.3.0-alpha.0`, exact release/package assets, hosted CI and
+- Produces: signed `v0.3.0-alpha.1`, exact release/package assets, hosted CI and
   remote readback, accepted branches, archived Change, retired Work Lane, and
   source-owned follow-on inputs.
 
@@ -706,7 +718,7 @@ P0/P1 findings plus any P2 finding that contradicts the spec or public contract.
 
 - [ ] **Step 4: Version the successor without rewriting history**
 
-Set workspace, core, and self Edition versions to `0.3.0-alpha.0`; update the
+Set workspace, core, and self Edition versions to `0.3.0-alpha.1`; update the
 lockfile and release policy; verify `v0.2.0-alpha.0` and every alpha.7 tag, source
 object, and release asset remain unchanged.
 

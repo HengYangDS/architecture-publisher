@@ -76,12 +76,12 @@
       measured coverage, package validity, installed-use, browser/accessibility,
       publication replacement, interruption recovery, and exact self parity at one
       frozen candidate HEAD; preserve raw evidence and list every unproved limit.
-- [x] 6.2 Update package and product identity to the `0.3.0-alpha.0` successor,
+- [ ] 6.2 Advance package and product identity to the `0.3.0-alpha.1` successor after preserving the signed but unreleased `0.3.0-alpha.0` candidate,
       build reproducible archives, sign the candidate, and verify archive identity,
       portable tar-content identity, manifests, provenance, and installed behavior
       without modifying any `0.2.0-alpha.0` or historical alpha.7 byte.
 - [ ] 6.3 Land through the governed candidate and accepted branches, archive this
-      Change, publish signed tag `v0.3.0-alpha.0` and exact release/package assets,
+      Change, publish signed tag `v0.3.0-alpha.1` and exact release/package assets,
       pass hosted CI and remote readback, then verify all owned Work Lane, proposal,
       temporary-process, scratch, and disposable-build residue is closed.
 
