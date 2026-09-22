@@ -581,7 +581,7 @@ git commit -S -m "refactor(self): cross declarative provider boundary"
 **Files:**
 
 - Create: `docs/migration/aigw-edition-provider.md`
-- Create: `docs/migration/ethos-edition-provider.md`
+- Create: `docs/migration/edition-provider-ethos.md`
 - Create: `docs/reference/edition-provider.md`
 - Create: `docs/reference/disaster-recovery-decision-contract.md`
 - Modify: `docs/edition-contract.md`

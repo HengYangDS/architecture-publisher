@@ -64,6 +64,8 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
   assert.equal(packageJson.name, 'architecture-publisher');
   assert.equal(packageJson.version, '0.2.0-alpha.0');
   assert.deepEqual(packageJson.bin, { archpub: 'src/cli/main.mjs' });
+  assert.equal(packageJson.exports['./provider'], './src/provider/index.mjs');
+  assert.deepEqual(Object.keys(packageJson.bin), ['archpub']);
   assert.equal(workspace.name, 'architecture-publisher-workspace');
   assert.equal(workspace.private, true);
   assert.equal(packageLock.name, workspace.name);

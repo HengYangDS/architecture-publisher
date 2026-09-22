@@ -22,10 +22,12 @@ test('workspace separates the generic product from concrete Editions', async () 
   assert.equal(product.name, 'architecture-publisher');
   assert.deepEqual(product.bin, { archpub: 'src/cli/main.mjs' });
   assert.equal(product.exports['.'], './src/index.mjs');
+  assert.equal(product.exports['./provider'], './src/provider/index.mjs');
   const publicApi = await import(pathToFileURL(path.join(publisher, 'src/index.mjs')));
   assert.deepEqual(Object.keys(publicApi).sort(), [
     'compiler',
     'edition',
+    'provider',
     'publication',
     'qualification',
     'rendering',
@@ -114,6 +116,7 @@ test('the packed generic product contains no concrete domain package', () => {
   const files = JSON.parse(packed.stdout)[0].files.map(({ path: file }) => file);
   assert(files.includes('src/cli/main.mjs'));
   assert(files.includes('src/edition/contract.mjs'));
+  assert(files.includes('src/provider/contract.mjs'));
   assert(files.every((file) => !/(^|\/)(adapters|editions)(\/|$)/.test(file)));
   assert(files.every((file) => !/(^|\/)(ethos|aigw)(\/|$)/i.test(file)));
 });

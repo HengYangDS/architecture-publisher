@@ -8,6 +8,7 @@ const owners = [
     [
       'packages/publisher/src/compiler/index.mjs',
       'packages/publisher/src/edition/index.mjs',
+      'packages/publisher/src/provider/index.mjs',
       'packages/publisher/src/publication/index.mjs',
       'packages/publisher/src/qualification/index.mjs',
       'packages/publisher/src/rendering/index.mjs',
@@ -26,6 +27,14 @@ const owners = [
     'packages/publisher/src/edition/',
     [
       'packages/publisher/src/edition/',
+      'packages/publisher/src/semantics/',
+      'packages/publisher/src/source/',
+    ],
+  ],
+  [
+    'packages/publisher/src/provider/',
+    [
+      'packages/publisher/src/provider/',
       'packages/publisher/src/semantics/',
       'packages/publisher/src/source/',
     ],

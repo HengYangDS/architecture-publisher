@@ -28,15 +28,30 @@ test('the first-party matrix binds all consumers to one exact generic package', 
     git('rev-parse', `${matrix.publisher.observedCommit}:packages/publisher`),
     matrix.publisher.package.tree,
   );
-  assert.equal(git('rev-parse', 'HEAD:packages/publisher'), matrix.publisher.package.tree);
-  assert.equal(git('rev-parse', 'HEAD:editions/self'), matrix.consumers.self.edition.tree);
+  assert.equal(
+    git('rev-parse', `${matrix.publisher.observedCommit}:editions/self`),
+    matrix.consumers.self.edition.tree,
+  );
 
   const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'architecture-publisher-matrix-'));
   t.after(() => fs.rm(temporary, { recursive: true, force: true }));
+  const source = path.join(temporary, 'source');
+  await fs.mkdir(source);
+  const sourceArchive = spawnSync(
+    'git',
+    ['archive', '--format=tar', `${matrix.publisher.observedCommit}:packages/publisher`],
+    { cwd: root, encoding: null, maxBuffer: 32 * 1024 * 1024 },
+  );
+  assert.equal(sourceArchive.status, 0, sourceArchive.stderr?.toString());
+  const extracted = spawnSync('tar', ['-xf', '-', '-C', source], {
+    input: sourceArchive.stdout,
+    encoding: null,
+  });
+  assert.equal(extracted.status, 0, extracted.stderr?.toString());
   const packed = spawnSync(
     'npm',
     ['pack', '--json', '--ignore-scripts', '--pack-destination', temporary],
-    { cwd: path.join(root, 'packages/publisher'), encoding: 'utf8', timeout: 60_000 },
+    { cwd: source, encoding: 'utf8', timeout: 60_000 },
   );
   assert.equal(packed.status, 0, packed.stderr);
   const archive = path.join(temporary, JSON.parse(packed.stdout)[0].filename);

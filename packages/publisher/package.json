@@ -11,6 +11,7 @@
     "./source": "./src/source/index.mjs",
     "./semantics": "./src/semantics/index.mjs",
     "./edition": "./src/edition/index.mjs",
+    "./provider": "./src/provider/index.mjs",
     "./scene": "./src/scene/index.mjs",
     "./compiler": "./src/compiler/index.mjs",
     "./rendering": "./src/rendering/index.mjs",

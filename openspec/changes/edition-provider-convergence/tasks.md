@@ -2,11 +2,11 @@
 
 ## 1. Provider contract
 
-- [ ] 1.1 Add RED contract tests for the exact provider manifest tagged union,
+- [x] 1.1 Add RED contract tests for the exact provider manifest tagged union,
       subject/provider identity, contract versions, expected identities, resource
       ceilings, hostile JSON, and ambiguous delivery modes; implement the public
       validator/digest owner and verify focused tests plus exported API checks pass.
-- [ ] 1.2 Add RED protocol tests for closed executable request, reply, and
+- [x] 1.2 Add RED protocol tests for closed executable request, reply, and
       materialization receipt values; implement byte-safe canonical validation that
       rejects later-stage claims, unknown fields, duplicate inputs, invalid base64,
       oversize values, and identity mismatch, then verify focused tests pass.
