@@ -91,6 +91,32 @@ One `architecture.edition-provider/v1` envelope selects:
 The envelope is selection input, not semantic authority. Claim Model and Edition
 values retain their existing identities and schemas.
 
+The envelope is an exact tagged union. Common fields are `schema`, `provider`,
+`subject`, `contracts`, `delivery`, `expected`, and `limits`:
+
+- `provider` and `subject` each bind an `id` and `revision`;
+- `contracts` names the selected Source Bundle, Claim Model, Edition, and
+  optional evolution schema versions;
+- `delivery.kind` is exactly `declarative` or `executable`;
+- `expected` binds the resulting Source Bundle, Claim Model, Edition, and
+  optional evolution identities; and
+- `limits` requests input, reply, and elapsed-time bounds no greater than the
+  Publisher's fixed maxima.
+
+A declarative delivery selects one relative Source Bundle manifest, semantic
+member, Edition file, and optional evolution file, each with an exact digest.
+An executable delivery selects package name, package version, package-manifest
+digest, public export, and a closed list of relative input files with identifiers,
+media types, sizes, and digests. The build request supplies the absolute package
+root separately; host paths never enter the provider envelope or semantic
+identities.
+
+The existing Edition build plan becomes an exact union. Its direct form retains
+the current Source Bundle and Edition fields. Its provider form selects
+`providerManifest`, `providerManifestSha256`, optional
+`providerPackageRoot`, and `output`. The package root is required only for an
+executable delivery and forbidden for a declarative delivery.
+
 ### Delivery modes
 
 A declarative provider selects closed portable JSON values. An executable
@@ -109,12 +135,36 @@ lifecycle ownership. If later evidence demonstrates a legitimate shared
 authoring helper, that helper must be admitted through the narrow provider
 surface rather than a direct deep import.
 
+The executable export is one function named `materializeEditionProvider`. Its
+`architecture.edition-provider-request/v1` input contains provider and subject
+identity plus the exact selected input bytes encoded as base64; it contains no
+checkout or user-configuration path. Its
+`architecture.edition-provider-reply/v1` output contains Source Bundle source
+identity and members, the semantic member, Edition bytes, and optional evolution
+bytes. The parent validates the closed reply, decodes every byte, reconstructs
+the ordinary Source Bundle and Edition inputs in owned scratch space, and
+verifies every `expected` identity before compilation.
+
+The child-process boundary limits lifetime, output size, selected code, working
+directory, and ambient configuration. It is a failure-containment and
+portability boundary, not an adversarial operating-system sandbox; providers are
+installed source-product code within the same trust domain as the invoking
+build.
+
 ### Composition root
 
 The existing `archpub edition build` flow remains the public task surface. A
 build plan may contain exact standard values directly or select one provider
 envelope whose materialized outputs become those same inputs. No `archpub
 provider` command root is introduced.
+
+Provider use emits an `architecture.edition-provider-materialization/v1`
+receipt beside the ordinary candidate. The receipt binds provider, subject,
+delivery mode, selected inputs, materialized identities, exact Publisher
+package, and bounded execution result. It is included in the outer output bundle
+but does not enter Claim Model, Edition, scene, or Candidate digests. Therefore a
+provider migration can preserve semantic and Candidate identity while still
+recording different provenance.
 
 ### Artifact custody
 
