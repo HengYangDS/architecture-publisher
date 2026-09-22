@@ -54,6 +54,7 @@ const owners = [
     'packages/publisher/src/compiler/',
     [
       'packages/publisher/src/compiler/',
+      'packages/publisher/src/provider/',
       'packages/publisher/src/source/',
       'packages/publisher/src/semantics/',
       'packages/publisher/src/edition/',

@@ -36,6 +36,8 @@ test('scoped help is concise and derived from the routed commands', () => {
   const edition = run(['edition', '--help']);
   assert.equal(edition.status, 0, edition.stderr);
   assert.match(edition.stdout, /^ {2}build\b/m);
+  assert.match(edition.stdout, /direct inputs or one Edition Provider/u);
+  assert.doesNotMatch(edition.stdout, /^ {2}provider\b/m);
 });
 
 test('usage errors identify the failing invocation and next help action', () => {

@@ -47,3 +47,37 @@ export async function readEditionProviderInput(file, expectedSha256) {
   }
   return { manifest, root, sha256: expectedSha256 };
 }
+
+/** Resolve the exact provider-form Edition build request. */
+export function resolveEditionProviderSelection(planPath, value) {
+  const fields = Object.keys(value ?? {})
+    .sort()
+    .join('\n');
+  if (
+    fields !== ['output', 'providerManifest', 'providerManifestSha256'].sort().join('\n') &&
+    fields !==
+      ['output', 'providerManifest', 'providerManifestSha256', 'providerPackageRoot']
+        .sort()
+        .join('\n')
+  )
+    fail('edition_candidate_plan_invalid');
+  if (
+    typeof value.providerManifest !== 'string' ||
+    !value.providerManifest ||
+    !isDigest(value.providerManifestSha256) ||
+    typeof value.output !== 'string' ||
+    !value.output ||
+    (Object.hasOwn(value, 'providerPackageRoot') &&
+      (typeof value.providerPackageRoot !== 'string' || !value.providerPackageRoot))
+  )
+    fail('edition_candidate_plan_invalid');
+  const base = path.dirname(path.resolve(planPath));
+  return {
+    providerManifest: path.resolve(base, value.providerManifest),
+    providerManifestSha256: value.providerManifestSha256,
+    ...(Object.hasOwn(value, 'providerPackageRoot')
+      ? { providerPackageRoot: path.resolve(base, value.providerPackageRoot) }
+      : {}),
+    output: path.resolve(base, value.output),
+  };
+}

@@ -8,7 +8,7 @@ import { fail, isDigest, portablePath } from '../source/manifest.mjs';
 import { interactiveArchitectureScene } from '../scene/interactive/architecture.mjs';
 import { semanticArchitectureProjections } from '../scene/contract.mjs';
 import { composeStaticOverview } from '../../renderers/svg/architecture.mjs';
-import { claimModelDigest, validateClaimModel } from '../semantics/document.mjs';
+import { canonical, claimModelDigest, validateClaimModel } from '../semantics/document.mjs';
 import {
   editionDigest,
   editionQualificationObligations,
@@ -20,6 +20,8 @@ import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
 import { rasterize } from '../../renderers/resvg/index.mjs';
 import { editionCandidateDigest, validateEditionCandidate } from './candidate.mjs';
+import { resolveEditionProviderSelection } from '../provider/input.mjs';
+import { withMaterializedEditionProvider } from '../provider/materialize.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const exact = (value, fields) =>
@@ -117,7 +119,7 @@ function standaloneSvg(svg, fonts, license) {
 
 /** Compile one exact Edition Candidate across independent media.
  * @internal Focused verification seam; compileEditionCandidateInput is public. */
-export async function compileEditionCandidate(plan) {
+export async function compileEditionCandidate(plan, providerReceipt = null) {
   if (
     !exact(plan, [
       'sourceManifest',
@@ -259,8 +261,14 @@ export async function compileEditionCandidate(plan) {
       path: 'candidate.json',
       content: Buffer.from(JSON.stringify(candidate, null, 2) + '\n'),
     });
+    let providerMaterializationSha256;
+    if (providerReceipt !== null) {
+      const bytes = Buffer.from(canonical(providerReceipt));
+      artifacts.push({ path: 'provider.json', content: bytes });
+      providerMaterializationSha256 = sha(bytes);
+    }
     const written = await writeSourceBundle(plan.output, source.source, artifacts);
-    return {
+    const result = {
       status: 'built',
       ...written,
       views: receipts.length,
@@ -270,6 +278,7 @@ export async function compileEditionCandidate(plan) {
       staticSceneDigest: selectedStaticSceneDigest,
       interactiveSceneDigest: selectedInteractiveSceneDigest,
     };
+    return providerReceipt === null ? result : { ...result, providerMaterializationSha256 };
   } finally {
     await fs.rm(scratch, { recursive: true, force: true });
   }
@@ -278,9 +287,24 @@ export async function compileEditionCandidate(plan) {
 export async function compileEditionCandidateInput(file, digest) {
   const planPath = path.resolve(file),
     plan = await selectedPlan(planPath, digest);
-  for (const key of ['sourceManifest', 'edition', 'output']) {
-    if (typeof plan?.[key] !== 'string' || !plan[key]) fail('edition_candidate_plan_invalid');
-    plan[key] = path.resolve(path.dirname(planPath), plan[key]);
+  if (
+    exact(plan, [
+      'sourceManifest',
+      'sourceSha256',
+      'semanticMember',
+      'edition',
+      'editionSha256',
+      'output',
+    ])
+  ) {
+    for (const key of ['sourceManifest', 'edition', 'output']) {
+      if (typeof plan[key] !== 'string' || !plan[key]) fail('edition_candidate_plan_invalid');
+      plan[key] = path.resolve(path.dirname(planPath), plan[key]);
+    }
+    return compileEditionCandidate(plan);
   }
-  return compileEditionCandidate(plan);
+  const selection = resolveEditionProviderSelection(planPath, plan);
+  return withMaterializedEditionProvider(selection, (materialized, receipt) =>
+    compileEditionCandidate(materialized, receipt),
+  );
 }

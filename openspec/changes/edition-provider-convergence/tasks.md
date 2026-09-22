@@ -29,12 +29,12 @@
 
 ## 3. Edition build integration
 
-- [ ] 3.1 Add RED build-plan union tests preserving the direct plan while
+- [x] 3.1 Add RED build-plan union tests preserving the direct plan while
       admitting one provider selection through `archpub edition build`; implement
       provider materialization before the existing compiler without adding a
       command root, registry, discovery, or product branch, and verify CLI help and
       direct-plan behavior remain stable.
-- [ ] 3.2 Add RED provenance tests proving provider delivery metadata does not
+- [x] 3.2 Add RED provenance tests proving provider delivery metadata does not
       alter Claim Model, Edition, scene, or Candidate digests; emit a bound provider
       materialization receipt in the outer candidate bundle and verify exact
       subject, producer, authorization-owner, and custody fields survive package and

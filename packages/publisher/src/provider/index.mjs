@@ -10,4 +10,5 @@ export {
 } from './protocol.mjs';
 export { materializeDeclarativeProvider } from './declarative.mjs';
 export { materializeExecutableProvider } from './executable.mjs';
-export { readEditionProviderInput } from './input.mjs';
+export { readEditionProviderInput, resolveEditionProviderSelection } from './input.mjs';
+export { withMaterializedEditionProvider } from './materialize.mjs';
