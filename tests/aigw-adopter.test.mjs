@@ -56,8 +56,28 @@ async function copyHandoffFiles(source, destination, files) {
 
 test('Publisher retains only immutable AIGW source-ownership evidence', async (t) => {
   const handoff = await json(handoffPath);
-  assert.equal(handoff.schema, 'aigw.architecture-publisher-handoff/v2');
+  assert.equal(handoff.schema, 'aigw.architecture-publisher-handoff/v3');
   assert.equal(handoff.publisher.package.name, 'architecture-publisher');
+  assert.deepEqual(handoff.publisher.successor, {
+    state: 'release-candidate',
+    targetTag: 'v0.3.0-alpha.0',
+    source: {
+      repository: 'dig/research/human-agent-stewardship/architecture-publisher',
+      commit: '1ea033ee42f55468cabc25f81a8e5ff5bef1dd13',
+      path: 'packages/publisher',
+      objectType: 'tree',
+      oid: '0e93199a3d7928a2f87f786ba9ab31ab0a0024f8',
+    },
+    package: {
+      name: 'architecture-publisher',
+      version: '0.3.0-alpha.0',
+      file: 'architecture-publisher-0.3.0-alpha.0.tgz',
+      archiveSha256: 'a1cb5e308498263350be2c01a4faa031991ea7364de9c643cdbab863d29f6a34',
+      contentTarSha256: '7042089a54b1bfa7935ab413e1f903f64c84bf673613c355179f07747faa4e2e',
+    },
+    evidenceBoundary:
+      'Exact source tree and reproducible package candidate; tag, Forge release, installation, and AIGW migration remain separate facts.',
+  });
   assert.equal(handoff.aigw.source.editionPath, 'docs/architecture/client-projection');
   assert.equal(handoff.aigw.governance.ownerState, 'candidate');
   assert.deepEqual(handoff.aigw.governance.acceptedRefs, []);
@@ -104,6 +124,10 @@ test('Publisher retains only immutable AIGW source-ownership evidence', async (t
     handoff.publisher.source.oid,
     handoff.publisher.package.archiveSha256,
     handoff.publisher.package.contentTarSha256,
+    handoff.publisher.successor.source.commit,
+    handoff.publisher.successor.source.oid,
+    handoff.publisher.successor.package.archiveSha256,
+    handoff.publisher.successor.package.contentTarSha256,
     handoff.aigw.source.ownerCommit,
     handoff.aigw.source.ownerTree,
     handoff.aigw.source.editionTree,
@@ -205,9 +229,14 @@ test(
       }),
     )[0];
     const archivePath = path.join(temporary, archive.filename);
-    assert.equal(archive.name, handoff.publisher.package.name);
-    assert.equal(archive.version, handoff.publisher.package.version);
-    assert.match(sha(await fs.readFile(archivePath)), /^[0-9a-f]{64}$/u);
+    assert.equal(archive.name, handoff.publisher.successor.package.name);
+    assert.equal(archive.version, handoff.publisher.successor.package.version);
+    const packageIdentity = npmPackageIdentity(await fs.readFile(archivePath));
+    assert.equal(packageIdentity.archiveSha256, handoff.publisher.successor.package.archiveSha256);
+    assert.equal(
+      packageIdentity.contentTarSha256,
+      handoff.publisher.successor.package.contentTarSha256,
+    );
 
     const consumer = path.join(temporary, 'consumer');
     const home = path.join(temporary, 'home');

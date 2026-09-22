@@ -1,5 +1,5 @@
 {
-  "schema": "aigw.architecture-publisher-handoff/v2",
+  "schema": "aigw.architecture-publisher-handoff/v3",
   "publisher": {
     "source": {
       "repository": "dig/research/human-agent-stewardship/architecture-publisher",
@@ -14,6 +14,25 @@
       "file": "architecture-publisher-0.2.0-alpha.0.tgz",
       "archiveSha256": "07719ad002d3b3673b716dce53b97f40ddb6146353634a24dfdb33e3ace70d3e",
       "contentTarSha256": "e325e5f1d2717a2fe5ab33ccb93c8f50fcde2f5e9347cb99e1dc9dccbd3b17d2"
+    },
+    "successor": {
+      "state": "release-candidate",
+      "targetTag": "v0.3.0-alpha.0",
+      "source": {
+        "repository": "dig/research/human-agent-stewardship/architecture-publisher",
+        "commit": "1ea033ee42f55468cabc25f81a8e5ff5bef1dd13",
+        "path": "packages/publisher",
+        "objectType": "tree",
+        "oid": "0e93199a3d7928a2f87f786ba9ab31ab0a0024f8"
+      },
+      "package": {
+        "name": "architecture-publisher",
+        "version": "0.3.0-alpha.0",
+        "file": "architecture-publisher-0.3.0-alpha.0.tgz",
+        "archiveSha256": "a1cb5e308498263350be2c01a4faa031991ea7364de9c643cdbab863d29f6a34",
+        "contentTarSha256": "7042089a54b1bfa7935ab413e1f903f64c84bf673613c355179f07747faa4e2e"
+      },
+      "evidenceBoundary": "Exact source tree and reproducible package candidate; tag, Forge release, installation, and AIGW migration remain separate facts."
     }
   },
   "aigw": {

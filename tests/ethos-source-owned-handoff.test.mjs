@@ -27,8 +27,12 @@ async function filesBelow(directory, prefix = '') {
 
 test('source-owned ETHOS handoff binds exact packages, parity and successor limits', async (t) => {
   const handoff = await readJson(handoffPath);
-  assert.equal(handoff.schema, 'ethos.architecture-publisher-handoff/v3');
-  assert.deepEqual(Object.keys(handoff.publisher).sort(), ['core', 'retiredEthosStaging']);
+  assert.equal(handoff.schema, 'ethos.architecture-publisher-handoff/v4');
+  assert.deepEqual(Object.keys(handoff.publisher).sort(), [
+    'core',
+    'retiredEthosStaging',
+    'successor',
+  ]);
   assert.deepEqual(handoff.publisher.core, {
     source: {
       repository: 'dig/research/human-agent-stewardship/architecture-publisher',
@@ -60,6 +64,26 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
       archiveSha256: 'a8897c64da17fd2e92d5b68b93425245ae283def3f47955c45378d4497c56134',
       contentTarSha256: 'f438d1c235ac5e32926d0ccec8fc7fa06f577a23409f13fd6a84360ae147e266',
     },
+  });
+  assert.deepEqual(handoff.publisher.successor, {
+    state: 'release-candidate',
+    targetTag: 'v0.3.0-alpha.0',
+    source: {
+      repository: 'dig/research/human-agent-stewardship/architecture-publisher',
+      commit: '1ea033ee42f55468cabc25f81a8e5ff5bef1dd13',
+      path: 'packages/publisher',
+      objectType: 'tree',
+      oid: '0e93199a3d7928a2f87f786ba9ab31ab0a0024f8',
+    },
+    package: {
+      name: 'architecture-publisher',
+      version: '0.3.0-alpha.0',
+      file: 'architecture-publisher-0.3.0-alpha.0.tgz',
+      archiveSha256: 'a1cb5e308498263350be2c01a4faa031991ea7364de9c643cdbab863d29f6a34',
+      contentTarSha256: '7042089a54b1bfa7935ab413e1f903f64c84bf673613c355179f07747faa4e2e',
+    },
+    evidenceBoundary:
+      'Exact source tree and reproducible package candidate; tag, Forge release, installation, and ETHOS migration remain separate facts.',
   });
   assert.deepEqual(handoff.ethos.integration, {
     source: {
@@ -148,6 +172,10 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
     handoff.publisher.retiredEthosStaging.source.oid,
     handoff.publisher.retiredEthosStaging.package.archiveSha256,
     handoff.publisher.retiredEthosStaging.package.contentTarSha256,
+    handoff.publisher.successor.source.commit,
+    handoff.publisher.successor.source.oid,
+    handoff.publisher.successor.package.archiveSha256,
+    handoff.publisher.successor.package.contentTarSha256,
     handoff.ethos.integration.source.commit,
     handoff.ethos.integration.source.oid,
     handoff.ethos.integration.package.archiveSha256,
@@ -222,6 +250,48 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
     );
     assert.deepEqual(selected, committed, file);
   }
+
+  assert.equal(
+    execFileSync('git', ['cat-file', '-t', handoff.publisher.successor.source.commit], {
+      cwd: root,
+      encoding: 'utf8',
+    }).trim(),
+    'commit',
+  );
+  assert.equal(
+    execFileSync(
+      'git',
+      [
+        'rev-parse',
+        `${handoff.publisher.successor.source.commit}:${handoff.publisher.successor.source.path}`,
+      ],
+      { cwd: root, encoding: 'utf8' },
+    ).trim(),
+    handoff.publisher.successor.source.oid,
+  );
+  const successorSource = path.join(work, 'successor-source');
+  await fs.mkdir(successorSource);
+  const successorArchive = execFileSync(
+    'git',
+    [
+      'archive',
+      '--format=tar',
+      `${handoff.publisher.successor.source.commit}:${handoff.publisher.successor.source.path}`,
+    ],
+    { cwd: root, maxBuffer: 32 * 1024 * 1024 },
+  );
+  execFileSync('tar', ['-xf', '-', '-C', successorSource], { input: successorArchive });
+  const successorPack = JSON.parse(
+    execFileSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', work], {
+      cwd: successorSource,
+      encoding: 'utf8',
+    }),
+  )[0];
+  assert.equal(successorPack.filename, handoff.publisher.successor.package.file);
+  assert.deepEqual(npmPackageIdentity(await fs.readFile(path.join(work, successorPack.filename))), {
+    archiveSha256: handoff.publisher.successor.package.archiveSha256,
+    contentTarSha256: handoff.publisher.successor.package.contentTarSha256,
+  });
   assert.deepEqual(handoff.semanticSuccessor, {
     nodes: ['adoption_exit', 'candidate_base_stale', 'mcp_a2a', 'skills'],
     relations: ['candidate-state-to-independent'],

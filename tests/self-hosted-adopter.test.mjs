@@ -178,11 +178,11 @@ test('the installed product builds its structural self-portrait through the publ
   assert.equal(sha(members.get('provider.json')), response.providerMaterializationSha256);
   assert.equal(
     response.providerMaterializationSha256,
-    firstPartyMatrix.consumers.self.provider.materializationSha256,
+    firstPartyMatrix.successor.self.provider.materializationSha256,
   );
   assert.equal(
     response.manifestSha256,
-    firstPartyMatrix.consumers.self.provider.bundleManifestSha256,
+    firstPartyMatrix.successor.self.provider.bundleManifestSha256,
   );
   assert.equal(response.status, 'built');
   assert.match(response.candidateSha256, /^[a-f0-9]{64}$/);

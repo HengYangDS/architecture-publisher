@@ -71,12 +71,12 @@
 
 ## 6. Qualification and release
 
-- [ ] 6.1 Run focused tests, format, zero-warning lint, checked JavaScript
+- [x] 6.1 Run focused tests, format, zero-warning lint, checked JavaScript
       contracts, import direction, dead code, documentation, strict OpenSpec,
       measured coverage, package validity, installed-use, browser/accessibility,
       publication replacement, interruption recovery, and exact self parity at one
       frozen candidate HEAD; preserve raw evidence and list every unproved limit.
-- [ ] 6.2 Update package and product identity to the `0.3.0-alpha.0` successor,
+- [x] 6.2 Update package and product identity to the `0.3.0-alpha.0` successor,
       build reproducible archives, sign the candidate, and verify archive identity,
       portable tar-content identity, manifests, provenance, and installed behavior
       without modifying any `0.2.0-alpha.0` or historical alpha.7 byte.
