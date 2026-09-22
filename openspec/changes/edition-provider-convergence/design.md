@@ -13,6 +13,31 @@ transformation, release authority, and artifact custody in one place.
 The immutable 0.2 release and historical alpha.7 releases are inputs to this
 change, not mutation targets.
 
+## Observed Current Divergence
+
+The migration scope is based on the following read-only inventory observed on
+September 22, 2026. These are current implementation facts, not target-state
+claims:
+
+- Architecture Publisher has no public Edition Provider export. Its existing
+  task surface accepts a closed build request through `archpub edition build`.
+- ETHOS contains 37 JavaScript modules below
+  `integrations/architecture-publisher`; 16 name Architecture Publisher
+  directly. The five modules `src/edition/atlas-output.mjs`,
+  `src/edition/atlas.mjs`, `src/edition/outline.mjs`,
+  `src/edition/poster.mjs`, and `src/edition/publication.mjs` directly combine
+  source-owned Edition work with generic renderer, font, SVG, raster,
+  qualification, or publication mechanics. They are primary slimming
+  candidates, not a pre-authorized deletion list.
+- AIGW stores four current provider files and two immutable historical values
+  below `docs/architecture/client-projection`. Their data-only form is already
+  close to a declarative provider, but the mutable provider values lack an
+  explicit product-owned runtime location and provider envelope.
+
+The inventory deliberately distinguishes implementation observation from
+ownership judgment. Migration decisions remain subject to each source
+repository's own Change, Work Lane, parity evidence, and acceptance authority.
+
 ## Goals / Non-Goals
 
 **Goals:**
