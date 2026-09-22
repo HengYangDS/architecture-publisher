@@ -1,6 +1,7 @@
 # ecosystem-adoption Specification
 
 ## Purpose
+
 Prove that the public Architecture Publisher contracts support materially
 different products without importing their intent, governance, or runtime.
 

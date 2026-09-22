@@ -1,6 +1,7 @@
 # product-identity Specification
 
 ## Purpose
+
 Define one truthful product identity and migration boundary for the independent
 system-architecture publication product and its project-specific Editions.
 

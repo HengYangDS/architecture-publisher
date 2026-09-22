@@ -1,6 +1,7 @@
 # flagship-qualification Specification
 
 ## Purpose
+
 Define non-compensating semantic, communication, visual, accessibility, runtime,
 and human acceptance gates for flagship architecture publications.
 

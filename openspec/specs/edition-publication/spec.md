@@ -1,6 +1,7 @@
 # edition-publication Specification
 
 ## Purpose
+
 Define an Edition as the audience-specific, source-bound unit that compiles one
 semantic authority into independently composed and qualified publications.
 
