@@ -9,11 +9,12 @@ Use this Skill only after the source project has supplied explicit architecture
 meaning and an authored view plan. The Skill is a replaceable caller; it does
 not own intent, workflow state, authorization, or generated artifacts.
 
-1. Select either the exact Source Bundle and Edition values or one exact
-   `architecture.edition-provider/v1` manifest. Prefer a declarative Provider
-   when portable values already exist; use an executable Provider only for
-   necessary source adaptation through one independently installed export. Do
-   not discover sibling repositories or infer architecture from code.
+1. Select either the exact source manifest, semantic member, Edition file, and
+   their SHA-256 digests or one exact `architecture.edition-provider/v1`
+   manifest. Prefer a declarative Provider when portable values already exist;
+   use an executable Provider only for necessary source adaptation through one
+   independently installed export. Do not discover sibling repositories or
+   infer architecture from code.
 2. To assess evolution, run
    `archpub evolution plan <request.json> --sha256 <request-sha256>` over exact
    before/after Claim Models and Edition sets. Treat `rebuild`,
