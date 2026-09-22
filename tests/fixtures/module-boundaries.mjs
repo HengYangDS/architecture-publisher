@@ -137,8 +137,11 @@ const owners = [
     'conformance/journeys/self-host/',
     [
       'conformance/journeys/self-host/',
+      'packages/publisher/src/edition/',
+      'packages/publisher/src/provider/',
       'packages/publisher/src/source/',
       'packages/publisher/src/semantics/',
+      'packages/publisher/src/runtime.mjs',
     ],
   ],
   [

@@ -2,43 +2,46 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { editionDigest, validateEdition } from 'architecture-publisher/edition';
+import { validateEditionProvider } from 'architecture-publisher/provider';
 import { claimModelDigest } from 'architecture-publisher/semantics';
 import { writeSourceBundle } from 'architecture-publisher/source';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
+const publisherRoot = new URL('../', import.meta.resolve('architecture-publisher/runtime'));
 const selectedFiles = Object.freeze({
   'public-cli': {
     locator: 'packages/publisher/src/cli/main.mjs',
-    source: new URL('../../../packages/publisher/src/cli/main.mjs', import.meta.url),
+    source: new URL('src/cli/main.mjs', publisherRoot),
   },
   'source-bundle': {
     locator: 'packages/publisher/src/source/bundle.mjs',
-    source: new URL('../../../packages/publisher/src/source/bundle.mjs', import.meta.url),
+    source: new URL('src/source/bundle.mjs', publisherRoot),
   },
   'semantic-contract': {
     locator: 'packages/publisher/src/semantics/document.mjs',
-    source: new URL('../../../packages/publisher/src/semantics/document.mjs', import.meta.url),
+    source: new URL('src/semantics/document.mjs', publisherRoot),
   },
   'publication-coordinator': {
     locator: 'packages/publisher/src/compiler/edition.mjs',
-    source: new URL('../../../packages/publisher/src/compiler/edition.mjs', import.meta.url),
+    source: new URL('src/compiler/edition.mjs', publisherRoot),
   },
   'static-compositor': {
     locator: 'packages/publisher/renderers/svg/architecture.mjs',
-    source: new URL('../../../packages/publisher/renderers/svg/architecture.mjs', import.meta.url),
+    source: new URL('renderers/svg/architecture.mjs', publisherRoot),
   },
   'interactive-renderer': {
     locator: 'packages/publisher/renderers/archify/index.mjs',
-    source: new URL('../../../packages/publisher/renderers/archify/index.mjs', import.meta.url),
+    source: new URL('renderers/archify/index.mjs', publisherRoot),
   },
   'raster-boundary': {
     locator: 'packages/publisher/renderers/resvg/index.mjs',
-    source: new URL('../../../packages/publisher/renderers/resvg/index.mjs', import.meta.url),
+    source: new URL('renderers/resvg/index.mjs', publisherRoot),
   },
   'publication-writer': {
     locator: 'packages/publisher/src/publication/files.mjs',
-    source: new URL('../../../packages/publisher/src/publication/files.mjs', import.meta.url),
+    source: new URL('src/publication/files.mjs', publisherRoot),
   },
 });
 
@@ -439,21 +442,62 @@ async function main() {
         'Self-hosted selected package architecture; not independent adoption or exhaustive implementation coverage',
     };
   members.unshift({ path: 'semantic.json', content: encode(semantic) });
-  const bundle = await writeSourceBundle(
-      path.join(output, 'source'),
-      { id: 'architecture-publisher', revision: `source-set:${selectedRevision}` },
-      members,
-    ),
+  const sourceIdentity = {
+      id: 'architecture-publisher',
+      revision: `source-set:${selectedRevision}`,
+    },
+    bundle = await writeSourceBundle(path.join(output, 'source'), sourceIdentity, members),
     editionPath = path.join(output, 'edition.json'),
+    providerPath = path.join(output, 'provider.json'),
     planPath = path.join(output, 'plan.json');
   edition.source.manifestSha256 = bundle.manifestSha256;
-  await fs.writeFile(editionPath, encode(edition), { flag: 'wx' });
+  const editionBytes = encode(edition),
+    editionSha256 = sha(editionBytes),
+    selectedEdition = validateEdition(semantic, edition),
+    selectedEditionDigest = editionDigest(semantic, selectedEdition),
+    provider = validateEditionProvider({
+      schema: 'architecture.edition-provider/v1',
+      provider: {
+        id: 'architecture-publisher-self-hosted',
+        revision: sourceIdentity.revision,
+      },
+      subject: sourceIdentity,
+      contracts: {
+        sourceBundle: 'architecture.source-bundle/v1',
+        claimModel: 'architecture.claim-model/v2',
+        edition: 'architecture.edition/v1',
+        evolution: null,
+      },
+      delivery: {
+        kind: 'declarative',
+        sourceManifest: 'source/manifest.json',
+        sourceManifestSha256: bundle.manifestSha256,
+        semanticMember: 'semantic.json',
+        edition: 'edition.json',
+        editionSha256,
+        evolution: null,
+        evolutionSha256: null,
+      },
+      expected: {
+        sourceManifestSha256: bundle.manifestSha256,
+        claimModelDigest: edition.claimModel.digest,
+        editionDigest: selectedEditionDigest,
+        evolutionSha256: null,
+      },
+      limits: {
+        inputs: 16,
+        inputBytes: 1024 * 1024,
+        replyBytes: 2 * 1024 * 1024,
+        timeoutMs: 10_000,
+      },
+    }),
+    providerBytes = encode(provider),
+    providerManifestSha256 = sha(providerBytes);
+  await fs.writeFile(editionPath, editionBytes, { flag: 'wx' });
+  await fs.writeFile(providerPath, providerBytes, { flag: 'wx' });
   const plan = {
-    sourceManifest: bundle.manifestPath,
-    sourceSha256: bundle.manifestSha256,
-    semanticMember: 'semantic.json',
-    edition: editionPath,
-    editionSha256: sha(await fs.readFile(editionPath)),
+    providerManifest: providerPath,
+    providerManifestSha256,
     output: path.join(output, 'publication'),
   };
   const planBytes = encode(plan);
@@ -464,7 +508,11 @@ async function main() {
       sourceManifest: bundle.manifestPath,
       sourceSha256: bundle.manifestSha256,
       edition: editionPath,
+      editionSha256,
+      editionDigest: selectedEditionDigest,
       semanticDigest: edition.claimModel.digest,
+      providerManifest: providerPath,
+      providerManifestSha256,
       plan: planPath,
       planSha256: sha(planBytes),
       adoptionRole: 'self-hosted',

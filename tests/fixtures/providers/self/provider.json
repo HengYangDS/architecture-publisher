@@ -1,0 +1,39 @@
+{
+  "schema": "architecture.edition-provider/v1",
+  "provider": {
+    "id": "architecture-publisher-self-hosted",
+    "revision": "source-set:ed51029a61da915959dbe8af064903b766615db4f8cfea8dcc5a140ed0486068"
+  },
+  "subject": {
+    "id": "architecture-publisher",
+    "revision": "source-set:ed51029a61da915959dbe8af064903b766615db4f8cfea8dcc5a140ed0486068"
+  },
+  "contracts": {
+    "sourceBundle": "architecture.source-bundle/v1",
+    "claimModel": "architecture.claim-model/v2",
+    "edition": "architecture.edition/v1",
+    "evolution": null
+  },
+  "delivery": {
+    "kind": "declarative",
+    "sourceManifest": "source/manifest.json",
+    "sourceManifestSha256": "b6a9141a13624fe381a2b454784c07ec15704ebe5d23d6c5c6b869513100809c",
+    "semanticMember": "semantic.json",
+    "edition": "edition.json",
+    "editionSha256": "ca8669803b8074bb6a6b1436022570914a5f2e56b968ae8f4e7c97c2da73ab9d",
+    "evolution": null,
+    "evolutionSha256": null
+  },
+  "expected": {
+    "sourceManifestSha256": "b6a9141a13624fe381a2b454784c07ec15704ebe5d23d6c5c6b869513100809c",
+    "claimModelDigest": "59cac5b3afb6c8e34e0643f8d1e4917994aa75df37c8e5a4144761a2c9d3b54b",
+    "editionDigest": "5e50ea1e7e5a8f4b27df7ba94c8bae677c4c01fc9ab1b8ce168d3f8db10df612",
+    "evolutionSha256": null
+  },
+  "limits": {
+    "inputs": 16,
+    "inputBytes": 1048576,
+    "replyBytes": 2097152,
+    "timeoutMs": 10000
+  }
+}

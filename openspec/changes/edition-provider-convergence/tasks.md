@@ -47,12 +47,12 @@
 
 ## 4. Self-hosted adoption
 
-- [ ] 4.1 Replace the self-host journey's direct build-plan handoff with a
+- [x] 4.1 Replace the self-host journey's direct build-plan handoff with a
       source-owned declarative provider manifest over the same authored Source
       Bundle and Edition values; verify semantic, Edition, static, interactive, and
       Candidate digests remain unchanged while only the outer provider provenance
       changes.
-- [ ] 4.2 Pack and relocate the core plus self Edition into an isolated offline
+- [x] 4.2 Pack and relocate the core plus self Edition into an isolated offline
       directory with empty user configuration and no adjacent checkout; verify the
       public CLI builds, qualifies, publishes, replaces, and recovers the same
       selected candidate and exact provider receipt.

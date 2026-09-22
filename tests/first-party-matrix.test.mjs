@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -7,6 +8,7 @@ import test from 'node:test';
 import { npmPackageIdentity } from './fixtures/package-identity.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
+const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 async function json(file) {
   return JSON.parse(await fs.readFile(file, 'utf8'));
 }
@@ -32,6 +34,32 @@ test('the first-party matrix binds all consumers to one exact generic package', 
     git('rev-parse', `${matrix.publisher.observedCommit}:editions/self`),
     matrix.consumers.self.edition.tree,
   );
+  const selfProviderBytes = await fs.readFile(
+      path.join(root, 'tests/fixtures/providers/self/provider.json'),
+    ),
+    selfProvider = JSON.parse(selfProviderBytes);
+  assert.equal(matrix.consumers.self.transport, 'source-owned-declarative-provider');
+  assert.equal(matrix.consumers.self.provider.delivery, 'declarative');
+  assert.equal(matrix.consumers.self.provider.manifestSha256, sha(selfProviderBytes));
+  assert.deepEqual(matrix.consumers.self.provider.parity, {
+    sourceManifestSha256: selfProvider.expected.sourceManifestSha256,
+    claimModelDigest: selfProvider.expected.claimModelDigest,
+    editionDigest: selfProvider.expected.editionDigest,
+    staticSceneDigest: '1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d',
+    interactiveSceneDigest: 'b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b',
+    candidateSha256: '09112b235bfdd83cc84ef7d365f6cc5dc9bdeda46723c4351fb7a59a2ff2695d',
+  });
+
+  const providerSource = (
+    await Promise.all(
+      (await fs.readdir(path.join(root, 'packages/publisher/src/provider')))
+        .filter((name) => name.endsWith('.mjs'))
+        .map((name) =>
+          fs.readFile(path.join(root, 'packages/publisher/src/provider', name), 'utf8'),
+        ),
+    )
+  ).join('\n');
+  assert.doesNotMatch(providerSource, /architecture-publisher-self-hosted|self-hosted/u);
 
   const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'architecture-publisher-matrix-'));
   t.after(() => fs.rm(temporary, { recursive: true, force: true }));
