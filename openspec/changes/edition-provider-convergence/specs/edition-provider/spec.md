@@ -58,11 +58,13 @@ the materialized values.
 ### Requirement: Provider dependency direction is one-way and narrow
 
 A source-owned provider MAY consume public Architecture Publisher source,
-semantic, and Edition contracts. It SHALL NOT import generic renderer
-implementations, browser runtime, qualification admission, publication effects,
-or source-product governance through the provider boundary. Architecture
-Publisher core SHALL NOT import, discover, dispatch on, or mutate a source
-product or its provider implementation.
+semantic, Edition, and renderer-neutral Scene contracts. It SHALL NOT import
+generic renderer implementations, browser runtime, qualification admission,
+publication effects, or source-product governance through the provider boundary.
+The generic materializer MAY execute only the exact package entry point selected
+by the provider manifest; Architecture Publisher core SHALL NOT statically import,
+ambiently discover, dispatch on product identity, or mutate a source product or
+provider implementation.
 
 #### Scenario: Provider package imports a forbidden layer
 
@@ -75,6 +77,15 @@ product or its provider implementation.
 - **WHEN** a generic module branches on ETHOS, AIGW, a repository path, or a
   provider package name
 - **THEN** module-boundary validation rejects the dependency
+
+#### Scenario: Executable provider entry point is selected
+
+- **WHEN** a valid executable provider manifest binds one installed package,
+  entry point, package identity, and output expectation
+- **THEN** the generic materializer executes that entry point through its bounded
+  provider protocol
+- **AND** no other package export, sibling checkout, or product-specific loader
+  participates
 
 ### Requirement: Provider execution is portable and fail-closed
 

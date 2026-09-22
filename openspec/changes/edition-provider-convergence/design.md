@@ -69,17 +69,20 @@ values retain their existing identities and schemas.
 ### Delivery modes
 
 A declarative provider selects closed portable JSON values. An executable
-provider selects one independently installed package export that receives
-explicit data and emits the same closed values. Executable materialization runs
-before compilation and cannot return Candidate, qualification, publication, or
-source-governance state.
+provider selects one independently installed package export. The generic
+materializer starts a bounded child process with empty user configuration,
+imports only that selected export, passes one versioned JSON request, and accepts
+one bounded JSON reply containing the same closed values. Executable
+materialization runs before compilation and cannot return Candidate,
+qualification, publication, or source-governance state. Provider code never
+runs inside the long-lived Publisher process.
 
-The executable boundary initially permits only public source, semantic, and
-Edition contracts. Import and package tests reject renderer, browser,
-qualification, publication, forge, Git, and source-product lifecycle ownership.
-If later evidence demonstrates a legitimate shared authoring helper, that helper
-must be admitted through the narrow provider surface rather than a direct deep
-import.
+The executable boundary initially permits only public source, semantic, Edition,
+and renderer-neutral Scene contracts. Import and package tests reject concrete
+renderer, browser, qualification, publication, forge, Git, and source-product
+lifecycle ownership. If later evidence demonstrates a legitimate shared
+authoring helper, that helper must be admitted through the narrow provider
+surface rather than a direct deep import.
 
 ### Composition root
 
