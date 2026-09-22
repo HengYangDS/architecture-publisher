@@ -11,9 +11,11 @@ Publication performs bounded, recoverable effects.
 ## Product chain
 
 ```text
-Source Bundle + Claim Model + Edition
-                 |
-                 v
+source-owned values --or-- Edition Provider
+                 \               /
+                  Source Bundle + Claim Model + Edition
+                                  |
+                                  v
           Edition Candidate
           /               \
   static scene        interactive scenes
@@ -34,8 +36,13 @@ it cannot reinterpret it or grant authority to it.
   meaning and authority boundaries.
 - [Edition contract](docs/edition-contract.md) defines audience, coverage,
   independent scenes, and qualification obligations.
+- [Edition Provider reference](docs/reference/edition-provider.md) defines the
+  optional source-owned materialization boundary.
 - [Operational reference](docs/reference/operations.md) documents the current
   public command surface and historical release boundaries.
+- [Off-host recovery decision contract](docs/reference/disaster-recovery-decision-contract.md)
+  defines the operator choices still required before independent recovery can be
+  claimed.
 - [Mechanism evaluation](docs/research/mechanism-evaluation.md) records
   source-level adopt, reject, and defer decisions.
 
@@ -80,9 +87,10 @@ archpub publish apply <plan.json> <authorization.json>
 archpub publish recover <plan.json> <authorization.json>
 ```
 
-Every path and digest is caller-selected. Installed operation is designed to be
-offline and independent of Git, ETHOS, adjacent checkouts, personal credentials,
-and ambient repository discovery.
+Every path and digest is caller-selected. A direct build supplies the standard
+values; a Provider build materializes those same values before the same compiler.
+Installed operation is designed to be offline and independent of Git, ETHOS,
+adjacent checkouts, personal credentials, and ambient repository discovery.
 
 ## Workspace boundaries
 
@@ -139,9 +147,9 @@ built ≠ qualified ≠ authorized ≠ published ≠ hosted-observed
 
 ## Governance
 
-This repository is governed by ETHOS. OpenSpec owns active Change intent and
-`openspec/changes/architecture-publisher-0-2/tasks.md` is the sole progress
-ledger. Work occurs only in an owned Work Lane after exact-path admission.
+This repository is governed by ETHOS. OpenSpec owns active Change intent and the
+active Change's `tasks.md` is the sole repository progress ledger. Work occurs
+only in an owned Work Lane after exact-path admission.
 Skills, CI, renderers, browsers, and adapters are replaceable capabilities; none
 is a semantic or mutation authority.
 

@@ -9,9 +9,11 @@ Use this Skill only after the source project has supplied explicit architecture
 meaning and an authored view plan. The Skill is a replaceable caller; it does
 not own intent, workflow state, authorization, or generated artifacts.
 
-1. Select the source manifest, semantic member, Edition file and their current
-   SHA-256 digests. The Edition must bind its exact source manifest and Claim
-   Model. Do not discover sibling repositories or infer architecture from code.
+1. Select either the exact Source Bundle and Edition values or one exact
+   `architecture.edition-provider/v1` manifest. Prefer a declarative Provider
+   when portable values already exist; use an executable Provider only for
+   necessary source adaptation through one independently installed export. Do
+   not discover sibling repositories or infer architecture from code.
 2. To assess evolution, run
    `archpub evolution plan <request.json> --sha256 <request-sha256>` over exact
    before/after Claim Models and Edition sets. Treat `rebuild`,
@@ -19,9 +21,10 @@ not own intent, workflow state, authorization, or generated artifacts.
    and `publication` as independent obligations. The command performs none of
    them, and unknown or unrepresented meaning requires conservative handling.
 3. Run `archpub edition build <request.json> --sha256 <request-sha256>` and
-   inspect the JSON result and bundled Edition Candidate. A successful build
-   establishes only the reported source-bound structure, Edition, scene,
-   renderer, and artifact identities. It performs no qualification or
+   inspect the JSON result and bundled Edition Candidate. This is the only build
+   command for direct and Provider inputs. A successful build establishes only
+   the reported source-bound structure, Edition, scene, renderer, artifact, and
+   optional Provider provenance identities. It performs no qualification or
    publication.
 4. Admit an externally produced exact Qualification Set with
    `archpub qualify verify <request.json> --sha256 <digest>`. The request selects
@@ -34,4 +37,6 @@ not own intent, workflow state, authorization, or generated artifacts.
 6. For delivery, run `archpub publish plan <input.json>`, inspect the
    returned plan, obtain the source product's explicit decision, then use the
    public apply or recover command. Never synthesize authorization.
-7. Report facts, evidence, unproved limits and the next action. This Skill does not grant acceptance or authority. It must not bypass repository governance.
+7. Keep `subject`, `producer`, `authorizationOwner`, and `custodian` distinct.
+   Report facts, evidence, unproved limits, and the next action. This Skill does not grant acceptance or authority.
+   It must not bypass repository governance.

@@ -105,3 +105,84 @@ test('GitLab CI only projects repository-native gates', async () => {
   assert.match(ci, /npm test/);
   assert.doesNotMatch(ci, /git push|archpub publish files apply|ethos publish/);
 });
+
+test('provider guidance preserves one command plane and explicit ownership boundaries', async () => {
+  const files = [
+    'docs/reference/edition-provider.md',
+    'docs/migration/aigw-edition-provider.md',
+    'docs/migration/edition-provider-ethos.md',
+    'docs/reference/disaster-recovery-decision-contract.md',
+  ];
+  const documents = Object.fromEntries(
+    await Promise.all(
+      files.map(async (file) => [file, await fs.readFile(path.join(root, file), 'utf8')]),
+    ),
+  );
+  const provider = documents['docs/reference/edition-provider.md'];
+  for (const term of [
+    'Edition Provider',
+    'archpub edition build',
+    '`subject`',
+    '`producer`',
+    '`authorizationOwner`',
+    '`custodian`',
+    'does not grant acceptance',
+  ])
+    assert.match(provider, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'u'), term);
+  assert.doesNotMatch(provider, /archpub provider/u);
+
+  const aigw = documents['docs/migration/aigw-edition-provider.md'];
+  for (const term of [
+    'declarative',
+    'architecture/edition-provider',
+    'four mutable values',
+    'two immutable history values',
+    'parity before removal',
+    'AIGW owns acceptance and publication',
+  ])
+    assert.match(aigw, new RegExp(term, 'iu'), term);
+
+  const ethos = documents['docs/migration/edition-provider-ethos.md'];
+  for (const term of [
+    'executable',
+    'source adaptation',
+    'Edition authorship',
+    'renderer',
+    'browser',
+    'raster',
+    'qualification',
+    'review',
+    'publication',
+    'Git',
+    'forge',
+    'governance',
+    'parity before removal',
+    'ETHOS owns lanes, proof, CAS, acceptance, and publication',
+  ])
+    assert.match(ethos, new RegExp(term, 'iu'), term);
+
+  const recovery = documents['docs/reference/disaster-recovery-decision-contract.md'];
+  for (const term of [
+    'unproved',
+    'independent destination',
+    'custody owner',
+    'retention',
+    'encryption',
+    'bounded credential',
+    'restore environment',
+    'restore acceptance',
+    'GitLab',
+    'package storage',
+    'CI',
+    'Documents',
+    'same-disk',
+  ])
+    assert.match(recovery, new RegExp(term, 'iu'), term);
+
+  const combined = Object.values(documents).join('\n');
+  assert.doesNotMatch(combined, /\/Users\/|file:\/\//u);
+  assert.doesNotMatch(
+    combined,
+    /cop(?:y|ied) (?:the )?(?:OpenSpec )?(?:tasks\.md|progress ledger)/iu,
+  );
+});

@@ -48,11 +48,14 @@ and approval cannot drift into a central catalogue. Architecture Publisher owns
 the Edition contract and compiler; it does not own ETHOS or AIGW Edition content.
 
 The Publisher self-Edition is therefore owned by the Architecture Publisher
-repository. An adopter may deliver its Edition as portable standard values or
-an independently installed package. The installed compiler must produce the
-same candidate with no adjacent checkout, ambient repository search, or
-hard-coded workstation path. A central copy used during migration is not a
-second authority and must be removed after source-owned parity is proved.
+repository. An adopter may deliver its Edition through one source-owned Edition
+Provider: either portable standard values or one independently installed package
+export. The installed compiler must produce the same Candidate with no adjacent
+checkout, ambient repository search, or hard-coded workstation path. Provider
+delivery metadata belongs only to outer provenance; it does not alter Claim
+Model, Edition, scene, or Candidate identity. A central copy used during
+migration is not a second authority and must be removed after source-owned
+parity is proved.
 
 ## Audience and questions
 

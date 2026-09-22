@@ -75,6 +75,51 @@
       "ownerState": "candidate",
       "acceptedRefs": [],
       "remotePublication": "unproved"
+    },
+    "providerMigration": {
+      "schema": "architecture.edition-provider-migration/v1",
+      "status": "proposed-not-authorized",
+      "mode": "declarative",
+      "targetRoot": "architecture/edition-provider",
+      "mutableInputs": [
+        "README.md",
+        "claim-model.json",
+        "edition.json",
+        "evolution.json"
+      ],
+      "immutableHistory": [
+        "history/registry-v1-claim-model.json",
+        "history/registry-v1-edition.json"
+      ],
+      "subject": "AIGW",
+      "producer": "Architecture Publisher",
+      "authorizationOwner": "AIGW",
+      "custodian": "AIGW release target",
+      "parity": "required-before-removal",
+      "relocation": "required-before-removal",
+      "rollback": "required-before-removal",
+      "baseline": "aigw.candidate",
+      "conformancePredicates": [
+        "manifest-closure",
+        "input-identity",
+        "output-schema",
+        "determinism",
+        "relocation",
+        "empty-configuration",
+        "adjacent-checkout-immunity",
+        "dependency-direction",
+        "resource-bounds",
+        "later-stage-rejection"
+      ],
+      "removalCriteria": [
+        "provider-conformance-pass",
+        "candidate-parity-pass",
+        "relocated-installed-pass",
+        "rollback-rehearsed",
+        "aigw-accepted"
+      ],
+      "feedback": "non-authorizing-source-proposal",
+      "centralMutableOwner": "forbidden"
     }
   },
   "limits": [

@@ -75,7 +75,15 @@ The generic compiler accepts four explicit values:
 3. **Edition** — audience, reader questions, required claims, explicit
    omissions, narrative, visual grammar, independent scenes, and qualification
    obligations.
-4. **Build Request** — exact source, Claim Model, Edition, and output selections.
+4. **Build Request** — either the exact standard values or one exact Edition
+   Provider selection, plus the output selection.
+
+An Edition Provider is an optional source-owned transport boundary before the
+compiler. A declarative Provider selects portable standard values; an executable
+Provider materializes the same values through one independently installed,
+bounded child-process export. Both converge before semantic compilation. The
+Provider does not interpret claims, compose scenes, qualify artifacts, authorize
+effects, or own publication.
 
 A Git repository, SDD tool, documentation service, code graph, telemetry store,
 or project-specific schema is a possible upstream source, not a hidden compiler
@@ -165,12 +173,19 @@ Edition. During the 0.2 migration, existing central extension packages are
 migration staging only and are removed after source-owned installed parity is
 proved.
 
-Cross-repository use occurs through portable standard values or an independently
-installed package selected by exact identity. Ordinary `archpub` execution has
-no adjacent checkout dependency, repository-name dispatch, local-user path, or
-implicit source discovery. The source repository's native lifecycle authorizes
-its own changes; Publisher qualification and release consume exact outputs
-without copying that lifecycle or its progress ledger.
+Cross-repository use occurs through one `architecture.edition-provider/v1`
+manifest selecting portable standard values or an independently installed
+package by exact identity. Both modes enter through `archpub edition build`;
+there is no Provider command tree, registry, or ambient discovery. Ordinary
+execution has no adjacent checkout dependency, repository-name dispatch,
+local-user path, or implicit source discovery. The source repository's native
+lifecycle authorizes its own changes; Publisher qualification and release
+consume exact outputs without copying that lifecycle or its progress ledger.
+
+Candidate and publication provenance keep `subject`, `producer`,
+`authorizationOwner`, and `custodian` distinct. Provider conformance does not
+grant acceptance, publication, independent verification, or source-product
+authority.
 
 ## Construction discipline
 

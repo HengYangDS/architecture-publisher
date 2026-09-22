@@ -59,11 +59,11 @@
 
 ## 5. Ecosystem migration contract
 
-- [ ] 5.1 Replace legacy first-party handoff fixtures with compact immutable
+- [x] 5.1 Replace legacy first-party handoff fixtures with compact immutable
       provider-conformance receipts and source-owned migration packets for AIGW and
       ETHOS; verify the Publisher repository contains no second mutable AIGW or
       ETHOS Provider, Edition, acceptance decision, or release authority.
-- [ ] 5.2 Document the destructive AIGW declarative migration and ETHOS
+- [x] 5.2 Document the destructive AIGW declarative migration and ETHOS
       executable slimming sequence, including parity, rollback, incumbent deletion,
       feedback, artifact ownership, and source-owned acceptance; verify guidance
       contains no checkout path, workstation identity, compatibility facade, or
@@ -87,12 +87,12 @@
 
 ## 7. Cross-product continuation and recovery boundary
 
-- [ ] 7.1 Publish exact source-owned adoption inputs for separate AIGW and ETHOS
+- [x] 7.1 Publish exact source-owned adoption inputs for separate AIGW and ETHOS
       Changes, including package/content identities, conformance predicates,
       parity baselines, removal criteria, and acceptance owners; verify neither
       migration depends on an Architecture Publisher checkout or central mutation
       authority.
-- [ ] 7.2 Deliver the off-host disaster-recovery decision contract naming the
+- [x] 7.2 Deliver the off-host disaster-recovery decision contract naming the
       still-required destination, custody owner, retention, encryption, credential,
       restore environment, and acceptance evidence; verify no same-disk copy,
       GitLab source, package storage, or CI result is described as independent
