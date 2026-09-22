@@ -38,6 +38,8 @@ it cannot reinterpret it or grant authority to it.
   independent scenes, and qualification obligations.
 - [Edition Provider reference](docs/reference/edition-provider.md) defines the
   optional source-owned materialization boundary.
+- [Changelog](CHANGELOG.md) records notable released changes and compatibility
+  notes under Semantic Versioning.
 - [Operational reference](docs/reference/operations.md) documents the current
   public command surface and historical release boundaries.
 - [Off-host recovery decision contract](docs/reference/disaster-recovery-decision-contract.md)
@@ -118,9 +120,8 @@ published package. The core never imports a concrete Edition. A source-owned
 Edition depends inward only through exported core contracts and retains its
 source product's native authorization and release lifecycle.
 
-The first-party flagship review, three-consumer qualification, and release
-closure remain work of the active 0.2 Change. The task ledger, not this README,
-owns their completion state.
+The active OpenSpec Change's task ledger, not this README, owns implementation
+and release status.
 
 ## Media independence
 

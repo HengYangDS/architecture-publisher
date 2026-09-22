@@ -1,6 +1,6 @@
 {
   "name": "architecture-publisher-workspace",
-  "version": "0.2.0-alpha.0",
+  "version": "0.3.0-alpha.0",
   "private": true,
   "description": "Architecture Publisher product and first-party conformance workspace",
   "type": "module",
@@ -17,7 +17,7 @@
     "check:types": "tsc --project jsconfig.json --noEmit",
     "check:imports": "node --test tests/module-boundaries.test.mjs",
     "check:dead-code": "knip --config knip.json && knip --config knip.json --production --strict --include files,unlisted,unresolved,cycles,exports,nsExports",
-    "check:docs": "markdownlint-cli2 \"README.md\" \"docs/**/*.md\" \"openspec/**/*.md\" \"skills/**/*.md\" \"#openspec/changes/archive/**\"",
+    "check:docs": "markdownlint-cli2 \"README.md\" \"CHANGELOG.md\" \"docs/**/*.md\" \"openspec/**/*.md\" \"skills/**/*.md\" \"#openspec/changes/archive/**\"",
     "check:spec": "openspec validate --all --strict --no-interactive",
     "test:coverage": "c8 --all --include='packages/publisher/src/**/*.mjs' --exclude='**/index.mjs' --check-coverage --statements=89 --lines=89 --branches=86 --functions=95 npm test",
     "check:package": "publint packages/publisher"

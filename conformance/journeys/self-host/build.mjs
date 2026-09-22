@@ -228,7 +228,7 @@ async function main() {
       product: {
         name: 'Architecture Publisher',
         schema: 'architecture.publisher/v1',
-        version: '0.2.0-alpha.0',
+        version: '0.3.0-alpha.0',
       },
       source: { manifestSha256: '' },
       claimModel: {

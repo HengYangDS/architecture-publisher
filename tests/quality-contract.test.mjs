@@ -21,7 +21,7 @@ test('one fail-closed quality entry point covers the repository contract', async
   assert.equal(manifest.scripts['check:imports'], 'node --test tests/module-boundaries.test.mjs');
   assert.equal(
     manifest.scripts['check:docs'],
-    'markdownlint-cli2 "README.md" "docs/**/*.md" "openspec/**/*.md" "skills/**/*.md" "#openspec/changes/archive/**"',
+    'markdownlint-cli2 "README.md" "CHANGELOG.md" "docs/**/*.md" "openspec/**/*.md" "skills/**/*.md" "#openspec/changes/archive/**"',
   );
   assert.equal(manifest.scripts['check:spec'], 'openspec validate --all --strict --no-interactive');
   assert.equal(

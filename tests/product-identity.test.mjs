@@ -49,6 +49,9 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
   const packageJson = JSON.parse(
     await fs.readFile(path.join(root, 'packages/publisher/package.json'), 'utf8'),
   );
+  const selfPackage = JSON.parse(
+    await fs.readFile(path.join(root, 'editions/self/package.json'), 'utf8'),
+  );
   const packageLock = JSON.parse(await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'));
   const profile = await fs.readFile(path.join(root, '.ethos/profile.toml'), 'utf8');
   const openspec = await fs.readFile(path.join(root, 'openspec/config.yaml'), 'utf8');
@@ -62,12 +65,15 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
   const repositoryName = path.basename(path.dirname(commonDirectory));
 
   assert.equal(packageJson.name, 'architecture-publisher');
-  assert.equal(packageJson.version, '0.2.0-alpha.0');
+  assert.equal(packageJson.version, '0.3.0-alpha.0');
   assert.deepEqual(packageJson.bin, { archpub: 'src/cli/main.mjs' });
   assert.equal(packageJson.exports['./provider'], './src/provider/index.mjs');
   assert.deepEqual(Object.keys(packageJson.bin), ['archpub']);
   assert.equal(workspace.name, 'architecture-publisher-workspace');
   assert.equal(workspace.private, true);
+  assert.equal(workspace.version, packageJson.version);
+  assert.equal(selfPackage.version, packageJson.version);
+  assert.equal(selfPackage.dependencies['architecture-publisher'], packageJson.version);
   assert.equal(packageLock.name, workspace.name);
   assert.equal(packageLock.version, workspace.version);
   assert.deepEqual(packageLock.packages['packages/publisher'].bin, packageJson.bin);
@@ -86,6 +92,70 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
   assert.doesNotMatch(skill, /\barchitecture publish\b/);
   assert.match(cli, /runCli/);
   assert.doesNotMatch(cli, /\b(?:ethos|aigw|archify|resvg|coretext)\b/i);
+});
+
+test('release history follows Keep a Changelog with one SemVer identity', async () => {
+  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+  const changelog = await fs.readFile(path.join(root, 'CHANGELOG.md'), 'utf8');
+  const semanticVersion =
+    /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u;
+
+  assert.match(workspace.version, semanticVersion);
+  assert.match(changelog, /^# Changelog$/mu);
+  assert.match(changelog, /Keep a Changelog.*Semantic Versioning/su);
+  assert.match(changelog, /^## \[Unreleased\]$/mu);
+  assert.match(
+    changelog,
+    new RegExp(
+      `^## \\[${workspace.version.replaceAll('.', '\\.')}\\] - [0-9]{4}-[0-9]{2}-[0-9]{2}$`,
+      'mu',
+    ),
+  );
+  assert.match(changelog, /^### Added$/mu);
+  assert.match(changelog, /^### Changed$/mu);
+  assert.match(changelog, /^### Fixed$/mu);
+  assert.match(changelog, /^### Security$/mu);
+  assert.match(changelog, /^\[Unreleased\]: \.\.\/\.\.\/compare\//mu);
+  assert.match(
+    changelog,
+    new RegExp(
+      `^\\[${workspace.version.replaceAll('.', '\\.')}\\]: \\.\\.\\/\\.\\.\\/compare\\/`,
+      'mu',
+    ),
+  );
+
+  const releases = new Map(
+    [...changelog.matchAll(/^## \[([^\]]+)\] - ([0-9]{4}-[0-9]{2}-[0-9]{2})$/gmu)].map(
+      ([, version, date]) => [version, date],
+    ),
+  );
+  assert.equal(releases.size, [...changelog.matchAll(/^## \[[^\]]+\] - /gmu)].length);
+  const releaseVersions = [...releases.keys()];
+  assert.equal(releaseVersions[0], workspace.version);
+  for (const [version, date] of releases) {
+    assert.match(version, semanticVersion);
+    assert.equal(new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10), date);
+  }
+  const tags = runGit('tag', '--list', 'v*', '--sort=-version:refname').split('\n').filter(Boolean);
+  const taggedVersions = tags.map((tag) => tag.slice(1));
+  assert.deepEqual(
+    taggedVersions.includes(workspace.version) ? releaseVersions : releaseVersions.slice(1),
+    taggedVersions,
+  );
+  for (const tag of tags) {
+    const version = tag.slice(1);
+    assert.equal(
+      releases.get(version),
+      runGit('for-each-ref', '--format=%(creatordate:short)', `refs/tags/${tag}`),
+      tag,
+    );
+  }
+  const selectedTag = process.env.CI_COMMIT_TAG;
+  if (selectedTag) {
+    assert.equal(selectedTag, `v${workspace.version}`);
+    assert.equal(runGit('cat-file', '-t', `refs/tags/${selectedTag}`), 'tag');
+    assert.equal(runGit('rev-parse', `${selectedTag}^{}`), runGit('rev-parse', 'HEAD'));
+  }
 });
 
 test('installed package exposes archpub and no architecture compatibility command', async (t) => {
@@ -157,10 +227,17 @@ test('product documentation has one semantic owner and a concise entry point', a
   );
   assert.match(operations, /architecture\.edition\/v1/);
   assert.match(operations, /editionSha256/);
+  assert.match(operations, /current 0\.3 public surface/i);
+  assert.doesNotMatch(operations, /current 0\.2 public surface/i);
+  assert.match(operations, /root `package\.json` is the sole release-version authority/i);
+  assert.match(operations, /Changelog[\s\S]*is not evidence that a tag/i);
+  assert.match(operations, /protected `v\*` family/i);
+  assert.match(operations, /signed,\s+annotated `v<version>` tag/i);
   assert.doesNotMatch(operations, /architecture\.semantic-publication\/v2/);
   assert.match(skill, /Edition file/);
   assert.doesNotMatch(skill, /semantic member, authoring file/);
   assert.match(operations, /Historical alpha\.7 identity/i);
+  assert.doesNotMatch(readme, /active 0\.2 Change/i);
   assert(packageJson.files.includes('README.md'));
   assert(!packageJson.files.includes('docs/product-design.md'));
   await assert.rejects(fs.stat(path.join(root, 'docs/product-design.md')), { code: 'ENOENT' });

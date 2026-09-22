@@ -36,6 +36,28 @@ test('Edition is closed and binds the exact product and Claim Model', () => {
   }
 });
 
+test('Edition product versions conform to Semantic Versioning 2.0.0', () => {
+  for (const version of ['0.0.0', '1.2.3', '0.3.0-alpha.0', '1.0.0-rc.1+build.20260922']) {
+    const { model, edition } = editionFixture();
+    edition.product.version = version;
+    assert.doesNotThrow(() => validateEdition(model, edition), version);
+  }
+
+  for (const version of [
+    'v1.2.3',
+    '01.2.3',
+    '1.02.3',
+    '1.2.03',
+    '1.2.3-alpha.01',
+    '1.2.3-alpha..1',
+    '1.2.3+',
+  ]) {
+    const { model, edition } = editionFixture();
+    edition.product.version = version;
+    assert.throws(() => validateEdition(model, edition), /edition_identity_invalid/, version);
+  }
+});
+
 test('every Claim Model claim is required or explicitly omitted exactly once', () => {
   const { model, edition } = editionFixture();
   edition.requiredClaims.pop();

@@ -2,9 +2,26 @@
 
 # Architecture Publisher operational reference
 
-This document describes the current 0.2 public surface. Historical release facts
+This document describes the current 0.3 public surface. Historical release facts
 are isolated at the end. The OpenSpec task ledger owns implementation status;
 this reference does not.
+
+## Release identity
+
+The root `package.json` is the sole release-version authority for this npm
+workspace. The core package, self-Edition package, dependency projection, and
+lockfile must carry the same strict Semantic Versioning 2.0.0 identity.
+
+The root [`CHANGELOG.md`](../../CHANGELOG.md) is the human-facing release
+history. It follows Keep a Changelog, but it is not evidence that a tag, package,
+Forge release, hosted pipeline, or installation exists. Those projections are
+verified independently. Published bytes are immutable; any change requires a
+new version.
+
+Release tags belong to the protected `v*` family. Publication binds a signed,
+annotated `v<version>` tag directly to the selected release commit; the tag name,
+workspace version, package versions, and first dated Changelog section must
+agree.
 
 ## Authority and state model
 

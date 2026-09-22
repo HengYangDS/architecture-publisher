@@ -21,16 +21,16 @@
       "transport": "source-owned-declarative-provider",
       "provider": {
         "delivery": "declarative",
-        "manifestSha256": "17381f4c4fd1e48aa6d2588e61d248f486be3b7a2b39eb41ec1b7ee360b862ef",
-        "materializationSha256": "6ee36cac032dc74018e02d8b45f6793f95e362db0d6bcad9a9f806bfd534ee9a",
-        "bundleManifestSha256": "43f5f1078a3b35d174ecd33134ae847d38b67a8a5e9bb6b975b371e3844f70b9",
+        "manifestSha256": "5406f3a1fee281a77f0251edf3bcf0954ca3088c161efce0891e0df607dfd417",
+        "materializationSha256": "55e7c0453ce1bad4b22c925e6c53325d2f77653e05ae6c97c82c9d99fd65f8a0",
+        "bundleManifestSha256": "ec7d8acfc2e3658c1a4d873f3e9ef2a899250469495243653fef6f3e98ac8f3c",
         "parity": {
           "sourceManifestSha256": "b6a9141a13624fe381a2b454784c07ec15704ebe5d23d6c5c6b869513100809c",
           "claimModelDigest": "59cac5b3afb6c8e34e0643f8d1e4917994aa75df37c8e5a4144761a2c9d3b54b",
-          "editionDigest": "5e50ea1e7e5a8f4b27df7ba94c8bae677c4c01fc9ab1b8ce168d3f8db10df612",
+          "editionDigest": "5c7e4f5846219436258ca957473a3137596d9db6697a59c9c3465b321e62b529",
           "staticSceneDigest": "1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d",
           "interactiveSceneDigest": "b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b",
-          "candidateSha256": "09112b235bfdd83cc84ef7d365f6cc5dc9bdeda46723c4351fb7a59a2ff2695d"
+          "candidateSha256": "c46716d92d4583f98be39407eb889cba68731ad37b7eac2bfe232fcb820675f7"
         }
       },
       "edition": {

@@ -9,15 +9,16 @@ const root = path.resolve(import.meta.dirname, '..');
 test('current package identity and predecessor release are explicit', async () => {
   const packageJson = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
   const packageLock = JSON.parse(await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'));
-  assert.equal(packageJson.version, '0.2.0-alpha.0');
+  assert.equal(packageJson.version, '0.3.0-alpha.0');
   assert.equal(packageLock.version, packageJson.version);
   assert.equal(packageLock.packages[''].version, packageJson.version);
 
   const releaseToml = await fs.readFile(path.join(root, '.ethos/release.toml'), 'utf8');
-  assert.match(releaseToml, /"v0\.1\.0-alpha\.7"/);
-  assert.equal((releaseToml.match(/v0\.1\.0-alpha\.7/g) ?? []).length, 1);
-  assert.match(releaseToml, /"v0\.2\.0-alpha\.0"/);
-  assert.equal((releaseToml.match(/v0\.2\.0-alpha\.0/g) ?? []).length, 1);
+  assert.match(releaseToml, /^tags = \["v\*"\]$/mu);
+  assert.doesNotMatch(releaseToml, /tags = \[[^\]]*v[0-9]/u);
+  assert.match(releaseToml, /^local_verification_command = "npm run check"$/mu);
+  assert.match(releaseToml, /^capabilities = \["repository", "ci_cd", "publication"\]$/mu);
+  assert.match(releaseToml, /^ci_surface = "\.gitlab-ci\.yml"$/mu);
 
   const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
   const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');
@@ -55,7 +56,7 @@ test('the packaged Skill remains a thin public CLI projection', async () => {
   );
 });
 
-test('current guidance names only the public 0.2 command and package boundaries', async () => {
+test('current guidance names only the public 0.3 command and package boundaries', async () => {
   const files = [
     'README.md',
     'docs/reference/operations.md',
@@ -102,7 +103,7 @@ test('GitLab CI only projects repository-native gates', async () => {
   assert.match(ci, /python3 --version/);
   assert.match(ci, /npm ci --ignore-scripts --no-audit --no-fund/);
   assert.match(ci, /npm run check/);
-  assert.match(ci, /npm test/);
+  assert.doesNotMatch(ci, /^[ ]+- npm test$/mu);
   assert.doesNotMatch(ci, /git push|archpub publish files apply|ethos publish/);
 });
 

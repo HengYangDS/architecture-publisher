@@ -45,6 +45,8 @@ const SIDES = Object.freeze(['top', 'right', 'bottom', 'left']);
 const STATIC_ROUTES = Object.freeze(['straight', 'orthogonal-h', 'orthogonal-v']);
 const INTERACTIVE_ROUTES = Object.freeze(['auto', ...STATIC_ROUTES]);
 const LABEL_PLACEMENT_FIELDS = Object.freeze(['labelAt', 'labelDx', 'labelDy', 'labelSegment']);
+const SEMANTIC_VERSION =
+  /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u;
 
 const editionError = (code, detail = '') => {
   throw Object.assign(new Error(code + (detail ? ': ' + detail : '')), {
@@ -239,15 +241,18 @@ function validateEditionContract(model, edition, completeOverviewRequired) {
   validateClaimModel(model);
   validateJson(edition);
   if (
+    !exact(edition.product, ['name', 'schema', 'version']) ||
+    edition.product.name !== 'Architecture Publisher' ||
+    edition.product.schema !== 'architecture.publisher/v1' ||
+    !SEMANTIC_VERSION.test(edition.product.version)
+  )
+    editionError('edition_identity_invalid');
+  if (
     !exact(edition, EDITION_FIELDS) ||
     edition.schema !== 'architecture.edition/v1' ||
     !identifier(edition.id) ||
     !text(edition.owner) ||
     !['structural', 'flagship'].includes(edition.class) ||
-    !exact(edition.product, ['name', 'schema', 'version']) ||
-    edition.product.name !== 'Architecture Publisher' ||
-    edition.product.schema !== 'architecture.publisher/v1' ||
-    !/^0\.2\.0(?:-[0-9A-Za-z.-]+)?$/.test(edition.product.version) ||
     !exact(edition.source, ['manifestSha256']) ||
     !isDigest(edition.source.manifestSha256) ||
     !exact(edition.claimModel, ['schema', 'digest']) ||

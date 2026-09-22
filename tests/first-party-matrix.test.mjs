@@ -47,7 +47,7 @@ test('the first-party matrix binds all consumers to one exact generic package', 
     editionDigest: selfProvider.expected.editionDigest,
     staticSceneDigest: '1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d',
     interactiveSceneDigest: 'b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b',
-    candidateSha256: '09112b235bfdd83cc84ef7d365f6cc5dc9bdeda46723c4351fb7a59a2ff2695d',
+    candidateSha256: 'c46716d92d4583f98be39407eb889cba68731ad37b7eac2bfe232fcb820675f7',
   });
 
   const providerSource = (

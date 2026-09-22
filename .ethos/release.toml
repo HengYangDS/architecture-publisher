@@ -1,9 +1,9 @@
 [protected_refs]
 branches = ["main", "dev"]
-tags = ["v0.1.0-alpha.0", "v0.1.0-alpha.1", "v0.1.0-alpha.2", "v0.1.0-alpha.3", "v0.1.0-alpha.4", "v0.1.0-alpha.5", "v0.1.0-alpha.6", "v0.1.0-alpha.7", "v0.2.0-alpha.0"]
+tags = ["v*"]
 
 [publication]
-local_verification_command = "npm test"
+local_verification_command = "npm run check"
 local_installation_command = "node --test tests/installed-cli.test.mjs"
 
 [[publication.peers]]
@@ -11,4 +11,5 @@ id = "gitlab"
 provider = "gitlab"
 role = "private_source_projection"
 git_remote = "origin"
-capabilities = ["repository", "publication"]
+capabilities = ["repository", "ci_cd", "publication"]
+ci_surface = ".gitlab-ci.yml"

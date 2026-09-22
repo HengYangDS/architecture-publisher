@@ -18,10 +18,10 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const baseline = Object.freeze({
   sourceSha256: 'b6a9141a13624fe381a2b454784c07ec15704ebe5d23d6c5c6b869513100809c',
   semanticDigest: '59cac5b3afb6c8e34e0643f8d1e4917994aa75df37c8e5a4144761a2c9d3b54b',
-  editionDigest: '5e50ea1e7e5a8f4b27df7ba94c8bae677c4c01fc9ab1b8ce168d3f8db10df612',
+  editionDigest: '5c7e4f5846219436258ca957473a3137596d9db6697a59c9c3465b321e62b529',
   staticSceneDigest: '1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d',
   interactiveSceneDigest: 'b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b',
-  candidateSha256: '09112b235bfdd83cc84ef7d365f6cc5dc9bdeda46723c4351fb7a59a2ff2695d',
+  candidateSha256: 'c46716d92d4583f98be39407eb889cba68731ad37b7eac2bfe232fcb820675f7',
 });
 
 function run(command, args, cwd, env = process.env) {
