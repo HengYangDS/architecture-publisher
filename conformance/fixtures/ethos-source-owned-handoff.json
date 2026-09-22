@@ -1,5 +1,5 @@
 {
-  "schema": "ethos.architecture-publisher-handoff/v2",
+  "schema": "ethos.architecture-publisher-handoff/v3",
   "publisher": {
     "core": {
       "source": {
@@ -13,7 +13,8 @@
         "name": "architecture-publisher",
         "version": "0.2.0-alpha.0",
         "file": "architecture-publisher-0.2.0-alpha.0.tgz",
-        "sha256": "f853ae1fb149ef1329fd28e5230c7f76101eeab4d63d8ec81b6b3324b272f2f3"
+        "archiveSha256": "f853ae1fb149ef1329fd28e5230c7f76101eeab4d63d8ec81b6b3324b272f2f3",
+        "contentTarSha256": "8de116f7a569fb2d0ba3245a7aa117c458cabab5b548e059f6bffb54956cf317"
       }
     },
     "retiredEthosStaging": {
@@ -28,7 +29,8 @@
         "name": "@architecture-publisher/ethos",
         "version": "0.2.0-alpha.0",
         "file": "architecture-publisher-ethos-0.2.0-alpha.0.tgz",
-        "sha256": "a8897c64da17fd2e92d5b68b93425245ae283def3f47955c45378d4497c56134"
+        "archiveSha256": "a8897c64da17fd2e92d5b68b93425245ae283def3f47955c45378d4497c56134",
+        "contentTarSha256": "f438d1c235ac5e32926d0ccec8fc7fa06f577a23409f13fd6a84360ae147e266"
       }
     }
   },
@@ -45,7 +47,8 @@
         "name": "@architecture-publisher/ethos",
         "version": "0.2.0-alpha.0",
         "file": "architecture-publisher-ethos-0.2.0-alpha.0.tgz",
-        "sha256": "04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044"
+        "archiveSha256": "04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044",
+        "contentTarSha256": "2b96ba9cfb782a752eb3d399968f3225e67968e695cf73df92615264fe8f38d1"
       }
     },
     "acceptance": {

@@ -1,14 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { npmPackageIdentity } from './fixtures/package-identity.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
-const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
-
 async function json(file) {
   return JSON.parse(await fs.readFile(file, 'utf8'));
 }
@@ -23,7 +21,7 @@ test('the first-party matrix binds all consumers to one exact generic package', 
   const matrix = await json(
     path.join(root, 'conformance/fixtures/first-party-contract-matrix.json'),
   );
-  assert.equal(matrix.schema, 'architecture.publisher-first-party-contract-matrix/v1');
+  assert.equal(matrix.schema, 'architecture.publisher-first-party-contract-matrix/v2');
   assert.equal(matrix.publisher.package.name, 'architecture-publisher');
   assert.equal(matrix.publisher.package.version, '0.2.0-alpha.0');
   assert.equal(
@@ -42,7 +40,10 @@ test('the first-party matrix binds all consumers to one exact generic package', 
   );
   assert.equal(packed.status, 0, packed.stderr);
   const archive = path.join(temporary, JSON.parse(packed.stdout)[0].filename);
-  assert.equal(sha256(await fs.readFile(archive)), matrix.publisher.package.sha256);
+  const archiveBytes = await fs.readFile(archive);
+  const packageIdentity = npmPackageIdentity(archiveBytes);
+  assert.match(matrix.publisher.package.archiveSha256, /^[0-9a-f]{64}$/u);
+  assert.equal(packageIdentity.contentTarSha256, matrix.publisher.package.contentTarSha256);
 
   const required = [
     'source',
@@ -69,15 +70,22 @@ test('the first-party matrix binds all consumers to one exact generic package', 
   const ethos = await json(path.join(root, 'conformance/fixtures/ethos-source-owned-handoff.json'));
   const aigw = await json(path.join(root, 'conformance/fixtures/aigw-source-owned-handoff.json'));
   assert.equal(matrix.consumers.ethos.edition.tree, ethos.ethos.integration.source.oid);
-  assert.equal(
-    matrix.consumers.ethos.edition.packageSha256,
-    ethos.ethos.integration.package.sha256,
-  );
+  assert.deepEqual(matrix.consumers.ethos.edition.package, {
+    archiveSha256: ethos.ethos.integration.package.archiveSha256,
+    contentTarSha256: ethos.ethos.integration.package.contentTarSha256,
+  });
   assert.deepEqual(matrix.consumers.ethos.candidate, ethos.terminalCandidate);
   assert.equal(matrix.consumers.aigw.edition.tree, aigw.aigw.source.editionTree);
   assert.deepEqual(matrix.consumers.aigw.candidate, aigw.aigw.candidate);
 
-  assert.equal(matrix.performance.packageSha256, matrix.publisher.package.sha256);
+  assert.equal(
+    matrix.performance.packageContentTarSha256,
+    matrix.publisher.package.contentTarSha256,
+  );
+  assert.equal(
+    matrix.sharedKernel.packageContentTarSha256,
+    matrix.publisher.package.contentTarSha256,
+  );
   assert.equal(matrix.performance.repetitions, 3);
   for (const consumer of Object.values(matrix.performance.consumers)) {
     assert.equal(consumer.deterministic, true);

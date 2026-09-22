@@ -57,12 +57,24 @@ runtime and release tests SHALL NOT import an adjacent checkout, search sibling
 repositories, embed a workstation user path, or infer an adopter from its
 repository name.
 
+Package identity SHALL distinguish the exact compressed archive digest from the
+portable digest of its uncompressed tar content. The archive digest identifies a
+selected release asset; cross-platform reconstruction SHALL compare content
+identity and SHALL NOT claim gzip byte equivalence across implementations.
+
 #### Scenario: An installed adopter is relocated
 
 - **WHEN** its selected Source Bundle, Claim Model, Edition, package, and renderer
   supply are copied to an isolated directory with empty user configuration
 - **THEN** the same candidate is produced offline
 - **AND** the source repository remains unnecessary to the runtime invocation
+
+#### Scenario: Package compression differs across platforms
+
+- **WHEN** two supported hosts pack identical npm package content but their gzip
+  implementations emit different archive bytes
+- **THEN** their archive identities remain distinct and exact
+- **AND** their uncompressed tar-content identities compare equal
 
 ### Requirement: AIGW remains a distinct adopter
 

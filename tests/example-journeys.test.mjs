@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { npmPackageIdentity } from './fixtures/package-identity.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -562,10 +563,12 @@ test('installed non-ETHOS examples support both media, updates and local bundles
     assert.notEqual(revisions[0].png, revisions[1].png);
     assert.notEqual(revisions[0].html, revisions[1].html);
   }
+  const packageIdentity = npmPackageIdentity(await fs.readFile(path.join(dir, pack.filename)));
   const result = {
     node: process.version,
     platform: process.platform,
-    packageSha256: sha(await fs.readFile(path.join(dir, pack.filename))),
+    packageArchiveSha256: packageIdentity.archiveSha256,
+    packageContentTarSha256: packageIdentity.contentTarSha256,
     observations,
     scope:
       'Installed rendering, source-bound example checks and bundle integrity only; no browser execution, visual approval or recoverable installation.',

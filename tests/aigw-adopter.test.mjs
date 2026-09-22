@@ -16,6 +16,7 @@ import {
   validateClaimModel,
 } from '../packages/publisher/src/semantics/document.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
+import { npmPackageIdentity } from './fixtures/package-identity.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
@@ -55,7 +56,7 @@ async function copyHandoffFiles(source, destination, files) {
 
 test('Publisher retains only immutable AIGW source-ownership evidence', async (t) => {
   const handoff = await json(handoffPath);
-  assert.equal(handoff.schema, 'aigw.architecture-publisher-handoff/v1');
+  assert.equal(handoff.schema, 'aigw.architecture-publisher-handoff/v2');
   assert.equal(handoff.publisher.package.name, 'architecture-publisher');
   assert.equal(handoff.aigw.source.editionPath, 'docs/architecture/client-projection');
   assert.equal(handoff.aigw.governance.ownerState, 'candidate');
@@ -64,7 +65,8 @@ test('Publisher retains only immutable AIGW source-ownership evidence', async (t
   for (const value of [
     handoff.publisher.source.commit,
     handoff.publisher.source.oid,
-    handoff.publisher.package.sha256,
+    handoff.publisher.package.archiveSha256,
+    handoff.publisher.package.contentTarSha256,
     handoff.aigw.source.ownerCommit,
     handoff.aigw.source.ownerTree,
     handoff.aigw.source.editionTree,
@@ -107,8 +109,8 @@ test('Publisher retains only immutable AIGW source-ownership evidence', async (t
   )[0];
   assert.equal(packed.filename, handoff.publisher.package.file);
   assert.equal(
-    sha(await fs.readFile(path.join(historical, packed.filename))),
-    handoff.publisher.package.sha256,
+    npmPackageIdentity(await fs.readFile(path.join(historical, packed.filename))).contentTarSha256,
+    handoff.publisher.package.contentTarSha256,
   );
 });
 

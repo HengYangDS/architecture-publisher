@@ -265,9 +265,12 @@ Work Lanes, mint proof, execute CAS effects, or accept ETHOS state. This
 repository retains only the exact digest-bound source-ownership handoff under
 `conformance/fixtures/ethos-source-owned-handoff.json`. Each package identity
 includes its repository, commit, repository-relative package path, Git tree
-object, archive name, and archive digest; a tree object is never presented as a
-repository root or commit. Testing reconstructs the packed core from that exact
-subtree and compares every packaged file byte-for-byte.
+object, archive name, exact archive digest, and portable uncompressed-tar
+content digest. The archive digest identifies one selected `.tgz` asset; the
+content digest verifies equivalent package content across gzip implementations.
+A tree object is never presented as a repository root or commit. Testing
+reconstructs the packed core from that exact subtree and compares every packaged
+file byte-for-byte.
 
 ## Media independence
 

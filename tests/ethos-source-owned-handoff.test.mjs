@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
+import { npmPackageIdentity } from './fixtures/package-identity.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const handoffPath = path.join(root, 'conformance/fixtures/ethos-source-owned-handoff.json');
@@ -12,8 +12,6 @@ const thisTest = path.relative(root, import.meta.filename);
 async function readJson(file) {
   return JSON.parse(await fs.readFile(file, 'utf8'));
 }
-
-const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 async function filesBelow(directory, prefix = '') {
   const files = [];
@@ -29,7 +27,7 @@ async function filesBelow(directory, prefix = '') {
 
 test('source-owned ETHOS handoff binds exact packages, parity and successor limits', async (t) => {
   const handoff = await readJson(handoffPath);
-  assert.equal(handoff.schema, 'ethos.architecture-publisher-handoff/v2');
+  assert.equal(handoff.schema, 'ethos.architecture-publisher-handoff/v3');
   assert.deepEqual(Object.keys(handoff.publisher).sort(), ['core', 'retiredEthosStaging']);
   assert.deepEqual(handoff.publisher.core, {
     source: {
@@ -43,7 +41,8 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
       name: 'architecture-publisher',
       version: '0.2.0-alpha.0',
       file: 'architecture-publisher-0.2.0-alpha.0.tgz',
-      sha256: 'f853ae1fb149ef1329fd28e5230c7f76101eeab4d63d8ec81b6b3324b272f2f3',
+      archiveSha256: 'f853ae1fb149ef1329fd28e5230c7f76101eeab4d63d8ec81b6b3324b272f2f3',
+      contentTarSha256: '8de116f7a569fb2d0ba3245a7aa117c458cabab5b548e059f6bffb54956cf317',
     },
   });
   assert.deepEqual(handoff.publisher.retiredEthosStaging, {
@@ -58,7 +57,8 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
       name: '@architecture-publisher/ethos',
       version: '0.2.0-alpha.0',
       file: 'architecture-publisher-ethos-0.2.0-alpha.0.tgz',
-      sha256: 'a8897c64da17fd2e92d5b68b93425245ae283def3f47955c45378d4497c56134',
+      archiveSha256: 'a8897c64da17fd2e92d5b68b93425245ae283def3f47955c45378d4497c56134',
+      contentTarSha256: 'f438d1c235ac5e32926d0ccec8fc7fa06f577a23409f13fd6a84360ae147e266',
     },
   });
   assert.deepEqual(handoff.ethos.integration, {
@@ -73,7 +73,8 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
       name: '@architecture-publisher/ethos',
       version: '0.2.0-alpha.0',
       file: 'architecture-publisher-ethos-0.2.0-alpha.0.tgz',
-      sha256: '04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044',
+      archiveSha256: '04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044',
+      contentTarSha256: '2b96ba9cfb782a752eb3d399968f3225e67968e695cf73df92615264fe8f38d1',
     },
   });
   assert.deepEqual(handoff.ethos.acceptance, {
@@ -94,13 +95,16 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   for (const value of [
     handoff.publisher.core.source.commit,
     handoff.publisher.core.source.oid,
-    handoff.publisher.core.package.sha256,
+    handoff.publisher.core.package.archiveSha256,
+    handoff.publisher.core.package.contentTarSha256,
     handoff.publisher.retiredEthosStaging.source.commit,
     handoff.publisher.retiredEthosStaging.source.oid,
-    handoff.publisher.retiredEthosStaging.package.sha256,
+    handoff.publisher.retiredEthosStaging.package.archiveSha256,
+    handoff.publisher.retiredEthosStaging.package.contentTarSha256,
     handoff.ethos.integration.source.commit,
     handoff.ethos.integration.source.oid,
-    handoff.ethos.integration.package.sha256,
+    handoff.ethos.integration.package.archiveSha256,
+    handoff.ethos.integration.package.contentTarSha256,
     handoff.ethos.acceptance.repositoryTree,
     handoff.ethos.acceptance.runtimeDigest,
     ...Object.values(handoff.acceptedParity),
@@ -156,7 +160,8 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
     }),
   )[0];
   const archive = path.join(work, pack.filename);
-  assert.equal(sha(await fs.readFile(archive)), handoff.publisher.core.package.sha256);
+  const packageIdentity = npmPackageIdentity(await fs.readFile(archive));
+  assert.equal(packageIdentity.contentTarSha256, handoff.publisher.core.package.contentTarSha256);
   execFileSync('tar', ['-xzf', archive, '-C', work]);
   const packedRoot = path.join(work, 'package');
   const packedFiles = await filesBelow(packedRoot);

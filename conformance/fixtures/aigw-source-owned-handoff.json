@@ -1,5 +1,5 @@
 {
-  "schema": "aigw.architecture-publisher-handoff/v1",
+  "schema": "aigw.architecture-publisher-handoff/v2",
   "publisher": {
     "source": {
       "repository": "dig/research/human-agent-stewardship/architecture-publisher",
@@ -12,7 +12,8 @@
       "name": "architecture-publisher",
       "version": "0.2.0-alpha.0",
       "file": "architecture-publisher-0.2.0-alpha.0.tgz",
-      "sha256": "07719ad002d3b3673b716dce53b97f40ddb6146353634a24dfdb33e3ace70d3e"
+      "archiveSha256": "07719ad002d3b3673b716dce53b97f40ddb6146353634a24dfdb33e3ace70d3e",
+      "contentTarSha256": "e325e5f1d2717a2fe5ab33ccb93c8f50fcde2f5e9347cb99e1dc9dccbd3b17d2"
     }
   },
   "aigw": {
@@ -54,8 +55,12 @@
         "hermes",
         "transaction"
       ],
-      "removedEntities": ["claude"],
-      "changedEditions": ["aigw-client-projection"],
+      "removedEntities": [
+        "claude"
+      ],
+      "changedEditions": [
+        "aigw-client-projection"
+      ],
       "obligations": {
         "rebuild": 7,
         "semanticVerification": 1,

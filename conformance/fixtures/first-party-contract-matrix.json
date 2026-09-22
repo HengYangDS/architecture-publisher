@@ -1,12 +1,13 @@
 {
-  "schema": "architecture.publisher-first-party-contract-matrix/v1",
+  "schema": "architecture.publisher-first-party-contract-matrix/v2",
   "publisher": {
     "observedCommit": "90ef946b4b11ea00e90896efda48b48315fef0be",
     "package": {
       "name": "architecture-publisher",
       "version": "0.2.0-alpha.0",
       "tree": "4ef070cbd68442f17c53db2549d1f7013b4b0134",
-      "sha256": "1bf9b3400b61b8736e28893b6e5967f7b5f9b156fa614b420ecd7e6e1ebf4c6d"
+      "archiveSha256": "1bf9b3400b61b8736e28893b6e5967f7b5f9b156fa614b420ecd7e6e1ebf4c6d",
+      "contentTarSha256": "646a7d4967dda74adac475fd7bd250bd37ffce1c8b713a4783ce2219a5863dc5"
     },
     "execution": {
       "network": "offline",
@@ -20,7 +21,10 @@
       "transport": "independent-core-and-edition-packages",
       "edition": {
         "tree": "ee3d0de9fb0cd4f72346ae1df9ee9f9379e181ed",
-        "packageSha256": "97c21cec2ffa5be7cbc1299e02d4cafb09869f99c74f71d1817ed053fd6d8bac"
+        "package": {
+          "archiveSha256": "97c21cec2ffa5be7cbc1299e02d4cafb09869f99c74f71d1817ed053fd6d8bac",
+          "contentTarSha256": "20bf05c429a3d94c954defa45c8099ea23707585db87ad647d1d4d86147b2607"
+        }
       },
       "candidate": {
         "manifestSha256": "6cbe0b100c2db784a87571173b7cf30a04ec6c2e357cef1d7c3e51bcc94ec7ed",
@@ -38,7 +42,10 @@
       "transport": "independent-source-owned-package",
       "edition": {
         "tree": "fad20d92bb4c04fdba6038a879690a81357fb223",
-        "packageSha256": "04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044"
+        "package": {
+          "archiveSha256": "04628f752d677aa9d0b6d0b9ef056bcf85e987a28b9582a669e057b084ddf044",
+          "contentTarSha256": "2b96ba9cfb782a752eb3d399968f3225e67968e695cf73df92615264fe8f38d1"
+        }
       },
       "candidate": {
         "projectionDigest": "fa27a64c9ceda4f751ba47643e1709567ad349c82cd02331cc11360aa3339fbd",
@@ -144,7 +151,7 @@
     }
   ],
   "sharedKernel": {
-    "packageSha256": "1bf9b3400b61b8736e28893b6e5967f7b5f9b156fa614b420ecd7e6e1ebf4c6d",
+    "packageContentTarSha256": "646a7d4967dda74adac475fd7bd250bd37ffce1c8b713a4783ce2219a5863dc5",
     "identityBranches": false,
     "publicationScope": "file-installation-only",
     "proof": [
@@ -159,7 +166,7 @@
   "performance": {
     "schema": "architecture.publisher-rebuild-cost-decision/v1",
     "observedPublisherCommit": "945c81e21d89a761c4a178bfdbe0684da0656da2",
-    "packageSha256": "1bf9b3400b61b8736e28893b6e5967f7b5f9b156fa614b420ecd7e6e1ebf4c6d",
+    "packageContentTarSha256": "646a7d4967dda74adac475fd7bd250bd37ffce1c8b713a4783ce2219a5863dc5",
     "host": "darwin-arm64",
     "node": "v26.9.0",
     "repetitions": 3,

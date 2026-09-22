@@ -109,6 +109,12 @@ schema is not a compiler input. A source adapter may convert such a source into
 the standard values, but the adapter remains upstream and cannot invent intent
 or grant publication authority.
 
+Package conformance uses two identities rather than overloading one checksum:
+the SHA-256 of a selected compressed archive identifies that exact release
+asset, while the SHA-256 of its uncompressed tar stream identifies portable npm
+package content. Cross-platform reconstruction compares the latter because gzip
+bytes are an implementation output, not the package's semantic content.
+
 The processing chain is:
 
 ```text
