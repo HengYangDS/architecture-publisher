@@ -55,34 +55,34 @@ test('the first-party matrix binds all consumers to one exact generic package', 
   });
   assert.deepEqual(matrix.successor, {
     state: 'self-qualified-adopters-pending',
-    targetTag: 'v0.3.0-alpha.0',
+    targetTag: 'v0.3.0-alpha.1',
     publisher: {
       source: {
-        commit: '1ea033ee42f55468cabc25f81a8e5ff5bef1dd13',
-        tree: '0e93199a3d7928a2f87f786ba9ab31ab0a0024f8',
+        commit: '7e82da7816e461f135076a6f984490d978a3a515',
+        tree: '336d0e58058ba2b04b90208582bd4b3fb1f052f0',
       },
       package: {
         name: 'architecture-publisher',
-        version: '0.3.0-alpha.0',
-        file: 'architecture-publisher-0.3.0-alpha.0.tgz',
-        archiveSha256: 'a1cb5e308498263350be2c01a4faa031991ea7364de9c643cdbab863d29f6a34',
-        contentTarSha256: '7042089a54b1bfa7935ab413e1f903f64c84bf673613c355179f07747faa4e2e',
+        version: '0.3.0-alpha.1',
+        file: 'architecture-publisher-0.3.0-alpha.1.tgz',
+        archiveSha256: 'c2707bcffc9ba0cea277cb3b6f4fb6f04f2755996781f92c035fa9cadb4dcc37',
+        contentTarSha256: '6b0a925f85879ea7a576c5153849e2741d2e54fcd83bf068cfb5a473b8c7d682',
       },
     },
     self: {
-      sourceTree: '61ec956f99e99aceccedee8ddbeddad142df4bf3',
+      sourceTree: '68cf9ea99c1064670e98bbb08af7473b3e6846a0',
       package: {
         name: '@architecture-publisher/self-edition',
-        version: '0.3.0-alpha.0',
-        file: 'architecture-publisher-self-edition-0.3.0-alpha.0.tgz',
-        archiveSha256: '3219782f8e495c951a5b9a441da0729bb9fe5cd436e63b051773b703a62f1559',
-        contentTarSha256: '639d52f898fd9e2e4df32d633b2d6f1d9341095f1254c866687b8cd90f78dd6a',
+        version: '0.3.0-alpha.1',
+        file: 'architecture-publisher-self-edition-0.3.0-alpha.1.tgz',
+        archiveSha256: '50a6af08d3c9997d8217b0050b10ad101b3e2909bcd8b5c7e15390da0d9434da',
+        contentTarSha256: '764e6b5937322edf66c68468ba3c422b96ead24caf8442391bcc1d7e6073cd63',
       },
       provider: {
         delivery: 'declarative',
         manifestSha256: sha(selfProviderBytes),
-        materializationSha256: '55e7c0453ce1bad4b22c925e6c53325d2f77653e05ae6c97c82c9d99fd65f8a0',
-        bundleManifestSha256: 'ec7d8acfc2e3658c1a4d873f3e9ef2a899250469495243653fef6f3e98ac8f3c',
+        materializationSha256: 'bbd1e02a26c02a3286b0e142dc9d5feae2195a5fe3aaf24af2ae5d02f3ee7898',
+        bundleManifestSha256: '66d06f18c54d209ffc9d77ccf42a0651844f47ff963e519dd9f8d50b2c1329f9',
       },
       parity: {
         sourceManifestSha256: selfProvider.expected.sourceManifestSha256,
@@ -91,7 +91,7 @@ test('the first-party matrix binds all consumers to one exact generic package', 
         editionDigest: selfProvider.expected.editionDigest,
         staticSceneDigest: '1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d',
         interactiveSceneDigest: 'b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b',
-        candidateSha256: 'c46716d92d4583f98be39407eb889cba68731ad37b7eac2bfe232fcb820675f7',
+        candidateSha256: 'af334f517daa21c07eb2bcbafe5505a85dbfef9e7f6fca8c4a66ddcce9d9b7e4',
       },
     },
     adopters: {
@@ -119,7 +119,7 @@ test('the first-party matrix binds all consumers to one exact generic package', 
     editionDigest: selfProvider.expected.editionDigest,
     staticSceneDigest: '1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d',
     interactiveSceneDigest: 'b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b',
-    candidateSha256: 'c46716d92d4583f98be39407eb889cba68731ad37b7eac2bfe232fcb820675f7',
+    candidateSha256: 'af334f517daa21c07eb2bcbafe5505a85dbfef9e7f6fca8c4a66ddcce9d9b7e4',
   });
 
   const providerSource = (

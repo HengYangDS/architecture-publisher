@@ -67,20 +67,20 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   });
   assert.deepEqual(handoff.publisher.successor, {
     state: 'release-candidate',
-    targetTag: 'v0.3.0-alpha.0',
+    targetTag: 'v0.3.0-alpha.1',
     source: {
       repository: 'dig/research/human-agent-stewardship/architecture-publisher',
-      commit: '1ea033ee42f55468cabc25f81a8e5ff5bef1dd13',
+      commit: '7e82da7816e461f135076a6f984490d978a3a515',
       path: 'packages/publisher',
       objectType: 'tree',
-      oid: '0e93199a3d7928a2f87f786ba9ab31ab0a0024f8',
+      oid: '336d0e58058ba2b04b90208582bd4b3fb1f052f0',
     },
     package: {
       name: 'architecture-publisher',
-      version: '0.3.0-alpha.0',
-      file: 'architecture-publisher-0.3.0-alpha.0.tgz',
-      archiveSha256: 'a1cb5e308498263350be2c01a4faa031991ea7364de9c643cdbab863d29f6a34',
-      contentTarSha256: '7042089a54b1bfa7935ab413e1f903f64c84bf673613c355179f07747faa4e2e',
+      version: '0.3.0-alpha.1',
+      file: 'architecture-publisher-0.3.0-alpha.1.tgz',
+      archiveSha256: 'c2707bcffc9ba0cea277cb3b6f4fb6f04f2755996781f92c035fa9cadb4dcc37',
+      contentTarSha256: '6b0a925f85879ea7a576c5153849e2741d2e54fcd83bf068cfb5a473b8c7d682',
     },
     evidenceBoundary:
       'Exact source tree and reproducible package candidate; tag, Forge release, installation, and ETHOS migration remain separate facts.',
