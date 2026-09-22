@@ -1,6 +1,7 @@
 # edition-provider Specification
 
 ## Purpose
+
 Define one source-owned, product-neutral boundary that materializes exact
 Architecture Publisher inputs without transferring semantic, lifecycle,
 acceptance, or publication authority.
