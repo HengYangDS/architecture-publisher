@@ -22,7 +22,7 @@
       deterministic reply, ambient-checkout immunity, forbidden later-stage output,
       interruption, and cleanup; implement the child-process runner and verify no
       provider code executes in the long-lived Publisher process.
-- [ ] 2.3 Add one provider-neutral conformance journey that runs the same closure,
+- [x] 2.3 Add one provider-neutral conformance journey that runs the same closure,
       identity, determinism, portability, dependency, resource, and non-authority
       predicates for declarative and executable fixtures; verify failures identify
       the exact violated predicate.
@@ -39,7 +39,7 @@
       materialization receipt in the outer candidate bundle and verify exact
       subject, producer, authorization-owner, and custody fields survive package and
       publication journeys.
-- [ ] 3.3 Extend module, package, import, dead-code, and product-identity gates to
+- [x] 3.3 Extend module, package, import, dead-code, and product-identity gates to
       reject concrete renderer, browser, qualification, publication, Git, forge,
       repository-governance, adjacent-checkout, and named-adopter dependencies in
       providers or the generic materializer; verify deliberately invalid fixtures

@@ -4,12 +4,18 @@
   "workspaces": {
     ".": {
       "entry": [
+        "conformance/journeys/provider/run.mjs",
         "conformance/journeys/self-host/build.mjs",
         "tools/migration/semantic-v1-to-claim-v2.mjs",
         "tools/qualification/semantic-browser.mjs",
         "tests/*.test.mjs"
       ],
-      "project": ["conformance/journeys/self-host/**/*.mjs", "tools/**/*.mjs", "tests/**/*.mjs"],
+      "project": [
+        "conformance/journeys/provider/**/*.mjs",
+        "conformance/journeys/self-host/**/*.mjs",
+        "tools/**/*.mjs",
+        "tests/**/*.mjs"
+      ],
       "includeEntryExports": true
     },
     "packages/publisher": {

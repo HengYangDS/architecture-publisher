@@ -23,6 +23,13 @@ test('workspace separates the generic product from concrete Editions', async () 
   assert.deepEqual(product.bin, { archpub: 'src/cli/main.mjs' });
   assert.equal(product.exports['.'], './src/index.mjs');
   assert.equal(product.exports['./provider'], './src/provider/index.mjs');
+  const providerApi = await import(pathToFileURL(path.join(publisher, 'src/provider/index.mjs')));
+  for (const name of [
+    'materializeDeclarativeProvider',
+    'materializeExecutableProvider',
+    'withMaterializedEditionProvider',
+  ])
+    assert.equal(typeof providerApi[name], 'function');
   const publicApi = await import(pathToFileURL(path.join(publisher, 'src/index.mjs')));
   assert.deepEqual(Object.keys(publicApi).sort(), [
     'compiler',

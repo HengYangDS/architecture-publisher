@@ -141,6 +141,10 @@ const owners = [
       'packages/publisher/src/semantics/',
     ],
   ],
+  [
+    'conformance/journeys/provider/',
+    ['conformance/journeys/provider/', 'packages/publisher/src/provider/index.mjs'],
+  ],
   ['tools/', ['tools/', 'packages/publisher/', 'editions/', 'migration/']],
 ];
 
@@ -172,6 +176,11 @@ export function inspectModuleBoundaries(
   const owner = owners.find(([prefix]) => file.startsWith(prefix));
   const resourceOwner = resourceOwners.find(([prefix]) => file.startsWith(prefix)) ?? owner;
   if (!owner) issue(null, 'unknown module owner');
+  if (
+    file.startsWith('packages/publisher/src/') &&
+    /\b(?:ETHOS|AIGW)\b|@example\/architecture-edition-provider/u.test(source)
+  )
+    issue(null, 'generic source names adopter identity');
   let ast;
   try {
     ast = parse(source, {

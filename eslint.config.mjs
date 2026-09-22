@@ -55,4 +55,20 @@ export default [
       'no-control-regex': 'off',
     },
   },
+  {
+    files: ['packages/publisher/src/provider/**/*.mjs'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            '../publication/**',
+            '../qualification/**',
+            '../rendering/**',
+            '../../renderers/**',
+          ],
+        },
+      ],
+    },
+  },
 ];

@@ -170,6 +170,37 @@ test('syntax failures and computed dependencies fail closed', async () => {
   );
 });
 
+test('provider and generic kernels reject forbidden dependency directions and adopter names', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  for (const specifier of [
+    'architecture-publisher/renderers/archify',
+    'architecture-publisher/qualification',
+    'architecture-publisher/publication',
+    'simple-git',
+    '../../../../../ethos/src/index.mjs',
+  ])
+    assert(
+      inspectModuleBoundaries(
+        'packages/publisher/src/provider/invalid.mjs',
+        `import ${JSON.stringify(specifier)};`,
+        paths,
+        packageExports,
+      ).length,
+      specifier,
+    );
+  for (const name of ['ETHOS', 'AIGW', '@example/architecture-edition-provider'])
+    assert(
+      inspectModuleBoundaries(
+        'packages/publisher/src/compiler/invalid.mjs',
+        `export const adopter = ${JSON.stringify(name)};`,
+        paths,
+        packageExports,
+      ).some(({ reason }) => reason.includes('adopter identity')),
+      name,
+    );
+});
+
 test('first-party owner names stay precise outside vendored assets', async () => {
   const { modules } = await inventory([...runtimeRoots, 'conformance/journeys/self-host', 'tools']);
   const forbidden = /(?:^|\/)(?:core|common|shared|utils|legacy|compat)(?:\/|$)/;
