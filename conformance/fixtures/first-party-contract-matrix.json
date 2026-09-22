@@ -1,7 +1,7 @@
 {
   "schema": "architecture.publisher-first-party-contract-matrix/v1",
   "publisher": {
-    "observedCommit": "1dbabce35ed31a595fea5a37628122c0721f0293",
+    "observedCommit": "90ef946b4b11ea00e90896efda48b48315fef0be",
     "package": {
       "name": "architecture-publisher",
       "version": "0.2.0-alpha.0",
@@ -158,7 +158,7 @@
   },
   "performance": {
     "schema": "architecture.publisher-rebuild-cost-decision/v1",
-    "observedPublisherCommit": "2f371efc0f5962841a38d358bd9eff215f64893e",
+    "observedPublisherCommit": "945c81e21d89a761c4a178bfdbe0684da0656da2",
     "packageSha256": "1bf9b3400b61b8736e28893b6e5967f7b5f9b156fa614b420ecd7e6e1ebf4c6d",
     "host": "darwin-arm64",
     "node": "v26.9.0",

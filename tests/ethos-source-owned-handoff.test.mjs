@@ -34,7 +34,7 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   assert.deepEqual(handoff.publisher.core, {
     source: {
       repository: 'dig/research/human-agent-stewardship/architecture-publisher',
-      commit: 'acf14d6d652e019da21cc774eaaae995692a2bbd',
+      commit: '53cbc38412a6193fc535cb8605129ff8d222cfeb',
       path: 'packages/publisher',
       objectType: 'tree',
       oid: 'a4c6e3e1e0d8b158ec7c4c83e061a8ca3e3d7177',
@@ -49,7 +49,7 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   assert.deepEqual(handoff.publisher.retiredEthosStaging, {
     source: {
       repository: 'dig/research/human-agent-stewardship/architecture-publisher',
-      commit: '7652d83251ebd33d44a21e935e56972d41482599',
+      commit: 'b3ad449f38bcc568786b40ecbc9255d88652356e',
       path: 'migration/ethos',
       objectType: 'tree',
       oid: 'de973462a508c8d213c5ac1143cd52d8bd9576bb',

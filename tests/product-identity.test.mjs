@@ -15,6 +15,7 @@ test('alpha.7 migration baseline preserves exact local and remote identities', a
   const baseline = JSON.parse(
     await fs.readFile(path.join(root, 'docs/migration/alpha7-baseline.json'), 'utf8'),
   );
+  const gitlabCi = await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8');
   assert.equal(baseline.schema, 'architecture-publisher.migration-baseline/v1');
   assert.equal(baseline.observedAt, '2026-09-20');
   assert.equal(baseline.predecessor.product, 'Architecture Publishing');
@@ -39,6 +40,8 @@ test('alpha.7 migration baseline preserves exact local and remote identities', a
   assert.equal(baseline.documents.staticPng.width, 6000);
   assert.equal(baseline.documents.staticPng.height, 3375);
   assert.equal(baseline.limits.independentOffHostRestore, 'UNPROVED');
+  assert.match(gitlabCi, /^variables:$/mu);
+  assert.match(gitlabCi, /^[ ]{2}GIT_DEPTH: ['"]0['"]$/mu);
 });
 
 test('current product surfaces expose one Architecture Publisher identity', async () => {

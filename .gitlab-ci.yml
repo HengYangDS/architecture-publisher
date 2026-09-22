@@ -1,5 +1,8 @@
 image: node:26.9.0-bookworm@sha256:347d9d5391493c2fc3f0d161b75a9cab64a9805064b1b01b099f8ee97f98ed47
 
+variables:
+  GIT_DEPTH: '0'
+
 stages:
   - verify
 

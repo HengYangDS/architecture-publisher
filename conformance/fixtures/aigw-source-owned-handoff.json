@@ -3,7 +3,7 @@
   "publisher": {
     "source": {
       "repository": "dig/research/human-agent-stewardship/architecture-publisher",
-      "commit": "f95b46676b391672510ee06528ca2f601da738d1",
+      "commit": "44d735a727c438a2d618678f20a53a450e8bf7d2",
       "path": "packages/publisher",
       "objectType": "tree",
       "oid": "2eb736a6677a2c301a9cdec2715725a54b440720"
