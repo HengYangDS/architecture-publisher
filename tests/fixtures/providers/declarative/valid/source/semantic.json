@@ -1,0 +1,153 @@
+{
+  "schema": "architecture.claim-model/v2",
+  "owner": "example:system",
+  "vocabulary": {
+    "entities": ["component"],
+    "relations": ["calls"],
+    "maturities": ["implemented", "measured", "ratified", "released", "target"],
+    "predicates": {
+      "calls": {
+        "valueKind": "entity",
+        "cardinality": "single",
+        "values": [],
+        "provenance": ["contract"]
+      },
+      "status": {
+        "valueKind": "scalar",
+        "cardinality": "single",
+        "values": ["healthy", "unhealthy"],
+        "provenance": ["contract"]
+      },
+      "tag": {
+        "valueKind": "scalar",
+        "cardinality": "multiple",
+        "values": [],
+        "provenance": ["contract"]
+      },
+      "statement": {
+        "valueKind": "opaque",
+        "cardinality": "multiple",
+        "values": [],
+        "provenance": ["contract"]
+      }
+    }
+  },
+  "sources": {
+    "contract": {
+      "sha256": "6745a600e15251de2d55276894a0afd83edd7fee2b4d8ca3cd0f426edbf290ad",
+      "locator": "contract.md",
+      "authority": "Declared product contract"
+    }
+  },
+  "entities": {
+    "client": {
+      "type": "component",
+      "label": "client",
+      "qualifiers": {},
+      "provenance": ["contract"]
+    },
+    "server": {
+      "type": "component",
+      "label": "server",
+      "qualifiers": {},
+      "provenance": ["contract"]
+    },
+    "other": { "type": "component", "label": "other", "qualifiers": {}, "provenance": ["contract"] }
+  },
+  "relations": {
+    "request": {
+      "type": "calls",
+      "subject": "client",
+      "object": "server",
+      "qualifiers": {},
+      "provenance": ["contract"]
+    }
+  },
+  "claims": {
+    "intended": {
+      "subject": "client",
+      "predicate": "calls",
+      "object": "server",
+      "plane": "intended",
+      "condition": { "authorization": "granted" },
+      "scope": { "environment": "local" },
+      "maturity": "target",
+      "validity": "affirmed",
+      "value": null,
+      "dependsOn": [{ "section": "relations", "id": "request" }],
+      "coverage": "complete",
+      "provenance": ["contract"]
+    },
+    "implemented": {
+      "subject": "client",
+      "predicate": "calls",
+      "object": "server",
+      "plane": "implemented",
+      "condition": { "authorization": "granted" },
+      "scope": { "environment": "local" },
+      "maturity": "implemented",
+      "validity": "affirmed",
+      "value": null,
+      "dependsOn": [{ "section": "relations", "id": "request" }],
+      "coverage": "complete",
+      "provenance": ["contract"]
+    },
+    "observed": {
+      "subject": "client",
+      "predicate": "status",
+      "object": null,
+      "plane": "observed",
+      "condition": { "probe": "health-check" },
+      "scope": { "environment": "local" },
+      "maturity": "measured",
+      "validity": "affirmed",
+      "value": "healthy",
+      "dependsOn": [{ "section": "entities", "id": "client" }],
+      "coverage": "complete",
+      "provenance": ["contract"]
+    },
+    "governed": {
+      "subject": "client",
+      "predicate": "calls",
+      "object": "server",
+      "plane": "governed",
+      "condition": { "authorization": "granted" },
+      "scope": { "environment": "local" },
+      "maturity": "ratified",
+      "validity": "affirmed",
+      "value": null,
+      "dependsOn": [{ "section": "relations", "id": "request" }],
+      "coverage": "complete",
+      "provenance": ["contract"]
+    },
+    "published": {
+      "subject": "client",
+      "predicate": "statement",
+      "object": null,
+      "plane": "published",
+      "condition": { "channel": "release" },
+      "scope": { "audience": "operators" },
+      "maturity": "released",
+      "validity": "affirmed",
+      "value": { "text": "The client is available to operators." },
+      "dependsOn": [{ "section": "entities", "id": "client" }],
+      "coverage": "unknown",
+      "provenance": ["contract"]
+    },
+    "tagged": {
+      "subject": "client",
+      "predicate": "tag",
+      "object": null,
+      "plane": "published",
+      "condition": { "channel": "release" },
+      "scope": { "audience": "operators" },
+      "maturity": "released",
+      "validity": "affirmed",
+      "value": "stable",
+      "dependsOn": [{ "section": "entities", "id": "client" }],
+      "coverage": "complete",
+      "provenance": ["contract"]
+    }
+  },
+  "context": {}
+}

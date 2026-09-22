@@ -8,3 +8,5 @@ export {
   validateProviderReply,
   validateProviderRequest,
 } from './protocol.mjs';
+export { materializeDeclarativeProvider } from './declarative.mjs';
+export { readEditionProviderInput } from './input.mjs';

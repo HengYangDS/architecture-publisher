@@ -13,7 +13,7 @@
 
 ## 2. Materialization
 
-- [ ] 2.1 Add RED declarative-provider tests for closed relative files, exact
+- [x] 2.1 Add RED declarative-provider tests for closed relative files, exact
       Source Bundle and Edition identities, optional evolution, relocation,
       symlinks, escaping paths, extra files, and changed bytes; implement
       declarative materialization and verify the complete focused suite passes.

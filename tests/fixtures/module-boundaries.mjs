@@ -34,7 +34,9 @@ const owners = [
   [
     'packages/publisher/src/provider/',
     [
+      'packages/publisher/src/edition/',
       'packages/publisher/src/provider/',
+      'packages/publisher/src/runtime.mjs',
       'packages/publisher/src/semantics/',
       'packages/publisher/src/source/',
     ],

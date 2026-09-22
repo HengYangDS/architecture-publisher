@@ -6,6 +6,21 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
+/** Return the installed package identity from its single package manifest. */
+export async function readPublisherIdentity() {
+  const value = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+  if (
+    value === null ||
+    typeof value !== 'object' ||
+    Array.isArray(value) ||
+    value.name !== 'architecture-publisher' ||
+    typeof value.version !== 'string' ||
+    !value.version
+  )
+    throw Error('Publisher package identity invalid');
+  return Object.freeze({ name: value.name, version: value.version });
+}
+
 async function visit(directory, prefix, members) {
   for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
