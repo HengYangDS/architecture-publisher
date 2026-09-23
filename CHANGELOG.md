@@ -8,7 +8,25 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
-## [0.3.0-alpha.2] - 2026-09-23
+## [0.3.0-alpha.3] - 2026-09-24
+
+### Status
+
+- Candidate under qualification; this entry does not assert publication.
+
+### Fixed
+
+- Corrected the release-date mismatch caught by the signed-tag CI gate for
+  `0.3.0-alpha.2` without changing that immutable tag or its source bytes.
+
+## [0.3.0-alpha.2] - 2026-09-24
+
+### Status
+
+- Signed candidate tag only. The tag pipeline rejected a mismatch between its
+  September 24 tagger date and the Changelog's former September 23 date. No
+  GitLab Release or package assets were published; this candidate is superseded
+  by `0.3.0-alpha.3`.
 
 ### Changed
 
@@ -181,7 +199,8 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
-[Unreleased]: ../../compare/v0.3.0-alpha.2...main
+[Unreleased]: ../../compare/v0.3.0-alpha.3...main
+[0.3.0-alpha.3]: ../../compare/v0.3.0-alpha.2...v0.3.0-alpha.3
 [0.3.0-alpha.2]: ../../compare/v0.3.0-alpha.1...v0.3.0-alpha.2
 [0.3.0-alpha.1]: ../../compare/v0.3.0-alpha.0...v0.3.0-alpha.1
 [0.3.0-alpha.0]: ../../compare/v0.2.0-alpha.0...v0.3.0-alpha.0

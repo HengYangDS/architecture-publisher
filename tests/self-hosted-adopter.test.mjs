@@ -18,13 +18,13 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const baseline = Object.freeze({
   sourceSha256: 'b6a9141a13624fe381a2b454784c07ec15704ebe5d23d6c5c6b869513100809c',
   semanticDigest: '59cac5b3afb6c8e34e0643f8d1e4917994aa75df37c8e5a4144761a2c9d3b54b',
-  editionDigest: 'f1c9226bfd2a0efa37dbc738091432fdc769bdcafa1e24cf29b360905901328e',
+  editionDigest: 'd764d95065de156f0a9756140521db964eef5fc2a79e210f8fa57cee79e6e4b3',
   staticSceneDigest: '1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d',
   interactiveSceneDigest: 'b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b',
-  candidateSha256: '9dd061fab8a27ab3944fd6716014e722c8467ca2b305b7867c222ffce9525fa1',
-  providerManifestSha256: '3dac5d7508a053afccd4aebcc7dfec076e8ced2aaa4e87b8eca2542d93abd93a',
-  providerMaterializationSha256: '0ea2418ad8e589b06feef0855885878be856e91ad412b1afaa577a73d76532e9',
-  bundleManifestSha256: 'a7a6da09bbd8c65038f8cf0cfec33a70487c4c455af1d507853814559854577a',
+  candidateSha256: '80bce239ed39c57c184ec13cdeac36585fc7b59b85fa48f93bd328a5ee00d1af',
+  providerManifestSha256: '718583334b62910a6f59d99a4da05e335ad9513699d9545dc04026976aa41442',
+  providerMaterializationSha256: '5538929fa6a037a47c724e83485bcf24903491acb099079b212378550566baf5',
+  bundleManifestSha256: '78093504a10d875dfd4e51f74b4cfa3b937e1a2558eb2e8c455d2f4f4008a71d',
 });
 
 function run(command, args, cwd, env = process.env) {

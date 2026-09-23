@@ -23,6 +23,10 @@ annotated `v<version>` tag directly to the selected release commit; the tag name
 workspace version, package versions, and first dated Changelog section must
 agree.
 
+Before pushing a new tag, create it locally and run the full repository gate
+with that exact tag present. Compare its tagger calendar date with the dated
+Changelog section; a passing untagged branch pipeline is not this check.
+
 ## Authority and state model
 
 Architecture Publisher consumes selected values. It does not discover a

@@ -1,6 +1,6 @@
 {
   "name": "@architecture-publisher/self-edition",
-  "version": "0.3.0-alpha.2",
+  "version": "0.3.0-alpha.3",
   "description": "First-party Architecture Publisher flagship Edition",
   "type": "module",
   "exports": {
@@ -13,7 +13,7 @@
     "README.md"
   ],
   "dependencies": {
-    "architecture-publisher": "0.3.0-alpha.2"
+    "architecture-publisher": "0.3.0-alpha.3"
   },
   "license": "UNLICENSED",
   "engines": {
