@@ -35,10 +35,14 @@ async function waitForExit(pid) {
   return !alive(pid);
 }
 
-async function requestFile(scratch) {
+async function requestFile(scratch, scenario = undefined) {
   for (const name of ['config', 'cache', 'data', 'tmp']) await fs.mkdir(path.join(scratch, name));
-  const bytes = await fs.readFile(source);
+  let bytes = await fs.readFile(source);
   const selected = JSON.parse(bytes);
+  if (scenario) {
+    selected.scenario = scenario;
+    bytes = Buffer.from(JSON.stringify(selected));
+  }
   const input = {
     schema: 'architecture.edition-provider-request/v1',
     provider: { id: 'fixture-executable-provider', revision: '1.0.0' },
@@ -61,6 +65,20 @@ async function requestFile(scratch) {
   return requestPath;
 }
 
+function workerEnvironment(scratch) {
+  return {
+    HOME: scratch,
+    PATH: scratch,
+    XDG_CONFIG_HOME: path.join(scratch, 'config'),
+    XDG_CACHE_HOME: path.join(scratch, 'cache'),
+    XDG_DATA_HOME: path.join(scratch, 'data'),
+    TMPDIR: path.join(scratch, 'tmp'),
+    TMP: path.join(scratch, 'tmp'),
+    TEMP: path.join(scratch, 'tmp'),
+    LANG: 'C.UTF-8',
+  };
+}
+
 test('unreclaimed Provider worker stays available for cleanup, then self-expires', async () => {
   await fs.mkdir(evidence, { recursive: true });
   const scratch = await fs.mkdtemp(new URL('provider-worker-lifetime-', evidence));
@@ -71,17 +89,7 @@ test('unreclaimed Provider worker stays available for cleanup, then self-expires
     request = await fs.open(requestPath, 'r');
     child = spawn(process.execPath, [worker, provider, '500'], {
       cwd: scratch,
-      env: {
-        HOME: scratch,
-        PATH: scratch,
-        XDG_CONFIG_HOME: path.join(scratch, 'config'),
-        XDG_CACHE_HOME: path.join(scratch, 'cache'),
-        XDG_DATA_HOME: path.join(scratch, 'data'),
-        TMPDIR: path.join(scratch, 'tmp'),
-        TMP: path.join(scratch, 'tmp'),
-        TEMP: path.join(scratch, 'tmp'),
-        LANG: 'C.UTF-8',
-      },
+      env: workerEnvironment(scratch),
       stdio: [request.fd, 'pipe', 'pipe'],
       windowsHide: true,
     });
@@ -103,6 +111,32 @@ test('unreclaimed Provider worker stays available for cleanup, then self-expires
     assert.equal(alive(child.pid), true, 'worker exited before its owner could reclaim the tree');
     assert.equal(output.endsWith('\n'), true, 'worker reply is not framed');
     assert.equal(await waitForExit(child.pid), true, 'worker lacks a self-expiring deadline');
+  } finally {
+    if (child && alive(child.pid)) child.kill('SIGKILL');
+    await request?.close();
+    await fs.rm(scratch, { recursive: true, force: true });
+  }
+});
+
+test('worker self-deadline survives synchronous Provider code', async () => {
+  await fs.mkdir(evidence, { recursive: true });
+  const scratch = await fs.mkdtemp(new URL('provider-worker-blocked-', evidence));
+  let request;
+  let child;
+  try {
+    const requestPath = await requestFile(scratch, 'blocked-event-loop');
+    request = await fs.open(requestPath, 'r');
+    child = spawn(process.execPath, [worker, provider, '500'], {
+      cwd: scratch,
+      env: workerEnvironment(scratch),
+      stdio: [request.fd, 'ignore', 'ignore'],
+      windowsHide: true,
+    });
+    assert.equal(
+      await waitForExit(child.pid),
+      true,
+      'synchronous Provider code blocked the worker self-deadline',
+    );
   } finally {
     if (child && alive(child.pid)) child.kill('SIGKILL');
     await request?.close();

@@ -27,6 +27,8 @@ export async function materializeEditionProvider(request) {
   if (selected.scenario === 'signal') process.kill(process.pid, 'SIGKILL');
   if (selected.scenario === 'throw') fail('edition_provider_fixture_failure');
   if (selected.scenario === 'nonzero-ok') process.exitCode = 1;
+  if (selected.scenario === 'blocked-event-loop')
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10_000);
   if (selected.scenario?.startsWith('descendant-')) {
     const descendant = spawn(
       process.execPath,

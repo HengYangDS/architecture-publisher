@@ -51,6 +51,14 @@ watchdog derived from those limits, so loss of the supervisor cannot leave the
 tethered worker alive indefinitely. The watchdog does not prove descendant
 cleanup after supervisor loss.
 
+**Ruling:** run the selected Provider function in a short-lived Node Worker
+thread inside the owned child process, with the watchdog on that process's
+main thread. A synchronous Provider can block its own event loop, so a timer
+on the same thread would not satisfy the self-deadline. This uses the native
+`worker_threads` boundary without adding a daemon, package dependency, or
+second OS process per materialization. The process main thread still owns the
+single reply envelope and tree reclamation handshake.
+
 **Rejected:** keep `spawnSync` and call a tree walker after it times out. The
 root is already dead, so descendants can be reparented before enumeration.
 Node's proposed cross-platform `killTree` API remains open as of 2026-09-23
