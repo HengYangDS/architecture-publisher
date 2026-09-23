@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-09-24
+goal: Make self, ETHOS, and AIGW authority boundaries truthful without creating
+  a parallel control plane.
+skip_specs: true

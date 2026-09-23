@@ -290,19 +290,28 @@ incremental execution, formal constraints, repository adoption and publication.
 GitLab projection and independently recoverable off-host backup require separate
 failure-domain evidence.
 
-## One chain, distinct owners
+## Authority Matrix
 
-Explicit source → semantic validation → authored views → constrained composition
-→ medium-specific rendering → artifact observations → authorized publication.
+"Source product" means Architecture Publisher for its self-Edition, ETHOS for
+ETHOS, and AIGW for AIGW. The same repository may hold both a source-owned
+Edition and Publisher's generic code, but that co-location never transfers one
+role's authority to another. This is the current matrix; archived proposal
+matrices remain historical evidence, not a second active rule.
 
-| Owner          | Responsibility                                                             | Does not own                                                   |
-| -------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Source project | Entities, relations, conditions, quantifiers, scope, maturity, obligations | Publisher geometry or cached approval                          |
-| Source adapter | Explicit, loss-aware mapping and provenance                                | Invented intent or automatic execution of untrusted source     |
-| Authoring      | View purpose, grouping, selection, reading order and visual constraints    | Changed product meaning                                        |
-| Rendering      | Typography, routes, layout and static/interactive expression               | Source authority or publication approval                       |
-| Verification   | Scoped checks against actual selected inputs and outputs                   | Human acceptance or unsupported universal correctness          |
-| Publication    | Exact file plans, preservation and recoverable effects                     | Rendering, semantic inference or implicit target authorization |
+Source → semantic validation → authored views → constrained composition →
+medium-specific rendering → artifact observations → authorized publication.
+
+| Concern                          | Authority                   | Other role                                                         | Not implied                                                             |
+| -------------------------------- | --------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| Accepted meaning and Claim Model | Source product              | Adapter maps loss-aware provenance; Publisher validates            | Observation or rendering cannot invent intent.                          |
+| Edition and flagship composition | Source-owned Edition        | Provider materializes values; Publisher supplies public primitives | Authoring digest alone is not media proof.                              |
+| Provider transport               | Publisher contract          | Source product selects exact data or package                       | No acceptance or repository effect.                                     |
+| Generic Scene, render, Candidate | Publisher                   | Edition supplies authored inputs                                   | Structural output cannot inherit flagship approval.                     |
+| Predicate observations           | Predicate-specific verifier | Publisher binds exact Qualification Set                            | Technical pass is not human acceptance.                                 |
+| Human acceptance and Git         | Source-product governance   | ETHOS may govern; Skills remain methods                            | Publisher core inherits no source Work Lane, CAS, or release authority. |
+| File publication and recovery    | Publisher effect contract   | Source product authorizes exact target                             | A file effect cannot infer intent or authorization.                     |
+| Release subject and custody      | Source product              | Publisher records producer; selected store holds bytes             | Generated output need not enter source Git.                             |
+| Feedback to intent               | Source product              | Publisher proposes a source-bound finding                          | No silent writeback.                                                    |
 
 These are modules and data contracts, not services, a graph database, an event
 bus or another governance kernel. Source adapters, backends and skills remain
