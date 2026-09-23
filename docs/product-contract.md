@@ -301,17 +301,17 @@ matrices remain historical evidence, not a second active rule.
 Source → semantic validation → authored views → constrained composition →
 medium-specific rendering → artifact observations → authorized publication.
 
-| Concern                          | Authority                   | Other role                                                         | Not implied                                                             |
-| -------------------------------- | --------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| Accepted meaning and Claim Model | Source product              | Adapter maps loss-aware provenance; Publisher validates            | Observation or rendering cannot invent intent.                          |
-| Edition and flagship composition | Source-owned Edition        | Provider materializes values; Publisher supplies public primitives | Authoring digest alone is not media proof.                              |
-| Provider transport               | Publisher contract          | Source product selects exact data or package                       | No acceptance or repository effect.                                     |
-| Generic Scene, render, Candidate | Publisher                   | Edition supplies authored inputs                                   | Structural output cannot inherit flagship approval.                     |
-| Predicate observations           | Predicate-specific verifier | Publisher binds exact Qualification Set                            | Technical pass is not human acceptance.                                 |
-| Human acceptance and Git         | Source-product governance   | ETHOS may govern; Skills remain methods                            | Publisher core inherits no source Work Lane, CAS, or release authority. |
-| File publication and recovery    | Publisher effect contract   | Source product authorizes exact target                             | A file effect cannot infer intent or authorization.                     |
-| Release subject and custody      | Source product              | Publisher records producer; selected store holds bytes             | Generated output need not enter source Git.                             |
-| Feedback to intent               | Source product              | Publisher proposes a source-bound finding                          | No silent writeback.                                                    |
+| Concern                            | Authority                   | Other role                                                         | Not implied                                                             |
+| ---------------------------------- | --------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| Accepted meaning and claim content | Source product              | Adapter maps provenance/loss; Publisher owns and validates schema  | Observation or rendering cannot invent intent.                          |
+| Edition and flagship composition   | Source-owned Edition        | Provider materializes values; Publisher supplies public primitives | Authoring digest alone is not media proof.                              |
+| Provider transport                 | Publisher contract          | Source product selects exact data or package                       | No acceptance or repository effect.                                     |
+| Generic Scene, render, Candidate   | Publisher                   | Edition supplies authored inputs                                   | Structural output cannot inherit flagship approval.                     |
+| Predicate observations             | Predicate-specific verifier | Publisher binds exact Qualification Set                            | Technical pass is not human acceptance.                                 |
+| Human acceptance and Git           | Source-product governance   | ETHOS may govern; Skills remain methods                            | Publisher core inherits no source Work Lane, CAS, or release authority. |
+| File publication and recovery      | Publisher effect contract   | Source product authorizes exact target                             | A file effect cannot infer intent or authorization.                     |
+| Release subject and custody        | Source product              | Publisher records producer; selected store holds bytes             | Generated output need not enter source Git.                             |
+| Feedback to intent                 | Source product              | Publisher proposes a source-bound finding                          | No silent writeback.                                                    |
 
 These are modules and data contracts, not services, a graph database, an event
 bus or another governance kernel. Source adapters, backends and skills remain
