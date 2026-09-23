@@ -1,21 +1,38 @@
 import fs from 'node:fs';
-import { pathToFileURL } from 'node:url';
+import { Worker } from 'node:worker_threads';
 
-try {
-  const request = JSON.parse(fs.readFileSync(0, 'utf8'));
-  const entrypoint = process.argv[2];
-  delete process.env.NODE_V8_COVERAGE;
-  const selectedEntrypointUrl = pathToFileURL(entrypoint).href;
-  const module = await import(selectedEntrypointUrl);
-  if (typeof module.materializeEditionProvider !== 'function')
-    throw Object.assign(new Error('edition_provider_export_invalid'), {
-      code: 'edition_provider_export_invalid',
-    });
-  const reply = await module.materializeEditionProvider(request);
-  process.stdout.write(JSON.stringify({ status: 'ok', reply }));
-} catch {
-  process.stdout.write(
-    JSON.stringify({ status: 'error', code: 'edition_provider_execution_failed' }),
-  );
+const deadlineMs = Number(process.argv[3]);
+const deadlineValid = Number.isSafeInteger(deadlineMs) && deadlineMs > 0 && deadlineMs <= 60_000;
+if (deadlineValid) setTimeout(() => process.exit(1), deadlineMs);
+
+let emitted = false;
+function emit(envelope) {
+  if (emitted) return;
+  emitted = true;
+  process.stdout.write(JSON.stringify(envelope) + '\n');
+}
+
+if (!deadlineValid) {
+  emit({ status: 'error', code: 'edition_provider_execution_failed' });
   process.exitCode = 1;
+} else {
+  try {
+    const request = JSON.parse(fs.readFileSync(0, 'utf8'));
+    const entrypoint = process.argv[2];
+    const task = new Worker(new URL('./worker-task.mjs', import.meta.url), {
+      workerData: { entrypoint, request },
+    });
+    task.once('message', emit);
+    task.once('error', () => emit({ status: 'error', code: 'edition_provider_execution_failed' }));
+    task.once('exit', (code) => {
+      if (!emitted)
+        emit({
+          status: 'error',
+          code:
+            code === 0 ? 'edition_provider_response_invalid' : 'edition_provider_process_failed',
+        });
+    });
+  } catch {
+    emit({ status: 'error', code: 'edition_provider_execution_failed' });
+  }
 }

@@ -7,7 +7,7 @@
 
 ## 2. Converge One Owned Supervisor
 
-- [ ] 2.1 Replace the synchronous Provider execution with one bounded asynchronous worker/reply/cleanup protocol in `packages/publisher/src/provider/`; verify the focused success, timeout, error, output-limit, and self-watchdog regressions pass on the current POSIX host with no descendant or scratch residue.
+- [x] 2.1 Replace the synchronous Provider execution with one bounded asynchronous worker/reply/cleanup protocol in `packages/publisher/src/provider/`; verify the focused success, timeout, error, output-limit, and self-watchdog regressions pass on the current POSIX host with no descendant or scratch residue.
 - [ ] 2.2 Admit the native Windows tree-termination path only while the selected worker root is present, with bounded system-tool resolution and fail-closed cleanup; verify the same focused regressions on an actual Windows host and preserve an unrelated sentinel.
 - [ ] 2.3 Preserve exact manifest, input, package, reply, deterministic-materialization, and Candidate identities; verify the existing Provider and Edition build suites plus the common declarative/executable conformance profile remain green without a second command surface.
 

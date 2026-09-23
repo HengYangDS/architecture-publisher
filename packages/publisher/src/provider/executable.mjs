@@ -2,8 +2,6 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { editionDigest, validateEdition } from '../edition/contract.mjs';
 import { compileEditionEvolution } from '../edition/evolution.mjs';
 import { readPublisherIdentity } from '../runtime.mjs';
@@ -12,14 +10,10 @@ import { writeSourceBundle } from '../source/write.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { fail, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
 import { readEditionProviderInput, resolveProviderPath } from './input.mjs';
-import {
-  validateProviderMaterialization,
-  validateProviderReply,
-  validateProviderRequest,
-} from './protocol.mjs';
+import { validateProviderMaterialization, validateProviderRequest } from './protocol.mjs';
+import { runProviderWorker } from './supervisor.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const worker = fileURLToPath(new URL('./worker.mjs', import.meta.url));
 const JSON_BYTES = 16 * 1024 * 1024;
 const PACKAGE_FILES = 4096;
 const PACKAGE_BYTES = 128 * 1024 * 1024;
@@ -167,76 +161,6 @@ async function requestFor(manifest, root) {
   });
 }
 
-function responseLimit(bytes) {
-  return Math.ceil(bytes / 3) * 4 + 64 * 1024;
-}
-
-async function execute(entrypoint, requestPath, scratch, limits) {
-  const handle = await fs.open(requestPath, 'r');
-  try {
-    const result = spawnSync(process.execPath, [worker, entrypoint], {
-      cwd: scratch,
-      env: {
-        HOME: scratch,
-        PATH: scratch,
-        XDG_CONFIG_HOME: path.join(scratch, 'config'),
-        XDG_CACHE_HOME: path.join(scratch, 'cache'),
-        XDG_DATA_HOME: path.join(scratch, 'data'),
-        TMPDIR: path.join(scratch, 'tmp'),
-        TMP: path.join(scratch, 'tmp'),
-        TEMP: path.join(scratch, 'tmp'),
-        LANG: 'C.UTF-8',
-        ...(process.env.NODE_V8_COVERAGE ? { NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE } : {}),
-      },
-      stdio: [handle.fd, 'pipe', 'pipe'],
-      encoding: 'utf8',
-      timeout: limits.timeoutMs,
-      killSignal: 'SIGKILL',
-      maxBuffer: responseLimit(limits.replyBytes),
-    });
-    if (result.error)
-      fail(
-        result.error.code === 'ETIMEDOUT'
-          ? 'edition_provider_timeout'
-          : result.error.code === 'ENOBUFS'
-            ? 'edition_provider_reply_size_invalid'
-            : 'edition_provider_process_failed',
-      );
-    if (result.stderr) fail('edition_provider_stderr_invalid');
-    if (result.signal || result.status === null) fail('edition_provider_process_failed');
-    if (!result.stdout)
-      fail(
-        result.status === 0
-          ? 'edition_provider_response_invalid'
-          : 'edition_provider_process_failed',
-      );
-    if (Buffer.byteLength(result.stdout, 'utf8') >= responseLimit(limits.replyBytes))
-      fail('edition_provider_reply_size_invalid');
-    let envelope;
-    try {
-      envelope = JSON.parse(result.stdout);
-    } catch {
-      if (Buffer.byteLength(result.stdout, 'utf8') > limits.replyBytes)
-        fail('edition_provider_reply_size_invalid');
-      fail('edition_provider_response_invalid');
-    }
-    if (exact(envelope, ['status', 'code']) && envelope.status === 'error') {
-      if (
-        typeof envelope.code !== 'string' ||
-        !/^edition_provider_[a-z0-9_]+$/u.test(envelope.code)
-      )
-        fail('edition_provider_response_invalid');
-      fail(envelope.code);
-    }
-    if (!exact(envelope, ['status', 'reply']) || envelope.status !== 'ok')
-      fail('edition_provider_response_invalid');
-    if (result.status !== 0) fail('edition_provider_process_failed');
-    return { raw: result.stdout, reply: validateProviderReply(envelope.reply) };
-  } finally {
-    await handle.close();
-  }
-}
-
 async function materializedValues(reply, manifest, scratch) {
   if (
     reply.source.id !== manifest.subject.id ||
@@ -330,14 +254,19 @@ export async function materializeExecutableProvider(
       await fs.mkdir(path.join(scratch, directory));
     const requestPath = path.join(scratch, 'request.json');
     await fs.writeFile(requestPath, JSON.stringify(request), { flag: 'wx', mode: 0o600 });
-    const first = await execute(packageSelection.entrypoint, requestPath, scratch, manifest.limits);
+    const first = await runProviderWorker({
+      entrypoint: packageSelection.entrypoint,
+      requestPath,
+      scratch,
+      limits: manifest.limits,
+    });
     if (options.verifyDeterminism) {
-      const second = await execute(
-        packageSelection.entrypoint,
+      const second = await runProviderWorker({
+        entrypoint: packageSelection.entrypoint,
         requestPath,
         scratch,
-        manifest.limits,
-      );
+        limits: manifest.limits,
+      });
       if (first.raw !== second.raw) fail('edition_provider_nondeterministic');
     }
     if (
