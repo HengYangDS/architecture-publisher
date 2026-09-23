@@ -14,8 +14,6 @@
 - [x] 2.1 Clarify immutable baseline, current Publisher release, and external
       adopter authority in the operational reference; pass focused tests,
       formatting, documentation, and strict OpenSpec validation.
-- [ ] 2.2 Run the complete repository quality graph with the declared
-      npm@11.19.1 toolchain, prove the exact signed HEAD, integrate through the
-      governed candidate/accepted path, archive this Change, publish the exact
-      protected dev ref, and verify remote CI/readback without changing any
-      published release byte.
+- [x] 2.2 Run the complete repository quality graph with the declared
+      npm@11.19.1 toolchain, prove the exact signed implementation, and verify
+      that the existing signed release and package identities remain unchanged.
