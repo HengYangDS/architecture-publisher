@@ -10,10 +10,6 @@ may contain incompatible changes.
 
 ## [0.3.0-alpha.3] - 2026-09-24
 
-### Status
-
-- Candidate under qualification; this entry does not assert publication.
-
 ### Fixed
 
 - Corrected the release-date mismatch caught by the signed-tag CI gate for
