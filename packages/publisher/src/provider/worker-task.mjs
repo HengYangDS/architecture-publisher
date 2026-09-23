@@ -3,7 +3,8 @@ import { parentPort, workerData } from 'node:worker_threads';
 
 try {
   delete process.env.NODE_V8_COVERAGE;
-  const module = await import(pathToFileURL(workerData.entrypoint).href);
+  const selectedEntrypointUrl = pathToFileURL(workerData.entrypoint).href;
+  const module = await import(selectedEntrypointUrl);
   if (typeof module.materializeEditionProvider !== 'function')
     throw new Error('edition_provider_export_invalid');
   const reply = await module.materializeEditionProvider(workerData.request);

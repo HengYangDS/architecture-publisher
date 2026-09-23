@@ -170,6 +170,21 @@ test('syntax failures and computed dependencies fail closed', async () => {
   );
 });
 
+test('Provider worker admits only its exact selected dynamic entrypoint', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  const file = 'packages/publisher/src/provider/worker-task.mjs';
+  assert.deepEqual(
+    inspectModuleBoundaries(file, 'await import(selectedEntrypointUrl);', paths, packageExports),
+    [],
+  );
+  assert(
+    inspectModuleBoundaries(file, 'await import(otherEntrypoint);', paths, packageExports).some(
+      ({ reason }) => reason.includes('computed dependency'),
+    ),
+  );
+});
+
 test('provider and generic kernels reject forbidden dependency directions and adopter names', async () => {
   const { paths } = await inventory(runtimeRoots);
   const packageExports = await declaredPackageExports();

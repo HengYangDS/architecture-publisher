@@ -36,14 +36,14 @@ function workerEnvironment(scratch) {
   };
 }
 
-async function terminatePosixGroup(pid) {
+export async function terminatePosixGroup(pid, signal = process.kill) {
   try {
-    process.kill(-pid, 'SIGKILL');
+    signal(-pid, 'SIGKILL');
   } catch (error) {
     if (error.code !== 'ESRCH') throw error;
     let workerAlive = false;
     try {
-      process.kill(pid, 0);
+      signal(pid, 0);
       workerAlive = true;
     } catch (workerError) {
       if (workerError.code !== 'ESRCH') throw workerError;
@@ -55,11 +55,67 @@ async function terminatePosixGroup(pid) {
   }
 }
 
+export async function resolveWindowsTaskkill(systemRoot = process.env.SystemRoot) {
+  if (!systemRoot || !path.isAbsolute(systemRoot)) fail('edition_provider_cleanup_unavailable');
+  const tool = path.join(systemRoot, 'System32', 'taskkill.exe');
+  try {
+    if (!(await fs.stat(tool)).isFile()) fail('edition_provider_cleanup_unavailable');
+  } catch {
+    fail('edition_provider_cleanup_unavailable');
+  }
+  return tool;
+}
+
+function selectedWorkerPresent(child, state) {
+  if (state.exited || child.exitCode !== null || child.signalCode !== null) return false;
+  try {
+    process.kill(child.pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function cleanupUnproved(cause) {
+  return Object.assign(new Error('edition_provider_cleanup_unproved', { cause }), {
+    code: 'edition_provider_cleanup_unproved',
+  });
+}
+
+export async function terminateWindowsTree(tool, child, state) {
+  if (!selectedWorkerPresent(child, state)) throw cleanupUnproved();
+  try {
+    await new Promise((resolve, reject) => {
+      const terminator = spawn(tool, ['/PID', String(child.pid), '/T', '/F'], {
+        stdio: 'ignore',
+        windowsHide: true,
+      });
+      const deadline = setTimeout(() => {
+        terminator.kill('SIGKILL');
+        reject(new Error('native tree cleanup exceeded its deadline'));
+      }, CLEANUP_MS);
+      terminator.once('error', (error) => {
+        clearTimeout(deadline);
+        reject(error);
+      });
+      terminator.once('close', (code) => {
+        clearTimeout(deadline);
+        if (code === 0) resolve();
+        else reject(new Error(`native tree cleanup exited ${code}`));
+      });
+    });
+  } catch (error) {
+    if (!selectedWorkerPresent(child, state)) throw cleanupUnproved(error);
+    throw error;
+  }
+}
+
 function observe(child, maximumBytes, timeoutMs) {
   const state = {
     stdout: [],
     stdoutBytes: 0,
     stderrBytes: 0,
+    exited: false,
     closed: null,
     spawnError: null,
   };
@@ -95,6 +151,9 @@ function observe(child, maximumBytes, timeoutMs) {
     state.spawnError = error;
     select('spawn-error');
   });
+  child.once('exit', () => {
+    state.exited = true;
+  });
   child.once('close', (code, signal) => {
     state.closed = { code, signal };
     resolveClosed(state.closed);
@@ -117,10 +176,14 @@ async function waitForClose(closed) {
   }
 }
 
-function cleanupFailure(reason, cause) {
-  return Object.assign(new Error('edition_provider_cleanup_failed'), {
-    code: 'edition_provider_cleanup_failed',
-    originalFailure: reason,
+function cleanupFailure(originalFailure, cause) {
+  const code =
+    cause?.code === 'edition_provider_cleanup_unproved'
+      ? 'edition_provider_cleanup_unproved'
+      : 'edition_provider_cleanup_failed';
+  return Object.assign(new Error(code), {
+    code,
+    originalFailure,
     cleanupFailure: cause?.code ?? cause?.message ?? 'unobserved',
   });
 }
@@ -162,8 +225,8 @@ export async function runProviderWorker({
   limits,
   terminateTree = undefined,
 }) {
-  if (!terminateTree && process.platform === 'win32') fail('edition_provider_cleanup_unavailable');
-  const terminate = terminateTree ?? terminatePosixGroup;
+  const windowsTool =
+    !terminateTree && process.platform === 'win32' ? await resolveWindowsTaskkill() : null;
   const handle = await fs.open(requestPath, 'r');
   let child;
   try {
@@ -185,9 +248,14 @@ export async function runProviderWorker({
     let cleanupError;
     if (child.pid) {
       try {
-        await terminate(child.pid);
+        if (terminateTree) await terminateTree(child.pid);
+        else if (windowsTool) await terminateWindowsTree(windowsTool, child, observation.state);
+        else await terminatePosixGroup(child.pid);
       } catch (error) {
-        cleanupError = error;
+        cleanupError =
+          error instanceof Error
+            ? error
+            : new Error('native tree cleanup rejected without an Error', { cause: error });
         child.kill('SIGKILL');
       }
     }
@@ -196,12 +264,16 @@ export async function runProviderWorker({
       child.kill('SIGKILL');
       cleanupError ??= new Error('selected worker did not close after cleanup');
     }
-    if (cleanupError) throw cleanupFailure(reason, cleanupError);
     const raw = Buffer.concat(observation.state.stdout).toString('utf8');
-    return {
-      raw,
-      reply: decodeReply(raw, observation.state, reason, closedBeforeCleanup),
-    };
+    let reply;
+    try {
+      reply = decodeReply(raw, observation.state, reason, closedBeforeCleanup);
+    } catch (error) {
+      if (cleanupError) throw cleanupFailure(error.code ?? reason, cleanupError);
+      throw error;
+    }
+    if (cleanupError) throw cleanupFailure(null, cleanupError);
+    return { raw, reply };
   } finally {
     if (child && !child.killed && child.exitCode === null && child.signalCode === null)
       child.kill('SIGKILL');

@@ -142,6 +142,15 @@ async function waitForExit(pid) {
   return !processAlive(pid);
 }
 
+async function readOptionalPid(markerPath) {
+  try {
+    return Number(await fs.readFile(markerPath, 'utf8'));
+  } catch (error) {
+    if (error.code === 'ENOENT') return undefined;
+    throw error;
+  }
+}
+
 async function runDescendantCase(
   t,
   scenario,
@@ -175,15 +184,12 @@ async function runDescendantCase(
     if (expectReclaimed)
       assert.equal(await waitForExit(descendantPid), true, 'owned descendant remains alive');
   } finally {
-    if (!descendantPid) {
-      try {
-        descendantPid = Number(await fs.readFile(markerPath, 'utf8'));
-      } catch (error) {
-        if (error.code !== 'ENOENT') throw error;
-      }
+    try {
+      if (!descendantPid) descendantPid = await readOptionalPid(markerPath);
+    } finally {
+      if (descendantPid && processAlive(descendantPid)) process.kill(descendantPid, 'SIGKILL');
+      if (processAlive(sentinel.pid)) sentinel.kill('SIGKILL');
     }
-    if (descendantPid && processAlive(descendantPid)) process.kill(descendantPid, 'SIGKILL');
-    if (processAlive(sentinel.pid)) sentinel.kill('SIGKILL');
   }
 }
 
