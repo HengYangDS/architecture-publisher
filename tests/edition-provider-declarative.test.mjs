@@ -6,7 +6,9 @@ import test from 'node:test';
 import {
   materializeDeclarativeProvider,
   readEditionProviderInput,
+  resolveEditionProviderSelection,
 } from '../packages/publisher/src/provider/index.mjs';
+import { resolveProviderPath } from '../packages/publisher/src/provider/input.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const fixtureRoot = new URL('./fixtures/providers/declarative/valid/', import.meta.url);
@@ -86,7 +88,7 @@ test('declarative provider materializes exact ordinary inputs', async (t) => {
   assert.deepEqual(result.receipt.subject, provider.subject);
   assert.deepEqual(result.receipt.materialized, provider.expected);
   assert.equal(result.receipt.producer.name, 'architecture-publisher');
-  assert.equal(result.receipt.producer.version, '0.3.0-alpha.1');
+  assert.equal(result.receipt.producer.version, '0.3.0-alpha.2');
   assert.equal(result.receipt.execution.kind, 'declarative');
   assert.equal(result.receipt.execution.deterministic, true);
 });
@@ -183,6 +185,34 @@ test('declarative provider rejects invalid selection and manifest bytes', async 
   await assert.rejects(readEditionProviderInput(providerManifest, sha(Buffer.from('{'))), {
     code: 'edition_provider_manifest_json_invalid',
   });
+});
+
+test('Provider selection resolves only explicit portable files and bounded plan fields', () => {
+  const root = path.resolve('selected-root');
+  assert.throws(() => resolveEditionProviderSelection(path.join(root, 'plan.json'), null), {
+    code: 'edition_candidate_plan_invalid',
+  });
+  assert.throws(
+    () =>
+      resolveEditionProviderSelection(path.join(root, 'plan.json'), {
+        providerManifest: '',
+        providerManifestSha256: 'a'.repeat(64),
+        output: 'out',
+      }),
+    { code: 'edition_candidate_plan_invalid' },
+  );
+  const selected = resolveEditionProviderSelection(path.join(root, 'plan.json'), {
+    providerManifest: 'source/provider.json',
+    providerManifestSha256: 'a'.repeat(64),
+    output: 'publication',
+  });
+  assert.equal(selected.providerManifest, path.join(root, 'source/provider.json'));
+  assert.equal(selected.output, path.join(root, 'publication'));
+  assert.equal(
+    resolveProviderPath(root, 'source/provider.json', 'invalid'),
+    selected.providerManifest,
+  );
+  assert.throws(() => resolveProviderPath(root, '../escape', 'invalid'), { code: 'invalid' });
 });
 
 test('declarative provider rejects non-declarative delivery and broken bindings', async (t) => {

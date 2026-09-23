@@ -202,6 +202,123 @@ test('provider manifest binds portable inputs and fixed resource ceilings', () =
   });
 });
 
+test('provider identity and selection reject ambiguous text, paths and limits', () => {
+  const cases = [
+    [
+      'trimmed identity',
+      'declarative',
+      (v) => (v.provider.id = ' leading'),
+      'edition_provider_identity_invalid',
+    ],
+    [
+      'control in identity',
+      'declarative',
+      (v) => (v.subject.revision = 'bad\nrevision'),
+      'edition_provider_subject_invalid',
+    ],
+    [
+      'zero limit',
+      'declarative',
+      (v) => (v.limits.timeoutMs = 0),
+      'edition_provider_limits_invalid',
+    ],
+    [
+      'malformed source path',
+      'declarative',
+      (v) => (v.delivery.sourceManifest = 'source//manifest.json'),
+      'edition_provider_delivery_path_invalid',
+    ],
+    [
+      'one-sided evolution',
+      'declarative',
+      (v) => (v.delivery.evolutionSha256 = A),
+      'edition_provider_evolution_selection_invalid',
+    ],
+    [
+      'package version space',
+      'executable',
+      (v) => (v.delivery.package.version = '1.2.3 '),
+      'edition_provider_package_identity_invalid',
+    ],
+    [
+      'package entry colon',
+      'executable',
+      (v) => (v.delivery.package.entrypoint = './provider:dev'),
+      'edition_provider_entrypoint_invalid',
+    ],
+    [
+      'package entry empty segment',
+      'executable',
+      (v) => (v.delivery.package.entrypoint = './owner//provider'),
+      'edition_provider_entrypoint_invalid',
+    ],
+    [
+      'package entry parent segment',
+      'executable',
+      (v) => (v.delivery.package.entrypoint = './owner/../provider'),
+      'edition_provider_entrypoint_invalid',
+    ],
+    [
+      'missing selected inputs',
+      'executable',
+      (v) => (v.delivery.inputs = null),
+      'edition_provider_inputs_invalid',
+    ],
+    [
+      'overlarge input',
+      'executable',
+      (v) => (v.delivery.inputs[0].bytes = EDITION_PROVIDER_LIMITS.inputBytes + 1),
+      'edition_provider_input_size_invalid',
+    ],
+    [
+      'invalid input path',
+      'executable',
+      (v) => (v.delivery.inputs[0].path = 'inputs/../facts.json'),
+      'edition_provider_input_path_invalid',
+    ],
+  ];
+  for (const [name, kind, mutate, code] of cases) {
+    const selected = manifest(kind);
+    mutate(selected);
+    assert.throws(() => validateEditionProvider(selected), { code }, name);
+  }
+  const selected = manifest('executable');
+  selected.contracts.evolution = 'architecture.edition-evolution-input/v1';
+  selected.expected.evolutionSha256 = A;
+  assert.equal(validateEditionProvider(selected).contracts.evolution, selected.contracts.evolution);
+});
+
+test('Provider manifest refuses malformed root shapes and control-bearing identities', () => {
+  assert.throws(() => validateEditionProvider(null), {
+    code: 'edition_provider_fields_invalid',
+  });
+  assert.throws(() => validateEditionProvider([]), {
+    code: 'edition_provider_fields_invalid',
+  });
+  const cases = [
+    [
+      'schema',
+      (v) => (v.schema = 'architecture.edition-provider/v2'),
+      'edition_provider_schema_unsupported',
+    ],
+    [
+      'source contract',
+      (v) => (v.contracts.sourceBundle = 'architecture.source-bundle/v2'),
+      'edition_provider_contract_unsupported',
+    ],
+    [
+      'control character',
+      (v) => (v.provider.id = 'bad\x7fidentity'),
+      'edition_provider_identity_invalid',
+    ],
+  ];
+  for (const [name, mutate, code] of cases) {
+    const selected = manifest();
+    mutate(selected);
+    assert.throws(() => validateEditionProvider(selected), { code }, name);
+  }
+});
+
 test('executable provider identity is exact and product-neutral', () => {
   const value = manifest('executable');
   assert.doesNotThrow(() => validateEditionProvider(value));
@@ -266,6 +383,50 @@ test('provider request validates exact selected bytes', () => {
   duplicate.inputs.push(structuredClone(duplicate.inputs[0]));
   assert.throws(() => validateProviderRequest(duplicate), {
     code: 'edition_provider_input_duplicate',
+  });
+});
+
+test('provider protocol refuses noncanonical encodings and incomplete identities', () => {
+  const requestCases = [
+    ['missing input list', (v) => (v.inputs = null), 'edition_provider_inputs_invalid'],
+    ['array identity', (v) => (v.provider = []), 'edition_provider_identity_invalid'],
+    [
+      'control in input id',
+      (v) => (v.inputs[0].id = 'bad\nid'),
+      'edition_provider_input_identity_invalid',
+    ],
+    ['wrong byte count', (v) => (v.inputs[0].bytes += 1), 'edition_provider_input_size_mismatch'],
+    [
+      'noncanonical base64',
+      (v) => (v.inputs[0].contentBase64 = 'AA='),
+      'edition_provider_base64_invalid',
+    ],
+    [
+      'invalid digest',
+      (v) => (v.inputs[0].sha256 = 'bad'),
+      'edition_provider_input_identity_invalid',
+    ],
+  ];
+  for (const [name, mutate, code] of requestCases) {
+    const value = requestFixture();
+    mutate(value);
+    assert.throws(() => validateProviderRequest(value), { code }, name);
+  }
+
+  const source = replyFixture();
+  source.source.id = ' leading';
+  assert.throws(() => validateProviderReply(source), {
+    code: 'edition_provider_source_identity_invalid',
+  });
+  const member = replyFixture();
+  member.source.members[0].contentBase64 = 'AA=';
+  assert.throws(() => validateProviderReply(member), {
+    code: 'edition_provider_base64_invalid',
+  });
+  const receipt = receiptFixture();
+  receipt.inputs[0].sha256 = 'bad';
+  assert.throws(() => validateProviderMaterialization(receipt), {
+    code: 'edition_provider_receipt_input_invalid',
   });
 });
 

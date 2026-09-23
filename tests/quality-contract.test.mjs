@@ -26,7 +26,7 @@ test('one fail-closed quality entry point covers the repository contract', async
   assert.equal(manifest.scripts['check:spec'], 'openspec validate --all --strict --no-interactive');
   assert.equal(
     manifest.scripts['test:coverage'],
-    "c8 --all --include='packages/publisher/src/**/*.mjs' --exclude='**/index.mjs' --check-coverage --statements=89 --lines=89 --branches=86 --functions=95 npm test",
+    "c8 --all --include='packages/publisher/src/**/*.mjs' --exclude='**/index.mjs' --check-coverage --statements=95 --lines=95 --branches=95 --functions=95 npm test",
   );
   assert.equal(manifest.scripts['check:package'], 'publint packages/publisher');
 

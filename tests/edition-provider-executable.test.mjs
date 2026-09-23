@@ -391,6 +391,38 @@ test('executable provider reads only exact declared inputs', async (t) => {
   });
 });
 
+for (const [scenario, code] of [
+  ['source-drift', 'edition_provider_source_identity_mismatch'],
+  ['edition-drift', 'edition_provider_edition_identity_mismatch'],
+  ['edition-source-drift', 'edition_provider_edition_source_mismatch'],
+  ['tamper-package', 'edition_provider_package_content_mismatch'],
+]) {
+  test(`executable provider rejects ${scenario} after selected execution`, async (t) => {
+    const root = await copyFixture(t);
+    const before = await scratchNames();
+    await assert.rejects(materializeExecutableProvider(await writeManifest(root, { scenario })), {
+      code,
+    });
+    assert.deepEqual(await scratchNames(), before);
+  });
+}
+
+test('selected Provider package cannot contain ambient dependencies or linked members', async (t) => {
+  const ambientRoot = await copyFixture(t);
+  const ambient = await writeManifest(ambientRoot);
+  await fs.mkdir(path.join(ambientRoot, 'package/node_modules'));
+  await assert.rejects(materializeExecutableProvider(ambient), {
+    code: 'edition_provider_package_content_invalid',
+  });
+
+  const linkedRoot = await copyFixture(t);
+  const linked = await writeManifest(linkedRoot);
+  await fs.symlink('provider.mjs', path.join(linkedRoot, 'package/linked.mjs'));
+  await assert.rejects(materializeExecutableProvider(linked), {
+    code: 'edition_provider_package_content_invalid',
+  });
+});
+
 for (const [scenario, code, options] of [
   ['exit', 'edition_provider_process_failed', {}],
   ['signal', 'edition_provider_process_failed', {}],

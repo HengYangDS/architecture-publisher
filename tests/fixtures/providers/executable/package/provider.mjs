@@ -72,6 +72,26 @@ export async function materializeEditionProvider(request) {
     reply.source.revision += '-changed';
     return reply;
   }
+  if (selected.scenario === 'source-drift') {
+    const reply = structuredClone(selected.reply);
+    const semantic = reply.source.members.find(
+      ({ path: member }) => member === reply.semanticMember,
+    );
+    semantic.contentBase64 = Buffer.concat([
+      Buffer.from(semantic.contentBase64, 'base64'),
+      Buffer.from(' '),
+    ]).toString('base64');
+    return reply;
+  }
+  if (selected.scenario === 'edition-drift' || selected.scenario === 'edition-source-drift') {
+    const reply = structuredClone(selected.reply);
+    const edition = JSON.parse(Buffer.from(reply.edition.contentBase64, 'base64').toString('utf8'));
+    if (selected.scenario === 'edition-drift') edition.title += ' changed';
+    else edition.source.manifestSha256 = '0'.repeat(64);
+    reply.edition.contentBase64 = Buffer.from(JSON.stringify(edition) + '\n').toString('base64');
+    return reply;
+  }
+  if (selected.scenario === 'tamper-package') fs.appendFileSync(new URL(import.meta.url), '\n');
   if (selected.scenario === 'large-reply') {
     const reply = structuredClone(selected.reply);
     reply.source.members.push({

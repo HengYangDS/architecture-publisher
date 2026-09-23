@@ -104,3 +104,71 @@ test('edition build request is an exact direct/provider union', async (t) => {
     code: 'edition_provider_package_root_required',
   });
 });
+
+test('direct Edition build rejects stale selectors before rendering or output effects', async (t) => {
+  const selected = await fixture(t);
+  const direct = await selected.write('direct.json', selected.direct);
+  await assert.rejects(compileEditionCandidateInput(direct.file, 'bad'), {
+    code: 'semantic_plan_digest_required',
+  });
+  await assert.rejects(compileEditionCandidateInput(direct.file, '0'.repeat(64)), {
+    code: 'semantic_plan_digest_mismatch',
+  });
+  const malformed = path.join(selected.root, 'malformed.json');
+  await fs.writeFile(malformed, '{');
+  await assert.rejects(compileEditionCandidateInput(malformed, sha(Buffer.from('{'))), {
+    code: 'semantic_plan_json_invalid',
+  });
+
+  for (const [name, mutate, code] of [
+    ['missing output', (v) => (v.output = ''), 'edition_candidate_plan_invalid'],
+    [
+      'missing semantic member',
+      (v) => (v.semanticMember = 'absent.json'),
+      'edition_candidate_document_missing',
+    ],
+    ['missing Edition digest', (v) => (v.editionSha256 = 'bad'), 'edition_digest_required'],
+    ['stale Edition digest', (v) => (v.editionSha256 = '0'.repeat(64)), 'edition_digest_mismatch'],
+  ]) {
+    const plan = structuredClone(selected.direct);
+    mutate(plan);
+    const input = await selected.write(`${name.replaceAll(' ', '-')}.json`, plan);
+    await assert.rejects(compileEditionCandidateInput(input.file, input.digest), { code }, name);
+  }
+
+  const parentFile = path.join(selected.root, 'parent-file');
+  await fs.writeFile(parentFile, 'foreign');
+  const invalidParent = await selected.write('invalid-parent.json', {
+    ...selected.direct,
+    output: 'parent-file/output',
+  });
+  await assert.rejects(compileEditionCandidateInput(invalidParent.file, invalidParent.digest), {
+    code: 'edition_candidate_output_parent_invalid',
+  });
+
+  const editionFile = path.join(selected.root, 'input/edition.json');
+  await fs.writeFile(editionFile, '{');
+  const invalidEdition = await selected.write('invalid-edition.json', {
+    ...selected.direct,
+    editionSha256: sha(Buffer.from('{')),
+  });
+  await assert.rejects(compileEditionCandidateInput(invalidEdition.file, invalidEdition.digest), {
+    code: 'edition_json_invalid',
+  });
+});
+
+test('direct Edition build refuses a source identity rebinding', async (t) => {
+  const selected = await fixture(t);
+  const editionFile = path.join(selected.root, 'input/edition.json');
+  const edition = JSON.parse(await fs.readFile(editionFile, 'utf8'));
+  edition.source.manifestSha256 = '0'.repeat(64);
+  const bytes = Buffer.from(JSON.stringify(edition, null, 2) + '\n');
+  await fs.writeFile(editionFile, bytes);
+  const input = await selected.write('source-drift.json', {
+    ...selected.direct,
+    editionSha256: sha(bytes),
+  });
+  await assert.rejects(compileEditionCandidateInput(input.file, input.digest), {
+    code: 'edition_source_mismatch',
+  });
+});

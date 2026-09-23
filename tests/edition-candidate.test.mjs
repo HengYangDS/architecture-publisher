@@ -219,6 +219,48 @@ test('Candidate rejects parallel state, incomplete media and duplicate obligatio
   }
 });
 
+test('Candidate validates every artifact, supply and human-review carrier', () => {
+  const cases = [
+    ['non-JSON value', (v) => (v.untrusted = 1n), 'candidate_json_invalid'],
+    [
+      'artifact bytes',
+      (v) => (v.media.static.artifacts[0].bytes = 0),
+      'candidate_artifact_invalid',
+    ],
+    [
+      'artifact path',
+      (v) => (v.media.static.artifacts[0].path = '../outside.svg'),
+      'candidate_artifact_invalid',
+    ],
+    [
+      'supply identity',
+      (v) => (v.media.static.supplies[0].sha256 = 'bad'),
+      'candidate_supply_invalid',
+    ],
+    ['scene identity', (v) => (v.media.static.sceneSha256 = 'bad'), 'candidate_medium_invalid'],
+    [
+      'obligation kind',
+      (v) => (v.obligations[0].kind = 'approval'),
+      'candidate_obligation_invalid',
+    ],
+    [
+      'human scope',
+      (v) => (v.obligations.find(({ kind }) => kind === 'human').scope = null),
+      'candidate_obligation_invalid',
+    ],
+    [
+      'human artifact',
+      (v) => (v.obligations.find(({ kind }) => kind === 'human').scope.artifact = 'absent'),
+      'candidate_human_artifact_missing',
+    ],
+  ];
+  for (const [name, mutate, code] of cases) {
+    const value = candidate();
+    mutate(value);
+    assert.throws(() => validateEditionCandidate(value), { code }, name);
+  }
+});
+
 test('Candidate uses one portable artifact namespace across sibling media', () => {
   const caseCollision = candidate();
   caseCollision.media.static.artifacts[0].path = 'same.HTML';
@@ -267,6 +309,51 @@ test('Candidate obligations and scenes are projections of the exact Edition auth
   assert.throws(() => validateEditionCandidateBinding(selected.model, selected.edition, value), {
     code: 'candidate_obligation_mismatch',
   });
+});
+
+test('Candidate binding independently compares every selected authority identity', () => {
+  const selected = editionFixture(),
+    value = candidate();
+  value.source.manifestSha256 = selected.edition.source.manifestSha256;
+  value.claimModel.digest = claimModelDigest(selected.model);
+  value.edition.digest = editionDigest(selected.model, selected.edition);
+  value.media.static.sceneSha256 = staticSceneDigest(selected.model, selected.edition);
+  value.media.interactive.sceneSha256 = interactiveSceneDigest(selected.model, selected.edition);
+  value.obligations = structuredClone(
+    editionQualificationObligations(selected.model, selected.edition),
+  );
+  const cases = [
+    [
+      'source',
+      (v) => (v.source.manifestSha256 = digest('other-source')),
+      'candidate_source_mismatch',
+    ],
+    [
+      'claim model',
+      (v) => (v.claimModel.digest = digest('other-model')),
+      'candidate_claim_model_mismatch',
+    ],
+    ['Edition', (v) => (v.edition.digest = digest('other-edition')), 'candidate_edition_mismatch'],
+    [
+      'static scene',
+      (v) => (v.media.static.sceneSha256 = digest('other-static')),
+      'candidate_static_scene_mismatch',
+    ],
+    [
+      'interactive scene',
+      (v) => (v.media.interactive.sceneSha256 = digest('other-interactive')),
+      'candidate_interactive_scene_mismatch',
+    ],
+  ];
+  for (const [name, mutate, code] of cases) {
+    const changed = structuredClone(value);
+    mutate(changed);
+    assert.throws(
+      () => validateEditionCandidateBinding(selected.model, selected.edition, changed),
+      { code },
+      name,
+    );
+  }
 });
 
 test('Candidate creation derives all copied authority from the exact Edition', () => {

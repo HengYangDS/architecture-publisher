@@ -50,6 +50,24 @@ test('usage errors identify the failing invocation and next help action', () => 
   assert.equal(error.error.hint, 'Run `archpub source --help`.');
 });
 
+test('command parsing refuses unknown verbs, incomplete selectors and trailing arguments', () => {
+  assert.equal(run(['-h']).status, 0);
+  const exactHelp = run(['source', 'verify', '--help']);
+  assert.equal(exactHelp.status, 0);
+  assert.match(exactHelp.stdout, /archpub source verify/);
+  for (const args of [
+    ['unknown'],
+    ['source', 'verify', '--sha256', 'a'.repeat(64)],
+    ['source', 'verify', 'request.json', '--sha256'],
+    ['source', 'verify', 'request.json', '--wrong', 'a'.repeat(64)],
+    ['source', 'verify', 'request.json', '--sha256', 'a'.repeat(64), 'extra'],
+  ]) {
+    const result = run(args);
+    assert.equal(result.status, 2, args.join(' '));
+    assert.equal(JSON.parse(result.stdout).error.code, 'usage');
+  }
+});
+
 test('one command catalog owns both dispatch and help', async () => {
   const { commandCatalog, helpFor } = await import('../packages/publisher/src/cli/commands.mjs');
   const paths = commandCatalog.map(({ path: parts }) => parts.join(' '));

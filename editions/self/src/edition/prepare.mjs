@@ -111,7 +111,24 @@ function claimsFor(scene) {
   return scene.claims;
 }
 
-function editionFor(model, sourceSha256, sources) {
+function selectedProductVersion(members) {
+  const bytes = members.find(({ path: name }) => name === 'sources/core-package.source')?.content;
+  let selected;
+  try {
+    selected = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+  } catch {
+    fail('self_core_package_invalid');
+  }
+  if (
+    selected?.name !== 'architecture-publisher' ||
+    typeof selected.version !== 'string' ||
+    !selected.version
+  )
+    fail('self_core_package_invalid');
+  return selected.version;
+}
+
+function editionFor(model, sourceSha256, sources, productVersion) {
   const interactive = architecturePublisherInteractiveScenes(),
     question = (id, prompt, risk) => ({
       audience: 'steward',
@@ -128,7 +145,7 @@ function editionFor(model, sourceSha256, sources) {
     product: {
       name: 'Architecture Publisher',
       schema: 'architecture.publisher/v1',
-      version: '0.3.0-alpha.1',
+      version: productVersion,
     },
     source: { manifestSha256: sourceSha256 },
     claimModel: {
@@ -317,7 +334,8 @@ export async function prepareArchitecturePublisherEdition(input) {
     selected[id] = { sha256: source.sha256, locator, authority };
     members.push({ path: locator, content: bytes });
   }
-  const model = validateClaimModel(architecturePublisherClaimModel(selected)),
+  const productVersion = selectedProductVersion(members),
+    model = validateClaimModel(architecturePublisherClaimModel(selected)),
     semanticBytes = encode(model),
     scratch = await fs.mkdtemp(path.join(parent, '.publisher-self-')),
     final = selectedOutput.output;
@@ -327,7 +345,10 @@ export async function prepareArchitecturePublisherEdition(input) {
         structuredClone(input.source),
         [{ path: 'semantic.json', content: semanticBytes }, ...members],
       ),
-      edition = validateEdition(model, editionFor(model, bundle.manifestSha256, selected)),
+      edition = validateEdition(
+        model,
+        editionFor(model, bundle.manifestSha256, selected, productVersion),
+      ),
       editionBytes = encode(edition),
       plan = {
         sourceManifest: path.join(final, 'source/manifest.json'),

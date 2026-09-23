@@ -175,6 +175,64 @@ test('standalone Atlas fails closed on drift, incomplete navigation, and executa
   });
 });
 
+test('standalone Atlas rejects unbound pages, sources and reader-state claims', async () => {
+  const { composeStandaloneAtlas } = await api();
+  const cases = [
+    ['qualified state', (v) => (v.state.qualification = 'passed'), 'atlas_composition_invalid'],
+    ['duplicate source', (v) => v.sources.push({ ...v.sources[0] }), 'atlas_source_invalid'],
+    ['source authority', (v) => (v.sources[0].authority = ''), 'atlas_source_invalid'],
+    ['duplicate page', (v) => (v.pages[1].id = 'overview'), 'atlas_page_invalid'],
+    ['duplicate page path', (v) => (v.pages[1].path = v.pages[0].path), 'atlas_page_invalid'],
+    ['missing page source', (v) => (v.pages[0].sourceIds = ['absent']), 'atlas_page_invalid'],
+    [
+      'invalid subject source',
+      (v) => (v.pages[0].subjectSources.compiler = ['absent']),
+      'atlas_page_source_invalid',
+    ],
+    [
+      'missing subject binding',
+      (v) => delete v.pages[0].subjectSources,
+      'atlas_page_source_invalid',
+    ],
+    ['wrong overview purpose', (v) => (v.pages[0].purpose = 'mechanism'), 'atlas_overview_invalid'],
+    [
+      'duplicate overview purpose',
+      (v) => (v.pages[1].purpose = 'overview'),
+      'atlas_overview_invalid',
+    ],
+  ];
+  for (const [name, mutate, code] of cases) {
+    const input = fixture();
+    mutate(input);
+    assert.throws(() => composeStandaloneAtlas(input), { code }, name);
+  }
+
+  const invalidEncoding = fixture();
+  invalidEncoding.pages[0].content = Buffer.from([0xff]);
+  invalidEncoding.pages[0].sha256 = sha256(invalidEncoding.pages[0].content);
+  assert.throws(() => composeStandaloneAtlas(invalidEncoding), {
+    code: 'atlas_page_encoding_invalid',
+  });
+
+  const missingTarget = fixture();
+  missingTarget.pages[0].content = Buffer.from(
+    missingTarget.pages[0].content.toString().replace('semantics.html', 'absent.html'),
+  );
+  missingTarget.pages[0].sha256 = sha256(missingTarget.pages[0].content);
+  assert.throws(() => composeStandaloneAtlas(missingTarget), {
+    code: 'atlas_navigation_target_missing',
+  });
+
+  const externalReference = fixture();
+  externalReference.pages[0].content = Buffer.from(
+    externalReference.pages[0].content
+      .toString()
+      .replace('semantics.html', 'https://example.invalid'),
+  );
+  externalReference.pages[0].sha256 = sha256(externalReference.pages[0].content);
+  assert.doesNotThrow(() => composeStandaloneAtlas(externalReference));
+});
+
 test('standalone Atlas neutralizes script-data termination in pages and sources', async () => {
   const { composeStandaloneAtlas } = await api(),
     input = fixture();

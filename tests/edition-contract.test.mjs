@@ -36,6 +36,52 @@ test('Edition is closed and binds the exact product and Claim Model', () => {
   }
 });
 
+test('Edition rejects malformed authored scenes and reader commitments at their owner', () => {
+  const cases = [
+    [
+      'composition',
+      (v) => (v.scenes.static.composition = null),
+      'edition_scene_composition_invalid',
+    ],
+    [
+      'label vertical offset',
+      (v) => (v.scenes.interactive.overview.composition.relations[0].labelDy = 'far'),
+      'edition_scene_relation_invalid',
+    ],
+    [
+      'label segment',
+      (v) => (v.scenes.interactive.overview.composition.relations[0].labelSegment = -1),
+      'edition_scene_relation_invalid',
+    ],
+    [
+      'authored identity',
+      (v) => (v.scenes.static.authoredInputSha256 = 'bad'),
+      'edition_scene_invalid',
+    ],
+    [
+      'audience identity',
+      (v) => (v.audiences['Bad ID'] = { label: 'Unknown' }),
+      'edition_audience_invalid',
+    ],
+    [
+      'question audience',
+      (v) => (v.questions.system.audience = 'absent'),
+      'edition_question_invalid',
+    ],
+    ['unknown required claim', (v) => v.requiredClaims.push('absent'), 'edition_claim_unknown'],
+    [
+      'scene identity',
+      (v) => (v.scenes.interactive['Bad ID'] = structuredClone(v.scenes.interactive.runtime)),
+      'edition_scene_invalid',
+    ],
+  ];
+  for (const [name, mutate, code] of cases) {
+    const { model, edition } = editionFixture();
+    mutate(edition);
+    assert.throws(() => validateEdition(model, edition), { code }, name);
+  }
+});
+
 test('Edition product versions conform to Semantic Versioning 2.0.0', () => {
   for (const version of ['0.0.0', '1.2.3', '0.3.0-alpha.0', '1.0.0-rc.1+build.20260922']) {
     const { model, edition } = editionFixture();

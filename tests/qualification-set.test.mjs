@@ -264,6 +264,113 @@ test('qualification records fail closed on unknown fields, duplicate identities,
   );
 });
 
+test('externally supplied qualification fields fail closed at their exact boundary', () => {
+  const recordCases = [
+    ['scope', { scope: { kind: 'document', value: '' } }, 'qualification_scope_invalid'],
+    [
+      'environment',
+      { environment: { kind: 'host', value: '' } },
+      'qualification_environment_invalid',
+    ],
+    [
+      'verifier',
+      { verifier: { kind: 'machine', id: '', implementationSha256: exactDigest('verifier') } },
+      'qualification_verifier_invalid',
+    ],
+    ['observations', { observations: [] }, 'qualification_observations_invalid'],
+    [
+      'observation identity',
+      { observations: [{ name: '', value: true }] },
+      'qualification_observation_invalid',
+    ],
+    [
+      'duplicate observation',
+      {
+        observations: [
+          { name: 'a', value: 1 },
+          { name: 'a', value: 2 },
+        ],
+      },
+      'qualification_observation_duplicate',
+    ],
+    [
+      'non-JSON observation',
+      { observations: [{ name: 'a', value: 1n }] },
+      'qualification_observation_invalid',
+    ],
+    ['verdict', { verdict: 'MAYBE' }, 'qualification_verdict_invalid'],
+    ['limitations type', { limitations: [1] }, 'qualification_limitations_invalid'],
+    [
+      'duplicate limitation',
+      { limitations: ['same', 'same'] },
+      'qualification_limitations_invalid',
+    ],
+    [
+      'common identity',
+      { subject: { kind: 'claim-model', sha256: exactDigest('other') } },
+      'qualification_identity_mismatch',
+    ],
+  ];
+  for (const [name, overrides, code] of recordCases)
+    assert.throws(() => validateQualificationSet(set([record(overrides)])), { code }, name);
+
+  assert.throws(
+    () =>
+      validateQualificationSet(
+        set([
+          record({
+            verifier: {
+              kind: 'human',
+              id: 'reviewer',
+              implementationSha256: exactDigest('verifier'),
+            },
+          }),
+        ]),
+      ),
+    { code: 'qualification_machine_verifier_required' },
+  );
+  assert.throws(
+    () =>
+      validateQualificationSet(
+        set([
+          record({
+            kind: 'human',
+            verifier: {
+              kind: 'machine',
+              id: 'machine',
+              implementationSha256: exactDigest('verifier'),
+            },
+          }),
+        ]),
+      ),
+    { code: 'qualification_human_verifier_required' },
+  );
+  assert.throws(() => validateQualificationSet({ ...set(), records: [] }), {
+    code: 'qualification_set_invalid',
+  });
+  assert.throws(() => validateQualificationSet({ ...set(), schema: 'unknown' }), {
+    code: 'qualification_set_invalid',
+  });
+});
+
+test('binding and admission do not turn a selected candidate into verifier authority', () => {
+  const selected = candidate();
+  assert.throws(() => qualificationSubject(selected, 'unknown'), {
+    code: 'qualification_kind_invalid',
+  });
+  assert.throws(() => bindQualificationRecord(selected, {}), {
+    code: 'qualification_result_invalid',
+  });
+  assert.throws(() => bindQualificationSet(selected, null), {
+    code: 'qualification_records_invalid',
+  });
+  const mismatched = set([record({}, selected)], selected);
+  mismatched.candidateSha256 = exactDigest('other-candidate');
+  assert.throws(() => admit(selected, mismatched), {
+    code: 'qualification_identity_mismatch',
+  });
+});
+
 test('qualification records remain non-compensating and bind common identities', () => {
   const failed = validateQualificationSet(
     set([
@@ -587,6 +694,85 @@ test('qualification input verifies exact authority and exposes no publication cl
   await assert.rejects(verifyQualificationInput(fixture.requestPath, exactDigest('changed')), {
     code: 'qualification_digest_mismatch',
   });
+});
+
+test('qualification input rejects malformed selection before judging external evidence', async (t) => {
+  const base = path.join(root, 'build/test-work');
+  await fs.mkdir(base, { recursive: true });
+  const directory = await fs.mkdtemp(path.join(base, 'qualification-input-'));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const selected = await qualificationInputFixture(directory);
+  await assert.rejects(verifyQualificationInput(selected.requestPath, 'bad'), {
+    code: 'qualification_digest_required',
+  });
+  const original = JSON.parse(await fs.readFile(selected.requestPath, 'utf8'));
+  const selectedModelBytes = await fs.readFile(path.join(directory, 'claim-model.json'));
+  const save = async (plan) => {
+    const bytes = Buffer.from(JSON.stringify(plan) + '\n');
+    await fs.writeFile(selected.requestPath, bytes);
+    return digest(bytes);
+  };
+
+  const malformedPlan = Buffer.from('{');
+  await fs.writeFile(selected.requestPath, malformedPlan);
+  await assert.rejects(verifyQualificationInput(selected.requestPath, digest(malformedPlan)), {
+    code: 'qualification_json_invalid',
+  });
+  await assert.rejects(
+    verifyQualificationInput(selected.requestPath, await save({ ...original, claimModel: null })),
+    { code: 'qualification_input_invalid' },
+  );
+
+  await assert.rejects(
+    verifyQualificationInput(selected.requestPath, await save({ ...original, schema: 'unknown' })),
+    { code: 'qualification_input_invalid' },
+  );
+  await assert.rejects(
+    verifyQualificationInput(
+      selected.requestPath,
+      await save({ ...original, claimModel: { ...original.claimModel, path: '../outside' } }),
+    ),
+    { code: 'qualification_input_invalid' },
+  );
+  await assert.rejects(
+    verifyQualificationInput(
+      selected.requestPath,
+      await save({
+        ...original,
+        claimModel: { ...original.claimModel, sha256: exactDigest('other') },
+      }),
+    ),
+    { code: 'qualification_claim_model_digest_mismatch' },
+  );
+
+  const malformed = Buffer.from('{');
+  await fs.writeFile(path.join(directory, 'claim-model.json'), malformed);
+  await assert.rejects(
+    verifyQualificationInput(
+      selected.requestPath,
+      await save({
+        ...original,
+        claimModel: { ...original.claimModel, sha256: digest(malformed) },
+      }),
+    ),
+    { code: 'qualification_claim_model_json_invalid' },
+  );
+  await fs.writeFile(path.join(directory, 'claim-model.json'), selectedModelBytes);
+  const candidateFile = path.join(directory, 'candidate.json');
+  const candidate = JSON.parse(await fs.readFile(candidateFile, 'utf8'));
+  candidate.claimModel.sha256 = exactDigest('other-claim-model-bytes');
+  const candidateBytes = Buffer.from(JSON.stringify(candidate) + '\n');
+  await fs.writeFile(candidateFile, candidateBytes);
+  await assert.rejects(
+    verifyQualificationInput(
+      selected.requestPath,
+      await save({
+        ...original,
+        candidate: { ...original.candidate, sha256: digest(candidateBytes) },
+      }),
+    ),
+    { code: 'qualification_authority_identity_mismatch' },
+  );
 });
 
 test('generic CLI admits qualification only against exact Candidate and Edition authority', async (t) => {

@@ -88,6 +88,10 @@ test('the first-party self Edition covers the complete product chain and authori
     model = validateClaimModel(JSON.parse(members.get('semantic.json'))),
     edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8')));
 
+  const installedVersion = JSON.parse(
+    await fs.readFile(path.join(root, 'packages/publisher/package.json'), 'utf8'),
+  ).version;
+  assert.equal(edition.product.version, installedVersion);
   assert.equal(edition.id, 'architecture-publisher-self');
   assert.equal(edition.class, 'flagship');
   assert.deepEqual(Object.keys(edition.omissions), []);
@@ -269,6 +273,44 @@ test('the first-party self Edition covers the complete product chain and authori
   assert.equal(model.context.independentAdopterEvidence, false);
   assert.equal(prepared.adoptionRole, 'self-hosted');
   assert.equal(prepared.humanAcceptance, 'not-performed');
+});
+
+test('self Edition product version follows the selected core package bytes', async (t) => {
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-version-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const selected = JSON.parse(
+    await fs.readFile(path.join(root, 'packages/publisher/package.json'), 'utf8'),
+  );
+  selected.version = '0.3.0-alpha.99';
+  const bytes = encode(selected);
+  const selectedPath = path.join(parent, 'selected-package.json');
+  await fs.writeFile(selectedPath, bytes);
+  const input = await request(path.join(parent, 'prepared'));
+  input.sources['core-package'] = { path: selectedPath, sha256: sha256(bytes) };
+  const prepared = await prepareArchitecturePublisherEdition(input);
+  const edition = JSON.parse(await fs.readFile(prepared.edition, 'utf8'));
+  assert.equal(edition.product.version, '0.3.0-alpha.99');
+});
+
+test('self Edition rejects a selected core package with foreign product identity', async (t) => {
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-foreign-package-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const bytes = encode({ name: 'foreign-publisher', version: '0.3.0-alpha.2' });
+  const selectedPath = path.join(parent, 'foreign-package.json');
+  await fs.writeFile(selectedPath, bytes);
+  const input = await request(path.join(parent, 'prepared'));
+  input.sources['core-package'] = { path: selectedPath, sha256: sha256(bytes) };
+  await assert.rejects(prepareArchitecturePublisherEdition(input), {
+    code: 'self_core_package_invalid',
+  });
 });
 
 test('the first-party self Edition emits one exact candidate from independent sibling media', async (t) => {

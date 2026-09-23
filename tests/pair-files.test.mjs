@@ -152,6 +152,109 @@ test('an ambiguous empty writer lock is never replaced by an installation', asyn
     assert.equal(await fs.readFile(path.join(target, 'index.html'), 'utf8'), 'old entry');
 });
 
+test('unknown writer-control state remains owned and cannot be silently reclaimed', async (t) => {
+  for (const [name, owner, expected] of [
+    ['legacy', null, /Legacy writer lock recovery requires inspection/],
+    [
+      'invalid token',
+      { token: 'bad', pid: process.pid, host: os.hostname() },
+      /Invalid writer lock identity/,
+    ],
+    [
+      'invalid process',
+      { token: '00000000-0000-4000-8000-000000000000', pid: 0, host: os.hostname() },
+      /Invalid writer lock process/,
+    ],
+  ]) {
+    const { dir, options } = await fixture(t),
+      plan = await planFiles(options),
+      lock = path.join(dir, '.architecture-publication-writer');
+    if (name === 'legacy') await fs.mkdir(lock + '-recovery');
+    else {
+      await fs.mkdir(lock);
+      await fs.writeFile(
+        path.join(lock, 'owner.json'),
+        JSON.stringify({ ...owner, planSha256: plan.sha256 }),
+      );
+    }
+    await assert.rejects(installPairFiles(plan, approve(plan)), expected, name);
+    for (const target of Object.values(options.destinations))
+      assert.equal(await fs.readFile(path.join(target, 'index.html'), 'utf8'), 'old entry');
+  }
+});
+
+test('writer preparation and release failures never masquerade as installed success', async (t) => {
+  const preparation = await fixture(t);
+  const pendingPlan = await planFiles(preparation.options);
+  const pendingLock = path.join(preparation.dir, '.architecture-publication-writer');
+  const nativeRename = fs.rename;
+  fs.rename = async (from, to) => {
+    if (to === pendingLock && from.startsWith(pendingLock + '-pending-'))
+      throw Error('activation denied');
+    return nativeRename(from, to);
+  };
+  try {
+    await assert.rejects(installPairFiles(pendingPlan, approve(pendingPlan)), /activation denied/);
+  } finally {
+    fs.rename = nativeRename;
+  }
+  assert.equal(
+    (await fs.readdir(preparation.dir)).some((name) => name.includes('writer-pending')),
+    false,
+  );
+
+  const release = await fixture(t);
+  const completed = await planFiles(release.options);
+  const lock = path.join(release.dir, '.architecture-publication-writer');
+  fs.rename = async (from, to) => {
+    if (from === lock && to.startsWith(lock + '-history')) throw Error('release denied');
+    return nativeRename(from, to);
+  };
+  try {
+    await assert.rejects(installPairFiles(completed, approve(completed)), /release denied/);
+  } finally {
+    fs.rename = nativeRename;
+  }
+  assert.equal((await fs.stat(lock)).isDirectory(), true);
+});
+
+test('partial receipts and occupied recovery identities refuse a fresh installation', async (t) => {
+  const malformed = await fixture(t);
+  const malformedPlan = await planFiles(malformed.options);
+  await fs.mkdir(path.join(malformed.options.destinations.native, 'delivery-manifest.json'));
+  await assert.rejects(installPairFiles(malformedPlan, approve(malformedPlan)), {
+    code: 'EISDIR',
+  });
+
+  const partial = await fixture(t);
+  const partialPlan = await planFiles(partial.options);
+  await fs.writeFile(
+    path.join(partial.options.destinations.native, 'delivery-manifest.json'),
+    JSON.stringify({
+      schema: 'architecture.pair-files-receipt/v1',
+      planSha256: partialPlan.sha256,
+    }),
+  );
+  await assert.rejects(
+    installPairFiles(partialPlan, approve(partialPlan)),
+    /Partial prior install/,
+  );
+  assert.equal(
+    await fs.readFile(path.join(partial.options.destinations.atlas, 'index.html'), 'utf8'),
+    'old entry',
+  );
+
+  const occupied = await fixture(t);
+  const occupiedPlan = await planFiles(occupied.options);
+  await fs.mkdir(path.join(occupied.options.recoveryRoot, occupiedPlan.sha256.slice(0, 20)), {
+    recursive: true,
+  });
+  await assert.rejects(
+    installPairFiles(occupiedPlan, approve(occupiedPlan)),
+    /Recorded operation already exists/,
+  );
+});
+
 test('a delayed stale reclaimer cannot move a newer active writer', async (t) => {
   const { dir, options } = await fixture(t),
     plan = await planFiles(options),
@@ -924,6 +1027,111 @@ test('file plans reject aliases of reserved metadata and prefix collisions', asy
     };
     await assert.rejects(planPairFiles(input), /path|collision/i, name);
   }
+});
+
+test('file plan admission rejects malformed roots, identities and dependency claims', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    baseline = {
+      options,
+      source: plan.source,
+      payload: [plan.payload[0]],
+      entries: plan.entries,
+      dependencies: [],
+    };
+  const outside = path.join(dir, 'outside');
+  await fs.writeFile(outside, 'outside');
+  const cases = [
+    ['empty payload', (v) => (v.payload = []), /Explicit file installation inputs/],
+    ['missing dependencies', (v) => (v.dependencies = null), /Explicit file installation inputs/],
+    ['no source roots', (v) => (v.options.sourceRoots = []), /Explicit absolute source roots/],
+    [
+      'duplicate source root',
+      (v) => v.options.sourceRoots.push(v.options.sourceRoots[0]),
+      /Duplicate source roots/,
+    ],
+    ['legacy media root', (v) => (v.options.nativeRoot = dir), /legacy media roots/],
+    ['relative recovery', (v) => (v.options.recoveryRoot = 'recovery'), /absolute recoveryRoot/],
+    ['missing recovery', (v) => delete v.options.recoveryRoot, /absolute recoveryRoot/],
+    [
+      'relative destination',
+      (v) => (v.options.destinations.native = 'native'),
+      /absolute destination/,
+    ],
+    ['missing destination', (v) => delete v.options.destinations.atlas, /absolute destination/],
+    [
+      'overlapping destinations',
+      (v) => (v.options.destinations.atlas = v.options.destinations.native),
+      /non-overlapping/,
+    ],
+    [
+      'overlapping source',
+      (v) => (v.options.sourceRoots = [v.options.destinations.native]),
+      /Source\/destination overlap/,
+    ],
+    [
+      'different parent',
+      (v) => (v.options.destinations.atlas = path.join(dir, 'other', 'atlas')),
+      /share an explicit parent/,
+    ],
+    [
+      'reserved control namespace',
+      (v) => (v.options.destinations.native = path.join(dir, '.architecture-publication-test')),
+      /reserved pair control namespace/,
+    ],
+    ['missing entry', (v) => delete v.entries.native['README.md'], /Explicit local entry files/],
+    [
+      'incomplete replacement',
+      (v) => (v.replacement = { plan }),
+      /Explicit prior plan and authorization/,
+    ],
+    ['unknown medium', (v) => (v.payload[0].medium = 'other'), /Invalid payload identity/],
+    ['relative source', (v) => (v.payload[0].source = 'figure.svg'), /Invalid payload identity/],
+    ['negative byte count', (v) => (v.payload[0].bytes = -1), /Invalid payload identity/],
+    ['invalid digest', (v) => (v.payload[0].sha256 = 'bad'), /Invalid payload identity/],
+    ['outside selected roots', (v) => (v.payload[0].source = outside), /outside declared roots/],
+    ['directory source', (v) => (v.payload[0].source = options.sourceRoots[0]), /not a file/],
+    ['changed size', (v) => (v.payload[0].bytes += 1), /Payload size changed/],
+    ['changed bytes', (v) => (v.payload[0].sha256 = sha('wrong')), /Payload bytes changed/],
+    [
+      'invalid dependency',
+      (v) => v.dependencies.push({ file: 'relative', sha256: sha('x') }),
+      /Invalid dependency identity/,
+    ],
+    [
+      'changed dependency',
+      (v) => v.dependencies.push({ file: plan.payload[0].source, sha256: sha('wrong') }),
+      /Dependency changed/,
+    ],
+    [
+      'noncanonical dependency',
+      (v) =>
+        v.dependencies.push({
+          file: options.sourceRoots[0] + '/../sources/figure.svg',
+          sha256: plan.payload[0].sha256,
+        }),
+      /Dependency source path is not canonical/,
+    ],
+  ];
+  for (const [name, mutate, error] of cases) {
+    const input = structuredClone(baseline);
+    mutate(input);
+    await assert.rejects(planPairFiles(input), error, name);
+  }
+  const fileTarget = path.join(dir, 'file-target');
+  await fs.writeFile(fileTarget, 'foreign content');
+  const occupied = structuredClone(baseline);
+  occupied.options.destinations.native = fileTarget;
+  await assert.rejects(planPairFiles(occupied), /Destination is not a directory/);
+
+  const unsupported = structuredClone(plan);
+  unsupported.schema = 'architecture.pair-files/v1';
+  delete unsupported.sha256;
+  unsupported.sha256 = sha(JSON.stringify(unsupported, null, 2) + '\n');
+  await assert.rejects(
+    installPairFiles(unsupported, { decision: 'AUTHORIZED', planSha256: unsupported.sha256 }),
+    /Unsupported file installation plan/,
+  );
 });
 
 test('file source paths cannot disguise a source-root escape', async (t) => {

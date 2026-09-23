@@ -8,11 +8,30 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.3.0-alpha.2] - 2026-09-23
+
+### Status
+
+- Candidate under qualification; this entry does not assert publication.
+
+### Changed
+
+- The self-Edition binds its product version to the explicitly selected core
+  package source instead of a hard-coded release string.
+
 ### Fixed
 
 - Executable Provider conformance now relocates the exact Publisher package
   required by allowed public-contract imports, while rejecting undeclared or
   ambient dependency resolution.
+- Executable Provider execution now supervises the selected worker and ordinary
+  descendants through reply validation and bounded cleanup. Failed cleanup
+  prevents a passing receipt without claiming containment of deliberate escapes.
+
+### Security
+
+- Bounded worker cleanup preserves unrelated processes and treats an
+  unobserved owned process tree as an unsuccessful materialization.
 
 ## [0.3.0-alpha.1] - 2026-09-22
 
@@ -166,7 +185,8 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
-[Unreleased]: ../../compare/v0.3.0-alpha.1...main
+[Unreleased]: ../../compare/v0.3.0-alpha.2...main
+[0.3.0-alpha.2]: ../../compare/v0.3.0-alpha.1...v0.3.0-alpha.2
 [0.3.0-alpha.1]: ../../compare/v0.3.0-alpha.0...v0.3.0-alpha.1
 [0.3.0-alpha.0]: ../../compare/v0.2.0-alpha.0...v0.3.0-alpha.0
 [0.2.0-alpha.0]: ../../compare/v0.1.0-alpha.7...v0.2.0-alpha.0

@@ -14,7 +14,7 @@
       "name": "@example/architecture-edition-provider",
       "version": "1.0.0",
       "packageJsonSha256": "215f749e71cbf7426fc7e39ea99dd60f1480dcbf90506fb21623348206a73584",
-      "contentSha256": "b8f3556ccaa1ce9f925f7f5d14466beaf5a810764013ea912a38211b29a9da77",
+      "contentSha256": "bed9fe30e7e92ca6184860455e018d742a626944fa9fc47315e7ab84e0c4727c",
       "entrypoint": "./provider"
     },
     "inputs": [

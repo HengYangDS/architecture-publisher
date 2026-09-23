@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { validateManifest } from '../packages/publisher/src/source/manifest.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { verifySourceInput } from '../packages/publisher/src/source/input.mjs';
+import { readFileEnvelope, regularBytes } from '../packages/publisher/src/source/files.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const evidence = new URL('../build/test-work/', import.meta.url);
@@ -184,6 +185,81 @@ test('requires a caller-selected digest, not a self-authorized manifest', async 
     code: 'manifest_digest_mismatch',
   });
   await assert.rejects(readSourceBundle(f.file), { code: 'manifest_digest_required' });
+});
+
+test('source envelope rejects malformed selected bytes and an absent decoder', async (t) => {
+  const f = await fixture(t);
+  await assert.rejects(readSourceBundle('', f.digest), { code: 'manifest_path_required' });
+  await assert.rejects(readFileEnvelope(f.file, f.digest, null), {
+    code: 'envelope_decoder_required',
+  });
+  for (const bytes of [Buffer.from('{'), Buffer.from([0xff])]) {
+    await fs.writeFile(f.file, bytes);
+    await assert.rejects(readSourceBundle(f.file, sha(bytes)), {
+      code: 'manifest_json_invalid',
+    });
+  }
+});
+
+test('selected member reads reject links, directories and declared-size overflow', async (t) => {
+  const f = await fixture(t);
+  const member = path.join(f.root, 'input/model.json');
+  assert.deepEqual(await regularBytes(member, f.bytes.length), f.bytes);
+  await assert.rejects(regularBytes(member, f.bytes.length - 1), {
+    code: 'file_size_exceeded',
+  });
+  await assert.rejects(regularBytes(path.join(f.root, 'input'), 1024), {
+    code: 'bundle_type_unsupported',
+  });
+  const link = path.join(f.root, 'input/linked.json');
+  await fs.symlink(member, link);
+  await assert.rejects(regularBytes(link, 1024), { code: 'bundle_symlink_forbidden' });
+});
+
+test('selected member reads reject changed handles, short reads and trailing bytes', async (t) => {
+  const f = await fixture(t);
+  const member = path.join(f.root, 'input/model.json');
+  const before = await fs.lstat(member);
+  const nativeOpen = fs.open;
+  try {
+    for (const mode of ['not-file', 'replaced', 'short-read', 'trailing-byte', 'changed-after']) {
+      let stats = 0;
+      fs.open = async (file) => {
+        assert.equal(file, member);
+        return {
+          stat: async () => {
+            stats++;
+            return {
+              isFile: () => mode !== 'not-file',
+              dev: before.dev + (mode === 'replaced' ? 1 : 0),
+              ino: before.ino,
+              size: before.size,
+              mtimeMs: before.mtimeMs + (mode === 'changed-after' && stats > 1 ? 1 : 0),
+              ctimeMs: before.ctimeMs,
+            };
+          },
+          read: async (buffer, offset, length, position) => {
+            if (position < f.bytes.length) {
+              if (mode === 'short-read') return { bytesRead: 0 };
+              f.bytes.copy(buffer, offset, position, position + length);
+              return { bytesRead: length };
+            }
+            return { bytesRead: mode === 'trailing-byte' ? 1 : 0 };
+          },
+          close: async () => {},
+        };
+      };
+      await assert.rejects(
+        regularBytes(member, f.bytes.length),
+        {
+          code: mode === 'not-file' ? 'bundle_type_unsupported' : 'bundle_changed',
+        },
+        mode,
+      );
+    }
+  } finally {
+    fs.open = nativeOpen;
+  }
 });
 
 test('rejects changed member bytes even when length stays constant', async (t) => {

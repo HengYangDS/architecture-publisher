@@ -508,6 +508,96 @@ test('flagship changes require exact human review while structural changes do no
   }
 });
 
+test('audience, design principles and verification policy affect only declared Editions', async () => {
+  const { compileEditionEvolution } = await api();
+  const audience = pair();
+  audience.after.edition.audiences.maintainer.label = 'Repository stewards';
+  let result = compile(compileEditionEvolution, audience.before, audience.after);
+  assert.equal(result.editions.affected[0].static, true);
+  assert.deepEqual(result.editions.affected[0].interactive, ['overview', 'runtime']);
+
+  const principles = pair();
+  principles.after.edition.visualGrammar.principles.push('Show authority boundaries');
+  result = compile(compileEditionEvolution, principles.before, principles.after);
+  assert.equal(result.editions.affected[0].static, true);
+  assert.deepEqual(result.editions.affected[0].interactive, ['overview', 'runtime']);
+
+  const verification = pair();
+  verification.after.edition.qualification.interactive.push('new-browser-predicate');
+  verification.after.edition.qualification.recovery.push('retained-state-replay');
+  result = compile(compileEditionEvolution, verification.before, verification.after);
+  assert(result.obligations.mediumVerification.some(({ medium }) => medium === 'recovery'));
+  assert.deepEqual(
+    result.obligations.mediumVerification
+      .filter(({ medium, scene }) => medium === 'interactive' && scene !== null)
+      .map(({ scene }) => scene),
+    ['overview', 'runtime'],
+  );
+});
+
+test('evolution rejects duplicate and unbounded Edition selections before obligations', async () => {
+  const { compileEditionEvolution } = await api();
+  const { before, after } = pair();
+  const input = {
+    before: { claimModel: before.model, editions: [before.edition] },
+    after: { claimModel: after.model, editions: [after.edition] },
+    correspondences: [],
+  };
+  assert.throws(
+    () =>
+      compileEditionEvolution({
+        ...input,
+        before: { ...input.before, editions: [before.edition, before.edition] },
+      }),
+    {
+      code: 'edition_evolution_duplicate',
+    },
+  );
+  assert.throws(
+    () =>
+      compileEditionEvolution({
+        ...input,
+        after: { ...input.after, editions: Array(257).fill(after.edition) },
+      }),
+    {
+      code: 'edition_evolution_input_invalid',
+    },
+  );
+  assert.throws(
+    () => compileEditionEvolution({ ...input, correspondences: [], unreviewed: true }),
+    {
+      code: 'edition_evolution_input_invalid',
+    },
+  );
+});
+
+test('Edition ownership cannot move implicitly and ordering is not meaning', async () => {
+  const { compileEditionEvolution } = await api();
+  const { before, after } = pair();
+  after.edition.owner = 'another-owner';
+  assert.throws(() => compile(compileEditionEvolution, before, after), {
+    code: 'edition_owner_changed',
+  });
+
+  const left = pair();
+  const first = structuredClone(left.before.edition);
+  const second = structuredClone(left.before.edition);
+  first.id = 'alpha-edition';
+  second.id = 'zeta-edition';
+  const forward = compileEditionEvolution({
+    before: { claimModel: left.before.model, editions: [first, second] },
+    after: { claimModel: left.after.model, editions: [second, first] },
+    correspondences: [],
+  });
+  const reverse = compileEditionEvolution({
+    before: { claimModel: left.before.model, editions: [second, first] },
+    after: { claimModel: left.after.model, editions: [first, second] },
+    correspondences: [],
+  });
+  assert.deepEqual(forward.editions.changed, []);
+  assert.deepEqual(forward.before.editions, reverse.before.editions);
+});
+
 test('unrepresented structural meaning broadens every scene explicitly', async () => {
   const { compileEditionEvolution } = await api(),
     { before, after } = pair();

@@ -6,6 +6,7 @@ import { editionDigest, validateEdition } from 'architecture-publisher/edition';
 import { validateEditionProvider } from 'architecture-publisher/provider';
 import { claimModelDigest } from 'architecture-publisher/semantics';
 import { writeSourceBundle } from 'architecture-publisher/source';
+import { readPublisherIdentity } from 'architecture-publisher/runtime';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
@@ -49,6 +50,7 @@ async function main() {
   const requestedOutput = process.argv[2];
   if (!requestedOutput || !path.isAbsolute(requestedOutput))
     throw new Error('absolute output required');
+  const publisherIdentity = await readPublisherIdentity();
   await fs.mkdir(requestedOutput);
   const output = await fs.realpath(requestedOutput);
   const members = [],
@@ -228,7 +230,7 @@ async function main() {
       product: {
         name: 'Architecture Publisher',
         schema: 'architecture.publisher/v1',
-        version: '0.3.0-alpha.1',
+        version: publisherIdentity.version,
       },
       source: { manifestSha256: '' },
       claimModel: {

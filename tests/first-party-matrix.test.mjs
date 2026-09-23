@@ -19,6 +19,15 @@ function git(...args) {
   return result.stdout.trim();
 }
 
+function gitBlob(revision, file) {
+  const result = spawnSync('git', ['show', `${revision}:${file}`], {
+    cwd: root,
+    encoding: null,
+  });
+  assert.equal(result.status, 0, result.stderr?.toString());
+  return result.stdout;
+}
+
 test('the first-party matrix binds all consumers to one exact generic package', async (t) => {
   const matrix = await json(
     path.join(root, 'conformance/fixtures/first-party-contract-matrix.json'),
@@ -34,8 +43,9 @@ test('the first-party matrix binds all consumers to one exact generic package', 
     git('rev-parse', `${matrix.publisher.observedCommit}:editions/self`),
     matrix.consumers.self.edition.tree,
   );
-  const selfProviderBytes = await fs.readFile(
-      path.join(root, 'tests/fixtures/providers/self/provider.json'),
+  const selfProviderBytes = gitBlob(
+      matrix.successor.targetTag,
+      'tests/fixtures/providers/self/provider.json',
     ),
     selfProvider = JSON.parse(selfProviderBytes);
   assert.equal(matrix.consumers.self.transport, 'source-owned-declarative-provider');

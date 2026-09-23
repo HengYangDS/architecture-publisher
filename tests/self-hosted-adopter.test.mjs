@@ -18,13 +18,13 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const baseline = Object.freeze({
   sourceSha256: 'b6a9141a13624fe381a2b454784c07ec15704ebe5d23d6c5c6b869513100809c',
   semanticDigest: '59cac5b3afb6c8e34e0643f8d1e4917994aa75df37c8e5a4144761a2c9d3b54b',
-  editionDigest: '52cc7e36793f290cce9c4d9efeabb6866ecbea2bbcf1dbbef1ba2e049ca30912',
+  editionDigest: 'f1c9226bfd2a0efa37dbc738091432fdc769bdcafa1e24cf29b360905901328e',
   staticSceneDigest: '1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d',
   interactiveSceneDigest: 'b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b',
-  candidateSha256: 'af334f517daa21c07eb2bcbafe5505a85dbfef9e7f6fca8c4a66ddcce9d9b7e4',
-  providerManifestSha256: 'dab83c70676aac81369866c9a3d2f200bcf939ca5a5be3c7e861c9cd0a510c29',
-  providerMaterializationSha256: 'bbd1e02a26c02a3286b0e142dc9d5feae2195a5fe3aaf24af2ae5d02f3ee7898',
-  bundleManifestSha256: '66d06f18c54d209ffc9d77ccf42a0651844f47ff963e519dd9f8d50b2c1329f9',
+  candidateSha256: '9dd061fab8a27ab3944fd6716014e722c8467ca2b305b7867c222ffce9525fa1',
+  providerManifestSha256: '3dac5d7508a053afccd4aebcc7dfec076e8ced2aaa4e87b8eca2542d93abd93a',
+  providerMaterializationSha256: '0ea2418ad8e589b06feef0855885878be856e91ad412b1afaa577a73d76532e9',
+  bundleManifestSha256: 'a7a6da09bbd8c65038f8cf0cfec33a70487c4c455af1d507853814559854577a',
 });
 
 function run(command, args, cwd, env = process.env) {
@@ -151,6 +151,10 @@ test('the installed product builds its structural self-portrait through the publ
     providerReceipt = JSON.parse(members.get('provider.json')),
     svg = members.get('overview.svg').toString(),
     html = members.get('views/overview.html').toString();
+  assert.equal(
+    edition.product.version,
+    JSON.parse(await fs.readFile(path.join(pkg, 'package.json'), 'utf8')).version,
+  );
   assert.equal(output.source.id, 'architecture-publisher');
   assert.equal(semantic.context.adoptionRole, 'self-hosted');
   assert.equal(semantic.context.independentAdopterEvidence, false);

@@ -20,14 +20,14 @@
     "sourceManifestSha256": "b6a9141a13624fe381a2b454784c07ec15704ebe5d23d6c5c6b869513100809c",
     "semanticMember": "semantic.json",
     "edition": "edition.json",
-    "editionSha256": "afcefa10909014a590e676f0e000cca2dbb6700e4dc058218bc6965372010010",
+    "editionSha256": "96efdd60023966282135cef4ed4d02f2cd8b55beb1ad248952a4a82524da15f5",
     "evolution": null,
     "evolutionSha256": null
   },
   "expected": {
     "sourceManifestSha256": "b6a9141a13624fe381a2b454784c07ec15704ebe5d23d6c5c6b869513100809c",
     "claimModelDigest": "59cac5b3afb6c8e34e0643f8d1e4917994aa75df37c8e5a4144761a2c9d3b54b",
-    "editionDigest": "52cc7e36793f290cce9c4d9efeabb6866ecbea2bbcf1dbbef1ba2e049ca30912",
+    "editionDigest": "f1c9226bfd2a0efa37dbc738091432fdc769bdcafa1e24cf29b360905901328e",
     "evolutionSha256": null
   },
   "limits": {
