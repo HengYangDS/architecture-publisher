@@ -1,5 +1,5 @@
 {
-  "schema": "architecture.publisher-first-party-contract-matrix/v3",
+  "schema": "architecture.publisher-first-party-contract-matrix/v4",
   "publisher": {
     "observedCommit": "90ef946b4b11ea00e90896efda48b48315fef0be",
     "package": {
@@ -232,7 +232,7 @@
     "Remote publication and final human review remain separate release gates."
   ],
   "successor": {
-    "state": "self-qualified-adopters-pending",
+    "state": "published-self-qualified",
     "targetTag": "v0.3.0-alpha.1",
     "publisher": {
       "source": {
@@ -276,18 +276,29 @@
       "ethos": {
         "handoffSchema": "ethos.architecture-publisher-handoff/v4",
         "providerMode": "executable",
-        "state": "proposed-not-authorized"
+        "authorizationOwner": "ETHOS",
+        "acceptanceState": "not-asserted-by-publisher"
       },
       "aigw": {
         "handoffSchema": "aigw.architecture-publisher-handoff/v3",
         "providerMode": "declarative",
-        "state": "proposed-not-authorized"
+        "authorizationOwner": "AIGW",
+        "acceptanceState": "not-asserted-by-publisher"
       }
     },
-    "verdict": "SELF_PASS_ADOPTERS_PENDING",
+    "verdict": "PUBLISHED_SELF_PASS_ADOPTER_ACCEPTANCE_EXTERNAL",
     "limits": [
-      "The 0.3 package candidate is reproducible but not yet a published release.",
-      "ETHOS and AIGW Provider migration, acceptance, and publication remain source-owned and unperformed."
-    ]
+      "The 0.3 release and self-qualification are bound to exact signed release evidence.",
+      "ETHOS and AIGW migration, acceptance, and publication are source-owned and not asserted by this matrix."
+    ],
+    "releaseEvidence": {
+      "commit": "855c7c82b95f17a9f7c1c70d173f513e79b1f617",
+      "tag": "v0.3.0-alpha.1",
+      "tagObject": "95054560cbb0c8c829921ea7bccbe29f6a943734",
+      "releaseManifestSha256": "d0146a5a8b62d351227ed535b13d2b4642e0bf448705cda7440cc464c654b7b7",
+      "packageIdentitiesSha256": "a5f59a0e668fa9279d31e4e0cc11d95f3e4e7e21242a7bc4329cad790c8293ca",
+      "qualificationSetDigest": "bc6356bad08e5dc8bc34e2e3bb08bbdee168e600980cd1b4665227ae0c83062f",
+      "humanReviewSha256": "0ca6cbb7d1247327fc78970e0ce429d9e88f7b0401bada233ce7535d3c36ce72"
+    }
   }
 }
