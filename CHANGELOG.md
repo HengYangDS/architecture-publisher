@@ -8,6 +8,12 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
+### Fixed
+
+- Executable Provider conformance now relocates the exact Publisher package
+  required by allowed public-contract imports, while rejecting undeclared or
+  ambient dependency resolution.
+
 ## [0.3.0-alpha.1] - 2026-09-22
 
 ### Fixed

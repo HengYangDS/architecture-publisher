@@ -54,6 +54,45 @@ test('both delivery modes cross one non-authorizing conformance matrix', async (
   assert.deepEqual(reports.map(({ delivery }) => delivery).sort(), ['declarative', 'executable']);
 });
 
+test('executable relocation preserves the declared Publisher dependency', async (t) => {
+  const selection = await copied(t, 'executable');
+  const packageFile = path.join(selection.providerPackageRoot, 'package.json');
+  const packageJson = JSON.parse(await fs.readFile(packageFile, 'utf8'));
+  const publisherPackage = JSON.parse(
+    await fs.readFile(new URL('../packages/publisher/package.json', import.meta.url), 'utf8'),
+  );
+  packageJson.dependencies = { 'architecture-publisher': publisherPackage.version };
+  const packageBytes = Buffer.from(`${JSON.stringify(packageJson, null, 2)}\n`);
+  await fs.writeFile(packageFile, packageBytes);
+  await fs.writeFile(
+    path.join(selection.providerPackageRoot, 'provider.mjs'),
+    [
+      "import { canonical } from 'architecture-publisher/semantics';",
+      '',
+      'export async function materializeEditionProvider(request) {',
+      "  const input = request.inputs.find(({ id }) => id === 'source');",
+      "  return JSON.parse(canonical(JSON.parse(Buffer.from(input.contentBase64, 'base64')))).reply;",
+      '}',
+      '',
+    ].join('\n'),
+  );
+  const manifest = JSON.parse(await fs.readFile(selection.providerManifest, 'utf8'));
+  manifest.delivery.package.packageJsonSha256 = sha(packageBytes);
+  manifest.delivery.package.contentSha256 = await editionProviderPackageDigest(
+    selection.providerPackageRoot,
+  );
+  const manifestBytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
+  await fs.writeFile(selection.providerManifest, manifestBytes);
+  selection.providerManifestSha256 = sha(manifestBytes);
+
+  const report = await runProviderConformance(selection);
+  assert.equal(report.verdict, 'pass');
+  assert.deepEqual(
+    report.predicates.find(({ id }) => id === 'dependency-direction').evidence.observations,
+    ['modules:1', 'externals:architecture-publisher/semantics'],
+  );
+});
+
 test('dependency conformance rejects the exact forbidden executable import', async (t) => {
   for (const specifier of [
     'architecture-publisher/renderers/archify',
@@ -72,6 +111,27 @@ test('dependency conformance rejects the exact forbidden executable import', asy
       message: `provider_conformance_dependency_direction:${specifier}`,
     });
   }
+});
+
+test('dependency conformance rejects an undeclared Publisher import', async (t) => {
+  const selection = await copied(t, 'executable');
+  await fs.writeFile(
+    path.join(selection.providerPackageRoot, 'provider.mjs'),
+    "import { canonical } from 'architecture-publisher/semantics';\n" +
+      'export function materializeEditionProvider() { return canonical; }\n',
+  );
+  const manifest = JSON.parse(await fs.readFile(selection.providerManifest, 'utf8'));
+  manifest.delivery.package.contentSha256 = await editionProviderPackageDigest(
+    selection.providerPackageRoot,
+  );
+  const manifestBytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
+  await fs.writeFile(selection.providerManifest, manifestBytes);
+  selection.providerManifestSha256 = sha(manifestBytes);
+
+  await assert.rejects(runProviderConformance(selection), {
+    code: 'provider_conformance_dependency_direction',
+    message: 'provider_conformance_dependency_direction:architecture-publisher:undeclared',
+  });
 });
 
 test('dependency conformance rejects declared packages outside the public contract', async (t) => {

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
-import { isBuiltin } from 'node:module';
+import { createRequire, isBuiltin } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import { parse } from 'acorn';
@@ -17,6 +17,8 @@ import { canonical } from 'architecture-publisher/semantics';
 import { readSourceBundle } from 'architecture-publisher/source';
 
 const matrixUrl = new URL('../../fixtures/provider-contract-matrix.json', import.meta.url);
+const require = createRequire(import.meta.url);
+const publisherPackageRoot = path.dirname(require.resolve('architecture-publisher/package.json'));
 const allowedPublisherExports = new Set([
   'architecture-publisher/edition',
   'architecture-publisher/scene',
@@ -146,6 +148,8 @@ async function inspectExecutableDependencies(packageRoot, selectedPackage) {
       }
       if (specifier.startsWith('architecture-publisher/')) {
         if (!allowedPublisherExports.has(specifier)) fail('dependency-direction', specifier);
+        if (!declared.has('architecture-publisher'))
+          fail('dependency-direction', 'architecture-publisher:undeclared');
         externals.add(specifier);
         continue;
       }
@@ -153,11 +157,14 @@ async function inspectExecutableDependencies(packageRoot, selectedPackage) {
     }
   }
   return {
-    method: 'selected-entrypoint-graph',
-    observations: [
-      `modules:${visited.size}`,
-      `externals:${[...externals].sort().join(',') || 'none'}`,
-    ],
+    evidence: {
+      method: 'selected-entrypoint-graph',
+      observations: [
+        `modules:${visited.size}`,
+        `externals:${[...externals].sort().join(',') || 'none'}`,
+      ],
+    },
+    requiresPublisher: externals.size > 0,
   };
 }
 
@@ -177,7 +184,7 @@ async function materialize(selection, delivery) {
   );
 }
 
-async function relocatedRuns(selection, delivery) {
+async function relocatedRuns(selection, delivery, requiresPublisher) {
   const temporaryRoot = await fs.realpath(os.tmpdir());
   const root = await fs.mkdtemp(path.join(temporaryRoot, 'architecture-provider-conformance-'));
   try {
@@ -192,6 +199,14 @@ async function relocatedRuns(selection, delivery) {
       await fs.cp(selection.providerPackageRoot, relocated.providerPackageRoot, {
         recursive: true,
       });
+      if (requiresPublisher) {
+        const dependencyRoot = path.join(root, 'node_modules', 'architecture-publisher');
+        await fs.mkdir(path.dirname(dependencyRoot), { recursive: true });
+        await fs.cp(await fs.realpath(publisherPackageRoot), dependencyRoot, {
+          recursive: true,
+          dereference: true,
+        });
+      }
     }
     const isolated = await materialize(relocated, delivery);
     await Promise.all([
@@ -247,15 +262,18 @@ export async function runProviderConformance(selection) {
     selection.providerManifestSha256,
   );
   const delivery = selected.manifest.delivery.kind;
-  const dependencyEvidence =
+  const dependency =
     delivery === 'executable'
       ? await inspectExecutableDependencies(
           selection.providerPackageRoot,
           selected.manifest.delivery.package,
         )
-      : evidence('declarative-no-executable-graph', 'modules:0');
+      : {
+          evidence: evidence('declarative-no-executable-graph', 'modules:0'),
+          requiresPublisher: false,
+        };
   const primary = await materialize(selection, delivery);
-  const relocated = await relocatedRuns(selection, delivery);
+  const relocated = await relocatedRuns(selection, delivery, dependency.requiresPublisher);
   const primaryIdentity = materializedIdentity(primary);
   const relocatedIdentity = materializedIdentity(relocated.isolated);
   const adjacentIdentity = materializedIdentity(relocated.adjacent);
@@ -333,7 +351,7 @@ export async function runProviderConformance(selection) {
       'adjacent-checkout-immunity',
       evidence('decoy-adjacent-checkouts', `identity:${identityDigest}`),
     ],
-    ['dependency-direction', dependencyEvidence],
+    ['dependency-direction', dependency.evidence],
     [
       'resource-bounds',
       evidence(
