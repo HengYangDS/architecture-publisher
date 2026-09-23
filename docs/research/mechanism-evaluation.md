@@ -169,3 +169,69 @@ case, measurable current cost and acceptance test. In particular:
   separate trust domain.
 
 This preserves a small semantic kernel while leaving deliberate extension seams.
+
+## Additional source-level comparators (2026-09-24)
+
+The following stable-tag sources were inspected through the GitHub CLI and
+read-only local clones on 2026-09-24. This is a targeted implementation review,
+not a claim that every execution path or hosted integration was tested. It adds
+comparators to the decisions above; it does not replace the canonical ETHOS,
+Publisher, or AIGW contracts.
+
+| System    | Exact source                                                                                                                                                                              | Observed implemented center                                                                       |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| SpecDD    | [framework 1.5](https://github.com/specdd/specdd/tree/f5440dc93f4fc75c42f2fbbdfc304bd7ef0e5451); [CLI 1.1.1](https://github.com/specdd/cli/tree/fe2ffc946935e1b36c662dadf4c6ce899c304b97) | Path-local specification resolution and linting.                                                  |
+| AgentSpec | [0.1.43](https://github.com/yimwoo/agent-spec/tree/9fc86d5576d7866fc31c6a4bb56739812bb8389f)                                                                                              | Repo-local task/run control, writer-session records, source drift, and evidence.                  |
+| SpecRoute | [0.4.0](https://github.com/Enovatr-Labs/SpecRoute/tree/abc4c482da117c654b414517e68074ad643a950e)                                                                                          | Cross-agent templates, guidance, and hook scripts; explicitly content rather than an application. |
+
+**SpecDD.** The CLI's
+[resolver](https://github.com/specdd/cli/blob/fe2ffc946935e1b36c662dadf4c6ce899c304b97/src/services/spec-resolver/spec-resolver.ts)
+selects a target's local and ancestor specifications, follows typed `Owns`,
+`Can modify`, `References`, and other links with a bounded depth and cycle
+protection, and returns `target`, `parent`, or `link` reasons for inclusion. Its
+[linter](https://github.com/specdd/cli/blob/fe2ffc946935e1b36c662dadf4c6ce899c304b97/src/services/spec-linter/spec-linter.ts)
+reports path and ambiguity diagnostics. **Adopt the principle** of explainable,
+revision-bound intent-context selection; **reject** another `.sdd` source of
+truth or path adjacency as sufficient authority. Resolution and linting do not
+by themselves prove Work Lane effects, Git CAS, or independent verification.
+
+**AgentSpec.** The
+[session implementation](https://github.com/yimwoo/agent-spec/blob/9fc86d5576d7866fc31c6a4bb56739812bb8389f/agentspec/session.py)
+records branch/worktree writer leases and permitted task paths;
+[source checks](https://github.com/yimwoo/agent-spec/blob/9fc86d5576d7866fc31c6a4bb56739812bb8389f/agentspec/source_registry.py)
+compare current content hashes with accepted snapshots and may stage a changed
+candidate. Those are concrete mechanisms, not just README language. The
+[runner](https://github.com/yimwoo/agent-spec/blob/9fc86d5576d7866fc31c6a4bb56739812bb8389f/agentspec/runner.py)
+terminates the direct child on timeout, not an observed process tree; the
+inspected session and runner contracts did not demonstrate object-scoped Git
+compare-and-swap or an ETHOS-style Attestation. The tagged source contains
+25,278 product-Python lines and 21,108 test-Python lines by tracked-file `wc`
+(603 test methods); these mechanical counts are not a quality score. **Borrow
+only** accepted-source drift and bounded handoff evidence where a real ETHOS
+consumer needs them; **reject** a copied task ledger, run-state store, or second
+command plane.
+
+**SpecRoute.** Its [README](https://github.com/Enovatr-Labs/SpecRoute/blob/abc4c482da117c654b414517e68074ad643a950e/README.md)
+explicitly describes a content repository. Requirement IDs, design `Satisfies`
+links, and task/test back-references can make traceability readable, but its
+[Codex post-edit hook](https://github.com/Enovatr-Labs/SpecRoute/blob/abc4c482da117c654b414517e68074ad643a950e/hooks/codex/scripts/post-edit-frontmatter.sh)
+states that it warns and never blocks. **Adopt** the compact back-reference
+notation only where it improves existing ETHOS intent-to-proof navigation;
+**reject** a copied vendor-template workflow as a governance or quality gate.
+
+Implementation quality cannot be ranked by repository size. The inspected
+[SpecDD CLI package](https://github.com/specdd/cli/blob/fe2ffc946935e1b36c662dadf4c6ce899c304b97/package.json)
+has TypeScript typecheck and co-located resolver/linter tests;
+[AgentSpec release CI](https://github.com/yimwoo/agent-spec/blob/9fc86d5576d7866fc31c6a4bb56739812bb8389f/.github/workflows/release.yml)
+runs pytest, mypy, and pylint, while its
+[Pylint policy](https://github.com/yimwoo/agent-spec/blob/9fc86d5576d7866fc31c6a4bb56739812bb8389f/pyproject.toml)
+disables several complexity rules. The inspected SpecRoute workflows validate
+links and wiki parity, not the behavioral truth of copied vendor guidance. No
+upstream test suite was executed in this review, so these are source-quality
+signals and limitations, not a comparative pass rate or security verdict.
+
+The shared invariant is not a file format: accepted meaning must be selected
+with reasons and provenance, execution must remain under one source owner, and
+observations must not promote themselves to authorization. Revisit these choices
+only after a named greenfield, brownfield, cooperative or competing Work Lane,
+reasoned drop, or feedback-to-intent consumer produces a failing counterexample.

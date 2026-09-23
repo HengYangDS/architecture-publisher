@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-09-24
+goal: Keep the cross-product research record current without adding product
+  behavior or a parallel authority.
+skip_specs: true
