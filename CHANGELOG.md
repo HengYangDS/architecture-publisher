@@ -12,7 +12,9 @@ may contain incompatible changes.
 
 ### Status
 
-- Candidate under qualification; this entry does not assert publication.
+- The selected self-Edition candidate passed exact-subject qualification and
+  human review. The signed tag, Forge release, and source-product adoption
+  remain pending.
 
 ### Changed
 
