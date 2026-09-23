@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { spawn } from 'node:child_process';
 import path from 'node:path';
 
 const selectedInput = (request) => request.inputs.find(({ id }) => id === 'source');
@@ -26,6 +27,17 @@ export async function materializeEditionProvider(request) {
   if (selected.scenario === 'signal') process.kill(process.pid, 'SIGKILL');
   if (selected.scenario === 'throw') fail('edition_provider_fixture_failure');
   if (selected.scenario === 'nonzero-ok') process.exitCode = 1;
+  if (selected.scenario === 'descendant-success' || selected.scenario === 'descendant-timeout') {
+    const descendant = spawn(
+      process.execPath,
+      ['-e', "process.title='archpub-provider-descendant';setInterval(() => {}, 1000)"],
+      { stdio: 'ignore', windowsHide: true },
+    );
+    fs.writeFileSync(selected.markerPath, String(descendant.pid));
+    descendant.unref();
+    if (selected.scenario === 'descendant-timeout')
+      await new Promise(() => setInterval(() => {}, 1000));
+  }
   if (selected.scenario === 'timeout') {
     process.on('SIGTERM', () => {});
     await new Promise(() => setInterval(() => {}, 1000));

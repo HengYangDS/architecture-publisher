@@ -2,7 +2,7 @@
 
 ## 1. Falsify the Current Boundary
 
-- [ ] 1.1 Add a selected Provider fixture that starts an ordinary descendant with ignored stdio and a separate test-owned sentinel; verify the current timeout and valid-reply journeys leave the descendant alive while the sentinel remains untouched.
+- [x] 1.1 Add a selected Provider fixture that starts an ordinary descendant with ignored stdio and a separate test-owned sentinel; verify the current timeout and valid-reply journeys leave the descendant alive while the sentinel remains untouched.
 - [ ] 1.2 Add failing Provider tests for stderr, malformed or oversized output, nonzero or abrupt worker exit, unavailable cleanup, and supervisor loss; verify each case distinguishes the original failure from cleanup and leaves no false passing receipt.
 
 ## 2. Converge One Owned Supervisor

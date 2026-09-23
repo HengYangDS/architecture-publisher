@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -33,8 +34,9 @@ async function writeManifest(root, options = {}) {
   const inputFile = path.join(root, 'inputs/source.json');
   const packageJson = JSON.parse(await fs.readFile(packageFile, 'utf8'));
   const input = JSON.parse(await fs.readFile(inputFile, 'utf8'));
-  if (options.scenario) {
-    input.scenario = options.scenario;
+  if (options.scenario || options.markerPath) {
+    if (options.scenario) input.scenario = options.scenario;
+    if (options.markerPath) input.markerPath = options.markerPath;
     await fs.writeFile(inputFile, JSON.stringify(input, null, 2) + '\n');
   }
   const inputBytes = await fs.readFile(inputFile);
@@ -121,6 +123,63 @@ async function scratchNames() {
   );
 }
 
+function processAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    if (error.code === 'ESRCH') return false;
+    throw error;
+  }
+}
+
+async function waitForExit(pid) {
+  const deadline = Date.now() + 1_500;
+  while (Date.now() < deadline) {
+    if (!processAlive(pid)) return true;
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  return !processAlive(pid);
+}
+
+async function runDescendantCase(t, scenario) {
+  const root = await copyFixture(t);
+  const markerPath = path.join(root, 'descendant.pid');
+  const sentinel = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
+    stdio: 'ignore',
+    windowsHide: true,
+  });
+  let descendantPid;
+  try {
+    const selection = await writeManifest(root, {
+      scenario,
+      markerPath,
+      timeoutMs: 1_000,
+    });
+    if (scenario === 'descendant-timeout') {
+      await assert.rejects(materializeExecutableProvider(selection), {
+        code: 'edition_provider_timeout',
+      });
+    } else {
+      await materializeExecutableProvider(selection);
+    }
+    descendantPid = Number(await fs.readFile(markerPath, 'utf8'));
+    assert.equal(Number.isSafeInteger(descendantPid), true);
+    assert.equal(processAlive(sentinel.pid), true, 'unrelated sentinel was killed');
+    assert.equal(await waitForExit(descendantPid), true, 'owned descendant remains alive');
+  } finally {
+    if (!descendantPid) {
+      try {
+        descendantPid = Number(await fs.readFile(markerPath, 'utf8'));
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+      }
+    }
+    if (descendantPid && processAlive(descendantPid)) process.kill(descendantPid, 'SIGKILL');
+    if (processAlive(sentinel.pid)) sentinel.kill('SIGKILL');
+  }
+}
+
 test('executable fixture exposes one selected and one deliberately unselected export', () => {
   assert.equal(typeof fixtureEntrypoint, 'function');
   assert.equal(typeof unselectedExport, 'function');
@@ -151,6 +210,14 @@ test('executable provider runs only the selected export in a bounded child', asy
   );
   assert.equal(globalThis.__providerExecuted, undefined);
   assert.deepEqual(await scratchNames(), before);
+});
+
+test('executable provider reclaims an ordinary descendant after a valid reply', async (t) => {
+  await runDescendantCase(t, 'descendant-success');
+});
+
+test('executable provider reclaims an ordinary descendant after timeout', async (t) => {
+  await runDescendantCase(t, 'descendant-timeout');
 });
 
 test('executable provider selects exact package identity and public export', async (t) => {
