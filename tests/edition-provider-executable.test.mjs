@@ -425,7 +425,13 @@ test('selected Provider package cannot contain ambient dependencies or linked me
 
 for (const [scenario, code, options] of [
   ['exit', 'edition_provider_process_failed', {}],
-  ['signal', 'edition_provider_process_failed', {}],
+  [
+    'signal',
+    process.platform === 'win32'
+      ? 'edition_provider_cleanup_unproved'
+      : 'edition_provider_process_failed',
+    {},
+  ],
   ['throw', 'edition_provider_execution_failed', {}],
   ['nonzero-ok', 'edition_provider_process_failed', {}],
   ['empty', 'edition_provider_response_invalid', {}],
@@ -440,11 +446,17 @@ for (const [scenario, code, options] of [
   test(`executable provider rejects ${scenario} without scratch residue`, async (t) => {
     const root = await copyFixture(t);
     const before = await scratchNames();
+    const expected =
+      scenario === 'signal' && process.platform === 'win32'
+        ? {
+            code,
+            originalFailure: 'edition_provider_process_failed',
+            cleanupFailure: 'edition_provider_cleanup_unproved',
+          }
+        : { code };
     await assert.rejects(
       materializeExecutableProvider(await writeManifest(root, { scenario, ...options })),
-      {
-        code,
-      },
+      expected,
     );
     assert.deepEqual(await scratchNames(), before);
   });
