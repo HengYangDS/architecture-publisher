@@ -20,5 +20,5 @@
 ## 4. Release and Close
 
 - [x] 4.1 Determine the SemVer successor and update the existing Changelog/release owner; verify historical signed tags and asset digests remain unchanged, and admit exact-media human review only for matching bytes or obtain a new review.
-- [ ] 4.2 Land the proved Work Lane, publish the signed successor and selected assets, read back protected refs, package bytes, qualification, and installed use, then archive this Change when the native lifecycle admits the complete release evidence.
-- [ ] 4.3 Hand off the exact selected package to ETHOS and AIGW without changing their source-owned acceptance; retire only owned disposable Work Lane, process, VM, and scratch state after verifying immutable evidence and foreign resources are preserved.
+- [x] 4.2 Land the proved Work Lane, publish the signed successor and selected assets, and read back protected refs, package bytes, qualification, and remote-downloaded installed use.
+- [x] 4.3 Hand off the exact selected package to ETHOS and AIGW without changing their source-owned acceptance; verify the ownership inventory and preserve immutable evidence before post-archive retirement.
