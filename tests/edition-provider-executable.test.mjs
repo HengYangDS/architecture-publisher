@@ -142,7 +142,12 @@ async function waitForExit(pid) {
   return !processAlive(pid);
 }
 
-async function runDescendantCase(t, scenario) {
+async function runDescendantCase(
+  t,
+  scenario,
+  expectedError = null,
+  { replyBytes, expectReclaimed = true } = {},
+) {
   const root = await copyFixture(t);
   const markerPath = path.join(root, 'descendant.pid');
   const sentinel = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
@@ -155,10 +160,11 @@ async function runDescendantCase(t, scenario) {
       scenario,
       markerPath,
       timeoutMs: 1_000,
+      replyBytes,
     });
-    if (scenario === 'descendant-timeout') {
+    if (expectedError) {
       await assert.rejects(materializeExecutableProvider(selection), {
-        code: 'edition_provider_timeout',
+        code: expectedError,
       });
     } else {
       await materializeExecutableProvider(selection);
@@ -166,7 +172,8 @@ async function runDescendantCase(t, scenario) {
     descendantPid = Number(await fs.readFile(markerPath, 'utf8'));
     assert.equal(Number.isSafeInteger(descendantPid), true);
     assert.equal(processAlive(sentinel.pid), true, 'unrelated sentinel was killed');
-    assert.equal(await waitForExit(descendantPid), true, 'owned descendant remains alive');
+    if (expectReclaimed)
+      assert.equal(await waitForExit(descendantPid), true, 'owned descendant remains alive');
   } finally {
     if (!descendantPid) {
       try {
@@ -217,7 +224,29 @@ test('executable provider reclaims an ordinary descendant after a valid reply', 
 });
 
 test('executable provider reclaims an ordinary descendant after timeout', async (t) => {
-  await runDescendantCase(t, 'descendant-timeout');
+  await runDescendantCase(t, 'descendant-timeout', 'edition_provider_timeout');
+});
+
+for (const [scenario, code, replyBytes] of [
+  ['descendant-stderr', 'edition_provider_stderr_invalid'],
+  ['descendant-malformed', 'edition_provider_response_invalid'],
+  ['descendant-oversized', 'edition_provider_reply_size_invalid', 1024],
+  ['descendant-nonzero', 'edition_provider_process_failed'],
+]) {
+  test(`executable provider reclaims an ordinary descendant after ${scenario}`, async (t) => {
+    await runDescendantCase(t, scenario, code, { replyBytes });
+  });
+}
+
+test('abrupt worker loss never produces a passing Provider result', async (t) => {
+  await runDescendantCase(
+    t,
+    'descendant-abrupt',
+    process.platform === 'win32'
+      ? 'edition_provider_cleanup_unproved'
+      : 'edition_provider_process_failed',
+    { expectReclaimed: process.platform !== 'win32' },
+  );
 });
 
 test('executable provider selects exact package identity and public export', async (t) => {

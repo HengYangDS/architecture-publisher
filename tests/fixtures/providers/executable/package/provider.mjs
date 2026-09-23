@@ -27,7 +27,7 @@ export async function materializeEditionProvider(request) {
   if (selected.scenario === 'signal') process.kill(process.pid, 'SIGKILL');
   if (selected.scenario === 'throw') fail('edition_provider_fixture_failure');
   if (selected.scenario === 'nonzero-ok') process.exitCode = 1;
-  if (selected.scenario === 'descendant-success' || selected.scenario === 'descendant-timeout') {
+  if (selected.scenario?.startsWith('descendant-')) {
     const descendant = spawn(
       process.execPath,
       ['-e', "process.title='archpub-provider-descendant';setInterval(() => {}, 1000)"],
@@ -37,6 +37,18 @@ export async function materializeEditionProvider(request) {
     descendant.unref();
     if (selected.scenario === 'descendant-timeout')
       await new Promise(() => setInterval(() => {}, 1000));
+    if (selected.scenario === 'descendant-stderr')
+      process.stderr.write('unexpected provider diagnostic');
+    if (selected.scenario === 'descendant-malformed') {
+      process.stdout.write('{');
+      process.exit(0);
+    }
+    if (selected.scenario === 'descendant-oversized') {
+      process.stdout.write('x'.repeat(2 * 1024 * 1024));
+      process.exit(0);
+    }
+    if (selected.scenario === 'descendant-nonzero') process.exitCode = 1;
+    if (selected.scenario === 'descendant-abrupt') process.kill(process.pid, 'SIGKILL');
   }
   if (selected.scenario === 'timeout') {
     process.on('SIGTERM', () => {});
