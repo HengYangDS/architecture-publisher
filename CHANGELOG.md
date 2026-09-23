@@ -10,12 +10,6 @@ may contain incompatible changes.
 
 ## [0.3.0-alpha.2] - 2026-09-23
 
-### Status
-
-- The selected self-Edition candidate passed exact-subject qualification and
-  human review. The signed tag, Forge release, and source-product adoption
-  remain pending.
-
 ### Changed
 
 - The self-Edition binds its product version to the explicitly selected core
