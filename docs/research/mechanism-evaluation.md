@@ -230,6 +230,41 @@ links and wiki parity, not the behavioral truth of copied vendor guidance. No
 upstream test suite was executed in this review, so these are source-quality
 signals and limitations, not a comparative pass rate or security verdict.
 
+### COMET and ETHOS implementation-quality evidence (2026-09-24)
+
+At exact COMET `0.4.1` source commit `9c6a89857f8ce33c12b9abcc1230bd1076de8068`,
+the [package scripts](https://github.com/rpamis/comet/blob/9c6a89857f8ce33c12b9abcc1230bd1076de8068/package.json)
+declare build, generated-runtime freshness, format, lint, coverage, package
+installation, and benchmark commands; [TypeScript is strict](https://github.com/rpamis/comet/blob/9c6a89857f8ce33c12b9abcc1230bd1076de8068/tsconfig.json).
+The [CI workflow](https://github.com/rpamis/comet/blob/9c6a89857f8ce33c12b9abcc1230bd1076de8068/.github/workflows/ci.yml)
+declares Linux, macOS, and Windows runtime and package-install journeys;
+[security](https://github.com/rpamis/comet/blob/9c6a89857f8ce33c12b9abcc1230bd1076de8068/.github/workflows/security.yml)
+and evaluation workflows are separate. These are real implemented gates, not
+README-only claims. The [Vitest policy](https://github.com/rpamis/comet/blob/9c6a89857f8ce33c12b9abcc1230bd1076de8068/vitest.config.ts)
+sets branch coverage to 75% and lines, statements, and functions to 80% over
+selected TypeScript sources, excluding generated classic-runtime behavior from
+that coverage set; the [ESLint scope](https://github.com/rpamis/comet/blob/9c6a89857f8ce33c12b9abcc1230bd1076de8068/eslint.config.js)
+excludes scripts and dashboard web. Its [project-specific architecture checker](https://github.com/rpamis/comet/blob/9c6a89857f8ce33c12b9abcc1230bd1076de8068/scripts/lint/architecture.mjs)
+is a substantial maintenance surface, not by itself a defect.
+
+At ETHOS source commit `e534b5a9c7906ea865bf2b82b378eea90059c200`,
+the [coverage policy](https://github.com/HengYangDS/ethos/blob/e534b5a9c7906ea865bf2b82b378eea90059c200/.config/checks/coverage/policy.toml)
+requires a 95% hard floor with branch coverage for `src/ethos`, and the
+[GitHub CI source](https://github.com/HengYangDS/ethos/blob/e534b5a9c7906ea865bf2b82b378eea90059c200/.github/workflows/ci.yml)
+declares native host conformance on Linux, macOS, and Windows across Python
+3.12-3.14. Its [independent-receipt admission](https://github.com/HengYangDS/ethos/blob/e534b5a9c7906ea865bf2b82b378eea90059c200/src/ethos/adapters/admission/evidence/external.py)
+and governed Git effects address different trust predicates from COMET's agent
+runtime and evaluation loops. A higher numerical coverage floor does not prove
+that every ETHOS behavior or user journey is superior.
+
+No complete upstream COMET suite, ETHOS full suite, or hosted run was executed
+for this comparison. The sources establish declared checks and selected
+implementations, not comparative pass rates, security certification, or a
+unit-code semantic-density ranking. For ETHOS's repository-governance purpose,
+retain exact proof, CAS, and Attestation ownership; borrow COMET's observed
+checkpoint, recovery, and evaluation ideas only through a named failing
+consumer and the existing owner. Neither product globally subsumes the other.
+
 The shared invariant is not a file format: accepted meaning must be selected
 with reasons and provenance, execution must remain under one source owner, and
 observations must not promote themselves to authorization. Revisit these choices
