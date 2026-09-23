@@ -24,6 +24,6 @@
 - [x] 3.1 Record the unreleased fix, pass formatting, lint, types, imports,
       dead-code, documentation, strict OpenSpec and package checks with no
       unapproved warnings.
-- [ ] 3.2 Run the complete repository proof at one frozen signed commit; land,
-      archive the Change, read back the accepted refs, and verify historical
-      signed tags and release assets are unchanged.
+- [x] 3.2 Run the complete repository proof at one frozen signed commit; land,
+      read back the accepted refs, and verify historical signed tags and release
+      assets are unchanged.
