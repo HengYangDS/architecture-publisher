@@ -52,3 +52,11 @@ tree.
 - **WHEN** an unrelated process runs beside the selected Provider invocation
 - **THEN** cleanup leaves that process unchanged while reclaiming only the
   selected worker tree
+
+#### Scenario: The supervisor disappears
+
+- **WHEN** the owner of a selected executable Provider worker is lost before
+  reclaiming the worker tree
+- **THEN** the worker's own bounded deadline ends its lifetime
+- **AND** no passing Provider result is asserted from that attempt
+- **AND** descendant cleanup after supervisor loss remains unproved

@@ -46,7 +46,10 @@ envelope only after cleanup, and accepts it only when both reply and cleanup
 succeed. The public `architecture.edition-provider-reply/v1` remains unchanged.
 An absolute reply deadline and a separate bounded cleanup deadline prevent
 waiting indefinitely for either phase. The supervisor remains inside the
-existing executable Provider owner.
+existing executable Provider owner. The worker also has a self-expiring
+watchdog derived from those limits, so loss of the supervisor cannot leave the
+tethered worker alive indefinitely. The watchdog does not prove descendant
+cleanup after supervisor loss.
 
 **Rejected:** keep `spawnSync` and call a tree walker after it times out. The
 root is already dead, so descendants can be reparented before enumeration.
@@ -92,6 +95,9 @@ Provider reply failure; both prevent an accepted materialization receipt.
 - **A Provider deliberately escapes the worker group/tree:** out of scope for
   this source-owned, non-adversarial contract. Document the limit and fail
   closed when the observed owned tree cannot be reclaimed.
+- **The supervisor disappears:** the worker's own deadline bounds its lifetime;
+  orphaned descendants remain an explicit unproved limit rather than an
+  implied recovery guarantee.
 - **Cleanup command fails or hangs:** bound its own deadline, attempt only
   exact owned PID/group cleanup, preserve diagnostics, and reject success.
 - **Additional runtime complexity:** retain one internal supervisor and no
@@ -102,7 +108,7 @@ Provider reply failure; both prevent an accepted materialization receipt.
 
 First, add failing native tests that launch an actual descendant and an
 unrelated sentinel. Cover valid reply, timeout, explicit error, malformed or
-oversized output, unavailable cleanup, and interruption. Assert descendants
+oversized output, unavailable cleanup, supervisor loss, and interruption. Assert descendants
 are absent before a result returns, the sentinel survives, scratch is cleaned,
 and original identity/output guards still fail correctly. Run focused tests,
 the full quality graph, a packed offline installed Provider, and the common
