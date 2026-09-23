@@ -271,18 +271,22 @@ independent flagship static candidate. The render result remains unqualified
 and unpublished until the later qualification and publication contracts admit
 those exact bytes.
 
-The source-owned ETHOS repository exports:
+The current source-owned ETHOS integration package exports:
 
 ```text
+@architecture-publisher/ethos/provider
 @architecture-publisher/ethos/adapter
 @architecture-publisher/ethos/edition
 @architecture-publisher/ethos/runtime
 ```
 
-The integration API consumes explicit ETHOS inputs and exposes input adapters for
-source import/verification, atlas, poster, review, and publication journeys. It
-is deliberately not a second CLI. It cannot compile ETHOS Commitments, control
-Work Lanes, mint proof, execute CAS effects, or accept ETHOS state. This
+`./provider` is the selected standard-value materializer. The other three
+exports are migration incumbents, not the terminal Provider surface. Their
+input adapters still support source import/verification, atlas, poster, review,
+and publication journeys; retirement requires exact installed semantic and
+flagship-media parity or a reviewed successor. The package is not a second CLI
+and cannot compile ETHOS Commitments, control Work Lanes, mint proof, execute
+CAS effects, or accept ETHOS state. This
 repository retains only the exact digest-bound source-ownership handoff under
 `conformance/fixtures/ethos-source-owned-handoff.json`. Each package identity
 includes its repository, commit, repository-relative package path, Git tree

@@ -24,8 +24,30 @@ source-owned facts and authored intent
          Edition Candidate
 ```
 
-The only build command remains `archpub edition build`. There is no `archpub
-provider` command tree and no ambient provider discovery.
+The only generic build command remains `archpub edition build`. There is no Provider subcommand or ambient provider discovery.
+
+## Build scope and authored media
+
+Provider v1 transports only the four standard values shown above. It selects no
+source-owned renderer and returns no SVG, PNG, HTML, browser verdict, or human
+approval. The generic `archpub edition build` compiler uses its finite scene
+composition; Provider conformance proves materialization, not visual parity with
+a separately authored flagship Edition.
+
+`authoredInputSha256` is a scene dependency identity. In the generic build it
+changes scene and Candidate identities but does not make the compiler read the
+corresponding authoring bytes. An adopter must separately verify that its
+source-owned media composition consumed exact selected authoring inputs and
+that the resulting static and interactive artifacts satisfy their own semantics,
+browser, accessibility, and human-review obligations. A digest alone is not a
+rendering or acceptance proof.
+
+The first-party self-Edition demonstrates the distinct responsibility: it owns
+its flagship static and interactive compositions, uses Publisher public source,
+renderer, Candidate, and qualification primitives, and emits a separate
+unqualified flagship Candidate. This is a source-owned package API, not a new
+Provider command plane. Standard and flagship Candidates retain distinct media
+identities and cannot borrow each other's approval.
 
 ## Identities and owners
 
