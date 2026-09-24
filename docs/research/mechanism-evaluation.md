@@ -293,6 +293,31 @@ current Publisher composer on the same reader questions before replacing a
 layout owner. Use the richer feature only when it removes actual adopter work
 without weakening source binding, independent media, or flagship quality.
 
+## Self-use does not yet prove a generic authoring baseline (2026-09-24)
+
+At Publisher `e389d8955366fa87f134d2c80310196033b82241`, the separate
+`@architecture-publisher/self-edition` package has 4,243 tracked `.mjs` lines.
+Its `interactive-scene.mjs` and static `composition.mjs` alone have 840 and
+740 lines. The self package explicitly prepares its Claim Model and Edition,
+composes static and interactive flagship scenes, invokes public Publisher
+primitives, and assembles its own Candidate. In contrast, the generic
+interactive scene compiler positions grouped entities in fixed rows. The
+existing installed self-use tests exercise selected public primitives with
+that exact self-specific composer; they do not prove an unrelated
+maintainer can obtain the same reader quality without writing comparable
+composition code.
+
+This is not a reason to delete the self Edition's authored art direction or
+count its lines as poor quality. It is a falsifiable product-adoption gap. A
+successor bake-off must run the same self source and reader questions through
+the ordinary public Build Request, record time and decisions to first readable
+static and standalone interactive baseline, then apply declared flagship
+refinements through that same path. Compare visible coverage, quality and
+source-delta update cost with ETHOS, full AIGW plus its limited Client
+Projection, and native di-effect. If self-use still needs a privileged
+composition path while adopters must hand-author geometry, the product's
+generic authoring promise is unproved even if every existing self test passes.
+
 ## Structurizr native-model and export boundary (2026-09-24)
 
 GitHub API readback identified the active Apache-2.0
