@@ -3,9 +3,8 @@ export {
   editionProviderDigest,
   validateEditionProvider,
 } from './contract.mjs';
-export { validateEditionProviderV2 } from './contract-v2.mjs';
-export { readDeclarativeProviderV2Files } from './materialize-v2.mjs';
-export { materializeBuildRequestInput } from './materialize-request-v2.mjs';
+export { validateEditionProviderV2 } from './selection-contract.mjs';
+export { materializeBuildRequestInput } from './build-request.mjs';
 export {
   validateProviderMaterialization,
   validateProviderReply,

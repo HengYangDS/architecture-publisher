@@ -3,9 +3,11 @@ import { readBuildRequestSelection, readDirectSelectedInputs } from '../edition/
 import { deriveSourceRevision } from '../edition/revision.mjs';
 import { assembleEditionSelection } from '../edition/selection.mjs';
 import { fail } from '../source/manifest.mjs';
-import { readDeclarativeProviderV2Files } from './materialize-v2.mjs';
+import { readDeclarativeSelectedInputs } from './declarative-selection.mjs';
+import { readExecutableSelectedInputs } from './executable-selection.mjs';
+import { readSelectedProviderManifest } from './manifest.mjs';
 
-/** Materialize one Build Request; executable v2 remains explicitly unadmitted. */
+/** Materialize one Build Request across direct, declarative, and executable inputs. */
 export async function materializeBuildRequestInput(requestPath, expectedSha256) {
   const { file, root, request } = await readBuildRequestSelection(requestPath, expectedSha256);
   const direct = await readDirectSelectedInputs({ file, root, request });
@@ -17,10 +19,29 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
   const invocations = [];
 
   for (const selection of request.providers) {
-    if (Object.hasOwn(selection, 'packageRoot')) fail('materialized_provider_package_root_invalid');
     const manifest = path.resolve(root, ...selection.manifest.split('/'));
-    const provider = await readDeclarativeProviderV2Files(manifest, selection.sha256);
+    const selectedManifest = await readSelectedProviderManifest(manifest, selection.sha256);
+    let provider;
+    if (selectedManifest.manifest.delivery.kind === 'declarative') {
+      if (Object.hasOwn(selection, 'packageRoot'))
+        fail('materialized_provider_package_root_invalid');
+      provider = await readDeclarativeSelectedInputs(manifest, selection.sha256);
+    } else {
+      if (!Object.hasOwn(selection, 'packageRoot'))
+        fail('materialized_provider_package_root_required');
+      const packageRoot = path.resolve(root, ...selection.packageRoot.split('/'));
+      provider = await readExecutableSelectedInputs(manifest, selection.sha256, packageRoot);
+    }
     const selected = provider.selected;
+    const invocation = provider.invocation;
+    const inputMethod =
+      invocation.delivery === 'executable'
+        ? 'provider-input-sha256/v2'
+        : 'filesystem-read-sha256/v1';
+    const derivedMethod =
+      invocation.delivery === 'executable'
+        ? 'provider-reply-sha256/v2'
+        : 'filesystem-read-sha256/v1';
     if (selected.edition !== null) {
       if (
         edition !== null ||
@@ -36,7 +57,7 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
       observations.push({
         kind: 'edition',
         key: selected.edition.id,
-        method: 'filesystem-read-sha256/v1',
+        method: inputMethod,
       });
     }
     for (const item of selected.native) {
@@ -52,7 +73,7 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
       observations.push({
         kind: 'native',
         key: item.namespace,
-        method: 'filesystem-read-sha256/v1',
+        method: inputMethod,
       });
     }
     for (const item of selected.derived) {
@@ -67,7 +88,7 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
       observations.push({
         kind: 'derived',
         key: `${selection.id}/${item.id}`,
-        method: 'filesystem-read-sha256/v1',
+        method: derivedMethod,
       });
     }
     for (const limit of provider.limits)
@@ -79,7 +100,7 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
     invocations.push({
       selection: selection.id,
       manifest: selection.manifest,
-      ...provider.invocation,
+      ...invocation,
     });
   }
   if (request.edition.kind === 'provider' && edition === null)

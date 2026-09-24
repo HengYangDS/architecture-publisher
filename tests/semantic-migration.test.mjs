@@ -23,7 +23,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 test('one-shot migration preserves legacy meaning under explicit v2 choices', async () => {
-  const migration = await import('../tools/migration/semantic-v1-to-claim-v2.mjs').catch(
+  const migration = await import('../tools/migration/semantic-document-to-claim-model.mjs').catch(
     () => ({}),
   );
   assert.equal(typeof migration.migrateSemanticV1, 'function');
@@ -98,7 +98,8 @@ test('one-shot migration preserves legacy meaning under explicit v2 choices', as
 });
 
 test('migration refuses to infer missing semantic choices', async () => {
-  const { migrateSemanticV1 } = await import('../tools/migration/semantic-v1-to-claim-v2.mjs');
+  const { migrateSemanticV1 } =
+    await import('../tools/migration/semantic-document-to-claim-model.mjs');
   const legacy = JSON.parse(
     await fs.readFile(path.join(root, 'tests/fixtures/migration/semantic-document-v1.json')),
   );

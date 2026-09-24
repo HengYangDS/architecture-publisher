@@ -188,7 +188,7 @@ function cleanupFailure(originalFailure, cause) {
   });
 }
 
-function decodeReply(raw, state, reason, closedBeforeCleanup) {
+function decodeReply(raw, state, reason, closedBeforeCleanup, validateReply) {
   if (reason === 'timeout') fail('edition_provider_timeout');
   if (reason === 'overflow' || state.stdoutBytes >= responseLimit(state.maximumReplyBytes))
     fail('edition_provider_reply_size_invalid');
@@ -214,7 +214,7 @@ function decodeReply(raw, state, reason, closedBeforeCleanup) {
   }
   if (!exact(envelope, ['status', 'reply']) || envelope.status !== 'ok')
     fail('edition_provider_response_invalid');
-  return validateProviderReply(envelope.reply);
+  return validateReply(envelope.reply);
 }
 
 /** Run one selected Provider worker, then reclaim its owned process tree. */
@@ -224,6 +224,7 @@ export async function runProviderWorker({
   scratch,
   limits,
   terminateTree = undefined,
+  validateReply = validateProviderReply,
 }) {
   const windowsTool =
     !terminateTree && process.platform === 'win32' ? await resolveWindowsTaskkill() : null;
@@ -267,7 +268,7 @@ export async function runProviderWorker({
     const raw = Buffer.concat(observation.state.stdout).toString('utf8');
     let reply;
     try {
-      reply = decodeReply(raw, observation.state, reason, closedBeforeCleanup);
+      reply = decodeReply(raw, observation.state, reason, closedBeforeCleanup, validateReply);
     } catch (error) {
       if (cleanupError) throw cleanupFailure(error.code ?? reason, cleanupError);
       throw error;

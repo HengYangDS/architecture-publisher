@@ -99,7 +99,8 @@ export async function editionProviderPackageDigest(root) {
   return (await editionProviderPackageIdentity(root)).sha256;
 }
 
-async function selectPackage(root, selected) {
+/** Select an exact installed package; v1 and v2 share this package boundary. */
+export async function selectProviderPackage(root, selected) {
   const packageIdentity = await editionProviderPackageIdentity(root),
     packageRoot = packageIdentity.root;
   const packageFile = path.join(packageRoot, 'package.json');
@@ -241,7 +242,7 @@ export async function materializeExecutableProvider(
     ),
     { manifest, root } = selected;
   if (manifest.delivery.kind !== 'executable') fail('edition_provider_delivery_kind_invalid');
-  const packageSelection = await selectPackage(
+  const packageSelection = await selectProviderPackage(
       selection.providerPackageRoot,
       manifest.delivery.package,
     ),

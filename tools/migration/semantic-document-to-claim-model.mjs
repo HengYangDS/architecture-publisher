@@ -293,7 +293,7 @@ export function migrateSemanticV1(document, plan) {
 async function main() {
   const [sourceFile, planFile, outputFile] = process.argv.slice(2);
   if (![sourceFile, planFile, outputFile].every(text))
-    throw new Error('usage: semantic-v1-to-claim-v2 <source> <plan> <output>');
+    throw new Error('usage: semantic-document-to-claim-model <source> <plan> <output>');
   const [document, plan] = await Promise.all(
     [sourceFile, planFile].map(async (file) =>
       JSON.parse(await fs.readFile(path.resolve(file), 'utf8')),

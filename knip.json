@@ -6,7 +6,7 @@
       "entry": [
         "conformance/journeys/provider/run.mjs",
         "conformance/journeys/self-host/build.mjs",
-        "tools/migration/semantic-v1-to-claim-v2.mjs",
+        "tools/migration/semantic-document-to-claim-model.mjs",
         "tools/qualification/semantic-browser.mjs",
         "tests/*.test.mjs"
       ],

@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import * as provider from '../packages/publisher/src/provider/index.mjs';
+import * as provider from '../packages/publisher/src/provider/declarative-selection.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -59,14 +59,14 @@ async function fixture(t) {
   const read = async (at = root) => {
     const bytes = Buffer.from(JSON.stringify(manifest) + '\n');
     await fs.writeFile(path.join(at, 'provider.json'), bytes);
-    return provider.readDeclarativeProviderV2Files(path.join(at, 'provider.json'), sha(bytes));
+    return provider.readDeclarativeSelectedInputs(path.join(at, 'provider.json'), sha(bytes));
   };
   return { root, native, derived, nativePath, derivedPath, manifest, manifestPath, read };
 }
 
 test('declarative Provider reads exact selected bytes and expands native ancestry', async (t) => {
   const f = await fixture(t);
-  assert.equal(typeof provider.readDeclarativeProviderV2Files, 'function');
+  assert.equal(typeof provider.readDeclarativeSelectedInputs, 'function');
   const result = await f.read();
   assert.equal(result.closure, 'selected-provider-files-only');
   assert.equal(result.selected.native[0].namespace, 'org.example/service');
@@ -148,7 +148,7 @@ test('duplicate delivery keys cannot disguise two Provider modes', async (t) => 
     JSON.stringify(f.manifest).replace('{', '{"delivery":{"kind":"executable"},') + '\n',
   );
   await fs.writeFile(f.manifestPath, raw);
-  await assert.rejects(provider.readDeclarativeProviderV2Files(f.manifestPath, sha(raw)), {
+  await assert.rejects(provider.readDeclarativeSelectedInputs(f.manifestPath, sha(raw)), {
     code: 'edition_provider_v2_manifest_duplicate_key',
   });
 });
