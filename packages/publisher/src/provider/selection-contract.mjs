@@ -1,6 +1,6 @@
 import { deepFreeze, jsonValue } from '../semantics/document.mjs';
 import { fail, isDigest, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
-import { EDITION_PROVIDER_LIMITS } from './contract.mjs';
+import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
 
 const INVALID = 'edition_provider_v2_invalid';
 const idPattern = /^[a-z][a-z0-9-]{0,79}$/u;

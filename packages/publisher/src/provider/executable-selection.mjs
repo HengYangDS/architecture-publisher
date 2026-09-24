@@ -4,9 +4,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { fail } from '../source/manifest.mjs';
-import { EDITION_PROVIDER_LIMITS } from './contract.mjs';
-import { editionProviderPackageDigest, selectProviderPackage } from './executable.mjs';
+import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
 import { normalizeSelectedContributions, readSelectedProviderManifest } from './manifest.mjs';
+import { editionProviderPackageDigest, selectProviderPackage } from './package.mjs';
 import { runProviderWorker } from './supervisor.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');

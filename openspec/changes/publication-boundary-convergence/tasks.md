@@ -182,10 +182,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       executable path checks an exact installed package, selected inputs, and
       expected derived reply bytes through the existing process-tree supervisor;
       mixed-mode and direct/Provider Edition cases preserve selected identity.
-      The focused Provider/migration suite passed 31/31; static and package
-      checks passed. The full behavior run passed 738 tests, skipped 2, with
-      no test failures; branch coverage is 93.03% against the 95% release gate,
-      so `npm run check` remains red.
+      Focused Provider, supervisor, and module-boundary tests passed; static
+      and package checks passed. The full behavior run passed 740 tests,
+      skipped 2, with no test failures; branch coverage is 93.03% against the
+      95% release gate, so `npm run check` remains red.
       An independently reproduced ancestor-symlink race leaves confinement
       under concurrent mutation unproved and explicitly limited; this is a
       release-blocking spec gap, not proof of escaping-input rejection. A
@@ -212,6 +212,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       new public package exports. Historical v1 paths remain until Task 7.2
       replacement parity permits their retirement; they are not a permanent
       parallel input authority.
+      Ruling: package selection and execution ceilings have neutral owners
+      consumed by both protocols; the process supervisor requires its caller
+      to select the reply validator. Selected Provider modules may not import
+      historical Provider implementations, as the existing module-boundary
+      gate now verifies. This removes a hidden old-protocol default without a
+      compatibility facade or a second supervision mechanism.
 - [ ] 3.2 Reuse the bounded process-tree supervisor for one exact selected
       executable entry. `tests/edition-provider-executable.test.mjs` and
       `tests/edition-provider-installed.test.mjs` cover complete package-content

@@ -233,6 +233,23 @@ test('provider and generic kernels reject forbidden dependency directions and ad
     );
 });
 
+test('selected Provider modules cannot import historical Provider implementations', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  for (const target of ['./contract.mjs', './executable.mjs', './protocol.mjs']) {
+    const problems = inspectModuleBoundaries(
+      'packages/publisher/src/provider/executable-selection.mjs',
+      `import ${JSON.stringify(target)};`,
+      paths,
+      packageExports,
+    );
+    assert(
+      problems.some(({ reason }) => reason.includes('historical Provider dependency')),
+      target,
+    );
+  }
+});
+
 test('first-party owner names stay precise outside vendored assets', async () => {
   const { modules } = await inventory([...runtimeRoots, 'conformance/journeys/self-host', 'tools']);
   const forbidden = /(?:^|\/)(?:core|common|shared|utils|legacy|compat)(?:\/|$)/;

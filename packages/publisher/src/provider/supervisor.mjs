@@ -3,7 +3,6 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fail } from '../source/manifest.mjs';
-import { validateProviderReply } from './protocol.mjs';
 
 const worker = fileURLToPath(new URL('./worker.mjs', import.meta.url));
 const CLEANUP_MS = 5_000;
@@ -224,8 +223,9 @@ export async function runProviderWorker({
   scratch,
   limits,
   terminateTree = undefined,
-  validateReply = validateProviderReply,
+  validateReply,
 }) {
+  if (typeof validateReply !== 'function') fail('edition_provider_reply_validator_required');
   const windowsTool =
     !terminateTree && process.platform === 'win32' ? await resolveWindowsTaskkill() : null;
   const handle = await fs.open(requestPath, 'r');

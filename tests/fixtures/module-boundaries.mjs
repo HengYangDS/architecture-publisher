@@ -155,6 +155,22 @@ const resourceOwners = [
   ['conformance/journeys/self-host/', ['conformance/journeys/self-host/', 'packages/publisher/']],
 ];
 
+const selectedProviderModules = new Set([
+  'packages/publisher/src/provider/build-request.mjs',
+  'packages/publisher/src/provider/declarative-selection.mjs',
+  'packages/publisher/src/provider/executable-selection.mjs',
+  'packages/publisher/src/provider/manifest.mjs',
+  'packages/publisher/src/provider/selection-contract.mjs',
+]);
+const historicalProviderModules = new Set([
+  'packages/publisher/src/provider/contract.mjs',
+  'packages/publisher/src/provider/declarative.mjs',
+  'packages/publisher/src/provider/executable.mjs',
+  'packages/publisher/src/provider/input.mjs',
+  'packages/publisher/src/provider/materialize.mjs',
+  'packages/publisher/src/provider/protocol.mjs',
+]);
+
 const property = (node, name) =>
   node?.type === 'MemberExpression' &&
   (node.computed ? node.property.value === name : node.property.name === name);
@@ -198,6 +214,8 @@ export function inspectModuleBoundaries(
   function admit(node, target, allowed = owner?.[1] ?? []) {
     if (!paths.has(target) && !paths.has(`${target.replace(/\/$/, '')}/`))
       return issue(node, `missing dependency: ${target}`);
+    if (selectedProviderModules.has(file) && historicalProviderModules.has(target))
+      issue(node, `historical Provider dependency: ${target}`);
     if (!allowed.some((prefix) => target.startsWith(prefix)))
       issue(node, `forbidden dependency: ${target}`);
   }

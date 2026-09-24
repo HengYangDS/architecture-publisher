@@ -1,13 +1,7 @@
 import { createHash } from 'node:crypto';
 import { canonical, deepFreeze } from '../semantics/document.mjs';
 import { fail, isDigest, portableKey, portablePath } from '../source/manifest.mjs';
-
-export const EDITION_PROVIDER_LIMITS = Object.freeze({
-  inputs: 256,
-  inputBytes: 128 * 1024 * 1024,
-  replyBytes: 128 * 1024 * 1024,
-  timeoutMs: 30_000,
-});
+import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
 
 const CONTRACTS = Object.freeze({
   sourceBundle: 'architecture.source-bundle/v1',

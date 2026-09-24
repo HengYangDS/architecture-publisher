@@ -8,15 +8,17 @@ import { readPublisherIdentity } from '../runtime.mjs';
 import { claimModelDigest, deepFreeze, validateClaimModel } from '../semantics/document.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { fail, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
+import { fail, LIMITS, portableKey } from '../source/manifest.mjs';
 import { readEditionProviderInput, resolveProviderPath } from './input.mjs';
-import { validateProviderMaterialization, validateProviderRequest } from './protocol.mjs';
+import { editionProviderPackageDigest, selectProviderPackage } from './package.mjs';
+import {
+  validateProviderMaterialization,
+  validateProviderReply,
+  validateProviderRequest,
+} from './protocol.mjs';
 import { runProviderWorker } from './supervisor.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const JSON_BYTES = 16 * 1024 * 1024;
-const PACKAGE_FILES = 4096;
-const PACKAGE_BYTES = 128 * 1024 * 1024;
 
 function exact(value, fields) {
   return (
@@ -33,109 +35,6 @@ function json(bytes, code) {
   } catch {
     fail(code);
   }
-}
-
-function below(root, selected, code) {
-  if (selected === root || !selected.startsWith(root + path.sep)) fail(code);
-  return selected;
-}
-
-function compareNames(left, right) {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
-async function editionProviderPackageIdentity(root) {
-  if (typeof root !== 'string' || !path.isAbsolute(root))
-    fail('edition_provider_package_root_required');
-  const packageRoot = path.resolve(root);
-  await noSymlinkAncestors(packageRoot);
-  const rootStat = await fs.lstat(packageRoot);
-  if (
-    !rootStat.isDirectory() ||
-    rootStat.isSymbolicLink() ||
-    (await fs.realpath(packageRoot)) !== packageRoot
-  )
-    fail('edition_provider_package_root_invalid');
-  const files = [];
-  let totalBytes = 0;
-  const pending = [{ directory: packageRoot, relative: '' }];
-  while (pending.length) {
-    const { directory, relative } = pending.pop();
-    const entries = (await fs.readdir(directory, { withFileTypes: true })).sort((left, right) =>
-      compareNames(left.name, right.name),
-    );
-    for (const entry of entries) {
-      if (entry.name === 'node_modules') fail('edition_provider_package_content_invalid');
-      const member = path.join(directory, entry.name),
-        memberPath = path.posix.join(relative, entry.name);
-      if (entry.isSymbolicLink()) fail('edition_provider_package_content_invalid');
-      if (entry.isDirectory()) {
-        pending.push({ directory: member, relative: memberPath });
-        continue;
-      }
-      if (!entry.isFile()) fail('edition_provider_package_content_invalid');
-      const bytes = await regularBytes(member, JSON_BYTES);
-      totalBytes += bytes.length;
-      if (files.length >= PACKAGE_FILES || totalBytes > PACKAGE_BYTES)
-        fail('edition_provider_package_content_invalid');
-      files.push({ path: memberPath, bytes: bytes.length, sha256: sha(bytes) });
-    }
-  }
-  files.sort((left, right) => compareNames(left.path, right.path));
-  return {
-    root: packageRoot,
-    bytes: totalBytes,
-    sha256: sha(
-      Buffer.from(
-        JSON.stringify({ schema: 'architecture.edition-provider-package-content/v1', files }) +
-          '\n',
-      ),
-    ),
-  };
-}
-
-/** Bind every regular file in one independently installed Provider package. */
-export async function editionProviderPackageDigest(root) {
-  return (await editionProviderPackageIdentity(root)).sha256;
-}
-
-/** Select an exact installed package; v1 and v2 share this package boundary. */
-export async function selectProviderPackage(root, selected) {
-  const packageIdentity = await editionProviderPackageIdentity(root),
-    packageRoot = packageIdentity.root;
-  const packageFile = path.join(packageRoot, 'package.json');
-  await noSymlinkAncestors(packageFile);
-  const packageBytes = await regularBytes(packageFile, LIMITS.manifestBytes);
-  if (sha(packageBytes) !== selected.packageJsonSha256)
-    fail('edition_provider_package_digest_mismatch');
-  if (packageIdentity.sha256 !== selected.contentSha256)
-    fail('edition_provider_package_content_mismatch');
-  const packageJson = json(packageBytes, 'edition_provider_package_json_invalid');
-  if (
-    packageJson === null ||
-    typeof packageJson !== 'object' ||
-    Array.isArray(packageJson) ||
-    packageJson.name !== selected.name ||
-    packageJson.version !== selected.version
-  )
-    fail('edition_provider_package_identity_mismatch');
-  const target = packageJson.exports?.[selected.entrypoint];
-  if (typeof target !== 'string' || !target.startsWith('./'))
-    fail('edition_provider_entrypoint_invalid');
-  let portableTarget;
-  try {
-    portableTarget = portablePath(target.slice(2));
-  } catch {
-    fail('edition_provider_entrypoint_invalid');
-  }
-  const entrypoint = below(
-    packageRoot,
-    path.resolve(packageRoot, ...portableTarget.split('/')),
-    'edition_provider_entrypoint_invalid',
-  );
-  await noSymlinkAncestors(entrypoint);
-  await regularBytes(entrypoint, JSON_BYTES);
-  return { entrypoint, packageBytes, packageIdentity };
 }
 
 async function requestFor(manifest, root) {
@@ -260,6 +159,7 @@ export async function materializeExecutableProvider(
       requestPath,
       scratch,
       limits: manifest.limits,
+      validateReply: validateProviderReply,
     });
     if (options.verifyDeterminism) {
       const second = await runProviderWorker({
@@ -267,6 +167,7 @@ export async function materializeExecutableProvider(
         requestPath,
         scratch,
         limits: manifest.limits,
+        validateReply: validateProviderReply,
       });
       if (first.raw !== second.raw) fail('edition_provider_nondeterministic');
     }

@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { validateProviderReply } from '../packages/publisher/src/provider/protocol.mjs';
 
 const worker = fileURLToPath(
   new URL('../packages/publisher/src/provider/worker.mjs', import.meta.url),
@@ -16,6 +17,19 @@ const provider = fileURLToPath(
 const source = new URL('./fixtures/providers/executable/inputs/source.json', import.meta.url);
 const evidence = new URL('../build/test-work/', import.meta.url);
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+
+test('worker requires an explicit reply contract before opening inputs', async () => {
+  const { runProviderWorker } = await import('../packages/publisher/src/provider/supervisor.mjs');
+  await assert.rejects(
+    runProviderWorker({
+      entrypoint: provider,
+      requestPath: path.join(os.tmpdir(), 'missing-provider-request.json'),
+      scratch: os.tmpdir(),
+      limits: { timeoutMs: 1_000, replyBytes: 1_024 },
+    }),
+    { code: 'edition_provider_reply_validator_required' },
+  );
+});
 
 function alive(pid) {
   try {
@@ -158,6 +172,7 @@ test('unavailable tree cleanup cannot admit a valid Provider reply', async () =>
         requestPath,
         scratch,
         limits: { timeoutMs: 1_000, replyBytes: 2 * 1024 * 1024 },
+        validateReply: validateProviderReply,
         terminateTree: async (pid) => {
           selectedPid = pid;
           throw new Error('simulated native cleanup failure');
@@ -186,6 +201,7 @@ test('unproved tree cleanup remains distinct from ordinary cleanup failure', asy
         requestPath,
         scratch,
         limits: { timeoutMs: 1_000, replyBytes: 2 * 1024 * 1024 },
+        validateReply: validateProviderReply,
         terminateTree: async (pid) => {
           selectedPid = pid;
           process.kill(pid, 'SIGKILL');
@@ -216,6 +232,7 @@ test('a rejected reply and failed cleanup retain both precise causes', async () 
         requestPath,
         scratch,
         limits: { timeoutMs: 1_000, replyBytes: 2 * 1024 * 1024 },
+        validateReply: validateProviderReply,
         terminateTree: async (pid) => {
           selectedPid = pid;
           throw new Error('simulated native cleanup failure');
@@ -247,6 +264,7 @@ test('a cleanup rejection without an Error never admits the Provider reply', asy
         requestPath,
         scratch,
         limits: { timeoutMs: 1_000, replyBytes: 2 * 1024 * 1024 },
+        validateReply: validateProviderReply,
         terminateTree: async (pid) => {
           selectedPid = pid;
           throw undefined;

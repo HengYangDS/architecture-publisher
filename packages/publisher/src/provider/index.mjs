@@ -1,8 +1,5 @@
-export {
-  EDITION_PROVIDER_LIMITS,
-  editionProviderDigest,
-  validateEditionProvider,
-} from './contract.mjs';
+export { editionProviderDigest, validateEditionProvider } from './contract.mjs';
+export { EDITION_PROVIDER_LIMITS } from './limits.mjs';
 export { validateEditionProviderV2 } from './selection-contract.mjs';
 export { materializeBuildRequestInput } from './build-request.mjs';
 export {
@@ -11,6 +8,7 @@ export {
   validateProviderRequest,
 } from './protocol.mjs';
 export { materializeDeclarativeProvider } from './declarative.mjs';
-export { editionProviderPackageDigest, materializeExecutableProvider } from './executable.mjs';
+export { materializeExecutableProvider } from './executable.mjs';
+export { editionProviderPackageDigest } from './package.mjs';
 export { readEditionProviderInput, resolveEditionProviderSelection } from './input.mjs';
 export { withMaterializedEditionProvider } from './materialize.mjs';
