@@ -7,10 +7,14 @@ valid v1 protocol meanings. One owned Publisher Work Lane and one writer execute
 this plan. ETHOS and AIGW retain separate source-side authority.
 
 Each implementation task starts with a failing focused contract test, then the
-smallest owner-level change and focused GREEN. Audit sibling consumers, run
-`npm run check`, inspect the exact diff, make a signed commit, and verify a clean
-tree. Statements, lines, branches, and functions must each remain at least 95%
-covered across owned runtime code, including touched Publisher renderers and
+smallest owner-level change and focused GREEN. Audit sibling consumers, run the
+applicable static, package, and full behavior checks, inspect the exact diff,
+make a signed commit, and verify a clean tree. The operator approved doing the
+replacement inside this isolated Lane before converging the already-expanded
+coverage gate. An interim coverage failure remains red, is recorded rather than
+waived, and forbids integration or publication. Before the final candidate is
+frozen, `npm run check` must pass with statements, lines, branches, and functions
+each at least 95% across owned runtime code, including Publisher renderers and
 `editions/self/src/`, not only `packages/publisher/src/`. Explicitly exclude
 third-party or generated supply rather than moving owned code outside coverage.
 
@@ -43,11 +47,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       viability, accessibility, license, upgrade, and exit cost. Full four-workload
       product acceptance remains Task 7.1 and 7.5. If direct use passes all hard
       gates at lower cost, revise this plan and shrink Publisher first.
-- [ ] 1.3 Before changing product behavior, expand `test:coverage` to owned
-      `packages/publisher/src/`, Publisher renderer code, and
-      `editions/self/src/`; add missing tests until all four dimensions reach
-      95%. Exclude only identified third-party/generated supplies. Record the
-      exact include/exclude inventory so moving code cannot hide coverage loss.
+- [x] 1.3 Lock the expanded `test:coverage` scope before product changes:
+      `packages/publisher/src/` (50 tracked modules), Publisher renderers (17
+      first-party modules), and `editions/self/src/` (13 modules). The only
+      exclusion is 28 third-party/generated renderer supply modules. The
+      package script, `tests/quality-contract.test.mjs`, and
+      `docs/reference/operations.md` record and police this inventory. The
+      four-dimensional 95% convergence remains a hard Task 7.5 prerequisite,
+      not an achieved result of this task.
 
 ## 2. Versioned authoring and input
 
@@ -212,8 +219,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       combined specs and prove valid v1 inputs still retain their historical
       meanings. The later Change archive must add no new normative behavior.
 - [ ] 7.5 Select the SemVer successor and update package manifests, lockfile,
-      and `CHANGELOG.md` before freezing final product inputs. From that frozen
-      source, repack the exact installed
+      and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
+      behavior tests until the complete owned scope reaches at least 95% in
+      statements, lines, branches, and functions; require `npm run check` to
+      pass without relaxing inclusion or thresholds. Only then freeze final
+      product inputs. From that frozen source, repack the exact installed
       product and rebuild final Candidates for all Task 7.1 workloads; rerun
       offline/relocation/recovery checks. Inspect every final static overview
       and HTML page in a real browser; exercise geometry, keyboard,
