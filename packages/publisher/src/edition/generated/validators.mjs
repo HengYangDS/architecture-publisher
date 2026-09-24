@@ -282,10 +282,20 @@ const ref0 = function validate(data) {
         if (!("repository" in data.sources[i].revision && hasOwn(data.sources[i].revision, "repository"))) return false
         if (!("ref" in data.sources[i].revision && hasOwn(data.sources[i].revision, "ref"))) return false
         if (!(data.sources[i].revision.kind === "vcs")) return false
-        if (!(typeof data.sources[i].revision.repository === "string")) return false
-        if (data.sources[i].revision.repository.length > 2048 && stringLength(data.sources[i].revision.repository) > 2048) return false
-        if (data.sources[i].revision.repository.length < 1 || stringLength(data.sources[i].revision.repository) < 1) return false
-        if (!(pattern0.test(data.sources[i].revision.repository))) return false
+        const sub4 = (() => {
+          if (!(data.sources[i].revision.repository === ".")) return false
+          return true
+        })()
+        if (!sub4) {
+          const sub5 = (() => {
+            if (!(typeof data.sources[i].revision.repository === "string")) return false
+            if (data.sources[i].revision.repository.length > 2048 && stringLength(data.sources[i].revision.repository) > 2048) return false
+            if (data.sources[i].revision.repository.length < 1 || stringLength(data.sources[i].revision.repository) < 1) return false
+            if (!(pattern0.test(data.sources[i].revision.repository))) return false
+            return true
+          })()
+          if (!sub5) return false
+        }
         if (!(typeof data.sources[i].revision.ref === "string")) return false
         if (data.sources[i].revision.ref.length > 2048 && stringLength(data.sources[i].revision.ref) > 2048) return false
         if (data.sources[i].revision.ref.length < 1 || stringLength(data.sources[i].revision.ref) < 1) return false
@@ -296,7 +306,7 @@ const ref0 = function validate(data) {
         return true
       })()
       if (sub3) passes1++
-      const sub4 = (() => {
+      const sub6 = (() => {
         if (!(typeof data.sources[i].revision === "object" && data.sources[i].revision && !Array.isArray(data.sources[i].revision))) return false
         if (!("kind" in data.sources[i].revision && hasOwn(data.sources[i].revision, "kind"))) return false
         if (!("value" in data.sources[i].revision && hasOwn(data.sources[i].revision, "value"))) return false
@@ -310,13 +320,13 @@ const ref0 = function validate(data) {
         }
         return true
       })()
-      if (sub4) passes1++
+      if (sub6) passes1++
       if (passes1 !== 1) {
         validate.errors = [{ keywordLocation: "#/properties/sources/items/properties/revision/oneOf", instanceLocation: "#/sources/"+i+"/revision" }]
         return false
       }
       let passes2 = 0
-      const sub5 = (() => {
+      const sub7 = (() => {
         if (!(typeof data.sources[i].input === "object" && data.sources[i].input && !Array.isArray(data.sources[i].input))) return false
         if (!("kind" in data.sources[i].input && hasOwn(data.sources[i].input, "kind"))) return false
         if (!("path" in data.sources[i].input && hasOwn(data.sources[i].input, "path"))) return false
@@ -330,8 +340,8 @@ const ref0 = function validate(data) {
         }
         return true
       })()
-      if (sub5) passes2++
-      const sub6 = (() => {
+      if (sub7) passes2++
+      const sub8 = (() => {
         if (!(typeof data.sources[i].input === "object" && data.sources[i].input && !Array.isArray(data.sources[i].input))) return false
         if (!("kind" in data.sources[i].input && hasOwn(data.sources[i].input, "kind"))) return false
         if (!("path" in data.sources[i].input && hasOwn(data.sources[i].input, "path"))) return false
@@ -348,7 +358,7 @@ const ref0 = function validate(data) {
         }
         return true
       })()
-      if (sub6) passes2++
+      if (sub8) passes2++
       if (passes2 !== 1) {
         validate.errors = [{ keywordLocation: "#/properties/sources/items/properties/input/oneOf", instanceLocation: "#/sources/"+i+"/input" }]
         return false

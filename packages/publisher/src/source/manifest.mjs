@@ -7,6 +7,7 @@ export const LIMITS = Object.freeze({
   entries: 8192,
   depth: 32,
 });
+/** @returns {never} */
 export function fail(code, message = code) {
   throw Object.assign(new Error(message), { code });
 }

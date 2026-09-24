@@ -58,7 +58,8 @@ export function validateBuildRequest(value) {
   checkedPath(value.edition.manifest, code);
   for (const source of value.sources) {
     checkedPath(source.input.path, code);
-    if (source.revision.kind === 'vcs') checkedPath(source.revision.repository, code);
+    if (source.revision.kind === 'vcs' && source.revision.repository !== '.')
+      checkedPath(source.revision.repository, code);
   }
   for (const provider of value.providers) {
     checkedPath(provider.manifest, code);

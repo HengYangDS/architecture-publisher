@@ -121,3 +121,9 @@ test('content revision declares its algorithm but not a hand-maintained digest',
   value.sources[0].revision.value = A;
   assert.throws(() => validateBuildRequest(value), { code: 'build_request_invalid' });
 });
+
+test('a VCS selector may name the Build Request root exactly', () => {
+  const value = request();
+  value.sources[0].revision = { kind: 'vcs', repository: '.', ref: 'HEAD' };
+  assert.doesNotThrow(() => validateBuildRequest(value));
+});

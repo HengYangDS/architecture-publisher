@@ -75,12 +75,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       coverage remains Task 5.1, not a property of standalone validation.
       The closing full run passed 676 tests, skipped 2, and failed only the
       unchanged 95% branch gate at 93.27%; the Lane remains ineligible to land.
-- [ ] 2.2 Implement content-bound materialization and a generated
+- [x] 2.2 Implement content-bound materialization and a generated
       `architecture.materialized-input-lock/v1`
       under `packages/publisher/src/source/`. In
       `tests/source-materialization.test.mjs`, prove mutable locator changes create
-      new identity/obligations, pins fail on changed bytes, exact inputs relocate
-      offline, and an unresolved selected VCS ref never falls back to HEAD.
+      new identity without carrying acceptance, pins fail on changed bytes,
+      exact inputs relocate offline, and an unresolved selected VCS ref never
+      falls back to HEAD. Ruling: this task seals selected roots and does not
+      invent change-specific obligations before the native and Edition
+      dependency graph exists; Task 4.3 derives those obligations and Task 6.1
+      binds them to exact Candidates. The lock declares
+      `selected-roots-only` and names unchecked dependencies rather than claiming
+      full closure, which remains Task 2.4. Focused tests passed 32/32 across
+      authoring, self-hosted compatibility, and materialization. Static and
+      package checks passed. The latest full check passed 691 tests, skipped 2,
+      and failed only the branch coverage gate at 92.84%; integration and
+      publication remain forbidden.
 - [ ] 2.3 Test typed content/VCS/opaque revisions and separate byte digests in
       `tests/source-revision.test.mjs`. Verify content revisions from declared
       canonical inputs, VCS only when claimed, and unverified VCS provenance as an

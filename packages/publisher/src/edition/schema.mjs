@@ -40,7 +40,7 @@ const sourceSelector = closed(['id', 'namespace', 'format', 'claimant', 'revisio
       }),
       closed(['kind', 'repository', 'ref'], {
         kind: { const: 'vcs' },
-        repository: portable,
+        repository: { anyOf: [{ const: '.' }, portable] },
         ref: text,
       }),
       closed(['kind', 'value'], { kind: { const: 'opaque' }, value: text }),
