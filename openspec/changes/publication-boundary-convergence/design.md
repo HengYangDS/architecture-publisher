@@ -166,15 +166,26 @@ proof that the named owner endorsed the input. The Build Request selects
 exactly one Edition project root across direct and Provider-supplied inputs;
 ambiguous or conflicting selections fail rather than being implicitly merged.
 
-The successor Provider contract is transport only. Declarative and bounded
-executable modes materialize the same closed selected-input envelope: source
-items and, if co-owned, an optional Edition project item. A separate Build
-Request may combine several Providers with an independent Edition project.
+The successor Provider is an input-preparation boundary, not a publication
+stage. Declarative mode selects native bytes or pre-existing projections with
+their authoring or derivation recorded. Executable mode may also perform an
+explicitly selected, attributed semantic adaptation when native data cannot be
+consumed directly.
+Both modes return one closed selected-input envelope: native source items,
+optional derived projections with exact `derivedFrom` references, optional
+Edition project material, and optional source- or editor-asserted lineage.
+Each item identifies its claimant and whether it is native, authored, or
+derived; an executable projection does not acquire source endorsement merely
+by appearing in a Provider reply. A separate Build Request may combine several
+Providers with an independent Edition project.
 For an explicitly paired logical input, the modes must yield the same normalized
 selected contents and source references; their invocation receipts may differ.
 Executable-generated material identifies its derivation and cannot masquerade
 as unchanged native source bytes. The reply protocol rejects rendered media,
-acceptance, and publication claims. Executable mode sanitizes inherited
+acceptance, and publication claims. A Provider may materialize an Edition
+project from exact selected authoring bytes; an inferred or defaulted editorial
+choice is a new attributed proposal, not accepted source intent. The Provider
+does not compose scenes. Executable mode sanitizes inherited
 environment and configuration and supervises the ordinary process tree; it is
 not an OS, filesystem, network, or native-credential-access sandbox. Selecting
 an executable Provider is a distinct code-execution trust decision.
@@ -196,8 +207,12 @@ a SemVer successor does not reinterpret them in place.
 
 ## Import, identity, and semantic limits
 
-For each admitted native format, one adapter declares recognized constructs,
-source-reference quality, supported transformations, and unsupported fields.
+For each admitted native format or derived projection, one adapter declares
+recognized constructs, source-reference quality, supported transformations,
+and unsupported fields. It may be Publisher-owned for a public native format
+or supplied by a source or qualified third party inside an executable Provider
+for domain-specific adaptation. This is one input contract, not a second
+command plane or semantic authority.
 The imported representation is a derived view-compilation index, not a general
 semantic database or new editable authority. Native bytes and format identity
 remain attached. An opaque construct is retained as opaque and diagnosed when
@@ -369,6 +384,14 @@ executable at the contract boundary:
    otherwise unknown impact triggers necessary broader checks. Packaging-only
    change does not masquerade as semantic change; changed published bytes do
    not silently reuse approval.
+8. An AIGW declarative Provider can select authored meaning and its exact
+   native evidence without rewriting tracked source snapshots or derived
+   Publisher hashes. An ETHOS executable Provider may supply a declared,
+   source-derived semantic projection and Edition intent without performing
+   Publisher sealing or later-stage effects. An explicitly paired delivery
+   fixture has equal selected contents across modes, apart from invocation
+   receipts; the two different source products are not falsely required to
+   have equivalent domain models.
 
 First freeze signed historical artifacts and exact adopter source revisions.
 Next reconcile this design with the proposal, delta specifications, and sole
