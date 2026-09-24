@@ -6,7 +6,7 @@ import { parseStrictJson } from '../source/json.mjs';
 import { fail, isDigest, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
 import { readSelectedInput } from '../source/materialize.mjs';
 import {
-  EDITION_PROJECT_FILE_BYTES,
+  EDITION_AUTHORING_FILE_BYTES,
   validateBuildRequest,
   validateEditionProject,
 } from './authoring.mjs';
@@ -74,7 +74,7 @@ export async function readDirectSelectedInputs({ file, root, request }) {
       ...request.edition.manifest.split('/'),
     );
     await noSymlinkAncestors(editionPath);
-    const content = await regularBytes(editionPath, EDITION_PROJECT_FILE_BYTES);
+    const content = await regularBytes(editionPath, EDITION_AUTHORING_FILE_BYTES);
     const project = validateEditionProject(
       parseStrictJson(
         content,
@@ -94,7 +94,7 @@ export async function readDirectSelectedInputs({ file, root, request }) {
       ...override.split('/'),
     );
     await noSymlinkAncestors(selectedOverride);
-    const content = await regularBytes(selectedOverride, EDITION_PROJECT_FILE_BYTES);
+    const content = await regularBytes(selectedOverride, EDITION_AUTHORING_FILE_BYTES);
     edition.resources.push({ ref: override, content });
     observations.push({
       kind: 'edition-resource',

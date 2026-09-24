@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
-import { EDITION_PROJECT_FILE_BYTES } from '../edition/authoring.mjs';
+import { EDITION_AUTHORING_FILE_BYTES } from '../edition/authoring.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { fail, LIMITS } from '../source/manifest.mjs';
 import { normalizeSelectedContributions, readSelectedProviderManifest } from './manifest.mjs';
@@ -34,7 +34,7 @@ export async function readDeclarativeSelectedInputs(file, expectedSha256) {
     const content = await regularBytes(
       selectedFile,
       item.kind === 'edition' || item.kind === 'edition-resource'
-        ? EDITION_PROJECT_FILE_BYTES
+        ? EDITION_AUTHORING_FILE_BYTES
         : LIMITS.memberBytes,
     );
     if (content.length !== descriptor.bytes) fail('edition_provider_v2_member_size_mismatch');

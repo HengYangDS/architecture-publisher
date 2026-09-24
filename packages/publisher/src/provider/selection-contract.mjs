@@ -1,4 +1,4 @@
-import { EDITION_PROJECT_FILE_BYTES } from '../edition/authoring.mjs';
+import { EDITION_AUTHORING_FILE_BYTES } from '../edition/authoring.mjs';
 import { deepFreeze, jsonValue } from '../semantics/document.mjs';
 import { fail, isDigest, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
 import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
@@ -132,7 +132,7 @@ function selectedContributions(selected) {
     valid(
       identifier(selected.edition.id) &&
         text(selected.edition.editor) &&
-        size(selected.edition.bytes, EDITION_PROJECT_FILE_BYTES) &&
+        size(selected.edition.bytes, EDITION_AUTHORING_FILE_BYTES) &&
         isDigest(selected.edition.sha256) &&
         Array.isArray(selected.edition.resources) &&
         selected.edition.resources.length <= 64,
@@ -144,7 +144,7 @@ function selectedContributions(selected) {
       valid(
         exact(resource, ['ref', 'bytes', 'sha256']) &&
           selectedPath(resource.ref) &&
-          size(resource.bytes, EDITION_PROJECT_FILE_BYTES) &&
+          size(resource.bytes, EDITION_AUTHORING_FILE_BYTES) &&
           isDigest(resource.sha256),
       );
       const key = portableKey(resource.ref);
