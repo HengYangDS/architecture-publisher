@@ -292,3 +292,77 @@ test('repeated rendering is deterministic and author updates change only new out
   assert.notEqual(first.artifact.sha256, third.artifact.sha256);
   assert.deepEqual(await fs.readFile(f.plan.output), prior);
 });
+
+test('native renderer rejects malformed selection before loading supply or writing output', async (t) => {
+  const f = await setup(t);
+  const selected = { type: f.plan.type, inputBytes: f.bytes, output: f.plan.output };
+  for (const [plan, code] of [
+    [null, 'render_type_unsupported'],
+    [{ ...selected, type: 'unknown' }, 'render_type_unsupported'],
+    [{ ...selected, inputBytes: 'not bytes' }, 'render_input_type_invalid'],
+    [{ ...selected, inputBytes: Buffer.alloc(4 * 1024 * 1024 + 1) }, 'render_input_type_invalid'],
+    [{ ...selected, output: 'relative.html' }, 'render_path_required'],
+  ])
+    await assert.rejects(
+      renderer.renderNativeDiagram(plan, async () => {}),
+      { code },
+    );
+  await assert.rejects(renderer.renderNativeDiagram(selected, null), {
+    code: 'render_adaptation_required',
+  });
+  await assert.rejects(
+    renderer.renderNativeDiagram({ ...selected, inputBytes: Buffer.from('{') }, async () => {}),
+    {
+      code: 'render_input_json_invalid',
+    },
+  );
+  await assert.rejects(
+    renderer.renderNativeDiagram({ ...selected, inputBytes: Buffer.from('{}') }, async () => {}),
+    { code: 'render_type_mismatch' },
+  );
+  const noShowcase = structuredClone(f.diagram);
+  delete noShowcase.meta.quality_profile;
+  await assert.rejects(
+    renderer.renderNativeDiagram(
+      { ...selected, inputBytes: Buffer.from(JSON.stringify(noShowcase)) },
+      async () => {},
+    ),
+    { code: 'render_showcase_required' },
+  );
+  assert.deepEqual(await fs.readdir(f.root), ['diagram.json']);
+});
+
+test('public renderer rejects invalid digest and non-absolute paths before effects', async (t) => {
+  const f = await setup(t);
+  for (const [plan, code] of [
+    [null, 'render_type_unsupported'],
+    [{ ...f.plan, inputSha256: 'wrong' }, 'render_input_digest_required'],
+    [{ ...f.plan, input: 'relative.json' }, 'render_path_required'],
+    [{ ...f.plan, output: 'relative.html' }, 'render_path_required'],
+  ])
+    await assert.rejects(renderDiagram(plan), { code });
+  await assert.rejects(renderer.renderArchitectureScene(null), {
+    code: 'render_scene_plan_invalid',
+  });
+  assert.deepEqual(await fs.readdir(f.root), ['diagram.json']);
+});
+
+test('native renderer rejects adaptation receipts that misstate supplies', async (t) => {
+  const f = await setup(t);
+  const plan = { type: f.plan.type, inputBytes: f.bytes, output: f.plan.output };
+  for (const supplies of [
+    'not-an-array',
+    [null],
+    [{ id: 'font', sha256: 'wrong' }],
+    [{ id: 'archify', sha256: '0'.repeat(64) }],
+    [{ id: 'font', sha256: '0'.repeat(64), extra: true }],
+  ]) {
+    await assert.rejects(
+      renderer.renderNativeDiagram(plan, async () => ({ supplies })),
+      {
+        code: 'render_adaptation_receipt_invalid',
+      },
+    );
+    await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+  }
+});

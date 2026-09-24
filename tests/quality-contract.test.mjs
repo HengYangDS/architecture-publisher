@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
@@ -26,7 +27,7 @@ test('one fail-closed quality entry point covers the repository contract', async
   assert.equal(manifest.scripts['check:spec'], 'openspec validate --all --strict --no-interactive');
   assert.equal(
     manifest.scripts['test:coverage'],
-    "c8 --all --include='packages/publisher/src/**/*.mjs' --exclude='**/index.mjs' --check-coverage --statements=95 --lines=95 --branches=95 --functions=95 npm test",
+    "c8 --all --include='packages/publisher/src/**/*.mjs' --include='packages/publisher/renderers/**/*.mjs' --include='editions/self/src/**/*.mjs' --exclude='packages/publisher/renderers/**/supply/**' --check-coverage --statements=95 --lines=95 --branches=95 --functions=95 npm test",
   );
   assert.equal(manifest.scripts['check:package'], 'publint packages/publisher');
 
@@ -42,6 +43,24 @@ test('one fail-closed quality entry point covers the repository contract', async
     'jsconfig.json',
   ])
     assert((await fs.stat(path.join(root, file))).isFile(), file);
+});
+
+test('coverage roots include all tracked first-party package runtime modules', () => {
+  const tracked = execFileSync('git', ['ls-files', '--', 'packages/publisher', 'editions/self'], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+    .trim()
+    .split('\n')
+    .filter((file) => file.endsWith('.mjs'));
+  for (const file of tracked) {
+    if (/^packages\/publisher\/renderers\/[^/]+\/supply\//u.test(file)) continue;
+    assert.match(
+      file,
+      /^(?:packages\/publisher\/(?:src|renderers)\/|editions\/self\/src\/)/u,
+      `${file} escapes the owned runtime coverage scope`,
+    );
+  }
 });
 
 test('public package indexes enumerate exports instead of widening by wildcard', async () => {

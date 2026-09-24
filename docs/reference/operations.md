@@ -328,6 +328,18 @@ coverage, and packed-package validation. Vendored Archify, font, and raster
 supply remain outside first-party rewrite and dead-code ownership; their pinned
 bytes are verified through supply-chain and behavior tests.
 
+The JavaScript coverage gate selects all tracked runtime `.mjs` under
+`packages/publisher/src/`, first-party
+`packages/publisher/renderers/`, and `editions/self/src/`, including
+`index.mjs` entrypoints. At this source revision those roots contain 50, 17,
+and 13 selected modules. The only explicit coverage exclusion is the 28
+tracked third-party/generated `.mjs` files under
+`packages/publisher/renderers/**/supply/`; their exact bytes have separate
+supply verification. `tests/quality-contract.test.mjs` rejects a tracked
+first-party package module moved outside the selected roots. This is a
+JavaScript coverage claim, not coverage of the separately compiled CoreText
+Swift helper or a substitute for native platform acceptance.
+
 `npm test` includes ordinary offline source, semantic, Edition, scene, rendering,
 package, installed-use, publication, replacement, and recovery behavior. Tests
 that require explicitly selected historical or browser evidence skip when their

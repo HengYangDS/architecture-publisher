@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateSvg } from '../packages/publisher/renderers/resvg/validation.mjs';
+import { validateSvgValues } from '../packages/publisher/renderers/resvg/values.mjs';
 
 const document = (body) =>
   Buffer.from(
@@ -62,5 +63,79 @@ for (const body of [
 ]) {
   test(`SVG value admission preserves ${body.slice(0, 65)}`, () => {
     assert.equal(validateSvg(document(body), [], 100).width, 100);
+  });
+}
+
+for (const [label, tag, attributes] of [
+  ['paint references', 'rect', { fill: 'url(#ink)', stroke: 'none' }],
+  ['inherited paint and empty dash', 'path', { fill: 'inherit', 'stroke-dasharray': 'none' }],
+  [
+    'text coordinate lists and normal spacing',
+    'text',
+    { x: '1 2', y: '3,4', dx: '-1 2', 'letter-spacing': 'normal' },
+  ],
+  ['explicit angle and transform absence', 'marker', { orient: '30deg', transform: 'none' }],
+  [
+    'color functions and numeric weight',
+    'text',
+    { fill: 'rgba(1,2,3,.5)', color: 'hsl(120,50%,50%)', 'font-weight': '700' },
+  ],
+  ['none clip and version', 'svg', { 'clip-path': 'none', version: '2.0' }],
+]) {
+  test(`SVG value admission preserves ${label}`, () => {
+    assert.doesNotThrow(() => validateSvgValues(tag, attributes));
+  });
+}
+
+for (const [label, tag, attributes] of [
+  ['mixed RGB units', 'rect', { fill: 'rgb(1,20%,3%)' }],
+  ['percent alpha', 'rect', { fill: 'rgba(1,2,3,50%)' }],
+  ['hue length unit', 'rect', { color: 'hsl(45px,50%,50%)' }],
+  ['remote clip path', 'g', { 'clip-path': 'url(https://example.invalid/clip)' }],
+  ['unsupported font weight', 'text', { 'font-weight': '550' }],
+  ['font family with CSS syntax', 'text', { 'font-family': 'Alpha;bad' }],
+  ['unsupported SVG version', 'svg', { version: '3.0' }],
+  ['zero viewBox width', 'svg', { viewBox: '0 0 0 100' }],
+  ['unsupported marker orientation', 'marker', { orient: 'facing' }],
+  ['negative font size', 'text', { 'font-size': '-1' }],
+]) {
+  test(`SVG value admission rejects ${label}`, () => {
+    assert.throws(() => validateSvgValues(tag, attributes), {
+      code: 'raster_svg_value_invalid',
+    });
+  });
+}
+
+for (const [label, source, code] of [
+  ['a non-SVG root', '<g xmlns="http://www.w3.org/2000/svg"/>', 'raster_svg_unsupported'],
+  [
+    'a nested SVG root',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><svg/></svg>',
+    'raster_svg_unsupported',
+  ],
+  [
+    'an unadmitted namespace',
+    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:foreign="https://example.invalid/ns" width="100" height="100"/>',
+    'raster_svg_unsupported',
+  ],
+  [
+    'unsupported xml:space',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><g xml:space="collapse"/></svg>',
+    'raster_svg_unsupported',
+  ],
+  [
+    'CSS import syntax in an SVG value',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="@import"/></svg>',
+    'raster_svg_unsupported',
+  ],
+  [
+    'text inside a non-text element',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><g>not a label</g></svg>',
+    'raster_svg_unsupported',
+  ],
+  ['missing root', '', 'raster_svg_invalid'],
+]) {
+  test(`SVG profile rejects ${label}`, () => {
+    assert.throws(() => validateSvg(Buffer.from(source), [], 100), { code });
   });
 }

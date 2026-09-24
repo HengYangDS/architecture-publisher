@@ -193,3 +193,17 @@ test('replacement rejects post-plan destination edits and forged previous author
   invalid.replacement.authorization.planSha256 = '0'.repeat(64);
   await assert.rejects(planPairFiles(invalid), /authorization/);
 });
+
+test('replacement cannot borrow authorization from a different destination pair', async (t) => {
+  const f = await fixture(t);
+  const before = await inventory(f.options.destinations.native);
+  const input = await f.input(2, f.replacement);
+  const alternate = path.join(f.root, 'alternate-poster');
+  await fs.mkdir(alternate);
+  input.options = structuredClone(f.options);
+  input.options.destinations.native = alternate;
+
+  await assert.rejects(planPairFiles(input), /Prior plan destination identity mismatch/);
+  assert.deepEqual(await inventory(f.options.destinations.native), before);
+  assert.deepEqual(await fs.readdir(alternate), []);
+});
