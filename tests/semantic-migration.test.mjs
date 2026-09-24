@@ -5,9 +5,14 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import * as semantics from '../packages/publisher/src/semantics/document.mjs';
+import { createHash } from 'node:crypto';
+import { editionDigest, validateEdition } from '../packages/publisher/src/edition/index.mjs';
+import { validateEditionProvider } from '../packages/publisher/src/provider/index.mjs';
+import { readSourceBundle } from '../packages/publisher/src/source/index.mjs';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 test('one-shot migration preserves legacy meaning under explicit v2 choices', async () => {
   const migration = await import('../tools/migration/semantic-v1-to-claim-v2.mjs').catch(
@@ -165,4 +170,49 @@ test('the development-only migration tool is excluded from the package', () => {
   const files = parseNpmPackRecord(result.stdout).files.map((item) => item.path);
   assert(!files.some((file) => file.startsWith('tools/migration/')));
   assert(!files.some((file) => file.includes('semantic-document-v1')));
+});
+
+test('signed-release declarative fixture retains its exact v1 source and Edition meaning', async () => {
+  const fixtureRoot = path.join(root, 'tests/fixtures/providers/declarative/valid');
+  const frozen = {
+    'provider.json': '7229f5541d16aca5f9b565e5fc5721a318df320eec48588d36b8d07473ede46d',
+    'source/manifest.json': '726db625c57b644bd1fa848ed7e96e17760b7f37df389ba093f091f5328a6767',
+    'source/semantic.json': '70844a60a44f9c9ffea5fea9b251ce7c4e768dfed4bec9f08df80c0ad50b31e4',
+    'source/contract.md': '6745a600e15251de2d55276894a0afd83edd7fee2b4d8ca3cd0f426edbf290ad',
+    'edition.json': '68fa90b017ec6a7b7d62866c472fee36b24f54b59e696cfcbdbc5ee113da4efe',
+  };
+  for (const [relative, expected] of Object.entries(frozen))
+    assert.equal(sha(await fs.readFile(path.join(fixtureRoot, relative))), expected, relative);
+
+  const provider = validateEditionProvider(
+    JSON.parse(await fs.readFile(path.join(fixtureRoot, 'provider.json'))),
+  );
+  assert.equal(provider.schema, 'architecture.edition-provider/v1');
+  assert.equal(provider.subject.revision, 'release-1');
+  const source = await readSourceBundle(
+    path.join(fixtureRoot, provider.delivery.sourceManifest),
+    provider.delivery.sourceManifestSha256,
+  );
+  assert.equal(source.scope, 'source-file-integrity');
+  assert.equal(source.officialReplay, 'not-performed');
+  assert.equal(source.semanticAcceptance, 'not-performed');
+  assert.equal(source.source.revision, provider.subject.revision);
+  const semantic = source.members.find(
+    ({ path: name }) => name === provider.delivery.semanticMember,
+  );
+  const model = semantics.validateClaimModel(JSON.parse(semantic.content));
+  assert.equal(semantics.claimModelDigest(model), provider.expected.claimModelDigest);
+  const edition = validateEdition(
+    model,
+    JSON.parse(await fs.readFile(path.join(fixtureRoot, provider.delivery.edition))),
+  );
+  assert.equal(edition.source.manifestSha256, source.manifestSha256);
+  assert.equal(editionDigest(model, edition), provider.expected.editionDigest);
+  const selectedAuthoredDigest = sha('unread-authoring-reference');
+  const withLegacyAuthoredIdentity = structuredClone(edition);
+  withLegacyAuthoredIdentity.scenes.static.authoredInputSha256 = selectedAuthoredDigest;
+  assert.equal(
+    validateEdition(model, withLegacyAuthoredIdentity).scenes.static.authoredInputSha256,
+    selectedAuthoredDigest,
+  );
 });

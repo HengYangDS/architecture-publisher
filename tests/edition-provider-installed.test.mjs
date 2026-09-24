@@ -121,6 +121,13 @@ test('packed Publisher executes a relocated Provider and reclaims a rejected des
   const manifestFile = path.join(selected, 'provider.json');
   const manifestBytes = await fs.readFile(manifestFile);
   const manifest = JSON.parse(manifestBytes);
+  const providerContract = await import(
+    pathToFileURL(path.join(packageRoot, 'src/provider/index.mjs'))
+  );
+  assert.equal(
+    providerContract.validateEditionProvider(manifest).schema,
+    'architecture.edition-provider/v1',
+  );
   const commonPlan = {
     providerManifest: 'selected/provider.json',
     providerPackageRoot: 'selected/package',

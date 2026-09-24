@@ -126,6 +126,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       `tests/edition-provider-installed.test.mjs`. Version changed wire meanings;
       legacy `authoredInputSha256` remains identity-only without exception.
       Actual media-input consumption needs a separate successor-bound record.
+      Partial evidence: the current tests freeze and replay five exact files
+      from the signature-verified `v0.3.0-alpha.3` declarative fixture, retaining
+      its Source Bundle, Claim Model, Edition, and Provider meanings; a packed
+      offline installation still executes the separate v1 executable Provider.
+      Focused tests passed 7/7; static and package checks passed. The full check
+      passed 698 tests, skipped 2, and failed only the branch coverage gate at
+      92.93%. Historical Candidate/Qualification byte replay, a consumption
+      counterexample for `authoredInputSha256`, and installed successor replay
+      remain required; this task stays open.
 
 ## 3. Provider convergence
 
