@@ -170,6 +170,41 @@ case, measurable current cost and acceptance test. In particular:
 
 This preserves a small semantic kernel while leaving deliberate extension seams.
 
+## AIGW direct-framework visual counterexample (2026-09-24)
+
+A direct LikeC4 probe used AIGW `3318c81978917a0d16d6d16073d313ca78ee2736`'s
+selected `architecture/edition-provider/_source/semantic.json` (SHA-256
+`fc12aeef70916801b5bb25615b7b9db698471abc29bf4998f22b6482cf7b6672`).
+The [frozen probe](../../conformance/fixtures/research/aigw-likec4-direct.c4)
+maps its 12 entities and 11 directed relations to one overview. It retains
+selected IDs and status fields as LikeC4 metadata but intentionally omits parts
+of the source Claim Model. It is a visual baseline, **not** an equivalent
+Architecture Edition or an AIGW-owned live input.
+
+Installed LikeC4 `1.59.4` validated the probe and built a standalone
+`--output-single-file --use-hash-history` HTML (SHA-256
+`ff2fa9d931f3f194d9220db31af6be136664a2f1148a8e183dd0d9b68dc500dd`).
+Background Chrome opened that file offline at 1600 by 1000 pixels without a
+failed request or page error. The published core/layout API preserved 12
+entity IDs and 11 relation IDs in the model, but its computed view edges had
+generated IDs and no direct metadata field; an exact claim-to-visible-carrier
+mapping remains unproved. Native `likec4 export png` failed on this host because
+its expected Playwright headless-shell executable was absent; this is a local
+installed-use gap, not proof that LikeC4 cannot export PNG elsewhere.
+
+![Direct LikeC4 AIGW overview, rejected as publication-quality composition](evidence/aigw-likec4-direct.png)
+
+The direct default image (SHA-256
+`817e125610e1d17b1326fe3bc981a7e9b2f5f609d26f51203339c8855d6c4cae`)
+is a uniform blue-box graph with weak differentiation, substantial empty space,
+and no editorial treatment of authority, credential supply, guarded effects,
+or client projection. The user rejected this visual result. **Decision:** do
+not substitute LikeC4's default renderer for a release-quality AIGW Edition.
+LikeC4's versioned model, view, and layout mechanisms remain candidates for
+reuse behind a product-owned editorial composition and semantic-carrier check;
+their fit requires a styled multi-view AIGW, ETHOS, self, and unrelated-domain
+counterexample rather than a favorable two-node smoke test.
+
 ## Additional source-level comparators (2026-09-24)
 
 The following stable-tag sources were inspected through the GitHub CLI and

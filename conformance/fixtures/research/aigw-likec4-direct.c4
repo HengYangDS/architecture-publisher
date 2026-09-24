@@ -1,0 +1,32 @@
+specification {
+  element component
+  relationship communicates
+}
+model {
+  cli = component 'CLI' { metadata { semanticId 'cli' entityType 'interface' } }
+  configuration = component 'Configuration' { metadata { semanticId 'configuration' entityType 'authority' } }
+  credentials = component 'Credential store' { metadata { semanticId 'credentials' entityType 'authority' } }
+  discovery = component 'Native discovery' { metadata { semanticId 'discovery' entityType 'observer' } }
+  synchronizer = component 'Synchronizer' { metadata { semanticId 'synchronizer' entityType 'coordinator' } }
+  registry = component 'Client registry' { metadata { semanticId 'registry' entityType 'registry' } }
+  adapter_contract = component 'Adapter contract' { metadata { semanticId 'adapter-contract' entityType 'contract' } }
+  transaction = component 'Guarded transaction' { metadata { semanticId 'transaction' entityType 'boundary' } }
+  codex = component 'Codex' { metadata { semanticId 'codex' entityType 'client' } }
+  claude_code = component 'Claude Code' { metadata { semanticId 'claude-code' entityType 'client' } }
+  claude_desktop = component 'Claude Desktop' { metadata { semanticId 'claude-desktop' entityType 'client' } }
+  hermes = component 'Hermes' { metadata { semanticId 'hermes' entityType 'client' } }
+  cli .communicates synchronizer 'delegates' { metadata { semanticId 'cli-synchronizer' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+  configuration .communicates synchronizer 'configures' { metadata { semanticId 'configuration-synchronizer' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+  discovery .communicates synchronizer 'reports to' { metadata { semanticId 'discovery-synchronizer' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+  credentials .communicates adapter_contract 'supplies credentials' { metadata { semanticId 'credentials-contract' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+  synchronizer .communicates registry 'delegates' { metadata { semanticId 'synchronizer-registry' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+  registry .communicates adapter_contract 'dispatches' { metadata { semanticId 'registry-contract' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+  adapter_contract .communicates transaction 'guards' { metadata { semanticId 'contract-transaction' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+  adapter_contract .communicates codex 'realized by' { metadata { semanticId 'contract-codex' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+  adapter_contract .communicates claude_code 'realized by' { metadata { semanticId 'contract-claude-code' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+  adapter_contract .communicates claude_desktop 'realized by' { metadata { semanticId 'contract-claude-desktop' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+  adapter_contract .communicates hermes 'realized by' { metadata { semanticId 'contract-hermes' plane 'implemented' condition '{}' maturity 'implemented' validity 'affirmed' } }
+}
+views {
+  view overview { title 'AIGW client projection'; include * }
+}
