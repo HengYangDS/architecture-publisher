@@ -68,7 +68,7 @@ package versions or the old renderer-source version. Their HTML has SHA-256
 `804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa`;
 their PNGs differ. The local Documents HTML matches that later HTML, and its
 PNG matches `0.1.0-alpha.3`. Without an independently bound original
-`v0.1.0-alpha.0` asset identity, none of these later bytes may be substituted
+`v0.1.0-alpha.0` reader-media identity, none of these later bytes may be substituted
 for a broken historical link. This search narrowed candidate custody paths;
 it recovered no original asset and made no upload, deletion, or rewrite.
 
@@ -163,3 +163,20 @@ the observed time. It does not recheck the other 72 historical asset bytes,
 identify the original missing bytes, or authorize reconstruction, link
 replacement, upload, deletion, or an off-host recovery claim. No remote or
 local release resource was changed.
+
+## Signed renderer-archive identity refinement (2026-09-24 10:34 UTC)
+
+The locally verified signed `v0.1.0-alpha.0` tag contains
+`assets/raster/resvg/source.json`. It names the missing
+`architecture-raster-resvg-source/0.48.1-76f1a4a8e1d2/source.tar.xz` and
+binds the expected archive SHA-256 to
+`76f1a4a8e1d2baf726a3b4c5badc2bef32427428c131275a655b4b82aceadd1a`.
+The archived static-publishing design in that same signed tree records the
+same digest. This is a signed expected-byte identity for **one**
+missing asset, correcting any implication above that no missing asset has a
+recoverable identity. It does not show that those bytes survive locally, that
+the former package upload matched the expectation, or that the other eleven
+missing files have independently bound original identities. Targeted searches
+of the owned Publisher build trees found no `source.tar.xz` or
+`qualification.tar.xz` candidate. A later visually similar archive or reader
+file must not be uploaded as historical content without exact identity proof.
