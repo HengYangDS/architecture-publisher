@@ -144,3 +144,22 @@ the historical record and state the availability gap explicitly. Independent
 off-host disaster recovery remains governed by the separate
 [decision contract](../reference/disaster-recovery-decision-contract.md) and
 is still unproved.
+
+## Targeted repeat readback (2026-09-24 10:31 UTC)
+
+The existing authenticated `glab` route read project 1323's exact
+`v0.1.0-alpha.0` Release record again. Its twelve asset links still name the
+same three historical generic-package versions. A fresh package listing had ten
+versions and still contained none of those three. Each of the twelve linked
+package endpoints returned HTTP **404** to `HEAD`; a current
+`v0.3.0-alpha.3` checksum endpoint returned HTTP **200** as a route control.
+The check used `GLAB_NO_PROMPT=1`, closed stdin, a per-process deadline, and
+owned process-group cleanup. `glab api --method HEAD --include --silent` exits
+nonzero on a missing asset after exposing its HTTP status; the status, not its
+empty-body JSON diagnostic, is the reachability evidence.
+
+This repeat check confirms that the known alpha.0 availability gap persists at
+the observed time. It does not recheck the other 72 historical asset bytes,
+identify the original missing bytes, or authorize reconstruction, link
+replacement, upload, deletion, or an off-host recovery claim. No remote or
+local release resource was changed.
