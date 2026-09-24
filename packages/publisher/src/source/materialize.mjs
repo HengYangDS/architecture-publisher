@@ -138,8 +138,24 @@ export async function readSelectedInput(root, selection) {
   return selected;
 }
 
+/**
+ * @typedef {object} DerivedInput
+ * @property {string} claimant
+ * @property {{ id: string, version: string }} format
+ * @property {{ namespace: string, sha256: string }[]} derivedFrom
+ * @property {{ id: string, version: string, contentSha256: string }} adapter
+ * @property {string} method
+ * @property {Buffer} content
+ */
+
 /** Seal one selected meaning, independent of request-local and Provider-local handles. */
-export function sealMaterializedInputLock({ edition, sources, derived = [], media, toolchain }) {
+export function sealMaterializedInputLock({
+  edition,
+  sources,
+  derived = /** @type {DerivedInput[]} */ ([]),
+  media,
+  toolchain,
+}) {
   if (
     !edition ||
     typeof edition !== 'object' ||

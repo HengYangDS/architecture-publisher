@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { materializeBuildRequestInput } from '../packages/publisher/src/edition/index.mjs';
+import { materializeBuildRequestInput } from '../packages/publisher/src/provider/index.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -290,7 +290,7 @@ test('a pinned VCS claim remains an explicit provenance limit without Git', asyn
   }
 });
 
-test('unimplemented Provider convergence is rejected, never silently skipped', async (t) => {
+test('missing selected Provider is rejected, never silently skipped', async (t) => {
   const f = await fixture(t);
   f.request.providers.push({
     id: 'source-provider',
@@ -298,7 +298,7 @@ test('unimplemented Provider convergence is rejected, never silently skipped', a
     sha256: 'a'.repeat(64),
   });
   await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {
-    code: 'materialized_provider_pending',
+    code: 'ENOENT',
   });
 });
 

@@ -175,18 +175,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       semantic tuples while ignoring Provider-local IDs. It rejects missing or
       legacy Edition resource fields rather than silently sealing false
       equivalence. The direct result binds read methods to the exact lock
-      outside semantic identity. This is a preparatory component, not the
-      global Build Request join. Focused tests and static checks passed; the
-      current full behavior run passed 724 tests, skipped 2, with no test
-      failures. Branch coverage is 93.02% against the
-      95% release gate, so `npm run check` remains red.
+      outside semantic identity. The global Build Request join now binds
+      direct and declarative Provider sources and Edition bytes into that same
+      lock, rejects conflicting Edition owners and unselected Provider Edition
+      resources, and keeps invocation receipts outside content identity.
+      Focused tests passed 31/31; static and package checks passed. The full
+      behavior run passed 732 tests, skipped 2, with no test failures. Branch
+      coverage is 93.12% against the 95% release gate, so `npm run check`
+      remains red.
       An independently reproduced ancestor-symlink race leaves confinement
       under concurrent mutation unproved and explicitly limited; this is a
       release-blocking spec gap, not proof of escaping-input rejection. A
       bounded cap-std 4.0.3 macOS probe and alternative transport analysis are
       recorded in `docs/research/mechanism-evaluation.md`; cross-platform
       supply and a reviewed choice remain open.
-      Executable package/reply checks, global request joining, mode equivalence, CLI
+      Executable package/reply checks and joining, cross-mode equivalence, CLI
       dispatch, and closed dependencies remain open. No integration or
       publication is admitted.
       Ruling: Provider-mode Edition selection names only the selected Provider,
@@ -194,10 +197,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       filesystem root and manifest. This removes transport-specific duplicate
       locators before global joining. If wrong, the unreleased Build Request
       shape changes; historical v1 Provider meanings remain untouched. The
-      global join must reject a missing or second Provider Edition, including
-      byte-identical duplicates, and an Edition resource not bound by exact
-      selected bytes. Cross-mode identity must include those resource bytes;
-      no ambient Provider directory may supply them.
+      join rejects a missing or second Provider Edition, including byte-identical
+      duplicates, and an Edition resource not bound by exact selected bytes.
+      Cross-mode identity must include those resource bytes; no ambient Provider
+      directory may supply them.
 - [ ] 3.2 Reuse the bounded process-tree supervisor for one exact selected
       executable entry. `tests/edition-provider-executable.test.mjs` and
       `tests/edition-provider-installed.test.mjs` cover complete package-content

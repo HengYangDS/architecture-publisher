@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { materializeBuildRequestInput } from '../packages/publisher/src/edition/index.mjs';
+import { materializeBuildRequestInput } from '../packages/publisher/src/provider/index.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
