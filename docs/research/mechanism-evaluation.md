@@ -343,6 +343,37 @@ soon-to-be-deleted composition code would increase migration cost without
 improving the accepted successor; excluding retained code to manufacture a
 passing percentage would be equally invalid.
 
+### Comparable reader-question boundary (2026-09-24)
+
+A tool bake-off needs the same promised reader questions, not merely the same
+node count. The current selected source and Edition carriers have different
+levels of editorial explicitness:
+
+- **Publisher self (`d26773b`):** `editions/self/src/edition/prepare.mjs`
+  authors eight explicit questions from overview through evolution. This is a
+  usable editorial baseline, but its composition remains self-specific code.
+- **AIGW Client Projection (`ea9b600b`):** Its Edition authors four prompts:
+  overview, authority, adapters, and transaction, with eleven required claims.
+  It is one chapter; human and recovery qualification are not selected.
+- **ETHOS terminal (`709347f0`):** The view profile declares 24 aggregates and
+  seven forbidden pairings; the Atlas catalog names thirteen pages. Neither
+  selected JSON carrier declares per-page reader questions. Labels and
+  constraints aid drafting but do not endorse an inferred answer.
+- **di-effect (`8a168b6b`):** Three native LikeC4 views use `include *`; its
+  accepted decision authorizes LikeC4 and Mermaid export. The DSL states no
+  reader questions or reader-specific subsets.
+- **Full AIGW product:** No whole-product Edition is tracked under
+  `architecture/`; the current Provider owns only Client Projection. A complete
+  product candidate needs a named editor and source-bound scope decision.
+
+For feasibility probes, Publisher may state researcher-proposed questions where
+none are authored, but must label their proponent and cannot treat a good-looking
+render as source endorsement. Final adopter acceptance needs each designated
+Edition editor's exact scope and question decision. This distinction permits a
+fair direct-tool comparison for di-effect without forcing Publisher where the
+native tool already suffices, while preventing Client Projection from being
+rebranded as complete AIGW architecture.
+
 ## Structurizr native-model and export boundary (2026-09-24)
 
 GitHub API readback identified the active Apache-2.0
