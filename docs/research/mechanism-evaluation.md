@@ -250,6 +250,45 @@ output, not a standalone interactive HTML atlas. **Decision:** retain D2 and
 its qualified layouts as static backend candidates; do not treat direct D2
 output as the Edition or let tooltip metadata manufacture visible coverage.
 
+## Structurizr native-model and export boundary (2026-09-24)
+
+GitHub API readback identified the active Apache-2.0
+[Structurizr monorepo at stable `v2026.09.19`](https://github.com/structurizr/structurizr/tree/v2026.09.19)
+(`f828a297dc693e08115b7e5b51dba4a83d8148c2`, Java 21). The older
+`structurizr/cli` repository is archived; evaluating only that old CLI would
+misidentify the maintained product. This is a source-level audit, not an
+installed-run or reader-quality result.
+
+The active source contains concrete DSL parser, model/view, custom and dynamic
+view, export, autolayout, and application modules. The DSL parser
+[stores declared element and optional relationship identifiers as model-item
+properties](https://github.com/structurizr/structurizr/blob/f828a297dc693e08115b7e5b51dba4a83d8148c2/structurizr-dsl/src/main/java/com/structurizr/dsl/StructurizrDslParser.java#L1609-L1619).
+That is a useful trace carrier, but it does not by itself prove stable
+cross-revision identity or exact source-file/line provenance for every exported
+relation. A Publisher adapter would still need typed qualifier and loss checks.
+
+The inspected
+[static-site exporter](https://github.com/structurizr/structurizr/blob/f828a297dc693e08115b7e5b51dba4a83d8148c2/structurizr-application/src/main/java/com/structurizr/command/StaticSiteExporter.java#L24-L65)
+writes an `index.html` plus separate JavaScript, CSS, image, and `workspace.js`
+files; it explicitly removes workspace and element documentation because that
+static site does not support it. This route is therefore neither a proven
+single-file HTML Atlas nor a complete documentation publication. The inspected
+[`export png|svg` command](https://github.com/structurizr/structurizr/blob/f828a297dc693e08115b7e5b51dba4a83d8148c2/structurizr-application/src/main/java/com/structurizr/command/ExportCommand.java#L123-L175)
+constructs that static site and calls the
+[Playwright-backed viewer exporter](https://github.com/structurizr/structurizr/blob/f828a297dc693e08115b7e5b51dba4a83d8148c2/structurizr-application/src/main/java/com/structurizr/command/PlaywrightExporterImpl.java#L26-L74).
+That path derives static images from the browser viewer and cannot directly
+satisfy Publisher's independently composed static-medium invariant.
+
+**Disposition:** Structurizr is a serious candidate for native C4 source
+ingestion, model/view computation, and authoring conventions where the subject
+fits C4. Its direct export is not currently established as Publisher's
+standalone dual-medium publication backend. Defer any adoption decision until
+the exact released toolchain is run offline on self, ETHOS, full AIGW plus its
+Client Projection, and native di-effect with visible semantic carriers,
+documentation, output identity, accessibility, and maintenance cost measured.
+Do not make either its C4 vocabulary or browser-derived image route a universal
+architecture ontology or a substitute for the Edition editor.
+
 ## Native LikeC4 identity and editing counterexample (2026-09-24)
 
 At di-effect `8a168b6b9c6933c30ab2ea25e60cac8a54212566`, three authored
