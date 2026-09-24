@@ -503,8 +503,31 @@ all three authored `include *` views each contained 25 nodes and 35 edges;
 each view edge referenced valid model relation IDs. This demonstrates usable
 native ingestion and within-build relation trace, **not** reader-specific
 composition or actual visible semantic fidelity. The inspected export carried
-no per-relation `sourcePath` field; a finer source-span claim requires another
-mechanism or an explicit limitation.
+no per-relation `sourcePath` field. That limits JSON-only consumption, not
+LikeC4's public language-service source locations.
+
+A follow-up on 2026-09-24 used the same exact three files with LikeC4 1.59.4's
+public [`fromSources`](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/language-services/src/node/index.ts)
+API. It parsed selected in-memory strings with its language service's
+`useFileSystem` option set to false; `documentPaths()` returned exactly the
+three selected virtual files. This is document-set evidence, not observation
+of every possible ambient read. The public
+[`languageServices.locate`](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/language-server/src/LikeC4LanguageServices.ts)
+returned a file URI and LSP range for a native element, relation, and view.
+The relation range was a point location, not a full source span. The model
+again contained 25 elements, 35 relations, and four views. These locations
+must be translated to selected logical paths and byte digests; virtual or
+temporary absolute paths are not durable source identities.
+
+A cold standalone install of `@likec4/language-services@1.59.4` failed at
+module import because `@likec4/config`'s Node entry imports
+`bundle-require`, which its [package](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/config/package.json)
+declares as an optional peer. Installing that declared peer and `esbuild`
+explicitly made the in-memory probe pass; the temporary dependency tree was
+about 91 MB. The working Homebrew `likec4` installation occupied about
+130 MB. This is a measured supply/DX cost, not grounds to handwrite a DSL
+parser. A qualified LikeC4 adapter can be optional to generic Publisher
+installation; no parser dependency is yet admitted into the release.
 
 To test cross-build identity, the same three byte-identical DSL files were
 exported from two different workspace paths. All 35 semantic relation pairs
