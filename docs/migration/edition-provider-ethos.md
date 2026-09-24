@@ -1,7 +1,7 @@
 ---
 subject: ethos:edition-provider-migration
 role: handoff
-state: incumbent-observed-successor-unapproved
+state: incumbent-observed-successor-spec-reviewed
 relations:
   uses: ../reference/edition-provider.md
 ---
@@ -12,7 +12,7 @@ This packet separates the observed ETHOS v1 integration from a conditional
 successor migration. It is an input to ETHOS's own single writer, Change, and
 Work Lane. It does not authorize edits to ETHOS, acceptance of new artwork, or
 publication. The linked Provider reference describes the released v1 protocol;
-the successor specification is still awaiting written review.
+the successor specification is reviewed, but implementation and release are pending.
 
 ## Observed incumbent
 

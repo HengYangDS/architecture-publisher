@@ -3,9 +3,10 @@
 ## Status and evidence boundary
 
 This design was approved on 2026-09-24 as the baseline for revising the same
-Change's proposal and delta specifications. That approval is not approval of
-the revised specifications, implementation plan, implementation, or release.
-The former task list is superseded pending written specification review.
+Change's proposal and delta specifications. The revised written specifications
+were approved on 2026-09-24; that approval permits task planning, not
+implementation or release. The former task list remains superseded until the
+reviewed implementation plan replaces it in this Change.
 
 The selected historical baseline is the signed `v0.3.0-alpha.3` product line.
 No predecessor tag, Architecture Publisher 0.2 release, or signed artifact is

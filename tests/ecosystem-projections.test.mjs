@@ -133,34 +133,50 @@ test('provider guidance preserves one command plane and explicit ownership bound
   assert.doesNotMatch(provider, /archpub provider/u);
 
   const aigw = documents['docs/migration/aigw-edition-provider.md'];
+  const normalizedAigw = aigw.replace(/\s+/gu, ' ');
   for (const term of [
     'declarative',
     'architecture/edition-provider',
-    'four mutable values',
-    'two immutable history values',
-    'parity before removal',
-    'AIGW owns acceptance and publication',
+    'AIGW Client Projection',
+    'not the whole AIGW product',
+    'immutable history',
+    'rollback',
+    'AIGW alone decides',
   ])
-    assert.match(aigw, new RegExp(term, 'iu'), term);
+    assert.match(normalizedAigw, new RegExp(term, 'iu'), term);
+  assert.match(normalizedAigw, /it is not a Git commit/iu);
+  assert.match(
+    normalizedAigw,
+    /successor specification is reviewed, but its implementation and release are pending/iu,
+  );
+  assert.match(normalizedAigw, /no AIGW source change is authorized/iu);
 
   const ethos = documents['docs/migration/edition-provider-ethos.md'];
+  const normalizedEthos = ethos.replace(/\s+/gu, ' ');
   for (const term of [
     'executable',
-    'source adaptation',
-    'Edition authorship',
+    'adapt selected native facts',
+    'Edition editor',
     'renderer',
     'browser',
     'raster',
     'qualification',
     'review',
     'publication',
-    'Git',
     'forge',
     'governance',
-    'parity before removal',
-    'ETHOS owns lanes, proof, CAS, acceptance, and publication',
+    'Parity or an explicitly reviewed successor delta',
+    'ETHOS owns its native facts',
+    'Work Lanes',
+    'proof',
+    'CAS effects',
+    'source-product acceptance',
   ])
-    assert.match(ethos, new RegExp(term, 'iu'), term);
+    assert.match(normalizedEthos, new RegExp(term, 'iu'), term);
+  assert.match(
+    normalizedEthos,
+    /successor specification is reviewed, but implementation and release are pending/iu,
+  );
 
   const recovery = documents['docs/reference/disaster-recovery-decision-contract.md'];
   for (const term of [

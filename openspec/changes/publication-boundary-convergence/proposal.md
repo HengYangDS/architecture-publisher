@@ -92,6 +92,6 @@ The successor touches the installed input contract, source adapters, Edition
 project, derived lock, scene and renderer seams, qualification reports, public
 package surface, self-Edition, and adopter migrations. Source-side ETHOS and
 AIGW changes require their own single writers and exact installed acceptance.
-The written specifications must be reviewed before replacing this Change's
-implementation task plan. No design or syntax-validation result grants
-permission to implement or release.
+The written specifications were reviewed before replacing this Change's
+implementation task plan. That review permits planning, not implementation or
+release; a separate plan review and acceptance are required.

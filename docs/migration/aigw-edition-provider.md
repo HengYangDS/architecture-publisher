@@ -1,7 +1,7 @@
 ---
 subject: aigw:edition-provider-migration
 role: handoff
-state: v1-location-observed-successor-unapproved
+state: v1-location-observed-successor-spec-reviewed
 relations:
   uses: ../reference/edition-provider.md
 ---
@@ -10,8 +10,8 @@ relations:
 
 This packet separates an observed AIGW v1 adoption from a proposed successor
 migration. It is not AIGW authorization, acceptance, or publication. The
-successor Publisher specification is awaiting written review; no AIGW source
-change is authorized by this packet.
+successor specification is reviewed, but its implementation and release are
+pending; no AIGW source change is authorized by this packet.
 
 ## Observed v1 state
 
@@ -33,7 +33,7 @@ both direct and Provider builds, and atomically updates tracked values. This
 observation establishes the current physical location and v1 input mechanism,
 not the successor contract's acceptance, media quality, or hosted availability.
 
-## Successor boundary to review
+## Reviewed successor boundary
 
 Do **not** move the directory again merely to satisfy this packet. AIGW shall
 retain authority over its native facts, Client Projection scope, editorial
