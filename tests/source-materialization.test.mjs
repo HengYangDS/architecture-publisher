@@ -141,6 +141,17 @@ test('source identity cannot collide with the Edition accessor', async (t) => {
   assert.equal(result.readEdition().toString(), await fs.readFile(f.projectPath, 'utf8'));
 });
 
+test('request-local source selector names do not alter selected source identity', async (t) => {
+  const f = await fixture(t);
+  const first = await materializeBuildRequestInput(f.requestPath, await f.save());
+  f.request.sources[0].id = 'renamed-selector';
+  const second = await materializeBuildRequestInput(f.requestPath, await f.save());
+  assert.equal(second.lockSha256, first.lockSha256);
+  assert.deepEqual(second.lock.sources, first.lock.sources);
+  assert.equal(second.read('renamed-selector').toString(), '{"system":"first"}\n');
+  assert.throws(() => second.read('system-source'), { code: 'materialized_item_unknown' });
+});
+
 test('request list order and locator spelling do not change selected content identity', async (t) => {
   const f = await fixture(t);
   await fs.writeFile(path.join(f.root, 'sources/other.json'), '{"other":true}\n');

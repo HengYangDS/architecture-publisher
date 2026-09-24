@@ -191,7 +191,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       invocation receipts differ. Extend `tests/module-boundaries.test.mjs` to
       reject adopter-name branches and Provider imports of renderer, browser,
       qualification, publication, or governance code. Do not add a Provider
-      command tree or registry.
+      command tree or registry. Preparatory direct-mode regression confirms a
+      request-local source selector ID changes its read handle but not the
+      materialized lock digest. Focused tests passed 23/23; static and package
+      checks passed. The full test portion passed 716 tests and skipped 2,
+      while branch coverage remains 93.00% against 95%. Paired Provider mode
+      equivalence remains open; no integration or publication is admitted.
 - [ ] 3.4 Test owner-routed non-authorizing findings and Provider retirement in
       `tests/edition-provider-conformance.test.mjs`: an assertion, editorial,
       adapter, or protocol gap goes to that owner; a mutable predecessor retires

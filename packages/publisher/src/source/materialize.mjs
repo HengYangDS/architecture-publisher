@@ -165,7 +165,6 @@ export function sealMaterializedInputLock({ edition, sources, media, toolchain }
     sources: sources
       .map((source) => {
         return {
-          id: source.id,
           namespace: source.namespace,
           format: { id: source.format.id, version: source.format.version },
           claimant: source.claimant,

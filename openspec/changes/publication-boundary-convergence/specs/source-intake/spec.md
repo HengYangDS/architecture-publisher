@@ -61,6 +61,19 @@ bytes and untyped revision meaning. A successor adapter MAY annotate their
 revision as verified content, verified VCS, or attributed opaque only from an
 explicit format-specific rule, never from a hash-shaped string.
 
+A Build Request's source selector ID SHALL remain a request-local read handle,
+not part of the generated source-content identity. The materialized lock SHALL
+use the selected namespace, native format, claimant, revision evidence, and
+exact bytes; changing only a local selector name SHALL NOT create a new
+semantic source identity.
+
+#### Scenario: A local source selector is renamed
+
+- **WHEN** a Build Request changes only one source selector ID while keeping
+  its selected namespace, format, claimant, revision, and bytes unchanged
+- **THEN** its materialized input lock retains the same digest
+- **AND** the caller's read handle follows the new local ID
+
 #### Scenario: A content-derived revision resembles a Git object
 
 - **WHEN** a Provider reports a SHA-256 revision derived from Publisher-canonical
