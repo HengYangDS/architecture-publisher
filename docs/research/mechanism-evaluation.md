@@ -205,6 +205,30 @@ reuse behind a product-owned editorial composition and semantic-carrier check;
 their fit requires a styled multi-view AIGW, ETHOS, self, and unrelated-domain
 counterexample rather than a favorable two-node smoke test.
 
+## ETHOS source-owned abstraction counterexample (2026-09-24)
+
+At ETHOS `87bbb0d68fc20034e80d8772d86410cb0b0dc0d3`, the selected
+`system/projections/terminal-architecture/semantic-graph.json` has 113 nodes
+and 164 edges (SHA-256
+`6725c589f4f68201b2e1ce099ccc9cfc2b9087411ff34c9ad5d40629a73f629c`).
+Its source-owned `view-profile.json` (SHA-256
+`c548c2afb2a8186860382b57f64876d1c8d718c87973071da11e4c1c925afb5e`)
+declares 24 aggregates, a projection for every node and edge, seven forbidden
+aggregation-kind pairs, and no omitted graph member. All 113 nodes have
+`contained` projections; 82 edges are `contained` within aggregates and 82
+remain `direct`. These counts describe authored selection, not proof that the
+rendered media visibly or correctly realizes it.
+
+This is a counterexample to the current generic Edition v1 rule that a complete
+overview must display every raw model entity and relation. A readable overview
+can be complete for its reader question through explicit, source-owned
+abstraction while retaining a total trace from each underlying member. A
+successor contract must distinguish direct representation, containment,
+approved aggregation, and explicit omission without importing ETHOS-specific
+aggregate names or treating the view profile as a second source of product
+truth. The general contract and its user experience remain design hypotheses
+until AIGW, ETHOS, self, and unrelated-domain workloads are tested.
+
 ## Additional source-level comparators (2026-09-24)
 
 The following stable-tag sources were inspected through the GitHub CLI and
