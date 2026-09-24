@@ -88,6 +88,69 @@ test(
   },
 );
 test(
+  'CoreText rejects ambiguous font identity and request volume before reading selected tools',
+  { skip: process.platform !== 'darwin' },
+  async () => {
+    const measure = await api();
+    const base = {
+      compiler: { path: '/not-selected', sha256: '0'.repeat(64) },
+      sdk: { path: '/not-selected', settingsSha256: '0'.repeat(64) },
+      fonts: [
+        {
+          id: 'regular',
+          path: '/not-selected',
+          sha256: '0'.repeat(64),
+          postscript: 'Selected-Regular',
+          cascade: [],
+        },
+      ],
+      requests: [{ text: 'Selected label', size: 12, font: 'regular' }],
+      output: '/not-selected/output',
+    };
+    for (const [name, mutate] of [
+      ['duplicate font ID', (p) => p.fonts.push(structuredClone(p.fonts[0]))],
+      ['empty font ID', (p) => (p.fonts[0].id = '')],
+      ['empty PostScript name', (p) => (p.fonts[0].postscript = '')],
+      ['self cascade', (p) => (p.fonts[0].cascade = ['regular'])],
+      ['unknown cascade', (p) => (p.fonts[0].cascade = ['missing'])],
+      ['duplicate cascade', (p) => (p.fonts[0].cascade = ['missing', 'missing'])],
+      ['duplicate request', (p) => p.requests.push(structuredClone(p.requests[0]))],
+      ['oversized label', (p) => (p.requests[0].text = 'x'.repeat(20001))],
+      [
+        'aggregate text budget',
+        (p) =>
+          (p.requests = Array.from({ length: 211 }, (_, i) => ({
+            text: 'x'.repeat(19990) + String(i).padStart(5, '0'),
+            size: 12,
+            font: 'regular',
+          }))),
+      ],
+    ]) {
+      const plan = structuredClone(base);
+      mutate(plan);
+      await assert.rejects(measure(plan), { code: 'coretext_plan_invalid' }, name);
+    }
+  },
+);
+test(
+  'CoreText refuses non-directory SDK and output parents before compiling',
+  { skip: process.platform !== 'darwin' },
+  async (t) => {
+    const measure = await api(),
+      f = await setup(t);
+    const sdkFile = structuredClone(f.plan);
+    sdkFile.sdk.path = f.plan.fonts[0].path;
+    await assert.rejects(measure(sdkFile), { code: 'coretext_sdk_invalid' });
+
+    const occupiedParent = path.join(f.dir, 'not-a-directory');
+    await fs.writeFile(occupiedParent, 'foreign');
+    const outputParent = structuredClone(f.plan);
+    outputParent.output = path.join(occupiedParent, 'metrics');
+    await assert.rejects(measure(outputParent), { code: 'output_parent_invalid' });
+    assert.equal(await fs.readFile(occupiedParent, 'utf8'), 'foreign');
+  },
+);
+test(
   'CoreText measures actual glyph bounds and records explicitly selected font runs',
   { skip: process.platform !== 'darwin' },
   async (t) => {
