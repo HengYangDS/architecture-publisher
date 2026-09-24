@@ -250,6 +250,49 @@ output, not a standalone interactive HTML atlas. **Decision:** retain D2 and
 its qualified layouts as static backend candidates; do not treat direct D2
 output as the Edition or let tooltip metadata manufacture visible coverage.
 
+## Shipped Archify capability versus Publisher use (2026-09-24)
+
+The packed, hash-checked Archify supply is version `2.16.0` at source
+`c826e6c3a7abad19c0f3cd1ca57207d54b1ad8de` in
+`packages/publisher/renderers/archify/supply/supply.json`. Its shipped
+architecture schema and runtime implement optional guided views, finite trace
+motion, cards, a grid layout, source references, repository links, themes, and
+visual presets. This is a concrete renderer capability inventory, not a claim
+that each feature improves every Edition.
+
+The current backend-neutral `architecture.interactive-scene/v1` already fixes
+node positions and sizes. Its generic compiler lays groups into rows with
+fixed 170-pixel cells, 70-pixel gaps, and 210-pixel group spacing. The Archify
+adapter forwards nodes, regions, and routes, but fixes `locale=en`,
+`quality_profile=showcase`, `visual_preset=editorial`, and a hidden legend. It
+does not select native views, cards, grid layout, or trace motion. The public
+native renderer explicitly rejects `repository` and node `sources` fields in
+offline input. These facts are visible in
+`packages/publisher/src/scene/interactive/architecture.mjs`,
+`packages/publisher/renderers/archify/architecture.mjs`, and
+`packages/publisher/renderers/archify/index.mjs`; they identify both
+Publisher-owned constraints and unused native facilities, not an Archify
+failure.
+
+The native facilities also have real limits. The shipped schema caps guided
+views at five, node source references at three, accepts only a GitHub URL and
+40-hex revision for its repository link, and offers only `grid` as its
+architecture layout mode. Those cannot represent ETHOS's complete 13-page
+Atlas, arbitrary multi-source/content-derived revision evidence, or a
+flagship composition merely by toggling options. Animation is a finite reader
+aid, not an observed runtime trace. Cards or hidden view metadata cannot
+manufacture visible source coverage.
+
+**Disposition:** retain Archify as one qualified interactive-renderer
+candidate, not a semantic authority or forced universal presentation. A
+successor may expose only Editor-selected preset, locale, legend, guided
+chapter, card, or motion controls whose exact medium and accessibility tests
+pass; it must not pass adopter-specific or unverified provenance directly to
+Archify. Compare its native grid and interaction with LikeC4/D2 and the
+current Publisher composer on the same reader questions before replacing a
+layout owner. Use the richer feature only when it removes actual adopter work
+without weakening source binding, independent media, or flagship quality.
+
 ## Structurizr native-model and export boundary (2026-09-24)
 
 GitHub API readback identified the active Apache-2.0
