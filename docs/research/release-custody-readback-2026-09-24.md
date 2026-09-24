@@ -53,6 +53,25 @@ that these archives are disposable. Four files in the current
 from these ten Release records, but other consumers and retention obligations
 have not been excluded. No package or Release was changed or deleted.
 
+## Follow-up recovery search (2026-09-24 09:31 UTC)
+
+A fresh bounded, no-prompt GitLab API read still listed ten current package
+versions and none of the three missing historical versions above. The signed
+`v0.1.0-alpha.0` tag resolves locally to commit
+`3963abbf931484b170996e538dce58d945981e8e`; a project-1323 pipeline
+query for that exact commit returned no pipeline. This does not rule out jobs
+under another commit, old project, or retained external backup.
+
+The available `0.1.0-alpha.1` and `0.1.0-alpha.3` recovery manifests contain
+994 and 1,001 declared files respectively. Neither manifest names the missing
+package versions or the old renderer-source version. Their HTML has SHA-256
+`804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa`;
+their PNGs differ. The local Documents HTML matches that later HTML, and its
+PNG matches `0.1.0-alpha.3`. Without an independently bound original
+`v0.1.0-alpha.0` asset identity, none of these later bytes may be substituted
+for a broken historical link. This search narrowed candidate custody paths;
+it recovered no original asset and made no upload, deletion, or rewrite.
+
 ## Consequence and repair bar
 
 The `v0.1.0-alpha.0` Release record and signed tag exist, but its twelve linked
