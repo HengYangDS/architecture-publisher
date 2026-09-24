@@ -424,6 +424,7 @@ test('mixed declarative and executable Providers share one selected-input identi
   const alpha = await prepareExecutableAlpha(f);
   const mixed = await f.materialize();
   assert.equal(mixed.lockSha256, declarative.lockSha256);
+  assert.notDeepEqual(mixed.invocations, declarative.invocations);
   assert.deepEqual(mixed.readSource('org.example/alpha'), alpha.native);
   assert.deepEqual(
     mixed.invocations.map(({ delivery }) => delivery),
@@ -461,6 +462,7 @@ test('mixed declarative and executable Providers share one selected-input identi
   f.request.edition = { kind: 'provider', provider: 'alpha-selection' };
   const executableEdition = await f.materialize();
   assert.equal(executableEdition.lockSha256, declarative.lockSha256);
+  assert.notDeepEqual(executableEdition.invocations, declarative.invocations);
   assert.equal(
     executableEdition.readEvidence.items.find(({ kind }) => kind === 'edition').method,
     'provider-input-sha256/v2',
@@ -490,6 +492,7 @@ test('direct, declarative, and executable Edition resources share exact identity
   await fs.writeFile(selectedPalette, palette);
   const declarative = await f.materialize();
   assert.equal(declarative.lockSha256, direct.lockSha256);
+  assert.notDeepEqual(declarative.invocations, direct.invocations);
 
   await prepareExecutableAlpha(f);
   const editionBytes = Buffer.from(JSON.stringify(f.project) + '\n');
@@ -513,6 +516,8 @@ test('direct, declarative, and executable Edition resources share exact identity
   alpha.manifest.delivery.editionResourceInputs = [{ ref: 'palette.json', input: 'palette' }];
   const executable = await f.materialize();
   assert.equal(executable.lockSha256, direct.lockSha256);
+  assert.notDeepEqual(executable.invocations, direct.invocations);
+  assert.notDeepEqual(executable.invocations, declarative.invocations);
   assert.deepEqual(executable.readEditionResource('palette.json'), palette);
   assert.equal(
     executable.readEvidence.items.find(({ kind }) => kind === 'edition-resource').method,

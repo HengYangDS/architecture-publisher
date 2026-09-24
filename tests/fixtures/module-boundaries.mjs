@@ -162,6 +162,8 @@ const selectedProviderModules = new Set([
   'packages/publisher/src/provider/manifest.mjs',
   'packages/publisher/src/provider/selection-contract.mjs',
 ]);
+const adopterPattern = /\b(?:ethos|aigw)\b|@example\/architecture-edition-provider/iu;
+
 const historicalProviderModules = new Set([
   'packages/publisher/src/provider/contract.mjs',
   'packages/publisher/src/provider/declarative.mjs',
@@ -195,11 +197,6 @@ export function inspectModuleBoundaries(
   const owner = owners.find(([prefix]) => file.startsWith(prefix));
   const resourceOwner = resourceOwners.find(([prefix]) => file.startsWith(prefix)) ?? owner;
   if (!owner) issue(null, 'unknown module owner');
-  if (
-    file.startsWith('packages/publisher/src/') &&
-    /\b(?:ETHOS|AIGW)\b|@example\/architecture-edition-provider/u.test(source)
-  )
-    issue(null, 'generic source names adopter identity');
   let ast;
   try {
     ast = parse(source, {
@@ -249,6 +246,11 @@ export function inspectModuleBoundaries(
 
   function visit(node) {
     if (!node || typeof node !== 'object') return;
+    if (
+      file.startsWith('packages/publisher/src/') &&
+      adopterPattern.test(node.type === 'Identifier' ? node.name : (literal(node) ?? ''))
+    )
+      issue(node, 'generic source names adopter identity');
     if (
       ['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration'].includes(node.type) &&
       node.source

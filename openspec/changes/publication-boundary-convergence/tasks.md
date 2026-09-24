@@ -242,18 +242,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       bytes remain identical. This is macOS installed-input evidence, not a
       Candidate build, complete dependency observation, or native Linux/Windows
       conformance.
-- [ ] 3.3 In `tests/edition-provider-conformance.test.mjs`, prove equivalent
-      selected contents have identical materialized identities across modes while
-      invocation receipts differ. Extend `tests/module-boundaries.test.mjs` to
-      reject adopter-name branches and Provider imports of renderer, browser,
-      qualification, publication, or governance code. Do not add a Provider
-      command tree or registry. Preparatory direct-mode and lock-sealer tests
-      confirm local source IDs affect only read handles, two distinct
-      namespaces may reuse a local ID, and changed revision evidence changes
-      identity. The installed self-portrait fixture was refreshed after its
-      selected semantic-contract source changed; static and interactive scene
-      digests stayed unchanged. Paired Provider mode equivalence remains open;
-      no integration or publication is admitted.
+- [x] 3.3 Prove identical selected-input lock identity and distinct invocation
+      receipts across direct, declarative, executable, and mixed selections in
+      `tests/provider-join.test.mjs`, the sole successor cross-mode fixture.
+      Keep `tests/edition-provider-conformance.test.mjs` for the historical v1
+      profile rather than duplicating that fixture. The module-boundary gate
+      rejects Provider imports of renderer, browser, qualification,
+      publication, or governance code and rejects case-insensitive adopter
+      literals in generic source without treating comments as dependencies.
+      The focused cross-mode and boundary suite passed 23/23. Static checks,
+      OpenSpec validation, and package validation passed; the full behavior
+      run passed 746 tests, skipped 2, but branch coverage remains 93.06%
+      against 95%. This task proves selected-input equivalence only, not
+      installed successor qualification or permission to integrate or publish.
 - [ ] 3.4 Test owner-routed non-authorizing findings and Provider retirement in
       `tests/edition-provider-conformance.test.mjs`: an assertion, editorial,
       adapter, or protocol gap goes to that owner; a mutable predecessor retires

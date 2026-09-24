@@ -205,12 +205,13 @@ test('Provider worker admits only its exact selected dynamic entrypoint', async 
 test('provider and generic kernels reject forbidden dependency directions and adopter names', async () => {
   const { paths } = await inventory(runtimeRoots);
   const packageExports = await declaredPackageExports();
-  for (const specifier of [
-    'architecture-publisher/renderers/archify',
-    'architecture-publisher/qualification',
-    'architecture-publisher/publication',
-    'simple-git',
-    '../../../../../ethos/src/index.mjs',
+  for (const [specifier, reason] of [
+    ['architecture-publisher/renderers/archify', 'forbidden dependency'],
+    ['../../renderers/archify/supply/assets/template.html', 'forbidden dependency'],
+    ['architecture-publisher/qualification', 'forbidden dependency'],
+    ['architecture-publisher/publication', 'forbidden dependency'],
+    ['simple-git', 'declared external'],
+    ['../../../../../ethos/src/index.mjs', 'dependency escapes repository'],
   ])
     assert(
       inspectModuleBoundaries(
@@ -218,10 +219,10 @@ test('provider and generic kernels reject forbidden dependency directions and ad
         `import ${JSON.stringify(specifier)};`,
         paths,
         packageExports,
-      ).length,
+      ).some(({ reason: actual }) => actual.includes(reason)),
       specifier,
     );
-  for (const name of ['ETHOS', 'AIGW', '@example/architecture-edition-provider'])
+  for (const name of ['ETHOS', 'ethos', 'AIGW', 'aigw', '@example/architecture-edition-provider'])
     assert(
       inspectModuleBoundaries(
         'packages/publisher/src/compiler/invalid.mjs',
@@ -231,6 +232,25 @@ test('provider and generic kernels reject forbidden dependency directions and ad
       ).some(({ reason }) => reason.includes('adopter identity')),
       name,
     );
+  for (const name of ['ETHOS', 'ethos', 'AIGW', 'aigw'])
+    assert(
+      inspectModuleBoundaries(
+        'packages/publisher/src/compiler/invalid.mjs',
+        `export const ${name} = null;`,
+        paths,
+        packageExports,
+      ).some(({ reason }) => reason.includes('adopter identity')),
+      name,
+    );
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      'packages/publisher/src/provider/invalid.mjs',
+      '// ETHOS is an example, not a dependency.\nexport const provider = null;',
+      paths,
+      packageExports,
+    ),
+    [],
+  );
 });
 
 test('selected Provider modules cannot import historical Provider implementations', async () => {
