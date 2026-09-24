@@ -35,6 +35,65 @@ packed code. A tracked-reference search found no Publisher production import
 of the other exports, but that does not prove absence of external consumers.
 This inventory is not per-file deletion authorization.
 
+### Read-only responsibility map
+
+The incumbent paths mix owners within modules, so a successor must split
+responsibilities before deleting files:
+
+- `src/adapter/projection.mjs`, `semantics.mjs`, and the ETHOS-specific parts of
+  `src/edition/evolution.mjs`, `bindings.mjs`, and `predicates.mjs` interpret
+  native projection identities, qualifiers, allowed groupings, and visible
+  meaning. Their **semantic responsibility** stays with ETHOS, even if a new
+  Provider expresses it through a smaller adapter.
+- `src/edition/authoring/**`, `static/authoring/**`, the Edition-owned JSON
+  policies, `static/natural-*`, `static/effect-matrix.mjs`,
+  `static/trace-scene.mjs`, `reader.mjs`, `typography.mjs`, `annotations.mjs`,
+  `passport.mjs`, `resource-comparison.mjs`, `verification-details.mjs`,
+  `write-boundary.mjs`, and `fonts.mjs` carry selected flagship expression
+  and ETHOS-specific checks. Preserve the editor's decisions and exact visual
+  obligations; the incumbent implementation files need not survive unchanged.
+  The Atlas catalog names 13 pages; neither it nor the selected view profile
+  authors per-page reader questions. Current `evolution.mjs` instead generates
+  default prompts from page labels. The named Edition editor must explicitly
+  confirm or revise those defaults for the successor, not infer endorsement
+  from labels alone. This does not invalidate the historical v1 Edition.
+- `src/provider.mjs` currently derives a Claim Model, creates an Edition, and
+  uses Publisher Source Bundle writing. `src/adapter/import.mjs` runs the
+  selected native Git/Python exporter and also packages its output;
+  `src/adapter/input.mjs` adds path selection. Retain only
+  necessary source-specific extraction and attributed transformation; move
+  generic lock, packing, and digest maintenance to Publisher after successor
+  parity. An executable Provider remains a selected code-execution boundary.
+- `src/edition/atlas.mjs`, `poster.mjs`, `outline.mjs`, and `standalone.mjs`
+  combine ETHOS art direction with generic rendering and output assembly.
+  Separate those concerns: Publisher owns reusable composition/rendering
+  mechanics, while ETHOS retains its exact narrative, forbidden
+  simplifications, target-design notice, and required media quality.
+- `src/edition/input.mjs`, `candidate.mjs`, `atlas-output.mjs`, `browser*.mjs`,
+  `review*.mjs`, `static-artifact.mjs`, and `publication.mjs` combine generic
+  path, Candidate, observation, qualification, and local-file mechanics with
+  some source-specific predicates. Move the generic stages, not ETHOS's policy
+  decisions. `src/runtime.mjs` inventories the whole extension package; prove
+  whether the successor's exact package-content binding supersedes this role.
+
+Within these groups, `derive*` in `static/effect-matrix.mjs`, `passport.mjs`,
+`resource-comparison.mjs`, `verification-details.mjs`, and
+`write-boundary.mjs` interprets ETHOS contracts and source text; that domain
+meaning stays with ETHOS or its named editor. Their `apply*` functions, and
+`reader.mjs`/`typography.mjs` template cleanup, navigation, camera, export,
+and layout patches, mix selected ETHOS copy with reusable backend mechanics.
+Keep the selected copy and constraints; replace generic template/interaction
+mechanics at Publisher's renderer boundary only after exact media parity.
+Do not transplant those mixed modules wholesale into either product.
+
+Current tracked ETHOS consumers of the four package exports are its
+architecture tests and integration README; an external-consumer absence claim
+is unproved. `tests/architecture/support/publisher.mjs` imports `adapter`,
+`edition`, and `runtime`, while Provider tests import `provider`. These tests
+must migrate with any public-surface retirement. The map is a responsibility
+inventory, not a removal plan or proof that Publisher can already replace the
+incumbent flagship.
+
 At an earlier reviewed ETHOS source, the v1 Provider's structural selection
 grouped entities by type, routed relations straight from right to left, and
 used `authoredInputSha256` as an identity without the generic compiler consuming
@@ -65,7 +124,7 @@ state. Its package location is an ETHOS ownership decision, not a prescribed
 `provider/` subdirectory. Selecting executable adaptation is a code-execution
 trust decision; process-tree cleanup is not an adversarial sandbox.
 
-Preserve ETHOS-specific reader questions, approved aggregates and forbidden
+Preserve ETHOS-specific reader-question decisions, approved aggregates and forbidden
 simplifications, Lane cooperation/competition/experimentation/all-drop
 semantics, target-versus-observed notices, and flagship art direction in
 ETHOS-owned authoring or source-specific checks. Do not move generic packing,

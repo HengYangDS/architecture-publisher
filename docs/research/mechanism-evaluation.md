@@ -357,8 +357,10 @@ levels of editorial explicitness:
   It is one chapter; human and recovery qualification are not selected.
 - **ETHOS terminal (`709347f0`):** The view profile declares 24 aggregates and
   seven forbidden pairings; the Atlas catalog names thirteen pages. Neither
-  selected JSON carrier declares per-page reader questions. Labels and
-  constraints aid drafting but do not endorse an inferred answer.
+  selected JSON carrier authors per-page reader questions. Current
+  `src/edition/evolution.mjs` generates default Edition prompts from page
+  labels. Those prompts are incumbent code-authored defaults, not a separate
+  question policy in the selected JSON; their successor use needs editor review.
 - **di-effect (`8a168b6b`):** Three native LikeC4 views use `include *`; its
   accepted decision authorizes LikeC4 and Mermaid export. The DSL states no
   reader questions or reader-specific subsets.
