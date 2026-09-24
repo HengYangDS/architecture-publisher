@@ -312,6 +312,18 @@ function git(repo, ...args) {
   return result.stdout.trim();
 }
 
+async function vcsFixture(t) {
+  const f = await fixture(t);
+  const repo = path.join(f.root, 'repo');
+  await fs.mkdir(repo);
+  git(repo, 'init', '-q');
+  git(repo, 'config', 'user.name', 'Fixture');
+  git(repo, 'config', 'user.email', 'fixture@example.invalid');
+  f.request.sources[0].revision = { kind: 'vcs', repository: 'repo', ref: 'HEAD' };
+  f.request.sources[0].input.path = 'system.json';
+  return { f, repo };
+}
+
 test('VCS locator reads the selected object and never falls back to HEAD', async (t) => {
   const f = await fixture(t);
   const repo = path.join(f.root, 'repo');
@@ -354,6 +366,40 @@ test('VCS locator reads the selected object and never falls back to HEAD', async
   assert.deepEqual(replay.read('system-source'), selected);
 });
 
+test('a selected VCS path missing from the commit is never read from the worktree', async (t) => {
+  const { f, repo } = await vcsFixture(t);
+  await fs.writeFile(path.join(repo, 'elsewhere.json'), '{}\n');
+  await fs.writeFile(path.join(repo, 'system.json'), '{"system":"unselected"}\n');
+  git(repo, 'add', 'elsewhere.json');
+  git(repo, 'commit', '-qm', 'selected');
+  await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {
+    code: 'materialized_vcs_object_unavailable',
+  });
+});
+
+test('a selected VCS tree is not treated as a source file', async (t) => {
+  const { f, repo } = await vcsFixture(t);
+  await fs.mkdir(path.join(repo, 'system.json'));
+  await fs.writeFile(path.join(repo, 'system.json', 'part.json'), '{}\n');
+  git(repo, 'add', 'system.json/part.json');
+  git(repo, 'commit', '-qm', 'selected');
+  await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {
+    code: 'materialized_vcs_type_unsupported',
+  });
+});
+
+test('a selected VCS symlink blob is not followed or treated as a regular file', async (t) => {
+  const { f, repo } = await vcsFixture(t);
+  await fs.writeFile(path.join(repo, 'target.txt'), 'target.txt');
+  const blob = git(repo, 'hash-object', '-w', 'target.txt');
+  git(repo, 'update-index', '--add', '--cacheinfo', '120000', blob, 'system.json');
+  git(repo, 'commit', '-qm', 'selected');
+  assert.match(git(repo, 'ls-tree', 'HEAD', '--', 'system.json'), /^120000 blob /u);
+  await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {
+    code: 'materialized_vcs_type_unsupported',
+  });
+});
+
 test('a missing selected VCS repository is reported as an input failure', async (t) => {
   const f = await fixture(t);
   f.request.sources[0].revision = {
@@ -365,6 +411,33 @@ test('a missing selected VCS repository is reported as an input failure', async 
   await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {
     code: 'materialized_vcs_repository_invalid',
   });
+});
+
+test('an ordinary file cannot be selected as a VCS repository', async (t) => {
+  const f = await fixture(t);
+  await fs.writeFile(path.join(f.root, 'repo'), 'not a repository\n');
+  f.request.sources[0].revision = { kind: 'vcs', repository: 'repo', ref: 'HEAD' };
+  f.request.sources[0].input.path = 'system.json';
+  await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {
+    code: 'materialized_vcs_repository_invalid',
+  });
+});
+
+test('a VCS locator fails closed when no external Git executable is available', async (t) => {
+  const f = await fixture(t);
+  await fs.mkdir(path.join(f.root, 'repo'));
+  f.request.sources[0].revision = { kind: 'vcs', repository: 'repo', ref: 'HEAD' };
+  f.request.sources[0].input.path = 'system.json';
+  const expected = await f.save();
+  const oldPath = process.env.PATH;
+  try {
+    process.env.PATH = f.root;
+    await assert.rejects(materializeBuildRequestInput(f.requestPath, expected), {
+      code: 'materialized_vcs_unavailable',
+    });
+  } finally {
+    process.env.PATH = oldPath;
+  }
 });
 
 test('a source-owned request can select its own repository root', async (t) => {
