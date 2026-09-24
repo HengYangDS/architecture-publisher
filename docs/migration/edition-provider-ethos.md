@@ -50,6 +50,36 @@ Publisher's own self-Edition uses a separate source-owned flagship composition
 and public Publisher primitives; ETHOS may follow that boundary without
 extending Provider v1 or downgrading its artwork.
 
+## Current incumbent inventory and disposition
+
+At the later read-only ETHOS `709347f0ce0965e6a338aa5128c60c4d3f4044a8`
+checkpoint, `integrations/architecture-publisher/` has 78 tracked files: five
+adapter modules (538 lines), two Provider/runtime modules (100 lines), 31
+Edition modules (9,841 lines), 37 non-code Edition files (20,049 lines), and
+three package/metadata files (107 lines). These mechanical counts indicate
+migration surface, not quality or necessary retained size. The two
+`static/natural-*` modules alone contain 3,588 lines; their ETHOS-specific
+abstraction and visual decisions must not simply be transplanted into a
+generic Publisher kernel.
+
+The package currently exports `provider`, `adapter`, `edition`, and `runtime`
+and includes all of `src/` in its packed supply. The terminal Provider export
+is already only `materializeEditionProvider`, but the other public exports
+remain live in ETHOS's installed integration tests; Publisher's operations
+guide names them. A tracked-reference search found no Publisher production
+import of those three exports. This does not prove absence of external
+consumers, and removing export names alone would not remove their packed code.
+
+Retain ETHOS projection interpretation, source-specific claims, reader
+questions, omissions, and accepted flagship art direction as ETHOS-owned
+inputs. Retire or replace source-side packing, derived identity maintenance,
+generic rendering, browser execution, qualification admission, standalone
+packaging, and local publication effects only after Publisher's installed
+public path proves the same exact obligations. A source-specific verifier or
+composition rule may remain with ETHOS, but it must be identified as such
+rather than moved wholesale into Publisher or hidden behind a compatibility
+facade. This inventory is not a per-file deletion authorization.
+
 ## Migration sequence
 
 1. Open one ETHOS-owned Change and one owned Work Lane; use ETHOS prewrite,
