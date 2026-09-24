@@ -1,366 +1,389 @@
 # Design
 
-## Context
+## Status and evidence boundary
 
-See [proposal.md](proposal.md) for the reason for this change. The selected
-baseline is the signed `v0.3.0-alpha.3` product line; this design does not amend
-that tag, Architecture Publisher 0.2, or any earlier release byte.
+This is a revised design candidate, not approval to implement. It replaces the
+previous source-product-owned Edition design in this Change. The current
+proposal, delta specifications, and task list must be reconciled with this
+candidate after review; OpenSpec syntax validation of those older artifacts
+is not design acceptance.
 
-The current public chain distinguishes Source Bundle, Claim Model, Edition,
-Scene, Artifact, Qualification, and Publication. That separation is valuable,
-but it does not justify preserving each custom implementation. In particular:
+The selected historical baseline is the signed `v0.3.0-alpha.3` product line.
+No predecessor tag, Architecture Publisher 0.2 release, or signed artifact is
+rewritten. The read-only cases used to challenge this design are Publisher
+`8e758ec`, ETHOS `87bbb0d68`, AIGW `3318c819`, and di-effect `8a168b6b9`.
+The di-effect checkout had an unrelated dirty `.serena/project.yml`; this
+review did not modify it.
 
-- `packages/publisher/src/compiler/edition.mjs` selects JetBrains Mono and a
-  2400-pixel raster width; `renderers/archify/architecture.mjs` selects one
-  editorial preset; `scene/interactive/architecture.mjs` uses fixed 170-pixel
-  cells; and `edition/contract.mjs` rejects a group with more than eight
-  entities. Those are implementation decisions, not universal architecture
-  facts or source-owned Edition choices. The current `semantic-publication`
-  specification also states a universal 6000-pixel PNG, so its scope and the
-  generic 2400-pixel build must be reconciled rather than called equivalent.
-- The generic build changes identities when `authoredInputSha256` changes but
-  does not consume the corresponding authoring bytes. The existing Provider
-  reference documents this limit; the successor must not leave a dependency
-  name that appears to promise more than the builder proves.
-- `docs/product-contract.md` is an exact self-Edition source and current tests
-  bind it, the recovery decision contract, and migration documents. Document
-  ownership correction therefore changes source and Candidate identities; it
-  is not a path-only cleanup.
-- ETHOS and AIGW already own their live Provider/Edition inputs. Their
-  repository governance, authorization, artifact release, and future source
-  edits remain outside this Work Lane.
+The observed pressure is specific:
 
-A read-only audit at ETHOS `bfd94ffa` and AIGW `3318c819` identified the same
-source/derived-state confusion. ETHOS's optional integration has 38 JavaScript
-modules and 10,479 lines; only four modules and 893 lines are statically
-reachable from its Provider entry point. The other modules still serve
-migration exports and tests, so reachability is a migration boundary, not
-proof that deletion is safe now. AIGW's 621-line materializer updates source
-digests and Edition sealing fields, writes generated Provider state back into
-its repository, and retains 14 selected Go source files under `_source`.
-These are exact-HEAD observations, not an assertion about later source state.
+- AIGW's current Client Projection is a limited Edition, not a whole-product
+  architecture. Its selected model has 12 entities and 11 relations; its
+  source-side materializer and Edition are 621 and 517 lines. Line count is
+  not a quality score, but source-side authoring cost is a product acceptance
+  measure, not an adopter problem to ignore.
+- ETHOS's selected terminal graph has 113 nodes and 164 edges. Its view profile
+  declares 24 aggregates, explicit forbidden aggregation pairs, and rules
+  that hidden IDs or metadata do not earn visible semantic coverage. A complete
+  reader view need not draw every raw node, and a total ID mapping is not proof
+  that an abstraction says the right thing.
+- di-effect already owns three LikeC4 files totalling 102 lines. On installed
+  LikeC4 1.59.4, a copy of those files validated and exported a computed model
+  with 25 elements, 35 relations, and four views. Each computed view edge
+  carried source-model relation IDs within that build. Yet the three authored
+  `include *` views and generated index each contained the same 25 nodes and
+  35 edges, so native export alone did not perform reader-specific editing.
+  An exact copy of the same DSL at another workspace path changed all 35
+  generated relation IDs;
+  adding one relation within the same path changed three pre-existing IDs.
+  Those are bounded local probes, not a full upstream conformance verdict.
+  LikeC4's
+  [`EdgeModel.relationships()`](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/core/src/model/view/EdgeModel.ts)
+  confirms within-build relation links;
+  the inspected JSON export did not provide per-relation source paths.
+- Direct LikeC4 export of the AIGW subset preserved useful model/view
+  machinery but the default blue-box publication was visually rejected.
+  Replacing a custom renderer with a framework default does not satisfy the
+  product's reader-quality promise.
 
-Source inspection on 2026-09-24 covered exact tagged implementations of
-[LikeC4 1.59.4](https://github.com/likec4/likec4/tree/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5),
-[Structurizr 2026.09.19](https://github.com/structurizr/structurizr/tree/f828a297dc693e08115b7e5b51dba4a83d8148c2),
-[D2 0.9.0](https://github.com/d2lang/d2/tree/d5a51743b6d5c00f1ec6f8340003f5d5a6ba4eda),
-and [Kroki 0.32.1](https://github.com/yuzutech/kroki/tree/99f285a0d50c3882e20dc449b63c5358aa889b83),
-plus the pinned Archify supply. This was a source-level mechanism review, not
-a passing upstream suite, a visual comparison, or proof of integration fit.
+These observations and their source-level comparators are recorded in
+`docs/research/mechanism-evaluation.md`. The new probe can be repeated by
+copying di-effect's three `tools/likec4/models/*.c4` files to an isolated
+workspace and using `likec4 validate --json` and
+`likec4 export json --skip-layout`; it does not require modifying di-effect.
 
-## Goals / Non-Goals
+## Product job and non-negotiable invariants
 
-**Goals:**
+Architecture Publisher is a native-model-first architecture editing and
+publication tool. It helps an editor turn attributable system knowledge into
+clear, professional static and interactive works and maintain those works at
+low cost as sources change. Its irreducible value is the combination of
+reader-oriented abstraction, medium-specific composition, visible traceability,
+scoped quality evidence, and regeneration. It is not a repository governor, a
+truth oracle, a general ontology, a traffic service, or merely a diagram
+converter.
 
-- Keep only irreducible Publisher obligations in the product: preserving
-  explicit source meaning and editorial selection, binding exact artifacts to
-  predicate-specific evidence, and executing only authorized recoverable local
-  effects.
-- Replace accidental implementation complexity with qualified mature
-  frameworks or standards wherever they satisfy the same consumer, semantic,
-  offline, and recovery contracts at lower total ownership cost.
-- Make regeneration after a source revision conservative and low-cost: selected
-  views update deterministically, layout drift is observable, and no prior
-  approval or omitted meaning is silently reused.
-- Make current documents, public APIs, and physical code owners reflect the
-  product's actual semantic boundary without creating a parallel authority.
+An architecture publication is necessarily selective. The correct invariant is
+not that every domain detail appears in every image. It is that every visible
+assertion has an identified claimant and evidence basis; each promised reader
+question has explicit coverage or an explicit limit; and a lossy abstraction
+never masquerades as semantic equivalence. Source bytes can be acquired and
+bound exactly while their interpretation remains contested or unknown.
 
-**Non-Goals:**
+The following constraints are non-compensating:
 
-- Preserve custom code, Archify, or the current directory tree merely because
-  it exists; replace or delete an incumbent when the selected foundation wins.
-- Declare LikeC4, D2, Structurizr, or any other framework an all-or-nothing
-  competitor. Their mechanisms can be composed at distinct boundaries.
-- Add a source-product intent store, repository lifecycle, diagram editor,
-  plugin marketplace, hosted renderer service, or operator-wide DR control
-  plane to Publisher.
-- Execute independent off-host disaster recovery before the operator selects
-  destination, custody, retention, encryption, and bounded credentials.
-- Change ETHOS or AIGW files from the Publisher Work Lane.
+1. No downstream artifact, model adapter, rendered line, test result, or file
+   location grants authority over source facts or product acceptance.
+2. No editable duplicate of an adopter's native model is required merely to
+   satisfy Publisher's internal representation. Derived indices and scenes are
+   disposable.
+3. A mapping from source IDs to graphic carriers proves traceability only.
+   Domain validity, editorial adequacy, and actual visible expression are
+   distinct predicates.
+4. Static and interactive media share selected meaning and claim identities,
+   not coordinates, DOM, screenshots, or approvals.
+5. A normal maintainer must be able to obtain a readable, complete-for-its-
+   question baseline without writing a renderer, duplicating the model, or
+   specifying pixel geometry. Flagship art direction may require refinement.
+6. Ordinary build and preview do not require ETHOS, Git, network access,
+   hosted services, local installation, or source-product release authority.
+7. The same public path must build Publisher's self-Edition and unrelated
+   adopters. A hidden self-only renderer is not evidence of generic ability.
 
-## Decisions
+## Alternatives and selection
 
-### 1. One authority per fact, not one repository for every concern
+| Approach                                                   | Advantage                                                                      | Disqualifying limit or condition                                                                                                                  |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Use a mature architecture platform directly                | Lowest cost when its native views and output already satisfy the reader        | It may not bind mixed sources, editorial claims, independent media, or evolution obligations; Publisher should not interpose without added value. |
+| Thin evidence wrapper around a diagram tool                | Small implementation and strong artifact binding                               | Leaves abstraction, geometry, two-media editing, and updates to the adopter; useful as a component, insufficient as the target product.           |
+| Universal architecture ontology and automatic art director | Attractive single input story                                                  | Conflates distinct domain relations, makes false equivalence claims, and creates unbounded implementation and maintenance cost. Rejected.         |
+| Native-model-first editorial workbench                     | Separates source truth from editor and compiler work; can reuse mature engines | Recommended only if four real workloads prove lower authoring and update cost without semantic or visual regression.                              |
 
-| Concern                                                                | Authoritative owner                                  | Publisher responsibility                                                         |
-| ---------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Accepted product meaning and source revision                           | Source product                                       | Validate the selected Claim Model and disclose loss or uncertainty.              |
-| Claims, questions, omissions, visual intention, authored media         | Source product and its Edition Authoring             | Validate selected meaning; never invent a claim or editorial decision.           |
-| Source/semantic digests and sealed Edition identity                    | Publisher derivation from exact selected inputs      | Bind exact bytes without editing authored meaning or granting acceptance.        |
-| Modeling, view computation, layout, rendering, accessibility mechanics | Qualified framework or backend selected by Publisher | Own the integration contract, exact version, supply, and conformance.            |
-| Candidate and predicate-specific observations                          | Publisher contracts and the relevant verifier        | Bind exact subjects, evidence, verifier, scope, and limits.                      |
-| Acceptance, Git/forge release, artifact custody                        | Source product                                       | Emit non-authorizing outputs; never advance source refs or claim hosted release. |
-| Local pair installation and interrupted-effect recovery                | Publisher                                            | Apply only an exact externally authorized plan.                                  |
-| Independent off-host restore policy and credentials                    | Operator                                             | Supply a decision-ready contract for Publisher's own protected set only.         |
+The recommendation is conditional, not protection of sunk effort. If a mature
+platform plus a thin adapter passes the exact ETHOS, full AIGW, di-effect, and
+self-use acceptance cases with less total ownership cost, reduce Publisher to
+that adapter or discontinue the custom core. A custom mechanism must have a
+named failing mature alternative and a narrower ownership cost.
 
-The cross-product Authority Matrix remains an interface boundary record in
-Publisher, not a unilateral statement of another product's live state. ETHOS
-may define portable managed-repository recovery obligations; each adopter owns
-its release inventory; the operator owns actual off-host custody. Moving one
-current DR file wholesale to ETHOS would conflate these three decisions.
+## Authority by role, not repository
 
-### 2. Framework-first admission, with deletion of a displaced owner
+One actor or repository may hold several roles; co-location does not merge
+their authority. For an Edition spanning multiple products, none of its source
+repositories silently becomes editor, accepter, or custodian for the others.
 
-For each mechanism, start with the best maintained standard, library, or
-framework that fits the language and delivery environment. Compare repair,
-direct adoption, partial adoption, interchange, and deletion against one frozen
-consumer workload. Custom code is admissible only when a recorded
-counterexample shows that qualified mature options lose required semantics,
-trust, portability, artifact quality, or total lifecycle cost. Sunk effort and
-current passing tests are not reasons to retain an incumbent.
+| Concern                                                        | Authority or accountable role                                      | Publisher can establish                                                             | Publisher cannot infer                                        |
+| -------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Native model, domain schema, and source claim                  | Source or format owner; a claimant is named per assertion          | Exact selected bytes, format/version, reference and declared claimant               | That a maintained statement is implemented or true            |
+| Import mapping and supported constructs                        | Adapter owner, with source review when official                    | Adapter identity, recognized constructs, structural preservation, reported loss     | Domain equivalence from an opaque extension                   |
+| Reader question, scope, abstraction, narrative, art direction  | Edition editor                                                     | Selection consistency, trace and declared transformation checks; editing assistance | Editorial adequacy or source endorsement                      |
+| Universal input, Edition, Candidate and qualification protocol | Publisher                                                          | Versioned shape, derived identities, provenance, finite generic predicates          | Authority over domain-specific vocabularies                   |
+| Observation of implementation or rendered behavior             | Predicate-specific verifier                                        | Exact subject, verifier, method, result and limits                                  | Independence merely because a report is signed or exported    |
+| Acceptance and release decision                                | Designated accepter under the relevant product or editorial policy | Bind the decision to an exact Candidate and named policy                            | Approval from a green build or co-located file                |
+| Artifact custody and retention                                 | Selected custodian                                                 | Authorized local plan/apply/recover mechanics and receipt                           | Forge publication, off-host recovery, or indefinite retention |
 
-The comparison uses three source-owned cases: Publisher self-use, ETHOS's
-flagship and Lane semantics, and AIGW's materially different provider and
-evolution. Every candidate must be checked on:
+A maintainer may review their own work where the selected policy permits it.
+A source maintainer's approval of a design statement is not proof of deployed
+behavior; an independent verifier is required only for predicates whose policy
+requires a separate trust domain. An editor may publish independent analysis,
+but new editorial assertions are attributed to the editor and cannot appear as
+source-approved facts. Official multi-source endorsement must identify each
+endorsing source explicitly.
 
-1. lossless mapping of identity, relation direction, plane, qualifiers,
-   provenance, coverage, omissions, and unknown meaning;
-2. source revision and view-update behavior, including removal, rename,
-   contradiction, drift, and all-drop cases;
-3. independent static and interactive compositions, complete overviews,
-   deterministic output, reader quality, and accessibility;
-4. offline installed use on supported hosts, exact dependency closure,
-   package size, license, security and maintenance posture;
-5. subject/verifier/authorization separation, output identities, recovery,
-   rollback, and the cost of removing displaced code.
+ETHOS may supply optional managed-repository lifecycle, scaffold, acceptance,
+and release governance for any participant. It does not own the Publisher
+protocol, and Publisher must work equally for unmanaged AIGW, di-effect, or a
+standalone Edition project.
 
-Hard semantic and trust constraints are non-compensating. A prettier diagram
-cannot offset a lost claim; faster layout cannot offset an unbounded runtime.
-Among candidates that pass the hard constraints, select the lowest measured
-total cost, including migration, supply, tests, upgrade, repair, and eventual
-exit. Retain one default owner per mechanism. A second engine is admitted only
-for a distinct, named consumer and must not be a permanent fallback for an
-unresolved default decision.
+## Versioned input and Edition contract
 
-| Candidate                                                                                                                                                             | Source-observed useful mechanism                                                                                                                                                                                                              | Integration stance and required proof                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [LikeC4](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/core/src/compute-view/compute-view.ts)                               | A model API, computed element/deployment/dynamic views, and [layout reuse with current non-layout data](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/core/src/manual-layout/applyCachedLayout.ts). | **Primary direct-integration candidate** for model/view/layout and possibly interactive media. Test its published core, layouts, and diagram packages as actual dependencies. It may replace custom owners, including internal Claim Model processing, if a single derived representation preserves all public semantics; it is not restricted to a cosmetic adapter. Prove independent standalone HTML and static output before selecting its full rendering stack. |
-| [Structurizr](https://github.com/structurizr/structurizr/blob/f828a297dc693e08115b7e5b51dba4a83d8148c2/structurizr-core/src/main/java/com/structurizr/Workspace.java) | Explicit model, views, and documentation in one Workspace.                                                                                                                                                                                    | Compare as a model/view foundation and interchange target. Test ontology fit, Java/runtime supply, and whether its [static export](https://github.com/structurizr/structurizr/blob/f828a297dc693e08115b7e5b51dba4a83d8148c2/structurizr-application/src/main/java/com/structurizr/command/StaticSiteExporter.java) preserves the selected reader content; do not assume C4 levels fit every subject.                                                                 |
-| [D2](https://github.com/d2lang/d2/blob/d5a51743b6d5c00f1ec6f8340003f5d5a6ba4eda/d2lib/d2.go)                                                                          | Layout-engine selection, board/scenario/step composition, and bounded geometry reuse.                                                                                                                                                         | Compare direct renderer/layout adoption against LikeC4 and current Archify. A diagram script is derived view data, not source intent. Test portable supply and independent-media fidelity.                                                                                                                                                                                                                                                                           |
-| Archify                                                                                                                                                               | Checked standalone HTML and geometry diagnostics in the currently pinned supply.                                                                                                                                                              | Retain as a real candidate, not a sacred dependency. Test its exact source closure and visual result against alternatives; retire displaced bundled code after parity.                                                                                                                                                                                                                                                                                               |
-| [Kroki](https://github.com/yuzutech/kroki/blob/99f285a0d50c3882e20dc449b63c5358aa889b83/server/src/main/java/io/kroki/server/service/DiagramRegistry.java)            | Type/format conversion registry and cache.                                                                                                                                                                                                    | Consider its backend-admission pattern or an optional explicit delivery adapter. Do not require a resident service for offline core use without a named consumer.                                                                                                                                                                                                                                                                                                    |
-| Published standards and libraries                                                                                                                                     | JSON Schema/Zod for structural validation, Playwright plus axe-core for browser accessibility, mature SVG/raster/layout packages, and in-toto/DSSE-style evidence exchange.                                                                   | Evaluate each at its exact responsibility. Preserve necessary cross-field semantic checks and authorization; a standard envelope never grants acceptance. Prefer replacing equivalent custom code to merely wrapping it.                                                                                                                                                                                                                                             |
+Publisher owns a small, versioned _publication interchange_ protocol because
+it is the receiving product. Source and standard maintainers own their native
+formats and semantics. An Edition editor owns the instance of Publisher's
+versioned authoring contract. Publisher-generated locks, seals, Candidate
+identities, and qualification reports are derived records, not fields that a
+source author must refresh by hand.
 
-The inspected npm metadata shows LikeC4's `@likec4/core` 1.59.4, layouts
-1.59.4, and diagram 1.59.4 are separately published MIT packages; diagram
-brings a substantial React/XYFlow dependency graph. These package manifests
-are supply inputs, not proof of installed portability, bundle size, or reader
-quality. `@resvg/resvg-js`, `@axe-core/playwright`, and `@viz-js/viz` are
-separate maturity candidates, not preapproved dependencies. A queried
-`@in-toto/attestation` npm package did not exist at the observed registry
-endpoint; the standard must not be equated with that invented package name.
+The authored Build Request selects:
 
-### 3. Source-owned authoring compiles once into a sealed Edition
+- one or more exact source items, each with a source namespace, native format
+  identifier and version, selected revision/time basis, locally available
+  exact bytes, a content-addressed locator, and declared claimant;
+- one Edition project root with audience, reader questions, scope, selected
+  source references or queries, declared exclusions and transformations,
+  narrative, static/interactive expectations, and optional visual overrides;
+- output media and a selected qualified toolchain profile.
 
-The Edition v1 validator requires `product.version`,
-`source.manifestSha256`, and `claimModel.digest` in the source-supplied value.
-Provider v1 also selects already sealed Edition bytes. This is why AIGW's
-materializer mutates an authored Edition with Publisher version and hashes,
-and why ETHOS computes a Source Bundle in its Provider before it can author an
-Edition. Moving either script to another directory would preserve the error.
+The Edition project may live in the source repository, a separate editorial
+repository, or a standalone directory. This changes neither source authority
+nor the acceptance owner. Source items may be LikeC4, Structurizr, a native
+ETHOS graph, AIGW source-supported architecture material, the historical
+Publisher Claim Model, or another admitted format. Unstructured documents and
+code can yield _extraction candidates_ with exact references, not automatically
+accepted architecture facts. The current Claim Model remains an admitted input
+format for historical consumers; it is not a mandatory second editable model
+for all successors. A declaration of source ownership is attribution, not
+proof that the named owner endorsed the input. The Build Request selects
+exactly one Edition project root across direct and Provider-supplied inputs;
+ambiguous or conflicting selections fail rather than being implicitly merged.
 
-Reject two apparent shortcuts: keep v1 and accumulate source-product sealing
-scripts, or move ETHOS/AIGW semantics into Publisher. The selected successor
-instead has one direction:
+The successor Provider contract is transport only. Declarative and bounded
+executable modes materialize the same closed selected-input envelope: source
+items and, if co-owned, an optional Edition project item. A separate Build
+Request may combine several Providers with an independent Edition project.
+For an explicitly paired logical input, the modes must yield the same normalized
+selected contents and source references; their invocation receipts may differ.
+Executable-generated material identifies its derivation and cannot masquerade
+as unchanged native source bytes. The reply protocol rejects rendered media,
+acceptance, and publication claims. Executable mode sanitizes inherited
+environment and configuration and supervises the ordinary process tree; it is
+not an OS, filesystem, network, or native-credential-access sandbox. Selecting
+an executable Provider is a distinct code-execution trust decision.
+Declarative mode selects exact portable files without executing adopter code.
+Both converge before one `archpub edition build` entry point; there is no
+Provider command tree, discovery registry, or second lifecycle state machine.
+Provider ownership follows the item it transports, not a mandatory rule that
+it be housed in one source repository.
 
-```text
-Source-owned claims + exact source selection + Edition Authoring
-  -> Provider v2 (declarative or bounded executable; same authored values)
-  -> Publisher source/semantic validation and identity sealing
-  -> sealed Claim Model and Edition v2 -> Candidate -> Qualification
-  -> source-product acceptance and artifact custody
-```
+Each admitted adapter resolves or declares its actual input closure, including
+native includes, resources, scripts, and external references. Build-qualified
+inputs must be fully selected and locally available; an unselected file,
+environment substitution, or network read fails or remains explicitly
+unqualified for reproducible/offline use. The Publisher-generated lock records
+the consumed closure, adapter/backend versions, fonts and other supplies,
+toolchain configuration, and Edition bytes, not merely top-level entry files.
+Historical v1 manifests and signed outputs retain their old meanings and bytes;
+a SemVer successor does not reinterpret them in place.
 
-Edition Authoring owns audience, questions, claim selection, omissions,
-narrative, independent media compositions, visual policy, and selected authored
-bytes. It does not contain Publisher version, generated source/semantic digests,
-Candidate identity, or acceptance. Publisher may add only exact derived
-identities and diagnostics to the sealed values. A source byte change without
-a selected new source revision and applicable semantic review must fail or
-remain an unaccepted proposal; recomputing its hash never proves that old
-claims still hold. The sealed Edition is a non-editable projection, not a
-parallel source of intent.
+## Import, identity, and semantic limits
 
-Provider v2 must materialize the same authored values in declarative and
-executable modes. ETHOS may keep a small pure executable projector if its
-native terminal projection genuinely requires transformation; if it can emit
-the same authored values declaratively without duplicating authority, prefer
-that simpler mode. AIGW's current authored Claim Model and Edition content can
-remain source-owned, but a portable Source Bundle and Provider receipt belong
-to the generated/release side, not as a second tracked copy of source code.
-The public Provider v1 and Edition v1 remain truthful for exact historical
-replay until current consumers migrate. No v1 field is reinterpreted to mean
-authoring, and no new command plane is introduced.
+For each admitted native format, one adapter declares recognized constructs,
+source-reference quality, supported transformations, and unsupported fields.
+The imported representation is a derived view-compilation index, not a general
+semantic database or new editable authority. Native bytes and format identity
+remain attached. An opaque construct is retained as opaque and diagnosed when
+an Edition asks Publisher to reason about it; preserving a JSON blob is not
+understanding it. No adapter may silently turn ordering, state transition,
+permission, causation, or authority into an undifferentiated arrow.
 
-A mature engine may replace internal storage, view computation, or rendering;
-its model is a derived, disposable representation, never another editable
-product truth.
+Within one source revision, a native engine's relation IDs may map view edges
+back to its model relations. Across a relocation or revision, generated IDs
+are not automatically stable. Use source-defined stable IDs when available;
+otherwise bind revision-scoped locators and report matching confidence.
+Ambiguous rename, split, merge, duplicate relation, or moved-source matching
+requires explicit editor lineage and applicable review. Rehashing after a
+source edit does not make an old claim current.
 
-An adapter must report an exact mapping table from each required claim and
-relation to the engine's elements, links, view predicates, and emitted carriers.
-If the engine lacks a qualifier, explicit omission, unknown state, or source
-binding, the adapter must fail or preserve it in a separately checked carrier;
-it may not silently flatten the distinction. Rewriting all source products
-into a vendor DSL merely to make the engine run is not adoption. Conversely,
-if the mature model carries the complete semantics, remove the parallel custom
-model-processing owner rather than maintaining two full model engines.
+Multi-source identity is `(source namespace, native reference, revision)`, not
+label equality. Cross-source joining, comparison, or synthesized relations are
+explicit editorial/domain assertions with named proponents. A composition
+cannot infer `A -> C` from `A -> B -> C` or turn an existential member relation
+into a universal group relation. Aggregations declare their particular claim
+(e.g. containment, some-member flow, all-member invariant), affected source
+references, and any source-owned forbidden pairs. Publisher checks finite
+structural and declared rules; source-specific semantic adequacy remains a
+scoped proof or review question.
 
-### 4. Regeneration is a declared selection plus visible drift
+A conflict between selected sources, or between target and implemented planes,
+may be the subject of an Edition. Broken input and self-contradictory
+transformation declarations block the affected Candidate; attributable source
+disagreement does not. Concealment or silent resolution of disagreement is
+forbidden. Public media must visibly distinguish target, current observation,
+editorial proposal, and unresolved difference where that distinction changes
+reader interpretation.
 
-Extend the existing Edition/Scene contract rather than adding another editable
-view registry. A source-owned Edition declares semantic selection and exclusions,
-reader questions, media-specific composition constraints, and design grammar.
-Publisher computes each selected view from the current exact Claim Model. New,
-removed, or changed relevant claims trigger explicit coverage and view deltas.
-Unknown dependencies broaden review; auto-layout may move geometry but cannot
-approve changed meaning. Manual layout or authored geometry carries the exact
-semantic and layout-affecting input identity; stale layout is diagnosed and
-either recomputed under the selected engine or returned for author review.
+## Editorial composition and media
 
-Static and interactive media share meaning and coverage, not coordinates or
-DOM. Both require complete overview scenes, while additional interactive pages
-may expand complete mechanisms. Source-owned visual choices determine font,
-palette, visual preset, spacing policy, and selected bounded output dimensions.
-Generic compilation may provide a documented neutral default for a structural
-Edition, but not a hidden ETHOS or Publisher house style. A structural output
-must still pass declared readability and accessibility checks; flagship adds
-its source-owned art direction and exact human review.
+The default authoring loop is import, inspect, state reader questions and
+forbidden simplifications, receive explainable grouping/view candidates,
+accept or edit one Edition project, preview both media, and refine local
+constraints. An accepted machine suggestion becomes an edit in the same
+Edition project, not a parallel auto-generated intent store. Baseline authoring
+must not require duplicating labels and relations, writing hundreds of lines
+of geometry, or implementing a renderer. A full canvas/WYSIWYG design suite is
+not required; declaration plus immediate visual preview and bounded local
+adjustments is the initial product surface.
 
-Existing v1 `authoredInputSha256` remains identity-only: it must not be
-reinterpreted as proof that bytes were read. For a successor scene whose
-authored bytes affect media, the build selects those bytes by path and digest,
-the scene compiler consumes them, and the Candidate records that consumption.
-A non-rendering identity is named and documented as such in the selected
-contract; it cannot satisfy media provenance or visual acceptance. Existing
-consumers migrate by exact parity or an explicitly reviewed semantic
-successor, not by an in-place reinterpretation.
+The Edition project selects _what_ matters and may constrain _how_ it must be
+expressed. Publisher supplies reusable neutral composition patterns, spacing,
+typography, hierarchy, contrast, and layout assistance. Semantic role, domain
+classification, and visual shape remain separate: a database icon cannot
+assert that an AIGW authority is a database. Source or editor can provide
+visual vocabulary and flagship art direction without changing source facts.
+Generic defaults must earn reader quality; they are not a license for uniform
+boxes, excessive blank space, or hidden-only coverage. Manual art direction is
+an override of a qualified baseline, not the price of entry.
 
-### 5. Qualification and effects stay narrow while mechanics are reused
+Static and interactive scenes compile independently from the same selected
+semantic obligations. A static overview may use carefully chosen aggregates
+and visible relational text; interactive pages may reveal mechanisms and
+source traces without downgrading their own complete reader questions. Each
+medium has separate geometry, accessibility, artifact identity, quality
+observations, and applicable human review. Raw imported files and private
+source bytes are not embedded in public HTML by default. The editor and
+custodian choose disclosure; Publisher checks the declared output inventory
+and performs no ambient source publication.
 
-Use framework-native validators for their declared syntax/layout scope and
-mature browser accessibility tools for their actual WCAG predicates. Keep
-Publisher's distinct checks for source binding, coverage, semantic-carrier
-equivalence, artifact identity, installed/offline behavior, and recovery. A
-human visual decision remains bound to the exact artifact and viewport. A
-machine pass cannot claim human approval; an attestation format cannot claim
-independent execution merely because it is signed.
+A visible assertion must be linked to a source or editorial claim, and every
+required claim for that medium must have a visible carrier for coverage to
+pass. An omission changes that medium's editorial scope and requires a new
+judgment that the promised reader question is still answered; it cannot keep
+the old complete-coverage claim. A limited Edition may be published with its
+limit explicit. Metadata, hover-only content, or hidden element IDs do not
+satisfy static visual coverage. A carrier map is necessary for tracing, not
+sufficient proof that the actual words and shapes communicate the claim.
 
-Publisher's `publish` operation remains a bounded filesystem plan/apply/recover
-effect after caller authorization. It does not create Git commits, forge
-Releases, or product acceptance. Self-Edition assets live in Publisher's own
-release; ETHOS and AIGW choose versioned custody in their source-product
-release systems. Generated PNG/SVG/HTML/Candidate bytes are not mutable source
-truth. The off-host DR document can specify Publisher's own protected set and
-restore acceptance, while operator selections and adopter-specific inventories
-stay with their owners.
+## Framework admission and deletion
 
-### 6. Physical structure follows a demonstrated semantic owner
+Use the best maintained mature mechanism for each bounded responsibility,
+without treating a framework's default diagram as a finished Edition. LikeC4
+is a real candidate for native ingestion, model/view computation, and layout
+reuse; its `EdgeModel.relationships()` exposes relation links within a build.
+Its generated IDs need a separate cross-revision identity strategy and its
+default AIGW visual failed publication-quality review. Structurizr is a
+model/view alternative where C4 semantics fit. D2, Archify, SVG/raster
+libraries, layout engines, Playwright, and axe-core are candidates at their
+actual layout, rendering, or observation boundaries. Kroki's conversion
+registry is not by itself a semantic publishing engine.
 
-Keep the current root as one private development workspace and one generic
-published package unless a measured consumer requires further package splits.
-The current `source`, `semantics`, `edition`, `scene`, `compiler`, `rendering`,
-`qualification`, `publication`, and `provider` directories are candidate
-owners, not a preservation rule. After selecting a mature foundation, replace
-the corresponding custom owner and its tests in the same bounded migration;
-do not retain facade imports, duplicate validators, or a second layout engine
-for compatibility without a real external obligation.
+Run a frozen workload bake-off on self, ETHOS, the whole AIGW product plus its
+Client Projection chapter, and native di-effect. Test direct framework use,
+a thin evidence wrapper, and the editorial workbench path on the same reader
+questions. Hard requirements are exact source identity, no hidden domain
+reinterpretation, truthful omissions/conflicts, two independent usable media,
+offline installed use, bounded effects, and accessibility. Among candidates
+that pass, compare adopter-authored lines/decisions, time to first acceptable
+work, update work after one source delta, output quality, dependency closure,
+license, upgrades, repair, and exit cost. Keep one selected owner per
+mechanism. Delete displaced custom owner and duplicate tests after parity;
+do not wrap a new engine around an unchanged old engine indefinitely.
 
-Reduce public exports only after auditing and migrating self, ETHOS, and AIGW
-consumers. Utility functions such as generic error, record, and path helpers
-should not remain in source-domain exports merely because one Edition imports
-them. The public API should expose deliberate product contracts and selected
-backend capabilities, not implementation conveniences.
+No current evidence establishes one winning complete backend stack. The
+versioned Publisher protocol and Edition intent should survive backend
+replacement. Publisher-generated vendor representations and layout geometry
+are derived carriers; an authored native DSL remains authoritative for its
+declared source meaning.
 
-ETHOS retains its five native terminal-projection documents and any Edition
-authorship that truly expresses its architecture. After Publisher can compile
-and qualify the same selected meaning, retire the integration's generic
-renderer, browser, publication, recovery, and migration exports; keep only a
-necessary pure semantic projector and source-owned Edition material. AIGW
-retains authored claims, Edition composition, and source selection; produce
-portable source bytes, sealed manifests, and parity receipts during its own
-build/release rather than tracking another copy of its Go source. Retire its
-materializer only when Publisher's public operation replaces its necessary
-behavior and the AIGW owner accepts the source-side migration. Source-owned
-does not mandate that every derived byte physically live in a source repo.
+## Change, qualification, acceptance, and custody
 
-`docs/product-contract.md` should contain generic product meaning, authority,
-inputs, outputs, and limits. Remove historical workline planning and
-ETHOS-specific view requirements from that canonical file. Transfer SDD,
-COMET, SpecD, AgentSpec, and related repository-governance findings to ETHOS's
-existing research owner through its single writer; retain only Publisher-use
-consequences and architecture-publication comparisons here. Retire stale
-source-product migration status prose after the adopter's own record and
-immutable handoff receipt are confirmed. Preserve Git history and source URLs;
-do not copy an active policy into two repositories.
+After input materialization, closed-input validation, and dependency locking,
+Publisher's compiler derives Candidates from selected source revisions,
+Edition project, and qualified toolchain without authorizing publication.
+Executable Provider materialization is a separate code-execution boundary;
+process-tree supervision alone does not make it side-effect-free or sandboxed.
+The evolution report separates source-byte changes, supported meaning changes,
+unknown/uninterpreted changes, editorial selection changes, media changes,
+and packaging-only changes. Each triggers only its applicable rebuild and
+review predicates; uncertainty broadens obligations, while irrelevant changes
+do not force meaningless redraws. No previous acceptance transfers merely
+because a hash is updated. An acceptance policy may explicitly allow new-byte
+acceptance using strong unchanged-meaning/unchanged-visual evidence; the
+Publisher reports that evidence but does not grant the policy or decision.
 
-## Risks / Trade-offs
+Qualification distinguishes source binding, structural carrier trace,
+declared transformation checks, domain/predicate verification, actual visual
+readability, browser behavior, accessibility, installed/offline behavior,
+recovery, and human editorial assessment. Each result names exact subject,
+verifier, method, scope, and limit. One result never impersonates another.
+Automated geometry and accessibility tests do not prove faithfulness or taste;
+a single human may serve as author and reviewer where policy permits.
 
-- **Vendor model loses qualifiers or explicit omissions** -> Run losslessness
-  counterexamples before selecting it; reject that mapping or retain one narrow
-  checked semantic layer rather than hiding loss.
-- **A mature UI framework increases supply and maintenance cost** -> Measure the
-  installed dependency closure, self-contained HTML, startup, memory, licenses,
-  vulnerabilities, and native-host behavior; adopt only after hard predicates
-  and total-cost comparison pass.
-- **Art direction regresses under automatic layout** -> Keep independent
-  source-owned media compositions and visual review. Let an engine solve
-  geometry, not substitute for editorial judgment.
-- **Two modeling or rendering authorities survive migration** -> Require
-  incumbent deletion, consumer migration, and import/reference closure before
-  declaring the replacement complete.
-- **Sealing silently refreshes stale claims** -> Bind a source-owner-selected
-  revision and authored meaning before hashing; changed bytes create new review
-  obligations, not automatic acceptance or an edited authoring file.
-- **Document relocation changes accepted self-publication identity** -> Freeze
-  the prior signed artifacts; bind the successor Candidate to changed source
-  bytes and obtain fresh applicable qualification and human review.
-- **External framework updates drift** -> Pin exact package versions and
-  portable content identity, qualify upgrades independently, and preserve a
-  rollback path without retaining mutable duplicate implementations.
-- **Operator DR is mistaken for product recovery** -> Label independent
-  off-host restore `unproved` until the selected failure domain, retention,
-  encryption, credential, and clean-host rehearsal are real.
+The Candidate contains independently openable reader artifacts and a portable
+provenance/quality manifest, not the entire private source bundle. The accepter
+decides whether to publish it, and the selected custodian owns release assets,
+retention, withdrawal, and readback. Publisher's `publish` remains an optional
+bounded local filesystem install/replace/recover effect after exact external
+authorization; preview and export do not depend on that effect. It does not
+advance Git refs, create Forge Releases, certify hosted availability, or own an
+adopter's artifact retention. Publisher's own off-host DR remains a separate
+operator decision requiring destination, custody, retention, encryption,
+credential, and clean-host restore acceptance; this Change supplies the
+contract, not an unapproved implementation.
 
-## Migration Plan
+## Contract counterexamples and migration order
 
-1. Freeze the exact accepted Publisher, self-Edition, ETHOS, and AIGW consumer
-   identities. Classify every affected current path and artifact as authority,
-   derived output, historical evidence, or disposable residue. Preserve all
-   signed historical releases byte-for-byte.
-2. Establish executable RED cases for v1 authored/sealed field mixing, AIGW's
-   automatic source-digest refresh, ETHOS's Provider-time Source Bundle write,
-   the authored-input gap, fixed style and dimension leakage, source
-   revision/view drift, and an independent non-ETHOS Edition. Baseline current
-   flagship static and interactive identities separately.
-3. Run the framework-admission comparison on the frozen three-product workload.
-   Publish the exact candidate versions, adapters, results, license/supply
-   findings, rejected alternatives, and selected owners in the existing
-   Change. The outcome may combine LikeC4 model/view computation, another
-   qualified renderer, and standard validators; framework names are not
-   mutually exclusive votes.
-4. Specify and implement Provider v2 and Edition Authoring-to-seal behavior in
-   the existing Publisher command plane, then integrate only the selected
-   replacement mechanisms. Migrate the self-Edition first, delete displaced
-   custom owners, and demonstrate semantic equivalence or an explicit reviewed
-   successor. Source-product adapters remain owned by their separate Work Lanes.
-5. Hand the source-authoring contract and deletion map to ETHOS and AIGW's
-   single writers. Replace each source-side incumbent only after exact
-   installed semantic and media acceptance or a reviewed successor; do not
-   commit derived source snapshots as current product truth. Correct Publisher
-   documents at their semantic owner, hand SDD research to ETHOS without a
-   second active copy, scope Publisher DR to its own recovery, and rebuild and
-   qualify the changed self-Edition.
-6. Qualify semantic, package, installed/offline, native-platform, browser,
-   accessibility, recovery, human-review, and publication predicates against
-   the exact final artifacts. Meet the repository's at-least-95% coverage
-   floor. Publish a SemVer successor and changelog only after source-product
-   custody and remote readback are independently accounted for.
-7. Roll back by selecting the previous immutable release and its exact source
-   and publication receipts. Do not rewrite a prior tag, relax authorization,
-   or preserve a second current implementation as an indefinite fallback.
+Before the old specifications become implementation tasks, make these cases
+executable at the contract boundary:
 
-The existing spec deltas and task list were drafted before this revised
-authoring-to-seal decision and require a reviewed versioned-contract update.
-This document is a proposed architecture, not evidence that a mature framework
-has already been integrated or that any source-product migration or off-host
-restore has completed.
+1. Two sources with the same `authority` or `client` label retain separate
+   identities. A cross-source relation has a named proponent; different source
+   times are not represented as one simultaneous observation.
+2. Target/current conflict can be published as an explicit comparison. A
+   broken input or self-contradictory transformation fails; mere disagreement
+   is not silently hidden or globally blocked.
+3. di-effect's native LikeC4 sources enter without a tracked duplicate Claim
+   Model. Existing source views may be reused, but a reader-specific chapter
+   must not be forced to include every model element. Relocation and a new
+   relation do not silently inherit lineage or acceptance.
+4. ETHOS's 113/164 source case supports its explicit allowed aggregates and
+   forbidden pairs, visible target notice, cooperative/competitive/all-drop
+   Lane semantics, and static/interactive independent composition. Hidden IDs
+   cannot make an incorrect aggregate pass.
+5. Full AIGW and Client Projection remain distinct Editions or chapters.
+   Credential authority, desired state, native clients, guarded effects,
+   rollback, and release owners are not flattened into the 12/11 subset.
+6. A maintainer without renderer code or pixel geometry can produce a readable
+   static and single-file interactive baseline through the public path. The
+   self-Edition uses that same path and may add declared flagship refinements.
+7. A local source change identifies affected questions, views, predicates, and
+   acceptance work precisely where declared dependency closure supports it;
+   otherwise unknown impact triggers necessary broader checks. Packaging-only
+   change does not masquerade as semantic change; changed published bytes do
+   not silently reuse approval.
+
+First freeze signed historical artifacts and exact adopter source revisions.
+Next reconcile this design with the proposal, delta specifications, and sole
+`tasks.md` ledger in the existing Change. Then run the framework bake-off and
+implement the smallest qualifying native-input and Edition path with RED/GREEN
+contract tests. Migrate self-use first; AIGW and ETHOS source-side changes
+remain in their separately authorized single-writer lanes, with exact installed
+and media acceptance before deleting old glue. Do not move source-domain logic
+into Publisher or require adopter checkout adjacency. Source, package,
+installed-use, browser/accessibility, recovery, human-review, publication,
+protected-ref, hosted-CI, and remote-readback claims are closed separately.
+Repository coverage remains at least 95%; SemVer and Keep a Changelog govern
+the successor. Historical signed releases stay byte-for-byte intact.
+
+This design is accepted only when the counterexamples demonstrate that the
+recommended workbench is both more useful than direct framework use and less
+costly than asking adopters to hand-build the same Edition twice. Otherwise
+reduce the product boundary rather than weaken the evidence or quality bar.

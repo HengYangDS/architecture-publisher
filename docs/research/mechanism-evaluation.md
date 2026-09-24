@@ -186,9 +186,11 @@ Installed LikeC4 `1.59.4` validated the probe and built a standalone
 `ff2fa9d931f3f194d9220db31af6be136664a2f1148a8e183dd0d9b68dc500dd`).
 Background Chrome opened that file offline at 1600 by 1000 pixels without a
 failed request or page error. The published core/layout API preserved 12
-entity IDs and 11 relation IDs in the model, but its computed view edges had
-generated IDs and no direct metadata field; an exact claim-to-visible-carrier
-mapping remains unproved. Native `likec4 export png` failed on this host because
+entity IDs and 11 relation IDs in the model. Computed view edges had generated
+IDs and no direct metadata field, although LikeC4's
+[`EdgeModel.relationships()`](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/core/src/model/view/EdgeModel.ts)
+can expose their model relations within one build. An exact
+claim-to-_visible_-carrier mapping remains unproved. Native `likec4 export png` failed on this host because
 its expected Playwright headless-shell executable was absent; this is a local
 installed-use gap, not proof that LikeC4 cannot export PNG elsewhere.
 
@@ -204,6 +206,49 @@ LikeC4's versioned model, view, and layout mechanisms remain candidates for
 reuse behind a product-owned editorial composition and semantic-carrier check;
 their fit requires a styled multi-view AIGW, ETHOS, self, and unrelated-domain
 counterexample rather than a favorable two-node smoke test.
+
+## Native LikeC4 identity and editing counterexample (2026-09-24)
+
+At di-effect `8a168b6b9c6933c30ab2ea25e60cac8a54212566`, three authored
+files in `tools/likec4/models/` total 102 lines. Their SHA-256 values are
+`45d81011acbf12ad35ce2daef4b27773d66b9fa73f3aac084f252c29aa9bfbcd`
+(`di_effect_core_layers.c4`),
+`683df86d00ed3467a21942c00f79f2252871b8159a5957e1c196fd90eb3886a3`
+(`di_effect_packages.c4`), and
+`b601586c58810816b5489a95be0e4e5830c6e6b5237bc179d1c88a0ef194ef5e`
+(`di_effect_runtime_path.c4`). The unrelated dirty `.serena/project.yml` was
+not changed or used.
+
+Read-only source copies in isolated `/tmp` directories were processed with
+installed LikeC4 `1.59.4`: `likec4 validate --json <copy>` passed for all three
+files, and `likec4 export json --skip-layout -o <copy>/model.json <copy>`
+produced 25 elements, 35 relations, and four views. The generated index and
+all three authored `include *` views each contained 25 nodes and 35 edges;
+each view edge referenced valid model relation IDs. This demonstrates usable
+native ingestion and within-build relation trace, **not** reader-specific
+composition or actual visible semantic fidelity. The inspected export carried
+no per-relation `sourcePath` field; a finer source-span claim requires another
+mechanism or an explicit limitation.
+
+To test cross-build identity, the same three byte-identical DSL files were
+exported from two different workspace paths. All 35 semantic relation pairs
+were present, but none retained its generated relation ID. In one fixed
+workspace, two exports of unchanged files kept all 35 IDs; prepending a
+comment kept all 35; inserting `layer_result -> layer_dependency` after the
+existing `layer_result -> layer_effect` relation added one relation and changed
+three pre-existing generated IDs. The comparison matched relations by source
+element, target element, and title; these particular pairs were unique. It is
+therefore unsound to use generated LikeC4 relation IDs alone as persistent
+cross-workspace or cross-revision Edition references. This is a scoped probe of
+the installed version, not a claim that LikeC4 has no other source-map or
+explicit-ID capability.
+
+**Design consequence:** admit native LikeC4 without a duplicate editable Claim
+Model, reuse its model/view machinery, but distinguish source-defined stable
+references from revision-scoped generated IDs. A source change or relocation
+may require explicit lineage/review; Publisher must supply the reader-specific
+editing absent from these `include *` views instead of forcing the source to
+hand-author a second full diagram model.
 
 ## ETHOS source-owned abstraction counterexample (2026-09-24)
 
