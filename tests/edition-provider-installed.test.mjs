@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -53,6 +53,7 @@ test('packed Publisher executes a relocated Provider and reclaims a rejected des
   const globalConfig = path.join(work, 'empty-global.npmrc');
   const home = path.join(work, 'empty-home');
   const temporary = path.join(work, 'temporary');
+  const cache = path.join(work, 'empty-cache');
   const consumer = path.join(work, 'consumer');
   const selected = path.join(work, 'selected');
   await Promise.all([
@@ -60,6 +61,7 @@ test('packed Publisher executes a relocated Provider and reclaims a rejected des
     fs.writeFile(globalConfig, ''),
     fs.mkdir(home),
     fs.mkdir(temporary),
+    fs.mkdir(cache),
     fs.mkdir(consumer),
     fs.cp(fixture, selected, { recursive: true }),
   ]);
@@ -70,6 +72,7 @@ test('packed Publisher executes a relocated Provider and reclaims a rejected des
     npm_config_offline: 'true',
     npm_config_update_notifier: 'false',
     npm_config_audit: 'false',
+    npm_config_cache: cache,
   };
   const packed = run(
     'npm',
@@ -99,8 +102,12 @@ test('packed Publisher executes a relocated Provider and reclaims a rejected des
   assert.equal(installed.status, 0, installed.stderr);
   const packageRoot = path.join(consumer, 'node_modules/architecture-publisher');
   const packageJson = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json')));
+  const declared = JSON.parse(await fs.readFile(path.join(publisher, 'package.json')));
   assert.equal(packageJson.version, archive.version);
-  assert.deepEqual(packageJson.dependencies ?? {}, {});
+  assert.deepEqual(packageJson.dependencies ?? {}, declared.dependencies ?? {});
+  const authoring = await import(pathToFileURL(path.join(packageRoot, 'src/edition/index.mjs')));
+  assert.equal(typeof authoring.validateBuildRequest, 'function');
+  assert.throws(() => authoring.validateBuildRequest({}), { code: 'build_request_invalid' });
   const cli = path.join(packageRoot, 'src/cli/main.mjs');
   const cliEnv = {
     HOME: home,

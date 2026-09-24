@@ -14,7 +14,11 @@ test('one fail-closed quality entry point covers the repository contract', async
   );
   assert.equal(
     manifest.scripts['check:static'],
-    'npm run check:format && npm run check:lint && npm run check:types && npm run check:imports && npm run check:dead-code && npm run check:docs && npm run check:spec',
+    'npm run check:generated && npm run check:format && npm run check:lint && npm run check:types && npm run check:imports && npm run check:dead-code && npm run check:docs && npm run check:spec',
+  );
+  assert.equal(
+    manifest.scripts['check:generated'],
+    'node tools/generate-authoring-validators.mjs --check',
   );
   assert.equal(manifest.scripts['check:format'], 'prettier --check .');
   assert.equal(manifest.scripts['check:lint'], 'eslint . --max-warnings 0');
@@ -27,7 +31,7 @@ test('one fail-closed quality entry point covers the repository contract', async
   assert.equal(manifest.scripts['check:spec'], 'openspec validate --all --strict --no-interactive');
   assert.equal(
     manifest.scripts['test:coverage'],
-    "c8 --all --include='packages/publisher/src/**/*.mjs' --include='packages/publisher/renderers/**/*.mjs' --include='editions/self/src/**/*.mjs' --exclude='packages/publisher/renderers/**/supply/**' --check-coverage --statements=95 --lines=95 --branches=95 --functions=95 npm test",
+    "c8 --all --include='packages/publisher/src/**/*.mjs' --include='packages/publisher/renderers/**/*.mjs' --include='editions/self/src/**/*.mjs' --exclude='packages/publisher/src/edition/generated/**' --exclude='packages/publisher/renderers/**/supply/**' --check-coverage --statements=95 --lines=95 --branches=95 --functions=95 npm test",
   );
   assert.equal(manifest.scripts['check:package'], 'publint packages/publisher');
 

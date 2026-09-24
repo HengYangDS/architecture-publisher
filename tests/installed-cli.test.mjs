@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { createEditionCandidate } from '../packages/publisher/src/compiler/candidate.mjs';
 import {
@@ -21,14 +22,16 @@ const publisher = path.join(root, 'packages/publisher');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 test('packed CLI verifies relocated non-Git input without development executables', async (t) => {
-  const work = path.join(root, 'build/test-work');
-  await fs.mkdir(work, { recursive: true });
+  const work = await fs.realpath(os.tmpdir());
   const tmp = await fs.mkdtemp(path.join(work, 'installed with spaces-'));
+  const cache = path.join(tmp, 'empty-cache');
+  await fs.mkdir(cache);
   t.after(() => fs.rm(tmp, { recursive: true, force: true }));
   const env = {
     ...process.env,
     npm_config_update_notifier: 'false',
     npm_config_audit: 'false',
+    npm_config_cache: cache,
   };
   const pack = spawnSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', tmp], {
     cwd: publisher,
@@ -38,6 +41,7 @@ test('packed CLI verifies relocated non-Git input without development executable
   assert.equal(pack.status, 0, pack.stderr);
   const info = parseNpmPackRecord(pack.stdout);
   assert(info.files.some((f) => f.path === 'src/cli/main.mjs'));
+  const bundled = new Set(info.bundled ?? []);
   assert(
     info.files.every(
       (f) =>
@@ -45,7 +49,8 @@ test('packed CLI verifies relocated non-Git input without development executable
         f.path === 'package.json' ||
         f.path.startsWith('src/') ||
         f.path.startsWith('assets/') ||
-        f.path.startsWith('renderers/'),
+        f.path.startsWith('renderers/') ||
+        (f.path.startsWith('node_modules/') && bundled.has(f.path.split('/')[1])),
     ),
   );
   const install = path.join(tmp, 'consumer');
@@ -67,11 +72,29 @@ test('packed CLI verifies relocated non-Git input without development executable
   assert.equal(installed.status, 0, installed.stderr);
   const pkg = path.join(install, 'node_modules/architecture-publisher');
   const packageJson = JSON.parse(await fs.readFile(path.join(pkg, 'package.json'), 'utf8'));
-  assert.deepEqual(packageJson.dependencies ?? {}, {});
+  const declared = JSON.parse(await fs.readFile(path.join(publisher, 'package.json'), 'utf8'));
+  assert.deepEqual(packageJson.dependencies ?? {}, declared.dependencies ?? {});
+  const authoring = await import(pathToFileURL(path.join(pkg, 'src/edition/index.mjs')));
+  assert.equal(typeof authoring.validateBuildRequest, 'function');
+  const buildRequest = {
+    schema: 'architecture.build-request/v1',
+    edition: { kind: 'direct', root: 'edition', manifest: 'edition.json' },
+    sources: [
+      {
+        id: 'local-source',
+        namespace: 'example/source',
+        format: { id: 'architecture.source-bundle', version: '1' },
+        claimant: 'example-maintainer',
+        revision: { kind: 'content', algorithm: 'sha256' },
+        input: { kind: 'locator', path: 'source.json' },
+      },
+    ],
+    providers: [],
+    media: ['static'],
+    toolchain: { profile: 'portable' },
+  };
+  assert.deepEqual(authoring.validateBuildRequest(buildRequest), buildRequest);
   await assert.rejects(fs.stat(path.join(install, 'node_modules/acorn')), {
-    code: 'ENOENT',
-  });
-  await assert.rejects(fs.stat(path.join(pkg, 'node_modules')), {
     code: 'ENOENT',
   });
   await assert.rejects(fs.stat(path.join(install, '.git')), {

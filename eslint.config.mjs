@@ -10,6 +10,7 @@ export default [
       'packages/publisher/renderers/archify/supply/**',
       'packages/publisher/renderers/fonts/supply/**',
       'packages/publisher/renderers/resvg/supply/**',
+      'packages/publisher/src/edition/generated/**',
     ],
   },
   js.configs.recommended,

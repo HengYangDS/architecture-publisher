@@ -48,17 +48,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       product acceptance remains Task 7.1 and 7.5. If direct use passes all hard
       gates at lower cost, revise this plan and shrink Publisher first.
 - [x] 1.3 Lock the expanded `test:coverage` scope before product changes:
-      `packages/publisher/src/` (50 tracked modules), Publisher renderers (17
-      first-party modules), and `editions/self/src/` (13 modules). The only
-      exclusion is 28 third-party/generated renderer supply modules. The
-      package script, `tests/quality-contract.test.mjs`, and
-      `docs/reference/operations.md` record and police this inventory. The
+      at baseline, `packages/publisher/src/` had 50 tracked modules, Publisher
+      renderers 17 first-party modules, and `editions/self/src/` 13 modules.
+      Task 2.1 adds two handwritten Publisher modules to coverage and one
+      reproducible generated validator exclusion. The other exclusion remains
+      28 third-party/generated renderer supply modules. The package script,
+      `tests/quality-contract.test.mjs`, and `docs/reference/operations.md`
+      record and police this inventory. The
       four-dimensional 95% convergence remains a hard Task 7.5 prerequisite,
       not an achieved result of this task.
 
 ## 2. Versioned authoring and input
 
-- [ ] 2.1 Add strict `architecture.build-request/v1` and
+- [x] 2.1 Add strict `architecture.build-request/v1` and
       `architecture.edition-project/v1` schemas under
       `packages/publisher/src/edition/`, with RED/GREEN tests in
       `tests/build-request-contract.test.mjs` and
@@ -66,6 +68,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       named roles, namespaces, revision evidence, questions, omissions,
       transformations, media, and visual policy; reject unknown fields and
       conflicting editorial roots. Keep `archpub edition build` as the one entry.
+      The reviewed schemas and self-contained generated validators have focused
+      RED/GREEN, package, cold offline installation, and static evidence. This
+      task does not claim that the old CLI yet consumes the new request;
+      materialization and joining follow in Tasks 2.2–3.1. Exact selected-media
+      coverage remains Task 5.1, not a property of standalone validation.
+      The closing full run passed 676 tests, skipped 2, and failed only the
+      unchanged 95% branch gate at 93.27%; the Lane remains ineligible to land.
 - [ ] 2.2 Implement content-bound materialization and a generated
       `architecture.materialized-input-lock/v1`
       under `packages/publisher/src/source/`. In
@@ -140,7 +149,10 @@ third-party or generated supply rather than moving owned code outside coverage.
 ## 5. Editorial composition and independent media
 
 - [ ] 5.1 Materialize finite required assertions for each reader question and
-      medium before layout. `tests/edition-selection.test.mjs` covers explicit
+      medium before layout. Join the Build Request and Edition Project: a
+      promised question or required assertion present only in an unrequested
+      medium cannot count as selected-media coverage.
+      `tests/edition-selection.test.mjs` covers explicit
       exclusions, limits, editorial propositions, allowed/forbidden aggregates,
       `some-member` versus `all-member`, and conflict views. Unclassified omission
       or source-contradictory wording fails; complete means complete for the

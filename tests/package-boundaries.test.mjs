@@ -124,6 +124,8 @@ test('the packed generic product contains no concrete domain package', () => {
   const files = parseNpmPackRecord(packed.stdout).files.map(({ path: file }) => file);
   assert(files.includes('src/cli/main.mjs'));
   assert(files.includes('src/edition/contract.mjs'));
+  assert(files.includes('src/edition/generated/validators.mjs'));
+  assert(files.includes('src/edition/generated/LICENSE.schemasafe'));
   assert(files.includes('src/provider/contract.mjs'));
   assert(files.every((file) => !/(^|\/)(adapters|editions)(\/|$)/.test(file)));
   assert(files.every((file) => !/(^|\/)(ethos|aigw)(\/|$)/i.test(file)));

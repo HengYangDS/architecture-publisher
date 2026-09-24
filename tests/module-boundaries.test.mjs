@@ -116,17 +116,34 @@ test('extensions depend inward through public package exports', async () => {
 test('all shipped modules satisfy the package and semantic dependency graph', async () => {
   const { paths, modules } = await inventory(runtimeRoots);
   const packageExports = await declaredPackageExports();
+  const externals = new Map();
+  for (const directory of ['packages/publisher', 'editions/self']) {
+    const manifest = JSON.parse(await fs.readFile(path.join(root, directory, 'package.json')));
+    externals.set(directory, new Set(Object.keys(manifest.dependencies ?? {})));
+  }
   const problems = [];
-  for (const file of modules)
+  for (const file of modules) {
+    const owner = [...externals.keys()].find((directory) => file.startsWith(`${directory}/`));
     problems.push(
       ...inspectModuleBoundaries(
         file,
         await fs.readFile(path.join(root, file), 'utf8'),
         paths,
         packageExports,
+        externals.get(owner) ?? new Set(),
       ),
     );
+  }
   assert.deepEqual(problems, []);
+  assert(
+    inspectModuleBoundaries(
+      'packages/publisher/src/edition/authoring.mjs',
+      "import 'unlisted-package';",
+      paths,
+      packageExports,
+      externals.get('packages/publisher'),
+    ).some(({ reason }) => reason.includes('declared external')),
+  );
 });
 
 test('development tools use declared package owners and dependencies', async () => {

@@ -331,11 +331,15 @@ bytes are verified through supply-chain and behavior tests.
 The JavaScript coverage gate selects all tracked runtime `.mjs` under
 `packages/publisher/src/`, first-party
 `packages/publisher/renderers/`, and `editions/self/src/`, including
-`index.mjs` entrypoints. At this source revision those roots contain 50, 17,
-and 13 selected modules. The only explicit coverage exclusion is the 28
-tracked third-party/generated `.mjs` files under
-`packages/publisher/renderers/**/supply/`; their exact bytes have separate
-supply verification. `tests/quality-contract.test.mjs` rejects a tracked
+`index.mjs` entrypoints. This revision selects 52 handwritten Publisher
+modules, 17 first-party renderer modules, and 13 self-Edition modules. The
+explicit exclusions are the 28 tracked third-party/generated renderer supply
+modules and one generated authoring validator module. The latter is reproduced
+from the versioned JSON Schemas by
+`tools/generate-authoring-validators.mjs --check` and carries the generator's
+MIT notice; the schemas and handwritten
+cross-reference validation remain covered. The installed product has no
+runtime npm dependencies. `tests/quality-contract.test.mjs` rejects a tracked
 first-party package module moved outside the selected roots. This is a
 JavaScript coverage claim, not coverage of the separately compiled CoreText
 Swift helper or a substitute for native platform acceptance.
