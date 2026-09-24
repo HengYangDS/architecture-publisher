@@ -1,11 +1,10 @@
 # Tasks
 
 This is the sole progress ledger. The six written delta specifications were
-approved on 2026-09-24; the plan below still requires review before successor
-implementation, adopter migration, or release. Preserve historical signed
-releases byte-for-byte and valid v1 protocol meanings. One owned Publisher Work
-Lane and one writer execute this plan. ETHOS and AIGW retain separate source-side
-authority.
+approved on 2026-09-24; the plan below was approved on 2026-09-24 for
+single-writer execution. Preserve historical signed releases byte-for-byte and
+valid v1 protocol meanings. One owned Publisher Work Lane and one writer execute
+this plan. ETHOS and AIGW retain separate source-side authority.
 
 Each implementation task starts with a failing focused contract test, then the
 smallest owner-level change and focused GREEN. Audit sibling consumers, run
@@ -23,7 +22,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       AIGW wording. Signed source `5b5dba5` passed the focused 5/5 test and full
       `npm run check` (615 pass, 2 skip; configured `src/` coverage
       96.47/96.47/95.10/99.44%).
-- [ ] 0.3 Obtain review of this written implementation plan before product
+- [x] 0.3 Obtain review of this written implementation plan before product
       implementation; execution remains single-writer as already selected.
 
 ## 1. Mechanism selection

@@ -29,9 +29,57 @@ The Provider's 64-hex subject revision is computed by SHA-256 over
 Publisher-canonical semantic JSON after removing `context.revision`; it is not
 a Git commit. `materialize.mjs` selects live source files, rewrites derived
 revision and digest fields, packs a Source Bundle, validates an Edition, runs
-both direct and Provider builds, and atomically updates tracked values. This
-observation establishes the current physical location and v1 input mechanism,
+both direct and Provider builds, then replaces tracked files one by one, with
+exception-triggered rollback. This establishes the current physical location
+and v1 input mechanism,
 not the successor contract's acceptance, media quality, or hosted availability.
+
+### Read-only responsibility map
+
+The existing declarative location is already correct. Migration should change
+which responsibilities AIGW must maintain, not move the directory again:
+
+- `internal/**` and the native architecture policy remain AIGW's behavior
+  owners. `_source/semantic.json` is a curated, source-bound Client Projection
+  with 12 entities, 11 relations, and 11 claims over 14 provenance members.
+  Its distinctions and asserted planes are authored meaning, not mechanically
+  proved by matching Go-file hashes. Keep or deliberately migrate that meaning;
+  do not delete it merely because a native-input adapter becomes available.
+  Its source digests and content-derived revision are separately generated
+  fields, not extra editorial authority.
+- `edition.json` owns the chapter's four explicit reader questions, selected
+  claims, scope, narrative, and independent media choices. Those are AIGW or
+  its named editor's decisions. `evolution.json` selects comparison inputs and
+  any correspondence; `history/**` retains immutable v1 values. A whole-AIGW
+  Edition requires a separate editorial scope, not a renamed chapter.
+- `_source/manifest.json` and `_source/source/**` are selected v1 replay and
+  provenance carriers, not live Go implementation owners. `provider.json`
+  carries the declarative v1 selection. Preserve their exact historical
+  identities until a successor proves relocated offline input, source
+  integrity, and rollback; then retire only the displaced mutable copies.
+- `selection.json` mixes AIGW's exact Publisher package choice and explicit
+  non-authorizing role declaration with generated Provider, Candidate, and
+  migration hashes. `provider-evolution.json` is derived from selected
+  `evolution.json`. The successor must let AIGW select its toolchain, native
+  inputs, and editorial intent while Publisher derives and checks the locks,
+  seals, comparison projection, and Candidate identities.
+- `materialize.mjs` currently verifies and installs a selected Publisher
+  archive, selects live source paths, computes the content revision, invokes
+  `source pack` and both direct/Provider `edition build`, then uses per-file
+  atomic replacement with exception-triggered rollback. This is not an atomic
+  commit across the file set or a proven crash-recovery guarantee. AIGW retains
+  source selection and any deliberate semantic adaptation; generic package
+  installation, packing, digest
+  rewriting, build comparison, and replacement mechanics should not remain a
+  mandatory source-side authoring burden after admitted successor parity.
+
+`test/source.test.mjs` is wired into AIGW's native quality graph and proves
+selected byte consistency, not implemented behavior or a final publication.
+`test/installed.test.mjs` requires exact package inputs through environment
+variables; no tracked invocation of that file was found in the current AIGW
+quality graph. Its successor journey must be executed and admitted by AIGW,
+not inferred from Publisher conformance. This map is not per-file deletion
+authorization or proof that the unreleased successor can replace v1.
 
 ## Reviewed successor boundary
 
