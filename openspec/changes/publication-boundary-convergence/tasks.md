@@ -27,7 +27,7 @@ third-party or generated supply rather than moving owned code outside coverage.
 
 ## 1. Mechanism selection
 
-- [ ] 1.1 Freeze exact source revisions, reader questions, declared limits,
+- [x] 1.1 Freeze exact source revisions, reader questions, declared limits,
       current accepted media, and hashes for Publisher self, ETHOS terminal, full
       AIGW and its separate Client Projection, and native di-effect LikeC4. Treat
       a whole-AIGW Edition as a proposed editorial workload, not an existing

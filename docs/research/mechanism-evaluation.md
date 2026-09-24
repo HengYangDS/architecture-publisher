@@ -376,6 +376,74 @@ fair direct-tool comparison for di-effect without forcing Publisher where the
 native tool already suffices, while preventing Client Projection from being
 rebranded as complete AIGW architecture.
 
+### Frozen successor-comparison inputs (2026-09-24)
+
+These are comparison inputs, not approval to reuse old media. Git object IDs
+identify source content; SHA-256 values identify local bytes. The observed
+source checkouts were clean except for di-effect's unrelated
+`.serena/project.yml`, which was neither selected nor modified. A new build
+and acceptance must bind their own exact inputs.
+
+- **Publisher self.** Publisher HEAD
+  `7af397864b52bdd81015b8e13d53100421bab68c`;
+  `editions/self` tree `1a7d3a0c95d2fdab1d56d5be454d2e0edca6c1a8`
+  and `packages/publisher` tree
+  `3cee2dea0bdfe31d897c4e70e8751c2c8cd7ff06`, both unchanged from signed
+  `v0.3.0-alpha.3` commit `b01dafa5ab1f34cdb026afde90821c66b09179da`.
+  Eight code-authored questions cover overview, semantics, edition,
+  composition, qualification, publication/recovery, adoption and evolution.
+  The local alpha.3 6000 × 3375 PNG has SHA-256
+  `4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490`;
+  standalone HTML has
+  `a03cdcf780a1c13a63a579517c019b389d583801cc4ce754defea0f438661f52`.
+  Release-link readback was observed at 09:50 UTC, not continuously proven.
+  The flagship implementation is not generic-authoring evidence.
+- **ETHOS terminal.** ETHOS HEAD
+  `709347f0ce0965e6a338aa5128c60c4d3f4044a8`;
+  `integrations/architecture-publisher` tree
+  `31677a318f0f9a072caed7c6b7bb318c71d034d1`; selected
+  `system/projections/terminal-architecture/semantic-graph.json` SHA-256
+  `6725c589f4f68201b2e1ce099ccc9cfc2b9087411ff34c9ad5d40629a73f629c`.
+  Its Atlas has thirteen pages and the view profile has 24 aggregates, but
+  per-page questions are code-generated defaults, not independently authored
+  selections. The preserved 6000 × 3375 PNG is
+  `5f4ea104b95112d84635881600d2c75ae3eae65a45b4b61a4fe5936df3ee3cda`;
+  HTML is
+  `804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa`.
+  `docs/migration/alpha7-baseline.json` binds those copies to an older release
+  baseline; it does not promote the current ETHOS revision.
+- **AIGW Client Projection.** AIGW HEAD
+  `ea9b600b957f53737eb605772825e43de2d01ac5`;
+  `architecture/edition-provider` tree
+  `e0f94db982c2f1b05862abcad0147c2b37d2b57f`.
+  `provider.json` SHA-256 is
+  `47bcec1a8db6bb06ffc7a8148df9f4a6eb3ff097a537112d9373b9553a39350b`;
+  `edition.json` is
+  `d7ee26e15e603285046f74577296d85fe8a211df601f3f96a86b7cedda2020de`.
+  Four authored questions cover overview, authority, adapters and
+  transaction, with eleven required claims. Human/recovery qualification is
+  not selected. The Provider's content revision is not a Git commit.
+  Conformance fixture media identities are Candidate evidence, not AIGW
+  acceptance; no accepted media bytes were established here.
+- **Whole AIGW product.** The same source revision has no whole-product
+  Edition under `architecture/`. AIGW or a named editor must author its scope,
+  questions, omissions and art direction; researcher questions remain
+  provisional. The Client Projection cannot be relabelled as the whole product.
+  No whole-product accepted static or interactive medium is established.
+- **Native di-effect.** di-effect HEAD
+  `8a168b6b9c6933c30ab2ea25e60cac8a54212566`;
+  `tools/likec4/models` tree
+  `9d08a56139d2756f46763d426c8febb828a994d7`. The three individual
+  SHA-256 values appear in the native LikeC4 counterexample below. Its
+  `five_layers`, `packages` and `runtime_flow` views each use `include *`;
+  no reader-specific questions are authored. The LikeC4/Mermaid decision and
+  a research PNG probe do not establish an accepted Publisher-style
+  dual-medium publication.
+
+A direct-tool win for one workload does not imply replacement of another.
+Where accepted media or authored questions are absent, that absence limits
+parity claims; it does not license invented acceptance or source endorsement.
+
 ## Structurizr native-model and export boundary (2026-09-24)
 
 GitHub API readback identified the active Apache-2.0
