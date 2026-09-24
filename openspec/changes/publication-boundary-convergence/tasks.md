@@ -130,10 +130,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       from the signature-verified `v0.3.0-alpha.3` declarative fixture, retaining
       its Source Bundle, Claim Model, Edition, and Provider meanings; a packed
       offline installation still executes the separate v1 executable Provider.
-      Focused tests passed 7/7; static and package checks passed. The full check
-      passed 698 tests, skipped 2, and failed only the branch coverage gate at
-      92.93%. Historical Candidate/Qualification byte replay, a consumption
-      counterexample for `authoredInputSha256`, and installed successor replay
+      Five additional exact JSON members were extracted from the alpha.3
+      release evidence bundle (SHA-256
+      `c2f13768c3f6e134bb4b24765a2a3dfadd7aa8eb7bf3ca103bbf444b0371a557`);
+      its remote release manifest names the verified signed tag target, but the
+      asset itself is not independently signed. Candidate v1 and Qualification
+      Set v1 raw bytes now replay through the source-manifest digest,
+      model/Edition binding, and qualification admission, retaining the
+      released Candidate and Qualification digests.
+      Focused migration and installed-v1 tests passed 8/8; static and package
+      checks passed. The complete test portion passed 715 tests and skipped 2,
+      but branch coverage remains 92.98% against the 95% gate. A consumption
+      counterexample for `authoredInputSha256` and installed successor replay
       remain required; this task stays open.
 
 ## 3. Provider convergence

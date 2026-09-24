@@ -1,0 +1,175 @@
+{
+  "schema": "architecture.edition-candidate/v1",
+  "source": {
+    "manifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5"
+  },
+  "claimModel": {
+    "sha256": "03eec4edc92eadc00d36e4dc3000bd2665dda05d46ebe3a8ab33b1fa37c47024",
+    "digest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a"
+  },
+  "edition": {
+    "sha256": "84743256523ecbc8a7da9daff17b6f22cae028d71afdd5a21d61d729516cfd37",
+    "digest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42"
+  },
+  "media": {
+    "static": {
+      "sceneSha256": "ff55b84278120b14083b88c46ae8c85a62dac4c69f7713c901e8733e28d70f94",
+      "artifacts": [
+        {
+          "id": "flagship-png",
+          "path": "static/architecture-publisher-6000.png",
+          "mediaType": "image/png",
+          "bytes": 449939,
+          "sha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490"
+        },
+        {
+          "id": "flagship-svg",
+          "path": "static/architecture-publisher.svg",
+          "mediaType": "image/svg+xml",
+          "bytes": 761702,
+          "sha256": "1c768de9c20593107ec55025cca07f5078b37661923470760390d19d9d2a338a"
+        }
+      ],
+      "supplies": [
+        {
+          "id": "font-supply",
+          "sha256": "fdf4df13d28e4161b937162bbe31ef05be3c4db88d82f490fa1305a6e353d08a"
+        },
+        {
+          "id": "raster-supply",
+          "sha256": "fec4a20fc58f510c83fe24d5045ab52d08ea1a82daba57f8391672bce63ba6aa"
+        },
+        {
+          "id": "self-static-runtime",
+          "sha256": "80315ba1e31302b404f715485a71803dacf1deba17ee9f43ee2515f43f284fe9"
+        }
+      ]
+    },
+    "interactive": {
+      "sceneSha256": "fac89f6d1ffb00f8f6ac197b690af7ff252fc29310b2ac7005d82ecd02a15717",
+      "artifacts": [
+        {
+          "id": "standalone-atlas",
+          "path": "interactive/architecture-publisher.html",
+          "mediaType": "text/html",
+          "bytes": 3066913,
+          "sha256": "a03cdcf780a1c13a63a579517c019b389d583801cc4ce754defea0f438661f52"
+        }
+      ],
+      "supplies": [
+        {
+          "id": "archify",
+          "sha256": "091c49f7b7c95fd8a022705f743cb6b0701fefc4abb1cad588b09a91e4a36484"
+        },
+        {
+          "id": "font-supply",
+          "sha256": "fdf4df13d28e4161b937162bbe31ef05be3c4db88d82f490fa1305a6e353d08a"
+        },
+        {
+          "id": "runtime",
+          "sha256": "8d078f823d3ad66956d7d469edecd1c924663d9891cf8bbd8e29e9ea33d3c86c"
+        },
+        {
+          "id": "self-interactive-runtime",
+          "sha256": "0c9d479fc312e93cdc47f45f7c6a727c6995ea24e35d1c3e99d1236c68747ef8"
+        }
+      ]
+    }
+  },
+  "obligations": [
+    {
+      "kind": "accessibility",
+      "predicate": "keyboard-focus-contrast-text-and-reduced-motion"
+    },
+    {
+      "kind": "coverage",
+      "predicate": "required-claims-and-omissions"
+    },
+    {
+      "kind": "human",
+      "predicate": "faithful",
+      "scope": {
+        "kind": "physical",
+        "medium": "static",
+        "artifact": "flagship-png",
+        "width": 6000,
+        "height": 3375
+      }
+    },
+    {
+      "kind": "human",
+      "predicate": "faithful",
+      "scope": {
+        "kind": "viewport",
+        "medium": "interactive",
+        "artifact": "standalone-atlas",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "human",
+      "predicate": "intelligible",
+      "scope": {
+        "kind": "physical",
+        "medium": "static",
+        "artifact": "flagship-png",
+        "width": 6000,
+        "height": 3375
+      }
+    },
+    {
+      "kind": "human",
+      "predicate": "intelligible",
+      "scope": {
+        "kind": "viewport",
+        "medium": "interactive",
+        "artifact": "standalone-atlas",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "human",
+      "predicate": "restrained",
+      "scope": {
+        "kind": "physical",
+        "medium": "static",
+        "artifact": "flagship-png",
+        "width": 6000,
+        "height": 3375
+      }
+    },
+    {
+      "kind": "human",
+      "predicate": "restrained",
+      "scope": {
+        "kind": "viewport",
+        "medium": "interactive",
+        "artifact": "standalone-atlas",
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "installed",
+      "predicate": "offline-relocated-reproduction"
+    },
+    {
+      "kind": "interactive",
+      "predicate": "browser-behavior-and-complete-views"
+    },
+    {
+      "kind": "recovery",
+      "predicate": "replacement-and-interrupted-effect-recovery"
+    },
+    {
+      "kind": "semantic",
+      "predicate": "source-and-claim-integrity"
+    },
+    {
+      "kind": "static",
+      "predicate": "painted-static-geometry"
+    }
+  ]
+}

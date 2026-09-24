@@ -1,0 +1,2806 @@
+{
+  "schema": "architecture.edition/v1",
+  "id": "architecture-publisher-self",
+  "owner": "architecture-publisher:self-edition",
+  "class": "flagship",
+  "product": {
+    "name": "Architecture Publisher",
+    "schema": "architecture.publisher/v1",
+    "version": "0.3.0-alpha.3"
+  },
+  "source": {
+    "manifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5"
+  },
+  "claimModel": {
+    "schema": "architecture.claim-model/v2",
+    "digest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a"
+  },
+  "title": "Architecture Publisher",
+  "audiences": {
+    "steward": {
+      "label": "System stewards and architecture readers"
+    }
+  },
+  "questions": {
+    "overview": {
+      "audience": "steward",
+      "prompt": "How does explicit system meaning become a trustworthy, renewable Architecture Edition?",
+      "claims": [
+        "role-accepted-intent",
+        "role-implementation",
+        "role-runtime-observation",
+        "role-evidence",
+        "role-source-adapter",
+        "role-source-bundle",
+        "role-claim-model",
+        "role-edition",
+        "role-build-request",
+        "role-publisher-core",
+        "role-uncertainty",
+        "role-static-scene",
+        "role-static-artifact",
+        "role-static-renderer",
+        "role-interactive-scenes",
+        "role-interactive-atlas",
+        "role-interactive-renderer",
+        "role-edition-candidate",
+        "role-qualification-set",
+        "role-human-review",
+        "role-acceptance",
+        "role-authorization",
+        "role-publication",
+        "role-recovery",
+        "role-off-host-recovery",
+        "role-self-consumer",
+        "role-ethos-consumer",
+        "role-aigw-consumer",
+        "role-feedback",
+        "role-evolution-inputs",
+        "role-semantic-delta",
+        "role-affected-views",
+        "role-rebuild-obligations",
+        "role-semantic-verification-obligations",
+        "role-medium-verification-obligations",
+        "role-human-review-obligations",
+        "role-acceptance-obligations",
+        "role-publication-obligations",
+        "flow-intent-enters-adapter",
+        "flow-implementation-enters-adapter",
+        "flow-observation-enters-adapter",
+        "flow-evidence-enters-bundle",
+        "flow-adapter-builds-bundle",
+        "flow-bundle-binds-claims",
+        "flow-claims-inform-edition",
+        "flow-uncertainty-broadens-edition",
+        "flow-edition-authors-static",
+        "flow-edition-authors-interactive",
+        "flow-bundle-selects-build",
+        "flow-claims-select-build",
+        "flow-edition-selects-build",
+        "flow-build-invokes-core",
+        "flow-core-compiles-static",
+        "flow-core-compiles-interactive",
+        "flow-static-scene-enters-renderer",
+        "flow-interactive-scenes-enter-renderer",
+        "flow-backend-renders-static",
+        "flow-backend-renders-interactive",
+        "flow-static-enters-candidate",
+        "flow-interactive-enters-candidate",
+        "flow-candidate-enters-qualification",
+        "flow-human-review-enters-qualification",
+        "flow-qualification-precedes-acceptance",
+        "flow-acceptance-precedes-authorization",
+        "flow-authorization-precedes-publication",
+        "flow-publication-supports-recovery",
+        "flow-publication-serves-self",
+        "flow-publication-serves-ethos",
+        "flow-publication-serves-aigw",
+        "flow-publication-returns-feedback",
+        "flow-feedback-returns-to-adapter",
+        "flow-recovery-excludes-off-host",
+        "flow-models-enter-evolution",
+        "flow-edition-enters-evolution",
+        "flow-evolution-produces-delta",
+        "flow-delta-identifies-affected-views",
+        "flow-affected-views-require-rebuild",
+        "flow-affected-views-require-semantic-verification",
+        "flow-affected-views-require-medium-verification",
+        "flow-affected-views-require-human-review",
+        "flow-affected-views-require-acceptance",
+        "flow-affected-views-require-publication",
+        "flow-rebuild-renews-static",
+        "flow-rebuild-renews-interactive",
+        "flow-semantic-verification-renews-claims",
+        "flow-medium-verification-renews-qualification",
+        "flow-human-review-obligation-renews-review",
+        "flow-acceptance-obligation-renews-acceptance",
+        "flow-publication-obligation-renews-publication"
+      ],
+      "detail": "overview",
+      "risk": "Omission would obscure the product purpose, causal chain, or authority boundary."
+    },
+    "semantics": {
+      "audience": "steward",
+      "prompt": "How are source truth, provenance, uncertainty, and claims preserved?",
+      "claims": [
+        "role-accepted-intent",
+        "role-implementation",
+        "role-runtime-observation",
+        "role-evidence",
+        "role-source-adapter",
+        "role-source-bundle",
+        "role-claim-model",
+        "role-uncertainty",
+        "role-edition",
+        "flow-intent-enters-adapter",
+        "flow-implementation-enters-adapter",
+        "flow-observation-enters-adapter",
+        "flow-evidence-enters-bundle",
+        "flow-adapter-builds-bundle",
+        "flow-bundle-binds-claims",
+        "flow-claims-inform-edition",
+        "flow-uncertainty-broadens-edition"
+      ],
+      "detail": "mechanism",
+      "risk": "Omission would allow representation to masquerade as source truth."
+    },
+    "edition": {
+      "audience": "steward",
+      "prompt": "How does an Edition align a reader, questions, coverage, and expression?",
+      "claims": [
+        "role-claim-model",
+        "role-uncertainty",
+        "role-edition",
+        "role-build-request",
+        "role-publisher-core",
+        "role-static-scene",
+        "role-interactive-scenes",
+        "flow-claims-inform-edition",
+        "flow-uncertainty-broadens-edition",
+        "flow-edition-authors-static",
+        "flow-edition-authors-interactive",
+        "flow-claims-select-build",
+        "flow-edition-selects-build",
+        "flow-build-invokes-core",
+        "flow-core-compiles-static",
+        "flow-core-compiles-interactive"
+      ],
+      "detail": "mechanism",
+      "risk": "Omission would collapse semantic truth into presentation."
+    },
+    "composition": {
+      "audience": "steward",
+      "prompt": "How do static and interactive media remain independently composed?",
+      "claims": [
+        "role-edition",
+        "role-build-request",
+        "role-publisher-core",
+        "role-static-scene",
+        "role-static-renderer",
+        "role-static-artifact",
+        "role-interactive-scenes",
+        "role-interactive-renderer",
+        "role-interactive-atlas",
+        "role-edition-candidate",
+        "flow-edition-authors-static",
+        "flow-edition-authors-interactive",
+        "flow-edition-selects-build",
+        "flow-build-invokes-core",
+        "flow-core-compiles-static",
+        "flow-core-compiles-interactive",
+        "flow-static-scene-enters-renderer",
+        "flow-interactive-scenes-enter-renderer",
+        "flow-backend-renders-static",
+        "flow-backend-renders-interactive",
+        "flow-static-enters-candidate",
+        "flow-interactive-enters-candidate"
+      ],
+      "detail": "mechanism",
+      "risk": "Omission would imply one medium is a lossy derivative of the other."
+    },
+    "qualification": {
+      "audience": "steward",
+      "prompt": "How are exact artifacts judged without compensating away a failed predicate?",
+      "claims": [
+        "role-edition-candidate",
+        "role-qualification-set",
+        "role-human-review",
+        "role-acceptance",
+        "role-authorization",
+        "flow-candidate-enters-qualification",
+        "flow-human-review-enters-qualification",
+        "flow-qualification-precedes-acceptance",
+        "flow-acceptance-precedes-authorization"
+      ],
+      "detail": "mechanism",
+      "risk": "Omission would turn successful generation into a false acceptance claim."
+    },
+    "publication-recovery": {
+      "audience": "steward",
+      "prompt": "How are publication effects authorized, replaced, and recovered?",
+      "claims": [
+        "role-qualification-set",
+        "role-acceptance",
+        "role-authorization",
+        "role-publication",
+        "role-recovery",
+        "role-off-host-recovery",
+        "flow-qualification-precedes-acceptance",
+        "flow-acceptance-precedes-authorization",
+        "flow-authorization-precedes-publication",
+        "flow-publication-supports-recovery",
+        "flow-recovery-excludes-off-host"
+      ],
+      "detail": "mechanism",
+      "risk": "Omission would hide effect authority, preservation, or recovery limits."
+    },
+    "adoption": {
+      "audience": "steward",
+      "prompt": "How do self-use, ETHOS, and AIGW exercise one generic product without sharing authority?",
+      "claims": [
+        "role-publication",
+        "role-self-consumer",
+        "role-ethos-consumer",
+        "role-aigw-consumer",
+        "role-feedback",
+        "role-source-adapter",
+        "flow-publication-serves-self",
+        "flow-publication-serves-ethos",
+        "flow-publication-serves-aigw",
+        "flow-publication-returns-feedback",
+        "flow-feedback-returns-to-adapter"
+      ],
+      "detail": "mechanism",
+      "risk": "Omission would confuse conformance, adoption, and source ownership."
+    },
+    "evolution": {
+      "audience": "steward",
+      "prompt": "How does semantic change create conservative rebuild and requalification obligations?",
+      "claims": [
+        "role-claim-model",
+        "role-edition",
+        "role-evolution-inputs",
+        "role-semantic-delta",
+        "role-affected-views",
+        "role-rebuild-obligations",
+        "role-semantic-verification-obligations",
+        "role-medium-verification-obligations",
+        "role-human-review-obligations",
+        "role-acceptance-obligations",
+        "role-publication-obligations",
+        "role-static-scene",
+        "role-interactive-scenes",
+        "role-qualification-set",
+        "role-human-review",
+        "role-acceptance",
+        "role-publication",
+        "flow-models-enter-evolution",
+        "flow-edition-enters-evolution",
+        "flow-evolution-produces-delta",
+        "flow-delta-identifies-affected-views",
+        "flow-affected-views-require-rebuild",
+        "flow-affected-views-require-semantic-verification",
+        "flow-affected-views-require-medium-verification",
+        "flow-affected-views-require-human-review",
+        "flow-affected-views-require-acceptance",
+        "flow-affected-views-require-publication",
+        "flow-rebuild-renews-static",
+        "flow-rebuild-renews-interactive",
+        "flow-semantic-verification-renews-claims",
+        "flow-medium-verification-renews-qualification",
+        "flow-human-review-obligation-renews-review",
+        "flow-acceptance-obligation-renews-acceptance",
+        "flow-publication-obligation-renews-publication"
+      ],
+      "detail": "mechanism",
+      "risk": "Omission would permit changed meaning or bytes to inherit stale approval."
+    }
+  },
+  "requiredClaims": [
+    "role-accepted-intent",
+    "role-implementation",
+    "role-runtime-observation",
+    "role-evidence",
+    "role-source-adapter",
+    "role-source-bundle",
+    "role-claim-model",
+    "role-edition",
+    "role-build-request",
+    "role-publisher-core",
+    "role-uncertainty",
+    "role-static-scene",
+    "role-static-artifact",
+    "role-static-renderer",
+    "role-interactive-scenes",
+    "role-interactive-atlas",
+    "role-interactive-renderer",
+    "role-edition-candidate",
+    "role-qualification-set",
+    "role-human-review",
+    "role-acceptance",
+    "role-authorization",
+    "role-publication",
+    "role-recovery",
+    "role-off-host-recovery",
+    "role-self-consumer",
+    "role-ethos-consumer",
+    "role-aigw-consumer",
+    "role-feedback",
+    "role-evolution-inputs",
+    "role-semantic-delta",
+    "role-affected-views",
+    "role-rebuild-obligations",
+    "role-semantic-verification-obligations",
+    "role-medium-verification-obligations",
+    "role-human-review-obligations",
+    "role-acceptance-obligations",
+    "role-publication-obligations",
+    "flow-intent-enters-adapter",
+    "flow-implementation-enters-adapter",
+    "flow-observation-enters-adapter",
+    "flow-evidence-enters-bundle",
+    "flow-adapter-builds-bundle",
+    "flow-bundle-binds-claims",
+    "flow-claims-inform-edition",
+    "flow-uncertainty-broadens-edition",
+    "flow-edition-authors-static",
+    "flow-edition-authors-interactive",
+    "flow-bundle-selects-build",
+    "flow-claims-select-build",
+    "flow-edition-selects-build",
+    "flow-build-invokes-core",
+    "flow-core-compiles-static",
+    "flow-core-compiles-interactive",
+    "flow-static-scene-enters-renderer",
+    "flow-interactive-scenes-enter-renderer",
+    "flow-backend-renders-static",
+    "flow-backend-renders-interactive",
+    "flow-static-enters-candidate",
+    "flow-interactive-enters-candidate",
+    "flow-candidate-enters-qualification",
+    "flow-human-review-enters-qualification",
+    "flow-qualification-precedes-acceptance",
+    "flow-acceptance-precedes-authorization",
+    "flow-authorization-precedes-publication",
+    "flow-publication-supports-recovery",
+    "flow-publication-serves-self",
+    "flow-publication-serves-ethos",
+    "flow-publication-serves-aigw",
+    "flow-publication-returns-feedback",
+    "flow-feedback-returns-to-adapter",
+    "flow-recovery-excludes-off-host",
+    "flow-models-enter-evolution",
+    "flow-edition-enters-evolution",
+    "flow-evolution-produces-delta",
+    "flow-delta-identifies-affected-views",
+    "flow-affected-views-require-rebuild",
+    "flow-affected-views-require-semantic-verification",
+    "flow-affected-views-require-medium-verification",
+    "flow-affected-views-require-human-review",
+    "flow-affected-views-require-acceptance",
+    "flow-affected-views-require-publication",
+    "flow-rebuild-renews-static",
+    "flow-rebuild-renews-interactive",
+    "flow-semantic-verification-renews-claims",
+    "flow-medium-verification-renews-qualification",
+    "flow-human-review-obligation-renews-review",
+    "flow-acceptance-obligation-renews-acceptance",
+    "flow-publication-obligation-renews-publication"
+  ],
+  "omissions": {},
+  "narrative": [
+    "overview",
+    "semantics",
+    "edition",
+    "composition",
+    "qualification",
+    "publication-recovery",
+    "adoption",
+    "evolution"
+  ],
+  "visualGrammar": {
+    "entityTypes": {
+      "authority": "external",
+      "adapter": "backend",
+      "semantic": "security",
+      "editorial": "cloud",
+      "scene": "frontend",
+      "artifact": "database",
+      "capability": "messagebus",
+      "verification": "security",
+      "authorization": "security",
+      "publication": "backend",
+      "consumer": "external",
+      "feedback": "cloud",
+      "limit": "external",
+      "evolution": "cloud",
+      "obligation": "security"
+    },
+    "relationTypes": {
+      "selects": {
+        "label": "selects",
+        "variant": "default"
+      },
+      "maps": {
+        "label": "maps",
+        "variant": "default"
+      },
+      "binds": {
+        "label": "binds",
+        "variant": "emphasis"
+      },
+      "informs": {
+        "label": "informs",
+        "variant": "default"
+      },
+      "broadens": {
+        "label": "broadens",
+        "variant": "dashed"
+      },
+      "authors": {
+        "label": "authors",
+        "variant": "emphasis"
+      },
+      "invokes": {
+        "label": "invokes",
+        "variant": "default"
+      },
+      "compiles": {
+        "label": "compiles",
+        "variant": "emphasis"
+      },
+      "feeds": {
+        "label": "feeds",
+        "variant": "default"
+      },
+      "renders": {
+        "label": "renders",
+        "variant": "default"
+      },
+      "bundles": {
+        "label": "bundles",
+        "variant": "emphasis"
+      },
+      "qualifies": {
+        "label": "qualifies",
+        "variant": "security"
+      },
+      "gates": {
+        "label": "gates",
+        "variant": "security"
+      },
+      "authorizes": {
+        "label": "authorizes",
+        "variant": "security"
+      },
+      "recovers": {
+        "label": "recovers",
+        "variant": "dashed"
+      },
+      "serves": {
+        "label": "serves",
+        "variant": "default"
+      },
+      "returns": {
+        "label": "returns",
+        "variant": "dashed"
+      },
+      "excludes": {
+        "label": "excludes",
+        "variant": "dashed"
+      },
+      "compares": {
+        "label": "compares",
+        "variant": "default"
+      },
+      "derives": {
+        "label": "derives",
+        "variant": "emphasis"
+      },
+      "propagates": {
+        "label": "propagates",
+        "variant": "emphasis"
+      },
+      "requires": {
+        "label": "requires",
+        "variant": "security"
+      },
+      "renews": {
+        "label": "renews",
+        "variant": "dashed"
+      }
+    },
+    "principles": [
+      "Meaning before representation",
+      "One owner for every durable value",
+      "Independent media share identity, not geometry",
+      "Qualification never manufactures authority",
+      "Feedback returns through the native source lifecycle"
+    ]
+  },
+  "scenes": {
+    "static": {
+      "label": "Source-bound meaning becomes an exact, reviewable Edition",
+      "questions": [
+        "overview"
+      ],
+      "claims": [
+        "role-accepted-intent",
+        "role-implementation",
+        "role-runtime-observation",
+        "role-evidence",
+        "role-source-adapter",
+        "role-source-bundle",
+        "role-claim-model",
+        "role-edition",
+        "role-build-request",
+        "role-publisher-core",
+        "role-uncertainty",
+        "role-static-scene",
+        "role-static-artifact",
+        "role-static-renderer",
+        "role-interactive-scenes",
+        "role-interactive-atlas",
+        "role-interactive-renderer",
+        "role-edition-candidate",
+        "role-qualification-set",
+        "role-human-review",
+        "role-acceptance",
+        "role-authorization",
+        "role-publication",
+        "role-recovery",
+        "role-off-host-recovery",
+        "role-self-consumer",
+        "role-ethos-consumer",
+        "role-aigw-consumer",
+        "role-feedback",
+        "role-evolution-inputs",
+        "role-semantic-delta",
+        "role-affected-views",
+        "role-rebuild-obligations",
+        "role-semantic-verification-obligations",
+        "role-medium-verification-obligations",
+        "role-human-review-obligations",
+        "role-acceptance-obligations",
+        "role-publication-obligations",
+        "flow-intent-enters-adapter",
+        "flow-implementation-enters-adapter",
+        "flow-observation-enters-adapter",
+        "flow-evidence-enters-bundle",
+        "flow-adapter-builds-bundle",
+        "flow-bundle-binds-claims",
+        "flow-claims-inform-edition",
+        "flow-uncertainty-broadens-edition",
+        "flow-edition-authors-static",
+        "flow-edition-authors-interactive",
+        "flow-bundle-selects-build",
+        "flow-claims-select-build",
+        "flow-edition-selects-build",
+        "flow-build-invokes-core",
+        "flow-core-compiles-static",
+        "flow-core-compiles-interactive",
+        "flow-static-scene-enters-renderer",
+        "flow-interactive-scenes-enter-renderer",
+        "flow-backend-renders-static",
+        "flow-backend-renders-interactive",
+        "flow-static-enters-candidate",
+        "flow-interactive-enters-candidate",
+        "flow-candidate-enters-qualification",
+        "flow-human-review-enters-qualification",
+        "flow-qualification-precedes-acceptance",
+        "flow-acceptance-precedes-authorization",
+        "flow-authorization-precedes-publication",
+        "flow-publication-supports-recovery",
+        "flow-publication-serves-self",
+        "flow-publication-serves-ethos",
+        "flow-publication-serves-aigw",
+        "flow-publication-returns-feedback",
+        "flow-feedback-returns-to-adapter",
+        "flow-recovery-excludes-off-host",
+        "flow-models-enter-evolution",
+        "flow-edition-enters-evolution",
+        "flow-evolution-produces-delta",
+        "flow-delta-identifies-affected-views",
+        "flow-affected-views-require-rebuild",
+        "flow-affected-views-require-semantic-verification",
+        "flow-affected-views-require-medium-verification",
+        "flow-affected-views-require-human-review",
+        "flow-affected-views-require-acceptance",
+        "flow-affected-views-require-publication",
+        "flow-rebuild-renews-static",
+        "flow-rebuild-renews-interactive",
+        "flow-semantic-verification-renews-claims",
+        "flow-medium-verification-renews-qualification",
+        "flow-human-review-obligation-renews-review",
+        "flow-acceptance-obligation-renews-acceptance",
+        "flow-publication-obligation-renews-publication"
+      ],
+      "composition": {
+        "groups": [
+          {
+            "id": "source-field",
+            "label": "Source Bundle",
+            "entities": [
+              "accepted-intent",
+              "implementation",
+              "runtime-observation",
+              "evidence",
+              "source-adapter",
+              "source-bundle"
+            ]
+          },
+          {
+            "id": "semantic-contract",
+            "label": "Claim Model",
+            "entities": [
+              "claim-model",
+              "uncertainty"
+            ]
+          },
+          {
+            "id": "editorial-contract",
+            "label": "Edition",
+            "entities": [
+              "edition",
+              "build-request",
+              "publisher-core"
+            ]
+          },
+          {
+            "id": "static-scene",
+            "label": "Static scene",
+            "entities": [
+              "static-scene"
+            ]
+          },
+          {
+            "id": "interactive-scenes",
+            "label": "Interactive scenes",
+            "entities": [
+              "interactive-scenes"
+            ]
+          },
+          {
+            "id": "static-artifact",
+            "label": "SVG + PNG",
+            "entities": [
+              "static-renderer",
+              "static-artifact"
+            ]
+          },
+          {
+            "id": "interactive-artifact",
+            "label": "Standalone atlas",
+            "entities": [
+              "interactive-renderer",
+              "interactive-atlas"
+            ]
+          },
+          {
+            "id": "edition-candidate",
+            "label": "Candidate",
+            "entities": [
+              "edition-candidate"
+            ]
+          },
+          {
+            "id": "qualification",
+            "label": "Qualification",
+            "entities": [
+              "qualification-set",
+              "human-review"
+            ]
+          },
+          {
+            "id": "acceptance",
+            "label": "Acceptance",
+            "entities": [
+              "acceptance"
+            ]
+          },
+          {
+            "id": "authorization",
+            "label": "Authorization",
+            "entities": [
+              "authorization"
+            ]
+          },
+          {
+            "id": "recoverable-publication",
+            "label": "Publication",
+            "entities": [
+              "publication",
+              "recovery",
+              "off-host-recovery"
+            ]
+          },
+          {
+            "id": "consumers-feedback",
+            "label": "Adoption",
+            "entities": [
+              "self-consumer",
+              "ethos-consumer",
+              "aigw-consumer",
+              "feedback"
+            ]
+          },
+          {
+            "id": "evolution-inputs",
+            "label": "Before + after",
+            "entities": [
+              "evolution-inputs"
+            ]
+          },
+          {
+            "id": "semantic-delta",
+            "label": "Semantic delta",
+            "entities": [
+              "semantic-delta"
+            ]
+          },
+          {
+            "id": "affected-views",
+            "label": "Affected views",
+            "entities": [
+              "affected-views"
+            ]
+          },
+          {
+            "id": "rebuild-verification",
+            "label": "Rebuild + verify",
+            "entities": [
+              "rebuild-obligations",
+              "semantic-verification-obligations",
+              "medium-verification-obligations"
+            ]
+          },
+          {
+            "id": "review-publication",
+            "label": "Renew trust",
+            "entities": [
+              "human-review-obligations",
+              "acceptance-obligations",
+              "publication-obligations"
+            ]
+          }
+        ],
+        "relations": [
+          {
+            "id": "intent-enters-adapter",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "implementation-enters-adapter",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "observation-enters-adapter",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "evidence-enters-bundle",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "adapter-builds-bundle",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "bundle-binds-claims",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "claims-inform-edition",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "uncertainty-broadens-edition",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "bundle-selects-build",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "claims-select-build",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "edition-selects-build",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "build-invokes-core",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "edition-authors-static",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "core-compiles-static",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "edition-authors-interactive",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "core-compiles-interactive",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "static-scene-enters-renderer",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "backend-renders-static",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "interactive-scenes-enter-renderer",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "backend-renders-interactive",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "static-enters-candidate",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "interactive-enters-candidate",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "candidate-enters-qualification",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "human-review-enters-qualification",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "qualification-precedes-acceptance",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "acceptance-precedes-authorization",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "authorization-precedes-publication",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "publication-supports-recovery",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "recovery-excludes-off-host",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "publication-serves-self",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "publication-serves-ethos",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "publication-serves-aigw",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "publication-returns-feedback",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "feedback-returns-to-adapter",
+            "fromSide": "bottom",
+            "toSide": "bottom",
+            "route": "straight"
+          },
+          {
+            "id": "models-enter-evolution",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "edition-enters-evolution",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "evolution-produces-delta",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "delta-identifies-affected-views",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "affected-views-require-rebuild",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "affected-views-require-semantic-verification",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "affected-views-require-medium-verification",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "affected-views-require-human-review",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "affected-views-require-acceptance",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "affected-views-require-publication",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "rebuild-renews-static",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "rebuild-renews-interactive",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "semantic-verification-renews-claims",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "medium-verification-renews-qualification",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "human-review-obligation-renews-review",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "acceptance-obligation-renews-acceptance",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          },
+          {
+            "id": "publication-obligation-renews-publication",
+            "fromSide": "right",
+            "toSide": "left",
+            "route": "straight"
+          }
+        ]
+      },
+      "authoredInputSha256": "9689d2a80b6886efb75052a3ed9b4cf1632e5762f2920d8c087a06cc8dba3d53"
+    },
+    "interactive": {
+      "overview": {
+        "label": "The complete semantic publication system",
+        "purpose": "overview",
+        "questions": [
+          "overview"
+        ],
+        "claims": [
+          "role-accepted-intent",
+          "role-implementation",
+          "role-runtime-observation",
+          "role-evidence",
+          "role-source-adapter",
+          "role-source-bundle",
+          "role-claim-model",
+          "role-edition",
+          "role-build-request",
+          "role-publisher-core",
+          "role-uncertainty",
+          "role-static-scene",
+          "role-static-artifact",
+          "role-static-renderer",
+          "role-interactive-scenes",
+          "role-interactive-atlas",
+          "role-interactive-renderer",
+          "role-edition-candidate",
+          "role-qualification-set",
+          "role-human-review",
+          "role-acceptance",
+          "role-authorization",
+          "role-publication",
+          "role-recovery",
+          "role-off-host-recovery",
+          "role-self-consumer",
+          "role-ethos-consumer",
+          "role-aigw-consumer",
+          "role-feedback",
+          "role-evolution-inputs",
+          "role-semantic-delta",
+          "role-affected-views",
+          "role-rebuild-obligations",
+          "role-semantic-verification-obligations",
+          "role-medium-verification-obligations",
+          "role-human-review-obligations",
+          "role-acceptance-obligations",
+          "role-publication-obligations",
+          "flow-intent-enters-adapter",
+          "flow-implementation-enters-adapter",
+          "flow-observation-enters-adapter",
+          "flow-evidence-enters-bundle",
+          "flow-adapter-builds-bundle",
+          "flow-bundle-binds-claims",
+          "flow-claims-inform-edition",
+          "flow-uncertainty-broadens-edition",
+          "flow-edition-authors-static",
+          "flow-edition-authors-interactive",
+          "flow-bundle-selects-build",
+          "flow-claims-select-build",
+          "flow-edition-selects-build",
+          "flow-build-invokes-core",
+          "flow-core-compiles-static",
+          "flow-core-compiles-interactive",
+          "flow-static-scene-enters-renderer",
+          "flow-interactive-scenes-enter-renderer",
+          "flow-backend-renders-static",
+          "flow-backend-renders-interactive",
+          "flow-static-enters-candidate",
+          "flow-interactive-enters-candidate",
+          "flow-candidate-enters-qualification",
+          "flow-human-review-enters-qualification",
+          "flow-qualification-precedes-acceptance",
+          "flow-acceptance-precedes-authorization",
+          "flow-authorization-precedes-publication",
+          "flow-publication-supports-recovery",
+          "flow-publication-serves-self",
+          "flow-publication-serves-ethos",
+          "flow-publication-serves-aigw",
+          "flow-publication-returns-feedback",
+          "flow-feedback-returns-to-adapter",
+          "flow-recovery-excludes-off-host",
+          "flow-models-enter-evolution",
+          "flow-edition-enters-evolution",
+          "flow-evolution-produces-delta",
+          "flow-delta-identifies-affected-views",
+          "flow-affected-views-require-rebuild",
+          "flow-affected-views-require-semantic-verification",
+          "flow-affected-views-require-medium-verification",
+          "flow-affected-views-require-human-review",
+          "flow-affected-views-require-acceptance",
+          "flow-affected-views-require-publication",
+          "flow-rebuild-renews-static",
+          "flow-rebuild-renews-interactive",
+          "flow-semantic-verification-renews-claims",
+          "flow-medium-verification-renews-qualification",
+          "flow-human-review-obligation-renews-review",
+          "flow-acceptance-obligation-renews-acceptance",
+          "flow-publication-obligation-renews-publication"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "source-field",
+              "label": "Source field",
+              "entities": [
+                "accepted-intent",
+                "implementation",
+                "runtime-observation",
+                "evidence"
+              ]
+            },
+            {
+              "id": "intake",
+              "label": "Loss-aware intake",
+              "entities": [
+                "source-adapter",
+                "source-bundle"
+              ]
+            },
+            {
+              "id": "semantic-contract",
+              "label": "Semantic contract",
+              "entities": [
+                "claim-model",
+                "uncertainty"
+              ]
+            },
+            {
+              "id": "authorship",
+              "label": "Editorial contract",
+              "entities": [
+                "edition",
+                "build-request",
+                "publisher-core"
+              ]
+            },
+            {
+              "id": "scenes",
+              "label": "Independent scenes",
+              "entities": [
+                "static-scene",
+                "interactive-scenes"
+              ]
+            },
+            {
+              "id": "rendering",
+              "label": "Replaceable rendering",
+              "entities": [
+                "static-artifact",
+                "static-renderer",
+                "interactive-renderer",
+                "interactive-atlas"
+              ]
+            },
+            {
+              "id": "candidate",
+              "label": "Exact candidate",
+              "entities": [
+                "edition-candidate"
+              ]
+            },
+            {
+              "id": "qualification",
+              "label": "Non-compensating qualification",
+              "entities": [
+                "human-review",
+                "qualification-set",
+                "acceptance"
+              ]
+            },
+            {
+              "id": "authorization",
+              "label": "Explicit effect admission",
+              "entities": [
+                "authorization"
+              ]
+            },
+            {
+              "id": "effects",
+              "label": "Recoverable publication",
+              "entities": [
+                "publication",
+                "recovery",
+                "off-host-recovery"
+              ]
+            },
+            {
+              "id": "adoption",
+              "label": "Independent consumers",
+              "entities": [
+                "self-consumer",
+                "ethos-consumer",
+                "aigw-consumer"
+              ]
+            },
+            {
+              "id": "return",
+              "label": "Native source lifecycle",
+              "entities": [
+                "feedback"
+              ]
+            },
+            {
+              "id": "evolution",
+              "label": "Conservative evolution",
+              "entities": [
+                "evolution-inputs",
+                "semantic-delta",
+                "affected-views"
+              ]
+            },
+            {
+              "id": "renewal",
+              "label": "Independent renewal obligations",
+              "entities": [
+                "rebuild-obligations",
+                "semantic-verification-obligations",
+                "medium-verification-obligations",
+                "human-review-obligations",
+                "acceptance-obligations",
+                "publication-obligations"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "intent-enters-adapter",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "implementation-enters-adapter",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "observation-enters-adapter",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "evidence-enters-bundle",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "adapter-builds-bundle",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "bundle-binds-claims",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "claims-inform-edition",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -128
+            },
+            {
+              "id": "uncertainty-broadens-edition",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "edition-authors-static",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -192
+            },
+            {
+              "id": "edition-authors-interactive",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "bundle-selects-build",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 64
+            },
+            {
+              "id": "claims-select-build",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "edition-selects-build",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "build-invokes-core",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "core-compiles-static",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "core-compiles-interactive",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 64
+            },
+            {
+              "id": "static-scene-enters-renderer",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "interactive-scenes-enter-renderer",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "backend-renders-static",
+              "fromSide": "left",
+              "toSide": "right",
+              "route": "straight"
+            },
+            {
+              "id": "backend-renders-interactive",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "static-enters-candidate",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "interactive-enters-candidate",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "candidate-enters-qualification",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "human-review-enters-qualification",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "qualification-precedes-acceptance",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "acceptance-precedes-authorization",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "authorization-precedes-publication",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "publication-supports-recovery",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "publication-serves-self",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -128
+            },
+            {
+              "id": "publication-serves-ethos",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "publication-serves-aigw",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 128
+            },
+            {
+              "id": "publication-returns-feedback",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 256
+            },
+            {
+              "id": "feedback-returns-to-adapter",
+              "fromSide": "top",
+              "toSide": "bottom",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "recovery-excludes-off-host",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "models-enter-evolution",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 128
+            },
+            {
+              "id": "edition-enters-evolution",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 192
+            },
+            {
+              "id": "evolution-produces-delta",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "delta-identifies-affected-views",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "affected-views-require-rebuild",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -320
+            },
+            {
+              "id": "affected-views-require-semantic-verification",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -192
+            },
+            {
+              "id": "affected-views-require-medium-verification",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "affected-views-require-human-review",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 64
+            },
+            {
+              "id": "affected-views-require-acceptance",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 192
+            },
+            {
+              "id": "affected-views-require-publication",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 320
+            },
+            {
+              "id": "rebuild-renews-static",
+              "fromSide": "top",
+              "toSide": "bottom",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "rebuild-renews-interactive",
+              "fromSide": "top",
+              "toSide": "bottom",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 64
+            },
+            {
+              "id": "semantic-verification-renews-claims",
+              "fromSide": "top",
+              "toSide": "bottom",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "medium-verification-renews-qualification",
+              "fromSide": "top",
+              "toSide": "bottom",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "human-review-obligation-renews-review",
+              "fromSide": "top",
+              "toSide": "bottom",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "acceptance-obligation-renews-acceptance",
+              "fromSide": "top",
+              "toSide": "bottom",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "publication-obligation-renews-publication",
+              "fromSide": "top",
+              "toSide": "bottom",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            }
+          ]
+        }
+      },
+      "semantics": {
+        "label": "Source-bound meaning and uncertainty",
+        "purpose": "mechanism",
+        "questions": [
+          "semantics"
+        ],
+        "claims": [
+          "role-accepted-intent",
+          "role-implementation",
+          "role-runtime-observation",
+          "role-evidence",
+          "role-source-adapter",
+          "role-source-bundle",
+          "role-claim-model",
+          "role-uncertainty",
+          "role-edition",
+          "flow-intent-enters-adapter",
+          "flow-implementation-enters-adapter",
+          "flow-observation-enters-adapter",
+          "flow-evidence-enters-bundle",
+          "flow-adapter-builds-bundle",
+          "flow-bundle-binds-claims",
+          "flow-claims-inform-edition",
+          "flow-uncertainty-broadens-edition"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "sources",
+              "label": "Source evidence",
+              "entities": [
+                "accepted-intent",
+                "implementation",
+                "runtime-observation",
+                "evidence"
+              ]
+            },
+            {
+              "id": "adapter",
+              "label": "Loss-aware adapter",
+              "entities": [
+                "source-adapter"
+              ]
+            },
+            {
+              "id": "bundle",
+              "label": "Source Bundle",
+              "entities": [
+                "source-bundle"
+              ]
+            },
+            {
+              "id": "claims",
+              "label": "Claim Model",
+              "entities": [
+                "claim-model"
+              ]
+            },
+            {
+              "id": "uncertainty",
+              "label": "Explicit uncertainty",
+              "entities": [
+                "uncertainty"
+              ]
+            },
+            {
+              "id": "reader",
+              "label": "Reader contract",
+              "entities": [
+                "edition"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "intent-enters-adapter",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "implementation-enters-adapter",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "observation-enters-adapter",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "evidence-enters-bundle",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "adapter-builds-bundle",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "bundle-binds-claims",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "claims-inform-edition",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "uncertainty-broadens-edition",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            }
+          ]
+        }
+      },
+      "edition": {
+        "label": "Audience-specific Edition contract",
+        "purpose": "mechanism",
+        "questions": [
+          "edition"
+        ],
+        "claims": [
+          "role-claim-model",
+          "role-uncertainty",
+          "role-edition",
+          "role-build-request",
+          "role-publisher-core",
+          "role-static-scene",
+          "role-interactive-scenes",
+          "flow-claims-inform-edition",
+          "flow-uncertainty-broadens-edition",
+          "flow-edition-authors-static",
+          "flow-edition-authors-interactive",
+          "flow-claims-select-build",
+          "flow-edition-selects-build",
+          "flow-build-invokes-core",
+          "flow-core-compiles-static",
+          "flow-core-compiles-interactive"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "meaning",
+              "label": "Meaning",
+              "entities": [
+                "claim-model",
+                "uncertainty"
+              ]
+            },
+            {
+              "id": "reader",
+              "label": "Edition authorship",
+              "entities": [
+                "edition"
+              ]
+            },
+            {
+              "id": "build",
+              "label": "Build Request",
+              "entities": [
+                "build-request"
+              ]
+            },
+            {
+              "id": "compiler",
+              "label": "Generic compiler",
+              "entities": [
+                "publisher-core"
+              ]
+            },
+            {
+              "id": "static-scene",
+              "label": "Static scene",
+              "entities": [
+                "static-scene"
+              ]
+            },
+            {
+              "id": "interactive-scene",
+              "label": "Interactive scenes",
+              "entities": [
+                "interactive-scenes"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "claims-inform-edition",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "uncertainty-broadens-edition",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "edition-authors-static",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -128
+            },
+            {
+              "id": "edition-authors-interactive",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "claims-select-build",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 64
+            },
+            {
+              "id": "edition-selects-build",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 128
+            },
+            {
+              "id": "build-invokes-core",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "core-compiles-static",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "core-compiles-interactive",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 64
+            }
+          ]
+        }
+      },
+      "composition": {
+        "label": "Independent static and interactive composition",
+        "purpose": "mechanism",
+        "questions": [
+          "composition"
+        ],
+        "claims": [
+          "role-edition",
+          "role-build-request",
+          "role-publisher-core",
+          "role-static-scene",
+          "role-static-renderer",
+          "role-static-artifact",
+          "role-interactive-scenes",
+          "role-interactive-renderer",
+          "role-interactive-atlas",
+          "role-edition-candidate",
+          "flow-edition-authors-static",
+          "flow-edition-authors-interactive",
+          "flow-edition-selects-build",
+          "flow-build-invokes-core",
+          "flow-core-compiles-static",
+          "flow-core-compiles-interactive",
+          "flow-static-scene-enters-renderer",
+          "flow-interactive-scenes-enter-renderer",
+          "flow-backend-renders-static",
+          "flow-backend-renders-interactive",
+          "flow-static-enters-candidate",
+          "flow-interactive-enters-candidate"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "authorship",
+              "label": "Authorship and compilation",
+              "entities": [
+                "edition",
+                "build-request",
+                "publisher-core"
+              ]
+            },
+            {
+              "id": "static-scene",
+              "label": "Static scene",
+              "entities": [
+                "static-scene"
+              ]
+            },
+            {
+              "id": "static-renderer",
+              "label": "Static renderer",
+              "entities": [
+                "static-renderer"
+              ]
+            },
+            {
+              "id": "static-artifact",
+              "label": "SVG and 6000px PNG",
+              "entities": [
+                "static-artifact"
+              ]
+            },
+            {
+              "id": "interactive-scene",
+              "label": "Interactive scenes",
+              "entities": [
+                "interactive-scenes"
+              ]
+            },
+            {
+              "id": "interactive-renderer",
+              "label": "Interactive renderer",
+              "entities": [
+                "interactive-renderer"
+              ]
+            },
+            {
+              "id": "interactive-artifact",
+              "label": "Standalone HTML atlas",
+              "entities": [
+                "interactive-atlas"
+              ]
+            },
+            {
+              "id": "candidate",
+              "label": "Edition Candidate",
+              "entities": [
+                "edition-candidate"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "edition-authors-static",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -128
+            },
+            {
+              "id": "edition-authors-interactive",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "edition-selects-build",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "build-invokes-core",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "core-compiles-static",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "core-compiles-interactive",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 64
+            },
+            {
+              "id": "static-scene-enters-renderer",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "interactive-scenes-enter-renderer",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "backend-renders-static",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "backend-renders-interactive",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "static-enters-candidate",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "interactive-enters-candidate",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            }
+          ]
+        }
+      },
+      "qualification": {
+        "label": "Non-compensating qualification",
+        "purpose": "mechanism",
+        "questions": [
+          "qualification"
+        ],
+        "claims": [
+          "role-edition-candidate",
+          "role-qualification-set",
+          "role-human-review",
+          "role-acceptance",
+          "role-authorization",
+          "flow-candidate-enters-qualification",
+          "flow-human-review-enters-qualification",
+          "flow-qualification-precedes-acceptance",
+          "flow-acceptance-precedes-authorization"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "candidate",
+              "label": "Exact candidate",
+              "entities": [
+                "edition-candidate"
+              ]
+            },
+            {
+              "id": "qualification",
+              "label": "Qualification Set",
+              "entities": [
+                "qualification-set"
+              ]
+            },
+            {
+              "id": "human-review",
+              "label": "Human review",
+              "entities": [
+                "human-review"
+              ]
+            },
+            {
+              "id": "acceptance",
+              "label": "Acceptance",
+              "entities": [
+                "acceptance"
+              ]
+            },
+            {
+              "id": "authorization",
+              "label": "Effect authorization",
+              "entities": [
+                "authorization"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "candidate-enters-qualification",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "human-review-enters-qualification",
+              "fromSide": "top",
+              "toSide": "bottom",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "qualification-precedes-acceptance",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "acceptance-precedes-authorization",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            }
+          ]
+        }
+      },
+      "publication-recovery": {
+        "label": "Authorized publication and recovery",
+        "purpose": "mechanism",
+        "questions": [
+          "publication-recovery"
+        ],
+        "claims": [
+          "role-qualification-set",
+          "role-acceptance",
+          "role-authorization",
+          "role-publication",
+          "role-recovery",
+          "role-off-host-recovery",
+          "flow-qualification-precedes-acceptance",
+          "flow-acceptance-precedes-authorization",
+          "flow-authorization-precedes-publication",
+          "flow-publication-supports-recovery",
+          "flow-recovery-excludes-off-host"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "qualification",
+              "label": "Qualification",
+              "entities": [
+                "qualification-set"
+              ]
+            },
+            {
+              "id": "acceptance",
+              "label": "Acceptance",
+              "entities": [
+                "acceptance"
+              ]
+            },
+            {
+              "id": "authorization",
+              "label": "Authorization",
+              "entities": [
+                "authorization"
+              ]
+            },
+            {
+              "id": "publication",
+              "label": "Publication effect",
+              "entities": [
+                "publication"
+              ]
+            },
+            {
+              "id": "recovery",
+              "label": "Same-plan recovery",
+              "entities": [
+                "recovery"
+              ]
+            },
+            {
+              "id": "off-host-limit",
+              "label": "Off-host recovery limit",
+              "entities": [
+                "off-host-recovery"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "qualification-precedes-acceptance",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "acceptance-precedes-authorization",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "authorization-precedes-publication",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "publication-supports-recovery",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "recovery-excludes-off-host",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            }
+          ]
+        }
+      },
+      "adoption": {
+        "label": "Independent adoption and native feedback",
+        "purpose": "mechanism",
+        "questions": [
+          "adoption"
+        ],
+        "claims": [
+          "role-publication",
+          "role-self-consumer",
+          "role-ethos-consumer",
+          "role-aigw-consumer",
+          "role-feedback",
+          "role-source-adapter",
+          "flow-publication-serves-self",
+          "flow-publication-serves-ethos",
+          "flow-publication-serves-aigw",
+          "flow-publication-returns-feedback",
+          "flow-feedback-returns-to-adapter"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "publication",
+              "label": "Publication",
+              "entities": [
+                "publication"
+              ]
+            },
+            {
+              "id": "self",
+              "label": "Publisher self-use",
+              "entities": [
+                "self-consumer"
+              ]
+            },
+            {
+              "id": "ethos",
+              "label": "ETHOS adopter",
+              "entities": [
+                "ethos-consumer"
+              ]
+            },
+            {
+              "id": "aigw",
+              "label": "AIGW adopter",
+              "entities": [
+                "aigw-consumer"
+              ]
+            },
+            {
+              "id": "feedback",
+              "label": "Bounded findings",
+              "entities": [
+                "feedback"
+              ]
+            },
+            {
+              "id": "source-owner",
+              "label": "Native source owner",
+              "entities": [
+                "source-adapter"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "publication-serves-self",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -192
+            },
+            {
+              "id": "publication-serves-ethos",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "publication-serves-aigw",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 64
+            },
+            {
+              "id": "publication-returns-feedback",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 192
+            },
+            {
+              "id": "feedback-returns-to-adapter",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            }
+          ]
+        }
+      },
+      "evolution": {
+        "label": "Conservative semantic evolution",
+        "purpose": "mechanism",
+        "questions": [
+          "evolution"
+        ],
+        "claims": [
+          "role-claim-model",
+          "role-edition",
+          "role-evolution-inputs",
+          "role-semantic-delta",
+          "role-affected-views",
+          "role-rebuild-obligations",
+          "role-semantic-verification-obligations",
+          "role-medium-verification-obligations",
+          "role-human-review-obligations",
+          "role-acceptance-obligations",
+          "role-publication-obligations",
+          "role-static-scene",
+          "role-interactive-scenes",
+          "role-qualification-set",
+          "role-human-review",
+          "role-acceptance",
+          "role-publication",
+          "flow-models-enter-evolution",
+          "flow-edition-enters-evolution",
+          "flow-evolution-produces-delta",
+          "flow-delta-identifies-affected-views",
+          "flow-affected-views-require-rebuild",
+          "flow-affected-views-require-semantic-verification",
+          "flow-affected-views-require-medium-verification",
+          "flow-affected-views-require-human-review",
+          "flow-affected-views-require-acceptance",
+          "flow-affected-views-require-publication",
+          "flow-rebuild-renews-static",
+          "flow-rebuild-renews-interactive",
+          "flow-semantic-verification-renews-claims",
+          "flow-medium-verification-renews-qualification",
+          "flow-human-review-obligation-renews-review",
+          "flow-acceptance-obligation-renews-acceptance",
+          "flow-publication-obligation-renews-publication"
+        ],
+        "composition": {
+          "groups": [
+            {
+              "id": "inputs",
+              "label": "Exact before and after",
+              "entities": [
+                "claim-model",
+                "edition",
+                "evolution-inputs"
+              ]
+            },
+            {
+              "id": "delta",
+              "label": "Meaning change",
+              "entities": [
+                "semantic-delta"
+              ]
+            },
+            {
+              "id": "impact",
+              "label": "Affected Editions and scenes",
+              "entities": [
+                "affected-views"
+              ]
+            },
+            {
+              "id": "rebuild",
+              "label": "Rebuild",
+              "entities": [
+                "rebuild-obligations"
+              ]
+            },
+            {
+              "id": "verification",
+              "label": "Fresh verification",
+              "entities": [
+                "semantic-verification-obligations",
+                "medium-verification-obligations"
+              ]
+            },
+            {
+              "id": "review",
+              "label": "Fresh judgment",
+              "entities": [
+                "human-review-obligations",
+                "acceptance-obligations"
+              ]
+            },
+            {
+              "id": "effect",
+              "label": "Publication renewal",
+              "entities": [
+                "publication-obligations"
+              ]
+            },
+            {
+              "id": "renewed-values",
+              "label": "Renewed values",
+              "entities": [
+                "static-scene",
+                "interactive-scenes",
+                "qualification-set",
+                "human-review",
+                "acceptance",
+                "publication"
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "id": "models-enter-evolution",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "edition-enters-evolution",
+              "fromSide": "right",
+              "toSide": "left",
+              "route": "straight"
+            },
+            {
+              "id": "evolution-produces-delta",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "delta-identifies-affected-views",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "affected-views-require-rebuild",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -320
+            },
+            {
+              "id": "affected-views-require-semantic-verification",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -192
+            },
+            {
+              "id": "affected-views-require-medium-verification",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "affected-views-require-human-review",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 64
+            },
+            {
+              "id": "affected-views-require-acceptance",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 192
+            },
+            {
+              "id": "affected-views-require-publication",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 320
+            },
+            {
+              "id": "rebuild-renews-static",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": -64
+            },
+            {
+              "id": "rebuild-renews-interactive",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 64
+            },
+            {
+              "id": "semantic-verification-renews-claims",
+              "fromSide": "top",
+              "toSide": "bottom",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "medium-verification-renews-qualification",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "human-review-obligation-renews-review",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "acceptance-obligation-renews-acceptance",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            },
+            {
+              "id": "publication-obligation-renews-publication",
+              "fromSide": "bottom",
+              "toSide": "top",
+              "route": "auto",
+              "labelSegment": 0,
+              "labelDx": 0
+            }
+          ]
+        }
+      }
+    }
+  },
+  "qualification": {
+    "semantic": [
+      "source-and-claim-integrity"
+    ],
+    "coverage": [
+      "required-claims-and-omissions"
+    ],
+    "static": [
+      "painted-static-geometry"
+    ],
+    "interactive": [
+      "browser-behavior-and-complete-views"
+    ],
+    "accessibility": [
+      "keyboard-focus-contrast-text-and-reduced-motion"
+    ],
+    "installed": [
+      "offline-relocated-reproduction"
+    ],
+    "recovery": [
+      "replacement-and-interrupted-effect-recovery"
+    ],
+    "human": [
+      {
+        "predicate": "faithful",
+        "scope": {
+          "kind": "physical",
+          "medium": "static",
+          "artifact": "flagship-png",
+          "width": 6000,
+          "height": 3375
+        }
+      },
+      {
+        "predicate": "faithful",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "standalone-atlas",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "intelligible",
+        "scope": {
+          "kind": "physical",
+          "medium": "static",
+          "artifact": "flagship-png",
+          "width": 6000,
+          "height": 3375
+        }
+      },
+      {
+        "predicate": "intelligible",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "standalone-atlas",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "restrained",
+        "scope": {
+          "kind": "physical",
+          "medium": "static",
+          "artifact": "flagship-png",
+          "width": 6000,
+          "height": 3375
+        }
+      },
+      {
+        "predicate": "restrained",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "standalone-atlas",
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  "scope": "First-party product self-Edition; source-bound self-use, not independent adoption, source acceptance, or off-host recovery proof."
+}

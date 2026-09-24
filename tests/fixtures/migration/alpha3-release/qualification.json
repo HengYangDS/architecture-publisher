@@ -1,0 +1,708 @@
+{
+  "schema": "architecture.qualification-set/v1",
+  "candidateSha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60",
+  "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+  "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+  "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+  "records": [
+    {
+      "id": "machine.accessibility.keyboard-focus-contrast-text-and-reduced-motion",
+      "kind": "accessibility",
+      "subject": {
+        "kind": "edition-candidate",
+        "sha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "machine",
+        "id": "architecture-publisher:accessibility",
+        "implementationSha256": "5b2de63fbaef4a4fe190468b33da67b09601fde5f2697ced7e7904cc53d38454"
+      },
+      "predicate": "keyboard-focus-contrast-text-and-reduced-motion",
+      "scope": {
+        "kind": "viewport-set",
+        "value": "1440x1000-and-390x844"
+      },
+      "environment": {
+        "kind": "platform",
+        "value": "darwin-arm64; v26.9.0; chrome-154.0.8037.58"
+      },
+      "observations": [
+        {
+          "name": "standalone-browser-accessibility",
+          "value": {
+            "verdict": "PASS_BOUNDED",
+            "bytes": 8333,
+            "sha256": "bb7539bfc4aa18c7ecb60720c6d4e00f44f16e71992f580aeaf85dab30610b8c",
+            "candidateSha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60"
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "Local Chrome, keyboard, token contrast and reduced-motion checks are bounded to declared viewports; this is not assistive-technology user acceptance."
+      ]
+    },
+    {
+      "id": "machine.coverage.required-claims-and-omissions",
+      "kind": "coverage",
+      "subject": {
+        "kind": "edition-candidate",
+        "sha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "machine",
+        "id": "architecture-publisher:coverage",
+        "implementationSha256": "073ef7ef0d7ac02c1bf22123d280e33e04ed08c32dd206fc126560dc839fc6a1"
+      },
+      "predicate": "required-claims-and-omissions",
+      "scope": {
+        "kind": "document",
+        "value": "edition-coverage"
+      },
+      "environment": {
+        "kind": "platform",
+        "value": "darwin-arm64; v26.9.0; chrome-154.0.8037.58"
+      },
+      "observations": [
+        {
+          "name": "exact-candidate-build",
+          "value": {
+            "verdict": "PASS",
+            "bytes": 1441,
+            "sha256": "55bcfea37d73140553030cc459312e8faa5e613265dd1b4cb133f1ee948b9cac",
+            "candidateSha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60"
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": []
+    },
+    {
+      "id": "human.faithful.interactive",
+      "kind": "human",
+      "subject": {
+        "kind": "artifact",
+        "sha256": "a03cdcf780a1c13a63a579517c019b389d583801cc4ce754defea0f438661f52"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "human",
+        "id": "human:codex-thread-user:01a02017-5246-7d30-b47b-c717b7ec674f",
+        "implementationSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+      },
+      "predicate": "faithful",
+      "scope": {
+        "kind": "viewport",
+        "medium": "interactive",
+        "artifact": "standalone-atlas",
+        "width": 1440,
+        "height": 1000
+      },
+      "environment": {
+        "kind": "review-channel",
+        "value": "Codex Desktop exact-artifact approval"
+      },
+      "observations": [
+        {
+          "name": "explicit-decision",
+          "value": {
+            "statement": "已审阅，通过",
+            "reviewedAt": "2026-09-23T17:18:42Z",
+            "reviewRecordSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+          }
+        },
+        {
+          "name": "artifact-identity",
+          "value": {
+            "id": "standalone-atlas",
+            "medium": "interactive",
+            "sha256": "a03cdcf780a1c13a63a579517c019b389d583801cc4ce754defea0f438661f52",
+            "bytes": 3066913
+          }
+        },
+        {
+          "name": "edition-identity",
+          "value": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42"
+        },
+        {
+          "name": "rubric",
+          "value": {
+            "predicate": "faithful",
+            "faithful": "source truth and explicit limits",
+            "intelligible": "purpose hierarchy routes and mechanism completeness",
+            "restrained": "proportion typography whitespace rhythm color and absence of ornamental noise"
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "The task user approved the exact interactive bytes; this judgment does not transfer to future HTML bytes."
+      ]
+    },
+    {
+      "id": "human.faithful.static",
+      "kind": "human",
+      "subject": {
+        "kind": "artifact",
+        "sha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "human",
+        "id": "human:codex-thread-user:01a02017-5246-7d30-b47b-c717b7ec674f",
+        "implementationSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+      },
+      "predicate": "faithful",
+      "scope": {
+        "kind": "physical",
+        "medium": "static",
+        "artifact": "flagship-png",
+        "width": 6000,
+        "height": 3375
+      },
+      "environment": {
+        "kind": "review-channel",
+        "value": "Codex Desktop exact-artifact approval"
+      },
+      "observations": [
+        {
+          "name": "explicit-decision",
+          "value": {
+            "statement": "已审阅，通过",
+            "reviewedAt": "2026-09-23T17:18:42Z",
+            "reviewRecordSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+          }
+        },
+        {
+          "name": "artifact-identity",
+          "value": {
+            "id": "flagship-png",
+            "medium": "static",
+            "sha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490",
+            "bytes": 449939
+          }
+        },
+        {
+          "name": "edition-identity",
+          "value": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42"
+        },
+        {
+          "name": "rubric",
+          "value": {
+            "predicate": "faithful",
+            "faithful": "source truth and explicit limits",
+            "intelligible": "purpose hierarchy routes and mechanism completeness",
+            "restrained": "proportion typography whitespace rhythm color and absence of ornamental noise"
+          }
+        },
+        {
+          "name": "exact-static-carryover",
+          "value": {
+            "priorVersion": "v0.3.0-alpha.2",
+            "priorReviewSha256": "45f3b236cef1df8b13096dce2b5732447477f5dfc4da9538cd75ff2798ceb505",
+            "artifactSha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490",
+            "byteIdentical": true
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "The static artwork is byte-identical to its prior human-reviewed artifact; current source and Edition binding are checked independently."
+      ]
+    },
+    {
+      "id": "human.intelligible.interactive",
+      "kind": "human",
+      "subject": {
+        "kind": "artifact",
+        "sha256": "a03cdcf780a1c13a63a579517c019b389d583801cc4ce754defea0f438661f52"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "human",
+        "id": "human:codex-thread-user:01a02017-5246-7d30-b47b-c717b7ec674f",
+        "implementationSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+      },
+      "predicate": "intelligible",
+      "scope": {
+        "kind": "viewport",
+        "medium": "interactive",
+        "artifact": "standalone-atlas",
+        "width": 1440,
+        "height": 1000
+      },
+      "environment": {
+        "kind": "review-channel",
+        "value": "Codex Desktop exact-artifact approval"
+      },
+      "observations": [
+        {
+          "name": "explicit-decision",
+          "value": {
+            "statement": "已审阅，通过",
+            "reviewedAt": "2026-09-23T17:18:42Z",
+            "reviewRecordSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+          }
+        },
+        {
+          "name": "artifact-identity",
+          "value": {
+            "id": "standalone-atlas",
+            "medium": "interactive",
+            "sha256": "a03cdcf780a1c13a63a579517c019b389d583801cc4ce754defea0f438661f52",
+            "bytes": 3066913
+          }
+        },
+        {
+          "name": "edition-identity",
+          "value": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42"
+        },
+        {
+          "name": "rubric",
+          "value": {
+            "predicate": "intelligible",
+            "faithful": "source truth and explicit limits",
+            "intelligible": "purpose hierarchy routes and mechanism completeness",
+            "restrained": "proportion typography whitespace rhythm color and absence of ornamental noise"
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "The task user approved the exact interactive bytes; this judgment does not transfer to future HTML bytes."
+      ]
+    },
+    {
+      "id": "human.intelligible.static",
+      "kind": "human",
+      "subject": {
+        "kind": "artifact",
+        "sha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "human",
+        "id": "human:codex-thread-user:01a02017-5246-7d30-b47b-c717b7ec674f",
+        "implementationSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+      },
+      "predicate": "intelligible",
+      "scope": {
+        "kind": "physical",
+        "medium": "static",
+        "artifact": "flagship-png",
+        "width": 6000,
+        "height": 3375
+      },
+      "environment": {
+        "kind": "review-channel",
+        "value": "Codex Desktop exact-artifact approval"
+      },
+      "observations": [
+        {
+          "name": "explicit-decision",
+          "value": {
+            "statement": "已审阅，通过",
+            "reviewedAt": "2026-09-23T17:18:42Z",
+            "reviewRecordSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+          }
+        },
+        {
+          "name": "artifact-identity",
+          "value": {
+            "id": "flagship-png",
+            "medium": "static",
+            "sha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490",
+            "bytes": 449939
+          }
+        },
+        {
+          "name": "edition-identity",
+          "value": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42"
+        },
+        {
+          "name": "rubric",
+          "value": {
+            "predicate": "intelligible",
+            "faithful": "source truth and explicit limits",
+            "intelligible": "purpose hierarchy routes and mechanism completeness",
+            "restrained": "proportion typography whitespace rhythm color and absence of ornamental noise"
+          }
+        },
+        {
+          "name": "exact-static-carryover",
+          "value": {
+            "priorVersion": "v0.3.0-alpha.2",
+            "priorReviewSha256": "45f3b236cef1df8b13096dce2b5732447477f5dfc4da9538cd75ff2798ceb505",
+            "artifactSha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490",
+            "byteIdentical": true
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "The static artwork is byte-identical to its prior human-reviewed artifact; current source and Edition binding are checked independently."
+      ]
+    },
+    {
+      "id": "human.restrained.interactive",
+      "kind": "human",
+      "subject": {
+        "kind": "artifact",
+        "sha256": "a03cdcf780a1c13a63a579517c019b389d583801cc4ce754defea0f438661f52"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "human",
+        "id": "human:codex-thread-user:01a02017-5246-7d30-b47b-c717b7ec674f",
+        "implementationSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+      },
+      "predicate": "restrained",
+      "scope": {
+        "kind": "viewport",
+        "medium": "interactive",
+        "artifact": "standalone-atlas",
+        "width": 1440,
+        "height": 1000
+      },
+      "environment": {
+        "kind": "review-channel",
+        "value": "Codex Desktop exact-artifact approval"
+      },
+      "observations": [
+        {
+          "name": "explicit-decision",
+          "value": {
+            "statement": "已审阅，通过",
+            "reviewedAt": "2026-09-23T17:18:42Z",
+            "reviewRecordSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+          }
+        },
+        {
+          "name": "artifact-identity",
+          "value": {
+            "id": "standalone-atlas",
+            "medium": "interactive",
+            "sha256": "a03cdcf780a1c13a63a579517c019b389d583801cc4ce754defea0f438661f52",
+            "bytes": 3066913
+          }
+        },
+        {
+          "name": "edition-identity",
+          "value": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42"
+        },
+        {
+          "name": "rubric",
+          "value": {
+            "predicate": "restrained",
+            "faithful": "source truth and explicit limits",
+            "intelligible": "purpose hierarchy routes and mechanism completeness",
+            "restrained": "proportion typography whitespace rhythm color and absence of ornamental noise"
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "The task user approved the exact interactive bytes; this judgment does not transfer to future HTML bytes."
+      ]
+    },
+    {
+      "id": "human.restrained.static",
+      "kind": "human",
+      "subject": {
+        "kind": "artifact",
+        "sha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "human",
+        "id": "human:codex-thread-user:01a02017-5246-7d30-b47b-c717b7ec674f",
+        "implementationSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+      },
+      "predicate": "restrained",
+      "scope": {
+        "kind": "physical",
+        "medium": "static",
+        "artifact": "flagship-png",
+        "width": 6000,
+        "height": 3375
+      },
+      "environment": {
+        "kind": "review-channel",
+        "value": "Codex Desktop exact-artifact approval"
+      },
+      "observations": [
+        {
+          "name": "explicit-decision",
+          "value": {
+            "statement": "已审阅，通过",
+            "reviewedAt": "2026-09-23T17:18:42Z",
+            "reviewRecordSha256": "bf9b4d77427e2c6763be85b7ae28e37b9801b894760f4e84392b3404403a4cc4"
+          }
+        },
+        {
+          "name": "artifact-identity",
+          "value": {
+            "id": "flagship-png",
+            "medium": "static",
+            "sha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490",
+            "bytes": 449939
+          }
+        },
+        {
+          "name": "edition-identity",
+          "value": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42"
+        },
+        {
+          "name": "rubric",
+          "value": {
+            "predicate": "restrained",
+            "faithful": "source truth and explicit limits",
+            "intelligible": "purpose hierarchy routes and mechanism completeness",
+            "restrained": "proportion typography whitespace rhythm color and absence of ornamental noise"
+          }
+        },
+        {
+          "name": "exact-static-carryover",
+          "value": {
+            "priorVersion": "v0.3.0-alpha.2",
+            "priorReviewSha256": "45f3b236cef1df8b13096dce2b5732447477f5dfc4da9538cd75ff2798ceb505",
+            "artifactSha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490",
+            "byteIdentical": true
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "The static artwork is byte-identical to its prior human-reviewed artifact; current source and Edition binding are checked independently."
+      ]
+    },
+    {
+      "id": "machine.installed.offline-relocated-reproduction",
+      "kind": "installed",
+      "subject": {
+        "kind": "edition-candidate",
+        "sha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "machine",
+        "id": "architecture-publisher:installed",
+        "implementationSha256": "6a219605184fd71dde6ddcb32eda8cc515358707291ab0b0e37169567b503434"
+      },
+      "predicate": "offline-relocated-reproduction",
+      "scope": {
+        "kind": "execution",
+        "value": "offline-empty-home-relocated-inputs"
+      },
+      "environment": {
+        "kind": "platform",
+        "value": "darwin-arm64; v26.9.0; chrome-154.0.8037.58"
+      },
+      "observations": [
+        {
+          "name": "offline-installed-release-candidate",
+          "value": {
+            "verdict": "PASS",
+            "bytes": 1684,
+            "sha256": "fa41329617cbbde5a700d32a936822cd83fb3cf9130ab34520d70e7b5f8a2f69",
+            "candidateSha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60"
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "Local macOS offline relocated reproduction only; source products retain their own acceptance and release authority."
+      ]
+    },
+    {
+      "id": "machine.interactive.browser-behavior-and-complete-views",
+      "kind": "interactive",
+      "subject": {
+        "kind": "interactive-medium",
+        "sha256": "3022ff557a92488cb8ba8168385c0aa63f08d883f4e6c589ba0509bf73b77a95"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "machine",
+        "id": "architecture-publisher:interactive",
+        "implementationSha256": "5b2de63fbaef4a4fe190468b33da67b09601fde5f2697ced7e7904cc53d38454"
+      },
+      "predicate": "browser-behavior-and-complete-views",
+      "scope": {
+        "kind": "artifact-set",
+        "value": "interactive-medium"
+      },
+      "environment": {
+        "kind": "platform",
+        "value": "darwin-arm64; v26.9.0; chrome-154.0.8037.58"
+      },
+      "observations": [
+        {
+          "name": "standalone-browser-observation",
+          "value": {
+            "verdict": "PASS_BOUNDED",
+            "bytes": 8333,
+            "sha256": "bb7539bfc4aa18c7ecb60720c6d4e00f44f16e71992f580aeaf85dab30610b8c",
+            "candidateSha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60"
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "Local Chrome evidence is bounded to declared desktop and mobile viewports; it is not arbitrary-browser proof."
+      ]
+    },
+    {
+      "id": "machine.recovery.replacement-and-interrupted-effect-recovery",
+      "kind": "recovery",
+      "subject": {
+        "kind": "edition-candidate",
+        "sha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "machine",
+        "id": "architecture-publisher:recovery",
+        "implementationSha256": "528543a08b1521000ff6627c78478fb1adb282f57251caf8e9dd54a0700c6851"
+      },
+      "predicate": "replacement-and-interrupted-effect-recovery",
+      "scope": {
+        "kind": "execution",
+        "value": "replacement-and-interruption-recovery"
+      },
+      "environment": {
+        "kind": "platform",
+        "value": "darwin-arm64; v26.9.0; chrome-154.0.8037.58"
+      },
+      "observations": [
+        {
+          "name": "exact-head-proof",
+          "value": {
+            "verdict": "PASS",
+            "bytes": 204337,
+            "sha256": "68234451cbf599960439dd6363628436076a4b2364fbdc155763f3ecb2b7474c",
+            "candidateSha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60",
+            "attestationId": "97ce80a9a542548e0360b52aa77aea2fdb26ff696413a30fd71d09ef4910d643"
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "Exact-HEAD repository proof includes replacement and interruption regressions; authorized destination publication is a separate effect."
+      ]
+    },
+    {
+      "id": "machine.semantic.source-and-claim-integrity",
+      "kind": "semantic",
+      "subject": {
+        "kind": "claim-model",
+        "sha256": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "machine",
+        "id": "architecture-publisher:semantic",
+        "implementationSha256": "345d2592a35bd4c08ac2551775fb12bf152cc25b79721227c7bfba92b9f2b6b7"
+      },
+      "predicate": "source-and-claim-integrity",
+      "scope": {
+        "kind": "document",
+        "value": "claim-model"
+      },
+      "environment": {
+        "kind": "platform",
+        "value": "darwin-arm64; v26.9.0; chrome-154.0.8037.58"
+      },
+      "observations": [
+        {
+          "name": "exact-head-proof",
+          "value": {
+            "verdict": "PASS",
+            "bytes": 204337,
+            "sha256": "68234451cbf599960439dd6363628436076a4b2364fbdc155763f3ecb2b7474c",
+            "candidateSha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60",
+            "attestationId": "97ce80a9a542548e0360b52aa77aea2fdb26ff696413a30fd71d09ef4910d643"
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": []
+    },
+    {
+      "id": "machine.static.painted-static-geometry",
+      "kind": "static",
+      "subject": {
+        "kind": "static-medium",
+        "sha256": "a56ef8c47c206d3aad0b88b2b29e5ad56a096e46939cf7f51e24769d092cfe13"
+      },
+      "editionDigest": "fcbec2099b9b5d69cb3b7960d6a8c2e5821dcd261bba359b2efa676c2ed0dc42",
+      "sourceManifestSha256": "fe0be1b158cf4321187f7852f41f4eb0d5e63cee19e899e16953f72be78393f5",
+      "claimModelDigest": "38b7938dc66fc54ae318b6902a6963badc5d72ecf4e4969885fb1b1809153b7a",
+      "verifier": {
+        "kind": "machine",
+        "id": "architecture-publisher:static",
+        "implementationSha256": "da312bcd30a5e5459ec4b336502be191e126dd43cb6a0b4eb37b749474e68964"
+      },
+      "predicate": "painted-static-geometry",
+      "scope": {
+        "kind": "artifact-set",
+        "value": "static-medium"
+      },
+      "environment": {
+        "kind": "platform",
+        "value": "darwin-arm64; v26.9.0; chrome-154.0.8037.58"
+      },
+      "observations": [
+        {
+          "name": "exact-candidate-static-build",
+          "value": {
+            "verdict": "PASS_BOUNDED",
+            "bytes": 43959,
+            "sha256": "66c66fcb03ce40d5ad8dc4291355ce0e991d23e84c94bb475ca9ef217fd72a21",
+            "candidateSha256": "b051df1d3b424198998cedd43a7f467d9ce93ceda3d00717d97b3699ae534e60",
+            "artifacts": {
+              "svg": {
+                "bytes": 761702,
+                "sha256": "1c768de9c20593107ec55025cca07f5078b37661923470760390d19d9d2a338a"
+              },
+              "png": {
+                "bytes": 449939,
+                "sha256": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490"
+              }
+            }
+          }
+        }
+      ],
+      "verdict": "PASS",
+      "limitations": [
+        "Analytic scene, emitted SVG and raster checks do not substitute for human aesthetic review."
+      ]
+    }
+  ]
+}
