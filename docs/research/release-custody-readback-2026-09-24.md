@@ -72,6 +72,26 @@ PNG matches `0.1.0-alpha.3`. Without an independently bound original
 for a broken historical link. This search narrowed candidate custody paths;
 it recovered no original asset and made no upload, deletion, or rewrite.
 
+## Exact alpha.3 readback (2026-09-24 09:50 UTC)
+
+For `v0.3.0-alpha.3`, a bounded authenticated `GET` followed **each of the ten
+Release link paths**, preserving the encoded project and filenames, with
+`GLAB_NO_PROMPT=1`, closed stdin, and an owned process deadline. All ten
+responses matched the corresponding numeric-project package endpoint and the
+local release-staging bytes. The nine non-checksum assets matched all nine
+entries in the remotely fetched `SHA256SUMS`; that checksum file has SHA-256
+`c3ff452d36f54455db693aab777a9f7cfe026adb1282e609c92a9844d87c5018`
+and itself matched the local release-staging copy. The Release manifest has
+SHA-256 `90bf0e42b28a5839b16fe32b3f36af5a00c1bddbb0bc2849a1f53c24ce0abc66`.
+The local annotated tag signature verified, and `git ls-remote` returned the
+same tag object `9acd432e614f39b1a4ed12fe1fe94bae6ba9f0ad` and peeled
+commit `b01dafa5ab1f34cdb026afde90821c66b09179da` as the local ref.
+
+This proves the ten selected alpha.3 link bytes were reachable and mutually
+consistent at readback time; it does not turn an unsigned external checksum
+file into a signature over assets, verify every other Release, repair the
+alpha.0 links, or establish independent off-host recovery.
+
 ## Consequence and repair bar
 
 The `v0.1.0-alpha.0` Release record and signed tag exist, but its twelve linked
