@@ -183,7 +183,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       expected derived reply bytes through the existing process-tree supervisor;
       mixed-mode and direct/Provider Edition cases preserve selected identity.
       Focused Provider, supervisor, and module-boundary tests passed; static
-      and package checks passed. The full behavior run passed 740 tests,
+      and package checks passed. The full behavior run passed 741 tests,
       skipped 2, with no test failures; branch coverage is 93.03% against the
       95% release gate, so `npm run check` remains red.
       An independently reproduced ancestor-symlink race leaves confinement
@@ -223,7 +223,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       `tests/edition-provider-installed.test.mjs` cover complete package-content
       digest, sanitized configuration, size/path limits, relocation, offline use,
       ambient-checkout noninterference, and allowed public imports. State clearly
-      that supervision is not a filesystem/network/credential sandbox.
+      that supervision is not a filesystem/network/credential sandbox. Partial
+      successor evidence: `tests/provider-installed-selection.test.mjs` packs
+      Publisher and an executable Provider, installs both offline in an isolated
+      consumer, imports Publisher's declared public semantic contract, and
+      materializes the selected lock with empty user configuration and a PATH
+      containing no commands.
+      Adjacent decoy directories do not change it; after copying the installed
+      product and deleting the original temporary tree, the selected lock and
+      bytes remain identical. This is macOS installed-input evidence, not a
+      Candidate build, complete dependency observation, or native Linux/Windows
+      conformance.
 - [ ] 3.3 In `tests/edition-provider-conformance.test.mjs`, prove equivalent
       selected contents have identical materialized identities across modes while
       invocation receipts differ. Extend `tests/module-boundaries.test.mjs` to
