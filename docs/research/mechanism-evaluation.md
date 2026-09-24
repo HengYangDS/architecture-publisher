@@ -371,6 +371,47 @@ aggregate names or treating the view profile as a second source of product
 truth. The general contract and its user experience remain design hypotheses
 until AIGW, ETHOS, self, and unrelated-domain workloads are tested.
 
+## AIGW authored-input cost and revision-kind counterexample (2026-09-24)
+
+At AIGW `ea9b600b957f53737eb605772825e43de2d01ac5`, the declarative
+Provider already lives at the source-owned `architecture/edition-provider/`
+location. Its authored scope is explicitly **AIGW Client Projection** at its
+declared source revision, not the whole AIGW product. The Claim Model has 12
+entities, 11 relations, and 14 source members; all 14 recorded source hashes
+match both its captured Source Bundle and the corresponding live files at the
+observed HEAD. That byte match does not expand the Edition's stated scope to
+onboarding, route/model lifecycle, readiness, update, or other product areas
+visible in current `internal/cli/app.go` command composition.
+
+The current source-owned `materialize.mjs` is 621 lines, `edition.json` is 517
+lines, and `semantic.json` is 477 lines. Structurally, the Edition's `scenes`
+section occupies 461 lines when pretty-printed and contains 33 route choices,
+each with side directives across independent media scenes. This is an
+authoring-cost signal, not a code-quality score: separate static and
+interactive compositions are intentional, but source maintainers should not
+need to own generic package installation, source packing, derived hash
+rewriting, candidate building, and atomic replacement merely to maintain a
+12/11 architecture chapter. The successor should test whether Publisher can
+derive those identities and mechanics from source selectors and editorial
+intent without losing AIGW's semantic or visual control.
+
+The Provider's 64-hex subject revision is **not** a Git commit. In
+`materialize.mjs:213–216`, AIGW removes `semantic.context.revision`, computes
+SHA-256 over Publisher-canonical JSON of the remaining semantic model, and
+sets that value as the revision. Independent recomputation produced
+`e1972e7211d8835b82e628b77a4de80fbc9b05960074142fbaf830b8e03d4ac7`,
+exactly matching the Claim Model and Provider. The captured Source Bundle
+manifest also hashes to the Provider's declared
+`7915527c43865d917645cb5b5c4ecd6f78f9c4ffa532243e5d89e61925da4f06`.
+The attempted Git object and GitLab commit lookups used the wrong resolver;
+their failure is **not** evidence of a lost source commit. The v1 contract
+allows an untyped revision string, which made this category error possible.
+The successor should declare revision kind and verification method: verify this
+content-derived revision by its canonical digest, apply Git resolution only to
+an explicitly selected VCS reference, and never infer either meaning from a
+hash-shaped string. Verified content identity does not itself establish source
+endorsement, implementation truth, or whole-product coverage.
+
 ## Additional source-level comparators (2026-09-24)
 
 The following stable-tag sources were inspected through the GitHub CLI and

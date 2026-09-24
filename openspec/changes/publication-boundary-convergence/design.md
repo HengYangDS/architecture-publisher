@@ -22,6 +22,11 @@ The observed pressure is specific:
   source-side materializer and Edition are 621 and 517 lines. Line count is
   not a quality score, but source-side authoring cost is a product acceptance
   measure, not an adopter problem to ignore.
+- At the observed AIGW HEAD, all 14 selected source-member hashes still match
+  the live files. Its v1 Provider revision is a reproducible SHA-256 of its
+  canonical semantic model, not a Git commit. The v1 protocol's untyped
+  `revision` string permitted an investigative Git lookup to be mistaken for a
+  provenance failure; revision kind and verifier must be explicit.
 - ETHOS's selected terminal graph has 113 nodes and 164 edges. Its view profile
   declares 24 aggregates, explicit forbidden aggregation pairs, and rules
   that hidden IDs or metadata do not earn visible semantic coverage. A complete
@@ -160,6 +165,20 @@ may instead select already pinned inputs for replay; a pin mismatch fails
 before compilation. Changed bytes at an unpinned authoring locator produce a
 new lock, Candidate, and applicable verification obligations, not silent reuse
 of the previous lock or approval.
+
+The versioned envelope identifies each revision's kind and verification
+method, rather than guessing from the shape of a string. A content-derived
+revision is checked against its declared canonical inputs and algorithm; an
+explicit VCS reference is checked against its selected repository; a native
+opaque revision remains an attributed label unless its format adapter can
+verify it. Git resolution is not applicable to a content revision with no VCS
+claim. If a required VCS selector cannot resolve during materialization,
+selection fails rather than falling back to HEAD. Exact bytes supplied by
+another route may still compile with a scoped VCS-provenance limitation when
+VCS provenance was actually claimed; applicable acceptance policy determines
+whether that limitation blocks qualification. Neither a content digest nor a
+matching current checkout silently grants source endorsement, implemented
+behavior, or a newer revision identity.
 
 The Edition project may live in the source repository, a separate editorial
 repository, or a standalone directory. This changes neither source authority
