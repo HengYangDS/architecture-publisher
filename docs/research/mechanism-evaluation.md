@@ -305,12 +305,47 @@ LikeC4 model/view computation or browser-offline behavior. A qualified
 Publisher backend must disable, deterministically configure, or safely
 normalize this ancillary edit URL before claiming repeated artifact identity.
 
+A second, fairer direct-use probe kept the same 25-element/35-relation native
+model and replaced only the three `include *` view filters with 25 explicit
+element selections. This added 22 net source lines, from 102 to 124; it did not
+copy or re-author model facts. LikeC4 validated the edited sources and exported
+the following view memberships and static PNGs:
+
+| View            | Nodes / edges | PNG dimensions | Repeated PNG bytes |
+| --------------- | ------------: | -------------: | :----------------: |
+| Generated index |       25 / 35 |   12988 × 2872 |       equal        |
+| `five_layers`   |         5 / 4 |     752 × 2872 |       equal        |
+| `packages`      |       14 / 26 |    9742 × 2872 |       equal        |
+| `runtime_flow`  |         6 / 5 |    2472 × 1672 |       equal        |
+
+The generated index still shows the full model, while the three authored views
+are genuinely scoped. `likec4 build --output-single-file --use-hash-history`
+also produced a roughly 3.2 MB HTML file. Copied alone into a different
+directory, it opened from `file:` with HTTP(S) requests blocked; the overview
+and a direct `runtime_flow` route rendered with no page errors or outbound
+requests. The [1440 × 900 overview observation](evidence/di-effect-likec4-targeted-overview.png)
+shows all four view cards but also extensive unused lower canvas, generic
+labels, and no reader-question descriptions. It is an observation of this
+unedited presentation, not a claim that LikeC4 cannot be styled.
+
+Two edited-view builds from the same source and output path still produced
+different HTML bytes (SHA-256
+`5c49aef2718ca6350bc2e8b1a856e732a2fdd030506f965c64280ceefae1db7a`
+and `f6bd8ba2d58d3adfdfbaac2fcea91d2709c255105e4e167d4373744d8d33e26e`),
+consistent with the Draw.io timestamp mechanism above. PNG export initially
+failed because the installed CLI's Playwright browser revisions were absent;
+after supplying its exact browser revisions, export succeeded. This is an
+installed/offline toolchain-closure cost, not a model/view correctness failure.
+Accessibility was not evaluated in this probe.
+
 **Design consequence:** admit native LikeC4 without a duplicate editable Claim
 Model, reuse its model/view machinery, but distinguish source-defined stable
 references from revision-scoped generated IDs. A source change or relocation
-may require explicit lineage/review; Publisher must supply the reader-specific
-editing absent from these `include *` views instead of forcing the source to
-hand-author a second full diagram model.
+may require explicit lineage/review. Direct LikeC4 with edited native views is
+a genuine low-cost alternative for this small adopter; Publisher should
+interpose only where it demonstrably improves reader editing, medium quality,
+trace/evidence, or update cost beyond that direct path, without forcing a
+second full diagram model.
 
 ## ETHOS source-owned abstraction counterexample (2026-09-24)
 
