@@ -9,6 +9,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright-core';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { editionDigest, validateEdition } from '../packages/publisher/src/edition/contract.mjs';
 import { compareEditionInput } from '../packages/publisher/src/edition/input.mjs';
 import {
@@ -163,11 +164,11 @@ test('Publisher retains only immutable AIGW source-ownership evidence', async (t
     encoding: null,
   });
   assert.equal(extracted.status, 0, extracted.stderr?.toString());
-  const packed = JSON.parse(
+  const packed = parseNpmPackRecord(
     run('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', historical], {
       cwd: source,
     }),
-  )[0];
+  );
   assert.equal(packed.filename, handoff.publisher.package.file);
   assert.equal(
     npmPackageIdentity(await fs.readFile(path.join(historical, packed.filename))).contentTarSha256,
@@ -223,11 +224,11 @@ test(
       handoff.aigw.evolution.obligations,
     );
 
-    const archive = JSON.parse(
+    const archive = parseNpmPackRecord(
       run('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', temporary], {
         cwd: publisher,
       }),
-    )[0];
+    );
     const archivePath = path.join(temporary, archive.filename);
     assert.equal(archive.name, handoff.publisher.successor.package.name);
     assert.equal(archive.version, handoff.publisher.successor.package.version);

@@ -5,6 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import * as semantics from '../packages/publisher/src/semantics/document.mjs';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
@@ -161,7 +162,7 @@ test('the development-only migration tool is excluded from the package', () => {
     timeout: 60000,
   });
   assert.equal(result.status, 0, result.stderr);
-  const files = JSON.parse(result.stdout)[0].files.map((item) => item.path);
+  const files = parseNpmPackRecord(result.stdout).files.map((item) => item.path);
   assert(!files.some((file) => file.startsWith('tools/migration/')));
   assert(!files.some((file) => file.includes('semantic-document-v1')));
 });

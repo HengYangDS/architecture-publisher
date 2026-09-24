@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const publisher = path.join(root, 'packages/publisher');
@@ -29,7 +30,7 @@ test('installed file publication preserves explicit non-ETHOS pairs without proj
     publisher,
   );
   assert.equal(packed.status, 0, packed.stderr);
-  const info = JSON.parse(packed.stdout)[0];
+  const info = parseNpmPackRecord(packed.stdout);
   const consumer = path.join(temporary, 'consumer'),
     home = path.join(temporary, 'home');
   await fs.mkdir(consumer);

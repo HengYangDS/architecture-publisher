@@ -5,6 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import {
   editionCandidateDigest,
@@ -456,8 +457,8 @@ test('the installed self Edition prepares portable standard inputs and leaves Co
     );
   assert.equal(packedCore.status, 0, packedCore.stderr);
   assert.equal(packedSelf.status, 0, packedSelf.stderr);
-  const core = JSON.parse(packedCore.stdout)[0],
-    self = JSON.parse(packedSelf.stdout)[0],
+  const core = parseNpmPackRecord(packedCore.stdout),
+    self = parseNpmPackRecord(packedSelf.stdout),
     consumer = path.join(parent, 'consumer');
   await fs.mkdir(consumer);
   const installed = spawnSync(

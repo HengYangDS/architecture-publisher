@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 import { npmPackageIdentity } from './fixtures/package-identity.mjs';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const handoffPath = path.join(root, 'conformance/fixtures/ethos-source-owned-handoff.json');
@@ -228,12 +229,12 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
     { cwd: root, maxBuffer: 32 * 1024 * 1024 },
   );
   execFileSync('tar', ['-xf', '-', '-C', source], { input: sourceArchive });
-  const pack = JSON.parse(
+  const pack = parseNpmPackRecord(
     execFileSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', work], {
       cwd: source,
       encoding: 'utf8',
     }),
-  )[0];
+  );
   const archive = path.join(work, pack.filename);
   const packageIdentity = npmPackageIdentity(await fs.readFile(archive));
   assert.equal(packageIdentity.contentTarSha256, handoff.publisher.core.package.contentTarSha256);
@@ -281,12 +282,12 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
     { cwd: root, maxBuffer: 32 * 1024 * 1024 },
   );
   execFileSync('tar', ['-xf', '-', '-C', successorSource], { input: successorArchive });
-  const successorPack = JSON.parse(
+  const successorPack = parseNpmPackRecord(
     execFileSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', work], {
       cwd: successorSource,
       encoding: 'utf8',
     }),
-  )[0];
+  );
   assert.equal(successorPack.filename, handoff.publisher.successor.package.file);
   const successorIdentity = npmPackageIdentity(
     await fs.readFile(path.join(work, successorPack.filename)),

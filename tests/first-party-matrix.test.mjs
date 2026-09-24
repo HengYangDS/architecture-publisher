@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { npmPackageIdentity } from './fixtures/package-identity.mjs';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -198,7 +199,7 @@ test('the first-party matrix binds all consumers to one exact generic package', 
     { cwd: source, encoding: 'utf8', timeout: 60_000 },
   );
   assert.equal(packed.status, 0, packed.stderr);
-  const archive = path.join(temporary, JSON.parse(packed.stdout)[0].filename);
+  const archive = path.join(temporary, parseNpmPackRecord(packed.stdout).filename);
   const archiveBytes = await fs.readFile(archive);
   const packageIdentity = npmPackageIdentity(archiveBytes);
   assert.match(matrix.publisher.package.archiveSha256, /^[0-9a-f]{64}$/u);
@@ -223,7 +224,7 @@ test('the first-party matrix binds all consumers to one exact generic package', 
     { cwd: successorSource, encoding: 'utf8', timeout: 60_000 },
   );
   assert.equal(successorPacked.status, 0, successorPacked.stderr);
-  const successorInfo = JSON.parse(successorPacked.stdout)[0];
+  const successorInfo = parseNpmPackRecord(successorPacked.stdout);
   const successorBytes = await fs.readFile(path.join(temporary, successorInfo.filename));
   const successorIdentity = npmPackageIdentity(successorBytes);
   assert.equal(successorInfo.filename, matrix.successor.publisher.package.file);

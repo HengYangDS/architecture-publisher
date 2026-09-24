@@ -7,6 +7,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
 import { RASTER_LIMITS } from '../packages/publisher/renderers/resvg/limits.mjs';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
 const hash = (b) => createHash('sha256').update(b).digest('hex');
@@ -21,9 +22,9 @@ test('installed raster command needs only explicit input and its pinned static s
     assert.equal(r.status, 0, r.stdout + r.stderr);
     return r.stdout;
   };
-  const pack = JSON.parse(
+  const pack = parseNpmPackRecord(
     run('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', dir], publisher),
-  )[0];
+  );
   assert(pack.files.some((f) => f.path === 'renderers/resvg/index.mjs'));
   assert(pack.files.some((f) => f.path === 'renderers/resvg/supply/resvg/index_bg.wasm'));
   const observedNoticePath = 'renderers/resvg/supply/resvg/THIRD-PARTY-NOTICES.txt';

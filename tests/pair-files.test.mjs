@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import {
   planPairFiles,
   installPairFiles,
@@ -1197,7 +1198,7 @@ test('installed file engine handles explicit roots with no developer executables
       encoding: 'utf8',
     });
   assert.equal(pack.status, 0, pack.stderr);
-  const info = JSON.parse(pack.stdout)[0],
+  const info = parseNpmPackRecord(pack.stdout),
     consumer = path.join(dir, 'installed');
   await fs.mkdir(consumer);
   const installation = spawnSync(

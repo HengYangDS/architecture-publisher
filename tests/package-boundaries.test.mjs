@@ -4,6 +4,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
@@ -120,7 +121,7 @@ test('the packed generic product contains no concrete domain package', () => {
     0,
     String(packed.stdout ?? '') + String(packed.stderr ?? '') + String(packed.error ?? ''),
   );
-  const files = JSON.parse(packed.stdout)[0].files.map(({ path: file }) => file);
+  const files = parseNpmPackRecord(packed.stdout).files.map(({ path: file }) => file);
   assert(files.includes('src/cli/main.mjs'));
   assert(files.includes('src/edition/contract.mjs'));
   assert(files.includes('src/provider/contract.mjs'));

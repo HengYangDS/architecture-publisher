@@ -5,6 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { createEditionCandidate } from '../packages/publisher/src/compiler/candidate.mjs';
 import {
   interactiveSceneDigest,
@@ -35,7 +36,7 @@ test('packed CLI verifies relocated non-Git input without development executable
     encoding: 'utf8',
   });
   assert.equal(pack.status, 0, pack.stderr);
-  const info = JSON.parse(pack.stdout)[0];
+  const info = parseNpmPackRecord(pack.stdout);
   assert(info.files.some((f) => f.path === 'src/cli/main.mjs'));
   assert(
     info.files.every(

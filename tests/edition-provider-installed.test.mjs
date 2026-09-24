@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
@@ -77,7 +78,7 @@ test('packed Publisher executes a relocated Provider and reclaims a rejected des
     npmEnv,
   );
   assert.equal(packed.status, 0, packed.stderr);
-  const archive = JSON.parse(packed.stdout)[0];
+  const archive = parseNpmPackRecord(packed.stdout);
   assert.equal(archive.name, 'architecture-publisher');
   assert(archive.files.some(({ path: name }) => name === 'src/provider/worker-task.mjs'));
   const installed = run(

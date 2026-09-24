@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { claimModelDigest } from '../packages/publisher/src/semantics/document.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { editionFixture } from './fixtures/edition.mjs';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const publisher = path.join(root, 'packages/publisher');
@@ -171,7 +172,7 @@ test('packed compiler relocates and runs offline without ETHOS-specific modules'
     { cwd: publisher, encoding: 'utf8', timeout: 60000 },
   );
   assert.equal(pack.status, 0, pack.stderr);
-  const info = JSON.parse(pack.stdout)[0],
+  const info = parseNpmPackRecord(pack.stdout),
     consumer = path.join(f.dir, 'consumer');
   await fs.mkdir(consumer);
   const install = spawnSync(

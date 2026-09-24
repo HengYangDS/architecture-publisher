@@ -1,5 +1,6 @@
 import test from 'node:test';
 import { npmPackageIdentity } from './fixtures/package-identity.mjs';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -329,9 +330,9 @@ test('installed non-ETHOS examples support both media, updates and local bundles
     assert.equal(r.status, 0, r.stdout + r.stderr);
     return r.stdout;
   };
-  const pack = JSON.parse(
+  const pack = parseNpmPackRecord(
     run('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', dir], publisher),
-  )[0];
+  );
   const consumer = path.join(dir, 'independent consumer'),
     home = path.join(dir, 'empty home');
   await fs.mkdir(consumer);

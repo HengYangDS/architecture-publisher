@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { parseNpmPackRecord } from './npm-pack-report.mjs';
 
 function run(command, args, cwd, timeout = 60000) {
   const result = spawnSync(command, args, {
@@ -20,7 +21,7 @@ function run(command, args, cwd, timeout = 60000) {
 }
 
 function archive(directory, result) {
-  return path.join(directory, JSON.parse(result.stdout)[0].filename);
+  return path.join(directory, parseNpmPackRecord(result.stdout).filename);
 }
 
 export async function installCoreAndSelf(root, directory) {
@@ -55,7 +56,7 @@ export async function installCoreAndSelf(root, directory) {
     consumer,
     coreRoot: path.join(consumer, 'node_modules/architecture-publisher'),
     selfRoot: path.join(consumer, 'node_modules/@architecture-publisher/self-edition'),
-    core: JSON.parse(core.stdout)[0],
-    extension: JSON.parse(extension.stdout)[0],
+    core: parseNpmPackRecord(core.stdout),
+    extension: parseNpmPackRecord(extension.stdout),
   };
 }

@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
 const sha = (b) => createHash('sha256').update(b).digest('hex');
@@ -187,9 +188,9 @@ test(
       assert.equal(r.status, 0, r.stdout + r.stderr);
       return r.stdout;
     };
-    const packed = JSON.parse(
+    const packed = parseNpmPackRecord(
       runNpm(['pack', '--ignore-scripts', '--json', '--pack-destination', f.dir]),
-    )[0];
+    );
     assert(packed.files.some((x) => x.path === 'renderers/svg/coretext.swift'));
     const consumer = path.join(f.dir, 'consumer');
     await fs.mkdir(consumer);

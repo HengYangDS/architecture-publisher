@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 
@@ -47,13 +48,12 @@ test('the packaged Skill remains a thin public CLI projection', async () => {
     timeout: 60000,
   });
   assert.equal(packed.status, 0, packed.stderr);
+  const files = parseNpmPackRecord(packed.stdout).files;
   assert.equal(
-    JSON.parse(packed.stdout)[0].files.some((file) => /(^|\/)skills\//.test(file.path)),
+    files.some((file) => /(^|\/)skills\//.test(file.path)),
     false,
   );
-  assert(
-    JSON.parse(packed.stdout)[0].files.every((file) => !file.path.startsWith('docs/research/')),
-  );
+  assert(files.every((file) => !file.path.startsWith('docs/research/')));
 });
 
 test('current guidance names only the public 0.3 command and package boundaries', async () => {

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const runGit = (...args) => {
@@ -169,7 +170,7 @@ test('installed package exposes archpub and no architecture compatibility comman
     { cwd: path.join(root, 'packages/publisher'), encoding: 'utf8' },
   );
   assert.equal(packed.status, 0, packed.stderr);
-  const info = JSON.parse(packed.stdout)[0];
+  const info = parseNpmPackRecord(packed.stdout);
   const consumer = path.join(out, 'consumer');
   await fs.mkdir(consumer);
   const installed = spawnSync(
