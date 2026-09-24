@@ -259,8 +259,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       an editable duplicate Claim Model. Source-level and disposable probes of
       LikeC4 1.59.4 found public in-memory `fromSources` and `locate` support for
       exact selected files and source positions on frozen di-effect inputs;
-      optional parser peers and the measured dependency tree remain unqualified.
-      No adapter implementation or installed-use claim is complete.
+      a first importer now checks locked bytes, the exact parser document set,
+      source ranges, and cross-source references without treating generated
+      relation IDs as stable or the generated index view as authored. On the
+      three frozen di-effect files it observed 25 elements, 35 relations, three
+      located authored views, and one unlocated generated index. The focused
+      13/13 tests, static checks, and package lint passed; the full behavior
+      run passed 765 tests, skipped 2, while branch coverage stayed at 92.90%
+      against 95%. Ruling: native `.c4` bytes have no embedded syntax version,
+      so their format version is `unversioned`; parser version 1.59.4 is a
+      separate toolchain identity. This import proves only the parsed document
+      set, not complete read closure. The parser and declared peers are pinned
+      for development tests but not shipped or package-content qualified;
+      bounded execution, exact includes, installed build integration, and
+      visible semantic coverage remain open. This task stays unchecked.
 - [ ] 4.2 In `tests/native-identity.test.mjs` and
       `tests/native-semantics.test.mjs`, cover same-label distinct namespaces,
       relocation/generated-ID drift, duplicate relations, explicit lineage,
