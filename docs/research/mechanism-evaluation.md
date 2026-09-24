@@ -318,6 +318,31 @@ Projection, and native di-effect. If self-use still needs a privileged
 composition path while adopters must hand-author geometry, the product's
 generic authoring promise is unproved even if every existing self test passes.
 
+### Owned-runtime coverage diagnostic (2026-09-24)
+
+At Publisher `d7c9c02`, an isolated `c8 --all` probe included first-party
+`packages/publisher/src/**/*.mjs`, `packages/publisher/renderers/**/*.mjs`, and
+`editions/self/src/**/*.mjs`, excluding only third-party supply. A first pass
+incorrectly excluded every `index.mjs`; inspection showed that Archify and
+resvg `index.mjs` files are substantial first-party renderers, so the figures
+below come from re-reporting the same raw test run with those files included.
+It ran the unchanged `npm test` (615 pass, 2 skip) with coverage files under
+`/tmp`; it did not alter the repository's configured gate. The combined result
+was **96.54%** statements/lines, **92.26%** branches, and **98.64%** functions.
+Of 4,605 branch units, 4,249 were covered; at that fixed denominator, 126 more
+covered units would reach 95%. This is a diagnostic shortfall, not a passing
+expanded gate or a prediction after source changes.
+
+The aggregate also masks owner-specific gaps: `editions/self/src/runtime.mjs`
+was not exercised, `packages/publisher/src/rendering/atlas.mjs` had 54% line
+coverage, and the first-party Archify entry had 75.39% branch coverage. The
+successor must first identify retained versus displaced
+owners, then make each retained public entry and effectful path testable while
+bringing all four aggregate dimensions above 95%. Adding tests solely to
+soon-to-be-deleted composition code would increase migration cost without
+improving the accepted successor; excluding retained code to manufacture a
+passing percentage would be equally invalid.
+
 ## Structurizr native-model and export boundary (2026-09-24)
 
 GitHub API readback identified the active Apache-2.0
