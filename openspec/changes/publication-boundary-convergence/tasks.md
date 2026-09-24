@@ -138,11 +138,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       Set v1 raw bytes now replay through the source-manifest digest,
       model/Edition binding, and qualification admission, retaining the
       released Candidate and Qualification digests.
-      Focused migration and installed-v1 tests passed 8/8; static and package
-      checks passed. The complete test portion passed 715 tests and skipped 2,
-      but branch coverage remains 92.98% against the 95% gate. A consumption
-      counterexample for `authoredInputSha256` and installed successor replay
-      remain required; this task stays open.
+      A v1 compiler counterexample changes `authoredInputSha256`: Edition,
+      static-scene, and Candidate identities change while emitted static and
+      interactive media bytes do not. In this generic v1 journey the field is
+      identity-only, not proof of Publisher authoring-byte consumption. Focused
+      migration, v1 Provider, and build tests passed 13/13; static and package
+      checks passed. The full test portion passed 717 tests and skipped 2, but
+      branch coverage remains
+      93.00% against 95%. Installed successor replay remains required; this
+      task stays open.
 
 ## 3. Provider convergence
 

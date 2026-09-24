@@ -68,6 +68,42 @@ test('provider plan preserves Candidate identity and emits outer provenance', as
   assert.equal(JSON.parse(receipt.content).delivery, 'declarative');
 });
 
+test('legacy authoredInputSha256 changes identity without changing emitted media bytes', async (t) => {
+  const selected = await fixture(t);
+  const firstPlan = await selected.write('authored-first.json', selected.direct);
+  const first = await compileEditionCandidateInput(firstPlan.file, firstPlan.digest);
+
+  const editionFile = path.join(selected.root, 'input/edition.json');
+  const edition = JSON.parse(await fs.readFile(editionFile, 'utf8'));
+  edition.scenes.static.authoredInputSha256 = 'f'.repeat(64);
+  const changedEditionBytes = Buffer.from(JSON.stringify(edition, null, 2) + '\n');
+  await fs.writeFile(editionFile, changedEditionBytes);
+  const changedPlan = await selected.write('authored-changed.json', {
+    ...selected.direct,
+    editionSha256: sha(changedEditionBytes),
+    output: 'changed-output',
+  });
+  const changed = await compileEditionCandidateInput(changedPlan.file, changedPlan.digest);
+  assert.notEqual(changed.editionDigest, first.editionDigest);
+  assert.notEqual(changed.staticSceneDigest, first.staticSceneDigest);
+  assert.notEqual(changed.candidateSha256, first.candidateSha256);
+
+  const mediaHashes = async (result) => {
+    const bundle = await readSourceBundle(result.manifestPath, result.manifestSha256);
+    return Object.fromEntries(
+      bundle.members
+        .filter(
+          ({ path: name }) =>
+            name === 'overview.svg' || name === 'overview.png' || name.startsWith('views/'),
+        )
+        .map(({ path: name, content }) => [name, sha(content)]),
+    );
+  };
+  const firstMedia = await mediaHashes(first);
+  assert(Object.keys(firstMedia).some((name) => name.startsWith('views/')));
+  assert.deepEqual(await mediaHashes(changed), firstMedia);
+});
+
 test('edition build request is an exact direct/provider union', async (t) => {
   const selected = await fixture(t);
   for (const [name, plan] of [
