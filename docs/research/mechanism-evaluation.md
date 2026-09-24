@@ -875,3 +875,76 @@ general Publisher successor remains conditional on Task 5.2 and final
 replacement parity. If a later direct mature-tool route passes every hard
 question and medium gate with lower total ownership cost, shrink Publisher
 before building another custom compositor.
+
+## Concurrent path mutation and capability-bound reading (2026-09-25)
+
+The current Publisher file reader checks path components for symlinks and then
+opens a selected member by pathname. An independently reproduced replacement
+of a checked parent with a symlink can therefore make it read an outside file
+before the member digest is compared. A matching digest does not prove that
+the read stayed inside the selected directory. More `lstat` or `realpath`
+checks before or after `open` cannot make the separate operations atomic.
+The active Change correctly treats this as a release blocker, not a qualified
+path-confinement claim.
+
+The pinned upstream [cap-std 4.0.3 source](https://github.com/bytecodealliance/cap-std/tree/b7acf8e8807fe3fab991884d2208b7e03d35a409)
+describes handle-relative `Dir::open` and support for Linux, macOS and Windows.
+Its [directory API](https://github.com/bytecodealliance/cap-std/blob/b7acf8e8807fe3fab991884d2208b7e03d35a409/cap-std/src/fs/dir.rs)
+opens relative to an already-open directory handle. The companion
+[follow option](https://github.com/bytecodealliance/cap-std/blob/b7acf8e8807fe3fab991884d2208b7e03d35a409/cap-fs-ext/src/open_options_follow_ext.rs)
+rejects a symlink at the last opened component;
+[default open options](https://github.com/bytecodealliance/cap-std/blob/b7acf8e8807fe3fab991884d2208b7e03d35a409/cap-primitives/src/fs/open_options.rs)
+otherwise follow symlinks. The
+[directory opening on Windows](https://github.com/bytecodealliance/cap-std/blob/b7acf8e8807fe3fab991884d2208b7e03d35a409/cap-fs-ext/src/open_options_maybe_dir_ext.rs)
+needs an explicit option. These are source-level capabilities, not proof that
+Publisher has integrated or shipped them.
+
+A disposable macOS probe built exactly `cap-std = 4.0.3` and
+`cap-fs-ext = 4.0.3` into a 472 KiB release executable. It started at the
+physical filesystem root, opened every path component relative to the
+previous handle with no symlink following, and required the final handle to
+be a regular file. A normal file read succeeded; static final and ancestor
+symlinks failed. During 500 concurrent replacements of a selected parent
+with an outside symlink, 143 reads returned the inside bytes, 357 rejected,
+and none returned outside bytes. This is a bounded macOS feasibility probe,
+not a proof for every interleaving, Linux, Windows, package installation, or
+file-content mutation. Its scratch source, lockfile, build command and output
+were not retained as a repository artifact, so these figures are a
+non-admitting observation, not independently reproducible acceptance evidence
+or a basis to select native supply. The crate resolution contained 40
+packages; a native supply and multi-platform release matrix have real
+ownership cost.
+
+Three candidate boundaries remain for a reviewed decision:
+
+1. Use one narrow, capability-bound native read operation for selected files,
+   shipped with checked platform binaries. It must start from a trusted
+   volume-root handle and open **every** path component with no-follow, rather
+   than using `Dir::open_dir` defaults or anchoring at a raceable selected
+   directory pathname. The caller must not silently fall back to pathname
+   reads when the helper or supply is unavailable. Verify final and ancestor
+   symlink races, Windows junction/reparse points, regular-file and size
+   limits, exact byte pins, offline installation, binary identity, and native
+   macOS/Linux/Windows behavior. This is the narrower semantic change, but
+   adds a platform supply owner.
+2. Replace path-based declarative members with one self-contained exact-byte
+   carrier and parse members without extracting or opening their relative
+   paths. This only removes the **member** race: opening the carrier pathname
+   still races unless its bytes arrive through an already-trusted handle or
+   stream, or it too is capability-opened. It changes source-side preparation,
+   direct mode, packaging, and adopter DX. It is preferable only if measured
+   total ownership cost is lower without creating an editable duplicate of
+   source truth or weakening the existing escaping-member requirement.
+3. Accept already-open bytes or handles from the caller. This avoids a native
+   reader in Publisher but transfers path selection, custody, and provenance
+   obligations to that caller and changes the public API. It cannot inherit
+   Publisher's current escaping-member claim without an explicit new trust
+   contract and source-side counterexamples. A hand-written platform-syscall
+   helper might have fewer dependencies than cap-std but would make Publisher
+   own more security-critical platform code; prefer the maintained capability
+   library unless measured integration evidence reverses that trade-off.
+
+None of the candidates is yet admitted. The next design review must select one
+boundary and its cross-platform counterexamples before implementation. The
+current unqualified direct and Provider v2 readers cannot support a successor
+release claim of concurrent path confinement.

@@ -182,7 +182,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       95% release gate, so `npm run check` remains red.
       An independently reproduced ancestor-symlink race leaves confinement
       under concurrent mutation unproved and explicitly limited; this is a
-      release-blocking spec gap, not proof of escaping-input rejection.
+      release-blocking spec gap, not proof of escaping-input rejection. A
+      bounded cap-std 4.0.3 macOS probe and alternative transport analysis are
+      recorded in `docs/research/mechanism-evaluation.md`; cross-platform
+      supply and a reviewed choice remain open.
       Executable package/reply checks, global request joining, mode equivalence, CLI
       dispatch, and closed dependencies remain open. No integration or
       publication is admitted.
