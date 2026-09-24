@@ -118,6 +118,11 @@ test('content revision declares its algorithm but not a hand-maintained digest',
   const value = request();
   value.sources[0].revision = { kind: 'content', algorithm: 'sha256' };
   assert.doesNotThrow(() => validateBuildRequest(value));
+  value.sources[0].revision.canonicalization = 'publisher-json/v1';
+  assert.doesNotThrow(() => validateBuildRequest(value));
+  value.sources[0].revision.canonicalization = 'unknown';
+  assert.throws(() => validateBuildRequest(value), { code: 'build_request_invalid' });
+  value.sources[0].revision.canonicalization = 'raw-bytes/v1';
   value.sources[0].revision.value = A;
   assert.throws(() => validateBuildRequest(value), { code: 'build_request_invalid' });
 });

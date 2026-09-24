@@ -331,7 +331,7 @@ bytes are verified through supply-chain and behavior tests.
 The JavaScript coverage gate selects all tracked runtime `.mjs` under
 `packages/publisher/src/`, first-party
 `packages/publisher/renderers/`, and `editions/self/src/`, including
-`index.mjs` entrypoints. This revision selects 54 handwritten Publisher
+`index.mjs` entrypoints. This revision selects 55 handwritten Publisher
 modules, 17 first-party renderer modules, and 13 self-Edition modules. The
 explicit exclusions are the 28 tracked third-party/generated renderer supply
 modules and one generated authoring validator module. The latter is reproduced

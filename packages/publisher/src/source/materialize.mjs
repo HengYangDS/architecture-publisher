@@ -111,7 +111,7 @@ async function vcsBytes(root, selectedPath, { repository, ref }) {
   );
   if (object.status !== 0) fail('materialized_vcs_object_unavailable');
   if (object.stdout.length > LIMITS.memberBytes) fail('file_size_exceeded');
-  return { content: object.stdout, vcsObject: commit };
+  return { content: object.stdout, vcsObject: commit, vcsBlob: match[2] };
 }
 
 /** Read one selected root file. Pins are independent of any optional VCS claim. */
@@ -129,6 +129,7 @@ export async function readSelectedInput(root, selection) {
     selected = {
       content: await regularBytes(file, LIMITS.memberBytes),
       vcsObject: null,
+      vcsBlob: null,
     };
   }
   if (selection.kind === 'pin' && sha(selected.content) !== selection.sha256)
@@ -136,7 +137,7 @@ export async function readSelectedInput(root, selection) {
   return selected;
 }
 
-/** Seal selected bytes without incorporating locator or delivery-mode spelling. */
+/** Seal selected bytes without source-input locator or delivery-mode spelling. */
 export function sealMaterializedInputLock({ edition, sources, media, toolchain }) {
   const contents = new Map();
   const editionContent = Buffer.from(edition.content);
@@ -154,20 +155,12 @@ export function sealMaterializedInputLock({ edition, sources, media, toolchain }
     },
     sources: sources
       .map((source) => {
-        const revision = source.revisionSelection;
-        const revisionSelection =
-          revision.kind === 'content'
-            ? { kind: 'content', algorithm: revision.algorithm }
-            : revision.kind === 'vcs'
-              ? { kind: 'vcs', repository: revision.repository, ref: revision.ref }
-              : { kind: 'opaque', value: revision.value };
         return {
           id: source.id,
           namespace: source.namespace,
           format: { id: source.format.id, version: source.format.version },
           claimant: source.claimant,
-          revisionSelection,
-          vcsObject: source.vcsObject,
+          revision: source.revisionEvidence,
           bytes: source.content.length,
           sha256: sha(source.content),
         };

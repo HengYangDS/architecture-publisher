@@ -37,6 +37,7 @@ const sourceSelector = closed(['id', 'namespace', 'format', 'claimant', 'revisio
       closed(['kind', 'algorithm'], {
         kind: { const: 'content' },
         algorithm: { const: 'sha256' },
+        canonicalization: { enum: ['raw-bytes/v1', 'publisher-json/v1'] },
       }),
       closed(['kind', 'repository', 'ref'], {
         kind: { const: 'vcs' },

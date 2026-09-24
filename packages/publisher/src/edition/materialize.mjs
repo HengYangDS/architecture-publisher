@@ -5,6 +5,7 @@ import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { fail, isDigest, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
 import { readSelectedInput, sealMaterializedInputLock } from '../source/materialize.mjs';
 import { validateBuildRequest, validateEditionProject } from './authoring.mjs';
+import { deriveSourceRevision } from './revision.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -99,8 +100,12 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
       namespace: source.namespace,
       format: source.format,
       claimant: source.claimant,
-      revisionSelection: source.revision,
-      vcsObject: selected.vcsObject,
+      revisionEvidence: deriveSourceRevision(
+        source.revision,
+        selected.content,
+        selected.vcsObject,
+        selected.vcsBlob,
+      ),
       content: selected.content,
     });
   }

@@ -240,7 +240,7 @@ test('a pinned VCS claim remains an explicit provenance limit without Git', asyn
     process.env.PATH = '';
     const result = await materializeBuildRequestInput(f.requestPath, await f.save());
     assert.deepEqual(result.read('system-source'), content);
-    assert.equal(result.lock.sources[0].vcsObject, null);
+    assert.equal(result.lock.sources[0].revision.object, null);
     assert(result.limits.includes('vcs-provenance-unverified:example/source'));
   } finally {
     process.env.PATH = oldPath;
@@ -295,7 +295,7 @@ test('VCS locator reads the selected object and never falls back to HEAD', async
   await fs.writeFile(path.join(repo, 'system.json'), '{"system":"working-tree"}\n');
   const first = await materializeBuildRequestInput(f.requestPath, expected);
   assert.deepEqual(first.read('system-source'), selected);
-  assert.equal(first.lock.sources[0].vcsObject, selectedCommit);
+  assert.equal(first.lock.sources[0].revision.object, selectedCommit);
   git(repo, 'add', 'system.json');
   git(repo, 'commit', '-qm', 'later');
   const replay = await materializeBuildRequestInput(f.requestPath, expected);

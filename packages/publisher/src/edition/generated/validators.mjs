@@ -270,8 +270,11 @@ const ref0 = function validate(data) {
         if (!("algorithm" in data.sources[i].revision && hasOwn(data.sources[i].revision, "algorithm"))) return false
         if (!(data.sources[i].revision.kind === "content")) return false
         if (!(data.sources[i].revision.algorithm === "sha256")) return false
+        if ("canonicalization" in data.sources[i].revision && hasOwn(data.sources[i].revision, "canonicalization")) {
+          if (!(data.sources[i].revision.canonicalization === "raw-bytes/v1" || data.sources[i].revision.canonicalization === "publisher-json/v1")) return false
+        }
         for (const key3 of Object.keys(data.sources[i].revision)) {
-          if (key3 !== "kind" && key3 !== "algorithm") return false
+          if (key3 !== "kind" && key3 !== "algorithm" && key3 !== "canonicalization") return false
         }
         return true
       })()

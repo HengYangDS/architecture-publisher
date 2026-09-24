@@ -91,11 +91,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       package checks passed. The latest full check passed 691 tests, skipped 2,
       and failed only the branch coverage gate at 92.84%; integration and
       publication remain forbidden.
-- [ ] 2.3 Test typed content/VCS/opaque revisions and separate byte digests in
+- [x] 2.3 Test typed content/VCS/opaque revisions and separate byte digests in
       `tests/source-revision.test.mjs`. Verify content revisions from declared
       canonical inputs, VCS only when claimed, and unverified VCS provenance as an
       explicit limit on independently pinned bytes; never treat a hash-shaped
-      content revision as a Git commit.
+      content revision as a Git commit. The selected-root revision evidence now
+      records explicit recomputation, checked Git commit/blob, or attributed-only
+      status separately from the raw-byte SHA-256. `publisher-json/v1` requires
+      canonical UTF-8 JSON with at most one terminal LF; the default
+      `raw-bytes/v1` keeps earlier valid Build Requests valid. This does not
+      assert native dependency closure or source endorsement. Independent
+      read-only review found no confirmed P1/P2 defect. Focused tests passed
+      24/24; static and package checks passed. The latest full check passed 694
+      tests, skipped 2, and failed only the branch coverage gate at 92.91%; no
+      integration or publication is admitted.
 - [ ] 2.4 Bind exact includes, resources, selected Edition bytes, backend and
       adapter versions, fonts, rendering supplies, and toolchain configuration.
       `tests/input-closure.test.mjs` distinguishes observed, checked-declared,
