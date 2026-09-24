@@ -207,6 +207,49 @@ reuse behind a product-owned editorial composition and semantic-carrier check;
 their fit requires a styled multi-view AIGW, ETHOS, self, and unrelated-domain
 counterexample rather than a favorable two-node smoke test.
 
+## D2 static-renderer counterexample (2026-09-24)
+
+Installed D2 `v0.9.0` was exercised on AIGW `3318c81978917a0d16d6d16073d313ca78ee2736`'s
+selected 12-entity, 11-relation Client Projection model (source SHA-256
+`fc12aeef70916801b5bb25615b7b9db698471abc29bf4998f22b6482cf7b6672`).
+A disposable 26-line D2 script (SHA-256
+`b7b525321ec70745abcb2ffad75d86fcacc957e5601881ca46347e3bc1d19cb1`)
+used each source entity ID and label as a node and each source relation's
+endpoints and type as a directed labeled edge. It intentionally omitted
+qualifiers, provenance, plane and Edition decisions: this is a renderer/layout
+probe, **not** an equivalent AIGW architecture publication.
+
+`d2 validate` passed. With `--omit-version`, Dagre, ELK and TALA each emitted
+SVG containing 12 node groups and 11 path connections. Two consecutive runs
+per layout produced identical SVG bytes; their first-run SHA-256 values were
+`ff72981ae8615bfa19e33921e8f09bb88316211a513923a6aa0c61edd4c8579b`,
+`d5a3c17e65ba34ff36b55a1a816cdd02820a04421747e3f8c9e1fff440765e4c`,
+and `049516ec3dc3b7b8a6b527f88e9ed81415ff7a73d8aa96ee09061e048b1f7b9e`.
+The TALA no-tooltip PNG also repeated byte-for-byte (174,069 bytes; SHA-256
+`831f6ed11fb6d7e47f9f538c8d2863d6e31310b2d8916cf1fde8d037e9ca770a`).
+This is scoped repeatability of one fixed input and host, not a general
+cross-platform determinism result.
+
+An alternate script put source relation IDs in D2 edge tooltips. The SVG did
+not expose those raw IDs as text; the PNG instead gained an 11-item tooltip
+appendix, growing TALA output from 174,069 to 319,502 bytes and occupying a
+large region outside the graph. Tooltips therefore cannot be used as a hidden
+substitute for static semantic coverage or a clean exact-ID carrier. SVG
+connection groups encode `(source -> target)[ordinal]` in base64 CSS classes;
+a two-edge `a -> b` counterexample showed that swapping source order swaps
+which labeled relation occupies ordinal 0. A Publisher adapter would need an
+explicit per-build relation-to-carrier map and ambiguity handling, not a claim
+that D2's generated ordinal is a stable source relation ID.
+
+The no-tooltip TALA image was manually inspected as a baseline: it retains
+basic topology but uses uniform boxes and has crowded relation labels, no
+source/maturity framing, and no editorial hierarchy. It is not publication
+quality for the whole AIGW product; neither the input nor the probe attempted
+that composition. The installed D2 CLI offers static SVG/PNG/PDF/PPTX/GIF/TXT
+output, not a standalone interactive HTML atlas. **Decision:** retain D2 and
+its qualified layouts as static backend candidates; do not treat direct D2
+output as the Edition or let tooltip metadata manufacture visible coverage.
+
 ## Native LikeC4 identity and editing counterexample (2026-09-24)
 
 At di-effect `8a168b6b9c6933c30ab2ea25e60cac8a54212566`, three authored
