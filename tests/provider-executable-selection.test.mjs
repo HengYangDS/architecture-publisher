@@ -89,6 +89,7 @@ async function fixture(t) {
       ],
       nativeInputs: [{ item: 'model', input: 'source' }],
       editionInput: null,
+      editionResourceInputs: [],
     },
   };
   const manifestPath = path.join(root, 'provider.json');
@@ -121,6 +122,46 @@ test('v2 executable Provider materializes exact native inputs and derived output
   assert.deepEqual(result.read('derived', 'index'), f.derived);
   assert.equal(result.invocation.delivery, 'executable');
   assert(result.limits.includes('provider-dependencies-unobserved'));
+});
+
+test('executable Edition resources are selected inputs, not ambient files', async (t) => {
+  const f = await fixture(t);
+  const edition = Buffer.from('{"editor":"fixture-editor"}\n');
+  const palette = Buffer.from('{"palette":"stone"}\n');
+  await fs.writeFile(path.join(f.root, 'inputs/edition.json'), edition);
+  await fs.writeFile(path.join(f.root, 'inputs/palette.json'), palette);
+  f.manifest.selected.edition = {
+    id: 'portrait',
+    editor: 'fixture-editor',
+    bytes: edition.length,
+    sha256: sha(edition),
+    resources: [{ ref: 'palette.json', bytes: palette.length, sha256: sha(palette) }],
+  };
+  f.manifest.delivery.inputs.push(
+    {
+      id: 'authored-edition',
+      path: 'inputs/edition.json',
+      mediaType: 'application/json',
+      bytes: edition.length,
+      sha256: sha(edition),
+    },
+    {
+      id: 'palette',
+      path: 'inputs/palette.json',
+      mediaType: 'application/json',
+      bytes: palette.length,
+      sha256: sha(palette),
+    },
+  );
+  f.manifest.delivery.editionInput = 'authored-edition';
+  f.manifest.delivery.editionResourceInputs = [{ ref: 'palette.json', input: 'palette' }];
+  const result = await selection.readExecutableSelectedInputs(
+    f.manifestPath,
+    await f.save(),
+    f.packageRoot,
+  );
+  assert.deepEqual(result.read('edition', 'portrait'), edition);
+  assert.deepEqual(result.read('edition-resource', 'palette.json'), palette);
 });
 
 test('v2 executable Provider rejects changed package and selected input bytes', async (t) => {

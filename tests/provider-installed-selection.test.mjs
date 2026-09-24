@@ -215,6 +215,7 @@ export function materializeEditionProvider(request) {
       ],
       nativeInputs: [{ item: 'model', input: 'source' }],
       editionInput: null,
+      editionResourceInputs: [],
     },
   };
   const manifestBytes = Buffer.from(JSON.stringify(manifest) + '\n');

@@ -4,6 +4,8 @@ import { buildRequestValid, editionProjectValid } from './generated/validators.m
 
 export { BUILD_REQUEST_SCHEMA, EDITION_PROJECT_SCHEMA } from './schema.mjs';
 
+export const EDITION_PROJECT_FILE_BYTES = 4 * 1024 * 1024;
+
 function invalid(code, detail = '') {
   fail(code, detail ? `${code}: ${detail}` : code);
 }

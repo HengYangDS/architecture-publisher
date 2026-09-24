@@ -138,6 +138,7 @@ test('executable delivery is not silently interpreted as declarative files', asy
     ],
     nativeInputs: [{ item: 'model', input: 'source' }],
     editionInput: null,
+    editionResourceInputs: [],
   };
   await assert.rejects(f.read(), { code: 'edition_provider_v2_delivery_unsupported' });
 });

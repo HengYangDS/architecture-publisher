@@ -83,6 +83,8 @@ export async function readExecutableSelectedInputs(file, expectedSha256, package
       `edition:${manifest.selected.edition.id}`,
       inputContents.get(manifest.delivery.editionInput),
     );
+  for (const binding of manifest.delivery.editionResourceInputs)
+    selectedContents.set(`edition-resource:${binding.ref}`, inputContents.get(binding.input));
 
   const temporaryRoot = await fs.realpath(os.tmpdir());
   const scratch = await fs.mkdtemp(

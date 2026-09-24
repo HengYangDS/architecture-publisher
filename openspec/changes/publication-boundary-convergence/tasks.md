@@ -182,9 +182,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       executable path checks an exact installed package, selected inputs, and
       expected derived reply bytes through the existing process-tree supervisor;
       mixed-mode and direct/Provider Edition cases preserve selected identity.
+      Selected Edition resources now use one logical reference and exact bytes
+      through direct, declarative, or executable delivery; altered resource
+      bytes change the lock rather than being read ambiently.
       Focused Provider, supervisor, and module-boundary tests passed; static
-      and package checks passed. The full behavior run passed 741 tests,
-      skipped 2, with no test failures; branch coverage is 93.03% against the
+      and package checks passed. The full behavior run passed 745 tests,
+      skipped 2, with no test failures; branch coverage is 93.06% against the
       95% release gate, so `npm run check` remains red.
       An independently reproduced ancestor-symlink race leaves confinement
       under concurrent mutation unproved and explicitly limited; this is a
@@ -205,6 +208,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       duplicates, and an Edition resource not bound by exact selected bytes.
       Cross-mode identity must include those resource bytes; no ambient Provider
       directory may supply them.
+      Ruling: the unreleased v2 Edition descriptor requires a finite resource
+      list; declarative files and executable selected inputs map each logical
+      reference to exact bytes. Direct and Provider resource limits share the
+      Edition authoring owner. No compatibility alias or fallback environmental
+      read is added for the earlier incomplete draft shape.
       Ruling: external schema IDs and historical data fixtures remain explicitly
       versioned; source-code filenames name semantic responsibilities, not wire
       generations. All current version-suffixed code filenames were renamed,

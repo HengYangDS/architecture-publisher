@@ -171,12 +171,64 @@ function supplyEdition(item, project) {
     editor: project.editor,
     bytes: 0,
     sha256: '0'.repeat(64),
+    resources: [],
   };
   item.manifest.delivery.files.push({
     kind: 'edition',
     id: project.id,
     path: 'edition.json',
   });
+}
+
+async function prepareExecutableAlpha(f) {
+  const alpha = f.providers.alpha;
+  const packageRoot = path.join(alpha.directory, 'package');
+  await fs.mkdir(packageRoot);
+  const packageJson = Buffer.from(
+    JSON.stringify({
+      name: '@fixture/alpha-provider',
+      version: '1.0.0',
+      type: 'module',
+      exports: { './provider': './provider.mjs' },
+    }) + '\n',
+  );
+  await fs.writeFile(path.join(packageRoot, 'package.json'), packageJson);
+  await fs.writeFile(
+    path.join(packageRoot, 'provider.mjs'),
+    `export async function materializeEditionProvider(request) {
+  const source = JSON.parse(Buffer.from(request.inputs[0].contentBase64, 'base64').toString('utf8'));
+  const index = Object.keys(source)[0];
+  return {
+    schema: 'architecture.edition-provider-reply/v2',
+    derived: [{ id: 'index', contentBase64: Buffer.from(JSON.stringify({ index }) + '\\n').toString('base64') }],
+  };
+}
+`,
+  );
+  alpha.manifest.delivery = {
+    kind: 'executable',
+    package: {
+      name: '@fixture/alpha-provider',
+      version: '1.0.0',
+      packageJsonSha256: sha(packageJson),
+      contentSha256: await editionProviderPackageDigest(packageRoot),
+      entrypoint: './provider',
+    },
+    inputs: [
+      {
+        id: 'source',
+        path: 'native.json',
+        mediaType: 'application/json',
+        bytes: alpha.native.length,
+        sha256: sha(alpha.native),
+      },
+    ],
+    nativeInputs: [{ item: 'model', input: 'source' }],
+    editionInput: null,
+    editionResourceInputs: [],
+  };
+  f.request.providers[0].packageRoot = 'providers/alpha/package';
+  return alpha;
 }
 
 test('direct and two declarative Providers join one selected-input lock', async (t) => {
@@ -270,6 +322,35 @@ test('Provider Edition cannot recover an unselected override from ambient files'
   await assert.rejects(f.materialize(), { code: 'materialized_edition_resource_missing' });
 });
 
+test('selected Provider Edition resource bytes share direct identity', async (t) => {
+  const f = await fixture(t);
+  const palette = Buffer.from('{"palette":"stone"}\n');
+  f.project.visualPolicy.override = 'palette.json';
+  await fs.writeFile(path.join(f.root, 'edition/palette.json'), palette);
+  const direct = await f.materialize();
+
+  f.request.edition = { kind: 'provider', provider: 'alpha-selection' };
+  const alpha = f.providers.alpha;
+  supplyEdition(alpha, f.project);
+  alpha.manifest.selected.edition.resources = [
+    { ref: 'palette.json', bytes: palette.length, sha256: sha(palette) },
+  ];
+  alpha.manifest.delivery.files.push({
+    kind: 'edition-resource',
+    id: 'palette.json',
+    path: 'assets/palette.json',
+  });
+  await fs.mkdir(path.join(alpha.directory, 'assets'));
+  await fs.writeFile(path.join(alpha.directory, 'assets/palette.json'), palette);
+  const supplied = await f.materialize();
+  assert.equal(supplied.lockSha256, direct.lockSha256);
+  assert.deepEqual(supplied.readEditionResource('palette.json'), palette);
+  assert.equal(
+    supplied.readEvidence.items.find(({ kind }) => kind === 'edition-resource').method,
+    'filesystem-read-sha256/v1',
+  );
+});
+
 test('direct and Provider-supplied identical Edition bytes share identity', async (t) => {
   const f = await fixture(t);
   const direct = await f.materialize();
@@ -340,52 +421,7 @@ test('Edition scope cannot omit a selected Provider source', async (t) => {
 test('mixed declarative and executable Providers share one selected-input identity', async (t) => {
   const f = await fixture(t);
   const declarative = await f.materialize();
-  const alpha = f.providers.alpha;
-  const packageRoot = path.join(alpha.directory, 'package');
-  await fs.mkdir(packageRoot);
-  const packageJson = Buffer.from(
-    JSON.stringify({
-      name: '@fixture/alpha-provider',
-      version: '1.0.0',
-      type: 'module',
-      exports: { './provider': './provider.mjs' },
-    }) + '\n',
-  );
-  await fs.writeFile(path.join(packageRoot, 'package.json'), packageJson);
-  await fs.writeFile(
-    path.join(packageRoot, 'provider.mjs'),
-    `export async function materializeEditionProvider(request) {
-  const source = JSON.parse(Buffer.from(request.inputs[0].contentBase64, 'base64').toString('utf8'));
-  const index = Object.keys(source)[0];
-  return {
-    schema: 'architecture.edition-provider-reply/v2',
-    derived: [{ id: 'index', contentBase64: Buffer.from(JSON.stringify({ index }) + '\\n').toString('base64') }],
-  };
-}
-`,
-  );
-  alpha.manifest.delivery = {
-    kind: 'executable',
-    package: {
-      name: '@fixture/alpha-provider',
-      version: '1.0.0',
-      packageJsonSha256: sha(packageJson),
-      contentSha256: await editionProviderPackageDigest(packageRoot),
-      entrypoint: './provider',
-    },
-    inputs: [
-      {
-        id: 'source',
-        path: 'native.json',
-        mediaType: 'application/json',
-        bytes: alpha.native.length,
-        sha256: sha(alpha.native),
-      },
-    ],
-    nativeInputs: [{ item: 'model', input: 'source' }],
-    editionInput: null,
-  };
-  f.request.providers[0].packageRoot = 'providers/alpha/package';
+  const alpha = await prepareExecutableAlpha(f);
   const mixed = await f.materialize();
   assert.equal(mixed.lockSha256, declarative.lockSha256);
   assert.deepEqual(mixed.readSource('org.example/alpha'), alpha.native);
@@ -412,6 +448,7 @@ test('mixed declarative and executable Providers share one selected-input identi
     editor: f.project.editor,
     bytes: editionBytes.length,
     sha256: sha(editionBytes),
+    resources: [],
   };
   alpha.manifest.delivery.inputs.push({
     id: 'authored-edition',
@@ -428,4 +465,67 @@ test('mixed declarative and executable Providers share one selected-input identi
     executableEdition.readEvidence.items.find(({ kind }) => kind === 'edition').method,
     'provider-input-sha256/v2',
   );
+});
+
+test('direct, declarative, and executable Edition resources share exact identity', async (t) => {
+  const f = await fixture(t);
+  const palette = Buffer.from('{"palette":"stone"}\n');
+  f.project.visualPolicy.override = 'palette.json';
+  await fs.writeFile(path.join(f.root, 'edition/palette.json'), palette);
+  const direct = await f.materialize();
+
+  const alpha = f.providers.alpha;
+  f.request.edition = { kind: 'provider', provider: 'alpha-selection' };
+  supplyEdition(alpha, f.project);
+  alpha.manifest.selected.edition.resources = [
+    { ref: 'palette.json', bytes: palette.length, sha256: sha(palette) },
+  ];
+  alpha.manifest.delivery.files.push({
+    kind: 'edition-resource',
+    id: 'palette.json',
+    path: 'assets/palette.json',
+  });
+  await fs.mkdir(path.join(alpha.directory, 'assets'));
+  const selectedPalette = path.join(alpha.directory, 'assets/palette.json');
+  await fs.writeFile(selectedPalette, palette);
+  const declarative = await f.materialize();
+  assert.equal(declarative.lockSha256, direct.lockSha256);
+
+  await prepareExecutableAlpha(f);
+  const editionBytes = Buffer.from(JSON.stringify(f.project) + '\n');
+  alpha.manifest.delivery.inputs.push(
+    {
+      id: 'authored-edition',
+      path: 'edition.json',
+      mediaType: 'application/json',
+      bytes: editionBytes.length,
+      sha256: sha(editionBytes),
+    },
+    {
+      id: 'palette',
+      path: 'assets/palette.json',
+      mediaType: 'application/json',
+      bytes: palette.length,
+      sha256: sha(palette),
+    },
+  );
+  alpha.manifest.delivery.editionInput = 'authored-edition';
+  alpha.manifest.delivery.editionResourceInputs = [{ ref: 'palette.json', input: 'palette' }];
+  const executable = await f.materialize();
+  assert.equal(executable.lockSha256, direct.lockSha256);
+  assert.deepEqual(executable.readEditionResource('palette.json'), palette);
+  assert.equal(
+    executable.readEvidence.items.find(({ kind }) => kind === 'edition-resource').method,
+    'provider-input-sha256/v2',
+  );
+
+  const changed = Buffer.from('{"palette":"slate"}\n');
+  await fs.writeFile(selectedPalette, changed);
+  alpha.manifest.selected.edition.resources[0].bytes = changed.length;
+  alpha.manifest.selected.edition.resources[0].sha256 = sha(changed);
+  const paletteInput = alpha.manifest.delivery.inputs.find(({ id }) => id === 'palette');
+  paletteInput.bytes = changed.length;
+  paletteInput.sha256 = sha(changed);
+  const different = await f.materialize();
+  assert.notEqual(different.lockSha256, executable.lockSha256);
 });

@@ -51,7 +51,10 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
         fail('materialized_edition_ambiguous');
       edition = {
         content: provider.read('edition', selected.edition.id),
-        resources: [],
+        resources: selected.edition.resources.map(({ ref }) => ({
+          ref,
+          content: provider.read('edition-resource', ref),
+        })),
         expected: { id: selected.edition.id, editor: selected.edition.editor },
       };
       observations.push({
@@ -59,6 +62,8 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
         key: selected.edition.id,
         method: inputMethod,
       });
+      for (const { ref } of selected.edition.resources)
+        observations.push({ kind: 'edition-resource', key: ref, method: inputMethod });
     }
     for (const item of selected.native) {
       const content = provider.read('native', item.id);

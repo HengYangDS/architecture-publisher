@@ -65,6 +65,7 @@ function manifest(kind = 'declarative') {
             ],
             nativeInputs: [{ item: 'model', input: 'source' }],
             editionInput: null,
+            editionResourceInputs: [],
           },
   };
 }
@@ -163,7 +164,13 @@ test('declarative paths cover exactly selected contributions without aliases', (
     });
   }
   const withEdition = manifest();
-  withEdition.selected.edition = { id: 'atlas', editor: 'named-editor', bytes: 90, sha256: B };
+  withEdition.selected.edition = {
+    id: 'atlas',
+    editor: 'named-editor',
+    bytes: 90,
+    sha256: B,
+    resources: [],
+  };
   assert.throws(() => providerContract.validateEditionProviderV2(withEdition), {
     code: 'edition_provider_v2_invalid',
   });
@@ -175,7 +182,13 @@ test('declarative paths cover exactly selected contributions without aliases', (
   const editorialOnly = manifest();
   editorialOnly.selected.native = [];
   editorialOnly.selected.derived = [];
-  editorialOnly.selected.edition = { id: 'atlas', editor: 'named-editor', bytes: 90, sha256: B };
+  editorialOnly.selected.edition = {
+    id: 'atlas',
+    editor: 'named-editor',
+    bytes: 90,
+    sha256: B,
+    resources: [],
+  };
   editorialOnly.delivery.files = [{ kind: 'edition', id: 'atlas', path: 'edition/project.json' }];
   assert.equal(
     providerContract.validateEditionProviderV2(editorialOnly).selected.edition.id,
@@ -185,7 +198,13 @@ test('declarative paths cover exactly selected contributions without aliases', (
 
 test('executable selection pins one package and bounded inputs, not a parallel command plane', () => {
   const withEdition = manifest('executable');
-  withEdition.selected.edition = { id: 'atlas', editor: 'named-editor', bytes: 90, sha256: B };
+  withEdition.selected.edition = {
+    id: 'atlas',
+    editor: 'named-editor',
+    bytes: 90,
+    sha256: B,
+    resources: [],
+  };
   withEdition.delivery.inputs.push({
     id: 'authored-edition',
     path: 'inputs/edition.json',
@@ -218,10 +237,97 @@ test('executable selection pins one package and bounded inputs, not a parallel c
     (v) => (v.delivery.inputs[0].sha256 = C),
     (v) => v.delivery.nativeInputs.push({ item: 'model', input: 'source' }),
     (v) => (v.delivery.editionInput = 'source'),
-    (v) => (v.selected.edition = { id: 'atlas', editor: 'named-editor', bytes: 12, sha256: A }),
+    (v) =>
+      (v.selected.edition = {
+        id: 'atlas',
+        editor: 'named-editor',
+        bytes: 12,
+        sha256: A,
+        resources: [],
+      }),
     (v) => (v.delivery.files = []),
   ]) {
     const value = manifest('executable');
+    change(value);
+    assert.throws(() => providerContract.validateEditionProviderV2(value), {
+      code: 'edition_provider_v2_invalid',
+    });
+  }
+});
+
+test('Edition resource descriptors require exact and unambiguous delivery bindings', () => {
+  const resource = { ref: 'palette.json', bytes: 12, sha256: C };
+  const authored = {
+    id: 'atlas',
+    editor: 'named-editor',
+    bytes: 90,
+    sha256: B,
+    resources: [resource],
+  };
+  const declarative = manifest();
+  declarative.selected.edition = structuredClone(authored);
+  declarative.delivery.files.push(
+    { kind: 'edition', id: 'atlas', path: 'edition/project.json' },
+    { kind: 'edition-resource', id: 'palette.json', path: 'edition/palette.json' },
+  );
+  assert.equal(
+    providerContract.validateEditionProviderV2(declarative).selected.edition.resources.length,
+    1,
+  );
+  for (const change of [
+    (value) => value.selected.edition.resources.pop(),
+    (value) => delete value.selected.edition.resources,
+    (value) => (value.selected.edition.resources[0].bytes = 4 * 1024 * 1024 + 1),
+    (value) => {
+      value.selected.edition.resources.push({ ...resource, ref: 'PALETTE.json' });
+      value.delivery.files.push({
+        kind: 'edition-resource',
+        id: 'PALETTE.json',
+        path: 'second.json',
+      });
+    },
+    (value) => (value.delivery.files.at(-1).path = 'edition/project.json'),
+  ]) {
+    const value = structuredClone(declarative);
+    change(value);
+    assert.throws(() => providerContract.validateEditionProviderV2(value), {
+      code: 'edition_provider_v2_invalid',
+    });
+  }
+
+  const executable = manifest('executable');
+  executable.selected.edition = structuredClone(authored);
+  executable.delivery.inputs.push(
+    {
+      id: 'authored-edition',
+      path: 'inputs/edition.json',
+      mediaType: 'application/json',
+      bytes: 90,
+      sha256: B,
+    },
+    {
+      id: 'palette',
+      path: 'inputs/palette.json',
+      mediaType: 'application/json',
+      bytes: 12,
+      sha256: C,
+    },
+  );
+  executable.delivery.editionInput = 'authored-edition';
+  executable.delivery.editionResourceInputs = [{ ref: 'palette.json', input: 'palette' }];
+  assert.equal(
+    providerContract.validateEditionProviderV2(executable).selected.edition.resources.length,
+    1,
+  );
+  for (const change of [
+    (value) => (value.delivery.editionResourceInputs = []),
+    (value) => (value.delivery.editionResourceInputs[0].ref = 'unknown.json'),
+    (value) => (value.delivery.editionResourceInputs[0].input = 'source'),
+    (value) => (value.delivery.editionResourceInputs[0].input = 'authored-edition'),
+    (value) => (value.delivery.inputs.at(-1).sha256 = A),
+    (value) => value.delivery.editionResourceInputs.push({ ref: 'palette.json', input: 'palette' }),
+  ]) {
+    const value = structuredClone(executable);
     change(value);
     assert.throws(() => providerContract.validateEditionProviderV2(value), {
       code: 'edition_provider_v2_invalid',

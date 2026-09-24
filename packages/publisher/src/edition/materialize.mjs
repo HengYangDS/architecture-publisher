@@ -5,7 +5,11 @@ import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { parseStrictJson } from '../source/json.mjs';
 import { fail, isDigest, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
 import { readSelectedInput } from '../source/materialize.mjs';
-import { validateBuildRequest, validateEditionProject } from './authoring.mjs';
+import {
+  EDITION_PROJECT_FILE_BYTES,
+  validateBuildRequest,
+  validateEditionProject,
+} from './authoring.mjs';
 import { deriveSourceRevision } from './revision.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -70,7 +74,7 @@ export async function readDirectSelectedInputs({ file, root, request }) {
       ...request.edition.manifest.split('/'),
     );
     await noSymlinkAncestors(editionPath);
-    const content = await regularBytes(editionPath, 4 * 1024 * 1024);
+    const content = await regularBytes(editionPath, EDITION_PROJECT_FILE_BYTES);
     const project = validateEditionProject(
       parseStrictJson(
         content,
@@ -90,7 +94,7 @@ export async function readDirectSelectedInputs({ file, root, request }) {
       ...override.split('/'),
     );
     await noSymlinkAncestors(selectedOverride);
-    const content = await regularBytes(selectedOverride, 4 * 1024 * 1024);
+    const content = await regularBytes(selectedOverride, EDITION_PROJECT_FILE_BYTES);
     edition.resources.push({ ref: override, content });
     observations.push({
       kind: 'edition-resource',

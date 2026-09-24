@@ -1,3 +1,4 @@
+import { EDITION_PROJECT_FILE_BYTES } from '../edition/authoring.mjs';
 import { deepFreeze, jsonValue } from '../semantics/document.mjs';
 import { fail, isDigest, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
 import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
@@ -127,20 +128,43 @@ function selectedContributions(selected) {
     total += item.bytes;
   }
   if (selected.edition !== null) {
-    valid(exact(selected.edition, ['id', 'editor', 'bytes', 'sha256']));
+    valid(exact(selected.edition, ['id', 'editor', 'bytes', 'sha256', 'resources']));
     valid(
       identifier(selected.edition.id) &&
         text(selected.edition.editor) &&
-        size(selected.edition.bytes, 4 * 1024 * 1024) &&
-        isDigest(selected.edition.sha256),
+        size(selected.edition.bytes, EDITION_PROJECT_FILE_BYTES) &&
+        isDigest(selected.edition.sha256) &&
+        Array.isArray(selected.edition.resources) &&
+        selected.edition.resources.length <= 64,
     );
     total += selected.edition.bytes;
+    const resourceKeys = new Set();
+    const resourcePaths = [];
+    for (const resource of selected.edition.resources) {
+      valid(
+        exact(resource, ['ref', 'bytes', 'sha256']) &&
+          selectedPath(resource.ref) &&
+          size(resource.bytes, EDITION_PROJECT_FILE_BYTES) &&
+          isDigest(resource.sha256),
+      );
+      const key = portableKey(resource.ref);
+      valid(!resourceKeys.has(key));
+      resourceKeys.add(key);
+      resourcePaths.push(resource.ref);
+      total += resource.bytes;
+    }
+    noFileDirectoryOverlap(resourcePaths);
   }
   valid(total <= LIMITS.totalBytes && (selected.native.length > 0 || selected.edition !== null));
   return new Set([
     ...selected.native.map(({ id }) => `native:${id}`),
     ...selected.derived.map(({ id }) => `derived:${id}`),
-    ...(selected.edition === null ? [] : [`edition:${selected.edition.id}`]),
+    ...(selected.edition === null
+      ? []
+      : [
+          `edition:${selected.edition.id}`,
+          ...selected.edition.resources.map(({ ref }) => `edition-resource:${ref}`),
+        ]),
   ]);
 }
 
@@ -164,7 +188,16 @@ function declarativeDelivery(delivery, identities) {
 }
 
 function executableDelivery(delivery, selectedContributions) {
-  valid(exact(delivery, ['kind', 'package', 'inputs', 'nativeInputs', 'editionInput']));
+  valid(
+    exact(delivery, [
+      'kind',
+      'package',
+      'inputs',
+      'nativeInputs',
+      'editionInput',
+      'editionResourceInputs',
+    ]),
+  );
   const selected = delivery.package;
   valid(
     exact(selected, ['name', 'version', 'packageJsonSha256', 'contentSha256', 'entrypoint']) &&
@@ -224,7 +257,9 @@ function executableDelivery(delivery, selectedContributions) {
     mappedItems.add(binding.item);
     mappedInputs.add(binding.input);
   }
-  if (selectedContributions.edition === null) valid(delivery.editionInput === null);
+  valid(Array.isArray(delivery.editionResourceInputs));
+  if (selectedContributions.edition === null)
+    valid(delivery.editionInput === null && delivery.editionResourceInputs.length === 0);
   else {
     const authored = inputs.get(delivery.editionInput);
     valid(
@@ -233,6 +268,27 @@ function executableDelivery(delivery, selectedContributions) {
         authored.bytes === selectedContributions.edition.bytes &&
         authored.sha256 === selectedContributions.edition.sha256,
     );
+    mappedInputs.add(delivery.editionInput);
+    const resources = new Map(
+      selectedContributions.edition.resources.map((resource) => [resource.ref, resource]),
+    );
+    valid(delivery.editionResourceInputs.length === resources.size);
+    const mappedResources = new Set();
+    for (const binding of delivery.editionResourceInputs) {
+      valid(exact(binding, ['ref', 'input']));
+      const resource = resources.get(binding.ref);
+      const input = inputs.get(binding.input);
+      valid(
+        resource !== undefined &&
+          input !== undefined &&
+          !mappedResources.has(binding.ref) &&
+          !mappedInputs.has(binding.input) &&
+          resource.bytes === input.bytes &&
+          resource.sha256 === input.sha256,
+      );
+      mappedResources.add(binding.ref);
+      mappedInputs.add(binding.input);
+    }
   }
 }
 

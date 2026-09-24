@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { EDITION_PROJECT_FILE_BYTES } from '../edition/authoring.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { fail, LIMITS } from '../source/manifest.mjs';
 import { normalizeSelectedContributions, readSelectedProviderManifest } from './manifest.mjs';
@@ -16,7 +17,13 @@ export async function readDeclarativeSelectedInputs(file, expectedSha256) {
     ...manifest.selected.derived.map((item) => [`derived:${item.id}`, item]),
     ...(manifest.selected.edition === null
       ? []
-      : [[`edition:${manifest.selected.edition.id}`, manifest.selected.edition]]),
+      : [
+          [`edition:${manifest.selected.edition.id}`, manifest.selected.edition],
+          ...manifest.selected.edition.resources.map((resource) => [
+            `edition-resource:${resource.ref}`,
+            resource,
+          ]),
+        ]),
   ]);
   const contents = new Map();
   for (const item of manifest.delivery.files) {
@@ -26,7 +33,9 @@ export async function readDeclarativeSelectedInputs(file, expectedSha256) {
     await noSymlinkAncestors(selectedFile);
     const content = await regularBytes(
       selectedFile,
-      item.kind === 'edition' ? 4 * 1024 * 1024 : LIMITS.memberBytes,
+      item.kind === 'edition' || item.kind === 'edition-resource'
+        ? EDITION_PROJECT_FILE_BYTES
+        : LIMITS.memberBytes,
     );
     if (content.length !== descriptor.bytes) fail('edition_provider_v2_member_size_mismatch');
     if (sha(content) !== descriptor.sha256) fail('edition_provider_v2_member_digest_mismatch');
