@@ -30,6 +30,16 @@ but it does not justify preserving each custom implementation. In particular:
   repository governance, authorization, artifact release, and future source
   edits remain outside this Work Lane.
 
+A read-only audit at ETHOS `bfd94ffa` and AIGW `3318c819` identified the same
+source/derived-state confusion. ETHOS's optional integration has 38 JavaScript
+modules and 10,479 lines; only four modules and 893 lines are statically
+reachable from its Provider entry point. The other modules still serve
+migration exports and tests, so reachability is a migration boundary, not
+proof that deletion is safe now. AIGW's 621-line materializer updates source
+digests and Edition sealing fields, writes generated Provider state back into
+its repository, and retains 14 selected Go source files under `_source`.
+These are exact-HEAD observations, not an assertion about later source state.
+
 Source inspection on 2026-09-24 covered exact tagged implementations of
 [LikeC4 1.59.4](https://github.com/likec4/likec4/tree/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5),
 [Structurizr 2026.09.19](https://github.com/structurizr/structurizr/tree/f828a297dc693e08115b7e5b51dba4a83d8148c2),
@@ -75,7 +85,8 @@ a passing upstream suite, a visual comparison, or proof of integration fit.
 | Concern                                                                | Authoritative owner                                  | Publisher responsibility                                                         |
 | ---------------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
 | Accepted product meaning and source revision                           | Source product                                       | Validate the selected Claim Model and disclose loss or uncertainty.              |
-| Audience, questions, omissions, visual intention, authored media       | Source-owned Edition                                 | Compile selected values; never invent a claim or editorial decision.             |
+| Claims, questions, omissions, visual intention, authored media         | Source product and its Edition Authoring             | Validate selected meaning; never invent a claim or editorial decision.           |
+| Source/semantic digests and sealed Edition identity                    | Publisher derivation from exact selected inputs      | Bind exact bytes without editing authored meaning or granting acceptance.        |
 | Modeling, view computation, layout, rendering, accessibility mechanics | Qualified framework or backend selected by Publisher | Own the integration contract, exact version, supply, and conformance.            |
 | Candidate and predicate-specific observations                          | Publisher contracts and the relevant verifier        | Bind exact subjects, evidence, verifier, scope, and limits.                      |
 | Acceptance, Git/forge release, artifact custody                        | Source product                                       | Emit non-authorizing outputs; never advance source refs or claim hosted release. |
@@ -139,18 +150,51 @@ separate maturity candidates, not preapproved dependencies. A queried
 `@in-toto/attestation` npm package did not exist at the observed registry
 endpoint; the standard must not be equated with that invented package name.
 
-### 3. Preserve one source-bound semantic contract during internal replacement
+### 3. Source-owned authoring compiles once into a sealed Edition
 
-The Edition Provider v1 remains the only materialization boundary and both
-delivery modes continue to emit the same standard values. The public Source
-Bundle, Claim Model v2, and Edition v1 remain selected contracts until a
-versioned successor is proven and each consumer migrates. A mature engine may
-replace internal storage, view computation, or rendering; its model is a
-derived, disposable representation, never another editable product truth.
-An additive Edition v1 extension is acceptable only if every previously valid
-v1 input retains its meaning and Provider v1 remains truthful. Otherwise,
-introduce a new Edition and corresponding Provider contract version with
-explicit consumer migration; do not silently reinterpret v1 bytes.
+The Edition v1 validator requires `product.version`,
+`source.manifestSha256`, and `claimModel.digest` in the source-supplied value.
+Provider v1 also selects already sealed Edition bytes. This is why AIGW's
+materializer mutates an authored Edition with Publisher version and hashes,
+and why ETHOS computes a Source Bundle in its Provider before it can author an
+Edition. Moving either script to another directory would preserve the error.
+
+Reject two apparent shortcuts: keep v1 and accumulate source-product sealing
+scripts, or move ETHOS/AIGW semantics into Publisher. The selected successor
+instead has one direction:
+
+```text
+Source-owned claims + exact source selection + Edition Authoring
+  -> Provider v2 (declarative or bounded executable; same authored values)
+  -> Publisher source/semantic validation and identity sealing
+  -> sealed Claim Model and Edition v2 -> Candidate -> Qualification
+  -> source-product acceptance and artifact custody
+```
+
+Edition Authoring owns audience, questions, claim selection, omissions,
+narrative, independent media compositions, visual policy, and selected authored
+bytes. It does not contain Publisher version, generated source/semantic digests,
+Candidate identity, or acceptance. Publisher may add only exact derived
+identities and diagnostics to the sealed values. A source byte change without
+a selected new source revision and applicable semantic review must fail or
+remain an unaccepted proposal; recomputing its hash never proves that old
+claims still hold. The sealed Edition is a non-editable projection, not a
+parallel source of intent.
+
+Provider v2 must materialize the same authored values in declarative and
+executable modes. ETHOS may keep a small pure executable projector if its
+native terminal projection genuinely requires transformation; if it can emit
+the same authored values declaratively without duplicating authority, prefer
+that simpler mode. AIGW's current authored Claim Model and Edition content can
+remain source-owned, but a portable Source Bundle and Provider receipt belong
+to the generated/release side, not as a second tracked copy of source code.
+The public Provider v1 and Edition v1 remain truthful for exact historical
+replay until current consumers migrate. No v1 field is reinterpreted to mean
+authoring, and no new command plane is introduced.
+
+A mature engine may replace internal storage, view computation, or rendering;
+its model is a derived, disposable representation, never another editable
+product truth.
 
 An adapter must report an exact mapping table from each required claim and
 relation to the engine's elements, links, view predicates, and emitted carriers.
@@ -227,6 +271,18 @@ should not remain in source-domain exports merely because one Edition imports
 them. The public API should expose deliberate product contracts and selected
 backend capabilities, not implementation conveniences.
 
+ETHOS retains its five native terminal-projection documents and any Edition
+authorship that truly expresses its architecture. After Publisher can compile
+and qualify the same selected meaning, retire the integration's generic
+renderer, browser, publication, recovery, and migration exports; keep only a
+necessary pure semantic projector and source-owned Edition material. AIGW
+retains authored claims, Edition composition, and source selection; produce
+portable source bytes, sealed manifests, and parity receipts during its own
+build/release rather than tracking another copy of its Go source. Retire its
+materializer only when Publisher's public operation replaces its necessary
+behavior and the AIGW owner accepts the source-side migration. Source-owned
+does not mandate that every derived byte physically live in a source repo.
+
 `docs/product-contract.md` should contain generic product meaning, authority,
 inputs, outputs, and limits. Remove historical workline planning and
 ETHOS-specific view requirements from that canonical file. Transfer SDD,
@@ -252,6 +308,9 @@ do not copy an active policy into two repositories.
 - **Two modeling or rendering authorities survive migration** -> Require
   incumbent deletion, consumer migration, and import/reference closure before
   declaring the replacement complete.
+- **Sealing silently refreshes stale claims** -> Bind a source-owner-selected
+  revision and authored meaning before hashing; changed bytes create new review
+  obligations, not automatic acceptance or an edited authoring file.
 - **Document relocation changes accepted self-publication identity** -> Freeze
   the prior signed artifacts; bind the successor Candidate to changed source
   bytes and obtain fresh applicable qualification and human review.
@@ -268,9 +327,10 @@ do not copy an active policy into two repositories.
    identities. Classify every affected current path and artifact as authority,
    derived output, historical evidence, or disposable residue. Preserve all
    signed historical releases byte-for-byte.
-2. Establish executable RED cases for the current authored-input gap, fixed
-   style and dimension leakage, source revision/view drift, source-specific
-   documentation claims, and an independent non-ETHOS Edition. Baseline current
+2. Establish executable RED cases for v1 authored/sealed field mixing, AIGW's
+   automatic source-digest refresh, ETHOS's Provider-time Source Bundle write,
+   the authored-input gap, fixed style and dimension leakage, source
+   revision/view drift, and an independent non-ETHOS Edition. Baseline current
    flagship static and interactive identities separately.
 3. Run the framework-admission comparison on the frozen three-product workload.
    Publish the exact candidate versions, adapters, results, license/supply
@@ -278,14 +338,18 @@ do not copy an active policy into two repositories.
    Change. The outcome may combine LikeC4 model/view computation, another
    qualified renderer, and standard validators; framework names are not
    mutually exclusive votes.
-4. Implement only the selected replacement mechanisms behind versioned public
-   contracts. Migrate the self-Edition first, delete displaced custom owners,
-   and demonstrate semantic equivalence or an explicit reviewed successor.
-   Source-product adapters remain owned by their separate Work Lanes.
-5. Correct Publisher documents and tests at their semantic owner. Hand the SDD
-   research to ETHOS's owner without a second active copy; scope Publisher DR
-   to its own recovery while preserving the decision-ready off-host contract.
-   Rebuild and qualify the self-Edition because its source bytes changed.
+4. Specify and implement Provider v2 and Edition Authoring-to-seal behavior in
+   the existing Publisher command plane, then integrate only the selected
+   replacement mechanisms. Migrate the self-Edition first, delete displaced
+   custom owners, and demonstrate semantic equivalence or an explicit reviewed
+   successor. Source-product adapters remain owned by their separate Work Lanes.
+5. Hand the source-authoring contract and deletion map to ETHOS and AIGW's
+   single writers. Replace each source-side incumbent only after exact
+   installed semantic and media acceptance or a reviewed successor; do not
+   commit derived source snapshots as current product truth. Correct Publisher
+   documents at their semantic owner, hand SDD research to ETHOS without a
+   second active copy, scope Publisher DR to its own recovery, and rebuild and
+   qualify the changed self-Edition.
 6. Qualify semantic, package, installed/offline, native-platform, browser,
    accessibility, recovery, human-review, and publication predicates against
    the exact final artifacts. Meet the repository's at-least-95% coverage
@@ -295,7 +359,8 @@ do not copy an active policy into two repositories.
    and publication receipts. Do not rewrite a prior tag, relax authorization,
    or preserve a second current implementation as an indefinite fallback.
 
-The implementation task breakdown and spec deltas follow review of this
-design. This document is a proposed architecture, not evidence that a mature
-framework has already been integrated or that any source-product migration or
-off-host restore has completed.
+The existing spec deltas and task list were drafted before this revised
+authoring-to-seal decision and require a reviewed versioned-contract update.
+This document is a proposed architecture, not evidence that a mature framework
+has already been integrated or that any source-product migration or off-host
+restore has completed.
