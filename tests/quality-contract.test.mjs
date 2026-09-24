@@ -67,6 +67,17 @@ test('coverage roots include all tracked first-party package runtime modules', (
   }
 });
 
+test('first-party code filenames describe responsibilities, not protocol generations', () => {
+  const versionSuffix = /(?:^|[-_.])v\d+(?=[-_.]|$)/iu;
+  const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' })
+    .split('\0')
+    .filter((file) => /\.(?:cjs|js|jsx|mjs|ts|tsx)$/u.test(file));
+  for (const file of tracked) {
+    if (/^packages\/publisher\/renderers\/[^/]+\/supply\//u.test(file)) continue;
+    assert.doesNotMatch(path.posix.basename(file), versionSuffix, file);
+  }
+});
+
 test('public package indexes enumerate exports instead of widening by wildcard', async () => {
   const manifests = ['packages/publisher', 'editions/self'];
   const files = new Set();
