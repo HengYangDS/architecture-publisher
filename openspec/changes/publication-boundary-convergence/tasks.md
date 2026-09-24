@@ -123,33 +123,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       passed; the full check passed 697 tests, skipped 2, and failed only branch
       coverage at 92.93%. Resume complete closure at its actual consumers, then
       close this task before Candidate qualification and protected publication.
-- [ ] 2.5 Replay exact Source Bundle v1, Claim Model v2, Edition v1, Provider
-      v1, Candidate v1, and Qualification Set v1 meanings in
-      `tests/semantic-migration.test.mjs` and
-      `tests/edition-provider-installed.test.mjs`. Version changed wire meanings;
-      legacy `authoredInputSha256` remains identity-only without exception.
-      Actual media-input consumption needs a separate successor-bound record.
-      Partial evidence: the current tests freeze and replay five exact files
-      from the signature-verified `v0.3.0-alpha.3` declarative fixture, retaining
-      its Source Bundle, Claim Model, Edition, and Provider meanings; a packed
-      offline installation still executes the separate v1 executable Provider.
-      Five additional exact JSON members were extracted from the alpha.3
-      release evidence bundle (SHA-256
-      `c2f13768c3f6e134bb4b24765a2a3dfadd7aa8eb7bf3ca103bbf444b0371a557`);
-      its remote release manifest names the verified signed tag target, but the
-      asset itself is not independently signed. Candidate v1 and Qualification
-      Set v1 raw bytes now replay through the source-manifest digest,
-      model/Edition binding, and qualification admission, retaining the
-      released Candidate and Qualification digests.
-      A v1 compiler counterexample changes `authoredInputSha256`: Edition,
-      static-scene, and Candidate identities change while emitted static and
-      interactive media bytes do not. In this generic v1 journey the field is
-      identity-only, not proof of Publisher authoring-byte consumption. Focused
-      migration, v1 Provider, and build tests passed 13/13; static and package
-      checks passed. The full test portion passed 717 tests and skipped 2, but
-      branch coverage remains
-      93.00% against 95%. Installed successor replay remains required; this
-      task stays open.
+- [x] 2.5 Replay exact Source Bundle v1, Claim Model v2, Edition v1,
+      Provider v1, Candidate v1, and Qualification Set v1 meanings in source
+      tests and a packed, offline-installed work-lane package. The frozen hash
+      sets in `tests/fixtures/historical-release.mjs` serve both journeys.
+      The installed consumer uses only public package exports, empty user
+      configuration and a PATH with no commands. It retains the selected
+      historical digests and rejects a tampered Candidate binding. The
+      separate installed v1 executable Provider journey also remains green.
+      Legacy `authoredInputSha256` changes identity without establishing
+      authoring-byte consumption; Task 6.1 must bind actual successor media
+      inputs separately. The alpha.3 evidence asset is not independently
+      signed, though its release manifest names the verified signed tag.
+      Focused migration and installed tests passed 9/9; static, package and
+      strict OpenSpec checks passed. The full run passed 747 tests, skipped 2,
+      but branch coverage remains 93.06% against 95%; no landing or release
+      is admitted by this task alone.
 
 ## 3. Provider convergence
 
