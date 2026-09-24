@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
 import { validateSvg } from '../packages/publisher/renderers/resvg/validation.mjs';
+import { RASTER_LIMITS } from '../packages/publisher/renderers/resvg/limits.mjs';
 import { validateSvgValues } from '../packages/publisher/renderers/resvg/values.mjs';
 
 const document = (body) =>
@@ -124,6 +126,16 @@ for (const [label, source, code] of [
     'raster_svg_unsupported',
   ],
   [
+    'a foreign-prefixed attribute even under an SVG namespace alias',
+    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:foreign="http://www.w3.org/2000/svg" width="100" height="100"><g foreign:role="group"/></svg>',
+    'raster_svg_unsupported',
+  ],
+  [
+    'two href spellings on one element',
+    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100" height="100"><defs><g id="target"/></defs><use href="#target" xlink:href="#target"/></svg>',
+    'raster_svg_unsupported',
+  ],
+  [
     'CSS import syntax in an SVG value',
     '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="@import"/></svg>',
     'raster_svg_unsupported',
@@ -139,3 +151,30 @@ for (const [label, source, code] of [
     assert.throws(() => validateSvg(Buffer.from(source), [], 100), { code });
   });
 }
+
+test('SVG profile admits declared xml:space without weakening namespace checks', () => {
+  const source = document('<g xml:space="preserve"/>');
+  assert.equal(validateSvg(source, [], 100).width, 100);
+});
+
+test('SVG profile binds normal font weight to the selected regular face', async () => {
+  const supply = await loadBundledFonts();
+  const regular = supply.fonts.find((font) => font.weight === 400);
+  const source = document(
+    '<text x="5" y="20" font-family="JetBrains Mono" font-weight="normal">Selected</text>',
+  );
+  assert.equal(
+    validateSvg(source, [{ bytes: regular.bytes, family: 'JetBrains Mono', weight: 400 }], 100)
+      .width,
+    100,
+  );
+});
+
+test('SVG profile rejects an over-deep finite local-reference chain', () => {
+  const count = RASTER_LIMITS.referenceDepth + 2;
+  const definitions = Array.from({ length: count }, (_, i) =>
+    i + 1 === count ? `<g id="n${i}"/>` : `<g id="n${i}"><use href="#n${i + 1}"/></g>`,
+  ).join('');
+  const source = document(`<defs>${definitions}</defs><use href="#n0"/>`);
+  assert.throws(() => validateSvg(source, [], 100), { code: 'raster_svg_limit' });
+});
