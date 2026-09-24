@@ -4,6 +4,7 @@ export {
   validateEditionProvider,
 } from './contract.mjs';
 export { validateEditionProviderV2 } from './contract-v2.mjs';
+export { readDeclarativeProviderV2Files } from './materialize-v2.mjs';
 export {
   validateProviderMaterialization,
   validateProviderReply,

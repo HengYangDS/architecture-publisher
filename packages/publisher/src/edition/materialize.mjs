@@ -2,20 +2,13 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
+import { parseStrictJson } from '../source/json.mjs';
 import { fail, isDigest, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
 import { readSelectedInput, sealMaterializedInputLock } from '../source/materialize.mjs';
 import { validateBuildRequest, validateEditionProject } from './authoring.mjs';
 import { deriveSourceRevision } from './revision.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-
-function decodedJson(bytes, code) {
-  try {
-    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
-  } catch {
-    fail(code);
-  }
-}
 
 function sameSet(left, right) {
   return left.length === right.length && left.every((value) => right.includes(value));
@@ -56,7 +49,11 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
   const requestBytes = await regularBytes(file, LIMITS.manifestBytes);
   if (sha(requestBytes) !== expectedSha256) fail('materialized_request_digest_mismatch');
   const request = validateBuildRequest(
-    decodedJson(requestBytes, 'materialized_request_json_invalid'),
+    parseStrictJson(
+      requestBytes,
+      'materialized_request_json_invalid',
+      'materialized_request_json_duplicate_key',
+    ),
   );
   if (request.providers.length || request.edition.kind !== 'direct')
     fail('materialized_provider_pending');
@@ -68,7 +65,11 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
   await noSymlinkAncestors(editionPath);
   const editionBytes = await regularBytes(editionPath, 4 * 1024 * 1024);
   const project = validateEditionProject(
-    decodedJson(editionBytes, 'materialized_edition_json_invalid'),
+    parseStrictJson(
+      editionBytes,
+      'materialized_edition_json_invalid',
+      'materialized_edition_json_duplicate_key',
+    ),
   );
   const override = project.visualPolicy.override ?? null;
   selectedRootPaths(request, file, override);

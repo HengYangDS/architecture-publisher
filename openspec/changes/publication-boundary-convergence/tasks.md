@@ -149,13 +149,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       derived claimants, selected ancestry, optional authored Edition, and
       transport-independent expected bytes; executable native/Edition items
       must map to exact selected input bytes. It rejects extra later-stage
-      claims and portable path aliases while leaving v1 parsing unchanged.
-      Independent read-only review found no confirmed P1/P2 in this shape-only
-      slice; focused tests passed 5/5, static and package checks passed. The
-      full check passed 703 tests, skipped 2, and failed only branch coverage
-      at 93.00%. Actual file/package/reply checks, global request joining,
-      normalized ancestry, mode equivalence, and CLI dispatch remain open;
-      adapter digests are still declarations, not verified code evidence.
+      claims and portable path aliases. A declarative-file reader verifies
+      exact selected bytes, expands native ancestry, and keeps unverified
+      adapter code outside selected content identity. Successor Provider,
+      Build Request, and Edition Project readers reject duplicate JSON keys
+      without changing v1 parsing or rejecting formatted JSON. Focused tests
+      passed 25/25; static and package checks passed. The full test portion
+      passed 714 tests and skipped 2; `npm run check` failed because branch
+      coverage remains 92.95% against 95%.
+      An independently reproduced ancestor-symlink race leaves confinement
+      under concurrent mutation unproved and explicitly limited; this is a
+      release-blocking spec gap, not proof of escaping-input rejection.
+      Executable package/reply checks, global request joining, mode equivalence, CLI
+      dispatch, and closed dependencies remain open. No integration or
+      publication is admitted.
 - [ ] 3.2 Reuse the bounded process-tree supervisor for one exact selected
       executable entry. `tests/edition-provider-executable.test.mjs` and
       `tests/edition-provider-installed.test.mjs` cover complete package-content

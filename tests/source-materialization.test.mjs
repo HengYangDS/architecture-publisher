@@ -77,6 +77,38 @@ async function fixture(t) {
   return { root, project, request, sourcePath, projectPath, requestPath, save };
 }
 
+test('duplicate Build Request and Edition Project authority keys fail on exact bytes', async (t) => {
+  const f = await fixture(t);
+  const requestBytes = Buffer.from(
+    JSON.stringify(f.request).replace(
+      '{',
+      '{"edition":{"kind":"direct","root":"wrong","manifest":"other.json"},',
+    ) + '\n',
+  );
+  await fs.writeFile(f.requestPath, requestBytes);
+  await assert.rejects(materializeBuildRequestInput(f.requestPath, sha(requestBytes)), {
+    code: 'materialized_request_json_duplicate_key',
+  });
+
+  const projectBytes = Buffer.from(
+    JSON.stringify(f.project).replace('"scope":', '"scope":{"sourceNamespaces":[]},"scope":') +
+      '\n',
+  );
+  await fs.writeFile(f.projectPath, projectBytes);
+  await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {
+    code: 'materialized_edition_json_duplicate_key',
+  });
+});
+
+test('formatted Build Request and Edition Project JSON remain valid', async (t) => {
+  const f = await fixture(t);
+  const requestBytes = Buffer.from(JSON.stringify(f.request, null, 2) + '\n');
+  await fs.writeFile(f.requestPath, requestBytes);
+  await fs.writeFile(f.projectPath, JSON.stringify(f.project, null, 2) + '\n');
+  const result = await materializeBuildRequestInput(f.requestPath, sha(requestBytes));
+  assert.equal(result.project.id, 'example-atlas');
+});
+
 test('mutable authoring locator creates a new identity without carrying acceptance', async (t) => {
   const f = await fixture(t);
   const first = await materializeBuildRequestInput(f.requestPath, await f.save());
