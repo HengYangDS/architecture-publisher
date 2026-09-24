@@ -2,11 +2,11 @@
   "schema": "architecture.edition-provider/v1",
   "provider": {
     "id": "architecture-publisher-self-hosted",
-    "revision": "source-set:ed51029a61da915959dbe8af064903b766615db4f8cfea8dcc5a140ed0486068"
+    "revision": "source-set:cd7f0a39c774862a3d6734497db80d812b3b045ecdf60f557143625a4ea8407f"
   },
   "subject": {
     "id": "architecture-publisher",
-    "revision": "source-set:ed51029a61da915959dbe8af064903b766615db4f8cfea8dcc5a140ed0486068"
+    "revision": "source-set:cd7f0a39c774862a3d6734497db80d812b3b045ecdf60f557143625a4ea8407f"
   },
   "contracts": {
     "sourceBundle": "architecture.source-bundle/v1",
@@ -17,17 +17,17 @@
   "delivery": {
     "kind": "declarative",
     "sourceManifest": "source/manifest.json",
-    "sourceManifestSha256": "b6a9141a13624fe381a2b454784c07ec15704ebe5d23d6c5c6b869513100809c",
+    "sourceManifestSha256": "50e1042fa2d6d5d3213069a6f0fc3c03f2af45c89738f336556d06a9a1b48d50",
     "semanticMember": "semantic.json",
     "edition": "edition.json",
-    "editionSha256": "6f437c03d1017f1ce8d6c83480016b77b7bbbfc18f9892109251486d36f0f15b",
+    "editionSha256": "33cf21f4634ea734cb3ac681a13436bc5f555d5bfca691a700cb9cf946b74000",
     "evolution": null,
     "evolutionSha256": null
   },
   "expected": {
-    "sourceManifestSha256": "b6a9141a13624fe381a2b454784c07ec15704ebe5d23d6c5c6b869513100809c",
-    "claimModelDigest": "59cac5b3afb6c8e34e0643f8d1e4917994aa75df37c8e5a4144761a2c9d3b54b",
-    "editionDigest": "d764d95065de156f0a9756140521db964eef5fc2a79e210f8fa57cee79e6e4b3",
+    "sourceManifestSha256": "50e1042fa2d6d5d3213069a6f0fc3c03f2af45c89738f336556d06a9a1b48d50",
+    "claimModelDigest": "ebdc0f9333ef193d6f722b2bd0db1fa654fb1901011024f4f5e60e270fe8bd5f",
+    "editionDigest": "7e6f80c5f4f8fdc6106c71999bb4ab486e6ccad7bc6b195e9a21f66b39a06a74",
     "evolutionSha256": null
   },
   "limits": {

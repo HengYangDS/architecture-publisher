@@ -1,5 +1,19 @@
 import { fail } from './manifest.mjs';
 
+/** Canonical JSON preserves array order; callers normalize only declared sets. */
+export function canonical(value) {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
+  return (
+    '{' +
+    Object.keys(value)
+      .sort()
+      .map((key) => JSON.stringify(key) + ':' + canonical(value[key]))
+      .join(',') +
+    '}'
+  );
+}
+
 /** Parse valid UTF-8 JSON without silently accepting repeated object keys. */
 export function parseStrictJson(bytes, invalidCode, duplicateCode) {
   let source;

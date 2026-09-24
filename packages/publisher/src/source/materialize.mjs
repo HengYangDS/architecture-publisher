@@ -4,7 +4,8 @@ import { constants } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { noSymlinkAncestors, regularBytes } from './files.mjs';
-import { fail, isDigest, LIMITS, portablePath } from './manifest.mjs';
+import { canonical } from './json.mjs';
+import { fail, isDigest, LIMITS, portableKey, portablePath } from './manifest.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const inside = (root, selected) => {
@@ -137,50 +138,100 @@ export async function readSelectedInput(root, selection) {
   return selected;
 }
 
-/** Seal selected bytes without source-input locator or delivery-mode spelling. */
-export function sealMaterializedInputLock({ edition, sources, media, toolchain }) {
-  const contents = new Map();
+/** Seal one selected meaning, independent of request-local and Provider-local handles. */
+export function sealMaterializedInputLock({ edition, sources, derived = [], media, toolchain }) {
+  if (
+    !edition ||
+    typeof edition !== 'object' ||
+    Array.isArray(edition) ||
+    Object.keys(edition).sort().join('\n') !== 'content\neditor\nid\nresources' ||
+    !Array.isArray(edition.resources)
+  )
+    fail('materialized_edition_resources_invalid');
   const editionContent = Buffer.from(edition.content);
-  const editionOverride = edition.override === null ? null : Buffer.from(edition.override);
-  for (const source of sources) {
-    if (contents.has(source.id)) fail('materialized_item_duplicate');
-    contents.set(source.id, Buffer.from(source.content));
-  }
+  const resourceContents = new Map();
+  const resourceKeys = new Set();
+  const resources = edition.resources.map(({ ref, content }) => {
+    portablePath(ref);
+    const key = portableKey(ref);
+    if (resourceKeys.has(key)) fail('materialized_edition_resource_duplicate');
+    resourceKeys.add(key);
+    const bytes = Buffer.from(content);
+    resourceContents.set(ref, bytes);
+    return { ref, bytes: bytes.length, sha256: sha(bytes) };
+  });
+  resources.sort((left, right) => (left.ref < right.ref ? -1 : left.ref > right.ref ? 1 : 0));
+
+  const sourceContents = new Map();
+  const native = sources.map((source) => {
+    if (sourceContents.has(source.namespace)) fail('materialized_source_namespace_duplicate');
+    const content = Buffer.from(source.content);
+    sourceContents.set(source.namespace, content);
+    return {
+      namespace: source.namespace,
+      format: { id: source.format.id, version: source.format.version },
+      claimant: source.claimant,
+      revision: source.revisionEvidence,
+      bytes: content.length,
+      sha256: sha(content),
+    };
+  });
+  native.sort((left, right) =>
+    left.namespace < right.namespace ? -1 : left.namespace > right.namespace ? 1 : 0,
+  );
+  const nativeByNamespace = new Map(native.map((item) => [item.namespace, item]));
+
+  const derivedContents = new Map();
+  const projections = derived.map((item) => {
+    if (!Array.isArray(item.derivedFrom) || !item.derivedFrom.length)
+      fail('materialized_derived_ancestor_invalid');
+    const ancestors = new Set();
+    const derivedFrom = item.derivedFrom.map((ancestor) => {
+      const selected = nativeByNamespace.get(ancestor?.namespace);
+      if (!selected || selected.sha256 !== ancestor.sha256 || ancestors.has(ancestor.namespace))
+        fail('materialized_derived_ancestor_invalid');
+      ancestors.add(ancestor.namespace);
+      return { namespace: selected.namespace, sha256: selected.sha256 };
+    });
+    derivedFrom.sort((left, right) =>
+      left.namespace < right.namespace ? -1 : left.namespace > right.namespace ? 1 : 0,
+    );
+    const content = Buffer.from(item.content);
+    const entry = {
+      claimant: item.claimant,
+      format: { id: item.format.id, version: item.format.version },
+      derivedFrom,
+      adapter: {
+        id: item.adapter.id,
+        version: item.adapter.version,
+        contentSha256: item.adapter.contentSha256,
+      },
+      method: item.method,
+      bytes: content.length,
+      sha256: sha(content),
+    };
+    const key = canonical(entry);
+    if (derivedContents.has(key)) fail('materialized_derived_duplicate');
+    derivedContents.set(key, content);
+    return { key, entry };
+  });
+  projections.sort((left, right) => (left.key < right.key ? -1 : left.key > right.key ? 1 : 0));
+
   const lock = {
     schema: 'architecture.materialized-input-lock/v1',
     edition: {
       id: edition.id,
       editor: edition.editor,
-      bytes: edition.content.length,
-      sha256: sha(edition.content),
-      visualPolicyOverride:
-        editionOverride === null
-          ? null
-          : {
-              bytes: editionOverride.length,
-              sha256: sha(editionOverride),
-              observedBy: 'materializer',
-            },
+      bytes: editionContent.length,
+      sha256: sha(editionContent),
+      resources,
     },
-    sources: sources
-      .map((source) => {
-        return {
-          namespace: source.namespace,
-          format: { id: source.format.id, version: source.format.version },
-          claimant: source.claimant,
-          revision: source.revisionEvidence,
-          bytes: source.content.length,
-          sha256: sha(source.content),
-        };
-      })
-      .sort((left, right) =>
-        left.namespace < right.namespace ? -1 : left.namespace > right.namespace ? 1 : 0,
-      ),
+    sources: native,
+    derived: projections.map(({ entry }) => entry),
     media: [...media].sort(),
     toolchain: { profile: toolchain.profile },
-    closure: 'selected-roots-only',
   };
-  const lockJson = JSON.stringify(lock);
+  const lockJson = canonical(lock);
   const lockSha256 = sha(Buffer.from(lockJson));
   return Object.freeze({
     get lock() {
@@ -191,11 +242,18 @@ export function sealMaterializedInputLock({ edition, sources, media, toolchain }
     readEdition() {
       return Buffer.from(editionContent);
     },
-    readEditionOverride() {
-      return editionOverride === null ? null : Buffer.from(editionOverride);
+    readEditionResource(ref) {
+      const selected = resourceContents.get(ref);
+      if (!selected) fail('materialized_item_unknown');
+      return Buffer.from(selected);
     },
-    read(id) {
-      const selected = contents.get(id);
+    readSource(namespace) {
+      const selected = sourceContents.get(namespace);
+      if (!selected) fail('materialized_item_unknown');
+      return Buffer.from(selected);
+    },
+    readDerived(entry) {
+      const selected = derivedContents.get(canonical(entry));
       if (!selected) fail('materialized_item_unknown');
       return Buffer.from(selected);
     },

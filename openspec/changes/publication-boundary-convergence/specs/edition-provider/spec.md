@@ -59,6 +59,21 @@ qualification, acceptance, publication, and repository-transition claims.
 - **AND** delivery-mode metadata remains in its invocation receipt rather than
   changing selected meaning
 
+#### Scenario: Derived ancestry is local before global joining
+
+- **WHEN** different Providers reuse a local native ID in their `derivedFrom`
+  lists
+- **THEN** each ancestor resolves within its own Provider to the selected
+  native namespace and exact content identity
+- **AND** the global lock contains no ambiguous Provider-local ancestor ID
+
+#### Scenario: Two derived projections have identical selected meaning
+
+- **WHEN** two selected Providers return the same claimant, format, adapter
+  identity and digest, method, output bytes, and normalized native ancestors
+- **THEN** the join rejects the duplicate rather than overwriting one item
+- **AND** different adapter identities remain distinct even if output bytes match
+
 #### Scenario: Executable provider returns a later-stage value
 
 - **WHEN** executable provider output claims a Candidate, qualification,

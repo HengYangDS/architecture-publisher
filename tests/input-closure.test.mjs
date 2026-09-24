@@ -69,31 +69,35 @@ async function fixture(t) {
   return { root, requestPath, overridePath, project, materialize };
 }
 
-test('selected Edition override is byte-bound, but only materializer observation is claimed', async (t) => {
+test('selected Edition override is byte-bound without claiming full dependency closure', async (t) => {
   const f = await fixture(t);
   const first = await f.materialize();
   const selected = await fs.readFile(f.overridePath);
-  assert.deepEqual(first.lock.edition.visualPolicyOverride, {
-    bytes: selected.length,
-    sha256: sha(selected),
-    observedBy: 'materializer',
+  assert.deepEqual(first.lock.edition.resources, [
+    { ref: 'policy.json', bytes: selected.length, sha256: sha(selected) },
+  ]);
+  assert.deepEqual(first.readEvidence, {
+    subjectLockSha256: first.lockSha256,
+    items: [
+      { kind: 'edition', key: 'example-atlas', method: 'filesystem-read-sha256/v1' },
+      { kind: 'edition-resource', key: 'policy.json', method: 'filesystem-read-sha256/v1' },
+      { kind: 'native', key: 'example/native', method: 'filesystem-read-sha256/v1' },
+    ],
   });
   assert.deepEqual(first.readEditionOverride(), selected);
   const copy = first.readEditionOverride();
   copy[0] = 0;
   assert.deepEqual(first.readEditionOverride(), selected);
-  assert.equal(first.lock.closure, 'selected-roots-only');
+  assert.equal(first.closure, 'selected-roots-only');
   assert(first.limits.includes('edition-dependency-closure-unchecked'));
   assert(first.limits.includes('rendering-supplies-unchecked'));
+  assert(first.limits.includes('path-confinement-under-concurrent-mutation-unproved'));
 
   await fs.writeFile(f.overridePath, '{"palette":"earth"}\n');
   const changed = await f.materialize();
   assert.notEqual(changed.lockSha256, first.lockSha256);
   assert.equal(changed.lock.edition.sha256, first.lock.edition.sha256);
-  assert.notEqual(
-    changed.lock.edition.visualPolicyOverride.sha256,
-    first.lock.edition.visualPolicyOverride.sha256,
-  );
+  assert.notEqual(changed.lock.edition.resources[0].sha256, first.lock.edition.resources[0].sha256);
 });
 
 test('relocated selected override replays, while missing or linked bytes fail closed', async (t) => {
@@ -119,6 +123,6 @@ test('unselected local content cannot silently count as dependency closure', asy
   await fs.writeFile(path.join(f.root, 'ambient.json'), '{"unselected":true}\n');
   const later = await f.materialize();
   assert.equal(later.lockSha256, first.lockSha256);
-  assert.equal(later.lock.closure, 'selected-roots-only');
+  assert.equal(later.closure, 'selected-roots-only');
   assert(later.limits.includes('native-dependency-closure-unchecked'));
 });

@@ -95,6 +95,45 @@ semantic source identity.
 - **AND** the applicable acceptance policy determines whether the limit blocks
   qualification or publication
 
+### Requirement: One mode-independent selected-input lock
+
+One canonical successor lock SHALL represent the same normalized selected
+meaning for direct, declarative, and executable preparation. It SHALL NOT
+include delivery mode, Provider identity, manifest locator or digest, package
+root, process supervision, or a merely declared or unresolved read set in the
+selected-content digest. It SHALL include selected Edition resource logical
+references and exact bytes, unique native namespaces, and each derived item's
+claimant, format, adapter identity and digest, method, output bytes, and
+ancestors resolved to selected native namespace and content identity. A
+Provider-local ID SHALL be a local handle only. Set-valued items SHALL be
+canonically sorted, independently of input order and object-key spelling.
+Duplicate native namespaces and duplicate complete derived semantic tuples
+SHALL fail, including when their bytes match. Actual observed dependencies
+MAY enter the lock with exact identities while observation methods remain
+separate evidence; unobserved dependencies remain explicit limits, not proof
+of closure.
+
+#### Scenario: Two Providers reuse a local item ID
+
+- **WHEN** selected Providers use the same local ID for native items in
+  different source namespaces
+- **THEN** the global join preserves both selected meanings without a flat ID
+  collision
+- **AND** renaming either local ID alone does not change the lock digest
+
+#### Scenario: A selected namespace is repeated
+
+- **WHEN** direct input and a Provider, or two Providers, select the same native
+  namespace even with identical bytes
+- **THEN** the global join rejects the ambiguous source authority
+
+#### Scenario: Transport changes but selected meaning does not
+
+- **WHEN** direct, declarative, or executable preparation yields the same
+  normalized selected bytes, resource references, revision evidence and media
+- **THEN** the generated lock digest is identical
+- **AND** the distinct preparation methods remain visible in invocation evidence
+
 ### Requirement: Materialized dependency evidence is not overstated
 
 A successor input lock SHALL bind the exact selected native and Edition bytes,

@@ -259,6 +259,38 @@ adapter/backend versions, checked fonts and other supplies, toolchain
 configuration, and Edition bytes. Dependency records state their evidence
 method and limits; Provider declarations are not silently promoted into a
 proved complete closure.
+
+There is one canonical materialized-input lock, not a direct-mode lock and a
+Provider-mode lock. Its selected meaning consists of one Edition's authored
+bytes and logical resource references with their exact bytes; one native item
+per globally unique source namespace, with format, claimant, typed revision
+evidence and exact bytes; derived items with claimant, format, adapter identity
+and digest, method, exact output bytes, and ancestors resolved to selected
+native namespace and content identity; and the selected media and toolchain
+profile. A direct source selector ID and a Provider-local item ID are read
+handles, not semantic identities. `derivedFrom` is resolved inside its own
+Provider before the global join. A repeated native namespace fails even when
+both contents match. A repeated full derived semantic tuple also fails rather
+than selecting a last writer. Distinct Providers may reuse local IDs when
+their globally selected meanings differ. Set-valued items are sorted before
+canonical serialization; delivery order, object-key order and non-VCS file
+locator spelling cannot change the lock. A declared VCS repository locator is
+currently part of typed revision evidence and may change identity when
+respelt; it is not silently equated with another repository until an
+independently checked stable repository identity exists.
+
+Provider ID, delivery mode, manifest locator or digest, package root,
+supervision, and unresolved or merely declared dependencies belong to
+invocation evidence and scoped limits, not the selected-content digest.
+Actually observed dependencies enter the lock only with their exact selected
+identities; observation methods remain in verification evidence. Equal lock
+identities across modes are claimed only when normalized contents and revision
+evidence are equal; different receipts still distinguish how those bytes were
+prepared. The request-local `read(id)` remains local to a direct request;
+cross-Provider access uses typed semantic keys, never one flat namespace of
+Provider-local IDs. An Edition resource missing its logical reference or exact
+bytes fails before compilation.
+
 Historical v1 manifests and signed outputs retain their old meanings and bytes;
 a SemVer successor does not reinterpret them in place.
 

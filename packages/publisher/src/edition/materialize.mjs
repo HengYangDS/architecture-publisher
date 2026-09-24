@@ -94,10 +94,12 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
     fail('materialized_selected_media_incomplete');
 
   const sources = [];
+  const sourceReadMethods = new Map();
   const limits = [
     'native-dependency-closure-unchecked',
     'edition-dependency-closure-unchecked',
     'rendering-supplies-unchecked',
+    'path-confinement-under-concurrent-mutation-unproved',
   ];
   let totalBytes = editionBytes.length + (overrideBytes?.length ?? 0);
   for (const source of request.sources) {
@@ -109,6 +111,10 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
     if (totalBytes > LIMITS.totalBytes) fail('bundle_size_exceeded');
     if (source.revision.kind === 'vcs' && selected.vcsObject === null)
       limits.push(`vcs-provenance-unverified:${source.namespace}`);
+    sourceReadMethods.set(
+      source.namespace,
+      selected.vcsObject === null ? 'filesystem-read-sha256/v1' : 'git-selected-blob/v1',
+    );
     sources.push({
       id: source.id,
       namespace: source.namespace,
@@ -128,21 +134,46 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
       id: project.id,
       editor: project.editor,
       content: editionBytes,
-      override: overrideBytes,
+      resources: override === null ? [] : [{ ref: override, content: overrideBytes }],
     },
     sources,
     media: request.media,
     toolchain: request.toolchain,
   });
+  const sourceNamespaceById = new Map(sources.map(({ id, namespace }) => [id, namespace]));
+  const readEvidence = Object.freeze({
+    subjectLockSha256: sealed.lockSha256,
+    items: Object.freeze(
+      [
+        { kind: 'edition', key: project.id, method: 'filesystem-read-sha256/v1' },
+        ...(override === null
+          ? []
+          : [{ kind: 'edition-resource', key: override, method: 'filesystem-read-sha256/v1' }]),
+        ...sources.map(({ namespace }) => ({
+          kind: 'native',
+          key: namespace,
+          method: sourceReadMethods.get(namespace),
+        })),
+      ].map((item) => Object.freeze(item)),
+    ),
+  });
   return Object.freeze({
+    closure: 'selected-roots-only',
     get lock() {
       return sealed.lock;
     },
     lockJson: sealed.lockJson,
     lockSha256: sealed.lockSha256,
-    read: sealed.read,
+    readEvidence,
+    read(id) {
+      const namespace = sourceNamespaceById.get(id);
+      if (!namespace) fail('materialized_item_unknown');
+      return sealed.readSource(namespace);
+    },
     readEdition: sealed.readEdition,
-    readEditionOverride: sealed.readEditionOverride,
+    readEditionOverride() {
+      return override === null ? null : sealed.readEditionResource(override);
+    },
     project,
     limits: Object.freeze(limits),
   });

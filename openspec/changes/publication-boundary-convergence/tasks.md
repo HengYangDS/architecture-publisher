@@ -84,11 +84,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       falls back to HEAD. Ruling: this task seals selected roots and does not
       invent change-specific obligations before the native and Edition
       dependency graph exists; Task 4.3 derives those obligations and Task 6.1
-      binds them to exact Candidates. The lock declares
+      binds them to exact Candidates. The materialization result reports
       `selected-roots-only` and names unchecked dependencies rather than claiming
-      full closure, which remains Task 2.4. Focused tests passed 32/32 across
+      full closure in the semantic lock, which remains Task 2.4. Focused tests passed 32/32 across
       authoring, self-hosted compatibility, and materialization. Static and
-      package checks passed. The latest full check passed 691 tests, skipped 2,
+      package checks passed. This slice's full check passed 691 tests, skipped 2,
       and failed only the branch coverage gate at 92.84%; integration and
       publication remain forbidden.
 - [x] 2.3 Test typed content/VCS/opaque revisions and separate byte digests in
@@ -102,7 +102,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       `raw-bytes/v1` keeps earlier valid Build Requests valid. This does not
       assert native dependency closure or source endorsement. Independent
       read-only review found no confirmed P1/P2 defect. Focused tests passed
-      24/24; static and package checks passed. The latest full check passed 694
+      24/24; static and package checks passed. This slice's full check passed 694
       tests, skipped 2, and failed only the branch coverage gate at 92.91%; no
       integration or publication is admitted.
 - [ ] 2.4 Bind exact includes, resources, selected Edition bytes, backend and
@@ -113,8 +113,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       truthfully close before the native adapter, qualified toolchain, and
       selected renderers exist in Tasks 4.1 and 5.2–5.4. The current partial
       slice binds the explicit Edition visual-policy override as materializer-
-      observed bytes, including relocation and missing/symlink rejection;
-      `selected-roots-only` and named dependency limits remain. Do not promote a
+      observed bytes, including relocation and missing/symlink rejection. Its
+      logical resource reference and digest are in the semantic lock;
+      a lock-bound read-evidence record names the actual file-read method.
+      `selected-roots-only`, the concurrent path-mutation limit, and named
+      dependency limits remain outside that identity. Do not promote a
       toolchain profile slug or Provider declaration into observed backend or
       hermetic evidence. The focused 20/20 tests, static and package checks
       passed; the full check passed 697 tests, skipped 2, and failed only branch
@@ -165,10 +168,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       exact selected bytes, expands native ancestry, and keeps unverified
       adapter code outside selected content identity. Successor Provider,
       Build Request, and Edition Project readers reject duplicate JSON keys
-      without changing v1 parsing or rejecting formatted JSON. Focused tests
-      passed 25/25; static and package checks passed. The full test portion
-      passed 714 tests and skipped 2; `npm run check` failed because branch
-      coverage remains 92.96% against 95%.
+      without changing v1 parsing or rejecting formatted JSON. A single
+      internal lock sealer now canonicalizes native namespaces, derived
+      ancestry, Edition resource references, selected media, and object-key
+      order. It rejects duplicate native namespaces and complete derived
+      semantic tuples while ignoring Provider-local IDs. It rejects missing or
+      legacy Edition resource fields rather than silently sealing false
+      equivalence. The direct result binds read methods to the exact lock
+      outside semantic identity. This is a preparatory component, not the
+      global Build Request join. Focused tests and static checks passed; the
+      current full behavior run passed 724 tests, skipped 2, with no test
+      failures. Branch coverage is 93.02% against the
+      95% release gate, so `npm run check` remains red.
       An independently reproduced ancestor-symlink race leaves confinement
       under concurrent mutation unproved and explicitly limited; this is a
       release-blocking spec gap, not proof of escaping-input rejection.
@@ -195,12 +206,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       invocation receipts differ. Extend `tests/module-boundaries.test.mjs` to
       reject adopter-name branches and Provider imports of renderer, browser,
       qualification, publication, or governance code. Do not add a Provider
-      command tree or registry. Preparatory direct-mode regression confirms a
-      request-local source selector ID changes its read handle but not the
-      materialized lock digest. Focused tests passed 23/23; static and package
-      checks passed. The full test portion passed 716 tests and skipped 2,
-      while branch coverage remains 93.00% against 95%. Paired Provider mode
-      equivalence remains open; no integration or publication is admitted.
+      command tree or registry. Preparatory direct-mode and lock-sealer tests
+      confirm local source IDs affect only read handles, two distinct
+      namespaces may reuse a local ID, and changed revision evidence changes
+      identity. The installed self-portrait fixture was refreshed after its
+      selected semantic-contract source changed; static and interactive scene
+      digests stayed unchanged. Paired Provider mode equivalence remains open;
+      no integration or publication is admitted.
 - [ ] 3.4 Test owner-routed non-authorizing findings and Provider retirement in
       `tests/edition-provider-conformance.test.mjs`: an assertion, editorial,
       adapter, or protocol gap goes to that owner; a mutable predecessor retires

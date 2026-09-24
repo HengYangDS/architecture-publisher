@@ -1,4 +1,7 @@
 import { createHash } from 'node:crypto';
+import { canonical } from '../source/json.mjs';
+
+export { canonical };
 
 /** @internal Schema test seam; the JSON contract remains the public boundary. */
 export const CLAIM_PLANES = Object.freeze([
@@ -58,20 +61,6 @@ const validClaimReference = (value) =>
   CLAIM_MODEL_SECTIONS.includes(value.section) &&
   value.section !== 'vocabulary' &&
   text(value.id);
-
-/** Canonical JSON preserves array order; only declared sets are normalized below. */
-export function canonical(value) {
-  if (value === null || typeof value !== 'object') return JSON.stringify(value);
-  if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
-  return (
-    '{' +
-    Object.keys(value)
-      .sort()
-      .map((k) => JSON.stringify(k) + ':' + canonical(value[k]))
-      .join(',') +
-    '}'
-  );
-}
 
 /** Freeze a validated JSON value recursively so derived identities cannot drift. */
 export function deepFreeze(value) {

@@ -114,7 +114,7 @@ test('mutable authoring locator creates a new identity without carrying acceptan
   const first = await materializeBuildRequestInput(f.requestPath, await f.save());
   assert.equal(first.lock.schema, 'architecture.materialized-input-lock/v1');
   assert.equal(sha(Buffer.from(first.lockJson)), first.lockSha256);
-  assert.equal(first.lock.closure, 'selected-roots-only');
+  assert.equal(first.closure, 'selected-roots-only');
   assert(first.limits.includes('edition-dependency-closure-unchecked'));
   assert.equal(first.lock.sources[0].sha256, sha(Buffer.from('{"system":"first"}\n')));
   assert.equal(first.read('system-source').toString(), '{"system":"first"}\n');
@@ -339,6 +339,14 @@ test('VCS locator reads the selected object and never falls back to HEAD', async
   const first = await materializeBuildRequestInput(f.requestPath, expected);
   assert.deepEqual(first.read('system-source'), selected);
   assert.equal(first.lock.sources[0].revision.object, selectedCommit);
+  assert.deepEqual(
+    first.readEvidence.items.find(({ kind }) => kind === 'native'),
+    {
+      kind: 'native',
+      key: 'example/source',
+      method: 'git-selected-blob/v1',
+    },
+  );
   git(repo, 'add', 'system.json');
   git(repo, 'commit', '-qm', 'later');
   const replay = await materializeBuildRequestInput(f.requestPath, expected);
