@@ -2,11 +2,10 @@
 
 ## Status and evidence boundary
 
-This is a revised design candidate, not approval to implement. It replaces the
-previous source-product-owned Edition design in this Change. The current
-proposal, delta specifications, and task list must be reconciled with this
-candidate after review; OpenSpec syntax validation of those older artifacts
-is not design acceptance.
+This design was approved on 2026-09-24 as the baseline for revising the same
+Change's proposal and delta specifications. That approval is not approval of
+the revised specifications, implementation plan, implementation, or release.
+The former task list is superseded pending written specification review.
 
 The selected historical baseline is the signed `v0.3.0-alpha.3` product line.
 No predecessor tag, Architecture Publisher 0.2 release, or signed artifact is
@@ -50,6 +49,16 @@ The observed pressure is specific:
   machinery but the default blue-box publication was visually rejected.
   Replacing a custom renderer with a framework default does not satisfy the
   product's reader-quality promise.
+- A second isolated LikeC4 1.59.4 probe at AIGW `ea9b600b957f` authored four
+  question-specific views over the 12/11 Client Projection subset. All five
+  exported PNGs were byte-identical over two runs. A single-file HTML opened
+  offline without external requests or page errors, but the two HTML builds
+  differed in embedded Draw.io export data, so whole-file determinism was not
+  established. The visible page did not show the relation `plane` metadata or
+  semantic IDs. The automatic index duplicated the authored overview, and its
+  generic layout, palette, branding, and whitespace were not a qualified
+  publication. This proves useful native view and offline delivery mechanisms,
+  not sufficient visible provenance or flagship quality.
 
 These observations and their source-level comparators are recorded in
 `docs/research/mechanism-evaluation.md`. The new probe can be repeated by
@@ -442,6 +451,12 @@ installed-use, browser/accessibility, recovery, human-review, publication,
 protected-ref, hosted-CI, and remote-readback claims are closed separately.
 Repository coverage remains at least 95%; SemVer and Keep a Changelog govern
 the successor. Historical signed releases stay byte-for-byte intact.
+
+When the reviewed successor specifications eventually replace the active base
+specifications, update the old `edition-provider` and `edition-publication`
+Purpose statements to role-based wording alongside their renamed requirements.
+Do not edit accepted base-spec Purpose text now: that would misdescribe the
+still-released v1 product before a successor is implemented and admitted.
 
 This design is accepted only when the counterexamples demonstrate that the
 recommended workbench is both more useful than direct framework use and less

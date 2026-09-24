@@ -412,6 +412,37 @@ an explicitly selected VCS reference, and never infer either meaning from a
 hash-shaped string. Verified content identity does not itself establish source
 endorsement, implementation truth, or whole-product coverage.
 
+### Native LikeC4 multi-view probe
+
+A separate disposable probe used that same AIGW HEAD and the current
+`architecture/edition-provider/_source/semantic.json` (SHA-256
+`26b7c1d16adc112f8bff9c0c03e44e4800e24cb63106fb86124791c31232563c`).
+The 5.7 KB derived LikeC4 source, identified during the run by SHA-256
+`4db7f730f504a9739cf32b513e3e6a966d8437f80ad438c5eb0036f19265abac`,
+selected the 12 entities and 11 directed relations in four authored views:
+overview 12/11, authority 5/3, adapters 7/6, and transaction 3/2. It retained
+source semantic IDs and relation planes as LikeC4 metadata, not as assertions
+of native LikeC4 domain semantics. This was a research projection of the
+**Client Projection subset**, not a whole-AIGW Edition or accepted source
+authoring. The disposable generated source was not admitted as a durable
+conformance fixture, so this observation cannot substitute for a reproducible
+installed-product gate.
+
+Installed LikeC4 `1.59.4` validated the source, exported five PNGs, and built
+`--output-single-file` HTML. A background Chromium file-URL run opened the HTML
+with no external requests or page errors. Two PNG export runs produced identical
+bytes for every view. The automatic `index.png` duplicated the authored
+`overview.png` byte-for-byte, while two HTML builds differed in embedded
+Draw.io export data (`e579c7f8…` versus `a159b24a…`), so byte-stable HTML was
+**not** established. The initial HTML view showed the titles, elements, and
+edge labels, but neither the `plane` metadata nor the source semantic IDs were
+visible to a reader. The exported overview was visually sprawling, with
+default saturated boxes and excess whitespace. This is a concrete reason to
+admit LikeC4's native model/view and offline delivery capabilities for further
+testing while withholding visible semantic coverage, deterministic-HTML, and
+flagship-publication approval. It does not prove that LikeC4 cannot be styled
+or exported deterministically with a different qualified configuration.
+
 ## Additional source-level comparators (2026-09-24)
 
 The following stable-tag sources were inspected through the GitHub CLI and

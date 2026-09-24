@@ -2,19 +2,57 @@
 
 ## MODIFIED Requirements
 
+### Requirement: Source-bound structural publication
+
+A successor publication SHALL consume an exact materialized input lock, one
+Edition project, and checked native or historical Claim Model inputs. Every
+visible source assertion SHALL bind a claimant, native reference, revision,
+and evidence basis; every new editorial assertion SHALL name its proponent.
+Publisher SHALL distinguish checked source bytes from verified domain truth.
+It SHALL not infer product intent from code or claim that a format adapter,
+source path, or diagram proves implemented behavior. The existing Source Bundle
+v1 and Claim Model v2 path SHALL retain its original meaning.
+
+#### Scenario: An observed and target source disagree
+
+- **WHEN** an Edition selects both attributed planes for a comparison
+- **THEN** the media visibly distinguish their status and selected time basis
+- **AND** the difference is not silently resolved into one current fact
+
+#### Scenario: A selected source member changed
+
+- **WHEN** a selected source or authored byte does not match its locked input,
+  including a legacy semantic source digest and bundle member
+- **THEN** Candidate preparation fails before a successful output manifest
+- **AND** it does not substitute current repository bytes or HEAD
+
 ### Requirement: Explicit finite composition
 
-The selected Edition SHALL bind one semantic digest and contain a complete
-static overview plus one complete interactive overview and any declared
-mechanism views. Each projection SHALL select claims, semantic identities,
-grouping, reading order, endpoint contracts, and supported composition
-constraints by explicit identities or declared predicates over the exact
-Claim Model. The compiler SHALL materialize and record the finite selected
-identity set before layout. A qualified layout or rendering foundation MAY
-choose geometry within the Edition's constraints but SHALL NOT select new
-meaning, silently omit required claims, or add visible product assertions.
-Static and interactive scenes MAY differ and SHALL NOT be treated as
-interchangeable layout data.
+For each promised reader question and medium, the Edition SHALL declare
+required assertions or predicates, exclusions, allowed aggregates, and
+presentation constraints. Publisher SHALL materialize a finite exact selected
+identity set before layout. A qualified engine MAY choose geometry within the
+Edition constraints but SHALL not select new meaning, silently omit required
+assertions, or add visible product assertions. A complete overview means
+complete for its declared reader question, not an exhaustive dump of every
+source item. Static and interactive scenes MAY differ and SHALL not share
+required coordinates or DOM structure.
+
+#### Scenario: A framework suggests an undeclared assertion
+
+- **WHEN** a model, view, or layout engine emits an item or relation outside
+  the exact materialized Edition selection
+- **THEN** Candidate preparation rejects the extra assertion or requires an
+  explicit editor-authored change
+- **AND** the engine result does not gain source authority
+
+#### Scenario: A supported aggregate hides a distinction
+
+- **WHEN** an aggregate would hide direction, actor, plane, condition, or a
+  source-owned forbidden grouping needed for the reader question
+- **THEN** the aggregate fails or is labeled as a narrower claim with the
+  omitted distinction visibly recoverable
+- **AND** a total ID mapping alone does not qualify its semantic wording
 
 #### Scenario: Two media need different composition
 
@@ -27,36 +65,46 @@ interchangeable layout data.
 #### Scenario: Structural meaning is omitted or contradictory
 
 - **WHEN** an overview omits a required claim, membership is duplicated, an
-  endpoint is absent, or selected claims contradict each other
+  endpoint is absent, or an editorial transformation contradicts its bound
+  source while claiming equivalence
 - **THEN** publication fails with the prior output untouched
+- **AND** attributable disagreement between distinct source claims may remain
+  visible as the subject of a comparison Edition
 
 #### Scenario: The constrained layout is infeasible
 
-- **WHEN** selected content cannot satisfy the Edition's legibility and geometry obligations
-- **THEN** publication fails for explicit regrouping or additional views
-- **AND** it does not shrink text below limits, drop meaning, or edit generated output
-
-#### Scenario: A mature engine suggests an undeclared element
-
-- **WHEN** a selected model, layout, or rendering foundation yields an element
-  or relationship outside the materialized Edition selection
-- **THEN** the Candidate rejects that element as unowned meaning
-- **AND** the backend cannot promote its inferred view into source authority
+- **WHEN** selected content cannot satisfy the Edition's legibility, separation,
+  geometry, and coverage obligations
+- **THEN** the affected medium fails for explicit regrouping or additional views
+- **AND** it does not shrink below limits, drop meaning, or edit generated output
 
 ### Requirement: Complete dual-medium output
 
-Successful publication SHALL emit one deterministic SVG and one PNG from the
-static scene, and one checked standalone HTML atlas from the interactive scene
-set. The PNG SHALL use an admitted Edition-selected bounded width; absent such
-a selection, the existing 6000-pixel-wide semantic-publication requirement
-remains in force. A different implementation default SHALL NOT be reported as
-conforming to that requirement. Static artifacts SHALL
-be composed directly from semantic and static Edition input; they SHALL NOT
-be screenshots, extracted HTML SVG, DOM serialization, or another
-interactive-renderer derivative. The HTML overview SHALL remain a complete
-diagram, while additional pages expand complete named mechanisms. One manifest
-SHALL bind source, semantic, Edition, scene, renderer, qualification, selected
-dimensions, and artifact identities.
+A successful successor Candidate SHALL contain one independently composed
+static SVG and PNG and one standalone, independently composed interactive HTML
+work. Each selected overview and named mechanism page SHALL be intelligible for
+its declared question. The Edition or explicit neutral profile SHALL select
+bounded raster dimensions; the historical v1 6000-pixel requirement SHALL not
+be silently replaced by a new implementation default. Static artifacts SHALL
+not be screenshots, DOM extracts, or derivatives of the interactive renderer.
+A portable Candidate manifest SHALL bind input lock, Edition, exact scene
+memberships, renderer and supplies, per-medium dimensions, and artifact
+identities. Later qualification and publication records SHALL bind that
+Candidate separately. Public HTML SHALL not embed private raw inputs without
+explicit disclosure selection.
+
+#### Scenario: One medium changes presentation
+
+- **WHEN** only interactive composition or behavior changes
+- **THEN** unchanged static artifact identity remains independent
+- **AND** the interactive medium receives fresh applicable qualification
+
+#### Scenario: Different Editions select different widths
+
+- **WHEN** an ETHOS flagship selects 6000 pixels and another Edition selects a
+  different supported bounded width
+- **THEN** each PNG has its own selected exact width and identity
+- **AND** the generic compiler does not infer width from the adopter name
 
 #### Scenario: A real structural revision is published
 
@@ -64,35 +112,68 @@ dimensions, and artifact identities.
   both applicable scenes
 - **THEN** the static SVG/PNG and applicable HTML views visibly carry that meaning
 
-#### Scenario: One medium changes presentation
-
-- **WHEN** only interactive composition or presentation changes
-- **THEN** static artifact identities remain unchanged
-- **AND** the changed interactive output requires fresh applicable qualification
-
 #### Scenario: Static rendering cannot represent the authored overview
 
-- **WHEN** the complete static overview cannot pass semantic, SVG, geometry,
-  raster, or flagship obligations
-- **THEN** publication fails before exposing a successful output directory
+- **WHEN** required static carriers cannot be compiled or the SVG/PNG cannot be
+  rendered as selected
+- **THEN** no complete paired Candidate is emitted
+- **AND** prior accepted output remains untouched
 
-#### Scenario: Different Editions select different raster widths
+#### Scenario: A complete Candidate fails post-build qualification
 
-- **WHEN** an ETHOS flagship Edition selects 6000 pixels and a different
-  source-owned Edition selects another supported width
-- **THEN** each static PNG has exactly its selected width and independent
-  artifact identity
-- **AND** the generic compiler does not infer width from the source-product name
+- **WHEN** a complete Candidate exists but its geometry, raster,
+  accessibility, or flagship observation fails
+- **THEN** qualification or publication is withheld against that exact
+  Candidate without erasing it or changing prior accepted output
+
+### Requirement: Cross-medium semantic identity
+
+Static and interactive media SHALL share exact selected source and editorial
+claim identities and their applicable coverage obligations, not geometry,
+labels alone, or blanket approval. Each medium SHALL have an independently
+checked visible carrier for every assertion it promises to show. Static hidden
+IDs, metadata, hover text, and off-page links SHALL not substitute for visible
+meaning; interactive drill-down SHALL not excuse an incomplete overview for
+its own reader question. A carrier map proves traceability only, not that
+wording and marks communicate a valid source claim.
+
+#### Scenario: A relation survives only in metadata
+
+- **WHEN** an edge's plane, direction, or condition is recorded in metadata
+  but is not visible where the reader question requires it
+- **THEN** that medium fails visible semantic coverage
+- **AND** the metadata may still serve as a trace carrier
+
+#### Scenario: A partial chapter is published
+
+- **WHEN** an AIGW Client Projection chapter does not cover the whole AIGW
+  architecture
+- **THEN** its title, scope, and qualification limit identify that chapter
+- **AND** it is not described as a complete AIGW product architecture
+
+#### Scenario: A medium omits or redirects a semantic relation
+
+- **WHEN** one complete overview omits a required claim, changes its endpoints,
+  changes its plane, or references an unknown identity
+- **THEN** publication fails closed before artifact promotion
 
 ### Requirement: Domain-visible presentation ownership
 
-Every visible diagram label SHALL be attributable to Edition-authored title,
-view, group, entity, relation, claim, annotation, or required legal notice.
-Selected typography, palette, spacing, and visual treatment SHALL come from
-the Edition or its explicitly chosen neutral structural profile, not a hidden
-vendor or adopter default. Renderer branding, template plate labels, debug
-counters, version badges, demonstration placeholders, and generic generated
-slogans SHALL NOT appear in flagship diagram surfaces.
+Visible diagram assertions and titles SHALL derive from source claims,
+editorial selections, or required legal notices. Required typography, palette,
+spacing, hierarchy, and visual grammar SHALL derive from the Edition or its
+selected qualified neutral profile. Backend branding, template plate labels,
+debug counters, version badges, placeholders, and generated slogans SHALL not
+enter flagship diagram surfaces. A framework's default styling SHALL be
+qualified for the actual reader and medium rather than treated as accepted art
+direction by virtue of successful export.
+
+#### Scenario: A backend adds a badge or default palette
+
+- **WHEN** selected output includes a backend badge or styling that conflicts
+  with required Edition policy
+- **THEN** the delivered diagram removes the carrier or fails qualification
+- **AND** useful reader controls may remain outside the diagram surface
 
 #### Scenario: A renderer template has its own surface badge
 
@@ -100,38 +181,30 @@ slogans SHALL NOT appear in flagship diagram surfaces.
 - **THEN** the delivered diagram omits the badge carrier while preserving useful
   reader controls outside the diagram surface
 
-#### Scenario: A backend supplies an undeclared house style
-
-- **WHEN** a selected backend would change required typography, palette,
-  spacing, or visual hierarchy without an Edition choice
-- **THEN** qualification rejects the altered medium or compilation reports an
-  unsupported policy
-- **AND** the backend's default is not presented as source-authored art direction
-
 ## ADDED Requirements
 
-### Requirement: Qualified foundations preserve selected semantics
+### Requirement: Qualified foundations preserve selected meaning
 
-A model, view, layout, or rendering foundation SHALL be a derived implementation
-of the selected Source Bundle, Claim Model, and Edition, not another editable
-authority. Before Candidate emission, Publisher SHALL account for each required
-claim and relation identity, directed endpoint, plane, qualifier, provenance,
-selected view membership, explicit omission, and unknown state in the emitted
-semantic carriers or a separately checked exact-bound carrier. An engine that
-cannot represent one of these distinctions SHALL reject that selected input or
-use such a checked carrier; it SHALL NOT merge, infer, or discard meaning to
-produce an apparently complete medium.
+A model, view, layout, or renderer foundation SHALL be a disposable derived
+implementation, not a second editable authority. Before Candidate emission,
+Publisher SHALL account for selected identity, relation direction and kind,
+plane, qualifier, provenance, explicit omission, and unknown state in checked
+carriers. Unsupported distinctions SHALL be rejected or represented in an
+exact-bound checked carrier; visual similarity and model-edge metadata alone
+SHALL not count as reader-visible coverage. Within-build relation links SHALL
+not be assumed stable across relocation or revision without source evidence.
 
-#### Scenario: A framework loses a selected qualifier
+#### Scenario: A framework loses a required qualifier
 
-- **WHEN** a selected relation's direction, plane, condition, provenance, or
-  unknown state cannot be recovered from the proposed Candidate carriers
-- **THEN** Candidate emission fails with the exact unmapped identity and field
-- **AND** a visually similar link is not counted as semantic coverage
+- **WHEN** the selected source condition or provenance cannot be recovered from
+  the proposed Candidate carriers
+- **THEN** preparation fails with the unmapped identity and field
+- **AND** a visually similar line is not counted as full semantic preservation
 
-#### Scenario: An engine view includes inferred meaning
+#### Scenario: A native framework directly meets the publication contract
 
-- **WHEN** a framework-computed view contains an identity or assertion absent
-  from the exact materialized Edition selection
-- **THEN** Candidate emission rejects the extra meaning
-- **AND** no framework representation is promoted to source authority
+- **WHEN** direct framework use supplies exact source binding, required visible
+  meaning, qualified media, offline use, and acceptable lifecycle cost
+- **THEN** Publisher does not require its own renderer or duplicate model for
+  that workload
+- **AND** any remaining wrapper owns only distinct evidence or bounded effects

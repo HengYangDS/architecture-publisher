@@ -2,86 +2,96 @@
 
 ## Why
 
-Architecture Publisher's released semantic and evidence contracts are useful,
-but its current product documentation mixes Publisher decisions with ETHOS SDD
-research and operator disaster-recovery policy. The generic compiler also makes
-fixed layout, font, size, and renderer-style decisions that belong to an
-Edition or a qualified implementation foundation. Keeping custom machinery by
-default would preserve accidental complexity rather than the product's unique
-obligations.
-
-The source-product integrations expose a deeper boundary error: Edition v1
-requires source products to place Publisher version and computed source/semantic
-digests inside their authored Edition. ETHOS therefore retains a large copied
-publication implementation, while AIGW rewrites authored files and tracks a
-portable source snapshot in its own live repository. Source ownership of
-meaning does not require either product to own Publisher mechanics or derived
-delivery bytes.
+Architecture Publisher must make source-attributable architecture publications
+that answer a reader's questions in independently usable static and interactive
+media. Today, its Edition v1 input path requires a Publisher Claim Model v2 and a sealed
+Edition even where an adopter already has a native architecture model. It also
+confuses source authority, editorial ownership, transformation, acceptance, and
+artifact custody. Those costs are visible in the ETHOS and AIGW integrations;
+the current AIGW Edition covers only its Client Projection chapter, not its
+whole product. Replacing custom code with a framework default alone does not
+solve the reader-quality or evidence problem.
 
 ## What Changes
 
-- Define Publisher as a source-bound Architecture Edition compiler and bounded
-  local publication tool, not an intent authority, repository governor, diagram
-  editor, or operator-wide recovery service.
-- Make mature frameworks and standards the first implementation candidates for
-  modeling, view computation, layout, rendering, accessibility, packaging, and
-  evidence exchange. Direct integration, partial integration, interchange,
-  borrowing, deferral, and rejection remain available outcomes; no framework is
-  precluded merely because the current product has a custom implementation.
-- Preserve essential source meaning, explicit omissions, authorization,
-  predicate-specific qualification, and recoverable effects while retiring
-  replaceable custom mechanisms when a mature foundation passes the same
-  consumer and trust-boundary tests.
-- Introduce a versioned authoring-to-seal boundary: source products select
-  claims, source revision, editorial composition, and visual obligations;
-  Publisher alone derives content identities and a sealed Edition without
-  rewriting authored meaning. Declarative and executable Providers remain two
-  delivery modes for the same contract, not two product authorities.
-- Require actual consumption of selected authored media inputs and remove
-  product-wide assumptions about one font, visual preset, group cardinality, or
-  raster width. A source-owned Edition selects its visual obligations; the
-  Publisher checks and realizes them without silently inventing meaning.
-- Reassign current SDD findings to ETHOS's existing research authority, keep
-  Publisher-specific architecture-publication research here, and separate
-  Publisher file recovery, source-product artifact custody, and operator
-  off-host disaster recovery without copying a policy into another product.
-- **BREAKING for successor media bytes and any retired export:** Narrow the
-  public package surface only after source-owned consumers migrate through
-  exact installed parity. Version the changed package and Candidate outputs;
-  historical signed tags, 0.2 release bytes, and accepted media remain
-  immutable.
+- Define role-based authority: sources and standards own native facts; an
+  Edition editor owns reader questions, scope, attribution, and composition;
+  Publisher owns the versioned interchange, compilation, generic qualification,
+  and optional bounded local file effect; designated accepters and custodians
+  own their decisions. These roles may be co-located but never inferred from a
+  repository path.
+- Introduce one versioned Build Request and materialized-input lock. Direct,
+  declarative-Provider, and executable-Provider selection converge before the
+  same build entry. The selected Edition project has one root; multiple source
+  namespaces and Providers may contribute without silently merging authority.
+  Ordinary authors select native inputs and editorial intent, not derived
+  Publisher digests.
+- Admit native architecture formats through explicit, loss-reporting adapters;
+  retain Claim Model v2 as a supported existing input rather than imposing a
+  second editable model on every adopter. Distinguish native, authored,
+  derived, and proposed assertions and type each revision's verification
+  method. A content-derived revision is not a Git commit.
+- Make reader questions and visible coverage the center of Edition authoring.
+  Publisher may suggest views and geometry under finite declared constraints,
+  but source/editor-approved meaning, explicit omissions, conflicts, and
+  unknowns cannot be supplied by a renderer. Static and interactive media
+  share selected claims, not composition or approval.
+- Compare mature modeling, view, layout, rendering, browser, accessibility,
+  and raster mechanisms on frozen self, ETHOS, full AIGW plus its Client
+  Projection chapter, and native di-effect workloads. Use a mature foundation
+  wherever it passes the same semantic, reader, offline, and lifecycle tests;
+  delete displaced custom owners rather than keeping parallel engines.
+- Bind each Candidate, qualification, acceptance decision, local installation,
+  hosted publication, and custody receipt to its own exact subject and owner.
+  Source claims and generic validation do not confer product acceptance.
+- Move SDD and repository-governance research to ETHOS's existing owner while
+  retaining architecture-publication mechanism decisions here. Separate local
+  recoverable file effects, source-product release custody, and the still
+  undecided operator off-host disaster-recovery policy.
+- Preserve all signed historical tags and artifacts byte-for-byte. Introduce
+  successor protocol and package versions for any changed v1 meaning or
+  published bytes; migrate consumers explicitly before retiring old glue.
+
+## Non-goals
+
+This Change does not make Publisher a repository governor, source-truth oracle,
+universal ontology, code graph, WYSIWYG suite, hosted release service, or
+required ETHOS integration. It does not authorize edits in ETHOS or AIGW,
+publish a successor, or implement off-host disaster recovery. Executable
+Provider supervision is not a filesystem, network, or credential sandbox.
 
 ## Capabilities
 
 ### New Capabilities
 
-None. The framework-admission method is an implementation decision over
-existing product boundaries, not a new command plane or truth store.
+None. Native input is a successor of existing source intake and Edition
+publication, not a new lifecycle or command plane.
 
 ### Modified Capabilities
 
-- `edition-provider`: Define a successor Provider contract for exact authored
-  inputs and one-way Publisher sealing, preserving v1 replay until consumers
-  migrate; do not require both source products to use the same delivery mode.
-- `edition-publication`: Require selected authored media dependencies to be
-  consumed or explicitly classified as identity-only; distinguish source-owned
-  Edition Authoring from the sealed Edition, and keep visual choices with the
-  source owner rather than hidden compiler defaults.
-- `semantic-publication`: Permit qualified model/view and layout foundations
-  behind the existing source-bound contract, and make raster dimensions an
-  explicit bounded Edition or request choice rather than a universal 6000-pixel
-  product rule.
+- `source-intake`: Authoring locators or exact pins materialize a closed,
+  content-bound input lock; revision kind and verification scope are explicit.
+- `edition-provider`: Declarative and executable input preparation yield one
+  selected-input envelope without later-stage claims or mandatory source-repo
+  placement.
+- `edition-publication`: One editor-owned Edition project selects questions,
+  sources, scope, exclusions, transformations, and medium-specific obligations;
+  Publisher derives seals and Candidates.
+- `semantic-compilation`: Native models and explicit projections may be
+  imported through loss-reporting adapters without a mandatory duplicate Claim
+  Model or invented cross-format equivalence.
+- `semantic-publication`: Materialized reader views and separate static and
+  interactive compositions preserve visible semantic coverage; dimensions and
+  style are selected, bounded policies rather than adopter-name defaults.
+- `publication-contract`: Acceptance, local effect, hosted publication, and
+  custody stay with explicitly designated roles, including multi-source works.
 
-## Impact
+## Impact and review boundary
 
-The design affects the current product contract, research and recovery guidance,
-Edition and Scene contracts, generic composition and renderer seams, package
-exports, source-owned self-Edition, conformance tests, and installed journeys.
-ETHOS and AIGW remain separate source owners; their live files may change only
-through their own governed work. Their tracked migration implementations and
-generated snapshots are deletion candidates only after replacement acceptance,
-not automatically disposable files. A Publisher document move is not "docs only":
-the self-Edition selects `docs/product-contract.md` as exact source evidence and
-tests bind current document paths, so changed bytes require new candidate and
-applicable human review. Implementation and release are not part of this design
-review step.
+The successor touches the installed input contract, source adapters, Edition
+project, derived lock, scene and renderer seams, qualification reports, public
+package surface, self-Edition, and adopter migrations. Source-side ETHOS and
+AIGW changes require their own single writers and exact installed acceptance.
+The written specifications must be reviewed before replacing this Change's
+implementation task plan. No design or syntax-validation result grants
+permission to implement or release.
