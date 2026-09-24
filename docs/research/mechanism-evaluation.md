@@ -243,6 +243,25 @@ cross-workspace or cross-revision Edition references. This is a scoped probe of
 the installed version, not a claim that LikeC4 has no other source-map or
 explicit-ID capability.
 
+The same copied inputs were built twice from one source directory using
+`likec4 build <copy> --output <site> --output-single-file --use-hash-history`
+with only the output directory changed. Both builds succeeded and emitted
+standalone `index.html` files of 3,320,226 and 3,320,180 bytes (SHA-256
+`19bd832ecd5f99d427983a3708f778c336953ac4facedfa308fd4e9981d944af` and
+`886734ce3c30f1fd62fbba8abafcd76aae13dca11a5cba8ff8afe73a19bde413`).
+Their top-level asset references were inline data URIs. In this two-run probe,
+replacing the four embedded Draw.io edit URLs made the remaining HTML bytes
+identical. Decoding those URLs showed that their underlying XML differed only
+in the `mxfile modified` timestamp. At the inspected LikeC4 1.59.4 source,
+[`generate-drawio.ts`](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/generators/src/drawio/generate-drawio.ts)
+accepts an explicit `modified` value but defaults to current time, while the
+[`Vite virtual module`](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/vite-plugin/src/virtuals/drawio.ts)
+calls `generateDrawio(view)` without that value. The probe establishes an
+exact-byte reproducibility gap in the direct HTML build, not a failure of
+LikeC4 model/view computation or browser-offline behavior. A qualified
+Publisher backend must disable, deterministically configure, or safely
+normalize this ancillary edit URL before claiming repeated artifact identity.
+
 **Design consequence:** admit native LikeC4 without a duplicate editable Claim
 Model, reuse its model/view machinery, but distinguish source-defined stable
 references from revision-scoped generated IDs. A source change or relocation
