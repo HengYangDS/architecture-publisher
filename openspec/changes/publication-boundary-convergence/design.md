@@ -360,6 +360,28 @@ an Edition asks Publisher to reason about it; preserving a JSON blob is not
 understanding it. No adapter may silently turn ordering, state transition,
 permission, causation, or authority into an undifferentiated arrow.
 
+For LikeC4 model and view files, the preferred native importer uses the
+upstream `@likec4/language-services/node` `fromSources` API on the exact
+selected byte map, not a hand-written DSL parser or an ambient workspace
+scan. It checks that parsed document paths equal the selected file set and
+translates the public `locate` results for elements, relations, and views
+into logical file paths, byte digests, and LSP ranges. A relation locator may
+be only a point; it is not a full-source-span claim. The importer preserves
+LikeC4 element IDs, typed relation endpoints/kinds/direction, and view IDs;
+user metadata and unsupported predicates remain opaque until an admitted
+vocabulary assigns them meaning. Engine-generated relation IDs are
+revision-scoped even if they stay equal in one workspace run.
+
+LikeC4's parser is an optional, explicitly selected toolchain supply, not a
+mandatory Publisher-core dependency or a Provider registry. The installed
+parser, its declared peer packages, transitive content, and execution limit
+must be bound and qualified before an Edition may claim complete replay.
+No ambient Homebrew binary, adjacent `node_modules`, or unverified package
+version is a fallback. A source-specific Provider may instead supply an
+attributed projection, but that does not silently become independently
+verified native parsing. The derived index is disposable; the authored DSL
+and Edition remain their respective sources of truth.
+
 Within one source revision, a native engine's relation IDs may map view edges
 back to its model relations. Across a relocation or revision, generated IDs
 are not automatically stable. Use source-defined stable IDs when available;

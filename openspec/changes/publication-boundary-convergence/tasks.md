@@ -267,7 +267,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       `packages/publisher/src/semantics/` and test exact source/include binding,
       supported constructs, source references, typed relation fields, and explicit
       loss in `tests/native-import.test.mjs`. The derived index is disposable, not
-      an editable duplicate Claim Model.
+      an editable duplicate Claim Model. Source-level and disposable probes of
+      LikeC4 1.59.4 found public in-memory `fromSources` and `locate` support for
+      exact selected files and source positions on frozen di-effect inputs;
+      optional parser peers and the measured dependency tree remain unqualified.
+      No adapter implementation or installed-use claim is complete.
 - [ ] 4.2 In `tests/native-identity.test.mjs` and
       `tests/native-semantics.test.mjs`, cover same-label distinct namespaces,
       relocation/generated-ID drift, duplicate relations, explicit lineage,
