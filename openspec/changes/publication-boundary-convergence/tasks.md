@@ -156,13 +156,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       without changing v1 parsing or rejecting formatted JSON. Focused tests
       passed 25/25; static and package checks passed. The full test portion
       passed 714 tests and skipped 2; `npm run check` failed because branch
-      coverage remains 92.95% against 95%.
+      coverage remains 92.96% against 95%.
       An independently reproduced ancestor-symlink race leaves confinement
       under concurrent mutation unproved and explicitly limited; this is a
       release-blocking spec gap, not proof of escaping-input rejection.
       Executable package/reply checks, global request joining, mode equivalence, CLI
       dispatch, and closed dependencies remain open. No integration or
       publication is admitted.
+      Ruling: Provider-mode Edition selection names only the selected Provider,
+      whose v2 manifest has at most one Edition item; direct mode alone names
+      filesystem root and manifest. This removes transport-specific duplicate
+      locators before global joining. If wrong, the unreleased Build Request
+      shape changes; historical v1 Provider meanings remain untouched. The
+      global join must reject a missing or second Provider Edition, including
+      byte-identical duplicates, and an Edition resource not bound by exact
+      selected bytes. Cross-mode identity must include those resource bytes;
+      no ambient Provider directory may supply them.
 - [ ] 3.2 Reuse the bounded process-tree supervisor for one exact selected
       executable entry. `tests/edition-provider-executable.test.mjs` and
       `tests/edition-provider-installed.test.mjs` cover complete package-content

@@ -54,8 +54,10 @@ export function validateBuildRequest(value) {
     !selectedIds(value.providers).has(value.edition.provider)
   )
     invalid(code, 'Edition Provider not selected');
-  checkedPath(value.edition.root, code);
-  checkedPath(value.edition.manifest, code);
+  if (value.edition.kind === 'direct') {
+    checkedPath(value.edition.root, code);
+    checkedPath(value.edition.manifest, code);
+  }
   for (const source of value.sources) {
     checkedPath(source.input.path, code);
     if (source.revision.kind === 'vcs' && source.revision.repository !== '.')

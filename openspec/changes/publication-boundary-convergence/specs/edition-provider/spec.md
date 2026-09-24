@@ -231,11 +231,38 @@ approval command plane. Conflicting or ambiguous Edition roots SHALL fail
 before compilation. An Edition stored independently of all source repositories
 SHALL be selectable without changing source authority.
 
+For a direct Edition, the Build Request's `edition` selector SHALL name its
+authoring root and manifest. For a Provider-supplied Edition, that selector
+SHALL name only the selected Provider ID; the corresponding exact Provider
+manifest still has its own path and digest in the Build Request's `providers`
+selection. The selected Provider's single Edition item SHALL supply the exact
+authored bytes. The `edition` selector SHALL NOT repeat a delivery-specific
+root or file path for Provider mode. A selected Provider lacking Edition
+material, or another selected Provider contributing Edition material even
+with identical bytes, SHALL fail before compilation. Any authored Edition
+resource not bound as exact selected input SHALL fail rather than be read from
+an ambient Provider directory or omitted from identity.
+
 #### Scenario: Two Providers supply Edition roots
 
 - **WHEN** a Build Request cannot select exactly one intended Edition root
 - **THEN** input preparation rejects the ambiguous selection
 - **AND** it does not merge audience, scope, or omissions implicitly
+
+#### Scenario: Provider delivery mode changes without editorial change
+
+- **WHEN** the selected Provider supplies the same exact Edition and selected
+  editorial resource bytes through declarative or executable delivery
+- **THEN** the Build Request selects that Provider without changing an Edition
+  filesystem locator or the selected Edition identity
+- **AND** the delivery path remains invocation evidence only
+
+#### Scenario: Provider Edition references an unselected resource
+
+- **WHEN** the selected Edition references a visual override or other external
+  editorial resource that the Provider envelope does not bind by exact bytes
+- **THEN** the join rejects the Edition before compilation
+- **AND** it neither reads the resource ambiently nor omits it from identity
 
 ## RENAMED Requirements
 

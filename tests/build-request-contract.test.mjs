@@ -71,13 +71,13 @@ test('Build Request selects exactly one Edition root across direct and Provider 
   selected.edition = {
     kind: 'provider',
     provider: 'editor-input',
-    root: 'edition',
-    manifest: 'edition.json',
   };
   assert.deepEqual(validateBuildRequest(selected).edition, selected.edition);
 
   for (const change of [
     (v) => (v.edition.provider = 'absent'),
+    (v) => (v.edition.root = 'edition'),
+    (v) => (v.edition.manifest = 'edition.json'),
     (v) => (v.edition.directRoot = 'other'),
     (v) => (v.providers[0].id = 'editor-input/other'),
     (v) => v.providers.push(structuredClone(v.providers[0])),

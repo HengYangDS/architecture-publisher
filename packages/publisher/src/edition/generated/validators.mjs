@@ -112,21 +112,11 @@ const ref0 = function validate(data) {
     if (!(typeof data.edition === "object" && data.edition && !Array.isArray(data.edition))) return false
     if (!("kind" in data.edition && hasOwn(data.edition, "kind"))) return false
     if (!("provider" in data.edition && hasOwn(data.edition, "provider"))) return false
-    if (!("root" in data.edition && hasOwn(data.edition, "root"))) return false
-    if (!("manifest" in data.edition && hasOwn(data.edition, "manifest"))) return false
     if (!(data.edition.kind === "provider")) return false
     if (!(typeof data.edition.provider === "string")) return false
     if (!pattern1.test(data.edition.provider)) return false
-    if (!(typeof data.edition.root === "string")) return false
-    if (data.edition.root.length > 2048 && stringLength(data.edition.root) > 2048) return false
-    if (data.edition.root.length < 1 || stringLength(data.edition.root) < 1) return false
-    if (!pattern0.test(data.edition.root)) return false
-    if (!(typeof data.edition.manifest === "string")) return false
-    if (data.edition.manifest.length > 2048 && stringLength(data.edition.manifest) > 2048) return false
-    if (data.edition.manifest.length < 1 || stringLength(data.edition.manifest) < 1) return false
-    if (!pattern0.test(data.edition.manifest)) return false
     for (const key1 of Object.keys(data.edition)) {
-      if (key1 !== "kind" && key1 !== "provider" && key1 !== "root" && key1 !== "manifest") return false
+      if (key1 !== "kind" && key1 !== "provider") return false
     }
     return true
   })()

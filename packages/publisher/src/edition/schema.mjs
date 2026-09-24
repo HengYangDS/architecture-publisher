@@ -71,11 +71,9 @@ export const BUILD_REQUEST_SCHEMA = deepFreeze({
           root: portable,
           manifest: portable,
         }),
-        closed(['kind', 'provider', 'root', 'manifest'], {
+        closed(['kind', 'provider'], {
           kind: { const: 'provider' },
           provider: identifier,
-          root: portable,
-          manifest: portable,
         }),
       ],
     },

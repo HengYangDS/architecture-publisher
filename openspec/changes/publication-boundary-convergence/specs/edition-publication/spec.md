@@ -44,7 +44,7 @@ claim source endorsement from a source path or maintainer label.
 ### Requirement: Generic inputs are explicit and repository-independent
 
 The successor Build Request SHALL be a versioned, schema-validated JSON
-manifest selecting one Edition project root, one or more source selectors or
+manifest selecting one Edition project, one or more source selectors or
 exact pins, requested media, and a qualified toolchain profile. The Edition
 project SHALL use a versioned authoring manifest plus selected native files or
 assets, not a Publisher seal edited by hand. Each source selector SHALL
@@ -57,6 +57,10 @@ ETHOS, Git, adjacent checkouts, network, product-specific branching, or an
 unselected source adapter. Existing Source Bundle v1, Claim Model v2, Edition
 v1, and Provider v1 inputs SHALL remain replayable under their original
 meanings.
+Direct Edition selection names an authoring filesystem root and manifest;
+Provider Edition selection names the sole authored Edition item supplied by
+one exact selected Provider. Both are one semantic Edition selection, not two
+competing roots or an implicit filesystem lookup.
 
 #### Scenario: A mixed-source request is relocated
 

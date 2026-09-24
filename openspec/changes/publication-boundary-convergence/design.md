@@ -202,6 +202,18 @@ for all successors. A declaration of source ownership is attribution, not
 proof that the named owner endorsed the input. The Build Request selects
 exactly one Edition project root across direct and Provider-supplied inputs;
 ambiguous or conflicting selections fail rather than being implicitly merged.
+Direct selection names a root and manifest as authoring locators. Provider
+selection names the selected Provider only: its v2 manifest contains at most
+one Edition item and binds those authored bytes independently of delivery
+mode. Repeating a filesystem root and manifest in a Provider-mode Build
+Request would couple the editor's selection to declarative transport and
+would have no equivalent meaning for executable delivery. Other selected
+Providers cannot silently contribute competing Edition material; the global
+join must reject it. Delivery paths remain invocation evidence, not Edition
+identity. The Edition JSON alone is not a closed editorial input when it names
+an external visual override or resource. Provider mode must bind those bytes
+in the selected envelope or fail; it cannot recover them from an ambient
+directory or quietly omit them from a cross-mode identity.
 
 The successor Provider is an input-preparation boundary, not a publication
 stage. Declarative mode selects native bytes or pre-existing projections with
