@@ -87,10 +87,44 @@ The local annotated tag signature verified, and `git ls-remote` returned the
 same tag object `9acd432e614f39b1a4ed12fe1fe94bae6ba9f0ad` and peeled
 commit `b01dafa5ab1f34cdb026afde90821c66b09179da` as the local ref.
 
-This proves the ten selected alpha.3 link bytes were reachable and mutually
-consistent at readback time; it does not turn an unsigned external checksum
-file into a signature over assets, verify every other Release, repair the
-alpha.0 links, or establish independent off-host recovery.
+This alpha.3-only pass proved the ten selected link bytes were reachable and
+mutually consistent at readback time. The later pass below extends readback to
+other reachable Releases; neither pass turns an unsigned external checksum
+file into a signature over assets, repairs the alpha.0 links, or establishes
+independent off-host recovery.
+
+## Reachable historical release readback (2026-09-24 09:55 UTC)
+
+A second read-only pass streamed every Release-linked asset other than the
+already unavailable `v0.1.0-alpha.0` links, without retaining downloaded
+archives. Each selected encoded Release link path received a bounded,
+no-prompt authenticated `GET` with closed stdin and owned process cleanup.
+Assets were checked against the `SHA256SUMS` in their actual package/version
+group, using the URL filename rather than the human-facing link label. The
+`v0.1.0-alpha.6` and `alpha.7` Releases deliberately link their reader media
+from the `alpha.5` package; those bytes were checked against that package's
+checksums instead of falsely comparing them to the newer package file list.
+
+| Release          | Linked files | Matching file identities | Linked asset bytes |
+| ---------------- | -----------: | -----------------------: | -----------------: |
+| `v0.1.0-alpha.1` |            8 |                        8 |        215,666,873 |
+| `v0.1.0-alpha.3` |            8 |                        8 |        334,955,657 |
+| `v0.1.0-alpha.4` |            3 |                        3 |          2,299,622 |
+| `v0.1.0-alpha.5` |            6 |                        6 |        296,760,518 |
+| `v0.1.0-alpha.6` |            5 |                        5 |          7,214,103 |
+| `v0.1.0-alpha.7` |            5 |                        5 |          7,232,078 |
+| `v0.2.0-alpha.0` |           10 |                       10 |          6,463,746 |
+| `v0.3.0-alpha.1` |           17 |                       17 |          6,518,401 |
+| `v0.3.0-alpha.3` |           10 |                       10 |          7,935,206 |
+| **Total**        |       **72** |                   **72** |    **885,046,204** |
+
+All nine local annotated tag signatures verified. For each, the current remote
+tag object and peeled commit matched its local ref. These checks establish
+current link reachability, byte agreement with the selected remote package
+checksums, and Git tag identity. The checksum files are external package
+content, not signatures over assets; this is not an independent archival trust
+root, a guarantee of future availability, or a clean-host recovery test. The
+twelve `v0.1.0-alpha.0` links remain outside the passing set and unresolved.
 
 ## Consequence and repair bar
 
