@@ -109,7 +109,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       adapter versions, fonts, rendering supplies, and toolchain configuration.
       `tests/input-closure.test.mjs` distinguishes observed, checked-declared,
       merely declared, unresolved, and ambient dependencies. Do not equate a
-      Provider declaration with hermetic preparation.
+      Provider declaration with hermetic preparation. Ruling: this task cannot
+      truthfully close before the native adapter, qualified toolchain, and
+      selected renderers exist in Tasks 4.1 and 5.2–5.4. The current partial
+      slice binds the explicit Edition visual-policy override as materializer-
+      observed bytes, including relocation and missing/symlink rejection;
+      `selected-roots-only` and named dependency limits remain. Do not promote a
+      toolchain profile slug or Provider declaration into observed backend or
+      hermetic evidence. The focused 20/20 tests, static and package checks
+      passed; the full check passed 697 tests, skipped 2, and failed only branch
+      coverage at 92.93%. Resume complete closure at its actual consumers, then
+      close this task before Candidate qualification and protected publication.
 - [ ] 2.5 Replay exact Source Bundle v1, Claim Model v2, Edition v1, Provider
       v1, Candidate v1, and Qualification Set v1 meanings in
       `tests/semantic-migration.test.mjs` and

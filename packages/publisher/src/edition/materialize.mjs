@@ -21,7 +21,7 @@ function sameSet(left, right) {
   return left.length === right.length && left.every((value) => right.includes(value));
 }
 
-function selectedRootPaths(request, requestFile) {
+function selectedRootPaths(request, requestFile, override) {
   const editionPath = path.posix.join(request.edition.root, request.edition.manifest);
   const requestName = path.basename(requestFile);
   try {
@@ -37,6 +37,7 @@ function selectedRootPaths(request, requestFile) {
         : source.input.path;
     selected.push(relative);
   }
+  if (override !== null) selected.push(path.posix.join(request.edition.root, override));
   const aliases = new Map();
   for (const selectedPath of selected) {
     const key = portableKey(selectedPath);
@@ -59,7 +60,6 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
   );
   if (request.providers.length || request.edition.kind !== 'direct')
     fail('materialized_provider_pending');
-  selectedRootPaths(request, file);
   const editionPath = path.resolve(
     root,
     ...request.edition.root.split('/'),
@@ -70,6 +70,19 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
   const project = validateEditionProject(
     decodedJson(editionBytes, 'materialized_edition_json_invalid'),
   );
+  const override = project.visualPolicy.override ?? null;
+  selectedRootPaths(request, file, override);
+  /** @type {Buffer | null} */
+  let overrideBytes = null;
+  if (override !== null) {
+    const selectedOverride = path.resolve(
+      root,
+      ...request.edition.root.split('/'),
+      ...override.split('/'),
+    );
+    await noSymlinkAncestors(selectedOverride);
+    overrideBytes = await regularBytes(selectedOverride, 4 * 1024 * 1024);
+  }
   const namespaces = request.sources.map(({ namespace }) => namespace);
   if (!sameSet(namespaces, project.scope.sourceNamespaces))
     fail('materialized_edition_sources_mismatch');
@@ -85,7 +98,7 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
     'edition-dependency-closure-unchecked',
     'rendering-supplies-unchecked',
   ];
-  let totalBytes = editionBytes.length;
+  let totalBytes = editionBytes.length + (overrideBytes?.length ?? 0);
   for (const source of request.sources) {
     const selected = await readSelectedInput(root, {
       ...source.input,
@@ -110,7 +123,12 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
     });
   }
   const sealed = sealMaterializedInputLock({
-    edition: { id: project.id, editor: project.editor, content: editionBytes },
+    edition: {
+      id: project.id,
+      editor: project.editor,
+      content: editionBytes,
+      override: overrideBytes,
+    },
     sources,
     media: request.media,
     toolchain: request.toolchain,
@@ -123,6 +141,7 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
     lockSha256: sealed.lockSha256,
     read: sealed.read,
     readEdition: sealed.readEdition,
+    readEditionOverride: sealed.readEditionOverride,
     project,
     limits: Object.freeze(limits),
   });

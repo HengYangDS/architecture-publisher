@@ -141,6 +141,7 @@ export async function readSelectedInput(root, selection) {
 export function sealMaterializedInputLock({ edition, sources, media, toolchain }) {
   const contents = new Map();
   const editionContent = Buffer.from(edition.content);
+  const editionOverride = edition.override === null ? null : Buffer.from(edition.override);
   for (const source of sources) {
     if (contents.has(source.id)) fail('materialized_item_duplicate');
     contents.set(source.id, Buffer.from(source.content));
@@ -152,6 +153,14 @@ export function sealMaterializedInputLock({ edition, sources, media, toolchain }
       editor: edition.editor,
       bytes: edition.content.length,
       sha256: sha(edition.content),
+      visualPolicyOverride:
+        editionOverride === null
+          ? null
+          : {
+              bytes: editionOverride.length,
+              sha256: sha(editionOverride),
+              observedBy: 'materializer',
+            },
     },
     sources: sources
       .map((source) => {
@@ -182,6 +191,9 @@ export function sealMaterializedInputLock({ edition, sources, media, toolchain }
     lockSha256,
     readEdition() {
       return Buffer.from(editionContent);
+    },
+    readEditionOverride() {
+      return editionOverride === null ? null : Buffer.from(editionOverride);
     },
     read(id) {
       const selected = contents.get(id);
