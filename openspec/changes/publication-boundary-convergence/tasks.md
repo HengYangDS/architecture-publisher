@@ -33,7 +33,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       a whole-AIGW Edition as a proposed editorial workload, not an existing
       accepted publication. Keep adopter inputs read-only; record the inventory in
       `docs/research/mechanism-evaluation.md`.
-- [ ] 1.2 Run bounded feasibility probes, not four complete competing product
+- [x] 1.2 Run bounded feasibility probes, not four complete competing product
       builds, for direct mature-tool use, a thin evidence wrapper, and the
       Publisher workbench. Freeze inputs, reader questions, candidate versions,
       stop conditions, and measured versus estimated effort. Exercise LikeC4,

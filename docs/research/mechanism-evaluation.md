@@ -776,3 +776,102 @@ with reasons and provenance, execution must remain under one source owner, and
 observations must not promote themselves to authorization. Revisit these choices
 only after a named greenfield, brownfield, cooperative or competing Work Lane,
 reasoned drop, or feedback-to-intent consumer produces a failing counterexample.
+
+## Successor mechanism selection (2026-09-24)
+
+This is a bounded **feasibility** decision on the frozen inputs above, not
+four-workload product acceptance. A candidate stops as a universal replacement
+on the first decisive hard mismatch: loss of attributed relation meaning,
+reader-question coverage, independently composed static and interactive media,
+exact offline input/output identity, or a named acceptance boundary. It may
+still remain the best native source or medium-specific backend.
+
+At 11:04 UTC, read-only GitHub Release API responses reported stable
+[LikeC4 v1.59.4](https://github.com/likec4/likec4/releases/tag/v1.59.4)
+(MIT), [D2 v0.9.0](https://github.com/d2lang/d2/releases/tag/v0.9.0)
+(MPL-2.0), and
+[Structurizr v2026.09.19](https://github.com/structurizr/structurizr/releases/tag/v2026.09.19)
+(Apache-2.0). The first two match the installed local CLIs; Structurizr was
+inspected at source level, not installed or run. The selected offline Archify
+supply is 2.16.0 (MIT), resvg is 0.48.1 (Apache-2.0 OR MIT), and the installed
+browser test library is Playwright Core 1.63.0. License observations identify
+reuse constraints; they are not a legal clearance.
+
+### Direct tool routes
+
+- **LikeC4:** On frozen native di-effect, 102 authored lines became 124 for
+  three scoped views; validation, repeatable PNGs and an offline single-file
+  HTML succeeded. Generated cross-workspace relation IDs and repeated HTML
+  bytes were unstable; source-specific visible claims and accessibility were
+  not established. On frozen AIGW Client Projection, a separate 5.7 KB
+  research translation produced four views but did not visibly show semantic
+  IDs or relation planes. Direct use remains credible for di-effect's present
+  native scope, not as a universal replacement. The 22 net lines and 5.7 KB
+  are measured; time to source-approved AIGW or ETHOS art direction was not.
+- **D2:** A fresh 24-line derivation of AIGW's current 12 entities and 11
+  relations, SHA-256
+  `e4d9b12ff873b89d0c0194dc583ae07d2f9d359f897cd33c82e30134aab80eda`,
+  validated. Dagre, ELK and TALA each emitted an SVG (20,202, 20,465 and
+  20,090 bytes). The source omitted qualifiers, plane, provenance and
+  questions; D2's CLI does not emit a standalone interactive Atlas. Retain
+  as a static layout/render candidate, not a complete publication. A
+  semantically complete adapter remains unbuilt; 24 generated lines are not
+  a cost estimate for it.
+- **Structurizr:** Its active release implements C4 model/view and export,
+  but the inspected static-site exporter emits multiple files and its
+  PNG/SVG route uses the browser viewer. That inspected route fails the
+  standalone, independently composed dual-medium requirement. Native C4
+  ingestion remains a candidate. Installation, conversion, aesthetics,
+  accessibility and upgrade effort were not measured.
+- **Archify:** The pinned 2.16.0 supply and current adapter passed focused
+  renderer tests, but Archify is an interactive renderer, not a source,
+  editor or acceptance owner. Its native five-view cap and GitHub-only
+  repository link cannot directly express ETHOS's thirteen-page,
+  mixed-revision Edition. Retain it as a selectable interactive backend,
+  not a universal product. The effort to expose and qualify more controls
+  is not yet measured.
+
+### Product route comparison
+
+- **Thin evidence wrapper:** It could bind a direct tool's bytes and
+  provenance, but would leave questions, omissions, two-media composition
+  and source-delta editing to each adopter. The present AIGW Client
+  Projection has 517 Edition lines, 477 semantic lines and 621 materializer
+  lines; self has 4,243 Edition MJS lines. These are measured incumbent
+  surfaces, not proof that all lines are accidental. Wrapper implementation
+  and maintenance hours are unmeasured. Stop as the universal authoring UX.
+- **Publisher workbench:** Retain the single public Build
+  Request/Provider/Edition/Candidate/qualification path as a candidate
+  integration owner. Existing self composition and AIGW's 33 explicit
+  route choices show that a neutral, readable first build without renderer
+  code remains **unproved**. Task 5.2 must supply the failing adopter test
+  before any general-workbench value claim. Successor implementation effort
+  is an estimate; no hours or savings are manufactured here.
+
+The narrowed ownership decision is:
+
+1. Source products or their named editors own native model truth, claimants,
+   questions, exclusions, narrative and flagship art direction. LikeC4 or
+   Structurizr may remain their native authoring language; Publisher does not
+   require a second editable model.
+2. Publisher owns the receiving protocol, input lock, declared-loss adapter
+   boundary, conservative obligations, Candidate and qualification binding.
+   One selected adapter owns each native mapping; derived indices are
+   disposable.
+3. A selected mature engine owns layout or pixels only within its proven
+   medium: LikeC4/D2/ELK/TALA for suitable graph layouts, resvg for selected
+   SVG rasterization, Archify or LikeC4 for suitable interaction, and
+   Playwright for browser observation. None becomes an intent or acceptance
+   authority merely by rendering.
+4. The selected source-product policy owns acceptance and release. Publisher
+   may perform an explicitly authorized local file effect, not source Git or
+   Forge publication by implication.
+
+The focused Archify, static-raster and semantic-browser contract suite passed
+80/80 locally on this source revision. That proves those bounded mechanisms,
+not a four-workload installed successor or a human visual verdict. Direct
+LikeC4 for di-effect is the cheapest observed path at its current scope; the
+general Publisher successor remains conditional on Task 5.2 and final
+replacement parity. If a later direct mature-tool route passes every hard
+question and medium gate with lower total ownership cost, shrink Publisher
+before building another custom compositor.
