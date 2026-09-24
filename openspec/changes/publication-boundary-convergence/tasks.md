@@ -303,6 +303,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       `some-member` versus `all-member`, and conflict views. Unclassified omission
       or source-contradictory wording fails; complete means complete for the
       declared question, not an exhaustive raw graph.
+      Partial: selected media now derive frozen question, assertion, and explicit
+      limit IDs before layout; an unanswered selected question or one offered
+      only by unrequested media fails. The focused suite, static checks, and
+      package lint pass. The full run passes 771 tests, skips 2, and fails the
+      unchanged 95% branch gate at 92.88%. View identity, omission coverage,
+      aggregates, and contradictory wording remain unproved; keep 5.1 open.
 - [ ] 5.2 Using the selected foundation from Task 1, provide an explainable
       neutral first build and bounded local refinement without author-written
       renderer code, duplicate facts, or pixel geometry. In

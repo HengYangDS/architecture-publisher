@@ -1,10 +1,43 @@
 import { parseStrictJson } from '../source/json.mjs';
 import { fail, LIMITS } from '../source/manifest.mjs';
 import { sealMaterializedInputLock } from '../source/materialize.mjs';
+import { deepFreeze } from '../semantics/document.mjs';
 import { validateEditionProject } from './authoring.mjs';
 
 function sameSet(left, right) {
   return left.length === right.length && left.every((value) => right.includes(value));
+}
+
+function questionObligations(project, media) {
+  const limited = new Set(project.scope.limits.map(({ question }) => question));
+  return deepFreeze(
+    Object.fromEntries(
+      media.map((medium) => {
+        const questionIds = project.presentation[medium].questions;
+        const assertionsByQuestion = Object.fromEntries(
+          questionIds.map((id) => [
+            id,
+            project.requiredAssertions
+              .filter((assertion) => assertion.questions.includes(id))
+              .map(({ id: assertionId }) => assertionId),
+          ]),
+        );
+        if (questionIds.some((id) => !assertionsByQuestion[id].length && !limited.has(id)))
+          fail('materialized_question_unanswered');
+        return [
+          medium,
+          {
+            questionIds,
+            assertionsByQuestion,
+            assertionIds: project.requiredAssertions
+              .filter(({ questions }) => questions.some((id) => questionIds.includes(id)))
+              .map(({ id }) => id),
+            limitQuestionIds: questionIds.filter((id) => limited.has(id)),
+          },
+        ];
+      }),
+    ),
+  );
 }
 
 /** Join already-read selected meaning without acquiring files or Provider authority. */
@@ -68,6 +101,7 @@ export function assembleEditionSelection({
   );
   if (project.questions.some(({ id }) => !selectedQuestions.has(id)))
     fail('materialized_selected_media_incomplete');
+  const obligations = questionObligations(project, request.media);
 
   const sourceNamespaceById = new Map(request.sources.map(({ id, namespace }) => [id, namespace]));
   const readEvidence = Object.freeze({
@@ -99,6 +133,7 @@ export function assembleEditionSelection({
       return override === null ? null : sealed.readEditionResource(override);
     },
     project,
+    questionObligations: obligations,
     limits: Object.freeze([...new Set(limits)]),
   });
 }
