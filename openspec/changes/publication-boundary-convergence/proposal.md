@@ -32,9 +32,11 @@ obligations.
   Publisher-specific architecture-publication research here, and separate
   Publisher file recovery, source-product artifact custody, and operator
   off-host disaster recovery without copying a policy into another product.
-- Narrow the public package surface only after source-owned consumers migrate
-  through exact installed parity. Historical signed tags, 0.2 release bytes,
-  and accepted media remain immutable.
+- **BREAKING for successor media bytes and any retired export:** Narrow the
+  public package surface only after source-owned consumers migrate through
+  exact installed parity. Version the changed package and Candidate outputs;
+  historical signed tags, 0.2 release bytes, and accepted media remain
+  immutable.
 
 ## Capabilities
 

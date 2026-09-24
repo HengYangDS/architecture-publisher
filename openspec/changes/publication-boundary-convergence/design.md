@@ -147,6 +147,10 @@ Bundle, Claim Model v2, and Edition v1 remain selected contracts until a
 versioned successor is proven and each consumer migrates. A mature engine may
 replace internal storage, view computation, or rendering; its model is a
 derived, disposable representation, never another editable product truth.
+An additive Edition v1 extension is acceptable only if every previously valid
+v1 input retains its meaning and Provider v1 remains truthful. Otherwise,
+introduce a new Edition and corresponding Provider contract version with
+explicit consumer migration; do not silently reinterpret v1 bytes.
 
 An adapter must report an exact mapping table from each required claim and
 relation to the engine's elements, links, view predicates, and emitted carriers.
@@ -178,13 +182,14 @@ Edition, but not a hidden ETHOS or Publisher house style. A structural output
 must still pass declared readability and accessibility checks; flagship adds
 its source-owned art direction and exact human review.
 
-`authoredInputSha256` must cease to act as a rendering-dependency illusion.
-For a scene whose authored bytes affect media, the build selects those bytes by
-path and digest, the scene compiler consumes them, and the Candidate records
-that consumption. If the value is only a non-rendering identity, rename and
-document it as such in a versioned contract; it cannot satisfy media provenance
-or visual acceptance. Existing consumers migrate by exact parity or an
-explicitly reviewed semantic successor, not by an in-place reinterpretation.
+Existing v1 `authoredInputSha256` remains identity-only: it must not be
+reinterpreted as proof that bytes were read. For a successor scene whose
+authored bytes affect media, the build selects those bytes by path and digest,
+the scene compiler consumes them, and the Candidate records that consumption.
+A non-rendering identity is named and documented as such in the selected
+contract; it cannot satisfy media provenance or visual acceptance. Existing
+consumers migrate by exact parity or an explicitly reviewed semantic
+successor, not by an in-place reinterpretation.
 
 ### 5. Qualification and effects stay narrow while mechanics are reused
 
