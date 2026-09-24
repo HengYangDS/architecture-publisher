@@ -273,6 +273,50 @@ test('Edition-only changes preserve medium locality and invalidate acceptance ex
   assert.equal(result.obligations.publication.length, 1);
 });
 
+test('changed reader question refreshes only the scenes that answer it', async () => {
+  const { compileEditionEvolution } = await api(),
+    { before, after } = pair();
+  after.edition.questions.runtime.prompt = 'How does the selected runtime now execute?';
+  const result = compile(compileEditionEvolution, before, after),
+    affected = result.editions.affected[0];
+  assert.equal(affected.static, false);
+  assert.deepEqual(affected.interactive, ['runtime']);
+  assert.deepEqual(
+    result.obligations.rebuild
+      .filter(({ target }) => target === 'interactive')
+      .map(({ scene }) => scene),
+    ['runtime'],
+  );
+  assert.equal(result.obligations.acceptance.length, 1);
+});
+
+test('a newly selected interactive question and scene create fresh media obligations', async () => {
+  const { compileEditionEvolution } = await api(),
+    { before, after } = pair();
+  after.edition.questions.recovery = {
+    ...structuredClone(after.edition.questions.runtime),
+    prompt: 'How does recovery use the selected runtime?',
+  };
+  after.edition.scenes.interactive.recovery = {
+    ...structuredClone(after.edition.scenes.interactive.runtime),
+    label: 'Recovery',
+    questions: ['recovery'],
+  };
+  after.edition.narrative.push('recovery');
+  const result = compile(compileEditionEvolution, before, after),
+    affected = result.editions.affected[0];
+  assert.equal(affected.static, false);
+  assert.equal(affected.interactiveAtlas, true);
+  assert.deepEqual(affected.interactive, ['recovery']);
+  assert.deepEqual(
+    result.obligations.rebuild
+      .filter(({ target }) => target === 'interactive')
+      .map(({ scene }) => scene),
+    ['recovery'],
+  );
+  assert.equal(result.obligations.acceptance.length, 1);
+});
+
 test('title, narrative and visual grammar changes affect only their real media', async () => {
   const { compileEditionEvolution } = await api();
 
