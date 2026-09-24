@@ -11,6 +11,7 @@ import {
   planPairFiles,
   installPairFiles,
   recoverPairFiles,
+  inventory,
 } from '../packages/publisher/src/publication/files.mjs';
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const root = path.resolve(import.meta.dirname, '..');
@@ -141,6 +142,65 @@ for (const side of ['before', 'after'])
         'owner-note.txt',
       ]);
   });
+
+test('recovery refuses a changed retained preimage before restoring any destination', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  await interruptWriter(dir, plan, acceptance, 'save-native', 'after');
+  const operation = path.join(options.recoveryRoot, plan.sha256.slice(0, 20)),
+    retained = path.join(operation, 'prior-native', 'index.html');
+  await fs.writeFile(retained, 'changed after interruption');
+
+  await assert.rejects(
+    recoverPairFiles(plan, acceptance),
+    /Recovery prior content changed: native/,
+  );
+  assert.equal(await fs.readFile(retained, 'utf8'), 'changed after interruption');
+  await assert.rejects(fs.stat(options.destinations.native), { code: 'ENOENT' });
+  assert.equal(
+    await fs.readFile(path.join(options.destinations.atlas, 'index.html'), 'utf8'),
+    'old entry',
+  );
+});
+
+test('recovery refuses a missing retained preimage instead of inventing prior bytes', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  await interruptWriter(dir, plan, acceptance, 'save-native', 'after');
+  const operation = path.join(options.recoveryRoot, plan.sha256.slice(0, 20));
+  await fs.rm(path.join(operation, 'prior-native'), { recursive: true });
+
+  await assert.rejects(
+    recoverPairFiles(plan, acceptance),
+    /Recovery prior content missing: native/,
+  );
+  await assert.rejects(fs.stat(options.destinations.native), { code: 'ENOENT' });
+  assert.equal(
+    await fs.readFile(path.join(options.destinations.atlas, 'index.html'), 'utf8'),
+    'old entry',
+  );
+});
+
+test('recovery refuses an unknown persisted journal state without moving destinations', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  await interruptWriter(dir, plan, acceptance, 'save-native', 'after');
+  const operation = path.join(options.recoveryRoot, plan.sha256.slice(0, 20)),
+    journalFile = path.join(operation, 'operation.json'),
+    journal = JSON.parse(await fs.readFile(journalFile, 'utf8'));
+  journal.status = 'UNRECOGNIZED';
+  await fs.writeFile(journalFile, JSON.stringify(journal));
+
+  await assert.rejects(recoverPairFiles(plan, acceptance), /Unknown recovery state/);
+  await assert.rejects(fs.stat(options.destinations.native), { code: 'ENOENT' });
+  assert.equal(
+    await fs.readFile(path.join(options.destinations.atlas, 'index.html'), 'utf8'),
+    'old entry',
+  );
+});
 
 test('an ambiguous empty writer lock is never replaced by an installation', async (t) => {
   const { dir, options } = await fixture(t),
@@ -656,6 +716,24 @@ test('a replay must refer to the actually recorded operation, not a newly invent
   }
   await assert.rejects(installPairFiles(p, approve(p)), /recorded|operation|canonical|ENOENT/i);
   assert.ok(original !== p.sha256);
+});
+
+test('an installed receipt cannot be replayed with a contradictory operation journal', async (t) => {
+  const { options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  await installPairFiles(plan, acceptance);
+  const operationFile = path.join(options.recoveryRoot, plan.sha256.slice(0, 20), 'operation.json'),
+    operation = JSON.parse(await fs.readFile(operationFile, 'utf8')),
+    before = await inventory(options.destinations.native);
+  operation.status = 'ROLLED_BACK';
+  await fs.writeFile(operationFile, JSON.stringify(operation));
+
+  await assert.rejects(
+    installPairFiles(plan, acceptance),
+    /Recorded operation does not confirm delivery/,
+  );
+  assert.deepEqual(await inventory(options.destinations.native), before);
 });
 
 test('incomplete rollback still reports recovery paths when writing the journal also fails', async (t) => {
