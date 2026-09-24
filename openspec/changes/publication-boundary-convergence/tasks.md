@@ -208,7 +208,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       including the development migration tool. Internal mode readers are not
       new public package exports. Historical v1 paths remain until Task 7.2
       replacement parity permits their retirement; they are not a permanent
-      parallel input authority.
+      parallel input authority. The module-boundary gate rejects new
+      first-party version-suffixed source module filenames; a versioned data
+      fixture remains historical contract evidence, not executable source.
       Ruling: package selection and execution ceilings have neutral owners
       consumed by both protocols; the process supervisor requires its caller
       to select the reply validator. Selected Provider modules may not import

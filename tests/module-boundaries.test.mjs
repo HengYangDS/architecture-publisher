@@ -279,6 +279,17 @@ test('first-party owner names stay precise outside vendored assets', async () =>
   );
 });
 
+test('first-party source filenames name responsibilities, not protocol generations', async () => {
+  const { modules } = await inventory([...runtimeRoots, 'tools', 'tests']);
+  const versioned = /(?:^|\/)[^/]*[-_.]v[0-9]+[^/]*\.(?:mjs|cjs|js)$/u;
+  assert.match('tools/migration/semantic-v1-to-claim-v2.mjs', versioned);
+  assert.doesNotMatch('tests/fixtures/migration/semantic-document-v1.json', versioned);
+  assert.deepEqual(
+    modules.filter((file) => versioned.test(file)),
+    [],
+  );
+});
+
 test('repository check composes one fail-closed static and acceptance graph', async () => {
   const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json')));
   const knip = JSON.parse(await fs.readFile(path.join(root, 'knip.json')));
