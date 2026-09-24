@@ -145,13 +145,21 @@ source author must refresh by hand.
 
 The authored Build Request selects:
 
-- one or more exact source items, each with a source namespace, native format
-  identifier and version, selected revision/time basis, locally available
-  exact bytes, a content-addressed locator, and declared claimant;
+- one or more locally available source selectors, each with a source namespace,
+  native format identifier and version, selected revision/time basis, declared
+  claimant, and either an authoring locator or an already pinned input reference;
 - one Edition project root with audience, reader questions, scope, selected
   source references or queries, declared exclusions and transformations,
   narrative, static/interactive expectations, and optional visual overrides;
 - output media and a selected qualified toolchain profile.
+
+An authoring locator does not claim immutability. Publisher materializes the
+selected inputs and generates their content-addressed identities in a lock
+before compilation; ordinary authors do not maintain derived hashes. Callers
+may instead select already pinned inputs for replay; a pin mismatch fails
+before compilation. Changed bytes at an unpinned authoring locator produce a
+new lock, Candidate, and applicable verification obligations, not silent reuse
+of the previous lock or approval.
 
 The Edition project may live in the source repository, a separate editorial
 repository, or a standalone directory. This changes neither source authority
@@ -195,13 +203,21 @@ Provider command tree, discovery registry, or second lifecycle state machine.
 Provider ownership follows the item it transports, not a mandatory rule that
 it be housed in one source repository.
 
-Each admitted adapter resolves or declares its actual input closure, including
-native includes, resources, scripts, and external references. Build-qualified
-inputs must be fully selected and locally available; an unselected file,
-environment substitution, or network read fails or remains explicitly
-unqualified for reproducible/offline use. The Publisher-generated lock records
-the consumed closure, adapter/backend versions, fonts and other supplies,
-toolchain configuration, and Edition bytes, not merely top-level entry files.
+Each admitted adapter resolves or declares its intended upstream dependencies,
+including native includes, resources, scripts, and external references.
+Publisher validates the materialized inputs it receives. Compilation qualifies
+as reproducible only when the selected backend's inputs and supplies have a
+checked closure; unresolved or ambient compiler inputs fail or remain
+explicitly unqualified. An executable Provider's
+dependency declaration does not establish observed reads or enforced access
+confinement. Without appropriate observation or isolation, Publisher cannot
+claim that Provider materialization was hermetic or that no undeclared file,
+environment value, or network resource influenced it. The Publisher-generated
+lock binds the exact materialized bytes Publisher verified and consumed,
+adapter/backend versions, checked fonts and other supplies, toolchain
+configuration, and Edition bytes. Dependency records state their evidence
+method and limits; Provider declarations are not silently promoted into a
+proved complete closure.
 Historical v1 manifests and signed outputs retain their old meanings and bytes;
 a SemVer successor does not reinterpret them in place.
 
@@ -339,6 +355,8 @@ declared transformation checks, domain/predicate verification, actual visual
 readability, browser behavior, accessibility, installed/offline behavior,
 recovery, and human editorial assessment. Each result names exact subject,
 verifier, method, scope, and limit. One result never impersonates another.
+Reproducible compilation from sealed materialized inputs is a separate
+predicate from reproducible or hermetic upstream Provider execution.
 Automated geometry and accessibility tests do not prove faithfulness or taste;
 a single human may serve as author and reviewer where policy permits.
 
