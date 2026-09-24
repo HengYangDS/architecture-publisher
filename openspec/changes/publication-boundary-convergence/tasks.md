@@ -263,9 +263,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       source ranges, and cross-source references without treating generated
       relation IDs as stable or the generated index view as authored. On the
       three frozen di-effect files it observed 25 elements, 35 relations, three
-      located authored views, and one unlocated generated index. The focused
-      13/13 tests, static checks, and package lint passed; the full behavior
-      run passed 765 tests, skipped 2, while branch coverage stayed at 92.90%
+      located authored views, and one generated index. Independent review found
+      that a null locator alone cannot classify a view as generated; the
+      importer now uses upstream `sourcePath` and fails on an unlocated authored
+      view. It also indexes source line bounds once per selected file. The
+      focused 15/15 tests, static checks, and package lint passed; the full
+      behavior run passed 767 tests, skipped 2, while branch coverage stayed at 92.86%
       against 95%. Ruling: native `.c4` bytes have no embedded syntax version,
       so their format version is `unversioned`; parser version 1.59.4 is a
       separate toolchain identity. This import proves only the parsed document

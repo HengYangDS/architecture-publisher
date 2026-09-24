@@ -46,7 +46,10 @@ function selectedSources(selection) {
     const name = `${sha(source.namespace)}.c4`;
     if (byFile.has(name)) fail('native_likec4_selection_invalid');
     files[name] = text;
-    byFile.set(name, { ...source, text });
+    byFile.set(name, {
+      ...source,
+      lineLengths: text.split(/\r\n|\n|\r/u).map((line) => line.length),
+    });
   }
   return { files, byFile, sources };
 }
@@ -92,9 +95,11 @@ function originFor(parser, query, byFile) {
     (range.end.line === range.start.line && range.end.character < range.start.character)
   )
     fail('native_likec4_source_reference_invalid');
-  const lines = source.text.split(/\r\n|\n|\r/u);
   for (const position of [range.start, range.end])
-    if (position.line >= lines.length || position.character > lines[position.line].length)
+    if (
+      position.line >= source.lineLengths.length ||
+      position.character > source.lineLengths[position.line]
+    )
       fail('native_likec4_source_reference_invalid');
   return {
     namespace: source.namespace,
@@ -177,14 +182,22 @@ export async function importLikeC4Native(selection, fromSources) {
       compare(left.id, right.id),
   );
   const relationIds = new Set(relations.map(({ id }) => id));
-  const unlocatedViews = [];
+  const generatedViews = [];
   const views = [];
   for (const view of model.views()) {
     const origin = originFor(parser, { view: view.id }, byFile);
-    if (!origin) {
-      unlocatedViews.push(view.id);
+    const declaredPath = view.$view.sourcePath;
+    if (declaredPath === undefined) {
+      if (origin) fail('native_likec4_source_reference_invalid');
+      generatedViews.push(view.id);
       continue;
     }
+    if (!origin) fail('native_likec4_source_reference_missing');
+    if (typeof declaredPath !== 'string' || !declaredPath)
+      fail('native_likec4_source_reference_invalid');
+    const declaredSource = sourceForPath(`/workspace/${declaredPath}`, byFile);
+    if (declaredSource.namespace !== origin.namespace)
+      fail('native_likec4_source_reference_invalid');
     const members = [...view.elements()].map((element) => {
       const selected = elementById.get(element.id);
       if (!selected) fail('native_likec4_view_element_unselected');
@@ -209,7 +222,7 @@ export async function importLikeC4Native(selection, fromSources) {
     });
   }
   views.sort((left, right) => compare(left.id, right.id));
-  unlocatedViews.sort(compare);
+  generatedViews.sort(compare);
   return deepFreeze({
     schema: 'architecture.native-index/v1',
     format: 'likec4/dsl',
@@ -224,7 +237,7 @@ export async function importLikeC4Native(selection, fromSources) {
     elements,
     relations,
     views,
-    unlocatedViews,
+    generatedViews,
     semanticLimits: ['domain-metadata-opaque', 'view-membership-upstream-computed-unqualified'],
   });
 }

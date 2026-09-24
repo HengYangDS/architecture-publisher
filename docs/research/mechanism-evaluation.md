@@ -519,6 +519,15 @@ again contained 25 elements, 35 relations, and four views. These locations
 must be translated to selected logical paths and byte digests; virtual or
 temporary absolute paths are not durable source identities.
 
+An unlocated view is not necessarily generated. Upstream
+[`locateView`](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/language-server/src/model/model-locator.ts)
+returns `null` when it cannot find the AST view; the typed
+[`sourcePath`](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/core/src/types/view-common.ts)
+contract identifies auto-generated views by an absent source path. Therefore a
+missing locator for an authored view is an import failure, not permission to
+omit that view. Source line bounds can be indexed once per selected file rather
+than rescanned for every imported item.
+
 A cold standalone install of `@likec4/language-services@1.59.4` failed at
 module import because `@likec4/config`'s Node entry imports
 `bundle-require`, which its [package](https://github.com/likec4/likec4/blob/33dbc2d34c399a99daf96e92fc28fe5d280a7fd5/packages/config/package.json)

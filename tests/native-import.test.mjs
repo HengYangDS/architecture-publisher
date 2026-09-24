@@ -52,6 +52,8 @@ test('native LikeC4 import binds model and view semantics to selected bytes', as
   assert.equal(index.elements.length, 2);
   assert.equal(index.relations.length, 1);
   assert.equal(index.views.length, 1);
+  assert.deepEqual(index.generatedViews, ['index']);
+  assert.equal(Object.hasOwn(index, 'unlocatedViews'), false);
   assert.deepEqual(
     index.elements.map(({ id }) => id),
     ['left', 'right'],
@@ -193,6 +195,25 @@ test('native LikeC4 import refuses a location outside selected virtual documents
   });
 });
 
+test('native LikeC4 import fails when an authored view loses its source location', async () => {
+  const parser = async (sources, options) => {
+    const selected = await fromSources(sources, options);
+    return {
+      documentPaths: () => selected.documentPaths(),
+      languageServices: {
+        getErrors: () => selected.languageServices.getErrors(),
+        locate: (query) =>
+          query.view === 'overview' ? null : selected.languageServices.locate(query),
+      },
+      ensureSingleProject: () => selected.ensureSingleProject(),
+      syncComputedModel: () => selected.syncComputedModel(),
+    };
+  };
+  await assert.rejects(semantics.importLikeC4Native(selection(), parser), {
+    code: 'native_likec4_source_reference_missing',
+  });
+});
+
 test('native LikeC4 import rejects a source range outside its selected bytes', async () => {
   const parser = async (sources, options) => {
     const selected = await fromSources(sources, options);
@@ -244,4 +265,49 @@ test('native LikeC4 import rejects ambiguous parser projects', async () => {
   await assert.rejects(semantics.importLikeC4Native(selection(), parser), {
     code: 'native_likec4_model_invalid',
   });
+});
+
+test('native LikeC4 import indexes selected source lines once for many references', async () => {
+  const body = 'line one\nline two\n';
+  const selected = selection(new Map([['example/model', Buffer.from(body)]]));
+  const original = String.prototype.split;
+  let splits = 0;
+  String.prototype.split = function (...args) {
+    if (String(this) === body) splits++;
+    return Reflect.apply(original, this, args);
+  };
+  try {
+    const parser = async (sources) => {
+      const name = Object.keys(sources)[0];
+      return {
+        documentPaths: () => [`/workspace/${name}`],
+        languageServices: {
+          getErrors: () => [],
+          locate: () => ({
+            uri: `virtual:/workspace/${name}`,
+            range: {
+              start: { line: 0, character: 0 },
+              end: { line: 0, character: 0 },
+            },
+          }),
+        },
+        ensureSingleProject: () => {},
+        syncComputedModel: () => ({
+          elements: () =>
+            Array.from({ length: 20 }, (_, index) => ({
+              id: `node-${index}`,
+              kind: 'component',
+              title: `Node ${index}`,
+            })),
+          relationships: () => [],
+          views: () => [],
+        }),
+      };
+    };
+    const index = await semantics.importLikeC4Native(selected, parser);
+    assert.equal(index.elements.length, 20);
+    assert(splits <= 1, `source lines split ${splits} times`);
+  } finally {
+    String.prototype.split = original;
+  }
 });
