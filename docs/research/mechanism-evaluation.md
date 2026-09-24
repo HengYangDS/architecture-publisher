@@ -899,6 +899,27 @@ otherwise follow symlinks. The
 needs an explicit option. These are source-level capabilities, not proof that
 Publisher has integrated or shipped them.
 
+A fixed-revision source inspection via GitHub CLI on 2026-09-24 UTC narrows
+but does not close the platform risk. On
+[Linux](https://github.com/bytecodealliance/cap-std/blob/b7acf8e8807fe3fab991884d2208b7e03d35a409/cap-primitives/src/rustix/linux/fs/open_impl.rs),
+cap-std uses `openat2` with `RESOLVE_BENEATH | RESOLVE_NO_MAGICLINKS`
+when available and falls back to manual handle-relative resolution otherwise;
+its [open flags](https://github.com/bytecodealliance/cap-std/blob/b7acf8e8807fe3fab991884d2208b7e03d35a409/cap-primitives/src/rustix/fs/oflags.rs)
+set `O_NOFOLLOW` for the selected option. The
+[option's contract](https://github.com/bytecodealliance/cap-std/blob/b7acf8e8807fe3fab991884d2208b7e03d35a409/cap-primitives/src/fs/follow_symlinks.rs)
+covers only the final component, so the proposed reader must open each
+component separately. On
+[Windows](https://github.com/bytecodealliance/cap-std/blob/b7acf8e8807fe3fab991884d2208b7e03d35a409/cap-primitives/src/windows/fs/oflags.rs),
+cap-std's no-follow path opens with `FILE_FLAG_OPEN_REPARSE_POINT`; its
+[open-result check](https://github.com/bytecodealliance/cap-std/blob/b7acf8e8807fe3fab991884d2208b7e03d35a409/cap-primitives/src/windows/fs/open_unchecked.rs)
+rejects a handle whose file type is a symlink. Rust
+[1.98.1's file-type implementation](https://github.com/rust-lang/rust/blob/1.98.1/library/std/src/sys/fs/windows.rs)
+classifies name-surrogate reparse points as symlinks; the
+[mount-point tag](https://github.com/rust-lang/rust/blob/1.98.1/library/std/src/sys/pal/windows/c/windows_sys.rs)
+has that bit. This supports a junction-rejection hypothesis, **not** a
+native Windows result or proof for every reparse tag and race. A platform
+counterexample and packaged offline test remain release prerequisites.
+
 A disposable macOS probe built exactly `cap-std = 4.0.3` and
 `cap-fs-ext = 4.0.3` into a 472 KiB release executable. It started at the
 physical filesystem root, opened every path component relative to the
