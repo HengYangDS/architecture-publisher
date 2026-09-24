@@ -3,6 +3,7 @@ export {
   editionProviderDigest,
   validateEditionProvider,
 } from './contract.mjs';
+export { validateEditionProviderV2 } from './contract-v2.mjs';
 export {
   validateProviderMaterialization,
   validateProviderReply,

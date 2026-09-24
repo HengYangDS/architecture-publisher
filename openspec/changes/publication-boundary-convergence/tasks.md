@@ -144,7 +144,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       native/authored/derived input envelope before compilation. Tests in
       `tests/edition-provider-contract.test.mjs` reject ambiguous mode/root,
       missing `derivedFrom`, unselected input, and Candidate/acceptance/publication
-      claims; multi-source claimants remain distinct.
+      claims; multi-source claimants remain distinct. Partial evidence: a
+      separate v2 manifest validator admits one exact mode, distinct native and
+      derived claimants, selected ancestry, optional authored Edition, and
+      transport-independent expected bytes; executable native/Edition items
+      must map to exact selected input bytes. It rejects extra later-stage
+      claims and portable path aliases while leaving v1 parsing unchanged.
+      Independent read-only review found no confirmed P1/P2 in this shape-only
+      slice; focused tests passed 5/5, static and package checks passed. The
+      full check passed 703 tests, skipped 2, and failed only branch coverage
+      at 93.00%. Actual file/package/reply checks, global request joining,
+      normalized ancestry, mode equivalence, and CLI dispatch remain open;
+      adapter digests are still declarations, not verified code evidence.
 - [ ] 3.2 Reuse the bounded process-tree supervisor for one exact selected
       executable entry. `tests/edition-provider-executable.test.mjs` and
       `tests/edition-provider-installed.test.mjs` cover complete package-content
