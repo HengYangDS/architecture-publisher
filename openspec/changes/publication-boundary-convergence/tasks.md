@@ -448,6 +448,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       view with an explicit limit remains valid. Independent review found no
       confirmed public-path defect or duplicated omission authority. This is a
       structural visibility check, not independent semantic qualification.
+      A packed, offline, relocated mixed-model test keeps an unselected entity
+      label and unselected claim value out of Candidate, SVG and HTML bytes;
+      this is a selected-canary check, not general disclosure proof.
       On editorial-only pages, each visible limit now stays with its reader
       question instead of being flattened into an unattributed stage list.
       Focused tests pass 18/18; static, package, and strict OpenSpec checks pass.

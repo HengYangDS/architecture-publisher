@@ -10,6 +10,7 @@ import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.m
 import { claimModel } from './fixtures/claim-model.mjs';
 
 const publisher = fileURLToPath(new URL('../packages/publisher/', import.meta.url));
+const privateCanary = 'PRIVATE_UNSELECTED_SOURCE_ONLY_7f4bdc';
 
 function child(command, args, cwd, env, timeoutMs = 60_000) {
   const result = spawnSync(command, args, {
@@ -30,7 +31,10 @@ async function mixedClaimInput(root) {
   await fs.mkdir(path.join(root, 'edition'), { recursive: true });
   await fs.mkdir(path.join(root, 'sources'));
   const namespace = 'fixture/claims';
-  const modelBytes = Buffer.from(JSON.stringify(claimModel()) + '\n');
+  const model = claimModel();
+  model.entities.other.label = privateCanary;
+  model.claims.published.value = { text: privateCanary };
+  const modelBytes = Buffer.from(JSON.stringify(model) + '\n');
   await fs.writeFile(path.join(root, 'sources/model.json'), modelBytes);
   const project = {
     schema: 'architecture.edition-project/v1',
@@ -199,6 +203,8 @@ test('a packed offline consumer builds both media after relocation without sourc
   );
   assert(mixedSvg.includes('SOURCE STRUCTURE') && mixedSvg.includes('SOURCE CLAIMS'));
   assert(mixedHtml.includes('class="graph"') && mixedHtml.includes('class="linked-claims"'));
+  for (const published of [mixedBytes.toString('utf8'), mixedSvg, mixedHtml])
+    assert(!published.includes(privateCanary));
   const relocated = path.join(work, 'relocated');
   await fs.cp(consumer, relocated, { recursive: true });
   await fs.rm(consumer, { recursive: true, force: true });
