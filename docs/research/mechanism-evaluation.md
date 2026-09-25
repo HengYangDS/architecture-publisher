@@ -168,8 +168,8 @@ grouping draft; ETHOS was at `0e2494859`, and AIGW at `04f593a4`.
   a separate trust boundary. Similar hashes, checks, media and workers are not
   redundant when claims or adversaries differ.
 - **Workflow — shorten the loop, not the bar.** The active `tasks.md` exceeds
-  600 lines and repeats test history. The last measured branch coverage was
-  92.75% before subsequent repairs; the exact current-byte gate is unproved.
+  600 lines and repeats test history. On signed `779915c`, 1,023 behavior tests
+  passed with five skips, but branch coverage was 92.93% against the 95% gate.
   Keep `tasks.md` as the sole current-state ledger, condense historical
   narration at coherent closeout, use focused RED/GREEN and static/package
   checks per slice, and run the full coverage gate at bounded milestones and

@@ -401,7 +401,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       twelve nodes and eleven relations; its eleven claims remain separate
       obligations. Full behavior passes 1,023 tests with five skips; static and
       package checks pass. It is not a public structural Candidate or qualified
-      medium; the full 95% coverage gate has not been rerun on these bytes.
+      medium; signed `779915c` has 92.93% branch coverage against the unchanged
+      95% release gate.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
