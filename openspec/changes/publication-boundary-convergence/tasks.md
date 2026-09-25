@@ -174,6 +174,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       Selected Edition resources now use one logical reference and exact bytes
       through direct, declarative, or executable delivery; altered resource
       bytes change the lock rather than being read ambiently.
+      Open gap: derived bytes are locked but have no stable Edition namespace,
+      and Candidate compilation still consumes LikeC4 native input only. Add
+      globally unique derived namespaces and explicit Edition projection scope
+      before claiming ETHOS/AIGW common-compiler conformance.
       Focused Provider, supervisor, and module-boundary tests passed; static
       and package checks passed. The full behavior run passed 745 tests,
       skipped 2, with no test failures; branch coverage is 93.06% against the
@@ -410,6 +414,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       relocation. The full behavior run passes 850 tests and skips 2; global
       branch coverage is 93.08% against the unchanged 95% release gate. No
       static SVG/PNG, interactive Scene/HTML, landing, or publication is claimed.
+      The current static composer still requires one LikeC4 view; this pilot
+      cannot stand in for a neutral Claim Model or mixed-source baseline.
+      Prove typed native/derived Claim Model selection and visible limits
+      without an editable duplicate graph before closing this task.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

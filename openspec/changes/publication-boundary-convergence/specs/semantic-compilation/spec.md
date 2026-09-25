@@ -234,6 +234,22 @@ meaning.
 
 ## ADDED Requirements
 
+### Requirement: Claim Model import preserves typed claims
+
+An admitted Claim Model v2 adapter SHALL accept exact native or derived bytes
+without requiring an editable LikeC4 copy. Semantic selection SHALL retain
+entity and relation identities and each selected claim's plane, condition,
+scope, validity, maturity, dependencies, and provenance. Layout-only graph
+geometry SHALL NOT discharge those semantics; unsupported expression SHALL
+fail or remain an explicit reader-question limit.
+
+#### Scenario: A claim has the same endpoints but a changed condition
+
+- **WHEN** two Claim Model inputs retain entity and relation counts but change
+  a selected claim's condition or plane
+- **THEN** selected semantic identity changes and neither medium may reuse the
+  previous complete-coverage or acceptance claim
+
 ### Requirement: Bounded admitted native parser execution
 
 Publisher SHALL select an exact installed parser supply and locked native

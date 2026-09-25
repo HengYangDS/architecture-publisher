@@ -237,6 +237,26 @@ historical receipts stay with their designated custodian.
 
 ## ADDED Requirements
 
+### Requirement: Derived projections have source-distinct semantic addresses
+
+Each selected derived projection SHALL have a globally unique `namespace`
+distinct from native namespaces and Provider-local item IDs. The materialized
+lock SHALL bind that address to claimant, format, exact output bytes, adapter
+identity, method, and resolved native ancestry. Equal bytes SHALL NOT equate a
+derived projection with an authored native source or source endorsement.
+
+#### Scenario: Two Providers reuse a derived address
+
+- **WHEN** two selected Providers declare the same derived namespace, even with
+  different local IDs or output bytes
+- **THEN** the global join rejects the ambiguous address before compilation
+
+#### Scenario: Delivery mode changes without semantic change
+
+- **WHEN** declarative and executable deliveries select the same derived
+  namespace, content, claimant, adapter, and exact native ancestry
+- **THEN** the semantic lock agrees while invocation receipts remain distinct
+
 ### Requirement: Provider selection is not a second lifecycle
 
 The Build Request SHALL select zero or more exact Providers and exactly one

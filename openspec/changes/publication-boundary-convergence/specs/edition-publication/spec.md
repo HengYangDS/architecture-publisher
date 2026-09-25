@@ -294,6 +294,21 @@ on explicit unchanged-meaning and unchanged-visual evidence.
 
 ## ADDED Requirements
 
+### Requirement: Edition scope distinguishes native and derived inputs
+
+An Edition project SHALL name selected native source namespaces and derived
+projection namespaces separately. Each source assertion SHALL resolve through
+one declared, exact-lock-bound namespace. An undeclared projection, missing
+native ancestor, or ambiguous namespace SHALL fail before a Candidate is
+emitted. A direct-only Edition MAY omit an empty projection list.
+
+#### Scenario: Executable adaptation supplies an Edition assertion
+
+- **WHEN** an Edition references an attributed projection derived from exact
+  native input bytes
+- **THEN** its assertion binds the projection namespace and ancestry without
+  claiming that the projection is unchanged native or source-endorsed fact
+
 ### Requirement: Successor qualification records are policy-bound claims
 
 A versioned successor qualification input SHALL select exact Build Request,

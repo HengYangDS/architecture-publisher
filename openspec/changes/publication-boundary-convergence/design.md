@@ -380,6 +380,20 @@ currently part of typed revision evidence and may change identity when
 respelt; it is not silently equated with another repository until an
 independently checked stable repository identity exists.
 
+The v2 join already seals derived bytes, but a Provider-local item ID is
+deliberately absent from the lock and cannot serve as an Edition address. Each
+selected derived projection therefore has one stable, globally unique
+`namespace`, distinct from every native namespace. The lock binds this address
+to claimant, format, exact bytes, adapter identity, and resolved native
+ancestry; equal bytes do not equate native and derived authority. An Edition
+lists native `sourceNamespaces` and derived `projectionNamespaces` separately,
+then resolves each reference against the named class. Direct-only Editions may
+omit the empty projection list. A duplicate address fails before compilation.
+Using a content digest as the editor's reference would force unrelated
+re-authoring after every source change; using the Provider-local ID would make
+delivery mode editorial authority; calling executable output native would
+misstate its derivation. None is an acceptable shortcut.
+
 Provider ID, delivery mode, manifest locator or digest, package root,
 supervision, and unresolved or merely declared dependencies belong to
 invocation evidence and scoped limits, not the selected-content digest.
@@ -460,6 +474,17 @@ remain attached. An opaque construct is retained as opaque and diagnosed when
 an Edition asks Publisher to reason about it; preserving a JSON blob is not
 understanding it. No adapter may silently turn ordering, state transition,
 permission, causation, or authority into an undifferentiated arrow.
+
+The existing Claim Model v2 is the first non-LikeC4 counterexample. It may be
+selected as authored native input or as an attributed Provider-derived
+projection, but those are different provenance classes. Its entities,
+relations, and claims retain typed plane, condition, scope, validity, maturity,
+dependencies, and provenance through semantic selection. A layout engine may
+use their structural subset as disposable geometry; it cannot replace or
+silently flatten those claim fields. A required assertion that a medium cannot
+express fails or becomes an explicit reader-question limit. This lets AIGW and
+ETHOS use the same public compiler without an editable LikeC4 copy or a false
+claim that derived ETHOS facts are unchanged native bytes.
 
 For LikeC4 model and view files, the preferred native importer uses the
 upstream `@likec4/language-services/node` `fromSources` API on the exact
