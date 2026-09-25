@@ -42,6 +42,28 @@ async function rewriteRequest(fixture) {
   fixture.digest = sha(requestBytes);
 }
 
+async function rewriteProject(fixture) {
+  await fs.writeFile(
+    path.join(fixture.root, 'edition/project.json'),
+    JSON.stringify(fixture.project) + '\n',
+  );
+}
+
+function addOperationQuestion(fixture) {
+  fixture.project.questions.push({
+    id: 'operation',
+    audience: 'maintainer',
+    text: 'What operation is selected?',
+  });
+  fixture.project.requiredAssertions.push({
+    id: 'operation',
+    kind: 'source',
+    selection: 'overview',
+    questions: ['operation'],
+  });
+  fixture.project.narrative.readingOrder.push('operation');
+}
+
 async function comparisonPlan(t, before, after) {
   const root = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-evolution-'));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
@@ -265,6 +287,164 @@ test('Edition JSON whitespace changes exact bytes without inventing a media redr
   assert.deepEqual(result.obligations.humanReview, []);
   assert.equal(result.obligations.semanticVerification.length, 1);
   assert.equal(result.obligations.acceptance.length, 1);
+});
+
+test('removing one selected medium withdraws it without redrawing the retained medium', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t, { media: ['static'] });
+  const result = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.deepEqual(result.editions.affected[0].withdrawn, [{ medium: 'interactive', scene: null }]);
+  assert.deepEqual(
+    result.obligations.rebuild.map(({ target }) => target),
+    ['publication-bundle'],
+  );
+  assert.deepEqual(result.obligations.mediumVerification, []);
+  assert.deepEqual(result.obligations.humanReview, []);
+  assert.deepEqual(
+    result.obligations.publication.map(({ action }) => action),
+    ['replace', 'withdraw'],
+  );
+});
+
+test('adding one selected medium builds only that medium and requires fresh review', async (t) => {
+  const before = await selectedNativeEdition(t, { media: ['static'] });
+  const after = await selectedNativeEdition(t);
+  const result = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.deepEqual(
+    result.obligations.rebuild.map(({ target }) => target),
+    ['publication-bundle', 'interactive-atlas', 'interactive'],
+  );
+  assert.deepEqual(
+    result.obligations.mediumVerification.map(({ medium }) => medium),
+    ['interactive'],
+  );
+  assert.deepEqual(
+    result.obligations.humanReview.map(({ medium }) => medium),
+    ['interactive'],
+  );
+});
+
+test('removing an interactive page withdraws it without repainting an unchanged overview', async (t) => {
+  const before = await selectedNativeEdition(t);
+  before.project.presentation.interactive.views.push({ id: 'detail', questions: ['shape'] });
+  await rewriteProject(before);
+  const after = await selectedNativeEdition(t);
+  const result = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.deepEqual(result.editions.affected[0].withdrawn, [
+    { medium: 'interactive', scene: 'detail' },
+  ]);
+  assert.deepEqual(
+    result.obligations.rebuild.map(({ target }) => target),
+    ['publication-bundle', 'interactive-atlas'],
+  );
+  assert.deepEqual(
+    result.obligations.mediumVerification.map(({ medium }) => medium),
+    ['interactive'],
+  );
+  assert.equal(result.obligations.publication.at(-1).action, 'withdraw');
+  assert.equal(result.obligations.publication.at(-1).scene, 'detail');
+});
+
+test('changing a retained view question verifies both the removed and added question scope', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  for (const fixture of [before, after]) {
+    addOperationQuestion(fixture);
+    fixture.project.presentation.static.views[0].questions.push('operation');
+    fixture.project.presentation.interactive.views.push({
+      id: 'detail',
+      questions: ['operation'],
+    });
+  }
+  after.project.presentation.interactive.views[0].questions = ['operation'];
+  await rewriteProject(before);
+  await rewriteProject(after);
+  const result = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.deepEqual(result.editions.affected[0].media.interactive, ['overview']);
+  assert.deepEqual(result.editions.affected[0].questions, ['operation', 'shape']);
+  assert.deepEqual(result.obligations.semanticVerification[0].questions, ['operation', 'shape']);
+  assert.deepEqual(result.obligations.mediumVerification[0].questions, ['operation', 'shape']);
+});
+
+test('simultaneous media changes retain separate question scopes for each medium', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  for (const fixture of [before, after]) {
+    addOperationQuestion(fixture);
+    fixture.project.presentation.interactive.views[0].questions = ['operation'];
+  }
+  after.project.presentation.static.width = 5000;
+  after.project.presentation.interactive.intent = 'Changed exploration intent.';
+  await rewriteProject(before);
+  await rewriteProject(after);
+  const result = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.deepEqual(result.obligations.semanticVerification[0].questions, ['operation', 'shape']);
+  assert.deepEqual(
+    result.obligations.mediumVerification.map(({ medium, questions }) => ({ medium, questions })),
+    [
+      { medium: 'static', questions: ['shape'] },
+      { medium: 'interactive', questions: ['operation'] },
+    ],
+  );
+  assert.deepEqual(
+    result.obligations.humanReview.map(({ medium, questions }) => ({ medium, questions })),
+    [
+      { medium: 'static', questions: ['shape'] },
+      { medium: 'interactive', questions: ['operation'] },
+    ],
+  );
+});
+
+test('removing a static view retains its old question scope in the rebuilt artifact', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  for (const fixture of [before, after]) {
+    addOperationQuestion(fixture);
+    fixture.project.presentation.interactive.views[0].questions.push('operation');
+  }
+  before.project.presentation.static.views.push({ id: 'detail', questions: ['operation'] });
+  await rewriteProject(before);
+  await rewriteProject(after);
+  const result = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.deepEqual(result.editions.affected[0].media.static, ['overview']);
+  assert.deepEqual(result.editions.affected[0].withdrawn, []);
+  assert.deepEqual(result.obligations.semanticVerification[0].questions, ['operation', 'shape']);
+  assert.deepEqual(
+    result.obligations.mediumVerification.map(({ medium, questions }) => ({ medium, questions })),
+    [{ medium: 'static', questions: ['operation', 'shape'] }],
+  );
+});
+
+test('changed compiled medium obligations cannot report a no-op for the same selected lock', async (t) => {
+  const fixture = await selectedNativeEdition(t);
+  const before = await snapshot(fixture);
+  const after = structuredClone(before);
+  after.meaning.media.static.views[0].assertionsByQuestion.shape = [];
+  const result = compileNativeEditionEvolution({ before, after });
+  assert.deepEqual(result.delta.media.changed, ['static']);
+  assert.deepEqual(result.editions.changed, ['selected-atlas']);
+  assert.deepEqual(
+    result.obligations.mediumVerification.map(({ medium }) => medium),
+    ['static'],
+  );
 });
 
 test('the existing evolution command compares exact relocated native Build Requests', async (t) => {

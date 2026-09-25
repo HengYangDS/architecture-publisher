@@ -638,7 +638,7 @@ function nativeEvolutionSide(value) {
   return value;
 }
 
-function nativeReasons(delta, before, after, authoredChanged) {
+function nativeReasons(delta, before, after, authoredChanged, mediaChanges) {
   const reasons = [];
   for (const kind of ['added', 'removed', 'changed'])
     for (const namespace of delta.sourceBytes[kind])
@@ -652,6 +652,9 @@ function nativeReasons(delta, before, after, authoredChanged) {
   if (before.meaning.edition.sha256 !== after.meaning.edition.sha256)
     reasons.push('edition-bytes-changed');
   if (authoredChanged) reasons.push('edition-authoring-changed');
+  for (const medium of mediaChanges.added) reasons.push(`medium-added:${medium}`);
+  for (const medium of mediaChanges.removed) reasons.push(`medium-removed:${medium}`);
+  for (const medium of mediaChanges.changed) reasons.push(`medium-meaning-changed:${medium}`);
   if (different(before.lock.toolchain, after.lock.toolchain)) reasons.push('toolchain-changed');
   if (different(before.lock.edition.resources, after.lock.edition.resources))
     reasons.push('edition-resource-changed');
@@ -667,6 +670,15 @@ function withoutEditionBytes(lock) {
   return { ...lock, edition: { ...lock.edition, bytes: null, sha256: null } };
 }
 
+function remainingLock(lock) {
+  return { ...withoutEditionBytes(lock), sources: null, media: null };
+}
+
+function globalEditorial(meaning) {
+  const { presentation, ...editorial } = meaning.editorial;
+  return { editorial, questions: meaning.questions, assertions: meaning.assertions };
+}
+
 /** Plan obligations from already compiled native meaning; this function executes no effect. */
 export function compileNativeEditionEvolution(input) {
   if (!exact(input, ['before', 'after'])) evolutionError('native_evolution_input_invalid');
@@ -676,35 +688,51 @@ export function compileNativeEditionEvolution(input) {
     evolutionError('native_evolution_edition_identity_changed');
   if (before.meaning.edition.editor !== after.meaning.edition.editor)
     evolutionError('native_evolution_editor_changed');
-  if (different([...before.lock.media].sort(), [...after.lock.media].sort()))
-    evolutionError('native_evolution_media_change_unadmitted');
   const delta = compileNativeSelectionDelta(
     { lock: before.lock, native: before.meaning.native },
     { lock: after.lock, native: after.meaning.native },
   );
-  const authoredChanged = different(
-    {
-      editorial: before.meaning.editorial,
-      questions: before.meaning.questions,
-      assertions: before.meaning.assertions,
-      media: before.meaning.media,
-    },
-    {
-      editorial: after.meaning.editorial,
-      questions: after.meaning.questions,
-      assertions: after.meaning.assertions,
-      media: after.meaning.media,
-    },
+  const globalEditorialChanged = different(
+    globalEditorial(before.meaning),
+    globalEditorial(after.meaning),
   );
+  const mediaNames = ['static', 'interactive'];
+  const mediaChanges = {
+    added: mediaNames.filter(
+      (medium) => !before.lock.media.includes(medium) && after.lock.media.includes(medium),
+    ),
+    removed: mediaNames.filter(
+      (medium) => before.lock.media.includes(medium) && !after.lock.media.includes(medium),
+    ),
+    changed: mediaNames.filter(
+      (medium) =>
+        before.lock.media.includes(medium) &&
+        after.lock.media.includes(medium) &&
+        (different(before.meaning.media[medium], after.meaning.media[medium]) ||
+          different(
+            before.meaning.editorial.presentation[medium],
+            after.meaning.editorial.presentation[medium],
+          )),
+    ),
+  };
+  const authoredChanged =
+    globalEditorialChanged ||
+    mediaNames.some((medium) =>
+      different(
+        before.meaning.editorial.presentation[medium],
+        after.meaning.editorial.presentation[medium],
+      ),
+    );
   const lockChanged =
     before.meaning.native.subjectLockSha256 !== after.meaning.native.subjectLockSha256;
   const editionBytesChanged = before.meaning.edition.sha256 !== after.meaning.edition.sha256;
-  const editionBytesOnly =
-    editionBytesChanged &&
-    !authoredChanged &&
-    !delta.hasChanges &&
-    !different(withoutEditionBytes(before.lock), withoutEditionBytes(after.lock));
-  const changed = delta.hasChanges || authoredChanged || lockChanged;
+  const changed =
+    delta.hasChanges ||
+    authoredChanged ||
+    lockChanged ||
+    mediaChanges.added.length > 0 ||
+    mediaChanges.removed.length > 0 ||
+    mediaChanges.changed.length > 0;
   const id = after.meaning.edition.id;
   const obligations = /** @type {Record<string, Array<Record<string, any>>>} */ (
     Object.fromEntries(obligationKeys.map((key) => [key, []]))
@@ -721,49 +749,104 @@ export function compileNativeEditionEvolution(input) {
         .map(({ id: assertionId }) => assertionId),
     );
     const broad =
-      authoredChanged ||
+      globalEditorialChanged ||
       delta.unknown.length > 0 ||
       delta.sourceBindings.changed.length > 0 ||
       delta.supplyChanged ||
-      (lockChanged &&
-        !editionBytesOnly &&
-        !delta.sourceBytes.added.length &&
-        !delta.sourceBytes.removed.length &&
-        !delta.sourceBytes.changed.length &&
-        !delta.supported.length);
+      different(remainingLock(before.lock), remainingLock(after.lock));
+    const selectedMedia = mediaNames.filter((medium) => after.lock.media.includes(medium));
+    const media = {};
+    const affectedMedia = new Set();
+    for (const medium of selectedMedia) {
+      const prior = new Map(
+        (before.meaning.media[medium]?.views ?? []).map((view) => [view.id, view]),
+      );
+      const current = after.meaning.media[medium].views;
+      const added = mediaChanges.added.includes(medium);
+      const presentationChanged = mediaChanges.changed.includes(medium);
+      const intentChanged = different(
+        before.meaning.editorial.presentation[medium]?.intent,
+        after.meaning.editorial.presentation[medium]?.intent,
+      );
+      const views = current
+        .filter(
+          (view) =>
+            broad ||
+            added ||
+            (medium === 'interactive' && intentChanged) ||
+            !prior.has(view.id) ||
+            different(prior.get(view.id), view) ||
+            view.assertionIds.some((assertionId) => affectedAssertions.has(assertionId)),
+        )
+        .map(({ id: viewId }) => viewId);
+      media[medium] =
+        medium === 'static' && presentationChanged
+          ? current.map(({ id: viewId }) => viewId)
+          : views;
+      if (broad || added || presentationChanged || media[medium].length) affectedMedia.add(medium);
+    }
+    const withdrawn = mediaChanges.removed.map((medium) => ({
+      medium,
+      scene: medium === 'static' ? 'static' : null,
+    }));
+    if (before.lock.media.includes('interactive') && after.lock.media.includes('interactive')) {
+      const current = new Set(
+        after.meaning.media.interactive.views.map(({ id: viewId }) => viewId),
+      );
+      for (const { id: scene } of before.meaning.media.interactive.views)
+        if (!current.has(scene)) withdrawn.push({ medium: 'interactive', scene });
+    }
+    const questionIds = new Set(
+      [...before.meaning.assertions, ...after.meaning.assertions]
+        .filter(({ id: assertionId }) => affectedAssertions.has(assertionId))
+        .flatMap(({ questions: selectedQuestions }) => selectedQuestions),
+    );
+    const questionsByMedium = new Map();
+    for (const medium of affectedMedia) {
+      const viewIds = new Set(media[medium]);
+      const allViews =
+        (medium === 'static' && mediaChanges.changed.includes(medium)) ||
+        (medium === 'interactive' &&
+          !viewIds.size &&
+          !withdrawn.some(({ medium: withdrawnMedium }) => withdrawnMedium === medium));
+      const mediumQuestions = new Set();
+      for (const side of [before, after]) {
+        const scopedQuestions = (side.meaning.media[medium]?.views ?? [])
+          .filter((view) => allViews || viewIds.has(view.id))
+          .flatMap(({ questionIds: questions }) => questions);
+        for (const question of scopedQuestions) mediumQuestions.add(question);
+      }
+      questionsByMedium.set(medium, mediumQuestions);
+    }
+    for (const { medium, scene } of withdrawn) {
+      const mediumQuestions = questionsByMedium.get(medium) ?? new Set();
+      for (const view of before.meaning.media[medium].views)
+        if (scene === null || scene === 'static' || view.id === scene)
+          for (const question of view.questionIds) mediumQuestions.add(question);
+      questionsByMedium.set(medium, mediumQuestions);
+    }
+    for (const mediumQuestions of questionsByMedium.values())
+      for (const question of mediumQuestions) questionIds.add(question);
     const questions = broad
-      ? sorted(after.meaning.questions.map(({ id: questionId }) => questionId))
-      : sorted(
-          [...before.meaning.assertions, ...after.meaning.assertions]
-            .filter(({ id: assertionId }) => affectedAssertions.has(assertionId))
-            .flatMap(({ questions: selectedQuestions }) => selectedQuestions),
-        );
-    const selectedMedia = ['static', 'interactive'].filter((medium) =>
-      after.lock.media.includes(medium),
-    );
-    const media = Object.fromEntries(
-      selectedMedia.map((medium) => [
-        medium,
-        after.meaning.media[medium].views
-          .filter(
-            (view) =>
-              broad || view.assertionIds.some((assertionId) => affectedAssertions.has(assertionId)),
-          )
-          .map(({ id: viewId }) => viewId),
-      ]),
-    );
-    const reasons = nativeReasons(delta, before, after, authoredChanged);
+      ? sorted(
+          [...before.meaning.questions, ...after.meaning.questions].map(
+            ({ id: questionId }) => questionId,
+          ),
+        )
+      : sorted([...questionIds]);
+    const reasons = nativeReasons(delta, before, after, authoredChanged, mediaChanges);
     affected.push({
       edition: id,
       questions,
       media,
+      withdrawn,
       scope: broad ? 'complete' : 'targeted',
       reasons,
     });
     obligations.rebuild.push({ edition: id, target: 'publication-bundle', scene: null, reasons });
     for (const medium of selectedMedia) {
       const views = media[medium];
-      if (!views.length) continue;
+      if (!affectedMedia.has(medium)) continue;
       if (medium === 'static')
         obligations.rebuild.push({ edition: id, target: 'static', scene: 'static', reasons });
       else {
@@ -776,12 +859,33 @@ export function compileNativeEditionEvolution(input) {
         for (const scene of views)
           obligations.rebuild.push({ edition: id, target: 'interactive', scene, reasons });
       }
-      obligations.mediumVerification.push({ edition: id, medium, views, questions, reasons });
-      obligations.humanReview.push({ edition: id, medium, views, questions, reasons });
+      const mediumQuestions = sorted([...questionsByMedium.get(medium)]);
+      obligations.mediumVerification.push({
+        edition: id,
+        medium,
+        views,
+        questions: mediumQuestions,
+        reasons,
+      });
+      obligations.humanReview.push({
+        edition: id,
+        medium,
+        views,
+        questions: mediumQuestions,
+        reasons,
+      });
     }
     obligations.semanticVerification.push({ edition: id, questions, reasons });
     obligations.acceptance.push({ edition: id, action: 'reaccept', reasons });
     obligations.publication.push({ edition: id, action: 'replace', scene: null, reasons });
+    for (const { medium, scene } of withdrawn)
+      obligations.publication.push({
+        edition: id,
+        action: 'withdraw',
+        medium,
+        scene,
+        reasons: sorted([...reasons, `withdrawn:${medium}:${scene ?? 'all'}`]),
+      });
   }
   return {
     schema: 'architecture.semantic-change/v3',
@@ -795,7 +899,12 @@ export function compileNativeEditionEvolution(input) {
       inputLockSha256: after.meaning.native.subjectLockSha256,
       nativeDigest: after.meaning.native.semanticDigest,
     },
-    delta: { native: delta, editorialChanged: authoredChanged, editionBytesChanged },
+    delta: {
+      native: delta,
+      editorialChanged: authoredChanged,
+      editionBytesChanged,
+      media: mediaChanges,
+    },
     editions: { added: [], removed: [], changed: changed ? [id] : [], affected },
     obligations,
     scope:
