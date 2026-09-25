@@ -193,6 +193,16 @@ authorize source truth or publication. Output paths are invocation results,
 never Candidate fields. Historical `architecture.edition-candidate/v1` remains
 unchanged and replayable.
 
+For successor qualification, first verify the Candidate's exact file envelope,
+then replay the selected Build Request through the same installed Publisher
+package into a private temporary output and compare the complete bundle
+manifest and normalized Candidate digest. A self-consistent forged container,
+changed pin, or copied Edition therefore fails before any external predicate
+record can borrow its authority. This is current-runtime byte equivalence, not
+an attestation of the original builder or independent proof of semantic or
+visual truth. The replay operation is a qualification-library primitive that
+will be used by the existing `qualify verify` command; it adds no command plane.
+
 An authoring locator does not claim immutability. Publisher materializes the
 selected inputs and generates their content-addressed identities in a lock
 before compilation; ordinary authors do not maintain derived hashes. Callers

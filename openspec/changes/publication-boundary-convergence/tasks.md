@@ -414,9 +414,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       relocation without the source repository. Exact built HTML passes Chrome
       offline, responsive, and axe WCAG 2/2.1 A/AA checks; legacy self-hosted
       golden identity was regenerated against selected installed bytes. Static,
-      package, and strict OpenSpec checks pass. The latest full run passes 904
+      package, and strict OpenSpec checks pass. The latest full run passes 907
       tests, skips 2, and fails only the global branch-coverage floor
-      (93.83% < 95%).
+      (93.81% < 95%).
       Visible semantic coverage, human visual review, qualification binding,
       full platform evidence, and release remain open.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
@@ -453,6 +453,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       human post-build qualification fails; only applicable qualification and
       publication are withheld. A selected new renderer or toolchain may create
       a new Candidate without an unrelated Edition authoring change.
+      Partial: `verifySelectedCandidateReplay` now verifies the complete
+      Candidate file envelope against a fresh build from the exact selected
+      inputs under the current installed package. A self-consistent forged
+      Candidate, copied Edition, or changed pin cannot borrow that replay
+      result. The packed offline consumer repeats the check after relocation.
+      The result explicitly withholds qualification, acceptance, and
+      publication; versioned Qualification Set admission and independent
+      predicate evidence remain open.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In
       `tests/publication-contract.test.mjs` and

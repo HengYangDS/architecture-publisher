@@ -1,0 +1,78 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import {
+  selectedEditionCandidateDigest,
+  validateSelectedEditionCandidate,
+} from '../compiler/candidate.mjs';
+import { compileEditionCandidateInput } from '../compiler/edition.mjs';
+import { exact } from '../semantics/document.mjs';
+import { readSourceBundle } from '../source/bundle.mjs';
+import { parseStrictJson } from '../source/json.mjs';
+import { isDigest } from '../source/manifest.mjs';
+
+function fail(code) {
+  throw Object.assign(new Error(code), { code });
+}
+
+/** Bind a Candidate to selected inputs by replaying all bytes under this runtime. */
+export async function verifySelectedCandidateReplay(input) {
+  if (
+    !exact(input, [
+      'requestPath',
+      'requestSha256',
+      'candidateManifestPath',
+      'candidateManifestSha256',
+    ]) ||
+    typeof input.requestPath !== 'string' ||
+    !input.requestPath ||
+    typeof input.candidateManifestPath !== 'string' ||
+    !input.candidateManifestPath ||
+    !isDigest(input.requestSha256) ||
+    !isDigest(input.candidateManifestSha256)
+  )
+    fail('selected_candidate_replay_input_invalid');
+  const bundle = await readSourceBundle(input.candidateManifestPath, input.candidateManifestSha256);
+  const member = bundle.members.find(({ path: selected }) => selected === 'candidate.json');
+  if (!member) fail('selected_candidate_missing');
+  const candidate = validateSelectedEditionCandidate(
+    parseStrictJson(
+      member.content,
+      'selected_candidate_json_invalid',
+      'selected_candidate_json_duplicate_key',
+    ),
+  );
+  const scratch = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-candidate-replay-'),
+  );
+  try {
+    const rebuilt = await compileEditionCandidateInput(
+      input.requestPath,
+      input.requestSha256,
+      path.join(scratch, 'candidate'),
+    );
+    const candidateSha256 = selectedEditionCandidateDigest(candidate);
+    if (
+      rebuilt.candidateSha256 !== candidateSha256 ||
+      rebuilt.manifestSha256 !== bundle.manifestSha256
+    )
+      fail('selected_candidate_replay_mismatch');
+    return {
+      status: 'replayed',
+      verdict: 'match',
+      scope: 'selected-input-current-runtime-byte-replay',
+      candidateSha256,
+      inputLockSha256: rebuilt.lockSha256,
+      candidateManifestSha256: bundle.manifestSha256,
+      qualification: 'not-performed',
+      acceptance: 'not-performed',
+      publication: 'not-performed',
+      limits: [
+        'not-original-builder-attestation',
+        'not-independent-semantic-or-visual-verification',
+      ],
+    };
+  } finally {
+    await fs.rm(scratch, { recursive: true, force: true });
+  }
+}

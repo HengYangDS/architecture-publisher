@@ -110,4 +110,32 @@ test('a packed offline consumer builds both media after relocation without sourc
     await fs.readFile(path.join(relocated, 'candidate/candidate.json')),
     candidateBytes,
   );
+  const verifier = path.join(relocated, 'verify.mjs');
+  await fs.writeFile(
+    verifier,
+    `import { verifySelectedCandidateReplay } from 'architecture-publisher/qualification';
+const result = await verifySelectedCandidateReplay({
+  requestPath: process.argv[2], requestSha256: process.argv[3],
+  candidateManifestPath: process.argv[4], candidateManifestSha256: process.argv[5],
+});
+console.log(JSON.stringify(result));
+`,
+  );
+  const replay = JSON.parse(
+    child(
+      process.execPath,
+      [
+        verifier,
+        path.join(relocated, 'inputs/build-request.json'),
+        fixture.digest,
+        second.manifestPath,
+        second.manifestSha256,
+      ],
+      relocated,
+      nodeEnvironment,
+    ),
+  );
+  assert.equal(replay.verdict, 'match');
+  assert.equal(replay.candidateSha256, second.candidateSha256);
+  assert.equal(replay.qualification, 'not-performed');
 });

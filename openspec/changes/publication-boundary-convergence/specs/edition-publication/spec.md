@@ -233,6 +233,17 @@ Candidate for the other medium.
 - **AND** a bare Qualification Set or a Candidate with copied or forged authority
   is rejected rather than treated as accepted evidence
 
+#### Scenario: A self-consistent Candidate container borrows authority
+
+- **WHEN** a Candidate container has internally matching file hashes but its
+  Candidate value, Edition, or selected source differs from the exact Build
+  Request under review
+- **THEN** byte replay under the current installed Publisher package rejects
+  that Candidate before qualification records are admitted
+- **AND** a matching replay is reported only as current-runtime byte
+  equivalence, not original-builder attestation, independent semantic proof,
+  visual approval, acceptance, or publication
+
 #### Scenario: Qualified bytes are installed
 
 - **WHEN** a publication plan binds an exact candidate, applicable qualification
