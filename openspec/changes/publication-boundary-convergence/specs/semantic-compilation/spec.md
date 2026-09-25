@@ -87,6 +87,14 @@ admitted interpretation is specified.
   and revision
 - **AND** a cross-source relation requires a named proponent
 
+#### Scenario: Unsupported or inconsistent model content
+
+- **WHEN** a claim model has unknown fields, unsupported types or planes,
+  dangling references, invalid provenance, contradictions, or invented
+  cross-plane equivalence
+- **THEN** validation fails or retains the affected meaning as explicitly
+  unknown, according to the selected operation
+
 #### Scenario: A source supplies prose without formal dependencies
 
 - **WHEN** a claim has no supported formal representation or dependency coverage

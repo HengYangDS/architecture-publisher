@@ -50,14 +50,20 @@ visible product meaning.
 
 ### Requirement: Complete dual-medium output
 
-Successful publication SHALL emit one deterministic SVG and 6000-pixel-wide PNG
-from the static scene and one checked standalone HTML atlas from the interactive
-scene set. Static artifacts SHALL be composed directly from semantic and static
-Edition input; they SHALL NOT be screenshots, extracted HTML SVG, DOM
-serialization, or another interactive-renderer derivative. The HTML overview
-SHALL remain a complete diagram, while additional pages expand complete named
-mechanisms. One manifest SHALL bind source, semantic, Edition, scene, renderer,
-qualification, and artifact identities.
+Successful publication SHALL emit one deterministic SVG and one deterministic
+6000px PNG from the static Scene, and one checked standalone HTML atlas from
+interactive Scenes.
+Static media SHALL derive directly from semantic and static Edition input; never
+from screenshots, extracted HTML SVG, DOM serialization, or
+interactive-renderer derivatives.
+The HTML overview SHALL remain a complete diagram; additional pages SHALL expand
+complete named mechanisms.
+
+#### Scenario: Output identity is bound to its sources
+
+- **WHEN** publication succeeds with both media
+- **THEN** one manifest binds source, semantic, Edition, scene, renderer,
+  qualification, and artifact identities
 
 #### Scenario: A real structural revision is published
 

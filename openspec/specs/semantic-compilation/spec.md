@@ -9,15 +9,21 @@ and conservative view obligations without inventing equivalence or acceptance.
 
 ### Requirement: Explicit portable semantic contract
 
-The publisher SHALL validate a versioned source-bound claim model containing
-stable identities, typed entities and relations, explicit claims, complete
-qualifiers, source-bound provenance, and dependency coverage. Every claim SHALL
-identify its subject, predicate, object or value, plane, condition, scope,
-maturity, provenance, and validity. Supported planes SHALL distinguish
-`intended`, `implemented`, `observed`, `governed`, and `published` meaning.
-Unknown schema fields, unsupported types or planes, dangling references,
-invalid provenance, contradictory claims, and invented cross-plane equivalence
-SHALL fail or remain explicitly unknown according to the selected operation.
+The publisher SHALL validate a versioned, source-bound claim model with stable
+identities, typed entities and relations, explicit claims, complete qualifiers,
+source-bound provenance, and dependency coverage. Each claim SHALL bind subject,
+predicate, object or value, plane, condition, scope, maturity, source-bound
+provenance, and validity.
+Planes SHALL distinguish `intended`, `implemented`, `observed`, `governed`, and
+`published`.
+
+#### Scenario: Unsupported or inconsistent model content
+
+- **WHEN** a claim model has unknown fields, unsupported types or planes,
+  dangling references, invalid provenance, contradictions, or invented
+  cross-plane equivalence
+- **THEN** validation fails or retains the affected meaning as explicitly
+  unknown, according to the selected operation
 
 #### Scenario: A source supplies prose without formal dependencies
 

@@ -529,8 +529,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       `tests/product-identity.test.mjs` reject stale or rival command planes.
 - [ ] 7.4 Promote the implemented delta requirements and role-based Purpose
       wording into active base specs before release freeze. Strictly validate the
-      combined specs and prove valid v1 inputs still retain their historical
-      meanings. The later Change archive must add no new normative behavior.
+      combined specs with no unresolved diagnostics, including advisory INFO,
+      and prove valid v1 inputs still retain their historical meanings. Atomize
+      overlong delta requirements without weakening them before promotion; the
+      later Change archive must add no new normative behavior.
 - [ ] 7.5 Select the SemVer successor and update package manifests, lockfile,
       and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
       behavior tests until the complete owned scope reaches at least 95% in

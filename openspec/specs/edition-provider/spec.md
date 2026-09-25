@@ -57,14 +57,13 @@ the materialized values.
 
 ### Requirement: Provider dependency direction is one-way and narrow
 
-A source-owned provider MAY consume public Architecture Publisher source,
-semantic, Edition, and renderer-neutral Scene contracts. It SHALL NOT import
-generic renderer implementations, browser runtime, qualification admission,
-publication effects, or source-product governance through the provider boundary.
-The generic materializer MAY execute only the exact package entry point selected
-by the provider manifest; Architecture Publisher core SHALL NOT statically import,
-ambiently discover, dispatch on product identity, or mutate a source product or
-provider implementation.
+A source-owned Provider MAY consume public Publisher source, semantic, Edition,
+and renderer-neutral Scene contracts. It SHALL NOT import renderer
+implementations, browser runtime, qualification admission, publication effects,
+or source-product governance. The materializer MAY execute only the
+manifest-selected entry point; Publisher core SHALL NOT statically import or
+ambiently discover adopter code, dispatch on product identity, or mutate a
+source product or Provider implementation.
 
 #### Scenario: Provider package imports a forbidden layer
 
@@ -97,14 +96,10 @@ provider implementation.
 ### Requirement: Provider execution is portable and fail-closed
 
 Provider materialization SHALL consume only explicitly selected manifest,
-package, file, Source Bundle, and output identities. It SHALL run offline with
-empty user configuration, SHALL NOT require Git or adjacent checkouts, and SHALL
-reject changed, missing, extra, symlinked, escaping, ambiguous, oversized, or
-unselected input before emitting standard values. When an executable Provider
-uses a permitted public Architecture Publisher contract, relocation conformance
-SHALL provide the exact Publisher package used to execute that conformance run
-through ordinary package resolution; it SHALL NOT depend on an ambient source
-checkout, undeclared package, or network installation.
+package, file, Source Bundle, and output identities. It SHALL run offline with empty user
+configuration, no Git or adjacent checkout, and reject changed, missing, extra,
+symlinked, escaping, ambiguous, oversized, or unselected input before emitting
+standard values.
 
 #### Scenario: Installed executable provider is relocated
 
@@ -117,9 +112,9 @@ checkout, undeclared package, or network installation.
 - **WHEN** an executable Provider declares and imports an allowed public
   Architecture Publisher contract
 - **THEN** the isolated relocation supplies the exact Publisher package that is
-  executing the conformance profile
+  executing the conformance profile through ordinary package resolution
 - **AND** the Provider produces the same materialized identity without resolving
-  an ambient checkout or network dependency
+  an ambient checkout, undeclared package, or network dependency
 
 #### Scenario: Ambient source checkout is available
 
@@ -168,17 +163,13 @@ consumer has moved.
 
 ### Requirement: Executable Provider execution reclaims its owned process tree
 
-Architecture Publisher SHALL supervise an executable Provider's selected
-worker and ordinary descendants within one bounded materialization lifetime.
-An ordinary descendant remains in that worker's native process group or tree;
-deliberate detachment or reparenting is not an ordinary descendant.
-It SHALL NOT admit a Provider reply or materialization receipt until the owned
-worker tree has been reclaimed. A timeout, rejected reply, process failure,
-output-limit violation, or unavailable or unobserved cleanup SHALL prevent a
-passing result. Cleanup SHALL target only the selected invocation's owned
-processes. This requirement does not claim an adversarial OS sandbox or
-containment of a process that deliberately escapes the native worker group or
-tree.
+Publisher SHALL supervise the selected executable Provider worker and ordinary
+descendants during bounded materialization, reclaiming their native group or
+tree before admitting a reply or receipt. Timeout, rejected reply,
+process failure, output-limit violation, or unavailable or unobserved cleanup
+SHALL fail. Cleanup SHALL target only that invocation. "Ordinary" excludes
+deliberate detachment or reparenting; this is not an adversarial OS sandbox or a
+claim to contain escaped processes.
 
 #### Scenario: A valid reply leaves an ordinary descendant running
 

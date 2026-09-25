@@ -10,13 +10,13 @@ authority.
 
 ### Requirement: One publication admission predicate
 
-Generic and Edition-specific publication adapters SHALL use one exact-field,
-subject-product identity, Edition, qualification, custody, and plan-bound
-decision predicate. Edition-specific evidence and source-product authority
-checks SHALL remain explicit extensions rather than being weakened into the
-shared core. Publication SHALL distinguish semantic ownership, transformation,
-preparation, accepted source, artifact qualification, installation, hosted
-availability, release authorization, custody, recovery, and feedback.
+Generic and Edition publication adapters SHALL use one exact-field predicate
+bound to subject-product identity, Edition, qualification, custody, and plan.
+Edition-specific evidence and source-product authority checks SHALL remain
+explicit extensions, never a weakening of the shared core. Publication SHALL
+distinguish semantic ownership, transformation, preparation, accepted source,
+artifact qualification, installation, hosted availability, release
+authorization, custody, recovery, and feedback.
 
 #### Scenario: A decision names another plan
 

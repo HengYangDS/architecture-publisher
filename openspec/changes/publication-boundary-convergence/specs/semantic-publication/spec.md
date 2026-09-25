@@ -102,6 +102,13 @@ identities. Later qualification and publication records SHALL bind that
 Candidate separately. Public HTML SHALL not embed private raw inputs without
 explicit disclosure selection.
 
+#### Scenario: Output identity is bound to its sources
+
+- **WHEN** a successor Candidate contains the selected media
+- **THEN** its manifest binds input lock, Edition, exact scene memberships,
+  renderer and supplies, per-medium dimensions, and artifact identities
+- **AND** later qualification and publication bind that Candidate separately
+
 #### Scenario: One medium changes presentation
 
 - **WHEN** only interactive composition or behavior changes

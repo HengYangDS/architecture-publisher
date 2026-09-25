@@ -62,15 +62,11 @@ after source-owned parity is proved.
 ### Requirement: Cross-repository conformance is portable
 
 An adopter SHALL cross the product boundary through an exact Edition Provider
-manifest selecting portable standard values or an independently installed
-package. Ordinary Publisher runtime and release tests SHALL NOT import an
-adjacent checkout, search sibling repositories, embed a workstation user path,
-or infer an adopter from its repository name.
-
-Package identity SHALL distinguish the exact compressed archive digest from the
-portable digest of its uncompressed tar content. The archive digest identifies a
-selected release asset; cross-platform reconstruction SHALL compare content
-identity and SHALL NOT claim gzip byte equivalence across implementations.
+manifest of portable standard values or an independently installed package.
+Publisher runtime and release tests SHALL NOT import adjacent checkouts, search
+sibling repositories, hardcode workstation user paths, or infer adopter identity
+from repository names. Package identity SHALL distinguish the selected release
+asset's exact archive digest from its portable uncompressed tar-content digest.
 
 #### Scenario: An installed adopter is relocated
 
@@ -86,6 +82,12 @@ identity and SHALL NOT claim gzip byte equivalence across implementations.
   gzip implementations emit different archive bytes
 - **THEN** their archive identities remain distinct and exact
 - **AND** their uncompressed tar-content identities compare equal
+
+#### Scenario: Cross-platform package content is compared
+
+- **WHEN** a selected package is reconstructed across supported hosts
+- **THEN** conformance compares portable content identity
+- **AND** it does not claim gzip-byte equivalence across implementations
 
 ### Requirement: AIGW remains a distinct adopter
 
