@@ -158,8 +158,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       module-boundary gate excludes a second command plane and version-suffixed
       implementation filenames. Historical v1 inputs retain their meaning
       until Task 7.2 proves replacement parity. Open: the reproduced
-      concurrent-ancestor-mutation race leaves input confinement unproved;
-      complete dependency closure, installed successor conformance, and the
+      concurrent-ancestor-mutation race leaves path confinement unproved; it
+      remains an explicit limit, not a hidden native-reader prerequisite.
+      Complete dependency closure, installed successor conformance, and the
       unchanged 95% coverage gate remain release blockers. Exact race evidence
       and alternatives belong to `docs/research/mechanism-evaluation.md`, not a
       copied progress history here.
