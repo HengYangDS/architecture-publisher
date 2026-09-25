@@ -1,11 +1,13 @@
 import { deepFreeze } from '../../semantics/document.mjs';
 import { fail } from '../../source/manifest.mjs';
+import { claimCard } from '../claim-card.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
   JSON.stringify([namespace, reference, sha256]);
 const memberRelationKey = ({ id, origin }) =>
   relationKey({ namespace: origin.namespace, reference: id, sha256: origin.sha256 });
+const claimKey = ({ namespace, id, sha256 }) => JSON.stringify([namespace, id, sha256]);
 const sameMembers = (actual, expected) =>
   actual.size === expected.size && [...actual].every((item) => expected.has(item));
 
@@ -30,20 +32,70 @@ function visibleBounds(nodes, edges) {
   return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
 }
 
+function composeClaimScene(meaning, layout) {
+  if (layout !== null || meaning.media.static.views.length !== 1)
+    fail('static_scene_composition_ambiguous');
+  const editorialView = meaning.media.static.views[0];
+  const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
+  const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
+  const cards = new Map();
+  const sourceAssertionCarriers = [];
+  const editorialAssertions = [];
+  for (const id of editorialView.assertionIds) {
+    const assertion = assertions.get(id);
+    if (!assertion) fail('static_scene_assertion_unbound');
+    if (assertion.kind === 'editorial') {
+      editorialAssertions.push(assertion);
+      continue;
+    }
+    const selected = selections.get(assertion.selection);
+    if (!selected) fail('static_scene_assertion_unbound');
+    const card = claimCard(selected);
+    cards.set(claimKey(card), card);
+    sourceAssertionCarriers.push({
+      assertionId: id,
+      kind: 'claim',
+      selectionId: assertion.selection,
+      nodeRefs: [],
+      relationRefs: [],
+      claimRefs: [{ namespace: card.namespace, reference: card.id, sha256: card.sha256 }],
+    });
+  }
+  const questions = new Map(meaning.questions.map((item) => [item.id, item]));
+  return deepFreeze({
+    schema: 'architecture.edition-static-scene/v1',
+    completeness: 'unqualified-scene',
+    edition: meaning.edition,
+    title: meaning.editorial.title,
+    summary: meaning.editorial.narrative.summary,
+    visualPolicy: meaning.editorial.visualPolicy,
+    requestedWidth: meaning.editorial.presentation.static.width ?? null,
+    editorialViewId: editorialView.id,
+    nativeView: null,
+    questionIds: editorialView.questionIds,
+    questions: editorialView.questionIds.map((id) => questions.get(id)),
+    limitsByQuestion: editorialView.limitsByQuestion,
+    bounds: null,
+    nodes: [],
+    edges: [],
+    claimCards: [...cards.values()].sort((left, right) =>
+      claimKey(left).localeCompare(claimKey(right)),
+    ),
+    sourceAssertionCarriers,
+    editorialAssertions,
+    limits: meaning.limits,
+  });
+}
+
 /** Compose one unqualified static scene from bound assertions and native geometry. */
 export function composeStaticEditionScene(meaning, layout) {
   if (
     meaning?.completeness !== 'finite-unqualified-obligations' ||
     !Array.isArray(meaning.native?.selections) ||
     !Array.isArray(meaning.assertions) ||
-    !Array.isArray(meaning.media?.static?.views) ||
-    layout?.closure !== 'upstream-layout-unqualified' ||
-    !Array.isArray(layout.nodes) ||
-    !Array.isArray(layout.edges)
+    !Array.isArray(meaning.media?.static?.views)
   )
     fail('static_scene_input_invalid');
-  if (meaning.native.selections.some(({ format }) => format === 'architecture.claim-model/v2'))
-    fail('edition_scene_claim_model_unadmitted');
   if (meaning.media.static.views.length !== 1) fail('static_scene_composition_ambiguous');
   if (
     meaning.editorial?.visualPolicy?.profile !== 'neutral' ||
@@ -51,6 +103,21 @@ export function composeStaticEditionScene(meaning, layout) {
       meaning.editorial.visualPolicy.override !== null)
   )
     fail('static_scene_visual_policy_unadmitted');
+  if (meaning.native.selections.some(({ format }) => format === 'architecture.claim-model/v2')) {
+    if (
+      !meaning.native.selections.every(
+        ({ format, target }) => format === 'architecture.claim-model/v2' && target.kind === 'claim',
+      )
+    )
+      fail('edition_scene_claim_model_unadmitted');
+    return composeClaimScene(meaning, layout);
+  }
+  if (
+    layout?.closure !== 'upstream-layout-unqualified' ||
+    !Array.isArray(layout.nodes) ||
+    !Array.isArray(layout.edges)
+  )
+    fail('static_scene_input_invalid');
   const editorialView = meaning.media.static.views[0];
   const nativeViews = meaning.native.selections.filter(({ target }) => target.kind === 'view');
   if (nativeViews.length !== 1) fail('static_scene_composition_ambiguous');

@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
+import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import axe from 'axe-core';
+import { chromium } from 'playwright-core';
 import {
   compileEditionCandidateInput,
   compileEditionMeaning,
@@ -14,6 +17,10 @@ import {
   composeInteractiveEditionScene,
   composeStaticEditionScene,
 } from '../packages/publisher/src/scene/index.mjs';
+import { validateVisibleSelection } from '../packages/publisher/src/compiler/coverage.mjs';
+import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/index.mjs';
+import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
+import { verifySelectedCandidateReplay } from '../packages/publisher/src/qualification/index.mjs';
 import { canonical } from '../packages/publisher/src/source/json.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 
@@ -240,6 +247,15 @@ test('derived Claim Model keeps its exact native ancestry and attributed status'
     { namespace: rawNamespace, sha256: input.lock.sources[0].sha256 },
   ]);
   assert.equal(assertion.members.claims[0].validity, 'affirmed');
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
+  assert.deepEqual(candidate.input.semanticSupplies, []);
+  assert(candidate.limits.includes('claim-model-provenance-unverified'));
+  assert(candidate.limits.includes('adapter-code-unverified:claim-selection/model'));
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert.match(svg, /Projection claimant: adapter-maintainer/u);
+  assert.match(svg, /Declared model owner: example:system/u);
 });
 
 test('a derived claim cannot borrow unverified ancestor bytes', async (t) => {
@@ -276,23 +292,82 @@ test('typed claims cannot borrow the LikeC4-only evolution comparator', async (t
   });
 });
 
-test('a typed claim never becomes a complete Candidate through graph-only media', async (t) => {
+test('a typed claim builds independent media with visible qualifiers and no fake parser', async (t) => {
   const selected = await fixture(t);
   const output = path.join(selected.root, 'candidate');
-  await assert.rejects(
-    compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output),
-    { code: 'edition_media_claim_model_unadmitted' },
+  const built = await compileEditionCandidateInput(
+    selected.requestPath,
+    selected.requestSha256,
+    output,
   );
-  await assert.rejects(fs.stat(output), { code: 'ENOENT' });
+  assert.equal(built.status, 'built');
+  const replay = await verifySelectedCandidateReplay({
+    requestPath: selected.requestPath,
+    requestSha256: selected.requestSha256,
+    candidateManifestPath: built.manifestPath,
+    candidateManifestSha256: built.manifestSha256,
+  });
+  assert.equal(replay.verdict, 'match');
+  assert.equal(replay.candidateSha256, built.candidateSha256);
+  assert.equal(replay.qualification, 'not-performed');
+  const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
+  assert.deepEqual(candidate.input.semanticSupplies, []);
+  assert.deepEqual(Object.keys(candidate.media).sort(), ['interactive', 'static']);
+  assert.deepEqual(
+    candidate.media.interactive.supplies.map(({ id }) => id),
+    ['font-supply'],
+  );
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  const painted = [...svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/gu)]
+    .map((match) => match[1])
+    .join(' ');
+  const reading = html.match(/<div class="claim-stage"[^>]*>([\s\S]*?)<\/div>/u)?.[1] ?? '';
+  for (const phrase of [
+    'intended',
+    'client',
+    'calls',
+    'server',
+    'authorization: granted',
+    'environment: local',
+    'target',
+    'affirmed',
+    'Declared product contract',
+  ]) {
+    assert(painted.includes(phrase), `static claim omits ${phrase}`);
+    assert(reading.includes(phrase), `interactive claim omits ${phrase}`);
+  }
+  assert(painted.includes('Selected claimant: fixture-maintainer'));
+  assert(painted.includes('Declared model owner: example:system'));
+  assert(painted.includes('Claim plane: intended'));
+  assert(painted.includes('Claim validity: affirmed'));
+  assert(painted.includes('Declared dependency coverage: complete'));
+  assert.match(reading, /<dt>Selected claimant<\/dt><dd>fixture-maintainer<\/dd>/u);
+  assert.match(reading, /<dt>Declared model owner<\/dt><dd>example:system<\/dd>/u);
+  assert.match(reading, /<dt>Claim plane<\/dt><dd>intended<\/dd>/u);
+  assert.match(reading, /<dt>Claim validity<\/dt><dd>affirmed<\/dd>/u);
+  assert.doesNotMatch(svg, /fixture\/claims|contract\.md/u);
+  assert.doesNotMatch(html, /fixture\/claims|contract\.md/u);
 });
 
-test('public Scene composers refuse to erase typed claims into graph-only carriers', async (t) => {
+test('claim Scenes use typed cards rather than graph nodes or arrows', async (t) => {
   const selected = await fixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  assert.throws(() => composeInteractiveEditionScene(meaning), {
-    code: 'edition_scene_claim_model_unadmitted',
-  });
+  const interactive = composeInteractiveEditionScene(meaning);
+  const staticScene = composeStaticEditionScene(meaning, null);
+  for (const scene of [interactive.pages[0], staticScene]) {
+    assert.deepEqual(scene.nodes, []);
+    assert.deepEqual(scene.relations ?? scene.edges, []);
+    assert.equal(scene.claimCards.length, 1);
+    assert.deepEqual(scene.sourceAssertionCarriers[0].claimRefs, [
+      {
+        namespace: modelNamespace,
+        reference: 'intended',
+        sha256: sha(Buffer.from(JSON.stringify(selected.model) + '\n')),
+      },
+    ]);
+  }
   assert.throws(
     () =>
       composeStaticEditionScene(meaning, {
@@ -300,6 +375,220 @@ test('public Scene composers refuse to erase typed claims into graph-only carrie
         nodes: [],
         edges: [],
       }),
-    { code: 'edition_scene_claim_model_unadmitted' },
+    { code: 'static_scene_composition_ambiguous' },
   );
 });
+
+test('claim condition and plane changes alter both visible media without changing graph size', async (t) => {
+  const changedCondition = claimModel();
+  changedCondition.claims.intended.condition.authorization = 'denied';
+  const changedPlane = claimModel();
+  changedPlane.claims.intended.plane = 'observed';
+  const fixtures = [
+    await fixture(t),
+    await fixture(t, { model: changedCondition }),
+    await fixture(t, { model: changedPlane }),
+  ];
+  const built = [];
+  for (const selected of fixtures) {
+    const output = path.join(selected.root, 'candidate');
+    await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+    built.push({
+      candidate: JSON.parse(await fs.readFile(path.join(output, 'candidate.json'))),
+      svg: await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8'),
+      html: await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8'),
+    });
+  }
+  for (const changed of built.slice(1)) {
+    assert.notEqual(
+      changed.candidate.media.static.artifacts[0].sha256,
+      built[0].candidate.media.static.artifacts[0].sha256,
+    );
+    assert.notEqual(
+      changed.candidate.media.interactive.artifacts[0].sha256,
+      built[0].candidate.media.interactive.artifacts[0].sha256,
+    );
+  }
+  assert.match(built[1].svg, /authorization: denied/u);
+  assert.match(built[1].html, /authorization: denied/u);
+  assert.match(built[2].svg, /Claim plane: observed/u);
+  assert.match(built[2].html, /<dd>observed<\/dd>/u);
+});
+
+test('unsupported Claim Model entity and relation media remain fail-closed', async (t) => {
+  for (const reference of ['entity:client', 'relation:request']) {
+    const selected = await fixture(t, { reference });
+    const output = path.join(selected.root, 'candidate');
+    await assert.rejects(
+      compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output),
+      { code: 'edition_scene_claim_model_unadmitted' },
+    );
+    await assert.rejects(fs.stat(output), { code: 'ENOENT' });
+  }
+});
+
+test('a forged Scene cannot hide a selected claim condition behind a valid carrier ID', async (t) => {
+  const selected = await fixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const scene = structuredClone(composeStaticEditionScene(meaning, null));
+  scene.claimCards[0].facts.find(({ label }) => label === 'Condition').value = 'hidden';
+  const rendered = composeStaticEditionSvg(scene);
+  assert.throws(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers), {
+    code: 'edition_visible_coverage_mismatch',
+  });
+  const interactive = structuredClone(composeInteractiveEditionScene(meaning));
+  interactive.pages[0].claimCards[0].facts.find(({ label }) => label === 'Condition').value =
+    'hidden';
+  const projected = projectInteractivePage(interactive.pages[0], 0);
+  assert.throws(
+    () => validateVisibleSelection(meaning, 'interactive', interactive, [projected.carriers]),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
+});
+
+test('malformed claimant and applicability fail before a claim Scene exists', async (t) => {
+  const selected = await fixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  for (const mutate of [
+    (selection) => (selection.sourceOwner = ''),
+    (selection) => (selection.members.claims[0].condition = null),
+  ]) {
+    const forged = structuredClone(meaning);
+    mutate(forged.native.selections[0]);
+    assert.throws(() => composeStaticEditionScene(forged, null), {
+      code: 'edition_claim_card_invalid',
+    });
+  }
+});
+
+test('malformed claim carriers fail by name before either renderer emits media', async (t) => {
+  const selected = await fixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const staticScene = structuredClone(composeStaticEditionScene(meaning, null));
+  staticScene.claimCards[0] = null;
+  assert.throws(() => composeStaticEditionSvg(staticScene), {
+    code: 'static_edition_claim_invalid',
+  });
+  const interactive = structuredClone(composeInteractiveEditionScene(meaning));
+  interactive.pages[0].claimCards[0].facts[0] = null;
+  assert.throws(() => projectInteractivePage(interactive.pages[0], 0), {
+    code: 'render_interactive_claim_invalid',
+  });
+});
+
+test('source-controlled claim values cannot inject HTML or SVG markup', async (t) => {
+  const model = claimModel();
+  model.claims.tagged.value = '</script><img src=x onerror=globalThis.__injected=true>';
+  const selected = await fixture(t, { model, reference: 'claim:tagged' });
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert.doesNotMatch(html, /<img src=x|<\/script><img/u);
+  assert.doesNotMatch(svg, /<img src=x/u);
+  assert.match(html, /&lt;img src=x/u);
+  assert.match(svg, /&lt;img src=x/u);
+});
+
+test(
+  'claim media remain visible, responsive, accessible, and offline in Chrome',
+  {
+    skip: !path.isAbsolute(process.env.ARCHPUB_BROWSER_EXECUTABLE ?? ''),
+    timeout: 35_000,
+  },
+  async (t) => {
+    const selected = await fixture(t);
+    const output = path.join(selected.root, 'candidate');
+    await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+    const html = await fs.readFile(path.join(output, 'interactive/architecture.html'));
+    const svg = await fs.readFile(path.join(output, 'static/architecture.svg'));
+    const server = http.createServer((request, response) => {
+      const isSvg = request.url === '/architecture.svg';
+      if (!isSvg && request.url !== '/architecture.html') {
+        response.writeHead(404).end();
+        return;
+      }
+      response.writeHead(200, {
+        'Content-Type': isSvg ? 'image/svg+xml; charset=utf-8' : 'text/html; charset=utf-8',
+      });
+      response.end(isSvg ? svg : html);
+    });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const browser = await chromium.launch({
+      executablePath: process.env.ARCHPUB_BROWSER_EXECUTABLE,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 15_000,
+    });
+    t.after(() => browser.close());
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    const origin = `http://127.0.0.1:${server.address().port}`;
+    await page.route('**/*', (route) => {
+      if (route.request().url().startsWith(`${origin}/`)) return route.continue();
+      errors.push(`external-request:${route.request().url()}`);
+      return route.abort();
+    });
+    await page.goto(`${origin}/architecture.html`, { waitUntil: 'load' });
+    await page.evaluate(() => globalThis.document.fonts.ready);
+    const claim = page.locator('.claim-stage .claim-card');
+    assert.equal(await claim.count(), 1);
+    assert.match(await claim.innerText(), /authorization: granted/u);
+    assert.match(await claim.innerText(), /Declared product contract/u);
+    assert.equal(await page.locator('canvas').count(), 0);
+    await page.addScriptTag({ content: axe.source });
+    const violations = () =>
+      page.evaluate(async () => {
+        const result = await globalThis.axe.run(globalThis.document, {
+          runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+        });
+        return result.violations.map(({ id, nodes }) => ({
+          id,
+          targets: nodes.map(({ target }) => target),
+        }));
+      });
+    assert.deepEqual(await violations(), []);
+    await page.setViewportSize({ width: 390, height: 844 });
+    assert.deepEqual(await violations(), []);
+    assert.equal(
+      await page.evaluate(
+        () => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth,
+      ),
+      true,
+    );
+    await page.goto(`${origin}/architecture.svg`, { waitUntil: 'load' });
+    assert.equal((await page.locator('[data-graphic-id="c-0"] text').count()) > 0, true);
+    const collisions = await page.evaluate(() => {
+      const canvas = globalThis.document.querySelector('svg').getBoundingClientRect();
+      const text = [...globalThis.document.querySelectorAll('svg text')].map((element) => ({
+        value: element.textContent,
+        box: element.getBoundingClientRect(),
+      }));
+      const gaps = [];
+      for (const [index, left] of text.entries()) {
+        if (
+          left.box.left < canvas.left - 1 ||
+          left.box.right > canvas.right + 1 ||
+          left.box.top < canvas.top - 1 ||
+          left.box.bottom > canvas.bottom + 1
+        )
+          gaps.push(`outside:${left.value}`);
+        for (const right of text.slice(index + 1)) {
+          const width =
+            Math.min(left.box.right, right.box.right) - Math.max(left.box.left, right.box.left);
+          const height =
+            Math.min(left.box.bottom, right.box.bottom) - Math.max(left.box.top, right.box.top);
+          if (width > 1 && height > 1) gaps.push(`overlap:${left.value}:${right.value}`);
+        }
+      }
+      return gaps;
+    });
+    assert.deepEqual(collisions, []);
+    assert.deepEqual(errors, []);
+  },
+);

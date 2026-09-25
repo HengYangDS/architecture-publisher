@@ -717,6 +717,16 @@ space. Unsupported visual policy or ambiguous view choice fails by name.
 This Scene remains an unqualified compilation input, not rendered SVG/PNG or
 reader acceptance; interactive composition owns its own geometry and path.
 
+For a selected Claim Model claim, the first neutral grammar is a typed reading
+plate rather than an invented graph edge. Both media visibly carry subject,
+predicate, object or value, plane, condition, scope, maturity, validity,
+coverage, selected claimant, declared model owner, and declared evidence
+authority as separate roles; source-qualified IDs remain in
+private carrier maps. Static and interactive plates have independent layout.
+Claim-only HTML does not load a graph engine it does not use. Entity, relation,
+and mixed-model media remain unadmitted until their distinct visible grammar
+is verified. This baseline is not flagship visual acceptance.
+
 A visible assertion must be linked to a source or editorial claim, and every
 required claim for that medium must have a visible carrier for coverage to
 pass. An omission changes that medium's editorial scope and requires a new

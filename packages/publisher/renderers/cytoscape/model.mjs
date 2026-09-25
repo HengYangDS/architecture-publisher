@@ -3,6 +3,8 @@ import { fail } from '../../src/source/manifest.mjs';
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ origin, id }) => JSON.stringify([origin.namespace, id, origin.sha256]);
+const claimKey = ({ namespace, reference, sha256 }) =>
+  JSON.stringify([namespace, reference, sha256]);
 
 /** Reduce one selected page to public reading data without raw source identity. */
 export function projectInteractivePage(page, index) {
@@ -13,6 +15,7 @@ export function projectInteractivePage(page, index) {
     !Array.isArray(page.questions) ||
     !Array.isArray(page.nodes) ||
     !Array.isArray(page.relations) ||
+    (page.claimCards !== undefined && !Array.isArray(page.claimCards)) ||
     !Array.isArray(page.sourceAssertionCarriers) ||
     !Array.isArray(page.editorialAssertions) ||
     !page.limitsByQuestion ||
@@ -71,6 +74,28 @@ export function projectInteractivePage(page, index) {
     };
   });
 
+  const claims = new Map();
+  const publicClaims = (page.claimCards ?? []).map((claim, position) => {
+    if (
+      !text(claim?.namespace) ||
+      !text(claim.id) ||
+      !text(claim.sha256) ||
+      !Array.isArray(claim.facts) ||
+      !claim.facts.length ||
+      claim.facts.some((fact) => !text(fact?.label) || !text(fact.value))
+    )
+      fail('render_interactive_claim_invalid');
+    const identity = claimKey({
+      namespace: claim.namespace,
+      reference: claim.id,
+      sha256: claim.sha256,
+    });
+    if (claims.has(identity)) fail('render_interactive_identity_ambiguous');
+    const graphicId = `c-${position}`;
+    claims.set(identity, graphicId);
+    return { graphicId, facts: claim.facts };
+  });
+
   const questions = new Map(page.questions.map((question) => [question?.id, question]));
   if (questions.size !== page.questions.length) fail('render_interactive_identity_ambiguous');
   const questionIds = new Set(page.questionIds);
@@ -113,7 +138,8 @@ export function projectInteractivePage(page, index) {
     if (
       !text(assertion?.assertionId) ||
       !Array.isArray(assertion.nodeRefs) ||
-      !Array.isArray(assertion.relationRefs)
+      !Array.isArray(assertion.relationRefs) ||
+      (assertion.claimRefs !== undefined && !Array.isArray(assertion.claimRefs))
     )
       fail('render_interactive_carrier_invalid');
     if (assertionIds.has(assertion.assertionId)) fail('render_interactive_identity_ambiguous');
@@ -127,15 +153,29 @@ export function projectInteractivePage(page, index) {
         fail('render_interactive_carrier_invalid');
       return relations.get(JSON.stringify([item.namespace, item.reference, item.sha256]));
     });
-    if (!nodeIds.length && !relationIds.length) fail('render_interactive_carrier_missing');
-    if ([...nodeIds, ...relationIds].some((id) => !id)) fail('render_interactive_carrier_missing');
-    return { assertionId: assertion.assertionId, nodeIds, relationIds };
+    const claimIds = (assertion.claimRefs ?? []).map((item) => {
+      if (!text(item?.namespace) || !text(item?.reference) || !text(item?.sha256))
+        fail('render_interactive_carrier_invalid');
+      return claims.get(claimKey(item));
+    });
+    if (!nodeIds.length && !relationIds.length && !claimIds.length)
+      fail('render_interactive_carrier_missing');
+    if ([...nodeIds, ...relationIds, ...claimIds].some((id) => !id))
+      fail('render_interactive_carrier_missing');
+    return {
+      assertionId: assertion.assertionId,
+      nodeIds,
+      relationIds,
+      ...(page.claimCards === undefined ? {} : { claimIds }),
+    };
   });
   const claimedNodes = new Set(assertions.flatMap(({ nodeIds }) => nodeIds));
   const claimedRelations = new Set(assertions.flatMap(({ relationIds }) => relationIds));
+  const claimedClaims = new Set(assertions.flatMap(({ claimIds }) => claimIds ?? []));
   if (
     publicNodes.some(({ id }) => !claimedNodes.has(id)) ||
-    publicRelations.some(({ id }) => !claimedRelations.has(id))
+    publicRelations.some(({ id }) => !claimedRelations.has(id)) ||
+    publicClaims.some(({ graphicId }) => !claimedClaims.has(graphicId))
   )
     fail('render_interactive_carrier_unclaimed');
 
@@ -146,6 +186,7 @@ export function projectInteractivePage(page, index) {
       questions: publicQuestions,
       nodes: publicNodes,
       relations: publicRelations,
+      ...(page.claimCards === undefined ? {} : { claims: publicClaims }),
       editorialAssertions: publicEditorial,
     },
     carriers: {
@@ -162,6 +203,18 @@ export function projectInteractivePage(page, index) {
         },
         graphicId: `r-${position}`,
       })),
+      ...(page.claimCards === undefined
+        ? {}
+        : {
+            claims: page.claimCards.map((claim, position) => ({
+              source: {
+                namespace: claim.namespace,
+                reference: claim.id,
+                sha256: claim.sha256,
+              },
+              graphicId: `c-${position}`,
+            })),
+          }),
       assertions,
     },
   };

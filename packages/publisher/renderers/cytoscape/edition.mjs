@@ -144,9 +144,12 @@ function pageHtml(page, index, methodLimits) {
     )
     .join('');
   const editorialStage = `<div class="empty-graph"><p class="eyebrow">Evidence boundary</p>${page.editorialAssertions.map(({ statement, proponent }) => `<div class="editorial-card"><blockquote>${escape(statement)}</blockquote><p>Editorial judgment · ${escape(proponent)} · unverified</p></div>`).join('')}</div>`;
+  const claimStage = `<div class="claim-stage">${(page.claims ?? []).map(({ graphicId, facts }) => `<article class="claim-card" data-graphic-id="${graphicId}"><dl class="claim-facts">${facts.map(({ label, value }) => `<dt>${escape(label)}</dt><dd>${escape(value)}</dd>`).join('')}</dl></article>`).join('')}</div>`;
   const stage = page.nodes.length
     ? `<div class="graph" id="graph-${index}" aria-hidden="true"></div><p class="graph-instruction">Pan and zoom in the graph; the adjacent lists provide keyboard-accessible reading and focus.</p>`
-    : editorialStage;
+    : page.claims?.length
+      ? claimStage
+      : editorialStage;
   return `<section class="edition-page" id="page-${index}" data-page="${index}" aria-labelledby="page-title-${index}">
     <header class="page-heading"><p class="eyebrow">Reading page ${index + 1}</p><h2 id="page-title-${index}">${escape(page.title)}</h2></header>
     <div class="page-grid"><div class="stage">${stage}${page.nodes.length ? `<button class="fit" type="button" data-fit="${index}">Fit graph</button>` : ''}</div>
@@ -172,6 +175,7 @@ function css(fonts) {
   .navigation{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}.navigation button{border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:10px 18px;font-size:12px;text-align:left;max-width:35ch}.navigation button[aria-current=page]{background:#214f3c;color:#fffefa;border-color:#214f3c}
   .edition-page[hidden]{display:none}.page-heading{display:flex;align-items:baseline;gap:18px;margin:12px 0 18px}.page-heading h2{font-size:clamp(20px,2vw,28px);line-height:1.3;margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
   .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.stage{position:relative;min-width:0}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:clamp(360px,46vh,660px)}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-instruction{font-size:11px;color:#4c5a50;margin:10px 0 0}.fit{position:absolute;right:16px;top:16px;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
+  .claim-stage{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;align-content:start}.claim-card{min-width:0;background:#fffefa;border:1px solid #c4ccc2;border-radius:18px;padding:22px 25px}.claim-facts{display:grid;grid-template-columns:minmax(80px,1fr) minmax(0,2.2fr);gap:9px 16px;margin:0}.claim-facts dt{font-size:11px;color:#526158}.claim-facts dd{font-size:13px;line-height:1.45;margin:0;overflow-wrap:anywhere}
   .notes{border-left:1px solid #d3dbd1;padding:0 0 0 28px;min-width:0}.notes h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 9px}.notes h3:not(:first-child){margin-top:22px}.notes ul{list-style:none;margin:0;padding:0}.notes li{font-size:13px;line-height:1.55;overflow-wrap:anywhere}.notes li+li{margin-top:9px}.notes p{margin:0}.notes small{display:block;font-size:10px;color:#4c5a50;margin-top:3px}.notes button{display:flex;gap:11px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:2px 0;line-height:1.5;font-size:13px}.notes button:hover{text-decoration:underline}.notes button small{margin-left:auto}.ordinal{font-size:10px;color:#4c5a50}.limits{border-left:2px solid #b3c4b6;padding-left:10px!important;margin-top:7px!important;color:#526158}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}
   @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:1fr}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.graph{height:clamp(340px,50vh,520px)}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}`;
@@ -200,21 +204,22 @@ export async function renderInteractiveEditionHtml(scene) {
     fail('render_interactive_complexity_exceeded');
 
   const projected = scene.pages.map(projectInteractivePage);
-  const supply = await loadCytoscapeSupply();
+  const hasGraph = projected.some(({ publicPage }) => publicPage.nodes.length > 0);
+  const supply = hasGraph ? await loadCytoscapeSupply() : null;
   const fontSupply = await loadBundledFonts();
   const selectedFonts = fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
   if (selectedFonts.length !== 2 || !fontSupply.license?.bytes)
     fail('render_interactive_font_supply_invalid');
   const pages = projected.map(({ publicPage }) => publicPage);
-  const vendor = supply.script.toString('utf8').replace(/<\/script/giu, '<\\/script');
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'"><title>${escape(scene.title)}</title><style>${css(selectedFonts)}</style></head><body><div class="shell"><header class="masthead"><h1>${escape(scene.title)}</h1><p>${escape(scene.summary)}</p></header><nav class="navigation" aria-label="Reading pages">${pages.map((page, index) => `<button type="button" data-page-index="${index}" aria-controls="page-${index}">${escape(page.title)}</button>`).join('')}</nav><main>${pages.map((page, index) => pageHtml(page, index, scene.limits)).join('')}</main><details class="licenses"><summary>Open-source licenses</summary><pre>${escape(supply.license.toString('utf8'))}\n${escape(fontSupply.license.bytes.toString('utf8'))}</pre></details></div><script>${vendor}</script><script type="application/json" id="edition-data">${scriptJson(pages)}</script><script>${viewerScript}</script></body></html>\n`;
+  const vendor = supply?.script.toString('utf8').replace(/<\/script/giu, '<\\/script') ?? '';
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'"><title>${escape(scene.title)}</title><style>${css(selectedFonts)}</style></head><body><div class="shell"><header class="masthead"><h1>${escape(scene.title)}</h1><p>${escape(scene.summary)}</p></header><nav class="navigation" aria-label="Reading pages">${pages.map((page, index) => `<button type="button" data-page-index="${index}" aria-controls="page-${index}">${escape(page.title)}</button>`).join('')}</nav><main>${pages.map((page, index) => pageHtml(page, index, scene.limits)).join('')}</main><details class="licenses"><summary>Open-source licenses</summary><pre>${supply ? escape(supply.license.toString('utf8')) + '\n' : ''}${escape(fontSupply.license.bytes.toString('utf8'))}</pre></details></div>${vendor ? `<script>${vendor}</script>` : ''}<script type="application/json" id="edition-data">${scriptJson(pages)}</script><script>${viewerScript}</script></body></html>\n`;
   const bytes = Buffer.from(html);
   if (bytes.length > 32 * 1024 * 1024) fail('render_interactive_output_limit');
   return {
     completeness: 'unqualified-medium',
     bytes,
     supplies: [
-      { id: 'cytoscape', sha256: supply.manifestSha256 },
+      ...(supply ? [{ id: 'cytoscape', sha256: supply.manifestSha256 }] : []),
       { id: 'font-supply', sha256: fontSupply.sha256 },
     ],
     carriers: projected.map(({ carriers }) => carriers),

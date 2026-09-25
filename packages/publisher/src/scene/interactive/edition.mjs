@@ -1,8 +1,10 @@
 import { canonical, deepFreeze, record, text } from '../../semantics/document.mjs';
 import { fail, isDigest } from '../../source/manifest.mjs';
+import { claimCard } from '../claim-card.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ id, origin }) => JSON.stringify([origin.namespace, id, origin.sha256]);
+const claimKey = ({ namespace, id, sha256 }) => JSON.stringify([namespace, id, sha256]);
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
 
 function element(value) {
@@ -57,9 +59,10 @@ function addBound(map, identity, value) {
   map.set(identity, value);
 }
 
-function composePage(view, selections, assertions, questions) {
+function composePage(view, selections, assertions, questions, claimMode) {
   const nodes = new Map();
   const relations = new Map();
+  const claims = new Map();
   const sourceAssertionCarriers = [];
   const editorialAssertions = [];
   for (const id of view.assertionIds) {
@@ -71,6 +74,19 @@ function composePage(view, selections, assertions, questions) {
     }
     const selected = selections.get(assertion.selection);
     if (!selected) fail('interactive_scene_assertion_unbound');
+    if (claimMode) {
+      const card = claimCard(selected);
+      addBound(claims, claimKey(card), card);
+      sourceAssertionCarriers.push({
+        assertionId: id,
+        selectionId: assertion.selection,
+        kind: 'claim',
+        nodeRefs: [],
+        relationRefs: [],
+        claimRefs: [{ namespace: card.namespace, reference: card.id, sha256: card.sha256 }],
+      });
+      continue;
+    }
     const nodeRefs = selected.members.elements.map((member) => {
       const projected = element(member);
       addBound(nodes, key(projected), projected);
@@ -112,6 +128,13 @@ function composePage(view, selections, assertions, questions) {
     relations: [...relations.entries()]
       .sort(([left], [right]) => compare(left, right))
       .map(([, value]) => value),
+    ...(claimMode
+      ? {
+          claimCards: [...claims.entries()]
+            .sort(([left], [right]) => compare(left, right))
+            .map(([, value]) => value),
+        }
+      : {}),
     sourceAssertionCarriers,
     editorialAssertions,
   };
@@ -129,7 +152,15 @@ export function composeInteractiveEditionScene(meaning) {
     !record(meaning.editorial)
   )
     fail('interactive_scene_input_invalid');
-  if (meaning.native.selections.some(({ format }) => format === 'architecture.claim-model/v2'))
+  const claimMode = meaning.native.selections.some(
+    ({ format }) => format === 'architecture.claim-model/v2',
+  );
+  if (
+    claimMode &&
+    !meaning.native.selections.every(
+      ({ format, target }) => format === 'architecture.claim-model/v2' && target.kind === 'claim',
+    )
+  )
     fail('edition_scene_claim_model_unadmitted');
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
@@ -150,7 +181,7 @@ export function composeInteractiveEditionScene(meaning) {
     summary: meaning.editorial.narrative.summary,
     readingOrder: meaning.editorial.narrative.readingOrder,
     visualPolicy: meaning.editorial.visualPolicy,
-    pages: views.map((view) => composePage(view, selections, assertions, questions)),
+    pages: views.map((view) => composePage(view, selections, assertions, questions, claimMode)),
     limits: meaning.limits,
   });
 }

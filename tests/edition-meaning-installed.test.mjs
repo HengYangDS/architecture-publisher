@@ -27,7 +27,7 @@ function child(command, args, cwd, environment, expectedStatus = 0) {
   return result.stdout;
 }
 
-test('offline installed Edition meaning, layout, and Scene survive relocation and refuse changed pins', async (t) => {
+test('offline installed Edition meaning, Scenes, and Candidate survive relocation and refuse changed pins', async (t) => {
   const work = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-meaning-'));
   t.after(() => fs.rm(work, { recursive: true, force: true }));
   const home = path.join(work, 'home');
@@ -284,15 +284,19 @@ try {
   const digest = createHash('sha256').update(await fs.readFile(file)).digest('hex');
   const selected = await materializeBuildRequestInput(file, digest);
   const meaning = await compileEditionMeaning(selected);
-  let mediaFailure = null;
-  try {
-    await compileEditionCandidateInput(file, digest, fileURLToPath(new URL('./claim-candidate', import.meta.url)));
-  } catch (error) {
-    mediaFailure = error.code;
-  }
+  const output = fileURLToPath(new URL('./claim-candidate', import.meta.url));
+  const built = await compileEditionCandidateInput(file, digest, output);
+  const candidate = JSON.parse(await fs.readFile(fileURLToPath(new URL('./claim-candidate/candidate.json', import.meta.url))));
+  const svg = await fs.readFile(fileURLToPath(new URL('./claim-candidate/static/architecture.svg', import.meta.url)), 'utf8');
+  const html = await fs.readFile(fileURLToPath(new URL('./claim-candidate/interactive/architecture.html', import.meta.url)), 'utf8');
+  await fs.rm(output, { recursive: true, force: true });
   console.log(JSON.stringify({ status: 'ok', digest: meaning.native.semanticDigest,
     plane: meaning.native.selections[0].members.claims[0].plane,
-    sourceClass: meaning.native.selections[0].sourceClass, mediaFailure }));
+    sourceClass: meaning.native.selections[0].sourceClass,
+    candidateSha256: built.candidateSha256,
+    semanticSupplies: candidate.input.semanticSupplies,
+    media: Object.keys(candidate.media).sort(),
+    visible: svg.includes('Condition: authorization: granted') && html.includes('<dd>authorization: granted</dd>') }));
 } catch (error) {
   console.log(JSON.stringify({ status: 'error', code: error.code ?? 'unattributed' }));
   process.exitCode = 1;
@@ -313,7 +317,10 @@ try {
   assert.equal(claimFirst.status, 'ok');
   assert.equal(claimFirst.plane, 'intended');
   assert.equal(claimFirst.sourceClass, 'native');
-  assert.equal(claimFirst.mediaFailure, 'edition_media_claim_model_unadmitted');
+  assert.deepEqual(claimFirst.semanticSupplies, []);
+  assert.deepEqual(claimFirst.media, ['interactive', 'static']);
+  assert.equal(claimFirst.visible, true);
+  assert.match(claimFirst.candidateSha256, /^[0-9a-f]{64}$/u);
   assert.match(claimFirst.digest, /^[0-9a-f]{64}$/u);
 
   const relocated = path.join(work, 'relocated');

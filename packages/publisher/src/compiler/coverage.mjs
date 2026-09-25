@@ -1,10 +1,12 @@
 import { canonical } from '../source/json.mjs';
 import { fail } from '../source/manifest.mjs';
+import { claimCard } from '../scene/claim-card.mjs';
 
 const mismatch = () => fail('edition_visible_coverage_mismatch');
 const same = (left, right) => canonical(left) === canonical(right);
 const nodeKey = ({ namespace, id }) => canonical([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) => canonical([namespace, reference, sha256]);
+const claimKey = relationKey;
 
 /** Check the selected view-to-carrier join before building an unqualified Candidate. */
 export function validateVisibleSelection(meaning, medium, scene, carriers) {
@@ -23,6 +25,9 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     mismatch();
   const assertions = new Map(meaning.assertions.map((assertion) => [assertion.id, assertion]));
   if (assertions.size !== meaning.assertions.length) mismatch();
+  const selections = new Map(
+    (meaning.native?.selections ?? []).map((selection) => [selection.selectionId, selection]),
+  );
   for (const [index, view] of views.entries()) {
     const page = pages[index];
     const map = maps[index];
@@ -34,6 +39,9 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
       !Array.isArray(map?.assertions) ||
       !Array.isArray(map.nodes) ||
       !Array.isArray(map.relations) ||
+      (page.claimCards !== undefined && !Array.isArray(page.claimCards)) ||
+      (map.claims !== undefined && !Array.isArray(map.claims)) ||
+      (page.claimCards === undefined) !== (map.claims === undefined) ||
       view.assertionIds.some((id) => !['source', 'editorial'].includes(assertions.get(id)?.kind))
     )
       mismatch();
@@ -62,6 +70,30 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
       )
     )
       mismatch();
+    if (page.claimCards !== undefined) {
+      const cards = new Map(
+        page.claimCards.map((card) => [
+          claimKey({ namespace: card.namespace, reference: card.id, sha256: card.sha256 }),
+          card,
+        ]),
+      );
+      if (cards.size !== page.claimCards.length) mismatch();
+      const required = new Set();
+      for (const carrier of page.sourceAssertionCarriers) {
+        if (!Array.isArray(carrier.claimRefs) || carrier.claimRefs.length !== 1) mismatch();
+        const selection = selections.get(assertions.get(carrier.assertionId)?.selection);
+        let expectedCard;
+        try {
+          expectedCard = claimCard(selection);
+        } catch {
+          mismatch();
+        }
+        const identity = claimKey(carrier.claimRefs[0]);
+        if (!same(cards.get(identity), expectedCard)) mismatch();
+        required.add(identity);
+      }
+      if (required.size !== cards.size) mismatch();
+    }
     if (
       !view.assertionsByQuestion ||
       !same(Object.keys(view.assertionsByQuestion).sort(), [...view.questionIds].sort()) ||
@@ -88,7 +120,9 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
       view.questionIds.flatMap((question) => view.assertionsByQuestion[question]),
     );
     if (!same([...represented].sort(), [...view.assertionIds].sort())) mismatch();
-    const graphics = [...map.nodes, ...map.relations].map(({ graphicId }) => graphicId);
+    const graphics = [...map.nodes, ...map.relations, ...(map.claims ?? [])].map(
+      ({ graphicId }) => graphicId,
+    );
     const graphicIds = new Set(graphics);
     if (
       graphicIds.size !== graphics.length ||
@@ -96,11 +130,13 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
       map.assertions.some((carrier) => {
         const nodeIds = medium === 'static' ? carrier.nodeGraphicIds : carrier.nodeIds;
         const relationIds = medium === 'static' ? carrier.relationGraphicIds : carrier.relationIds;
+        const claimIds = medium === 'static' ? carrier.claimGraphicIds : carrier.claimIds;
         return (
           !Array.isArray(nodeIds) ||
           !Array.isArray(relationIds) ||
-          (!nodeIds.length && !relationIds.length) ||
-          [...nodeIds, ...relationIds].some((id) => !graphicIds.has(id))
+          (map.claims !== undefined && !Array.isArray(claimIds)) ||
+          (!nodeIds.length && !relationIds.length && !claimIds?.length) ||
+          [...nodeIds, ...relationIds, ...(claimIds ?? [])].some((id) => !graphicIds.has(id))
         );
       })
     )
@@ -111,13 +147,29 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     const relationGraphics = new Map(
       map.relations.map(({ source, graphicId }) => [relationKey(source), graphicId]),
     );
-    if (nodeGraphics.size !== map.nodes.length || relationGraphics.size !== map.relations.length)
+    const claimGraphics = new Map(
+      (map.claims ?? []).map(({ source, graphicId }) => [claimKey(source), graphicId]),
+    );
+    if (
+      nodeGraphics.size !== map.nodes.length ||
+      relationGraphics.size !== map.relations.length ||
+      claimGraphics.size !== (map.claims ?? []).length ||
+      !same(
+        (map.claims ?? []).map(({ source }) => source),
+        (page.claimCards ?? []).map(({ namespace, id, sha256 }) => ({
+          namespace,
+          reference: id,
+          sha256,
+        })),
+      )
+    )
       mismatch();
     for (const [at, assertion] of page.sourceAssertionCarriers.entries()) {
       const projected = map.assertions[at];
       const nodeIds = medium === 'static' ? projected.nodeGraphicIds : projected.nodeIds;
       const relationIds =
         medium === 'static' ? projected.relationGraphicIds : projected.relationIds;
+      const claimIds = medium === 'static' ? projected.claimGraphicIds : projected.claimIds;
       if (
         !same(
           nodeIds,
@@ -126,6 +178,10 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
         !same(
           relationIds,
           assertion.relationRefs.map((ref) => relationGraphics.get(relationKey(ref))),
+        ) ||
+        !same(
+          claimIds ?? [],
+          (assertion.claimRefs ?? []).map((ref) => claimGraphics.get(claimKey(ref))),
         )
       )
         mismatch();

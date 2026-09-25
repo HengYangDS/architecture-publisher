@@ -3,6 +3,7 @@ import { fail } from '../../src/source/manifest.mjs';
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
   JSON.stringify([namespace, reference, sha256]);
+const claimKey = relationKey;
 const advance = (value, size) => [...value].length * size * 0.61;
 const escape = (value) =>
   String(value)
@@ -101,10 +102,20 @@ function validateSourceCarriers(scene) {
   const nodes = new Set(scene.nodes.map(key));
   const relationEntries = scene.edges.flatMap(({ relations }) => relations);
   const relations = new Set(relationEntries.map(relationKey));
-  if (nodes.size !== scene.nodes.length || relations.size !== relationEntries.length)
+  const claims = new Set(
+    (scene.claimCards ?? []).map(({ namespace, id, sha256 }) =>
+      claimKey({ namespace, reference: id, sha256 }),
+    ),
+  );
+  if (
+    nodes.size !== scene.nodes.length ||
+    relations.size !== relationEntries.length ||
+    claims.size !== (scene.claimCards ?? []).length
+  )
     fail('static_edition_carrier_ambiguous');
   const claimedNodes = new Set();
   const claimedRelations = new Set();
+  const claimedClaims = new Set();
   const assertions = new Set();
   for (const carrier of scene.sourceAssertionCarriers) {
     if (
@@ -113,7 +124,8 @@ function validateSourceCarriers(scene) {
       assertions.has(carrier.assertionId) ||
       !Array.isArray(carrier.nodeRefs) ||
       !Array.isArray(carrier.relationRefs) ||
-      (!carrier.nodeRefs.length && !carrier.relationRefs.length)
+      (carrier.claimRefs !== undefined && !Array.isArray(carrier.claimRefs)) ||
+      (!carrier.nodeRefs.length && !carrier.relationRefs.length && !carrier.claimRefs?.length)
     )
       fail('static_edition_carrier_invalid');
     assertions.add(carrier.assertionId);
@@ -136,8 +148,24 @@ function validateSourceCarriers(scene) {
       if (!relations.has(identity)) fail('static_edition_carrier_invalid');
       claimedRelations.add(identity);
     }
+    for (const ref of carrier.claimRefs ?? []) {
+      if (
+        !ref ||
+        typeof ref.namespace !== 'string' ||
+        typeof ref.reference !== 'string' ||
+        typeof ref.sha256 !== 'string'
+      )
+        fail('static_edition_carrier_invalid');
+      const identity = claimKey(ref);
+      if (!claims.has(identity)) fail('static_edition_carrier_invalid');
+      claimedClaims.add(identity);
+    }
   }
-  if (nodes.size !== claimedNodes.size || relations.size !== claimedRelations.size)
+  if (
+    nodes.size !== claimedNodes.size ||
+    relations.size !== claimedRelations.size ||
+    claims.size !== claimedClaims.size
+  )
     fail('static_edition_carrier_unclaimed');
 }
 
@@ -150,6 +178,7 @@ export function composeStaticEditionSvg(scene) {
     (scene.visualPolicy.override !== undefined && scene.visualPolicy.override !== null) ||
     !Array.isArray(scene.nodes) ||
     !Array.isArray(scene.edges) ||
+    (scene.claimCards !== undefined && !Array.isArray(scene.claimCards)) ||
     scene.edges.some((edge) => !edge || !Array.isArray(edge.relations)) ||
     !Array.isArray(scene.questions) ||
     !Array.isArray(scene.sourceAssertionCarriers) ||
@@ -160,6 +189,8 @@ export function composeStaticEditionSvg(scene) {
     Array.isArray(scene.limitsByQuestion)
   )
     fail('static_edition_scene_invalid');
+  if ((scene.claimCards ?? []).some((claim) => !claim || typeof claim !== 'object'))
+    fail('static_edition_claim_invalid');
   if (!Array.isArray(scene.questionIds)) fail('static_edition_question_invalid');
   const questionIds = new Set(scene.questionIds);
   const questions = new Map(scene.questions.map((question) => [question?.id, question]));
@@ -236,6 +267,46 @@ export function composeStaticEditionSvg(scene) {
       );
     graph.push('</g>');
   }
+  const claimPlate = [];
+  const claimCarriers = [];
+  let claimY = graphTop + 66;
+  for (const [position, claim] of (scene.claimCards ?? []).entries()) {
+    if (
+      typeof claim?.namespace !== 'string' ||
+      typeof claim.id !== 'string' ||
+      typeof claim.sha256 !== 'string' ||
+      !Array.isArray(claim.facts) ||
+      !claim.facts.length
+    )
+      fail('static_edition_claim_invalid');
+    const graphicId = `c-${position}`;
+    claimCarriers.push({
+      graphicId,
+      source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
+    });
+    claimPlate.push(`<g data-graphic-id="${graphicId}">`);
+    for (const fact of claim.facts) {
+      if (typeof fact?.label !== 'string' || typeof fact.value !== 'string')
+        fail('static_edition_claim_invalid');
+      claimY =
+        textLines(
+          claimPlate,
+          `${fact.label}: ${fact.value}`,
+          74,
+          claimY,
+          graphWidth - 32,
+          14,
+          '#27352e',
+          400,
+          8,
+        ) + 5;
+    }
+    claimPlate.push(
+      `<line x1="74" y1="${number(claimY + 5)}" x2="${number(60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#d3dbd1" stroke-width="1"/>`,
+      '</g>',
+    );
+    claimY += 27;
+  }
   y = graphTop + 28;
   const notes = [];
   y = namedSection(
@@ -287,7 +358,12 @@ export function composeStaticEditionSvg(scene) {
     y,
     notesWidth,
   );
-  const graphHeight = Math.max(300, (bounds?.height ?? 0) + 120, y - graphTop + 32);
+  const graphHeight = Math.max(
+    300,
+    (bounds?.height ?? 0) + 120,
+    y - graphTop + 32,
+    claimCarriers.length ? claimY - graphTop + 32 : 0,
+  );
   const translateX = bounds ? 60 + (graphWidth - bounds.width) / 2 - bounds.x : 0;
   const translateY = bounds ? graphTop + 42 + (graphHeight - 42 - bounds.height) / 2 - bounds.y : 0;
   const height = Math.ceil(graphTop + graphHeight + 48);
@@ -298,6 +374,9 @@ export function composeStaticEditionSvg(scene) {
   const relationGraphicIds = new Map(
     relationCarriers.map(({ source, graphicId }) => [relationKey(source), graphicId]),
   );
+  const claimGraphicIds = new Map(
+    claimCarriers.map(({ source, graphicId }) => [claimKey(source), graphicId]),
+  );
   const lines = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="edition-title edition-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">`,
     `<title id="edition-title">${escape(scene.title)}</title>`,
@@ -307,10 +386,11 @@ export function composeStaticEditionSvg(scene) {
     `<line x1="60" y1="${number(graphTop - 18)}" x2="${width - 60}" y2="${number(graphTop - 18)}" stroke="#c4ccc2" stroke-width="1"/>`,
     `<line x1="${number(notesX - gap / 2)}" y1="${number(graphTop)}" x2="${number(notesX - gap / 2)}" y2="${number(height - 48)}" stroke="#d3dbd1" stroke-width="1"/>`,
     ...header,
-    `<text x="60" y="${number(graphTop + 28)}" fill="#66736b" font-size="11" font-weight="600">SOURCE STRUCTURE</text>`,
+    `<text x="60" y="${number(graphTop + 28)}" fill="#66736b" font-size="11" font-weight="600">${claimCarriers.length ? 'SOURCE CLAIMS' : 'SOURCE STRUCTURE'}</text>`,
     `<g transform="translate(${number(translateX)} ${number(translateY)})">`,
     ...graph,
     '</g>',
+    ...claimPlate,
     ...notes,
     '</svg>',
     '',
@@ -323,11 +403,19 @@ export function composeStaticEditionSvg(scene) {
     carriers: {
       nodes: nodeCarriers,
       relations: relationCarriers,
-      assertions: scene.sourceAssertionCarriers.map(({ assertionId, nodeRefs, relationRefs }) => ({
-        assertionId,
-        nodeGraphicIds: nodeRefs.map((ref) => nodeGraphicIds.get(key(ref))),
-        relationGraphicIds: relationRefs.map((ref) => relationGraphicIds.get(relationKey(ref))),
-      })),
+      ...(scene.claimCards === undefined ? {} : { claims: claimCarriers }),
+      assertions: scene.sourceAssertionCarriers.map(
+        ({ assertionId, nodeRefs, relationRefs, claimRefs }) => ({
+          assertionId,
+          nodeGraphicIds: nodeRefs.map((ref) => nodeGraphicIds.get(key(ref))),
+          relationGraphicIds: relationRefs.map((ref) => relationGraphicIds.get(relationKey(ref))),
+          ...(scene.claimCards === undefined
+            ? {}
+            : {
+                claimGraphicIds: (claimRefs ?? []).map((ref) => claimGraphicIds.get(claimKey(ref))),
+              }),
+        }),
+      ),
     },
   };
 }

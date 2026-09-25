@@ -428,16 +428,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       or semantics-only conformance is insufficient: the installed public
       Candidate path must preserve changed claim plane and condition through
       distinct static and interactive carriers or fail before completion.
-      Current partial: exact native and Provider-derived Claim Model v2 inputs
-      now reach one installed semantic compiler without an editable LikeC4 copy.
-      The selected value retains typed claim fields, predicate vocabulary,
-      attributed provenance, and exact derived ancestry; plane/condition
-      changes alter semantic identity. Relocation and changed-pin tests pass.
-      Public Scene, Candidate, and native evolution entry points still fail
-      closed for Claim Model media. The unreleased Candidate now binds only
-      actually consumed semantic supplies, with no fabricated LikeC4 digest.
-      Open: visible Claim Model media, installed Candidate parity, conservative
-      evolution, and the unchanged 95% branch-coverage release gate.
+      Current partial: native and Provider-derived selected claims compile
+      through the public build path into visible typed static and interactive
+      reading plates, without a LikeC4 copy or fabricated parser supply.
+      Changed plane or condition changes both media. Claim-only HTML does not
+      load the unused graph engine; source IDs remain private. Focused browser
+      checks cover offline use, responsiveness, and WCAG A/AA. One packed
+      Claim Model Candidate survives relocation, source-pin rejection, and
+      exact replay. Entity, relation, and mixed Claim Model media still fail
+      closed. Open: full adopter/platform parity, native evolution, input
+      closure, final visual review, and the 95% branch-coverage release gate.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
