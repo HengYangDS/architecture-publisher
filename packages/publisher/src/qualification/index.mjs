@@ -8,6 +8,7 @@ export {
 } from './contract.mjs';
 export { verifyQualificationInput } from './input.mjs';
 export { verifySelectedCandidateReplay } from './replay.mjs';
+export { bindSelectedQualificationSet } from './selected.mjs';
 export { auditEmittedEdges } from './static/emitted-path.mjs';
 export { inspectRgbaPngCanvas, inspectRgbaPngElements } from './static/png.mjs';
 export { auditCanvasEnvelope, auditScene } from './static/scene.mjs';
