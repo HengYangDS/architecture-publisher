@@ -308,6 +308,8 @@ test('an editorial-only scene remains truthful and does not manufacture structur
   assert.match(result, /No source graph was selected/u);
   assert.match(result, /fixture-editor/u);
   assert.match(result, /unverified/u);
+  assert.match(result, /SOURCE STRUCTURE/u);
+  assert.doesNotMatch(result, /SOURCE CLAIMS/u);
   assert.doesNotMatch(result, /data-graphic-id/u);
   for (const field of ['proponent', 'semanticStatus']) {
     const invalid = structuredClone(input);
@@ -382,7 +384,7 @@ test('static claims factor only exact shared context while retaining each claim 
   assert.equal((changed.match(/Claim plane: observed/gu) ?? []).length, 1);
 });
 
-test('an uncomposed graph and claim plate cannot overlap as a purported mixed medium', () => {
+test('a mixed graph and claim plate require exact source-bound links', () => {
   const input = staticEditionScene();
   input.claimCards = [
     {
@@ -401,7 +403,7 @@ test('an uncomposed graph and claim plate cannot overlap as a purported mixed me
     claimRefs: [{ namespace: 'fixture/claims', reference: 'claim', sha256: 'a'.repeat(64) }],
   });
   assert.throws(() => svg.composeStaticEditionSvg(input), {
-    code: 'static_edition_mixed_scene_unadmitted',
+    code: 'static_edition_claim_relation_invalid',
   });
 });
 

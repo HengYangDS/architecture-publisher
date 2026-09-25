@@ -1,4 +1,5 @@
 import { canonical, deepFreeze, record } from '../../semantics/document.mjs';
+import { claimDependsOnSelectedRelation } from '../../semantics/native-claim-model.mjs';
 import { fail } from '../../source/manifest.mjs';
 import { claimCard } from '../claim-card.mjs';
 
@@ -8,6 +9,11 @@ const relationKey = ({ namespace, reference, sha256 }) =>
 const memberRelationKey = ({ id, origin }) =>
   relationKey({ namespace: origin.namespace, reference: id, sha256: origin.sha256 });
 const claimKey = ({ namespace, id, sha256 }) => JSON.stringify([namespace, id, sha256]);
+const compareClaims = (left, right) => {
+  const a = claimKey(left);
+  const b = claimKey(right);
+  return a < b ? -1 : a > b ? 1 : 0;
+};
 const sameMembers = (actual, expected) =>
   actual.size === expected.size && [...actual].every((item) => expected.has(item));
 
@@ -44,24 +50,9 @@ function linkedClaimModelSources(view, assertions, selections) {
   const claims = sources.filter(({ selection }) => selection.target.kind === 'claim');
   if (!relations.length || !claims.length) fail('static_scene_claim_relation_unbound');
   const links = claims.map(({ assertionId, selection }) => {
-    const claim = selection.members?.claims?.[0];
-    const matches = relations.filter(({ selection: related }) => {
-      const relation = related.members?.relations?.[0];
-      if (!selection.source || !related.source || !Array.isArray(claim?.dependsOn)) return false;
-      return (
-        relation &&
-        selection.source.namespace === related.source.namespace &&
-        selection.source.sha256 === related.source.sha256 &&
-        selection.source.claimant === related.source.claimant &&
-        selection.sourceOwner === related.sourceOwner &&
-        claim.dependsOn.some(
-          (ref) => ref?.section === 'relations' && ref.id === related.target.id,
-        ) &&
-        claim.subject === relation.from?.id &&
-        claim.predicate === relation.kind &&
-        claim.object === relation.to?.id
-      );
-    });
+    const matches = relations.filter(({ selection: related }) =>
+      claimDependsOnSelectedRelation(selection, related),
+    );
     if (matches.length !== 1) fail('static_scene_claim_relation_unbound');
     return { claimAssertionId: assertionId, relationAssertionId: matches[0].assertionId };
   });
@@ -146,9 +137,7 @@ function composeClaimScene(meaning, layout) {
     bounds: null,
     nodes: [],
     edges: [],
-    claimCards: [...cards.values()].sort((left, right) =>
-      claimKey(left).localeCompare(claimKey(right)),
-    ),
+    claimCards: [...cards.values()].sort(compareClaims),
     sourceAssertionCarriers,
     editorialAssertions,
     limits: meaning.limits,
@@ -381,9 +370,7 @@ export function composeStaticEditionScene(meaning, layout) {
     ...(claimModelMode
       ? {
           claimRelationLinks: claimSources?.links ?? fail('static_scene_claim_relation_unbound'),
-          claimCards: [...cards.values()].sort((left, right) =>
-            claimKey(left).localeCompare(claimKey(right)),
-          ),
+          claimCards: [...cards.values()].sort(compareClaims),
         }
       : {}),
     editorialAssertions,

@@ -215,8 +215,45 @@ function validateSourceCarriers(scene) {
     fail('static_edition_carrier_unclaimed');
 }
 
-/** Paint an unqualified, source-bound static Scene without acquiring meaning. */
-export function composeStaticEditionSvg(scene) {
+function linkedClaimRelations(scene) {
+  if (
+    !Array.isArray(scene.claimRelationLinks) ||
+    scene.claimRelationLinks.length !== scene.claimCards.length
+  )
+    fail('static_edition_claim_relation_invalid');
+  const assertions = new Map(
+    scene.sourceAssertionCarriers.map((carrier) => [carrier.assertionId, carrier]),
+  );
+  const relations = new Set(scene.edges.flatMap((edge) => edge.relations.map(relationKey)));
+  const links = new Map();
+  for (const link of scene.claimRelationLinks) {
+    if (!link || typeof link !== 'object' || Array.isArray(link))
+      fail('static_edition_claim_relation_invalid');
+    const { claimAssertionId, relationAssertionId } = link;
+    const claim = assertions.get(claimAssertionId);
+    const relation = assertions.get(relationAssertionId);
+    if (
+      claim?.kind !== 'claim' ||
+      relation?.kind !== 'relation' ||
+      claim.claimRefs?.length !== 1 ||
+      relation.relationRefs?.length !== 1 ||
+      links.has(claimKey(claim.claimRefs[0])) ||
+      !relations.has(relationKey(relation.relationRefs[0]))
+    )
+      fail('static_edition_claim_relation_invalid');
+    links.set(claimKey(claim.claimRefs[0]), relationKey(relation.relationRefs[0]));
+  }
+  if (
+    links.size !== scene.claimCards.length ||
+    scene.claimCards.some(
+      ({ namespace, id, sha256 }) => !links.has(claimKey({ namespace, reference: id, sha256 })),
+    )
+  )
+    fail('static_edition_claim_relation_invalid');
+  return links;
+}
+
+function validateStaticScene(scene) {
   if (
     scene?.schema !== 'architecture.edition-static-scene/v1' ||
     scene.completeness !== 'unqualified-scene' ||
@@ -238,11 +275,11 @@ export function composeStaticEditionSvg(scene) {
     fail('static_edition_scene_invalid');
   if ((scene.claimCards ?? []).some((claim) => !claim || typeof claim !== 'object'))
     fail('static_edition_claim_invalid');
-  if (
-    (scene.nodes.length || scene.edges.length || scene.groups?.length) &&
-    scene.claimCards?.length
-  )
-    fail('static_edition_mixed_scene_unadmitted');
+  const mixed = Boolean(
+    (scene.nodes.length || scene.edges.length || scene.groups?.length) && scene.claimCards?.length,
+  );
+  if (!mixed && scene.claimRelationLinks !== undefined)
+    fail('static_edition_claim_relation_invalid');
   if (
     scene.editorialAssertions.some(
       (item) =>
@@ -266,6 +303,13 @@ export function composeStaticEditionSvg(scene) {
   )
     fail('static_edition_question_invalid');
   validateSourceCarriers(scene);
+  return mixed;
+}
+
+/** Paint an unqualified, source-bound static Scene without acquiring meaning. */
+export function composeStaticEditionSvg(scene) {
+  const mixed = validateStaticScene(scene);
+  const claimLinks = mixed ? linkedClaimRelations(scene) : null;
   const rasterWidth = scene.requestedWidth ?? 1800;
   if (!Number.isSafeInteger(rasterWidth) || rasterWidth < 320 || rasterWidth > 12000)
     fail('static_edition_width_invalid');
@@ -339,70 +383,6 @@ export function composeStaticEditionSvg(scene) {
       );
     graph.push('</g>');
   }
-  const claimPlate = [];
-  const claimCarriers = [];
-  const claimCards = scene.claimCards ?? [];
-  const { common, commonLabels } = factorClaimFacts(claimCards);
-  let claimY = graphTop + 66;
-  if (common.length) {
-    claimY =
-      textLines(
-        claimPlate,
-        'COMMON TO ALL SELECTED CLAIMS',
-        74,
-        claimY,
-        graphWidth - 32,
-        11,
-        '#66736b',
-        600,
-        2,
-      ) + 8;
-    for (const { label, value } of common)
-      claimY =
-        textLines(
-          claimPlate,
-          `${label}: ${value}`,
-          74,
-          claimY,
-          graphWidth - 32,
-          14,
-          '#27352e',
-          400,
-          8,
-        ) + 5;
-    claimPlate.push(
-      `<line x1="74" y1="${number(claimY + 5)}" x2="${number(60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#aebbb0" stroke-width="1"/>`,
-    );
-    claimY += 27;
-  }
-  for (const [position, claim] of claimCards.entries()) {
-    const graphicId = `c-${position}`;
-    claimCarriers.push({
-      graphicId,
-      source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
-    });
-    claimPlate.push(`<g data-graphic-id="${graphicId}">`);
-    for (const fact of claim.facts) {
-      if (commonLabels.has(fact.label)) continue;
-      claimY =
-        textLines(
-          claimPlate,
-          `${fact.label}: ${fact.value}`,
-          74,
-          claimY,
-          graphWidth - 32,
-          14,
-          '#27352e',
-          400,
-          8,
-        ) + 5;
-    }
-    claimPlate.push(
-      `<line x1="74" y1="${number(claimY + 5)}" x2="${number(60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#d3dbd1" stroke-width="1"/>`,
-      '</g>',
-    );
-    claimY += 27;
-  }
   y = graphTop + 28;
   const notes = [];
   y = namedSection(
@@ -428,7 +408,7 @@ export function composeStaticEditionSvg(scene) {
         },
       });
       return {
-        text: `${labels.get(key(edge.from))} ${relation.direction === 'bidirectional' ? '↔' : '→'} ${labels.get(key(edge.to))}${qualifiers ? ` · ${qualifiers}` : ''}`,
+        text: `${mixed ? `${String(relationCarriers.length).padStart(2, '0')} · ` : ''}${labels.get(key(edge.from))} ${relation.direction === 'bidirectional' ? '↔' : '→'} ${labels.get(key(edge.to))}${qualifiers ? ` · ${qualifiers}` : ''}`,
         graphicId,
       };
     }),
@@ -456,14 +436,158 @@ export function composeStaticEditionSvg(scene) {
     y,
     notesWidth,
   );
-  const graphHeight = Math.max(
-    300,
-    (bounds?.height ?? 0) + 120,
-    y - graphTop + 32,
-    claimCarriers.length ? claimY - graphTop + 32 : 0,
-  );
+  const topHeight = Math.max(300, (bounds?.height ?? 0) + 120, y - graphTop + 32);
+  const claimSectionY = graphTop + topHeight + 34;
+  const claimPlate = [];
+  const claimCarriers = [];
+  const claimCards = scene.claimCards ?? [];
+  const { common, commonLabels } = factorClaimFacts(claimCards);
+  const claimX = mixed ? 60 : 74;
+  const claimWidth = mixed ? width - 120 : graphWidth - 32;
+  let claimY = mixed ? claimSectionY : graphTop + 66;
+  if (mixed)
+    claimY =
+      textLines(claimPlate, 'SOURCE CLAIMS', claimX, claimY, claimWidth, 11, '#66736b', 600, 1) +
+      18;
+  if (common.length) {
+    claimY =
+      textLines(
+        claimPlate,
+        'COMMON TO ALL SELECTED CLAIMS',
+        claimX,
+        claimY,
+        claimWidth,
+        11,
+        '#66736b',
+        600,
+        2,
+      ) + 8;
+    for (const { label, value } of common)
+      claimY =
+        textLines(
+          claimPlate,
+          `${label}: ${value}`,
+          claimX,
+          claimY,
+          claimWidth,
+          14,
+          '#27352e',
+          400,
+          8,
+        ) + 5;
+    claimPlate.push(
+      `<line x1="${claimX}" y1="${number(claimY + 5)}" x2="${number(mixed ? claimX + claimWidth : 60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#aebbb0" stroke-width="1"/>`,
+    );
+    claimY += 27;
+  }
+  if (mixed) {
+    const relationPositions = new Map(
+      scene.edges
+        .flatMap((edge) => edge.relations)
+        .map((relation, index) => [relationKey(relation), index]),
+    );
+    const positionFor = (claim) => {
+      const relationIdentity = claimLinks.get(
+        claimKey({ namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 }),
+      );
+      const position = relationPositions.get(relationIdentity);
+      if (position === undefined) fail('static_edition_claim_relation_invalid');
+      return position;
+    };
+    const orderedClaims = [...claimCards].sort(
+      (left, right) => positionFor(left) - positionFor(right),
+    );
+    const columns = Math.min(3, claimCards.length);
+    const cardWidth =
+      columns === 1 ? Math.min(720, claimWidth) : (claimWidth - (columns - 1) * 24) / columns;
+    for (let row = 0; row < claimCards.length; row += columns) {
+      let rowBottom = claimY;
+      for (let column = 0; column < columns && row + column < claimCards.length; column += 1) {
+        const claim = orderedClaims[row + column];
+        const graphicId = `c-${row + column}`;
+        const relationPosition = positionFor(claim);
+        const x = columns === 1 ? (width - cardWidth) / 2 : claimX + column * (cardWidth + 24);
+        const content = [];
+        let cardY = claimY + 32;
+        cardY =
+          textLines(
+            content,
+            `ON SOURCE RELATION ${String(relationPosition + 1).padStart(2, '0')}`,
+            x + 16,
+            cardY,
+            cardWidth - 32,
+            11,
+            '#66736b',
+            600,
+            2,
+          ) + 13;
+        for (const fact of claim.facts) {
+          if (commonLabels.has(fact.label)) continue;
+          cardY =
+            textLines(
+              content,
+              `${fact.label}: ${fact.value}`,
+              x + 16,
+              cardY,
+              cardWidth - 32,
+              14,
+              '#27352e',
+              400,
+              8,
+            ) + 5;
+        }
+        const bottom = cardY + 16;
+        claimPlate.push(
+          `<g data-graphic-id="${graphicId}">`,
+          `<rect x="${number(x)}" y="${number(claimY)}" width="${number(cardWidth)}" height="${number(bottom - claimY)}" rx="12" fill="#fffefa" stroke="#c4ccc2" stroke-width="1"/>`,
+          ...content,
+          '</g>',
+        );
+        claimCarriers.push({
+          graphicId,
+          source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
+        });
+        rowBottom = Math.max(rowBottom, bottom);
+      }
+      claimY = rowBottom + 24;
+    }
+  } else {
+    for (const [position, claim] of claimCards.entries()) {
+      const graphicId = `c-${position}`;
+      claimCarriers.push({
+        graphicId,
+        source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
+      });
+      claimPlate.push(`<g data-graphic-id="${graphicId}">`);
+      for (const fact of claim.facts) {
+        if (commonLabels.has(fact.label)) continue;
+        claimY =
+          textLines(
+            claimPlate,
+            `${fact.label}: ${fact.value}`,
+            74,
+            claimY,
+            graphWidth - 32,
+            14,
+            '#27352e',
+            400,
+            8,
+          ) + 5;
+      }
+      claimPlate.push(
+        `<line x1="74" y1="${number(claimY + 5)}" x2="${number(60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#d3dbd1" stroke-width="1"/>`,
+        '</g>',
+      );
+      claimY += 27;
+    }
+  }
+  const graphHeight = Math.max(topHeight, claimCarriers.length ? claimY - graphTop + 32 : 0);
   const translateX = bounds ? 60 + (graphWidth - bounds.width) / 2 - bounds.x : 0;
-  const translateY = bounds ? graphTop + 42 + (graphHeight - 42 - bounds.height) / 2 - bounds.y : 0;
+  const translateY = bounds
+    ? mixed
+      ? graphTop + 42 - bounds.y
+      : graphTop + 42 + (graphHeight - 42 - bounds.height) / 2 - bounds.y
+    : 0;
   const height = Math.ceil(graphTop + graphHeight + 48);
   if (height > 12_000) fail('static_edition_geometry_invalid');
   const nodeGraphicIds = new Map(
@@ -482,9 +606,14 @@ export function composeStaticEditionSvg(scene) {
     `<rect width="${width}" height="${height}" fill="#f5f3ed"/>`,
     `<defs><marker id="source-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse"><path d="M 0 0 L 10 4 L 0 8 Z" fill="#60786a"/></marker></defs>`,
     `<line x1="60" y1="${number(graphTop - 18)}" x2="${width - 60}" y2="${number(graphTop - 18)}" stroke="#c4ccc2" stroke-width="1"/>`,
-    `<line x1="${number(notesX - gap / 2)}" y1="${number(graphTop)}" x2="${number(notesX - gap / 2)}" y2="${number(height - 48)}" stroke="#d3dbd1" stroke-width="1"/>`,
+    `<line x1="${number(notesX - gap / 2)}" y1="${number(graphTop)}" x2="${number(notesX - gap / 2)}" y2="${number(mixed ? graphTop + topHeight - 18 : height - 48)}" stroke="#d3dbd1" stroke-width="1"/>`,
+    ...(mixed
+      ? [
+          `<line x1="60" y1="${number(claimSectionY - 24)}" x2="${number(width - 60)}" y2="${number(claimSectionY - 24)}" stroke="#c4ccc2" stroke-width="1"/>`,
+        ]
+      : []),
     ...header,
-    `<text x="60" y="${number(graphTop + 28)}" fill="#66736b" font-size="11" font-weight="600">${claimCarriers.length ? 'SOURCE CLAIMS' : 'SOURCE STRUCTURE'}</text>`,
+    `<text x="60" y="${number(graphTop + 28)}" fill="#66736b" font-size="11" font-weight="600">${claimCarriers.length && !mixed ? 'SOURCE CLAIMS' : 'SOURCE STRUCTURE'}</text>`,
     `<g transform="translate(${number(translateX)} ${number(translateY)})">`,
     ...graph,
     '</g>',

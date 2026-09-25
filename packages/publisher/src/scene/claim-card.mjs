@@ -3,9 +3,9 @@ import { fail, isDigest } from '../source/manifest.mjs';
 
 const scalar = (value) => (typeof value === 'string' ? value : canonical(value));
 const dimensions = (value) =>
-  Object.entries(value)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([name, selected]) => `${name}: ${scalar(selected)}`)
+  Object.keys(value)
+    .sort()
+    .map((name) => `${name}: ${scalar(value[name])}`)
     .join(' · ') || 'none declared';
 const entity = (value) =>
   [

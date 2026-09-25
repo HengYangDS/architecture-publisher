@@ -25,6 +25,7 @@ import { verifySelectedCandidateReplay } from '../packages/publisher/src/qualifi
 import { canonical } from '../packages/publisher/src/source/json.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/static/grouped-selection.mjs';
+import { claimCard } from '../packages/publisher/src/scene/claim-card.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const modelFormat = { id: 'architecture.claim-model', version: '2' };
@@ -150,6 +151,42 @@ async function fixture(
   const requestPath = path.join(root, 'build-request.json');
   await fs.writeFile(requestPath, requestBytes);
   return { root, requestPath, requestSha256: sha(requestBytes), project, model };
+}
+
+async function groupedMixedFixture(
+  t,
+  { model = claimModel(), media = ['static', 'interactive'] } = {},
+) {
+  const selected = await fixture(t, { model, reference: 'relation:request' });
+  selected.project.scope.selections[0].id = 'selected-relation';
+  selected.project.scope.selections.push({
+    id: 'selected-claim',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'claim:intended',
+    questions: ['condition'],
+  });
+  selected.project.presentation.static.views[0].groups = [
+    {
+      id: 'client-group',
+      label: 'Client',
+      elements: [{ namespace: modelNamespace, id: 'client' }],
+    },
+    {
+      id: 'server-group',
+      label: 'Server',
+      elements: [{ namespace: modelNamespace, id: 'server' }],
+    },
+  ];
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const request = JSON.parse(await fs.readFile(selected.requestPath, 'utf8'));
+  request.media = media;
+  const requestBytes = Buffer.from(JSON.stringify(request) + '\n');
+  await fs.writeFile(selected.requestPath, requestBytes);
+  return { ...selected, requestSha256: sha(requestBytes) };
 }
 
 async function evolutionSide(selected) {
@@ -583,31 +620,7 @@ test('unsupported Claim Model entity and relation media remain fail-closed', asy
 test('a grouped static Scene retains relation and dependent claim as separate source assertions', async (t) => {
   const model = claimModel();
   model.relations.request.qualifiers = { phase: 'selected', z: 'tail', ä: 'accent' };
-  const selected = await fixture(t, { model, reference: 'relation:request' });
-  selected.project.scope.selections[0].id = 'selected-relation';
-  selected.project.scope.selections.push({
-    id: 'selected-claim',
-    namespace: modelNamespace,
-    kind: 'reference',
-    reference: 'claim:intended',
-    questions: ['condition'],
-  });
-  selected.project.presentation.static.views[0].groups = [
-    {
-      id: 'client-group',
-      label: 'Client',
-      elements: [{ namespace: modelNamespace, id: 'client' }],
-    },
-    {
-      id: 'server-group',
-      label: 'Server',
-      elements: [{ namespace: modelNamespace, id: 'server' }],
-    },
-  ];
-  await fs.writeFile(
-    path.join(selected.root, 'edition/project.json'),
-    JSON.stringify(selected.project) + '\n',
-  );
+  const selected = await groupedMixedFixture(t, { model });
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
   const layout = composeGroupedSelectionLayout(meaning);
@@ -666,6 +679,206 @@ test('a grouped static Scene retains relation and dependent claim as separate so
   assert.throws(() => composeStaticEditionScene(unboundSource, layout), {
     code: 'static_scene_claim_relation_unbound',
   });
+  const changedClaimant = structuredClone(meaning);
+  changedClaimant.native.selections[1].source.claimant = 'another-claimant';
+  assert.throws(() => composeStaticEditionScene(changedClaimant, layout), {
+    code: 'static_scene_claim_relation_unbound',
+  });
+});
+
+test('typed claim dimensions use stable code-point order instead of host collation', async (t) => {
+  const model = claimModel();
+  model.claims.intended.condition = { z: 'tail', ä: 'accent' };
+  const selected = await fixture(t, { model });
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const condition = claimCard(meaning.native.selections[0]).facts.find(
+    ({ label }) => label === 'Condition',
+  );
+  assert.equal(condition.value, 'z: tail · ä: accent');
+});
+
+test('static claim card order is stable across host collation settings', async (t) => {
+  const model = claimModel();
+  model.claims.z = structuredClone(model.claims.intended);
+  model.claims.z.condition.case = 'z';
+  model.claims.ä = structuredClone(model.claims.intended);
+  model.claims.ä.condition.case = 'accent';
+  const selected = await fixture(t, { model, reference: 'claim:z' });
+  selected.project.scope.selections.push({
+    id: 'accented-claim',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'claim:ä',
+    questions: ['condition'],
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const scene = composeStaticEditionScene(meaning, null);
+  assert.deepEqual(
+    scene.claimCards.map(({ id }) => id),
+    ['z', 'ä'],
+  );
+});
+
+test('a selected relation and dependent claim build a source-bound static Candidate', async (t) => {
+  const selected = await groupedMixedFixture(t, { media: ['static'] });
+  const output = path.join(selected.root, 'candidate');
+  const built = await compileEditionCandidateInput(
+    selected.requestPath,
+    selected.requestSha256,
+    output,
+  );
+  assert.deepEqual(built.media, ['static']);
+  const replay = await verifySelectedCandidateReplay({
+    requestPath: selected.requestPath,
+    requestSha256: selected.requestSha256,
+    candidateManifestPath: built.manifestPath,
+    candidateManifestSha256: built.manifestSha256,
+  });
+  assert.equal(replay.verdict, 'match');
+  const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
+  assert.deepEqual(Object.keys(candidate.media), ['static']);
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  const painted = [...svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/gu)]
+    .map((match) => match[1])
+    .join(' ');
+  assert(painted.includes('SOURCE STRUCTURE'));
+  assert(painted.includes('SOURCE CLAIMS'));
+  assert.match(painted, /client → server/u);
+  assert.match(painted, /Claim plane: intended/u);
+  assert.match(painted, /authorization: granted/u);
+  assert(!svg.includes('fixture/claims'), 'private source identity leaked into static SVG');
+  assert.equal(selected.project.requiredAssertions, undefined);
+});
+
+test('two claims on one selected relation keep distinct visible carriers', async (t) => {
+  const selected = await groupedMixedFixture(t, { media: ['static'] });
+  selected.project.scope.selections.push({
+    id: 'implemented-claim',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'claim:implemented',
+    questions: ['condition'],
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert.equal((svg.match(/data-graphic-id="r-0"/gu) ?? []).length, 1);
+  assert.equal((svg.match(/data-graphic-id="c-[01]"/gu) ?? []).length, 2);
+  assert.equal((svg.match(/ON SOURCE RELATION 01/gu) ?? []).length, 2);
+  assert(svg.includes('Claim plane: intended'));
+  assert(svg.includes('Claim plane: implemented'));
+  const vertical = /<line x1="([^"]+)" y1="[^"]+" x2="\1" y2="([^"]+)"/u.exec(svg);
+  const second = /<g data-graphic-id="c-1">\s*<rect x="([^"]+)" y="([^"]+)" width="([^"]+)"/u.exec(
+    svg,
+  );
+  assert(vertical && second);
+  assert(Number(second[1]) + Number(second[3]) > Number(vertical[1]) + 40);
+  assert(Number(second[2]) > Number(vertical[2]) + 20);
+});
+
+test('mixed static claims follow source-relation reading order rather than claim IDs', async (t) => {
+  const model = claimModel();
+  model.relations.second = {
+    type: 'calls',
+    subject: 'server',
+    object: 'other',
+    qualifiers: {},
+    provenance: ['contract'],
+  };
+  model.claims.aaa = {
+    ...structuredClone(model.claims.intended),
+    subject: 'server',
+    object: 'other',
+    dependsOn: [{ section: 'relations', id: 'second' }],
+  };
+  const selected = await groupedMixedFixture(t, { model });
+  selected.project.scope.selections.push(
+    {
+      id: 'second-relation',
+      namespace: modelNamespace,
+      kind: 'reference',
+      reference: 'relation:second',
+      questions: ['condition'],
+    },
+    {
+      id: 'first-claim',
+      namespace: modelNamespace,
+      kind: 'reference',
+      reference: 'claim:aaa',
+      questions: ['condition'],
+    },
+  );
+  selected.project.presentation.static.views[0].groups.push({
+    id: 'other-group',
+    label: 'Other',
+    elements: [{ namespace: modelNamespace, id: 'other' }],
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const scene = composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  const rendered = composeStaticEditionSvg(scene);
+  assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers));
+  const svg = rendered.bytes.toString('utf8');
+  const first = svg.indexOf('ON SOURCE RELATION 01');
+  const second = svg.indexOf('ON SOURCE RELATION 02');
+  assert(first >= 0 && second >= 0);
+  assert(first < second, 'claims must follow visible relation numbering');
+});
+
+test('mixed static media rejects a forged graphic link or source dependency', async (t) => {
+  const selected = await groupedMixedFixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const layout = composeGroupedSelectionLayout(meaning);
+  const scene = composeStaticEditionScene(meaning, layout);
+  const rendered = composeStaticEditionSvg(scene);
+  assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers));
+
+  const forged = structuredClone(scene);
+  forged.claimRelationLinks[0].relationAssertionId = 'not-selected';
+  assert.throws(() => composeStaticEditionSvg(forged), {
+    code: 'static_edition_claim_relation_invalid',
+  });
+  const malformed = structuredClone(scene);
+  malformed.claimRelationLinks[0] = null;
+  assert.throws(() => composeStaticEditionSvg(malformed), {
+    code: 'static_edition_claim_relation_invalid',
+  });
+
+  const retargeted = structuredClone(scene);
+  retargeted.edges[0].relations[0].reference = 'invented';
+  retargeted.sourceAssertionCarriers[0].relationRefs[0].reference = 'invented';
+  const retargetedCarriers = composeStaticEditionSvg(retargeted).carriers;
+  assert.throws(() => validateVisibleSelection(meaning, 'static', retargeted, retargetedCarriers), {
+    code: 'edition_visible_coverage_mismatch',
+  });
+
+  const falseDependency = structuredClone(meaning);
+  falseDependency.native.selections[1].members.claims[0].dependsOn = [];
+  assert.throws(
+    () => validateVisibleSelection(falseDependency, 'static', scene, rendered.carriers),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
+
+  const svg = rendered.bytes.toString('utf8');
+  const cardY = Number(/<g data-graphic-id="c-0">\s*<rect[^>]* y="([^"]+)"/u.exec(svg)?.[1]);
+  const translatedY = Number(/<g transform="translate\([^ ]+ ([^)]+)\)"/u.exec(svg)?.[1]);
+  assert(Number.isFinite(cardY) && Number.isFinite(translatedY));
+  assert(cardY > translatedY + scene.bounds.y + scene.bounds.height + 60);
 });
 
 test('a forged Scene cannot hide a selected claim condition behind a valid carrier ID', async (t) => {

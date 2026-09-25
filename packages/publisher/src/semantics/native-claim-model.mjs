@@ -119,3 +119,36 @@ export function resolveClaimModelSelection(imported, selection) {
     ],
   });
 }
+
+/** Match one explicit typed dependency at one selected source revision. */
+export function claimDependsOnSelectedRelation(claimSelection, relationSelection) {
+  const claim = claimSelection?.members?.claims?.[0];
+  const relation = relationSelection?.members?.relations?.[0];
+  return Boolean(
+    claimSelection?.format === format &&
+    relationSelection?.format === format &&
+    claimSelection.target?.kind === 'claim' &&
+    relationSelection.target?.kind === 'relation' &&
+    record(claimSelection.source) &&
+    record(relationSelection.source) &&
+    text(claimSelection.source.namespace) &&
+    isDigest(claimSelection.source.sha256) &&
+    text(claimSelection.source.claimant) &&
+    text(claimSelection.sourceOwner) &&
+    ['native', 'derived'].includes(claimSelection.sourceClass) &&
+    claimSelection.source?.namespace === relationSelection.source?.namespace &&
+    claimSelection.source?.sha256 === relationSelection.source?.sha256 &&
+    claimSelection.source?.claimant === relationSelection.source?.claimant &&
+    claimSelection.sourceClass === relationSelection.sourceClass &&
+    claimSelection.sourceOwner === relationSelection.sourceOwner &&
+    Array.isArray(claim?.dependsOn) &&
+    claim.id === claimSelection.target.id &&
+    relation?.id === relationSelection.target.id &&
+    claim.dependsOn.some(
+      (ref) => ref?.section === 'relations' && ref.id === relationSelection.target.id,
+    ) &&
+    claim.subject === relation?.from?.id &&
+    claim.predicate === relation?.kind &&
+    claim.object === relation?.to?.id,
+  );
+}

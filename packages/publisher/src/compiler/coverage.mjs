@@ -1,12 +1,94 @@
 import { canonical } from '../source/json.mjs';
 import { fail } from '../source/manifest.mjs';
 import { claimCard } from '../scene/claim-card.mjs';
+import { claimDependsOnSelectedRelation } from '../semantics/native-claim-model.mjs';
 
 const mismatch = () => fail('edition_visible_coverage_mismatch');
 const same = (left, right) => canonical(left) === canonical(right);
 const nodeKey = ({ namespace, id }) => canonical([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) => canonical([namespace, reference, sha256]);
 const claimKey = relationKey;
+
+function validateClaimCarriers(page, selections, assertions) {
+  const cards = new Map(
+    page.claimCards.map((card) => [
+      claimKey({ namespace: card.namespace, reference: card.id, sha256: card.sha256 }),
+      card,
+    ]),
+  );
+  if (cards.size !== page.claimCards.length) mismatch();
+  const required = new Set();
+  for (const carrier of page.sourceAssertionCarriers) {
+    const selection = selections.get(assertions.get(carrier.assertionId)?.selection);
+    if (selection?.target.kind !== 'claim') {
+      if (carrier.claimRefs?.length) mismatch();
+      continue;
+    }
+    if (!Array.isArray(carrier.claimRefs) || carrier.claimRefs.length !== 1) mismatch();
+    let expectedCard;
+    try {
+      expectedCard = claimCard(selection);
+    } catch {
+      mismatch();
+    }
+    const identity = claimKey(carrier.claimRefs[0]);
+    if (!same(cards.get(identity), expectedCard)) mismatch();
+    required.add(identity);
+  }
+  if (required.size !== cards.size) mismatch();
+  return required;
+}
+
+function validateStaticClaimLinks(page, selections, assertions, required) {
+  const links = page.claimRelationLinks;
+  const carriers = new Map(
+    page.sourceAssertionCarriers.map((carrier) => [carrier.assertionId, carrier]),
+  );
+  const linkedClaims = new Set();
+  const linkedRelations = new Set();
+  if (!Array.isArray(links) || links.length !== required.size) mismatch();
+  for (const link of links) {
+    if (!link || typeof link !== 'object' || Array.isArray(link)) mismatch();
+    const { claimAssertionId, relationAssertionId } = link;
+    const claim = carriers.get(claimAssertionId);
+    const relation = carriers.get(relationAssertionId);
+    const claimSelection = selections.get(assertions.get(claimAssertionId)?.selection);
+    const relationSelection = selections.get(assertions.get(relationAssertionId)?.selection);
+    const sourceRelation = relationSelection?.members?.relations?.[0];
+    if (
+      linkedClaims.has(claimAssertionId) ||
+      claim?.kind !== 'claim' ||
+      relation?.kind !== 'relation' ||
+      claim.claimRefs?.length !== 1 ||
+      relation.relationRefs?.length !== 1 ||
+      !sourceRelation?.origin?.namespace ||
+      !sourceRelation.origin.sha256 ||
+      !Array.isArray(relationSelection.members?.elements) ||
+      !same(relation.relationRefs, [
+        {
+          namespace: sourceRelation.origin.namespace,
+          reference: sourceRelation.id,
+          sha256: sourceRelation.origin.sha256,
+        },
+      ]) ||
+      !same(
+        relation.nodeRefs,
+        relationSelection.members.elements.map(({ namespace, id }) => ({ namespace, id })),
+      ) ||
+      !claimDependsOnSelectedRelation(claimSelection, relationSelection)
+    )
+      mismatch();
+    linkedClaims.add(claimAssertionId);
+    linkedRelations.add(relationAssertionId);
+  }
+  if (
+    linkedClaims.size !== required.size ||
+    page.sourceAssertionCarriers.some(
+      (carrier) => carrier.kind === 'relation' && !linkedRelations.has(carrier.assertionId),
+    )
+  )
+    mismatch();
+}
 
 /** Check the selected view-to-carrier join before building an unqualified Candidate. */
 export function validateVisibleSelection(meaning, medium, scene, carriers) {
@@ -71,28 +153,9 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     )
       mismatch();
     if (page.claimCards !== undefined) {
-      const cards = new Map(
-        page.claimCards.map((card) => [
-          claimKey({ namespace: card.namespace, reference: card.id, sha256: card.sha256 }),
-          card,
-        ]),
-      );
-      if (cards.size !== page.claimCards.length) mismatch();
-      const required = new Set();
-      for (const carrier of page.sourceAssertionCarriers) {
-        if (!Array.isArray(carrier.claimRefs) || carrier.claimRefs.length !== 1) mismatch();
-        const selection = selections.get(assertions.get(carrier.assertionId)?.selection);
-        let expectedCard;
-        try {
-          expectedCard = claimCard(selection);
-        } catch {
-          mismatch();
-        }
-        const identity = claimKey(carrier.claimRefs[0]);
-        if (!same(cards.get(identity), expectedCard)) mismatch();
-        required.add(identity);
-      }
-      if (required.size !== cards.size) mismatch();
+      const required = validateClaimCarriers(page, selections, assertions);
+      if (medium === 'static' && page.edges?.length)
+        validateStaticClaimLinks(page, selections, assertions, required);
     }
     if (
       !view.assertionsByQuestion ||
@@ -155,12 +218,15 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
       relationGraphics.size !== map.relations.length ||
       claimGraphics.size !== (map.claims ?? []).length ||
       !same(
-        (map.claims ?? []).map(({ source }) => source),
-        (page.claimCards ?? []).map(({ namespace, id, sha256 }) => ({
-          namespace,
-          reference: id,
-          sha256,
-        })),
+        (map.claims ?? []).map(({ source }) => claimKey(source)).sort(),
+        (page.claimCards ?? [])
+          .map(({ namespace, id, sha256 }) => ({
+            namespace,
+            reference: id,
+            sha256,
+          }))
+          .map(claimKey)
+          .sort(),
       )
     )
       mismatch();

@@ -53,19 +53,17 @@ async function staticMedium(selected, meaning, scratch) {
     ({ format }) => format === 'architecture.claim-model/v2',
   );
   let layout = null;
-  if (!claimMode) {
-    if (meaning.editorial.presentation.static.views[0].groups !== undefined)
-      layout = composeGroupedSelectionLayout(meaning);
-    else {
-      const views = meaning.native.selections.filter(({ target }) => target.kind === 'view');
-      if (views.length !== 1) fail('static_scene_composition_ambiguous');
-      const view = { namespace: views[0].source.namespace, id: views[0].target.id };
-      layout = await importLikeC4Layout({
-        lock: selected.lock,
-        readSource: selected.readSource,
-        view,
-      });
-    }
+  if (meaning.editorial.presentation.static.views[0].groups !== undefined)
+    layout = composeGroupedSelectionLayout(meaning);
+  else if (!claimMode) {
+    const views = meaning.native.selections.filter(({ target }) => target.kind === 'view');
+    if (views.length !== 1) fail('static_scene_composition_ambiguous');
+    const view = { namespace: views[0].source.namespace, id: views[0].target.id };
+    layout = await importLikeC4Layout({
+      lock: selected.lock,
+      readSource: selected.readSource,
+      view,
+    });
   }
   const scene = composeStaticEditionScene(meaning, layout);
   const rendered = composeStaticEditionSvg(scene);

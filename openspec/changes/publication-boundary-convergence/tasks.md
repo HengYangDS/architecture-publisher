@@ -376,14 +376,23 @@ third-party or generated supply rather than moving owned code outside coverage.
       explicitly depend on their matching relation; no visual association is
       inferred from matching endpoints alone.
       Static claim-only rendering now factors only exact common context,
-      retains per-claim anchors, and rejects an uncomposed graph/claim overlay.
-      Its 1214 × 2637 AIGW probe remains text-heavy with unused right space:
-      no reader-quality or mixed-media acceptance is claimed.
-      Open: exact relation/claim visual links, four-question/five-group AIGW
-      dual-media Candidate, installed and human review. Reuse the current
-      layout owner unless a measured geometry failure requires replacement.
-      Current static and package checks pass; full coverage still fails its
-      unchanged branch floor at 92.91% < 95% (Task 7.5).
+      retains per-claim anchors, and rejects an unlinked graph/claim overlay.
+      The public static-only path now emits SVG/PNG with independently bound
+      relation and claim carriers, explicit visual cross-references, exact
+      source-dependency checks, and successful Candidate replay. A temporary
+      read-only AIGW overview-only trial on source HEAD `04f593a4` carried
+      12 entities, 11 relations, 11 claims, and five groups to an 1800 × 2952
+      PNG before the final card-order correction. Its full-width lower grid
+      reduced dead space but exposed dense prose and scrambled relation
+      references; a source regression now requires relation order. The trial
+      was visually inspected but remains unqualified and not source-owner-
+      approved; its temporary files were removed.
+      Open: four-question mixed interactive pages, the complete paired AIGW
+      Candidate, installed parity, reader-quality refinement, and human review.
+      Reuse the current layout owner unless a measured geometry failure
+      requires replacement. Static, package, and strict OpenSpec checks pass;
+      the 1,042-test run has 1,037 passes and five skips, but the unchanged
+      branch coverage floor fails at 92.93% < 95% (Task 7.5).
       Detailed counterexamples and measured limits stay in
       `docs/research/mechanism-evaluation.md`, not a second progress ledger.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
