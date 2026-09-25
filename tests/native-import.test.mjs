@@ -89,6 +89,45 @@ test('native LikeC4 import binds model and view semantics to selected bytes', as
   assert(!JSON.stringify(index).includes('/workspace/'));
 });
 
+test('the upstream include view contains exactly the selected model members', async () => {
+  const base = await semantics.importLikeC4Native(selection(), fromSources);
+  const extra = Buffer.from("model { third = component 'Third'\n right -> third }\n");
+  const extended = await semantics.importLikeC4Native(
+    selection(
+      new Map([
+        ['example/model', model],
+        ['example/views', views],
+        ['example/extra', extra],
+      ]),
+    ),
+    fromSources,
+  );
+  assert.deepEqual(base.views[0].elements.map(({ id }) => id).sort(), ['left', 'right']);
+  assert.deepEqual(extended.views[0].elements.map(({ id }) => id).sort(), [
+    'left',
+    'right',
+    'third',
+  ]);
+  assert.equal(base.views[0].relations.length, 1);
+  assert.equal(extended.views[0].relations.length, 2);
+});
+
+test('the upstream include view cannot resolve an unselected element', async () => {
+  const missing = Buffer.from('views { view overview { include missing } }\n');
+  await assert.rejects(
+    semantics.importLikeC4Native(
+      selection(
+        new Map([
+          ['example/model', model],
+          ['example/views', missing],
+        ]),
+      ),
+      fromSources,
+    ),
+    { code: 'native_likec4_parse_invalid' },
+  );
+});
+
 test('native LikeC4 import consumes the actual sealed materialization interface', async () => {
   const selected = selection();
   const sealed = sealMaterializedInputLock({

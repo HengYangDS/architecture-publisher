@@ -264,12 +264,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       di-effect probe yielded 25 elements, 35 relations, three authored views,
       and one generated index. It explicitly requests LikeC4 1.59.4's virtual
       no-filesystem, no-manual-layout, no-watch, WASM mode; source inspection
-      confirms its non-builtin reads are refused. Focused native tests pass
-      16/16, static and package checks pass; the full run passes 778 tests,
-      skips 2, but branch coverage is 92.91% against 95%. Ruling: native
+      confirms its non-builtin reads are refused. In the pinned parser,
+      `include *` changes membership only with selected model files, and an
+      unselected element reference fails. Focused native tests pass 18/18;
+      static and package checks pass. The full run passes 780 tests, skips 2,
+      but branch coverage is 92.86% against 95%. Ruling: native
       `.c4` format is `unversioned`; parser 1.59.4 is a separate toolchain
       identity. Arbitrary parser callbacks are not attested, and package
-      supply, complete read closure, exact includes, bounded execution,
+      supply, complete read closure, full include/query semantics, bounded execution,
       installed build, and visible semantic coverage remain open.
 - [ ] 4.2 In `tests/native-identity.test.mjs` and
       `tests/native-semantics.test.mjs`, cover same-label distinct namespaces,
