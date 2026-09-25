@@ -175,3 +175,39 @@ meaning.
   cannot be represented by the current selected Edition and renderer
 - **THEN** candidate preparation refuses rather than hiding meaning or altering
   accepted artwork
+
+## ADDED Requirements
+
+### Requirement: Bounded admitted native parser execution
+
+Publisher SHALL select an exact installed parser supply and locked native
+source bytes before executing a native importer. A public native-import path
+SHALL NOT accept an arbitrary parser callback or silently fall back to an
+ambient tool. Execution SHALL have finite input, output, time, and owned-process
+cleanup bounds. The returned index SHALL bind the consumed supply and selected
+source identities. A failed parser, selected-byte drift, output overflow,
+timeout, or unproved cleanup SHALL produce no successful native index or
+Candidate. Declared dependencies, no-filesystem parser options, process-tree
+cleanup, and runtime permission flags SHALL not individually establish a
+complete execution-read or sandbox claim; unknown reads remain explicit until
+installed-platform evidence closes them.
+
+#### Scenario: The installed parser supply changes after verification
+
+- **WHEN** a selected parser file changes before the importer executes it
+- **THEN** execution uses the exact verified bytes or fails without an index
+- **AND** no changed installed file or ambient dependency is substituted
+
+#### Scenario: Native parsing exceeds its execution bound
+
+- **WHEN** parsing times out, overflows its declared reply bound, or owned-tree
+  cleanup cannot be proved
+- **THEN** Publisher returns a named failure without a successful native index
+- **AND** a later Candidate cannot borrow the partial result
+
+#### Scenario: A platform lacks an admitted native execution capability
+
+- **WHEN** the selected installed host cannot provide a required native worker
+  or containment capability
+- **THEN** native import fails closed without changing the general Publisher
+  package's non-native semantics

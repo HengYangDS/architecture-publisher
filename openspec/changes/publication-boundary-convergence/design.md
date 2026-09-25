@@ -422,6 +422,31 @@ No Candidate may claim complete replay until license closure, native Windows
 and Linux installed use, bounded execution, and exact consumed-supply identity
 are proved.
 
+The native execution boundary must not reuse Provider protocol semantics or
+copy its process-tree algorithm into another owner. Extract only the
+process-lifecycle primitive below both adapters, preserving Provider's
+existing error contract. The native adapter first verifies the installed
+supply and selected source bytes, then runs a code-owned parser worker under
+one finite deadline and bounded request/reply sizes. That worker receives the
+sealed source bytes through an already-open input descriptor and loads a
+private copy of the verified parser bytes, not the mutable installed path.
+The parent validates the returned index shape and its selected source and
+supply identities before admitting it; this does not independently reparse
+LikeC4 meaning. Timeout, output overflow, execution error, or unproved
+owned-tree cleanup never yields a successful index; no ambient parser, direct
+in-process fallback, or second command plane is allowed.
+
+Node's stable Permission Model may narrow that worker's filesystem and
+process capabilities with exact file grants, but its version-specific network
+scope, inherited-descriptor and symlink exceptions, and same-user limitations
+make it defense in depth rather than a sandbox or a complete-read attestation.
+Keep the general Node package floor unchanged until an installed-platform
+contract justifies a change; fail the native feature closed where its selected
+worker capabilities are unavailable. The separate dependency/read-closure
+claim requires observed installed execution and explicit unknowns, not merely
+`useFileSystem: false`, a manifest hash, or permission flags. The dated probe
+and upstream limits are recorded in `docs/research/mechanism-evaluation.md`.
+
 Within one source revision, a native engine's relation IDs may map view edges
 back to its model relations. Across a relocation or revision, generated IDs
 are not automatically stable. Use source-defined stable IDs when available;

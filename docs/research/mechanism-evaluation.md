@@ -605,6 +605,41 @@ Windows behavior, and bounded execution. Do not add a second package or
 command plane merely to avoid this comparison; do not ship a bundle based on
 the two-node smoke test or one successful di-effect parse alone.
 
+### Native parser confinement probe (2026-09-25)
+
+Read-only GitHub CLI retrieval of the official Node
+[v22.13.0 Permission Model contract](https://github.com/nodejs/node/blob/v22.13.0/doc/api/permissions.md)
+and [v26.9.0 contract](https://github.com/nodejs/node/blob/v26.9.0/doc/api/permissions.md)
+found the API stable at v22.13.0. Both versions restrict `node:fs` reads,
+child processes, and worker threads unless granted; the v22.13.0 contract does
+not list network confinement, while the v26.9.0 contract does. Neither is an
+OS sandbox: existing descriptors bypass filesystem checks, worker permissions
+are not inherited, granted symlinks can escape, and v26 documents a
+same-user cross-process inspector limitation. These are upstream statements,
+not observations of Publisher's installed product.
+
+A disposable macOS Node `v26.9.0` child ran the exact checked-in LikeC4
+bundle (SHA-256
+`44d22b467b523e894b8e97f56b33c7f2051fd68077c2edc56cef3497d4c6258f`)
+with `--permission`, one exact `--allow-fs-read` bundle-file grant, an inline
+module, empty `HOME`/`PATH`/`NODE_OPTIONS`, and no child, worker, write, or
+network grants. The selected no-filesystem two-element/one-relation parse
+succeeded; separate attempts to read `/etc/passwd` and spawn Node failed with
+`ERR_ACCESS_DENIED`. This demonstrates one bounded macOS path, not read closure
+for every LikeC4 feature, Windows/Linux installed behavior, network denial on
+Node 22, a hard execution deadline, or resistance to a malicious same-user
+process. The scratch code was not retained as a release test.
+
+An unguarded wrapper exporting only `fromSources` measured 5,180,349 bytes
+versus 5,182,490 bytes for the unguarded package entry, but still retained
+`child_process`, `worker_threads`, and `net` imports. This is not a material
+supply simplification. Prefer the pinned public upstream entry. Use Node
+permissions, if admitted by exact platform tests, only as defense in depth
+around a private verified-byte copy and one bounded
+process-tree owner. Do not raise the general Node runtime floor, claim a
+portable no-network sandbox, or call the parser supply formally admitted on
+the basis of this probe.
+
 ### Cross-build identity and output limits
 
 To test cross-build identity, the same three byte-identical DSL files were
