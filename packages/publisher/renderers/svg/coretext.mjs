@@ -3,17 +3,11 @@ import { constants } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { fail } from '../../src/source/manifest.mjs';
+import { fail, hasExactFields as fields } from '../../src/source/manifest.mjs';
 import { writeSourceBundle } from '../../src/source/write.mjs';
 import { createMetricReader } from './metrics.mjs';
 import { fileIdentity } from './files.mjs';
 
-const fields = (value, keys) =>
-  value &&
-  typeof value === 'object' &&
-  !Array.isArray(value) &&
-  Object.keys(value).length === keys.length &&
-  keys.every((k) => Object.hasOwn(value, k));
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const encode = (v) => Buffer.from(JSON.stringify(v, null, 2) + '\n');
 const absolute = (p) => typeof p === 'string' && path.isAbsolute(p);

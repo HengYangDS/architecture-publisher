@@ -535,10 +535,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       The mechanism-subtraction decision in `design.md` distinguishes redundant
       joins and rolling byte-goldens from independent trust checks. The rolling
       self-hosted golden was removed; the frozen first-party release matrix
-      remains exact. Installed self-host and matrix tests pass 2/2. The full
-      behavior run passes 953 tests and skips 4. The latest coverage run,
-      before the execution-marker assertion, reported 93.47% branches against
-      the unchanged 95% release floor; Task 7.2 remains open.
+      remains exact. A single collision-safe exact-field predicate now replaces
+      repeated delimiter comparisons and local validators; malformed key names
+      failed RED and pass GREEN. The exact-source full behavior run passes 955
+      tests and skips 4; branches remain 93.46% against the unchanged 95%
+      release floor. Task 7.2 remains open.
 - [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,

@@ -8,7 +8,7 @@ import { readPublisherIdentity } from '../runtime.mjs';
 import { claimModelDigest, deepFreeze, validateClaimModel } from '../semantics/document.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { fail, LIMITS, portableKey } from '../source/manifest.mjs';
+import { fail, hasExactFields as exact, LIMITS, portableKey } from '../source/manifest.mjs';
 import { readEditionProviderInput, resolveProviderPath } from './input.mjs';
 import { editionProviderPackageDigest, selectProviderPackage } from './package.mjs';
 import {
@@ -19,15 +19,6 @@ import {
 import { runProviderWorker } from './supervisor.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-
-function exact(value, fields) {
-  return (
-    value !== null &&
-    typeof value === 'object' &&
-    !Array.isArray(value) &&
-    Object.keys(value).sort().join('\n') === [...fields].sort().join('\n')
-  );
-}
 
 function json(bytes, code) {
   try {

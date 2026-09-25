@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { fail, isDigest, portablePath } from '../../src/source/manifest.mjs';
+import { fail, hasExactFields, isDigest, portablePath } from '../../src/source/manifest.mjs';
 import { embedFonts } from './fonts.mjs';
 import { adaptArchitectureScene } from './architecture.mjs';
 
@@ -227,7 +227,7 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
         (item) =>
           !item ||
           typeof item !== 'object' ||
-          Object.keys(item).sort().join('\n') !== 'id\nsha256' ||
+          !hasExactFields(item, ['id', 'sha256']) ||
           typeof item.id !== 'string' ||
           !item.id ||
           !isDigest(item.sha256),

@@ -1,12 +1,14 @@
 import { createHash } from 'node:crypto';
-import { fail, isDigest, LIMITS, portablePath } from '../source/manifest.mjs';
+import {
+  fail,
+  hasExactFields as exact,
+  isDigest,
+  LIMITS,
+  portablePath,
+} from '../source/manifest.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
-const exact = (value, required, optional = []) =>
-  record(value) &&
-  required.every((field) => Object.hasOwn(value, field)) &&
-  Object.keys(value).every((field) => required.includes(field) || optional.includes(field));
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const identifier = (value) => typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
 const escapeHtml = (value) =>

@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { noSymlinkAncestors, regularBytes } from './files.mjs';
 import { canonical } from './json.mjs';
-import { fail, isDigest, LIMITS, portableKey, portablePath } from './manifest.mjs';
+import { fail, hasExactFields, isDigest, LIMITS, portableKey, portablePath } from './manifest.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const inside = (root, selected) => {
@@ -160,7 +160,7 @@ export function sealMaterializedInputLock({
     !edition ||
     typeof edition !== 'object' ||
     Array.isArray(edition) ||
-    Object.keys(edition).sort().join('\n') !== 'content\neditor\nid\nresources' ||
+    !hasExactFields(edition, ['content', 'editor', 'id', 'resources']) ||
     !Array.isArray(edition.resources)
   )
     fail('materialized_edition_resources_invalid');

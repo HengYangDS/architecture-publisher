@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { createHash, randomUUID } from 'node:crypto';
+import { hasExactFields } from '../source/manifest.mjs';
 import { requireExplicitAcceptance } from './contract.mjs';
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const encode = (v) => JSON.stringify(v, null, 2) + '\n';
@@ -147,7 +148,7 @@ function previousPayload(plan, medium) {
 }
 
 function validateReplacement(replacement, options) {
-  if (!replacement || Object.keys(replacement).sort().join(',') !== 'authorization,plan')
+  if (!hasExactFields(replacement, ['authorization', 'plan']))
     throw Error('Explicit prior plan and authorization required');
   let current = replacement,
     depth = 0;
@@ -201,7 +202,7 @@ export async function planPairFiles(input, replayPrestates) {
   for (const medium of PUBLICATION_MEDIA) {
     if (
       !entries?.[medium] ||
-      Object.keys(entries[medium]).sort().join(',') !== 'README.md,index.html' ||
+      !hasExactFields(entries[medium], ['README.md', 'index.html']) ||
       Object.values(entries[medium]).some(
         (v) => typeof v !== 'string' || Buffer.byteLength(v) > 1048576,
       )

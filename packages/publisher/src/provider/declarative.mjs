@@ -5,21 +5,12 @@ import { readPublisherIdentity } from '../runtime.mjs';
 import { claimModelDigest, deepFreeze, validateClaimModel } from '../semantics/document.mjs';
 import { readSourceBundle } from '../source/bundle.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
+import { fail, hasExactFields as exact, isDigest, LIMITS } from '../source/manifest.mjs';
 import { validateProviderMaterialization } from './protocol.mjs';
 import { readEditionProviderInput, resolveProviderPath } from './input.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const JSON_BYTES = 16 * 1024 * 1024;
-
-function exact(value, fields) {
-  return (
-    value !== null &&
-    typeof value === 'object' &&
-    !Array.isArray(value) &&
-    Object.keys(value).sort().join('\n') === [...fields].sort().join('\n')
-  );
-}
 
 function json(bytes, code) {
   try {

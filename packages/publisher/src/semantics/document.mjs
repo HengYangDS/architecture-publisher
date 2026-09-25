@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { canonical } from '../source/json.mjs';
+import { hasExactFields } from '../source/manifest.mjs';
 
 export { canonical };
 
@@ -48,8 +49,7 @@ export const record = (value) =>
   !Array.isArray(value) &&
   [Object.prototype, null].includes(Object.getPrototypeOf(value));
 export const text = (value) => typeof value === 'string' && Boolean(value.trim());
-export const exact = (value, keys) =>
-  record(value) && Object.keys(value).sort().join('\n') === [...keys].sort().join('\n');
+export const exact = (value, keys) => record(value) && hasExactFields(value, keys);
 export const strings = (values, nonempty = false) =>
   Array.isArray(values) &&
   (!nonempty || values.length > 0) &&

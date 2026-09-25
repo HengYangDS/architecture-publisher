@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { deepFreeze } from '../semantics/document.mjs';
-import { fail, isDigest, portableKey, portablePath } from '../source/manifest.mjs';
+import { fail, hasExactFields, isDigest, portableKey, portablePath } from '../source/manifest.mjs';
 import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -13,7 +13,7 @@ function record(value, code) {
 
 function exact(value, fields, code) {
   const selected = record(value, code);
-  if (Object.keys(selected).sort().join('\n') !== [...fields].sort().join('\n')) fail(code);
+  if (!hasExactFields(selected, fields)) fail(code);
   return selected;
 }
 

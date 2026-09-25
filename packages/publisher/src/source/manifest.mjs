@@ -17,11 +17,13 @@ export function isDigest(value) {
 function record(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
-function keys(value, required, optional = []) {
+export function hasExactFields(value, required, optional = []) {
   return (
     record(value) &&
     required.every((key) => Object.hasOwn(value, key)) &&
-    Object.keys(value).every((key) => required.includes(key) || optional.includes(key))
+    Reflect.ownKeys(value).every(
+      (key) => typeof key === 'string' && (required.includes(key) || optional.includes(key)),
+    )
   );
 }
 export function portablePath(value) {
@@ -53,10 +55,10 @@ export function portableKey(value) {
   return value.normalize('NFC').toLowerCase();
 }
 export function validateManifest(value) {
-  if (!keys(value, ['schema', 'source', 'files'])) fail('manifest_fields_invalid');
+  if (!hasExactFields(value, ['schema', 'source', 'files'])) fail('manifest_fields_invalid');
   if (value.schema !== 'architecture.source-bundle/v1') fail('schema_unsupported');
   if (
-    !keys(value.source, ['id'], ['revision']) ||
+    !hasExactFields(value.source, ['id'], ['revision']) ||
     typeof value.source.id !== 'string' ||
     !value.source.id.trim() ||
     (Object.hasOwn(value.source, 'revision') &&
@@ -75,7 +77,7 @@ export function validateFileMembers(files) {
   const directories = new Map();
   let total = 0;
   for (const member of files) {
-    if (!keys(member, ['path', 'bytes', 'sha256'])) fail('member_fields_invalid');
+    if (!hasExactFields(member, ['path', 'bytes', 'sha256'])) fail('member_fields_invalid');
     const name = portableKey(portablePath(member.path));
     const parts = member.path.split('/');
     for (let i = 1; i < parts.length; i++) {

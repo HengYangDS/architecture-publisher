@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { fail } from '../source/manifest.mjs';
+import { fail, hasExactFields as exact } from '../source/manifest.mjs';
 import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
 import { normalizeSelectedContributions, readSelectedProviderManifest } from './manifest.mjs';
 import { editionProviderPackageDigest, selectProviderPackage } from './package.mjs';
@@ -12,11 +12,6 @@ import { runProviderWorker } from './supervisor.mjs';
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const replyFields = ['derived', 'schema'];
 const outputFields = ['contentBase64', 'id'];
-const exact = (value, fields) =>
-  value !== null &&
-  typeof value === 'object' &&
-  !Array.isArray(value) &&
-  Object.keys(value).sort().join('\n') === fields.join('\n');
 
 function selectedDerived(reply, expected) {
   if (

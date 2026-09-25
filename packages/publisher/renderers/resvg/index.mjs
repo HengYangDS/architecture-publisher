@@ -5,17 +5,11 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { readSourceBundle } from '../../src/source/bundle.mjs';
-import { fail, portablePath } from '../../src/source/manifest.mjs';
+import { fail, hasExactFields as fields, portablePath } from '../../src/source/manifest.mjs';
 import { verifyRasterSupply } from './supply.mjs';
 import { RASTER_LIMITS as limits } from './limits.mjs';
 
 const sha = (b) => createHash('sha256').update(b).digest('hex');
-const fields = (value, names) =>
-  value &&
-  typeof value === 'object' &&
-  !Array.isArray(value) &&
-  Object.keys(value).length === names.length &&
-  names.every((k) => Object.hasOwn(value, k));
 
 /** PNG rendering only. Input meaning, visual approval and installation are separate. */
 export async function rasterize(plan) {

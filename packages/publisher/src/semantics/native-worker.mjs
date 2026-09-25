@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { hasExactFields } from '../source/manifest.mjs';
 import { buildLikeC4Layout } from './native-layout.mjs';
 import { importLikeC4NativeWithParser } from './native-likec4.mjs';
 
@@ -24,12 +25,14 @@ if (!deadlineValid) {
         request?.schema,
       ) ||
       !Array.isArray(request.selected) ||
-      Object.keys(request).sort().join('\n') !==
-        (layoutRequest ? 'schema\nselected\nview' : 'schema\nselected') ||
+      !hasExactFields(
+        request,
+        layoutRequest ? ['schema', 'selected', 'view'] : ['schema', 'selected'],
+      ) ||
       (layoutRequest &&
         (!request.view ||
           typeof request.view !== 'object' ||
-          Object.keys(request.view).sort().join('\n') !== 'id\nnamespace' ||
+          !hasExactFields(request.view, ['id', 'namespace']) ||
           typeof request.view.id !== 'string' ||
           typeof request.view.namespace !== 'string'))
     )
@@ -42,7 +45,7 @@ if (!deadlineValid) {
       if (
         !item ||
         typeof item !== 'object' ||
-        Object.keys(item).sort().join('\n') !== 'contentBase64\nsource' ||
+        !hasExactFields(item, ['contentBase64', 'source']) ||
         typeof item.contentBase64 !== 'string' ||
         /[^A-Za-z0-9+/=]/u.test(item.contentBase64) ||
         typeof item.source?.namespace !== 'string' ||

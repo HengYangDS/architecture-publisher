@@ -1,11 +1,5 @@
-import { fail } from '../../src/source/manifest.mjs';
+import { fail, hasExactFields as fields } from '../../src/source/manifest.mjs';
 
-const fields = (v, keys) =>
-  v &&
-  typeof v === 'object' &&
-  !Array.isArray(v) &&
-  Object.keys(v).length === keys.length &&
-  keys.every((k) => Object.hasOwn(v, k));
 const finite = (n) => Number.isFinite(n) && Math.abs(n) <= 1e7;
 const invalid = () => fail('measurement_invalid');
 

@@ -1,15 +1,10 @@
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { noSymlinkAncestors, regularBytes } from './files.mjs';
-import { fail, isDigest, LIMITS, validateManifest } from './manifest.mjs';
+import { fail, hasExactFields as fields, isDigest, LIMITS, validateManifest } from './manifest.mjs';
 import { writeSourceBundle } from './write.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const fields = (value, names) =>
-  value !== null &&
-  typeof value === 'object' &&
-  !Array.isArray(value) &&
-  Object.keys(value).sort().join(',') === [...names].sort().join(',');
 
 /** Package explicit file bytes; selection does not authorize code or publication. */
 export async function packSourceFiles(planPath, expectedSha256) {

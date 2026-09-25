@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { readSourceBundle } from '../source/bundle.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { fail, isDigest, portablePath } from '../source/manifest.mjs';
+import { fail, hasExactFields as exact, isDigest, portablePath } from '../source/manifest.mjs';
 import { interactiveArchitectureScene } from '../scene/interactive/architecture.mjs';
 import { semanticArchitectureProjections } from '../scene/contract.mjs';
 import { composeStaticOverview } from '../../renderers/svg/architecture.mjs';
@@ -24,11 +24,6 @@ import { resolveEditionProviderSelection } from '../provider/input.mjs';
 import { withMaterializedEditionProvider } from '../provider/materialize.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const exact = (value, fields) =>
-  value !== null &&
-  typeof value === 'object' &&
-  !Array.isArray(value) &&
-  Object.keys(value).sort().join('\n') === [...fields].sort().join('\n');
 
 function json(bytes, code) {
   try {

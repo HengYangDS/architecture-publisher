@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { deepFreeze, jsonValue, record, text } from './document.mjs';
 import { executeLikeC4Layout, executeLikeC4Native } from './native-execution.mjs';
 import { readLikeC4ParserSupply } from './supply.mjs';
-import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
+import { fail, hasExactFields, isDigest, LIMITS } from '../source/manifest.mjs';
 
 const sha = (value) => createHash('sha256').update(value).digest('hex');
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
@@ -299,7 +299,7 @@ export async function importLikeC4Layout(selection) {
   const view = selection?.view;
   if (
     !record(view) ||
-    Object.keys(view).sort().join('\n') !== 'id\nnamespace' ||
+    !hasExactFields(view, ['id', 'namespace']) ||
     !text(view.namespace) ||
     !text(view.id) ||
     Buffer.byteLength(view.namespace, 'utf8') > 2048 ||

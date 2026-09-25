@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { fail } from '../source/manifest.mjs';
+import { fail, hasExactFields as exact } from '../source/manifest.mjs';
 import {
   PROCESS_CLEANUP_MS,
   resolveWindowsTaskkill as resolveOwnedWindowsTaskkill,
@@ -10,15 +10,6 @@ import {
 export { terminatePosixGroup } from '../runtime/process-tree.mjs';
 
 const worker = fileURLToPath(new URL('./worker.mjs', import.meta.url));
-
-function exact(value, fields) {
-  return (
-    value !== null &&
-    typeof value === 'object' &&
-    !Array.isArray(value) &&
-    Object.keys(value).sort().join('\n') === [...fields].sort().join('\n')
-  );
-}
 
 function responseLimit(bytes) {
   return Math.ceil(bytes / 3) * 4 + 64 * 1024;

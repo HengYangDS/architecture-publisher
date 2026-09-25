@@ -1,6 +1,13 @@
 import { EDITION_AUTHORING_FILE_BYTES } from '../edition/authoring.mjs';
 import { deepFreeze, jsonValue } from '../semantics/document.mjs';
-import { fail, isDigest, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
+import {
+  fail,
+  hasExactFields as exact,
+  isDigest,
+  LIMITS,
+  portableKey,
+  portablePath,
+} from '../source/manifest.mjs';
 import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
 
 const INVALID = 'edition_provider_v2_invalid';
@@ -9,10 +16,6 @@ const valid = (condition) => {
   if (!condition) fail(INVALID);
 };
 const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
-const exact = (value, required, optional = []) =>
-  record(value) &&
-  required.every((key) => Object.hasOwn(value, key)) &&
-  Object.keys(value).every((key) => required.includes(key) || optional.includes(key));
 const text = (value) =>
   typeof value === 'string' &&
   value.length > 0 &&

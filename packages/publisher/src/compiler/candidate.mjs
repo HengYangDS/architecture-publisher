@@ -18,7 +18,12 @@ import {
   text,
   validateClaimModel,
 } from '../semantics/document.mjs';
-import { isDigest, portablePath, validateFileMembers } from '../source/manifest.mjs';
+import {
+  hasExactFields,
+  isDigest,
+  portablePath,
+  validateFileMembers,
+} from '../source/manifest.mjs';
 
 const CANDIDATE_FIELDS = Object.freeze([
   'schema',
@@ -276,7 +281,7 @@ export function validateSelectedEditionCandidate(value) {
   if (
     !media.length ||
     media.some((medium) => !['static', 'interactive'].includes(medium)) ||
-    media.join('\n') !== Object.keys(value.obligations).sort().join('\n')
+    !hasExactFields(value.obligations, media)
   )
     fail('selected_candidate_media_invalid');
   for (const medium of media) {
