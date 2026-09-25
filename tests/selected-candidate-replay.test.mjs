@@ -182,7 +182,9 @@ test('replay executes Provider code only with a separate exact invocation choice
     { id: 'model-provider', manifestSha256 },
   ]);
   assert.equal(result.candidateSha256, built.candidateSha256);
-  assert.equal(await fs.readFile(executionMarker, 'utf8'), 'executed');
+  const selectedParent = Number(await fs.readFile(executionMarker, 'utf8'));
+  assert(Number.isSafeInteger(selectedParent));
+  assert.notEqual(selectedParent, process.pid, 'public replay bypassed its independent parent');
 });
 
 test('replay rejects an execution choice when no executable Provider is selected', async (t) => {

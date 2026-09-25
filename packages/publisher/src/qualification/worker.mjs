@@ -1,23 +1,34 @@
 import fs from 'node:fs';
+import { takeCoverage } from 'node:v8';
 import { hasExactFields } from '../source/manifest.mjs';
 import { verifyQualificationInsideWorker } from './input.mjs';
 import { withQualificationOwnership } from './process-boundary.mjs';
+import { replaySelectedCandidate } from './replay.mjs';
 
 let envelope;
 try {
   const invocation = JSON.parse(fs.readFileSync(0, 'utf8'));
   if (
-    !hasExactFields(invocation, ['schema', 'file', 'sha256', 'executionChoice']) ||
+    !hasExactFields(invocation, ['schema', 'operation', 'selection', 'executionChoice']) ||
     invocation.schema !== 'architecture.qualification-invocation/v1' ||
-    typeof invocation.file !== 'string' ||
-    typeof invocation.sha256 !== 'string' ||
+    !['input', 'replay'].includes(invocation.operation) ||
+    (invocation.operation === 'input' &&
+      (!hasExactFields(invocation.selection, ['file', 'sha256']) ||
+        typeof invocation.selection.file !== 'string' ||
+        typeof invocation.selection.sha256 !== 'string')) ||
     !Array.isArray(invocation.executionChoice)
   )
     throw Object.assign(new Error('qualification_invocation_invalid'), {
       code: 'qualification_invocation_invalid',
     });
-  const result = await withQualificationOwnership(() =>
-    verifyQualificationInsideWorker(invocation.file, invocation.sha256, invocation.executionChoice),
+  const result = await withQualificationOwnership(async () =>
+    invocation.operation === 'input'
+      ? verifyQualificationInsideWorker(
+          invocation.selection.file,
+          invocation.selection.sha256,
+          invocation.executionChoice,
+        )
+      : (await replaySelectedCandidate(invocation.selection, invocation.executionChoice)).replay,
   );
   envelope = { status: 'ok', result };
 } catch (error) {
@@ -30,5 +41,7 @@ try {
         : 'qualification_worker_failed',
   };
 }
+// The parent terminates this held worker after its reply, so flush test coverage first.
+if (process.env.NODE_V8_COVERAGE) takeCoverage();
 process.stdout.write(JSON.stringify(envelope) + '\n');
 setInterval(() => {}, 1000);

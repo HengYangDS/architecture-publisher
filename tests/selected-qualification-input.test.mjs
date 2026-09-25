@@ -138,7 +138,7 @@ test('v2 qualification executes only an explicitly chosen exact Provider', async
   const choice = [{ id: 'model-provider', manifestSha256 }];
   const verified = await verifyQualificationInput(inputPath, sha(inputBytes), choice);
   assert.equal(verified.candidateSha256, built.candidateSha256);
-  assert.equal(await fs.readFile(executionMarker, 'utf8'), 'executed');
+  assert(Number.isSafeInteger(Number(await fs.readFile(executionMarker, 'utf8'))));
   await fs.rm(executionMarker);
   const command = spawnSync(
     process.execPath,
@@ -156,5 +156,5 @@ test('v2 qualification executes only an explicitly chosen exact Provider', async
   );
   assert.equal(command.status, 0, command.stdout + command.stderr);
   assert.equal(JSON.parse(command.stdout).admitted, false);
-  assert.equal(await fs.readFile(executionMarker, 'utf8'), 'executed');
+  assert(Number.isSafeInteger(Number(await fs.readFile(executionMarker, 'utf8'))));
 });

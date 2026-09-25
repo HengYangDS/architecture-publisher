@@ -512,10 +512,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       direct and executable Providers, duplicate keys, and historical v1
       behavior. Ruling: the v2 input has only three selectors; the 120-second
       provisional work deadline is invocation-owned, not evidence authority.
-      The public replay primitive still lacks whole-replay supervision, and
-      installed/native Windows and policy-bound predicate evidence remain open.
-      Full behavior passes 986/990 with four skips. Static, package, and
-      OpenSpec checks pass; branch coverage is 93.39%, below the required 95%.
+      Public replay and `qualify verify` now use the same independently
+      supervised invocation worker. A public-replay Provider-parent regression
+      passed RED before this repair and GREEN after it; historical v1 duplicate
+      JSON keys retain their original reading semantics. The 28 focused tests,
+      static, package, and warning-free strict OpenSpec checks pass. Full
+      behavior passes 986/990 with four skips; branch coverage is 93.26%,
+      below the required 95%. The held worker flushes V8 coverage before
+      parent termination, so its executed branches are measured rather than
+      silently reported as unexecuted. Installed/native Windows and
+      policy-bound predicate evidence remain open.
       Task 6.1 is not complete.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In

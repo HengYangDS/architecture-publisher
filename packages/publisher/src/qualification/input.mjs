@@ -1,20 +1,15 @@
-import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { fileURLToPath } from 'node:url';
 import { exact } from '../semantics/document.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { parseStrictJson } from '../source/json.mjs';
 import { isDigest, portablePath } from '../source/manifest.mjs';
 import { admitQualificationSet, qualificationSetDigest } from './contract.mjs';
-import { runBoundedQualification } from './process-boundary.mjs';
+import { invokeQualificationWorker } from './process-boundary.mjs';
 import { replaySelectedCandidate } from './replay.mjs';
 import { bindSelectedQualificationSet } from './selected.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const qualificationWorker = fileURLToPath(new URL('./worker.mjs', import.meta.url));
-const QUALIFICATION_DEADLINE_MS = 120_000;
 
 function fail(code) {
   throw Object.assign(new Error(code), { code });
@@ -171,53 +166,9 @@ export async function verifyQualificationInsideWorker(file, expectedSha256, exec
 /** One public route; version dispatch happens only after supervised selected reads. */
 export async function verifyQualificationInput(file, expectedSha256, executionChoice = []) {
   if (!isDigest(expectedSha256)) fail('qualification_digest_required');
-  const scratch = await fs.mkdtemp(
-    path.join(await fs.realpath(os.tmpdir()), 'archpub-qualification-'),
+  return invokeQualificationWorker(
+    'input',
+    { file: path.resolve(file), sha256: expectedSha256 },
+    executionChoice,
   );
-  let retain = false;
-  try {
-    for (const name of ['config', 'cache', 'data', 'tmp']) await fs.mkdir(path.join(scratch, name));
-    const requestPath = path.join(scratch, 'invocation.json');
-    await fs.writeFile(
-      requestPath,
-      JSON.stringify({
-        schema: 'architecture.qualification-invocation/v1',
-        file: path.resolve(file),
-        sha256: expectedSha256,
-        executionChoice,
-      }),
-      { flag: 'wx', mode: 0o600 },
-    );
-    return await runBoundedQualification({
-      worker: qualificationWorker,
-      requestPath,
-      scratch,
-      timeoutMs: QUALIFICATION_DEADLINE_MS,
-      maximumBytes: 16 * 1024 * 1024,
-      decode(raw) {
-        let envelope;
-        try {
-          envelope = JSON.parse(raw);
-        } catch {
-          fail('qualification_worker_reply_invalid');
-        }
-        if (exact(envelope, ['status', 'code']) && envelope.status === 'error') {
-          if (typeof envelope.code !== 'string' || !/^[a-z][a-z0-9_]+$/u.test(envelope.code))
-            fail('qualification_worker_reply_invalid');
-          fail(envelope.code);
-        }
-        if (!exact(envelope, ['status', 'result']) || envelope.status !== 'ok')
-          fail('qualification_worker_reply_invalid');
-        return envelope.result;
-      },
-    });
-  } catch (error) {
-    retain = ['qualification_cleanup_unproved', 'qualification_cleanup_failed'].includes(
-      error?.code,
-    );
-    if (retain) error.retainedScratch = scratch;
-    throw error;
-  } finally {
-    if (!retain) await fs.rm(scratch, { recursive: true, force: true });
-  }
 }

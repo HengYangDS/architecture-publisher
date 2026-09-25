@@ -162,7 +162,7 @@ export async function executableModelProvider(fixture) {
   await fs.writeFile(path.join(packageRoot, 'package.json'), packageJson);
   await fs.writeFile(
     path.join(packageRoot, 'provider.mjs'),
-    `import fs from 'node:fs/promises';\nexport async function materializeEditionProvider() { await fs.writeFile(${JSON.stringify(executionMarker)}, 'executed'); return { schema: 'architecture.edition-provider-reply/v2', derived: [] }; }\n`,
+    `import fs from 'node:fs/promises';\nexport async function materializeEditionProvider() { await fs.writeFile(${JSON.stringify(executionMarker)}, String(process.ppid)); return { schema: 'architecture.edition-provider-reply/v2', derived: [] }; }\n`,
   );
   const manifestPath = path.join(fixture.root, 'provider/provider.json');
   const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));

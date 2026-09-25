@@ -10,6 +10,7 @@ import { exact } from '../semantics/document.mjs';
 import { readSourceBundle } from '../source/bundle.mjs';
 import { parseStrictJson } from '../source/json.mjs';
 import { isDigest } from '../source/manifest.mjs';
+import { invokeQualificationWorker } from './process-boundary.mjs';
 
 function fail(code) {
   throw Object.assign(new Error(code), { code });
@@ -87,5 +88,5 @@ export async function replaySelectedCandidate(input, executionChoice = []) {
 
 /** Public replay value; the Candidate object remains invocation-local. */
 export async function verifySelectedCandidateReplay(input, executionChoice = []) {
-  return (await replaySelectedCandidate(input, executionChoice)).replay;
+  return invokeQualificationWorker('replay', input, executionChoice);
 }

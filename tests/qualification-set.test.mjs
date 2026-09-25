@@ -713,6 +713,15 @@ test('qualification input rejects malformed selection before judging external ev
     return digest(bytes);
   };
 
+  const historicalDuplicate = Buffer.from(
+    `{"schema":"architecture.qualification-input/v1",${JSON.stringify(original).slice(1)}\n`,
+  );
+  await fs.writeFile(selected.requestPath, historicalDuplicate);
+  assert.equal(
+    (await verifyQualificationInput(selected.requestPath, digest(historicalDuplicate))).verdict,
+    'PASS',
+  );
+
   const malformedPlan = Buffer.from('{');
   await fs.writeFile(selected.requestPath, malformedPlan);
   await assert.rejects(verifyQualificationInput(selected.requestPath, digest(malformedPlan)), {

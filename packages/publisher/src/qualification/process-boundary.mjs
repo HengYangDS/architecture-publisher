@@ -1,3 +1,7 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { fail, hasExactFields } from '../source/manifest.mjs';
 import {
   runOwnedProcess,
@@ -8,6 +12,8 @@ import {
 const ACK = 'qualification-ownership-ack';
 const EVENT = 'qualification-ownership-event';
 const MAX_OWNED_WORKERS = 128;
+const QUALIFICATION_DEADLINE_MS = 120_000;
+const qualificationWorker = fileURLToPath(new URL('./worker.mjs', import.meta.url));
 
 function validEvent(value) {
   return (
@@ -91,6 +97,61 @@ export async function runBoundedQualification({
       return decode(raw, state, reason, closedBeforeCleanup);
     },
   });
+}
+
+/** One private invocation owner for both v2 verification and public replay. */
+export async function invokeQualificationWorker(operation, selection, executionChoice = []) {
+  if (!['input', 'replay'].includes(operation) || !Array.isArray(executionChoice))
+    fail('qualification_invocation_invalid');
+  const scratch = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-qualification-'),
+  );
+  let retain = false;
+  try {
+    for (const name of ['config', 'cache', 'data', 'tmp']) await fs.mkdir(path.join(scratch, name));
+    const requestPath = path.join(scratch, 'invocation.json');
+    await fs.writeFile(
+      requestPath,
+      JSON.stringify({
+        schema: 'architecture.qualification-invocation/v1',
+        operation,
+        selection: structuredClone(selection),
+        executionChoice: structuredClone(executionChoice),
+      }),
+      { flag: 'wx', mode: 0o600 },
+    );
+    return await runBoundedQualification({
+      worker: qualificationWorker,
+      requestPath,
+      scratch,
+      timeoutMs: QUALIFICATION_DEADLINE_MS,
+      maximumBytes: 16 * 1024 * 1024,
+      decode(raw) {
+        let envelope;
+        try {
+          envelope = JSON.parse(raw);
+        } catch {
+          fail('qualification_worker_reply_invalid');
+        }
+        if (hasExactFields(envelope, ['status', 'code']) && envelope.status === 'error') {
+          if (typeof envelope.code !== 'string' || !/^[a-z][a-z0-9_]+$/u.test(envelope.code))
+            fail('qualification_worker_reply_invalid');
+          fail(envelope.code);
+        }
+        if (!hasExactFields(envelope, ['status', 'result']) || envelope.status !== 'ok')
+          fail('qualification_worker_reply_invalid');
+        return envelope.result;
+      },
+    });
+  } catch (error) {
+    retain = ['qualification_cleanup_unproved', 'qualification_cleanup_failed'].includes(
+      error?.code,
+    );
+    if (retain) error.retainedScratch = scratch;
+    throw error;
+  } finally {
+    if (!retain) await fs.rm(scratch, { recursive: true, force: true });
+  }
 }
 
 /** Register each nested group with the independent parent before its code starts. */
