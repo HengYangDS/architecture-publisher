@@ -90,6 +90,13 @@ export function validateNativeIndexReply(index, sources) {
     );
   if (JSON.stringify(index.sources) !== JSON.stringify(expected))
     fail('native_likec4_response_invalid');
+  const expectedLimits = [
+    'domain-metadata-opaque',
+    'view-membership-upstream-computed-unqualified',
+    ...(index.opaqueViews.length ? ['native-view-semantics-uninterpreted'] : []),
+  ];
+  if (JSON.stringify(index.semanticLimits) !== JSON.stringify(expectedLimits))
+    fail('native_likec4_response_invalid');
   const sourceByNamespace = new Map(expected.map((source) => [source.namespace, source]));
   const itemKey = ({ namespace, id }) => JSON.stringify([namespace, id]);
   const elements = new Set();
@@ -155,8 +162,10 @@ export function validateNativeIndexReply(index, sources) {
       view.elements.some(
         (member) => !exact(member, ['namespace', 'id']) || !elements.has(itemKey(member)),
       ) ||
+      new Set(view.elements.map(itemKey)).size !== view.elements.length ||
       !Array.isArray(view.relations) ||
-      view.relations.some((id) => !relations.has(id))
+      view.relations.some((id) => !relations.has(id)) ||
+      new Set(view.relations).size !== view.relations.length
     )
       fail('native_likec4_response_invalid');
   }
@@ -170,10 +179,12 @@ export function validateNativeIndexReply(index, sources) {
       view.origin.namespace !== view.namespace
     )
       fail('native_likec4_response_invalid');
-  if (
-    index.generatedViews.some((id) => !text(id)) ||
-    index.semanticLimits.some((limit) => !text(limit))
-  )
+  const viewIds = [
+    ...index.views.map(({ id }) => id),
+    ...index.opaqueViews.map(({ id }) => id),
+    ...index.generatedViews,
+  ];
+  if (index.generatedViews.some((id) => !text(id)) || new Set(viewIds).size !== viewIds.length)
     fail('native_likec4_response_invalid');
   return index;
 }

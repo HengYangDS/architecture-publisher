@@ -142,6 +142,32 @@ test('native parent rejects a source range whose quality marker contradicts its 
   });
 });
 
+test('native parent rejects lost uncertainty and duplicate visible membership', async () => {
+  const index = await executeLikeC4Native(selected(), await readLikeC4ParserSupply());
+  const { parserSupply: _parserSupply, ...valid } = structuredClone(index);
+  assert.doesNotThrow(() => validateNativeIndexReply(valid, index.sources));
+  const counterexamples = [
+    (value) => value.semanticLimits.pop(),
+    (value) => value.views.push(structuredClone(value.views[0])),
+    (value) => value.views[0].elements.push(structuredClone(value.views[0].elements[0])),
+    (value) => value.generatedViews.push(value.generatedViews[0]),
+    (value) =>
+      value.opaqueViews.push({
+        id: 'uninterpreted',
+        namespace: value.views[0].namespace,
+        kind: 'dynamic',
+        origin: structuredClone(value.views[0].origin),
+      }),
+  ];
+  for (const mutate of counterexamples) {
+    const changed = structuredClone(valid);
+    mutate(changed);
+    assert.throws(() => validateNativeIndexReply(changed, index.sources), {
+      code: 'native_likec4_response_invalid',
+    });
+  }
+});
+
 test('native Worker expires after replying when its supervisor is absent', async (t) => {
   const scratch = await fs.mkdtemp(
     path.join(await fs.realpath(os.tmpdir()), 'archpub-native-orphan-'),

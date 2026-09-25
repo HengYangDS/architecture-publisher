@@ -269,14 +269,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       sharing their protocols. The worker has a self-expiry timer and restricted
       Node file reads as defense in depth; neither is a sandbox or complete-read
       proof. The parent validates the returned index shape, selected identities,
-      and consumed supply digest. The installed macOS package test demonstrates
+      essential uncertainty limits, unique view membership, and consumed supply
+      digest. The installed macOS package test demonstrates
       that replacing the original parser after verification cannot change the
-      private copy's result. Focused native and boundary tests pass 55/55;
+      private copy's result. Focused native and boundary tests pass 56/56;
       static, strict OpenSpec, and package checks pass. Full behavior passes
-      810 tests, skips 2; branch coverage remains 92.95% against the 95% gate.
+      811 tests, skips 2; branch coverage remains 93.00% against the 95% gate.
       A networkless, read-only Linux Node 26.9 container installed the packed
       package offline and parsed a two-element fixture through its public export;
-      this is an installed smoke test, not the full Linux conformance matrix.
+      the same path also passed in Linux Node 24.19. These are installed smoke
+      tests, not the full Linux conformance matrix or current-HEAD final release
+      evidence.
       The public importer also parsed frozen di-effect commit `8a168b6b` into
       25 elements, 35 relations, three authored views, and one generated view
       from the three hash-checked native files. Open: complete read closure,
