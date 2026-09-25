@@ -306,11 +306,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       Partial: ordered, medium-local views are the sole authored question
       inventory; omissions must resolve to a declared source view and, for
       covered-elsewhere, a non-omitting same-medium target asking that question.
-      Selected media derive frozen question, assertion, and explicit-limit IDs;
-      unrequested-only and unanswered questions fail. Focused, static, and
-      package checks pass. The full run passes 775 tests, skips 2, but branch
-      coverage is 92.88% against 95%. Materialized membership, aggregation,
-      source contradictions, visible carriers, and reader adequacy remain open.
+      The selected Edition derives frozen per-view question, assertion, and
+      explicit-limit IDs, then unions these for each requested medium without
+      transferring an omission across views or media. Unrequested-only and
+      unanswered view questions fail. Focused, static, and package checks pass.
+      The full run passes 777 tests, skips 2, but branch coverage is 92.91%
+      against 95%. Source-backed membership, aggregation, contradictions,
+      visible carriers, and reader adequacy remain open.
 - [ ] 5.2 Using the selected foundation from Task 1, provide an explainable
       neutral first build and bounded local refinement without author-written
       renderer code, duplicate facts, or pixel geometry. In

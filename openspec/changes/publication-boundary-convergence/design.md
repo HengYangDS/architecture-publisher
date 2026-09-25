@@ -430,6 +430,13 @@ be a distinct view in that same medium, ask the affected question, and not omit
 the same reference. This is a finite authoring check, not evidence that the
 target's rendered words and shapes communicate the assertion; visible coverage
 and reader review remain independent later gates.
+Before layout, one frozen projection derives assertion IDs and explicit limits
+for each view/question, then unions the view obligations for each selected
+medium. A view-specific omission removes only the matching source assertion
+there; editorial assertions are never implicitly erased. A view cannot promise
+a question with neither a retained assertion nor a disclosed limit. This
+projection is a compilation obligation over authored choices, not proof that
+the source claim is true or the rendered carrier is readable.
 
 The Edition project selects _what_ matters and may constrain _how_ it must be
 expressed. Publisher supplies reusable neutral composition patterns, spacing,

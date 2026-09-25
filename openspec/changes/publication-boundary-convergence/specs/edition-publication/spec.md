@@ -240,6 +240,13 @@ reference for that question. `outside-question` SHALL NOT be used for a view
 that asks the affected question. Structural admission SHALL NOT claim that a
 target view visibly communicates an assertion; that remains a separate
 qualification obligation.
+Before layout, Publisher SHALL derive each selected view's declared assertion
+and explicit-limit obligations from the selected Edition Project. An omission
+SHALL remove only matching source assertions for its medium, view, and
+question; it SHALL NOT remove an editorial assertion or silently weaken
+another view or medium. A view that asks a question but has neither a remaining
+assertion nor an explicit limit SHALL fail selection. Per-medium obligations
+SHALL be the derived union of its selected views, not a second authored list.
 
 #### Scenario: The same view name is reused in both media
 
@@ -253,6 +260,13 @@ qualification obligation.
   target is absent, belongs only to another medium, does not ask the question,
   or itself omits the same reference
 - **THEN** authoring validation rejects it before layout
+
+#### Scenario: An overview omits a source assertion carried by a detail view
+
+- **WHEN** the selected Edition classifies the source assertion as
+  `covered-elsewhere` in one view and the detail view retains it
+- **THEN** only the overview's declared source obligation is removed
+- **AND** the detail view and medium remain bound to the assertion
 
 ### Requirement: Historical Edition and Provider contracts remain truthful
 

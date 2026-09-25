@@ -13,30 +13,81 @@ function mediaQuestions(project, medium) {
 }
 
 function questionObligations(project, media) {
-  const limited = new Set(project.scope.limits.map(({ question }) => question));
+  const scopeLimited = new Set(project.scope.limits.map(({ question }) => question));
+  const assertionsFor = (question) =>
+    project.requiredAssertions.filter(({ questions }) => questions.includes(question));
+  const orderedIds = (ids) =>
+    project.requiredAssertions.filter(({ id }) => ids.has(id)).map(({ id }) => id);
   return deepFreeze(
     Object.fromEntries(
       media.map((medium) => {
         const questionIds = mediaQuestions(project, medium);
+        const views = project.presentation[medium].views.map((view) => {
+          const omissions = project.omissions.filter(
+            (item) => item.medium === medium && item.view === view.id,
+          );
+          const assertionsByQuestion = Object.fromEntries(
+            view.questions.map((question) => {
+              const omittedSelections = new Set(
+                omissions
+                  .filter((item) => item.question === question)
+                  .map(({ selection }) => selection),
+              );
+              const candidates = assertionsFor(question);
+              const assertionIds = candidates
+                .filter(
+                  (assertion) =>
+                    assertion.kind !== 'source' || !omittedSelections.has(assertion.selection),
+                )
+                .map(({ id }) => id);
+              const limited =
+                scopeLimited.has(question) ||
+                omissions.some(
+                  (item) => item.question === question && item.disposition === 'explicit-limit',
+                );
+              if (!assertionIds.length && !limited)
+                fail(
+                  candidates.length
+                    ? 'materialized_view_question_unanswered'
+                    : 'materialized_question_unanswered',
+                );
+              return [question, assertionIds];
+            }),
+          );
+          const present = new Set(Object.values(assertionsByQuestion).flat());
+          return {
+            id: view.id,
+            questionIds: view.questions,
+            assertionsByQuestion,
+            assertionIds: orderedIds(present),
+            limitQuestionIds: view.questions.filter(
+              (question) =>
+                scopeLimited.has(question) ||
+                omissions.some(
+                  (item) => item.question === question && item.disposition === 'explicit-limit',
+                ),
+            ),
+          };
+        });
         const assertionsByQuestion = Object.fromEntries(
-          questionIds.map((id) => [
-            id,
-            project.requiredAssertions
-              .filter((assertion) => assertion.questions.includes(id))
-              .map(({ id: assertionId }) => assertionId),
-          ]),
+          questionIds.map((question) => {
+            const present = new Set(
+              views.flatMap((view) => view.assertionsByQuestion[question] ?? []),
+            );
+            return [question, orderedIds(present)];
+          }),
         );
-        if (questionIds.some((id) => !assertionsByQuestion[id].length && !limited.has(id)))
-          fail('materialized_question_unanswered');
+        const present = new Set(Object.values(assertionsByQuestion).flat());
         return [
           medium,
           {
             questionIds,
             assertionsByQuestion,
-            assertionIds: project.requiredAssertions
-              .filter(({ questions }) => questions.some((id) => questionIds.includes(id)))
-              .map(({ id }) => id),
-            limitQuestionIds: questionIds.filter((id) => limited.has(id)),
+            assertionIds: orderedIds(present),
+            limitQuestionIds: questionIds.filter((question) =>
+              views.some((view) => view.limitQuestionIds.includes(question)),
+            ),
+            views,
           },
         ];
       }),
