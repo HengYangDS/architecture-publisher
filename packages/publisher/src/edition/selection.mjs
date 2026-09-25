@@ -13,7 +13,6 @@ function mediaQuestions(project, medium) {
 }
 
 function questionObligations(project, media) {
-  const scopeLimited = new Set(project.scope.limits.map(({ question }) => question));
   const assertionsFor = (question) =>
     project.requiredAssertions.filter(({ questions }) => questions.includes(question));
   const orderedIds = (ids) =>
@@ -25,6 +24,21 @@ function questionObligations(project, media) {
         const views = project.presentation[medium].views.map((view) => {
           const omissions = project.omissions.filter(
             (item) => item.medium === medium && item.view === view.id,
+          );
+          const limitsByQuestion = Object.fromEntries(
+            view.questions.map((question) => [
+              question,
+              [
+                ...project.scope.limits
+                  .filter((item) => item.question === question)
+                  .map(({ reason }) => ({ kind: 'scope', reason })),
+                ...omissions
+                  .filter(
+                    (item) => item.question === question && item.disposition === 'explicit-limit',
+                  )
+                  .map(({ selection, reason }) => ({ kind: 'omission', selection, reason })),
+              ],
+            ]),
           );
           const assertionsByQuestion = Object.fromEntries(
             view.questions.map((question) => {
@@ -40,11 +54,7 @@ function questionObligations(project, media) {
                     assertion.kind !== 'source' || !omittedSelections.has(assertion.selection),
                 )
                 .map(({ id }) => id);
-              const limited =
-                scopeLimited.has(question) ||
-                omissions.some(
-                  (item) => item.question === question && item.disposition === 'explicit-limit',
-                );
+              const limited = limitsByQuestion[question].length > 0;
               if (!assertionIds.length && !limited)
                 fail(
                   candidates.length
@@ -59,13 +69,10 @@ function questionObligations(project, media) {
             id: view.id,
             questionIds: view.questions,
             assertionsByQuestion,
+            limitsByQuestion,
             assertionIds: orderedIds(present),
             limitQuestionIds: view.questions.filter(
-              (question) =>
-                scopeLimited.has(question) ||
-                omissions.some(
-                  (item) => item.question === question && item.disposition === 'explicit-limit',
-                ),
+              (question) => limitsByQuestion[question].length > 0,
             ),
           };
         });

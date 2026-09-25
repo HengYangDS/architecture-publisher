@@ -307,11 +307,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       presentation remain open.
       The compiler now consumes the locked Edition bytes and selected LikeC4
       sources through the admitted parser, resolves every declared source-bound
-      reference, and derives semantic identity without parser-run relation IDs.
+      reference, and derives native semantic identity from normalized selections,
+      not parser-run relation IDs or the whole Edition/toolchain lock. Narrative,
+      visual-policy, and toolchain-only changes retain that native digest while
+      changing the input lock.
       It rejects even unreferenced unsupported input formats rather than
       silently dropping part of the selected scope. It reports parser supply
-      and incomplete closure separately. Four focused tests pass; the new
-      compiler module has 96.15% branch coverage, while the full 823-pass,
+      and incomplete closure separately. Five focused tests pass; the new
+      compiler module has 96.29% branch coverage, while the full 825-pass,
       two-skip run remains below the global branch gate at 92.90%. Static and
       package checks pass. This is not yet the CLI Candidate path:
       source-backed assertion coverage, media, and qualification remain open.
@@ -341,8 +344,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       explicit-limit IDs, then unions these for each requested medium without
       transferring an omission across views or media. Unrequested-only and
       unanswered view questions fail. Focused, static, and package checks pass.
-      The full run passes 777 tests, skips 2, but branch coverage is 92.91%
-      against 95%. Source-backed membership, aggregation, contradictions,
+      An additional RED/GREEN preserves exact scope- and omission-limit reasons
+      at each view/question, without transferring a limit between media. The
+      seven focused tests and static/package checks pass; the current full run
+      passes 825 tests, skips 2, but branch coverage remains 92.90% against
+      95%. Source-backed membership, aggregation, contradictions,
       visible carriers, and reader adequacy remain open.
 - [ ] 5.2 Using the selected foundation from Task 1, provide an explainable
       neutral first build and bounded local refinement without author-written

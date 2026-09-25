@@ -11,7 +11,15 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 async function fixture(
   t,
-  { label = 'Selected', target = 'element:a', format = 'likec4/dsl', extraUnselected = false } = {},
+  {
+    label = 'Selected',
+    target = 'element:a',
+    format = 'likec4/dsl',
+    extraUnselected = false,
+    narrative = 'Selected native architecture.',
+    visualProfile = 'neutral',
+    toolchainProfile = 'portable',
+  } = {},
 ) {
   const root = await fs.mkdtemp(
     path.join(await fs.realpath(os.tmpdir()), 'archpub-native-edition-'),
@@ -57,7 +65,7 @@ async function fixture(
     ],
     omissions: [],
     transformations: [],
-    narrative: { summary: 'Selected native architecture.', readingOrder: ['shape'] },
+    narrative: { summary: narrative, readingOrder: ['shape'] },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },
       interactive: {
@@ -65,7 +73,7 @@ async function fixture(
         intent: 'An explorable overview.',
       },
     },
-    visualPolicy: { profile: 'neutral' },
+    visualPolicy: { profile: visualProfile },
   };
   await fs.writeFile(path.join(root, 'edition/project.json'), JSON.stringify(project) + '\n');
   const request = {
@@ -95,7 +103,7 @@ async function fixture(
     })),
     providers: [],
     media: ['static', 'interactive'],
-    toolchain: { profile: 'portable' },
+    toolchain: { profile: toolchainProfile },
   };
   const bytes = Buffer.from(JSON.stringify(request) + '\n');
   const file = path.join(root, 'build-request.json');
@@ -133,6 +141,20 @@ test('relocation preserves meaning while changed selected bytes create a new ide
   assert.notEqual(changed.subjectLockSha256, first.subjectLockSha256);
   assert.notEqual(changed.semanticDigest, first.semanticDigest);
   assert.equal(changed.selections[0].members.elements[0].label, 'Changed');
+});
+
+test('editorial and toolchain changes alter the lock but not selected native meaning', async (t) => {
+  const first = await compiler.compileEditionNativeSelections(await fixture(t));
+  for (const change of [
+    { narrative: 'A different editorial summary.' },
+    { visualProfile: 'restrained' },
+    { toolchainProfile: 'candidate-layout' },
+  ]) {
+    const next = await compiler.compileEditionNativeSelections(await fixture(t, change));
+    assert.notEqual(next.subjectLockSha256, first.subjectLockSha256);
+    assert.equal(next.semanticDigest, first.semanticDigest);
+    assert.deepEqual(next.selections, first.selections);
+  }
 });
 
 test('native compilation fails closed on an unresolved or unadmitted source reference', async (t) => {

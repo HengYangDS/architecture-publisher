@@ -91,6 +91,7 @@ test('selected media derive distinct question and assertion obligations before l
           id: 'overview',
           questionIds: ['shape'],
           assertionsByQuestion: { shape: ['system-shape'] },
+          limitsByQuestion: { shape: [] },
           assertionIds: ['system-shape'],
           limitQuestionIds: [],
         },
@@ -106,6 +107,7 @@ test('selected media derive distinct question and assertion obligations before l
           id: 'overview',
           questionIds: ['shape', 'risk'],
           assertionsByQuestion: { shape: ['system-shape'], risk: ['risk-editorial'] },
+          limitsByQuestion: { shape: [], risk: [] },
           assertionIds: ['system-shape', 'risk-editorial'],
           limitQuestionIds: [],
         },
@@ -207,4 +209,29 @@ test('a selected question without an assertion or explicit limit is unanswered',
   const selected = assemble(editionProject);
   assert.deepEqual(selected.questionObligations.interactive.assertionsByQuestion.risk, []);
   assert.deepEqual(selected.questionObligations.interactive.limitQuestionIds, ['risk']);
+});
+
+test('each view retains the exact authored reason for its scoped limits', () => {
+  const editionProject = project();
+  editionProject.scope.limits.push({ question: 'risk', reason: 'No runtime trace was selected.' });
+  editionProject.omissions.push({
+    medium: 'static',
+    view: 'overview',
+    selection: 'system',
+    question: 'shape',
+    disposition: 'explicit-limit',
+    reason: 'The static overview omits the system boundary.',
+  });
+  const selected = assemble(editionProject).questionObligations;
+  assert.deepEqual(selected.static.views[0].limitsByQuestion?.shape, [
+    {
+      kind: 'omission',
+      selection: 'system',
+      reason: 'The static overview omits the system boundary.',
+    },
+  ]);
+  assert.deepEqual(selected.interactive.views[0].limitsByQuestion?.risk, [
+    { kind: 'scope', reason: 'No runtime trace was selected.' },
+  ]);
+  assert.deepEqual(selected.interactive.views[0].limitsByQuestion?.shape, []);
 });

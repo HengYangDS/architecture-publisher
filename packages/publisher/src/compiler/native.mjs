@@ -53,9 +53,7 @@ export async function compileEditionNativeSelections(input) {
   const selections = project.scope.selections.map((selection) =>
     resolveLikeC4Selection(index, selection),
   );
-  const semanticDigest = sha(
-    Buffer.from(canonical({ subjectLockSha256: input.lockSha256, selections })),
-  );
+  const semanticDigest = sha(Buffer.from(canonical(selections)));
   return deepFreeze({
     subjectLockSha256: input.lockSha256,
     semanticDigest,
