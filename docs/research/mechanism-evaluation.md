@@ -233,14 +233,20 @@ the cost of a nonduplicating static grammar.
 With the same AIGW source, a separate read-only, source-adjacent trial of the
 unreleased Edition Project carried all four questions, five authored groups,
 eleven relation selections and eleven claim selections through materialization,
-meaning, shared grouped geometry and static Scene composition. The result has
-twelve nodes, eleven edges, eleven distinct claim cards and 22 independently
-bound source-assertion carriers. It is `unqualified-scene`: the public renderer
-still rejects a graph-plus-claim mix rather than overlaying two regions, and
-there is no interactive Scene, paired Candidate, installed run or visual
-acceptance for this AIGW trial. Its eleven relation/claim links are derived
-from exact same-source dependency references, not an additional edited input;
-they have not yet become visible compound carriers.
+meaning and shared grouped geometry. A later temporary trial on AIGW source
+HEAD `04f593a4` and Claim Model SHA-256
+`1975b7af02b3e28268feb9b4ed7fab88caac6e7bb44df484a6f133275775dabd`
+built a paired, unqualified Candidate with twelve static nodes, eleven
+relations, eleven distinct claim cards and 22 independently bound source
+assertions. Its eleven relation/claim links derive from same-source typed
+dependencies, not another edited input. Exact Candidate replay matched.
+Background Chrome showed four complete pages with 11, 3, 6 and 2 linked
+claims, no console errors or horizontal overflow at 1280 and 390 CSS pixels,
+and no axe WCAG 2/2.1 A/AA violations. This was a source-adjacent authoring
+trial, not an installed or source-owned AIGW Provider migration. The static
+work remains text-dense and the interactive graph small beside repeated
+claim facts; no final reader-quality, source-owner or human acceptance was
+granted. The owned temporary Candidate, browser session and server were removed.
 
 ## Consequences for ETHOS
 

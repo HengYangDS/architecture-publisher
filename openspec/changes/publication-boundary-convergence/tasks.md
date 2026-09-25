@@ -369,30 +369,25 @@ third-party or generated supply rather than moving owned code outside coverage.
       interactive carriers, offline relocation, changed-plane/condition tests,
       browser/accessibility checks and exact replay. The existing grouped
       geometry owner positions AIGW's five groups, twelve entities and eleven
-      relations. A current-source, four-question AIGW probe now compiles one
-      unqualified static Scene with those groups, eleven distinct claim cards
-      and 22 independent source-assertion carriers. It derives eleven exact
-      relation/claim links without a second authoring field. All eleven claims
-      explicitly depend on their matching relation; no visual association is
-      inferred from matching endpoints alone.
-      Static claim-only rendering now factors only exact common context,
-      retains per-claim anchors, and rejects an unlinked graph/claim overlay.
-      The public static-only path now emits SVG/PNG with independently bound
-      relation and claim carriers, explicit visual cross-references, exact
-      source-dependency checks, and successful Candidate replay. A temporary
-      read-only AIGW overview-only trial on source HEAD `04f593a4` carried
-      12 entities, 11 relations, 11 claims, and five groups to an 1800 × 2952
-      PNG before the final card-order correction. Its full-width lower grid
-      reduced dead space but exposed dense prose and scrambled relation
-      references; a source regression now requires relation order. The trial
-      was visually inspected but remains unqualified and not source-owner-
-      approved; its temporary files were removed.
-      Open: four-question mixed interactive pages, the complete paired AIGW
-      Candidate, installed parity, reader-quality refinement, and human review.
+      relations. The public successor now composes exact relation/claim links
+      into sibling static SVG/PNG and four-page interactive HTML without a
+      second edited model or layout engine. Source tests cover distinct
+      carriers, question-local subsets, visible linkage, forged identity and
+      dependency rejection, and exact Candidate replay. A temporary read-only
+      source-adjacent trial on AIGW HEAD `04f593a4` built both media for four
+      questions, five static groups, 12 entities, 11 relations and 11 claims;
+      replay matched. Background Chrome displayed all four complete pages,
+      with 11/3/6/2 linked claims, no console errors or horizontal overflow at
+      1280/390 CSS pixels, and no axe WCAG 2/2.1 A/AA violations. These
+      temporary files were removed. This is not AIGW source-owned Provider
+      adoption, installed parity, predicate qualification or visual acceptance:
+      static claim prose remains dense and interactive graph labels small.
+      Open: source-owner-approved authoring, installed paired conformance,
+      reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure
-      requires replacement. Static, package, and strict OpenSpec checks pass;
-      the 1,042-test run has 1,037 passes and five skips, but the unchanged
-      branch coverage floor fails at 92.93% < 95% (Task 7.5).
+      requires replacement. Static, package and strict OpenSpec checks pass;
+      the 1,045-test run has 1,040 passes and five skips, but branch coverage
+      remains 92.90% < 95% (Task 7.5).
       Detailed counterexamples and measured limits stay in
       `docs/research/mechanism-evaluation.md`, not a second progress ledger.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive

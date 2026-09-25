@@ -1,6 +1,7 @@
 import { canonical, deepFreeze, record, text } from '../../semantics/document.mjs';
 import { fail, isDigest } from '../../source/manifest.mjs';
 import { claimCard } from '../claim-card.mjs';
+import { claimRelationLabel, linkClaimModelSources } from '../claim-relations.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ id, origin }) => JSON.stringify([origin.namespace, id, origin.sha256]);
@@ -74,7 +75,7 @@ function composePage(view, selections, assertions, questions, claimMode) {
     }
     const selected = selections.get(assertion.selection);
     if (!selected) fail('interactive_scene_assertion_unbound');
-    if (claimMode) {
+    if (claimMode && selected.target.kind === 'claim') {
       const card = claimCard(selected);
       addBound(claims, claimKey(card), card);
       sourceAssertionCarriers.push({
@@ -87,13 +88,23 @@ function composePage(view, selections, assertions, questions, claimMode) {
       });
       continue;
     }
+    if (claimMode && selected.target.kind !== 'relation')
+      fail('edition_scene_claim_model_unadmitted');
     const nodeRefs = selected.members.elements.map((member) => {
       const projected = element(member);
       addBound(nodes, key(projected), projected);
       return { namespace: projected.namespace, id: projected.id };
     });
     const relationRefs = selected.members.relations.map((member) => {
-      const projected = relation(member);
+      const projected = relation(
+        claimMode
+          ? {
+              ...member,
+              direction: 'forward',
+              label: claimRelationLabel(member, 'interactive_scene_relation_qualifiers_invalid'),
+            }
+          : member,
+      );
       addBound(relations, relationKey(projected), projected);
       return {
         namespace: projected.origin.namespace,
@@ -117,6 +128,16 @@ function composePage(view, selections, assertions, questions, claimMode) {
     if (!question) fail('interactive_scene_question_unbound');
     return question;
   });
+  if (claimMode && relations.size && !claims.size) fail('edition_scene_claim_model_unadmitted');
+  const claimRelationLinks =
+    claimMode && relations.size
+      ? linkClaimModelSources(
+          view,
+          assertions,
+          selections,
+          'interactive_scene_claim_relation_unbound',
+        ).links
+      : null;
   return {
     id: view.id,
     questionIds: view.questionIds,
@@ -133,6 +154,7 @@ function composePage(view, selections, assertions, questions, claimMode) {
           claimCards: [...claims.entries()]
             .sort(([left], [right]) => compare(left, right))
             .map(([, value]) => value),
+          ...(claimRelationLinks === null ? {} : { claimRelationLinks }),
         }
       : {}),
     sourceAssertionCarriers,
@@ -160,7 +182,8 @@ export function composeInteractiveEditionScene(meaning) {
   if (
     claimMode &&
     !meaning.native.selections.every(
-      ({ format, target }) => format === 'architecture.claim-model/v2' && target.kind === 'claim',
+      ({ format, target }) =>
+        format === 'architecture.claim-model/v2' && ['claim', 'relation'].includes(target.kind),
     )
   )
     fail('edition_scene_claim_model_unadmitted');

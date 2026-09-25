@@ -6,6 +6,45 @@ const relationKey = ({ origin, id }) => JSON.stringify([origin.namespace, id, or
 const claimKey = ({ namespace, reference, sha256 }) =>
   JSON.stringify([namespace, reference, sha256]);
 
+function linkedClaimOrdinals(page, relations, claims) {
+  if (!page.nodes.length || !page.claimCards?.length) {
+    if (page.claimRelationLinks !== undefined) fail('render_interactive_claim_relation_invalid');
+    return new Map();
+  }
+  if (
+    !Array.isArray(page.claimRelationLinks) ||
+    page.claimRelationLinks.length !== page.claimCards.length
+  )
+    fail('render_interactive_claim_relation_invalid');
+  const assertions = new Map(
+    page.sourceAssertionCarriers.map((carrier) => [carrier.assertionId, carrier]),
+  );
+  const ordinals = new Map();
+  for (const link of page.claimRelationLinks) {
+    if (!link || typeof link !== 'object' || Array.isArray(link))
+      fail('render_interactive_claim_relation_invalid');
+    const claim = assertions.get(link.claimAssertionId);
+    const relation = assertions.get(link.relationAssertionId);
+    if (
+      claim?.kind !== 'claim' ||
+      relation?.kind !== 'relation' ||
+      claim.claimRefs?.length !== 1 ||
+      relation.relationRefs?.length !== 1
+    )
+      fail('render_interactive_claim_relation_invalid');
+    const claimGraphicId = claims.get(claimKey(claim.claimRefs[0]));
+    const relationRef = relation.relationRefs[0];
+    const relationGraphicId = relations.get(
+      JSON.stringify([relationRef.namespace, relationRef.reference, relationRef.sha256]),
+    );
+    if (!claimGraphicId || !relationGraphicId || ordinals.has(claimGraphicId))
+      fail('render_interactive_claim_relation_invalid');
+    ordinals.set(claimGraphicId, Number(relationGraphicId.slice(2)) + 1);
+  }
+  if (ordinals.size !== claims.size) fail('render_interactive_claim_relation_invalid');
+  return ordinals;
+}
+
 /** Reduce one selected page to public reading data without raw source identity. */
 export function projectInteractivePage(page, index) {
   if (
@@ -95,6 +134,15 @@ export function projectInteractivePage(page, index) {
     claims.set(identity, graphicId);
     return { graphicId, facts: claim.facts };
   });
+  const claimOrdinals = linkedClaimOrdinals(page, relations, claims);
+  const visibleClaims = publicClaims
+    .map((claim) => ({
+      ...claim,
+      ...(claimOrdinals.has(claim.graphicId)
+        ? { relationOrdinal: claimOrdinals.get(claim.graphicId) }
+        : {}),
+    }))
+    .sort((left, right) => (left.relationOrdinal ?? 0) - (right.relationOrdinal ?? 0));
 
   const questions = new Map(page.questions.map((question) => [question?.id, question]));
   if (questions.size !== page.questions.length) fail('render_interactive_identity_ambiguous');
@@ -186,7 +234,7 @@ export function projectInteractivePage(page, index) {
       questions: publicQuestions,
       nodes: publicNodes,
       relations: publicRelations,
-      ...(page.claimCards === undefined ? {} : { claims: publicClaims }),
+      ...(page.claimCards === undefined ? {} : { claims: visibleClaims }),
       editorialAssertions: publicEditorial,
     },
     carriers: {

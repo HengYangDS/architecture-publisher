@@ -118,6 +118,7 @@ document.fonts.ready.then(() => show(0));
 
 function pageHtml(page, index, methodLimits) {
   const nodes = new Map(page.nodes.map((node) => [node.id, node.label]));
+  const mixed = Boolean(page.nodes.length && page.claims?.length);
   const questionItems = page.questions
     .map(
       (question) =>
@@ -131,10 +132,10 @@ function pageHtml(page, index, methodLimits) {
     )
     .join('');
   const relationItems = page.relations
-    .map((relation) => {
+    .map((relation, at) => {
       const arrow = relation.direction === 'bidirectional' ? '↔' : '→';
       const words = `${nodes.get(relation.source)} ${arrow} ${nodes.get(relation.target)}${relation.label ? ` · ${relation.label}` : ''}`;
-      return `<li><button type="button" data-focus-relation="${relation.id}">${escape(words)}</button></li>`;
+      return `<li><button type="button" data-focus-relation="${relation.id}">${mixed ? `<span class="ordinal">${String(at + 1).padStart(2, '0')}</span>` : ''}${escape(words)}</button></li>`;
     })
     .join('');
   const editorial = page.editorialAssertions
@@ -144,7 +145,7 @@ function pageHtml(page, index, methodLimits) {
     )
     .join('');
   const editorialStage = `<div class="empty-graph"><p class="eyebrow">Evidence boundary</p>${page.editorialAssertions.map(({ statement, proponent }) => `<div class="editorial-card"><blockquote>${escape(statement)}</blockquote><p>Editorial judgment · ${escape(proponent)} · unverified</p></div>`).join('')}</div>`;
-  const claimStage = `<div class="claim-stage">${(page.claims ?? []).map(({ graphicId, facts }) => `<article class="claim-card" data-graphic-id="${graphicId}"><dl class="claim-facts">${facts.map(({ label, value }) => `<dt>${escape(label)}</dt><dd>${escape(value)}</dd>`).join('')}</dl></article>`).join('')}</div>`;
+  const claimStage = `<div class="claim-stage">${(page.claims ?? []).map(({ graphicId, facts, relationOrdinal }) => `<article class="claim-card" data-graphic-id="${graphicId}">${relationOrdinal ? `<p class="claim-link">ON SOURCE RELATION ${String(relationOrdinal).padStart(2, '0')}</p>` : ''}<dl class="claim-facts">${facts.map(({ label, value }) => `<dt>${escape(label)}</dt><dd>${escape(value)}</dd>`).join('')}</dl></article>`).join('')}</div>`;
   const stage = page.nodes.length
     ? `<div class="graph" id="graph-${index}" aria-hidden="true"></div><p class="graph-instruction">Pan and zoom in the graph; the adjacent lists provide keyboard-accessible reading and focus.</p>`
     : page.claims?.length
@@ -158,7 +159,7 @@ function pageHtml(page, index, methodLimits) {
     ${relationItems ? `<h3>Source relations</h3><ul class="relation-list">${relationItems}</ul>` : ''}
     ${editorial && page.nodes.length ? `<h3>Editorial assertions</h3><ul>${editorial}</ul>` : ''}
     ${methodLimits.length ? `<h3>Method limits</h3><ul class="method-limits">${methodLimits.map((limit) => `<li><code>${escape(limit)}</code></li>`).join('')}</ul>` : ''}
-    </aside></div></section>`;
+    </aside></div>${mixed ? `<section class="linked-claims" aria-label="Source claims"><h3>Source claims</h3>${claimStage}</section>` : ''}</section>`;
 }
 
 function css(fonts) {
@@ -176,6 +177,7 @@ function css(fonts) {
   .edition-page[hidden]{display:none}.page-heading{display:flex;align-items:baseline;gap:18px;margin:12px 0 18px}.page-heading h2{font-size:clamp(20px,2vw,28px);line-height:1.3;margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
   .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.stage{position:relative;min-width:0}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:clamp(360px,46vh,660px)}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-instruction{font-size:11px;color:#4c5a50;margin:10px 0 0}.fit{position:absolute;right:16px;top:16px;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
   .claim-stage{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;align-content:start}.claim-card{min-width:0;background:#fffefa;border:1px solid #c4ccc2;border-radius:18px;padding:22px 25px}.claim-facts{display:grid;grid-template-columns:minmax(80px,1fr) minmax(0,2.2fr);gap:9px 16px;margin:0}.claim-facts dt{font-size:11px;color:#526158}.claim-facts dd{font-size:13px;line-height:1.45;margin:0;overflow-wrap:anywhere}
+  .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}.linked-claims .claim-stage{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
   .notes{border-left:1px solid #d3dbd1;padding:0 0 0 28px;min-width:0}.notes h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 9px}.notes h3:not(:first-child){margin-top:22px}.notes ul{list-style:none;margin:0;padding:0}.notes li{font-size:13px;line-height:1.55;overflow-wrap:anywhere}.notes li+li{margin-top:9px}.notes p{margin:0}.notes small{display:block;font-size:10px;color:#4c5a50;margin-top:3px}.notes button{display:flex;gap:11px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:2px 0;line-height:1.5;font-size:13px}.notes button:hover{text-decoration:underline}.notes button small{margin-left:auto}.ordinal{font-size:10px;color:#4c5a50}.limits{border-left:2px solid #b3c4b6;padding-left:10px!important;margin-top:7px!important;color:#526158}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}
   @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:1fr}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.graph{height:clamp(340px,50vh,520px)}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}`;

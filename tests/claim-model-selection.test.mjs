@@ -21,6 +21,7 @@ import {
 import { validateVisibleSelection } from '../packages/publisher/src/compiler/coverage.mjs';
 import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/index.mjs';
 import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
+import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/cytoscape/edition.mjs';
 import { verifySelectedCandidateReplay } from '../packages/publisher/src/qualification/index.mjs';
 import { canonical } from '../packages/publisher/src/source/json.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
@@ -187,6 +188,24 @@ async function groupedMixedFixture(
   const requestBytes = Buffer.from(JSON.stringify(request) + '\n');
   await fs.writeFile(selected.requestPath, requestBytes);
   return { ...selected, requestSha256: sha(requestBytes) };
+}
+
+function twoRelationClaimModel() {
+  const model = claimModel();
+  model.relations.second = {
+    type: 'calls',
+    subject: 'server',
+    object: 'other',
+    qualifiers: {},
+    provenance: ['contract'],
+  };
+  model.claims.aaa = {
+    ...structuredClone(model.claims.intended),
+    subject: 'server',
+    object: 'other',
+    dependsOn: [{ section: 'relations', id: 'second' }],
+  };
+  return model;
 }
 
 async function evolutionSide(selected) {
@@ -756,6 +775,54 @@ test('a selected relation and dependent claim build a source-bound static Candid
   assert.equal(selected.project.requiredAssertions, undefined);
 });
 
+test('a selected relation and dependent claim build a readable interactive Candidate', async (t) => {
+  const selected = await groupedMixedFixture(t, { media: ['interactive'] });
+  const output = path.join(selected.root, 'candidate');
+  const built = await compileEditionCandidateInput(
+    selected.requestPath,
+    selected.requestSha256,
+    output,
+  );
+  assert.deepEqual(built.media, ['interactive']);
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  assert(html.includes('class="graph"'), 'selected structure must be visible');
+  assert(html.includes('class="claim-stage"'), 'typed claim must be visible beside the graph');
+  assert(html.includes('authorization: granted'));
+  assert(html.includes('ON SOURCE RELATION 01'));
+  assert(!html.includes(modelNamespace), 'private source namespace leaked into HTML');
+  const replay = await verifySelectedCandidateReplay({
+    requestPath: selected.requestPath,
+    requestSha256: selected.requestSha256,
+    candidateManifestPath: built.manifestPath,
+    candidateManifestSha256: built.manifestSha256,
+  });
+  assert.equal(replay.verdict, 'match');
+});
+
+test('mixed interactive media rejects a forged source dependency behind valid graphics', async (t) => {
+  const selected = await groupedMixedFixture(t, { media: ['interactive'] });
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const scene = composeInteractiveEditionScene(meaning);
+  const rendered = await renderInteractiveEditionHtml(scene);
+  assert.doesNotThrow(() =>
+    validateVisibleSelection(meaning, 'interactive', scene, rendered.carriers),
+  );
+
+  const forged = structuredClone(scene);
+  forged.pages[0].claimRelationLinks[0].relationAssertionId = 'not-selected';
+  await assert.rejects(renderInteractiveEditionHtml(forged), {
+    code: 'render_interactive_claim_relation_invalid',
+  });
+
+  const falseDependency = structuredClone(meaning);
+  falseDependency.native.selections[1].members.claims[0].dependsOn = [];
+  assert.throws(
+    () => validateVisibleSelection(falseDependency, 'interactive', scene, rendered.carriers),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
+});
+
 test('two claims on one selected relation keep distinct visible carriers', async (t) => {
   const selected = await groupedMixedFixture(t, { media: ['static'] });
   selected.project.scope.selections.push({
@@ -787,21 +854,7 @@ test('two claims on one selected relation keep distinct visible carriers', async
 });
 
 test('mixed static claims follow source-relation reading order rather than claim IDs', async (t) => {
-  const model = claimModel();
-  model.relations.second = {
-    type: 'calls',
-    subject: 'server',
-    object: 'other',
-    qualifiers: {},
-    provenance: ['contract'],
-  };
-  model.claims.aaa = {
-    ...structuredClone(model.claims.intended),
-    subject: 'server',
-    object: 'other',
-    dependsOn: [{ section: 'relations', id: 'second' }],
-  };
-  const selected = await groupedMixedFixture(t, { model });
+  const selected = await groupedMixedFixture(t, { model: twoRelationClaimModel() });
   selected.project.scope.selections.push(
     {
       id: 'second-relation',
@@ -837,6 +890,67 @@ test('mixed static claims follow source-relation reading order rather than claim
   const second = svg.indexOf('ON SOURCE RELATION 02');
   assert(first >= 0 && second >= 0);
   assert(first < second, 'claims must follow visible relation numbering');
+});
+
+test('mixed interactive pages keep separate question-local graphs and claims', async (t) => {
+  const selected = await groupedMixedFixture(t, {
+    model: twoRelationClaimModel(),
+    media: ['interactive'],
+  });
+  selected.project.questions.push({
+    id: 'followup',
+    audience: 'maintainer',
+    text: 'What happens after the server?',
+  });
+  selected.project.scope.selections.push(
+    {
+      id: 'second-relation',
+      namespace: modelNamespace,
+      kind: 'reference',
+      reference: 'relation:second',
+      questions: ['followup'],
+    },
+    {
+      id: 'first-claim',
+      namespace: modelNamespace,
+      kind: 'reference',
+      reference: 'claim:aaa',
+      questions: ['followup'],
+    },
+  );
+  selected.project.presentation.static.views[0].groups.push({
+    id: 'other-group',
+    label: 'Other',
+    elements: [{ namespace: modelNamespace, id: 'other' }],
+  });
+  selected.project.presentation.interactive.views = [
+    { id: 'condition', questions: ['condition'] },
+    { id: 'followup', questions: ['followup'] },
+  ];
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const scene = composeInteractiveEditionScene(meaning);
+  assert.deepEqual(
+    scene.pages.map(({ id }) => id),
+    ['condition', 'followup'],
+  );
+  assert.deepEqual(
+    scene.pages.map(({ relations }) => relations.length),
+    [1, 1],
+  );
+  assert.deepEqual(
+    scene.pages.map(({ claimCards }) => claimCards.length),
+    [1, 1],
+  );
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  assert.equal((html.match(/class="linked-claims"/gu) ?? []).length, 2);
+  assert(html.includes('What happens after the server?'));
 });
 
 test('mixed static media rejects a forged graphic link or source dependency', async (t) => {

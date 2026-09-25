@@ -689,8 +689,8 @@ versioned meaning, bounded execution and real adopter acceptance before it
 can re-enter authoring.
 
 The AIGW cost probe establishes duplicated authoring, not successor media
-fitness. Its relation-plus-claim selection currently reaches meaning but both
-Scene compilers reject the mixed form. The mixed grammar, four distinct reader
+fitness. At design approval, its relation-plus-claim selection reached meaning
+but both Scene compilers rejected the mixed form. The mixed grammar, four distinct reader
 questions, five authored groups, public two-medium expression, and installed
 Candidate belong to composition and qualification acceptance, not to a line
 count or the syntax-only authoring change.
@@ -750,9 +750,10 @@ identified group only when the grouping is exact and exceptions remain visible;
 repeating the entire source record for every relation is not editorial
 composition. Source-qualified IDs remain in private carrier maps. Static and
 interactive plates have independent layout. Claim-only HTML does not load a
-graph engine it does not use. Entity, relation, and mixed-model media remain
-unadmitted until their distinct visible grammar is verified. This baseline is
-not flagship visual acceptance.
+graph engine it does not use. Entity, relation, and mixed-model media were
+unadmitted at this design baseline; later implementation status belongs only
+in `tasks.md`. A compiled Scene or provisional Candidate is not flagship
+visual acceptance.
 
 For a structural Claim Model view with authored groups, first reuse the
 existing Publisher-owned grouped geometry mechanism through a neutral input

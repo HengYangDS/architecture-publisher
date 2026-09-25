@@ -39,7 +39,7 @@ function validateClaimCarriers(page, selections, assertions) {
   return required;
 }
 
-function validateStaticClaimLinks(page, selections, assertions, required) {
+function validateClaimLinks(page, selections, assertions, required) {
   const links = page.claimRelationLinks;
   const carriers = new Map(
     page.sourceAssertionCarriers.map((carrier) => [carrier.assertionId, carrier]),
@@ -154,8 +154,11 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
       mismatch();
     if (page.claimCards !== undefined) {
       const required = validateClaimCarriers(page, selections, assertions);
-      if (medium === 'static' && page.edges?.length)
-        validateStaticClaimLinks(page, selections, assertions, required);
+      if (
+        (medium === 'static' && page.edges?.length) ||
+        (medium === 'interactive' && page.relations?.length)
+      )
+        validateClaimLinks(page, selections, assertions, required);
     }
     if (
       !view.assertionsByQuestion ||
