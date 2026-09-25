@@ -99,24 +99,28 @@ export function composeStaticEditionScene(meaning, layout) {
     }
     const selected = selections.get(assertion.selection);
     if (!selected) fail('static_scene_assertion_unbound');
-    const nodeIds = selected.members.elements.map((node) => {
+    const nodeRefs = selected.members.elements.map((node) => {
       const identity = key(node);
       if (!semanticNodes.has(identity)) fail('static_scene_assertion_unbound');
       requiredNodes.add(identity);
-      return node.id;
+      return { namespace: node.namespace, id: node.id };
     });
-    const relationReferences = selected.members.relations.map((relation) => {
+    const relationRefs = selected.members.relations.map((relation) => {
       const identity = memberRelationKey(relation);
       if (!semanticRelations.has(identity)) fail('static_scene_assertion_unbound');
       requiredRelations.add(identity);
-      return relation.id;
+      return {
+        namespace: relation.origin.namespace,
+        reference: relation.id,
+        sha256: relation.origin.sha256,
+      };
     });
     sourceAssertionCarriers.push({
       assertionId: id,
       kind: selected.target.kind,
       selectionId: assertion.selection,
-      nodeIds,
-      relationReferences,
+      nodeRefs,
+      relationRefs,
     });
   }
 

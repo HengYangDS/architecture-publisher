@@ -590,7 +590,9 @@ supply access, so a caller cannot retarget the in-flight request.
 
 The first neutral static Scene joins that layout to one explicitly selected
 Edition view. Its source carriers are the exact members required by that
-medium's assertions, not every upstream-layout member; editorial prose stays
+medium's assertions, not every upstream-layout member. Assertion carriers use
+source-qualified node and relation references, never a bare native ID that can
+collide across namespaces; editorial prose stays
 editor-attributed and unverified. A partially selected upstream edge cannot
 stand for all of its relations. Content bounds are recomputed from retained
 nodes and routes, so narrowing the Edition does not inherit unrelated canvas

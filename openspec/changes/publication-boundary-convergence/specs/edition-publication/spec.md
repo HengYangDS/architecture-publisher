@@ -177,8 +177,10 @@ medium's independently composed Scene and artifact/supply inventory, and
 derived reader obligations and limits. Each medium SHALL bind the digest of a
 private source-to-graphic carrier map without placing raw source identifiers in
 public static or interactive media. The map is traceability evidence, not proof
-that the corresponding words and shapes are painted or understood. Structural
-validation of that manifest
+that the corresponding words and shapes are painted or understood. Source
+assertion carriers SHALL retain source-qualified identities so same-ID members
+of distinct namespaces cannot collapse into one assertion. Structural validation
+of that manifest
 SHALL NOT grant source authority, visible coverage, qualification, or
 acceptance. The build output directory SHALL remain outside Candidate semantic
 identity. A hard failure in any requested medium SHALL NOT emit a complete

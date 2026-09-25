@@ -73,8 +73,11 @@ export function staticEditionScene() {
         assertionId: 'source-shape',
         kind: 'view',
         selectionId: 'overview',
-        nodeIds: ['a', 'b'],
-        relationReferences: ['relation:4:2'],
+        nodeRefs: [
+          { namespace: 'example/model', id: 'a' },
+          { namespace: 'example/model', id: 'b' },
+        ],
+        relationRefs: [{ namespace: 'example/model', reference: 'relation:4:2', sha256: DIGEST }],
       },
     ],
     editorialAssertions: [],

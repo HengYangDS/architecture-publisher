@@ -410,7 +410,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       relocation without the source repository. Exact built HTML passes Chrome
       offline, responsive, and axe WCAG 2/2.1 A/AA checks; legacy self-hosted
       golden identity was regenerated against selected installed bytes. Static,
-      package, and strict OpenSpec checks pass. The latest full run passes 899
+      package, and strict OpenSpec checks pass. The latest full run passes 900
       tests, skips 2, and fails only the global branch-coverage floor
       (93.38% < 95%).
       Visible semantic coverage, human visual review, qualification binding,
@@ -425,7 +425,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       source-to-graphic map remains private and its digest is bound into
       Candidate v2 separately from the interactive map. The exact built SVG
       and HTML are checked in Chrome for visible carriers and source-namespace
-      non-disclosure. This proves those tested carrier observations, not full
+      non-disclosure. Static assertion carriers now retain source-qualified
+      node and relation references; a same-ID cross-namespace counterexample
+      no longer collapses them. This proves those tested carrier observations, not full
       view/question coverage or reader acceptance.
 - [ ] 5.5 Migrate `editions/self/` to the same public Build Request, Edition,
       and dual-medium compiler used by unrelated adopters. Preserve self-owned

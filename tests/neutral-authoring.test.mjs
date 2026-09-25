@@ -125,8 +125,17 @@ test('a neutral static scene carries declared source assertions without authored
       assertionId: 'source-shape',
       kind: 'view',
       selectionId: 'overview',
-      nodeIds: ['a', 'b'],
-      relationReferences: [scene.edges[0].relations[0].reference],
+      nodeRefs: [
+        { namespace: 'example/model', id: 'a' },
+        { namespace: 'example/model', id: 'b' },
+      ],
+      relationRefs: [
+        {
+          namespace: scene.edges[0].relations[0].namespace,
+          reference: scene.edges[0].relations[0].reference,
+          sha256: scene.edges[0].relations[0].sha256,
+        },
+      ],
     },
   ]);
   assert.equal(Object.hasOwn(scene, 'svg'), false);
@@ -183,8 +192,10 @@ test('a source element assertion does not smuggle unrelated view members into th
     height: scene.nodes[0].height,
   });
   assert(scene.bounds.height < layout.bounds.height);
-  assert.deepEqual(scene.sourceAssertionCarriers[0].nodeIds, ['a']);
-  assert.deepEqual(scene.sourceAssertionCarriers[0].relationReferences, []);
+  assert.deepEqual(scene.sourceAssertionCarriers[0].nodeRefs, [
+    { namespace: 'example/model', id: 'a' },
+  ]);
+  assert.deepEqual(scene.sourceAssertionCarriers[0].relationRefs, []);
 });
 
 test('a relation assertion keeps its exact source locator and both visible endpoints', async () => {
@@ -207,8 +218,37 @@ test('a relation assertion keeps its exact source locator and both visible endpo
     ['a', 'b'],
   );
   assert.equal(scene.edges.length, 1);
-  assert.deepEqual(scene.sourceAssertionCarriers[0].relationReferences, [reference]);
+  assert.deepEqual(scene.sourceAssertionCarriers[0].relationRefs, [
+    { namespace: origin.namespace, reference, sha256: origin.sha256 },
+  ]);
   assert.equal(scene.edges[0].relations[0].origin.namespace, origin.namespace);
+});
+
+test('a static source assertion distinguishes same-ID nodes across namespaces', async () => {
+  const selected = await selectedInputs();
+  const meaning = structuredClone(selected.meaning);
+  const layout = structuredClone(selected.layout);
+  const view = meaning.native.selections.find(({ target }) => target.kind === 'view');
+  const second = view.members.elements[1];
+  second.namespace = 'other/model';
+  second.id = 'a';
+  second.origin.namespace = 'other/model';
+  view.members.relations[0].to = { namespace: 'other/model', id: 'a' };
+  layout.nodes[1].namespace = 'other/model';
+  layout.nodes[1].id = 'a';
+  layout.edges[0].to = { namespace: 'other/model', id: 'a' };
+  const scene = scenes.composeStaticEditionScene(meaning, layout);
+  assert.deepEqual(scene.sourceAssertionCarriers[0].nodeRefs, [
+    { namespace: 'example/model', id: 'a' },
+    { namespace: 'other/model', id: 'a' },
+  ]);
+  assert.deepEqual(
+    scene.nodes.map(({ namespace, id }) => [namespace, id]),
+    [
+      ['example/model', 'a'],
+      ['other/model', 'a'],
+    ],
+  );
 });
 
 test('editorial prose stays attributed and does not become a source node or edge', async () => {
