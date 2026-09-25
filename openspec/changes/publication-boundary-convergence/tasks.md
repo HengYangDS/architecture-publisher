@@ -329,33 +329,24 @@ third-party or generated supply rather than moving owned code outside coverage.
       claim dependencies, unknown read sets, and packaging-only changes. Report
       rebuild, semantic, media, human, acceptance, and publication obligations
       separately; do not transfer old approval automatically.
-      Partial: the existing `archpub evolution plan` route now selects an exact,
-      portable native Build Request pair and preserves Claim Model v2 comparison.
-      Native change facts distinguish source bytes and attribution, element
-      fields, view membership, relation-value multisets, supply identity, and
-      changed uncertainty. Ruling: source-location relation IDs do not prove
-      cross-revision correspondence; locator drift and same-lock native output
-      drift remain explicit unknowns. Pure Edition impact reports six separate
-      non-authorizing obligation classes; byte-only Edition reserialization
-      retains bundle, semantic, acceptance, and publication work without an
-      invented media redraw. Orchestration lives in `compiler/evolution.mjs`,
-      not below Edition or Provider. The provisional native route refuses
-      selected Providers before materialization rather than silently executing
-      code. Selected-medium addition/removal and interactive-page withdrawal
-      now produce explicit obligations without repainting unaffected media.
-      Independent review found and rechecked four further counterexamples:
-      retained-view old questions, cross-medium question contamination,
-      removed-static-view questions, and a changed compiled medium reported as
-      no-op under the same lock. Focused RED/GREEN tests pass 50/50; static,
-      package, and strict OpenSpec checks pass. The current full run passed 929
-      tests, skipped 4, with no test failures, but branch coverage is 93.58%
-      below the unchanged 95% release gate. A provisional package
-      installed with npm offline reproduced the native comparison after
-      relocation and rejected a changed source pin on macOS; this is not
-      final frozen-package or Linux/Windows evidence. Open: Provider-backed
-      comparison with explicit execution admission, qualified dependency
-      precision, package-only change evidence, final installed-platform parity,
-      and the coverage gate.
+      Partial: the existing `archpub evolution plan` route preserves Claim Model
+      v2 comparison and accepts exact native Build Request pairs. Change facts
+      separate source bytes, attribution, selected meaning, supply, and unknowns;
+      Edition impact separates six non-authorizing obligation classes. Ruling:
+      source-location relation IDs do not prove cross-revision correspondence;
+      locator and same-lock native-output drift remain explicit unknowns. Media
+      addition/removal and page withdrawal avoid repainting unaffected media;
+      four independently found question-scope and same-lock-media counterexamples
+      have RED/GREEN regressions. Digest-pinned declarative Providers now compare
+      through the same owner; executable delivery is rejected before execution.
+      A provisional npm-offline macOS package reproduces relocated direct and
+      declarative comparison and rejects changed pins, but is not frozen release
+      or Linux/Windows proof. Focused tests pass 53/53; static, package, and strict
+      OpenSpec checks pass; independent review found no new actionable defect.
+      Full behavior passes 931 tests, skips 4, and has no test failure; branch
+      coverage remains 93.58% against the 95% gate. Open: explicitly admitted
+      executable comparison, qualified dependency precision, package-only change
+      evidence, final installed-platform parity, and coverage.
 
 ## 5. Editorial composition and independent media
 

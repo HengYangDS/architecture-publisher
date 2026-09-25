@@ -4,6 +4,7 @@ import { compileNativeEditionEvolution } from '../edition/evolution.mjs';
 import { compareEditionInput } from '../edition/input.mjs';
 import { readBuildRequestSelection } from '../edition/materialize.mjs';
 import { materializeBuildRequestInput } from '../provider/build-request.mjs';
+import { readSelectedProviderManifest } from '../provider/manifest.mjs';
 import { exact, semanticError, text } from '../semantics/document.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { parseStrictJson } from '../source/json.mjs';
@@ -35,9 +36,13 @@ async function selectedNativeSide(planPath, value) {
     semanticError('semantic_plan_invalid');
   }
   const requestPath = path.resolve(path.dirname(planPath), ...selected.path.split('/'));
-  const { request } = await readBuildRequestSelection(requestPath, selected.sha256);
-  if (request.edition.kind !== 'direct' || request.providers.length)
-    semanticError('semantic_native_provider_comparison_unadmitted');
+  const { request, root } = await readBuildRequestSelection(requestPath, selected.sha256);
+  for (const selection of request.providers) {
+    const manifestPath = path.resolve(root, ...selection.manifest.split('/'));
+    const { manifest } = await readSelectedProviderManifest(manifestPath, selection.sha256);
+    if (manifest.delivery.kind !== 'declarative')
+      semanticError('semantic_native_provider_comparison_unadmitted');
+  }
   const materialized = await materializeBuildRequestInput(requestPath, selected.sha256);
   return { lock: materialized.lock, meaning: await compileEditionMeaning(materialized) };
 }

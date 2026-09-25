@@ -6,7 +6,11 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
-import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
+import {
+  moveModelToProvider,
+  selectedNativeEdition,
+  sha,
+} from './fixtures/selected-native-edition.mjs';
 
 const publisher = fileURLToPath(new URL('../packages/publisher/', import.meta.url));
 
@@ -112,7 +116,12 @@ test('offline installed evolution compares relocated native inputs and rejects c
       ? { SystemRoot: process.env.SystemRoot }
       : {}),
   };
-  const run = (directory, expectedStatus = 0) =>
+  const run = (
+    directory,
+    expectedStatus = 0,
+    relativePlan = 'inputs/comparison.json',
+    selectedDigest = digest,
+  ) =>
     JSON.parse(
       child(
         process.execPath,
@@ -120,9 +129,9 @@ test('offline installed evolution compares relocated native inputs and rejects c
           path.join(directory, 'node_modules/architecture-publisher', cliRelative),
           'evolution',
           'plan',
-          path.join(directory, 'inputs/comparison.json'),
+          path.join(directory, relativePlan),
           '--sha256',
-          digest,
+          selectedDigest,
         ],
         directory,
         nodeEnvironment,
@@ -139,6 +148,33 @@ test('offline installed evolution compares relocated native inputs and rejects c
   const relocated = path.join(work, 'relocated');
   await fs.rename(consumer, relocated);
   assert.deepEqual(run(relocated), first);
+
+  const providerRoot = path.join(relocated, 'inputs/after-provider');
+  await fs.cp(path.join(relocated, 'inputs/after'), providerRoot, { recursive: true });
+  const providerAfter = {
+    ...after,
+    root: providerRoot,
+    file: path.join(providerRoot, 'build-request.json'),
+    request: structuredClone(after.request),
+  };
+  await moveModelToProvider(providerAfter, changedModel);
+  const providerPlan = {
+    ...plan,
+    after: {
+      request: { path: 'after-provider/build-request.json', sha256: providerAfter.digest },
+    },
+  };
+  const providerPlanBytes = Buffer.from(JSON.stringify(providerPlan) + '\n');
+  await fs.writeFile(path.join(relocated, 'inputs/provider-comparison.json'), providerPlanBytes);
+  const providerDigest = sha(providerPlanBytes);
+  assert.deepEqual(run(relocated, 0, 'inputs/provider-comparison.json', providerDigest), first);
+  const tamperedProviderModel = Buffer.from(changedModel);
+  tamperedProviderModel[0] = 0x78;
+  await fs.writeFile(path.join(providerRoot, 'provider/model.c4'), tamperedProviderModel);
+  const providerRejected = run(relocated, 1, 'inputs/provider-comparison.json', providerDigest);
+  assert.equal(providerRejected.status, 'error');
+  assert.equal(providerRejected.error.code, 'edition_provider_v2_member_digest_mismatch');
+
   await fs.appendFile(path.join(relocated, 'inputs/after/sources/model.c4'), '\n');
   const rejected = run(relocated, 1);
   assert.equal(rejected.status, 'error');

@@ -11,7 +11,11 @@ import { compareEvolutionInput } from '../packages/publisher/src/compiler/evolut
 import { materializeBuildRequestInput } from '../packages/publisher/src/provider/index.mjs';
 import { compileNativeSelectionDelta } from '../packages/publisher/src/semantics/change.mjs';
 import { canonical } from '../packages/publisher/src/source/json.mjs';
-import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
+import {
+  moveModelToProvider,
+  selectedNativeEdition,
+  sha,
+} from './fixtures/selected-native-edition.mjs';
 
 async function snapshot(fixture) {
   const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
@@ -508,13 +512,32 @@ test('native comparison plan refuses a path outside its portable input root', as
   });
 });
 
+test('native comparison reads a pinned declarative Provider without changing selected meaning', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  await moveModelToProvider(after);
+  const selected = await comparisonPlan(t, before, after);
+  const result = await compareEvolutionInput(selected.file, selected.digest);
+  assert.deepEqual(result.delta.native.sourceBytes, { added: [], removed: [], changed: [] });
+  assert.deepEqual(result.editions.changed, []);
+  assert(Object.values(result.obligations).every((items) => items.length === 0));
+});
+
+test('native comparison detects changed bytes delivered by a pinned declarative Provider', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  const changed = Buffer.from(after.model.toString().replace("'Alpha'", "'Renamed Alpha'"));
+  await moveModelToProvider(after, changed);
+  const selected = await comparisonPlan(t, before, after);
+  const result = await compareEvolutionInput(selected.file, selected.digest);
+  assert.deepEqual(result.delta.native.sourceBytes.changed, ['fixture/model']);
+  assert.deepEqual(result.editions.changed, ['selected-atlas']);
+});
+
 test('native evolution does not execute a Provider from a comparison plan without admission', async (t) => {
   const before = await selectedNativeEdition(t);
   const after = await selectedNativeEdition(t);
-  before.request.providers = [
-    { id: 'unadmitted', manifest: 'missing/provider.json', sha256: '0'.repeat(64) },
-  ];
-  await rewriteRequest(before);
+  await moveModelToProvider(before, before.model, 'executable');
   const selected = await comparisonPlan(t, before, after);
   await assert.rejects(compareEvolutionInput(selected.file, selected.digest), {
     code: 'semantic_native_provider_comparison_unadmitted',

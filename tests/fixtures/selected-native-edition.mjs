@@ -74,3 +74,73 @@ export async function selectedNativeEdition(t, options = {}) {
   await fs.writeFile(file, bytes);
   return { root, file, digest: sha(bytes), request, project, model, views };
 }
+
+export async function moveModelToProvider(
+  fixture,
+  content = fixture.model,
+  delivery = 'declarative',
+) {
+  const model = fixture.request.sources.find(({ id }) => id === 'model');
+  if (!model) throw new Error('fixture_model_missing');
+  const directory = path.join(fixture.root, 'provider');
+  await fs.mkdir(directory);
+  await fs.writeFile(path.join(directory, 'model.c4'), content);
+  const manifest = {
+    schema: 'architecture.edition-provider/v2',
+    provider: { id: 'model-provider', revision: '1' },
+    selected: {
+      native: [
+        {
+          id: 'model',
+          namespace: model.namespace,
+          claimant: model.claimant,
+          format: model.format,
+          revision: model.revision,
+          bytes: content.length,
+          sha256: sha(content),
+        },
+      ],
+      derived: [],
+      edition: null,
+    },
+    delivery:
+      delivery === 'declarative'
+        ? { kind: delivery, files: [{ kind: 'native', id: 'model', path: 'model.c4' }] }
+        : {
+            kind: delivery,
+            package: {
+              name: '@fixture/model-provider',
+              version: '1.0.0',
+              packageJsonSha256: sha('package-json'),
+              contentSha256: sha('package'),
+              entrypoint: './provider',
+            },
+            inputs: [
+              {
+                id: 'model-input',
+                path: 'model.c4',
+                mediaType: 'text/plain',
+                bytes: content.length,
+                sha256: sha(content),
+              },
+            ],
+            nativeInputs: [{ item: 'model', input: 'model-input' }],
+            editionInput: null,
+            editionResourceInputs: [],
+          },
+  };
+  const manifestBytes = Buffer.from(JSON.stringify(manifest) + '\n');
+  await fs.writeFile(path.join(directory, 'provider.json'), manifestBytes);
+  fixture.request.sources = fixture.request.sources.filter(({ id }) => id !== 'model');
+  fixture.request.providers = [
+    {
+      id: 'model-provider',
+      manifest: 'provider/provider.json',
+      sha256: sha(manifestBytes),
+      ...(delivery === 'executable' ? { packageRoot: 'provider/package' } : {}),
+    },
+  ];
+  const requestBytes = Buffer.from(JSON.stringify(fixture.request) + '\n');
+  await fs.writeFile(fixture.file, requestBytes);
+  fixture.digest = sha(requestBytes);
+}
