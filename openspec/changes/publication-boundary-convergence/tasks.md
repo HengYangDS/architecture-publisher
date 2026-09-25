@@ -377,16 +377,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       exact replay. Entity, relation, and mixed Claim Model media still fail
       closed. Open: full adopter/platform parity, native evolution, input
       closure, final visual review, and the 95% branch-coverage release gate.
-      Ruling: trial one private Dagre supply for Claim Model topology, not as
-      semantic authority. A local 12/11/11 AIGW build exposed an overloaded
-      one-question Edition and full-field compositor; its 1800×3928 static
+      Ruling: reuse Publisher's existing grouped geometry owner before adding a
+      private engine; on exact AIGW authored groups it already positions 12
+      entities and 11 relations without a new dependency. This is geometry
+      feasibility, not successor visual or semantic qualification. A local
+      12/11/11 AIGW build exposed an overloaded one-question Edition and
+      full-field compositor; its 1800×3928 static
       output fails reader quality. Keep this task open. First test exact
       relation/claim compound carriers and editorial grouping without losing
-      distinct identities or qualifiers; replace the geometry supply only if a
-      geometry-specific counterexample remains. The unqualified local prototype
-      was discarded. The next AIGW trial must preserve its four authored reader
+      distinct identities or qualifiers; replace the shared geometry owner only
+      if a geometry-specific counterexample remains. The unqualified local
+      prototype was discarded. The next AIGW trial must preserve its four authored reader
       questions and five semantic groups; the discarded one-question probe was
-      not editorial parity. Do not add a second backend to disguise this failure.
+      not editorial parity. First prove exact group membership and explicit
+      relation dependency before shared carriers; changed claim qualifiers must
+      change their visible expression. Do not add a second backend to disguise
+      this failure.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

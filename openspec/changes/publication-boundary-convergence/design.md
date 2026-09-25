@@ -695,17 +695,37 @@ graph engine it does not use. Entity, relation, and mixed-model media remain
 unadmitted until their distinct visible grammar is verified. This baseline is
 not flagship visual acceptance.
 
-For a structural Claim Model view, one private Dagre geometry supply is the
-provisional low-cost choice, subject to packaged AIGW reader-quality and
-source-binding counterexamples. It may place entities and route relations; an
-unadorned relation arrow does not prove a claim's plane, condition, scope,
-validity, or provenance. A claim may instead share a compound visible carrier
-with its corresponding relation if the two meanings are visibly distinguished,
-each required field is expressed or explicitly limited, and each identity is
-bound independently in the private carrier map. A geometry-specific failure
-can disqualify Dagre; an overloaded Edition or field-dump compositor cannot.
-Do not add a public layout registry or keep multiple backends merely because
-the first composition was visually imperfect.
+For a structural Claim Model view with authored groups, first reuse the
+existing Publisher-owned grouped geometry mechanism through a neutral input
+boundary rather than adding another engine. Its AIGW v1 run positions twelve
+selected entities and eleven relations without a new supply, but this does not
+qualify a successor Scene or media. If the shared mechanism fails a named
+geometry or authoring counterexample, compare one mature replacement on that
+case and remove the displaced owner after parity. An unadorned relation arrow
+does not prove a claim's plane, condition, scope, validity, or provenance. A
+claim may instead share a compound visible carrier with its corresponding
+relation if the two meanings are visibly distinguished, each required field
+is expressed or explicitly limited, and each identity is bound independently
+in the private carrier map. A geometry-specific failure can disqualify the
+selected owner; an overloaded Edition or field-dump compositor cannot. Do not
+add a public layout registry or keep multiple backends merely because one
+composition was visually imperfect.
+
+The next structural trial must preserve editorial decisions already made by
+its source owner. A view may author ordered semantic groups of source-qualified
+elements; group membership is a layout constraint over selected elements, not
+a new source assertion or a list of pixel coordinates. If groups are present,
+their members must partition that view's retained elements exactly. A label is
+attributed to the Edition editor and cannot override an element's source role.
+For a Claim Model relation and claim to share a visible carrier, the selected
+claim must explicitly depend on that selected relation at the same source
+revision. Endpoint resemblance alone is insufficient. The carrier must
+separate topology from claim plane, condition, scope, validity, and provenance;
+its private map binds the relation and claim identities independently. Exact
+common values may be factored into one visible, explicitly scoped legend;
+exceptions stay attached to their own carriers. Neither grouping nor factoring
+changes semantic identity or grants source endorsement. Static and interactive
+media compose these obligations independently.
 
 A visible assertion must be linked to a source or editorial claim, and every
 required claim for that medium must have a visible carrier for coverage to

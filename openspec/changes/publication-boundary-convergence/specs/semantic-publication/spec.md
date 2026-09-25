@@ -55,6 +55,30 @@ required coordinates or DOM structure.
 - **AND** a grouped edge containing both required and unrequired relations
   cannot masquerade as one fully represented source assertion
 
+#### Scenario: An editor groups selected elements
+
+- **WHEN** an Edition view orders source-qualified elements into semantic groups
+- **THEN** those groups partition the view's retained elements without adding,
+  hiding, or duplicating an element
+- **AND** group labels remain attributed editorial choices, not source facts or
+  pixel coordinates
+
+#### Scenario: A relation and its dependent claim share a graphic
+
+- **WHEN** a selected claim explicitly depends on a selected relation at the
+  same source revision and the Edition uses one compound visible carrier
+- **THEN** the carrier distinguishes topology from claim status and required
+  qualifiers, and independently binds both source identities
+- **AND** matching endpoints alone or an unadorned arrow cannot satisfy the
+  claim's visible obligation
+
+#### Scenario: Repeated claim context is factored out
+
+- **WHEN** several selected claims have an exactly equal field value
+- **THEN** a common visible statement may replace repetition only if its
+  membership is explicit and every exception remains individually visible
+- **AND** factoring changes neither selected semantic identity nor provenance
+
 #### Scenario: A supported aggregate hides a distinction
 
 - **WHEN** an aggregate would hide direction, actor, plane, condition, or a

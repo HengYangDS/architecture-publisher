@@ -1055,17 +1055,18 @@ single-machine feasibility observations, not quality or speed guarantees:
 | [ELK JS 0.12.0](https://github.com/kieler/elkjs/releases/tag/0.12.0) | EPL-2.0 OR GPL-3.0-or-later    | 0 node overlaps, stable repeated geometry, 51.4 ms initial run; orthogonal routes | 8.05 MB unpacked package and a distribution-license decision; no reader-quality acceptance.                                                                       |
 | [Viz.js 3.30.0](https://www.npmjs.com/package/@viz-js/viz/v/3.30.0)  | MIT package; Graphviz WASM     | Stable repeated 12,505-byte SVG, 12.5 ms render; compact orthogonal topology      | 4.98 MB unpacked package; adopting its geometry requires a checked Graphviz-output adapter, while using its SVG directly needs source-ID and carrier-map control. |
 
-The narrow implementation preference is **Dagre as one provisional private
-static-geometry supplier**: mature structured node and edge output, permissive
-license, small verified bundle, and no new runtime dependency. It is not a
-public backend registry or a quality verdict. Its first packaged AIGW view must
-retain all selected typed claims and pass exact graphic-binding, overflow,
-browser, and visual counterexamples. Replace this supplier only for a
-geometry-specific failure; fix an overloaded Edition or compositor at that
-owner, rather than replacing a layout engine to conceal the cause. The
-larger `@antv/layout` dependency graph and DAG-only `d3-dag` do not remove an
-observed requirement here. Sources were read via GitHub CLI and npm metadata
-on 2026-09-25 UTC; package licenses are not legal clearance.
+The earlier Dagre preference omitted an existing Publisher-owned mechanism.
+On the same exact AIGW Claim Model and its authored v1 Edition, the current
+`composeStaticArchitectureScene` produced five groups, twelve placed nodes,
+eleven routed relations, and a 1996×1640 geometric canvas without another
+dependency or supply. This source-adjacent call proves neither a successor
+Candidate nor visual acceptance. It changes the implementation order: first
+extract a neutral grouped-geometry boundary reused by v1 and the successor;
+only a named failure against real authoring or geometry may justify replacing
+it with Dagre, ELK, or Viz.js. Do not ship parallel geometry owners. The larger
+`@antv/layout` dependency graph and DAG-only `d3-dag` do not remove an observed
+requirement here. External package sources were read via GitHub CLI and npm
+metadata on 2026-09-25 UTC; license observations are not clearance.
 
 A later unqualified local build selected all 11 relations and all 11 matching
 claims for one AIGW overview question. Its 1800×3928 static PNG
