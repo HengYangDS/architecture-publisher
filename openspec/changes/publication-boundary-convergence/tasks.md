@@ -258,29 +258,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       `packages/publisher/src/semantics/` and test exact source/include binding,
       supported constructs, source references, typed relation fields, and explicit
       loss in `tests/native-import.test.mjs`. The derived index is disposable, not
-      an editable duplicate Claim Model. Partial: the importer checks locked
-      bytes, exact parser document set, source ranges, and cross-source
-      references; authored views require an upstream source path. The frozen
-      di-effect probe yielded 25 elements, 35 relations, three authored views,
-      and one generated index. It explicitly requests LikeC4 1.59.4's virtual
-      no-filesystem, no-manual-layout, no-watch, WASM mode; source inspection
-      confirms its non-builtin reads are refused. In the pinned parser,
-      `include *` changes membership only with selected model files, and an
-      unselected element reference fails. Ordered dynamic views are now
-      source-bound opaque entries, not flattened into structural views.
-      Element and relation metadata remain bounded opaque values, never
-      inferred policy. Focused native tests pass 21/21; static and package
-      checks pass. The full run passes 783 tests, skips 2, but branch coverage
-      is 92.86% against 95%. Ruling: native `.c4` format is `unversioned`;
-      parser 1.59.4 is a separate toolchain identity. A disposable 5.18 MB
-      esbuild parser bundle matched the direct
-      upstream result on exact di-effect sources without adjacent modules;
-      `docs/research/mechanism-evaluation.md` records the dynamic-require and
-      non-Node external limits. A guarded variant also passed the selected
-      Linux ARM64 read-only/offline probe; Windows and license closure remain
-      unproved. Arbitrary parser callbacks remain unattested.
-      Package supply, complete read closure, full include/query semantics,
-      bounded execution, installed build, and visible semantic coverage remain open.
+      an editable duplicate Claim Model. Partial: locked bytes, parser document
+      set, source locations, and cross-source references are checked; dynamic
+      views and metadata remain source-bound but opaque. The pinned parser's
+      no-filesystem mode and selected `include *` membership are tested.
+      Focused native tests pass 21/21; the full run passes 783 tests, skips 2,
+      and fails the 95% branch gate at 92.86%. The exact di-effect probes,
+      guarded-bundle/Linux results, license inventory, and limits are in
+      `docs/research/mechanism-evaluation.md`. Open: qualified parser supply,
+      complete read closure, full include/query semantics, bounded execution,
+      installed build, Windows, and visible semantic coverage.
 - [ ] 4.2 In `tests/native-identity.test.mjs` and
       `tests/native-semantics.test.mjs`, cover same-label distinct namespaces,
       relocation/generated-ID drift, duplicate relations, explicit lineage,

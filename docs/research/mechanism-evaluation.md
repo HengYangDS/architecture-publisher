@@ -582,6 +582,21 @@ This is a selected-path Linux observation, not native Windows conformance,
 complete parser behavior, package/license qualification, or a filesystem
 sandbox claim.
 
+The esbuild metafile spans 65 installed package roots: 53 declare MIT, six
+Apache-2.0, two ISC, two BlueOak-1.0.0, one BSD-3-Clause, and one declares no
+license field. The undeclared package is `khroma@2.1.0`; its shipped `license`
+file is MIT text (SHA-256
+`66b333b0f66759a0b710459e03f7029abe17f4358114a128d2c972e642961b49`).
+`remeda@2.50.0` declares MIT but its npm payload has no license file. Through
+the read-only GitHub CLI route on 2026-09-25, the exact upstream
+[`v2.50.0` commit](https://github.com/remeda/remeda/tree/b9ec4b0ac5ba86f2f687bae6e92d318db02eea24)
+provided [LICENSE](https://github.com/remeda/remeda/blob/b9ec4b0ac5ba86f2f687bae6e92d318db02eea24/LICENSE)
+with SHA-256 `acf30083045d768ce20640237313ee31a45d548d66ef76df5bb5fb0745479535`.
+These observations identify notice sources; they are not a generated license
+inventory, legal clearance, or proof that the packed Publisher includes the
+required texts. A bundle cannot be admitted until its exact input packages
+and complete notices are reproducibly bound to the shipped bytes.
+
 The single-file route is a serious alternative to the previously observed
 roughly 91 MB cold dependency tree, not an admitted release supply. Compare it
 with an optional installed peer on exact input, install/repair cost, complete
