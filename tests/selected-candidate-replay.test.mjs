@@ -34,10 +34,41 @@ test('exact selected inputs and current runtime replay all Candidate bytes witho
   assert.equal(result.candidateSha256, built.candidateSha256);
   assert.equal(result.inputLockSha256, built.lockSha256);
   assert.equal(result.candidateManifestSha256, built.manifestSha256);
+  assert.deepEqual(result.replayedEditionObligations.static.questionIds, ['shape']);
+  assert.deepEqual(result.replayedEditionObligations.static.views[0].assertionsByQuestion.shape, [
+    'shape',
+  ]);
   assert.equal(result.qualification, 'not-performed');
   assert.equal(result.acceptance, 'not-performed');
   assert.equal(result.publication, 'not-performed');
   assert.equal(Object.hasOwn(result, 'admitted'), false);
+});
+
+test('replay rejects duplicate keys in the selected Candidate container manifest', async (t) => {
+  const fixture = await selectedNativeEdition(t, { width: 1800 });
+  const built = await compileEditionCandidateInput(
+    fixture.file,
+    fixture.digest,
+    path.join(fixture.root, 'candidate'),
+  );
+  const forged = path.join(fixture.root, 'duplicate-manifest');
+  await fs.cp(built.output, forged, { recursive: true });
+  const manifest = await fs.readFile(path.join(forged, 'manifest.json'), 'utf8');
+  const duplicated = Buffer.from(
+    manifest.replace('"schema":', '"schema":"architecture.source-bundle/v1","schema":'),
+  );
+  await fs.writeFile(path.join(forged, 'manifest.json'), duplicated);
+  const legacy = await readSourceBundle(path.join(forged, 'manifest.json'), sha(duplicated));
+  assert.equal(legacy.manifestSha256, sha(duplicated));
+  await assert.rejects(
+    verifySelectedCandidateReplay({
+      requestPath: fixture.file,
+      requestSha256: fixture.digest,
+      candidateManifestPath: path.join(forged, 'manifest.json'),
+      candidateManifestSha256: sha(duplicated),
+    }),
+    { code: 'manifest_json_duplicate_key' },
+  );
 });
 
 test('a self-consistent forged Candidate container cannot borrow selected-input authority', async (t) => {

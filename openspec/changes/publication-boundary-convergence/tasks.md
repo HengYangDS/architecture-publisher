@@ -507,7 +507,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       separate exact execution choice for replay and verifies all selected
       Provider manifests before any Provider runs; a fixture observes that
       rejected choices leave its execution marker absent. Focused replay tests
-      pass 6/6. No v2 record admission is claimed.
+      pass 7/7. Replay now rejects duplicate keys in its Candidate container
+      manifest while the historical Source Bundle reader retains v1 behavior;
+      it exposes Edition obligations only after matching the complete rebuilt
+      Candidate, with no second Provider materialization. Full behavior passes
+      956/960 tests with four skips. No v2 record admission or overall-deadline
+      guarantee is claimed.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In
       `tests/publication-contract.test.mjs` and
@@ -537,9 +542,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       self-hosted golden was removed; the frozen first-party release matrix
       remains exact. A single collision-safe exact-field predicate now replaces
       repeated delimiter comparisons and local validators; malformed key names
-      failed RED and pass GREEN. The exact-source full behavior run passes 955
-      tests and skips 4; branches remain 93.46% against the unchanged 95%
-      release floor. Task 7.2 remains open.
+      failed RED and pass GREEN. At that checkpoint, full behavior passed 955
+      tests with four skips and branch coverage was 93.46%, below the unchanged
+      95% release floor. Later Task 6.1 edits require a fresh coverage run;
+      Task 7.2 remains open.
 - [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,

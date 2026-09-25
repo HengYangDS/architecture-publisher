@@ -2,11 +2,12 @@ import { validateManifest } from './manifest.mjs';
 import { readFileEnvelope } from './files.mjs';
 
 /** Source schema and meaning stay separate from the shared file envelope. */
-export async function readSourceBundle(manifestPath, expectedSha256) {
+export async function readSourceBundle(manifestPath, expectedSha256, strictManifestJson = false) {
   const { manifest, manifestSha256, members } = await readFileEnvelope(
     manifestPath,
     expectedSha256,
     validateManifest,
+    strictManifestJson,
   );
   return {
     source: manifest.source,

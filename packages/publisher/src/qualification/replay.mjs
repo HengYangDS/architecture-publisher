@@ -32,7 +32,11 @@ export async function verifySelectedCandidateReplay(input, executionChoice = [])
     !isDigest(input.candidateManifestSha256)
   )
     fail('selected_candidate_replay_input_invalid');
-  const bundle = await readSourceBundle(input.candidateManifestPath, input.candidateManifestSha256);
+  const bundle = await readSourceBundle(
+    input.candidateManifestPath,
+    input.candidateManifestSha256,
+    true,
+  );
   const member = bundle.members.find(({ path: selected }) => selected === 'candidate.json');
   if (!member) fail('selected_candidate_missing');
   const candidate = validateSelectedEditionCandidate(
@@ -58,6 +62,7 @@ export async function verifySelectedCandidateReplay(input, executionChoice = [])
       rebuilt.manifestSha256 !== bundle.manifestSha256
     )
       fail('selected_candidate_replay_mismatch');
+    // Full byte replay binds these obligations to the selected Edition without a second Provider run.
     return {
       status: 'replayed',
       verdict: 'match',
@@ -65,6 +70,7 @@ export async function verifySelectedCandidateReplay(input, executionChoice = [])
       candidateSha256,
       inputLockSha256: rebuilt.lockSha256,
       candidateManifestSha256: bundle.manifestSha256,
+      replayedEditionObligations: candidate.obligations,
       qualification: 'not-performed',
       acceptance: 'not-performed',
       publication: 'not-performed',

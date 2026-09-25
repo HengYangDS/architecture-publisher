@@ -10,6 +10,7 @@ import {
   portablePath,
   validateFileMembers,
 } from './manifest.mjs';
+import { parseStrictJson } from './json.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 export async function noSymlinkAncestors(file) {
@@ -82,7 +83,7 @@ async function inventory(root) {
 }
 
 /** Return verified bytes, not a promise that later reads of the paths are unchanged. */
-export async function readFileEnvelope(manifestPath, expectedSha256, decode) {
+export async function readFileEnvelope(manifestPath, expectedSha256, decode, strictJson = false) {
   if (!isDigest(expectedSha256)) fail('manifest_digest_required');
   if (typeof manifestPath !== 'string' || !manifestPath) fail('manifest_path_required');
   const file = path.resolve(manifestPath);
@@ -94,10 +95,14 @@ export async function readFileEnvelope(manifestPath, expectedSha256, decode) {
   const raw = await regularBytes(file, LIMITS.manifestBytes);
   if (sha(raw) !== expectedSha256) fail('manifest_digest_mismatch');
   let decoded;
-  try {
-    decoded = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(raw));
-  } catch {
-    fail('manifest_json_invalid');
+  if (strictJson) {
+    decoded = parseStrictJson(raw, 'manifest_json_invalid', 'manifest_json_duplicate_key');
+  } else {
+    try {
+      decoded = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(raw));
+    } catch {
+      fail('manifest_json_invalid');
+    }
   }
   if (typeof decode !== 'function') fail('envelope_decoder_required');
   const manifest = decode(decoded);
