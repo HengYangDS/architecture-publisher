@@ -1127,3 +1127,48 @@ None of the candidates is yet admitted. The next design review must select one
 boundary and its cross-platform counterexamples before implementation. The
 current unqualified direct and Provider v2 readers cannot support a successor
 release claim of concurrent path confinement.
+
+## Neutral interactive renderer probe (2026-09-25)
+
+This is a backend feasibility observation for Task 5.3, not a renderer
+selection, accessibility pass, or publication-quality visual review. At
+06:50–06:58 UTC, the read-only GitHub API reported active, non-archived
+[Cytoscape.js](https://github.com/cytoscape/cytoscape.js),
+[React Flow](https://github.com/xyflow/xyflow),
+[vis-network](https://github.com/visjs/vis-network), and
+[G6](https://github.com/antvis/G6) repositories. NPM registry metadata for
+[Cytoscape 3.34.3](https://www.npmjs.com/package/cytoscape/v/3.34.3) reports
+MIT and no runtime dependencies; its official archive has integrity
+`sha512-yfYGhRcGAntq6YBD583j4n0Eg3jIxvWmZtz/5uz9UYkeIStSlMxuUja+ec5j3iBD8nv1rwaOAYMW09tBdkSeaQ==`.
+The extracted minified browser distribution is 435,503 bytes, SHA-256
+`5f3b5b529546d5af1fc5628590af033b74511a5b6f789f5f4682845863228b91`.
+The same registry read reports React Flow 12.12.0 with React/React DOM peers
+and three direct dependencies, vis-network 10.1.2 with an 84 MB unpacked
+archive and six listed peers, and G6 5.1.1 with eleven direct dependencies.
+These are supply-surface observations, not total installed sizes, security
+findings, or quality rankings.
+
+A disposable, standalone Cytoscape HTML probe used only two invented nodes
+and one relation. Headless Chrome at 1440×900 loaded its inlined JS without
+an external request or page exception; two reloads of the initial
+`breadthfirst` layout yielded identical node coordinates. The engine painted
+three canvas elements;
+the prototype supplied separate DOM buttons and visible question, relation,
+and limit text. The first attempt guessed an invalid layout direction and
+failed; using the runtime's reported `rightward` option corrected it. Its
+second screenshot was legible but retained conspicuous empty graph space.
+Neither keyboard operation, screen-reader experience, source coverage,
+cross-platform use, nor flagship aesthetics was qualified. The disposable
+probe was not a product artifact.
+
+**Conditional route:** Cytoscape is a credible neutral, dependency-light
+interactive graph backend because its data model did not require calling a
+source entity `backend` or `external`. Keep Archify available where an
+Editor's typed visual roles truthfully fit; its current finite component
+types must not be silently coerced into generic source meaning. Before
+selecting Cytoscape for the successor, require one digest-pinned offline
+supply, page-local scenes, a single standalone HTML without private source
+bytes, an accessible DOM companion to the canvas, deterministic rendering,
+installed/browser/visual qualification, and the frozen four-workload
+comparison. A failed condition rejects or narrows this backend rather than
+weakening the Edition and Candidate contract.
