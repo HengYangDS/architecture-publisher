@@ -210,9 +210,22 @@ pairs; the public replay API takes the same invoker-owned choice separately
 from its selected evidence. Absence, an extra pair, or a changed pair fails
 before Provider execution. This is an explicit code-execution choice by the
 caller, not a sandbox, credential grant, verifier authentication, or permission
-to publish. The complete qualification invocation needs one total deadline and
-owned-process cleanup; Provider-local timeouts do not bound envelope reads or
-the whole replay. Until that supervision exists, no end-to-end boundedness
+to publish. One independent parent watchdog starts a monotonic total deadline
+before selected reads and supervises the complete replay and record binding;
+Provider-local timeouts do not bound their sum. A nested Publisher worker must
+register its process group with that parent before its selected code starts.
+On timeout, the parent stops new work and cleans registered groups before the
+outer worker. It removes only scratch proved unused and admits no records when
+registration or cleanup is unproved.
+
+This is containment of Publisher-owned ordinary workers, not a sandbox for
+arbitrary detached descendants created by an executable Provider. On Windows,
+tree termination requires the selected root to remain alive. Unexpected root
+loss therefore yields `cleanup_unproved` and no passing result; the verifier
+must not claim descendant reclamation or erase scratch that might still be in
+use. A stronger unconditional Windows claim would require a separately admitted
+Job Object mechanism, not another `taskkill` wrapper. Until the bounded
+supervision and its native counterexamples pass, no end-to-end boundedness
 claim is made.
 
 ### Successor qualification authority

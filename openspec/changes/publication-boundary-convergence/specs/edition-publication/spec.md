@@ -302,9 +302,16 @@ Candidate container, and Qualification Set bytes through the existing
 The verifier and public replay primitive SHALL inspect exact selected Provider
 manifests before replay and SHALL NOT execute an executable Provider based on
 evidence-supplied permission. The invoking verifier SHALL separately select
-the exact executable Provider ID and manifest-digest set. The complete replay
-SHALL have an overall deadline and owned-process cleanup; a Provider-local
-timeout alone is insufficient. Every JSON value selected by the v2 route,
+the exact executable Provider ID and manifest-digest set. The v2 verifier SHALL
+start one monotonic deadline before selected reads and supervise Publisher-owned
+worker groups or ordinary trees through replay and record binding. Selected
+worker code SHALL NOT start before ownership registration is acknowledged.
+Expired work, missing registration, or unproved cleanup SHALL yield no passing
+result or record admission; uncertain scratch SHALL be retained. A
+Provider-local timeout alone is insufficient. This is not a sandbox for
+arbitrary detached descendants created by Provider code.
+
+Every JSON value selected by the v2 route,
 including the v1-format Source Bundle manifest carrying the Candidate, SHALL
 reject duplicate object keys without redefining historical v1 readers.
 The Qualification Set SHALL bind the exact Candidate and materialized input
@@ -337,8 +344,18 @@ their original meaning.
 
 - **WHEN** envelope reading, Provider execution, parsing, or rendering exceeds
   the v2 qualification invocation deadline
-- **THEN** only owned processes and temporary output are cleaned up
+- **THEN** the verifier stops admission and attempts bounded cleanup of only
+  registered owned workers and scratch proved unused
+- **AND** unproved cleanup retains uncertain scratch and reports its limit
 - **AND** no record or passing qualification result is emitted
+
+#### Scenario: The Windows supervision root exits before cleanup
+
+- **WHEN** the selected root exits before ordinary-tree termination can prove
+  descendant cleanup
+- **THEN** verification reports `cleanup_unproved` without record admission
+- **AND** it does not claim that descendants were reclaimed or remove scratch
+  that may still be in use
 
 #### Scenario: Selected JSON contains duplicate keys
 
