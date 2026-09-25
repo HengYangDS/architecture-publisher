@@ -108,7 +108,6 @@ function checkedGraph(input) {
       !nodes.has(relation.from) ||
       !nodes.has(relation.to) ||
       typeof relation.text !== 'string' ||
-      !relation.text ||
       !sides.has(relation.fromSide) ||
       !sides.has(relation.toSide) ||
       !routes.has(relation.route)
@@ -199,6 +198,7 @@ function placeLabels(selectedRoutes, layout) {
   }
   const strokes = selectedRoutes.flatMap((route) => segments(route.points));
   return selectedRoutes.map((route) => {
+    if (!route.text) return { ...route, label: null };
     const w = route.text.length * 8 + 16,
       h = 24;
     const candidates = segments(route.points).sort(
@@ -288,11 +288,13 @@ export function composeStaticArchitectureScene(document, edition, view) {
     groups: view.groups.map(({ id, label, entities }) => ({ id, label, members: entities })),
     relations: view.relations.map((authored) => {
       const relation = document.relations[authored.id];
+      const text = edition.visualGrammar.relationTypes[relation.type].label;
+      if (typeof text !== 'string' || !text) fail('grouped_geometry_input_invalid');
       return {
         ...authored,
         from: relation.subject,
         to: relation.object,
-        text: edition.visualGrammar.relationTypes[relation.type].label,
+        text,
       };
     }),
   });

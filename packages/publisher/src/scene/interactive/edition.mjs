@@ -152,6 +152,8 @@ export function composeInteractiveEditionScene(meaning) {
     !record(meaning.editorial)
   )
     fail('interactive_scene_input_invalid');
+  if (meaning.editorial.presentation?.interactive?.views?.some((view) => view.groups !== undefined))
+    fail('interactive_scene_group_unadmitted');
   const claimMode = meaning.native.selections.some(
     ({ format }) => format === 'architecture.claim-model/v2',
   );

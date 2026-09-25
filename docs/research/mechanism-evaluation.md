@@ -119,6 +119,67 @@ installed-evolution executable now belongs to the repository syntax gate. The
 repository-owned regression rejects imprecise first-party owner paths, unadmitted
 dynamic imports, and any authored JavaScript module omitted from that gate.
 
+### Mechanism-subtraction audit (2026-09-26)
+
+This is a dated decision audit, not a second progress ledger. A step is redundant
+only when it establishes the same fact from the same selected bytes for the same
+consumer under the same authority. Line counts identify review pressure, not
+defects. The Publisher Work Lane was at signed `77ac268` with an uncommitted
+grouping draft; ETHOS was at `0e2494859`, and AIGW at `04f593a4`.
+
+- **Structural grouping — redirect.** The two-node LikeC4 static smoke test is
+  not AIGW acceptance. The current AIGW Client Projection asks four questions
+  and authors five groups over 12 entities, 11 relations and 11 claims. A
+  source-adjacent trial positioned its 5/12/11 structural subset with the same
+  neutral geometry owner, but rendered and qualified neither medium. Admit the
+  successor only after that editorial scope and distinct relation/claim
+  carriers work; do not add a second layout engine without a geometry-specific
+  failure.
+- **AIGW source preparation — replace after parity.** Its v1 materializer is
+  621 lines, 14 tracked `_source/source/**` files mirror repository bytes, and
+  `provider.json` repeats two exact hashes. The v2 selected-input contract can
+  remove mutable copies and duplicate fields only after AIGW accepts an
+  installed replacement with the same source and editorial meaning. Preserve
+  historical inputs.
+- **ETHOS integration — separate owners.** The current adapter package has
+  10,479 first-party `.mjs` lines including tests. It hosts generic browser,
+  render, qualification and publication work; its Provider writes a temporary
+  Source Bundle for a digest before returning the same members. Retain
+  ETHOS-specific semantics, Edition authorship and flagship art direction;
+  remove the roundtrip and displaced generic pipeline only after exact media,
+  governance and rollback parity.
+- **Publisher self-use and predecessors — retire after parity.** The self
+  Edition has 4,250 first-party runtime lines, and historical v1 paths coexist
+  with the unreleased successor. Source tests and Knip find no unreachable
+  first-party module today; that does not justify indefinite duplicate public
+  paths. Migrate self-use through the same installed API as unrelated adopters,
+  then remove displaced mutable owners and exports with a SemVer migration.
+  Keep signed historical refs and frozen release fixtures.
+- **Repeated preparation — measure first.** Edition authoring is validated in
+  materialization and parsed again in the meaning and native-selection phases;
+  LikeC4 semantics and layout can parse the same selected bytes separately.
+  Share an immutable result only within one trust boundary and parser identity
+  if measured savings exceed coupling. Do not add an ambient cache or weaken
+  a public entry's validation.
+- **Distinct claims — keep.** Byte identity, semantic equivalence, Candidate
+  integrity, predicate observations, accepter policy and recoverable file
+  publication establish different facts. Static and interactive media have
+  independent geometry and accessibility. Executable Provider containment is
+  a separate trust boundary. Similar hashes, checks, media and workers are not
+  redundant when claims or adversaries differ.
+- **Workflow — shorten the loop, not the bar.** The active `tasks.md` exceeds
+  600 lines and repeats test history. The last measured branch coverage was
+  92.75% before subsequent repairs; the exact current-byte gate is unproved.
+  Keep `tasks.md` as the sole current-state ledger, condense historical
+  narration at coherent closeout, use focused RED/GREEN and static/package
+  checks per slice, and run the full coverage gate at bounded milestones and
+  final freeze. Do not waive it for release.
+
+The next subtraction decision is therefore consumer-first: prove the full AIGW
+question and media path before deleting v1 owners or adding another engine.
+Progress that only moves a model through more intermediate formats is not a
+product outcome.
+
 ## Consequences for ETHOS
 
 ETHOS is best treated as the hard trust skeleton for an agentic-native

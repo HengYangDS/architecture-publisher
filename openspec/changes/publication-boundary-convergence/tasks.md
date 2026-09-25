@@ -7,8 +7,11 @@ valid v1 protocol meanings. One owned Publisher Work Lane and one writer execute
 this plan. ETHOS and AIGW retain separate source-side authority.
 
 Each implementation task starts with a failing focused contract test, then the
-smallest owner-level change and focused GREEN. Audit sibling consumers, run the
-applicable static, package, and full behavior checks, inspect the exact diff,
+smallest owner-level change and focused GREEN. Audit sibling consumers and run
+applicable static and package checks per coherent slice; run the full behavior
+and coverage gate at bounded integration milestones, after a contradictory
+finding, and on the final frozen candidate rather than repeating an already
+known branch-floor failure after every partial step. Inspect the exact diff,
 make a signed commit, and verify a clean tree. The operator approved doing the
 replacement inside this isolated Lane before converging the already-expanded
 coverage gate. An interim coverage failure remains red, is recorded rather than
@@ -392,12 +395,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       not editorial parity. First prove exact group membership and explicit
       relation dependency before shared carriers; changed claim qualifiers must
       change their visible expression. Do not add a second backend to disguise
-      this failure. Partial: the existing grouped geometry implementation now
-      consumes neutral node, relation, and group inputs; the v1 path uses that
-      same owner. The exact AIGW v1 static SVG digest is unchanged. This does
-      not yet compile a successor Claim Model structure or qualify either
-      medium. Focused, static, and package checks pass; the full behavior run
-      has no test failures but fails the unchanged 95% branch-coverage gate.
+      this failure. Partial: the existing grouped geometry owner now projects
+      selected Claim Model relations without turning dependent claims into
+      edges. A source-adjacent trial on current AIGW inputs placed five groups,
+      twelve nodes and eleven relations; its eleven claims remain separate
+      obligations. Full behavior passes 1,023 tests with five skips; static and
+      package checks pass. It is not a public structural Candidate or qualified
+      medium; the full 95% coverage gate has not been rerun on these bytes.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

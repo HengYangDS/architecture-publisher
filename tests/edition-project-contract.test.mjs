@@ -60,6 +60,41 @@ test('Edition Project owns editorial choices without copied source facts or pixe
   assert.equal(Object.isFrozen(selected.scope.selections[0]), true);
 });
 
+test('Edition Project admits source-qualified grouping without authored coordinates', () => {
+  const value = project();
+  const groups = [
+    {
+      id: 'control',
+      label: 'Control boundary',
+      elements: [{ namespace: 'ethos', id: 'lane' }],
+    },
+  ];
+  value.presentation.static.views[0].groups = groups;
+  value.presentation.interactive.views[0].groups = structuredClone(groups);
+  const selected = validateEditionProject(value);
+  assert.deepEqual(selected.presentation.static.views[0].groups, groups);
+  assert.deepEqual(selected.presentation.interactive.views[0].groups, groups);
+  assert.equal(Object.isFrozen(selected.presentation.static.views[0].groups[0]), true);
+});
+
+test('Edition grouping rejects duplicate, foreign, and pixel-level members', () => {
+  const grouped = project();
+  grouped.presentation.static.views[0].groups = [
+    { id: 'first', label: 'First', elements: [{ namespace: 'ethos', id: 'lane' }] },
+    { id: 'second', label: 'Second', elements: [{ namespace: 'ethos', id: 'quality' }] },
+  ];
+  for (const change of [
+    (value) => (value.presentation.static.views[0].groups[1].elements[0].id = 'lane'),
+    (value) => (value.presentation.static.views[0].groups[0].elements[0].namespace = 'foreign'),
+    (value) => (value.presentation.static.views[0].groups[0].elements[0].x = 100),
+    (value) => (value.presentation.static.views[0].groups[1].id = 'first'),
+  ]) {
+    const value = structuredClone(grouped);
+    change(value);
+    assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  }
+});
+
 test('Edition Project admits a separately attributed cross-source editorial assertion', () => {
   const value = project();
   value.scope.sourceNamespaces.push('aigw');

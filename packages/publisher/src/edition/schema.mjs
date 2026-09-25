@@ -134,7 +134,25 @@ const assertion = {
     }),
   ],
 };
-const view = closed(['id', 'questions'], { id: identifier, questions: questionIds });
+const view = closed(['id', 'questions'], {
+  id: identifier,
+  questions: questionIds,
+  groups: {
+    type: 'array',
+    minItems: 1,
+    maxItems: 256,
+    items: closed(['id', 'label', 'elements'], {
+      id: identifier,
+      label: text,
+      elements: {
+        type: 'array',
+        minItems: 1,
+        maxItems: 4096,
+        items: closed(['namespace', 'id'], { namespace: text, id: text }),
+      },
+    }),
+  },
+});
 
 export const EDITION_PROJECT_SCHEMA = deepFreeze({
   $id: 'architecture.edition-project/v1',

@@ -118,6 +118,16 @@ export function validateEditionProject(value) {
     for (const view of views) {
       requireIds(view.questions, questions, code);
       for (const question of view.questions) presented.add(question);
+      if (view.groups === undefined) continue;
+      uniqueIds(view.groups, code);
+      const grouped = new Set();
+      for (const group of view.groups)
+        for (const element of group.elements) {
+          requireIds([element.namespace], namespaces, code);
+          const address = JSON.stringify([element.namespace, element.id]);
+          if (grouped.has(address)) invalid(code, 'duplicate grouped element');
+          grouped.add(address);
+        }
     }
   }
   if (value.questions.some(({ id }) => !presented.has(id)))

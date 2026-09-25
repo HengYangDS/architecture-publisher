@@ -11,8 +11,8 @@ const claimKey = ({ namespace, id, sha256 }) => JSON.stringify([namespace, id, s
 const sameMembers = (actual, expected) =>
   actual.size === expected.size && [...actual].every((item) => expected.has(item));
 
-function visibleBounds(nodes, edges) {
-  if (!nodes.length && !edges.length) return null;
+function visibleBounds(nodes, edges, groups = []) {
+  if (!nodes.length && !edges.length && !groups.length) return null;
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
@@ -29,6 +29,11 @@ function visibleBounds(nodes, edges) {
     include(node.x + node.width, node.y + node.height);
   }
   for (const edge of edges) for (const point of edge.points) include(point[0], point[1]);
+  for (const group of groups) {
+    if (group.width <= 0 || group.height <= 0) fail('static_scene_geometry_invalid');
+    include(group.x, group.y);
+    include(group.x + group.width, group.y + group.height);
+  }
   return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
 }
 
@@ -104,6 +109,8 @@ export function composeStaticEditionScene(meaning, layout) {
   )
     fail('static_scene_visual_policy_unadmitted');
   if (meaning.native.selections.some(({ format }) => format === 'architecture.claim-model/v2')) {
+    if (meaning.editorial.presentation.static.views[0].groups !== undefined)
+      fail('static_scene_group_unadmitted');
     if (
       !meaning.native.selections.every(
         ({ format, target }) => format === 'architecture.claim-model/v2' && target.kind === 'claim',
@@ -112,12 +119,34 @@ export function composeStaticEditionScene(meaning, layout) {
       fail('edition_scene_claim_model_unadmitted');
     return composeClaimScene(meaning, layout);
   }
+  const authoredGroups = meaning.editorial.presentation.static.views[0].groups;
   if (
-    layout?.closure !== 'upstream-layout-unqualified' ||
+    layout?.closure !==
+      (authoredGroups === undefined
+        ? 'upstream-layout-unqualified'
+        : 'grouped-layout-unqualified') ||
     !Array.isArray(layout.nodes) ||
     !Array.isArray(layout.edges)
   )
     fail('static_scene_input_invalid');
+  const groups = authoredGroups === undefined ? [] : layout.groups;
+  if (
+    authoredGroups !== undefined &&
+    (!Array.isArray(groups) ||
+      groups.length !== authoredGroups.length ||
+      groups.some((group, index) => {
+        const authored = authoredGroups[index];
+        return (
+          group.id !== authored.id ||
+          group.label !== authored.label ||
+          JSON.stringify(group.elements) !== JSON.stringify(authored.elements) ||
+          ![group.x, group.y, group.width, group.height].every(Number.isFinite) ||
+          group.width <= 0 ||
+          group.height <= 0
+        );
+      }))
+  )
+    fail('static_scene_group_mismatch');
   const editorialView = meaning.media.static.views[0];
   const nativeViews = meaning.native.selections.filter(({ target }) => target.kind === 'view');
   if (nativeViews.length !== 1) fail('static_scene_composition_ambiguous');
@@ -128,31 +157,26 @@ export function composeStaticEditionScene(meaning, layout) {
     layout.view?.sha256 !== nativeView.source.sha256
   )
     fail('static_scene_native_membership_mismatch');
+  if (
+    groups.some((group) =>
+      group.elements.some((element) => {
+        const node = layout.nodes.find((item) => key(item) === key(element));
+        return (
+          !node ||
+          node.x < group.x ||
+          node.y < group.y ||
+          node.x + node.width > group.x + group.width ||
+          node.y + node.height > group.y + group.height
+        );
+      }),
+    )
+  )
+    fail('static_scene_group_mismatch');
 
   const semanticNodes = new Map(nativeView.members.elements.map((node) => [key(node), node]));
   const semanticRelations = new Map(
     nativeView.members.relations.map((relation) => [memberRelationKey(relation), relation]),
   );
-  const layoutNodes = new Set(layout.nodes.map(key));
-  const relationEntries = layout.edges.flatMap((edge) => edge.relations.map(relationKey));
-  const layoutRelations = new Set(relationEntries);
-  if (
-    layout.nodes.length !== layoutNodes.size ||
-    relationEntries.length !== layoutRelations.size ||
-    !sameMembers(layoutNodes, new Set(semanticNodes.keys())) ||
-    !sameMembers(layoutRelations, new Set(semanticRelations.keys())) ||
-    layout.nodes.some((node) => semanticNodes.get(key(node))?.sha256 !== node.sha256) ||
-    layout.edges.some(
-      (edge) =>
-        !edge.relations.length ||
-        edge.relations.some((relation) => {
-          const semantic = semanticRelations.get(relationKey(relation));
-          return key(semantic.from) !== key(edge.from) || key(semantic.to) !== key(edge.to);
-        }),
-    )
-  )
-    fail('static_scene_native_membership_mismatch');
-
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
   const requiredNodes = new Set();
@@ -192,6 +216,30 @@ export function composeStaticEditionScene(meaning, layout) {
       relationRefs,
     });
   }
+
+  const layoutNodes = new Set(layout.nodes.map(key));
+  const relationEntries = layout.edges.flatMap((edge) => edge.relations.map(relationKey));
+  const layoutRelations = new Set(relationEntries);
+  const expectedNodes =
+    authoredGroups === undefined ? new Set(semanticNodes.keys()) : requiredNodes;
+  const expectedRelations =
+    authoredGroups === undefined ? new Set(semanticRelations.keys()) : requiredRelations;
+  if (
+    layout.nodes.length !== layoutNodes.size ||
+    relationEntries.length !== layoutRelations.size ||
+    !sameMembers(layoutNodes, expectedNodes) ||
+    !sameMembers(layoutRelations, expectedRelations) ||
+    layout.nodes.some((node) => semanticNodes.get(key(node))?.sha256 !== node.sha256) ||
+    layout.edges.some(
+      (edge) =>
+        !edge.relations.length ||
+        edge.relations.some((relation) => {
+          const semantic = semanticRelations.get(relationKey(relation));
+          return key(semantic.from) !== key(edge.from) || key(semantic.to) !== key(edge.to);
+        }),
+    )
+  )
+    fail('static_scene_native_membership_mismatch');
 
   const nodes = layout.nodes
     .filter((node) => requiredNodes.has(key(node)))
@@ -236,9 +284,10 @@ export function composeStaticEditionScene(meaning, layout) {
     questionIds: editorialView.questionIds,
     questions: editorialView.questionIds.map((id) => questions.get(id)),
     limitsByQuestion: editorialView.limitsByQuestion,
-    bounds: visibleBounds(nodes, edges),
+    bounds: visibleBounds(nodes, edges, groups),
     nodes,
     edges,
+    ...(authoredGroups === undefined ? {} : { groups }),
     sourceAssertionCarriers,
     editorialAssertions,
     limits: meaning.limits,

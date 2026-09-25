@@ -53,7 +53,7 @@ function textLines(output, content, x, y, width, size, color, weight = 400, limi
 }
 
 function boundsOf(scene) {
-  if (!scene.nodes.length && !scene.edges.length) return null;
+  if (!scene.nodes.length && !scene.edges.length && !scene.groups?.length) return null;
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
@@ -78,6 +78,11 @@ function boundsOf(scene) {
       if (!Array.isArray(point) || point.length !== 2) fail('static_edition_geometry_invalid');
       include(point[0], point[1]);
     }
+  }
+  for (const group of scene.groups ?? []) {
+    if (group.width <= 0 || group.height <= 0) fail('static_edition_geometry_invalid');
+    include(group.x, group.y);
+    include(group.x + group.width, group.y + group.height);
   }
   return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
 }
@@ -178,6 +183,7 @@ export function composeStaticEditionSvg(scene) {
     (scene.visualPolicy.override !== undefined && scene.visualPolicy.override !== null) ||
     !Array.isArray(scene.nodes) ||
     !Array.isArray(scene.edges) ||
+    (scene.groups !== undefined && !Array.isArray(scene.groups)) ||
     (scene.claimCards !== undefined && !Array.isArray(scene.claimCards)) ||
     scene.edges.some((edge) => !edge || !Array.isArray(edge.relations)) ||
     !Array.isArray(scene.questions) ||
@@ -225,6 +231,16 @@ export function composeStaticEditionSvg(scene) {
   const labels = new Map(scene.nodes.map((node) => [key(node), node.label]));
   const nodeCarriers = [];
   const relationCarriers = [];
+  for (const group of scene.groups ?? []) {
+    const lines = wrap(group.label, group.width - 52, 14, 2);
+    graph.push(
+      `<rect x="${number(group.x)}" y="${number(group.y)}" width="${number(group.width)}" height="${number(group.height)}" rx="18" fill="#eef0e9" stroke="#c4ccc2" stroke-width="1.4"/>`,
+    );
+    for (const [index, line] of lines.entries())
+      graph.push(
+        `<text x="${number(group.x + 26)}" y="${number(group.y + 31 + index * 19)}" fill="#526158" font-size="14" font-weight="600">${escape(line)}</text>`,
+      );
+  }
   for (const edge of scene.edges) {
     if (!labels.has(key(edge.from)) || !labels.has(key(edge.to)))
       fail('static_edition_relation_endpoint_missing');

@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { materializeBuildRequestInput } from '../provider/build-request.mjs';
 import { composeInteractiveEditionScene } from '../scene/interactive/edition.mjs';
+import { composeGroupedSelectionLayout } from '../scene/static/grouped-selection.mjs';
 import { composeStaticEditionScene } from '../scene/static/edition.mjs';
 import { importLikeC4Layout } from '../semantics/native-likec4.mjs';
 import { canonical } from '../semantics/document.mjs';
@@ -53,14 +54,18 @@ async function staticMedium(selected, meaning, scratch) {
   );
   let layout = null;
   if (!claimMode) {
-    const views = meaning.native.selections.filter(({ target }) => target.kind === 'view');
-    if (views.length !== 1) fail('static_scene_composition_ambiguous');
-    const view = { namespace: views[0].source.namespace, id: views[0].target.id };
-    layout = await importLikeC4Layout({
-      lock: selected.lock,
-      readSource: selected.readSource,
-      view,
-    });
+    if (meaning.editorial.presentation.static.views[0].groups !== undefined)
+      layout = composeGroupedSelectionLayout(meaning);
+    else {
+      const views = meaning.native.selections.filter(({ target }) => target.kind === 'view');
+      if (views.length !== 1) fail('static_scene_composition_ambiguous');
+      const view = { namespace: views[0].source.namespace, id: views[0].target.id };
+      layout = await importLikeC4Layout({
+        lock: selected.lock,
+        readSource: selected.readSource,
+        view,
+      });
+    }
   }
   const scene = composeStaticEditionScene(meaning, layout);
   const rendered = composeStaticEditionSvg(scene);

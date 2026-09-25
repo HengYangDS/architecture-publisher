@@ -165,6 +165,34 @@ test('uninterpreted transformation rules cannot become compiled claims', async (
   });
 });
 
+test('semantic groups must partition the selected elements of their own view', async () => {
+  const authored = project();
+  authored.omissions = [];
+  const groups = [
+    {
+      id: 'selected',
+      label: 'Selected component',
+      elements: [{ namespace: 'example/model', id: 'a' }],
+    },
+  ];
+  authored.presentation.static.views[0].groups = groups;
+  authored.presentation.interactive.views[0].groups = structuredClone(groups);
+  const meaning = await compiler.compileEditionMeaning(materialized(authored));
+  assert.deepEqual(meaning.editorial.presentation.static.views[0].groups, groups);
+
+  const missing = structuredClone(authored);
+  missing.presentation.static.views[0].groups[0].elements[0].id = 'missing';
+  await assert.rejects(compiler.compileEditionMeaning(materialized(missing)), {
+    code: 'edition_group_membership_mismatch',
+  });
+
+  const omitted = structuredClone(authored);
+  omitted.omissions = project().omissions;
+  await assert.rejects(compiler.compileEditionMeaning(materialized(omitted)), {
+    code: 'edition_group_membership_mismatch',
+  });
+});
+
 test('the join consumes one bound Edition byte snapshot and rejects an invalid reader', async () => {
   await assert.rejects(compiler.compileEditionMeaning({ readEdition: 'not-a-reader' }), {
     code: 'edition_meaning_input_invalid',

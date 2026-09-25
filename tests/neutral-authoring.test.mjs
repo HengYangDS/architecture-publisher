@@ -1,13 +1,25 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import test from 'node:test';
-import { compileEditionMeaning } from '../packages/publisher/src/compiler/index.mjs';
+import {
+  compileEditionCandidateInput,
+  compileEditionMeaning,
+} from '../packages/publisher/src/compiler/index.mjs';
 import { assembleEditionSelection } from '../packages/publisher/src/edition/selection.mjs';
 import * as scenes from '../packages/publisher/src/scene/index.mjs';
 import {
   importLikeC4Layout,
   importLikeC4Native,
 } from '../packages/publisher/src/semantics/index.mjs';
+import { selectedNativeEdition } from './fixtures/selected-native-edition.mjs';
+import { claimModel } from './fixtures/claim-model.mjs';
+import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/static/grouped-selection.mjs';
+import {
+  importClaimModel,
+  resolveClaimModelSelection,
+} from '../packages/publisher/src/semantics/native-claim-model.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const sources = new Map([
@@ -140,6 +152,184 @@ test('a neutral static scene carries declared source assertions without authored
   ]);
   assert.equal(Object.hasOwn(scene, 'svg'), false);
   assert.equal(Object.isFrozen(scene.nodes), true);
+});
+
+test('a selected grouped view builds visible static groups through the shared geometry owner', async (t) => {
+  const selected = await selectedNativeEdition(t, { media: ['static'], width: 1800 });
+  selected.project.presentation.static.views[0].groups = [
+    {
+      id: 'entry',
+      label: 'Entry boundary',
+      elements: [{ namespace: 'fixture/model', id: 'alpha' }],
+    },
+    {
+      id: 'service',
+      label: 'Service boundary',
+      elements: [{ namespace: 'fixture/model', id: 'beta' }],
+    },
+  ];
+  selected.project.requiredAssertions.push({
+    id: 'shape-context',
+    kind: 'source',
+    selection: 'overview',
+    questions: ['shape'],
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const output = path.join(selected.root, 'grouped-candidate');
+  const built = await compileEditionCandidateInput(selected.file, selected.digest, output);
+  assert.equal(built.status, 'built');
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert(svg.includes('Entry boundary'));
+  assert(svg.includes('Service boundary'));
+  assert(!svg.includes('fixture/model'));
+});
+
+test('grouped static composition retains only asserted members of a selected upstream view', async (t) => {
+  const selected = await selectedNativeEdition(t, { media: ['static'], width: 1800 });
+  selected.project.scope.selections.push({
+    id: 'alpha',
+    namespace: 'fixture/model',
+    kind: 'reference',
+    reference: 'element:alpha',
+  });
+  selected.project.requiredAssertions = [
+    { id: 'alpha', kind: 'source', selection: 'alpha', questions: ['shape'] },
+  ];
+  selected.project.presentation.static.views[0].groups = [
+    {
+      id: 'entry',
+      label: 'Selected entry',
+      elements: [{ namespace: 'fixture/model', id: 'alpha' }],
+    },
+  ];
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const output = path.join(selected.root, 'narrow-grouped-candidate');
+  const built = await compileEditionCandidateInput(selected.file, selected.digest, output);
+  assert.equal(built.status, 'built');
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert(svg.includes('Selected entry'));
+  assert(svg.includes('Alpha'));
+  assert(!svg.includes('Beta'));
+});
+
+test('grouped geometry does not place relation labels that the successor never renders', () => {
+  const source = { namespace: 'fixture/model', sha256: 'a'.repeat(64) };
+  const elements = ['alpha', 'beta'].map((id) => ({
+    namespace: source.namespace,
+    id,
+    sha256: source.sha256,
+    label: id,
+  }));
+  const selected = {
+    selectionId: 'overview',
+    format: 'likec4/dsl',
+    target: { kind: 'view', id: 'overview' },
+    source,
+    members: {
+      elements,
+      relations: Array.from({ length: 3 }, (_, index) => ({
+        id: `relation-${index}`,
+        origin: source,
+        from: { namespace: source.namespace, id: 'alpha' },
+        to: { namespace: source.namespace, id: 'beta' },
+        label: 'a-relation-label-that-will-not-fit',
+      })),
+    },
+  };
+  const meaning = {
+    native: { selections: [selected] },
+    assertions: [{ id: 'shape', kind: 'source', selection: selected.selectionId }],
+    media: { static: { views: [{ id: 'overview', assertionIds: ['shape'] }] } },
+    editorial: {
+      presentation: {
+        static: {
+          views: [
+            {
+              id: 'overview',
+              groups: ['alpha', 'beta'].map((id) => ({
+                id,
+                label: id,
+                elements: [{ namespace: source.namespace, id }],
+              })),
+            },
+          ],
+        },
+      },
+    },
+  };
+  assert.equal(composeGroupedSelectionLayout(meaning).edges.length, 3);
+});
+
+test('grouped geometry consumes selected Claim Model relations without treating claims as edges', () => {
+  const bytes = Buffer.from(JSON.stringify(claimModel()) + '\n');
+  const source = {
+    namespace: 'fixture/claims',
+    sha256: sha(bytes),
+    format: { id: 'architecture.claim-model', version: '2' },
+  };
+  const imported = importClaimModel(source, bytes, 'native');
+  const selections = [
+    { id: 'request', reference: 'relation:request' },
+    { id: 'intended', reference: 'claim:intended' },
+  ].map(({ id, reference }) =>
+    resolveClaimModelSelection(imported, {
+      id,
+      namespace: source.namespace,
+      kind: 'reference',
+      reference,
+    }),
+  );
+  const meaning = {
+    native: { selections },
+    assertions: selections.map(({ selectionId }) => ({
+      id: selectionId,
+      kind: 'source',
+      selection: selectionId,
+    })),
+    media: { static: { views: [{ id: 'overview', assertionIds: ['request', 'intended'] }] } },
+    editorial: {
+      presentation: {
+        static: {
+          views: [
+            {
+              id: 'overview',
+              groups: [
+                {
+                  id: 'entry',
+                  label: 'Entry',
+                  elements: [{ namespace: source.namespace, id: 'client' }],
+                },
+                {
+                  id: 'service',
+                  label: 'Service',
+                  elements: [{ namespace: source.namespace, id: 'server' }],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    },
+  };
+  const layout = composeGroupedSelectionLayout(meaning);
+  assert.equal(layout.closure, 'grouped-layout-unqualified');
+  assert.equal(layout.nodes.length, 2);
+  assert.equal(layout.edges.length, 1);
+  assert.equal(layout.groups.length, 2);
+  assert.equal(layout.edges[0].relations[0].reference, 'request');
+  assert.equal(layout.view, null);
+
+  const claimOnly = structuredClone(meaning);
+  claimOnly.media.static.views[0].assertionIds = ['intended'];
+  assert.throws(() => composeGroupedSelectionLayout(claimOnly), {
+    code: 'grouped_geometry_input_invalid',
+  });
 });
 
 test('a scene refuses geometry that drops one required source relation', async () => {

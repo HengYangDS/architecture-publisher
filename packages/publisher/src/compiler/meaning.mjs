@@ -7,6 +7,29 @@ import { fail } from '../source/manifest.mjs';
 import { compileEditionNativeSelections } from './native.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const address = ({ namespace, id }) => JSON.stringify([namespace, id]);
+
+function checkViewGroups(project, media, native) {
+  const selections = new Map(native.selections.map((item) => [item.selectionId, item]));
+  const assertions = new Map(project.requiredAssertions.map((item) => [item.id, item]));
+  for (const [medium, obligations] of Object.entries(media)) {
+    for (const [index, view] of obligations.views.entries()) {
+      const groups = project.presentation[medium].views[index].groups;
+      if (groups === undefined) continue;
+      const selected = new Set(
+        view.assertionIds.flatMap((id) => {
+          const assertion = assertions.get(id);
+          if (assertion.kind !== 'source') return [];
+          const source = selections.get(assertion.selection);
+          return source.target.kind === 'claim' ? [] : source.members.elements.map(address);
+        }),
+      );
+      const grouped = new Set(groups.flatMap(({ elements }) => elements.map(address)));
+      if (selected.size !== grouped.size || [...selected].some((element) => !grouped.has(element)))
+        fail('edition_group_membership_mismatch');
+    }
+  }
+}
 
 /** Join bound native selections with editorial obligations, without qualifying either. */
 export async function compileEditionMeaning(input) {
@@ -52,6 +75,7 @@ export async function compileEditionMeaning(input) {
     return { ...assertion, semanticStatus: 'editor-attributed-unverified' };
   });
   const mediaObligations = deriveEditionQuestionObligations(project, media);
+  checkViewGroups(project, mediaObligations, native);
   const editorialIds = new Set(
     assertions.filter(({ kind }) => kind === 'editorial').map(({ id }) => id),
   );

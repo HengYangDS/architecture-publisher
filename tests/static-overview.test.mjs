@@ -112,6 +112,14 @@ test('one neutral grouped geometry owner preserves the legacy route result', () 
   );
 });
 
+test('the legacy scene still rejects an empty relation label', () => {
+  const { document, edition, view } = fixture();
+  edition.visualGrammar.relationTypes.calls.label = '';
+  assert.throws(() => composeStaticArchitectureScene(document, edition, view), {
+    code: 'grouped_geometry_input_invalid',
+  });
+});
+
 test('neutral groups bind source-qualified node identities exactly once', () => {
   const left = JSON.stringify(['source-a', 'shared']);
   const right = JSON.stringify(['source-b', 'shared']);
