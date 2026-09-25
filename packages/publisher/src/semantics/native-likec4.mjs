@@ -188,11 +188,14 @@ export async function importLikeC4Native(selection, fromSources) {
   const relationIds = new Set(relations.map(({ id }) => id));
   const generatedViews = [];
   const views = [];
+  const opaqueViews = [];
   for (const view of model.views()) {
     const origin = originFor(parser, { view: view.id }, byFile);
+    if (typeof view.$view?._type !== 'string' || !view.$view._type)
+      fail('native_likec4_view_type_invalid');
     const declaredPath = view.$view.sourcePath;
     if (declaredPath === undefined) {
-      if (origin) fail('native_likec4_source_reference_invalid');
+      if (origin || view.$view._type !== 'element') fail('native_likec4_source_reference_invalid');
       generatedViews.push(view.id);
       continue;
     }
@@ -202,6 +205,15 @@ export async function importLikeC4Native(selection, fromSources) {
     const declaredSource = sourceForPath(`/workspace/${declaredPath}`, byFile);
     if (declaredSource.namespace !== origin.namespace)
       fail('native_likec4_source_reference_invalid');
+    if (view.$view._type !== 'element') {
+      opaqueViews.push({
+        id: view.id,
+        namespace: origin.namespace,
+        kind: view.$view._type,
+        origin,
+      });
+      continue;
+    }
     const members = [...view.elements()].map((element) => {
       const selected = elementById.get(element.id);
       if (!selected) fail('native_likec4_view_element_unselected');
@@ -226,6 +238,7 @@ export async function importLikeC4Native(selection, fromSources) {
     });
   }
   views.sort((left, right) => compare(left.id, right.id));
+  opaqueViews.sort((left, right) => compare(left.id, right.id));
   generatedViews.sort(compare);
   return deepFreeze({
     schema: 'architecture.native-index/v1',
@@ -241,7 +254,12 @@ export async function importLikeC4Native(selection, fromSources) {
     elements,
     relations,
     views,
+    opaqueViews,
     generatedViews,
-    semanticLimits: ['domain-metadata-opaque', 'view-membership-upstream-computed-unqualified'],
+    semanticLimits: [
+      'domain-metadata-opaque',
+      'view-membership-upstream-computed-unqualified',
+      ...(opaqueViews.length ? ['native-view-semantics-uninterpreted'] : []),
+    ],
   });
 }

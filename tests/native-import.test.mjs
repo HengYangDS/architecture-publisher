@@ -64,6 +64,7 @@ test('native LikeC4 import binds model and view semantics to selected bytes', as
   assert.equal(index.elements.length, 2);
   assert.equal(index.relations.length, 1);
   assert.equal(index.views.length, 1);
+  assert.deepEqual(index.opaqueViews, []);
   assert.deepEqual(index.generatedViews, ['index']);
   assert.equal(Object.hasOwn(index, 'unlocatedViews'), false);
   assert.deepEqual(
@@ -126,6 +127,31 @@ test('the upstream include view cannot resolve an unselected element', async () 
     ),
     { code: 'native_likec4_parse_invalid' },
   );
+});
+
+test('dynamic view flow stays opaque instead of becoming a structural view', async () => {
+  const mixedViews = Buffer.from(
+    'views { view overview { include * } dynamic view flow { left -> right } }\n',
+  );
+  const index = await semantics.importLikeC4Native(
+    selection(
+      new Map([
+        ['example/model', model],
+        ['example/views', mixedViews],
+      ]),
+    ),
+    fromSources,
+  );
+  assert.deepEqual(
+    index.views.map(({ id }) => id),
+    ['overview'],
+  );
+  assert.deepEqual(
+    index.opaqueViews.map(({ id, kind, origin }) => ({ id, kind, namespace: origin.namespace })),
+    [{ id: 'flow', kind: 'dynamic', namespace: 'example/views' }],
+  );
+  assert.equal(index.opaqueViews[0].origin.sha256, sha(mixedViews));
+  assert(index.semanticLimits.includes('native-view-semantics-uninterpreted'));
 });
 
 test('native LikeC4 import consumes the actual sealed materialization interface', async () => {

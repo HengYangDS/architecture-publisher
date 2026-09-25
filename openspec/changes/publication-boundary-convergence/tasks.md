@@ -266,9 +266,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       no-filesystem, no-manual-layout, no-watch, WASM mode; source inspection
       confirms its non-builtin reads are refused. In the pinned parser,
       `include *` changes membership only with selected model files, and an
-      unselected element reference fails. Focused native tests pass 18/18;
-      static and package checks pass. The full run passes 780 tests, skips 2,
-      but branch coverage is 92.86% against 95%. Ruling: native
+      unselected element reference fails. Ordered dynamic views are now
+      source-bound opaque entries, not flattened into structural views.
+      Focused native tests pass 19/19; static and package checks pass. The
+      full run passes 781 tests, skips 2, but branch coverage is 92.85%
+      against 95%. Ruling: native
       `.c4` format is `unversioned`; parser 1.59.4 is a separate toolchain
       identity. Arbitrary parser callbacks are not attested, and package
       supply, complete read closure, full include/query semantics, bounded execution,

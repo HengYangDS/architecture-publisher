@@ -371,6 +371,12 @@ LikeC4 element IDs, typed relation endpoints/kinds/direction, and view IDs;
 user metadata and unsupported predicates remain opaque until an admitted
 vocabulary assigns them meaning. Engine-generated relation IDs are
 revision-scoped even if they stay equal in one workspace run.
+An authored LikeC4 dynamic view has ordered flow semantics; its elements and
+edges alone are not an equivalent structural view. Until an admitted adapter
+preserves those steps, the native index lists it separately as an opaque view
+with kind and source origin, rather than placing it among supported structural
+views. A later Edition compiler must reject a semantic obligation that depends
+on such an opaque view; retaining its bound DSL bytes is not understanding it.
 
 For the pinned LikeC4 1.59.4 implementation, `fromSources` creates virtual
 documents and selects its `NoFileSystem` provider when `useFileSystem` is false;
