@@ -133,7 +133,7 @@ import { fileURLToPath } from 'node:url';
 import { materializeBuildRequestInput } from 'architecture-publisher/provider';
 import { compileEditionMeaning } from 'architecture-publisher/compiler';
 import { importLikeC4Layout } from 'architecture-publisher/semantics';
-import { composeStaticEditionScene } from 'architecture-publisher/scene';
+import { composeInteractiveEditionScene, composeStaticEditionScene } from 'architecture-publisher/scene';
 const file = fileURLToPath(new URL('./inputs/build-request.json', import.meta.url));
 try {
   const bytes = await fs.readFile(file);
@@ -146,6 +146,7 @@ try {
     view: { namespace: 'example/views', id: 'overview' },
   });
   const staticScene = composeStaticEditionScene(meaning, layout);
+  const interactiveScene = composeInteractiveEditionScene(meaning);
   console.log(JSON.stringify({
     status: 'ok', lock: selected.lockSha256, semantic: meaning.native.semanticDigest,
     parser: meaning.native.parserSupply.sha256,
@@ -163,6 +164,15 @@ try {
       relations: staticScene.edges.flatMap((edge) =>
         edge.relations.map(({ reference }) => reference)),
       bounds: staticScene.bounds,
+    },
+    interactiveScene: {
+      completeness: interactiveScene.completeness,
+      pages: interactiveScene.pages.map(({ id, questionIds, nodes, relations }) => ({
+        id,
+        questions: questionIds,
+        nodes: nodes.map(({ id }) => id),
+        relations: relations.map(({ id }) => id),
+      })),
     },
   }));
 } catch (error) {
@@ -203,6 +213,10 @@ try {
   assert.deepEqual(first.scene.nodes, ['a']);
   assert.deepEqual(first.scene.relations, []);
   assert(first.scene.bounds.height > 0);
+  assert.equal(first.interactiveScene.completeness, 'unqualified-scene');
+  assert.deepEqual(first.interactiveScene.pages, [
+    { id: 'overview', questions: ['shape'], nodes: ['a'], relations: [] },
+  ]);
   for (const value of [first.lock, first.semantic, first.parser])
     assert.match(value, /^[0-9a-f]{64}$/u);
 

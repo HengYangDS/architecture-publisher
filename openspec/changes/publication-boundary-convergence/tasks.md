@@ -399,6 +399,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       This avoids making a local effect location part of the semantic lock or
       adding a second build command. If wrong, only the unreleased successor
       invocation shape changes; no accepted v1 meaning is rewritten.
+      Partial: a separate interactive Scene now composes each declared page
+      from its own question, assertion, source-carrier, and limit obligations.
+      It neither consumes static geometry nor creates a DOM or HTML artifact;
+      uninterpreted native metadata is not copied into the scene. The existing
+      interactive Scene regressions remain intact. Focused and offline packed
+      relocation tests, static checks, and package checks pass. The full run
+      passes 857 tests and skips 2; the new scene module has 96.87% branch
+      coverage, but the global branch gate remains red at 93.12%. No paired
+      Candidate, dual-medium render, browser acceptance, or release is claimed.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually
