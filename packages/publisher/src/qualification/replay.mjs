@@ -16,7 +16,7 @@ function fail(code) {
 }
 
 /** Bind a Candidate to selected inputs by replaying all bytes under this runtime. */
-export async function verifySelectedCandidateReplay(input) {
+export async function verifySelectedCandidateReplay(input, executionChoice = []) {
   if (
     !exact(input, [
       'requestPath',
@@ -50,6 +50,7 @@ export async function verifySelectedCandidateReplay(input) {
       input.requestPath,
       input.requestSha256,
       path.join(scratch, 'candidate'),
+      executionChoice,
     );
     const candidateSha256 = selectedEditionCandidateDigest(candidate);
     if (

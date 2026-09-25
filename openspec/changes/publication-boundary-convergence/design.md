@@ -703,6 +703,46 @@ replacement. Publisher-generated vendor representations and layout geometry
 are derived carriers; an authored native DSL remains authoritative for its
 declared source meaning.
 
+### Mechanism subtraction
+
+Keep a mechanism only when it owns a distinct invariant, trust boundary, or
+consumer. If two steps consume the same selected bytes under the same authority
+and establish the same fact, one step must go. A digest, cache, wrapper, or
+receipt is not valuable merely because it is named. Prefer a mature mechanism
+at its actual boundary, then remove the displaced custom owner after installed
+parity; do not maintain both indefinitely.
+
+This rule must not collapse different questions into one check. Exact input
+identity and semantic equivalence, Candidate file integrity and source replay,
+predicate observations and accepter policy, or a publication plan and its
+recoverable effect each establish different facts. Nor may a stored result
+authorize Provider execution: replay needs the caller's separate exact choice.
+
+The concrete subtraction order is:
+
+1. In the successor join, verify each Provider manifest once and pass the
+   verified value to materialization. Keep defensive copies only where a
+   mutation-isolation test proves the consumer needs them. Current-source
+   installed tests assert contract and self-consistency; immutable release
+   matrices, not rolling source tests, own historical byte-goldens. Consolidate
+   repeated exact-field validators on a collision-safe key-set primitive;
+   delimiter-joined field names are not a field-set proof.
+2. Measure Edition parse/obligation repetition and LikeC4 semantic/layout
+   parsing on the same frozen workload. Share a selected, immutable result only
+   within one trust boundary and parser identity; never use an ambient cache to
+   paper over changed source bytes or untrusted public inputs.
+3. At replacement parity, delete superseded Publisher render, browser, and
+   publication mechanics rather than polishing their redundant scans or scope
+   aliases. A breaking successor may remove obsolete runtime protocols with a
+   SemVer and migration note; preserve historical signed refs and accepted
+   artifact bytes, not dead code in the new package.
+4. At source-owned migration, replace ETHOS's temporary bundle-for-digest
+   roundtrip and generic media pipeline with a minimal semantic Provider plus
+   its authored Edition; replace AIGW's copied `_source` snapshots and
+   self-materialization engine only after a truthful native source and complete
+   AIGW acceptance path exist. Neither source migration grants Publisher
+   domain authority.
+
 ## Change, qualification, acceptance, and custody
 
 After input materialization, closed-input validation, and dependency locking,

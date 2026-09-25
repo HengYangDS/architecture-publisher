@@ -503,7 +503,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       exact execution choice, one replay-derived scope, strict v2 JSON, an
       overall deadline, and explicit attribution limits. These corrections
       passed focused independent design re-review; implementation and adversarial
-      acceptance remain open. No v2 record admission is claimed.
+      acceptance remain open. The first implementation slice now requires a
+      separate exact execution choice for replay and verifies all selected
+      Provider manifests before any Provider runs; a fixture observes that
+      rejected choices leave its execution marker absent. Focused replay tests
+      pass 6/6. No v2 record admission is claimed.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In
       `tests/publication-contract.test.mjs` and
@@ -528,6 +532,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       consumer closure, `tests/package-boundaries.test.mjs`,
       `tests/module-boundaries.test.mjs`, package contents, and installed use.
       Do not delete source-owned art direction or immutable historical assets.
+      The mechanism-subtraction decision in `design.md` distinguishes redundant
+      joins and rolling byte-goldens from independent trust checks. The rolling
+      self-hosted golden was removed; the frozen first-party release matrix
+      remains exact. Installed self-host and matrix tests pass 2/2. The full
+      behavior run passes 953 tests and skips 4. The latest coverage run,
+      before the execution-marker assertion, reported 93.47% branches against
+      the unchanged 95% release floor; Task 7.2 remains open.
 - [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,

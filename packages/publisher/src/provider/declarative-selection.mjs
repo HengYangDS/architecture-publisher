@@ -9,7 +9,14 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 /** Read only selected declarative files; this is not a closed compiler input. */
 export async function readDeclarativeSelectedInputs(file, expectedSha256) {
-  const { manifest, root } = await readSelectedProviderManifest(file, expectedSha256);
+  return materializeSelectedDeclarativeFiles(
+    await readSelectedProviderManifest(file, expectedSha256),
+    expectedSha256,
+  );
+}
+
+/** Reuse an already verified manifest instead of parsing it again in the join. */
+export async function materializeSelectedDeclarativeFiles({ manifest, root }, expectedSha256) {
   if (manifest.delivery.kind !== 'declarative') fail('edition_provider_v2_delivery_unsupported');
 
   const descriptors = new Map([

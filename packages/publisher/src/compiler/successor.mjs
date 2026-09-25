@@ -108,9 +108,14 @@ async function interactiveMedium(meaning) {
 }
 
 /** Compile selected native meaning to two independent, unqualified media. */
-export async function compileSelectedEditionCandidateInput(requestPath, digest, output) {
+export async function compileSelectedEditionCandidateInput(
+  requestPath,
+  digest,
+  output,
+  executionChoice,
+) {
   const { target, parent } = await destination(output);
-  const selected = await materializeBuildRequestInput(requestPath, digest);
+  const selected = await materializeBuildRequestInput(requestPath, digest, executionChoice);
   if (selected.lock.toolchain.profile !== 'portable') fail('edition_toolchain_profile_unadmitted');
   const meaning = await compileEditionMeaning(selected);
   const scratch = await fs.mkdtemp(path.join(parent, '.edition-candidate-'));

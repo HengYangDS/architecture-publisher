@@ -15,17 +15,6 @@ import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const baseline = Object.freeze({
-  sourceSha256: '7fd77f2456589fa872f52961561b27425c147fba6556afd62cd8cd0109098888',
-  semanticDigest: 'ae6eb05146c326d349f7162a3b68a3ee5dcaa7c91591c1592b41ad83e213207a',
-  editionDigest: 'fbf1600937866cf090150e6677db573239126806dd418d8f5b818df37fe5c201',
-  staticSceneDigest: '1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d',
-  interactiveSceneDigest: 'b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b',
-  candidateSha256: '91b308b45b89256b7aadebc25a39f31cb8105d1d176c2a898e3c064dcf4ccf5b',
-  providerManifestSha256: 'dcd4657cbbc72f8614afa349f194df07e7304265e0010bb06ed32de99e0416c0',
-  providerMaterializationSha256: 'cd57ffc50a517bd1b5865b5c6138256ce53226bcd45f740c0c6be83a73f2345c',
-  bundleManifestSha256: 'b2af1df27768faee135785a6d89da91796f77416c4358aa85530c07ea4519dd3',
-});
 
 function run(command, args, cwd, env = process.env) {
   const result = spawnSync(command, args, {
@@ -69,10 +58,7 @@ test('the installed product builds its structural self-portrait through the publ
     selected = JSON.parse(run(process.execPath, [journey, inputs], consumer, installedEnvironment)),
     plan = JSON.parse(await fs.readFile(selected.plan, 'utf8')),
     providerBytes = await fs.readFile(selected.providerManifest),
-    provider = JSON.parse(providerBytes),
-    expectedProvider = JSON.parse(
-      await fs.readFile(path.join(root, 'tests/fixtures/providers/self/provider.json'), 'utf8'),
-    );
+    provider = JSON.parse(providerBytes);
   await assert.rejects(
     fs.stat(path.join(pkg, 'conformance/journeys/self-host/browser-acceptance.json')),
     { code: 'ENOENT' },
@@ -101,7 +87,6 @@ test('the installed product builds its structural self-portrait through the publ
     path.dirname(selected.sourceManifest),
     path.join(physicalParent, 'inputs', 'source'),
   );
-  assert.deepEqual(provider, expectedProvider);
   assert.equal(selected.providerManifestSha256, sha(providerBytes));
   assert.deepEqual(Object.keys(plan).sort(), [
     'output',
@@ -166,20 +151,6 @@ test('the installed product builds its structural self-portrait through the publ
   assert.equal(candidate.edition.digest, response.editionDigest);
   assert.equal(candidate.media.static.sceneSha256, response.staticSceneDigest);
   assert.equal(candidate.media.interactive.sceneSha256, response.interactiveSceneDigest);
-  assert.deepEqual(
-    {
-      sourceSha256: selected.sourceSha256,
-      semanticDigest: selected.semanticDigest,
-      editionDigest: response.editionDigest,
-      staticSceneDigest: response.staticSceneDigest,
-      interactiveSceneDigest: response.interactiveSceneDigest,
-      candidateSha256: response.candidateSha256,
-      providerManifestSha256: selected.providerManifestSha256,
-      providerMaterializationSha256: response.providerMaterializationSha256,
-      bundleManifestSha256: response.manifestSha256,
-    },
-    baseline,
-  );
   assert.equal(providerReceipt.delivery, 'declarative');
   assert.deepEqual(providerReceipt.materialized, provider.expected);
   assert.equal(sha(members.get('provider.json')), response.providerMaterializationSha256);

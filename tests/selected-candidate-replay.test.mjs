@@ -3,10 +3,15 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/index.mjs';
+import { editionProviderPackageDigest } from '../packages/publisher/src/provider/index.mjs';
 import * as qualification from '../packages/publisher/src/qualification/index.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
-import { selectedNativeEdition } from './fixtures/selected-native-edition.mjs';
+import {
+  moveModelToProvider,
+  selectedNativeEdition,
+  sha,
+} from './fixtures/selected-native-edition.mjs';
 
 const verifySelectedCandidateReplay = qualification.verifySelectedCandidateReplay;
 
@@ -109,5 +114,124 @@ test('a Candidate copied to a different Edition or changed pinned source does no
       requestSha256: first.digest,
     }),
     { code: 'materialized_pin_mismatch' },
+  );
+});
+
+test('replay executes Provider code only with a separate exact invocation choice', async (t) => {
+  const fixture = await selectedNativeEdition(t, { width: 1800 });
+  await moveModelToProvider(fixture, fixture.model, 'executable');
+  const packageRoot = path.join(fixture.root, 'provider/package');
+  const executionMarker = path.join(fixture.root, 'provider-executed');
+  await fs.mkdir(packageRoot);
+  const packageJson = Buffer.from(
+    JSON.stringify({
+      name: '@fixture/model-provider',
+      version: '1.0.0',
+      type: 'module',
+      exports: { './provider': './provider.mjs' },
+    }) + '\n',
+  );
+  await fs.writeFile(path.join(packageRoot, 'package.json'), packageJson);
+  await fs.writeFile(
+    path.join(packageRoot, 'provider.mjs'),
+    `import fs from 'node:fs/promises';\nexport async function materializeEditionProvider() { await fs.writeFile(${JSON.stringify(executionMarker)}, 'executed'); return { schema: 'architecture.edition-provider-reply/v2', derived: [] }; }\n`,
+  );
+  const manifestPath = path.join(fixture.root, 'provider/provider.json');
+  const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+  manifest.delivery.package.packageJsonSha256 = sha(packageJson);
+  manifest.delivery.package.contentSha256 = await editionProviderPackageDigest(packageRoot);
+  const manifestBytes = Buffer.from(JSON.stringify(manifest) + '\n');
+  await fs.writeFile(manifestPath, manifestBytes);
+  fixture.request.providers[0].sha256 = sha(manifestBytes);
+  const requestBytes = Buffer.from(JSON.stringify(fixture.request) + '\n');
+  await fs.writeFile(fixture.file, requestBytes);
+  fixture.digest = sha(requestBytes);
+  const built = await compileEditionCandidateInput(
+    fixture.file,
+    fixture.digest,
+    path.join(fixture.root, 'candidate'),
+  );
+  await fs.rm(executionMarker);
+  const selected = {
+    requestPath: fixture.file,
+    requestSha256: fixture.digest,
+    candidateManifestPath: built.manifestPath,
+    candidateManifestSha256: built.manifestSha256,
+  };
+  await assert.rejects(verifySelectedCandidateReplay(selected), {
+    code: 'materialized_provider_execution_choice_mismatch',
+  });
+  await assert.rejects(fs.access(executionMarker), { code: 'ENOENT' });
+  await assert.rejects(
+    verifySelectedCandidateReplay(selected, [
+      { id: 'model-provider', manifestSha256: '0'.repeat(64) },
+    ]),
+    { code: 'materialized_provider_execution_choice_mismatch' },
+  );
+  await assert.rejects(fs.access(executionMarker), { code: 'ENOENT' });
+  await assert.rejects(
+    verifySelectedCandidateReplay({ ...selected, providerExecution: 'allow-selected' }),
+    { code: 'selected_candidate_replay_input_invalid' },
+  );
+  const result = await verifySelectedCandidateReplay(selected, [
+    { id: 'model-provider', manifestSha256: sha(manifestBytes) },
+  ]);
+  assert.equal(result.candidateSha256, built.candidateSha256);
+  assert.equal(await fs.readFile(executionMarker, 'utf8'), 'executed');
+});
+
+test('replay rejects an execution choice when no executable Provider is selected', async (t) => {
+  const fixture = await selectedNativeEdition(t, { width: 1800 });
+  const built = await compileEditionCandidateInput(
+    fixture.file,
+    fixture.digest,
+    path.join(fixture.root, 'candidate'),
+  );
+  await assert.rejects(
+    verifySelectedCandidateReplay(
+      {
+        requestPath: fixture.file,
+        requestSha256: fixture.digest,
+        candidateManifestPath: built.manifestPath,
+        candidateManifestSha256: built.manifestSha256,
+      },
+      [{ id: 'unselected', manifestSha256: '0'.repeat(64) }],
+    ),
+    { code: 'materialized_provider_execution_choice_mismatch' },
+  );
+});
+
+test('one forged choice cannot stand in for two selected executable Providers', async (t) => {
+  const fixture = await selectedNativeEdition(t, { width: 1800 });
+  const built = await compileEditionCandidateInput(
+    fixture.file,
+    fixture.digest,
+    path.join(fixture.root, 'candidate'),
+  );
+  await moveModelToProvider(fixture, fixture.model, 'executable');
+  const manifestBytes = await fs.readFile(path.join(fixture.root, 'provider/provider.json'));
+  const manifestSha256 = sha(manifestBytes);
+  await fs.mkdir(path.join(fixture.root, 'provider-beta'));
+  await fs.writeFile(path.join(fixture.root, 'provider-beta/provider.json'), manifestBytes);
+  fixture.request.providers.push({
+    id: 'beta-provider',
+    manifest: 'provider-beta/provider.json',
+    sha256: manifestSha256,
+    packageRoot: 'provider-beta/package',
+  });
+  const requestBytes = Buffer.from(JSON.stringify(fixture.request) + '\n');
+  await fs.writeFile(fixture.file, requestBytes);
+  fixture.digest = sha(requestBytes);
+  await assert.rejects(
+    verifySelectedCandidateReplay(
+      {
+        requestPath: fixture.file,
+        requestSha256: fixture.digest,
+        candidateManifestPath: built.manifestPath,
+        candidateManifestSha256: built.manifestSha256,
+      },
+      [{ id: `beta-provider@${manifestSha256}\nmodel-provider`, manifestSha256 }],
+    ),
+    { code: 'materialized_provider_execution_choice_mismatch' },
   );
 });

@@ -50,7 +50,19 @@ function selectedDerived(reply, expected) {
 
 /** Execute one exact installed v2 Provider and retain only checked selected bytes. */
 export async function readExecutableSelectedInputs(file, expectedSha256, packageRoot) {
-  const { manifest, root } = await readSelectedProviderManifest(file, expectedSha256);
+  return materializeSelectedExecutableInputs(
+    await readSelectedProviderManifest(file, expectedSha256),
+    expectedSha256,
+    packageRoot,
+  );
+}
+
+/** Reuse one verified manifest while preserving package and reply checks. */
+export async function materializeSelectedExecutableInputs(
+  { manifest, root },
+  expectedSha256,
+  packageRoot,
+) {
   if (manifest.delivery.kind !== 'executable') fail('edition_provider_v2_delivery_unsupported');
   const packageSelection = await selectProviderPackage(packageRoot, manifest.delivery.package);
   const inputContents = new Map();

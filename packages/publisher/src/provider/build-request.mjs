@@ -2,13 +2,33 @@ import path from 'node:path';
 import { readBuildRequestSelection, readDirectSelectedInputs } from '../edition/materialize.mjs';
 import { deriveSourceRevision } from '../edition/revision.mjs';
 import { assembleEditionSelection } from '../edition/selection.mjs';
-import { fail } from '../source/manifest.mjs';
-import { readDeclarativeSelectedInputs } from './declarative-selection.mjs';
-import { readExecutableSelectedInputs } from './executable-selection.mjs';
+import { exact } from '../semantics/document.mjs';
+import { fail, isDigest } from '../source/manifest.mjs';
+import { materializeSelectedDeclarativeFiles } from './declarative-selection.mjs';
+import { materializeSelectedExecutableInputs } from './executable-selection.mjs';
 import { readSelectedProviderManifest } from './manifest.mjs';
 
+function selectedExecutionChoice(choice) {
+  if (choice === undefined) return null;
+  if (!Array.isArray(choice)) fail('materialized_provider_execution_choice_invalid');
+  const selected = new Map();
+  for (const item of choice) {
+    if (
+      !exact(item, ['id', 'manifestSha256']) ||
+      typeof item.id !== 'string' ||
+      !item.id ||
+      !isDigest(item.manifestSha256)
+    )
+      fail('materialized_provider_execution_choice_invalid');
+    if (selected.has(item.id)) fail('materialized_provider_execution_choice_invalid');
+    selected.set(item.id, item.manifestSha256);
+  }
+  return selected;
+}
+
 /** Materialize one Build Request across direct, declarative, and executable inputs. */
-export async function materializeBuildRequestInput(requestPath, expectedSha256) {
+export async function materializeBuildRequestInput(requestPath, expectedSha256, executionChoice) {
+  const offered = selectedExecutionChoice(executionChoice);
   const { file, root, request } = await readBuildRequestSelection(requestPath, expectedSha256);
   const direct = await readDirectSelectedInputs({ file, root, request });
   /** @type {{content: Buffer, resources: {ref: string, content: Buffer}[], expected: {id: string, editor: string} | null} | null} */
@@ -19,19 +39,40 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256) 
   const limits = [...direct.limits];
   const invocations = [];
 
+  const providers = [];
   for (const selection of request.providers) {
-    const manifest = path.resolve(root, ...selection.manifest.split('/'));
-    const selectedManifest = await readSelectedProviderManifest(manifest, selection.sha256);
+    const manifestPath = path.resolve(root, ...selection.manifest.split('/'));
+    const selectedManifest = await readSelectedProviderManifest(manifestPath, selection.sha256);
+    providers.push({ selection, selectedManifest });
+  }
+  if (offered !== null) {
+    const executable = providers.filter(
+      ({ selectedManifest }) => selectedManifest.manifest.delivery.kind === 'executable',
+    );
+    const required = new Map(executable.map(({ selection }) => [selection.id, selection.sha256]));
+    if (
+      required.size !== executable.length ||
+      offered.size !== required.size ||
+      [...offered].some(([id, digest]) => required.get(id) !== digest)
+    )
+      fail('materialized_provider_execution_choice_mismatch');
+  }
+
+  for (const { selection, selectedManifest } of providers) {
     let provider;
     if (selectedManifest.manifest.delivery.kind === 'declarative') {
       if (Object.hasOwn(selection, 'packageRoot'))
         fail('materialized_provider_package_root_invalid');
-      provider = await readDeclarativeSelectedInputs(manifest, selection.sha256);
+      provider = await materializeSelectedDeclarativeFiles(selectedManifest, selection.sha256);
     } else {
       if (!Object.hasOwn(selection, 'packageRoot'))
         fail('materialized_provider_package_root_required');
       const packageRoot = path.resolve(root, ...selection.packageRoot.split('/'));
-      provider = await readExecutableSelectedInputs(manifest, selection.sha256, packageRoot);
+      provider = await materializeSelectedExecutableInputs(
+        selectedManifest,
+        selection.sha256,
+        packageRoot,
+      );
     }
     const selected = provider.selected;
     const invocation = provider.invocation;

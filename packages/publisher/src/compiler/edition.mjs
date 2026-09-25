@@ -232,14 +232,15 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
   }
 }
 
-export async function compileEditionCandidateInput(file, digest, output) {
+export async function compileEditionCandidateInput(file, digest, output, executionChoice) {
   const planPath = path.resolve(file),
     plan = await selectedPlan(planPath, digest);
   if (plan?.schema === 'architecture.build-request/v1') {
     if (typeof output !== 'string' || !output) fail('edition_candidate_output_required');
     const { compileSelectedEditionCandidateInput } = await import('./successor.mjs');
-    return compileSelectedEditionCandidateInput(planPath, digest, output);
+    return compileSelectedEditionCandidateInput(planPath, digest, output, executionChoice);
   }
+  if (executionChoice !== undefined) fail('edition_candidate_execution_choice_unadmitted');
   if (output !== undefined) fail('edition_candidate_output_conflict');
   if (
     exact(plan, [
