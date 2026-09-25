@@ -9,6 +9,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const runtimeRoots = [
   'packages/publisher/src',
   'packages/publisher/renderers',
+  'packages/publisher/supplies',
   'editions/self/src',
   'conformance/journeys/self-host',
 ];
@@ -43,6 +44,7 @@ async function inventory(roots) {
         paths.add(file);
         if (
           !/packages\/publisher\/renderers\/[^/]+\/supply\//.test(file) &&
+          !file.startsWith('packages/publisher/supplies/') &&
           /\.(?:mjs|cjs|js)$/.test(file)
         )
           modules.push(file);
@@ -185,6 +187,46 @@ test('supply tools may list built-ins without admitting an alternate loader', as
       paths,
       packageExports,
     ).some(({ reason }) => reason.includes('alternate module loaders')),
+  );
+});
+
+test('only the LikeC4 supply owner may read the bundled parser resource', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  const source = "new URL('../../supplies/likec4/', import.meta.url);";
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      'packages/publisher/src/semantics/supply.mjs',
+      source,
+      paths,
+      packageExports,
+    ),
+    [],
+  );
+  assert(
+    inspectModuleBoundaries(
+      'packages/publisher/src/semantics/native-likec4.mjs',
+      source,
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('forbidden dependency')),
+  );
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      'packages/publisher/src/semantics/supply.mjs',
+      'import(verifiedParserUrl);',
+      paths,
+      packageExports,
+    ),
+    [],
+  );
+  assert(
+    inspectModuleBoundaries(
+      'packages/publisher/src/semantics/supply.mjs',
+      'import(unselectedUrl);',
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('computed dependency')),
   );
 });
 

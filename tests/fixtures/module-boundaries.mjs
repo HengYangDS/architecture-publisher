@@ -4,6 +4,14 @@ import { parse } from 'acorn';
 
 const owners = [
   [
+    'packages/publisher/src/semantics/supply.mjs',
+    [
+      'packages/publisher/src/semantics/',
+      'packages/publisher/src/source/',
+      'packages/publisher/supplies/likec4/parser.mjs',
+    ],
+  ],
+  [
     'packages/publisher/src/index.mjs',
     [
       'packages/publisher/src/compiler/index.mjs',
@@ -152,6 +160,7 @@ const owners = [
 ];
 
 const resourceOwners = [
+  ['packages/publisher/src/semantics/supply.mjs', ['packages/publisher/supplies/likec4/']],
   ['conformance/journeys/self-host/', ['conformance/journeys/self-host/', 'packages/publisher/']],
 ];
 
@@ -268,6 +277,12 @@ export function inspectModuleBoundaries(
         file === 'packages/publisher/src/provider/worker-task.mjs' &&
         node.source.type === 'Identifier' &&
         node.source.name === 'selectedEntrypointUrl'
+      )
+        return;
+      if (
+        file === 'packages/publisher/src/semantics/supply.mjs' &&
+        node.source.type === 'Identifier' &&
+        node.source.name === 'verifiedParserUrl'
       )
         return;
       reference(node, node.source);

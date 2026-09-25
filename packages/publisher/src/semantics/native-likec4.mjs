@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { deepFreeze, jsonValue, record } from './document.mjs';
+import { loadLikeC4ParserSupply } from './supply.mjs';
 import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
 
 const sha = (value) => createHash('sha256').update(value).digest('hex');
@@ -122,8 +123,8 @@ function originFor(parser, query, byFile) {
   };
 }
 
-/** Import selected LikeC4 bytes through one explicitly supplied upstream parser. */
-export async function importLikeC4Native(selection, fromSources) {
+/** Internal parser seam for adversarial conformance tests; not a package export. */
+export async function importLikeC4NativeWithParser(selection, fromSources) {
   if (typeof fromSources !== 'function') fail('native_likec4_parser_required');
   const { files, byFile, sources } = selectedSources(selection);
   let parser;
@@ -275,5 +276,16 @@ export async function importLikeC4Native(selection, fromSources) {
       'view-membership-upstream-computed-unqualified',
       ...(opaqueViews.length ? ['native-view-semantics-uninterpreted'] : []),
     ],
+  });
+}
+
+/** Public native import selects only the verified parser bundled with Publisher. */
+export async function importLikeC4Native(selection) {
+  if (arguments.length !== 1) fail('native_likec4_parser_override_forbidden');
+  const supply = await loadLikeC4ParserSupply();
+  const index = await importLikeC4NativeWithParser(selection, supply.fromSources);
+  return deepFreeze({
+    ...index,
+    parserSupply: { id: 'likec4-parser', sha256: supply.sha256 },
   });
 }

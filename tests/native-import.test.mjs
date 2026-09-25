@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import fs from 'node:fs/promises';
 import test from 'node:test';
 import { fromSources } from '@likec4/language-services/node';
 import * as semantics from '../packages/publisher/src/semantics/index.mjs';
+import { importLikeC4NativeWithParser } from '../packages/publisher/src/semantics/native-likec4.mjs';
 import { sealMaterializedInputLock } from '../packages/publisher/src/source/materialize.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -43,9 +45,20 @@ function selection(
   };
 }
 
+test('public native import selects the verified bundled parser and rejects overrides', async () => {
+  const index = await semantics.importLikeC4Native(selection());
+  const manifest = await fs.readFile(
+    new URL('../packages/publisher/supplies/likec4/supply.json', import.meta.url),
+  );
+  assert.deepEqual(index.parserSupply, { id: 'likec4-parser', sha256: sha(manifest) });
+  await assert.rejects(semantics.importLikeC4Native(selection(), fromSources), {
+    code: 'native_likec4_parser_override_forbidden',
+  });
+});
+
 test('native importer explicitly requests upstream no-filesystem mode', async () => {
   let selectedOptions;
-  await semantics.importLikeC4Native(selection(), async (files, options) => {
+  await importLikeC4NativeWithParser(selection(), async (files, options) => {
     selectedOptions = options;
     return fromSources(files, options);
   });
@@ -57,7 +70,7 @@ test('native importer explicitly requests upstream no-filesystem mode', async ()
 
 test('native LikeC4 import binds model and view semantics to selected bytes', async () => {
   assert.equal(typeof semantics.importLikeC4Native, 'function');
-  const index = await semantics.importLikeC4Native(selection(), fromSources);
+  const index = await importLikeC4NativeWithParser(selection(), fromSources);
   assert.equal(index.schema, 'architecture.native-index/v1');
   assert.equal(index.format, 'likec4/dsl');
   assert.equal(index.closure, 'parsed-document-set-only');
@@ -91,9 +104,9 @@ test('native LikeC4 import binds model and view semantics to selected bytes', as
 });
 
 test('the upstream include view contains exactly the selected model members', async () => {
-  const base = await semantics.importLikeC4Native(selection(), fromSources);
+  const base = await importLikeC4NativeWithParser(selection(), fromSources);
   const extra = Buffer.from("model { third = component 'Third'\n right -> third }\n");
-  const extended = await semantics.importLikeC4Native(
+  const extended = await importLikeC4NativeWithParser(
     selection(
       new Map([
         ['example/model', model],
@@ -116,7 +129,7 @@ test('the upstream include view contains exactly the selected model members', as
 test('the upstream include view cannot resolve an unselected element', async () => {
   const missing = Buffer.from('views { view overview { include missing } }\n');
   await assert.rejects(
-    semantics.importLikeC4Native(
+    importLikeC4NativeWithParser(
       selection(
         new Map([
           ['example/model', model],
@@ -133,7 +146,7 @@ test('dynamic view flow stays opaque instead of becoming a structural view', asy
   const mixedViews = Buffer.from(
     'views { view overview { include * } dynamic view flow { left -> right } }\n',
   );
-  const index = await semantics.importLikeC4Native(
+  const index = await importLikeC4NativeWithParser(
     selection(
       new Map([
         ['example/model', model],
@@ -158,7 +171,7 @@ test('native metadata is retained as opaque values, not inferred claims', async 
   const withMetadata = Buffer.from(
     "specification { element component }\nmodel { left = component 'Left' { metadata { owner 'team-a' } }\n right = component 'Right'\n left -> right { metadata { policy 'review' } } }\n",
   );
-  const index = await semantics.importLikeC4Native(
+  const index = await importLikeC4NativeWithParser(
     selection(
       new Map([
         ['example/model', withMetadata],
@@ -207,7 +220,7 @@ test('native metadata with hidden fields cannot be silently dropped', async () =
       }),
     };
   };
-  await assert.rejects(semantics.importLikeC4Native(selection(), parser), {
+  await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_metadata_invalid',
   });
 });
@@ -224,7 +237,7 @@ test('native LikeC4 import consumes the actual sealed materialization interface'
     media: ['static'],
     toolchain: { profile: 'portable' },
   });
-  const index = await semantics.importLikeC4Native(sealed, fromSources);
+  const index = await importLikeC4NativeWithParser(sealed, fromSources);
   assert.equal(index.elements.length, 2);
   assert.equal(index.relations.length, 1);
   assert.equal(index.sources[0].sha256, sealed.lock.sources[0].sha256);
@@ -242,7 +255,7 @@ test('native LikeC4 import keeps same-label sources and cross-source endpoints d
       ['example/views', views],
     ]),
   );
-  const index = await semantics.importLikeC4Native(selected, fromSources);
+  const index = await importLikeC4NativeWithParser(selected, fromSources);
   assert.deepEqual(
     index.elements.map(({ id, namespace, label }) => ({ id, namespace, label })),
     [
@@ -257,7 +270,7 @@ test('native LikeC4 import keeps same-label sources and cross-source endpoints d
 
 test('native LikeC4 import does not freeze or retain mutable caller metadata', async () => {
   const selected = selection();
-  const index = await semantics.importLikeC4Native(selected, fromSources);
+  const index = await importLikeC4NativeWithParser(selected, fromSources);
   assert.equal(Object.isFrozen(selected.lock.sources[0].format), false);
   selected.lock.sources[0].format.version = 'edited';
   assert.equal(index.sources[0].format.version, 'unversioned');
@@ -267,7 +280,7 @@ test('native LikeC4 import rejects bytes that disagree with the selected lock', 
   const locked = selection();
   locked.readSource = (namespace) =>
     namespace === 'example/model' ? Buffer.from('changed') : Buffer.from(views);
-  await assert.rejects(semantics.importLikeC4Native(locked, fromSources), {
+  await assert.rejects(importLikeC4NativeWithParser(locked, fromSources), {
     code: 'native_likec4_digest_mismatch',
   });
 });
@@ -275,7 +288,7 @@ test('native LikeC4 import rejects bytes that disagree with the selected lock', 
 test('native LikeC4 import rejects duplicate selected source namespaces', async () => {
   const locked = selection();
   locked.lock.sources.push({ ...locked.lock.sources[0] });
-  await assert.rejects(semantics.importLikeC4Native(locked, fromSources), {
+  await assert.rejects(importLikeC4NativeWithParser(locked, fromSources), {
     code: 'native_likec4_selection_invalid',
   });
 });
@@ -287,7 +300,7 @@ test('native LikeC4 import rejects parser documents outside the selected set', a
       '/workspace/ambient.c4',
     ],
   });
-  await assert.rejects(semantics.importLikeC4Native(selection(), parser), {
+  await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_document_set_mismatch',
   });
 });
@@ -304,7 +317,7 @@ test('native LikeC4 import rejects an ambient document with a selected basename'
       syncComputedModel: () => selected.syncComputedModel(),
     };
   };
-  await assert.rejects(semantics.importLikeC4Native(selection(), parser), {
+  await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_document_set_mismatch',
   });
 });
@@ -325,7 +338,7 @@ test('native LikeC4 import refuses a location outside selected virtual documents
       syncComputedModel: () => selected.syncComputedModel(),
     };
   };
-  await assert.rejects(semantics.importLikeC4Native(selection(), parser), {
+  await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_source_reference_unselected',
   });
 });
@@ -344,7 +357,7 @@ test('native LikeC4 import fails when an authored view loses its source location
       syncComputedModel: () => selected.syncComputedModel(),
     };
   };
-  await assert.rejects(semantics.importLikeC4Native(selection(), parser), {
+  await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_source_reference_missing',
   });
 });
@@ -373,14 +386,14 @@ test('native LikeC4 import rejects a source range outside its selected bytes', a
       syncComputedModel: () => selected.syncComputedModel(),
     };
   };
-  await assert.rejects(semantics.importLikeC4Native(selection(), parser), {
+  await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_source_reference_invalid',
   });
 });
 
 test('native LikeC4 import refuses invalid selected DSL rather than inventing a model', async () => {
   const invalid = selection(new Map([['example/model', Buffer.from('model { broken = }\n')]]));
-  await assert.rejects(semantics.importLikeC4Native(invalid, fromSources), {
+  await assert.rejects(importLikeC4NativeWithParser(invalid, fromSources), {
     code: 'native_likec4_parse_invalid',
   });
 });
@@ -397,7 +410,7 @@ test('native LikeC4 import rejects ambiguous parser projects', async () => {
       syncComputedModel: () => selected.syncComputedModel(),
     };
   };
-  await assert.rejects(semantics.importLikeC4Native(selection(), parser), {
+  await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_model_invalid',
   });
 });
@@ -440,7 +453,7 @@ test('native LikeC4 import indexes selected source lines once for many reference
         }),
       };
     };
-    const index = await semantics.importLikeC4Native(selected, parser);
+    const index = await importLikeC4NativeWithParser(selected, parser);
     assert.equal(index.elements.length, 20);
     assert(splits <= 1, `source lines split ${splits} times`);
   } finally {
