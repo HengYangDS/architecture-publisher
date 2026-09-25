@@ -403,6 +403,25 @@ attributed projection, but that does not silently become independently
 verified native parsing. The derived index is disposable; the authored DSL
 and Edition remain their respective sources of truth.
 
+For the successor pilot, prefer one reproducibly generated LikeC4 parser
+supply inside the existing Publisher package over a mandatory transitive npm
+runtime dependency or a second Adapter package. The supply is installed with
+Publisher but loaded only when selected native LikeC4 input requires it; its
+presence grants no source or editorial authority. The pinned development lock
+and esbuild generator own the source graph. A derived manifest must bind the
+exact bundle, all included package identities, complete license notices, and
+the permitted Node built-in imports; runtime admission must reject drift and
+non-built-in dynamic resolution. The public build path must use this admitted
+supply rather than accept an arbitrary parser callback as qualified evidence.
+The current 5.18 MB raw, approximately 1.48 MB gzip probe replaces an observed
+roughly 91 MB cold dependency tree at the cost of increasing every Publisher
+installation; that is a measured trade-off, not a universal size optimum.
+Revisit this choice if package growth, license renewal, cross-platform output,
+or maintenance cost makes an optional separately installed supply cheaper.
+No Candidate may claim complete replay until license closure, native Windows
+and Linux installed use, bounded execution, and exact consumed-supply identity
+are proved.
+
 Within one source revision, a native engine's relation IDs may map view edges
 back to its model relations. Across a relocation or revision, generated IDs
 are not automatically stable. Use source-defined stable IDs when available;

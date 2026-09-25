@@ -267,7 +267,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       guarded-bundle/Linux results, license inventory, and limits are in
       `docs/research/mechanism-evaluation.md`. Open: qualified parser supply,
       complete read closure, full include/query semantics, bounded execution,
-      installed build, Windows, and visible semantic coverage.
+      installed build, Windows, and visible semantic coverage. Ruling: pilot a
+      generated supply inside Publisher's existing package, without another
+      Adapter package or command plane; the design names its admission gates.
 - [ ] 4.2 In `tests/native-identity.test.mjs` and
       `tests/native-semantics.test.mjs`, cover same-label distinct namespaces,
       relocation/generated-ID drift, duplicate relations, explicit lineage,
