@@ -19,15 +19,19 @@ function project() {
     scope: {
       sourceNamespaces: ['example/system'],
       selections: [
-        { id: 'system', namespace: 'example/system', kind: 'reference', reference: 'system' },
+        {
+          id: 'system',
+          namespace: 'example/system',
+          kind: 'reference',
+          reference: 'system',
+          questions: ['shape'],
+        },
       ],
       limits: [],
     },
-    requiredAssertions: [
-      { id: 'system-shape', kind: 'source', selection: 'system', questions: ['shape'] },
+    editorialAssertions: [
       {
         id: 'risk-editorial',
-        kind: 'editorial',
         statement: 'The selected evidence does not establish runtime safety.',
         proponent: 'architecture-editor',
         basis: ['system'],
@@ -36,7 +40,7 @@ function project() {
     ],
     omissions: [],
     transformations: [],
-    narrative: { summary: 'A scoped system view.', readingOrder: ['shape', 'risk'] },
+    narrative: { summary: 'A scoped system view.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },
       interactive: {
@@ -83,32 +87,32 @@ test('selected media derive distinct question and assertion obligations before l
   assert.deepEqual(selected.questionObligations, {
     static: {
       questionIds: ['shape'],
-      assertionsByQuestion: { shape: ['system-shape'] },
-      assertionIds: ['system-shape'],
+      assertionsByQuestion: { shape: ['system'] },
+      assertionIds: ['system'],
       limitQuestionIds: [],
       views: [
         {
           id: 'overview',
           questionIds: ['shape'],
-          assertionsByQuestion: { shape: ['system-shape'] },
+          assertionsByQuestion: { shape: ['system'] },
           limitsByQuestion: { shape: [] },
-          assertionIds: ['system-shape'],
+          assertionIds: ['system'],
           limitQuestionIds: [],
         },
       ],
     },
     interactive: {
       questionIds: ['shape', 'risk'],
-      assertionsByQuestion: { shape: ['system-shape'], risk: ['risk-editorial'] },
-      assertionIds: ['system-shape', 'risk-editorial'],
+      assertionsByQuestion: { shape: ['system'], risk: ['risk-editorial'] },
+      assertionIds: ['system', 'risk-editorial'],
       limitQuestionIds: [],
       views: [
         {
           id: 'overview',
           questionIds: ['shape', 'risk'],
-          assertionsByQuestion: { shape: ['system-shape'], risk: ['risk-editorial'] },
+          assertionsByQuestion: { shape: ['system'], risk: ['risk-editorial'] },
           limitsByQuestion: { shape: [], risk: [] },
-          assertionIds: ['system-shape', 'risk-editorial'],
+          assertionIds: ['system', 'risk-editorial'],
           limitQuestionIds: [],
         },
       ],
@@ -127,7 +131,7 @@ test('multiple views derive one medium question set without a second authored li
   const selected = assemble(editionProject);
   assert.deepEqual(selected.questionObligations.interactive.questionIds, ['shape', 'risk']);
   assert.deepEqual(selected.questionObligations.interactive.assertionIds, [
-    'system-shape',
+    'system',
     'risk-editorial',
   ]);
 });
@@ -146,16 +150,30 @@ test('a view-specific explicit limit replaces only that view source obligation',
   assert.deepEqual(selected.questionObligations.static.assertionsByQuestion.shape, []);
   assert.deepEqual(selected.questionObligations.static.limitQuestionIds, ['shape']);
   assert.deepEqual(selected.questionObligations.static.views[0].assertionsByQuestion.shape, []);
-  assert.deepEqual(selected.questionObligations.interactive.assertionsByQuestion.shape, [
-    'system-shape',
-  ]);
+  assert.deepEqual(selected.questionObligations.interactive.assertionsByQuestion.shape, ['system']);
+});
+
+test('one source identity answers two questions without transferring scoped omissions', () => {
+  const editionProject = project();
+  editionProject.scope.selections[0].questions = ['shape', 'risk'];
+  editionProject.omissions.push({
+    medium: 'static',
+    view: 'overview',
+    selection: 'system',
+    question: 'shape',
+    disposition: 'explicit-limit',
+    reason: 'The static view does not express the source shape.',
+  });
+  const selected = assemble(editionProject).questionObligations;
+  assert.deepEqual(selected.static.assertionsByQuestion.shape, []);
+  assert.deepEqual(selected.interactive.assertionsByQuestion.shape, ['system']);
+  assert.deepEqual(selected.interactive.assertionsByQuestion.risk, ['system', 'risk-editorial']);
 });
 
 test('covered-elsewhere removes a source obligation only from its declared view', () => {
   const editionProject = project();
-  editionProject.requiredAssertions.push({
+  editionProject.editorialAssertions.push({
     id: 'shape-summary',
-    kind: 'editorial',
     statement: 'The overview highlights the selected system boundary.',
     proponent: 'architecture-editor',
     basis: ['system'],
@@ -176,15 +194,15 @@ test('covered-elsewhere removes a source obligation only from its declared view'
     'shape-summary',
   ]);
   assert.deepEqual(selected.questionObligations.interactive.views[1].assertionsByQuestion.shape, [
-    'system-shape',
+    'system',
     'shape-summary',
   ]);
   assert.deepEqual(selected.questionObligations.interactive.assertionsByQuestion.shape, [
-    'system-shape',
+    'system',
     'shape-summary',
   ]);
 
-  editionProject.requiredAssertions.pop();
+  editionProject.editorialAssertions.pop();
   assert.throws(() => assemble(editionProject), {
     code: 'materialized_view_question_unanswered',
   });
@@ -198,7 +216,7 @@ test('a question offered only in an unrequested medium cannot satisfy selection'
 
 test('a selected question without an assertion or explicit limit is unanswered', () => {
   const editionProject = project();
-  editionProject.requiredAssertions.pop();
+  editionProject.editorialAssertions.pop();
   assert.throws(() => assemble(editionProject), {
     code: 'materialized_question_unanswered',
   });

@@ -38,16 +38,19 @@ function editionProject() {
     scope: {
       sourceNamespaces: ['org.example/service'],
       selections: [
-        { id: 'service', namespace: 'org.example/service', kind: 'reference', reference: 'model' },
+        {
+          id: 'service',
+          namespace: 'org.example/service',
+          kind: 'reference',
+          reference: 'model',
+          questions: ['shape'],
+        },
       ],
       limits: [],
     },
-    requiredAssertions: [
-      { id: 'shape-assertion', kind: 'source', selection: 'service', questions: ['shape'] },
-    ],
     omissions: [],
     transformations: [],
-    narrative: { summary: 'The selected source.', readingOrder: ['shape'] },
+    narrative: { summary: 'The selected source.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'A clear overview.' },
       interactive: {

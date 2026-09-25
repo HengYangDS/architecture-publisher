@@ -26,16 +26,19 @@ export async function selectedNativeEdition(t, options = {}) {
     scope: {
       sourceNamespaces: namespaces,
       selections: [
-        { id: 'overview', namespace: namespaces[1], kind: 'reference', reference: 'view:overview' },
+        {
+          id: 'overview',
+          namespace: namespaces[1],
+          kind: 'reference',
+          reference: 'view:overview',
+          questions: ['shape'],
+        },
       ],
       limits: [],
     },
-    requiredAssertions: [
-      { id: 'shape', kind: 'source', selection: 'overview', questions: ['shape'] },
-    ],
     omissions: [],
     transformations: [],
-    narrative: { summary: 'One selected structural view.', readingOrder: ['shape'] },
+    narrative: { summary: 'One selected structural view.' },
     presentation: {
       static: {
         views: [{ id: 'overview', questions: ['shape'] }],

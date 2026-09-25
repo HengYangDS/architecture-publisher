@@ -219,7 +219,13 @@ test('long text wraps without truncating source language or hiding editorial sco
   input.title = `${'x'.repeat(52)} Y`;
   input.nodes[0].label = 'Alpha service one';
   input.nodes[0].kind = null;
-  input.editorialAssertions.push({ statement: 'Editorial judgment remains attributed.' });
+  input.editorialAssertions.push({
+    id: 'editorial-note',
+    kind: 'editorial',
+    statement: 'Editorial judgment remains attributed.',
+    proponent: 'fixture-editor',
+    semanticStatus: 'editor-attributed-unverified',
+  });
   input.limits.push('view-membership-upstream-computed-unqualified');
   const result = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
   assert.match(result, /Alpha service/u);
@@ -289,10 +295,27 @@ test('an editorial-only scene remains truthful and does not manufacture structur
   input.edges = [];
   input.bounds = null;
   input.sourceAssertionCarriers = [];
-  input.editorialAssertions = [{ statement: 'No source graph was selected.' }];
+  input.editorialAssertions = [
+    {
+      id: 'editorial-note',
+      kind: 'editorial',
+      statement: 'No source graph was selected.',
+      proponent: 'fixture-editor',
+      semanticStatus: 'editor-attributed-unverified',
+    },
+  ];
   const result = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
   assert.match(result, /No source graph was selected/u);
+  assert.match(result, /fixture-editor/u);
+  assert.match(result, /unverified/u);
   assert.doesNotMatch(result, /data-graphic-id/u);
+  for (const field of ['proponent', 'semanticStatus']) {
+    const invalid = structuredClone(input);
+    delete invalid.editorialAssertions[0][field];
+    assert.throws(() => svg.composeStaticEditionSvg(invalid), {
+      code: 'static_edition_editorial_invalid',
+    });
+  }
 });
 
 test('the static Edition SVG is admitted by the pinned raster profile', async () => {

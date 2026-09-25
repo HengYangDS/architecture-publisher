@@ -745,7 +745,11 @@ export function compileNativeEditionEvolution(input) {
     ]);
     const affectedAssertions = new Set(
       [...before.meaning.assertions, ...after.meaning.assertions]
-        .filter(({ kind, selection }) => kind === 'source' && changedSelections.has(selection))
+        .filter(({ kind, selection, basis }) =>
+          kind === 'source'
+            ? changedSelections.has(selection)
+            : basis.some((selected) => changedSelections.has(selected)),
+        )
         .map(({ id: assertionId }) => assertionId),
     );
     const broad =

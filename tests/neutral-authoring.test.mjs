@@ -16,6 +16,8 @@ import {
 import { selectedNativeEdition } from './fixtures/selected-native-edition.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/static/grouped-selection.mjs';
+import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/index.mjs';
+import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/cytoscape/index.mjs';
 import {
   importClaimModel,
   resolveClaimModelSelection,
@@ -48,16 +50,14 @@ function editionProject() {
           namespace: 'example/views',
           kind: 'reference',
           reference: 'view:overview',
+          questions: ['shape'],
         },
       ],
       limits: [],
     },
-    requiredAssertions: [
-      { id: 'source-shape', kind: 'source', selection: 'overview', questions: ['shape'] },
-    ],
     omissions: [],
     transformations: [],
-    narrative: { summary: 'The selected source view.', readingOrder: ['shape'] },
+    narrative: { summary: 'The selected source view.' },
     presentation: {
       static: { views: [{ id: 'portrait', questions: ['shape'] }], intent: 'One overview.' },
       interactive: {
@@ -134,7 +134,7 @@ test('a neutral static scene carries declared source assertions without authored
   assert.match(scene.edges[0].relations[0].reference, /^relation:[1-9]\d*:[1-9]\d*$/u);
   assert.deepEqual(scene.sourceAssertionCarriers, [
     {
-      assertionId: 'source-shape',
+      assertionId: 'overview',
       kind: 'view',
       selectionId: 'overview',
       nodeRefs: [
@@ -168,12 +168,6 @@ test('a selected grouped view builds visible static groups through the shared ge
       elements: [{ namespace: 'fixture/model', id: 'beta' }],
     },
   ];
-  selected.project.requiredAssertions.push({
-    id: 'shape-context',
-    kind: 'source',
-    selection: 'overview',
-    questions: ['shape'],
-  });
   await fs.writeFile(
     path.join(selected.root, 'edition/project.json'),
     JSON.stringify(selected.project) + '\n',
@@ -194,10 +188,9 @@ test('grouped static composition retains only asserted members of a selected ups
     namespace: 'fixture/model',
     kind: 'reference',
     reference: 'element:alpha',
+    questions: ['shape'],
   });
-  selected.project.requiredAssertions = [
-    { id: 'alpha', kind: 'source', selection: 'alpha', questions: ['shape'] },
-  ];
+  delete selected.project.scope.selections[0].questions;
   selected.project.presentation.static.views[0].groups = [
     {
       id: 'entry',
@@ -364,8 +357,9 @@ test('a source element assertion does not smuggle unrelated view members into th
     namespace: 'example/model',
     kind: 'reference',
     reference: 'element:a',
+    questions: ['shape'],
   });
-  authored.requiredAssertions[0].selection = 'element';
+  delete authored.scope.selections[1].questions;
   authored.presentation.static.width = 6000;
   const { meaning, layout } = await selectedInputs(authored);
   const scene = scenes.composeStaticEditionScene(meaning, layout);
@@ -399,8 +393,9 @@ test('a relation assertion keeps its exact source locator and both visible endpo
     namespace: origin.namespace,
     kind: 'reference',
     reference,
+    questions: ['shape'],
   });
-  authored.requiredAssertions[0].selection = 'relation';
+  delete authored.scope.selections[1].questions;
   const { meaning, layout } = await selectedInputs(authored);
   const scene = scenes.composeStaticEditionScene(meaning, layout);
   assert.deepEqual(
@@ -443,14 +438,16 @@ test('a static source assertion distinguishes same-ID nodes across namespaces', 
 
 test('editorial prose stays attributed and does not become a source node or edge', async () => {
   const authored = editionProject();
-  authored.requiredAssertions[0] = {
-    id: 'editorial-shape',
-    kind: 'editorial',
-    statement: 'The overview is deliberately scoped.',
-    proponent: 'portrait-editor',
-    basis: ['overview'],
-    questions: ['shape'],
-  };
+  delete authored.scope.selections[0].questions;
+  authored.editorialAssertions = [
+    {
+      id: 'editorial-shape',
+      statement: 'The overview is deliberately scoped.',
+      proponent: 'portrait-editor',
+      basis: ['overview'],
+      questions: ['shape'],
+    },
+  ];
   const { meaning, layout } = await selectedInputs(authored);
   const scene = scenes.composeStaticEditionScene(meaning, layout);
   assert.deepEqual(scene.nodes, []);
@@ -458,6 +455,16 @@ test('editorial prose stays attributed and does not become a source node or edge
   assert.equal(scene.bounds, null);
   assert.deepEqual(scene.sourceAssertionCarriers, []);
   assert.equal(scene.editorialAssertions[0].semanticStatus, 'editor-attributed-unverified');
+  const staticSvg = composeStaticEditionSvg(scene).bytes.toString('utf8');
+  const interactiveScene = scenes.composeInteractiveEditionScene(meaning);
+  const interactiveHtml = (await renderInteractiveEditionHtml(interactiveScene)).bytes.toString(
+    'utf8',
+  );
+  for (const medium of [staticSvg, interactiveHtml]) {
+    assert.match(medium, /The overview is deliberately scoped\./u);
+    assert.match(medium, /portrait-editor/u);
+    assert.match(medium, /unverified/u);
+  }
 });
 
 test('ambiguous views and unsupported visual policies fail rather than choosing a template', async () => {

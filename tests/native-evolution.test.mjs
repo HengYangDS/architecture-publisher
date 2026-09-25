@@ -53,19 +53,52 @@ async function rewriteProject(fixture) {
   );
 }
 
+test('retargeting a context-only editorial basis renews its reader views', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  for (const [fixture, target] of [
+    [before, 'alpha'],
+    [after, 'beta'],
+  ]) {
+    fixture.project.scope.selections[0].namespace = 'fixture/model';
+    fixture.project.scope.selections[0].reference = `element:${target}`;
+    delete fixture.project.scope.selections[0].questions;
+    fixture.project.editorialAssertions = [
+      {
+        id: 'editorial-shape',
+        statement: 'This selection is the editorial focus.',
+        proponent: 'fixture-editor',
+        basis: ['overview'],
+        questions: ['shape'],
+      },
+    ];
+    await rewriteProject(fixture);
+  }
+  const plan = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.deepEqual(plan.editions.affected[0].media, {
+    static: ['overview'],
+    interactive: ['overview'],
+  });
+  assert.deepEqual(
+    plan.obligations.mediumVerification.map(({ medium }) => medium),
+    ['static', 'interactive'],
+  );
+  assert.deepEqual(
+    plan.obligations.humanReview.map(({ medium }) => medium),
+    ['static', 'interactive'],
+  );
+});
+
 function addOperationQuestion(fixture) {
   fixture.project.questions.push({
     id: 'operation',
     audience: 'maintainer',
     text: 'What operation is selected?',
   });
-  fixture.project.requiredAssertions.push({
-    id: 'operation',
-    kind: 'source',
-    selection: 'overview',
-    questions: ['operation'],
-  });
-  fixture.project.narrative.readingOrder.push('operation');
+  fixture.project.scope.selections[0].questions.push('operation');
 }
 
 async function comparisonPlan(t, before, after) {

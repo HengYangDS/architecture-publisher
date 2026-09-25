@@ -49,23 +49,26 @@ async function fixture(
     scope: {
       sourceNamespaces: namespaces,
       selections: [
-        { id: 'selected-element', namespace: namespaces[0], kind: 'reference', reference: target },
+        {
+          id: 'selected-element',
+          namespace: namespaces[0],
+          kind: 'reference',
+          reference: target,
+          questions: ['shape'],
+        },
         {
           id: 'selected-view',
           namespace: namespaces[1],
           kind: 'reference',
           reference: 'view:overview',
+          questions: ['shape'],
         },
       ],
       limits: [],
     },
-    requiredAssertions: [
-      { id: 'element', kind: 'source', selection: 'selected-element', questions: ['shape'] },
-      { id: 'view', kind: 'source', selection: 'selected-view', questions: ['shape'] },
-    ],
     omissions: [],
     transformations: [],
-    narrative: { summary: narrative, readingOrder: ['shape'] },
+    narrative: { summary: narrative },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },
       interactive: {

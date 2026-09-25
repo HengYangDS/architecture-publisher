@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { validateEditionProject } from '../edition/authoring.mjs';
+import { deriveEditionAssertions, validateEditionProject } from '../edition/authoring.mjs';
 import { deriveEditionQuestionObligations } from '../edition/selection.mjs';
 import { deepFreeze } from '../semantics/document.mjs';
 import { parseStrictJson } from '../source/json.mjs';
@@ -11,7 +11,7 @@ const address = ({ namespace, id }) => JSON.stringify([namespace, id]);
 
 function checkViewGroups(project, media, native) {
   const selections = new Map(native.selections.map((item) => [item.selectionId, item]));
-  const assertions = new Map(project.requiredAssertions.map((item) => [item.id, item]));
+  const assertions = new Map(deriveEditionAssertions(project).map((item) => [item.id, item]));
   for (const [medium, obligations] of Object.entries(media)) {
     for (const [index, view] of obligations.views.entries()) {
       const groups = project.presentation[medium].views[index].groups;
@@ -62,7 +62,7 @@ export async function compileEditionMeaning(input) {
     lock,
     readEdition: () => Buffer.from(editionBytes),
   });
-  const assertions = project.requiredAssertions.map((assertion) => {
+  const assertions = deriveEditionAssertions(project).map((assertion) => {
     if (assertion.kind === 'source') {
       return {
         id: assertion.id,

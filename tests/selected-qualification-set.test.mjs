@@ -116,7 +116,7 @@ test('submitted question coverage remains non-authorizing and rejects invented s
     medium: 'static',
     view: 'overview',
     question: 'shape',
-    assertion: 'shape',
+    assertion: 'overview',
   };
   const assertionResult = qualification.bindSelectedQualificationSet(
     candidate,
@@ -173,7 +173,7 @@ test('submitted question coverage remains non-authorizing and rejects invented s
     ...structuredClone(staticObligations.views[0]),
     id: 'other-view',
     questionIds: ['other'],
-    assertionsByQuestion: { other: ['shape'] },
+    assertionsByQuestion: { other: ['overview'] },
   });
   const mismatchedPairReplay = {
     ...replay,
@@ -207,7 +207,7 @@ test('submitted question coverage remains non-authorizing and rejects invented s
     medium: 'static',
     view: 'overview',
     question: 'shape',
-    assertion: 'shape',
+    assertion: 'overview',
   };
   assert.throws(
     () =>

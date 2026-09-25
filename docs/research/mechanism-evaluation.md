@@ -208,6 +208,17 @@ consider new engines only for a reproducible remaining gap. A source-level
 `query`/`transformation` rejection is not a successful implementation of those
 features, and an installed source lock is not a qualified publication.
 
+A read-only authoring probe against AIGW `04f593a4` retained its four reader
+questions, five static groups, twelve entities, eleven relations and eleven
+claims. The current unreleased Project validator accepted 22 selected
+references whose question links derive 22 source assertions; no second
+source-assertion record was authored. This establishes an input-cost reduction
+only. Relation and claim IDs were selected separately, while each question's
+current claim list supplied the links and the current static group membership
+supplied the five group declarations. The probe omitted source-specific route directives and produced no
+Candidate or public media; its line count cannot be compared as a
+meaning-preserving replacement for AIGW's current Edition.
+
 ## Consequences for ETHOS
 
 ETHOS is best treated as the hard trust skeleton for an agentic-native

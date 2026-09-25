@@ -106,6 +106,7 @@ const selection = {
       namespace: text,
       kind: { const: 'reference' },
       reference: text,
+      questions: questionIds,
     }),
     closed(['id', 'namespace', 'kind', 'language', 'expression'], {
       id: identifier,
@@ -113,27 +114,17 @@ const selection = {
       kind: { const: 'query' },
       language: text,
       expression: text,
-    }),
-  ],
-};
-const assertion = {
-  oneOf: [
-    closed(['id', 'kind', 'selection', 'questions'], {
-      id: identifier,
-      kind: { const: 'source' },
-      selection: identifier,
-      questions: questionIds,
-    }),
-    closed(['id', 'kind', 'statement', 'proponent', 'basis', 'questions'], {
-      id: identifier,
-      kind: { const: 'editorial' },
-      statement: text,
-      proponent: text,
-      basis: { type: 'array', minItems: 1, uniqueItems: true, items: identifier },
       questions: questionIds,
     }),
   ],
 };
+const editorialAssertion = closed(['id', 'statement', 'proponent', 'basis', 'questions'], {
+  id: identifier,
+  statement: text,
+  proponent: text,
+  basis: { type: 'array', minItems: 1, uniqueItems: true, items: identifier },
+  questions: questionIds,
+});
 const view = closed(['id', 'questions'], {
   id: identifier,
   questions: questionIds,
@@ -166,7 +157,6 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
       'audiences',
       'questions',
       'scope',
-      'requiredAssertions',
       'omissions',
       'transformations',
       'narrative',
@@ -214,7 +204,7 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
           items: closed(['question', 'reason'], { question: identifier, reason: text }),
         },
       }),
-      requiredAssertions: { type: 'array', minItems: 1, maxItems: 8192, items: assertion },
+      editorialAssertions: { type: 'array', maxItems: 4096, items: editorialAssertion },
       omissions: {
         type: 'array',
         maxItems: 8192,
@@ -255,9 +245,8 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
           rule: text,
         }),
       },
-      narrative: closed(['summary', 'readingOrder'], {
+      narrative: closed(['summary'], {
         summary: text,
-        readingOrder: questionIds,
       }),
       presentation: closed(['static', 'interactive'], {
         static: closed(['views', 'intent'], {

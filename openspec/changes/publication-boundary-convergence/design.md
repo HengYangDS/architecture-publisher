@@ -666,10 +666,10 @@ editorial assertion IDs cannot collide.
 
 The ordered view arrays own page order; each view's question array owns
 within-page order. The top-level question array owns definitions and default
-listing order, not a competing page order. Remove the separately authored
-`narrative.readingOrder` and derive any Scene field that still needs this order.
-The old field currently enters an interactive Scene digest even though its
-renderer navigates by page order; it is not correct to call it wholly unused.
+listing order, not a competing page order. Remove both the separately authored
+`narrative.readingOrder` and its unused interactive Scene counterpart. The old
+field entered a Scene digest but never controlled renderer navigation; page
+arrays already supply that order.
 Retain the authored summary. Editorial attribution and unverified status must
 be visible in both public media, not merely survive in the Scene object. This
 changes only the unreleased Edition Project, not valid historical Edition v1

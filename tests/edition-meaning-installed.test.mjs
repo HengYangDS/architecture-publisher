@@ -92,15 +92,20 @@ test('offline installed Edition meaning, Scenes, and Candidate survive relocatio
     scope: {
       sourceNamespaces: namespaces,
       selections: [
-        { id: 'model', namespace: namespaces[0], kind: 'reference', reference: 'element:a' },
+        {
+          id: 'model',
+          namespace: namespaces[0],
+          kind: 'reference',
+          reference: 'element:a',
+          questions: ['shape'],
+        },
         { id: 'overview', namespace: namespaces[1], kind: 'reference', reference: 'view:overview' },
       ],
       limits: [],
     },
-    requiredAssertions: [{ id: 'shape', kind: 'source', selection: 'model', questions: ['shape'] }],
     omissions: [],
     transformations: [],
-    narrative: { summary: 'A selected source.', readingOrder: ['shape'] },
+    narrative: { summary: 'A selected source.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },
       interactive: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'Explore.' },
@@ -213,8 +218,8 @@ try {
   const first = run(consumer);
   assert.equal(first.status, 'ok');
   assert.equal(first.completeness, 'finite-unqualified-obligations');
-  assert.deepEqual(first.static, ['shape']);
-  assert.deepEqual(first.interactive, ['shape']);
+  assert.deepEqual(first.static, ['model']);
+  assert.deepEqual(first.interactive, ['model']);
   assert.deepEqual(first.layout.nodes, ['a', 'b']);
   assert.equal(first.layout.relations.length, 1);
   assert.equal(first.layout.parser, first.parser);
@@ -242,10 +247,13 @@ try {
   claimProject.id = 'installed-claims';
   claimProject.scope.sourceNamespaces = ['example/claims'];
   claimProject.scope.selections = [
-    { id: 'claim', namespace: 'example/claims', kind: 'reference', reference: 'claim:intended' },
-  ];
-  claimProject.requiredAssertions = [
-    { id: 'shape', kind: 'source', selection: 'claim', questions: ['shape'] },
+    {
+      id: 'claim',
+      namespace: 'example/claims',
+      kind: 'reference',
+      reference: 'claim:intended',
+      questions: ['shape'],
+    },
   ];
   await fs.writeFile(
     path.join(claimInputs, 'edition/project.json'),

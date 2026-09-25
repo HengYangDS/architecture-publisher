@@ -87,6 +87,14 @@ bounded child-process export. Both converge before semantic compilation. The
 Provider does not interpret claims, compose scenes, qualify artifacts, authorize
 effects, or own publication.
 
+In the unreleased successor Edition Project, a source selection's question
+list is the sole authored source-assertion record; its assertion ID is derived
+from the selection ID. A questionless selection can support an attributed
+editorial assertion but has no source-visible obligation of its own. Ordered
+medium views own page order, and each view owns its question order. This
+authoring subtraction does not alter historical Edition v1 contracts or merge
+source truth with editorial judgment.
+
 A Git repository, SDD tool, documentation service, code graph, telemetry store,
 or project-specific schema is a possible upstream source, not a hidden compiler
 dependency. Its adapter emits an admitted source-bound interpretation or

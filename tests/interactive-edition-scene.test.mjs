@@ -28,7 +28,7 @@ function meaning() {
     edition: { id: 'reader-atlas', editor: 'atlas-editor', sha256: 'c'.repeat(64) },
     editorial: {
       title: 'Selected architecture',
-      narrative: { summary: 'Read the source, then the limit.', readingOrder: ['shape', 'risk'] },
+      narrative: { summary: 'Read the source, then the limit.' },
       visualPolicy: { profile: 'neutral' },
       presentation: { interactive: { intent: 'Two complete pages.' } },
     },
@@ -96,6 +96,7 @@ test('interactive Edition pages each retain their own complete semantic obligati
   const result = scenes.composeInteractiveEditionScene(meaning());
   assert.equal(result.schema, 'architecture.edition-interactive-scene/v1');
   assert.equal(result.completeness, 'unqualified-scene');
+  assert.equal(Object.hasOwn(result, 'readingOrder'), false);
   assert.deepEqual(
     result.pages.map(({ id }) => id),
     ['source-page', 'uncertainty-page'],

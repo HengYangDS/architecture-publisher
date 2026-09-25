@@ -19,15 +19,14 @@ function editionProject(namespace = 'example/source') {
     questions: [{ id: 'shape', audience: 'maintainer', text: 'What is connected?' }],
     scope: {
       sourceNamespaces: [namespace],
-      selections: [{ id: 'system', namespace, kind: 'reference', reference: 'system' }],
+      selections: [
+        { id: 'system', namespace, kind: 'reference', reference: 'system', questions: ['shape'] },
+      ],
       limits: [],
     },
-    requiredAssertions: [
-      { id: 'system-fact', kind: 'source', selection: 'system', questions: ['shape'] },
-    ],
     omissions: [],
     transformations: [],
-    narrative: { summary: 'A bounded view of the selected system.', readingOrder: ['shape'] },
+    narrative: { summary: 'A bounded view of the selected system.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One clear overview.' },
       interactive: {
@@ -172,11 +171,6 @@ test('request list order and locator spelling do not change selected content ide
     namespace: 'other/source',
     kind: 'reference',
     reference: 'other',
-  });
-  f.project.requiredAssertions.push({
-    id: 'other-fact',
-    kind: 'source',
-    selection: 'other',
     questions: ['shape'],
   });
   await fs.writeFile(f.projectPath, JSON.stringify(f.project) + '\n');
@@ -213,11 +207,6 @@ test('portable aliases of selected root paths fail before platform-dependent rea
     namespace: 'other/source',
     kind: 'reference',
     reference: 'other',
-  });
-  f.project.requiredAssertions.push({
-    id: 'other-fact',
-    kind: 'source',
-    selection: 'other',
     questions: ['shape'],
   });
   await fs.writeFile(f.projectPath, JSON.stringify(f.project) + '\n');
@@ -575,8 +564,7 @@ test('direct materialization rejects unselected sources and missing requested-me
     audience: 'maintainer',
     text: 'Which evidence was selected?',
   });
-  f.project.requiredAssertions[0].questions.push('hidden');
-  f.project.narrative.readingOrder.push('hidden');
+  f.project.scope.selections[0].questions.push('hidden');
   f.project.presentation.interactive.views[0].questions.push('hidden');
   await fs.writeFile(f.projectPath, JSON.stringify(f.project) + '\n');
   f.request.media = ['static'];

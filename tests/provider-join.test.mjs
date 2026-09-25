@@ -19,6 +19,7 @@ function editionProject(namespaces) {
     namespace,
     kind: 'reference',
     reference: `item-${index}`,
+    questions: ['shape'],
   }));
   return {
     schema: 'architecture.edition-project/v1',
@@ -28,15 +29,9 @@ function editionProject(namespaces) {
     audiences: [{ id: 'maintainer', label: 'Maintainers' }],
     questions: [{ id: 'shape', audience: 'maintainer', text: 'What is selected?' }],
     scope: { sourceNamespaces: namespaces, selections, limits: [] },
-    requiredAssertions: selections.map(({ id }, index) => ({
-      id: `assertion-${index}`,
-      kind: 'source',
-      selection: id,
-      questions: ['shape'],
-    })),
     omissions: [],
     transformations: [],
-    narrative: { summary: 'Selected native sources.', readingOrder: ['shape'] },
+    narrative: { summary: 'Selected native sources.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'A clear overview.' },
       interactive: {
@@ -442,7 +437,6 @@ test('Edition scope cannot omit a selected Provider source', async (t) => {
   const f = await fixture(t);
   f.project.scope.sourceNamespaces.pop();
   f.project.scope.selections.pop();
-  f.project.requiredAssertions.pop();
   await assert.rejects(f.materialize(), { code: 'materialized_edition_sources_mismatch' });
 });
 

@@ -40,16 +40,19 @@ async function fixture(t) {
     scope: {
       sourceNamespaces: ['example/native'],
       selections: [
-        { id: 'system', namespace: 'example/native', kind: 'reference', reference: 'system' },
+        {
+          id: 'system',
+          namespace: 'example/native',
+          kind: 'reference',
+          reference: 'system',
+          questions: ['shape'],
+        },
       ],
       limits: [],
     },
-    requiredAssertions: [
-      { id: 'system-fact', kind: 'source', selection: 'system', questions: ['shape'] },
-    ],
     omissions: [],
     transformations: [],
-    narrative: { summary: 'A bounded view.', readingOrder: ['shape'] },
+    narrative: { summary: 'A bounded view.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One clear overview.' },
       interactive: {

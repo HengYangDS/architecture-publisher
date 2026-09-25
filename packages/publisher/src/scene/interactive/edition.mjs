@@ -181,7 +181,6 @@ export function composeInteractiveEditionScene(meaning) {
     edition: meaning.edition,
     title: meaning.editorial.title,
     summary: meaning.editorial.narrative.summary,
-    readingOrder: meaning.editorial.narrative.readingOrder,
     visualPolicy: meaning.editorial.visualPolicy,
     pages: views.map((view) => composePage(view, selections, assertions, questions, claimMode)),
     limits: meaning.limits,

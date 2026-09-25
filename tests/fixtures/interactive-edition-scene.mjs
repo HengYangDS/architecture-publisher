@@ -13,7 +13,6 @@ export function interactiveEditionScene() {
     edition: { id: 'source-atlas', editor: 'fixture-editor', sha256: 'b'.repeat(64) },
     title: 'Selected architecture',
     summary: 'A source-bound overview.',
-    readingOrder: ['shape', 'risk'],
     visualPolicy: { profile: 'neutral' },
     pages: [
       {

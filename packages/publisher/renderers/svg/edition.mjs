@@ -4,6 +4,7 @@ const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
   JSON.stringify([namespace, reference, sha256]);
 const claimKey = relationKey;
+const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const advance = (value, size) => [...value].length * size * 0.61;
 const escape = (value) =>
   String(value)
@@ -197,6 +198,16 @@ export function composeStaticEditionSvg(scene) {
     fail('static_edition_scene_invalid');
   if ((scene.claimCards ?? []).some((claim) => !claim || typeof claim !== 'object'))
     fail('static_edition_claim_invalid');
+  if (
+    scene.editorialAssertions.some(
+      (item) =>
+        item?.kind !== 'editorial' ||
+        item.semanticStatus !== 'editor-attributed-unverified' ||
+        !text(item.statement) ||
+        !text(item.proponent),
+    )
+  )
+    fail('static_edition_editorial_invalid');
   if (!Array.isArray(scene.questionIds)) fail('static_edition_question_invalid');
   const questionIds = new Set(scene.questionIds);
   const questions = new Map(scene.questions.map((question) => [question?.id, question]));
@@ -357,7 +368,9 @@ export function composeStaticEditionSvg(scene) {
   y = namedSection(
     notes,
     'EDITORIAL ASSERTIONS',
-    scene.editorialAssertions.map(({ statement }) => ({ text: statement })),
+    scene.editorialAssertions.map(({ statement, proponent }) => ({
+      text: `${statement} · Editorial judgment · ${proponent} · unverified`,
+    })),
     notesX,
     y,
     notesWidth,

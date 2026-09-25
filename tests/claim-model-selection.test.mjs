@@ -53,18 +53,20 @@ async function fixture(
       sourceNamespaces: [delivery === 'native' ? modelNamespace : rawNamespace],
       ...(delivery === 'derived' ? { projectionNamespaces: [modelNamespace] } : {}),
       selections: [
-        { id: 'selected-claim', namespace: modelNamespace, kind: 'reference', reference },
+        {
+          id: 'selected-claim',
+          namespace: modelNamespace,
+          kind: 'reference',
+          reference,
+          questions: ['condition'],
+        },
       ],
       limits: [],
     },
-    requiredAssertions: [
-      { id: 'condition', kind: 'source', selection: 'selected-claim', questions: ['condition'] },
-    ],
     omissions: [],
     transformations: [],
     narrative: {
       summary: 'Keep the authorization condition visible.',
-      readingOrder: ['condition'],
     },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['condition'] }], intent: 'One overview.' },

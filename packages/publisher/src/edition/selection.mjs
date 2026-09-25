@@ -2,7 +2,7 @@ import { parseStrictJson } from '../source/json.mjs';
 import { fail, LIMITS } from '../source/manifest.mjs';
 import { sealMaterializedInputLock } from '../source/materialize.mjs';
 import { deepFreeze } from '../semantics/document.mjs';
-import { validateEditionProject } from './authoring.mjs';
+import { deriveEditionAssertions, validateEditionProject } from './authoring.mjs';
 
 function sameSet(left, right) {
   return left.length === right.length && left.every((value) => right.includes(value));
@@ -14,10 +14,10 @@ function mediaQuestions(project, medium) {
 
 /** Derive finite view/question obligations from the sole authored Edition project. */
 export function deriveEditionQuestionObligations(project, media) {
+  const assertions = deriveEditionAssertions(project);
   const assertionsFor = (question) =>
-    project.requiredAssertions.filter(({ questions }) => questions.includes(question));
-  const orderedIds = (ids) =>
-    project.requiredAssertions.filter(({ id }) => ids.has(id)).map(({ id }) => id);
+    assertions.filter(({ questions }) => questions.includes(question));
+  const orderedIds = (ids) => assertions.filter(({ id }) => ids.has(id)).map(({ id }) => id);
   return deepFreeze(
     Object.fromEntries(
       media.map((medium) => {

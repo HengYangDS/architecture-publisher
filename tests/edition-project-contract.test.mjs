@@ -18,18 +18,20 @@ function project() {
     scope: {
       sourceNamespaces: ['ethos'],
       selections: [
-        { id: 'lanes', namespace: 'ethos', kind: 'reference', reference: 'architecture.lanes' },
+        {
+          id: 'lanes',
+          namespace: 'ethos',
+          kind: 'reference',
+          reference: 'architecture.lanes',
+          questions: ['flow'],
+        },
       ],
       limits: [],
     },
-    requiredAssertions: [
-      { id: 'lane-fact', kind: 'source', selection: 'lanes', questions: ['flow'] },
-    ],
     omissions: [],
     transformations: [],
     narrative: {
       summary: 'Follow the change through review and publication.',
-      readingOrder: ['flow'],
     },
     presentation: {
       static: {
@@ -49,6 +51,52 @@ function project() {
   };
 }
 
+test('one selection authors one source assertion without a second order list', () => {
+  const value = project();
+  assert.doesNotThrow(() => validateEditionProject(value));
+  value.requiredAssertions = [];
+  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+});
+
+test('context-only evidence cannot claim source coverage elsewhere', () => {
+  const value = project();
+  delete value.scope.selections[0].questions;
+  value.editorialAssertions = [
+    {
+      id: 'editorial-flow',
+      statement: 'The source does not prove the whole workflow.',
+      proponent: value.editor,
+      basis: ['lanes'],
+      questions: ['flow'],
+    },
+  ];
+  value.presentation.interactive.views.push({ id: 'detail', questions: ['flow'] });
+  value.omissions.push({
+    selection: 'lanes',
+    question: 'flow',
+    medium: 'interactive',
+    disposition: 'covered-elsewhere',
+    view: 'overview',
+    coveredIn: 'detail',
+    reason: 'The detail carries the source fact.',
+  });
+  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+});
+
+test('an editorial assertion cannot reuse a selected source assertion identity', () => {
+  const value = project();
+  value.editorialAssertions = [
+    {
+      id: 'lanes',
+      statement: 'This is an editorial interpretation.',
+      proponent: value.editor,
+      basis: ['lanes'],
+      questions: ['flow'],
+    },
+  ];
+  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+});
+
 test('Edition Project owns editorial choices without copied source facts or pixels', () => {
   const value = project();
   const before = structuredClone(value);
@@ -58,6 +106,7 @@ test('Edition Project owns editorial choices without copied source facts or pixe
   assert.deepEqual(value, before);
   assert.notEqual(selected, value);
   assert.equal(Object.isFrozen(selected.scope.selections[0]), true);
+  assert.equal(Object.isFrozen(value.scope.selections[0].questions), false);
 });
 
 test('Edition Project admits source-qualified grouping without authored coordinates', () => {
@@ -105,14 +154,15 @@ test('Edition Project admits a separately attributed cross-source editorial asse
     language: 'likec4',
     expression: 'element proxy',
   });
-  value.requiredAssertions.push({
-    id: 'comparison',
-    kind: 'editorial',
-    statement: 'The two products expose distinct control boundaries.',
-    proponent: 'architecture-editor',
-    basis: ['lanes', 'proxy'],
-    questions: ['flow'],
-  });
+  value.editorialAssertions = [
+    {
+      id: 'comparison',
+      statement: 'The two products expose distinct control boundaries.',
+      proponent: 'architecture-editor',
+      basis: ['lanes', 'proxy'],
+      questions: ['flow'],
+    },
+  ];
   value.transformations.push({
     id: 'comparison-view',
     kind: 'compare',
@@ -154,8 +204,8 @@ test('Edition Project rejects unknown fields, generated seals, and authored geom
 test('Edition Project rejects unresolved editorial references and duplicate identities', () => {
   for (const change of [
     (v) => (v.questions[0].audience = 'unknown'),
-    (v) => (v.requiredAssertions[0].selection = 'missing'),
-    (v) => (v.requiredAssertions[0].questions = ['missing']),
+    (v) => (v.scope.selections[0].questions = ['missing']),
+    (v) => (v.scope.selections[0].questions = []),
     (v) => (v.scope.selections[0].namespace = 'unselected'),
     (v) => v.questions.push(structuredClone(v.questions[0])),
     (v) => (v.narrative.readingOrder = []),
@@ -187,7 +237,7 @@ test('Edition Project classifies explicit omissions and editorial propositions',
     (v) => (v.omissions[0].disposition = 'silent'),
     (v) => (v.omissions[0].reason = ''),
     (v) => (v.omissions[0].question = 'unknown'),
-    (v) => (v.requiredAssertions[0].kind = 'editorial'),
+    (v) => (v.scope.selections[0].questions = ['unknown']),
   ]) {
     const invalid = structuredClone(value);
     change(invalid);
@@ -224,7 +274,7 @@ test('editorial transformation cannot relabel its output as a source assertion',
     id: 'reframed-lane',
     kind: 'rephrase',
     inputs: ['lanes'],
-    output: 'lane-fact',
+    output: 'lanes',
     proponent: 'architecture-editor',
     rule: 'Explain the source statement to the selected audience.',
   });
@@ -255,14 +305,15 @@ test('transformation inputs match the editorial assertion basis and output is un
     kind: 'reference',
     reference: 'architecture.proof',
   });
-  value.requiredAssertions.push({
-    id: 'editorial-fact',
-    kind: 'editorial',
-    statement: 'The two mechanisms meet at a verified boundary.',
-    proponent: 'architecture-editor',
-    basis: ['lanes'],
-    questions: ['flow'],
-  });
+  value.editorialAssertions = [
+    {
+      id: 'editorial-fact',
+      statement: 'The two mechanisms meet at a verified boundary.',
+      proponent: 'architecture-editor',
+      basis: ['lanes'],
+      questions: ['flow'],
+    },
+  ];
   value.transformations.push({
     id: 'derived-view',
     kind: 'compare',
@@ -285,8 +336,7 @@ test('every promised question appears in a selected medium', () => {
     audience: 'maintainer',
     text: 'What evidence supports the claimed transition?',
   });
-  value.requiredAssertions[0].questions.push('orphan');
-  value.narrative.readingOrder.push('orphan');
+  value.scope.selections[0].questions.push('orphan');
   assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
 });
 
@@ -332,7 +382,6 @@ test('an omission resolves to declared views in one medium', () => {
     audience: 'maintainer',
     text: 'What remains unknown?',
   });
-  wrongQuestion.narrative.readingOrder.push('risk');
   wrongQuestion.presentation.interactive.views[1].questions = ['risk'];
   assert.throws(() => validateEditionProject(wrongQuestion), { code: 'edition_project_invalid' });
 

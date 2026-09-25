@@ -27,7 +27,13 @@ function project() {
     scope: {
       sourceNamespaces: [...sourceBytes.keys()],
       selections: [
-        { id: 'model', namespace: 'example/model', kind: 'reference', reference: 'element:a' },
+        {
+          id: 'model',
+          namespace: 'example/model',
+          kind: 'reference',
+          reference: 'element:a',
+          questions: ['shape'],
+        },
         {
           id: 'overview',
           namespace: 'example/views',
@@ -37,11 +43,9 @@ function project() {
       ],
       limits: [],
     },
-    requiredAssertions: [
-      { id: 'source-shape', kind: 'source', selection: 'model', questions: ['shape'] },
+    editorialAssertions: [
       {
         id: 'editorial-risk',
-        kind: 'editorial',
         statement: 'The selected model does not prove runtime behavior.',
         proponent: 'example-editor',
         basis: ['model'],
@@ -59,7 +63,7 @@ function project() {
       },
     ],
     transformations: [],
-    narrative: { summary: 'A bounded overview.', readingOrder: ['shape', 'risk'] },
+    narrative: { summary: 'A bounded overview.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },
       interactive: {
@@ -120,7 +124,7 @@ test('one Edition meaning projection binds source assertions and medium-local ob
     ['shape', 'risk'],
   );
   assert.deepEqual(meaning.assertions[0], {
-    id: 'source-shape',
+    id: 'model',
     kind: 'source',
     selection: 'model',
     questions: ['shape'],
@@ -137,7 +141,7 @@ test('one Edition meaning projection binds source assertions and medium-local ob
     },
   ]);
   assert.deepEqual(meaning.media.interactive.views[0].assertionsByQuestion, {
-    shape: ['source-shape'],
+    shape: ['model'],
     risk: ['editorial-risk'],
   });
   assert.equal(meaning.native.selections[0].target.id, 'a');
@@ -237,14 +241,10 @@ test('Edition identity and selected media fail before any unbound projection is 
 
 test('an Edition with only source assertions does not inherit an editorial-verification limit', async () => {
   const authored = project();
-  authored.requiredAssertions[1] = {
-    id: 'source-risk',
-    kind: 'source',
-    selection: 'overview',
-    questions: ['risk'],
-  };
+  authored.editorialAssertions = [];
+  authored.scope.selections[1].questions = ['risk'];
   const meaning = await compiler.compileEditionMeaning(materialized(authored));
-  assert.deepEqual(meaning.media.interactive.views[0].assertionsByQuestion.risk, ['source-risk']);
+  assert.deepEqual(meaning.media.interactive.views[0].assertionsByQuestion.risk, ['overview']);
   assert.deepEqual(meaning.editorialAssertionIdsByMedium, { static: [], interactive: [] });
   assert.equal(meaning.limits.includes('editorial-proposition-unverified'), false);
 });

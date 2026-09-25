@@ -42,6 +42,24 @@ function requireIds(values, selected, code) {
   if (values.some((value) => !selected.has(value))) invalid(code, 'unselected reference');
 }
 
+/** Derive the sole immutable assertion inventory from authored selections and editorial claims. */
+export function deriveEditionAssertions(project) {
+  return deepFreeze([
+    ...project.scope.selections
+      .filter(({ questions }) => questions !== undefined)
+      .map(({ id, questions }) => ({
+        id,
+        kind: 'source',
+        selection: id,
+        questions: [...questions],
+      })),
+    ...(project.editorialAssertions ?? []).map((item) => ({
+      ...structuredClone(item),
+      kind: 'editorial',
+    })),
+  ]);
+}
+
 /** Validate author-controlled selection without reading or resolving its inputs. */
 export function validateBuildRequest(value) {
   const code = 'build_request_invalid';
@@ -79,13 +97,17 @@ export function validateEditionProject(value) {
   uniqueIds(value.audiences, code);
   uniqueIds(value.questions, code);
   uniqueIds(value.scope.selections, code);
-  uniqueIds(value.requiredAssertions, code);
+  const derivedAssertions = deriveEditionAssertions(value);
+  uniqueIds(derivedAssertions, code);
   uniqueIds(value.transformations, code);
   const audiences = selectedIds(value.audiences);
   const questions = selectedIds(value.questions);
   const selections = selectedIds(value.scope.selections);
-  const assertions = selectedIds(value.requiredAssertions);
-  const assertionById = new Map(value.requiredAssertions.map((item) => [item.id, item]));
+  const assertions = selectedIds(derivedAssertions);
+  const assertionById = new Map(derivedAssertions.map((item) => [item.id, item]));
+  const sourceAssertionBySelection = new Map(
+    derivedAssertions.filter(({ kind }) => kind === 'source').map((item) => [item.selection, item]),
+  );
   const namespaces = new Set([
     ...value.scope.sourceNamespaces,
     ...(value.scope.projectionNamespaces ?? []),
@@ -101,7 +123,7 @@ export function validateEditionProject(value) {
   for (const question of value.questions) requireIds([question.audience], audiences, code);
   for (const selected of value.scope.selections) requireIds([selected.namespace], namespaces, code);
   for (const limit of value.scope.limits) requireIds([limit.question], questions, code);
-  for (const assertionValue of value.requiredAssertions) {
+  for (const assertionValue of derivedAssertions) {
     requireIds(assertionValue.questions, questions, code);
     if (assertionValue.kind === 'source') requireIds([assertionValue.selection], selections, code);
     else {
@@ -135,6 +157,8 @@ export function validateEditionProject(value) {
   for (const omission of value.omissions) {
     requireIds([omission.selection], selections, code);
     requireIds([omission.question], questions, code);
+    if (!sourceAssertionBySelection.get(omission.selection)?.questions.includes(omission.question))
+      invalid(code, 'omission has no source assertion');
     const sourceView = viewsByMedium[omission.medium].get(omission.view);
     if (!sourceView) invalid(code, 'omission view not declared');
     if (omission.disposition === 'outside-question') {
@@ -181,9 +205,6 @@ export function validateEditionProject(value) {
     if (transformation.proponent !== value.editor)
       invalid(code, 'transformation proponent mismatch');
   }
-  requireIds(value.narrative.readingOrder, questions, code);
-  if (new Set(value.narrative.readingOrder).size !== value.questions.length)
-    invalid(code, 'incomplete reading order');
   if (typeof value.visualPolicy.override === 'string')
     checkedPath(value.visualPolicy.override, code);
   return deepFreeze(structuredClone(value));

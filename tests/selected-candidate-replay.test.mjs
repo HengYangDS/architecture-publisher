@@ -36,7 +36,7 @@ test('exact selected inputs and current runtime replay all Candidate bytes witho
   assert.equal(result.candidateManifestSha256, built.manifestSha256);
   assert.deepEqual(result.replayedEditionObligations.static.questionIds, ['shape']);
   assert.deepEqual(result.replayedEditionObligations.static.views[0].assertionsByQuestion.shape, [
-    'shape',
+    'overview',
   ]);
   assert.equal(result.qualification, 'not-performed');
   assert.equal(result.acceptance, 'not-performed');
