@@ -106,10 +106,12 @@ export function resolveLikeC4Selection(index, selection) {
     );
   else if (kind === 'relation') {
     if (!located) fail('native_likec4_reference_invalid');
-    const line = Number(located[1]) - 1;
-    const character = Number(located[2]) - 1;
-    if (!Number.isSafeInteger(line) || !Number.isSafeInteger(character))
+    const lineNumber = Number(located[1]);
+    const characterNumber = Number(located[2]);
+    if (!Number.isSafeInteger(lineNumber) || !Number.isSafeInteger(characterNumber))
       fail('native_likec4_reference_invalid');
+    const line = lineNumber - 1;
+    const character = characterNumber - 1;
     const matches = index.relations.filter(
       ({ origin }) =>
         origin.namespace === selection.namespace &&

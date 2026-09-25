@@ -7,6 +7,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
+  executeLikeC4Layout,
   executeLikeC4Native,
   nativePermissionSupported,
   validateNativeIndexReply,
@@ -166,6 +167,92 @@ test('native parent rejects lost uncertainty and duplicate visible membership', 
       code: 'native_likec4_response_invalid',
     });
   }
+});
+
+test('native parent rejects malformed typed meaning before admitting parser output', async () => {
+  const index = await executeLikeC4Native(selected(), await readLikeC4ParserSupply());
+  const { parserSupply: _parserSupply, ...valid } = structuredClone(index);
+  const counterexamples = [
+    ['changed selected source', (value) => (value.sources[0].sha256 = '0'.repeat(64))],
+    ['non-JSON metadata', (value) => (value.elements[0].opaqueMetadata = { value: 1n })],
+    ['origin without quality', (value) => delete value.elements[0].origin.quality],
+    ['array element metadata', (value) => (value.elements[0].opaqueMetadata = [])],
+    ['numeric relation kind', (value) => (value.relations[0].kind = 1)],
+    ['numeric relation label', (value) => (value.relations[0].label = 1)],
+    ['array relation metadata', (value) => (value.relations[0].opaqueMetadata = [])],
+    [
+      'duplicate relation identity',
+      (value) => value.relations.push(structuredClone(value.relations[0])),
+    ],
+    ['unselected relation endpoint', (value) => (value.relations[0].to.id = 'missing')],
+    [
+      'opaque view without a kind',
+      (value) =>
+        value.opaqueViews.push({
+          id: 'opaque',
+          namespace: value.views[0].namespace,
+          origin: structuredClone(value.views[0].origin),
+        }),
+    ],
+    ['empty generated view identity', (value) => value.generatedViews.push('')],
+  ];
+  for (const [name, mutate] of counterexamples) {
+    const changed = structuredClone(valid);
+    mutate(changed);
+    assert.throws(
+      () => validateNativeIndexReply(changed, index.sources),
+      {
+        code: 'native_likec4_response_invalid',
+      },
+      name,
+    );
+  }
+});
+
+test('native execution refuses malformed supply, selection, limits, and layout intent before spawn', async () => {
+  const supply = await readLikeC4ParserSupply();
+  const valid = selected();
+  const cyclic = selected();
+  cyclic[0].source.format.self = cyclic[0].source.format;
+  const cases = [
+    ['missing supply', valid, null, {}, 'native_likec4_supply_invalid'],
+    [
+      'changed parser bytes',
+      valid,
+      { ...supply, parserBytes: Buffer.alloc(supply.parserBytes.length) },
+      {},
+      'native_likec4_supply_invalid',
+    ],
+    ['empty selection', [], supply, {}, 'native_likec4_selection_invalid'],
+    [
+      'non-buffer content',
+      [{ source: valid[0].source, content: 'not bytes' }],
+      supply,
+      {},
+      'native_likec4_selection_invalid',
+    ],
+    ['cyclic source descriptor', cyclic, supply, {}, 'native_likec4_selection_invalid'],
+    ['duplicate namespaces', [valid[0], valid[0]], supply, {}, 'native_likec4_selection_invalid'],
+    [
+      'changed selected digest',
+      [{ ...valid[0], source: { ...valid[0].source, sha256: '0'.repeat(64) } }],
+      supply,
+      {},
+      'native_likec4_digest_mismatch',
+    ],
+    [
+      'excessive reply limit',
+      valid,
+      supply,
+      { replyBytes: 16 * 1024 * 1024 + 1 },
+      'native_likec4_execution_limit_invalid',
+    ],
+  ];
+  for (const [name, items, selectedSupply, limits, code] of cases)
+    await assert.rejects(executeLikeC4Native(items, selectedSupply, limits), { code }, name);
+  await assert.rejects(executeLikeC4Layout(valid, supply, { namespace: '', id: 'overview' }), {
+    code: 'native_likec4_reference_invalid',
+  });
 });
 
 test('native Worker expires after replying when its supervisor is absent', async (t) => {

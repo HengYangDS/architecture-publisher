@@ -217,3 +217,70 @@ test('unknown, untyped, generated, opaque, and unadmitted query references fail'
     { code: 'native_likec4_view_uninterpreted' },
   );
 });
+
+test('the public native selector fails closed on malformed indexes and references', async () => {
+  const index = await nativeIndex();
+  const valid = reference('overview', 'example/views', 'view:overview');
+  const invalidIndexes = [
+    null,
+    { ...index, schema: 'other' },
+    { ...index, format: 'other' },
+    { ...index, sources: null },
+    { ...index, elements: null },
+    { ...index, relations: null },
+    { ...index, views: null },
+    { ...index, opaqueViews: null },
+    { ...index, semanticLimits: null },
+  ];
+  for (const malformed of invalidIndexes)
+    assert.throws(() => resolveLikeC4Selection(malformed, valid), {
+      code: 'native_likec4_index_invalid',
+    });
+  for (const [name, malformed] of [
+    ['missing selection', null],
+    ['missing selection id', { ...valid, id: '' }],
+    ['missing source namespace', { ...valid, namespace: '' }],
+    ['non-string reference', { ...valid, reference: 42 }],
+    ['unsupported selection kind', { ...valid, kind: 'unsupported' }],
+    [
+      'overflowed relation locator',
+      reference('overflow', 'example/second', 'relation:9007199254740993:1'),
+    ],
+    [
+      'overflowed relation character',
+      reference('overflow-character', 'example/second', 'relation:1:9007199254740993'),
+    ],
+  ])
+    assert.throws(
+      () => resolveLikeC4Selection(index, malformed),
+      { code: 'native_likec4_reference_invalid' },
+      name,
+    );
+  const missingElement = structuredClone(index);
+  missingElement.views[0].elements.push({ namespace: 'example/first', id: 'absent' });
+  assert.throws(() => resolveLikeC4Selection(missingElement, valid), {
+    code: 'native_likec4_index_invalid',
+  });
+  const missingRelation = structuredClone(index);
+  missingRelation.views[0].relations.push('missing');
+  assert.throws(() => resolveLikeC4Selection(missingRelation, valid), {
+    code: 'native_likec4_index_invalid',
+  });
+});
+
+test('the native selector preserves opaque metadata as data without interpretation', async () => {
+  const index = structuredClone(await nativeIndex());
+  index.elements[0].opaqueMetadata = { technology: 'uninterpreted' };
+  index.relations[0].opaqueMetadata = { protocol: 'uninterpreted' };
+  const selected = resolveLikeC4Selection(
+    index,
+    reference('overview', 'example/views', 'view:overview'),
+  );
+  assert.deepEqual(selected.members.elements[0].opaqueMetadata, {
+    technology: 'uninterpreted',
+  });
+  assert.deepEqual(selected.members.relations[0].opaqueMetadata, {
+    protocol: 'uninterpreted',
+  });
+  assert.equal(selected.limits.includes('domain-metadata-opaque'), true);
+});

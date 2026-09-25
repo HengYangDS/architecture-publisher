@@ -318,6 +318,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       two-skip run remains below the global branch gate at 92.90%. Static and
       package checks pass. This is not yet the CLI Candidate path:
       source-backed assertion coverage, media, and qualification remain open.
+      Additional native-boundary counterexamples reject malformed parser replies,
+      supplies, selections, and source-qualified references. Relation locator
+      bounds are checked before converting one-based positions, preventing an
+      overflowed decimal from rounding into an apparently safe zero-based index.
 - [ ] 4.3 Extend `packages/publisher/src/semantics/change.mjs` and
       `packages/publisher/src/edition/evolution.mjs`;
       `tests/native-evolution.test.mjs` must detect
@@ -410,9 +414,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       relocation without the source repository. Exact built HTML passes Chrome
       offline, responsive, and axe WCAG 2/2.1 A/AA checks; legacy self-hosted
       golden identity was regenerated against selected installed bytes. Static,
-      package, and strict OpenSpec checks pass. The latest full run passes 900
+      package, and strict OpenSpec checks pass. The latest full run passes 904
       tests, skips 2, and fails only the global branch-coverage floor
-      (93.38% < 95%).
+      (93.83% < 95%).
       Visible semantic coverage, human visual review, qualification binding,
       full platform evidence, and release remain open.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
