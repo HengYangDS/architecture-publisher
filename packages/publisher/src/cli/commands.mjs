@@ -47,8 +47,8 @@ export const commandCatalog = Object.freeze([
     'archpub evolution plan <request.json> --sha256 <digest>',
     digestSelection,
     async ({ file, '--sha256': digest }) => {
-      const { compareEditionInput } = await import('../edition/input.mjs');
-      return compareEditionInput(file, digest);
+      const { compareEvolutionInput } = await import('../compiler/evolution.mjs');
+      return compareEvolutionInput(file, digest);
     },
   ),
   command(

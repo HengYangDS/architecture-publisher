@@ -209,6 +209,8 @@ function nativeSide(value) {
     !Array.isArray(value.lock.sources) ||
     !record(value.native) ||
     !Array.isArray(value.native.selections) ||
+    !Array.isArray(value.native.limits) ||
+    value.native.semanticDigest !== nativeDigest(value.native.selections) ||
     value.native.subjectLockSha256 !== nativeDigest(value.lock)
   )
     semanticError('native_evolution_input_invalid');
@@ -227,6 +229,7 @@ function nativeSide(value) {
       !record(selection.members) ||
       !Array.isArray(selection.members.elements) ||
       !Array.isArray(selection.members.relations) ||
+      !Array.isArray(selection.limits) ||
       !sources.has(selection.source.namespace) ||
       selections.has(selection.selectionId)
     )
@@ -272,6 +275,16 @@ export function compileNativeSelectionDelta(beforeValue, afterValue) {
   }
   const supported = [];
   const unknown = [];
+  if (
+    before.native.subjectLockSha256 === after.native.subjectLockSha256 &&
+    canonical(before.native.parserSupply) === canonical(after.native.parserSupply) &&
+    before.native.semanticDigest !== after.native.semanticDigest
+  )
+    unknown.push({ reason: 'native-output-drift' });
+  if (canonical(sorted(before.native.limits)) !== canonical(sorted(after.native.limits)))
+    unknown.push({ reason: 'native-limits-changed' });
+  if (before.native.nativeClosure !== after.native.nativeClosure)
+    unknown.push({ reason: 'native-closure-changed' });
   const changedSourceSet = new Set([
     ...sourceBytes.added,
     ...sourceBytes.removed,
@@ -287,6 +300,8 @@ export function compileNativeSelectionDelta(beforeValue, afterValue) {
       add(selectionId, { kind: 'selection', id: selectionId }, [prior ? 'removed' : 'added']);
       continue;
     }
+    if (canonical(sorted(prior.limits)) !== canonical(sorted(next.limits)))
+      unknown.push({ reason: 'selection-limits-changed', selectionId });
     const targetFields = ['kind', 'id', 'identityScope'].filter(
       (field) => canonical(prior.target[field]) !== canonical(next.target[field]),
     );

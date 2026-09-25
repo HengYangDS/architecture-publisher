@@ -108,10 +108,10 @@ export function assembleEditionSelection({
   request,
   edition,
   sources,
-  derived = [],
-  limits = [],
-  observations = [],
-  invocations = [],
+  derived = /** @type {import('../source/materialize.mjs').DerivedInput[]} */ ([]),
+  limits = /** @type {string[]} */ ([]),
+  observations = /** @type {{kind: string, key: string, method: string}[]} */ ([]),
+  invocations = /** @type {unknown[]} */ ([]),
 }) {
   if (!edition) fail('materialized_provider_edition_missing');
   const project = validateEditionProject(

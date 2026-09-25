@@ -1,5 +1,5 @@
 import { canonical, exact, record } from '../semantics/document.mjs';
-import { compileClaimModelDelta } from '../semantics/change.mjs';
+import { compileClaimModelDelta, compileNativeSelectionDelta } from '../semantics/change.mjs';
 import { inspectEditionForEvolution, normalizedEdition } from './contract.mjs';
 
 const obligationKeys = Object.freeze([
@@ -609,6 +609,194 @@ export function compileEditionEvolution(input) {
     after: { claimModel: delta.after, editions: afterDigests },
     delta,
     editions: { added, removed, changed, affected },
+    obligations,
+    scope:
+      'Impact compilation only; no execution, evidence, approval, acceptance or publication effect',
+  };
+}
+
+function nativeEvolutionSide(value) {
+  if (
+    !exact(value, ['lock', 'meaning']) ||
+    value.lock?.schema !== 'architecture.materialized-input-lock/v1' ||
+    !record(value.meaning) ||
+    !record(value.meaning.edition) ||
+    !record(value.meaning.native) ||
+    !record(value.meaning.media) ||
+    !Array.isArray(value.meaning.questions) ||
+    !Array.isArray(value.meaning.assertions) ||
+    !Array.isArray(value.lock.media) ||
+    value.meaning.edition.sha256 !== value.lock.edition?.sha256 ||
+    value.meaning.edition.id !== value.lock.edition?.id ||
+    value.meaning.edition.editor !== value.lock.edition?.editor ||
+    different(Object.keys(value.meaning.media).sort(), [...value.lock.media].sort())
+  )
+    evolutionError('native_evolution_input_invalid');
+  for (const medium of value.lock.media)
+    if (!Array.isArray(value.meaning.media[medium]?.views))
+      evolutionError('native_evolution_input_invalid');
+  return value;
+}
+
+function nativeReasons(delta, before, after, authoredChanged) {
+  const reasons = [];
+  for (const kind of ['added', 'removed', 'changed'])
+    for (const namespace of delta.sourceBytes[kind])
+      reasons.push(`source-bytes-${kind}:${namespace}`);
+  for (const namespace of delta.sourceBindings.changed)
+    reasons.push(`source-binding-changed:${namespace}`);
+  for (const change of delta.supported)
+    reasons.push(`native-selection-changed:${change.selectionId}`);
+  for (const uncertainty of delta.unknown) reasons.push(`native-uncertainty:${uncertainty.reason}`);
+  if (delta.supplyChanged) reasons.push('parser-supply-changed');
+  if (before.meaning.edition.sha256 !== after.meaning.edition.sha256)
+    reasons.push('edition-bytes-changed');
+  if (authoredChanged) reasons.push('edition-authoring-changed');
+  if (different(before.lock.toolchain, after.lock.toolchain)) reasons.push('toolchain-changed');
+  if (different(before.lock.edition.resources, after.lock.edition.resources))
+    reasons.push('edition-resource-changed');
+  if (
+    !reasons.length &&
+    before.meaning.native.subjectLockSha256 !== after.meaning.native.subjectLockSha256
+  )
+    reasons.push('selected-input-lock-changed');
+  return sorted(reasons);
+}
+
+function withoutEditionBytes(lock) {
+  return { ...lock, edition: { ...lock.edition, bytes: null, sha256: null } };
+}
+
+/** Plan obligations from already compiled native meaning; this function executes no effect. */
+export function compileNativeEditionEvolution(input) {
+  if (!exact(input, ['before', 'after'])) evolutionError('native_evolution_input_invalid');
+  const before = nativeEvolutionSide(input.before);
+  const after = nativeEvolutionSide(input.after);
+  if (before.meaning.edition.id !== after.meaning.edition.id)
+    evolutionError('native_evolution_edition_identity_changed');
+  if (before.meaning.edition.editor !== after.meaning.edition.editor)
+    evolutionError('native_evolution_editor_changed');
+  if (different([...before.lock.media].sort(), [...after.lock.media].sort()))
+    evolutionError('native_evolution_media_change_unadmitted');
+  const delta = compileNativeSelectionDelta(
+    { lock: before.lock, native: before.meaning.native },
+    { lock: after.lock, native: after.meaning.native },
+  );
+  const authoredChanged = different(
+    {
+      editorial: before.meaning.editorial,
+      questions: before.meaning.questions,
+      assertions: before.meaning.assertions,
+      media: before.meaning.media,
+    },
+    {
+      editorial: after.meaning.editorial,
+      questions: after.meaning.questions,
+      assertions: after.meaning.assertions,
+      media: after.meaning.media,
+    },
+  );
+  const lockChanged =
+    before.meaning.native.subjectLockSha256 !== after.meaning.native.subjectLockSha256;
+  const editionBytesChanged = before.meaning.edition.sha256 !== after.meaning.edition.sha256;
+  const editionBytesOnly =
+    editionBytesChanged &&
+    !authoredChanged &&
+    !delta.hasChanges &&
+    !different(withoutEditionBytes(before.lock), withoutEditionBytes(after.lock));
+  const changed = delta.hasChanges || authoredChanged || lockChanged;
+  const id = after.meaning.edition.id;
+  const obligations = /** @type {Record<string, Array<Record<string, any>>>} */ (
+    Object.fromEntries(obligationKeys.map((key) => [key, []]))
+  );
+  const affected = [];
+  if (changed) {
+    const changedSelections = new Set([
+      ...delta.supported.map(({ selectionId }) => selectionId),
+      ...delta.unknown.map(({ selectionId }) => selectionId).filter(Boolean),
+    ]);
+    const affectedAssertions = new Set(
+      [...before.meaning.assertions, ...after.meaning.assertions]
+        .filter(({ kind, selection }) => kind === 'source' && changedSelections.has(selection))
+        .map(({ id: assertionId }) => assertionId),
+    );
+    const broad =
+      authoredChanged ||
+      delta.unknown.length > 0 ||
+      delta.sourceBindings.changed.length > 0 ||
+      delta.supplyChanged ||
+      (lockChanged &&
+        !editionBytesOnly &&
+        !delta.sourceBytes.added.length &&
+        !delta.sourceBytes.removed.length &&
+        !delta.sourceBytes.changed.length &&
+        !delta.supported.length);
+    const questions = broad
+      ? sorted(after.meaning.questions.map(({ id: questionId }) => questionId))
+      : sorted(
+          [...before.meaning.assertions, ...after.meaning.assertions]
+            .filter(({ id: assertionId }) => affectedAssertions.has(assertionId))
+            .flatMap(({ questions: selectedQuestions }) => selectedQuestions),
+        );
+    const selectedMedia = ['static', 'interactive'].filter((medium) =>
+      after.lock.media.includes(medium),
+    );
+    const media = Object.fromEntries(
+      selectedMedia.map((medium) => [
+        medium,
+        after.meaning.media[medium].views
+          .filter(
+            (view) =>
+              broad || view.assertionIds.some((assertionId) => affectedAssertions.has(assertionId)),
+          )
+          .map(({ id: viewId }) => viewId),
+      ]),
+    );
+    const reasons = nativeReasons(delta, before, after, authoredChanged);
+    affected.push({
+      edition: id,
+      questions,
+      media,
+      scope: broad ? 'complete' : 'targeted',
+      reasons,
+    });
+    obligations.rebuild.push({ edition: id, target: 'publication-bundle', scene: null, reasons });
+    for (const medium of selectedMedia) {
+      const views = media[medium];
+      if (!views.length) continue;
+      if (medium === 'static')
+        obligations.rebuild.push({ edition: id, target: 'static', scene: 'static', reasons });
+      else {
+        obligations.rebuild.push({
+          edition: id,
+          target: 'interactive-atlas',
+          scene: null,
+          reasons,
+        });
+        for (const scene of views)
+          obligations.rebuild.push({ edition: id, target: 'interactive', scene, reasons });
+      }
+      obligations.mediumVerification.push({ edition: id, medium, views, questions, reasons });
+      obligations.humanReview.push({ edition: id, medium, views, questions, reasons });
+    }
+    obligations.semanticVerification.push({ edition: id, questions, reasons });
+    obligations.acceptance.push({ edition: id, action: 'reaccept', reasons });
+    obligations.publication.push({ edition: id, action: 'replace', scene: null, reasons });
+  }
+  return {
+    schema: 'architecture.semantic-change/v3',
+    before: {
+      editionSha256: before.meaning.edition.sha256,
+      inputLockSha256: before.meaning.native.subjectLockSha256,
+      nativeDigest: before.meaning.native.semanticDigest,
+    },
+    after: {
+      editionSha256: after.meaning.edition.sha256,
+      inputLockSha256: after.meaning.native.subjectLockSha256,
+      nativeDigest: after.meaning.native.semanticDigest,
+    },
+    delta: { native: delta, editorialChanged: authoredChanged, editionBytesChanged },
+    editions: { added: [], removed: [], changed: changed ? [id] : [], affected },
     obligations,
     scope:
       'Impact compilation only; no execution, evidence, approval, acceptance or publication effect',

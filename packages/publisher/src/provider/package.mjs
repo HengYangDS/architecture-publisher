@@ -42,7 +42,9 @@ async function editionProviderPackageIdentity(root) {
   let totalBytes = 0;
   const pending = [{ directory: packageRoot, relative: '' }];
   while (pending.length) {
-    const { directory, relative } = pending.pop();
+    const { directory, relative } = /** @type {{directory: string, relative: string}} */ (
+      pending.pop()
+    );
     const entries = (await fs.readdir(directory, { withFileTypes: true })).sort((left, right) =>
       compareNames(left.name, right.name),
     );

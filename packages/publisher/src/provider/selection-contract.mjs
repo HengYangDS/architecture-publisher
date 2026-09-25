@@ -19,7 +19,7 @@ const text = (value) =>
   value === value.trim() &&
   Buffer.byteLength(value) <= 2048 &&
   ![...value].some((character) => {
-    const point = character.codePointAt(0);
+    const point = character.codePointAt(0) ?? 0;
     return point <= 0x1f || point === 0x7f || (point >= 0xd800 && point <= 0xdfff);
   });
 const identifier = (value) => typeof value === 'string' && idPattern.test(value);

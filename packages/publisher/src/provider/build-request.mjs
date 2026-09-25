@@ -11,6 +11,7 @@ import { readSelectedProviderManifest } from './manifest.mjs';
 export async function materializeBuildRequestInput(requestPath, expectedSha256) {
   const { file, root, request } = await readBuildRequestSelection(requestPath, expectedSha256);
   const direct = await readDirectSelectedInputs({ file, root, request });
+  /** @type {{content: Buffer, resources: {ref: string, content: Buffer}[], expected: {id: string, editor: string} | null} | null} */
   let edition = direct.edition;
   const sources = [...direct.sources];
   const derived = [];

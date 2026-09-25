@@ -1,16 +1,31 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { compileEditionMeaning } from '../packages/publisher/src/compiler/index.mjs';
+import { compileNativeEditionEvolution } from '../packages/publisher/src/edition/evolution.mjs';
+import { compareEvolutionInput } from '../packages/publisher/src/compiler/evolution.mjs';
 import { materializeBuildRequestInput } from '../packages/publisher/src/provider/index.mjs';
 import { compileNativeSelectionDelta } from '../packages/publisher/src/semantics/change.mjs';
+import { canonical } from '../packages/publisher/src/source/json.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
 
 async function snapshot(fixture) {
   const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
   const meaning = await compileEditionMeaning(selected);
-  return { lock: selected.lock, native: meaning.native };
+  return { lock: selected.lock, meaning };
+}
+
+async function nativeDelta(before, after) {
+  const prior = await snapshot(before);
+  const next = await snapshot(after);
+  return compileNativeSelectionDelta(
+    { lock: prior.lock, native: prior.meaning.native },
+    { lock: next.lock, native: next.meaning.native },
+  );
 }
 
 async function replaceSource(fixture, source, bytes) {
@@ -27,6 +42,22 @@ async function rewriteRequest(fixture) {
   fixture.digest = sha(requestBytes);
 }
 
+async function comparisonPlan(t, before, after) {
+  const root = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-evolution-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await fs.cp(before.root, path.join(root, 'before'), { recursive: true });
+  await fs.cp(after.root, path.join(root, 'after'), { recursive: true });
+  const plan = {
+    schema: 'architecture.semantic-compare-input/v3',
+    before: { request: { path: 'before/build-request.json', sha256: before.digest } },
+    after: { request: { path: 'after/build-request.json', sha256: after.digest } },
+  };
+  const file = path.join(root, 'comparison.json');
+  const bytes = Buffer.from(JSON.stringify(plan) + '\n');
+  await fs.writeFile(file, bytes);
+  return { root, file, plan, digest: sha(bytes) };
+}
+
 test('native comparison detects a source-bound label change without relying on cardinality', async (t) => {
   const before = await selectedNativeEdition(t);
   const after = await selectedNativeEdition(t);
@@ -35,7 +66,7 @@ test('native comparison detects a source-bound label change without relying on c
     'model',
     Buffer.from(after.model.toString().replace("'Alpha'", "'Renamed Alpha'")),
   );
-  const delta = compileNativeSelectionDelta(await snapshot(before), await snapshot(after));
+  const delta = await nativeDelta(before, after);
   assert.deepEqual(delta.sourceBytes.changed, ['fixture/model']);
   assert.deepEqual(delta.supported, [
     {
@@ -52,7 +83,7 @@ test('native comparison detects a changed selected view membership', async (t) =
   const before = await selectedNativeEdition(t);
   const after = await selectedNativeEdition(t);
   await replaceSource(after, 'views', Buffer.from('views { view overview { include alpha } }\n'));
-  const delta = compileNativeSelectionDelta(await snapshot(before), await snapshot(after));
+  const delta = await nativeDelta(before, after);
   assert.deepEqual(delta.sourceBytes.changed, ['fixture/views']);
   assert(
     delta.supported.some(
@@ -65,7 +96,7 @@ test('native comparison detects a changed selected view membership', async (t) =
 test('native comparison of identical selected inputs has no invented change', async (t) => {
   const before = await selectedNativeEdition(t);
   const after = await selectedNativeEdition(t);
-  const delta = compileNativeSelectionDelta(await snapshot(before), await snapshot(after));
+  const delta = await nativeDelta(before, after);
   assert.deepEqual(delta.sourceBytes, { added: [], removed: [], changed: [] });
   assert.deepEqual(delta.sourceBindings, { changed: [] });
   assert.deepEqual(delta.supported, []);
@@ -79,7 +110,7 @@ test('native comparison does not hide changed source attribution behind equal co
   const after = await selectedNativeEdition(t);
   after.request.sources[0].claimant = 'another-maintainer';
   await rewriteRequest(after);
-  const delta = compileNativeSelectionDelta(await snapshot(before), await snapshot(after));
+  const delta = await nativeDelta(before, after);
   assert.deepEqual(delta.sourceBytes, { added: [], removed: [], changed: [] });
   assert.deepEqual(delta.sourceBindings.changed, ['fixture/model']);
   assert.equal(delta.hasChanges, true);
@@ -94,7 +125,7 @@ test('relocated relation locators retain uncertainty but expose changed qualifie
       .toString()
       .replace('alpha -> beta', "alpha -> beta { metadata { policy 'review' } }");
   await replaceSource(after, 'model', Buffer.from(changed));
-  const delta = compileNativeSelectionDelta(await snapshot(before), await snapshot(after));
+  const delta = await nativeDelta(before, after);
   assert(delta.unknown.some(({ reason }) => reason === 'relation-lineage-unproved'));
   assert(
     delta.supported.some(
@@ -108,7 +139,204 @@ test('relation locator drift alone is not reported as a proven view membership c
   const before = await selectedNativeEdition(t);
   const after = await selectedNativeEdition(t);
   await replaceSource(after, 'model', Buffer.from('\n' + after.model.toString()));
-  const delta = compileNativeSelectionDelta(await snapshot(before), await snapshot(after));
+  const delta = await nativeDelta(before, after);
   assert.deepEqual(delta.supported, []);
   assert(delta.unknown.some(({ reason }) => reason === 'relation-lineage-unproved'));
+});
+
+test('native Edition evolution separates rebuild, verification, review, acceptance, and publication', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  await replaceSource(
+    after,
+    'model',
+    Buffer.from(after.model.toString().replace("'Alpha'", "'Renamed Alpha'")),
+  );
+  const result = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.equal(result.schema, 'architecture.semantic-change/v3');
+  assert.deepEqual(Object.keys(result.obligations), [
+    'rebuild',
+    'semanticVerification',
+    'mediumVerification',
+    'humanReview',
+    'acceptance',
+    'publication',
+  ]);
+  assert.deepEqual(result.editions.changed, ['selected-atlas']);
+  assert.deepEqual(result.editions.affected[0].questions, ['shape']);
+  assert.deepEqual(result.editions.affected[0].media, {
+    static: ['overview'],
+    interactive: ['overview'],
+  });
+  assert.deepEqual(
+    result.obligations.rebuild.map(({ target }) => target),
+    ['publication-bundle', 'static', 'interactive-atlas', 'interactive'],
+  );
+  assert.equal(result.obligations.semanticVerification.length, 1);
+  assert.equal(result.obligations.mediumVerification.length, 2);
+  assert.equal(result.obligations.humanReview.length, 2);
+  assert.deepEqual(
+    result.obligations.acceptance.map(({ action }) => action),
+    ['reaccept'],
+  );
+  assert.deepEqual(
+    result.obligations.publication.map(({ action }) => action),
+    ['replace'],
+  );
+});
+
+test('unchanged native Edition inputs produce no new obligations', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  const result = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.deepEqual(result.editions.changed, []);
+  assert(Object.values(result.obligations).every((items) => items.length === 0));
+});
+
+test('editorial-only changes still require new media and acceptance without minting native changes', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t, { title: 'Revised reader atlas' });
+  const result = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.equal(result.delta.native.hasChanges, false);
+  assert.deepEqual(result.editions.affected[0].media, {
+    static: ['overview'],
+    interactive: ['overview'],
+  });
+  assert.equal(result.obligations.acceptance.length, 1);
+  assert.equal(result.obligations.publication.length, 1);
+});
+
+test('a changed native uncertainty limit cannot inherit an unchanged Edition verdict', async (t) => {
+  const fixture = await selectedNativeEdition(t);
+  const before = await snapshot(fixture);
+  const after = structuredClone(before);
+  after.meaning.native.limits.push('new-unproved-read-scope');
+  after.meaning.limits.push('new-unproved-read-scope');
+  const result = compileNativeEditionEvolution({ before, after });
+  assert(result.delta.native.unknown.some(({ reason }) => reason === 'native-limits-changed'));
+  assert.equal(result.obligations.semanticVerification.length, 1);
+  assert.equal(result.obligations.acceptance.length, 1);
+});
+
+test('different native output for one exact lock is uncertainty, never a no-op', async (t) => {
+  const fixture = await selectedNativeEdition(t);
+  const before = await snapshot(fixture);
+  const after = structuredClone(before);
+  const range = after.meaning.native.selections[0].target.origin.range;
+  range.start.line += 1;
+  range.end.line += 1;
+  after.meaning.native.semanticDigest = sha(
+    Buffer.from(canonical(after.meaning.native.selections)),
+  );
+  const result = compileNativeEditionEvolution({ before, after });
+  assert.notEqual(result.before.nativeDigest, result.after.nativeDigest);
+  assert(result.delta.native.unknown.some(({ reason }) => reason === 'native-output-drift'));
+  assert.deepEqual(result.editions.changed, ['selected-atlas']);
+  assert.equal(result.obligations.semanticVerification.length, 1);
+  assert.equal(result.obligations.acceptance.length, 1);
+});
+
+test('Edition JSON whitespace changes exact bytes without inventing a media redraw', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  await fs.writeFile(
+    path.join(after.root, 'edition/project.json'),
+    JSON.stringify(after.project, null, 2) + '\n',
+  );
+  const result = compileNativeEditionEvolution({
+    before: await snapshot(before),
+    after: await snapshot(after),
+  });
+  assert.equal(result.delta.editorialChanged, false);
+  assert.deepEqual(
+    result.obligations.rebuild.map(({ target }) => target),
+    ['publication-bundle'],
+  );
+  assert.deepEqual(result.obligations.mediumVerification, []);
+  assert.deepEqual(result.obligations.humanReview, []);
+  assert.equal(result.obligations.semanticVerification.length, 1);
+  assert.equal(result.obligations.acceptance.length, 1);
+});
+
+test('the existing evolution command compares exact relocated native Build Requests', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  await replaceSource(
+    after,
+    'model',
+    Buffer.from(after.model.toString().replace("'Alpha'", "'Renamed Alpha'")),
+  );
+  const selected = await comparisonPlan(t, before, after);
+  const result = await compareEvolutionInput(selected.file, selected.digest);
+  assert.equal(result.schema, 'architecture.semantic-change/v3');
+  assert.deepEqual(result.delta.native.sourceBytes.changed, ['fixture/model']);
+  assert.deepEqual(result.editions.changed, ['selected-atlas']);
+  assert.equal(result.obligations.acceptance.length, 1);
+  const cli = spawnSync(
+    process.execPath,
+    [
+      fileURLToPath(new URL('../packages/publisher/src/cli/main.mjs', import.meta.url)),
+      'evolution',
+      'plan',
+      selected.file,
+      '--sha256',
+      selected.digest,
+    ],
+    {
+      cwd: selected.root,
+      env: { HOME: selected.root, PATH: '', LANG: 'C.UTF-8' },
+      encoding: 'utf8',
+      timeout: 20_000,
+    },
+  );
+  assert.equal(cli.status, 0, cli.stdout + cli.stderr);
+  assert.deepEqual(JSON.parse(cli.stdout), result);
+});
+
+test('native comparison refuses changed selected bytes before deriving obligations', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  const selected = await comparisonPlan(t, before, after);
+  await fs.writeFile(path.join(selected.root, 'after/sources/model.c4'), 'model { changed }\n');
+  await assert.rejects(compareEvolutionInput(selected.file, selected.digest), {
+    code: 'materialized_pin_mismatch',
+  });
+});
+
+test('native comparison plan refuses a path outside its portable input root', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  const selected = await comparisonPlan(t, before, after);
+  assert.equal(
+    (await compareEvolutionInput(selected.file, selected.digest)).schema,
+    'architecture.semantic-change/v3',
+  );
+  selected.plan.before.request.path = '../before/build-request.json';
+  const bytes = Buffer.from(JSON.stringify(selected.plan) + '\n');
+  await fs.writeFile(selected.file, bytes);
+  await assert.rejects(compareEvolutionInput(selected.file, sha(bytes)), {
+    code: 'semantic_plan_invalid',
+  });
+});
+
+test('native evolution does not execute a Provider from a comparison plan without admission', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  before.request.providers = [
+    { id: 'unadmitted', manifest: 'missing/provider.json', sha256: '0'.repeat(64) },
+  ];
+  await rewriteRequest(before);
+  const selected = await comparisonPlan(t, before, after);
+  await assert.rejects(compareEvolutionInput(selected.file, selected.digest), {
+    code: 'semantic_native_provider_comparison_unadmitted',
+  });
 });
