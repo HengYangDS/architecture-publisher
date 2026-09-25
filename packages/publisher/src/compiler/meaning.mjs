@@ -58,6 +58,13 @@ export async function compileEditionMeaning(input) {
   return deepFreeze({
     completeness: 'finite-unqualified-obligations',
     edition: { id: project.id, editor: project.editor, sha256: lock.edition.sha256 },
+    editorial: {
+      title: project.title,
+      audiences: project.audiences,
+      narrative: project.narrative,
+      presentation: project.presentation,
+      visualPolicy: project.visualPolicy,
+    },
     questions: project.questions,
     assertions,
     media: mediaObligations,

@@ -26,7 +26,7 @@ function child(command, args, cwd, environment, expectedStatus = 0) {
   return result.stdout;
 }
 
-test('offline installed Edition meaning and layout survive relocation and refuse changed pins', async (t) => {
+test('offline installed Edition meaning, layout, and Scene survive relocation and refuse changed pins', async (t) => {
   const work = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-meaning-'));
   t.after(() => fs.rm(work, { recursive: true, force: true }));
   const home = path.join(work, 'home');
@@ -133,6 +133,7 @@ import { fileURLToPath } from 'node:url';
 import { materializeBuildRequestInput } from 'architecture-publisher/provider';
 import { compileEditionMeaning } from 'architecture-publisher/compiler';
 import { importLikeC4Layout } from 'architecture-publisher/semantics';
+import { composeStaticEditionScene } from 'architecture-publisher/scene';
 const file = fileURLToPath(new URL('./inputs/build-request.json', import.meta.url));
 try {
   const bytes = await fs.readFile(file);
@@ -144,6 +145,7 @@ try {
     readSource: selected.readSource,
     view: { namespace: 'example/views', id: 'overview' },
   });
+  const staticScene = composeStaticEditionScene(meaning, layout);
   console.log(JSON.stringify({
     status: 'ok', lock: selected.lockSha256, semantic: meaning.native.semanticDigest,
     parser: meaning.native.parserSupply.sha256,
@@ -154,6 +156,13 @@ try {
       nodes: layout.nodes.map(({ id }) => id),
       relations: layout.edges.flatMap((edge) => edge.relations.map(({ reference }) => reference)),
       parser: layout.parserSupply.sha256,
+    },
+    scene: {
+      completeness: staticScene.completeness,
+      nodes: staticScene.nodes.map(({ id }) => id),
+      relations: staticScene.edges.flatMap((edge) =>
+        edge.relations.map(({ reference }) => reference)),
+      bounds: staticScene.bounds,
     },
   }));
 } catch (error) {
@@ -190,6 +199,10 @@ try {
   assert.deepEqual(first.layout.nodes, ['a', 'b']);
   assert.equal(first.layout.relations.length, 1);
   assert.equal(first.layout.parser, first.parser);
+  assert.equal(first.scene.completeness, 'unqualified-scene');
+  assert.deepEqual(first.scene.nodes, ['a']);
+  assert.deepEqual(first.scene.relations, []);
+  assert(first.scene.bounds.height > 0);
   for (const value of [first.lock, first.semantic, first.parser])
     assert.match(value, /^[0-9a-f]{64}$/u);
 

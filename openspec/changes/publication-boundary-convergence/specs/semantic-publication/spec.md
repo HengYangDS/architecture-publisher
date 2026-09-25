@@ -46,6 +46,15 @@ required coordinates or DOM structure.
   explicit editor-authored change
 - **AND** the engine result does not gain source authority
 
+#### Scenario: One medium selects only part of an upstream view
+
+- **WHEN** the upstream view contains nodes or relations outside that medium's
+  required source assertions
+- **THEN** its Scene retains only the selected, source-bound members and derives
+  content bounds from their actual geometry
+- **AND** a grouped edge containing both required and unrequired relations
+  cannot masquerade as one fully represented source assertion
+
 #### Scenario: A supported aggregate hides a distinction
 
 - **WHEN** an aggregate would hide direction, actor, plane, condition, or a

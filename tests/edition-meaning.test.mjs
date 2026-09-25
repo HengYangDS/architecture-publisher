@@ -108,6 +108,13 @@ test('one Edition meaning projection binds source assertions and medium-local ob
   assert.equal(meaning.completeness, 'finite-unqualified-obligations');
   assert.equal(meaning.native.subjectLockSha256, selected.lockSha256);
   assert.equal(meaning.edition.sha256, selected.lock.edition.sha256);
+  assert.deepEqual(meaning.editorial, {
+    title: 'Selected architecture',
+    audiences: project().audiences,
+    narrative: project().narrative,
+    presentation: project().presentation,
+    visualPolicy: project().visualPolicy,
+  });
   assert.deepEqual(
     meaning.questions.map(({ id }) => id),
     ['shape', 'risk'],

@@ -567,12 +567,22 @@ source bytes. The parent validates that every positioned node and routed edge
 maps back to the selected view's source-bound elements and relations; generated
 edge IDs do not cross this boundary. Missing members, ambiguous source
 locations, namespace-ambiguous native IDs, unrepresentable aggregation, or
-uninterpreted dynamic views fail
-instead of becoming visible claims. The geometry remains an unqualified,
+uninterpreted dynamic views fail instead of becoming visible claims. The
+geometry remains an unqualified,
 replaceable projection. It is not part of the native semantic digest, does not
 authorize a scene, and is not shared as coordinates between static and
 interactive compilers. The selected view is copied before asynchronous parser
 supply access, so a caller cannot retarget the in-flight request.
+
+The first neutral static Scene joins that layout to one explicitly selected
+Edition view. Its source carriers are the exact members required by that
+medium's assertions, not every upstream-layout member; editorial prose stays
+editor-attributed and unverified. A partially selected upstream edge cannot
+stand for all of its relations. Content bounds are recomputed from retained
+nodes and routes, so narrowing the Edition does not inherit unrelated canvas
+space. Unsupported visual policy or ambiguous view choice fails by name.
+This Scene remains an unqualified compilation input, not rendered SVG/PNG or
+reader acceptance; interactive composition owns its own geometry and path.
 
 A visible assertion must be linked to a source or editorial claim, and every
 required claim for that medium must have a visible carrier for coverage to

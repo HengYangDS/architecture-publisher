@@ -374,14 +374,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       bounded process-tree owner now serve a distinct source-bound layout
       request. The parent rejects missing/forged nodes, relations, invalid
       geometry, and dynamic views; an installed public consumer reproduces the
-      layout after relocation. This is not a Scene or finished medium: visible
-      carriers, both renderers, and reader-quality acceptance remain unproved.
+      layout after relocation. The layout alone is not a finished medium.
       The view choice is snapshotted before asynchronous supply reads and
       namespace-ambiguous native IDs fail closed. Nine focused layout tests,
       59 selected native/installed tests, static checks, package check, and
-      strict OpenSpec validation pass. The full behavior run passes 841 tests
-      and skips 2; global branch coverage is 92.98% against
-      the unchanged 95% release gate. No landing or publication is admitted.
+      strict OpenSpec validation pass. A first neutral static Scene now joins
+      the exact medium assertion set to that layout, rejects forged/missing
+      members, partial aggregates, and unsupported policy, and crops bounds to
+      retained carriers. Its nine focused tests pass with 100% local branch
+      coverage; a packed public consumer reproduces the selected Scene after
+      relocation. The full behavior run passes 850 tests and skips 2; global
+      branch coverage is 93.08% against the unchanged 95% release gate. No
+      static SVG/PNG, interactive Scene/HTML, landing, or publication is claimed.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
