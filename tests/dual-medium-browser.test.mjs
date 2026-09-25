@@ -18,14 +18,18 @@ test(
     const output = path.join(fixture.root, 'candidate');
     await compileEditionCandidateInput(fixture.file, fixture.digest, output);
     const bytes = await fs.readFile(path.join(output, 'interactive/architecture.html'));
+    const svg = await fs.readFile(path.join(output, 'static/architecture.svg'));
     const server = http.createServer((request, response) => {
-      if (request.url !== '/architecture.html') {
+      if (!['/architecture.html', '/architecture.svg'].includes(request.url)) {
         response.writeHead(404);
         response.end();
         return;
       }
-      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      response.end(bytes);
+      const isSvg = request.url === '/architecture.svg';
+      response.writeHead(200, {
+        'Content-Type': isSvg ? 'image/svg+xml; charset=utf-8' : 'text/html; charset=utf-8',
+      });
+      response.end(isSvg ? svg : bytes);
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
     t.after(() => new Promise((resolve) => server.close(resolve)));
@@ -80,6 +84,21 @@ test(
     );
     assert.equal(await page.locator('#graph-0').getAttribute('data-layout'), 'downward');
     assert.deepEqual(await accessible(), []);
+    assert.deepEqual(errors, []);
+    await page.goto(`${origin}/architecture.svg`, { waitUntil: 'load', timeout: 15_000 });
+    assert.equal(await page.locator('svg').count(), 1);
+    for (const carrier of ['n-0', 'n-1', 'r-0']) {
+      const visible = await page
+        .locator(`[data-graphic-id="${carrier}"] text, text[data-graphic-id="${carrier}"]`)
+        .first()
+        .evaluate((element) => {
+          const bounds = element.getBBox();
+          const style = globalThis.getComputedStyle(element);
+          return bounds.width > 0 && bounds.height > 0 && style.visibility !== 'hidden';
+        });
+      assert.equal(visible, true, `${carrier} must be painted text, not an ID alone`);
+    }
+    assert.doesNotMatch(await page.content(), /fixture\/model|fixture\/views/u);
     assert.deepEqual(errors, []);
   },
 );

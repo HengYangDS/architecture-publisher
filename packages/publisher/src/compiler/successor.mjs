@@ -76,6 +76,7 @@ async function staticMedium(selected, meaning, scratch) {
     files,
     record: {
       sceneSha256: sha(Buffer.from(canonical(scene))),
+      carrierSha256: sha(Buffer.from(canonical(rendered.carriers))),
       artifacts: [
         artifact('architecture-svg', files[0].path, 'image/svg+xml', svg),
         artifact('architecture-png', files[1].path, 'image/png', png.bytes),
@@ -96,6 +97,7 @@ async function interactiveMedium(meaning) {
     files: [file],
     record: {
       sceneSha256: sha(Buffer.from(canonical(scene))),
+      carrierSha256: sha(Buffer.from(canonical(rendered.carriers))),
       artifacts: [artifact('architecture-html', file.path, 'text/html', file.content)],
       supplies: rendered.supplies,
     },

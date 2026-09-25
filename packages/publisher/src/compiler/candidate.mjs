@@ -280,7 +280,17 @@ export function validateSelectedEditionCandidate(value) {
   )
     fail('selected_candidate_media_invalid');
   for (const medium of media) {
-    validateMedium(value.media[medium]);
+    const selectedMedium = value.media[medium];
+    if (
+      !exact(selectedMedium, ['sceneSha256', 'carrierSha256', 'artifacts', 'supplies']) ||
+      !isDigest(selectedMedium.carrierSha256)
+    )
+      fail('selected_candidate_media_invalid');
+    validateMedium({
+      sceneSha256: selectedMedium.sceneSha256,
+      artifacts: selectedMedium.artifacts,
+      supplies: selectedMedium.supplies,
+    });
     const required =
       medium === 'static'
         ? [

@@ -24,9 +24,25 @@ test('a neutral static SVG shows the selected structure and authored limits', ()
   assert.match(content, /What is connected\?/u);
   assert.match(content, /Runtime was not observed\./u);
   assert.match(content, /domain-metadata-opaque/u);
-  assert.match(content, /data-node-id="a"/u);
-  assert.match(content, /data-relation-ref="relation:4:2"/u);
+  assert.match(content, /data-graphic-id="n-0"/u);
+  assert.match(content, /data-graphic-id="r-0"/u);
   assert.doesNotMatch(content, /backend|archify|privateNote/u);
+});
+
+test('static publication bytes expose graphic carriers, not private source identities', () => {
+  const result = svg.composeStaticEditionSvg(staticEditionScene());
+  const content = result.bytes.toString('utf8');
+  assert.match(content, /data-graphic-id="n-0"/u);
+  assert.match(content, /data-graphic-id="r-0"/u);
+  assert.doesNotMatch(content, /example\/model|example\/views|relation:4:2|data-node-id/u);
+  assert.deepEqual(result.carriers.nodes[0], {
+    graphicId: 'n-0',
+    source: { namespace: 'example/model', id: 'a', sha256: 'a'.repeat(64) },
+  });
+  assert.deepEqual(result.carriers.relations[0], {
+    graphicId: 'r-0',
+    source: { namespace: 'example/model', reference: 'relation:4:2', sha256: 'a'.repeat(64) },
+  });
 });
 
 test('small source structure and reading notes occupy distinct landscape regions', () => {
@@ -268,7 +284,7 @@ test('an editorial-only scene remains truthful and does not manufacture structur
   input.editorialAssertions = [{ statement: 'No source graph was selected.' }];
   const result = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
   assert.match(result, /No source graph was selected/u);
-  assert.doesNotMatch(result, /data-node-id|data-relation-ref/u);
+  assert.doesNotMatch(result, /data-graphic-id/u);
 });
 
 test('the static Edition SVG is admitted by the pinned raster profile', async () => {

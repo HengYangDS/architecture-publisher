@@ -174,7 +174,11 @@ The successor Candidate SHALL use a distinct versioned manifest from historical
 Claim Model/Edition v1 Candidates. Its unqualified value SHALL bind the selected
 input lock, Edition bytes, native semantic digest, parser supply, each selected
 medium's independently composed Scene and artifact/supply inventory, and
-derived reader obligations and limits. Structural validation of that manifest
+derived reader obligations and limits. Each medium SHALL bind the digest of a
+private source-to-graphic carrier map without placing raw source identifiers in
+public static or interactive media. The map is traceability evidence, not proof
+that the corresponding words and shapes are painted or understood. Structural
+validation of that manifest
 SHALL NOT grant source authority, visible coverage, qualification, or
 acceptance. The build output directory SHALL remain outside Candidate semantic
 identity. A hard failure in any requested medium SHALL NOT emit a complete

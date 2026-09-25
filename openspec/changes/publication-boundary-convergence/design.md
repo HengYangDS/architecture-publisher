@@ -183,7 +183,10 @@ The successor's `architecture.edition-candidate/v2` is a built-but-unqualified
 value. Its input binding holds the selected lock and Edition hashes, native
 semantic digest, parser-supply hash, and declared read-closure limit. Each
 requested medium records its own Scene digest, artifact hashes, and consumed
-supplies; the manifest also retains the Edition-derived reader obligations and
+supplies. Its private carrier-map digest binds source identities to opaque
+graphic IDs without serializing source locators into the public SVG or HTML;
+rendered words and geometry must be observed separately before claiming visible
+coverage. The manifest also retains the Edition-derived reader obligations and
 limits. A Source Bundle is used only as an exclusive, hash-inventoried local
 Candidate container. Its manifest and a structurally valid Candidate do not
 authorize source truth or publication. Output paths are invocation results,

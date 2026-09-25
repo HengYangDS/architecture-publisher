@@ -83,7 +83,7 @@ function namedSection(output, name, items, x, y, width) {
   if (!items.length) return y;
   y = textLines(output, name, x, y, width, 11, '#66736b', 600, 1) + 12;
   for (const item of items) {
-    const attribute = item.reference ? ` data-relation-ref="${escape(item.reference)}"` : '';
+    const attribute = item.graphicId ? ` data-graphic-id="${item.graphicId}"` : '';
     const rows = wrap(item.text, width, 15);
     for (const row of rows) {
       output.push(
@@ -132,6 +132,8 @@ export function composeStaticEditionSvg(scene) {
   const graphTop = y;
   const graph = [];
   const labels = new Map(scene.nodes.map((node) => [key(node), node.label]));
+  const nodeCarriers = [];
+  const relationCarriers = [];
   for (const edge of scene.edges) {
     if (!labels.has(key(edge.from)) || !labels.has(key(edge.to)))
       fail('static_edition_relation_endpoint_missing');
@@ -144,7 +146,7 @@ export function composeStaticEditionSvg(scene) {
       `<path d="M ${points.join(' L ')}" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"${start} marker-end="url(#source-arrow)"/>`,
     );
   }
-  for (const node of scene.nodes) {
+  for (const [position, node] of scene.nodes.entries()) {
     const x = number(node.x);
     const nodeY = number(node.y);
     const nodeWidth = number(node.width);
@@ -154,8 +156,13 @@ export function composeStaticEditionSvg(scene) {
     const kindLines = node.kind === null ? [] : wrap(node.kind, nodeWidth - 28, 10, 1);
     if (kindLines.length && labelLines.length > 1 && nodeHeight < 86)
       fail('static_edition_node_unrepresentable');
+    const graphicId = `n-${position}`;
+    nodeCarriers.push({
+      graphicId,
+      source: { namespace: node.namespace, id: node.id, sha256: node.sha256 },
+    });
     graph.push(
-      `<g data-node-id="${escape(node.id)}" data-node-namespace="${escape(node.namespace)}">`,
+      `<g data-graphic-id="${graphicId}">`,
       `<rect x="${x}" y="${nodeY}" width="${nodeWidth}" height="${nodeHeight}" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>`,
     );
     if (kindLines.length)
@@ -184,9 +191,18 @@ export function composeStaticEditionSvg(scene) {
       const qualifiers = [relation.label, relation.kind]
         .filter((value, index, all) => value && all.indexOf(value) === index)
         .join(' · ');
+      const graphicId = `r-${relationCarriers.length}`;
+      relationCarriers.push({
+        graphicId,
+        source: {
+          namespace: relation.namespace,
+          reference: relation.reference,
+          sha256: relation.sha256,
+        },
+      });
       return {
         text: `${labels.get(key(edge.from))} → ${labels.get(key(edge.to))}${qualifiers ? ` · ${qualifiers}` : ''}`,
-        reference: relation.reference,
+        graphicId,
       };
     }),
   );
@@ -233,5 +249,11 @@ export function composeStaticEditionSvg(scene) {
     '</svg>',
     '',
   ];
-  return { bytes: Buffer.from(lines.join('\n')), width, height, rasterWidth };
+  return {
+    bytes: Buffer.from(lines.join('\n')),
+    width,
+    height,
+    rasterWidth,
+    carriers: { nodes: nodeCarriers, relations: relationCarriers },
+  };
 }

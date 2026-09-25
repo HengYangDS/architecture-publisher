@@ -410,8 +410,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       relocation without the source repository. Exact built HTML passes Chrome
       offline, responsive, and axe WCAG 2/2.1 A/AA checks; legacy self-hosted
       golden identity was regenerated against selected installed bytes. Static,
-      package, and strict OpenSpec checks pass. The full run passes 898 tests,
-      skips 2, and fails only the global branch-coverage floor (93.40% < 95%).
+      package, and strict OpenSpec checks pass. The latest full run passes 899
+      tests, skips 2, and fails only the global branch-coverage floor
+      (93.38% < 95%).
       Visible semantic coverage, human visual review, qualification binding,
       full platform evidence, and release remain open.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
@@ -420,6 +421,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       consumed authoring bytes, selected visual policy, renderer, font supply,
       dimensions, and final artifacts independently per medium. Infeasible layout
       returns for editorial regrouping rather than silently dropping meaning.
+      Partial: neutral static SVG now emits only opaque graphic IDs; its
+      source-to-graphic map remains private and its digest is bound into
+      Candidate v2 separately from the interactive map. The exact built SVG
+      and HTML are checked in Chrome for visible carriers and source-namespace
+      non-disclosure. This proves those tested carrier observations, not full
+      view/question coverage or reader acceptance.
 - [ ] 5.5 Migrate `editions/self/` to the same public Build Request, Edition,
       and dual-medium compiler used by unrelated adopters. Preserve self-owned
       source meaning and selected flagship art direction, but remove hidden

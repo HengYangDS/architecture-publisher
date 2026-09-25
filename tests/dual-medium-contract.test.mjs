@@ -25,11 +25,14 @@ test('one exact Build Request yields location-independent sibling media and a co
     candidate.obligations.interactive.assertionIds,
   );
   assert.notEqual(candidate.media.static.sceneSha256, candidate.media.interactive.sceneSha256);
+  for (const medium of ['static', 'interactive'])
+    assert.match(candidate.media[medium].carrierSha256, /^[a-f0-9]{64}$/u);
   const svg = await fs.readFile(path.join(first, 'static/architecture.svg'));
   const png = await fs.readFile(path.join(first, 'static/architecture.png'));
   const html = await fs.readFile(path.join(first, 'interactive/architecture.html'));
   assert.equal(png.readUInt32BE(16), 6000);
   assert.match(svg.toString('utf8'), /Alpha/u);
+  assert.doesNotMatch(svg.toString('utf8'), /fixture\/model|fixture\/views/u);
   assert.match(html.toString('utf8'), /What is connected\?/u);
   assert.doesNotMatch(html.toString('utf8'), /fixture\/model|fixture\/views/u);
   const contents = new Map([
