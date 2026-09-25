@@ -670,6 +670,9 @@ listing order, not a competing page order. Remove both the separately authored
 `narrative.readingOrder` and its unused interactive Scene counterpart. The old
 field entered a Scene digest but never controlled renderer navigation; page
 arrays already supply that order.
+Medium-local `presentation.intent` is an optional editorial note, not a required
+layout control. When authored, it remains selected Edition meaning and a change
+renews the affected medium's review; omitting it does not invent a default intent.
 Retain the authored summary. Editorial attribution and unverified status must
 be visible in both public media, not merely survive in the Scene object. This
 changes only the unreleased Edition Project, not valid historical Edition v1

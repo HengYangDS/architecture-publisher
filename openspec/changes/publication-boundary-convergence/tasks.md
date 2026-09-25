@@ -160,10 +160,13 @@ third-party or generated supply rather than moving owned code outside coverage.
 - [x] 2.7 Remove the unreleased Edition Project's query and transformation
       authoring fields until executable, versioned consumers exist. Reject
       them at validation; retain exact references and attributed editorial
-      assertions without a compatibility facade. Source tests, packed/offline
-      successor use and immutable historical v1 replay pass in the 1,033-test
-      run (1,028 pass, five skips); static, strict OpenSpec and package gates
-      pass. Branch coverage is 92.96% < 95%, so release remains held.
+      assertions without a compatibility facade. Medium-local presentation
+      intent is optional rather than mandatory inert authoring; when present,
+      evolution still detects its change. The optionality test failed before
+      the schema change and passed afterward; a paired-media build succeeds
+      without either note. The full 1,048-test run has 1,043 passes, five
+      skips and no behavior failures; static, strict OpenSpec and package
+      checks pass. Branch coverage is 92.89% < 95%, so release remains held.
 
 ## 3. Provider convergence
 

@@ -1284,10 +1284,6 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/required", instanceLocation: "#/presentation/static/views" }]
     return false
   }
-  if (!("intent" in data.presentation.static && hasOwn(data.presentation.static, "intent"))) {
-    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/required", instanceLocation: "#/presentation/static/intent" }]
-    return false
-  }
   if (!Array.isArray(data.presentation.static.views)) {
     validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/type", instanceLocation: "#/presentation/static/views" }]
     return false
@@ -1484,21 +1480,23 @@ const ref0 = function validate(data) {
       }
     }
   }
-  if (!(typeof data.presentation.static.intent === "string")) {
-    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/intent/type", instanceLocation: "#/presentation/static/intent" }]
-    return false
-  }
-  if (data.presentation.static.intent.length > 2048 && stringLength(data.presentation.static.intent) > 2048) {
-    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/intent/maxLength", instanceLocation: "#/presentation/static/intent" }]
-    return false
-  }
-  if (data.presentation.static.intent.length < 1 || stringLength(data.presentation.static.intent) < 1) {
-    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/intent/minLength", instanceLocation: "#/presentation/static/intent" }]
-    return false
-  }
-  if (!pattern1.test(data.presentation.static.intent)) {
-    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/intent/pattern", instanceLocation: "#/presentation/static/intent" }]
-    return false
+  if ("intent" in data.presentation.static && hasOwn(data.presentation.static, "intent")) {
+    if (!(typeof data.presentation.static.intent === "string")) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/intent/type", instanceLocation: "#/presentation/static/intent" }]
+      return false
+    }
+    if (data.presentation.static.intent.length > 2048 && stringLength(data.presentation.static.intent) > 2048) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/intent/maxLength", instanceLocation: "#/presentation/static/intent" }]
+      return false
+    }
+    if (data.presentation.static.intent.length < 1 || stringLength(data.presentation.static.intent) < 1) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/intent/minLength", instanceLocation: "#/presentation/static/intent" }]
+      return false
+    }
+    if (!pattern1.test(data.presentation.static.intent)) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/intent/pattern", instanceLocation: "#/presentation/static/intent" }]
+      return false
+    }
   }
   if ("width" in data.presentation.static && hasOwn(data.presentation.static, "width")) {
     if (!Number.isInteger(data.presentation.static.width)) {
@@ -1526,10 +1524,6 @@ const ref0 = function validate(data) {
   }
   if (!("views" in data.presentation.interactive && hasOwn(data.presentation.interactive, "views"))) {
     validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/required", instanceLocation: "#/presentation/interactive/views" }]
-    return false
-  }
-  if (!("intent" in data.presentation.interactive && hasOwn(data.presentation.interactive, "intent"))) {
-    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/required", instanceLocation: "#/presentation/interactive/intent" }]
     return false
   }
   if (!Array.isArray(data.presentation.interactive.views)) {
@@ -1728,21 +1722,23 @@ const ref0 = function validate(data) {
       }
     }
   }
-  if (!(typeof data.presentation.interactive.intent === "string")) {
-    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/intent/type", instanceLocation: "#/presentation/interactive/intent" }]
-    return false
-  }
-  if (data.presentation.interactive.intent.length > 2048 && stringLength(data.presentation.interactive.intent) > 2048) {
-    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/intent/maxLength", instanceLocation: "#/presentation/interactive/intent" }]
-    return false
-  }
-  if (data.presentation.interactive.intent.length < 1 || stringLength(data.presentation.interactive.intent) < 1) {
-    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/intent/minLength", instanceLocation: "#/presentation/interactive/intent" }]
-    return false
-  }
-  if (!pattern1.test(data.presentation.interactive.intent)) {
-    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/intent/pattern", instanceLocation: "#/presentation/interactive/intent" }]
-    return false
+  if ("intent" in data.presentation.interactive && hasOwn(data.presentation.interactive, "intent")) {
+    if (!(typeof data.presentation.interactive.intent === "string")) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/intent/type", instanceLocation: "#/presentation/interactive/intent" }]
+      return false
+    }
+    if (data.presentation.interactive.intent.length > 2048 && stringLength(data.presentation.interactive.intent) > 2048) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/intent/maxLength", instanceLocation: "#/presentation/interactive/intent" }]
+      return false
+    }
+    if (data.presentation.interactive.intent.length < 1 || stringLength(data.presentation.interactive.intent) < 1) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/intent/minLength", instanceLocation: "#/presentation/interactive/intent" }]
+      return false
+    }
+    if (!pattern1.test(data.presentation.interactive.intent)) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/intent/pattern", instanceLocation: "#/presentation/interactive/intent" }]
+      return false
+    }
   }
   for (const key16 of Object.keys(data.presentation.interactive)) {
     if (key16 !== "views" && key16 !== "intent") {

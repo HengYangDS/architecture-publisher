@@ -224,12 +224,12 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
         summary: text,
       }),
       presentation: closed(['static', 'interactive'], {
-        static: closed(['views', 'intent'], {
+        static: closed(['views'], {
           views: { type: 'array', minItems: 1, maxItems: 256, items: view },
           intent: text,
           width: { type: 'integer', minimum: 320, maximum: 12000 },
         }),
-        interactive: closed(['views', 'intent'], {
+        interactive: closed(['views'], {
           views: { type: 'array', minItems: 1, maxItems: 256, items: view },
           intent: text,
         }),

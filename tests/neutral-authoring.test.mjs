@@ -109,6 +109,21 @@ async function selectedInputs(project) {
   };
 }
 
+test('paired media compile without mandatory presentation notes', async (t) => {
+  const selected = await selectedNativeEdition(t, { width: 1800 });
+  delete selected.project.presentation.static.intent;
+  delete selected.project.presentation.interactive.intent;
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const output = path.join(selected.root, 'optional-intent-candidate');
+  const built = await compileEditionCandidateInput(selected.file, selected.digest, output);
+  assert.deepEqual(built.media, ['interactive', 'static']);
+  await fs.access(path.join(output, 'static/architecture.svg'));
+  await fs.access(path.join(output, 'interactive/architecture.html'));
+});
+
 test('a neutral static scene carries declared source assertions without authored geometry', async () => {
   assert.equal(typeof scenes.composeStaticEditionScene, 'function');
   const { meaning, layout } = await selectedInputs();

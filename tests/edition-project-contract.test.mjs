@@ -70,6 +70,13 @@ test('unimplemented queries and transformations are not authored as usable contr
   assert.throws(() => validateEditionProject(transformation), { code: 'edition_project_invalid' });
 });
 
+test('presentation intent is optional when the views already express the selected questions', () => {
+  const value = project();
+  delete value.presentation.static.intent;
+  delete value.presentation.interactive.intent;
+  assert.doesNotThrow(() => validateEditionProject(value));
+});
+
 test('one selection authors one source assertion without a second order list', () => {
   const value = project();
   assert.doesNotThrow(() => validateEditionProject(value));
