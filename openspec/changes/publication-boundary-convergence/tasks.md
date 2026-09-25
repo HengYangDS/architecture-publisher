@@ -343,10 +343,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       selected Providers before materialization rather than silently executing
       code. Independent review's two semantic counterexamples were fixed and
       re-reviewed. Static, package, and strict OpenSpec checks pass; the full
-      run passed 921 tests, skipped 4, with no test failures, but branch coverage
-      is 93.47% below the unchanged 95% release gate. Open: Provider-backed
+      run passed 922 tests, skipped 4, with no test failures, but branch coverage
+      is 93.47% below the unchanged 95% release gate. A provisional package
+      installed with npm offline reproduced the native comparison after
+      relocation and rejected a changed source pin on macOS; this is not
+      final frozen-package or Linux/Windows evidence. Open: Provider-backed
       comparison, media withdrawal, qualified dependency precision, package-only
-      evidence, offline installed comparison, and the final coverage gate.
+      evidence, final installed-platform parity, and the coverage gate.
 
 ## 5. Editorial composition and independent media
 
