@@ -19,6 +19,7 @@
     "./publication": "./src/publication/index.mjs",
     "./runtime": "./src/runtime.mjs",
     "./renderers/archify": "./renderers/archify/public.mjs",
+    "./renderers/cytoscape": "./renderers/cytoscape/index.mjs",
     "./renderers/fonts": "./renderers/fonts/index.mjs",
     "./renderers/resvg": "./renderers/resvg/public.mjs",
     "./renderers/svg": "./renderers/svg/index.mjs",
