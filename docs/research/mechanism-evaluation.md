@@ -1080,6 +1080,19 @@ its HTML is a packaged or accepted product artifact. A second bounded grouping
 and wide-layout attempt produced a 1800×4538 PNG and remained a text inventory;
 its uncommitted code was discarded rather than extending the failed approach.
 
+The probe also discarded existing editorial information. At the same AIGW
+commit, the source-owned Edition
+(`a26b1518d7e9a2ba3bc8bf37440ec9ee1e16fb1c039c61b696d08051de246c13`)
+declares four reader questions, five ordered static groups covering the twelve
+entities exactly once, eleven selected relations and claims, and four
+interactive pages. The temporary successor input instead asked one question
+and supplied no groups. It is a negative control for naive source import, not
+a fair successor-versus-incumbent comparison. The next test must carry the
+source-owned question, grouping, and selection intent into one Edition Project
+or name a reviewed editorial change. Group labels remain editor-owned;
+relation and claim identities remain distinct; old pixel coordinates need not
+be copied.
+
 ## Concurrent path mutation and capability-bound reading (2026-09-25)
 
 The current Publisher file reader checks path components for symlinks and then

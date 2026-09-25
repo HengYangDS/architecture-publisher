@@ -384,7 +384,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       relation/claim compound carriers and editorial grouping without losing
       distinct identities or qualifiers; replace the geometry supply only if a
       geometry-specific counterexample remains. The unqualified local prototype
-      was discarded; do not add a second backend to disguise this failure.
+      was discarded. The next AIGW trial must preserve its four authored reader
+      questions and five semantic groups; the discarded one-question probe was
+      not editorial parity. Do not add a second backend to disguise this failure.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
