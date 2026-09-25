@@ -303,6 +303,17 @@ export function inspectModuleBoundaries(
       reference(node, node.source);
     if (node.type === 'ImportExpression') {
       if (
+        file === 'packages/publisher/src/runtime/gated-worker.mjs' &&
+        property(node.source, 'href') &&
+        node.source.object.type === 'CallExpression' &&
+        node.source.object.callee.type === 'Identifier' &&
+        node.source.object.callee.name === 'pathToFileURL' &&
+        node.source.object.arguments.length === 1 &&
+        node.source.object.arguments[0].type === 'Identifier' &&
+        node.source.object.arguments[0].name === 'selected'
+      )
+        return;
+      if (
         file === 'packages/publisher/src/provider/worker-task.mjs' &&
         node.source.type === 'Identifier' &&
         node.source.name === 'selectedEntrypointUrl'

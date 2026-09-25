@@ -493,9 +493,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       question scope without a second Provider run. The v2 record binder checks
       exact Candidate/lock subjects, medium, artifact, view/question pairs, and
       assertion membership; even all-PASS submitted records remain unauthenticated
-      and non-admitted without accepter policy. Replay and binder tests pass 7/7
-      and 3/3; full behavior passes 959/963 with four skips. The v2 CLI input,
-      overall deadline and process-tree cleanup, policy-bound completeness, and
+      and non-admitted without accepter policy. The package-private start gate
+      prevents selected worker code before acknowledged ownership registration;
+      rejection, timeout, permission, and release-failure counterexamples pass.
+      It is not yet wired to a whole-qualification watchdog or parent registry,
+      so it establishes no total-deadline or cross-platform cleanup guarantee.
+      Replay and binder tests pass 7/7 and 3/3; full behavior passes 968/972
+      with four skips. Static, package, and OpenSpec checks pass. Global branch
+      coverage is 93.51%, below the required 95%. The v2 CLI input, overall
+      deadline and process-tree cleanup, policy-bound completeness, and
       independent predicate evidence remain open. Task 6.1 is not complete.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In

@@ -298,6 +298,29 @@ test('Provider worker admits only its exact selected dynamic entrypoint', async 
   );
 });
 
+test('gated worker admits only the registered selected worker import', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  const file = 'packages/publisher/src/runtime/gated-worker.mjs';
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      file,
+      'await import(pathToFileURL(selected).href);',
+      paths,
+      packageExports,
+    ),
+    [],
+  );
+  assert(
+    inspectModuleBoundaries(
+      file,
+      'await import(pathToFileURL(other).href);',
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('computed dependency')),
+  );
+});
+
 test('provider and generic kernels reject forbidden dependency directions and adopter names', async () => {
   const { paths } = await inventory(runtimeRoots);
   const packageExports = await declaredPackageExports();

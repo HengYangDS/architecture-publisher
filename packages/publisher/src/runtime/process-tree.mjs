@@ -1,9 +1,11 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { fail } from '../source/manifest.mjs';
 
 export const PROCESS_CLEANUP_MS = 5_000;
+const gatedWorker = fileURLToPath(new URL('./gated-worker.mjs', import.meta.url));
 
 /**
  * @typedef {{
@@ -19,6 +21,8 @@ export const PROCESS_CLEANUP_MS = 5_000;
  *   scratch: string,
  *   timeoutMs: number, maximumBytes: number, failurePrefix: string,
  *   terminateTree?: (pid: number) => Promise<void>,
+ *   registerOwned?: (pid: number) => Promise<void>,
+ *   releaseOwned?: (pid: number) => Promise<void>,
  *   decode: (raw: string, state: OwnedProcessState, reason: string,
  *     closedBeforeCleanup: boolean) => unknown | Promise<unknown>
  * }} OwnedProcessPlan
@@ -213,6 +217,8 @@ export async function runOwnedProcess({
   maximumBytes,
   failurePrefix,
   terminateTree = undefined,
+  registerOwned = undefined,
+  releaseOwned = undefined,
   decode,
 }) {
   if (
@@ -229,6 +235,9 @@ export async function runOwnedProcess({
     maximumBytes <= 0 ||
     typeof failurePrefix !== 'string' ||
     !/^[a-z][a-z0-9_]*$/u.test(failurePrefix) ||
+    (registerOwned === undefined) !== (releaseOwned === undefined) ||
+    (registerOwned !== undefined && typeof registerOwned !== 'function') ||
+    (releaseOwned !== undefined && typeof releaseOwned !== 'function') ||
     typeof decode !== 'function'
   )
     fail('owned_process_plan_invalid');
@@ -239,15 +248,45 @@ export async function runOwnedProcess({
   const handle = await fs.open(requestPath, 'r');
   let child;
   try {
-    child = spawn(process.execPath, [...nodeFlags, worker, ...args], {
-      cwd: scratch,
-      env: workerEnvironment(scratch),
-      stdio: [handle.fd, 'pipe', 'pipe'],
-      detached: process.platform !== 'win32',
-      windowsHide: true,
-    });
+    const gated = registerOwned !== undefined;
+    const selectedFlags =
+      gated && nodeFlags.includes('--permission')
+        ? [...nodeFlags, `--allow-fs-read=${gatedWorker}`]
+        : nodeFlags;
+    child = spawn(
+      process.execPath,
+      [...selectedFlags, gated ? gatedWorker : worker, ...(gated ? [worker] : []), ...args],
+      {
+        cwd: scratch,
+        env: workerEnvironment(scratch),
+        stdio: gated ? [handle.fd, 'pipe', 'pipe', 'ipc'] : [handle.fd, 'pipe', 'pipe'],
+        detached: process.platform !== 'win32',
+        windowsHide: true,
+      },
+    );
     const observation = observe(child, maximumBytes, timeoutMs);
-    const reason = await observation.trigger;
+    let registrationError;
+    if (gated && child.pid) {
+      try {
+        const registered = await Promise.race([
+          Promise.resolve()
+            .then(() => registerOwned(child.pid))
+            .then(() => 'registered'),
+          observation.trigger.then(() => 'worker-stopped'),
+        ]);
+        if (registered !== 'registered') throw new Error('worker stopped before registration');
+        const sent = await Promise.race([
+          new Promise((resolve, reject) => {
+            child.send('start', (error) => (error ? reject(error) : resolve('sent')));
+          }),
+          observation.trigger.then(() => 'worker-stopped'),
+        ]);
+        if (sent !== 'sent') throw new Error('worker stopped before start');
+      } catch (error) {
+        registrationError = error;
+      }
+    }
+    const reason = registrationError ? 'registration-failed' : await observation.trigger;
     const closedBeforeCleanup = observation.state.closed !== null;
     let cleanupError;
     if (child.pid) {
@@ -268,6 +307,18 @@ export async function runOwnedProcess({
     if (!closed) {
       child.kill('SIGKILL');
       cleanupError ??= new Error('selected worker did not close after cleanup');
+    }
+    if (!cleanupError && releaseOwned && child.pid) {
+      try {
+        await releaseOwned(child.pid);
+      } catch (error) {
+        cleanupError = cleanupUnproved(failurePrefix, error);
+      }
+    }
+    if (registrationError) {
+      if (cleanupError)
+        throw cleanupFailure(failurePrefix, `${failurePrefix}_registration_failed`, cleanupError);
+      fail(`${failurePrefix}_registration_failed`);
     }
     const raw = Buffer.concat(observation.state.stdout).toString('utf8');
     let result;
