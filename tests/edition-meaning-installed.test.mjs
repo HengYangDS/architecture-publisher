@@ -104,7 +104,6 @@ test('offline installed Edition meaning, Scenes, and Candidate survive relocatio
       limits: [],
     },
     omissions: [],
-    transformations: [],
     narrative: { summary: 'A selected source.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },

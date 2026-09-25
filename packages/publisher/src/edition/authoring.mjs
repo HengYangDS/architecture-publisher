@@ -99,12 +99,9 @@ export function validateEditionProject(value) {
   uniqueIds(value.scope.selections, code);
   const derivedAssertions = deriveEditionAssertions(value);
   uniqueIds(derivedAssertions, code);
-  uniqueIds(value.transformations, code);
   const audiences = selectedIds(value.audiences);
   const questions = selectedIds(value.questions);
   const selections = selectedIds(value.scope.selections);
-  const assertions = selectedIds(derivedAssertions);
-  const assertionById = new Map(derivedAssertions.map((item) => [item.id, item]));
   const sourceAssertionBySelection = new Map(
     derivedAssertions.filter(({ kind }) => kind === 'source').map((item) => [item.selection, item]),
   );
@@ -189,22 +186,6 @@ export function validateEditionProject(value) {
       omitted.has(JSON.stringify([selection, question, medium, coveredIn]))
     )
       invalid(code, 'omission target also omitted');
-  const transformationOutputs = new Set();
-  for (const transformation of value.transformations) {
-    requireIds(transformation.inputs, selections, code);
-    requireIds([transformation.output], assertions, code);
-    const output = assertionById.get(transformation.output);
-    if (output.kind !== 'editorial') invalid(code, 'transformation output is not editorial');
-    if (
-      transformationOutputs.has(transformation.output) ||
-      transformation.inputs.length !== output.basis.length ||
-      transformation.inputs.some((input) => !output.basis.includes(input))
-    )
-      invalid(code, 'transformation basis ambiguous');
-    transformationOutputs.add(transformation.output);
-    if (transformation.proponent !== value.editor)
-      invalid(code, 'transformation proponent mismatch');
-  }
   if (typeof value.visualPolicy.override === 'string')
     checkedPath(value.visualPolicy.override, code);
   return deepFreeze(structuredClone(value));

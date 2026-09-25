@@ -29,7 +29,6 @@ function project() {
       limits: [],
     },
     omissions: [],
-    transformations: [],
     narrative: {
       summary: 'Follow the change through review and publication.',
     },
@@ -50,6 +49,26 @@ function project() {
     visualPolicy: { profile: 'neutral', override: null },
   };
 }
+
+test('unimplemented queries and transformations are not authored as usable controls', () => {
+  const value = project();
+  assert.doesNotThrow(() => validateEditionProject(value));
+
+  const query = structuredClone(value);
+  query.scope.selections[0] = {
+    id: 'lanes',
+    namespace: 'ethos',
+    kind: 'query',
+    language: 'likec4',
+    expression: 'element lane',
+    questions: ['flow'],
+  };
+  assert.throws(() => validateEditionProject(query), { code: 'edition_project_invalid' });
+
+  const transformation = structuredClone(value);
+  transformation.transformations = [];
+  assert.throws(() => validateEditionProject(transformation), { code: 'edition_project_invalid' });
+});
 
 test('one selection authors one source assertion without a second order list', () => {
   const value = project();
@@ -150,9 +169,8 @@ test('Edition Project admits a separately attributed cross-source editorial asse
   value.scope.selections.push({
     id: 'proxy',
     namespace: 'aigw',
-    kind: 'query',
-    language: 'likec4',
-    expression: 'element proxy',
+    kind: 'reference',
+    reference: 'element:proxy',
   });
   value.editorialAssertions = [
     {
@@ -163,14 +181,6 @@ test('Edition Project admits a separately attributed cross-source editorial asse
       questions: ['flow'],
     },
   ];
-  value.transformations.push({
-    id: 'comparison-view',
-    kind: 'compare',
-    inputs: ['lanes', 'proxy'],
-    output: 'comparison',
-    proponent: 'architecture-editor',
-    rule: 'Keep each source claimant visible.',
-  });
   assert.doesNotThrow(() => validateEditionProject(value));
 });
 
@@ -268,16 +278,18 @@ test('neutral authoring does not require pixel dimensions or a visual override',
   assert.doesNotThrow(() => validateEditionProject(value));
 });
 
-test('editorial transformation cannot relabel its output as a source assertion', () => {
+test('an editorial assertion cannot relabel itself as a source assertion', () => {
   const value = project();
-  value.transformations.push({
-    id: 'reframed-lane',
-    kind: 'rephrase',
-    inputs: ['lanes'],
-    output: 'lanes',
-    proponent: 'architecture-editor',
-    rule: 'Explain the source statement to the selected audience.',
-  });
+  value.editorialAssertions = [
+    {
+      id: 'interpretation',
+      statement: 'This is an interpretation of the source.',
+      proponent: value.editor,
+      basis: ['lanes'],
+      questions: ['flow'],
+      kind: 'source',
+    },
+  ];
   assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
 });
 
@@ -297,7 +309,7 @@ test('covered-elsewhere omission names a distinct target view', () => {
   assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
 });
 
-test('transformation inputs match the editorial assertion basis and output is unique', () => {
+test('editorial attribution and exact selected basis are required', () => {
   const value = project();
   value.scope.selections.push({
     id: 'other',
@@ -310,23 +322,17 @@ test('transformation inputs match the editorial assertion basis and output is un
       id: 'editorial-fact',
       statement: 'The two mechanisms meet at a verified boundary.',
       proponent: 'architecture-editor',
-      basis: ['lanes'],
+      basis: ['lanes', 'other'],
       questions: ['flow'],
     },
   ];
-  value.transformations.push({
-    id: 'derived-view',
-    kind: 'compare',
-    inputs: ['other'],
-    output: 'editorial-fact',
-    proponent: 'architecture-editor',
-    rule: 'Compare only attributed source statements.',
-  });
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
-  value.transformations[0].inputs = ['lanes'];
   assert.doesNotThrow(() => validateEditionProject(value));
-  value.transformations.push({ ...value.transformations[0], id: 'second-derivation' });
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  const missing = structuredClone(value);
+  missing.editorialAssertions[0].basis = ['absent'];
+  assert.throws(() => validateEditionProject(missing), { code: 'edition_project_invalid' });
+  const foreign = structuredClone(value);
+  foreign.editorialAssertions[0].proponent = 'other-editor';
+  assert.throws(() => validateEditionProject(foreign), { code: 'edition_project_invalid' });
 });
 
 test('every promised question appears in a selected medium', () => {

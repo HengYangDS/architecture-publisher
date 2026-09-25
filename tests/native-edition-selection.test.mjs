@@ -67,7 +67,6 @@ async function fixture(
       limits: [],
     },
     omissions: [],
-    transformations: [],
     narrative: { summary: narrative },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },

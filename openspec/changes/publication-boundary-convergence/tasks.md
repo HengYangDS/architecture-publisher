@@ -69,7 +69,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       `tests/build-request-contract.test.mjs` and
       `tests/edition-project-contract.test.mjs`. Select exactly one Edition root,
       named roles, namespaces, revision evidence, questions, omissions,
-      transformations, media, and visual policy; reject unknown fields and
+      media, and visual policy; reject unknown fields and
       conflicting editorial roots. Keep `archpub edition build` as the one entry.
       The reviewed schemas and self-contained generated validators have focused
       RED/GREEN, package, cold offline installation, and static evidence. This
@@ -156,6 +156,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       package gates passed. AIGW's four-question/five-group authoring probe
       removes 22 duplicate records, not its mixed-media limitation. Branch
       coverage is 92.95% < 95%; Tasks 5.2, 5.4 and 7.5 still block release.
+
+- [x] 2.7 Remove the unreleased Edition Project's query and transformation
+      authoring fields until executable, versioned consumers exist. Reject
+      them at validation; retain exact references and attributed editorial
+      assertions without a compatibility facade. Source tests, packed/offline
+      successor use and immutable historical v1 replay pass in the 1,033-test
+      run (1,028 pass, five skips); static, strict OpenSpec and package gates
+      pass. Branch coverage is 92.96% < 95%, so release remains held.
 
 ## 3. Provider convergence
 
@@ -338,7 +346,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       seven focused tests pass. A single Edition meaning projection now joins
       locked source selections to source-attributed and explicitly unverified
       editorial assertions, with medium-local question and limit obligations.
-      Uninterpreted transformations fail rather than minting stronger claims;
+      Unadmitted authored transformations fail at input rather than minting stronger claims;
       editorial assertions in one medium do not impose a global limit on the
       other. Its five focused tests pass and the new module has 100% branch
       coverage. The native selection stage remains internal; the package exposes

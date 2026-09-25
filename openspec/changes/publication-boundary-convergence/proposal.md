@@ -75,8 +75,8 @@ publication, not a new lifecycle or command plane.
   selected-input envelope without later-stage claims or mandatory source-repo
   placement.
 - `edition-publication`: One editor-owned Edition project selects questions,
-  sources, scope, exclusions, transformations, and medium-specific obligations;
-  Publisher derives seals and Candidates.
+  sources, scope, exclusions, attributed editorial assertions, and
+  medium-specific obligations; Publisher derives seals and Candidates.
 - `semantic-compilation`: Native models and explicit projections may be
   imported through loss-reporting adapters without a mandatory duplicate Claim
   Model or invented cross-format equivalence.

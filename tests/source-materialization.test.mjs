@@ -25,7 +25,6 @@ function editionProject(namespace = 'example/source') {
       limits: [],
     },
     omissions: [],
-    transformations: [],
     narrative: { summary: 'A bounded view of the selected system.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One clear overview.' },

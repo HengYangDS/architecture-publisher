@@ -592,10 +592,6 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/required", instanceLocation: "#/omissions" }]
     return false
   }
-  if (!("transformations" in data && hasOwn(data, "transformations"))) {
-    validate.errors = [{ keywordLocation: "#/required", instanceLocation: "#/transformations" }]
-    return false
-  }
   if (!("narrative" in data && hasOwn(data, "narrative"))) {
     validate.errors = [{ keywordLocation: "#/required", instanceLocation: "#/narrative" }]
     return false
@@ -876,83 +872,101 @@ const ref0 = function validate(data) {
   }
   for (let m = 0; m < data.scope.selections.length; m++) {
     if (m in data.scope.selections && hasOwn(data.scope.selections, m)) {
-      let passes0 = 0
-      const sub0 = (() => {
-        if (!(typeof data.scope.selections[m] === "object" && data.scope.selections[m] && !Array.isArray(data.scope.selections[m]))) return false
-        if (!("id" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "id"))) return false
-        if (!("namespace" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "namespace"))) return false
-        if (!("kind" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "kind"))) return false
-        if (!("reference" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "reference"))) return false
-        if (!(typeof data.scope.selections[m].id === "string")) return false
-        if (!(pattern0.test(data.scope.selections[m].id))) return false
-        if (!(typeof data.scope.selections[m].namespace === "string")) return false
-        if (data.scope.selections[m].namespace.length > 2048 && stringLength(data.scope.selections[m].namespace) > 2048) return false
-        if (data.scope.selections[m].namespace.length < 1 || stringLength(data.scope.selections[m].namespace) < 1) return false
-        if (!(pattern1.test(data.scope.selections[m].namespace))) return false
-        if (!(data.scope.selections[m].kind === "reference")) return false
-        if (!(typeof data.scope.selections[m].reference === "string")) return false
-        if (data.scope.selections[m].reference.length > 2048 && stringLength(data.scope.selections[m].reference) > 2048) return false
-        if (data.scope.selections[m].reference.length < 1 || stringLength(data.scope.selections[m].reference) < 1) return false
-        if (!(pattern1.test(data.scope.selections[m].reference))) return false
-        if ("questions" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "questions")) {
-          if (!(Array.isArray(data.scope.selections[m].questions))) return false
-          if (data.scope.selections[m].questions.length < 1) return false
-          for (let n = 0; n < data.scope.selections[m].questions.length; n++) {
-            if (n in data.scope.selections[m].questions && hasOwn(data.scope.selections[m].questions, n)) {
-              if (!(typeof data.scope.selections[m].questions[n] === "string")) return false
-              if (!(pattern0.test(data.scope.selections[m].questions[n]))) return false
-            }
-          }
-          if (!unique(data.scope.selections[m].questions)) return false
-        }
-        for (const key2 of Object.keys(data.scope.selections[m])) {
-          if (key2 !== "id" && key2 !== "namespace" && key2 !== "kind" && key2 !== "reference" && key2 !== "questions") return false
-        }
-        return true
-      })()
-      if (sub0) passes0++
-      const sub1 = (() => {
-        if (!(typeof data.scope.selections[m] === "object" && data.scope.selections[m] && !Array.isArray(data.scope.selections[m]))) return false
-        if (!("id" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "id"))) return false
-        if (!("namespace" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "namespace"))) return false
-        if (!("kind" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "kind"))) return false
-        if (!("language" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "language"))) return false
-        if (!("expression" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "expression"))) return false
-        if (!(typeof data.scope.selections[m].id === "string")) return false
-        if (!(pattern0.test(data.scope.selections[m].id))) return false
-        if (!(typeof data.scope.selections[m].namespace === "string")) return false
-        if (data.scope.selections[m].namespace.length > 2048 && stringLength(data.scope.selections[m].namespace) > 2048) return false
-        if (data.scope.selections[m].namespace.length < 1 || stringLength(data.scope.selections[m].namespace) < 1) return false
-        if (!(pattern1.test(data.scope.selections[m].namespace))) return false
-        if (!(data.scope.selections[m].kind === "query")) return false
-        if (!(typeof data.scope.selections[m].language === "string")) return false
-        if (data.scope.selections[m].language.length > 2048 && stringLength(data.scope.selections[m].language) > 2048) return false
-        if (data.scope.selections[m].language.length < 1 || stringLength(data.scope.selections[m].language) < 1) return false
-        if (!(pattern1.test(data.scope.selections[m].language))) return false
-        if (!(typeof data.scope.selections[m].expression === "string")) return false
-        if (data.scope.selections[m].expression.length > 2048 && stringLength(data.scope.selections[m].expression) > 2048) return false
-        if (data.scope.selections[m].expression.length < 1 || stringLength(data.scope.selections[m].expression) < 1) return false
-        if (!(pattern1.test(data.scope.selections[m].expression))) return false
-        if ("questions" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "questions")) {
-          if (!(Array.isArray(data.scope.selections[m].questions))) return false
-          if (data.scope.selections[m].questions.length < 1) return false
-          for (let o = 0; o < data.scope.selections[m].questions.length; o++) {
-            if (o in data.scope.selections[m].questions && hasOwn(data.scope.selections[m].questions, o)) {
-              if (!(typeof data.scope.selections[m].questions[o] === "string")) return false
-              if (!(pattern0.test(data.scope.selections[m].questions[o]))) return false
-            }
-          }
-          if (!unique(data.scope.selections[m].questions)) return false
-        }
-        for (const key3 of Object.keys(data.scope.selections[m])) {
-          if (key3 !== "id" && key3 !== "namespace" && key3 !== "kind" && key3 !== "language" && key3 !== "expression" && key3 !== "questions") return false
-        }
-        return true
-      })()
-      if (sub1) passes0++
-      if (passes0 !== 1) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/oneOf", instanceLocation: "#/scope/selections/"+m }]
+      if (!(typeof data.scope.selections[m] === "object" && data.scope.selections[m] && !Array.isArray(data.scope.selections[m]))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/type", instanceLocation: "#/scope/selections/"+m }]
         return false
+      }
+      if (!("id" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/required", instanceLocation: "#/scope/selections/"+m+"/id" }]
+        return false
+      }
+      if (!("namespace" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "namespace"))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/required", instanceLocation: "#/scope/selections/"+m+"/namespace" }]
+        return false
+      }
+      if (!("kind" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "kind"))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/required", instanceLocation: "#/scope/selections/"+m+"/kind" }]
+        return false
+      }
+      if (!("reference" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "reference"))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/required", instanceLocation: "#/scope/selections/"+m+"/reference" }]
+        return false
+      }
+      if (!(typeof data.scope.selections[m].id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/id/type", instanceLocation: "#/scope/selections/"+m+"/id" }]
+        return false
+      }
+      if (!(pattern0.test(data.scope.selections[m].id))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/id/pattern", instanceLocation: "#/scope/selections/"+m+"/id" }]
+        return false
+      }
+      if (!(typeof data.scope.selections[m].namespace === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/namespace/type", instanceLocation: "#/scope/selections/"+m+"/namespace" }]
+        return false
+      }
+      if (data.scope.selections[m].namespace.length > 2048 && stringLength(data.scope.selections[m].namespace) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/namespace/maxLength", instanceLocation: "#/scope/selections/"+m+"/namespace" }]
+        return false
+      }
+      if (data.scope.selections[m].namespace.length < 1 || stringLength(data.scope.selections[m].namespace) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/namespace/minLength", instanceLocation: "#/scope/selections/"+m+"/namespace" }]
+        return false
+      }
+      if (!(pattern1.test(data.scope.selections[m].namespace))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/namespace/pattern", instanceLocation: "#/scope/selections/"+m+"/namespace" }]
+        return false
+      }
+      if (!(data.scope.selections[m].kind === "reference")) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/kind/const", instanceLocation: "#/scope/selections/"+m+"/kind" }]
+        return false
+      }
+      if (!(typeof data.scope.selections[m].reference === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/reference/type", instanceLocation: "#/scope/selections/"+m+"/reference" }]
+        return false
+      }
+      if (data.scope.selections[m].reference.length > 2048 && stringLength(data.scope.selections[m].reference) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/reference/maxLength", instanceLocation: "#/scope/selections/"+m+"/reference" }]
+        return false
+      }
+      if (data.scope.selections[m].reference.length < 1 || stringLength(data.scope.selections[m].reference) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/reference/minLength", instanceLocation: "#/scope/selections/"+m+"/reference" }]
+        return false
+      }
+      if (!(pattern1.test(data.scope.selections[m].reference))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/reference/pattern", instanceLocation: "#/scope/selections/"+m+"/reference" }]
+        return false
+      }
+      if ("questions" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "questions")) {
+        if (!(Array.isArray(data.scope.selections[m].questions))) {
+          validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/questions/type", instanceLocation: "#/scope/selections/"+m+"/questions" }]
+          return false
+        }
+        if (data.scope.selections[m].questions.length < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/questions/minItems", instanceLocation: "#/scope/selections/"+m+"/questions" }]
+          return false
+        }
+        for (let n = 0; n < data.scope.selections[m].questions.length; n++) {
+          if (n in data.scope.selections[m].questions && hasOwn(data.scope.selections[m].questions, n)) {
+            if (!(typeof data.scope.selections[m].questions[n] === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/questions/items/type", instanceLocation: "#/scope/selections/"+m+"questions/"+n }]
+              return false
+            }
+            if (!(pattern0.test(data.scope.selections[m].questions[n]))) {
+              validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/questions/items/pattern", instanceLocation: "#/scope/selections/"+m+"questions/"+n }]
+              return false
+            }
+          }
+        }
+        if (!unique(data.scope.selections[m].questions)) {
+          validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/properties/questions/uniqueItems", instanceLocation: "#/scope/selections/"+m+"/questions" }]
+          return false
+        }
+      }
+      for (const key2 of Object.keys(data.scope.selections[m])) {
+        if (key2 !== "id" && key2 !== "namespace" && key2 !== "kind" && key2 !== "reference" && key2 !== "questions") {
+          validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/additionalProperties", instanceLocation: "#/scope/selections/"+m+"/"+pointerPart(key2) }]
+          return false
+        }
       }
     }
   }
@@ -964,55 +978,55 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/maxItems", instanceLocation: "#/scope/limits" }]
     return false
   }
-  for (let p = 0; p < data.scope.limits.length; p++) {
-    if (p in data.scope.limits && hasOwn(data.scope.limits, p)) {
-      if (!(typeof data.scope.limits[p] === "object" && data.scope.limits[p] && !Array.isArray(data.scope.limits[p]))) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/type", instanceLocation: "#/scope/limits/"+p }]
+  for (let o = 0; o < data.scope.limits.length; o++) {
+    if (o in data.scope.limits && hasOwn(data.scope.limits, o)) {
+      if (!(typeof data.scope.limits[o] === "object" && data.scope.limits[o] && !Array.isArray(data.scope.limits[o]))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/type", instanceLocation: "#/scope/limits/"+o }]
         return false
       }
-      if (!("question" in data.scope.limits[p] && hasOwn(data.scope.limits[p], "question"))) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/required", instanceLocation: "#/scope/limits/"+p+"/question" }]
+      if (!("question" in data.scope.limits[o] && hasOwn(data.scope.limits[o], "question"))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/required", instanceLocation: "#/scope/limits/"+o+"/question" }]
         return false
       }
-      if (!("reason" in data.scope.limits[p] && hasOwn(data.scope.limits[p], "reason"))) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/required", instanceLocation: "#/scope/limits/"+p+"/reason" }]
+      if (!("reason" in data.scope.limits[o] && hasOwn(data.scope.limits[o], "reason"))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/required", instanceLocation: "#/scope/limits/"+o+"/reason" }]
         return false
       }
-      if (!(typeof data.scope.limits[p].question === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/question/type", instanceLocation: "#/scope/limits/"+p+"/question" }]
+      if (!(typeof data.scope.limits[o].question === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/question/type", instanceLocation: "#/scope/limits/"+o+"/question" }]
         return false
       }
-      if (!(pattern0.test(data.scope.limits[p].question))) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/question/pattern", instanceLocation: "#/scope/limits/"+p+"/question" }]
+      if (!(pattern0.test(data.scope.limits[o].question))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/question/pattern", instanceLocation: "#/scope/limits/"+o+"/question" }]
         return false
       }
-      if (!(typeof data.scope.limits[p].reason === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/type", instanceLocation: "#/scope/limits/"+p+"/reason" }]
+      if (!(typeof data.scope.limits[o].reason === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/type", instanceLocation: "#/scope/limits/"+o+"/reason" }]
         return false
       }
-      if (data.scope.limits[p].reason.length > 2048 && stringLength(data.scope.limits[p].reason) > 2048) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/maxLength", instanceLocation: "#/scope/limits/"+p+"/reason" }]
+      if (data.scope.limits[o].reason.length > 2048 && stringLength(data.scope.limits[o].reason) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/maxLength", instanceLocation: "#/scope/limits/"+o+"/reason" }]
         return false
       }
-      if (data.scope.limits[p].reason.length < 1 || stringLength(data.scope.limits[p].reason) < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/minLength", instanceLocation: "#/scope/limits/"+p+"/reason" }]
+      if (data.scope.limits[o].reason.length < 1 || stringLength(data.scope.limits[o].reason) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/minLength", instanceLocation: "#/scope/limits/"+o+"/reason" }]
         return false
       }
-      if (!(pattern1.test(data.scope.limits[p].reason))) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/pattern", instanceLocation: "#/scope/limits/"+p+"/reason" }]
+      if (!(pattern1.test(data.scope.limits[o].reason))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/pattern", instanceLocation: "#/scope/limits/"+o+"/reason" }]
         return false
       }
-      for (const key4 of Object.keys(data.scope.limits[p])) {
-        if (key4 !== "question" && key4 !== "reason") {
-          validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/additionalProperties", instanceLocation: "#/scope/limits/"+p+"/"+pointerPart(key4) }]
+      for (const key3 of Object.keys(data.scope.limits[o])) {
+        if (key3 !== "question" && key3 !== "reason") {
+          validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/additionalProperties", instanceLocation: "#/scope/limits/"+o+"/"+pointerPart(key3) }]
           return false
         }
       }
     }
   }
-  for (const key5 of Object.keys(data.scope)) {
-    if (key5 !== "sourceNamespaces" && key5 !== "projectionNamespaces" && key5 !== "selections" && key5 !== "limits") {
-      validate.errors = [{ keywordLocation: "#/properties/scope/additionalProperties", instanceLocation: "#/scope/"+pointerPart(key5) }]
+  for (const key4 of Object.keys(data.scope)) {
+    if (key4 !== "sourceNamespaces" && key4 !== "projectionNamespaces" && key4 !== "selections" && key4 !== "limits") {
+      validate.errors = [{ keywordLocation: "#/properties/scope/additionalProperties", instanceLocation: "#/scope/"+pointerPart(key4) }]
       return false
     }
   }
@@ -1025,123 +1039,123 @@ const ref0 = function validate(data) {
       validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/maxItems", instanceLocation: "#/editorialAssertions" }]
       return false
     }
-    for (let q = 0; q < data.editorialAssertions.length; q++) {
-      if (q in data.editorialAssertions && hasOwn(data.editorialAssertions, q)) {
-        if (!(typeof data.editorialAssertions[q] === "object" && data.editorialAssertions[q] && !Array.isArray(data.editorialAssertions[q]))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/type", instanceLocation: "#/editorialAssertions/"+q }]
+    for (let p = 0; p < data.editorialAssertions.length; p++) {
+      if (p in data.editorialAssertions && hasOwn(data.editorialAssertions, p)) {
+        if (!(typeof data.editorialAssertions[p] === "object" && data.editorialAssertions[p] && !Array.isArray(data.editorialAssertions[p]))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/type", instanceLocation: "#/editorialAssertions/"+p }]
           return false
         }
-        if (!("id" in data.editorialAssertions[q] && hasOwn(data.editorialAssertions[q], "id"))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/required", instanceLocation: "#/editorialAssertions/"+q+"/id" }]
+        if (!("id" in data.editorialAssertions[p] && hasOwn(data.editorialAssertions[p], "id"))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/required", instanceLocation: "#/editorialAssertions/"+p+"/id" }]
           return false
         }
-        if (!("statement" in data.editorialAssertions[q] && hasOwn(data.editorialAssertions[q], "statement"))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/required", instanceLocation: "#/editorialAssertions/"+q+"/statement" }]
+        if (!("statement" in data.editorialAssertions[p] && hasOwn(data.editorialAssertions[p], "statement"))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/required", instanceLocation: "#/editorialAssertions/"+p+"/statement" }]
           return false
         }
-        if (!("proponent" in data.editorialAssertions[q] && hasOwn(data.editorialAssertions[q], "proponent"))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/required", instanceLocation: "#/editorialAssertions/"+q+"/proponent" }]
+        if (!("proponent" in data.editorialAssertions[p] && hasOwn(data.editorialAssertions[p], "proponent"))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/required", instanceLocation: "#/editorialAssertions/"+p+"/proponent" }]
           return false
         }
-        if (!("basis" in data.editorialAssertions[q] && hasOwn(data.editorialAssertions[q], "basis"))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/required", instanceLocation: "#/editorialAssertions/"+q+"/basis" }]
+        if (!("basis" in data.editorialAssertions[p] && hasOwn(data.editorialAssertions[p], "basis"))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/required", instanceLocation: "#/editorialAssertions/"+p+"/basis" }]
           return false
         }
-        if (!("questions" in data.editorialAssertions[q] && hasOwn(data.editorialAssertions[q], "questions"))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/required", instanceLocation: "#/editorialAssertions/"+q+"/questions" }]
+        if (!("questions" in data.editorialAssertions[p] && hasOwn(data.editorialAssertions[p], "questions"))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/required", instanceLocation: "#/editorialAssertions/"+p+"/questions" }]
           return false
         }
-        if (!(typeof data.editorialAssertions[q].id === "string")) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/id/type", instanceLocation: "#/editorialAssertions/"+q+"/id" }]
+        if (!(typeof data.editorialAssertions[p].id === "string")) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/id/type", instanceLocation: "#/editorialAssertions/"+p+"/id" }]
           return false
         }
-        if (!(pattern0.test(data.editorialAssertions[q].id))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/id/pattern", instanceLocation: "#/editorialAssertions/"+q+"/id" }]
+        if (!(pattern0.test(data.editorialAssertions[p].id))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/id/pattern", instanceLocation: "#/editorialAssertions/"+p+"/id" }]
           return false
         }
-        if (!(typeof data.editorialAssertions[q].statement === "string")) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/statement/type", instanceLocation: "#/editorialAssertions/"+q+"/statement" }]
+        if (!(typeof data.editorialAssertions[p].statement === "string")) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/statement/type", instanceLocation: "#/editorialAssertions/"+p+"/statement" }]
           return false
         }
-        if (data.editorialAssertions[q].statement.length > 2048 && stringLength(data.editorialAssertions[q].statement) > 2048) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/statement/maxLength", instanceLocation: "#/editorialAssertions/"+q+"/statement" }]
+        if (data.editorialAssertions[p].statement.length > 2048 && stringLength(data.editorialAssertions[p].statement) > 2048) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/statement/maxLength", instanceLocation: "#/editorialAssertions/"+p+"/statement" }]
           return false
         }
-        if (data.editorialAssertions[q].statement.length < 1 || stringLength(data.editorialAssertions[q].statement) < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/statement/minLength", instanceLocation: "#/editorialAssertions/"+q+"/statement" }]
+        if (data.editorialAssertions[p].statement.length < 1 || stringLength(data.editorialAssertions[p].statement) < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/statement/minLength", instanceLocation: "#/editorialAssertions/"+p+"/statement" }]
           return false
         }
-        if (!(pattern1.test(data.editorialAssertions[q].statement))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/statement/pattern", instanceLocation: "#/editorialAssertions/"+q+"/statement" }]
+        if (!(pattern1.test(data.editorialAssertions[p].statement))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/statement/pattern", instanceLocation: "#/editorialAssertions/"+p+"/statement" }]
           return false
         }
-        if (!(typeof data.editorialAssertions[q].proponent === "string")) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/proponent/type", instanceLocation: "#/editorialAssertions/"+q+"/proponent" }]
+        if (!(typeof data.editorialAssertions[p].proponent === "string")) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/proponent/type", instanceLocation: "#/editorialAssertions/"+p+"/proponent" }]
           return false
         }
-        if (data.editorialAssertions[q].proponent.length > 2048 && stringLength(data.editorialAssertions[q].proponent) > 2048) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/proponent/maxLength", instanceLocation: "#/editorialAssertions/"+q+"/proponent" }]
+        if (data.editorialAssertions[p].proponent.length > 2048 && stringLength(data.editorialAssertions[p].proponent) > 2048) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/proponent/maxLength", instanceLocation: "#/editorialAssertions/"+p+"/proponent" }]
           return false
         }
-        if (data.editorialAssertions[q].proponent.length < 1 || stringLength(data.editorialAssertions[q].proponent) < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/proponent/minLength", instanceLocation: "#/editorialAssertions/"+q+"/proponent" }]
+        if (data.editorialAssertions[p].proponent.length < 1 || stringLength(data.editorialAssertions[p].proponent) < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/proponent/minLength", instanceLocation: "#/editorialAssertions/"+p+"/proponent" }]
           return false
         }
-        if (!(pattern1.test(data.editorialAssertions[q].proponent))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/proponent/pattern", instanceLocation: "#/editorialAssertions/"+q+"/proponent" }]
+        if (!(pattern1.test(data.editorialAssertions[p].proponent))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/proponent/pattern", instanceLocation: "#/editorialAssertions/"+p+"/proponent" }]
           return false
         }
-        if (!(Array.isArray(data.editorialAssertions[q].basis))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/basis/type", instanceLocation: "#/editorialAssertions/"+q+"/basis" }]
+        if (!(Array.isArray(data.editorialAssertions[p].basis))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/basis/type", instanceLocation: "#/editorialAssertions/"+p+"/basis" }]
           return false
         }
-        if (data.editorialAssertions[q].basis.length < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/basis/minItems", instanceLocation: "#/editorialAssertions/"+q+"/basis" }]
+        if (data.editorialAssertions[p].basis.length < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/basis/minItems", instanceLocation: "#/editorialAssertions/"+p+"/basis" }]
           return false
         }
-        for (let r = 0; r < data.editorialAssertions[q].basis.length; r++) {
-          if (r in data.editorialAssertions[q].basis && hasOwn(data.editorialAssertions[q].basis, r)) {
-            if (!(typeof data.editorialAssertions[q].basis[r] === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/basis/items/type", instanceLocation: "#/editorialAssertions/"+q+"basis/"+r }]
+        for (let q = 0; q < data.editorialAssertions[p].basis.length; q++) {
+          if (q in data.editorialAssertions[p].basis && hasOwn(data.editorialAssertions[p].basis, q)) {
+            if (!(typeof data.editorialAssertions[p].basis[q] === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/basis/items/type", instanceLocation: "#/editorialAssertions/"+p+"basis/"+q }]
               return false
             }
-            if (!(pattern0.test(data.editorialAssertions[q].basis[r]))) {
-              validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/basis/items/pattern", instanceLocation: "#/editorialAssertions/"+q+"basis/"+r }]
-              return false
-            }
-          }
-        }
-        if (!unique(data.editorialAssertions[q].basis)) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/basis/uniqueItems", instanceLocation: "#/editorialAssertions/"+q+"/basis" }]
-          return false
-        }
-        if (!(Array.isArray(data.editorialAssertions[q].questions))) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/questions/type", instanceLocation: "#/editorialAssertions/"+q+"/questions" }]
-          return false
-        }
-        if (data.editorialAssertions[q].questions.length < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/questions/minItems", instanceLocation: "#/editorialAssertions/"+q+"/questions" }]
-          return false
-        }
-        for (let s = 0; s < data.editorialAssertions[q].questions.length; s++) {
-          if (s in data.editorialAssertions[q].questions && hasOwn(data.editorialAssertions[q].questions, s)) {
-            if (!(typeof data.editorialAssertions[q].questions[s] === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/questions/items/type", instanceLocation: "#/editorialAssertions/"+q+"questions/"+s }]
-              return false
-            }
-            if (!(pattern0.test(data.editorialAssertions[q].questions[s]))) {
-              validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/questions/items/pattern", instanceLocation: "#/editorialAssertions/"+q+"questions/"+s }]
+            if (!(pattern0.test(data.editorialAssertions[p].basis[q]))) {
+              validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/basis/items/pattern", instanceLocation: "#/editorialAssertions/"+p+"basis/"+q }]
               return false
             }
           }
         }
-        if (!unique(data.editorialAssertions[q].questions)) {
-          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/questions/uniqueItems", instanceLocation: "#/editorialAssertions/"+q+"/questions" }]
+        if (!unique(data.editorialAssertions[p].basis)) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/basis/uniqueItems", instanceLocation: "#/editorialAssertions/"+p+"/basis" }]
           return false
         }
-        for (const key6 of Object.keys(data.editorialAssertions[q])) {
-          if (key6 !== "id" && key6 !== "statement" && key6 !== "proponent" && key6 !== "basis" && key6 !== "questions") {
-            validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/additionalProperties", instanceLocation: "#/editorialAssertions/"+q+"/"+pointerPart(key6) }]
+        if (!(Array.isArray(data.editorialAssertions[p].questions))) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/questions/type", instanceLocation: "#/editorialAssertions/"+p+"/questions" }]
+          return false
+        }
+        if (data.editorialAssertions[p].questions.length < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/questions/minItems", instanceLocation: "#/editorialAssertions/"+p+"/questions" }]
+          return false
+        }
+        for (let r = 0; r < data.editorialAssertions[p].questions.length; r++) {
+          if (r in data.editorialAssertions[p].questions && hasOwn(data.editorialAssertions[p].questions, r)) {
+            if (!(typeof data.editorialAssertions[p].questions[r] === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/questions/items/type", instanceLocation: "#/editorialAssertions/"+p+"questions/"+r }]
+              return false
+            }
+            if (!(pattern0.test(data.editorialAssertions[p].questions[r]))) {
+              validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/questions/items/pattern", instanceLocation: "#/editorialAssertions/"+p+"questions/"+r }]
+              return false
+            }
+          }
+        }
+        if (!unique(data.editorialAssertions[p].questions)) {
+          validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/properties/questions/uniqueItems", instanceLocation: "#/editorialAssertions/"+p+"/questions" }]
+          return false
+        }
+        for (const key5 of Object.keys(data.editorialAssertions[p])) {
+          if (key5 !== "id" && key5 !== "statement" && key5 !== "proponent" && key5 !== "basis" && key5 !== "questions") {
+            validate.errors = [{ keywordLocation: "#/properties/editorialAssertions/items/additionalProperties", instanceLocation: "#/editorialAssertions/"+p+"/"+pointerPart(key5) }]
             return false
           }
         }
@@ -1156,189 +1170,67 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/omissions/maxItems", instanceLocation: "#/omissions" }]
     return false
   }
-  for (let t = 0; t < data.omissions.length; t++) {
-    if (t in data.omissions && hasOwn(data.omissions, t)) {
-      let passes1 = 0
-      const sub2 = (() => {
-        if (!(typeof data.omissions[t] === "object" && data.omissions[t] && !Array.isArray(data.omissions[t]))) return false
-        if (!("selection" in data.omissions[t] && hasOwn(data.omissions[t], "selection"))) return false
-        if (!("question" in data.omissions[t] && hasOwn(data.omissions[t], "question"))) return false
-        if (!("medium" in data.omissions[t] && hasOwn(data.omissions[t], "medium"))) return false
-        if (!("disposition" in data.omissions[t] && hasOwn(data.omissions[t], "disposition"))) return false
-        if (!("view" in data.omissions[t] && hasOwn(data.omissions[t], "view"))) return false
-        if (!("reason" in data.omissions[t] && hasOwn(data.omissions[t], "reason"))) return false
-        if (!(typeof data.omissions[t].selection === "string")) return false
-        if (!(pattern0.test(data.omissions[t].selection))) return false
-        if (!(typeof data.omissions[t].question === "string")) return false
-        if (!(pattern0.test(data.omissions[t].question))) return false
-        if (!(data.omissions[t].medium === "static" || data.omissions[t].medium === "interactive")) return false
-        if (!(data.omissions[t].disposition === "outside-question" || data.omissions[t].disposition === "explicit-limit")) return false
-        if (!(typeof data.omissions[t].view === "string")) return false
-        if (!(pattern0.test(data.omissions[t].view))) return false
-        if (!(typeof data.omissions[t].reason === "string")) return false
-        if (data.omissions[t].reason.length > 2048 && stringLength(data.omissions[t].reason) > 2048) return false
-        if (data.omissions[t].reason.length < 1 || stringLength(data.omissions[t].reason) < 1) return false
-        if (!(pattern1.test(data.omissions[t].reason))) return false
-        for (const key7 of Object.keys(data.omissions[t])) {
-          if (key7 !== "selection" && key7 !== "question" && key7 !== "medium" && key7 !== "disposition" && key7 !== "view" && key7 !== "reason") return false
+  for (let s = 0; s < data.omissions.length; s++) {
+    if (s in data.omissions && hasOwn(data.omissions, s)) {
+      let passes0 = 0
+      const sub0 = (() => {
+        if (!(typeof data.omissions[s] === "object" && data.omissions[s] && !Array.isArray(data.omissions[s]))) return false
+        if (!("selection" in data.omissions[s] && hasOwn(data.omissions[s], "selection"))) return false
+        if (!("question" in data.omissions[s] && hasOwn(data.omissions[s], "question"))) return false
+        if (!("medium" in data.omissions[s] && hasOwn(data.omissions[s], "medium"))) return false
+        if (!("disposition" in data.omissions[s] && hasOwn(data.omissions[s], "disposition"))) return false
+        if (!("view" in data.omissions[s] && hasOwn(data.omissions[s], "view"))) return false
+        if (!("reason" in data.omissions[s] && hasOwn(data.omissions[s], "reason"))) return false
+        if (!(typeof data.omissions[s].selection === "string")) return false
+        if (!(pattern0.test(data.omissions[s].selection))) return false
+        if (!(typeof data.omissions[s].question === "string")) return false
+        if (!(pattern0.test(data.omissions[s].question))) return false
+        if (!(data.omissions[s].medium === "static" || data.omissions[s].medium === "interactive")) return false
+        if (!(data.omissions[s].disposition === "outside-question" || data.omissions[s].disposition === "explicit-limit")) return false
+        if (!(typeof data.omissions[s].view === "string")) return false
+        if (!(pattern0.test(data.omissions[s].view))) return false
+        if (!(typeof data.omissions[s].reason === "string")) return false
+        if (data.omissions[s].reason.length > 2048 && stringLength(data.omissions[s].reason) > 2048) return false
+        if (data.omissions[s].reason.length < 1 || stringLength(data.omissions[s].reason) < 1) return false
+        if (!(pattern1.test(data.omissions[s].reason))) return false
+        for (const key6 of Object.keys(data.omissions[s])) {
+          if (key6 !== "selection" && key6 !== "question" && key6 !== "medium" && key6 !== "disposition" && key6 !== "view" && key6 !== "reason") return false
         }
         return true
       })()
-      if (sub2) passes1++
-      const sub3 = (() => {
-        if (!(typeof data.omissions[t] === "object" && data.omissions[t] && !Array.isArray(data.omissions[t]))) return false
-        if (!("selection" in data.omissions[t] && hasOwn(data.omissions[t], "selection"))) return false
-        if (!("question" in data.omissions[t] && hasOwn(data.omissions[t], "question"))) return false
-        if (!("medium" in data.omissions[t] && hasOwn(data.omissions[t], "medium"))) return false
-        if (!("disposition" in data.omissions[t] && hasOwn(data.omissions[t], "disposition"))) return false
-        if (!("view" in data.omissions[t] && hasOwn(data.omissions[t], "view"))) return false
-        if (!("coveredIn" in data.omissions[t] && hasOwn(data.omissions[t], "coveredIn"))) return false
-        if (!("reason" in data.omissions[t] && hasOwn(data.omissions[t], "reason"))) return false
-        if (!(typeof data.omissions[t].selection === "string")) return false
-        if (!(pattern0.test(data.omissions[t].selection))) return false
-        if (!(typeof data.omissions[t].question === "string")) return false
-        if (!(pattern0.test(data.omissions[t].question))) return false
-        if (!(data.omissions[t].medium === "static" || data.omissions[t].medium === "interactive")) return false
-        if (!(data.omissions[t].disposition === "covered-elsewhere")) return false
-        if (!(typeof data.omissions[t].view === "string")) return false
-        if (!(pattern0.test(data.omissions[t].view))) return false
-        if (!(typeof data.omissions[t].coveredIn === "string")) return false
-        if (!(pattern0.test(data.omissions[t].coveredIn))) return false
-        if (!(typeof data.omissions[t].reason === "string")) return false
-        if (data.omissions[t].reason.length > 2048 && stringLength(data.omissions[t].reason) > 2048) return false
-        if (data.omissions[t].reason.length < 1 || stringLength(data.omissions[t].reason) < 1) return false
-        if (!(pattern1.test(data.omissions[t].reason))) return false
-        for (const key8 of Object.keys(data.omissions[t])) {
-          if (key8 !== "selection" && key8 !== "question" && key8 !== "medium" && key8 !== "disposition" && key8 !== "view" && key8 !== "coveredIn" && key8 !== "reason") return false
+      if (sub0) passes0++
+      const sub1 = (() => {
+        if (!(typeof data.omissions[s] === "object" && data.omissions[s] && !Array.isArray(data.omissions[s]))) return false
+        if (!("selection" in data.omissions[s] && hasOwn(data.omissions[s], "selection"))) return false
+        if (!("question" in data.omissions[s] && hasOwn(data.omissions[s], "question"))) return false
+        if (!("medium" in data.omissions[s] && hasOwn(data.omissions[s], "medium"))) return false
+        if (!("disposition" in data.omissions[s] && hasOwn(data.omissions[s], "disposition"))) return false
+        if (!("view" in data.omissions[s] && hasOwn(data.omissions[s], "view"))) return false
+        if (!("coveredIn" in data.omissions[s] && hasOwn(data.omissions[s], "coveredIn"))) return false
+        if (!("reason" in data.omissions[s] && hasOwn(data.omissions[s], "reason"))) return false
+        if (!(typeof data.omissions[s].selection === "string")) return false
+        if (!(pattern0.test(data.omissions[s].selection))) return false
+        if (!(typeof data.omissions[s].question === "string")) return false
+        if (!(pattern0.test(data.omissions[s].question))) return false
+        if (!(data.omissions[s].medium === "static" || data.omissions[s].medium === "interactive")) return false
+        if (!(data.omissions[s].disposition === "covered-elsewhere")) return false
+        if (!(typeof data.omissions[s].view === "string")) return false
+        if (!(pattern0.test(data.omissions[s].view))) return false
+        if (!(typeof data.omissions[s].coveredIn === "string")) return false
+        if (!(pattern0.test(data.omissions[s].coveredIn))) return false
+        if (!(typeof data.omissions[s].reason === "string")) return false
+        if (data.omissions[s].reason.length > 2048 && stringLength(data.omissions[s].reason) > 2048) return false
+        if (data.omissions[s].reason.length < 1 || stringLength(data.omissions[s].reason) < 1) return false
+        if (!(pattern1.test(data.omissions[s].reason))) return false
+        for (const key7 of Object.keys(data.omissions[s])) {
+          if (key7 !== "selection" && key7 !== "question" && key7 !== "medium" && key7 !== "disposition" && key7 !== "view" && key7 !== "coveredIn" && key7 !== "reason") return false
         }
         return true
       })()
-      if (sub3) passes1++
-      if (passes1 !== 1) {
-        validate.errors = [{ keywordLocation: "#/properties/omissions/items/oneOf", instanceLocation: "#/omissions/"+t }]
+      if (sub1) passes0++
+      if (passes0 !== 1) {
+        validate.errors = [{ keywordLocation: "#/properties/omissions/items/oneOf", instanceLocation: "#/omissions/"+s }]
         return false
-      }
-    }
-  }
-  if (!Array.isArray(data.transformations)) {
-    validate.errors = [{ keywordLocation: "#/properties/transformations/type", instanceLocation: "#/transformations" }]
-    return false
-  }
-  if (data.transformations.length > 4096) {
-    validate.errors = [{ keywordLocation: "#/properties/transformations/maxItems", instanceLocation: "#/transformations" }]
-    return false
-  }
-  for (let u = 0; u < data.transformations.length; u++) {
-    if (u in data.transformations && hasOwn(data.transformations, u)) {
-      if (!(typeof data.transformations[u] === "object" && data.transformations[u] && !Array.isArray(data.transformations[u]))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/type", instanceLocation: "#/transformations/"+u }]
-        return false
-      }
-      if (!("id" in data.transformations[u] && hasOwn(data.transformations[u], "id"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+u+"/id" }]
-        return false
-      }
-      if (!("kind" in data.transformations[u] && hasOwn(data.transformations[u], "kind"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+u+"/kind" }]
-        return false
-      }
-      if (!("inputs" in data.transformations[u] && hasOwn(data.transformations[u], "inputs"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+u+"/inputs" }]
-        return false
-      }
-      if (!("output" in data.transformations[u] && hasOwn(data.transformations[u], "output"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+u+"/output" }]
-        return false
-      }
-      if (!("proponent" in data.transformations[u] && hasOwn(data.transformations[u], "proponent"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+u+"/proponent" }]
-        return false
-      }
-      if (!("rule" in data.transformations[u] && hasOwn(data.transformations[u], "rule"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+u+"/rule" }]
-        return false
-      }
-      if (!(typeof data.transformations[u].id === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/id/type", instanceLocation: "#/transformations/"+u+"/id" }]
-        return false
-      }
-      if (!(pattern0.test(data.transformations[u].id))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/id/pattern", instanceLocation: "#/transformations/"+u+"/id" }]
-        return false
-      }
-      if (!(data.transformations[u].kind === "group" || data.transformations[u].kind === "aggregate" || data.transformations[u].kind === "compare" || data.transformations[u].kind === "rephrase")) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/kind/enum", instanceLocation: "#/transformations/"+u+"/kind" }]
-        return false
-      }
-      if (!(Array.isArray(data.transformations[u].inputs))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/type", instanceLocation: "#/transformations/"+u+"/inputs" }]
-        return false
-      }
-      if (data.transformations[u].inputs.length < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/minItems", instanceLocation: "#/transformations/"+u+"/inputs" }]
-        return false
-      }
-      for (let v = 0; v < data.transformations[u].inputs.length; v++) {
-        if (v in data.transformations[u].inputs && hasOwn(data.transformations[u].inputs, v)) {
-          if (!(typeof data.transformations[u].inputs[v] === "string")) {
-            validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/items/type", instanceLocation: "#/transformations/"+u+"inputs/"+v }]
-            return false
-          }
-          if (!(pattern0.test(data.transformations[u].inputs[v]))) {
-            validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/items/pattern", instanceLocation: "#/transformations/"+u+"inputs/"+v }]
-            return false
-          }
-        }
-      }
-      if (!unique(data.transformations[u].inputs)) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/uniqueItems", instanceLocation: "#/transformations/"+u+"/inputs" }]
-        return false
-      }
-      if (!(typeof data.transformations[u].output === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/output/type", instanceLocation: "#/transformations/"+u+"/output" }]
-        return false
-      }
-      if (!(pattern0.test(data.transformations[u].output))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/output/pattern", instanceLocation: "#/transformations/"+u+"/output" }]
-        return false
-      }
-      if (!(typeof data.transformations[u].proponent === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/type", instanceLocation: "#/transformations/"+u+"/proponent" }]
-        return false
-      }
-      if (data.transformations[u].proponent.length > 2048 && stringLength(data.transformations[u].proponent) > 2048) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/maxLength", instanceLocation: "#/transformations/"+u+"/proponent" }]
-        return false
-      }
-      if (data.transformations[u].proponent.length < 1 || stringLength(data.transformations[u].proponent) < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/minLength", instanceLocation: "#/transformations/"+u+"/proponent" }]
-        return false
-      }
-      if (!(pattern1.test(data.transformations[u].proponent))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/pattern", instanceLocation: "#/transformations/"+u+"/proponent" }]
-        return false
-      }
-      if (!(typeof data.transformations[u].rule === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/type", instanceLocation: "#/transformations/"+u+"/rule" }]
-        return false
-      }
-      if (data.transformations[u].rule.length > 2048 && stringLength(data.transformations[u].rule) > 2048) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/maxLength", instanceLocation: "#/transformations/"+u+"/rule" }]
-        return false
-      }
-      if (data.transformations[u].rule.length < 1 || stringLength(data.transformations[u].rule) < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/minLength", instanceLocation: "#/transformations/"+u+"/rule" }]
-        return false
-      }
-      if (!(pattern1.test(data.transformations[u].rule))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/pattern", instanceLocation: "#/transformations/"+u+"/rule" }]
-        return false
-      }
-      for (const key9 of Object.keys(data.transformations[u])) {
-        if (key9 !== "id" && key9 !== "kind" && key9 !== "inputs" && key9 !== "output" && key9 !== "proponent" && key9 !== "rule") {
-          validate.errors = [{ keywordLocation: "#/properties/transformations/items/additionalProperties", instanceLocation: "#/transformations/"+u+"/"+pointerPart(key9) }]
-          return false
-        }
       }
     }
   }
@@ -1366,9 +1258,9 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/narrative/properties/summary/pattern", instanceLocation: "#/narrative/summary" }]
     return false
   }
-  for (const key10 of Object.keys(data.narrative)) {
-    if (key10 !== "summary") {
-      validate.errors = [{ keywordLocation: "#/properties/narrative/additionalProperties", instanceLocation: "#/narrative/"+pointerPart(key10) }]
+  for (const key8 of Object.keys(data.narrative)) {
+    if (key8 !== "summary") {
+      validate.errors = [{ keywordLocation: "#/properties/narrative/additionalProperties", instanceLocation: "#/narrative/"+pointerPart(key8) }]
       return false
     }
   }
@@ -1408,185 +1300,185 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/minItems", instanceLocation: "#/presentation/static/views" }]
     return false
   }
-  for (let x = 0; x < data.presentation.static.views.length; x++) {
-    if (x in data.presentation.static.views && hasOwn(data.presentation.static.views, x)) {
-      if (!(typeof data.presentation.static.views[x] === "object" && data.presentation.static.views[x] && !Array.isArray(data.presentation.static.views[x]))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/type", instanceLocation: "#/presentation/static/views/"+x }]
+  for (let t = 0; t < data.presentation.static.views.length; t++) {
+    if (t in data.presentation.static.views && hasOwn(data.presentation.static.views, t)) {
+      if (!(typeof data.presentation.static.views[t] === "object" && data.presentation.static.views[t] && !Array.isArray(data.presentation.static.views[t]))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/type", instanceLocation: "#/presentation/static/views/"+t }]
         return false
       }
-      if (!("id" in data.presentation.static.views[x] && hasOwn(data.presentation.static.views[x], "id"))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/required", instanceLocation: "#/presentation/static/views/"+x+"/id" }]
+      if (!("id" in data.presentation.static.views[t] && hasOwn(data.presentation.static.views[t], "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/required", instanceLocation: "#/presentation/static/views/"+t+"/id" }]
         return false
       }
-      if (!("questions" in data.presentation.static.views[x] && hasOwn(data.presentation.static.views[x], "questions"))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/required", instanceLocation: "#/presentation/static/views/"+x+"/questions" }]
+      if (!("questions" in data.presentation.static.views[t] && hasOwn(data.presentation.static.views[t], "questions"))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/required", instanceLocation: "#/presentation/static/views/"+t+"/questions" }]
         return false
       }
-      if (!(typeof data.presentation.static.views[x].id === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+x+"/id" }]
+      if (!(typeof data.presentation.static.views[t].id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+t+"/id" }]
         return false
       }
-      if (!(pattern0.test(data.presentation.static.views[x].id))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+x+"/id" }]
+      if (!(pattern0.test(data.presentation.static.views[t].id))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+t+"/id" }]
         return false
       }
-      if (!(Array.isArray(data.presentation.static.views[x].questions))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/type", instanceLocation: "#/presentation/static/views/"+x+"/questions" }]
+      if (!(Array.isArray(data.presentation.static.views[t].questions))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/type", instanceLocation: "#/presentation/static/views/"+t+"/questions" }]
         return false
       }
-      if (data.presentation.static.views[x].questions.length < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/minItems", instanceLocation: "#/presentation/static/views/"+x+"/questions" }]
+      if (data.presentation.static.views[t].questions.length < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/minItems", instanceLocation: "#/presentation/static/views/"+t+"/questions" }]
         return false
       }
-      for (let y = 0; y < data.presentation.static.views[x].questions.length; y++) {
-        if (y in data.presentation.static.views[x].questions && hasOwn(data.presentation.static.views[x].questions, y)) {
-          if (!(typeof data.presentation.static.views[x].questions[y] === "string")) {
-            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/items/type", instanceLocation: "#/presentation/static/views/"+x+"questions/"+y }]
+      for (let u = 0; u < data.presentation.static.views[t].questions.length; u++) {
+        if (u in data.presentation.static.views[t].questions && hasOwn(data.presentation.static.views[t].questions, u)) {
+          if (!(typeof data.presentation.static.views[t].questions[u] === "string")) {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/items/type", instanceLocation: "#/presentation/static/views/"+t+"questions/"+u }]
             return false
           }
-          if (!(pattern0.test(data.presentation.static.views[x].questions[y]))) {
-            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/items/pattern", instanceLocation: "#/presentation/static/views/"+x+"questions/"+y }]
+          if (!(pattern0.test(data.presentation.static.views[t].questions[u]))) {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/items/pattern", instanceLocation: "#/presentation/static/views/"+t+"questions/"+u }]
             return false
           }
         }
       }
-      if (!unique(data.presentation.static.views[x].questions)) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/static/views/"+x+"/questions" }]
+      if (!unique(data.presentation.static.views[t].questions)) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/static/views/"+t+"/questions" }]
         return false
       }
-      if ("groups" in data.presentation.static.views[x] && hasOwn(data.presentation.static.views[x], "groups")) {
-        if (!(Array.isArray(data.presentation.static.views[x].groups))) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/type", instanceLocation: "#/presentation/static/views/"+x+"/groups" }]
+      if ("groups" in data.presentation.static.views[t] && hasOwn(data.presentation.static.views[t], "groups")) {
+        if (!(Array.isArray(data.presentation.static.views[t].groups))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/type", instanceLocation: "#/presentation/static/views/"+t+"/groups" }]
           return false
         }
-        if (data.presentation.static.views[x].groups.length > 256) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/maxItems", instanceLocation: "#/presentation/static/views/"+x+"/groups" }]
+        if (data.presentation.static.views[t].groups.length > 256) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/maxItems", instanceLocation: "#/presentation/static/views/"+t+"/groups" }]
           return false
         }
-        if (data.presentation.static.views[x].groups.length < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/minItems", instanceLocation: "#/presentation/static/views/"+x+"/groups" }]
+        if (data.presentation.static.views[t].groups.length < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/minItems", instanceLocation: "#/presentation/static/views/"+t+"/groups" }]
           return false
         }
-        for (let z = 0; z < data.presentation.static.views[x].groups.length; z++) {
-          if (z in data.presentation.static.views[x].groups && hasOwn(data.presentation.static.views[x].groups, z)) {
-            if (!(typeof data.presentation.static.views[x].groups[z] === "object" && data.presentation.static.views[x].groups[z] && !Array.isArray(data.presentation.static.views[x].groups[z]))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/type", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z }]
+        for (let v = 0; v < data.presentation.static.views[t].groups.length; v++) {
+          if (v in data.presentation.static.views[t].groups && hasOwn(data.presentation.static.views[t].groups, v)) {
+            if (!(typeof data.presentation.static.views[t].groups[v] === "object" && data.presentation.static.views[t].groups[v] && !Array.isArray(data.presentation.static.views[t].groups[v]))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v }]
               return false
             }
-            if (!("id" in data.presentation.static.views[x].groups[z] && hasOwn(data.presentation.static.views[x].groups[z], "id"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/id" }]
+            if (!("id" in data.presentation.static.views[t].groups[v] && hasOwn(data.presentation.static.views[t].groups[v], "id"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/id" }]
               return false
             }
-            if (!("label" in data.presentation.static.views[x].groups[z] && hasOwn(data.presentation.static.views[x].groups[z], "label"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/label" }]
+            if (!("label" in data.presentation.static.views[t].groups[v] && hasOwn(data.presentation.static.views[t].groups[v], "label"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/label" }]
               return false
             }
-            if (!("elements" in data.presentation.static.views[x].groups[z] && hasOwn(data.presentation.static.views[x].groups[z], "elements"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/elements" }]
+            if (!("elements" in data.presentation.static.views[t].groups[v] && hasOwn(data.presentation.static.views[t].groups[v], "elements"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/elements" }]
               return false
             }
-            if (!(typeof data.presentation.static.views[x].groups[z].id === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/id" }]
+            if (!(typeof data.presentation.static.views[t].groups[v].id === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/id" }]
               return false
             }
-            if (!(pattern0.test(data.presentation.static.views[x].groups[z].id))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/id" }]
+            if (!(pattern0.test(data.presentation.static.views[t].groups[v].id))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/id" }]
               return false
             }
-            if (!(typeof data.presentation.static.views[x].groups[z].label === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/type", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/label" }]
+            if (!(typeof data.presentation.static.views[t].groups[v].label === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/label" }]
               return false
             }
-            if (data.presentation.static.views[x].groups[z].label.length > 2048 && stringLength(data.presentation.static.views[x].groups[z].label) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/maxLength", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/label" }]
+            if (data.presentation.static.views[t].groups[v].label.length > 2048 && stringLength(data.presentation.static.views[t].groups[v].label) > 2048) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/maxLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/label" }]
               return false
             }
-            if (data.presentation.static.views[x].groups[z].label.length < 1 || stringLength(data.presentation.static.views[x].groups[z].label) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/minLength", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/label" }]
+            if (data.presentation.static.views[t].groups[v].label.length < 1 || stringLength(data.presentation.static.views[t].groups[v].label) < 1) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/minLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/label" }]
               return false
             }
-            if (!(pattern1.test(data.presentation.static.views[x].groups[z].label))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/pattern", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/label" }]
+            if (!(pattern1.test(data.presentation.static.views[t].groups[v].label))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/label" }]
               return false
             }
-            if (!(Array.isArray(data.presentation.static.views[x].groups[z].elements))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/type", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/elements" }]
+            if (!(Array.isArray(data.presentation.static.views[t].groups[v].elements))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/elements" }]
               return false
             }
-            if (data.presentation.static.views[x].groups[z].elements.length > 4096) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/maxItems", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/elements" }]
+            if (data.presentation.static.views[t].groups[v].elements.length > 4096) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/maxItems", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/elements" }]
               return false
             }
-            if (data.presentation.static.views[x].groups[z].elements.length < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/minItems", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/elements" }]
+            if (data.presentation.static.views[t].groups[v].elements.length < 1) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/minItems", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/elements" }]
               return false
             }
-            for (let ii = 0; ii < data.presentation.static.views[x].groups[z].elements.length; ii++) {
-              if (ii in data.presentation.static.views[x].groups[z].elements && hasOwn(data.presentation.static.views[x].groups[z].elements, ii)) {
-                if (!(typeof data.presentation.static.views[x].groups[z].elements[ii] === "object" && data.presentation.static.views[x].groups[z].elements[ii] && !Array.isArray(data.presentation.static.views[x].groups[z].elements[ii]))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/type", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii }]
+            for (let x = 0; x < data.presentation.static.views[t].groups[v].elements.length; x++) {
+              if (x in data.presentation.static.views[t].groups[v].elements && hasOwn(data.presentation.static.views[t].groups[v].elements, x)) {
+                if (!(typeof data.presentation.static.views[t].groups[v].elements[x] === "object" && data.presentation.static.views[t].groups[v].elements[x] && !Array.isArray(data.presentation.static.views[t].groups[v].elements[x]))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x }]
                   return false
                 }
-                if (!("namespace" in data.presentation.static.views[x].groups[z].elements[ii] && hasOwn(data.presentation.static.views[x].groups[z].elements[ii], "namespace"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/namespace" }]
+                if (!("namespace" in data.presentation.static.views[t].groups[v].elements[x] && hasOwn(data.presentation.static.views[t].groups[v].elements[x], "namespace"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/namespace" }]
                   return false
                 }
-                if (!("id" in data.presentation.static.views[x].groups[z].elements[ii] && hasOwn(data.presentation.static.views[x].groups[z].elements[ii], "id"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/id" }]
+                if (!("id" in data.presentation.static.views[t].groups[v].elements[x] && hasOwn(data.presentation.static.views[t].groups[v].elements[x], "id"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/id" }]
                   return false
                 }
-                if (!(typeof data.presentation.static.views[x].groups[z].elements[ii].namespace === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/type", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/namespace" }]
+                if (!(typeof data.presentation.static.views[t].groups[v].elements[x].namespace === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/namespace" }]
                   return false
                 }
-                if (data.presentation.static.views[x].groups[z].elements[ii].namespace.length > 2048 && stringLength(data.presentation.static.views[x].groups[z].elements[ii].namespace) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/maxLength", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/namespace" }]
+                if (data.presentation.static.views[t].groups[v].elements[x].namespace.length > 2048 && stringLength(data.presentation.static.views[t].groups[v].elements[x].namespace) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/maxLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/namespace" }]
                   return false
                 }
-                if (data.presentation.static.views[x].groups[z].elements[ii].namespace.length < 1 || stringLength(data.presentation.static.views[x].groups[z].elements[ii].namespace) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/minLength", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/namespace" }]
+                if (data.presentation.static.views[t].groups[v].elements[x].namespace.length < 1 || stringLength(data.presentation.static.views[t].groups[v].elements[x].namespace) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/minLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/namespace" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.static.views[x].groups[z].elements[ii].namespace))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/pattern", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/namespace" }]
+                if (!(pattern1.test(data.presentation.static.views[t].groups[v].elements[x].namespace))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/namespace" }]
                   return false
                 }
-                if (!(typeof data.presentation.static.views[x].groups[z].elements[ii].id === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/id" }]
+                if (!(typeof data.presentation.static.views[t].groups[v].elements[x].id === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/id" }]
                   return false
                 }
-                if (data.presentation.static.views[x].groups[z].elements[ii].id.length > 2048 && stringLength(data.presentation.static.views[x].groups[z].elements[ii].id) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/maxLength", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/id" }]
+                if (data.presentation.static.views[t].groups[v].elements[x].id.length > 2048 && stringLength(data.presentation.static.views[t].groups[v].elements[x].id) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/maxLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/id" }]
                   return false
                 }
-                if (data.presentation.static.views[x].groups[z].elements[ii].id.length < 1 || stringLength(data.presentation.static.views[x].groups[z].elements[ii].id) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/minLength", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/id" }]
+                if (data.presentation.static.views[t].groups[v].elements[x].id.length < 1 || stringLength(data.presentation.static.views[t].groups[v].elements[x].id) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/minLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/id" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.static.views[x].groups[z].elements[ii].id))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/id" }]
+                if (!(pattern1.test(data.presentation.static.views[t].groups[v].elements[x].id))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/id" }]
                   return false
                 }
-                for (const key11 of Object.keys(data.presentation.static.views[x].groups[z].elements[ii])) {
-                  if (key11 !== "namespace" && key11 !== "id") {
-                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"elements/"+ii+"/"+pointerPart(key11) }]
+                for (const key9 of Object.keys(data.presentation.static.views[t].groups[v].elements[x])) {
+                  if (key9 !== "namespace" && key9 !== "id") {
+                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/"+pointerPart(key9) }]
                     return false
                   }
                 }
               }
             }
-            for (const key12 of Object.keys(data.presentation.static.views[x].groups[z])) {
-              if (key12 !== "id" && key12 !== "label" && key12 !== "elements") {
-                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+x+"groups/"+z+"/"+pointerPart(key12) }]
+            for (const key10 of Object.keys(data.presentation.static.views[t].groups[v])) {
+              if (key10 !== "id" && key10 !== "label" && key10 !== "elements") {
+                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/"+pointerPart(key10) }]
                 return false
               }
             }
           }
         }
       }
-      for (const key13 of Object.keys(data.presentation.static.views[x])) {
-        if (key13 !== "id" && key13 !== "questions" && key13 !== "groups") {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+x+"/"+pointerPart(key13) }]
+      for (const key11 of Object.keys(data.presentation.static.views[t])) {
+        if (key11 !== "id" && key11 !== "questions" && key11 !== "groups") {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"/"+pointerPart(key11) }]
           return false
         }
       }
@@ -1622,9 +1514,9 @@ const ref0 = function validate(data) {
       return false
     }
   }
-  for (const key14 of Object.keys(data.presentation.static)) {
-    if (key14 !== "views" && key14 !== "intent" && key14 !== "width") {
-      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/additionalProperties", instanceLocation: "#/presentation/static/"+pointerPart(key14) }]
+  for (const key12 of Object.keys(data.presentation.static)) {
+    if (key12 !== "views" && key12 !== "intent" && key12 !== "width") {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/additionalProperties", instanceLocation: "#/presentation/static/"+pointerPart(key12) }]
       return false
     }
   }
@@ -1652,185 +1544,185 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/minItems", instanceLocation: "#/presentation/interactive/views" }]
     return false
   }
-  for (let jj = 0; jj < data.presentation.interactive.views.length; jj++) {
-    if (jj in data.presentation.interactive.views && hasOwn(data.presentation.interactive.views, jj)) {
-      if (!(typeof data.presentation.interactive.views[jj] === "object" && data.presentation.interactive.views[jj] && !Array.isArray(data.presentation.interactive.views[jj]))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/type", instanceLocation: "#/presentation/interactive/views/"+jj }]
+  for (let y = 0; y < data.presentation.interactive.views.length; y++) {
+    if (y in data.presentation.interactive.views && hasOwn(data.presentation.interactive.views, y)) {
+      if (!(typeof data.presentation.interactive.views[y] === "object" && data.presentation.interactive.views[y] && !Array.isArray(data.presentation.interactive.views[y]))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/type", instanceLocation: "#/presentation/interactive/views/"+y }]
         return false
       }
-      if (!("id" in data.presentation.interactive.views[jj] && hasOwn(data.presentation.interactive.views[jj], "id"))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+jj+"/id" }]
+      if (!("id" in data.presentation.interactive.views[y] && hasOwn(data.presentation.interactive.views[y], "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+y+"/id" }]
         return false
       }
-      if (!("questions" in data.presentation.interactive.views[jj] && hasOwn(data.presentation.interactive.views[jj], "questions"))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+jj+"/questions" }]
+      if (!("questions" in data.presentation.interactive.views[y] && hasOwn(data.presentation.interactive.views[y], "questions"))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+y+"/questions" }]
         return false
       }
-      if (!(typeof data.presentation.interactive.views[jj].id === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+jj+"/id" }]
+      if (!(typeof data.presentation.interactive.views[y].id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+y+"/id" }]
         return false
       }
-      if (!(pattern0.test(data.presentation.interactive.views[jj].id))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+jj+"/id" }]
+      if (!(pattern0.test(data.presentation.interactive.views[y].id))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+y+"/id" }]
         return false
       }
-      if (!(Array.isArray(data.presentation.interactive.views[jj].questions))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/type", instanceLocation: "#/presentation/interactive/views/"+jj+"/questions" }]
+      if (!(Array.isArray(data.presentation.interactive.views[y].questions))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/type", instanceLocation: "#/presentation/interactive/views/"+y+"/questions" }]
         return false
       }
-      if (data.presentation.interactive.views[jj].questions.length < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/minItems", instanceLocation: "#/presentation/interactive/views/"+jj+"/questions" }]
+      if (data.presentation.interactive.views[y].questions.length < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/minItems", instanceLocation: "#/presentation/interactive/views/"+y+"/questions" }]
         return false
       }
-      for (let kk = 0; kk < data.presentation.interactive.views[jj].questions.length; kk++) {
-        if (kk in data.presentation.interactive.views[jj].questions && hasOwn(data.presentation.interactive.views[jj].questions, kk)) {
-          if (!(typeof data.presentation.interactive.views[jj].questions[kk] === "string")) {
-            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/type", instanceLocation: "#/presentation/interactive/views/"+jj+"questions/"+kk }]
+      for (let z = 0; z < data.presentation.interactive.views[y].questions.length; z++) {
+        if (z in data.presentation.interactive.views[y].questions && hasOwn(data.presentation.interactive.views[y].questions, z)) {
+          if (!(typeof data.presentation.interactive.views[y].questions[z] === "string")) {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/type", instanceLocation: "#/presentation/interactive/views/"+y+"questions/"+z }]
             return false
           }
-          if (!(pattern0.test(data.presentation.interactive.views[jj].questions[kk]))) {
-            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/pattern", instanceLocation: "#/presentation/interactive/views/"+jj+"questions/"+kk }]
+          if (!(pattern0.test(data.presentation.interactive.views[y].questions[z]))) {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/pattern", instanceLocation: "#/presentation/interactive/views/"+y+"questions/"+z }]
             return false
           }
         }
       }
-      if (!unique(data.presentation.interactive.views[jj].questions)) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/interactive/views/"+jj+"/questions" }]
+      if (!unique(data.presentation.interactive.views[y].questions)) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/interactive/views/"+y+"/questions" }]
         return false
       }
-      if ("groups" in data.presentation.interactive.views[jj] && hasOwn(data.presentation.interactive.views[jj], "groups")) {
-        if (!(Array.isArray(data.presentation.interactive.views[jj].groups))) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/type", instanceLocation: "#/presentation/interactive/views/"+jj+"/groups" }]
+      if ("groups" in data.presentation.interactive.views[y] && hasOwn(data.presentation.interactive.views[y], "groups")) {
+        if (!(Array.isArray(data.presentation.interactive.views[y].groups))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/type", instanceLocation: "#/presentation/interactive/views/"+y+"/groups" }]
           return false
         }
-        if (data.presentation.interactive.views[jj].groups.length > 256) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/maxItems", instanceLocation: "#/presentation/interactive/views/"+jj+"/groups" }]
+        if (data.presentation.interactive.views[y].groups.length > 256) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/maxItems", instanceLocation: "#/presentation/interactive/views/"+y+"/groups" }]
           return false
         }
-        if (data.presentation.interactive.views[jj].groups.length < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/minItems", instanceLocation: "#/presentation/interactive/views/"+jj+"/groups" }]
+        if (data.presentation.interactive.views[y].groups.length < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/minItems", instanceLocation: "#/presentation/interactive/views/"+y+"/groups" }]
           return false
         }
-        for (let ll = 0; ll < data.presentation.interactive.views[jj].groups.length; ll++) {
-          if (ll in data.presentation.interactive.views[jj].groups && hasOwn(data.presentation.interactive.views[jj].groups, ll)) {
-            if (!(typeof data.presentation.interactive.views[jj].groups[ll] === "object" && data.presentation.interactive.views[jj].groups[ll] && !Array.isArray(data.presentation.interactive.views[jj].groups[ll]))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/type", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll }]
+        for (let ii = 0; ii < data.presentation.interactive.views[y].groups.length; ii++) {
+          if (ii in data.presentation.interactive.views[y].groups && hasOwn(data.presentation.interactive.views[y].groups, ii)) {
+            if (!(typeof data.presentation.interactive.views[y].groups[ii] === "object" && data.presentation.interactive.views[y].groups[ii] && !Array.isArray(data.presentation.interactive.views[y].groups[ii]))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/type", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii }]
               return false
             }
-            if (!("id" in data.presentation.interactive.views[jj].groups[ll] && hasOwn(data.presentation.interactive.views[jj].groups[ll], "id"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/id" }]
+            if (!("id" in data.presentation.interactive.views[y].groups[ii] && hasOwn(data.presentation.interactive.views[y].groups[ii], "id"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/id" }]
               return false
             }
-            if (!("label" in data.presentation.interactive.views[jj].groups[ll] && hasOwn(data.presentation.interactive.views[jj].groups[ll], "label"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/label" }]
+            if (!("label" in data.presentation.interactive.views[y].groups[ii] && hasOwn(data.presentation.interactive.views[y].groups[ii], "label"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/label" }]
               return false
             }
-            if (!("elements" in data.presentation.interactive.views[jj].groups[ll] && hasOwn(data.presentation.interactive.views[jj].groups[ll], "elements"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/elements" }]
+            if (!("elements" in data.presentation.interactive.views[y].groups[ii] && hasOwn(data.presentation.interactive.views[y].groups[ii], "elements"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/elements" }]
               return false
             }
-            if (!(typeof data.presentation.interactive.views[jj].groups[ll].id === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/id" }]
+            if (!(typeof data.presentation.interactive.views[y].groups[ii].id === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/id" }]
               return false
             }
-            if (!(pattern0.test(data.presentation.interactive.views[jj].groups[ll].id))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/id" }]
+            if (!(pattern0.test(data.presentation.interactive.views[y].groups[ii].id))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/id" }]
               return false
             }
-            if (!(typeof data.presentation.interactive.views[jj].groups[ll].label === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/type", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/label" }]
+            if (!(typeof data.presentation.interactive.views[y].groups[ii].label === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/type", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/label" }]
               return false
             }
-            if (data.presentation.interactive.views[jj].groups[ll].label.length > 2048 && stringLength(data.presentation.interactive.views[jj].groups[ll].label) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/maxLength", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/label" }]
+            if (data.presentation.interactive.views[y].groups[ii].label.length > 2048 && stringLength(data.presentation.interactive.views[y].groups[ii].label) > 2048) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/maxLength", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/label" }]
               return false
             }
-            if (data.presentation.interactive.views[jj].groups[ll].label.length < 1 || stringLength(data.presentation.interactive.views[jj].groups[ll].label) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/minLength", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/label" }]
+            if (data.presentation.interactive.views[y].groups[ii].label.length < 1 || stringLength(data.presentation.interactive.views[y].groups[ii].label) < 1) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/minLength", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/label" }]
               return false
             }
-            if (!(pattern1.test(data.presentation.interactive.views[jj].groups[ll].label))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/pattern", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/label" }]
+            if (!(pattern1.test(data.presentation.interactive.views[y].groups[ii].label))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/pattern", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/label" }]
               return false
             }
-            if (!(Array.isArray(data.presentation.interactive.views[jj].groups[ll].elements))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/type", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/elements" }]
+            if (!(Array.isArray(data.presentation.interactive.views[y].groups[ii].elements))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/type", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/elements" }]
               return false
             }
-            if (data.presentation.interactive.views[jj].groups[ll].elements.length > 4096) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/maxItems", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/elements" }]
+            if (data.presentation.interactive.views[y].groups[ii].elements.length > 4096) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/maxItems", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/elements" }]
               return false
             }
-            if (data.presentation.interactive.views[jj].groups[ll].elements.length < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/minItems", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/elements" }]
+            if (data.presentation.interactive.views[y].groups[ii].elements.length < 1) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/minItems", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/elements" }]
               return false
             }
-            for (let mm = 0; mm < data.presentation.interactive.views[jj].groups[ll].elements.length; mm++) {
-              if (mm in data.presentation.interactive.views[jj].groups[ll].elements && hasOwn(data.presentation.interactive.views[jj].groups[ll].elements, mm)) {
-                if (!(typeof data.presentation.interactive.views[jj].groups[ll].elements[mm] === "object" && data.presentation.interactive.views[jj].groups[ll].elements[mm] && !Array.isArray(data.presentation.interactive.views[jj].groups[ll].elements[mm]))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/type", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm }]
+            for (let jj = 0; jj < data.presentation.interactive.views[y].groups[ii].elements.length; jj++) {
+              if (jj in data.presentation.interactive.views[y].groups[ii].elements && hasOwn(data.presentation.interactive.views[y].groups[ii].elements, jj)) {
+                if (!(typeof data.presentation.interactive.views[y].groups[ii].elements[jj] === "object" && data.presentation.interactive.views[y].groups[ii].elements[jj] && !Array.isArray(data.presentation.interactive.views[y].groups[ii].elements[jj]))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/type", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj }]
                   return false
                 }
-                if (!("namespace" in data.presentation.interactive.views[jj].groups[ll].elements[mm] && hasOwn(data.presentation.interactive.views[jj].groups[ll].elements[mm], "namespace"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/namespace" }]
+                if (!("namespace" in data.presentation.interactive.views[y].groups[ii].elements[jj] && hasOwn(data.presentation.interactive.views[y].groups[ii].elements[jj], "namespace"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/namespace" }]
                   return false
                 }
-                if (!("id" in data.presentation.interactive.views[jj].groups[ll].elements[mm] && hasOwn(data.presentation.interactive.views[jj].groups[ll].elements[mm], "id"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/id" }]
+                if (!("id" in data.presentation.interactive.views[y].groups[ii].elements[jj] && hasOwn(data.presentation.interactive.views[y].groups[ii].elements[jj], "id"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/id" }]
                   return false
                 }
-                if (!(typeof data.presentation.interactive.views[jj].groups[ll].elements[mm].namespace === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/type", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/namespace" }]
+                if (!(typeof data.presentation.interactive.views[y].groups[ii].elements[jj].namespace === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/type", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/namespace" }]
                   return false
                 }
-                if (data.presentation.interactive.views[jj].groups[ll].elements[mm].namespace.length > 2048 && stringLength(data.presentation.interactive.views[jj].groups[ll].elements[mm].namespace) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/maxLength", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/namespace" }]
+                if (data.presentation.interactive.views[y].groups[ii].elements[jj].namespace.length > 2048 && stringLength(data.presentation.interactive.views[y].groups[ii].elements[jj].namespace) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/maxLength", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/namespace" }]
                   return false
                 }
-                if (data.presentation.interactive.views[jj].groups[ll].elements[mm].namespace.length < 1 || stringLength(data.presentation.interactive.views[jj].groups[ll].elements[mm].namespace) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/minLength", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/namespace" }]
+                if (data.presentation.interactive.views[y].groups[ii].elements[jj].namespace.length < 1 || stringLength(data.presentation.interactive.views[y].groups[ii].elements[jj].namespace) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/minLength", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/namespace" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.interactive.views[jj].groups[ll].elements[mm].namespace))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/pattern", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/namespace" }]
+                if (!(pattern1.test(data.presentation.interactive.views[y].groups[ii].elements[jj].namespace))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/pattern", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/namespace" }]
                   return false
                 }
-                if (!(typeof data.presentation.interactive.views[jj].groups[ll].elements[mm].id === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/id" }]
+                if (!(typeof data.presentation.interactive.views[y].groups[ii].elements[jj].id === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/id" }]
                   return false
                 }
-                if (data.presentation.interactive.views[jj].groups[ll].elements[mm].id.length > 2048 && stringLength(data.presentation.interactive.views[jj].groups[ll].elements[mm].id) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/maxLength", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/id" }]
+                if (data.presentation.interactive.views[y].groups[ii].elements[jj].id.length > 2048 && stringLength(data.presentation.interactive.views[y].groups[ii].elements[jj].id) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/maxLength", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/id" }]
                   return false
                 }
-                if (data.presentation.interactive.views[jj].groups[ll].elements[mm].id.length < 1 || stringLength(data.presentation.interactive.views[jj].groups[ll].elements[mm].id) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/minLength", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/id" }]
+                if (data.presentation.interactive.views[y].groups[ii].elements[jj].id.length < 1 || stringLength(data.presentation.interactive.views[y].groups[ii].elements[jj].id) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/minLength", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/id" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.interactive.views[jj].groups[ll].elements[mm].id))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/id" }]
+                if (!(pattern1.test(data.presentation.interactive.views[y].groups[ii].elements[jj].id))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/id" }]
                   return false
                 }
-                for (const key15 of Object.keys(data.presentation.interactive.views[jj].groups[ll].elements[mm])) {
-                  if (key15 !== "namespace" && key15 !== "id") {
-                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"elements/"+mm+"/"+pointerPart(key15) }]
+                for (const key13 of Object.keys(data.presentation.interactive.views[y].groups[ii].elements[jj])) {
+                  if (key13 !== "namespace" && key13 !== "id") {
+                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"elements/"+jj+"/"+pointerPart(key13) }]
                     return false
                   }
                 }
               }
             }
-            for (const key16 of Object.keys(data.presentation.interactive.views[jj].groups[ll])) {
-              if (key16 !== "id" && key16 !== "label" && key16 !== "elements") {
-                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+jj+"groups/"+ll+"/"+pointerPart(key16) }]
+            for (const key14 of Object.keys(data.presentation.interactive.views[y].groups[ii])) {
+              if (key14 !== "id" && key14 !== "label" && key14 !== "elements") {
+                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+y+"groups/"+ii+"/"+pointerPart(key14) }]
                 return false
               }
             }
           }
         }
       }
-      for (const key17 of Object.keys(data.presentation.interactive.views[jj])) {
-        if (key17 !== "id" && key17 !== "questions" && key17 !== "groups") {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+jj+"/"+pointerPart(key17) }]
+      for (const key15 of Object.keys(data.presentation.interactive.views[y])) {
+        if (key15 !== "id" && key15 !== "questions" && key15 !== "groups") {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+y+"/"+pointerPart(key15) }]
           return false
         }
       }
@@ -1852,15 +1744,15 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/intent/pattern", instanceLocation: "#/presentation/interactive/intent" }]
     return false
   }
-  for (const key18 of Object.keys(data.presentation.interactive)) {
-    if (key18 !== "views" && key18 !== "intent") {
-      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/additionalProperties", instanceLocation: "#/presentation/interactive/"+pointerPart(key18) }]
+  for (const key16 of Object.keys(data.presentation.interactive)) {
+    if (key16 !== "views" && key16 !== "intent") {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/additionalProperties", instanceLocation: "#/presentation/interactive/"+pointerPart(key16) }]
       return false
     }
   }
-  for (const key19 of Object.keys(data.presentation)) {
-    if (key19 !== "static" && key19 !== "interactive") {
-      validate.errors = [{ keywordLocation: "#/properties/presentation/additionalProperties", instanceLocation: "#/presentation/"+pointerPart(key19) }]
+  for (const key17 of Object.keys(data.presentation)) {
+    if (key17 !== "static" && key17 !== "interactive") {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/additionalProperties", instanceLocation: "#/presentation/"+pointerPart(key17) }]
       return false
     }
   }
@@ -1881,33 +1773,33 @@ const ref0 = function validate(data) {
     return false
   }
   if ("override" in data.visualPolicy && hasOwn(data.visualPolicy, "override")) {
-    const sub4 = (() => {
+    const sub2 = (() => {
       if (!(typeof data.visualPolicy.override === "string")) return false
       if (data.visualPolicy.override.length > 2048 && stringLength(data.visualPolicy.override) > 2048) return false
       if (data.visualPolicy.override.length < 1 || stringLength(data.visualPolicy.override) < 1) return false
       if (!pattern2.test(data.visualPolicy.override)) return false
       return true
     })()
-    if (!sub4) {
-      const sub5 = (() => {
+    if (!sub2) {
+      const sub3 = (() => {
         if (!(data.visualPolicy.override === null)) return false
         return true
       })()
-      if (!sub5) {
+      if (!sub3) {
         validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/override/anyOf", instanceLocation: "#/visualPolicy/override" }]
         return false
       }
     }
   }
-  for (const key20 of Object.keys(data.visualPolicy)) {
-    if (key20 !== "profile" && key20 !== "override") {
-      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/additionalProperties", instanceLocation: "#/visualPolicy/"+pointerPart(key20) }]
+  for (const key18 of Object.keys(data.visualPolicy)) {
+    if (key18 !== "profile" && key18 !== "override") {
+      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/additionalProperties", instanceLocation: "#/visualPolicy/"+pointerPart(key18) }]
       return false
     }
   }
-  for (const key21 of Object.keys(data)) {
-    if (key21 !== "schema" && key21 !== "id" && key21 !== "editor" && key21 !== "title" && key21 !== "audiences" && key21 !== "questions" && key21 !== "scope" && key21 !== "editorialAssertions" && key21 !== "omissions" && key21 !== "transformations" && key21 !== "narrative" && key21 !== "presentation" && key21 !== "visualPolicy") {
-      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key21) }]
+  for (const key19 of Object.keys(data)) {
+    if (key19 !== "schema" && key19 !== "id" && key19 !== "editor" && key19 !== "title" && key19 !== "audiences" && key19 !== "questions" && key19 !== "scope" && key19 !== "editorialAssertions" && key19 !== "omissions" && key19 !== "narrative" && key19 !== "presentation" && key19 !== "visualPolicy") {
+      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key19) }]
       return false
     }
   }

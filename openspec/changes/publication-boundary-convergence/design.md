@@ -124,15 +124,15 @@ One actor or repository may hold several roles; co-location does not merge
 their authority. For an Edition spanning multiple products, none of its source
 repositories silently becomes editor, accepter, or custodian for the others.
 
-| Concern                                                        | Authority or accountable role                                      | Publisher can establish                                                             | Publisher cannot infer                                        |
-| -------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Native model, domain schema, and source claim                  | Source or format owner; a claimant is named per assertion          | Exact selected bytes, format/version, reference and declared claimant               | That a maintained statement is implemented or true            |
-| Import mapping and supported constructs                        | Adapter owner, with source review when official                    | Adapter identity, recognized constructs, structural preservation, reported loss     | Domain equivalence from an opaque extension                   |
-| Reader question, scope, abstraction, narrative, art direction  | Edition editor                                                     | Selection consistency, trace and declared transformation checks; editing assistance | Editorial adequacy or source endorsement                      |
-| Universal input, Edition, Candidate and qualification protocol | Publisher                                                          | Versioned shape, derived identities, provenance, finite generic predicates          | Authority over domain-specific vocabularies                   |
-| Observation of implementation or rendered behavior             | Predicate-specific verifier                                        | Exact subject, verifier, method, result and limits                                  | Independence merely because a report is signed or exported    |
-| Acceptance and release decision                                | Designated accepter under the relevant product or editorial policy | Bind the decision to an exact Candidate and named policy                            | Approval from a green build or co-located file                |
-| Artifact custody and retention                                 | Selected custodian                                                 | Authorized local plan/apply/recover mechanics and receipt                           | Forge publication, off-host recovery, or indefinite retention |
+| Concern                                                        | Authority or accountable role                                      | Publisher can establish                                                         | Publisher cannot infer                                        |
+| -------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Native model, domain schema, and source claim                  | Source or format owner; a claimant is named per assertion          | Exact selected bytes, format/version, reference and declared claimant           | That a maintained statement is implemented or true            |
+| Import mapping and supported constructs                        | Adapter owner, with source review when official                    | Adapter identity, recognized constructs, structural preservation, reported loss | Domain equivalence from an opaque extension                   |
+| Reader question, scope, abstraction, narrative, art direction  | Edition editor                                                     | Selection consistency, trace and selected-basis checks; editing assistance      | Editorial adequacy or source endorsement                      |
+| Universal input, Edition, Candidate and qualification protocol | Publisher                                                          | Versioned shape, derived identities, provenance, finite generic predicates      | Authority over domain-specific vocabularies                   |
+| Observation of implementation or rendered behavior             | Predicate-specific verifier                                        | Exact subject, verifier, method, result and limits                              | Independence merely because a report is signed or exported    |
+| Acceptance and release decision                                | Designated accepter under the relevant product or editorial policy | Bind the decision to an exact Candidate and named policy                        | Approval from a green build or co-located file                |
+| Artifact custody and retention                                 | Selected custodian                                                 | Authorized local plan/apply/recover mechanics and receipt                       | Forge publication, off-host recovery, or indefinite retention |
 
 A maintainer may review their own work where the selected policy permits it.
 A source maintainer's approval of a design statement is not proof of deployed
@@ -162,7 +162,7 @@ The authored Build Request selects:
   native format identifier and version, selected revision/time basis, declared
   claimant, and either an authoring locator or an already pinned input reference;
 - one Edition project root with audience, reader questions, scope, selected
-  source references or queries, declared exclusions and transformations,
+  source references, declared exclusions and attributed editorial assertions,
   narrative, static/interactive expectations, and optional visual overrides;
 - output media and a selected qualified toolchain profile.
 
@@ -599,8 +599,8 @@ structural and declared rules; source-specific semantic adequacy remains a
 scoped proof or review question.
 
 A conflict between selected sources, or between target and implemented planes,
-may be the subject of an Edition. Broken input and self-contradictory
-transformation declarations block the affected Candidate; attributable source
+may be the subject of an Edition. Broken input and unadmitted transformation
+declarations block the affected Candidate at input validation; attributable source
 disagreement does not. Concealment or silent resolution of disagreement is
 forbidden. Public media must visibly distinguish target, current observation,
 editorial proposal, and unresolved difference where that distinction changes
@@ -676,6 +676,17 @@ changes only the unreleased Edition Project, not valid historical Edition v1
 bytes or meaning.
 Do not add a compact-form compatibility facade or a generated editable
 assertion file.
+
+The initial unreleased Edition Project admits only exact source references.
+Its earlier `query` selection variant and `transformations` array had no
+working compiler consumer: native selectors rejected queries and meaning
+compilation rejected nonempty transformations. Remove both from the authoring
+schema and fail at input validation instead of offering controls that cannot
+produce a Candidate. Editorial assertions still carry a named proponent,
+selected basis and unverified status; they are not silently upgraded into
+source claims. A future query language or transformation rule needs its own
+versioned meaning, bounded execution and real adopter acceptance before it
+can re-enter authoring.
 
 The AIGW cost probe establishes duplicated authoring, not successor media
 fitness. Its relation-plus-claim selection currently reaches meaning but both
@@ -873,7 +884,7 @@ acceptance using strong unchanged-meaning/unchanged-visual evidence; the
 Publisher reports that evidence but does not grant the policy or decision.
 
 Qualification distinguishes source binding, structural carrier trace,
-declared transformation checks, domain/predicate verification, actual visual
+admitted transformation checks when supported, domain/predicate verification, actual visual
 readability, browser behavior, accessibility, installed/offline behavior,
 recovery, and human editorial assessment. Each result names exact subject,
 verifier, method, scope, and limit. One result never impersonates another.
@@ -903,7 +914,7 @@ executable at the contract boundary:
    identities. A cross-source relation has a named proponent; different source
    times are not represented as one simultaneous observation.
 2. Target/current conflict can be published as an explicit comparison. A
-   broken input or self-contradictory transformation fails; mere disagreement
+   broken input or unadmitted transformation fails; mere disagreement
    is not silently hidden or globally blocked.
 3. di-effect's native LikeC4 sources enter without a tracked duplicate Claim
    Model. Existing source views may be reused, but a reader-specific chapter

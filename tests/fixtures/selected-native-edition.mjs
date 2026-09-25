@@ -37,7 +37,6 @@ export async function selectedNativeEdition(t, options = {}) {
       limits: [],
     },
     omissions: [],
-    transformations: [],
     narrative: { summary: 'One selected structural view.' },
     presentation: {
       static: {

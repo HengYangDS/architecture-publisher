@@ -49,7 +49,6 @@ function editionProject() {
       limits: [],
     },
     omissions: [],
-    transformations: [],
     narrative: { summary: 'The selected source.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'A clear overview.' },

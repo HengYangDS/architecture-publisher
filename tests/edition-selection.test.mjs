@@ -39,7 +39,6 @@ function project() {
       },
     ],
     omissions: [],
-    transformations: [],
     narrative: { summary: 'A scoped system view.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },

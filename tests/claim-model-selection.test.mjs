@@ -64,7 +64,6 @@ async function fixture(
       limits: [],
     },
     omissions: [],
-    transformations: [],
     narrative: {
       summary: 'Keep the authorization condition visible.',
     },

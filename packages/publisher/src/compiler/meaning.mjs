@@ -47,7 +47,6 @@ export async function compileEditionMeaning(input) {
   );
   if (project.id !== lock.edition.id || project.editor !== lock.edition.editor)
     fail('edition_meaning_input_invalid');
-  if (project.transformations.length) fail('edition_transformation_unadmitted');
   const media = lock.media;
   if (
     !Array.isArray(media) ||

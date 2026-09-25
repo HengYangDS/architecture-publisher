@@ -62,7 +62,6 @@ function project() {
         reason: 'The static overview does not show this element.',
       },
     ],
-    transformations: [],
     narrative: { summary: 'A bounded overview.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },
@@ -152,21 +151,6 @@ test('one Edition meaning projection binds source assertions and medium-local ob
   assert.equal(meaning.limits.includes('editorial-proposition-unverified'), false);
   assert.equal(Object.hasOwn(meaning, 'candidate'), false);
   assert.equal(Object.isFrozen(meaning.media.static.views[0]), true);
-});
-
-test('uninterpreted transformation rules cannot become compiled claims', async () => {
-  const authored = project();
-  authored.transformations.push({
-    id: 'claim-group',
-    kind: 'aggregate',
-    inputs: ['model'],
-    output: 'editorial-risk',
-    proponent: 'example-editor',
-    rule: 'Every member has the same runtime behavior.',
-  });
-  await assert.rejects(compiler.compileEditionMeaning(materialized(authored)), {
-    code: 'edition_transformation_unadmitted',
-  });
 });
 
 test('semantic groups must partition the selected elements of their own view', async () => {

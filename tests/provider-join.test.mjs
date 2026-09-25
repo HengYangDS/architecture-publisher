@@ -30,7 +30,6 @@ function editionProject(namespaces) {
     questions: [{ id: 'shape', audience: 'maintainer', text: 'What is selected?' }],
     scope: { sourceNamespaces: namespaces, selections, limits: [] },
     omissions: [],
-    transformations: [],
     narrative: { summary: 'Selected native sources.' },
     presentation: {
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'A clear overview.' },

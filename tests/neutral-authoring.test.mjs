@@ -56,7 +56,6 @@ function editionProject() {
       limits: [],
     },
     omissions: [],
-    transformations: [],
     narrative: { summary: 'The selected source view.' },
     presentation: {
       static: { views: [{ id: 'portrait', questions: ['shape'] }], intent: 'One overview.' },

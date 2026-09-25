@@ -6,7 +6,7 @@
 
 One editor-owned Edition project SHALL select audience, reader questions,
 source namespaces and revisions, scope, required assertions, explicit limits
-and omissions, attributed transformations, narrative, and separate static and
+and omissions, attributed editorial assertions, narrative, and separate static and
 interactive presentation obligations. It SHALL select an exact Edition project
 root without requiring a copy of every native source fact or authored pixel
 geometry. Publisher SHALL derive its lock and Candidate identities from the
@@ -131,7 +131,7 @@ Publisher SHALL own the universal input, Edition, Candidate, qualification,
 and optional local publication contracts. Each source or format owner SHALL
 retain authority over its native model and domain vocabulary. The designated
 Edition editor SHALL own the specific audience, reader questions, scope,
-selection, attribution, transformations, and art direction, whether or not that
+selection, attribution, and art direction, whether or not that
 editor shares a repository with a source. The designated accepter and custodian
 SHALL own their respective decisions. Co-location SHALL NOT merge these roles,
 and a central mutable migration copy SHALL NOT remain a parallel authority.
@@ -352,6 +352,21 @@ definitions and default listing order.
 
 - **WHEN** an editorial assertion is emitted in static and interactive media
 - **THEN** each public medium SHALL visibly identify its proponent and unverified status
+
+### Requirement: Authoring controls have an implemented consumer
+
+The initial unreleased Edition Project SHALL admit exact source references but
+SHALL reject query selections and authored transformation declarations at
+input validation. An editorial assertion SHALL remain an attributed proposal
+with an exact selected basis; it SHALL NOT acquire source authority by being
+called a transformation. A future query or rule requires a new versioned
+contract and an executable consumer before admission.
+
+#### Scenario: Unsupported control is authored
+
+- **WHEN** an author selects a query or adds a transformation field
+- **THEN** Edition validation fails before native import or Candidate effects
+- **AND** no default query engine or guessed transformation is invoked
 
 ### Requirement: Successor qualification records are policy-bound claims
 

@@ -99,25 +99,13 @@ export const BUILD_REQUEST_SCHEMA = deepFreeze({
   }),
 });
 
-const selection = {
-  oneOf: [
-    closed(['id', 'namespace', 'kind', 'reference'], {
-      id: identifier,
-      namespace: text,
-      kind: { const: 'reference' },
-      reference: text,
-      questions: questionIds,
-    }),
-    closed(['id', 'namespace', 'kind', 'language', 'expression'], {
-      id: identifier,
-      namespace: text,
-      kind: { const: 'query' },
-      language: text,
-      expression: text,
-      questions: questionIds,
-    }),
-  ],
-};
+const selection = closed(['id', 'namespace', 'kind', 'reference'], {
+  id: identifier,
+  namespace: text,
+  kind: { const: 'reference' },
+  reference: text,
+  questions: questionIds,
+});
 const editorialAssertion = closed(['id', 'statement', 'proponent', 'basis', 'questions'], {
   id: identifier,
   statement: text,
@@ -158,7 +146,6 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
       'questions',
       'scope',
       'omissions',
-      'transformations',
       'narrative',
       'presentation',
       'visualPolicy',
@@ -232,18 +219,6 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
             ),
           ],
         },
-      },
-      transformations: {
-        type: 'array',
-        maxItems: 4096,
-        items: closed(['id', 'kind', 'inputs', 'output', 'proponent', 'rule'], {
-          id: identifier,
-          kind: { enum: ['group', 'aggregate', 'compare', 'rephrase'] },
-          inputs: { type: 'array', minItems: 1, uniqueItems: true, items: identifier },
-          output: identifier,
-          proponent: text,
-          rule: text,
-        }),
       },
       narrative: closed(['summary'], {
         summary: text,

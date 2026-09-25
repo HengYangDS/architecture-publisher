@@ -8,7 +8,7 @@ Claim Model v2 SHALL remain a validated versioned input with its original
 typed claims and source-bound provenance. A successor MAY instead import an
 admitted native architecture format or attributed projection into a disposable
 view-compilation index. Each adapter SHALL declare supported constructs,
-source-reference quality, transformations, and losses. The index SHALL retain
+source-reference quality, admitted transformations, and losses. The index SHALL retain
 native format identity, exact selected bytes, claimant, typed relation kind,
 direction, plane, condition, scope, provenance, and unknown state where those
 fields are selected. Opaque constructs SHALL remain opaque; the compiler SHALL
@@ -169,8 +169,8 @@ selected predicates, and materialized view membership. It SHALL report
 rebuild, semantic verification, media verification, human review, acceptance,
 and publication separately. Unknown or unrepresented dependencies SHALL
 broaden applicable obligations. A source conflict MAY remain a visible
-subject of an Edition; broken input or self-contradictory editorial
-transformation SHALL block the affected Candidate. The compiler SHALL not
+subject of an Edition; broken input or an unadmitted authored transformation
+SHALL block the affected Candidate at input validation. The compiler SHALL not
 silently resolve disagreement or derive a transitive or universal claim from
 weaker source relations.
 

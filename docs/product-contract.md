@@ -95,6 +95,12 @@ medium views own page order, and each view owns its question order. This
 authoring subtraction does not alter historical Edition v1 contracts or merge
 source truth with editorial judgment.
 
+The initial successor authoring contract accepts exact references, not a
+query or transformation field without an implemented consumer. Such fields
+fail validation rather than promising a Candidate that cannot be built.
+Editorial assertions preserve their proponent and basis without becoming
+source-approved transformations.
+
 A Git repository, SDD tool, documentation service, code graph, telemetry store,
 or project-specific schema is a possible upstream source, not a hidden compiler
 dependency. Its adapter emits an admitted source-bound interpretation or
