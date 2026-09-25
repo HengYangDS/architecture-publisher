@@ -9,6 +9,10 @@ const root = path.resolve(import.meta.dirname, '..');
 test('one fail-closed quality entry point covers the repository contract', async () => {
   const manifest = JSON.parse(await fs.readFile(path.join(root, 'package.json')));
   assert.equal(
+    manifest.scripts.test,
+    'node --import=./tests/fixtures/npm-environment.mjs --test --test-concurrency=2 tests/*.test.mjs',
+  );
+  assert.equal(
     manifest.scripts.check,
     'npm run check:static && npm run test:coverage && npm run check:package',
   );

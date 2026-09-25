@@ -427,6 +427,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       human judgments on final static and interactive bytes for faithfulness,
       readability, hierarchy, density, and visual quality. Do not reuse
       provisional Candidate identities or review after any selected input changes.
+      Interim toolchain correction: host npm 11.19.1 propagated a personal
+      `allow-scripts` setting into nested installed-package tests, producing 16
+      `EALLOWSCRIPTS` failures. The test entry now clears inherited npm config
+      and selects two distinct tracked empty config files, without editing host
+      policy. Focused installed tests pass 9/9; static and package checks pass.
+      Full behavior passes 819 tests, skips 2, and still fails only branch
+      coverage at 92.89%; no release admission is inferred.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%
