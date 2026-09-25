@@ -268,9 +268,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       pinned manifest digest, rejects post-install drift, and gives the public
       native import only the bundled parser; arbitrary callbacks remain an
       unexported adversarial-test seam. The native index records the consumed
-      supply digest. Focused native, supply, and boundary tests pass 41/41; the
-      full run passes 791 tests, skips 2, while the 95% branch gate remains
-      failed at 92.80%. Static checks pass. The exact di-effect probes,
+      supply digest. Adversarial conformance now covers invalid selected bytes,
+      upstream locations, model endpoints, and view membership. The full run
+      passes 794 tests, skips 2, while the 95% branch gate remains failed at
+      93.22%. Static checks pass. The exact di-effect probes,
       guarded-bundle/Linux results, license inventory, and limits are in
       `docs/research/mechanism-evaluation.md`. Open: race-free parser loading,
       complete read closure, full include/query semantics, bounded execution,

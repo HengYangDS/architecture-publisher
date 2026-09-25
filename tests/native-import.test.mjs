@@ -45,6 +45,30 @@ function selection(
   };
 }
 
+function parserWith({ locate, elements, relations, views }) {
+  return async (sources, options) => {
+    const upstream = await fromSources(sources, options);
+    const computed = upstream.syncComputedModel();
+    return {
+      documentPaths: () => upstream.documentPaths(),
+      languageServices: {
+        getErrors: () => upstream.languageServices.getErrors(),
+        locate: (query) => {
+          const original = upstream.languageServices.locate(query);
+          return locate ? locate(original, query) : original;
+        },
+      },
+      ensureSingleProject: () => upstream.ensureSingleProject(),
+      syncComputedModel: () => ({
+        elements: () => (elements ? elements([...computed.elements()]) : computed.elements()),
+        relationships: () =>
+          relations ? relations([...computed.relationships()]) : computed.relationships(),
+        views: () => (views ? views([...computed.views()]) : computed.views()),
+      }),
+    };
+  };
+}
+
 test('public native import selects the verified bundled parser and rejects overrides', async () => {
   const index = await semantics.importLikeC4Native(selection());
   const manifest = await fs.readFile(
@@ -196,30 +220,12 @@ test('native metadata is retained as opaque values, not inferred claims', async 
 });
 
 test('native metadata with hidden fields cannot be silently dropped', async () => {
-  const parser = async (sources, options) => {
-    const upstream = await fromSources(sources, options);
-    const model = upstream.syncComputedModel();
-    return {
-      documentPaths: () => upstream.documentPaths(),
-      languageServices: upstream.languageServices,
-      ensureSingleProject: () => upstream.ensureSingleProject(),
-      syncComputedModel: () => ({
-        elements: () =>
-          [...model.elements()].map((element, index) =>
-            index === 0
-              ? {
-                  id: element.id,
-                  kind: element.kind,
-                  title: element.title,
-                  metadata: { [Symbol('hidden')]: 'unselected' },
-                }
-              : element,
-          ),
-        relationships: () => model.relationships(),
-        views: () => model.views(),
-      }),
-    };
-  };
+  const parser = parserWith({
+    elements: (items) =>
+      items.map((element, index) =>
+        index === 0 ? { ...element, metadata: { [Symbol('hidden')]: 'unselected' } } : element,
+      ),
+  });
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_metadata_invalid',
   });
@@ -323,69 +329,35 @@ test('native LikeC4 import rejects an ambient document with a selected basename'
 });
 
 test('native LikeC4 import refuses a location outside selected virtual documents', async () => {
-  const parser = async (sources, options) => {
-    const selected = await fromSources(sources, options);
-    return {
-      documentPaths: () => selected.documentPaths(),
-      languageServices: {
-        getErrors: () => selected.languageServices.getErrors(),
-        locate: (query) => {
-          const location = selected.languageServices.locate(query);
-          return location && { ...location, uri: location.uri.replace('/workspace/', '/ambient/') };
-        },
-      },
-      ensureSingleProject: () => selected.ensureSingleProject(),
-      syncComputedModel: () => selected.syncComputedModel(),
-    };
-  };
+  const parser = parserWith({
+    locate: (location) =>
+      location && { ...location, uri: location.uri.replace('/workspace/', '/ambient/') },
+  });
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_source_reference_unselected',
   });
 });
 
 test('native LikeC4 import fails when an authored view loses its source location', async () => {
-  const parser = async (sources, options) => {
-    const selected = await fromSources(sources, options);
-    return {
-      documentPaths: () => selected.documentPaths(),
-      languageServices: {
-        getErrors: () => selected.languageServices.getErrors(),
-        locate: (query) =>
-          query.view === 'overview' ? null : selected.languageServices.locate(query),
-      },
-      ensureSingleProject: () => selected.ensureSingleProject(),
-      syncComputedModel: () => selected.syncComputedModel(),
-    };
-  };
+  const parser = parserWith({
+    locate: (location, query) => (query.view === 'overview' ? null : location),
+  });
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_source_reference_missing',
   });
 });
 
 test('native LikeC4 import rejects a source range outside its selected bytes', async () => {
-  const parser = async (sources, options) => {
-    const selected = await fromSources(sources, options);
-    return {
-      documentPaths: () => selected.documentPaths(),
-      languageServices: {
-        getErrors: () => selected.languageServices.getErrors(),
-        locate: (query) => {
-          const location = selected.languageServices.locate(query);
-          return (
-            location && {
-              ...location,
-              range: {
-                start: { line: 999, character: 0 },
-                end: { line: 999, character: 0 },
-              },
-            }
-          );
+  const parser = parserWith({
+    locate: (location) =>
+      location && {
+        ...location,
+        range: {
+          start: { line: 999, character: 0 },
+          end: { line: 999, character: 0 },
         },
       },
-      ensureSingleProject: () => selected.ensureSingleProject(),
-      syncComputedModel: () => selected.syncComputedModel(),
-    };
-  };
+  });
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
     code: 'native_likec4_source_reference_invalid',
   });
@@ -459,4 +431,173 @@ test('native LikeC4 import indexes selected source lines once for many reference
   } finally {
     String.prototype.split = original;
   }
+});
+
+test('native import rejects malformed selected sources before parser execution', async () => {
+  const invalidSelections = [
+    [null, 'native_likec4_selection_invalid'],
+    [{ ...selection(), lock: { schema: 'other', sources: [] } }, 'native_likec4_selection_invalid'],
+    [
+      { ...selection(), lock: { schema: 'architecture.materialized-input-lock/v1', sources: [] } },
+      'native_likec4_sources_missing',
+    ],
+  ];
+  for (const [selected, code] of invalidSelections)
+    await assert.rejects(importLikeC4NativeWithParser(selected, fromSources), { code });
+
+  const wrongVersion = selection();
+  wrongVersion.lock.sources[0].format.version = '1';
+  await assert.rejects(importLikeC4NativeWithParser(wrongVersion, fromSources), {
+    code: 'native_likec4_selection_invalid',
+  });
+  const wrongNamespace = selection();
+  wrongNamespace.lock.sources[0].namespace = '';
+  await assert.rejects(importLikeC4NativeWithParser(wrongNamespace, fromSources), {
+    code: 'native_likec4_selection_invalid',
+  });
+  const wrongDigest = selection();
+  wrongDigest.lock.sources[0].sha256 = 'invalid';
+  await assert.rejects(importLikeC4NativeWithParser(wrongDigest, fromSources), {
+    code: 'native_likec4_selection_invalid',
+  });
+  const wrongBytes = selection();
+  wrongBytes.readSource = () => 'not bytes';
+  await assert.rejects(importLikeC4NativeWithParser(wrongBytes, fromSources), {
+    code: 'native_likec4_digest_mismatch',
+  });
+  const invalidUtf8 = selection(new Map([['example/model', Buffer.from([0xff])]]));
+  await assert.rejects(importLikeC4NativeWithParser(invalidUtf8, fromSources), {
+    code: 'native_likec4_utf8_invalid',
+  });
+  await assert.rejects(importLikeC4NativeWithParser(selection(), null), {
+    code: 'native_likec4_parser_required',
+  });
+  await assert.rejects(
+    importLikeC4NativeWithParser(selection(), async () => {
+      throw Error('upstream failure');
+    }),
+    { code: 'native_likec4_parse_invalid' },
+  );
+});
+
+test('native import rejects malformed upstream source locations', async () => {
+  const invalidLocations = [
+    [(location) => ({ ...location, uri: '%not-a-url' }), 'native_likec4_source_reference_invalid'],
+    [
+      (location) => ({ ...location, uri: location.uri.replace('virtual:', 'file:') }),
+      'native_likec4_source_reference_invalid',
+    ],
+    [
+      (location) => ({ ...location, uri: 'virtual:/workspace/%XX.c4' }),
+      'native_likec4_source_reference_invalid',
+    ],
+    [
+      (location) => ({ ...location, uri: 'virtual:/workspace/missing.c4' }),
+      'native_likec4_source_reference_unselected',
+    ],
+    [(location) => ({ ...location, range: null }), 'native_likec4_source_reference_invalid'],
+    [
+      (location) => ({
+        ...location,
+        range: { start: { line: 0, character: 2 }, end: { line: 0, character: 1 } },
+      }),
+      'native_likec4_source_reference_invalid',
+    ],
+    [
+      (location) => ({
+        ...location,
+        range: { start: { line: 0, character: 0 }, end: { line: 0, character: 1000 } },
+      }),
+      'native_likec4_source_reference_invalid',
+    ],
+  ];
+  for (const [rewrite, code] of invalidLocations)
+    await assert.rejects(
+      importLikeC4NativeWithParser(selection(), parserWith({ locate: rewrite })),
+      {
+        code,
+      },
+    );
+});
+
+test('native import refuses upstream model and view inconsistencies', async () => {
+  const selectedView = (edit) => (items) =>
+    items.map((view) => (view.id === 'overview' ? edit(view) : view));
+  const viewWith = (
+    view,
+    definition,
+    members = () => view.elements(),
+    edges = () => view.edges(),
+  ) => ({
+    id: view.id,
+    $view: { ...view.$view, ...definition },
+    elements: members,
+    edges,
+  });
+  const invalidModels = [
+    [
+      {
+        elements: (items) =>
+          items.map((item, index) => (index ? item : { ...item, metadata: null })),
+      },
+      'native_likec4_metadata_invalid',
+    ],
+    [
+      { locate: (location, query) => (query.element === 'left' ? null : location) },
+      'native_likec4_source_reference_missing',
+    ],
+    [
+      { relations: (items) => items.map((item) => ({ ...item, source: { id: 'ghost' } })) },
+      'native_likec4_source_reference_missing',
+    ],
+    [
+      { views: selectedView((view) => viewWith(view, { _type: '' })) },
+      'native_likec4_view_type_invalid',
+    ],
+    [
+      {
+        locate: (location, query) =>
+          query.view === 'index'
+            ? {
+                uri: `virtual:/workspace/${sha('example/views')}.c4`,
+                range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
+              }
+            : location,
+      },
+      'native_likec4_source_reference_invalid',
+    ],
+    [
+      { views: selectedView((view) => viewWith(view, { sourcePath: 0 })) },
+      'native_likec4_source_reference_invalid',
+    ],
+    [
+      {
+        views: selectedView((view) => viewWith(view, { sourcePath: `${sha('example/model')}.c4` })),
+      },
+      'native_likec4_source_reference_invalid',
+    ],
+    [
+      {
+        views: selectedView((view) =>
+          viewWith(view, {}, () => [...view.elements(), { id: 'ghost' }]),
+        ),
+      },
+      'native_likec4_view_element_unselected',
+    ],
+    [
+      {
+        views: selectedView((view) =>
+          viewWith(
+            view,
+            {},
+            () => view.elements(),
+            () => [{ relationships: () => [{ id: 'ghost' }] }],
+          ),
+        ),
+      },
+      'native_likec4_view_relation_unselected',
+    ],
+  ];
+  for (const [rewrite, code] of invalidModels)
+    await assert.rejects(importLikeC4NativeWithParser(selection(), parserWith(rewrite)), { code });
 });
