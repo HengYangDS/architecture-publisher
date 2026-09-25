@@ -274,8 +274,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       private copy's result. Focused native and boundary tests pass 55/55;
       static, strict OpenSpec, and package checks pass. Full behavior passes
       810 tests, skips 2; branch coverage remains 92.95% against the 95% gate.
-      Open: complete read closure, full include/query semantics, native installed
-      Linux and Windows, visible semantic coverage, formal supply admission, and
+      A networkless, read-only Linux Node 26.9 container installed the packed
+      package offline and parsed a two-element fixture through its public export;
+      this is an installed smoke test, not the full Linux conformance matrix.
+      The public importer also parsed frozen di-effect commit `8a168b6b` into
+      25 elements, 35 relations, three authored views, and one generated view
+      from the three hash-checked native files. Open: complete read closure,
+      full include/query semantics, Linux full conformance and Windows native
+      installation, visible semantic coverage, formal supply admission, and
       the final coverage gate. The di-effect and supply probes and limits are in
       `docs/research/mechanism-evaluation.md`. No Adapter package or second
       command plane was introduced.
