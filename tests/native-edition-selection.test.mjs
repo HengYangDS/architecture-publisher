@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import * as compiler from '../packages/publisher/src/compiler/index.mjs';
+import { compileEditionNativeSelections } from '../packages/publisher/src/compiler/native.mjs';
 import { materializeBuildRequestInput } from '../packages/publisher/src/provider/index.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -112,9 +112,9 @@ async function fixture(
 }
 
 test('native Edition compilation binds selected meaning without a duplicate Claim Model', async (t) => {
-  assert.equal(typeof compiler.compileEditionNativeSelections, 'function');
+  assert.equal(typeof compileEditionNativeSelections, 'function');
   const selected = await fixture(t);
-  const result = await compiler.compileEditionNativeSelections(selected);
+  const result = await compileEditionNativeSelections(selected);
   assert.equal(result.subjectLockSha256, selected.lockSha256);
   assert.match(result.semanticDigest, /^[0-9a-f]{64}$/u);
   assert.deepEqual(
@@ -132,25 +132,23 @@ test('native Edition compilation binds selected meaning without a duplicate Clai
 });
 
 test('relocation preserves meaning while changed selected bytes create a new identity', async (t) => {
-  const first = await compiler.compileEditionNativeSelections(await fixture(t));
-  const relocated = await compiler.compileEditionNativeSelections(await fixture(t));
+  const first = await compileEditionNativeSelections(await fixture(t));
+  const relocated = await compileEditionNativeSelections(await fixture(t));
   assert.deepEqual(relocated, first);
-  const changed = await compiler.compileEditionNativeSelections(
-    await fixture(t, { label: 'Changed' }),
-  );
+  const changed = await compileEditionNativeSelections(await fixture(t, { label: 'Changed' }));
   assert.notEqual(changed.subjectLockSha256, first.subjectLockSha256);
   assert.notEqual(changed.semanticDigest, first.semanticDigest);
   assert.equal(changed.selections[0].members.elements[0].label, 'Changed');
 });
 
 test('editorial and toolchain changes alter the lock but not selected native meaning', async (t) => {
-  const first = await compiler.compileEditionNativeSelections(await fixture(t));
+  const first = await compileEditionNativeSelections(await fixture(t));
   for (const change of [
     { narrative: 'A different editorial summary.' },
     { visualProfile: 'restrained' },
     { toolchainProfile: 'candidate-layout' },
   ]) {
-    const next = await compiler.compileEditionNativeSelections(await fixture(t, change));
+    const next = await compileEditionNativeSelections(await fixture(t, change));
     assert.notEqual(next.subjectLockSha256, first.subjectLockSha256);
     assert.equal(next.semanticDigest, first.semanticDigest);
     assert.deepEqual(next.selections, first.selections);
@@ -159,15 +157,15 @@ test('editorial and toolchain changes alter the lock but not selected native mea
 
 test('native compilation fails closed on an unresolved or unadmitted source reference', async (t) => {
   const unknown = await fixture(t, { target: 'element:absent' });
-  await assert.rejects(compiler.compileEditionNativeSelections(unknown), {
+  await assert.rejects(compileEditionNativeSelections(unknown), {
     code: 'native_likec4_reference_unselected',
   });
   const unsupported = await fixture(t, { format: 'example/native' });
-  await assert.rejects(compiler.compileEditionNativeSelections(unsupported), {
+  await assert.rejects(compileEditionNativeSelections(unsupported), {
     code: 'native_format_unadmitted',
   });
   const mixed = await fixture(t, { extraUnselected: true });
-  await assert.rejects(compiler.compileEditionNativeSelections(mixed), {
+  await assert.rejects(compileEditionNativeSelections(mixed), {
     code: 'native_format_unadmitted',
   });
 });
@@ -176,7 +174,7 @@ test('native compilation rejects a missing limit envelope and unbound input iden
   const selected = await fixture(t);
   const withoutLimits = { ...selected };
   delete withoutLimits.limits;
-  await assert.rejects(compiler.compileEditionNativeSelections(withoutLimits), {
+  await assert.rejects(compileEditionNativeSelections(withoutLimits), {
     code: 'edition_native_input_invalid',
   });
   for (const changed of [
@@ -185,13 +183,13 @@ test('native compilation rejects a missing limit envelope and unbound input iden
     { ...selected, readEdition: () => '{}' },
     { ...selected, readSource: null },
   ])
-    await assert.rejects(compiler.compileEditionNativeSelections(changed), {
+    await assert.rejects(compileEditionNativeSelections(changed), {
       code: 'edition_native_input_invalid',
     });
   const mismatchedEdition = structuredClone(selected.lock);
   mismatchedEdition.edition.id = 'other-editorial-root';
   await assert.rejects(
-    compiler.compileEditionNativeSelections({
+    compileEditionNativeSelections({
       ...selected,
       lock: mismatchedEdition,
       lockSha256: sha(Buffer.from(JSON.stringify(mismatchedEdition))),

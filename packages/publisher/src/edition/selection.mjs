@@ -12,7 +12,8 @@ function mediaQuestions(project, medium) {
   return [...new Set(project.presentation[medium].views.flatMap(({ questions }) => questions))];
 }
 
-function questionObligations(project, media) {
+/** Derive finite view/question obligations from the sole authored Edition project. */
+export function deriveEditionQuestionObligations(project, media) {
   const assertionsFor = (question) =>
     project.requiredAssertions.filter(({ questions }) => questions.includes(question));
   const orderedIds = (ids) =>
@@ -163,7 +164,7 @@ export function assembleEditionSelection({
   );
   if (project.questions.some(({ id }) => !selectedQuestions.has(id)))
     fail('materialized_selected_media_incomplete');
-  const obligations = questionObligations(project, request.media);
+  const obligations = deriveEditionQuestionObligations(project, request.media);
 
   const sourceNamespaceById = new Map(request.sources.map(({ id, namespace }) => [id, namespace]));
   const readEvidence = Object.freeze({

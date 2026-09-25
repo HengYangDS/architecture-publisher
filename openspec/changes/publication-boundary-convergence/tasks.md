@@ -346,10 +346,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       unanswered view questions fail. Focused, static, and package checks pass.
       An additional RED/GREEN preserves exact scope- and omission-limit reasons
       at each view/question, without transferring a limit between media. The
-      seven focused tests and static/package checks pass; the current full run
-      passes 825 tests, skips 2, but branch coverage remains 92.90% against
-      95%. Source-backed membership, aggregation, contradictions,
-      visible carriers, and reader adequacy remain open.
+      seven focused tests pass. A single Edition meaning projection now joins
+      locked source selections to source-attributed and explicitly unverified
+      editorial assertions, with medium-local question and limit obligations.
+      Uninterpreted transformations fail rather than minting stronger claims;
+      editorial assertions in one medium do not impose a global limit on the
+      other. Its five focused tests pass and the new module has 100% branch
+      coverage. The native selection stage remains internal; the package exposes
+      one Edition meaning entry rather than two public compiler phases. Static
+      and package checks pass; the full run passes 830 tests, skips 2, but
+      global branch coverage remains 92.94% against 95%. No
+      Candidate, visible carrier, or acceptance is claimed. Native view
+      membership qualification, aggregation, contradictions, and reader
+      adequacy remain open.
 - [ ] 5.2 Using the selected foundation from Task 1, provide an explainable
       neutral first build and bounded local refinement without author-written
       renderer code, duplicate facts, or pixel geometry. In
