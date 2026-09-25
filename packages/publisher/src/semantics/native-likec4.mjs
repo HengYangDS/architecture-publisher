@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { deepFreeze, jsonValue, record } from './document.mjs';
-import { loadLikeC4ParserSupply } from './supply.mjs';
+import { executeLikeC4Native } from './native-execution.mjs';
+import { readLikeC4ParserSupply } from './supply.mjs';
 import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
 
 const sha = (value) => createHash('sha256').update(value).digest('hex');
@@ -33,6 +34,7 @@ function selectedSources(selection) {
 
   const files = {};
   const byFile = new Map();
+  const contents = new Map();
   let total = 0;
   for (const source of sources) {
     if (
@@ -45,6 +47,7 @@ function selectedSources(selection) {
     const bytes = selection.readSource(source.namespace);
     if (!Buffer.isBuffer(bytes) || sha(bytes) !== source.sha256)
       fail('native_likec4_digest_mismatch');
+    contents.set(source.namespace, Buffer.from(bytes));
     total += bytes.length;
     if (bytes.length > LIMITS.memberBytes || total > LIMITS.totalBytes)
       fail('native_likec4_size_exceeded');
@@ -62,7 +65,7 @@ function selectedSources(selection) {
       lineLengths: text.split(/\r\n|\n|\r/u).map((line) => line.length),
     });
   }
-  return { files, byFile, sources };
+  return { files, byFile, sources, contents };
 }
 
 function sourceForPath(file, byFile) {
@@ -282,10 +285,10 @@ export async function importLikeC4NativeWithParser(selection, fromSources) {
 /** Public native import selects only the verified parser bundled with Publisher. */
 export async function importLikeC4Native(selection) {
   if (arguments.length !== 1) fail('native_likec4_parser_override_forbidden');
-  const supply = await loadLikeC4ParserSupply();
-  const index = await importLikeC4NativeWithParser(selection, supply.fromSources);
-  return deepFreeze({
-    ...index,
-    parserSupply: { id: 'likec4-parser', sha256: supply.sha256 },
-  });
+  const { sources, contents } = selectedSources(selection);
+  const supply = await readLikeC4ParserSupply();
+  return executeLikeC4Native(
+    sources.map((source) => ({ source, content: contents.get(source.namespace) })),
+    supply,
+  );
 }

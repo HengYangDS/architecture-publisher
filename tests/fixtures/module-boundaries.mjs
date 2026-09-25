@@ -24,6 +24,14 @@ const owners = [
     ],
   ],
   [
+    'packages/publisher/src/semantics/native-execution.mjs',
+    [
+      'packages/publisher/src/semantics/',
+      'packages/publisher/src/source/',
+      'packages/publisher/src/runtime/process-tree.mjs',
+    ],
+  ],
+  [
     'packages/publisher/src/index.mjs',
     [
       'packages/publisher/src/compiler/index.mjs',
@@ -292,9 +300,9 @@ export function inspectModuleBoundaries(
       )
         return;
       if (
-        file === 'packages/publisher/src/semantics/supply.mjs' &&
+        file === 'packages/publisher/src/semantics/native-worker.mjs' &&
         node.source.type === 'Identifier' &&
-        node.source.name === 'verifiedParserUrl'
+        node.source.name === 'privateParserUrl'
       )
         return;
       reference(node, node.source);

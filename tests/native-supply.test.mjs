@@ -174,18 +174,18 @@ test('installed LikeC4 supply verifies exact bytes and rejects post-install drif
   );
   assert.equal(installed.status, 0, installed.stderr);
   const packageRoot = path.join(consumer, 'node_modules/architecture-publisher');
-  const { loadLikeC4ParserSupply } = await import(
+  const { readLikeC4ParserSupply } = await import(
     pathToFileURL(path.join(packageRoot, 'src/semantics/supply.mjs')).href
   );
   const supplied = path.join(packageRoot, 'supplies/likec4');
   const parser = path.join(supplied, 'parser.mjs');
   const notices = path.join(supplied, 'THIRD-PARTY-NOTICES.txt');
   const manifest = path.join(supplied, 'supply.json');
-  const verified = await loadLikeC4ParserSupply();
+  const verified = await readLikeC4ParserSupply();
   assert.equal(verified.sha256, sha(await fs.readFile(manifest)));
   assert.equal(verified.parserSha256, sha(await fs.readFile(parser)));
-  assert.equal(verified.parserPath, parser);
-  assert.equal(typeof verified.fromSources, 'function');
+  assert.deepEqual(verified.parserBytes, await fs.readFile(parser));
+  assert.equal(Object.hasOwn(verified, 'fromSources'), false);
   const { importLikeC4Native } = await import(
     pathToFileURL(path.join(packageRoot, 'src/semantics/index.mjs')).href
   );
@@ -218,15 +218,33 @@ test('installed LikeC4 supply verifies exact bytes and rejects post-install drif
   assert.equal(index.relations.length, 1);
   assert.deepEqual(index.parserSupply, { id: 'likec4-parser', sha256: verified.sha256 });
 
+  const { executeLikeC4Native } = await import(
+    pathToFileURL(path.join(packageRoot, 'src/semantics/native-execution.mjs')).href
+  );
+  const originalParser = await fs.readFile(parser);
+  try {
+    await fs.writeFile(parser, Buffer.concat([originalParser, Buffer.from('drift')]));
+    const privateIndex = await executeLikeC4Native(
+      [...selectedBytes].map(([namespace, content]) => ({
+        source: selection.lock.sources.find((source) => source.namespace === namespace),
+        content,
+      })),
+      verified,
+    );
+    assert.equal(privateIndex.elements.length, 2);
+  } finally {
+    await fs.writeFile(parser, originalParser);
+  }
+
   for (const file of [parser, notices, manifest]) {
     const original = await fs.readFile(file);
     await fs.writeFile(file, Buffer.concat([original, Buffer.from('drift')]));
-    await assert.rejects(loadLikeC4ParserSupply(), { code: 'native_likec4_supply_invalid' });
+    await assert.rejects(readLikeC4ParserSupply(), { code: 'native_likec4_supply_invalid' });
     await fs.writeFile(file, original);
   }
   const unexpected = path.join(supplied, 'unexpected.txt');
   await fs.writeFile(unexpected, 'unselected');
-  await assert.rejects(loadLikeC4ParserSupply(), { code: 'native_likec4_supply_invalid' });
+  await assert.rejects(readLikeC4ParserSupply(), { code: 'native_likec4_supply_invalid' });
   await fs.rm(unexpected);
-  assert.equal((await loadLikeC4ParserSupply()).sha256, verified.sha256);
+  assert.equal((await readLikeC4ParserSupply()).sha256, verified.sha256);
 });

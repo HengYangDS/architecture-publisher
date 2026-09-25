@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { readFileEnvelope } from '../source/files.mjs';
 import { fail } from '../source/manifest.mjs';
 
@@ -35,23 +35,13 @@ async function verifyLikeC4Supply() {
     const parser = verified.members.find(({ path: name }) => name === 'parser.mjs');
     return Object.freeze({
       sha256: verified.manifestSha256,
-      parserPath: path.join(supplyRoot, 'parser.mjs'),
       parserSha256: parser.sha256,
+      parserBytes: Buffer.from(parser.content),
     });
   } catch (cause) {
     throw Object.assign(new Error(supplyError, { cause }), { code: supplyError });
   }
 }
 
-/** Load only the parser whose installed bytes passed package-owned admission. */
-export async function loadLikeC4ParserSupply() {
-  const supply = await verifyLikeC4Supply();
-  try {
-    const verifiedParserUrl = pathToFileURL(supply.parserPath).href;
-    const parser = await import(verifiedParserUrl);
-    if (typeof parser.fromSources !== 'function') fail(supplyError);
-    return Object.freeze({ ...supply, fromSources: parser.fromSources });
-  } catch (cause) {
-    throw Object.assign(new Error(supplyError, { cause }), { code: supplyError });
-  }
-}
+/** Return exact verified bytes; never dynamically load the mutable installed path. */
+export const readLikeC4ParserSupply = verifyLikeC4Supply;

@@ -211,10 +211,18 @@ test('only the LikeC4 supply owner may read the bundled parser resource', async 
       packageExports,
     ).some(({ reason }) => reason.includes('forbidden dependency')),
   );
-  assert.deepEqual(
+  assert(
     inspectModuleBoundaries(
       'packages/publisher/src/semantics/supply.mjs',
-      'import(verifiedParserUrl);',
+      'import(unselectedUrl);',
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('computed dependency')),
+  );
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      'packages/publisher/src/semantics/native-worker.mjs',
+      'import(privateParserUrl);',
       paths,
       packageExports,
     ),
@@ -222,8 +230,8 @@ test('only the LikeC4 supply owner may read the bundled parser resource', async 
   );
   assert(
     inspectModuleBoundaries(
-      'packages/publisher/src/semantics/supply.mjs',
-      'import(unselectedUrl);',
+      'packages/publisher/src/semantics/native-worker.mjs',
+      'import(installedParserUrl);',
       paths,
       packageExports,
     ).some(({ reason }) => reason.includes('computed dependency')),
