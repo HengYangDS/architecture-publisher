@@ -388,7 +388,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       Fresh Chrome/axe checks again found four complete pages, no console
       errors, no mobile horizontal overflow and no WCAG 2/2.1 A/AA violations.
       The new HTML bytes are still provisional and not human-approved.
-      Open: source-owner-approved authoring, installed paired conformance,
+      Open: source-owner-approved authoring, installed exact-AIGW paired parity,
       reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure
       requires replacement. Static, package and strict OpenSpec checks pass;
@@ -416,13 +416,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       outside HTML. Tests cover 6000px and 1800px choices, identical Candidate
       identity across fresh output locations, one-medium selection, later-medium
       failure without a complete output, immutable pins, and unsupported
-      toolchain rejection. Packed installation reproduces both media after
-      relocation without the source repository. Exact built HTML passes Chrome
-      offline, responsive, and axe WCAG 2/2.1 A/AA checks; legacy self-hosted
-      golden identity was regenerated against selected installed bytes. Static,
-      package, and strict OpenSpec checks pass. The latest full run passes 907
-      tests, skips 2, and fails only the global branch-coverage floor
-      (93.81% < 95%).
+      toolchain rejection. The existing packed-offline journey now exercises
+      both LikeC4 and mixed Claim Model inputs through relocated sibling media
+      and exact Candidate replay without a source repository or a second pack
+      harness. The source-adjacent mixed Chrome check is Task 5.2, not packed-
+      browser acceptance. The earlier neutral browser case passed offline,
+      responsive and axe checks; final installed bytes still require Task 7.5.
+      Static, package and strict OpenSpec checks pass; the branch coverage
+      deficit remains the Task 7.5 gate.
       Visible semantic coverage, human visual review, qualification binding,
       full platform evidence, and release remain open.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
