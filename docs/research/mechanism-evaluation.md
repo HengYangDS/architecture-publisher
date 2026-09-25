@@ -1060,11 +1060,25 @@ static-geometry supplier**: mature structured node and edge output, permissive
 license, small verified bundle, and no new runtime dependency. It is not a
 public backend registry or a quality verdict. Its first packaged AIGW view must
 retain all selected typed claims and pass exact graphic-binding, overflow,
-browser, and visual counterexamples. A failed reader-quality gate warrants
-replacing this one supplier with ELK or Viz.js, not shipping all three. The
+browser, and visual counterexamples. Replace this supplier only for a
+geometry-specific failure; fix an overloaded Edition or compositor at that
+owner, rather than replacing a layout engine to conceal the cause. The
 larger `@antv/layout` dependency graph and DAG-only `d3-dag` do not remove an
 observed requirement here. Sources were read via GitHub CLI and npm metadata
 on 2026-09-25 UTC; package licenses are not legal clearance.
+
+A later unqualified local build selected all 11 relations and all 11 matching
+claims for one AIGW overview question. Its 1800×3928 static PNG
+(`81cebed49617df06d27570c1c12b91c06f925db4194ad3077116a60e63e12857`)
+placed a small topology above eleven full-field claim cards while repeating
+entity and relation records in a side column. It fails reader hierarchy and
+space use despite preserving source text. The source model distinguishes
+topology from implemented claims; their separate semantic identities do not
+require two complete visual copies. This result disqualifies the present
+field-dump composition, not Dagre geometry. Neither the temporary build nor
+its HTML is a packaged or accepted product artifact. A second bounded grouping
+and wide-layout attempt produced a 1800×4538 PNG and remained a text inventory;
+its uncommitted code was discarded rather than extending the failed approach.
 
 ## Concurrent path mutation and capability-bound reading (2026-09-25)
 

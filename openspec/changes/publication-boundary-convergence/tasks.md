@@ -444,7 +444,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       closed. Open: full adopter/platform parity, native evolution, input
       closure, final visual review, and the 95% branch-coverage release gate.
       Ruling: trial one private Dagre supply for Claim Model topology, not as
-      semantic authority; replace it if exact AIGW reader-quality gates fail.
+      semantic authority. A local 12/11/11 AIGW build exposed an overloaded
+      one-question Edition and full-field compositor; its 1800×3928 static
+      output fails reader quality. Keep this task open. First test exact
+      relation/claim compound carriers and editorial grouping without losing
+      distinct identities or qualifiers; replace the geometry supply only if a
+      geometry-specific counterexample remains. The unqualified local prototype
+      was discarded; do not add a second backend to disguise this failure.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

@@ -683,22 +683,29 @@ This Scene remains an unqualified compilation input, not rendered SVG/PNG or
 reader acceptance; interactive composition owns its own geometry and path.
 
 For a selected Claim Model claim, the first neutral grammar is a typed reading
-plate rather than an invented graph edge. Both media visibly carry subject,
-predicate, object or value, plane, condition, scope, maturity, validity,
-coverage, selected claimant, declared model owner, and declared evidence
-authority as separate roles; source-qualified IDs remain in
-private carrier maps. Static and interactive plates have independent layout.
-Claim-only HTML does not load a graph engine it does not use. Entity, relation,
-and mixed-model media remain unadmitted until their distinct visible grammar
-is verified. This baseline is not flagship visual acceptance.
+plate rather than an invented graph edge. Both media visibly distinguish
+subject, predicate, object or value, plane, condition, scope, maturity,
+validity, coverage, selected claimant, declared model owner, and declared
+evidence authority. Identical values may be expressed once for an explicitly
+identified group only when the grouping is exact and exceptions remain visible;
+repeating the entire source record for every relation is not editorial
+composition. Source-qualified IDs remain in private carrier maps. Static and
+interactive plates have independent layout. Claim-only HTML does not load a
+graph engine it does not use. Entity, relation, and mixed-model media remain
+unadmitted until their distinct visible grammar is verified. This baseline is
+not flagship visual acceptance.
 
 For a structural Claim Model view, one private Dagre geometry supply is the
 provisional low-cost choice, subject to packaged AIGW reader-quality and
-source-binding counterexamples. It may place entities and route relations; it
-may not turn a relation arrow into proof of a claim's plane, condition, scope,
-validity, or provenance. The typed claim plate remains a separate visible
-carrier. Do not add a public layout registry or keep multiple backends merely
-because the first geometry probe was visually imperfect.
+source-binding counterexamples. It may place entities and route relations; an
+unadorned relation arrow does not prove a claim's plane, condition, scope,
+validity, or provenance. A claim may instead share a compound visible carrier
+with its corresponding relation if the two meanings are visibly distinguished,
+each required field is expressed or explicitly limited, and each identity is
+bound independently in the private carrier map. A geometry-specific failure
+can disqualify Dagre; an overloaded Edition or field-dump compositor cannot.
+Do not add a public layout registry or keep multiple backends merely because
+the first composition was visually imperfect.
 
 A visible assertion must be linked to a source or editorial claim, and every
 required claim for that medium must have a visible carrier for coverage to
