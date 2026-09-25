@@ -146,90 +146,23 @@ third-party or generated supply rather than moving owned code outside coverage.
 
 - [ ] 3.1 Extend `packages/publisher/src/provider/` with
       `architecture.edition-provider/v2` and the existing build route so direct,
-      declarative, and executable selection yield one closed
-      native/authored/derived input envelope before compilation. Tests in
-      `tests/edition-provider-contract.test.mjs` reject ambiguous mode/root,
-      missing `derivedFrom`, unselected input, and Candidate/acceptance/publication
-      claims; multi-source claimants remain distinct. Partial evidence: a
-      separate v2 manifest validator admits one exact mode, distinct native and
-      derived claimants, selected ancestry, optional authored Edition, and
-      transport-independent expected bytes; executable native/Edition items
-      must map to exact selected input bytes. It rejects extra later-stage
-      claims and portable path aliases. A declarative-file reader verifies
-      exact selected bytes, expands native ancestry, and keeps unverified
-      adapter code outside selected content identity. Successor Provider,
-      Build Request, and Edition Project readers reject duplicate JSON keys
-      without changing v1 parsing or rejecting formatted JSON. A single
-      internal lock sealer now canonicalizes native namespaces, derived
-      ancestry, Edition resource references, selected media, and object-key
-      order. It rejects duplicate native namespaces and complete derived
-      semantic tuples while ignoring Provider-local IDs. It rejects missing or
-      legacy Edition resource fields rather than silently sealing false
-      equivalence. The direct result binds read methods to the exact lock
-      outside semantic identity. The Build Request join now binds direct,
-      declarative, and executable selected contributions into the same lock,
-      rejects conflicting Edition owners and unselected Provider Edition
-      resources, and keeps invocation receipts outside content identity. The
-      executable path checks an exact installed package, selected inputs, and
-      expected derived reply bytes through the existing process-tree supervisor;
-      mixed-mode and direct/Provider Edition cases preserve selected identity.
-      Selected Edition resources now use one logical reference and exact bytes
-      through direct, declarative, or executable delivery; altered resource
-      bytes change the lock rather than being read ambiently.
-      The unreleased v2 Provider and lock now give every derived projection a
-      globally unique semantic namespace distinct from native and Provider-local
-      IDs. Edition authors name only the projections they address; internal
-      Provider outputs need no duplicate editorial list. Cross-Provider
-      collisions, missing or unused Edition addresses fail; local ID renaming
-      preserves lock identity. Focused RED/GREEN, installed Provider, static,
-      package, and warning-free strict OpenSpec checks pass. The full behavior
-      run passes 991 tests with four skips; branch coverage remains 93.25%
-      against the 95% release floor. Candidate compilation still consumes
-      LikeC4 native input only, so ETHOS/AIGW common-compiler conformance is
-      not claimed.
-      Focused Provider, supervisor, and module-boundary tests passed; static
-      and package checks passed. The full behavior run passed 745 tests,
-      skipped 2, with no test failures; branch coverage is 93.06% against the
-      95% release gate, so `npm run check` remains red.
-      An independently reproduced ancestor-symlink race leaves confinement
-      under concurrent mutation unproved and explicitly limited; this is a
-      release-blocking spec gap, not proof of escaping-input rejection. A
-      bounded cap-std 4.0.3 macOS probe and alternative transport analysis are
-      recorded in `docs/research/mechanism-evaluation.md`; cross-platform
-      supply and a reviewed choice remain open.
-      Installed executable conformance, complete dependency closure, and CLI
-      dispatch remain open. The package and Provider modes have not passed all
-      Task 3.2–3.3 or final workload gates. No integration or publication is
-      admitted.
-      Ruling: Provider-mode Edition selection names only the selected Provider,
-      whose v2 manifest has at most one Edition item; direct mode alone names
-      filesystem root and manifest. This removes transport-specific duplicate
-      locators before global joining. If wrong, the unreleased Build Request
-      shape changes; historical v1 Provider meanings remain untouched. The
-      join rejects a missing or second Provider Edition, including byte-identical
-      duplicates, and an Edition resource not bound by exact selected bytes.
-      Cross-mode identity must include those resource bytes; no ambient Provider
-      directory may supply them.
-      Ruling: the unreleased v2 Edition descriptor requires a finite resource
-      list; declarative files and executable selected inputs map each logical
-      reference to exact bytes. Direct and Provider resource limits share the
-      Edition authoring owner. No compatibility alias or fallback environmental
-      read is added for the earlier incomplete draft shape.
-      Ruling: external schema IDs and historical data fixtures remain explicitly
-      versioned; source-code filenames name semantic responsibilities, not wire
-      generations. All current version-suffixed code filenames were renamed,
-      including the development migration tool. Internal mode readers are not
-      new public package exports. Historical v1 paths remain until Task 7.2
-      replacement parity permits their retirement; they are not a permanent
-      parallel input authority. The module-boundary gate rejects new
-      first-party version-suffixed source module filenames; a versioned data
-      fixture remains historical contract evidence, not executable source.
-      Ruling: package selection and execution ceilings have neutral owners
-      consumed by both protocols; the process supervisor requires its caller
-      to select the reply validator. Selected Provider modules may not import
-      historical Provider implementations, as the existing module-boundary
-      gate now verifies. This removes a hidden old-protocol default without a
-      compatibility facade or a second supervision mechanism.
+      declarative, and executable selections yield one closed
+      native/authored/derived input envelope before compilation.
+      `tests/edition-provider-contract.test.mjs` rejects ambiguous mode/root,
+      missing ancestry, unselected bytes, and later-stage authority claims;
+      multi-source claimants remain distinct. Partial: the v2 contract, strict
+      selected-byte readers, one manifest verification per join, shared lock
+      sealer, executable supervision, Edition resource binding, and globally
+      distinct native/derived namespaces are implemented. Provider-local IDs
+      and invocation receipts do not alter selected semantic identity. The
+      module-boundary gate excludes a second command plane and version-suffixed
+      implementation filenames. Historical v1 inputs retain their meaning
+      until Task 7.2 proves replacement parity. Open: the reproduced
+      concurrent-ancestor-mutation race leaves input confinement unproved;
+      complete dependency closure, installed successor conformance, and the
+      unchanged 95% coverage gate remain release blockers. Exact race evidence
+      and alternatives belong to `docs/research/mechanism-evaluation.md`, not a
+      copied progress history here.
 - [ ] 3.2 Reuse the bounded process-tree supervisor for one exact selected
       executable entry. `tests/edition-provider-executable.test.mjs` and
       `tests/edition-provider-installed.test.mjs` cover complete package-content
