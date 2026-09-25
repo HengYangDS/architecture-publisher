@@ -311,6 +311,48 @@ emitted. An Edition with no derived references MAY omit the empty list.
 - **THEN** its assertion binds the projection namespace and ancestry without
   claiming that the projection is unchanged native or source-endorsed fact
 
+### Requirement: Source assertion authorship has one owner
+
+In the unreleased Edition Project, a selected source reference with declared
+reader questions SHALL compile into one required source assertion using that
+selection's ID. A selection without reader questions SHALL remain context-only.
+Separately attributed editorial assertions SHALL name their proponent and
+selected basis. Authors SHALL NOT maintain a second source-assertion list or a
+duplicate reading-order list. Medium views SHALL own page order; each view's
+question list SHALL own within-page order. The top-level questions SHALL own
+definitions and default listing order.
+
+#### Scenario: A source relation answers two questions
+
+- **WHEN** one selected relation declares two reader questions
+- **THEN** both applicable views derive the same source assertion identity
+- **AND** a change to that reference requires one authored edit, not a copied
+  selection and assertion update
+
+#### Scenario: Context-only evidence is selected
+
+- **WHEN** a selected reference has no reader questions and is used as an
+  editorial assertion's basis
+- **THEN** it adds no source-visible obligation by itself
+- **AND** the editorial assertion remains attributed to its proponent
+
+#### Scenario: A context-only basis is retargeted
+
+- **WHEN** its selected reference changes but source bytes and editorial text do not
+- **THEN** affected editorial views require medium and human review again
+- **AND** their prior qualification is not inherited by stable assertion ID
+
+#### Scenario: Coverage is claimed elsewhere
+
+- **WHEN** an omission says a selected reference is covered in another view
+- **THEN** that reference SHALL yield a source assertion for that question
+- **AND** the target view SHALL retain that source assertion
+
+#### Scenario: Editorial attribution reaches readers
+
+- **WHEN** an editorial assertion is emitted in static and interactive media
+- **THEN** each public medium SHALL visibly identify its proponent and unverified status
+
 ### Requirement: Successor qualification records are policy-bound claims
 
 A versioned successor qualification input SHALL select exact Build Request,

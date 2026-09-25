@@ -145,6 +145,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       but branch coverage remains 93.06% against 95%; no landing or release
       is admitted by this task alone.
 
+- [ ] 2.6 Remove duplicate source-assertion authoring in the unreleased
+      Edition Project: selected references with questions derive their own
+      required assertion; questionless selections remain context-only;
+      editorial assertions retain proponent and basis. Derive order from
+      authored question/view arrays, not `narrative.readingOrder`. Prove
+      omission, two-question, ID-collision, installed relocation, old Edition
+      v1 replay, and AIGW four-question/five-group authoring cost without a
+      compatibility facade or second command. Also prove context-only basis
+      retargeting triggers medium and human review, covered-elsewhere cannot
+      transfer nonexistent source coverage, and both public media visibly
+      attribute editorial assertions. Fix page and within-page ordering from
+      their existing owners. Report mixed relation/claim media as a separate
+      composition limit; no line-count result can close that acceptance.
+      Keep this task open until schema, compiler, fixtures, docs and the public
+      installed path agree.
+
 ## 3. Provider convergence
 
 - [ ] 3.1 Extend `packages/publisher/src/provider/` with

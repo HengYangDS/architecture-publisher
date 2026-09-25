@@ -625,8 +625,10 @@ View IDs are unique within a medium, so `overview` may be reused across static
 and interactive compositions without conflating their identity or geometry.
 An omission names its medium and source view. A `covered-elsewhere` target must
 be a distinct view in that same medium, ask the affected question, and not omit
-the same reference. This is a finite authoring check, not evidence that the
-target's rendered words and shapes communicate the assertion; visible coverage
+the same reference. The selected reference must actually yield a source
+assertion for that question, and the target must retain it. A context-only
+reference cannot claim coverage elsewhere. This finite authoring check does
+not prove that the target's rendered words and shapes communicate the assertion; visible coverage
 and reader review remain independent later gates.
 Before layout, one frozen projection derives assertion IDs and explicit limits
 for each view/question, then unions the view obligations for each selected
@@ -635,6 +637,52 @@ there; editorial assertions are never implicitly erased. A view cannot promise
 a question with neither a retained assertion nor a disclosed limit. This
 projection is a compilation obligation over authored choices, not proof that
 the source claim is true or the rendered carrier is readable.
+
+### One authored source-selection record
+
+An in-memory, source-adjacent translation of AIGW's four questions, five
+static groups, eleven relations, and eleven claims into the unreleased Edition
+Project needed 22 selected references plus 22 separately authored source
+assertions. Under identical two-space JSON formatting, that draft was 699
+lines against 634 for AIGW's current Edition v1. Line count is not a quality
+score, but updating one source claim in two editable records is avoidable
+authoring cost. The trial did not produce qualified media or an accepted AIGW
+Edition Project.
+
+The successor contract therefore has one authoring record per source
+selection. An optional nonempty `questions` list on that selection declares a
+required source assertion with the same ID; absence marks a context-only
+selection that establishes no visible-coverage obligation. Context-only still
+requires exact parsing and binding, and remains a dependency of each editorial
+assertion that names it as a basis. Retargeting or changing that selection must
+invalidate the affected editorial views and their medium and human review; the
+absence of a source-visible obligation cannot erase a semantic dependency.
+Separately attributed `editorialAssertions` retain their proponent and exact selected
+basis. The compiler derives one immutable assertion inventory for view
+selection, meaning, and coverage; authors do not maintain a second
+`requiredAssertions` list. Omission references still name the source
+selection and are scoped to medium, view, and question. Source selection and
+editorial assertion IDs cannot collide.
+
+The ordered view arrays own page order; each view's question array owns
+within-page order. The top-level question array owns definitions and default
+listing order, not a competing page order. Remove the separately authored
+`narrative.readingOrder` and derive any Scene field that still needs this order.
+The old field currently enters an interactive Scene digest even though its
+renderer navigates by page order; it is not correct to call it wholly unused.
+Retain the authored summary. Editorial attribution and unverified status must
+be visible in both public media, not merely survive in the Scene object. This
+changes only the unreleased Edition Project, not valid historical Edition v1
+bytes or meaning.
+Do not add a compact-form compatibility facade or a generated editable
+assertion file.
+
+The AIGW cost probe establishes duplicated authoring, not successor media
+fitness. Its relation-plus-claim selection currently reaches meaning but both
+Scene compilers reject the mixed form. The mixed grammar, four distinct reader
+questions, five authored groups, public two-medium expression, and installed
+Candidate belong to composition and qualification acceptance, not to a line
+count or the syntax-only authoring change.
 
 The Edition project selects _what_ matters and may constrain _how_ it must be
 expressed. Publisher supplies reusable neutral composition patterns, spacing,
