@@ -172,7 +172,8 @@ owner-observed states.
 
 The successor Candidate SHALL use a distinct versioned manifest from historical
 Claim Model/Edition v1 Candidates. Its unqualified value SHALL bind the selected
-input lock, Edition bytes, native semantic digest, parser supply, each selected
+input lock, Edition bytes, native semantic digest, the finite set of semantic
+supplies actually consumed (which may be empty), each selected
 medium's independently composed Scene and artifact/supply inventory, and
 derived reader obligations and limits. Each medium SHALL bind the digest of a
 private source-to-graphic carrier map without placing raw source identifiers in

@@ -433,10 +433,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       The selected value retains typed claim fields, predicate vocabulary,
       attributed provenance, and exact derived ancestry; plane/condition
       changes alter semantic identity. Relocation and changed-pin tests pass.
-      Until media and evolution preserve those fields, public Scene, Candidate,
-      and native evolution entry points fail closed by name. The full behavior
-      run passed 1001 tests with four skips, but branch coverage is 93.20%,
-      below the 95% release gate. This task and Candidate parity remain open.
+      Public Scene, Candidate, and native evolution entry points still fail
+      closed for Claim Model media. The unreleased Candidate now binds only
+      actually consumed semantic supplies, with no fabricated LikeC4 digest.
+      Open: visible Claim Model media, installed Candidate parity, conservative
+      evolution, and the unchanged 95% branch-coverage release gate.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

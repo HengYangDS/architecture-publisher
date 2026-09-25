@@ -139,7 +139,7 @@ export async function compileSelectedEditionCandidateInput(
         lockSha256: selected.lockSha256,
         editionSha256: selected.lock.edition.sha256,
         semanticDigest: meaning.native.semanticDigest,
-        parserSupplySha256: meaning.native.parserSupply.sha256,
+        semanticSupplies: meaning.native.parserSupply === null ? [] : [meaning.native.parserSupply],
         closure: selected.closure,
       },
       media,

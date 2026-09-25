@@ -181,7 +181,9 @@ is one command with version-aware input dispatch, not a second command plane.
 
 The successor's `architecture.edition-candidate/v2` is a built-but-unqualified
 value. Its input binding holds the selected lock and Edition hashes, native
-semantic digest, parser-supply hash, and declared read-closure limit. Each
+semantic digest, consumed semantic-supply identities, and declared read-closure
+limit. The supply list is empty when an exact Claim Model needs no parser; it
+must not contain a fabricated LikeC4 digest. Each
 requested medium records its own Scene digest, artifact hashes, and consumed
 supplies. Its private carrier-map digest binds source identities to opaque
 graphic IDs without serializing source locators into the public SVG or HTML;

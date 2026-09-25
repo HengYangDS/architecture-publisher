@@ -19,6 +19,11 @@ test('one exact Build Request yields location-independent sibling media and a co
   const candidate = JSON.parse(candidateBytes);
   assert.equal(candidate.schema, 'architecture.edition-candidate/v2');
   assert.equal(candidate.input.lockSha256, built.lockSha256);
+  assert.deepEqual(
+    candidate.input.semanticSupplies.map(({ id }) => id),
+    ['likec4-parser'],
+  );
+  assert.equal(Object.hasOwn(candidate.input, 'parserSupplySha256'), false);
   assert.deepEqual(Object.keys(candidate.media).sort(), ['interactive', 'static']);
   assert.deepEqual(
     candidate.obligations.static.assertionIds,
@@ -158,11 +163,17 @@ test('Candidate structural validation is public but does not grant source author
     await import('../packages/publisher/src/compiler/index.mjs');
   assert.equal(validateSelectedEditionCandidate(candidate).qualification, 'unqualified');
   assert.equal(selectedEditionCandidateDigest(candidate), result.candidateSha256);
+  const parserFree = structuredClone(candidate);
+  parserFree.input.semanticSupplies = [];
+  assert.deepEqual(validateSelectedEditionCandidate(parserFree).input.semanticSupplies, []);
+  assert.notEqual(selectedEditionCandidateDigest(parserFree), result.candidateSha256);
   for (const change of [
     (value) => (value.qualification = 'accepted'),
     (value) => (value.media.static.artifacts[0].path = 'interactive/architecture.html'),
     (value) => (value.media.unknown = value.media.static),
     (value) => (value.input.extraAuthority = true),
+    (value) => value.input.semanticSupplies.push(value.input.semanticSupplies[0]),
+    (value) => (value.input.semanticSupplies[0].sha256 = 'not-a-digest'),
   ]) {
     const altered = structuredClone(candidate);
     change(altered);

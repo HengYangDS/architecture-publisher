@@ -256,15 +256,13 @@ export function validateSelectedEditionCandidate(value) {
       'lockSha256',
       'editionSha256',
       'semanticDigest',
-      'parserSupplySha256',
+      'semanticSupplies',
       'closure',
     ]) ||
-    ![
-      value.input.lockSha256,
-      value.input.editionSha256,
-      value.input.semanticDigest,
-      value.input.parserSupplySha256,
-    ].every(isDigest) ||
+    ![value.input.lockSha256, value.input.editionSha256, value.input.semanticDigest].every(
+      isDigest,
+    ) ||
+    !Array.isArray(value.input.semanticSupplies) ||
     !['selected-inputs-only', 'selected-roots-only'].includes(value.input.closure) ||
     !value.media ||
     typeof value.media !== 'object' ||
@@ -277,6 +275,8 @@ export function validateSelectedEditionCandidate(value) {
     new Set(value.limits).size !== value.limits.length
   )
     fail('selected_candidate_invalid');
+  for (const supply of value.input.semanticSupplies) validateSupply(supply);
+  unique(value.input.semanticSupplies, ({ id }) => id, 'candidate_supply_duplicate');
   const media = Object.keys(value.media).sort();
   if (
     !media.length ||
@@ -322,6 +322,7 @@ export function validateSelectedEditionCandidate(value) {
       fail('selected_candidate_media_invalid');
   }
   const selected = structuredClone(value);
+  selected.input.semanticSupplies.sort((left, right) => left.id.localeCompare(right.id));
   for (const medium of media) selected.media[medium] = normalizedMedium(selected.media[medium]);
   return deepFreeze(selected);
 }
