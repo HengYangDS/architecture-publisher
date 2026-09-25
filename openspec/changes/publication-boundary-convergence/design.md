@@ -488,6 +488,18 @@ express fails or becomes an explicit reader-question limit. This lets AIGW and
 ETHOS use the same public compiler without an editable LikeC4 copy or a false
 claim that derived ETHOS facts are unchanged native bytes.
 
+Input admission alone does not establish that route. The current successor
+compiler still rejects non-LikeC4 native content, its static Scene requires one
+LikeC4 view, its native evolution compares only source-backed element/relation
+members, and its Candidate binds a LikeC4 parser supply. Neither current medium
+visibly carries a Claim Model claim's full typed qualifiers. The correction
+belongs at the format adapter, semantic-selection/evolution, Scene, and
+medium-specific renderer owners, not in ETHOS or AIGW Provider transport.
+Before claiming common-compiler support, installed public builds must each take
+native and source-derived Claim Model fixtures to independent usable media;
+a changed plane or condition must alter semantic identity and applicable
+obligations, and unsupported expression must fail before Candidate completion.
+
 For LikeC4 model and view files, the preferred native importer uses the
 upstream `@likec4/language-services/node` `fromSources` API on the exact
 selected byte map, not a hand-written DSL parser or an ambient workspace

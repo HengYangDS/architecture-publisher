@@ -424,7 +424,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       The current static composer still requires one LikeC4 view; this pilot
       cannot stand in for a neutral Claim Model or mixed-source baseline.
       Prove typed native/derived Claim Model selection and visible limits
-      without an editable duplicate graph before closing this task.
+      without an editable duplicate graph before closing this task. Lock-only
+      or semantics-only conformance is insufficient: the installed public
+      Candidate path must preserve changed claim plane and condition through
+      distinct static and interactive carriers or fail before completion.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
