@@ -420,6 +420,17 @@ of geometry, or implementing a renderer. A full canvas/WYSIWYG design suite is
 not required; declaration plus immediate visual preview and bounded local
 adjustments is the initial product surface.
 
+The unreleased Edition Project contract declares named views inside each
+medium. A view owns its reader-question subset; the medium's promised question
+set is derived from the ordered views rather than copied into a second list.
+View IDs are unique within a medium, so `overview` may be reused across static
+and interactive compositions without conflating their identity or geometry.
+An omission names its medium and source view. A `covered-elsewhere` target must
+be a distinct view in that same medium, ask the affected question, and not omit
+the same reference. This is a finite authoring check, not evidence that the
+target's rendered words and shapes communicate the assertion; visible coverage
+and reader review remain independent later gates.
+
 The Edition project selects _what_ matters and may constrain _how_ it must be
 expressed. Publisher supplies reusable neutral composition patterns, spacing,
 typography, hierarchy, contrast, and layout assistance. Semantic role, domain

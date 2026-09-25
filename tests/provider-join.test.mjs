@@ -38,8 +38,11 @@ function editionProject(namespaces) {
     transformations: [],
     narrative: { summary: 'Selected native sources.', readingOrder: ['shape'] },
     presentation: {
-      static: { questions: ['shape'], intent: 'A clear overview.' },
-      interactive: { questions: ['shape'], intent: 'An explorable overview.' },
+      static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'A clear overview.' },
+      interactive: {
+        views: [{ id: 'overview', questions: ['shape'] }],
+        intent: 'An explorable overview.',
+      },
     },
     visualPolicy: { profile: 'neutral' },
   };

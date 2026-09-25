@@ -32,8 +32,18 @@ function project() {
       readingOrder: ['flow'],
     },
     presentation: {
-      static: { questions: ['flow'], intent: 'One legible overview.', width: 6000 },
-      interactive: { questions: ['flow'], intent: 'Explorable mechanisms.' },
+      static: {
+        views: [{ id: 'overview', questions: ['flow'] }],
+        intent: 'One legible overview.',
+        width: 6000,
+      },
+      interactive: {
+        views: [
+          { id: 'overview', questions: ['flow'] },
+          { id: 'mechanism', questions: ['flow'] },
+        ],
+        intent: 'Explorable mechanisms.',
+      },
     },
     visualPolicy: { profile: 'neutral', override: null },
   };
@@ -102,7 +112,7 @@ test('Edition Project rejects unresolved editorial references and duplicate iden
     (v) => (v.scope.selections[0].namespace = 'unselected'),
     (v) => v.questions.push(structuredClone(v.questions[0])),
     (v) => (v.narrative.readingOrder = []),
-    (v) => (v.presentation.static.questions = ['missing']),
+    (v) => (v.presentation.static.views[0].questions = ['missing']),
   ]) {
     const value = project();
     change(value);
@@ -115,6 +125,7 @@ test('Edition Project classifies explicit omissions and editorial propositions',
   value.omissions.push({
     selection: 'lanes',
     question: 'flow',
+    medium: 'static',
     disposition: 'explicit-limit',
     view: 'overview',
     reason: 'The overview does not explain every Lane transition.',
@@ -178,6 +189,7 @@ test('covered-elsewhere omission names a distinct target view', () => {
   value.omissions.push({
     selection: 'lanes',
     question: 'flow',
+    medium: 'interactive',
     disposition: 'covered-elsewhere',
     view: 'overview',
     coveredIn: 'mechanism',
@@ -228,5 +240,69 @@ test('every promised question appears in a selected medium', () => {
   });
   value.requiredAssertions[0].questions.push('orphan');
   value.narrative.readingOrder.push('orphan');
+  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+});
+
+test('declared views are the sole question inventory for each medium', () => {
+  const value = project();
+  assert.doesNotThrow(() => validateEditionProject(value));
+  value.presentation.static.questions = ['flow'];
+  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  delete value.presentation.static.questions;
+  value.presentation.interactive.views.push({ id: 'overview', questions: ['flow'] });
+  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+});
+
+test('an omission resolves to declared views in one medium', () => {
+  const value = project();
+  value.omissions.push({
+    medium: 'interactive',
+    view: 'overview',
+    coveredIn: 'mechanism',
+    selection: 'lanes',
+    question: 'flow',
+    disposition: 'covered-elsewhere',
+    reason: 'The mechanism view carries this source assertion.',
+  });
+  assert.doesNotThrow(() => validateEditionProject(value));
+
+  const missingTarget = structuredClone(value);
+  missingTarget.omissions[0].coveredIn = 'unknown';
+  assert.throws(() => validateEditionProject(missingTarget), { code: 'edition_project_invalid' });
+
+  const missingSource = structuredClone(value);
+  missingSource.omissions[0].view = 'unknown';
+  assert.throws(() => validateEditionProject(missingSource), { code: 'edition_project_invalid' });
+
+  const otherMedium = structuredClone(value);
+  otherMedium.presentation.interactive.views.pop();
+  otherMedium.presentation.static.views.push({ id: 'mechanism', questions: ['flow'] });
+  assert.throws(() => validateEditionProject(otherMedium), { code: 'edition_project_invalid' });
+
+  const wrongQuestion = structuredClone(value);
+  wrongQuestion.questions.push({
+    id: 'risk',
+    audience: 'maintainer',
+    text: 'What remains unknown?',
+  });
+  wrongQuestion.narrative.readingOrder.push('risk');
+  wrongQuestion.presentation.interactive.views[1].questions = ['risk'];
+  assert.throws(() => validateEditionProject(wrongQuestion), { code: 'edition_project_invalid' });
+
+  const cyclic = structuredClone(value);
+  cyclic.omissions.push({ ...cyclic.omissions[0], view: 'mechanism', coveredIn: 'overview' });
+  assert.throws(() => validateEditionProject(cyclic), { code: 'edition_project_invalid' });
+});
+
+test('an outside-question omission cannot contradict its view questions', () => {
+  const value = project();
+  value.omissions.push({
+    medium: 'static',
+    view: 'overview',
+    selection: 'lanes',
+    question: 'flow',
+    disposition: 'outside-question',
+    reason: 'This view excludes the flow question.',
+  });
   assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
 });

@@ -227,6 +227,33 @@ on explicit unchanged-meaning and unchanged-visual evidence.
 
 ## ADDED Requirements
 
+### Requirement: Edition views and omission targets are closed
+
+An Edition Project SHALL declare an ordered, nonempty set of uniquely named
+views for each medium. Each view SHALL name at least one declared reader
+question. The questions promised by a medium SHALL be derived from its views,
+not maintained as a second authored list. An omission SHALL identify its
+medium, declared source view, selected source reference, question, disposition,
+and reason. `covered-elsewhere` SHALL target a distinct declared view in the
+same medium that asks the affected question and does not omit the same source
+reference for that question. `outside-question` SHALL NOT be used for a view
+that asks the affected question. Structural admission SHALL NOT claim that a
+target view visibly communicates an assertion; that remains a separate
+qualification obligation.
+
+#### Scenario: The same view name is reused in both media
+
+- **WHEN** static and interactive Editions each declare an `overview` view
+- **THEN** each view is identified within its medium without a duplicate
+  media-question authority
+
+#### Scenario: An omission points to an absent or non-answering target
+
+- **WHEN** an omitted source reference is marked `covered-elsewhere` but the
+  target is absent, belongs only to another medium, does not ask the question,
+  or itself omits the same reference
+- **THEN** authoring validation rejects it before layout
+
 ### Requirement: Historical Edition and Provider contracts remain truthful
 
 Previously valid Edition v1 and Provider v1 inputs SHALL retain their selected

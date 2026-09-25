@@ -134,6 +134,7 @@ const assertion = {
     }),
   ],
 };
+const view = closed(['id', 'questions'], { id: identifier, questions: questionIds });
 
 export const EDITION_PROJECT_SCHEMA = deepFreeze({
   $id: 'architecture.edition-project/v1',
@@ -195,21 +196,26 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
         maxItems: 8192,
         items: {
           oneOf: [
-            closed(['selection', 'question', 'disposition', 'view', 'reason'], {
+            closed(['selection', 'question', 'medium', 'disposition', 'view', 'reason'], {
               selection: identifier,
               question: identifier,
+              medium: { enum: ['static', 'interactive'] },
               disposition: { enum: ['outside-question', 'explicit-limit'] },
-              view: { anyOf: [text, { type: 'null' }] },
+              view: identifier,
               reason: text,
             }),
-            closed(['selection', 'question', 'disposition', 'view', 'coveredIn', 'reason'], {
-              selection: identifier,
-              question: identifier,
-              disposition: { const: 'covered-elsewhere' },
-              view: text,
-              coveredIn: text,
-              reason: text,
-            }),
+            closed(
+              ['selection', 'question', 'medium', 'disposition', 'view', 'coveredIn', 'reason'],
+              {
+                selection: identifier,
+                question: identifier,
+                medium: { enum: ['static', 'interactive'] },
+                disposition: { const: 'covered-elsewhere' },
+                view: identifier,
+                coveredIn: identifier,
+                reason: text,
+              },
+            ),
           ],
         },
       },
@@ -230,13 +236,13 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
         readingOrder: questionIds,
       }),
       presentation: closed(['static', 'interactive'], {
-        static: closed(['questions', 'intent'], {
-          questions: questionIds,
+        static: closed(['views', 'intent'], {
+          views: { type: 'array', minItems: 1, maxItems: 256, items: view },
           intent: text,
           width: { type: 'integer', minimum: 320, maximum: 12000 },
         }),
-        interactive: closed(['questions', 'intent'], {
-          questions: questionIds,
+        interactive: closed(['views', 'intent'], {
+          views: { type: 'array', minItems: 1, maxItems: 256, items: view },
           intent: text,
         }),
       }),

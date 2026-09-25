@@ -29,8 +29,11 @@ function editionProject(namespace = 'example/source') {
     transformations: [],
     narrative: { summary: 'A bounded view of the selected system.', readingOrder: ['shape'] },
     presentation: {
-      static: { questions: ['shape'], intent: 'One clear overview.' },
-      interactive: { questions: ['shape'], intent: 'An explorable view.' },
+      static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One clear overview.' },
+      interactive: {
+        views: [{ id: 'overview', questions: ['shape'] }],
+        intent: 'An explorable view.',
+      },
     },
     visualPolicy: { profile: 'neutral' },
   };
@@ -574,7 +577,7 @@ test('direct materialization rejects unselected sources and missing requested-me
   });
   f.project.requiredAssertions[0].questions.push('hidden');
   f.project.narrative.readingOrder.push('hidden');
-  f.project.presentation.interactive.questions.push('hidden');
+  f.project.presentation.interactive.views[0].questions.push('hidden');
   await fs.writeFile(f.projectPath, JSON.stringify(f.project) + '\n');
   f.request.media = ['static'];
   await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {

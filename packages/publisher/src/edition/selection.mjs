@@ -8,12 +8,16 @@ function sameSet(left, right) {
   return left.length === right.length && left.every((value) => right.includes(value));
 }
 
+function mediaQuestions(project, medium) {
+  return [...new Set(project.presentation[medium].views.flatMap(({ questions }) => questions))];
+}
+
 function questionObligations(project, media) {
   const limited = new Set(project.scope.limits.map(({ question }) => question));
   return deepFreeze(
     Object.fromEntries(
       media.map((medium) => {
-        const questionIds = project.presentation[medium].questions;
+        const questionIds = mediaQuestions(project, medium);
         const assertionsByQuestion = Object.fromEntries(
           questionIds.map((id) => [
             id,
@@ -97,7 +101,7 @@ export function assembleEditionSelection({
   )
     fail('materialized_edition_sources_mismatch');
   const selectedQuestions = new Set(
-    request.media.flatMap((medium) => project.presentation[medium].questions),
+    request.media.flatMap((medium) => mediaQuestions(project, medium)),
   );
   if (project.questions.some(({ id }) => !selectedQuestions.has(id)))
     fail('materialized_selected_media_incomplete');

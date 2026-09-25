@@ -98,17 +98,52 @@ export function validateEditionProject(value) {
       if (assertionValue.proponent !== value.editor) invalid(code, 'editorial proponent mismatch');
     }
   }
+  const viewsByMedium = {};
+  const presented = new Set();
+  for (const medium of ['static', 'interactive']) {
+    const views = value.presentation[medium].views;
+    uniqueIds(views, code);
+    viewsByMedium[medium] = new Map(views.map((view) => [view.id, view]));
+    for (const view of views) {
+      requireIds(view.questions, questions, code);
+      for (const question of view.questions) presented.add(question);
+    }
+  }
+  if (value.questions.some(({ id }) => !presented.has(id)))
+    invalid(code, 'reader question not presented');
   for (const omission of value.omissions) {
     requireIds([omission.selection], selections, code);
     requireIds([omission.question], questions, code);
-    if (omission.disposition === 'covered-elsewhere' && omission.coveredIn === omission.view)
-      invalid(code, 'omission target matches omitted view');
+    const sourceView = viewsByMedium[omission.medium].get(omission.view);
+    if (!sourceView) invalid(code, 'omission view not declared');
+    if (omission.disposition === 'outside-question') {
+      if (sourceView.questions.includes(omission.question))
+        invalid(code, 'omission contradicts view question');
+    } else {
+      if (!sourceView.questions.includes(omission.question))
+        invalid(code, 'omission question not asked by view');
+      if (omission.disposition === 'covered-elsewhere') {
+        const targetView = viewsByMedium[omission.medium].get(omission.coveredIn);
+        if (
+          !targetView ||
+          targetView === sourceView ||
+          !targetView.questions.includes(omission.question)
+        )
+          invalid(code, 'omission target cannot cover question');
+      }
+    }
   }
-  const omissionScopes = value.omissions.map(({ selection, question, view }) =>
-    JSON.stringify([selection, question, view]),
+  const omissionScopes = value.omissions.map(({ selection, question, medium, view }) =>
+    JSON.stringify([selection, question, medium, view]),
   );
-  if (new Set(omissionScopes).size !== omissionScopes.length)
-    invalid(code, 'duplicate omission scope');
+  const omitted = new Set(omissionScopes);
+  if (omitted.size !== omissionScopes.length) invalid(code, 'duplicate omission scope');
+  for (const { selection, question, medium, disposition, coveredIn } of value.omissions)
+    if (
+      disposition === 'covered-elsewhere' &&
+      omitted.has(JSON.stringify([selection, question, medium, coveredIn]))
+    )
+      invalid(code, 'omission target also omitted');
   const transformationOutputs = new Set();
   for (const transformation of value.transformations) {
     requireIds(transformation.inputs, selections, code);
@@ -125,14 +160,6 @@ export function validateEditionProject(value) {
     if (transformation.proponent !== value.editor)
       invalid(code, 'transformation proponent mismatch');
   }
-  for (const medium of ['static', 'interactive'])
-    requireIds(value.presentation[medium].questions, questions, code);
-  const presented = new Set([
-    ...value.presentation.static.questions,
-    ...value.presentation.interactive.questions,
-  ]);
-  if (value.questions.some(({ id }) => !presented.has(id)))
-    invalid(code, 'reader question not presented');
   requireIds(value.narrative.readingOrder, questions, code);
   if (new Set(value.narrative.readingOrder).size !== value.questions.length)
     invalid(code, 'incomplete reading order');

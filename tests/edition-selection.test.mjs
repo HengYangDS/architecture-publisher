@@ -38,8 +38,11 @@ function project() {
     transformations: [],
     narrative: { summary: 'A scoped system view.', readingOrder: ['shape', 'risk'] },
     presentation: {
-      static: { questions: ['shape'], intent: 'One overview.' },
-      interactive: { questions: ['shape', 'risk'], intent: 'An explorable view.' },
+      static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },
+      interactive: {
+        views: [{ id: 'overview', questions: ['shape', 'risk'] }],
+        intent: 'An explorable view.',
+      },
     },
     visualPolicy: { profile: 'neutral' },
   };
@@ -92,6 +95,20 @@ test('selected media derive distinct question and assertion obligations before l
     },
   });
   assert.equal(Object.isFrozen(selected.questionObligations.static.questionIds), true);
+});
+
+test('multiple views derive one medium question set without a second authored list', () => {
+  const editionProject = project();
+  editionProject.presentation.interactive.views = [
+    { id: 'overview', questions: ['shape'] },
+    { id: 'risk-detail', questions: ['risk'] },
+  ];
+  const selected = assemble(editionProject);
+  assert.deepEqual(selected.questionObligations.interactive.questionIds, ['shape', 'risk']);
+  assert.deepEqual(selected.questionObligations.interactive.assertionIds, [
+    'system-shape',
+    'risk-editorial',
+  ]);
 });
 
 test('a question offered only in an unrequested medium cannot satisfy selection', () => {

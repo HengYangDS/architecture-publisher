@@ -51,8 +51,11 @@ async function fixture(t) {
     transformations: [],
     narrative: { summary: 'A bounded view.', readingOrder: ['shape'] },
     presentation: {
-      static: { questions: ['shape'], intent: 'One clear overview.' },
-      interactive: { questions: ['shape'], intent: 'An explorable view.' },
+      static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One clear overview.' },
+      interactive: {
+        views: [{ id: 'overview', questions: ['shape'] }],
+        intent: 'An explorable view.',
+      },
     },
     visualPolicy: { profile: 'neutral', override: 'policy.json' },
   };
