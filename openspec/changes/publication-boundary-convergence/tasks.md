@@ -496,7 +496,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       predicate evidence remain open. Proposed contract delta: v2 records bind
       exact Candidate/lock subjects and declared view/question scopes, but no
       PASS record acquires trust or completeness without an accepter-owned
-      policy. This design is awaiting review; no v2 record admission is claimed.
+      policy. Independent review found that replay could execute an executable
+      Provider without verifier-side selection, that a second materialization
+      could change the Edition scope, and that unauthenticated PASS metadata
+      cannot prove the named verifier acted. The revised design requires an
+      exact execution choice, one replay-derived scope, strict v2 JSON, an
+      overall deadline, and explicit attribution limits. These corrections
+      passed focused independent design re-review; implementation and adversarial
+      acceptance remain open. No v2 record admission is claimed.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In
       `tests/publication-contract.test.mjs` and

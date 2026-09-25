@@ -299,17 +299,66 @@ on explicit unchanged-meaning and unchanged-visual evidence.
 A versioned successor qualification input SHALL select exact Build Request,
 Candidate container, and Qualification Set bytes through the existing
 `archpub qualify verify` route. Candidate replay SHALL precede record admission.
+The verifier and public replay primitive SHALL inspect exact selected Provider
+manifests before replay and SHALL NOT execute an executable Provider based on
+evidence-supplied permission. The invoking verifier SHALL separately select
+the exact executable Provider ID and manifest-digest set. The complete replay
+SHALL have an overall deadline and owned-process cleanup; a Provider-local
+timeout alone is insufficient. Every JSON value selected by the v2 route,
+including the v1-format Source Bundle manifest carrying the Candidate, SHALL
+reject duplicate object keys without redefining historical v1 readers.
 The Qualification Set SHALL bind the exact Candidate and materialized input
 lock; each record SHALL identify a predicate, selected subject and applicable
 scope, verifier and implementation identity, observations, verdict, and limits.
-Publisher SHALL reject records whose view, question, medium, artifact, subject,
-or identity is absent from the selected Edition and Candidate. A PASS value
-SHALL remain an attributed verifier assertion rather than proof that Publisher
-executed or independently authenticated that verifier. Without an exact named
-policy selected by the designated accepter, Publisher SHALL NOT report
-qualification completeness, admission, or acceptance, even if every submitted
-record says PASS. Historical v1 qualifications SHALL retain their original
-meaning.
+View/question and assertion scopes SHALL include the selected medium even when
+view and question IDs happen to match across media.
+Publisher SHALL reject records whose medium, view/question pair, selected
+assertion in that pair, artifact, subject, or identity is absent from the
+replay-derived Edition and Candidate.
+It SHALL NOT rematerialize a Provider merely to rederive record scopes or trust
+unreplayed Candidate obligation arrays as Edition authority. A PASS value SHALL
+remain a submitted attribution to a named verifier, not proof that the named
+verifier asserted it or that Publisher executed or authenticated the method.
+Without an exact named policy selected by the designated accepter, Publisher
+SHALL NOT report qualification completeness, admission, or acceptance, even if
+every submitted record says PASS. Historical v1 qualifications SHALL retain
+their original meaning.
+
+#### Scenario: Qualification would execute selected adopter code
+
+- **WHEN** a pinned Build Request selects an executable Provider but the
+  invoking verifier does not separately choose that exact Provider set
+- **THEN** verification fails before Provider code runs or records are admitted
+- **AND** an evidence-supplied execution choice alone cannot launch code
+- **AND** an execution choice is not represented as a sandbox or publication
+  authorization
+
+#### Scenario: Candidate replay exceeds its total deadline
+
+- **WHEN** envelope reading, Provider execution, parsing, or rendering exceeds
+  the v2 qualification invocation deadline
+- **THEN** only owned processes and temporary output are cleaned up
+- **AND** no record or passing qualification result is emitted
+
+#### Scenario: Selected JSON contains duplicate keys
+
+- **WHEN** a v2 qualification input, Qualification Set, or Candidate container
+  manifest has duplicate object keys despite a matching file digest
+- **THEN** verification rejects the ambiguous bytes before record admission
+
+#### Scenario: Individually valid scope IDs form an invalid pair
+
+- **WHEN** a record names an existing medium, view, and question that the view
+  does not ask, or claims a source assertion omitted from that view/question
+- **THEN** the record cannot satisfy the absent question or assertion obligation
+- **AND** a second Provider reply cannot replace the replayed Edition scope
+
+#### Scenario: A record impersonates a verifier
+
+- **WHEN** a submitted PASS record names a verifier without authenticated
+  provenance or an explicit accepter-owned trust decision
+- **THEN** Publisher reports only the record's attribution, not that the named
+  verifier actually made or independently proved the claim
 
 #### Scenario: PASS records omit a promised reader question
 
@@ -323,6 +372,8 @@ meaning.
 - **WHEN** an exact accepter-owned policy permits that person to review one
   selected artifact and their attributed judgment names its digest
 - **THEN** Publisher may bind the review as human evidence under that policy
+- **AND** the reviewer identity remains a submitted attribution unless
+  authenticated or explicitly adopted by the accepter
 - **AND** the record is not described as an independent implementation check
 
 ### Requirement: Edition views and omission targets are closed

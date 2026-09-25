@@ -202,30 +202,55 @@ record can borrow its authority. This is current-runtime byte equivalence, not
 an attestation of the original builder or independent proof of semantic or
 visual truth. The replay operation is a qualification-library primitive that
 will be used by the existing `qualify verify` command; it adds no command plane.
+Before replay, the verifier shall inspect the pinned Build Request and Provider
+manifests without executing Provider code. Evidence supplied in the v2 input
+cannot authorize that execution. The invoking verifier must separately pass
+`--execute-providers` with the exact set of selected `<id>@<manifestSha256>`
+pairs; the public replay API takes the same invoker-owned choice separately
+from its selected evidence. Absence, an extra pair, or a changed pair fails
+before Provider execution. This is an explicit code-execution choice by the
+caller, not a sandbox, credential grant, verifier authentication, or permission
+to publish. The complete qualification invocation needs one total deadline and
+owned-process cleanup; Provider-local timeouts do not bound envelope reads or
+the whole replay. Until that supervision exists, no end-to-end boundedness
+claim is made.
 
 ### Successor qualification authority
 
 The successor `qualify verify` input selects exact Build Request, Candidate
 container, and Qualification Set bytes under versioned Publisher contracts.
-It performs the current-package Candidate replay before admitting any external
-record. A v2 Qualification Set binds the resulting Candidate and input-lock
-digests and contains predicate-specific records with verifier identity,
-implementation digest, selected subject and scope, observations, verdict, and
-limits. Unlike v1's Claim Model fields, it does not repeat identities that the
-v2 Candidate already binds. Publisher derives valid record subjects and
-applicable view/question scopes from the selected Edition and Candidate; a
-record cannot invent a medium, question, view, artifact, or source authority.
+On the v2 qualification route, every selected JSON value, including the
+v1-format Source Bundle manifest carrying the Candidate, rejects duplicate
+keys; other historical v1 consumers remain unchanged. The verifier performs
+one current-package Candidate replay before considering external records. A v2
+Qualification Set binds the resulting Candidate and input-lock digests and
+contains predicate-specific records with verifier identity, implementation
+digest, selected subject and scope, observations, verdict, and limits. Unlike
+v1's Claim Model fields, it does not repeat identities the v2 Candidate already
+binds. Scope is a closed tagged choice of Candidate, medium, artifact,
+medium-scoped view/question, or medium-scoped assertion within a view/question.
+View/question pairs, assertion membership, and artifact membership are checked
+against the Edition obligations derived during that same successful replay. A
+second Provider materialization must not supply a different editorial scope. A
+view/question limit may be disclosed without crediting an omitted source
+assertion as visible. The Candidate's submitted obligation arrays alone confer
+no authority. A record cannot invent a medium, view, question, artifact, or
+source identity. The existing path-reader race limit remains explicit until
+handle-relative confinement is proved.
 
-The presence of a PASS record establishes that a named verifier _asserted_ a
-result about exact bytes, not that Publisher executed or authenticated that
-verifier. The current runtime may prove byte equivalence; browser, aesthetic,
-domain, installed-use, and recovery predicates require their own observations.
-Until a versioned policy selected by the designated accepter names required
-predicates and trusted verifier roles, the result may report structurally bound
-records and missing scopes but cannot say qualification is complete, admitted,
-or accepted. That policy may allow editor and reviewer to coincide; it cannot
-rename that judgment independent implementation verification. Policy and final
-acceptance remain separate from source and Edition authorship.
+The presence of a PASS record establishes only that submitted bytes _attribute_
+a result to a named verifier; Publisher has not authenticated that identity or
+executed the stated method. The current runtime may prove byte equivalence;
+browser, aesthetic, domain, installed-use, and recovery predicates require their
+own observations. Until a versioned policy selected by the designated accepter
+names required predicates and trusted verifier roles, the result may report
+structurally bound records and unresolved scopes, but cannot claim qualification
+completeness, admission, or acceptance. A trusted or independent role needs
+authenticated provenance or an explicit accepter-owned decision that does not
+impersonate independence. Policy may allow the editor and reviewer to be the
+same person, but that does not make the judgment independent implementation
+verification. Policy and final acceptance remain separate from source and
+Edition authorship.
 
 This is a proposed contract delta within the approved Change, not implemented
 or approved evidence of qualification. Historical Qualification Set and Input
