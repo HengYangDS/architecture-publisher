@@ -339,12 +339,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       four independently found question-scope and same-lock-media counterexamples
       have RED/GREEN regressions. Digest-pinned declarative Providers now compare
       through the same owner; executable delivery is rejected before execution.
+      A parser-supply-only replacement with unchanged source meaning still
+      renews media and acceptance; Provider package-only evidence remains open.
       A provisional npm-offline macOS package reproduces relocated direct and
       declarative comparison and rejects changed pins, but is not frozen release
       or Linux/Windows proof. Focused tests pass 53/53; static, package, and strict
       OpenSpec checks pass; independent review found no new actionable defect.
-      Full behavior passes 931 tests, skips 4, and has no test failure; branch
-      coverage remains 93.58% against the 95% gate. Open: explicitly admitted
+      Full behavior passes 932 tests, skips 4, and has no test failure; branch
+      coverage remains 93.60% against the 95% gate. Open: explicitly admitted
       executable comparison, qualified dependency precision, package-only change
       evidence, final installed-platform parity, and coverage.
 

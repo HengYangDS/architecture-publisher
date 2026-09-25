@@ -451,6 +451,28 @@ test('changed compiled medium obligations cannot report a no-op for the same sel
   );
 });
 
+test('parser supply-only replacement renews media and acceptance without inventing source change', async (t) => {
+  const fixture = await selectedNativeEdition(t);
+  const before = await snapshot(fixture);
+  const after = structuredClone(before);
+  after.meaning.native.parserSupply.sha256 = sha('replacement-parser-package');
+  const result = compileNativeEditionEvolution({ before, after });
+  assert.deepEqual(result.delta.native.sourceBytes, { added: [], removed: [], changed: [] });
+  assert.equal(result.delta.native.before, result.delta.native.after);
+  assert.equal(result.delta.native.supplyChanged, true);
+  assert.deepEqual(
+    result.obligations.rebuild.map(({ target }) => target),
+    ['publication-bundle', 'static', 'interactive-atlas', 'interactive'],
+  );
+  assert.deepEqual(
+    result.obligations.mediumVerification.map(({ medium }) => medium),
+    ['static', 'interactive'],
+  );
+  assert.equal(result.obligations.acceptance.length, 1);
+  assert.equal(result.obligations.publication.length, 1);
+  assert(result.editions.affected[0].reasons.includes('parser-supply-changed'));
+});
+
 test('the existing evolution command compares exact relocated native Build Requests', async (t) => {
   const before = await selectedNativeEdition(t);
   const after = await selectedNativeEdition(t);
