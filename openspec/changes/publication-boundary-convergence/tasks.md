@@ -354,8 +354,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       other. Its five focused tests pass and the new module has 100% branch
       coverage. The native selection stage remains internal; the package exposes
       one Edition meaning entry rather than two public compiler phases. Static
-      and package checks pass; the full run passes 830 tests, skips 2, but
-      global branch coverage remains 92.94% against 95%. No
+      and package checks pass. A packed, offline-installed public consumer
+      reproduced the same Edition meaning after relocation and rejected changed
+      pinned bytes under an empty user environment; this is installed semantic
+      preparation, not installed Candidate acceptance. The full run passes 831
+      tests, skips 2, but global branch coverage remains 92.93% against 95%. No
       Candidate, visible carrier, or acceptance is claimed. Native view
       membership qualification, aggregation, contradictions, and reader
       adequacy remain open.
