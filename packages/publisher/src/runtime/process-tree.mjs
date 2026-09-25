@@ -54,7 +54,8 @@ export async function withOwnedProcessScope(owner, operation) {
  * }} OwnedProcessPlan
  */
 
-function workerEnvironment(scratch) {
+/** @param {string} scratch @param {string | null} selectedSystemRoot */
+export function workerEnvironment(scratch, selectedSystemRoot = null) {
   return {
     HOME: scratch,
     PATH: scratch,
@@ -65,6 +66,7 @@ function workerEnvironment(scratch) {
     TMP: path.join(scratch, 'tmp'),
     TEMP: path.join(scratch, 'tmp'),
     LANG: 'C.UTF-8',
+    ...(selectedSystemRoot ? { SystemRoot: selectedSystemRoot } : {}),
     ...(process.env.NODE_V8_COVERAGE ? { NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE } : {}),
   };
 }
@@ -282,6 +284,7 @@ export async function runOwnedProcess({
     !terminateTree && process.platform === 'win32'
       ? await resolveWindowsTaskkill(failurePrefix)
       : null;
+  const selectedSystemRoot = windowsTool ? path.dirname(path.dirname(windowsTool)) : null;
   const handle = await fs.open(requestPath, 'r');
   let child;
   try {
@@ -300,7 +303,7 @@ export async function runOwnedProcess({
       ],
       {
         cwd: scratch,
-        env: workerEnvironment(scratch),
+        env: workerEnvironment(scratch, selectedSystemRoot),
         stdio: gated ? [handle.fd, 'pipe', 'pipe', 'ipc'] : [handle.fd, 'pipe', 'pipe'],
         detached: process.platform !== 'win32',
         windowsHide: true,

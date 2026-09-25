@@ -499,12 +499,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       The same supervisor now retains owner IPC for nested registration and an
       invocation-local scope without changing public compiler inputs. Tests
       reject scope overrides, owner loss, and late work after scope closure.
-      The parent registry and whole-qualification watchdog are not yet wired;
-      no total-deadline or cross-platform cleanup guarantee is established.
-      Replay and binder tests pass 7/7 and 3/3; full behavior passes 974/978
-      with four skips. Static, package, and OpenSpec checks pass. Global branch
-      coverage is 93.57%, below the required 95%. The v2 CLI input, overall
-      deadline and process-tree cleanup, policy-bound completeness, and
+      A package-private parent registry now receives nested ownership before
+      selected code starts. POSIX counterexamples prove that its independent
+      deadline reclaims a registered detached group, rejects an early reply,
+      and leaves an unrelated sentinel alive; a blocked event loop does not
+      delay the parent. Selected Windows `SystemRoot` is propagated, but native
+      Windows containment is unproved. The parent is not yet connected to the
+      public v2 qualification input. Replay and binder tests pass 7/7 and 3/3;
+      full behavior passes 980/984 with four skips. Static, package, and
+      OpenSpec checks pass. The last branch-coverage measurement was 93.52%
+      before the blocked-loop test, below the required 95%. V2 CLI input,
+      installed whole-replay supervision, policy-bound completeness, and
       independent predicate evidence remain open. Task 6.1 is not complete.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In

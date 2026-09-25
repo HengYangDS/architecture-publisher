@@ -11,6 +11,16 @@ const gatedWorker = fileURLToPath(
   new URL('../packages/publisher/src/runtime/gated-worker.mjs', import.meta.url),
 );
 
+test('selected Windows system root reaches nested workers without ambient configuration', async () => {
+  const runtime = await import('../packages/publisher/src/runtime/process-tree.mjs');
+  assert.equal(typeof runtime.workerEnvironment, 'function');
+  const env = runtime.workerEnvironment('/isolated/scratch', 'C:\\Windows');
+  assert.equal(env.SystemRoot, 'C:\\Windows');
+  assert.equal(env.HOME, '/isolated/scratch');
+  assert.equal(env.PATH, '/isolated/scratch');
+  assert.equal(env.USERPROFILE, undefined);
+});
+
 async function fixture(t, workerSource) {
   const scratch = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-owned-'));
   t.after(() => fs.rm(scratch, { recursive: true, force: true }));
