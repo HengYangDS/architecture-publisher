@@ -303,9 +303,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       parser-run drift, duplicate-relation, and endpoint-counterexample tests
       passed 7/7. Static, strict OpenSpec, and package checks pass. Full
       behavior passes 818 tests, skips 2; branch coverage remains 92.88%
-      against the 95% gate. This resolver is not yet wired into the successor
-      Edition compiler; lineage, contradictions, and target/current
+      against the 95% gate. Lineage, contradictions, and target/current
       presentation remain open.
+      The compiler now consumes the locked Edition bytes and selected LikeC4
+      sources through the admitted parser, resolves every declared source-bound
+      reference, and derives semantic identity without parser-run relation IDs.
+      It rejects even unreferenced unsupported input formats rather than
+      silently dropping part of the selected scope. It reports parser supply
+      and incomplete closure separately. Four focused tests pass; the new
+      compiler module has 96.15% branch coverage, while the full 823-pass,
+      two-skip run remains below the global branch gate at 92.90%. Static and
+      package checks pass. This is not yet the CLI Candidate path:
+      source-backed assertion coverage, media, and qualification remain open.
 - [ ] 4.3 Extend `packages/publisher/src/semantics/change.mjs` and
       `packages/publisher/src/edition/evolution.mjs`;
       `tests/native-evolution.test.mjs` must detect
