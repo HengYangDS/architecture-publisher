@@ -450,13 +450,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       graphic IDs; the Candidate binds that map separately from interactive.
       Renderer-level RED/GREEN rejects hidden-only questions and limits in both
       media and unclaimed static graphics; static relation notes preserve
-      bidirectional meaning. Earlier Chrome checks observed source-namespace
-      non-disclosure, but do not qualify the changed Candidate. Focused tests
-      pass 57/57; static, package, and strict OpenSpec checks pass. Full behavior
-      passes 940 tests, skips 4, with no test failure; branch coverage is 93.51%
-      against the 95% gate. Independent review confirms that rendered carrier
-      maps alone cannot prove assertion/question coverage: a verifier must join
-      them to exact selected obligations and reject invented assertion IDs.
+      bidirectional meaning. A compiler-level join now checks each selected
+      assertion against its declared reader question, its Scene carrier, and
+      renderer-private graphic binding for both media. RED/GREEN tests reject
+      invented or swapped assertions, partial graphic binding, omitted editorial
+      assertions, and a carrier map assigned to the wrong page; a covered-elsewhere
+      view with an explicit limit remains valid. Independent review found no
+      confirmed public-path defect or duplicated omission authority. This is a
+      structural visibility check, not independent semantic qualification.
+      Focused tests pass 17/17; static, package, and strict OpenSpec checks pass.
+      Full behavior passes 949 tests, skips 4, with no test failure; branch
+      coverage is 93.49% against the 95% gate. Earlier Chrome checks observed
+      source-namespace non-disclosure, but do not qualify the changed Candidate.
       Full visible coverage, browser/human review on final bytes, and acceptance
       remain open.
 - [ ] 5.5 Migrate `editions/self/` to the same public Build Request, Edition,

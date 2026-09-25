@@ -12,6 +12,7 @@ import { renderInteractiveEditionHtml } from '../../renderers/cytoscape/index.mj
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
 import { composeStaticEditionSvg } from '../../renderers/svg/index.mjs';
 import { selectedEditionCandidateDigest, validateSelectedEditionCandidate } from './candidate.mjs';
+import { validateVisibleSelection } from './coverage.mjs';
 import { compileEditionMeaning } from './meaning.mjs';
 import { embedFonts, rasterizeSvg } from './media.mjs';
 
@@ -57,6 +58,7 @@ async function staticMedium(selected, meaning, scratch) {
   });
   const scene = composeStaticEditionScene(meaning, layout);
   const rendered = composeStaticEditionSvg(scene);
+  validateVisibleSelection(meaning, 'static', scene, rendered.carriers);
   const fontSupply = await loadBundledFonts();
   const fonts = fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
   if (fonts.length !== 2 || !fontSupply.license?.bytes) fail('static_edition_font_supply_invalid');
@@ -92,6 +94,7 @@ async function staticMedium(selected, meaning, scratch) {
 async function interactiveMedium(meaning) {
   const scene = composeInteractiveEditionScene(meaning);
   const rendered = await renderInteractiveEditionHtml(scene);
+  validateVisibleSelection(meaning, 'interactive', scene, rendered.carriers);
   const file = { path: 'interactive/architecture.html', content: rendered.bytes };
   return {
     files: [file],
