@@ -58,6 +58,7 @@ async function fixture(t) {
       derived: [
         {
           id: 'index',
+          namespace: 'org.example/service-index',
           claimant: 'adapter-maintainer',
           format: { id: 'example/index-json', version: '1' },
           derivedFrom: ['model'],

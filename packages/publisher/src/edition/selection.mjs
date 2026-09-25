@@ -159,6 +159,13 @@ export function assembleEditionSelection({
     )
   )
     fail('materialized_edition_sources_mismatch');
+  const derivedNamespaces = new Set(sealed.lock.derived.map(({ namespace }) => namespace));
+  if (
+    (project.scope.projectionNamespaces ?? []).some(
+      (namespace) => !derivedNamespaces.has(namespace),
+    )
+  )
+    fail('materialized_edition_projections_mismatch');
   const selectedQuestions = new Set(
     request.media.flatMap((medium) => mediaQuestions(project, medium)),
   );

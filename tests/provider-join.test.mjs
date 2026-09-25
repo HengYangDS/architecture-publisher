@@ -67,6 +67,7 @@ function providerManifest(slug, namespace, native, projection) {
       derived: [
         {
           id: 'index',
+          namespace: `${namespace}/index`,
           claimant: 'adapter-maintainer',
           format: { id: 'example/index', version: '1' },
           derivedFrom: ['model'],
@@ -316,6 +317,30 @@ test('global selection rejects duplicate namespaces and conflicting Edition owne
   await assert.rejects(f.materialize(), { code: 'materialized_provider_edition_missing' });
 });
 
+test('global join rejects duplicate or undeclared derived projection namespaces', async (t) => {
+  const f = await fixture(t);
+  f.providers.beta.manifest.selected.derived[0].namespace =
+    f.providers.alpha.manifest.selected.derived[0].namespace;
+  await assert.rejects(f.materialize(), {
+    code: 'materialized_derived_namespace_duplicate',
+  });
+  f.providers.beta.manifest.selected.derived[0].namespace = 'org.example/beta/index';
+  f.project.scope.projectionNamespaces = ['org.example/missing'];
+  f.project.scope.selections[0].namespace = 'org.example/missing';
+  await assert.rejects(f.materialize(), {
+    code: 'materialized_edition_projections_mismatch',
+  });
+});
+
+test('an Edition addresses only the selected derived projection it actually uses', async (t) => {
+  const f = await fixture(t);
+  f.project.scope.projectionNamespaces = ['org.example/alpha/index'];
+  f.project.scope.selections[0].namespace = 'org.example/alpha/index';
+  const selected = await f.materialize();
+  assert.deepEqual(selected.project.scope.projectionNamespaces, ['org.example/alpha/index']);
+  assert.equal(selected.lock.derived.length, 2);
+});
+
 test('Provider Edition cannot recover an unselected override from ambient files', async (t) => {
   const f = await fixture(t);
   f.request.edition = { kind: 'provider', provider: 'alpha-selection' };
@@ -381,7 +406,7 @@ test('global join rejects ambiguous derived meaning and false Edition metadata',
     path.join(f.providers.alpha.directory, 'copy.json'),
     f.providers.alpha.projection,
   );
-  await assert.rejects(f.materialize(), { code: 'materialized_derived_duplicate' });
+  await assert.rejects(f.materialize(), { code: 'edition_provider_v2_invalid' });
 
   f.providers.alpha.manifest.selected.derived.pop();
   f.providers.alpha.manifest.delivery.files.pop();

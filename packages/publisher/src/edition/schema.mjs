@@ -183,6 +183,12 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
           uniqueItems: true,
           items: text,
         },
+        projectionNamespaces: {
+          type: 'array',
+          maxItems: 256,
+          uniqueItems: true,
+          items: text,
+        },
         selections: { type: 'array', minItems: 1, maxItems: 4096, items: selection },
         limits: {
           type: 'array',

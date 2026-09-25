@@ -125,6 +125,7 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256, 
     }
     for (const item of selected.derived) {
       derived.push({
+        namespace: item.namespace,
         claimant: item.claimant,
         format: item.format,
         derivedFrom: item.derivedFrom.map(({ namespace, sha256 }) => ({ namespace, sha256 })),

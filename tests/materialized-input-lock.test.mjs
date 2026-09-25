@@ -48,6 +48,7 @@ function fixture() {
     derived: [
       {
         id: 'joined-index',
+        namespace: 'org.example/joined-index',
         claimant: 'adapter-maintainer',
         format: { id: 'example/index', version: '1' },
         derivedFrom: [
@@ -69,6 +70,7 @@ test('one lock identity ignores local IDs, selected order, and object-key order'
   selected.derived.push({
     ...selected.derived[0],
     id: 'other-index',
+    namespace: 'org.example/other-index',
     adapter: { ...selected.derived[0].adapter, contentSha256: sha('other-adapter') },
   });
   const first = sealMaterializedInputLock(selected);
@@ -76,6 +78,7 @@ test('one lock identity ignores local IDs, selected order, and object-key order'
   reordered.derived.push({
     ...reordered.derived[0],
     id: 'other-index',
+    namespace: 'org.example/other-index',
     adapter: { ...reordered.derived[0].adapter, contentSha256: sha('other-adapter') },
   });
   reordered.sources.reverse();
@@ -118,13 +121,29 @@ test('native namespace and complete derived meaning each have one global owner',
   const sameDerived = fixture();
   sameDerived.derived.push({ ...sameDerived.derived[0], id: 'second-local-id' });
   assert.throws(() => sealMaterializedInputLock(sameDerived), {
-    code: 'materialized_derived_duplicate',
+    code: 'materialized_derived_namespace_duplicate',
   });
   sameDerived.derived[1] = {
     ...sameDerived.derived[1],
+    namespace: 'org.example/other-index',
     adapter: { ...sameDerived.derived[1].adapter, contentSha256: sha('other-adapter') },
   };
   assert.equal(sealMaterializedInputLock(sameDerived).lock.derived.length, 2);
+});
+
+test('derived namespace is selected meaning, not a Provider-local handle', () => {
+  const selected = fixture();
+  selected.derived[0].namespace = 'org.example/projected';
+  const first = sealMaterializedInputLock(selected);
+  assert.equal(first.lock.derived[0].namespace, 'org.example/projected');
+  selected.derived[0].id = 'renamed-local-handle';
+  assert.equal(sealMaterializedInputLock(selected).lockSha256, first.lockSha256);
+  selected.derived[0].namespace = 'org.example/other-projection';
+  assert.notEqual(sealMaterializedInputLock(selected).lockSha256, first.lockSha256);
+  selected.derived[0].namespace = 'org.example/left';
+  assert.throws(() => sealMaterializedInputLock(selected), {
+    code: 'materialized_derived_namespace_duplicate',
+  });
 });
 
 test('different revision evidence cannot borrow an equivalent-content lock identity', () => {

@@ -296,11 +296,12 @@ on explicit unchanged-meaning and unchanged-visual evidence.
 
 ### Requirement: Edition scope distinguishes native and derived inputs
 
-An Edition project SHALL name selected native source namespaces and derived
-projection namespaces separately. Each source assertion SHALL resolve through
+An Edition project SHALL name its selected native source namespaces and only
+the derived projection namespaces it intends to address. It SHALL NOT have to
+repeat unused Provider outputs. Each source assertion SHALL resolve through
 one declared, exact-lock-bound namespace. An undeclared projection, missing
 native ancestor, or ambiguous namespace SHALL fail before a Candidate is
-emitted. A direct-only Edition MAY omit an empty projection list.
+emitted. An Edition with no derived references MAY omit the empty list.
 
 #### Scenario: Executable adaptation supplies an Edition assertion
 

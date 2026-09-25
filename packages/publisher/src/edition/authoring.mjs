@@ -86,7 +86,18 @@ export function validateEditionProject(value) {
   const selections = selectedIds(value.scope.selections);
   const assertions = selectedIds(value.requiredAssertions);
   const assertionById = new Map(value.requiredAssertions.map((item) => [item.id, item]));
-  const namespaces = new Set(value.scope.sourceNamespaces);
+  const namespaces = new Set([
+    ...value.scope.sourceNamespaces,
+    ...(value.scope.projectionNamespaces ?? []),
+  ]);
+  if (
+    namespaces.size !==
+    value.scope.sourceNamespaces.length + (value.scope.projectionNamespaces?.length ?? 0)
+  )
+    invalid(code, 'native and derived namespaces overlap');
+  const addressed = new Set(value.scope.selections.map(({ namespace }) => namespace));
+  if ((value.scope.projectionNamespaces ?? []).some((namespace) => !addressed.has(namespace)))
+    invalid(code, 'unreferenced projection namespace');
   for (const question of value.questions) requireIds([question.audience], audiences, code);
   for (const selected of value.scope.selections) requireIds([selected.namespace], namespaces, code);
   for (const limit of value.scope.limits) requireIds([limit.question], questions, code);

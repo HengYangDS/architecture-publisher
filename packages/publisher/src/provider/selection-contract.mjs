@@ -102,6 +102,7 @@ function selectedContributions(selected) {
     valid(
       exact(item, [
         'id',
+        'namespace',
         'claimant',
         'format',
         'derivedFrom',
@@ -112,7 +113,7 @@ function selectedContributions(selected) {
       ]),
     );
     sourceMetadata(item);
-    valid(!ids.has(item.id));
+    valid(text(item.namespace) && !namespaces.has(item.namespace) && !ids.has(item.id));
     valid(
       Array.isArray(item.derivedFrom) &&
         item.derivedFrom.length > 0 &&
@@ -127,6 +128,7 @@ function selectedContributions(selected) {
         isDigest(item.adapter.contentSha256) &&
         text(item.method),
     );
+    namespaces.add(item.namespace);
     ids.add(item.id);
     total += item.bytes;
   }

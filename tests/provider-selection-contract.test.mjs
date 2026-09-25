@@ -25,6 +25,7 @@ function manifest(kind = 'declarative') {
       derived: [
         {
           id: 'index',
+          namespace: 'org.example/projected-service',
           claimant: 'adapter-maintainer',
           format: { id: 'example/import-index', version: '1' },
           derivedFrom: ['model'],
@@ -83,6 +84,16 @@ test('v2 Provider is a closed, frozen selected contract separate from v1', () =>
       code: 'edition_provider_fields_invalid',
     });
   }
+});
+
+test('derived projection has one stable namespace distinct from native and local IDs', () => {
+  const value = manifest();
+  value.selected.derived[0].namespace = 'org.example/projected-service';
+  assert.deepEqual(providerContract.validateEditionProviderV2(value), value);
+  value.selected.derived[0].namespace = value.selected.native[0].namespace;
+  assert.throws(() => providerContract.validateEditionProviderV2(value), {
+    code: 'edition_provider_v2_invalid',
+  });
 });
 
 test('Provider identity and transport never authorize Candidate, acceptance, or publication', () => {

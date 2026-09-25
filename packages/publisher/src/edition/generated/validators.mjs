@@ -832,6 +832,40 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/scope/properties/sourceNamespaces/uniqueItems", instanceLocation: "#/scope/sourceNamespaces" }]
     return false
   }
+  if ("projectionNamespaces" in data.scope && hasOwn(data.scope, "projectionNamespaces")) {
+    if (!Array.isArray(data.scope.projectionNamespaces)) {
+      validate.errors = [{ keywordLocation: "#/properties/scope/properties/projectionNamespaces/type", instanceLocation: "#/scope/projectionNamespaces" }]
+      return false
+    }
+    if (data.scope.projectionNamespaces.length > 256) {
+      validate.errors = [{ keywordLocation: "#/properties/scope/properties/projectionNamespaces/maxItems", instanceLocation: "#/scope/projectionNamespaces" }]
+      return false
+    }
+    for (let l = 0; l < data.scope.projectionNamespaces.length; l++) {
+      if (l in data.scope.projectionNamespaces && hasOwn(data.scope.projectionNamespaces, l)) {
+        if (!(typeof data.scope.projectionNamespaces[l] === "string")) {
+          validate.errors = [{ keywordLocation: "#/properties/scope/properties/projectionNamespaces/items/type", instanceLocation: "#/scope/projectionNamespaces/"+l }]
+          return false
+        }
+        if (data.scope.projectionNamespaces[l].length > 2048 && stringLength(data.scope.projectionNamespaces[l]) > 2048) {
+          validate.errors = [{ keywordLocation: "#/properties/scope/properties/projectionNamespaces/items/maxLength", instanceLocation: "#/scope/projectionNamespaces/"+l }]
+          return false
+        }
+        if (data.scope.projectionNamespaces[l].length < 1 || stringLength(data.scope.projectionNamespaces[l]) < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/scope/properties/projectionNamespaces/items/minLength", instanceLocation: "#/scope/projectionNamespaces/"+l }]
+          return false
+        }
+        if (!(pattern1.test(data.scope.projectionNamespaces[l]))) {
+          validate.errors = [{ keywordLocation: "#/properties/scope/properties/projectionNamespaces/items/pattern", instanceLocation: "#/scope/projectionNamespaces/"+l }]
+          return false
+        }
+      }
+    }
+    if (!unique(data.scope.projectionNamespaces)) {
+      validate.errors = [{ keywordLocation: "#/properties/scope/properties/projectionNamespaces/uniqueItems", instanceLocation: "#/scope/projectionNamespaces" }]
+      return false
+    }
+  }
   if (!Array.isArray(data.scope.selections)) {
     validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/type", instanceLocation: "#/scope/selections" }]
     return false
@@ -844,62 +878,62 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/minItems", instanceLocation: "#/scope/selections" }]
     return false
   }
-  for (let l = 0; l < data.scope.selections.length; l++) {
-    if (l in data.scope.selections && hasOwn(data.scope.selections, l)) {
+  for (let m = 0; m < data.scope.selections.length; m++) {
+    if (m in data.scope.selections && hasOwn(data.scope.selections, m)) {
       let passes0 = 0
       const sub0 = (() => {
-        if (!(typeof data.scope.selections[l] === "object" && data.scope.selections[l] && !Array.isArray(data.scope.selections[l]))) return false
-        if (!("id" in data.scope.selections[l] && hasOwn(data.scope.selections[l], "id"))) return false
-        if (!("namespace" in data.scope.selections[l] && hasOwn(data.scope.selections[l], "namespace"))) return false
-        if (!("kind" in data.scope.selections[l] && hasOwn(data.scope.selections[l], "kind"))) return false
-        if (!("reference" in data.scope.selections[l] && hasOwn(data.scope.selections[l], "reference"))) return false
-        if (!(typeof data.scope.selections[l].id === "string")) return false
-        if (!(pattern0.test(data.scope.selections[l].id))) return false
-        if (!(typeof data.scope.selections[l].namespace === "string")) return false
-        if (data.scope.selections[l].namespace.length > 2048 && stringLength(data.scope.selections[l].namespace) > 2048) return false
-        if (data.scope.selections[l].namespace.length < 1 || stringLength(data.scope.selections[l].namespace) < 1) return false
-        if (!(pattern1.test(data.scope.selections[l].namespace))) return false
-        if (!(data.scope.selections[l].kind === "reference")) return false
-        if (!(typeof data.scope.selections[l].reference === "string")) return false
-        if (data.scope.selections[l].reference.length > 2048 && stringLength(data.scope.selections[l].reference) > 2048) return false
-        if (data.scope.selections[l].reference.length < 1 || stringLength(data.scope.selections[l].reference) < 1) return false
-        if (!(pattern1.test(data.scope.selections[l].reference))) return false
-        for (const key2 of Object.keys(data.scope.selections[l])) {
+        if (!(typeof data.scope.selections[m] === "object" && data.scope.selections[m] && !Array.isArray(data.scope.selections[m]))) return false
+        if (!("id" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "id"))) return false
+        if (!("namespace" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "namespace"))) return false
+        if (!("kind" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "kind"))) return false
+        if (!("reference" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "reference"))) return false
+        if (!(typeof data.scope.selections[m].id === "string")) return false
+        if (!(pattern0.test(data.scope.selections[m].id))) return false
+        if (!(typeof data.scope.selections[m].namespace === "string")) return false
+        if (data.scope.selections[m].namespace.length > 2048 && stringLength(data.scope.selections[m].namespace) > 2048) return false
+        if (data.scope.selections[m].namespace.length < 1 || stringLength(data.scope.selections[m].namespace) < 1) return false
+        if (!(pattern1.test(data.scope.selections[m].namespace))) return false
+        if (!(data.scope.selections[m].kind === "reference")) return false
+        if (!(typeof data.scope.selections[m].reference === "string")) return false
+        if (data.scope.selections[m].reference.length > 2048 && stringLength(data.scope.selections[m].reference) > 2048) return false
+        if (data.scope.selections[m].reference.length < 1 || stringLength(data.scope.selections[m].reference) < 1) return false
+        if (!(pattern1.test(data.scope.selections[m].reference))) return false
+        for (const key2 of Object.keys(data.scope.selections[m])) {
           if (key2 !== "id" && key2 !== "namespace" && key2 !== "kind" && key2 !== "reference") return false
         }
         return true
       })()
       if (sub0) passes0++
       const sub1 = (() => {
-        if (!(typeof data.scope.selections[l] === "object" && data.scope.selections[l] && !Array.isArray(data.scope.selections[l]))) return false
-        if (!("id" in data.scope.selections[l] && hasOwn(data.scope.selections[l], "id"))) return false
-        if (!("namespace" in data.scope.selections[l] && hasOwn(data.scope.selections[l], "namespace"))) return false
-        if (!("kind" in data.scope.selections[l] && hasOwn(data.scope.selections[l], "kind"))) return false
-        if (!("language" in data.scope.selections[l] && hasOwn(data.scope.selections[l], "language"))) return false
-        if (!("expression" in data.scope.selections[l] && hasOwn(data.scope.selections[l], "expression"))) return false
-        if (!(typeof data.scope.selections[l].id === "string")) return false
-        if (!(pattern0.test(data.scope.selections[l].id))) return false
-        if (!(typeof data.scope.selections[l].namespace === "string")) return false
-        if (data.scope.selections[l].namespace.length > 2048 && stringLength(data.scope.selections[l].namespace) > 2048) return false
-        if (data.scope.selections[l].namespace.length < 1 || stringLength(data.scope.selections[l].namespace) < 1) return false
-        if (!(pattern1.test(data.scope.selections[l].namespace))) return false
-        if (!(data.scope.selections[l].kind === "query")) return false
-        if (!(typeof data.scope.selections[l].language === "string")) return false
-        if (data.scope.selections[l].language.length > 2048 && stringLength(data.scope.selections[l].language) > 2048) return false
-        if (data.scope.selections[l].language.length < 1 || stringLength(data.scope.selections[l].language) < 1) return false
-        if (!(pattern1.test(data.scope.selections[l].language))) return false
-        if (!(typeof data.scope.selections[l].expression === "string")) return false
-        if (data.scope.selections[l].expression.length > 2048 && stringLength(data.scope.selections[l].expression) > 2048) return false
-        if (data.scope.selections[l].expression.length < 1 || stringLength(data.scope.selections[l].expression) < 1) return false
-        if (!(pattern1.test(data.scope.selections[l].expression))) return false
-        for (const key3 of Object.keys(data.scope.selections[l])) {
+        if (!(typeof data.scope.selections[m] === "object" && data.scope.selections[m] && !Array.isArray(data.scope.selections[m]))) return false
+        if (!("id" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "id"))) return false
+        if (!("namespace" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "namespace"))) return false
+        if (!("kind" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "kind"))) return false
+        if (!("language" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "language"))) return false
+        if (!("expression" in data.scope.selections[m] && hasOwn(data.scope.selections[m], "expression"))) return false
+        if (!(typeof data.scope.selections[m].id === "string")) return false
+        if (!(pattern0.test(data.scope.selections[m].id))) return false
+        if (!(typeof data.scope.selections[m].namespace === "string")) return false
+        if (data.scope.selections[m].namespace.length > 2048 && stringLength(data.scope.selections[m].namespace) > 2048) return false
+        if (data.scope.selections[m].namespace.length < 1 || stringLength(data.scope.selections[m].namespace) < 1) return false
+        if (!(pattern1.test(data.scope.selections[m].namespace))) return false
+        if (!(data.scope.selections[m].kind === "query")) return false
+        if (!(typeof data.scope.selections[m].language === "string")) return false
+        if (data.scope.selections[m].language.length > 2048 && stringLength(data.scope.selections[m].language) > 2048) return false
+        if (data.scope.selections[m].language.length < 1 || stringLength(data.scope.selections[m].language) < 1) return false
+        if (!(pattern1.test(data.scope.selections[m].language))) return false
+        if (!(typeof data.scope.selections[m].expression === "string")) return false
+        if (data.scope.selections[m].expression.length > 2048 && stringLength(data.scope.selections[m].expression) > 2048) return false
+        if (data.scope.selections[m].expression.length < 1 || stringLength(data.scope.selections[m].expression) < 1) return false
+        if (!(pattern1.test(data.scope.selections[m].expression))) return false
+        for (const key3 of Object.keys(data.scope.selections[m])) {
           if (key3 !== "id" && key3 !== "namespace" && key3 !== "kind" && key3 !== "language" && key3 !== "expression") return false
         }
         return true
       })()
       if (sub1) passes0++
       if (passes0 !== 1) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/oneOf", instanceLocation: "#/scope/selections/"+l }]
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/selections/items/oneOf", instanceLocation: "#/scope/selections/"+m }]
         return false
       }
     }
@@ -912,54 +946,54 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/maxItems", instanceLocation: "#/scope/limits" }]
     return false
   }
-  for (let m = 0; m < data.scope.limits.length; m++) {
-    if (m in data.scope.limits && hasOwn(data.scope.limits, m)) {
-      if (!(typeof data.scope.limits[m] === "object" && data.scope.limits[m] && !Array.isArray(data.scope.limits[m]))) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/type", instanceLocation: "#/scope/limits/"+m }]
+  for (let n = 0; n < data.scope.limits.length; n++) {
+    if (n in data.scope.limits && hasOwn(data.scope.limits, n)) {
+      if (!(typeof data.scope.limits[n] === "object" && data.scope.limits[n] && !Array.isArray(data.scope.limits[n]))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/type", instanceLocation: "#/scope/limits/"+n }]
         return false
       }
-      if (!("question" in data.scope.limits[m] && hasOwn(data.scope.limits[m], "question"))) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/required", instanceLocation: "#/scope/limits/"+m+"/question" }]
+      if (!("question" in data.scope.limits[n] && hasOwn(data.scope.limits[n], "question"))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/required", instanceLocation: "#/scope/limits/"+n+"/question" }]
         return false
       }
-      if (!("reason" in data.scope.limits[m] && hasOwn(data.scope.limits[m], "reason"))) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/required", instanceLocation: "#/scope/limits/"+m+"/reason" }]
+      if (!("reason" in data.scope.limits[n] && hasOwn(data.scope.limits[n], "reason"))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/required", instanceLocation: "#/scope/limits/"+n+"/reason" }]
         return false
       }
-      if (!(typeof data.scope.limits[m].question === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/question/type", instanceLocation: "#/scope/limits/"+m+"/question" }]
+      if (!(typeof data.scope.limits[n].question === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/question/type", instanceLocation: "#/scope/limits/"+n+"/question" }]
         return false
       }
-      if (!(pattern0.test(data.scope.limits[m].question))) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/question/pattern", instanceLocation: "#/scope/limits/"+m+"/question" }]
+      if (!(pattern0.test(data.scope.limits[n].question))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/question/pattern", instanceLocation: "#/scope/limits/"+n+"/question" }]
         return false
       }
-      if (!(typeof data.scope.limits[m].reason === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/type", instanceLocation: "#/scope/limits/"+m+"/reason" }]
+      if (!(typeof data.scope.limits[n].reason === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/type", instanceLocation: "#/scope/limits/"+n+"/reason" }]
         return false
       }
-      if (data.scope.limits[m].reason.length > 2048 && stringLength(data.scope.limits[m].reason) > 2048) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/maxLength", instanceLocation: "#/scope/limits/"+m+"/reason" }]
+      if (data.scope.limits[n].reason.length > 2048 && stringLength(data.scope.limits[n].reason) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/maxLength", instanceLocation: "#/scope/limits/"+n+"/reason" }]
         return false
       }
-      if (data.scope.limits[m].reason.length < 1 || stringLength(data.scope.limits[m].reason) < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/minLength", instanceLocation: "#/scope/limits/"+m+"/reason" }]
+      if (data.scope.limits[n].reason.length < 1 || stringLength(data.scope.limits[n].reason) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/minLength", instanceLocation: "#/scope/limits/"+n+"/reason" }]
         return false
       }
-      if (!(pattern1.test(data.scope.limits[m].reason))) {
-        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/pattern", instanceLocation: "#/scope/limits/"+m+"/reason" }]
+      if (!(pattern1.test(data.scope.limits[n].reason))) {
+        validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/properties/reason/pattern", instanceLocation: "#/scope/limits/"+n+"/reason" }]
         return false
       }
-      for (const key4 of Object.keys(data.scope.limits[m])) {
+      for (const key4 of Object.keys(data.scope.limits[n])) {
         if (key4 !== "question" && key4 !== "reason") {
-          validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/additionalProperties", instanceLocation: "#/scope/limits/"+m+"/"+pointerPart(key4) }]
+          validate.errors = [{ keywordLocation: "#/properties/scope/properties/limits/items/additionalProperties", instanceLocation: "#/scope/limits/"+n+"/"+pointerPart(key4) }]
           return false
         }
       }
     }
   }
   for (const key5 of Object.keys(data.scope)) {
-    if (key5 !== "sourceNamespaces" && key5 !== "selections" && key5 !== "limits") {
+    if (key5 !== "sourceNamespaces" && key5 !== "projectionNamespaces" && key5 !== "selections" && key5 !== "limits") {
       validate.errors = [{ keywordLocation: "#/properties/scope/additionalProperties", instanceLocation: "#/scope/"+pointerPart(key5) }]
       return false
     }
@@ -976,80 +1010,80 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/requiredAssertions/minItems", instanceLocation: "#/requiredAssertions" }]
     return false
   }
-  for (let n = 0; n < data.requiredAssertions.length; n++) {
-    if (n in data.requiredAssertions && hasOwn(data.requiredAssertions, n)) {
+  for (let o = 0; o < data.requiredAssertions.length; o++) {
+    if (o in data.requiredAssertions && hasOwn(data.requiredAssertions, o)) {
       let passes1 = 0
       const sub2 = (() => {
-        if (!(typeof data.requiredAssertions[n] === "object" && data.requiredAssertions[n] && !Array.isArray(data.requiredAssertions[n]))) return false
-        if (!("id" in data.requiredAssertions[n] && hasOwn(data.requiredAssertions[n], "id"))) return false
-        if (!("kind" in data.requiredAssertions[n] && hasOwn(data.requiredAssertions[n], "kind"))) return false
-        if (!("selection" in data.requiredAssertions[n] && hasOwn(data.requiredAssertions[n], "selection"))) return false
-        if (!("questions" in data.requiredAssertions[n] && hasOwn(data.requiredAssertions[n], "questions"))) return false
-        if (!(typeof data.requiredAssertions[n].id === "string")) return false
-        if (!(pattern0.test(data.requiredAssertions[n].id))) return false
-        if (!(data.requiredAssertions[n].kind === "source")) return false
-        if (!(typeof data.requiredAssertions[n].selection === "string")) return false
-        if (!(pattern0.test(data.requiredAssertions[n].selection))) return false
-        if (!(Array.isArray(data.requiredAssertions[n].questions))) return false
-        if (data.requiredAssertions[n].questions.length < 1) return false
-        for (let o = 0; o < data.requiredAssertions[n].questions.length; o++) {
-          if (o in data.requiredAssertions[n].questions && hasOwn(data.requiredAssertions[n].questions, o)) {
-            if (!(typeof data.requiredAssertions[n].questions[o] === "string")) return false
-            if (!(pattern0.test(data.requiredAssertions[n].questions[o]))) return false
+        if (!(typeof data.requiredAssertions[o] === "object" && data.requiredAssertions[o] && !Array.isArray(data.requiredAssertions[o]))) return false
+        if (!("id" in data.requiredAssertions[o] && hasOwn(data.requiredAssertions[o], "id"))) return false
+        if (!("kind" in data.requiredAssertions[o] && hasOwn(data.requiredAssertions[o], "kind"))) return false
+        if (!("selection" in data.requiredAssertions[o] && hasOwn(data.requiredAssertions[o], "selection"))) return false
+        if (!("questions" in data.requiredAssertions[o] && hasOwn(data.requiredAssertions[o], "questions"))) return false
+        if (!(typeof data.requiredAssertions[o].id === "string")) return false
+        if (!(pattern0.test(data.requiredAssertions[o].id))) return false
+        if (!(data.requiredAssertions[o].kind === "source")) return false
+        if (!(typeof data.requiredAssertions[o].selection === "string")) return false
+        if (!(pattern0.test(data.requiredAssertions[o].selection))) return false
+        if (!(Array.isArray(data.requiredAssertions[o].questions))) return false
+        if (data.requiredAssertions[o].questions.length < 1) return false
+        for (let p = 0; p < data.requiredAssertions[o].questions.length; p++) {
+          if (p in data.requiredAssertions[o].questions && hasOwn(data.requiredAssertions[o].questions, p)) {
+            if (!(typeof data.requiredAssertions[o].questions[p] === "string")) return false
+            if (!(pattern0.test(data.requiredAssertions[o].questions[p]))) return false
           }
         }
-        if (!unique(data.requiredAssertions[n].questions)) return false
-        for (const key6 of Object.keys(data.requiredAssertions[n])) {
+        if (!unique(data.requiredAssertions[o].questions)) return false
+        for (const key6 of Object.keys(data.requiredAssertions[o])) {
           if (key6 !== "id" && key6 !== "kind" && key6 !== "selection" && key6 !== "questions") return false
         }
         return true
       })()
       if (sub2) passes1++
       const sub3 = (() => {
-        if (!(typeof data.requiredAssertions[n] === "object" && data.requiredAssertions[n] && !Array.isArray(data.requiredAssertions[n]))) return false
-        if (!("id" in data.requiredAssertions[n] && hasOwn(data.requiredAssertions[n], "id"))) return false
-        if (!("kind" in data.requiredAssertions[n] && hasOwn(data.requiredAssertions[n], "kind"))) return false
-        if (!("statement" in data.requiredAssertions[n] && hasOwn(data.requiredAssertions[n], "statement"))) return false
-        if (!("proponent" in data.requiredAssertions[n] && hasOwn(data.requiredAssertions[n], "proponent"))) return false
-        if (!("basis" in data.requiredAssertions[n] && hasOwn(data.requiredAssertions[n], "basis"))) return false
-        if (!("questions" in data.requiredAssertions[n] && hasOwn(data.requiredAssertions[n], "questions"))) return false
-        if (!(typeof data.requiredAssertions[n].id === "string")) return false
-        if (!(pattern0.test(data.requiredAssertions[n].id))) return false
-        if (!(data.requiredAssertions[n].kind === "editorial")) return false
-        if (!(typeof data.requiredAssertions[n].statement === "string")) return false
-        if (data.requiredAssertions[n].statement.length > 2048 && stringLength(data.requiredAssertions[n].statement) > 2048) return false
-        if (data.requiredAssertions[n].statement.length < 1 || stringLength(data.requiredAssertions[n].statement) < 1) return false
-        if (!(pattern1.test(data.requiredAssertions[n].statement))) return false
-        if (!(typeof data.requiredAssertions[n].proponent === "string")) return false
-        if (data.requiredAssertions[n].proponent.length > 2048 && stringLength(data.requiredAssertions[n].proponent) > 2048) return false
-        if (data.requiredAssertions[n].proponent.length < 1 || stringLength(data.requiredAssertions[n].proponent) < 1) return false
-        if (!(pattern1.test(data.requiredAssertions[n].proponent))) return false
-        if (!(Array.isArray(data.requiredAssertions[n].basis))) return false
-        if (data.requiredAssertions[n].basis.length < 1) return false
-        for (let p = 0; p < data.requiredAssertions[n].basis.length; p++) {
-          if (p in data.requiredAssertions[n].basis && hasOwn(data.requiredAssertions[n].basis, p)) {
-            if (!(typeof data.requiredAssertions[n].basis[p] === "string")) return false
-            if (!(pattern0.test(data.requiredAssertions[n].basis[p]))) return false
+        if (!(typeof data.requiredAssertions[o] === "object" && data.requiredAssertions[o] && !Array.isArray(data.requiredAssertions[o]))) return false
+        if (!("id" in data.requiredAssertions[o] && hasOwn(data.requiredAssertions[o], "id"))) return false
+        if (!("kind" in data.requiredAssertions[o] && hasOwn(data.requiredAssertions[o], "kind"))) return false
+        if (!("statement" in data.requiredAssertions[o] && hasOwn(data.requiredAssertions[o], "statement"))) return false
+        if (!("proponent" in data.requiredAssertions[o] && hasOwn(data.requiredAssertions[o], "proponent"))) return false
+        if (!("basis" in data.requiredAssertions[o] && hasOwn(data.requiredAssertions[o], "basis"))) return false
+        if (!("questions" in data.requiredAssertions[o] && hasOwn(data.requiredAssertions[o], "questions"))) return false
+        if (!(typeof data.requiredAssertions[o].id === "string")) return false
+        if (!(pattern0.test(data.requiredAssertions[o].id))) return false
+        if (!(data.requiredAssertions[o].kind === "editorial")) return false
+        if (!(typeof data.requiredAssertions[o].statement === "string")) return false
+        if (data.requiredAssertions[o].statement.length > 2048 && stringLength(data.requiredAssertions[o].statement) > 2048) return false
+        if (data.requiredAssertions[o].statement.length < 1 || stringLength(data.requiredAssertions[o].statement) < 1) return false
+        if (!(pattern1.test(data.requiredAssertions[o].statement))) return false
+        if (!(typeof data.requiredAssertions[o].proponent === "string")) return false
+        if (data.requiredAssertions[o].proponent.length > 2048 && stringLength(data.requiredAssertions[o].proponent) > 2048) return false
+        if (data.requiredAssertions[o].proponent.length < 1 || stringLength(data.requiredAssertions[o].proponent) < 1) return false
+        if (!(pattern1.test(data.requiredAssertions[o].proponent))) return false
+        if (!(Array.isArray(data.requiredAssertions[o].basis))) return false
+        if (data.requiredAssertions[o].basis.length < 1) return false
+        for (let q = 0; q < data.requiredAssertions[o].basis.length; q++) {
+          if (q in data.requiredAssertions[o].basis && hasOwn(data.requiredAssertions[o].basis, q)) {
+            if (!(typeof data.requiredAssertions[o].basis[q] === "string")) return false
+            if (!(pattern0.test(data.requiredAssertions[o].basis[q]))) return false
           }
         }
-        if (!unique(data.requiredAssertions[n].basis)) return false
-        if (!(Array.isArray(data.requiredAssertions[n].questions))) return false
-        if (data.requiredAssertions[n].questions.length < 1) return false
-        for (let q = 0; q < data.requiredAssertions[n].questions.length; q++) {
-          if (q in data.requiredAssertions[n].questions && hasOwn(data.requiredAssertions[n].questions, q)) {
-            if (!(typeof data.requiredAssertions[n].questions[q] === "string")) return false
-            if (!(pattern0.test(data.requiredAssertions[n].questions[q]))) return false
+        if (!unique(data.requiredAssertions[o].basis)) return false
+        if (!(Array.isArray(data.requiredAssertions[o].questions))) return false
+        if (data.requiredAssertions[o].questions.length < 1) return false
+        for (let r = 0; r < data.requiredAssertions[o].questions.length; r++) {
+          if (r in data.requiredAssertions[o].questions && hasOwn(data.requiredAssertions[o].questions, r)) {
+            if (!(typeof data.requiredAssertions[o].questions[r] === "string")) return false
+            if (!(pattern0.test(data.requiredAssertions[o].questions[r]))) return false
           }
         }
-        if (!unique(data.requiredAssertions[n].questions)) return false
-        for (const key7 of Object.keys(data.requiredAssertions[n])) {
+        if (!unique(data.requiredAssertions[o].questions)) return false
+        for (const key7 of Object.keys(data.requiredAssertions[o])) {
           if (key7 !== "id" && key7 !== "kind" && key7 !== "statement" && key7 !== "proponent" && key7 !== "basis" && key7 !== "questions") return false
         }
         return true
       })()
       if (sub3) passes1++
       if (passes1 !== 1) {
-        validate.errors = [{ keywordLocation: "#/properties/requiredAssertions/items/oneOf", instanceLocation: "#/requiredAssertions/"+n }]
+        validate.errors = [{ keywordLocation: "#/properties/requiredAssertions/items/oneOf", instanceLocation: "#/requiredAssertions/"+o }]
         return false
       }
     }
@@ -1062,66 +1096,66 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/omissions/maxItems", instanceLocation: "#/omissions" }]
     return false
   }
-  for (let r = 0; r < data.omissions.length; r++) {
-    if (r in data.omissions && hasOwn(data.omissions, r)) {
+  for (let s = 0; s < data.omissions.length; s++) {
+    if (s in data.omissions && hasOwn(data.omissions, s)) {
       let passes2 = 0
       const sub4 = (() => {
-        if (!(typeof data.omissions[r] === "object" && data.omissions[r] && !Array.isArray(data.omissions[r]))) return false
-        if (!("selection" in data.omissions[r] && hasOwn(data.omissions[r], "selection"))) return false
-        if (!("question" in data.omissions[r] && hasOwn(data.omissions[r], "question"))) return false
-        if (!("medium" in data.omissions[r] && hasOwn(data.omissions[r], "medium"))) return false
-        if (!("disposition" in data.omissions[r] && hasOwn(data.omissions[r], "disposition"))) return false
-        if (!("view" in data.omissions[r] && hasOwn(data.omissions[r], "view"))) return false
-        if (!("reason" in data.omissions[r] && hasOwn(data.omissions[r], "reason"))) return false
-        if (!(typeof data.omissions[r].selection === "string")) return false
-        if (!(pattern0.test(data.omissions[r].selection))) return false
-        if (!(typeof data.omissions[r].question === "string")) return false
-        if (!(pattern0.test(data.omissions[r].question))) return false
-        if (!(data.omissions[r].medium === "static" || data.omissions[r].medium === "interactive")) return false
-        if (!(data.omissions[r].disposition === "outside-question" || data.omissions[r].disposition === "explicit-limit")) return false
-        if (!(typeof data.omissions[r].view === "string")) return false
-        if (!(pattern0.test(data.omissions[r].view))) return false
-        if (!(typeof data.omissions[r].reason === "string")) return false
-        if (data.omissions[r].reason.length > 2048 && stringLength(data.omissions[r].reason) > 2048) return false
-        if (data.omissions[r].reason.length < 1 || stringLength(data.omissions[r].reason) < 1) return false
-        if (!(pattern1.test(data.omissions[r].reason))) return false
-        for (const key8 of Object.keys(data.omissions[r])) {
+        if (!(typeof data.omissions[s] === "object" && data.omissions[s] && !Array.isArray(data.omissions[s]))) return false
+        if (!("selection" in data.omissions[s] && hasOwn(data.omissions[s], "selection"))) return false
+        if (!("question" in data.omissions[s] && hasOwn(data.omissions[s], "question"))) return false
+        if (!("medium" in data.omissions[s] && hasOwn(data.omissions[s], "medium"))) return false
+        if (!("disposition" in data.omissions[s] && hasOwn(data.omissions[s], "disposition"))) return false
+        if (!("view" in data.omissions[s] && hasOwn(data.omissions[s], "view"))) return false
+        if (!("reason" in data.omissions[s] && hasOwn(data.omissions[s], "reason"))) return false
+        if (!(typeof data.omissions[s].selection === "string")) return false
+        if (!(pattern0.test(data.omissions[s].selection))) return false
+        if (!(typeof data.omissions[s].question === "string")) return false
+        if (!(pattern0.test(data.omissions[s].question))) return false
+        if (!(data.omissions[s].medium === "static" || data.omissions[s].medium === "interactive")) return false
+        if (!(data.omissions[s].disposition === "outside-question" || data.omissions[s].disposition === "explicit-limit")) return false
+        if (!(typeof data.omissions[s].view === "string")) return false
+        if (!(pattern0.test(data.omissions[s].view))) return false
+        if (!(typeof data.omissions[s].reason === "string")) return false
+        if (data.omissions[s].reason.length > 2048 && stringLength(data.omissions[s].reason) > 2048) return false
+        if (data.omissions[s].reason.length < 1 || stringLength(data.omissions[s].reason) < 1) return false
+        if (!(pattern1.test(data.omissions[s].reason))) return false
+        for (const key8 of Object.keys(data.omissions[s])) {
           if (key8 !== "selection" && key8 !== "question" && key8 !== "medium" && key8 !== "disposition" && key8 !== "view" && key8 !== "reason") return false
         }
         return true
       })()
       if (sub4) passes2++
       const sub5 = (() => {
-        if (!(typeof data.omissions[r] === "object" && data.omissions[r] && !Array.isArray(data.omissions[r]))) return false
-        if (!("selection" in data.omissions[r] && hasOwn(data.omissions[r], "selection"))) return false
-        if (!("question" in data.omissions[r] && hasOwn(data.omissions[r], "question"))) return false
-        if (!("medium" in data.omissions[r] && hasOwn(data.omissions[r], "medium"))) return false
-        if (!("disposition" in data.omissions[r] && hasOwn(data.omissions[r], "disposition"))) return false
-        if (!("view" in data.omissions[r] && hasOwn(data.omissions[r], "view"))) return false
-        if (!("coveredIn" in data.omissions[r] && hasOwn(data.omissions[r], "coveredIn"))) return false
-        if (!("reason" in data.omissions[r] && hasOwn(data.omissions[r], "reason"))) return false
-        if (!(typeof data.omissions[r].selection === "string")) return false
-        if (!(pattern0.test(data.omissions[r].selection))) return false
-        if (!(typeof data.omissions[r].question === "string")) return false
-        if (!(pattern0.test(data.omissions[r].question))) return false
-        if (!(data.omissions[r].medium === "static" || data.omissions[r].medium === "interactive")) return false
-        if (!(data.omissions[r].disposition === "covered-elsewhere")) return false
-        if (!(typeof data.omissions[r].view === "string")) return false
-        if (!(pattern0.test(data.omissions[r].view))) return false
-        if (!(typeof data.omissions[r].coveredIn === "string")) return false
-        if (!(pattern0.test(data.omissions[r].coveredIn))) return false
-        if (!(typeof data.omissions[r].reason === "string")) return false
-        if (data.omissions[r].reason.length > 2048 && stringLength(data.omissions[r].reason) > 2048) return false
-        if (data.omissions[r].reason.length < 1 || stringLength(data.omissions[r].reason) < 1) return false
-        if (!(pattern1.test(data.omissions[r].reason))) return false
-        for (const key9 of Object.keys(data.omissions[r])) {
+        if (!(typeof data.omissions[s] === "object" && data.omissions[s] && !Array.isArray(data.omissions[s]))) return false
+        if (!("selection" in data.omissions[s] && hasOwn(data.omissions[s], "selection"))) return false
+        if (!("question" in data.omissions[s] && hasOwn(data.omissions[s], "question"))) return false
+        if (!("medium" in data.omissions[s] && hasOwn(data.omissions[s], "medium"))) return false
+        if (!("disposition" in data.omissions[s] && hasOwn(data.omissions[s], "disposition"))) return false
+        if (!("view" in data.omissions[s] && hasOwn(data.omissions[s], "view"))) return false
+        if (!("coveredIn" in data.omissions[s] && hasOwn(data.omissions[s], "coveredIn"))) return false
+        if (!("reason" in data.omissions[s] && hasOwn(data.omissions[s], "reason"))) return false
+        if (!(typeof data.omissions[s].selection === "string")) return false
+        if (!(pattern0.test(data.omissions[s].selection))) return false
+        if (!(typeof data.omissions[s].question === "string")) return false
+        if (!(pattern0.test(data.omissions[s].question))) return false
+        if (!(data.omissions[s].medium === "static" || data.omissions[s].medium === "interactive")) return false
+        if (!(data.omissions[s].disposition === "covered-elsewhere")) return false
+        if (!(typeof data.omissions[s].view === "string")) return false
+        if (!(pattern0.test(data.omissions[s].view))) return false
+        if (!(typeof data.omissions[s].coveredIn === "string")) return false
+        if (!(pattern0.test(data.omissions[s].coveredIn))) return false
+        if (!(typeof data.omissions[s].reason === "string")) return false
+        if (data.omissions[s].reason.length > 2048 && stringLength(data.omissions[s].reason) > 2048) return false
+        if (data.omissions[s].reason.length < 1 || stringLength(data.omissions[s].reason) < 1) return false
+        if (!(pattern1.test(data.omissions[s].reason))) return false
+        for (const key9 of Object.keys(data.omissions[s])) {
           if (key9 !== "selection" && key9 !== "question" && key9 !== "medium" && key9 !== "disposition" && key9 !== "view" && key9 !== "coveredIn" && key9 !== "reason") return false
         }
         return true
       })()
       if (sub5) passes2++
       if (passes2 !== 1) {
-        validate.errors = [{ keywordLocation: "#/properties/omissions/items/oneOf", instanceLocation: "#/omissions/"+r }]
+        validate.errors = [{ keywordLocation: "#/properties/omissions/items/oneOf", instanceLocation: "#/omissions/"+s }]
         return false
       }
     }
@@ -1134,115 +1168,115 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/transformations/maxItems", instanceLocation: "#/transformations" }]
     return false
   }
-  for (let s = 0; s < data.transformations.length; s++) {
-    if (s in data.transformations && hasOwn(data.transformations, s)) {
-      if (!(typeof data.transformations[s] === "object" && data.transformations[s] && !Array.isArray(data.transformations[s]))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/type", instanceLocation: "#/transformations/"+s }]
+  for (let t = 0; t < data.transformations.length; t++) {
+    if (t in data.transformations && hasOwn(data.transformations, t)) {
+      if (!(typeof data.transformations[t] === "object" && data.transformations[t] && !Array.isArray(data.transformations[t]))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/type", instanceLocation: "#/transformations/"+t }]
         return false
       }
-      if (!("id" in data.transformations[s] && hasOwn(data.transformations[s], "id"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+s+"/id" }]
+      if (!("id" in data.transformations[t] && hasOwn(data.transformations[t], "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+t+"/id" }]
         return false
       }
-      if (!("kind" in data.transformations[s] && hasOwn(data.transformations[s], "kind"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+s+"/kind" }]
+      if (!("kind" in data.transformations[t] && hasOwn(data.transformations[t], "kind"))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+t+"/kind" }]
         return false
       }
-      if (!("inputs" in data.transformations[s] && hasOwn(data.transformations[s], "inputs"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+s+"/inputs" }]
+      if (!("inputs" in data.transformations[t] && hasOwn(data.transformations[t], "inputs"))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+t+"/inputs" }]
         return false
       }
-      if (!("output" in data.transformations[s] && hasOwn(data.transformations[s], "output"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+s+"/output" }]
+      if (!("output" in data.transformations[t] && hasOwn(data.transformations[t], "output"))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+t+"/output" }]
         return false
       }
-      if (!("proponent" in data.transformations[s] && hasOwn(data.transformations[s], "proponent"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+s+"/proponent" }]
+      if (!("proponent" in data.transformations[t] && hasOwn(data.transformations[t], "proponent"))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+t+"/proponent" }]
         return false
       }
-      if (!("rule" in data.transformations[s] && hasOwn(data.transformations[s], "rule"))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+s+"/rule" }]
+      if (!("rule" in data.transformations[t] && hasOwn(data.transformations[t], "rule"))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/required", instanceLocation: "#/transformations/"+t+"/rule" }]
         return false
       }
-      if (!(typeof data.transformations[s].id === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/id/type", instanceLocation: "#/transformations/"+s+"/id" }]
+      if (!(typeof data.transformations[t].id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/id/type", instanceLocation: "#/transformations/"+t+"/id" }]
         return false
       }
-      if (!(pattern0.test(data.transformations[s].id))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/id/pattern", instanceLocation: "#/transformations/"+s+"/id" }]
+      if (!(pattern0.test(data.transformations[t].id))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/id/pattern", instanceLocation: "#/transformations/"+t+"/id" }]
         return false
       }
-      if (!(data.transformations[s].kind === "group" || data.transformations[s].kind === "aggregate" || data.transformations[s].kind === "compare" || data.transformations[s].kind === "rephrase")) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/kind/enum", instanceLocation: "#/transformations/"+s+"/kind" }]
+      if (!(data.transformations[t].kind === "group" || data.transformations[t].kind === "aggregate" || data.transformations[t].kind === "compare" || data.transformations[t].kind === "rephrase")) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/kind/enum", instanceLocation: "#/transformations/"+t+"/kind" }]
         return false
       }
-      if (!(Array.isArray(data.transformations[s].inputs))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/type", instanceLocation: "#/transformations/"+s+"/inputs" }]
+      if (!(Array.isArray(data.transformations[t].inputs))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/type", instanceLocation: "#/transformations/"+t+"/inputs" }]
         return false
       }
-      if (data.transformations[s].inputs.length < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/minItems", instanceLocation: "#/transformations/"+s+"/inputs" }]
+      if (data.transformations[t].inputs.length < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/minItems", instanceLocation: "#/transformations/"+t+"/inputs" }]
         return false
       }
-      for (let t = 0; t < data.transformations[s].inputs.length; t++) {
-        if (t in data.transformations[s].inputs && hasOwn(data.transformations[s].inputs, t)) {
-          if (!(typeof data.transformations[s].inputs[t] === "string")) {
-            validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/items/type", instanceLocation: "#/transformations/"+s+"inputs/"+t }]
+      for (let u = 0; u < data.transformations[t].inputs.length; u++) {
+        if (u in data.transformations[t].inputs && hasOwn(data.transformations[t].inputs, u)) {
+          if (!(typeof data.transformations[t].inputs[u] === "string")) {
+            validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/items/type", instanceLocation: "#/transformations/"+t+"inputs/"+u }]
             return false
           }
-          if (!(pattern0.test(data.transformations[s].inputs[t]))) {
-            validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/items/pattern", instanceLocation: "#/transformations/"+s+"inputs/"+t }]
+          if (!(pattern0.test(data.transformations[t].inputs[u]))) {
+            validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/items/pattern", instanceLocation: "#/transformations/"+t+"inputs/"+u }]
             return false
           }
         }
       }
-      if (!unique(data.transformations[s].inputs)) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/uniqueItems", instanceLocation: "#/transformations/"+s+"/inputs" }]
+      if (!unique(data.transformations[t].inputs)) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/inputs/uniqueItems", instanceLocation: "#/transformations/"+t+"/inputs" }]
         return false
       }
-      if (!(typeof data.transformations[s].output === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/output/type", instanceLocation: "#/transformations/"+s+"/output" }]
+      if (!(typeof data.transformations[t].output === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/output/type", instanceLocation: "#/transformations/"+t+"/output" }]
         return false
       }
-      if (!(pattern0.test(data.transformations[s].output))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/output/pattern", instanceLocation: "#/transformations/"+s+"/output" }]
+      if (!(pattern0.test(data.transformations[t].output))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/output/pattern", instanceLocation: "#/transformations/"+t+"/output" }]
         return false
       }
-      if (!(typeof data.transformations[s].proponent === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/type", instanceLocation: "#/transformations/"+s+"/proponent" }]
+      if (!(typeof data.transformations[t].proponent === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/type", instanceLocation: "#/transformations/"+t+"/proponent" }]
         return false
       }
-      if (data.transformations[s].proponent.length > 2048 && stringLength(data.transformations[s].proponent) > 2048) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/maxLength", instanceLocation: "#/transformations/"+s+"/proponent" }]
+      if (data.transformations[t].proponent.length > 2048 && stringLength(data.transformations[t].proponent) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/maxLength", instanceLocation: "#/transformations/"+t+"/proponent" }]
         return false
       }
-      if (data.transformations[s].proponent.length < 1 || stringLength(data.transformations[s].proponent) < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/minLength", instanceLocation: "#/transformations/"+s+"/proponent" }]
+      if (data.transformations[t].proponent.length < 1 || stringLength(data.transformations[t].proponent) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/minLength", instanceLocation: "#/transformations/"+t+"/proponent" }]
         return false
       }
-      if (!(pattern1.test(data.transformations[s].proponent))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/pattern", instanceLocation: "#/transformations/"+s+"/proponent" }]
+      if (!(pattern1.test(data.transformations[t].proponent))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/proponent/pattern", instanceLocation: "#/transformations/"+t+"/proponent" }]
         return false
       }
-      if (!(typeof data.transformations[s].rule === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/type", instanceLocation: "#/transformations/"+s+"/rule" }]
+      if (!(typeof data.transformations[t].rule === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/type", instanceLocation: "#/transformations/"+t+"/rule" }]
         return false
       }
-      if (data.transformations[s].rule.length > 2048 && stringLength(data.transformations[s].rule) > 2048) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/maxLength", instanceLocation: "#/transformations/"+s+"/rule" }]
+      if (data.transformations[t].rule.length > 2048 && stringLength(data.transformations[t].rule) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/maxLength", instanceLocation: "#/transformations/"+t+"/rule" }]
         return false
       }
-      if (data.transformations[s].rule.length < 1 || stringLength(data.transformations[s].rule) < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/minLength", instanceLocation: "#/transformations/"+s+"/rule" }]
+      if (data.transformations[t].rule.length < 1 || stringLength(data.transformations[t].rule) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/minLength", instanceLocation: "#/transformations/"+t+"/rule" }]
         return false
       }
-      if (!(pattern1.test(data.transformations[s].rule))) {
-        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/pattern", instanceLocation: "#/transformations/"+s+"/rule" }]
+      if (!(pattern1.test(data.transformations[t].rule))) {
+        validate.errors = [{ keywordLocation: "#/properties/transformations/items/properties/rule/pattern", instanceLocation: "#/transformations/"+t+"/rule" }]
         return false
       }
-      for (const key10 of Object.keys(data.transformations[s])) {
+      for (const key10 of Object.keys(data.transformations[t])) {
         if (key10 !== "id" && key10 !== "kind" && key10 !== "inputs" && key10 !== "output" && key10 !== "proponent" && key10 !== "rule") {
-          validate.errors = [{ keywordLocation: "#/properties/transformations/items/additionalProperties", instanceLocation: "#/transformations/"+s+"/"+pointerPart(key10) }]
+          validate.errors = [{ keywordLocation: "#/properties/transformations/items/additionalProperties", instanceLocation: "#/transformations/"+t+"/"+pointerPart(key10) }]
           return false
         }
       }
@@ -1284,14 +1318,14 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/narrative/properties/readingOrder/minItems", instanceLocation: "#/narrative/readingOrder" }]
     return false
   }
-  for (let u = 0; u < data.narrative.readingOrder.length; u++) {
-    if (u in data.narrative.readingOrder && hasOwn(data.narrative.readingOrder, u)) {
-      if (!(typeof data.narrative.readingOrder[u] === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/narrative/properties/readingOrder/items/type", instanceLocation: "#/narrative/readingOrder/"+u }]
+  for (let v = 0; v < data.narrative.readingOrder.length; v++) {
+    if (v in data.narrative.readingOrder && hasOwn(data.narrative.readingOrder, v)) {
+      if (!(typeof data.narrative.readingOrder[v] === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/narrative/properties/readingOrder/items/type", instanceLocation: "#/narrative/readingOrder/"+v }]
         return false
       }
-      if (!(pattern0.test(data.narrative.readingOrder[u]))) {
-        validate.errors = [{ keywordLocation: "#/properties/narrative/properties/readingOrder/items/pattern", instanceLocation: "#/narrative/readingOrder/"+u }]
+      if (!(pattern0.test(data.narrative.readingOrder[v]))) {
+        validate.errors = [{ keywordLocation: "#/properties/narrative/properties/readingOrder/items/pattern", instanceLocation: "#/narrative/readingOrder/"+v }]
         return false
       }
     }
@@ -1342,55 +1376,55 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/minItems", instanceLocation: "#/presentation/static/views" }]
     return false
   }
-  for (let v = 0; v < data.presentation.static.views.length; v++) {
-    if (v in data.presentation.static.views && hasOwn(data.presentation.static.views, v)) {
-      if (!(typeof data.presentation.static.views[v] === "object" && data.presentation.static.views[v] && !Array.isArray(data.presentation.static.views[v]))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/type", instanceLocation: "#/presentation/static/views/"+v }]
+  for (let x = 0; x < data.presentation.static.views.length; x++) {
+    if (x in data.presentation.static.views && hasOwn(data.presentation.static.views, x)) {
+      if (!(typeof data.presentation.static.views[x] === "object" && data.presentation.static.views[x] && !Array.isArray(data.presentation.static.views[x]))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/type", instanceLocation: "#/presentation/static/views/"+x }]
         return false
       }
-      if (!("id" in data.presentation.static.views[v] && hasOwn(data.presentation.static.views[v], "id"))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/required", instanceLocation: "#/presentation/static/views/"+v+"/id" }]
+      if (!("id" in data.presentation.static.views[x] && hasOwn(data.presentation.static.views[x], "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/required", instanceLocation: "#/presentation/static/views/"+x+"/id" }]
         return false
       }
-      if (!("questions" in data.presentation.static.views[v] && hasOwn(data.presentation.static.views[v], "questions"))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/required", instanceLocation: "#/presentation/static/views/"+v+"/questions" }]
+      if (!("questions" in data.presentation.static.views[x] && hasOwn(data.presentation.static.views[x], "questions"))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/required", instanceLocation: "#/presentation/static/views/"+x+"/questions" }]
         return false
       }
-      if (!(typeof data.presentation.static.views[v].id === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+v+"/id" }]
+      if (!(typeof data.presentation.static.views[x].id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+x+"/id" }]
         return false
       }
-      if (!(pattern0.test(data.presentation.static.views[v].id))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+v+"/id" }]
+      if (!(pattern0.test(data.presentation.static.views[x].id))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+x+"/id" }]
         return false
       }
-      if (!(Array.isArray(data.presentation.static.views[v].questions))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/type", instanceLocation: "#/presentation/static/views/"+v+"/questions" }]
+      if (!(Array.isArray(data.presentation.static.views[x].questions))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/type", instanceLocation: "#/presentation/static/views/"+x+"/questions" }]
         return false
       }
-      if (data.presentation.static.views[v].questions.length < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/minItems", instanceLocation: "#/presentation/static/views/"+v+"/questions" }]
+      if (data.presentation.static.views[x].questions.length < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/minItems", instanceLocation: "#/presentation/static/views/"+x+"/questions" }]
         return false
       }
-      for (let x = 0; x < data.presentation.static.views[v].questions.length; x++) {
-        if (x in data.presentation.static.views[v].questions && hasOwn(data.presentation.static.views[v].questions, x)) {
-          if (!(typeof data.presentation.static.views[v].questions[x] === "string")) {
-            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/items/type", instanceLocation: "#/presentation/static/views/"+v+"questions/"+x }]
+      for (let y = 0; y < data.presentation.static.views[x].questions.length; y++) {
+        if (y in data.presentation.static.views[x].questions && hasOwn(data.presentation.static.views[x].questions, y)) {
+          if (!(typeof data.presentation.static.views[x].questions[y] === "string")) {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/items/type", instanceLocation: "#/presentation/static/views/"+x+"questions/"+y }]
             return false
           }
-          if (!(pattern0.test(data.presentation.static.views[v].questions[x]))) {
-            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/items/pattern", instanceLocation: "#/presentation/static/views/"+v+"questions/"+x }]
+          if (!(pattern0.test(data.presentation.static.views[x].questions[y]))) {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/items/pattern", instanceLocation: "#/presentation/static/views/"+x+"questions/"+y }]
             return false
           }
         }
       }
-      if (!unique(data.presentation.static.views[v].questions)) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/static/views/"+v+"/questions" }]
+      if (!unique(data.presentation.static.views[x].questions)) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/static/views/"+x+"/questions" }]
         return false
       }
-      for (const key12 of Object.keys(data.presentation.static.views[v])) {
+      for (const key12 of Object.keys(data.presentation.static.views[x])) {
         if (key12 !== "id" && key12 !== "questions") {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+v+"/"+pointerPart(key12) }]
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+x+"/"+pointerPart(key12) }]
           return false
         }
       }
@@ -1456,55 +1490,55 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/minItems", instanceLocation: "#/presentation/interactive/views" }]
     return false
   }
-  for (let y = 0; y < data.presentation.interactive.views.length; y++) {
-    if (y in data.presentation.interactive.views && hasOwn(data.presentation.interactive.views, y)) {
-      if (!(typeof data.presentation.interactive.views[y] === "object" && data.presentation.interactive.views[y] && !Array.isArray(data.presentation.interactive.views[y]))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/type", instanceLocation: "#/presentation/interactive/views/"+y }]
+  for (let z = 0; z < data.presentation.interactive.views.length; z++) {
+    if (z in data.presentation.interactive.views && hasOwn(data.presentation.interactive.views, z)) {
+      if (!(typeof data.presentation.interactive.views[z] === "object" && data.presentation.interactive.views[z] && !Array.isArray(data.presentation.interactive.views[z]))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/type", instanceLocation: "#/presentation/interactive/views/"+z }]
         return false
       }
-      if (!("id" in data.presentation.interactive.views[y] && hasOwn(data.presentation.interactive.views[y], "id"))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+y+"/id" }]
+      if (!("id" in data.presentation.interactive.views[z] && hasOwn(data.presentation.interactive.views[z], "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+z+"/id" }]
         return false
       }
-      if (!("questions" in data.presentation.interactive.views[y] && hasOwn(data.presentation.interactive.views[y], "questions"))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+y+"/questions" }]
+      if (!("questions" in data.presentation.interactive.views[z] && hasOwn(data.presentation.interactive.views[z], "questions"))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+z+"/questions" }]
         return false
       }
-      if (!(typeof data.presentation.interactive.views[y].id === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+y+"/id" }]
+      if (!(typeof data.presentation.interactive.views[z].id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+z+"/id" }]
         return false
       }
-      if (!(pattern0.test(data.presentation.interactive.views[y].id))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+y+"/id" }]
+      if (!(pattern0.test(data.presentation.interactive.views[z].id))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+z+"/id" }]
         return false
       }
-      if (!(Array.isArray(data.presentation.interactive.views[y].questions))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/type", instanceLocation: "#/presentation/interactive/views/"+y+"/questions" }]
+      if (!(Array.isArray(data.presentation.interactive.views[z].questions))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/type", instanceLocation: "#/presentation/interactive/views/"+z+"/questions" }]
         return false
       }
-      if (data.presentation.interactive.views[y].questions.length < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/minItems", instanceLocation: "#/presentation/interactive/views/"+y+"/questions" }]
+      if (data.presentation.interactive.views[z].questions.length < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/minItems", instanceLocation: "#/presentation/interactive/views/"+z+"/questions" }]
         return false
       }
-      for (let z = 0; z < data.presentation.interactive.views[y].questions.length; z++) {
-        if (z in data.presentation.interactive.views[y].questions && hasOwn(data.presentation.interactive.views[y].questions, z)) {
-          if (!(typeof data.presentation.interactive.views[y].questions[z] === "string")) {
-            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/type", instanceLocation: "#/presentation/interactive/views/"+y+"questions/"+z }]
+      for (let ii = 0; ii < data.presentation.interactive.views[z].questions.length; ii++) {
+        if (ii in data.presentation.interactive.views[z].questions && hasOwn(data.presentation.interactive.views[z].questions, ii)) {
+          if (!(typeof data.presentation.interactive.views[z].questions[ii] === "string")) {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/type", instanceLocation: "#/presentation/interactive/views/"+z+"questions/"+ii }]
             return false
           }
-          if (!(pattern0.test(data.presentation.interactive.views[y].questions[z]))) {
-            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/pattern", instanceLocation: "#/presentation/interactive/views/"+y+"questions/"+z }]
+          if (!(pattern0.test(data.presentation.interactive.views[z].questions[ii]))) {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/pattern", instanceLocation: "#/presentation/interactive/views/"+z+"questions/"+ii }]
             return false
           }
         }
       }
-      if (!unique(data.presentation.interactive.views[y].questions)) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/interactive/views/"+y+"/questions" }]
+      if (!unique(data.presentation.interactive.views[z].questions)) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/interactive/views/"+z+"/questions" }]
         return false
       }
-      for (const key14 of Object.keys(data.presentation.interactive.views[y])) {
+      for (const key14 of Object.keys(data.presentation.interactive.views[z])) {
         if (key14 !== "id" && key14 !== "questions") {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+y+"/"+pointerPart(key14) }]
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+z+"/"+pointerPart(key14) }]
           return false
         }
       }

@@ -89,6 +89,18 @@ test('Edition Project admits a separately attributed cross-source editorial asse
   assert.doesNotThrow(() => validateEditionProject(value));
 });
 
+test('Edition Project addresses a derived projection separately from native source scope', () => {
+  const value = project();
+  value.scope.projectionNamespaces = ['ethos/claims'];
+  value.scope.selections[0].namespace = 'ethos/claims';
+  assert.deepEqual(validateEditionProject(value), value);
+  value.scope.projectionNamespaces.push('ethos/unused');
+  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  value.scope.projectionNamespaces.pop();
+  value.scope.projectionNamespaces = [];
+  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+});
+
 test('Edition Project rejects unknown fields, generated seals, and authored geometry', () => {
   for (const change of [
     (v) => (v.schema = 'architecture.edition-project/v2'),

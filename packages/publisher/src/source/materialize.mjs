@@ -140,6 +140,7 @@ export async function readSelectedInput(root, selection) {
 
 /**
  * @typedef {object} DerivedInput
+ * @property {string} namespace
  * @property {string} claimant
  * @property {{ id: string, version: string }} format
  * @property {{ namespace: string, sha256: string }[]} derivedFrom
@@ -198,7 +199,12 @@ export function sealMaterializedInputLock({
   const nativeByNamespace = new Map(native.map((item) => [item.namespace, item]));
 
   const derivedContents = new Map();
+  const namespaces = new Set(nativeByNamespace.keys());
   const projections = derived.map((item) => {
+    if (typeof item.namespace !== 'string' || !item.namespace.trim())
+      fail('materialized_derived_namespace_invalid');
+    if (namespaces.has(item.namespace)) fail('materialized_derived_namespace_duplicate');
+    namespaces.add(item.namespace);
     if (!Array.isArray(item.derivedFrom) || !item.derivedFrom.length)
       fail('materialized_derived_ancestor_invalid');
     const ancestors = new Set();
@@ -214,6 +220,7 @@ export function sealMaterializedInputLock({
     );
     const content = Buffer.from(item.content);
     const entry = {
+      namespace: item.namespace,
       claimant: item.claimant,
       format: { id: item.format.id, version: item.format.version },
       derivedFrom,
@@ -227,7 +234,6 @@ export function sealMaterializedInputLock({
       sha256: sha(content),
     };
     const key = canonical(entry);
-    if (derivedContents.has(key)) fail('materialized_derived_duplicate');
     derivedContents.set(key, content);
     return { key, entry };
   });

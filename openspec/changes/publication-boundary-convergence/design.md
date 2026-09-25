@@ -386,9 +386,11 @@ selected derived projection therefore has one stable, globally unique
 `namespace`, distinct from every native namespace. The lock binds this address
 to claimant, format, exact bytes, adapter identity, and resolved native
 ancestry; equal bytes do not equate native and derived authority. An Edition
-lists native `sourceNamespaces` and derived `projectionNamespaces` separately,
-then resolves each reference against the named class. Direct-only Editions may
-omit the empty projection list. A duplicate address fails before compilation.
+lists its native `sourceNamespaces` and only the derived
+`projectionNamespaces` it intends to address; it does not echo unused Provider
+outputs. Each reference resolves against its named class. An Edition with no
+derived references may omit the empty projection list. A duplicate address
+fails before compilation.
 Using a content digest as the editor's reference would force unrelated
 re-authoring after every source change; using the Provider-local ID would make
 delivery mode editorial authority; calling executable output native would

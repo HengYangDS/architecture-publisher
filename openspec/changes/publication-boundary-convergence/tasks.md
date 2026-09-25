@@ -174,10 +174,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       Selected Edition resources now use one logical reference and exact bytes
       through direct, declarative, or executable delivery; altered resource
       bytes change the lock rather than being read ambiently.
-      Open gap: derived bytes are locked but have no stable Edition namespace,
-      and Candidate compilation still consumes LikeC4 native input only. Add
-      globally unique derived namespaces and explicit Edition projection scope
-      before claiming ETHOS/AIGW common-compiler conformance.
+      The unreleased v2 Provider and lock now give every derived projection a
+      globally unique semantic namespace distinct from native and Provider-local
+      IDs. Edition authors name only the projections they address; internal
+      Provider outputs need no duplicate editorial list. Cross-Provider
+      collisions, missing or unused Edition addresses fail; local ID renaming
+      preserves lock identity. Focused RED/GREEN, installed Provider, static,
+      package, and warning-free strict OpenSpec checks pass. The full behavior
+      run passes 991 tests with four skips; branch coverage remains 93.25%
+      against the 95% release floor. Candidate compilation still consumes
+      LikeC4 native input only, so ETHOS/AIGW common-compiler conformance is
+      not claimed.
       Focused Provider, supervisor, and module-boundary tests passed; static
       and package checks passed. The full behavior run passed 745 tests,
       skipped 2, with no test failures; branch coverage is 93.06% against the
