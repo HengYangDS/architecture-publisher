@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -6,6 +7,30 @@ import { fail } from '../source/manifest.mjs';
 
 export const PROCESS_CLEANUP_MS = 5_000;
 const gatedWorker = fileURLToPath(new URL('./gated-worker.mjs', import.meta.url));
+
+/** @typedef {{active: boolean, registerOwned: (pid: number) => Promise<void>, releaseOwned: (pid: number) => Promise<void>}} OwnedProcessScope */
+/** @type {AsyncLocalStorage<OwnedProcessScope>} */
+const ownedProcessScope = new AsyncLocalStorage();
+
+/** Bind nested Publisher workers to one invocation without changing compiler inputs. */
+export async function withOwnedProcessScope(owner, operation) {
+  if (
+    !owner ||
+    typeof owner.registerOwned !== 'function' ||
+    typeof owner.releaseOwned !== 'function' ||
+    typeof operation !== 'function' ||
+    ownedProcessScope.getStore()
+  )
+    fail('owned_process_scope_invalid');
+  const scope = { ...owner, active: true };
+  return ownedProcessScope.run(scope, async () => {
+    try {
+      return await operation();
+    } finally {
+      scope.active = false;
+    }
+  });
+}
 
 /**
  * @typedef {{
@@ -21,8 +46,9 @@ const gatedWorker = fileURLToPath(new URL('./gated-worker.mjs', import.meta.url)
  *   scratch: string,
  *   timeoutMs: number, maximumBytes: number, failurePrefix: string,
  *   terminateTree?: (pid: number) => Promise<void>,
- *   registerOwned?: (pid: number) => Promise<void>,
+ *   registerOwned?: (pid: number, child: import('node:child_process').ChildProcess) => Promise<void>,
  *   releaseOwned?: (pid: number) => Promise<void>,
+ *   retainIpc?: boolean,
  *   decode: (raw: string, state: OwnedProcessState, reason: string,
  *     closedBeforeCleanup: boolean) => unknown | Promise<unknown>
  * }} OwnedProcessPlan
@@ -219,8 +245,17 @@ export async function runOwnedProcess({
   terminateTree = undefined,
   registerOwned = undefined,
   releaseOwned = undefined,
+  retainIpc = false,
   decode,
 }) {
+  const scope = ownedProcessScope.getStore();
+  if (scope) {
+    if (!scope.active) fail('owned_process_scope_expired');
+    if (registerOwned !== undefined || releaseOwned !== undefined || retainIpc)
+      fail('owned_process_scope_override_forbidden');
+    registerOwned = scope.registerOwned;
+    releaseOwned = scope.releaseOwned;
+  }
   if (
     !path.isAbsolute(worker) ||
     !path.isAbsolute(requestPath) ||
@@ -238,6 +273,8 @@ export async function runOwnedProcess({
     (registerOwned === undefined) !== (releaseOwned === undefined) ||
     (registerOwned !== undefined && typeof registerOwned !== 'function') ||
     (releaseOwned !== undefined && typeof releaseOwned !== 'function') ||
+    typeof retainIpc !== 'boolean' ||
+    (retainIpc && registerOwned === undefined) ||
     typeof decode !== 'function'
   )
     fail('owned_process_plan_invalid');
@@ -255,7 +292,12 @@ export async function runOwnedProcess({
         : nodeFlags;
     child = spawn(
       process.execPath,
-      [...selectedFlags, gated ? gatedWorker : worker, ...(gated ? [worker] : []), ...args],
+      [
+        ...selectedFlags,
+        gated ? gatedWorker : worker,
+        ...(gated ? [...(retainIpc ? ['--retain-ipc'] : []), worker] : []),
+        ...args,
+      ],
       {
         cwd: scratch,
         env: workerEnvironment(scratch),
@@ -266,11 +308,12 @@ export async function runOwnedProcess({
     );
     const observation = observe(child, maximumBytes, timeoutMs);
     let registrationError;
-    if (gated && child.pid) {
+    if (gated && child.pid && registerOwned) {
+      const register = registerOwned;
       try {
         const registered = await Promise.race([
           Promise.resolve()
-            .then(() => registerOwned(child.pid))
+            .then(() => register(child.pid, child))
             .then(() => 'registered'),
           observation.trigger.then(() => 'worker-stopped'),
         ]);

@@ -496,11 +496,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       and non-admitted without accepter policy. The package-private start gate
       prevents selected worker code before acknowledged ownership registration;
       rejection, timeout, permission, and release-failure counterexamples pass.
-      It is not yet wired to a whole-qualification watchdog or parent registry,
-      so it establishes no total-deadline or cross-platform cleanup guarantee.
-      Replay and binder tests pass 7/7 and 3/3; full behavior passes 968/972
+      The same supervisor now retains owner IPC for nested registration and an
+      invocation-local scope without changing public compiler inputs. Tests
+      reject scope overrides, owner loss, and late work after scope closure.
+      The parent registry and whole-qualification watchdog are not yet wired;
+      no total-deadline or cross-platform cleanup guarantee is established.
+      Replay and binder tests pass 7/7 and 3/3; full behavior passes 974/978
       with four skips. Static, package, and OpenSpec checks pass. Global branch
-      coverage is 93.51%, below the required 95%. The v2 CLI input, overall
+      coverage is 93.57%, below the required 95%. The v2 CLI input, overall
       deadline and process-tree cleanup, policy-bound completeness, and
       independent predicate evidence remain open. Task 6.1 is not complete.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem

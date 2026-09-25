@@ -177,6 +177,166 @@ test('registered worker starts only after acknowledgement and releases after cle
   assert.deepEqual(release, [pid]);
 });
 
+test('registered worker can retain owner IPC for nested ownership messages', async (t) => {
+  const selected = await fixture(
+    t,
+    `if (typeof process.send !== 'function') throw Error('owner channel missing');
+     process.once('message', (reply) => {
+       process.stdout.write(JSON.stringify({ reply }) + '\\n');
+       setInterval(() => {}, 1000);
+     });
+     process.send({ kind: 'nested-worker', pid: process.pid });`,
+  );
+  const messages = [];
+  const result = await runOwnedProcess({
+    ...selected,
+    args: [],
+    timeoutMs: 2_000,
+    maximumBytes: 1024,
+    failurePrefix: 'native_likec4',
+    retainIpc: true,
+    registerOwned: async (_pid, child) => {
+      child.on('message', (message) => {
+        messages.push(message);
+        child.send('acknowledged');
+      });
+    },
+    releaseOwned: async () => {},
+    decode: (raw) => JSON.parse(raw),
+  });
+  assert.equal(messages.length, 1);
+  assert.equal(messages[0].kind, 'nested-worker');
+  assert.deepEqual(result, { reply: 'acknowledged' });
+});
+
+test('retained owner IPC is unavailable without prior registration', async (t) => {
+  const selected = await fixture(t, "process.stdout.write('selected\\n');");
+  await assert.rejects(
+    runOwnedProcess({
+      ...selected,
+      args: [],
+      timeoutMs: 2_000,
+      maximumBytes: 1024,
+      failurePrefix: 'native_likec4',
+      retainIpc: true,
+      decode: (raw) => JSON.parse(raw),
+    }),
+    { code: 'owned_process_plan_invalid' },
+  );
+});
+
+test('retained owner IPC loss terminates selected ordinary worker code', async (t) => {
+  const selected = await fixture(
+    t,
+    "process.stdout.write('ready\\n'); setInterval(() => {}, 1000);",
+  );
+  const child = spawn(process.execPath, [gatedWorker, '--retain-ipc', selected.worker], {
+    cwd: selected.scratch,
+    stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+  });
+  t.after(() => {
+    if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+  });
+  const exited = new Promise((resolve, reject) => {
+    child.once('error', reject);
+    child.once('exit', resolve);
+  });
+  const ready = new Promise((resolve) => {
+    child.stdout.once('data', resolve);
+  });
+  child.send('start');
+  await ready;
+  child.disconnect();
+  assert.equal(await exited, 1);
+});
+
+test('invocation scope registers nested workers without changing their public callers', async (t) => {
+  const runtime = await import('../packages/publisher/src/runtime/process-tree.mjs');
+  assert.equal(typeof runtime.withOwnedProcessScope, 'function');
+  const selected = await fixture(
+    t,
+    'process.stdout.write(\'{"status":"ok"}\\n\'); setInterval(() => {}, 1000);',
+  );
+  const registrations = [];
+  const releases = [];
+  const result = await runtime.withOwnedProcessScope(
+    {
+      registerOwned: async (pid) => {
+        registrations.push(pid);
+      },
+      releaseOwned: async (pid) => {
+        releases.push(pid);
+      },
+    },
+    () =>
+      runOwnedProcess({
+        ...selected,
+        args: [],
+        timeoutMs: 2_000,
+        maximumBytes: 1024,
+        failurePrefix: 'native_likec4',
+        decode: (raw) => JSON.parse(raw),
+      }),
+  );
+  assert.deepEqual(result, { status: 'ok' });
+  assert.equal(registrations.length, 1);
+  assert.deepEqual(releases, registrations);
+});
+
+test('invocation scope cannot be replaced by nested process options', async (t) => {
+  const { withOwnedProcessScope } =
+    await import('../packages/publisher/src/runtime/process-tree.mjs');
+  const selected = await fixture(t, "process.stdout.write('selected\\n');");
+  const owner = { registerOwned: async () => {}, releaseOwned: async () => {} };
+  await assert.rejects(
+    withOwnedProcessScope(owner, () =>
+      runOwnedProcess({
+        ...selected,
+        args: [],
+        timeoutMs: 2_000,
+        maximumBytes: 1024,
+        failurePrefix: 'native_likec4',
+        registerOwned: async () => {},
+        releaseOwned: async () => {},
+        decode: (raw) => JSON.parse(raw),
+      }),
+    ),
+    { code: 'owned_process_scope_override_forbidden' },
+  );
+  await assert.rejects(
+    withOwnedProcessScope(owner, () => withOwnedProcessScope(owner, () => {})),
+    {
+      code: 'owned_process_scope_invalid',
+    },
+  );
+});
+
+test('work scheduled inside a completed invocation cannot start an unowned worker', async (t) => {
+  const { withOwnedProcessScope } =
+    await import('../packages/publisher/src/runtime/process-tree.mjs');
+  const selected = await fixture(t, "process.stdout.write('selected\\n');");
+  let release;
+  let late;
+  const owner = { registerOwned: async () => {}, releaseOwned: async () => {} };
+  await withOwnedProcessScope(owner, () => {
+    const gate = new Promise((resolve) => {
+      release = resolve;
+    });
+    late = gate.then(() =>
+      runOwnedProcess({
+        ...selected,
+        args: [],
+        timeoutMs: 2_000,
+        maximumBytes: 1024,
+        failurePrefix: 'native_likec4',
+        decode: (raw) => JSON.parse(raw),
+      }),
+    );
+  });
+  release();
+  await assert.rejects(late, { code: 'owned_process_scope_expired' });
+});
+
 test('unacknowledged registration cannot extend the selected worker deadline', async (t) => {
   const marker = path.join(os.tmpdir(), `archpub-unacknowledged-${process.pid}-${Date.now()}`);
   t.after(() => fs.rm(marker, { force: true }));
