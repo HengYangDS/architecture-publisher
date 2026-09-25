@@ -118,6 +118,8 @@ export async function compileSelectedEditionCandidateInput(
   const selected = await materializeBuildRequestInput(requestPath, digest, executionChoice);
   if (selected.lock.toolchain.profile !== 'portable') fail('edition_toolchain_profile_unadmitted');
   const meaning = await compileEditionMeaning(selected);
+  if (meaning.native.selections.some(({ format }) => format === 'architecture.claim-model/v2'))
+    fail('edition_media_claim_model_unadmitted');
   const scratch = await fs.mkdtemp(path.join(parent, '.edition-candidate-'));
   try {
     const media = {};

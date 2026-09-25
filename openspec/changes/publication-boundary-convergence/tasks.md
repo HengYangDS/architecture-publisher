@@ -428,6 +428,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       or semantics-only conformance is insufficient: the installed public
       Candidate path must preserve changed claim plane and condition through
       distinct static and interactive carriers or fail before completion.
+      Current partial: exact native and Provider-derived Claim Model v2 inputs
+      now reach one installed semantic compiler without an editable LikeC4 copy.
+      The selected value retains typed claim fields, predicate vocabulary,
+      attributed provenance, and exact derived ancestry; plane/condition
+      changes alter semantic identity. Relocation and changed-pin tests pass.
+      Until media and evolution preserve those fields, public Scene, Candidate,
+      and native evolution entry points fail closed by name. The full behavior
+      run passed 1001 tests with four skips, but branch coverage is 93.20%,
+      below the 95% release gate. This task and Candidate parity remain open.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

@@ -251,6 +251,14 @@ function mapMembers(members, identity) {
 
 /** Compare admitted native selections without converting them to an editable Claim Model. */
 export function compileNativeSelectionDelta(beforeValue, afterValue) {
+  if (
+    [beforeValue, afterValue].some(
+      (value) =>
+        Array.isArray(value?.native?.selections) &&
+        value.native.selections.some(({ format }) => format === 'architecture.claim-model/v2'),
+    )
+  )
+    semanticError('native_claim_model_evolution_unadmitted');
   const before = nativeSide(beforeValue);
   const after = nativeSide(afterValue);
   const sourceBytes = /** @type {{added: string[], removed: string[], changed: string[]}} */ ({

@@ -129,6 +129,8 @@ export function composeInteractiveEditionScene(meaning) {
     !record(meaning.editorial)
   )
     fail('interactive_scene_input_invalid');
+  if (meaning.native.selections.some(({ format }) => format === 'architecture.claim-model/v2'))
+    fail('edition_scene_claim_model_unadmitted');
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
   const questions = new Map(meaning.questions.map((item) => [item.id, item]));

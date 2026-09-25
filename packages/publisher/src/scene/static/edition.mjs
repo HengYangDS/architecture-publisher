@@ -42,6 +42,8 @@ export function composeStaticEditionScene(meaning, layout) {
     !Array.isArray(layout.edges)
   )
     fail('static_scene_input_invalid');
+  if (meaning.native.selections.some(({ format }) => format === 'architecture.claim-model/v2'))
+    fail('edition_scene_claim_model_unadmitted');
   if (meaning.media.static.views.length !== 1) fail('static_scene_composition_ambiguous');
   if (
     meaning.editorial?.visualPolicy?.profile !== 'neutral' ||

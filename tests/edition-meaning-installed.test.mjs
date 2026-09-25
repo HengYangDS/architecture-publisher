@@ -7,6 +7,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { claimModel } from './fixtures/claim-model.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const publisher = fileURLToPath(new URL('../packages/publisher/', import.meta.url));
@@ -232,10 +233,99 @@ try {
   for (const value of [first.lock, first.semantic, first.parser])
     assert.match(value, /^[0-9a-f]{64}$/u);
 
+  const claimInputs = path.join(consumer, 'claim-inputs');
+  await fs.mkdir(path.join(claimInputs, 'sources'), { recursive: true });
+  await fs.mkdir(path.join(claimInputs, 'edition'));
+  const modelBytes = Buffer.from(JSON.stringify(claimModel()) + '\n');
+  await fs.writeFile(path.join(claimInputs, 'sources/model.json'), modelBytes);
+  const claimProject = structuredClone(project);
+  claimProject.id = 'installed-claims';
+  claimProject.scope.sourceNamespaces = ['example/claims'];
+  claimProject.scope.selections = [
+    { id: 'claim', namespace: 'example/claims', kind: 'reference', reference: 'claim:intended' },
+  ];
+  claimProject.requiredAssertions = [
+    { id: 'shape', kind: 'source', selection: 'claim', questions: ['shape'] },
+  ];
+  await fs.writeFile(
+    path.join(claimInputs, 'edition/project.json'),
+    JSON.stringify(claimProject) + '\n',
+  );
+  const claimRequest = {
+    schema: 'architecture.build-request/v1',
+    edition: { kind: 'direct', root: 'edition', manifest: 'project.json' },
+    sources: [
+      {
+        id: 'model',
+        namespace: 'example/claims',
+        format: { id: 'architecture.claim-model', version: '2' },
+        claimant: 'fixture-maintainer',
+        revision: { kind: 'content', algorithm: 'sha256' },
+        input: { kind: 'pin', path: 'sources/model.json', sha256: sha(modelBytes) },
+      },
+    ],
+    providers: [],
+    media: ['static', 'interactive'],
+    toolchain: { profile: 'portable' },
+  };
+  await fs.writeFile(
+    path.join(claimInputs, 'build-request.json'),
+    JSON.stringify(claimRequest) + '\n',
+  );
+  await fs.writeFile(
+    path.join(consumer, 'claim-run.mjs'),
+    `import { createHash } from 'node:crypto';
+import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { materializeBuildRequestInput } from 'architecture-publisher/provider';
+import { compileEditionMeaning, compileEditionCandidateInput } from 'architecture-publisher/compiler';
+const file = fileURLToPath(new URL('./claim-inputs/build-request.json', import.meta.url));
+try {
+  const digest = createHash('sha256').update(await fs.readFile(file)).digest('hex');
+  const selected = await materializeBuildRequestInput(file, digest);
+  const meaning = await compileEditionMeaning(selected);
+  let mediaFailure = null;
+  try {
+    await compileEditionCandidateInput(file, digest, fileURLToPath(new URL('./claim-candidate', import.meta.url)));
+  } catch (error) {
+    mediaFailure = error.code;
+  }
+  console.log(JSON.stringify({ status: 'ok', digest: meaning.native.semanticDigest,
+    plane: meaning.native.selections[0].members.claims[0].plane,
+    sourceClass: meaning.native.selections[0].sourceClass, mediaFailure }));
+} catch (error) {
+  console.log(JSON.stringify({ status: 'error', code: error.code ?? 'unattributed' }));
+  process.exitCode = 1;
+}
+`,
+  );
+  const claimRun = (directory, expectedStatus = 0) =>
+    JSON.parse(
+      child(
+        process.execPath,
+        [path.join(directory, 'claim-run.mjs')],
+        directory,
+        nodeEnvironment,
+        expectedStatus,
+      ).trim(),
+    );
+  const claimFirst = claimRun(consumer);
+  assert.equal(claimFirst.status, 'ok');
+  assert.equal(claimFirst.plane, 'intended');
+  assert.equal(claimFirst.sourceClass, 'native');
+  assert.equal(claimFirst.mediaFailure, 'edition_media_claim_model_unadmitted');
+  assert.match(claimFirst.digest, /^[0-9a-f]{64}$/u);
+
   const relocated = path.join(work, 'relocated');
   await fs.cp(consumer, relocated, { recursive: true });
   await fs.rm(consumer, { recursive: true, force: true });
   assert.deepEqual(run(relocated), first);
+  assert.deepEqual(claimRun(relocated), claimFirst);
+  await fs.appendFile(path.join(relocated, 'claim-inputs/sources/model.json'), '\n');
+  assert.deepEqual(claimRun(relocated, 1), {
+    status: 'error',
+    code: 'materialized_pin_mismatch',
+  });
   await fs.appendFile(path.join(relocated, 'inputs/sources/model.c4'), '\n');
   assert.deepEqual(run(relocated, 1), { status: 'error', code: 'materialized_pin_mismatch' });
 });

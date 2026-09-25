@@ -242,6 +242,8 @@ entity and relation identities and each selected claim's plane, condition,
 scope, validity, maturity, dependencies, and provenance. Layout-only graph
 geometry SHALL NOT discharge those semantics; unsupported expression SHALL
 fail or remain an explicit reader-question limit.
+Its selector format SHALL be `architecture.claim-model` version `2`; the JSON
+payload schema remains `architecture.claim-model/v2`.
 
 #### Scenario: A claim has the same endpoints but a changed condition
 
