@@ -16,7 +16,8 @@ export function projectInteractivePage(page, index) {
     !Array.isArray(page.sourceAssertionCarriers) ||
     !Array.isArray(page.editorialAssertions) ||
     !page.limitsByQuestion ||
-    typeof page.limitsByQuestion !== 'object'
+    typeof page.limitsByQuestion !== 'object' ||
+    Array.isArray(page.limitsByQuestion)
   )
     fail('render_interactive_scene_invalid');
 
@@ -72,6 +73,15 @@ export function projectInteractivePage(page, index) {
 
   const questions = new Map(page.questions.map((question) => [question?.id, question]));
   if (questions.size !== page.questions.length) fail('render_interactive_identity_ambiguous');
+  const questionIds = new Set(page.questionIds);
+  if (
+    questionIds.size !== page.questionIds.length ||
+    questionIds.size !== questions.size ||
+    [...questionIds].some((id) => !text(id) || !questions.has(id)) ||
+    Object.keys(page.limitsByQuestion).length !== questionIds.size ||
+    Object.keys(page.limitsByQuestion).some((id) => !questionIds.has(id))
+  )
+    fail('render_interactive_question_invalid');
   const publicQuestions = page.questionIds.map((id) => {
     const question = questions.get(id);
     const limits = page.limitsByQuestion[id];

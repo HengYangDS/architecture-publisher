@@ -445,14 +445,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       consumed authoring bytes, selected visual policy, renderer, font supply,
       dimensions, and final artifacts independently per medium. Infeasible layout
       returns for editorial regrouping rather than silently dropping meaning.
-      Partial: neutral static SVG now emits only opaque graphic IDs; its
-      source-to-graphic map remains private and its digest is bound into
-      Candidate v2 separately from the interactive map. The exact built SVG
-      and HTML are checked in Chrome for visible carriers and source-namespace
-      non-disclosure. Static assertion carriers now retain source-qualified
-      node and relation references; a same-ID cross-namespace counterexample
-      no longer collapses them. This proves those tested carrier observations, not full
-      view/question coverage or reader acceptance.
+      Partial: static SVG exposes only opaque graphic IDs. Its private carrier
+      map now binds each source-qualified node/relation and assertion to visible
+      graphic IDs; the Candidate binds that map separately from interactive.
+      Renderer-level RED/GREEN rejects hidden-only questions and limits in both
+      media and unclaimed static graphics; static relation notes preserve
+      bidirectional meaning. Earlier Chrome checks observed source-namespace
+      non-disclosure, but do not qualify the changed Candidate. Focused tests
+      pass 57/57; static, package, and strict OpenSpec checks pass. Full behavior
+      passes 940 tests, skips 4, with no test failure; branch coverage is 93.51%
+      against the 95% gate. Independent review confirms that rendered carrier
+      maps alone cannot prove assertion/question coverage: a verifier must join
+      them to exact selected obligations and reject invented assertion IDs.
+      Full visible coverage, browser/human review on final bytes, and acceptance
+      remain open.
 - [ ] 5.5 Migrate `editions/self/` to the same public Build Request, Edition,
       and dual-medium compiler used by unrelated adopters. Preserve self-owned
       source meaning and selected flagship art direction, but remove hidden

@@ -1,6 +1,8 @@
 import { fail } from '../../src/source/manifest.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
+const relationKey = ({ namespace, reference, sha256 }) =>
+  JSON.stringify([namespace, reference, sha256]);
 const advance = (value, size) => [...value].length * size * 0.61;
 const escape = (value) =>
   String(value)
@@ -95,6 +97,50 @@ function namedSection(output, name, items, x, y, width) {
   return y + 17;
 }
 
+function validateSourceCarriers(scene) {
+  const nodes = new Set(scene.nodes.map(key));
+  const relationEntries = scene.edges.flatMap(({ relations }) => relations);
+  const relations = new Set(relationEntries.map(relationKey));
+  if (nodes.size !== scene.nodes.length || relations.size !== relationEntries.length)
+    fail('static_edition_carrier_ambiguous');
+  const claimedNodes = new Set();
+  const claimedRelations = new Set();
+  const assertions = new Set();
+  for (const carrier of scene.sourceAssertionCarriers) {
+    if (
+      typeof carrier?.assertionId !== 'string' ||
+      !carrier.assertionId ||
+      assertions.has(carrier.assertionId) ||
+      !Array.isArray(carrier.nodeRefs) ||
+      !Array.isArray(carrier.relationRefs) ||
+      (!carrier.nodeRefs.length && !carrier.relationRefs.length)
+    )
+      fail('static_edition_carrier_invalid');
+    assertions.add(carrier.assertionId);
+    for (const ref of carrier.nodeRefs) {
+      if (!ref || typeof ref.namespace !== 'string' || typeof ref.id !== 'string')
+        fail('static_edition_carrier_invalid');
+      const identity = key(ref);
+      if (!nodes.has(identity)) fail('static_edition_carrier_invalid');
+      claimedNodes.add(identity);
+    }
+    for (const ref of carrier.relationRefs) {
+      if (
+        !ref ||
+        typeof ref.namespace !== 'string' ||
+        typeof ref.reference !== 'string' ||
+        typeof ref.sha256 !== 'string'
+      )
+        fail('static_edition_carrier_invalid');
+      const identity = relationKey(ref);
+      if (!relations.has(identity)) fail('static_edition_carrier_invalid');
+      claimedRelations.add(identity);
+    }
+  }
+  if (nodes.size !== claimedNodes.size || relations.size !== claimedRelations.size)
+    fail('static_edition_carrier_unclaimed');
+}
+
 /** Paint an unqualified, source-bound static Scene without acquiring meaning. */
 export function composeStaticEditionSvg(scene) {
   if (
@@ -106,6 +152,7 @@ export function composeStaticEditionSvg(scene) {
     !Array.isArray(scene.edges) ||
     scene.edges.some((edge) => !edge || !Array.isArray(edge.relations)) ||
     !Array.isArray(scene.questions) ||
+    !Array.isArray(scene.sourceAssertionCarriers) ||
     !Array.isArray(scene.editorialAssertions) ||
     !Array.isArray(scene.limits) ||
     !scene.limitsByQuestion ||
@@ -113,6 +160,19 @@ export function composeStaticEditionSvg(scene) {
     Array.isArray(scene.limitsByQuestion)
   )
     fail('static_edition_scene_invalid');
+  if (!Array.isArray(scene.questionIds)) fail('static_edition_question_invalid');
+  const questionIds = new Set(scene.questionIds);
+  const questions = new Map(scene.questions.map((question) => [question?.id, question]));
+  if (
+    questionIds.size !== scene.questionIds.length ||
+    questions.size !== scene.questions.length ||
+    questionIds.size !== questions.size ||
+    [...questionIds].some((id) => typeof id !== 'string' || !id || !questions.has(id)) ||
+    Object.keys(scene.limitsByQuestion).length !== questionIds.size ||
+    Object.keys(scene.limitsByQuestion).some((id) => !questionIds.has(id))
+  )
+    fail('static_edition_question_invalid');
+  validateSourceCarriers(scene);
   const rasterWidth = scene.requestedWidth ?? 1800;
   if (!Number.isSafeInteger(rasterWidth) || rasterWidth < 320 || rasterWidth > 12000)
     fail('static_edition_width_invalid');
@@ -201,7 +261,7 @@ export function composeStaticEditionSvg(scene) {
         },
       });
       return {
-        text: `${labels.get(key(edge.from))} → ${labels.get(key(edge.to))}${qualifiers ? ` · ${qualifiers}` : ''}`,
+        text: `${labels.get(key(edge.from))} ${relation.direction === 'bidirectional' ? '↔' : '→'} ${labels.get(key(edge.to))}${qualifiers ? ` · ${qualifiers}` : ''}`,
         graphicId,
       };
     }),
@@ -232,6 +292,12 @@ export function composeStaticEditionSvg(scene) {
   const translateY = bounds ? graphTop + 42 + (graphHeight - 42 - bounds.height) / 2 - bounds.y : 0;
   const height = Math.ceil(graphTop + graphHeight + 48);
   if (height > 12_000) fail('static_edition_geometry_invalid');
+  const nodeGraphicIds = new Map(
+    nodeCarriers.map(({ source, graphicId }) => [key(source), graphicId]),
+  );
+  const relationGraphicIds = new Map(
+    relationCarriers.map(({ source, graphicId }) => [relationKey(source), graphicId]),
+  );
   const lines = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="edition-title edition-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">`,
     `<title id="edition-title">${escape(scene.title)}</title>`,
@@ -254,6 +320,14 @@ export function composeStaticEditionSvg(scene) {
     width,
     height,
     rasterWidth,
-    carriers: { nodes: nodeCarriers, relations: relationCarriers },
+    carriers: {
+      nodes: nodeCarriers,
+      relations: relationCarriers,
+      assertions: scene.sourceAssertionCarriers.map(({ assertionId, nodeRefs, relationRefs }) => ({
+        assertionId,
+        nodeGraphicIds: nodeRefs.map((ref) => nodeGraphicIds.get(key(ref))),
+        relationGraphicIds: relationRefs.map((ref) => relationGraphicIds.get(relationKey(ref))),
+      })),
+    },
   };
 }

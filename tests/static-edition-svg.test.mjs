@@ -70,7 +70,7 @@ test('a bidirectional source relation retains both directions and its kind', () 
   input.edges[0].relations[0].kind = 'peer';
   const output = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
   assert.match(output, /marker-start="url\(#source-arrow\)"/u);
-  assert.match(output, /Alpha &amp; one → Beta · peer/u);
+  assert.match(output, /Alpha &amp; one ↔ Beta · peer/u);
 });
 
 test('malformed editorial and relation collections fail with a named diagnostic', () => {
@@ -180,11 +180,19 @@ test('the renderer rejects infeasible geometry without cropping selected meaning
     ],
     [
       'mixed directions',
-      (input) =>
-        input.edges[0].relations.push({
+      (input) => {
+        const relation = {
           ...input.edges[0].relations[0],
+          reference: 'relation:5:2',
           direction: 'bidirectional',
-        }),
+        };
+        input.edges[0].relations.push(relation);
+        input.sourceAssertionCarriers[0].relationRefs.push({
+          namespace: relation.namespace,
+          reference: relation.reference,
+          sha256: relation.sha256,
+        });
+      },
       'static_edition_direction_unrepresentable',
     ],
     ['narrow node', (input) => (input.nodes[0].width = 95), 'static_edition_node_unrepresentable'],
