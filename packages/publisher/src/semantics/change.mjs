@@ -1,6 +1,8 @@
+import { createHash } from 'node:crypto';
 import {
   CLAIM_MODEL_SECTIONS,
   canonical,
+  deepFreeze,
   exact,
   record,
   strings,
@@ -189,4 +191,186 @@ export function compileClaimModelDelta(before, after, correspondences = []) {
     scope:
       'Claim Model identity and dependency change only; no Edition, artifact, verification, acceptance or publication effect',
   };
+}
+
+const nativeDigest = (value) => createHash('sha256').update(canonical(value)).digest('hex');
+const nativeIdentity = ({ namespace, id }) => canonical([namespace, id]);
+const relationValues = (members) =>
+  members
+    .map(({ from, to, kind, direction, label, opaqueMetadata }) =>
+      canonical([from, to, kind, direction, label, opaqueMetadata]),
+    )
+    .sort();
+
+function nativeSide(value) {
+  if (
+    !record(value) ||
+    value.lock?.schema !== 'architecture.materialized-input-lock/v1' ||
+    !Array.isArray(value.lock.sources) ||
+    !record(value.native) ||
+    !Array.isArray(value.native.selections) ||
+    value.native.subjectLockSha256 !== nativeDigest(value.lock)
+  )
+    semanticError('native_evolution_input_invalid');
+  const sources = new Map();
+  for (const source of value.lock.sources) {
+    if (!text(source?.namespace) || !text(source?.sha256) || sources.has(source.namespace))
+      semanticError('native_evolution_input_invalid');
+    sources.set(source.namespace, source);
+  }
+  const selections = new Map();
+  for (const selection of value.native.selections) {
+    if (
+      !text(selection?.selectionId) ||
+      !record(selection.source) ||
+      !record(selection.target) ||
+      !record(selection.members) ||
+      !Array.isArray(selection.members.elements) ||
+      !Array.isArray(selection.members.relations) ||
+      !sources.has(selection.source.namespace) ||
+      selections.has(selection.selectionId)
+    )
+      semanticError('native_evolution_input_invalid');
+    selections.set(selection.selectionId, selection);
+  }
+  return { lock: value.lock, native: value.native, sources, selections };
+}
+
+function mapMembers(members, identity) {
+  const result = new Map();
+  for (const member of members) {
+    const key = identity(member);
+    if (result.has(key)) semanticError('native_evolution_input_invalid');
+    result.set(key, member);
+  }
+  return result;
+}
+
+/** Compare admitted native selections without converting them to an editable Claim Model. */
+export function compileNativeSelectionDelta(beforeValue, afterValue) {
+  const before = nativeSide(beforeValue);
+  const after = nativeSide(afterValue);
+  const sourceBytes = /** @type {{added: string[], removed: string[], changed: string[]}} */ ({
+    added: [],
+    removed: [],
+    changed: [],
+  });
+  const sourceBindings = /** @type {{changed: string[]}} */ ({ changed: [] });
+  for (const namespace of sorted([...before.sources.keys(), ...after.sources.keys()])) {
+    const prior = before.sources.get(namespace);
+    const next = after.sources.get(namespace);
+    if (!prior) sourceBytes.added.push(namespace);
+    else if (!next) sourceBytes.removed.push(namespace);
+    else {
+      if (prior.sha256 !== next.sha256) sourceBytes.changed.push(namespace);
+      if (
+        canonical([prior.claimant, prior.format, prior.revision]) !==
+        canonical([next.claimant, next.format, next.revision])
+      )
+        sourceBindings.changed.push(namespace);
+    }
+  }
+  const supported = [];
+  const unknown = [];
+  const changedSourceSet = new Set([
+    ...sourceBytes.added,
+    ...sourceBytes.removed,
+    ...sourceBytes.changed,
+  ]);
+  const add = (selectionId, subject, fields) => {
+    if (fields.length) supported.push({ selectionId, subject, fields: sorted(fields) });
+  };
+  for (const selectionId of sorted([...before.selections.keys(), ...after.selections.keys()])) {
+    const prior = before.selections.get(selectionId);
+    const next = after.selections.get(selectionId);
+    if (!prior || !next) {
+      add(selectionId, { kind: 'selection', id: selectionId }, [prior ? 'removed' : 'added']);
+      continue;
+    }
+    const targetFields = ['kind', 'id', 'identityScope'].filter(
+      (field) => canonical(prior.target[field]) !== canonical(next.target[field]),
+    );
+    add(selectionId, { kind: 'selection', id: selectionId }, targetFields);
+    const priorElements = mapMembers(prior.members.elements, nativeIdentity);
+    const nextElements = mapMembers(next.members.elements, nativeIdentity);
+    const priorRelations = mapMembers(prior.members.relations, (item) =>
+      nativeIdentity({ namespace: item.origin?.namespace, id: item.id }),
+    );
+    const nextRelations = mapMembers(next.members.relations, (item) =>
+      nativeIdentity({ namespace: item.origin?.namespace, id: item.id }),
+    );
+    const membershipFields = [];
+    if (canonical([...priorElements.keys()].sort()) !== canonical([...nextElements.keys()].sort()))
+      membershipFields.push('elements');
+    const relationIdsChanged =
+      canonical([...priorRelations.keys()].sort()) !== canonical([...nextRelations.keys()].sort());
+    if (
+      relationIdsChanged ||
+      [...priorRelations.values(), ...nextRelations.values()].some(({ origin }) =>
+        changedSourceSet.has(origin.namespace),
+      )
+    )
+      unknown.push({ reason: 'relation-lineage-unproved', selectionId });
+    if (
+      canonical(relationValues(prior.members.relations)) !==
+      canonical(relationValues(next.members.relations))
+    )
+      add(
+        selectionId,
+        { kind: 'relation-set', namespace: next.target.origin.namespace, id: next.target.id },
+        ['relation-values'],
+      );
+    add(
+      selectionId,
+      {
+        kind: next.target.kind === 'view' ? 'view-membership' : 'selection-membership',
+        namespace: next.target.origin.namespace,
+        id: next.target.id,
+      },
+      membershipFields,
+    );
+    for (const identity of sorted([...priorElements.keys(), ...nextElements.keys()])) {
+      const left = priorElements.get(identity);
+      const right = nextElements.get(identity);
+      if (!left || !right) continue;
+      add(
+        selectionId,
+        { kind: 'element', namespace: right.namespace, id: right.id },
+        ['kind', 'label', 'opaqueMetadata'].filter(
+          (field) => canonical(left[field]) !== canonical(right[field]),
+        ),
+      );
+    }
+  }
+  const changedSources = sorted([
+    ...sourceBytes.added,
+    ...sourceBytes.removed,
+    ...sourceBytes.changed,
+  ]);
+  if (
+    changedSources.length &&
+    (before.native.nativeClosure !== 'complete' || after.native.nativeClosure !== 'complete')
+  )
+    unknown.push({ reason: 'dependency-closure-unproved', sources: changedSources });
+  const supplyChanged =
+    canonical(before.native.parserSupply) !== canonical(after.native.parserSupply);
+  supported.sort((left, right) => lexical(canonical(left), canonical(right)));
+  unknown.sort((left, right) => lexical(canonical(left), canonical(right)));
+  return deepFreeze({
+    schema: 'architecture.native-selection-change/v1',
+    before: before.native.semanticDigest,
+    after: after.native.semanticDigest,
+    sourceBytes,
+    sourceBindings,
+    supported,
+    unknown,
+    supplyChanged,
+    hasChanges:
+      changedSources.length > 0 ||
+      sourceBindings.changed.length > 0 ||
+      supported.length > 0 ||
+      unknown.length > 0 ||
+      supplyChanged,
+    scope: 'Selected native change facts only; no Edition, media, approval or publication effect',
+  });
 }

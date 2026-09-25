@@ -329,6 +329,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       claim dependencies, unknown read sets, and packaging-only changes. Report
       rebuild, semantic, media, human, acceptance, and publication obligations
       separately; do not transfer old approval automatically.
+      Partial: a pure comparison of already admitted native selections now
+      separates source-byte changes, source-attribution changes, source-bound
+      element fields, view element membership, relation-value multisets, and
+      parser-supply identity. Ruling: a source-location relation ID is not
+      cross-revision correspondence; locator drift remains an explicit lineage
+      unknown and cannot by itself prove a changed view membership. Six real
+      LikeC4 counterexamples passed after RED/GREEN; static checks passed.
+      Edition impact, indirect dependencies, installed comparison, package-only
+      evidence, and all six obligation classes remain open. The full behavior
+      run passed 911 tests, skipped 4, with no test failures; branch coverage
+      was 93.70%, below the unchanged 95% release gate.
 
 ## 5. Editorial composition and independent media
 
