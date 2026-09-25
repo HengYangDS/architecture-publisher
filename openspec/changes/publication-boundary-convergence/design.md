@@ -413,56 +413,25 @@ bytes fails before compilation.
 Historical v1 manifests and signed outputs retain their old meanings and bytes;
 a SemVer successor does not reinterpret them in place.
 
-### Capability-bound local input (proposal for design review)
+### Local-input race boundary
 
-The current pathname reader can follow an outside ancestor when a checked
-parent is replaced with a symlink before `open`. A matching byte digest does
-not establish path confinement. This affects Source Bundle inventory, direct
-and Provider-selected inputs, Edition resources, and recursive executable
-package scanning. Repeating `lstat` or `realpath` cannot repair the race.
+Publisher is a caller-invoked local compiler, not a service that promises
+isolation from a hostile same-user filesystem mutator. Bounded regular-file
+reads and stable symlink rejection reduce accidental misselection; a pathname
+check followed by `open` does not prove confinement under concurrent ancestor
+replacement. The lock binds bytes actually consumed, not an atomic multi-file
+snapshot or a race-free path. A changed pin fails, and the read method and
+concurrent-mutation limit remain explicit qualification evidence.
 
-The proposed boundary retains local authoring paths but moves only selected
-file reading and tree enumeration into one package-private, bounded native
-reader built on a pinned stable `cap-std` release. It is not a new public
-command, adapter registry, repository authority, or Provider sandbox. For
-an absolute path, the reader anchors at the operating system volume root and
-opens **each** component relative to the previous directory handle with
-no-follow semantics. On Windows it additionally rejects an opened reparse
-point of any tag. It reads only regular files from the final handle and
-recurses through directory handles, never by reopening a previously checked
-pathname. Unsupported path forms, platforms, architectures, missing native
-supply, and integrity mismatches fail closed; there is no JavaScript fallback.
-
-One internal protocol provides bounded `read-file` and `scan-tree` operations.
-A scan returns sorted, portable member paths, sizes and digests, and exact
-bytes only for explicitly selected members. Partial output is discarded if
-the helper fails. Publisher keeps format, manifest, Edition, Provider, and
-identity validation; the helper exposes no semantic interpretation or write
-operation. This gives Source Bundle and Provider package inventory the same
-path-confinement primitive instead of a separate scan implementation. The
-native executable and its platform digests are packaged with the Publisher
-archive, resolved from package-local paths, and tested after offline
-relocation. The source file and executable names describe this responsibility,
-not a protocol generation.
-
-This design does **not** claim an atomic snapshot of a mutating multi-file
-tree, hermetic Provider execution, or resistance to an actor replacing the
-contents of an already-open regular file. The lock binds the bytes actually
-read; a changed pin fails. Cross-platform race tests must show that outside
-bytes are never consumed even when their digest matches. Stable-tree
-membership and file-content mutation remain distinct, explicit acceptance
-limits. Native macOS, Linux, and Windows tests must cover ancestor and final
-symlinks, Windows junctions and other reparse points, rename races, regular
-files, limits, and package relocation. First-party native code enters the
-95% quality bar rather than escaping coverage by being outside JavaScript.
-The sidecar is admitted only if this matrix and measured package/runtime cost
-pass; otherwise revisit transport without weakening the source-intake claim.
-
-A self-contained carrier still needs a trusted initial read and would change
-direct-mode authoring. Caller-supplied handles transfer confinement and
-provenance duties to every adopter. An in-process native addon could avoid
-process overhead but adds Node ABI and crash coupling. The bounded sidecar
-is the preferred review candidate, not yet an implemented or qualified fact.
+A native capability-bound reader is deferred, not a hidden prerequisite for
+Task 2.4. It would add a cross-platform executable, distribution and license
+closure, a second read protocol, and native test and coverage obligations
+without solving atomic multi-file snapshots or arbitrary same-user mutation.
+No admitted consumer or requirement currently needs the stronger property.
+If that boundary becomes necessary, first name the hostile-mutator consumer
+and acceptance predicate, then compare source-owned immutable snapshots,
+caller-supplied handles, and a native reader on the same counterexample and
+total ownership cost. Do not claim path confinement meanwhile.
 
 ## Import, identity, and semantic limits
 

@@ -1074,8 +1074,9 @@ of a checked parent with a symlink can therefore make it read an outside file
 before the member digest is compared. A matching digest does not prove that
 the read stayed inside the selected directory. More `lstat` or `realpath`
 checks before or after `open` cannot make the separate operations atomic.
-The active Change correctly treats this as a release blocker, not a qualified
-path-confinement claim.
+The probe established an unproved path-confinement boundary, not a qualified
+path-confinement claim. Whether that stronger property blocks a release is an
+acceptance-policy decision, not a consequence of the byte-lock requirement.
 
 The pinned upstream [cap-std 4.0.3 source](https://github.com/bytecodealliance/cap-std/tree/b7acf8e8807fe3fab991884d2208b7e03d35a409)
 describes handle-relative `Dir::open` and support for Linux, macOS and Windows.
@@ -1108,7 +1109,8 @@ classifies name-surrogate reparse points as symlinks; the
 [mount-point tag](https://github.com/rust-lang/rust/blob/1.98.1/library/std/src/sys/pal/windows/c/windows_sys.rs)
 has that bit. This supports a junction-rejection hypothesis, **not** a
 native Windows result or proof for every reparse tag and race. A platform
-counterexample and packaged offline test remain release prerequisites.
+counterexample and packaged offline test would be prerequisites for a future
+claim of race-resistant path confinement.
 
 A disposable macOS probe built exactly `cap-std = 4.0.3` and
 `cap-fs-ext = 4.0.3` into a 472 KiB release executable. It started at the
@@ -1155,10 +1157,13 @@ Three candidate boundaries remain for a reviewed decision:
    own more security-critical platform code; prefer the maintained capability
    library unless measured integration evidence reverses that trade-off.
 
-None of the candidates is yet admitted. The next design review must select one
-boundary and its cross-platform counterexamples before implementation. The
-current unqualified direct and Provider v2 readers cannot support a successor
-release claim of concurrent path confinement.
+None of the candidates is admitted. On 2026-09-26 the active design deferred
+the native reader: no named consumer or approved requirement presently needs
+race-resistant confinement from a hostile same-user mutator. The existing
+readers bind consumed bytes and disclose the concurrent-mutation limit; they
+cannot support a release claim of concurrent path confinement. A selected
+acceptance policy may still reject that limit. Reopen this evaluation only
+with a named consumer, explicit predicate, and cross-platform counterexamples.
 
 ## Neutral interactive renderer probe (2026-09-25)
 

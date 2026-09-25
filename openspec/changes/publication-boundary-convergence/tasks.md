@@ -119,10 +119,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       `selected-roots-only`, the concurrent path-mutation limit, and named
       dependency limits remain outside that identity. Do not promote a
       toolchain profile slug or Provider declaration into observed backend or
-      hermetic evidence. The focused 20/20 tests, static and package checks
-      passed; the full check passed 697 tests, skipped 2, and failed only branch
-      coverage at 92.93%. Resume complete closure at its actual consumers, then
-      close this task before Candidate qualification and protected publication.
+      hermetic evidence. A native capability-bound reader is deferred absent a
+      named hostile-mutator consumer and acceptance predicate; it is not a
+      prerequisite for this task. The focused 20/20 tests, static and package
+      checks passed; the full check passed 697 tests, skipped 2, and failed only
+      branch coverage at 92.93%. Resume complete closure at its actual consumers,
+      then close this task before Candidate qualification and protected publication.
 - [x] 2.5 Replay exact Source Bundle v1, Claim Model v2, Edition v1,
       Provider v1, Candidate v1, and Qualification Set v1 meanings in source
       tests and a packed, offline-installed work-lane package. The frozen hash
