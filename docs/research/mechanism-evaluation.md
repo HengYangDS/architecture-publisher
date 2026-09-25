@@ -230,6 +230,18 @@ canvas, factoring the common plane and condition once. This is neither the
 five-group structural scene nor a qualified AIGW publication; it only bounds
 the cost of a nonduplicating static grammar.
 
+With the same AIGW source, a separate read-only, source-adjacent trial of the
+unreleased Edition Project carried all four questions, five authored groups,
+eleven relation selections and eleven claim selections through materialization,
+meaning, shared grouped geometry and static Scene composition. The result has
+twelve nodes, eleven edges, eleven distinct claim cards and 22 independently
+bound source-assertion carriers. It is `unqualified-scene`: the public renderer
+still rejects a graph-plus-claim mix rather than overlaying two regions, and
+there is no interactive Scene, paired Candidate, installed run or visual
+acceptance for this AIGW trial. Its eleven relation/claim links are derived
+from exact same-source dependency references, not an additional edited input;
+they have not yet become visible compound carriers.
+
 ## Consequences for ETHOS
 
 ETHOS is best treated as the hard trust skeleton for an agentic-native

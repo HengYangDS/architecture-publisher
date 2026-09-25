@@ -24,6 +24,7 @@ import { projectInteractivePage } from '../packages/publisher/renderers/cytoscap
 import { verifySelectedCandidateReplay } from '../packages/publisher/src/qualification/index.mjs';
 import { canonical } from '../packages/publisher/src/source/json.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
+import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/static/grouped-selection.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const modelFormat = { id: 'architecture.claim-model', version: '2' };
@@ -577,6 +578,94 @@ test('unsupported Claim Model entity and relation media remain fail-closed', asy
     );
     await assert.rejects(fs.stat(output), { code: 'ENOENT' });
   }
+});
+
+test('a grouped static Scene retains relation and dependent claim as separate source assertions', async (t) => {
+  const model = claimModel();
+  model.relations.request.qualifiers = { phase: 'selected', z: 'tail', ä: 'accent' };
+  const selected = await fixture(t, { model, reference: 'relation:request' });
+  selected.project.scope.selections[0].id = 'selected-relation';
+  selected.project.scope.selections.push({
+    id: 'selected-claim',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'claim:intended',
+    questions: ['condition'],
+  });
+  selected.project.presentation.static.views[0].groups = [
+    {
+      id: 'client-group',
+      label: 'Client',
+      elements: [{ namespace: modelNamespace, id: 'client' }],
+    },
+    {
+      id: 'server-group',
+      label: 'Server',
+      elements: [{ namespace: modelNamespace, id: 'server' }],
+    },
+  ];
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const layout = composeGroupedSelectionLayout(meaning);
+  const scene = composeStaticEditionScene(meaning, layout);
+  assert.equal(scene.nativeView, null);
+  assert.deepEqual(
+    scene.nodes.map(({ id }) => id),
+    ['client', 'server'],
+  );
+  assert.deepEqual(
+    scene.edges[0].relations.map(({ reference }) => reference),
+    ['request'],
+  );
+  assert.equal(scene.edges[0].relations[0].label, 'phase: selected · z: tail · ä: accent');
+  assert.equal(scene.claimCards.length, 1);
+  assert.deepEqual(scene.claimRelationLinks, [
+    { claimAssertionId: 'selected-claim', relationAssertionId: 'selected-relation' },
+  ]);
+  assert.deepEqual(
+    scene.sourceAssertionCarriers.map(({ kind }) => kind),
+    ['relation', 'claim'],
+  );
+  assert.deepEqual(scene.sourceAssertionCarriers[0].relationRefs, [
+    {
+      namespace: modelNamespace,
+      reference: 'request',
+      sha256: meaning.native.selections[0].source.sha256,
+    },
+  ]);
+  assert.deepEqual(scene.sourceAssertionCarriers[1].claimRefs, [
+    {
+      namespace: modelNamespace,
+      reference: 'intended',
+      sha256: meaning.native.selections[1].source.sha256,
+    },
+  ]);
+  const forged = structuredClone(layout);
+  forged.edges[0].relations[0].reference = 'missing-relation';
+  assert.throws(() => composeStaticEditionScene(meaning, forged), {
+    code: 'static_scene_native_membership_mismatch',
+  });
+  const malformed = structuredClone(meaning);
+  malformed.native.selections[0].members.relations[0].qualifiers = null;
+  assert.throws(() => composeStaticEditionScene(malformed, layout), {
+    code: 'static_scene_relation_qualifiers_invalid',
+  });
+  const unlinked = structuredClone(meaning);
+  unlinked.native.selections[1].members.claims[0].dependsOn = [
+    { section: 'relations', id: 'unselected' },
+  ];
+  assert.throws(() => composeStaticEditionScene(unlinked, layout), {
+    code: 'static_scene_claim_relation_unbound',
+  });
+  const unboundSource = structuredClone(meaning);
+  delete unboundSource.native.selections[1].source;
+  assert.throws(() => composeStaticEditionScene(unboundSource, layout), {
+    code: 'static_scene_claim_relation_unbound',
+  });
 });
 
 test('a forged Scene cannot hide a selected claim condition behind a valid carrier ID', async (t) => {

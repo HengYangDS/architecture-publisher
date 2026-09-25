@@ -1,4 +1,4 @@
-import { deepFreeze } from '../../semantics/document.mjs';
+import { canonical, deepFreeze, record } from '../../semantics/document.mjs';
 import { fail } from '../../source/manifest.mjs';
 import { claimCard } from '../claim-card.mjs';
 
@@ -10,6 +10,69 @@ const memberRelationKey = ({ id, origin }) =>
 const claimKey = ({ namespace, id, sha256 }) => JSON.stringify([namespace, id, sha256]);
 const sameMembers = (actual, expected) =>
   actual.size === expected.size && [...actual].every((item) => expected.has(item));
+
+function addBound(map, identity, value) {
+  const previous = map.get(identity);
+  if (previous && canonical(previous) !== canonical(value)) fail('static_scene_semantic_conflict');
+  map.set(identity, value);
+}
+
+function claimRelationLabel(relation) {
+  if (!record(relation?.qualifiers)) fail('static_scene_relation_qualifiers_invalid');
+  const names = Object.keys(relation.qualifiers).sort();
+  return names.length
+    ? names
+        .map((name) => {
+          const value = relation.qualifiers[name];
+          return `${name}: ${typeof value === 'string' ? value : canonical(value)}`;
+        })
+        .join(' · ')
+    : null;
+}
+
+function linkedClaimModelSources(view, assertions, selections) {
+  const sources = view.assertionIds
+    .map((id) => ({ assertionId: id, assertion: assertions.get(id) }))
+    .filter(({ assertion }) => assertion?.kind === 'source')
+    .map(({ assertionId, assertion }) => ({
+      assertionId,
+      selection: selections.get(assertion.selection),
+    }));
+  if (sources.some(({ selection }) => !['relation', 'claim'].includes(selection?.target.kind)))
+    fail('static_scene_claim_relation_unbound');
+  const relations = sources.filter(({ selection }) => selection.target.kind === 'relation');
+  const claims = sources.filter(({ selection }) => selection.target.kind === 'claim');
+  if (!relations.length || !claims.length) fail('static_scene_claim_relation_unbound');
+  const links = claims.map(({ assertionId, selection }) => {
+    const claim = selection.members?.claims?.[0];
+    const matches = relations.filter(({ selection: related }) => {
+      const relation = related.members?.relations?.[0];
+      if (!selection.source || !related.source || !Array.isArray(claim?.dependsOn)) return false;
+      return (
+        relation &&
+        selection.source.namespace === related.source.namespace &&
+        selection.source.sha256 === related.source.sha256 &&
+        selection.source.claimant === related.source.claimant &&
+        selection.sourceOwner === related.sourceOwner &&
+        claim.dependsOn.some(
+          (ref) => ref?.section === 'relations' && ref.id === related.target.id,
+        ) &&
+        claim.subject === relation.from?.id &&
+        claim.predicate === relation.kind &&
+        claim.object === relation.to?.id
+      );
+    });
+    if (matches.length !== 1) fail('static_scene_claim_relation_unbound');
+    return { claimAssertionId: assertionId, relationAssertionId: matches[0].assertionId };
+  });
+  if (
+    relations.some(
+      ({ assertionId }) => !links.some((link) => link.relationAssertionId === assertionId),
+    )
+  )
+    fail('static_scene_claim_relation_unbound');
+  return { relations: relations.map(({ selection }) => selection), links };
+}
 
 function visibleBounds(nodes, edges, groups = []) {
   if (!nodes.length && !edges.length && !groups.length) return null;
@@ -108,18 +171,19 @@ export function composeStaticEditionScene(meaning, layout) {
       meaning.editorial.visualPolicy.override !== null)
   )
     fail('static_scene_visual_policy_unadmitted');
-  if (meaning.native.selections.some(({ format }) => format === 'architecture.claim-model/v2')) {
-    if (meaning.editorial.presentation.static.views[0].groups !== undefined)
-      fail('static_scene_group_unadmitted');
-    if (
-      !meaning.native.selections.every(
-        ({ format, target }) => format === 'architecture.claim-model/v2' && target.kind === 'claim',
-      )
-    )
-      fail('edition_scene_claim_model_unadmitted');
-    return composeClaimScene(meaning, layout);
-  }
+  const claimModelMode = meaning.native.selections.some(
+    ({ format }) => format === 'architecture.claim-model/v2',
+  );
   const authoredGroups = meaning.editorial.presentation.static.views[0].groups;
+  if (claimModelMode) {
+    if (meaning.native.selections.some(({ format }) => format !== 'architecture.claim-model/v2'))
+      fail('edition_scene_claim_model_unadmitted');
+    if (meaning.native.selections.every(({ target }) => target.kind === 'claim')) {
+      if (authoredGroups !== undefined) fail('static_scene_group_unadmitted');
+      return composeClaimScene(meaning, layout);
+    }
+    if (authoredGroups === undefined) fail('edition_scene_claim_model_unadmitted');
+  }
   if (
     layout?.closure !==
       (authoredGroups === undefined
@@ -149,9 +213,11 @@ export function composeStaticEditionScene(meaning, layout) {
     fail('static_scene_group_mismatch');
   const editorialView = meaning.media.static.views[0];
   const nativeViews = meaning.native.selections.filter(({ target }) => target.kind === 'view');
-  if (nativeViews.length !== 1) fail('static_scene_composition_ambiguous');
+  if (nativeViews.length !== (claimModelMode ? 0 : 1)) fail('static_scene_composition_ambiguous');
   const nativeView = nativeViews[0];
-  if (
+  if (claimModelMode) {
+    if (layout.view !== null) fail('static_scene_native_membership_mismatch');
+  } else if (
     layout.view?.namespace !== nativeView.source.namespace ||
     layout.view?.id !== nativeView.target.id ||
     layout.view?.sha256 !== nativeView.source.sha256
@@ -173,14 +239,24 @@ export function composeStaticEditionScene(meaning, layout) {
   )
     fail('static_scene_group_mismatch');
 
-  const semanticNodes = new Map(nativeView.members.elements.map((node) => [key(node), node]));
-  const semanticRelations = new Map(
-    nativeView.members.relations.map((relation) => [memberRelationKey(relation), relation]),
-  );
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
+  const claimSources = claimModelMode
+    ? linkedClaimModelSources(editorialView, assertions, selections)
+    : null;
+  const structural = claimSources?.relations ?? [nativeView];
+  const semanticNodes = new Map();
+  const semanticRelations = new Map();
+  for (const selected of structural) {
+    if (!Array.isArray(selected?.members?.elements) || !Array.isArray(selected.members.relations))
+      fail('static_scene_assertion_unbound');
+    for (const node of selected.members.elements) addBound(semanticNodes, key(node), node);
+    for (const relation of selected.members.relations)
+      addBound(semanticRelations, memberRelationKey(relation), relation);
+  }
   const requiredNodes = new Set();
   const requiredRelations = new Set();
+  const cards = new Map();
   const sourceAssertionCarriers = [];
   const editorialAssertions = [];
   for (const id of editorialView.assertionIds) {
@@ -192,6 +268,19 @@ export function composeStaticEditionScene(meaning, layout) {
     }
     const selected = selections.get(assertion.selection);
     if (!selected) fail('static_scene_assertion_unbound');
+    if (claimModelMode && selected.target.kind === 'claim') {
+      const card = claimCard(selected);
+      addBound(cards, claimKey(card), card);
+      sourceAssertionCarriers.push({
+        assertionId: id,
+        kind: 'claim',
+        selectionId: assertion.selection,
+        nodeRefs: [],
+        relationRefs: [],
+        claimRefs: [{ namespace: card.namespace, reference: card.id, sha256: card.sha256 }],
+      });
+      continue;
+    }
     const nodeRefs = selected.members.elements.map((node) => {
       const identity = key(node);
       if (!semanticNodes.has(identity)) fail('static_scene_assertion_unbound');
@@ -263,9 +352,9 @@ export function composeStaticEditionScene(meaning, layout) {
         const semantic = semanticRelations.get(relationKey(relation));
         return {
           ...relation,
-          label: semantic.label,
+          label: claimModelMode ? claimRelationLabel(semantic) : semantic.label,
           kind: semantic.kind,
-          direction: semantic.direction,
+          direction: claimModelMode ? 'forward' : semantic.direction,
           origin: semantic.origin,
         };
       }),
@@ -289,6 +378,14 @@ export function composeStaticEditionScene(meaning, layout) {
     edges,
     ...(authoredGroups === undefined ? {} : { groups }),
     sourceAssertionCarriers,
+    ...(claimModelMode
+      ? {
+          claimRelationLinks: claimSources?.links ?? fail('static_scene_claim_relation_unbound'),
+          claimCards: [...cards.values()].sort((left, right) =>
+            claimKey(left).localeCompare(claimKey(right)),
+          ),
+        }
+      : {}),
     editorialAssertions,
     limits: meaning.limits,
   });

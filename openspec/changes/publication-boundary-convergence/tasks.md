@@ -369,17 +369,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       interactive carriers, offline relocation, changed-plane/condition tests,
       browser/accessibility checks and exact replay. The existing grouped
       geometry owner positions AIGW's five groups, twelve entities and eleven
-      relations; its eleven claims remain separate obligations. A source probe
-      confirms all eleven claims explicitly depend on their matching relation.
+      relations. A current-source, four-question AIGW probe now compiles one
+      unqualified static Scene with those groups, eleven distinct claim cards
+      and 22 independent source-assertion carriers. It derives eleven exact
+      relation/claim links without a second authoring field. All eleven claims
+      explicitly depend on their matching relation; no visual association is
+      inferred from matching endpoints alone.
       Static claim-only rendering now factors only exact common context,
       retains per-claim anchors, and rejects an uncomposed graph/claim overlay.
       Its 1214 × 2637 AIGW probe remains text-heavy with unused right space:
       no reader-quality or mixed-media acceptance is claimed.
-      Open: source-bound relation/claim compound carriers, four-question and
-      five-group AIGW composition, independent two-medium Candidate, installed
-      and human review. Reuse the current layout owner unless a measured
-      geometry failure requires replacement. Full behavior: 1,035 tests,
-      1,030 pass, five skips; branch coverage 92.97% < 95% (Task 7.5).
+      Open: exact relation/claim visual links, four-question/five-group AIGW
+      dual-media Candidate, installed and human review. Reuse the current
+      layout owner unless a measured geometry failure requires replacement.
+      Current static and package checks pass; full coverage still fails its
+      unchanged branch floor at 92.91% < 95% (Task 7.5).
       Detailed counterexamples and measured limits stay in
       `docs/research/mechanism-evaluation.md`, not a second progress ledger.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
