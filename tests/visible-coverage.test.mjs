@@ -281,3 +281,30 @@ test('compiler coverage join permits a limited view when another view carries th
   assert.deepEqual(meaning.media.interactive.views[1].assertionsByQuestion.shape, []);
   assert.doesNotThrow(() => validateVisibleSelection(meaning, 'interactive', scene, carriers));
 });
+
+test('editorial-only pages keep each visible limit with its reader question', async () => {
+  const scene = interactiveEditionScene();
+  const page = scene.pages[1];
+  page.questionIds.push('shape');
+  page.questions.push({
+    id: 'shape',
+    audience: 'maintainer',
+    text: 'What is connected?',
+  });
+  page.limitsByQuestion.shape = [
+    { kind: 'omission', selection: 'overview', reason: 'Shown in the overview.' },
+  ];
+  const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
+  const section = html.match(/<section class="edition-page" id="page-1"[\s\S]*?<\/section>/u)?.[0];
+  assert.ok(section);
+  assert.match(
+    section,
+    /<li><p>What remains uncertain\?<\/p><ul class="limits"><li>No runtime observation was selected\.<\/li><\/ul><\/li>/u,
+  );
+  assert.match(
+    section,
+    /<li><p>What is connected\?<\/p><ul class="limits"><li>Shown in the overview\.<\/li><\/ul><\/li>/u,
+  );
+  assert.equal(section.match(/No runtime observation was selected\./gu)?.length, 1);
+  assert.equal(section.match(/Shown in the overview\./gu)?.length, 1);
+});

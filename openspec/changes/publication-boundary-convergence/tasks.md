@@ -458,9 +458,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       view with an explicit limit remains valid. Independent review found no
       confirmed public-path defect or duplicated omission authority. This is a
       structural visibility check, not independent semantic qualification.
-      Focused tests pass 17/17; static, package, and strict OpenSpec checks pass.
-      Full behavior passes 949 tests, skips 4, with no test failure; branch
-      coverage is 93.49% against the 95% gate. Earlier Chrome checks observed
+      On editorial-only pages, each visible limit now stays with its reader
+      question instead of being flattened into an unattributed stage list.
+      Focused tests pass 18/18; static, package, and strict OpenSpec checks pass.
+      Full behavior passes 950 tests, skips 4, with no test failure; branch
+      coverage is 93.48% against the 95% gate. Earlier Chrome checks observed
       source-namespace non-disclosure, but do not qualify the changed Candidate.
       Full visible coverage, browser/human review on final bytes, and acceptance
       remain open.
