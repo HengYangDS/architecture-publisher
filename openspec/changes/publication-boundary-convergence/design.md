@@ -731,11 +731,12 @@ The concrete subtraction order is:
    parsing on the same frozen workload. Share a selected, immutable result only
    within one trust boundary and parser identity; never use an ambient cache to
    paper over changed source bytes or untrusted public inputs.
-3. At replacement parity, delete superseded Publisher render, browser, and
-   publication mechanics rather than polishing their redundant scans or scope
-   aliases. A breaking successor may remove obsolete runtime protocols with a
-   SemVer and migration note; preserve historical signed refs and accepted
-   artifact bytes, not dead code in the new package.
+3. At replacement parity, delete displaced legacy render, browser, and
+   publication paths rather than polishing their redundant scans or scope
+   aliases. Retain one qualified optional local file-effect owner. A breaking
+   successor may remove obsolete runtime protocols with a SemVer and migration
+   note; preserve historical signed refs and accepted artifact bytes, not dead
+   code in the new package.
 4. At source-owned migration, replace ETHOS's temporary bundle-for-digest
    roundtrip and generic media pipeline with a minimal semantic Provider plus
    its authored Edition; replace AIGW's copied `_source` snapshots and
