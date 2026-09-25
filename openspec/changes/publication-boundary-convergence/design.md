@@ -727,6 +727,14 @@ Claim-only HTML does not load a graph engine it does not use. Entity, relation,
 and mixed-model media remain unadmitted until their distinct visible grammar
 is verified. This baseline is not flagship visual acceptance.
 
+For a structural Claim Model view, one private Dagre geometry supply is the
+provisional low-cost choice, subject to packaged AIGW reader-quality and
+source-binding counterexamples. It may place entities and route relations; it
+may not turn a relation arrow into proof of a claim's plane, condition, scope,
+validity, or provenance. The typed claim plate remains a separate visible
+carrier. Do not add a public layout registry or keep multiple backends merely
+because the first geometry probe was visually imperfect.
+
 A visible assertion must be linked to a source or editorial claim, and every
 required claim for that medium must have a visible carrier for coverage to
 pass. An omission changes that medium's editorial scope and requires a new

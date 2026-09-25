@@ -438,6 +438,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       exact replay. Entity, relation, and mixed Claim Model media still fail
       closed. Open: full adopter/platform parity, native evolution, input
       closure, final visual review, and the 95% branch-coverage release gate.
+      Ruling: trial one private Dagre supply for Claim Model topology, not as
+      semantic authority; replace it if exact AIGW reader-quality gates fail.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

@@ -1034,6 +1034,38 @@ replacement parity. If a later direct mature-tool route passes every hard
 question and medium gate with lower total ownership cost, shrink Publisher
 before building another custom compositor.
 
+### Claim Model structural geometry probe (2026-09-25 UTC)
+
+The current AIGW `architecture/edition-provider/_source/semantic.json` at
+`04f593a43f6cac9f8ad56d26cde3839231e32054` has SHA-256
+`1975b7af02b3e28268feb9b4ed7fab88caac6e7bb44df484a6f133275775dabd`:
+12 entities, 11 relations, and 11 implemented-plane claims. Each claim names
+one matching relation; six claims also have nonempty scope. A topology-only
+layout therefore cannot discharge the claims' planes, scope, provenance, or
+reader questions. Geometry remains a replaceable projection beside visible
+typed claim expression, not a new Claim Model or source authority.
+
+An isolated `/tmp` probe used exact npm versions and the same sorted 12/11
+input, fixed left-to-right settings, and two consecutive runs. These are
+single-machine feasibility observations, not quality or speed guarantees:
+
+| Geometry candidate                                                   | Upstream package evidence      | Observed 12/11 result                                                             | Cost and limit                                                                                                                                                    |
+| -------------------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Dagre 3.1.1](https://www.npmjs.com/package/@dagrejs/dagre/v/3.1.1)  | MIT; `@dagrejs/graphlib` 4.0.5 | 0 node overlaps, stable repeated geometry, 6.8 ms initial run                     | 1.41 MB unpacked package; a single esbuild 0.28.2 ESM supply was 48,343 bytes. Routed edges include diagonals; the raw diagram is not flagship art.               |
+| [ELK JS 0.12.0](https://github.com/kieler/elkjs/releases/tag/0.12.0) | EPL-2.0 OR GPL-3.0-or-later    | 0 node overlaps, stable repeated geometry, 51.4 ms initial run; orthogonal routes | 8.05 MB unpacked package and a distribution-license decision; no reader-quality acceptance.                                                                       |
+| [Viz.js 3.30.0](https://www.npmjs.com/package/@viz-js/viz/v/3.30.0)  | MIT package; Graphviz WASM     | Stable repeated 12,505-byte SVG, 12.5 ms render; compact orthogonal topology      | 4.98 MB unpacked package; adopting its geometry requires a checked Graphviz-output adapter, while using its SVG directly needs source-ID and carrier-map control. |
+
+The narrow implementation preference is **Dagre as one provisional private
+static-geometry supplier**: mature structured node and edge output, permissive
+license, small verified bundle, and no new runtime dependency. It is not a
+public backend registry or a quality verdict. Its first packaged AIGW view must
+retain all selected typed claims and pass exact graphic-binding, overflow,
+browser, and visual counterexamples. A failed reader-quality gate warrants
+replacing this one supplier with ELK or Viz.js, not shipping all three. The
+larger `@antv/layout` dependency graph and DAG-only `d3-dag` do not remove an
+observed requirement here. Sources were read via GitHub CLI and npm metadata
+on 2026-09-25 UTC; package licenses are not legal clearance.
+
 ## Concurrent path mutation and capability-bound reading (2026-09-25)
 
 The current Publisher file reader checks path components for symlinks and then
