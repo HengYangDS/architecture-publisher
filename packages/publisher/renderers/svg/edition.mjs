@@ -1,20 +1,11 @@
 import { fail } from '../../src/source/manifest.mjs';
+import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
   JSON.stringify([namespace, reference, sha256]);
 const claimKey = relationKey;
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
-const sharedClaimLabels = new Set([
-  'Claim plane',
-  'Condition',
-  'Claimed maturity',
-  'Claim validity',
-  'Declared dependency coverage',
-  'Selected claimant',
-  'Projection claimant',
-  'Declared model owner',
-]);
 const advance = (value, size) => [...value].length * size * 0.61;
 const escape = (value) =>
   String(value)
@@ -36,21 +27,7 @@ function factorClaimFacts(cards) {
     )
       fail('static_edition_claim_invalid');
   }
-  const candidates =
-    cards.length > 1
-      ? cards[0].facts.filter(
-          ({ label, value }) =>
-            sharedClaimLabels.has(label) &&
-            cards.every((claim) =>
-              claim.facts.some((fact) => fact.label === label && fact.value === value),
-            ),
-        )
-      : [];
-  const candidateLabels = new Set(candidates.map(({ label }) => label));
-  const common = cards.some((claim) => claim.facts.every(({ label }) => candidateLabels.has(label)))
-    ? []
-    : candidates;
-  return { common, commonLabels: new Set(common.map(({ label }) => label)) };
+  return factorCommonClaimContext(cards);
 }
 
 function number(value) {

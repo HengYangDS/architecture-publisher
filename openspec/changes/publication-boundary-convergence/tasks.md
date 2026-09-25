@@ -382,12 +382,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       temporary files were removed. This is not AIGW source-owned Provider
       adoption, installed parity, predicate qualification or visual acceptance:
       static claim prose remains dense and interactive graph labels small.
+      A later exact-field factoring pass removed seven repeated context facts
+      from each claim card on the AIGW overview without hiding per-claim
+      anchors; its 1280px HTML page shortened from 4,463 to 3,627 CSS pixels.
+      Fresh Chrome/axe checks again found four complete pages, no console
+      errors, no mobile horizontal overflow and no WCAG 2/2.1 A/AA violations.
+      The new HTML bytes are still provisional and not human-approved.
       Open: source-owner-approved authoring, installed paired conformance,
       reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure
       requires replacement. Static, package and strict OpenSpec checks pass;
-      the 1,045-test run has 1,040 passes and five skips, but branch coverage
-      remains 92.90% < 95% (Task 7.5).
+      the 1,046-test run has 1,041 passes and five skips, but branch coverage
+      remains 92.89% < 95% (Task 7.5).
       Detailed counterexamples and measured limits stay in
       `docs/research/mechanism-evaluation.md`, not a second progress ledger.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive

@@ -16,6 +16,36 @@ const entity = (value) =>
     .filter(Boolean)
     .join(' · ');
 
+const shareableContext = new Set([
+  'Claim plane',
+  'Condition',
+  'Claimed maturity',
+  'Claim validity',
+  'Declared dependency coverage',
+  'Selected claimant',
+  'Projection claimant',
+  'Declared model owner',
+]);
+
+/** Factor only exact shared context; retain per-claim semantic anchors. */
+export function factorCommonClaimContext(cards) {
+  const candidates =
+    cards.length > 1
+      ? cards[0].facts.filter(
+          ({ label, value }) =>
+            shareableContext.has(label) &&
+            cards.every((claim) =>
+              claim.facts.some((fact) => fact.label === label && fact.value === value),
+            ),
+        )
+      : [];
+  const candidateLabels = new Set(candidates.map(({ label }) => label));
+  const common = cards.some((claim) => claim.facts.every(({ label }) => candidateLabels.has(label)))
+    ? []
+    : candidates;
+  return { common, commonLabels: new Set(common.map(({ label }) => label)) };
+}
+
 /** Project one selected typed claim into public-safe reading facts, not graph geometry. */
 export function claimCard(selection) {
   const claim = selection?.members?.claims?.[0];

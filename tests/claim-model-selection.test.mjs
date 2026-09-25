@@ -799,6 +799,32 @@ test('a selected relation and dependent claim build a readable interactive Candi
   assert.equal(replay.verdict, 'match');
 });
 
+test('interactive claim context is factored only when exact and leaves per-claim anchors', async (t) => {
+  const selected = await groupedMixedFixture(t, { media: ['interactive'] });
+  selected.project.scope.selections.push({
+    id: 'implemented-claim',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'claim:implemented',
+    questions: ['condition'],
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  const claims = /<section class="linked-claims"[^>]*>([\s\S]*?)<\/section>/u.exec(html)?.[1];
+  assert(claims);
+  assert(claims.includes('COMMON TO ALL SELECTED CLAIMS'));
+  assert.equal((claims.match(/<dt>Claim validity<\/dt>/gu) ?? []).length, 1);
+  assert.equal((claims.match(/<dt>Selected claimant<\/dt>/gu) ?? []).length, 1);
+  assert.equal((claims.match(/<dt>Claim plane<\/dt>/gu) ?? []).length, 2);
+  assert.equal((claims.match(/<dt>Subject<\/dt>/gu) ?? []).length, 2);
+  assert.equal((claims.match(/<dt>Declared evidence authority<\/dt>/gu) ?? []).length, 2);
+});
+
 test('mixed interactive media rejects a forged source dependency behind valid graphics', async (t) => {
   const selected = await groupedMixedFixture(t, { media: ['interactive'] });
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);

@@ -1,5 +1,6 @@
 import { loadBundledFonts } from '../fonts/index.mjs';
 import { fail } from '../../src/source/manifest.mjs';
+import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
 import { projectInteractivePage } from './model.mjs';
 import { loadCytoscapeSupply } from './supply.mjs';
 
@@ -145,7 +146,19 @@ function pageHtml(page, index, methodLimits) {
     )
     .join('');
   const editorialStage = `<div class="empty-graph"><p class="eyebrow">Evidence boundary</p>${page.editorialAssertions.map(({ statement, proponent }) => `<div class="editorial-card"><blockquote>${escape(statement)}</blockquote><p>Editorial judgment · ${escape(proponent)} · unverified</p></div>`).join('')}</div>`;
-  const claimStage = `<div class="claim-stage">${(page.claims ?? []).map(({ graphicId, facts, relationOrdinal }) => `<article class="claim-card" data-graphic-id="${graphicId}">${relationOrdinal ? `<p class="claim-link">ON SOURCE RELATION ${String(relationOrdinal).padStart(2, '0')}</p>` : ''}<dl class="claim-facts">${facts.map(({ label, value }) => `<dt>${escape(label)}</dt><dd>${escape(value)}</dd>`).join('')}</dl></article>`).join('')}</div>`;
+  const { common, commonLabels } = factorCommonClaimContext(page.claims ?? []);
+  const commonContext = common.length
+    ? `<div class="claim-context"><p class="eyebrow">COMMON TO ALL SELECTED CLAIMS</p><dl>${common.map(({ label, value }) => `<div><dt>${escape(label)}</dt><dd>${escape(value)}</dd></div>`).join('')}</dl></div>`
+    : '';
+  const claimStage = `${commonContext}<div class="claim-stage">${(page.claims ?? [])
+    .map(
+      ({ graphicId, facts, relationOrdinal }) =>
+        `<article class="claim-card" data-graphic-id="${graphicId}">${relationOrdinal ? `<p class="claim-link">ON SOURCE RELATION ${String(relationOrdinal).padStart(2, '0')}</p>` : ''}<dl class="claim-facts">${facts
+          .filter(({ label }) => !commonLabels.has(label))
+          .map(({ label, value }) => `<dt>${escape(label)}</dt><dd>${escape(value)}</dd>`)
+          .join('')}</dl></article>`,
+    )
+    .join('')}</div>`;
   const stage = page.nodes.length
     ? `<div class="graph" id="graph-${index}" aria-hidden="true"></div><p class="graph-instruction">Pan and zoom in the graph; the adjacent lists provide keyboard-accessible reading and focus.</p>`
     : page.claims?.length
@@ -178,6 +191,7 @@ function css(fonts) {
   .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.stage{position:relative;min-width:0}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:clamp(360px,46vh,660px)}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-instruction{font-size:11px;color:#4c5a50;margin:10px 0 0}.fit{position:absolute;right:16px;top:16px;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
   .claim-stage{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;align-content:start}.claim-card{min-width:0;background:#fffefa;border:1px solid #c4ccc2;border-radius:18px;padding:22px 25px}.claim-facts{display:grid;grid-template-columns:minmax(80px,1fr) minmax(0,2.2fr);gap:9px 16px;margin:0}.claim-facts dt{font-size:11px;color:#526158}.claim-facts dd{font-size:13px;line-height:1.45;margin:0;overflow-wrap:anywhere}
   .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}.linked-claims .claim-stage{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .claim-context{border-bottom:1px solid #d3dbd1;margin-bottom:18px}.claim-context dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 18px;margin:14px 0 20px}.claim-context dt{font-size:10px;color:#526158}.claim-context dd{font-size:12px;line-height:1.45;margin:4px 0 0;overflow-wrap:anywhere}
   .notes{border-left:1px solid #d3dbd1;padding:0 0 0 28px;min-width:0}.notes h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 9px}.notes h3:not(:first-child){margin-top:22px}.notes ul{list-style:none;margin:0;padding:0}.notes li{font-size:13px;line-height:1.55;overflow-wrap:anywhere}.notes li+li{margin-top:9px}.notes p{margin:0}.notes small{display:block;font-size:10px;color:#4c5a50;margin-top:3px}.notes button{display:flex;gap:11px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:2px 0;line-height:1.5;font-size:13px}.notes button:hover{text-decoration:underline}.notes button small{margin-left:auto}.ordinal{font-size:10px;color:#4c5a50}.limits{border-left:2px solid #b3c4b6;padding-left:10px!important;margin-top:7px!important;color:#526158}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}
   @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:1fr}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.graph{height:clamp(340px,50vh,520px)}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}`;

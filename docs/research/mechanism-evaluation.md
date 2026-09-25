@@ -243,10 +243,15 @@ dependencies, not another edited input. Exact Candidate replay matched.
 Background Chrome showed four complete pages with 11, 3, 6 and 2 linked
 claims, no console errors or horizontal overflow at 1280 and 390 CSS pixels,
 and no axe WCAG 2/2.1 A/AA violations. This was a source-adjacent authoring
-trial, not an installed or source-owned AIGW Provider migration. The static
-work remains text-dense and the interactive graph small beside repeated
-claim facts; no final reader-quality, source-owner or human acceptance was
-granted. The owned temporary Candidate, browser session and server were removed.
+trial, not an installed or source-owned AIGW Provider migration. A subsequent
+exact-field factoring pass expressed seven page-common claim facts once;
+at 1280 CSS pixels the first interactive page shortened from 4,463 to 3,627
+pixels. All four pages again showed 11/3/6/2 claim carriers with no console
+errors, no mobile horizontal overflow and no axe WCAG 2/2.1 A/AA violations.
+The static work remains text-dense, interactive graph labels are small and
+per-claim anchors remain long; no final reader-quality, source-owner or human
+acceptance was granted. All owned temporary Candidates, browser sessions and
+servers were removed.
 
 ## Consequences for ETHOS
 
