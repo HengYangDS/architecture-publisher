@@ -356,12 +356,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       renews media and acceptance; Provider package-only evidence remains open.
       A provisional npm-offline macOS package reproduces relocated direct and
       declarative comparison and rejects changed pins, but is not frozen release
-      or Linux/Windows proof. Focused tests pass 53/53; static, package, and strict
-      OpenSpec checks pass; independent review found no new actionable defect.
-      Full behavior passes 932 tests, skips 4, and has no test failure; branch
-      coverage remains 93.60% against the 95% gate. Open: explicitly admitted
-      executable comparison, qualified dependency precision, package-only change
-      evidence, final installed-platform parity, and coverage.
+      or Linux/Windows proof. Claim Model native and derived selections now
+      enter the same delta owner. Typed claim, entity, relation, and predicate
+      changes trigger existing obligations; changed derived bytes or bindings
+      and incomplete dependencies remain explicit uncertainty. The latest full
+      check passes static/spec checks and 1,012 behavior tests with five skips;
+      the package check passes separately. Branch coverage is 93.02% against
+      the unchanged 95% gate, so release is blocked. Open: explicit executable
+      comparison, full-model dependency precision, package-only change evidence,
+      final installed-platform parity, and coverage.
 
 ## 5. Editorial composition and independent media
 

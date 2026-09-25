@@ -207,6 +207,7 @@ function nativeSide(value) {
     !record(value) ||
     value.lock?.schema !== 'architecture.materialized-input-lock/v1' ||
     !Array.isArray(value.lock.sources) ||
+    !Array.isArray(value.lock.derived) ||
     !record(value.native) ||
     !Array.isArray(value.native.selections) ||
     !Array.isArray(value.native.limits) ||
@@ -220,8 +221,28 @@ function nativeSide(value) {
       semanticError('native_evolution_input_invalid');
     sources.set(source.namespace, source);
   }
+  const derived = new Map();
+  for (const projection of value.lock.derived) {
+    if (
+      !text(projection?.namespace) ||
+      !text(projection?.sha256) ||
+      sources.has(projection.namespace) ||
+      derived.has(projection.namespace)
+    )
+      semanticError('native_evolution_input_invalid');
+    derived.set(projection.namespace, projection);
+  }
   const selections = new Map();
   for (const selection of value.native.selections) {
+    if (
+      selection?.format === 'architecture.claim-model/v2' &&
+      !['native', 'derived'].includes(selection.sourceClass)
+    )
+      semanticError('native_evolution_input_invalid');
+    const selectedSource =
+      selection?.sourceClass === 'derived'
+        ? derived.get(selection.source?.namespace)
+        : sources.get(selection?.source?.namespace);
     if (
       !text(selection?.selectionId) ||
       !record(selection.source) ||
@@ -230,13 +251,14 @@ function nativeSide(value) {
       !Array.isArray(selection.members.elements) ||
       !Array.isArray(selection.members.relations) ||
       !Array.isArray(selection.limits) ||
-      !sources.has(selection.source.namespace) ||
+      !selectedSource ||
+      selectedSource.sha256 !== selection.source.sha256 ||
       selections.has(selection.selectionId)
     )
       semanticError('native_evolution_input_invalid');
     selections.set(selection.selectionId, selection);
   }
-  return { lock: value.lock, native: value.native, sources, selections };
+  return { lock: value.lock, native: value.native, sources, derived, selections };
 }
 
 function mapMembers(members, identity) {
@@ -249,16 +271,76 @@ function mapMembers(members, identity) {
   return result;
 }
 
+function claimModelSelectionChanges(prior, next, selectionId, add, unknown) {
+  if (!Array.isArray(prior.members.claims) || !Array.isArray(next.members.claims))
+    semanticError('native_evolution_input_invalid');
+  for (const field of ['sourceClass', 'sourceOwner'])
+    if (canonical(prior[field]) !== canonical(next[field]))
+      unknown.push({ reason: `claim-model-${field}-changed`, selectionId });
+  if (canonical(prior.provenanceSources) !== canonical(next.provenanceSources))
+    unknown.push({ reason: 'claim-model-provenance-changed', selectionId });
+  if (canonical(prior.source.adapter) !== canonical(next.source.adapter))
+    unknown.push({ reason: 'claim-model-adapter-changed', selectionId });
+  const namespace = next.source.namespace;
+  if (prior.source.namespace !== namespace)
+    unknown.push({ reason: 'claim-model-namespace-changed', selectionId });
+  if (canonical(prior.predicate) !== canonical(next.predicate)) {
+    const predicateId = next.members.claims[0]?.predicate ?? prior.members.claims[0]?.predicate;
+    if (!text(predicateId))
+      unknown.push({ reason: 'claim-model-predicate-binding-changed', selectionId });
+    else
+      add(
+        selectionId,
+        { kind: 'predicate', namespace, id: predicateId },
+        changedFieldNames(prior.predicate, next.predicate),
+      );
+  }
+  const memberSections =
+    /** @type {Array<['elements' | 'relations' | 'claims', string, string[]]>} */ ([
+      ['elements', 'entity', ['kind', 'label', 'qualifiers', 'provenance']],
+      ['relations', 'relation', ['from', 'to', 'kind', 'qualifiers', 'provenance']],
+      [
+        'claims',
+        'claim',
+        [
+          'subject',
+          'predicate',
+          'object',
+          'plane',
+          'condition',
+          'scope',
+          'maturity',
+          'validity',
+          'value',
+          'dependsOn',
+          'coverage',
+          'provenance',
+        ],
+      ],
+    ]);
+  for (const [section, subjectKind, fields] of memberSections) {
+    const left = mapMembers(prior.members[section], ({ id }) => id);
+    const right = mapMembers(next.members[section], ({ id }) => id);
+    if (canonical([...left.keys()].sort()) !== canonical([...right.keys()].sort()))
+      add(selectionId, { kind: 'selection-membership', namespace, id: next.target.id }, [section]);
+    for (const id of sorted([...left.keys(), ...right.keys()])) {
+      if (!left.has(id) || !right.has(id)) continue;
+      const changed = changedFieldNames(left.get(id), right.get(id));
+      const supported = changed.filter((field) => fields.includes(field));
+      add(selectionId, { kind: subjectKind, namespace, id }, supported);
+      const unrecognized = changed.filter(
+        (field) =>
+          !fields.includes(field) &&
+          !['id', 'namespace', 'sha256', 'origin', 'identityScope'].includes(field),
+      );
+      if (unrecognized.length)
+        unknown.push({ reason: 'claim-model-member-field-unrecognized', selectionId });
+    }
+  }
+}
+
 /** Compare admitted native selections without converting them to an editable Claim Model. */
 export function compileNativeSelectionDelta(beforeValue, afterValue) {
-  if (
-    [beforeValue, afterValue].some(
-      (value) =>
-        Array.isArray(value?.native?.selections) &&
-        value.native.selections.some(({ format }) => format === 'architecture.claim-model/v2'),
-    )
-  )
-    semanticError('native_claim_model_evolution_unadmitted');
   const before = nativeSide(beforeValue);
   const after = nativeSide(afterValue);
   const sourceBytes = /** @type {{added: string[], removed: string[], changed: string[]}} */ ({
@@ -283,6 +365,19 @@ export function compileNativeSelectionDelta(beforeValue, afterValue) {
   }
   const supported = [];
   const unknown = [];
+  for (const namespace of sorted([...before.derived.keys(), ...after.derived.keys()])) {
+    const prior = before.derived.get(namespace);
+    const next = after.derived.get(namespace);
+    if (!prior || !next)
+      unknown.push({
+        reason: prior ? 'derived-projection-removed' : 'derived-projection-added',
+        namespace,
+      });
+    else if (prior.sha256 !== next.sha256)
+      unknown.push({ reason: 'derived-projection-bytes-changed', namespace });
+    else if (canonical(prior) !== canonical(next))
+      unknown.push({ reason: 'derived-projection-binding-changed', namespace });
+  }
   if (
     before.native.subjectLockSha256 === after.native.subjectLockSha256 &&
     canonical(before.native.parserSupply) === canonical(after.native.parserSupply) &&
@@ -314,6 +409,14 @@ export function compileNativeSelectionDelta(beforeValue, afterValue) {
       (field) => canonical(prior.target[field]) !== canonical(next.target[field]),
     );
     add(selectionId, { kind: 'selection', id: selectionId }, targetFields);
+    if (prior.format !== next.format) {
+      unknown.push({ reason: 'native-selection-format-changed', selectionId });
+      continue;
+    }
+    if (next.format === 'architecture.claim-model/v2') {
+      claimModelSelectionChanges(prior, next, selectionId, add, unknown);
+      continue;
+    }
     const priorElements = mapMembers(prior.members.elements, nativeIdentity);
     const nextElements = mapMembers(next.members.elements, nativeIdentity);
     const priorRelations = mapMembers(prior.members.relations, (item) =>

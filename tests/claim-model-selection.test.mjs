@@ -12,6 +12,7 @@ import {
   compileEditionMeaning,
 } from '../packages/publisher/src/compiler/index.mjs';
 import { materializeBuildRequestInput } from '../packages/publisher/src/provider/index.mjs';
+import { compileNativeEditionEvolution } from '../packages/publisher/src/edition/evolution.mjs';
 import { compileNativeSelectionDelta } from '../packages/publisher/src/semantics/change.mjs';
 import {
   composeInteractiveEditionScene,
@@ -149,6 +150,11 @@ async function fixture(
   return { root, requestPath, requestSha256: sha(requestBytes), project, model };
 }
 
+async function evolutionSide(selected) {
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  return { lock: input.lock, meaning: await compileEditionMeaning(input) };
+}
+
 test('native Claim Model selection retains a typed claim rather than a bare arrow', async (t) => {
   const selected = await fixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
@@ -282,14 +288,159 @@ test('malformed derived ancestry fails as an input error before semantic import'
   );
 });
 
-test('typed claims cannot borrow the LikeC4-only evolution comparator', async (t) => {
-  const selected = await fixture(t);
-  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
-  const meaning = await compileEditionMeaning(input);
-  const side = { lock: input.lock, native: meaning.native };
-  assert.throws(() => compileNativeSelectionDelta(side, side), {
-    code: 'native_claim_model_evolution_unadmitted',
+test('typed claim changes produce exact selected fields and scoped review obligations', async (t) => {
+  const before = await fixture(t);
+  const changedModel = claimModel();
+  changedModel.claims.intended.plane = 'observed';
+  changedModel.claims.intended.condition.authorization = 'denied';
+  changedModel.claims.intended.dependsOn = [
+    { section: 'relations', id: 'request' },
+    { section: 'entities', id: 'client' },
+  ];
+  const after = await fixture(t, { model: changedModel });
+  const prior = await evolutionSide(before);
+  const next = await evolutionSide(after);
+  const delta = compileNativeSelectionDelta(
+    { lock: prior.lock, native: prior.meaning.native },
+    { lock: next.lock, native: next.meaning.native },
+  );
+  assert.deepEqual(delta.sourceBytes.changed, [modelNamespace]);
+  assert(
+    delta.supported.some(
+      ({ subject, fields }) =>
+        subject.kind === 'claim' &&
+        ['condition', 'dependsOn', 'plane'].every((field) => fields.includes(field)),
+    ),
+  );
+  const impact = compileNativeEditionEvolution({ before: prior, after: next });
+  assert.deepEqual(impact.editions.changed, ['claim-atlas']);
+  assert.deepEqual(impact.editions.affected[0].media, {
+    static: ['overview'],
+    interactive: ['overview'],
   });
+  for (const key of [
+    'rebuild',
+    'semanticVerification',
+    'mediumVerification',
+    'humanReview',
+    'acceptance',
+    'publication',
+  ])
+    assert(impact.obligations[key].length > 0, `missing ${key}`);
+});
+
+test('entity and relation qualifier changes retain typed subjects', async (t) => {
+  for (const [reference, mutate, kind] of [
+    [
+      'entity:client',
+      (model) => {
+        model.entities.client.qualifiers.owner = 'platform';
+      },
+      'entity',
+    ],
+    [
+      'relation:request',
+      (model) => {
+        model.relations.request.qualifiers.policy = 'review';
+      },
+      'relation',
+    ],
+  ]) {
+    const before = await fixture(t, { reference });
+    const changedModel = claimModel();
+    mutate(changedModel);
+    const after = await fixture(t, { reference, model: changedModel });
+    const prior = await evolutionSide(before);
+    const next = await evolutionSide(after);
+    const delta = compileNativeSelectionDelta(
+      { lock: prior.lock, native: prior.meaning.native },
+      { lock: next.lock, native: next.meaning.native },
+    );
+    assert(
+      delta.supported.some(
+        ({ subject, fields }) => subject.kind === kind && fields.includes('qualifiers'),
+      ),
+    );
+    assert.equal(delta.hasChanges, true);
+  }
+});
+
+test('a derived Claim Model change retains attribution without pretending to be native', async (t) => {
+  const before = await fixture(t, { delivery: 'derived' });
+  const changedModel = claimModel();
+  changedModel.claims.intended.scope.environment = 'remote';
+  const after = await fixture(t, { delivery: 'derived', model: changedModel });
+  const prior = await evolutionSide(before);
+  const next = await evolutionSide(after);
+  const delta = compileNativeSelectionDelta(
+    { lock: prior.lock, native: prior.meaning.native },
+    { lock: next.lock, native: next.meaning.native },
+  );
+  assert(
+    delta.supported.some(
+      ({ subject, fields }) => subject.kind === 'claim' && fields.includes('scope'),
+    ),
+  );
+  assert.equal(delta.hasChanges, true);
+  assert(delta.unknown.some(({ reason }) => reason === 'derived-projection-bytes-changed'));
+});
+
+test('adapter metadata changes are not mislabeled as changed projection bytes', async (t) => {
+  const before = await fixture(t, { delivery: 'derived' });
+  const after = await fixture(t, { delivery: 'derived' });
+  const manifestPath = path.join(after.root, 'provider/provider.json');
+  const manifest = JSON.parse(await fs.readFile(manifestPath));
+  manifest.selected.derived[0].adapter.version = '2';
+  const manifestBytes = Buffer.from(JSON.stringify(manifest) + '\n');
+  await fs.writeFile(manifestPath, manifestBytes);
+  const request = JSON.parse(await fs.readFile(after.requestPath));
+  request.providers[0].sha256 = sha(manifestBytes);
+  const requestBytes = Buffer.from(JSON.stringify(request) + '\n');
+  await fs.writeFile(after.requestPath, requestBytes);
+  after.requestSha256 = sha(requestBytes);
+  const prior = await evolutionSide(before);
+  const next = await evolutionSide(after);
+  const delta = compileNativeSelectionDelta(
+    { lock: prior.lock, native: prior.meaning.native },
+    { lock: next.lock, native: next.meaning.native },
+  );
+  assert(delta.unknown.some(({ reason }) => reason === 'derived-projection-binding-changed'));
+  assert(!delta.unknown.some(({ reason }) => reason === 'derived-projection-bytes-changed'));
+});
+
+test('a predicate change is attributed to its predicate ID, not the claim ID', async (t) => {
+  const before = await fixture(t);
+  const changedModel = claimModel();
+  changedModel.vocabulary.predicates.calls.cardinality = 'multiple';
+  const after = await fixture(t, { model: changedModel });
+  const prior = await evolutionSide(before);
+  const next = await evolutionSide(after);
+  const delta = compileNativeSelectionDelta(
+    { lock: prior.lock, native: prior.meaning.native },
+    { lock: next.lock, native: next.meaning.native },
+  );
+  assert(
+    delta.supported.some(
+      ({ subject, fields }) =>
+        subject.kind === 'predicate' && subject.id === 'calls' && fields.includes('cardinality'),
+    ),
+  );
+});
+
+test('native evolution rejects a forged Claim Model source class', async (t) => {
+  const selected = await fixture(t);
+  const side = await evolutionSide(selected);
+  const forged = structuredClone(side.meaning.native);
+  forged.selections[0].sourceClass = 'unverified';
+  forged.semanticDigest = sha(Buffer.from(canonical(forged.selections)));
+  assert.throws(
+    () =>
+      compileNativeSelectionDelta(
+        { lock: side.lock, native: side.meaning.native },
+        { lock: side.lock, native: forged },
+      ),
+    { code: 'native_evolution_input_invalid' },
+  );
 });
 
 test('a typed claim builds independent media with visible qualifiers and no fake parser', async (t) => {
