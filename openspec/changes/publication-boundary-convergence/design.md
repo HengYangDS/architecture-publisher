@@ -2,11 +2,9 @@
 
 ## Status and evidence boundary
 
-This design was approved on 2026-09-24 as the baseline for revising the same
-Change's proposal and delta specifications. The revised written specifications
-were approved on 2026-09-24; that approval permits task planning, not
-implementation or release. The former task list remains superseded until the
-reviewed implementation plan replaces it in this Change.
+This design and its revised specifications were approved on 2026-09-24. The
+same Change's `tasks.md` alone records implementation progress. Design or
+specification approval is not product acceptance or release evidence.
 
 The selected historical baseline is the signed `v0.3.0-alpha.3` product line.
 No predecessor tag, Architecture Publisher 0.2 release, or signed artifact is
@@ -17,7 +15,7 @@ review did not modify it.
 
 The observed pressure is specific:
 
-- AIGW's current Client Projection is a limited Edition, not a whole-product
+- The observed AIGW Client Projection is a limited Edition, not a whole-product
   architecture. Its selected model has 12 entities and 11 relations; its
   source-side materializer and Edition are 621 and 517 lines. Line count is
   not a quality score, but source-side authoring cost is a product acceptance
@@ -459,17 +457,15 @@ express fails or becomes an explicit reader-question limit. This lets AIGW and
 ETHOS use the same public compiler without an editable LikeC4 copy or a false
 claim that derived ETHOS facts are unchanged native bytes.
 
-Input admission alone does not establish that route. The current successor
-compiler still rejects non-LikeC4 native content, its static Scene requires one
-LikeC4 view, its native evolution compares only source-backed element/relation
-members, and its Candidate binds a LikeC4 parser supply. Neither current medium
-visibly carries a Claim Model claim's full typed qualifiers. The correction
-belongs at the format adapter, semantic-selection/evolution, Scene, and
-medium-specific renderer owners, not in ETHOS or AIGW Provider transport.
-Before claiming common-compiler support, installed public builds must each take
-native and source-derived Claim Model fixtures to independent usable media;
-a changed plane or condition must alter semantic identity and applicable
-obligations, and unsupported expression must fail before Candidate completion.
+Input admission alone does not establish that route. Common-compiler support
+requires conservative evolution and independent usable media for native and
+source-derived Claim Model entities, relations, and claims, including their
+typed qualifiers, provenance, applicability, obligations, and explicit limits.
+A Candidate records only parser supplies actually consumed. Unsupported
+expression fails before Candidate completion. These responsibilities belong at
+semantic selection/evolution, Scene, and renderer owners, not in source
+Provider transport. Full AIGW and ETHOS acceptance must exercise installed
+public builds rather than infer parity from partial Claim Model fixtures.
 
 For LikeC4 model and view files, the preferred native importer uses the
 upstream `@likec4/language-services/node` `fromSources` API on the exact
