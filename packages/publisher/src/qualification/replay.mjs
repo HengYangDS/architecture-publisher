@@ -15,8 +15,8 @@ function fail(code) {
   throw Object.assign(new Error(code), { code });
 }
 
-/** Bind a Candidate to selected inputs by replaying all bytes under this runtime. */
-export async function verifySelectedCandidateReplay(input, executionChoice = []) {
+/** Bind a Candidate and retain its already-verified value for the same invocation. */
+export async function replaySelectedCandidate(input, executionChoice = []) {
   if (
     !exact(input, [
       'requestPath',
@@ -63,7 +63,7 @@ export async function verifySelectedCandidateReplay(input, executionChoice = [])
     )
       fail('selected_candidate_replay_mismatch');
     // Full byte replay binds these obligations to the selected Edition without a second Provider run.
-    return {
+    const replay = {
       status: 'replayed',
       verdict: 'match',
       scope: 'selected-input-current-runtime-byte-replay',
@@ -79,7 +79,13 @@ export async function verifySelectedCandidateReplay(input, executionChoice = [])
         'not-independent-semantic-or-visual-verification',
       ],
     };
+    return { candidate, replay };
   } finally {
     await fs.rm(scratch, { recursive: true, force: true });
   }
+}
+
+/** Public replay value; the Candidate object remains invocation-local. */
+export async function verifySelectedCandidateReplay(input, executionChoice = []) {
+  return (await replaySelectedCandidate(input, executionChoice)).replay;
 }

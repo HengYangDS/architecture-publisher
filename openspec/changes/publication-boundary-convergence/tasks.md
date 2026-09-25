@@ -504,13 +504,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       deadline reclaims a registered detached group, rejects an early reply,
       and leaves an unrelated sentinel alive; a blocked event loop does not
       delay the parent. Selected Windows `SystemRoot` is propagated, but native
-      Windows containment is unproved. The parent is not yet connected to the
-      public v2 qualification input. Replay and binder tests pass 7/7 and 3/3;
-      full behavior passes 980/984 with four skips. Static, package, and
-      OpenSpec checks pass. The last branch-coverage measurement was 93.52%
-      before the blocked-loop test, below the required 95%. V2 CLI input,
-      installed whole-replay supervision, policy-bound completeness, and
-      independent predicate evidence remain open. Task 6.1 is not complete.
+      Windows containment is unproved. The existing `qualify verify` route now
+      selects v2 Build Request, Candidate container, and Qualification Set by
+      exact digest, then replays inside that parent deadline. Only the invoking
+      CLI/API can separately select executable Provider ID and manifest digest;
+      malformed Set bytes fail before Provider execution. Source tests cover
+      direct and executable Providers, duplicate keys, and historical v1
+      behavior. Ruling: the v2 input has only three selectors; the 120-second
+      provisional work deadline is invocation-owned, not evidence authority.
+      The public replay primitive still lacks whole-replay supervision, and
+      installed/native Windows and policy-bound predicate evidence remain open.
+      Full behavior passes 986/990 with four skips. Static, package, and
+      OpenSpec checks pass; branch coverage is 93.39%, below the required 95%.
+      Task 6.1 is not complete.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In
       `tests/publication-contract.test.mjs` and

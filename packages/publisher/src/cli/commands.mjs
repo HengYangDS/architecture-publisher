@@ -6,6 +6,22 @@ const editionBuildSelection = Object.freeze([
   ...digestSelection,
   { name: '--output', kind: 'optional-option' },
 ]);
+const qualificationSelection = Object.freeze([
+  ...digestSelection,
+  { name: '--execute-providers', kind: 'optional-option' },
+]);
+
+function executionChoice(value) {
+  if (value === undefined) return [];
+  const selected = new Map();
+  for (const entry of value.split(',')) {
+    const match = /^([a-z][a-z0-9-]{0,79})@([a-f0-9]{64})$/u.exec(entry);
+    if (!match || selected.has(match[1]))
+      throw usageError('qualify', 'Invalid --execute-providers selection');
+    selected.set(match[1], match[2]);
+  }
+  return [...selected].map(([id, manifestSha256]) => ({ id, manifestSha256 }));
+}
 
 const command = (path, summary, usage, parameters, invoke) =>
   Object.freeze({ path: Object.freeze(path), summary, usage, parameters, invoke });
@@ -54,11 +70,11 @@ export const commandCatalog = Object.freeze([
   command(
     ['qualify', 'verify'],
     'Admit one exact Qualification Set against selected authority.',
-    'archpub qualify verify <request.json> --sha256 <digest>',
-    digestSelection,
-    async ({ file, '--sha256': digest }) => {
+    'archpub qualify verify <request.json> --sha256 <digest> [--execute-providers <id@digest,...>]',
+    qualificationSelection,
+    async ({ file, '--sha256': digest, '--execute-providers': providers }) => {
       const { verifyQualificationInput } = await import('../qualification/input.mjs');
-      return verifyQualificationInput(file, digest);
+      return verifyQualificationInput(file, digest, executionChoice(providers));
     },
   ),
   command(
