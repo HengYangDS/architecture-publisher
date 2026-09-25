@@ -640,6 +640,28 @@ process-tree owner. Do not raise the general Node runtime floor, claim a
 portable no-network sandbox, or call the parser supply formally admitted on
 the basis of this probe.
 
+### Bundled geometry reuse probe (2026-09-25)
+
+The tracked `tests/native-supply.test.mjs` runs the same checked-in LikeC4
+parser bytes (SHA-256
+`44d22b467b523e894b8e97f56b33c7f2051fd68077c2edc56cef3497d4c6258f`)
+in two separate macOS Node `v26.10.0` children. Each has an empty `PATH`, a
+fresh temporary `HOME`, empty `NODE_OPTIONS`, Node Permission Model enabled,
+and only the parser file's canonical path granted for reading. With
+`useFileSystem: false`, manual layouts and watching disabled, and Graphviz WASM
+selected, the public
+`layoutedModel()` API returned positive bounds, two positioned nodes, and one
+routed edge; the two projections agreed without comparing generated edge IDs.
+Canonicalizing the temporary parent path is necessary on this host because
+`/var` resolves to `/private/var` before ESM permission checks.
+
+This establishes a reusable, already-supplied geometry candidate for a native
+LikeC4 Edition. It does not prove a finished static or interactive work,
+source-bound visible edge coverage, aesthetically acceptable composition,
+complete read closure, Windows/Linux parity, or general architecture-format
+support. Geometry stays a replaceable projection below the Edition and cannot
+become source or acceptance authority merely because the layout is repeatable.
+
 ### Cross-build identity and output limits
 
 To test cross-build identity, the same three byte-identical DSL files were

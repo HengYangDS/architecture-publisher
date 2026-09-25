@@ -368,6 +368,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       `tests/neutral-authoring.test.mjs`, unsupported required font, layout,
       dimension, or semantic distinction fails with a named diagnostic rather
       than a substitute diagram or parallel generated-intent store.
+      Partial feasibility: a tracked, permission-restricted, empty-PATH probe
+      shows the existing verified LikeC4 supply yields repeatable WASM node and
+      route geometry for one native view. Scene composition, visible source
+      binding, both renderers, and reader-quality acceptance remain unproved.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

@@ -7,6 +7,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { nativePermissionSupported } from '../packages/publisher/src/semantics/native-execution.mjs';
 import { buildLikeC4Supply } from '../tools/supply/likec4.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -14,12 +15,12 @@ const supplyRoot = fileURLToPath(
   new URL('../packages/publisher/supplies/likec4/', import.meta.url),
 );
 
-function isolatedNode(scratch, script) {
+function isolatedNode(scratch, script, flags = []) {
   /** @type {Record<string, string>} */
   const environment = { HOME: scratch, PATH: '', NODE_PATH: '', NODE_OPTIONS: '' };
   if (process.platform === 'win32' && process.env.SystemRoot)
     environment.SystemRoot = process.env.SystemRoot;
-  return spawnSync(process.execPath, ['--input-type=module', '--eval', script], {
+  return spawnSync(process.execPath, [...flags, '--input-type=module', '--eval', script], {
     cwd: scratch,
     env: environment,
     encoding: 'utf8',
@@ -86,6 +87,51 @@ test('candidate parser bundle runs from a relocated directory without node_modul
     relations: 1,
   });
 });
+
+test(
+  'bundled LikeC4 parser supplies stable WASM layout without an ambient binary',
+  { skip: !nativePermissionSupported() },
+  async (t) => {
+    const scratch = await fs.mkdtemp(
+      path.join(await fs.realpath(os.tmpdir()), 'archpub-likec4-layout-'),
+    );
+    t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+    const parserFile = path.join(scratch, 'parser.mjs');
+    await fs.copyFile(path.join(supplyRoot, 'parser.mjs'), parserFile);
+    const script = `
+      import { fromSources } from ${JSON.stringify(pathToFileURL(parserFile).href)};
+      const parser = await fromSources({
+        'model.c4': "specification { element component }\\nmodel { a = component 'A'\\n b = component 'B'\\n a -> b }\\n",
+        'views.c4': 'views { view overview { include * } }\\n',
+      }, { printErrors: false, configureLogger: false, useFileSystem: false,
+           manualLayouts: false, watch: false, graphviz: 'wasm' });
+      try {
+        const view = (await parser.layoutedModel()).view('overview').$layouted;
+        console.log(JSON.stringify({
+          errors: parser.languageServices.getErrors().length,
+          bounds: view.bounds,
+          nodes: view.nodes.map(({ id, x, y, width, height }) => ({ id, x, y, width, height })),
+          edges: view.edges.map(({ source, target, points }) => ({ source, target, points })),
+        }));
+      } finally { await parser.dispose(); }
+    `;
+    const flags = ['--permission', `--allow-fs-read=${parserFile}`];
+    const first = isolatedNode(scratch, script, flags);
+    const second = isolatedNode(scratch, script, flags);
+    assert.equal(first.status, 0, first.stderr);
+    assert.equal(second.status, 0, second.stderr);
+    const layout = JSON.parse(first.stdout.trim());
+    assert.deepEqual(JSON.parse(second.stdout.trim()), layout);
+    assert.equal(layout.errors, 0);
+    assert.deepEqual(
+      layout.nodes.map(({ id }) => id),
+      ['a', 'b'],
+    );
+    assert.equal(layout.edges.length, 1);
+    assert(layout.bounds.width > 0 && layout.bounds.height > 0);
+    assert(layout.edges[0].points.length >= 2);
+  },
+);
 
 test('candidate parser bundle denies ambient package resolution', async (t) => {
   const { bundle } = await buildLikeC4Supply();
