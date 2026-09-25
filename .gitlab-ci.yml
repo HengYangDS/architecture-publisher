@@ -8,6 +8,8 @@ stages:
 
 verify:
   stage: verify
+  tags:
+    - ci-linux-arm64-docker
   interruptible: true
   script:
     - node --version
