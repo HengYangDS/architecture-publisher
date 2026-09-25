@@ -409,11 +409,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       supply at the selected 6000px width without deriving it from HTML. A
       packed offline consumer reproduces the same SVG after relocation. These
       focused, static, and package checks pass; the new interactive Scene and
-      static SVG modules have 96.87% and 98.48% local branch coverage. The full
-      run passes 872 tests and skips 2, but global branch coverage remains red
-      at 93.24%. The internal static preview is not visual acceptance. No
-      paired Candidate, interactive HTML, browser acceptance, or release is
-      claimed.
+      static SVG modules have 96.87% and 98.48% local branch coverage. A
+      conditional neutral Cytoscape 3.34.3 browser supply is now pinned,
+      licensed, package-included, and checked by the single static gate; its
+      supply owner has 100% local branch coverage. The full run passes 875
+      tests and skips 2, but global branch coverage remains red at 93.26%.
+      The internal static and browser probes are not visual or accessibility
+      acceptance. No paired Candidate, interactive HTML, browser acceptance,
+      or release is claimed.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually

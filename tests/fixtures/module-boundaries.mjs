@@ -132,6 +132,15 @@ const owners = [
     ],
   ],
   [
+    'packages/publisher/renderers/cytoscape/',
+    [
+      'packages/publisher/renderers/cytoscape/',
+      'packages/publisher/renderers/fonts/',
+      'packages/publisher/src/scene/',
+      'packages/publisher/src/source/',
+    ],
+  ],
+  [
     'packages/publisher/renderers/fonts/',
     [
       'packages/publisher/renderers/fonts/',

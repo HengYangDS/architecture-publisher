@@ -22,7 +22,7 @@ test('one fail-closed quality entry point covers the repository contract', async
   );
   assert.equal(
     manifest.scripts['check:generated'],
-    'node tools/generate-authoring-validators.mjs --check && node tools/supply/likec4.mjs --check',
+    'node tools/generate-authoring-validators.mjs --check && node tools/supply/likec4.mjs --check && node tools/supply/cytoscape.mjs --check',
   );
   assert.equal(manifest.scripts['check:format'], 'prettier --check .');
   assert.equal(manifest.scripts['check:lint'], 'eslint . --max-warnings 0');
