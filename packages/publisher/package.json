@@ -27,6 +27,7 @@
   "files": [
     "src/",
     "renderers/",
+    "supplies/",
     "README.md"
   ],
   "license": "UNLICENSED",

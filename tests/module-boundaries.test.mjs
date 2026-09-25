@@ -165,6 +165,29 @@ test('development tools use declared package owners and dependencies', async () 
   assert.deepEqual(problems, []);
 });
 
+test('supply tools may list built-ins without admitting an alternate loader', async () => {
+  const { paths } = await inventory([...runtimeRoots, 'tools']);
+  const packageExports = await declaredPackageExports();
+  const file = 'tools/supply/likec4.mjs';
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      file,
+      "import { builtinModules } from 'node:module';",
+      paths,
+      packageExports,
+    ),
+    [],
+  );
+  assert(
+    inspectModuleBoundaries(
+      file,
+      "import { createRequire } from 'node:module';",
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('alternate module loaders')),
+  );
+});
+
 test('syntax failures and computed dependencies fail closed', async () => {
   const { paths } = await inventory(runtimeRoots);
   const packageExports = await declaredPackageExports();

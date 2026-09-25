@@ -18,7 +18,7 @@ test('one fail-closed quality entry point covers the repository contract', async
   );
   assert.equal(
     manifest.scripts['check:generated'],
-    'node tools/generate-authoring-validators.mjs --check',
+    'node tools/generate-authoring-validators.mjs --check && node tools/supply/likec4.mjs --check',
   );
   assert.equal(manifest.scripts['check:format'], 'prettier --check .');
   assert.equal(manifest.scripts['check:lint'], 'eslint . --max-warnings 0');
@@ -59,6 +59,7 @@ test('coverage roots include all tracked first-party package runtime modules', (
     .filter((file) => file.endsWith('.mjs'));
   for (const file of tracked) {
     if (/^packages\/publisher\/renderers\/[^/]+\/supply\//u.test(file)) continue;
+    if (file === 'packages/publisher/supplies/likec4/parser.mjs') continue;
     assert.match(
       file,
       /^(?:packages\/publisher\/(?:src|renderers)\/|editions\/self\/src\/)/u,

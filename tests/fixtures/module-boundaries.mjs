@@ -221,8 +221,15 @@ export function inspectModuleBoundaries(
     const specifier = literal(value);
     if (specifier === null) return issue(node, 'computed dependency requires explicit admission');
     if (isBuiltin(specifier)) {
-      if (specifier === 'module' || specifier === 'node:module')
-        issue(node, 'alternate module loaders require explicit admission');
+      if (specifier === 'module' || specifier === 'node:module') {
+        const supplyBuiltinList =
+          file.startsWith('tools/supply/') &&
+          node.type === 'ImportDeclaration' &&
+          node.specifiers.length === 1 &&
+          node.specifiers[0].type === 'ImportSpecifier' &&
+          node.specifiers[0].imported.name === 'builtinModules';
+        if (!supplyBuiltinList) issue(node, 'alternate module loaders require explicit admission');
+      }
       return;
     }
     if (!specifier.startsWith('./') && !specifier.startsWith('../')) {

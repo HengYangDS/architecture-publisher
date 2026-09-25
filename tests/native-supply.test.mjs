@@ -1,0 +1,134 @@
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { buildLikeC4Supply } from '../tools/supply/likec4.mjs';
+
+const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const supplyRoot = fileURLToPath(
+  new URL('../packages/publisher/supplies/likec4/', import.meta.url),
+);
+
+function isolatedNode(scratch, script) {
+  /** @type {Record<string, string>} */
+  const environment = { HOME: scratch, PATH: '', NODE_PATH: '', NODE_OPTIONS: '' };
+  if (process.platform === 'win32' && process.env.SystemRoot)
+    environment.SystemRoot = process.env.SystemRoot;
+  return spawnSync(process.execPath, ['--input-type=module', '--eval', script], {
+    cwd: scratch,
+    env: environment,
+    encoding: 'utf8',
+    timeout: 20_000,
+    maxBuffer: 1024 * 1024,
+  });
+}
+
+test('LikeC4 parser supply is reproducible and binds exact package notices', async () => {
+  const first = await buildLikeC4Supply();
+  const second = await buildLikeC4Supply();
+  assert.deepEqual(first.bundle, second.bundle);
+  assert.deepEqual(first.notices, second.notices);
+  assert.deepEqual(first.manifest, second.manifest);
+  assert.equal(first.manifest.schema, 'architecture.native-parser-supply/v1');
+  assert.deepEqual(first.manifest.parser, {
+    name: '@likec4/language-services',
+    version: '1.59.4',
+  });
+  assert.deepEqual(first.manifest.builder, { name: 'esbuild', version: '0.28.2' });
+  assert.deepEqual(first.manifest.blockedExternalPackages, ['pnpapi']);
+  assert.equal(first.manifest.packages.length, 65);
+  assert(first.bundle.length < 8 * 1024 * 1024);
+  assert.deepEqual(first.manifest.files, [
+    { path: 'parser.mjs', bytes: first.bundle.length, sha256: sha(first.bundle) },
+    { path: 'THIRD-PARTY-NOTICES.txt', bytes: first.notices.length, sha256: sha(first.notices) },
+  ]);
+  assert.match(first.notices.toString('utf8'), /Copyright \(c\) 2018 remeda/u);
+  assert.match(first.notices.toString('utf8'), /Copyright \(c\) 2019-present Fabio Spampinato/u);
+  for (const entry of first.manifest.packages) {
+    assert.match(entry.integrity, /^sha(?:256|384|512)-/u);
+    assert.match(entry.noticeSha256, /^[a-f0-9]{64}$/u);
+  }
+});
+
+test('candidate parser bundle runs from a relocated directory without node_modules', async (t) => {
+  const { bundle } = await buildLikeC4Supply();
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'archpub-likec4-supply-'));
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const parserFile = path.join(scratch, 'parser.mjs');
+  await fs.writeFile(parserFile, bundle);
+  const script = `
+    import { fromSources } from ${JSON.stringify(pathToFileURL(parserFile).href)};
+    const parser = await fromSources({
+      'model.c4': "specification { element component }\\nmodel { left = component 'Left'\\n right = component 'Right'\\n left -> right }\\n",
+      'views.c4': 'views { view overview { include * } }\\n',
+    }, { printErrors: false, configureLogger: false, useFileSystem: false,
+         manualLayouts: false, watch: false, graphviz: 'wasm' });
+    const model = parser.syncComputedModel();
+    console.log(JSON.stringify({
+      errors: parser.languageServices.getErrors().length,
+      documents: parser.documentPaths().length,
+      elements: [...model.elements()].length,
+      relations: [...model.relationships()].length,
+    }));
+    await parser.dispose();
+  `;
+  const child = isolatedNode(scratch, script);
+  assert.equal(child.status, 0, child.stderr);
+  assert.deepEqual(JSON.parse(child.stdout.trim()), {
+    errors: 0,
+    documents: 2,
+    elements: 2,
+    relations: 1,
+  });
+});
+
+test('candidate parser bundle denies ambient package resolution', async (t) => {
+  const { bundle } = await buildLikeC4Supply();
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'archpub-likec4-supply-'));
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const parserFile = path.join(scratch, 'parser-probe.mjs');
+  await fs.writeFile(
+    parserFile,
+    Buffer.concat([
+      bundle,
+      Buffer.from('\nexport const probeRequire = (name) => require(name);\n'),
+    ]),
+  );
+  const script = `
+    import { probeRequire } from ${JSON.stringify(pathToFileURL(parserFile).href)};
+    let denied = false;
+    try { probeRequire('pnpapi'); }
+    catch (error) { denied = error.message === 'external_dependency_denied:pnpapi'; }
+    console.log(JSON.stringify({ denied, builtin: typeof probeRequire('fs').readFileSync === 'function' }));
+  `;
+  const child = isolatedNode(scratch, script);
+  assert.equal(child.status, 0, child.stderr);
+  assert.deepEqual(JSON.parse(child.stdout.trim()), { denied: true, builtin: true });
+});
+
+test('packaged LikeC4 supply matches generated bytes and has complete notices', async () => {
+  const built = await buildLikeC4Supply();
+  assert.deepEqual(await fs.readFile(path.join(supplyRoot, 'parser.mjs')), built.bundle);
+  assert.deepEqual(
+    await fs.readFile(path.join(supplyRoot, 'THIRD-PARTY-NOTICES.txt')),
+    built.notices,
+  );
+  assert.deepEqual(
+    await fs.readFile(path.join(supplyRoot, 'supply.json'), 'utf8'),
+    JSON.stringify(built.manifest, null, 2) + '\n',
+  );
+  const packed = spawnSync('npm', ['pack', '--dry-run', '--json', './packages/publisher'], {
+    cwd: fileURLToPath(new URL('../', import.meta.url)),
+    encoding: 'utf8',
+    timeout: 20_000,
+    env: { ...process.env, npm_config_offline: 'true' },
+  });
+  assert.equal(packed.status, 0, packed.stderr);
+  const files = Object.values(JSON.parse(packed.stdout))[0].files.map(({ path: name }) => name);
+  for (const name of ['parser.mjs', 'THIRD-PARTY-NOTICES.txt', 'supply.json'])
+    assert(files.includes(`supplies/likec4/${name}`), name);
+});

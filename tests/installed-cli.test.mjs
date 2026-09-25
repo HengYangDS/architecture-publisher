@@ -42,6 +42,18 @@ test('packed CLI verifies relocated non-Git input without development executable
   const info = parseNpmPackRecord(pack.stdout);
   assert(info.files.some((f) => f.path === 'src/cli/main.mjs'));
   const bundled = new Set(info.bundled ?? []);
+  const admittedSupplyFiles = new Set([
+    'supplies/likec4/parser.mjs',
+    'supplies/likec4/supply.json',
+    'supplies/likec4/THIRD-PARTY-NOTICES.txt',
+  ]);
+  assert.deepEqual(
+    info.files
+      .filter((file) => file.path.startsWith('supplies/'))
+      .map((file) => file.path)
+      .sort(),
+    [...admittedSupplyFiles].sort(),
+  );
   assert(
     info.files.every(
       (f) =>
@@ -50,6 +62,7 @@ test('packed CLI verifies relocated non-Git input without development executable
         f.path.startsWith('src/') ||
         f.path.startsWith('assets/') ||
         f.path.startsWith('renderers/') ||
+        admittedSupplyFiles.has(f.path) ||
         (f.path.startsWith('node_modules/') && bundled.has(f.path.split('/')[1])),
     ),
   );
