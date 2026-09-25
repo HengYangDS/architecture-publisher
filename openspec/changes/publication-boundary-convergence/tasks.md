@@ -460,7 +460,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       result. The packed offline consumer repeats the check after relocation.
       The result explicitly withholds qualification, acceptance, and
       publication; versioned Qualification Set admission and independent
-      predicate evidence remain open.
+      predicate evidence remain open. Proposed contract delta: v2 records bind
+      exact Candidate/lock subjects and declared view/question scopes, but no
+      PASS record acquires trust or completeness without an accepter-owned
+      policy. This design is awaiting review; no v2 record admission is claimed.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In
       `tests/publication-contract.test.mjs` and
@@ -532,6 +535,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       Client Projection versus whole-product limits, declarative journey, media
       identities, and rollback criteria. AIGW separately admits its own migration,
       acceptance, release, and retirement of displaced materialization.
+      Read-only at AIGW `d288eb5`: its v1 declarative Provider still tracks a
+      Claim Model plus copied source bytes and release-derived hashes; the
+      current successor compiler directly admits only LikeC4. Migration must
+      first select a truthful AIGW-owned architecture source or attributed
+      projection path, not merely relocate those snapshots.
 - [ ] 8.2 Send ETHOS's single writer a retained-versus-displaced integration
       map and exact executable journey. Preserve ETHOS-native claims, Lane
       cooperation/competition/experiment/all-drop meaning, repository-quality

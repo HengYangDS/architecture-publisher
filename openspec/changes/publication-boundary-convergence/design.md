@@ -203,6 +203,34 @@ an attestation of the original builder or independent proof of semantic or
 visual truth. The replay operation is a qualification-library primitive that
 will be used by the existing `qualify verify` command; it adds no command plane.
 
+### Successor qualification authority
+
+The successor `qualify verify` input selects exact Build Request, Candidate
+container, and Qualification Set bytes under versioned Publisher contracts.
+It performs the current-package Candidate replay before admitting any external
+record. A v2 Qualification Set binds the resulting Candidate and input-lock
+digests and contains predicate-specific records with verifier identity,
+implementation digest, selected subject and scope, observations, verdict, and
+limits. Unlike v1's Claim Model fields, it does not repeat identities that the
+v2 Candidate already binds. Publisher derives valid record subjects and
+applicable view/question scopes from the selected Edition and Candidate; a
+record cannot invent a medium, question, view, artifact, or source authority.
+
+The presence of a PASS record establishes that a named verifier _asserted_ a
+result about exact bytes, not that Publisher executed or authenticated that
+verifier. The current runtime may prove byte equivalence; browser, aesthetic,
+domain, installed-use, and recovery predicates require their own observations.
+Until a versioned policy selected by the designated accepter names required
+predicates and trusted verifier roles, the result may report structurally bound
+records and missing scopes but cannot say qualification is complete, admitted,
+or accepted. That policy may allow editor and reviewer to coincide; it cannot
+rename that judgment independent implementation verification. Policy and final
+acceptance remain separate from source and Edition authorship.
+
+This is a proposed contract delta within the approved Change, not implemented
+or approved evidence of qualification. Historical Qualification Set and Input
+v1 retain their meanings and command route.
+
 An authoring locator does not claim immutability. Publisher materializes the
 selected inputs and generates their content-addressed identities in a lock
 before compilation; ordinary authors do not maintain derived hashes. Callers

@@ -294,6 +294,37 @@ on explicit unchanged-meaning and unchanged-visual evidence.
 
 ## ADDED Requirements
 
+### Requirement: Successor qualification records are policy-bound claims
+
+A versioned successor qualification input SHALL select exact Build Request,
+Candidate container, and Qualification Set bytes through the existing
+`archpub qualify verify` route. Candidate replay SHALL precede record admission.
+The Qualification Set SHALL bind the exact Candidate and materialized input
+lock; each record SHALL identify a predicate, selected subject and applicable
+scope, verifier and implementation identity, observations, verdict, and limits.
+Publisher SHALL reject records whose view, question, medium, artifact, subject,
+or identity is absent from the selected Edition and Candidate. A PASS value
+SHALL remain an attributed verifier assertion rather than proof that Publisher
+executed or independently authenticated that verifier. Without an exact named
+policy selected by the designated accepter, Publisher SHALL NOT report
+qualification completeness, admission, or acceptance, even if every submitted
+record says PASS. Historical v1 qualifications SHALL retain their original
+meaning.
+
+#### Scenario: PASS records omit a promised reader question
+
+- **WHEN** submitted PASS records cover only some selected Edition
+  view/question scopes, or claim a scope absent from the Candidate
+- **THEN** the result identifies missing valid scopes or rejects invented ones
+- **AND** neither case becomes a complete qualification or acceptance claim
+
+#### Scenario: Author and reviewer are the same person
+
+- **WHEN** an exact accepter-owned policy permits that person to review one
+  selected artifact and their attributed judgment names its digest
+- **THEN** Publisher may bind the review as human evidence under that policy
+- **AND** the record is not described as an independent implementation check
+
 ### Requirement: Edition views and omission targets are closed
 
 An Edition Project SHALL declare an ordered, nonempty set of uniquely named
