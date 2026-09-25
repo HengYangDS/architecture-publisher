@@ -392,7 +392,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       not editorial parity. First prove exact group membership and explicit
       relation dependency before shared carriers; changed claim qualifiers must
       change their visible expression. Do not add a second backend to disguise
-      this failure.
+      this failure. Partial: the existing grouped geometry implementation now
+      consumes neutral node, relation, and group inputs; the v1 path uses that
+      same owner. The exact AIGW v1 static SVG digest is unchanged. This does
+      not yet compile a successor Claim Model structure or qualify either
+      medium. Focused, static, and package checks pass; the full behavior run
+      has no test failures but fails the unchanged 95% branch-coverage gate.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

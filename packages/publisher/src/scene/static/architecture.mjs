@@ -1,5 +1,8 @@
 import { fail } from '../../source/manifest.mjs';
 
+const sides = new Set(['top', 'right', 'bottom', 'left']);
+const routes = new Set(['straight', 'orthogonal-h', 'orthogonal-v']);
+
 function point(box, side, offset = 0) {
   if (side === 'top') return [box.x + box.w / 2 + offset, box.y];
   if (side === 'right') return [box.x + box.w, box.y + box.h / 2 + offset];
@@ -53,13 +56,75 @@ function boxesOverlap(a, b, padding = 0) {
   );
 }
 
-function composeRoutes(document, view, layout) {
+function checkedGraph(input) {
+  if (
+    !input ||
+    !Array.isArray(input.nodes) ||
+    !input.nodes.length ||
+    !Array.isArray(input.groups) ||
+    !input.groups.length ||
+    !Array.isArray(input.relations)
+  )
+    fail('grouped_geometry_input_invalid');
+  const nodes = new Map();
+  for (const node of input.nodes) {
+    if (
+      typeof node?.id !== 'string' ||
+      !node.id ||
+      typeof node.label !== 'string' ||
+      !node.label ||
+      nodes.has(node.id)
+    )
+      fail('grouped_geometry_input_invalid');
+    nodes.set(node.id, node);
+  }
+  const groupIds = new Set();
+  const members = new Set();
+  for (const group of input.groups) {
+    if (
+      typeof group?.id !== 'string' ||
+      !group.id ||
+      groupIds.has(group.id) ||
+      typeof group.label !== 'string' ||
+      !group.label ||
+      !Array.isArray(group.members) ||
+      !group.members.length ||
+      group.members.length > 8
+    )
+      fail('grouped_geometry_input_invalid');
+    groupIds.add(group.id);
+    for (const id of group.members) {
+      if (!nodes.has(id) || members.has(id)) fail('grouped_geometry_input_invalid');
+      members.add(id);
+    }
+  }
+  if (members.size !== nodes.size) fail('grouped_geometry_input_invalid');
+  const relationIds = new Set();
+  for (const relation of input.relations) {
+    if (
+      typeof relation?.id !== 'string' ||
+      !relation.id ||
+      relationIds.has(relation.id) ||
+      !nodes.has(relation.from) ||
+      !nodes.has(relation.to) ||
+      typeof relation.text !== 'string' ||
+      !relation.text ||
+      !sides.has(relation.fromSide) ||
+      !sides.has(relation.toSide) ||
+      !routes.has(relation.route)
+    )
+      fail('grouped_geometry_input_invalid');
+    relationIds.add(relation.id);
+  }
+  return { nodes, groups: input.groups, relations: input.relations };
+}
+
+function composeRoutes(graph, layout) {
   const slots = new Map();
-  for (const authored of view.relations) {
-    const relation = document.relations[authored.id];
+  for (const authored of graph.relations) {
     for (const [id, side, peer, endpoint] of [
-      [relation.subject, authored.fromSide, relation.object, 'from'],
-      [relation.object, authored.toSide, relation.subject, 'to'],
+      [authored.from, authored.fromSide, authored.to, 'from'],
+      [authored.to, authored.toSide, authored.from, 'to'],
     ]) {
       const key = id + ':' + side,
         entries = slots.get(key) ?? [];
@@ -86,29 +151,28 @@ function composeRoutes(document, view, layout) {
       ),
     );
   }
-  return view.relations.map((authored) => {
-    const relation = document.relations[authored.id];
+  return graph.relations.map((authored) => {
     const from = point(
-      layout.nodes.get(relation.subject),
+      layout.nodes.get(authored.from),
       authored.fromSide,
       offsets.get(authored.id + ':from'),
     );
     const to = point(
-      layout.nodes.get(relation.object),
+      layout.nodes.get(authored.to),
       authored.toSide,
       offsets.get(authored.id + ':to'),
     );
     const points = routePoints(from, to, authored.route);
     for (const [id, box] of layout.nodes) {
-      if ([relation.subject, relation.object].includes(id)) continue;
+      if ([authored.from, authored.to].includes(id)) continue;
       if (segments(points).some(([a, b]) => intersectsSegment(a, b, box, 6)))
         fail('semantic_publication_static_route_infeasible', authored.id + ':' + id);
     }
-    return { authored, relation, points };
+    return { id: authored.id, from: authored.from, to: authored.to, text: authored.text, points };
   });
 }
 
-function placeLabels(routes, edition, layout) {
+function placeLabels(selectedRoutes, layout) {
   const occupied = [...layout.nodes.values()],
     borders = [];
   for (const group of layout.groups) {
@@ -133,10 +197,9 @@ function placeLabels(routes, edition, layout) {
     );
     occupied.push({ x: x + 20, y: y + 17, w: group.label.length * 9 + 12, h: 24 });
   }
-  const strokes = routes.flatMap((route) => segments(route.points));
-  return routes.map((route) => {
-    const label = edition.visualGrammar.relationTypes[route.relation.type].label;
-    const w = label.length * 8 + 16,
+  const strokes = selectedRoutes.flatMap((route) => segments(route.points));
+  return selectedRoutes.map((route) => {
+    const w = route.text.length * 8 + 16,
       h = 24;
     const candidates = segments(route.points).sort(
       (a, b) =>
@@ -166,23 +229,17 @@ function placeLabels(routes, edition, layout) {
         }
       }
     }
-    fail('semantic_publication_static_label_infeasible', route.authored.id);
+    fail('semantic_publication_static_label_infeasible', route.id);
   });
 }
 
-function groupLayout(document, edition, view) {
+function groupLayout(graph) {
   const longestNode = Math.max(
-      ...view.groups.flatMap((group) =>
-        group.entities.map((id) => [...document.entities[id].label].length),
+      ...graph.groups.flatMap((group) =>
+        group.members.map((id) => [...graph.nodes.get(id).label].length),
       ),
     ),
-    longestRelation = Math.max(
-      0,
-      ...view.relations.map(
-        (item) =>
-          [...edition.visualGrammar.relationTypes[document.relations[item.id].type].label].length,
-      ),
-    );
+    longestRelation = Math.max(0, ...graph.relations.map((item) => [...item.text].length));
   if (longestNode > 32 || longestRelation > 32)
     fail('semantic_publication_static_label_infeasible');
   const nodeWidth = Math.max(230, Math.ceil(longestNode * 10.2 + 56)),
@@ -191,20 +248,20 @@ function groupLayout(document, edition, view) {
     groupGap = 70,
     groupPad = 34,
     headerHeight = 54,
-    widest = Math.max(...view.groups.map((group) => group.entities.length)),
+    widest = Math.max(...graph.groups.map((group) => group.members.length)),
     groupWidth = widest * nodeWidth + Math.max(0, widest - 1) * nodeGap + groupPad * 2,
     width = Math.max(1200, groupWidth + 160),
     groups = [],
     nodes = new Map();
   let y = 190;
-  for (const group of view.groups) {
+  for (const group of graph.groups) {
     const rowWidth =
-        group.entities.length * nodeWidth + Math.max(0, group.entities.length - 1) * nodeGap,
+        group.members.length * nodeWidth + Math.max(0, group.members.length - 1) * nodeGap,
       height = headerHeight + nodeHeight + groupPad * 2,
       x = (width - groupWidth) / 2,
       rowX = (width - rowWidth) / 2;
     groups.push({ ...group, x, y, w: groupWidth, h: height });
-    for (const [index, id] of group.entities.entries())
+    for (const [index, id] of group.members.entries())
       nodes.set(id, {
         x: rowX + index * (nodeWidth + nodeGap),
         y: y + headerHeight + groupPad,
@@ -216,9 +273,46 @@ function groupLayout(document, edition, view) {
   return { width, height: y - groupGap + 100, groups, nodes };
 }
 
-/** Compile deterministic layout and routes without painting a medium. */
+/** Derive geometry only; node and relation IDs remain opaque to this owner. */
+export function composeGroupedGeometry(input) {
+  const graph = checkedGraph(input);
+  const layout = groupLayout(graph);
+  return { layout, routes: placeLabels(composeRoutes(graph, layout), layout) };
+}
+
+/** Preserve the historical v1 scene shape through the same geometry owner. */
 export function composeStaticArchitectureScene(document, edition, view) {
-  const layout = groupLayout(document, edition, view),
-    routes = placeLabels(composeRoutes(document, view, layout), edition, layout);
-  return { layout, routes };
+  const selectedIds = view.groups.flatMap((group) => group.entities);
+  const selected = composeGroupedGeometry({
+    nodes: selectedIds.map((id) => ({ id, label: document.entities[id].label })),
+    groups: view.groups.map(({ id, label, entities }) => ({ id, label, members: entities })),
+    relations: view.relations.map((authored) => {
+      const relation = document.relations[authored.id];
+      return {
+        ...authored,
+        from: relation.subject,
+        to: relation.object,
+        text: edition.visualGrammar.relationTypes[relation.type].label,
+      };
+    }),
+  });
+  const byId = new Map(view.relations.map((authored) => [authored.id, authored]));
+  return {
+    layout: {
+      ...selected.layout,
+      groups: selected.layout.groups.map((group, index) => ({
+        ...view.groups[index],
+        x: group.x,
+        y: group.y,
+        w: group.w,
+        h: group.h,
+      })),
+    },
+    routes: selected.routes.map((route) => ({
+      authored: byId.get(route.id),
+      relation: document.relations[route.id],
+      points: route.points,
+      label: route.label,
+    })),
+  };
 }
