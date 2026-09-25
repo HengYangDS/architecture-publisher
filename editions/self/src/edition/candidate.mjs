@@ -54,8 +54,15 @@ export async function buildArchitecturePublisherCandidate(plan) {
   )
     fail('self_candidate_plan_invalid');
   portablePath(plan.semanticMember);
-  const parent = path.dirname(plan.output),
+  const parent = path.dirname(plan.output);
+  let parentStat;
+  try {
     parentStat = await fs.lstat(parent);
+  } catch (error) {
+    if (error.code === 'ENOENT' || error.code === 'ENOTDIR')
+      fail('self_candidate_output_parent_invalid');
+    throw error;
+  }
   if (
     !parentStat.isDirectory() ||
     parentStat.isSymbolicLink() ||

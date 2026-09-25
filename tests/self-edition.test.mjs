@@ -378,6 +378,123 @@ test('the first-party self Edition emits one exact candidate from independent si
     assert.equal(candidate[forbidden], undefined);
 });
 
+test('self Candidate rejects malformed plans before touching the destination', async (t) => {
+  const { buildArchitecturePublisherCandidate } =
+    await import('../editions/self/src/edition/candidate.mjs');
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-plan-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const base = {
+    sourceManifest: path.join(root, 'absent-source.json'),
+    sourceSha256: 'a'.repeat(64),
+    semanticMember: 'semantic.json',
+    edition: path.join(root, 'absent-edition.json'),
+    editionSha256: 'b'.repeat(64),
+    output: path.join(parent, 'candidate'),
+  };
+  for (const plan of [
+    null,
+    { ...base, extra: true },
+    { ...base, sourceManifest: 'relative-source.json' },
+    { ...base, edition: 'relative-edition.json' },
+    { ...base, output: 'relative-output' },
+    { ...base, sourceSha256: 'invalid' },
+    { ...base, editionSha256: 'invalid' },
+  ])
+    await assert.rejects(buildArchitecturePublisherCandidate(plan), {
+      code: 'self_candidate_plan_invalid',
+    });
+  await assert.rejects(
+    buildArchitecturePublisherCandidate({
+      ...base,
+      output: path.join(parent, 'missing/candidate'),
+    }),
+    { code: 'self_candidate_output_parent_invalid' },
+  );
+  const notDirectory = path.join(parent, 'not-directory');
+  await fs.writeFile(notDirectory, 'occupied');
+  await assert.rejects(
+    buildArchitecturePublisherCandidate({ ...base, output: path.join(notDirectory, 'candidate') }),
+    { code: 'self_candidate_output_parent_invalid' },
+  );
+  const nested = path.join(parent, 'nested');
+  await fs.mkdir(nested);
+  await assert.rejects(
+    buildArchitecturePublisherCandidate({
+      ...base,
+      output: `${nested}${path.sep}..${path.sep}candidate`,
+    }),
+    { code: 'self_candidate_output_parent_invalid' },
+  );
+  await assert.rejects(fs.stat(base.output), { code: 'ENOENT' });
+});
+
+test('self Candidate rejects stale authority and occupied output before rendering', async (t) => {
+  const { buildArchitecturePublisherCandidate, prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/index.mjs');
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-admission-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const prepared = await prepareArchitecturePublisherEdition(
+    await request(path.join(parent, 'prepared')),
+  );
+  const plan = {
+    ...JSON.parse(await fs.readFile(prepared.plan, 'utf8')),
+    output: path.join(parent, 'candidate'),
+  };
+  await assert.rejects(
+    buildArchitecturePublisherCandidate({ ...plan, semanticMember: 'missing.json' }),
+    { code: 'self_candidate_claim_model_missing' },
+  );
+  const bundle = await readSourceBundle(plan.sourceManifest, plan.sourceSha256);
+  const otherMember = bundle.members.find(({ path: name }) => name !== plan.semanticMember);
+  assert(otherMember);
+  await assert.rejects(
+    buildArchitecturePublisherCandidate({ ...plan, semanticMember: otherMember.path }),
+    { code: 'self_candidate_claim_model_invalid' },
+  );
+  await assert.rejects(
+    buildArchitecturePublisherCandidate({ ...plan, editionSha256: '0'.repeat(64) }),
+    { code: 'self_candidate_edition_mismatch' },
+  );
+  const invalidEdition = path.join(parent, 'invalid-edition.json');
+  const invalidBytes = Buffer.from('{invalid');
+  await fs.writeFile(invalidEdition, invalidBytes);
+  await assert.rejects(
+    buildArchitecturePublisherCandidate({
+      ...plan,
+      edition: invalidEdition,
+      editionSha256: sha256(invalidBytes),
+    }),
+    { code: 'self_candidate_edition_invalid' },
+  );
+  const edition = JSON.parse(await fs.readFile(plan.edition, 'utf8'));
+  for (const [name, changed] of [
+    ['foreign-id', { ...edition, id: 'foreign-edition' }],
+    [
+      'foreign-source',
+      { ...edition, source: { ...edition.source, manifestSha256: 'f'.repeat(64) } },
+    ],
+  ]) {
+    const file = path.join(parent, `${name}.json`);
+    const bytes = encode(changed);
+    await fs.writeFile(file, bytes);
+    await assert.rejects(
+      buildArchitecturePublisherCandidate({
+        ...plan,
+        edition: file,
+        editionSha256: sha256(bytes),
+      }),
+      { code: 'self_candidate_edition_invalid' },
+    );
+  }
+  await fs.writeFile(plan.output, 'occupied');
+  await assert.rejects(buildArchitecturePublisherCandidate(plan), { code: 'output_exists' });
+  assert.equal(await fs.readFile(plan.output, 'utf8'), 'occupied');
+});
+
 test('the evolution view carries semantic delta and distinct renewal obligations', async (t) => {
   const { prepareArchitecturePublisherEdition } =
     await import('../editions/self/src/edition/prepare.mjs');
