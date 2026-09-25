@@ -16,6 +16,20 @@ not claim to understand them merely because their bytes were retained. An
 unsupported distinction required by an Edition SHALL block or be explicitly
 excluded under the editor's reviewed scope, never be silently flattened.
 
+For the selected LikeC4 adapter, a source reference SHALL identify an explicit
+`element:<native-id>`, `view:<native-id>`, or one-based
+`relation:<line>:<column>` locator together with its selected source namespace
+and digest; labels and engine-generated relation IDs SHALL NOT resolve durable
+Edition identity. A selected structural view SHALL retain its exact computed
+member identities and an explicit qualification limit. A relation SHALL retain
+its endpoints, kind, direction, and source origin without inferred transitive
+or causal meaning. A computed relation whose source endpoints are absent from
+the selected view's visible element membership SHALL block that structural
+selection rather than create a dangling or falsely aggregated edge. Generated
+or uninterpreted dynamic views SHALL NOT silently satisfy an authored
+structural reference. Free-form LikeC4 queries SHALL fail until a separately
+admitted interpretation is specified.
+
 #### Scenario: Native LikeC4 sources are selected
 
 - **WHEN** an Edition selects authored LikeC4 model and view files
@@ -23,6 +37,31 @@ excluded under the editor's reviewed scope, never be silently flattened.
   without requiring a tracked duplicate Claim Model
 - **AND** unsupported domain qualifiers are reported rather than inferred from
   graphic colors or labels
+
+#### Scenario: An Edition selects an upstream-computed view
+
+- **WHEN** an Edition names one authored LikeC4 structural view by source
+  namespace and native view ID
+- **THEN** the adapter resolves its finite selected element and relation set
+  with source bindings
+- **AND** it preserves the upstream-computed-membership limit rather than
+  claiming that every visible assertion has been qualified
+
+#### Scenario: A generated relation ID changes
+
+- **WHEN** a subsequent native parse changes only a parser-run relation ID but
+  its selected source bytes, locator, and supported fields remain equal
+- **THEN** the source-location reference resolves the same selected meaning
+  without including the volatile ID in its semantic identity
+- **AND** a changed source locator or meaning does not inherit prior acceptance
+
+#### Scenario: Two native relations have the same endpoints
+
+- **WHEN** an authored LikeC4 file contains two relations with equal endpoints
+  at different source positions
+- **THEN** their one-based source locators resolve two distinct selections
+- **AND** a duplicate or ambiguous locator fails rather than choosing the
+  first engine-generated relation ID
 
 #### Scenario: A native construct is opaque
 

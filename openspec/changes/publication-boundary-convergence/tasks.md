@@ -293,7 +293,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       relocation/generated-ID drift, duplicate relations, explicit lineage,
       opaque constructs, self-contradictions, and visibly distinct target/current
       disagreement. No transitive, universal, causal, or authority inference from
-      weaker relations or graphic appearance.
+      weaker relations or graphic appearance. Partial: a LikeC4-specific,
+      source-bound reference resolver distinguishes `element`, `relation`, and
+      authored structural `view` references; equal labels remain distinct, selected
+      relations use one-based source locations rather than volatile parser IDs,
+      retain typed fields and only their endpoints, and computed view membership
+      retains its qualification limit. Missing visible endpoints and
+      unknown/generated/dynamic/query references fail closed. Focused RED/GREEN,
+      parser-run drift, duplicate-relation, and endpoint-counterexample tests
+      passed 7/7. Static, strict OpenSpec, and package checks pass. Full
+      behavior passes 818 tests, skips 2; branch coverage remains 92.88%
+      against the 95% gate. This resolver is not yet wired into the successor
+      Edition compiler; lineage, contradictions, and target/current
+      presentation remain open.
 - [ ] 4.3 Extend `packages/publisher/src/semantics/change.mjs` and
       `packages/publisher/src/edition/evolution.mjs`;
       `tests/native-evolution.test.mjs` must detect

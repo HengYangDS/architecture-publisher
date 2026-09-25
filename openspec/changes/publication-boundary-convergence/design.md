@@ -382,6 +382,29 @@ LikeC4 element IDs, typed relation endpoints/kinds/direction, and view IDs;
 user metadata and unsupported predicates remain opaque until an admitted
 vocabulary assigns them meaning. Engine-generated relation IDs are
 revision-scoped even if they stay equal in one workspace run.
+For this LikeC4 adapter, an Edition's opaque `reference` string is resolved
+only when it names `element:<native-id>`, `view:<native-id>`, or a relation's
+`relation:<line>:<column>` under a selected source namespace. Line and column
+are one-based positions derived from LikeC4's bound LSP source locator, not its
+generated relation ID; equal labels are never lookup keys. The relation's
+source digest and location, endpoints, kind, direction, label, and opaque
+metadata remain selected meaning. A supported structural view resolves its
+finite upstream-computed member set while retaining the view-membership
+qualification limit; a relation whose source endpoints are absent from the
+view's visible member set makes that structural selection unrepresentable
+instead of creating a dangling or falsely aggregated edge. Selecting a relation
+implies no transitive or causal edge.
+Generated views have no authored source binding, and dynamic views remain
+uninterpreted rather than satisfying structural obligations. No free-form
+LikeC4 query language is admitted yet; adding one requires a separately
+reviewed, versioned interpretation rule rather than a hand-written DSL parser.
+These selections are disposable compiler projections, not a second editable
+source graph. A parser-run ID change alone does not change selected meaning
+when source bytes, location, and supported fields agree; changed source
+location or meaning requires fresh correspondence or editor review before old
+acceptance can be reused. Candidate semantic identity must be derived from
+these normalized, source-bound selections, not by hashing the raw native index
+with its volatile engine IDs.
 An authored LikeC4 dynamic view has ordered flow semantics; its elements and
 edges alone are not an equivalent structural view. Until an admitted adapter
 preserves those steps, the native index lists it separately as an opaque view
@@ -447,10 +470,13 @@ LikeC4 meaning. Timeout, output overflow, execution error, or unproved
 owned-tree cleanup never yields a successful index; no ambient parser, direct
 in-process fallback, or second command plane is allowed.
 
-Node's stable Permission Model may narrow that worker's filesystem and
-process capabilities with exact file grants, but its version-specific network
-scope, inherited-descriptor and symlink exceptions, and same-user limitations
-make it defense in depth rather than a sandbox or a complete-read attestation.
+Node's stable Permission Model narrows this worker's reads to Publisher's
+installed source-module directory and the private verified parser file, without
+granting child processes or writes. The directory grant avoids maintaining a
+second hand-authored ESM dependency list, but is broader than exact per-module
+grants. Version-specific network scope, inherited-descriptor and symlink
+exceptions, and same-user limitations make these flags defense in depth, not a
+sandbox or a complete-read attestation.
 Keep the general Node package floor unchanged until an installed-platform
 contract justifies a change; fail the native feature closed where its selected
 worker capabilities are unavailable. The separate dependency/read-closure
