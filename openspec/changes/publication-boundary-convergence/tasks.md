@@ -335,7 +335,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       artifact identity, and review. A 6000px ETHOS choice is honored without an
       adopter-name default; another Edition may choose a different bounded width.
       If either required medium has a hard compile or render failure, no complete
-      paired Candidate is emitted.
+      paired Candidate is emitted. Ruling: the successor Build Request selects
+      meaning and media, while the same `archpub edition build` invocation
+      requires `--output` for its fresh Candidate directory; historical v1 plans
+      retain their authored output field and cannot be silently overridden.
+      This avoids making a local effect location part of the semantic lock or
+      adding a second build command. If wrong, only the unreleased successor
+      invocation shape changes; no accepted v1 meaning is rewritten.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually

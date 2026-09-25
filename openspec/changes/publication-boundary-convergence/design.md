@@ -168,6 +168,17 @@ The authored Build Request selects:
   narrative, static/interactive expectations, and optional visual overrides;
 - output media and a selected qualified toolchain profile.
 
+The Build Request does not own an output directory. The single successor
+`archpub edition build` invocation selects one fresh Candidate output directory
+with `--output`; absence of that argument has no implicit default. Publisher
+validates the destination before creating artifacts and records its location as
+invocation evidence, not as source, Edition, materialized-lock, Candidate, or
+publication authority. Compiling the same selected meaning into two fresh
+directories may produce identical Candidate bytes without conflating the two
+local effects. Historical v1 build plans retain their original `output` field
+and CLI meaning; an output override must not silently reinterpret them. This
+is one command with version-aware input dispatch, not a second command plane.
+
 An authoring locator does not claim immutability. Publisher materializes the
 selected inputs and generates their content-addressed identities in a lock
 before compilation; ordinary authors do not maintain derived hashes. Callers

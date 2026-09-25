@@ -52,31 +52,33 @@ The seven product values are:
 | `Qualification` | Predicate-specific judgment over exact subjects, evidence, verifier, scope, and limits                    | General truth or reusable authority |
 | `Publication`   | Authorized, recoverable installation of selected artifacts                                                | Rendering, intent, or acceptance    |
 
-```text
-Source Bundle -> Claim Model -> Edition -> Scene -> Artifact
-                                      \          /
-                                       Qualification
-                                             |
-                                        Publication
-```
-
+Claim Model is one admitted typed carrier, not a mandatory intermediate for
+every native format. A native import index is a disposable source-bound
+interpretation, not an eighth editable authority. Selected evidence precedes
+checked meaning, Edition, Scene, and Artifact; Qualification binds exact
+subjects across that chain, and Publication requires separate authorization.
 Every durable value has one semantic owner. Derived views remain rebuildable.
 A contradiction or unrepresentable meaning fails closed; it is not hidden by a
 layout choice, compatibility alias, or optimistic inference.
 
 ## Inputs
 
-The generic compiler accepts four explicit values:
+The generic compiler consumes four explicit roles, not necessarily four
+separately authored files:
 
-1. **Source Bundle** — exact selected evidence bytes, provenance, source
-   identity, and revision.
-2. **Claim Model** — typed assertions bound to those bytes, including plane,
-   condition, scope, maturity, validity, unknowns, and contradictions.
+1. **Selected source evidence** — exact native files or a Source Bundle with
+   provenance, source identity, and revision.
+2. **Semantic interpretation** — a checked native-format index, an attributed
+   projection, or the historical Claim Model v2, bound to selected bytes with
+   supported meaning and loss explicit. Native sources do not require a tracked
+   duplicate Claim Model.
 3. **Edition** — audience, reader questions, required claims, explicit
    omissions, narrative, visual grammar, independent scenes, and qualification
    obligations.
-4. **Build Request** — either the exact standard values or one exact Edition
-   Provider selection, plus the output selection.
+4. **Build Request** — selected source and Edition meaning, optional Providers,
+   requested media, and toolchain. The successor build invocation selects its
+   Candidate output directory separately; historical v1 plans retain their
+   original output-field meaning.
 
 An Edition Provider is an optional source-owned transport boundary before the
 compiler. A declarative Provider selects portable standard values; an executable
@@ -87,9 +89,10 @@ effects, or own publication.
 
 A Git repository, SDD tool, documentation service, code graph, telemetry store,
 or project-specific schema is a possible upstream source, not a hidden compiler
-dependency. Its adapter must emit the standard values explicitly and preserve
-loss, uncertainty, and provenance. Manual authoring of those standard values is
-also valid.
+dependency. Its adapter emits an admitted source-bound interpretation or
+attributed projection with loss, uncertainty, and provenance explicit; it need
+not duplicate the source as a Claim Model. Manual authoring of admitted standard
+values is also valid.
 
 ## Processing
 

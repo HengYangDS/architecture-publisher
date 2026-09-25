@@ -61,6 +61,30 @@ Direct Edition selection names an authoring filesystem root and manifest;
 Provider Edition selection names the sole authored Edition item supplied by
 one exact selected Provider. Both are one semantic Edition selection, not two
 competing roots or an implicit filesystem lookup.
+The successor Build Request SHALL NOT contain an output directory or release
+target. The single `archpub edition build` invocation SHALL require an explicit
+fresh Candidate output directory for successor input, and SHALL reject a
+missing or conflicting destination before output effects. That destination
+SHALL be invocation evidence, not part of the source or Edition lock or
+Candidate semantic identity. Existing v1 build-plan output fields and
+meanings SHALL remain unchanged; a successor flag SHALL NOT silently override
+one.
+
+#### Scenario: The same meaning is built in two locations
+
+- **WHEN** the same exact successor Build Request is compiled into two fresh
+  directories selected by separate invocations
+- **THEN** the materialized meaning and Candidate artifact identities remain
+  equal when all selected compiler inputs are equal
+- **AND** each output effect retains its own location evidence without
+  becoming acceptance or publication
+
+#### Scenario: A successor output destination is missing
+
+- **WHEN** an `archpub edition build` invocation selects a successor Build
+  Request but no explicit Candidate output directory
+- **THEN** the command fails without choosing a hidden repository-local path
+  or creating output
 
 #### Scenario: A mixed-source request is relocated
 
