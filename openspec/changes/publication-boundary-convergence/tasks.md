@@ -272,10 +272,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       inferred policy. Focused native tests pass 21/21; static and package
       checks pass. The full run passes 783 tests, skips 2, but branch coverage
       is 92.86% against 95%. Ruling: native `.c4` format is `unversioned`;
-      parser 1.59.4 is a separate toolchain
-      identity. Arbitrary parser callbacks are not attested, and package
-      supply, complete read closure, full include/query semantics, bounded execution,
-      installed build, and visible semantic coverage remain open.
+      parser 1.59.4 is a separate toolchain identity. A disposable 5.18 MB
+      esbuild parser bundle matched the direct
+      upstream result on exact di-effect sources without adjacent modules;
+      `docs/research/mechanism-evaluation.md` records the dynamic-require and
+      non-Node external limits. Arbitrary parser callbacks remain unattested.
+      Package supply, complete read closure, full include/query semantics,
+      bounded execution, installed build, and visible semantic coverage remain open.
 - [ ] 4.2 In `tests/native-identity.test.mjs` and
       `tests/native-semantics.test.mjs`, cover same-label distinct namespaces,
       relocation/generated-ID drift, duplicate relations, explicit lineage,

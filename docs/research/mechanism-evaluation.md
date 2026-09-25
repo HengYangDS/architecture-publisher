@@ -538,6 +538,38 @@ about 91 MB. The working Homebrew `likec4` installation occupied about
 parser. A qualified LikeC4 adapter can be optional to generic Publisher
 installation; no parser dependency is yet admitted into the release.
 
+### Single-file parser-supply probe (2026-09-25)
+
+On macOS Node `v26.9.0`, esbuild `0.28.2` bundled the installed
+`@likec4/language-services@1.59.4` Node entry from 1,365 input modules into
+one 5,182,490-byte ESM file. Two same-host builds with the same inputs had
+SHA-256 `c0231e4b559dc8d12d4b1bc80b4c5f86643d59a5b1ee9bdc877f60a8e40bf516`.
+The naive ESM bundle failed at import because bundled esbuild code used a
+dynamic `require('fs')`; a scoped `createRequire(import.meta.url)` banner made
+the exercised parser path run. The metafile still declared one non-Node
+external, `pnpapi`, from esbuild's optional Yarn-zip branch. A passing parser
+path does not establish that every reachable bundle path is ambient-free.
+
+The corrected bundle was copied into a disposable directory with no
+`node_modules`, empty `PATH` and `NODE_PATH`, and a fresh `HOME`; the directory
+was removed after the probe. Fed the three unchanged di-effect file bytes and
+the explicit no-filesystem options, it matched the direct upstream
+`fromSources` summary: three selected virtual documents, 25 elements, 35
+relations, and four views (three authored, one generated), with no parser
+errors. This is a same-host selected-path parity and relocation result, not
+cross-platform package acceptance, complete dependency observation, bounded
+execution, a license inventory, or visible semantic coverage.
+
+The single-file route is a serious alternative to the previously observed
+roughly 91 MB cold dependency tree, not an admitted release supply. Compare it
+with an optional installed peer on exact input, install/repair cost, complete
+license notices, non-Node external rejection, offline relocation, Linux and
+Windows behavior, and bounded execution. Do not add a second package or
+command plane merely to avoid this comparison; do not ship a bundle based on
+the two-node smoke test or one successful di-effect parse alone.
+
+### Cross-build identity and output limits
+
 To test cross-build identity, the same three byte-identical DSL files were
 exported from two different workspace paths. All 35 semantic relation pairs
 were present, but none retained its generated relation ID. In one fixed
