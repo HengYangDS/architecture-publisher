@@ -26,7 +26,7 @@ function child(command, args, cwd, environment, expectedStatus = 0) {
   return result.stdout;
 }
 
-test('offline installed Edition meaning survives relocation and refuses changed pins', async (t) => {
+test('offline installed Edition meaning and layout survive relocation and refuse changed pins', async (t) => {
   const work = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-meaning-'));
   t.after(() => fs.rm(work, { recursive: true, force: true }));
   const home = path.join(work, 'home');
@@ -74,7 +74,9 @@ test('offline installed Edition meaning survives relocation and refuses changed 
   const inputs = path.join(consumer, 'inputs');
   await fs.mkdir(path.join(inputs, 'sources'), { recursive: true });
   await fs.mkdir(path.join(inputs, 'edition'));
-  const model = Buffer.from("specification { element component }\nmodel { a = component 'A' }\n");
+  const model = Buffer.from(
+    "specification { element component }\nmodel { a = component 'A'\n b = component 'B'\n a -> b }\n",
+  );
   const views = Buffer.from('views { view overview { include * } }\n');
   await fs.writeFile(path.join(inputs, 'sources/model.c4'), model);
   await fs.writeFile(path.join(inputs, 'sources/views.c4'), views);
@@ -130,18 +132,29 @@ import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { materializeBuildRequestInput } from 'architecture-publisher/provider';
 import { compileEditionMeaning } from 'architecture-publisher/compiler';
+import { importLikeC4Layout } from 'architecture-publisher/semantics';
 const file = fileURLToPath(new URL('./inputs/build-request.json', import.meta.url));
 try {
   const bytes = await fs.readFile(file);
   const digest = createHash('sha256').update(bytes).digest('hex');
   const selected = await materializeBuildRequestInput(file, digest);
   const meaning = await compileEditionMeaning(selected);
+  const layout = await importLikeC4Layout({
+    lock: selected.lock,
+    readSource: selected.readSource,
+    view: { namespace: 'example/views', id: 'overview' },
+  });
   console.log(JSON.stringify({
     status: 'ok', lock: selected.lockSha256, semantic: meaning.native.semanticDigest,
     parser: meaning.native.parserSupply.sha256,
     static: meaning.media.static.assertionIds,
     interactive: meaning.media.interactive.assertionIds,
     completeness: meaning.completeness,
+    layout: {
+      nodes: layout.nodes.map(({ id }) => id),
+      relations: layout.edges.flatMap((edge) => edge.relations.map(({ reference }) => reference)),
+      parser: layout.parserSupply.sha256,
+    },
   }));
 } catch (error) {
   console.log(JSON.stringify({ status: 'error', code: error.code ?? 'unattributed' }));
@@ -174,6 +187,9 @@ try {
   assert.equal(first.completeness, 'finite-unqualified-obligations');
   assert.deepEqual(first.static, ['shape']);
   assert.deepEqual(first.interactive, ['shape']);
+  assert.deepEqual(first.layout.nodes, ['a', 'b']);
+  assert.equal(first.layout.relations.length, 1);
+  assert.equal(first.layout.parser, first.parser);
   for (const value of [first.lock, first.semantic, first.parser])
     assert.match(value, /^[0-9a-f]{64}$/u);
 

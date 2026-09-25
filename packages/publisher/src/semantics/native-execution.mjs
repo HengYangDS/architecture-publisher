@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { PROCESS_CLEANUP_MS, runOwnedProcess } from '../runtime/process-tree.mjs';
 import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
 import { deepFreeze, exact, jsonValue, record, text } from './document.mjs';
+import { validateLikeC4LayoutReply } from './native-layout.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const worker = fileURLToPath(new URL('./native-worker.mjs', import.meta.url));
@@ -189,7 +190,7 @@ export function validateNativeIndexReply(index, sources) {
   return index;
 }
 
-function decodeReply(raw, state, reason, closedBeforeCleanup, sources) {
+function decodeReply(raw, state, reason, closedBeforeCleanup, sources, view) {
   if (reason === 'timeout') fail('native_likec4_timeout');
   if (reason === 'overflow') fail('native_likec4_reply_size_invalid');
   if (state.stderrBytes) fail('native_likec4_stderr_invalid');
@@ -206,13 +207,17 @@ function decodeReply(raw, state, reason, closedBeforeCleanup, sources) {
       fail('native_likec4_response_invalid');
     fail(envelope.code);
   }
-  if (!exact(envelope, ['status', 'index']) || envelope.status !== 'ok')
+  if (
+    !exact(envelope, view === null ? ['status', 'index'] : ['status', 'index', 'layout']) ||
+    envelope.status !== 'ok'
+  )
     fail('native_likec4_response_invalid');
-  return validateNativeIndexReply(envelope.index, sources);
+  const index = validateNativeIndexReply(envelope.index, sources);
+  return view === null ? index : validateLikeC4LayoutReply(envelope.layout, index, view);
 }
 
 /** Execute only verified LikeC4 bytes in a bounded child; not a sandbox claim. */
-export async function executeLikeC4Native(selected, supply, options = {}) {
+async function executeLikeC4Operation(selected, supply, options, view) {
   if (!nativePermissionSupported()) fail('native_likec4_capability_unavailable');
   const parserBytes = Buffer.isBuffer(supply?.parserBytes) ? Buffer.from(supply.parserBytes) : null;
   if (
@@ -270,11 +275,11 @@ export async function executeLikeC4Native(selected, supply, options = {}) {
     const parser = path.join(scratch, 'parser.mjs');
     const requestPath = path.join(scratch, 'request.json');
     await fs.writeFile(parser, parserBytes, { flag: 'wx', mode: 0o600 });
-    await fs.writeFile(
-      requestPath,
-      JSON.stringify({ schema: 'architecture.native-parser-request/v1', selected: requestSources }),
-      { flag: 'wx', mode: 0o600 },
-    );
+    const request =
+      view === null
+        ? { schema: 'architecture.native-parser-request/v1', selected: requestSources }
+        : { schema: 'architecture.native-layout-request/v1', selected: requestSources, view };
+    await fs.writeFile(requestPath, JSON.stringify(request), { flag: 'wx', mode: 0o600 });
     const index = await runOwnedProcess({
       worker,
       nodeFlags: ['--permission', `--allow-fs-read=${sourceRoot}`, `--allow-fs-read=${parser}`],
@@ -286,7 +291,7 @@ export async function executeLikeC4Native(selected, supply, options = {}) {
       failurePrefix: 'native_likec4',
       terminateTree: options.terminateTree,
       decode: (raw, state, reason, closedBeforeCleanup) =>
-        decodeReply(raw, state, reason, closedBeforeCleanup, sources),
+        decodeReply(raw, state, reason, closedBeforeCleanup, sources, view),
     });
     return deepFreeze({
       ...index,
@@ -295,4 +300,23 @@ export async function executeLikeC4Native(selected, supply, options = {}) {
   } finally {
     await fs.rm(scratch, { recursive: true, force: true });
   }
+}
+
+export async function executeLikeC4Native(selected, supply, options = {}) {
+  return executeLikeC4Operation(selected, supply, options, null);
+}
+
+export async function executeLikeC4Layout(selected, supply, view, options = {}) {
+  if (
+    !exact(view, ['namespace', 'id']) ||
+    !text(view.namespace) ||
+    !text(view.id) ||
+    Buffer.byteLength(view.namespace, 'utf8') > 2048 ||
+    Buffer.byteLength(view.id, 'utf8') > 2048
+  )
+    fail('native_likec4_reference_invalid');
+  return executeLikeC4Operation(selected, supply, options, {
+    namespace: view.namespace,
+    id: view.id,
+  });
 }

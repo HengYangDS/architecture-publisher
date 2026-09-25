@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { deepFreeze, jsonValue, record } from './document.mjs';
-import { executeLikeC4Native } from './native-execution.mjs';
+import { deepFreeze, jsonValue, record, text } from './document.mjs';
+import { executeLikeC4Layout, executeLikeC4Native } from './native-execution.mjs';
 import { readLikeC4ParserSupply } from './supply.mjs';
 import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
 
@@ -290,5 +290,28 @@ export async function importLikeC4Native(selection) {
   return executeLikeC4Native(
     sources.map((source) => ({ source, content: contents.get(source.namespace) })),
     supply,
+  );
+}
+
+/** Resolve only one authored structural view through the verified parser supply. */
+export async function importLikeC4Layout(selection) {
+  if (arguments.length !== 1) fail('native_likec4_parser_override_forbidden');
+  const view = selection?.view;
+  if (
+    !record(view) ||
+    Object.keys(view).sort().join('\n') !== 'id\nnamespace' ||
+    !text(view.namespace) ||
+    !text(view.id) ||
+    Buffer.byteLength(view.namespace, 'utf8') > 2048 ||
+    Buffer.byteLength(view.id, 'utf8') > 2048
+  )
+    fail('native_likec4_reference_invalid');
+  const selectedView = { namespace: view.namespace, id: view.id };
+  const { sources, contents } = selectedSources(selection);
+  const supply = await readLikeC4ParserSupply();
+  return executeLikeC4Layout(
+    sources.map((source) => ({ source, content: contents.get(source.namespace) })),
+    supply,
+    selectedView,
   );
 }

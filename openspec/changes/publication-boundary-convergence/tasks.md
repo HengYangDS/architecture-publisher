@@ -370,8 +370,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       than a substitute diagram or parallel generated-intent store.
       Partial feasibility: a tracked, permission-restricted, empty-PATH probe
       shows the existing verified LikeC4 supply yields repeatable WASM node and
-      route geometry for one native view. Scene composition, visible source
-      binding, both renderers, and reader-quality acceptance remain unproved.
+      route geometry for one native view. The same private verified parser and
+      bounded process-tree owner now serve a distinct source-bound layout
+      request. The parent rejects missing/forged nodes, relations, invalid
+      geometry, and dynamic views; an installed public consumer reproduces the
+      layout after relocation. This is not a Scene or finished medium: visible
+      carriers, both renderers, and reader-quality acceptance remain unproved.
+      The view choice is snapshotted before asynchronous supply reads and
+      namespace-ambiguous native IDs fail closed. Nine focused layout tests,
+      59 selected native/installed tests, static checks, package check, and
+      strict OpenSpec validation pass. The full behavior run passes 841 tests
+      and skips 2; global branch coverage is 92.98% against
+      the unchanged 95% release gate. No landing or publication is admitted.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

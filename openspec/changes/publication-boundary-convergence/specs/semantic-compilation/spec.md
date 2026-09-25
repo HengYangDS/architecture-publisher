@@ -47,6 +47,15 @@ admitted interpretation is specified.
 - **AND** it preserves the upstream-computed-membership limit rather than
   claiming that every visible assertion has been qualified
 
+#### Scenario: Upstream geometry is reused without becoming semantic authority
+
+- **WHEN** a selected authored structural LikeC4 view requests layout
+- **THEN** a separately bounded geometry projection retains the exact selected
+  view, node, and relation source bindings without parser-generated edge IDs
+- **AND** omitted members, unselected relations, invalid routes, and
+  uninterpreted dynamic views fail rather than becoming visible carriers
+- **AND** geometry alone grants no semantic, medium, or reader-quality approval
+
 #### Scenario: A generated relation ID changes
 
 - **WHEN** a subsequent native parse changes only a parser-run relation ID but

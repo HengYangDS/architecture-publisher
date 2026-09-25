@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { buildLikeC4Layout } from './native-layout.mjs';
 import { importLikeC4NativeWithParser } from './native-likec4.mjs';
 
 const deadlineMs = Number(process.argv[2]);
@@ -17,10 +18,20 @@ if (!deadlineValid) {
 } else {
   try {
     const request = JSON.parse(fs.readFileSync(0, 'utf8'));
+    const layoutRequest = request?.schema === 'architecture.native-layout-request/v1';
     if (
-      request?.schema !== 'architecture.native-parser-request/v1' ||
+      !['architecture.native-parser-request/v1', 'architecture.native-layout-request/v1'].includes(
+        request?.schema,
+      ) ||
       !Array.isArray(request.selected) ||
-      Object.keys(request).sort().join('\n') !== 'schema\nselected'
+      Object.keys(request).sort().join('\n') !==
+        (layoutRequest ? 'schema\nselected\nview' : 'schema\nselected') ||
+      (layoutRequest &&
+        (!request.view ||
+          typeof request.view !== 'object' ||
+          Object.keys(request.view).sort().join('\n') !== 'id\nnamespace' ||
+          typeof request.view.id !== 'string' ||
+          typeof request.view.namespace !== 'string'))
     )
       throw Object.assign(new Error('invalid request'), {
         code: 'native_likec4_selection_invalid',
@@ -52,6 +63,7 @@ if (!deadlineValid) {
     const parser = await import(privateParserUrl);
     if (typeof parser.fromSources !== 'function')
       throw Object.assign(new Error('invalid supply'), { code: 'native_likec4_supply_invalid' });
+    let parsed;
     const index = await importLikeC4NativeWithParser(
       {
         lock: { schema: 'architecture.materialized-input-lock/v1', sources },
@@ -59,9 +71,19 @@ if (!deadlineValid) {
           return Buffer.from(contents.get(namespace));
         },
       },
-      parser.fromSources,
+      async (files, options) => {
+        parsed = await parser.fromSources(files, options);
+        return parsed;
+      },
     );
-    emit({ status: 'ok', index });
+    try {
+      if (layoutRequest) {
+        const layout = await buildLikeC4Layout(index, parsed, request.view);
+        emit({ status: 'ok', index, layout });
+      } else emit({ status: 'ok', index });
+    } finally {
+      await parsed?.dispose();
+    }
   } catch (error) {
     const code = error && typeof error === 'object' && 'code' in error ? error.code : null;
     emit({

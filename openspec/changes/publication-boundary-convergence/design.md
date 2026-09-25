@@ -560,6 +560,20 @@ source bytes are not embedded in public HTML by default. The editor and
 custodian choose disclosure; Publisher checks the declared output inventory
 and performs no ambient source publication.
 
+For a selected authored LikeC4 structural view, the admitted parser supply may
+also compute layout through its WASM backend. A distinct, bounded Worker
+request returns geometry only after native import has resolved the same exact
+source bytes. The parent validates that every positioned node and routed edge
+maps back to the selected view's source-bound elements and relations; generated
+edge IDs do not cross this boundary. Missing members, ambiguous source
+locations, namespace-ambiguous native IDs, unrepresentable aggregation, or
+uninterpreted dynamic views fail
+instead of becoming visible claims. The geometry remains an unqualified,
+replaceable projection. It is not part of the native semantic digest, does not
+authorize a scene, and is not shared as coordinates between static and
+interactive compilers. The selected view is copied before asynchronous parser
+supply access, so a caller cannot retarget the in-flight request.
+
 A visible assertion must be linked to a source or editorial claim, and every
 required claim for that medium must have a visible carrier for coverage to
 pass. An omission changes that medium's editorial scope and requires a new

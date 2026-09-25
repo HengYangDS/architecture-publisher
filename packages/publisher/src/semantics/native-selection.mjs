@@ -3,7 +3,7 @@ import { deepFreeze, record, text } from './document.mjs';
 
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
-const relationReference = ({ origin }) =>
+export const relationReference = ({ origin }) =>
   `relation:${origin.range.start.line + 1}:${origin.range.start.character + 1}`;
 
 function elementMember(index, reference) {
