@@ -550,6 +550,14 @@ the exercised parser path run. The metafile still declared one non-Node
 external, `pnpapi`, from esbuild's optional Yarn-zip branch. A passing parser
 path does not establish that every reachable bundle path is ambient-free.
 
+A second banner allowed dynamic `require` only for Node built-ins; a test-only
+export rejected `pnpapi` while permitting `fs`, and a two-element parser case
+still passed. Without that test-only export, the guarded bundle was 5,182,823
+bytes with SHA-256
+`e43c4e484d30e259faebb6c1c579fdc19d3b4f7e1ac7660f555aa35a3c2e18a2`;
+two same-host builds matched. This constrains dynamic package resolution in
+the bundle, not access to ambient files through permitted Node built-ins.
+
 The corrected bundle was copied into a disposable directory with no
 `node_modules`, empty `PATH` and `NODE_PATH`, and a fresh `HOME`; the directory
 was removed after the probe. Fed the three unchanged di-effect file bytes and
@@ -559,6 +567,20 @@ relations, and four views (three authored, one generated), with no parser
 errors. This is a same-host selected-path parity and relocation result, not
 cross-platform package acceptance, complete dependency observation, bounded
 execution, a license inventory, or visible semantic coverage.
+
+The guarded bundle also parsed the same hash-checked three-file input inside
+local Linux ARM64 image
+`sha256:cb328da7d1c342b3f542dc65fbd377cf5a4823d5df01f47ea3bd888f57618b4b`
+(Node `26.9.0`) with no network, a read-only root and input mount, dropped
+capabilities, 512 MB memory limit, and empty `PATH`/`NODE_PATH`. Its three
+virtual documents, 25 elements, 35 relations, and three authored plus one
+generated view matched the upstream summary. An initial container invocation
+failed before Node started because empty `PATH` hid the image's relative
+entrypoint; selecting `/usr/local/bin/node` as the absolute entrypoint fixed
+that harness error. Both owned probe directories and containers were removed.
+This is a selected-path Linux observation, not native Windows conformance,
+complete parser behavior, package/license qualification, or a filesystem
+sandbox claim.
 
 The single-file route is a serious alternative to the previously observed
 roughly 91 MB cold dependency tree, not an admitted release supply. Compare it

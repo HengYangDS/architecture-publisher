@@ -276,7 +276,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       esbuild parser bundle matched the direct
       upstream result on exact di-effect sources without adjacent modules;
       `docs/research/mechanism-evaluation.md` records the dynamic-require and
-      non-Node external limits. Arbitrary parser callbacks remain unattested.
+      non-Node external limits. A guarded variant also passed the selected
+      Linux ARM64 read-only/offline probe; Windows and license closure remain
+      unproved. Arbitrary parser callbacks remain unattested.
       Package supply, complete read closure, full include/query semantics,
       bounded execution, installed build, and visible semantic coverage remain open.
 - [ ] 4.2 In `tests/native-identity.test.mjs` and
