@@ -277,6 +277,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       complete read closure, full include/query semantics, bounded execution,
       installed build, Windows, visible semantic coverage, and formal supply
       admission. No Adapter package or second command plane is introduced.
+      The neutral process-tree lifecycle has been extracted below Provider and
+      the native adapter without changing Provider's reply protocol. Its
+      focused 18/18 tests, static and package checks pass. The full behavior
+      run passed 800 tests, skipped 2; branch coverage remains 93.37% against
+      the 95% gate. Native worker integration is not yet implemented or claimed.
 - [ ] 4.2 In `tests/native-identity.test.mjs` and
       `tests/native-semantics.test.mjs`, cover same-label distinct namespaces,
       relocation/generated-ID drift, duplicate relations, explicit lineage,

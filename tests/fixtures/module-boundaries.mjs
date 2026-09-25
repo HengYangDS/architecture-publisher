@@ -4,6 +4,18 @@ import { parse } from 'acorn';
 
 const owners = [
   [
+    'packages/publisher/src/provider/supervisor.mjs',
+    [
+      'packages/publisher/src/provider/',
+      'packages/publisher/src/source/',
+      'packages/publisher/src/runtime/process-tree.mjs',
+    ],
+  ],
+  [
+    'packages/publisher/src/runtime/',
+    ['packages/publisher/src/runtime/', 'packages/publisher/src/source/'],
+  ],
+  [
     'packages/publisher/src/semantics/supply.mjs',
     [
       'packages/publisher/src/semantics/',

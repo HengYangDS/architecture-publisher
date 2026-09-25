@@ -18,6 +18,7 @@
   },
   "include": [
     "packages/publisher/src/source/**/*.mjs",
+    "packages/publisher/src/runtime/**/*.mjs",
     "packages/publisher/src/semantics/**/*.mjs",
     "packages/publisher/src/edition/**/*.mjs",
     "packages/publisher/src/scene/**/*.mjs",

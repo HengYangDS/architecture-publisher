@@ -230,6 +230,29 @@ test('only the LikeC4 supply owner may read the bundled parser resource', async 
   );
 });
 
+test('the neutral process-tree owner serves only admitted protocol supervisors', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  const source = "import '../runtime/process-tree.mjs';";
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      'packages/publisher/src/provider/supervisor.mjs',
+      source,
+      paths,
+      packageExports,
+    ),
+    [],
+  );
+  assert(
+    inspectModuleBoundaries(
+      'packages/publisher/src/provider/contract.mjs',
+      source,
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('forbidden dependency')),
+  );
+});
+
 test('syntax failures and computed dependencies fail closed', async () => {
   const { paths } = await inventory(runtimeRoots);
   const packageExports = await declaredPackageExports();
