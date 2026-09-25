@@ -372,6 +372,16 @@ user metadata and unsupported predicates remain opaque until an admitted
 vocabulary assigns them meaning. Engine-generated relation IDs are
 revision-scoped even if they stay equal in one workspace run.
 
+For the pinned LikeC4 1.59.4 implementation, `fromSources` creates virtual
+documents and selects its `NoFileSystem` provider when `useFileSystem` is false;
+that provider rejects non-builtin `readFile` requests and scans no project
+files. The importer now requests this mode, disables manual layouts and
+watching, and selects WASM rather than a Graphviz binary explicitly. This is
+source-level evidence for the selected upstream parser mode, not an attestation
+that an arbitrary supplied callback obeys those options or that all package
+and execution reads are closed. The emitted index therefore retains its
+`parsed-document-set-only` limit.
+
 LikeC4's parser is an optional, explicitly selected toolchain supply, not a
 mandatory Publisher-core dependency or a Provider registry. The installed
 parser, its declared peer packages, transitive content, and execution limit

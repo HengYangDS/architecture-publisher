@@ -43,6 +43,18 @@ function selection(
   };
 }
 
+test('native importer explicitly requests upstream no-filesystem mode', async () => {
+  let selectedOptions;
+  await semantics.importLikeC4Native(selection(), async (files, options) => {
+    selectedOptions = options;
+    return fromSources(files, options);
+  });
+  assert.equal(selectedOptions.useFileSystem, false);
+  assert.equal(selectedOptions.manualLayouts, false);
+  assert.equal(selectedOptions.watch, false);
+  assert.equal(selectedOptions.graphviz, 'wasm');
+});
+
 test('native LikeC4 import binds model and view semantics to selected bytes', async () => {
   assert.equal(typeof semantics.importLikeC4Native, 'function');
   const index = await semantics.importLikeC4Native(selection(), fromSources);

@@ -122,6 +122,10 @@ export async function importLikeC4Native(selection, fromSources) {
       printErrors: false,
       throwIfInvalid: false,
       configureLogger: false,
+      useFileSystem: false,
+      manualLayouts: false,
+      watch: false,
+      graphviz: 'wasm',
     });
   } catch {
     fail('native_likec4_parse_invalid');

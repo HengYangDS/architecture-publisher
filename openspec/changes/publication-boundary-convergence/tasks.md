@@ -258,26 +258,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       `packages/publisher/src/semantics/` and test exact source/include binding,
       supported constructs, source references, typed relation fields, and explicit
       loss in `tests/native-import.test.mjs`. The derived index is disposable, not
-      an editable duplicate Claim Model. Source-level and disposable probes of
-      LikeC4 1.59.4 found public in-memory `fromSources` and `locate` support for
-      exact selected files and source positions on frozen di-effect inputs;
-      a first importer now checks locked bytes, the exact parser document set,
-      source ranges, and cross-source references without treating generated
-      relation IDs as stable or the generated index view as authored. On the
-      three frozen di-effect files it observed 25 elements, 35 relations, three
-      located authored views, and one generated index. Independent review found
-      that a null locator alone cannot classify a view as generated; the
-      importer now uses upstream `sourcePath` and fails on an unlocated authored
-      view. It also indexes source line bounds once per selected file. The
-      focused 15/15 tests, static checks, and package lint passed; the full
-      behavior run passed 767 tests, skipped 2, while branch coverage stayed at 92.86%
-      against 95%. Ruling: native `.c4` bytes have no embedded syntax version,
-      so their format version is `unversioned`; parser version 1.59.4 is a
-      separate toolchain identity. This import proves only the parsed document
-      set, not complete read closure. The parser and declared peers are pinned
-      for development tests but not shipped or package-content qualified;
-      bounded execution, exact includes, installed build integration, and
-      visible semantic coverage remain open. This task stays unchecked.
+      an editable duplicate Claim Model. Partial: the importer checks locked
+      bytes, exact parser document set, source ranges, and cross-source
+      references; authored views require an upstream source path. The frozen
+      di-effect probe yielded 25 elements, 35 relations, three authored views,
+      and one generated index. It explicitly requests LikeC4 1.59.4's virtual
+      no-filesystem, no-manual-layout, no-watch, WASM mode; source inspection
+      confirms its non-builtin reads are refused. Focused native tests pass
+      16/16, static and package checks pass; the full run passes 778 tests,
+      skips 2, but branch coverage is 92.91% against 95%. Ruling: native
+      `.c4` format is `unversioned`; parser 1.59.4 is a separate toolchain
+      identity. Arbitrary parser callbacks are not attested, and package
+      supply, complete read closure, exact includes, bounded execution,
+      installed build, and visible semantic coverage remain open.
 - [ ] 4.2 In `tests/native-identity.test.mjs` and
       `tests/native-semantics.test.mjs`, cover same-label distinct namespaces,
       relocation/generated-ID drift, duplicate relations, explicit lineage,
