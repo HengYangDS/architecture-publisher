@@ -18,8 +18,8 @@ import {
 } from '../edition/contract.mjs';
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
-import { rasterize } from '../../renderers/resvg/index.mjs';
 import { editionCandidateDigest, validateEditionCandidate } from './candidate.mjs';
+import { embedFonts, rasterizeSvg } from './media.mjs';
 import { resolveEditionProviderSelection } from '../provider/input.mjs';
 import { withMaterializedEditionProvider } from '../provider/materialize.mjs';
 
@@ -63,58 +63,6 @@ function sourceBindings(document, members) {
     bound.push({ id, path: source.locator, sha256: source.sha256 });
   }
   return bound.sort((left, right) => left.id.localeCompare(right.id));
-}
-
-async function renderOverviewPng(scratch, svg, source, fonts) {
-  const bundle = await writeSourceBundle(
-      path.join(scratch, 'static-input'),
-      { id: `${source.id}:static-overview`, revision: source.revision ?? '' },
-      [
-        { path: 'overview.svg', content: svg },
-        ...fonts.map((font) => ({ path: font.path, content: font.bytes })),
-      ],
-    ),
-    output = path.join(scratch, 'overview.png'),
-    result = await rasterize({
-      manifest: bundle.manifestPath,
-      manifestSha256: bundle.manifestSha256,
-      svg: 'overview.svg',
-      fonts: fonts.map((font) => ({
-        path: font.path,
-        family: 'JetBrains Mono',
-        weight: font.weight,
-      })),
-      width: 2400,
-      output,
-    });
-  return { bytes: await fs.readFile(output), result };
-}
-
-function standaloneSvg(svg, fonts, license) {
-  const xml = (value) =>
-    value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-  const css = fonts
-    .map(
-      (font) =>
-        "@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:" +
-        font.weight +
-        ';font-display:block;src:url(data:font/ttf;base64,' +
-        font.bytes.toString('base64') +
-        ") format('truetype');}",
-    )
-    .join('\n');
-  return Buffer.from(
-    svg
-      .toString('utf8')
-      .replace(
-        '</svg>',
-        '<style>' +
-          css +
-          '</style><metadata id="font-license">' +
-          xml(license.bytes.toString('utf8')) +
-          '</metadata></svg>',
-      ),
-  );
 }
 
 /** Compile one exact Edition Candidate across independent media.
@@ -164,8 +112,8 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
       staticResult = composeStaticOverview(document, selected.value, projections.staticScene),
       selectedFonts = await loadBundledFonts(),
       fonts = selectedFonts.fonts.filter((font) => [400, 600].includes(font.weight)),
-      overviewSvg = standaloneSvg(staticResult.bytes, fonts, selectedFonts.license),
-      overviewPng = await renderOverviewPng(scratch, staticResult.bytes, source.source, fonts);
+      overviewSvg = embedFonts(staticResult.bytes, fonts, selectedFonts.license),
+      overviewPng = await rasterizeSvg(scratch, staticResult.bytes, source.source, fonts, 2400);
     for (const view of projections.interactiveScenes) {
       const output = path.join(scratch, view.id + '.html'),
         scene = interactiveArchitectureScene(document, selected.value, view),
@@ -284,9 +232,15 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
   }
 }
 
-export async function compileEditionCandidateInput(file, digest) {
+export async function compileEditionCandidateInput(file, digest, output) {
   const planPath = path.resolve(file),
     plan = await selectedPlan(planPath, digest);
+  if (plan?.schema === 'architecture.build-request/v1') {
+    if (typeof output !== 'string' || !output) fail('edition_candidate_output_required');
+    const { compileSelectedEditionCandidateInput } = await import('./successor.mjs');
+    return compileSelectedEditionCandidateInput(planPath, digest, output);
+  }
+  if (output !== undefined) fail('edition_candidate_output_conflict');
   if (
     exact(plan, [
       'sourceManifest',

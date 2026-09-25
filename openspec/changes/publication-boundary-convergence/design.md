@@ -179,6 +179,17 @@ local effects. Historical v1 build plans retain their original `output` field
 and CLI meaning; an output override must not silently reinterpret them. This
 is one command with version-aware input dispatch, not a second command plane.
 
+The successor's `architecture.edition-candidate/v2` is a built-but-unqualified
+value. Its input binding holds the selected lock and Edition hashes, native
+semantic digest, parser-supply hash, and declared read-closure limit. Each
+requested medium records its own Scene digest, artifact hashes, and consumed
+supplies; the manifest also retains the Edition-derived reader obligations and
+limits. A Source Bundle is used only as an exclusive, hash-inventoried local
+Candidate container. Its manifest and a structurally valid Candidate do not
+authorize source truth or publication. Output paths are invocation results,
+never Candidate fields. Historical `architecture.edition-candidate/v1` remains
+unchanged and replayable.
+
 An authoring locator does not claim immutability. Publisher materializes the
 selected inputs and generates their content-addressed identities in a lock
 before compilation; ordinary authors do not maintain derived hashes. Callers

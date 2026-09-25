@@ -14,6 +14,7 @@ import {
   deepFreeze,
   exact,
   jsonValue,
+  record,
   text,
   validateClaimModel,
 } from '../semantics/document.mjs';
@@ -232,6 +233,87 @@ export function mediaCandidateDigest(value) {
 export function editionCandidateDigest(value) {
   return createHash('sha256')
     .update(canonical(validateEditionCandidate(value)))
+    .digest('hex');
+}
+
+/** Validate the successor's unqualified, source-bound media inventory. */
+export function validateSelectedEditionCandidate(value) {
+  try {
+    jsonValue(value, 0, new Set(), { nodes: 0, bytes: 0 }, new Set());
+  } catch {
+    fail('selected_candidate_json_invalid');
+  }
+  if (
+    !exact(value, ['schema', 'qualification', 'input', 'media', 'obligations', 'limits']) ||
+    value.schema !== 'architecture.edition-candidate/v2' ||
+    value.qualification !== 'unqualified' ||
+    !exact(value.input, [
+      'lockSha256',
+      'editionSha256',
+      'semanticDigest',
+      'parserSupplySha256',
+      'closure',
+    ]) ||
+    ![
+      value.input.lockSha256,
+      value.input.editionSha256,
+      value.input.semanticDigest,
+      value.input.parserSupplySha256,
+    ].every(isDigest) ||
+    !['selected-inputs-only', 'selected-roots-only'].includes(value.input.closure) ||
+    !value.media ||
+    typeof value.media !== 'object' ||
+    Array.isArray(value.media) ||
+    !value.obligations ||
+    typeof value.obligations !== 'object' ||
+    Array.isArray(value.obligations) ||
+    !Array.isArray(value.limits) ||
+    value.limits.some((limit) => !text(limit)) ||
+    new Set(value.limits).size !== value.limits.length
+  )
+    fail('selected_candidate_invalid');
+  const media = Object.keys(value.media).sort();
+  if (
+    !media.length ||
+    media.some((medium) => !['static', 'interactive'].includes(medium)) ||
+    media.join('\n') !== Object.keys(value.obligations).sort().join('\n')
+  )
+    fail('selected_candidate_media_invalid');
+  for (const medium of media) {
+    validateMedium(value.media[medium]);
+    const required =
+      medium === 'static'
+        ? [
+            ['architecture-svg', 'static/architecture.svg', 'image/svg+xml'],
+            ['architecture-png', 'static/architecture.png', 'image/png'],
+          ]
+        : [['architecture-html', 'interactive/architecture.html', 'text/html']];
+    if (
+      value.media[medium].artifacts.length !== required.length ||
+      required.some(
+        ([id, artifactPath, mediaType]) =>
+          !value.media[medium].artifacts.some(
+            (artifact) =>
+              artifact.id === id &&
+              artifact.path === artifactPath &&
+              artifact.mediaType === mediaType,
+          ),
+      ) ||
+      !record(value.obligations[medium]) ||
+      !Array.isArray(value.obligations[medium].questionIds) ||
+      !Array.isArray(value.obligations[medium].assertionIds) ||
+      !Array.isArray(value.obligations[medium].views)
+    )
+      fail('selected_candidate_media_invalid');
+  }
+  const selected = structuredClone(value);
+  for (const medium of media) selected.media[medium] = normalizedMedium(selected.media[medium]);
+  return deepFreeze(selected);
+}
+
+export function selectedEditionCandidateDigest(value) {
+  return createHash('sha256')
+    .update(canonical(validateSelectedEditionCandidate(value)))
     .digest('hex');
 }
 

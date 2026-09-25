@@ -170,6 +170,32 @@ or file location. Local publication SHALL require exact authorization and emit
 an effect/recovery receipt; hosted publication and custody SHALL be separate
 owner-observed states.
 
+The successor Candidate SHALL use a distinct versioned manifest from historical
+Claim Model/Edition v1 Candidates. Its unqualified value SHALL bind the selected
+input lock, Edition bytes, native semantic digest, parser supply, each selected
+medium's independently composed Scene and artifact/supply inventory, and
+derived reader obligations and limits. Structural validation of that manifest
+SHALL NOT grant source authority, visible coverage, qualification, or
+acceptance. The build output directory SHALL remain outside Candidate semantic
+identity. A hard failure in any requested medium SHALL NOT emit a complete
+Candidate for the other medium.
+
+#### Scenario: One selected input produces two sibling media
+
+- **WHEN** a successor Build Request selects static and interactive media and
+  the same materialized inputs are built at two fresh output locations
+- **THEN** the two builds have identical Candidate and artifact identities
+- **AND** the static SVG/PNG and interactive HTML have distinct Scene hashes,
+  artifact hashes, and medium-specific supplies without shared coordinates or
+  DOM ownership
+
+#### Scenario: A later medium fails
+
+- **WHEN** one requested medium has rendered but another requested medium fails
+- **THEN** no complete Candidate output directory is emitted
+- **AND** temporary owned render inputs are removed without deleting foreign
+  output state
+
 #### Scenario: A maintainer reviews their own Candidate
 
 - **WHEN** the selected acceptance policy permits author and reviewer to be

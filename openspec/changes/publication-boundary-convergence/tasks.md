@@ -399,28 +399,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       This avoids making a local effect location part of the semantic lock or
       adding a second build command. If wrong, only the unreleased successor
       invocation shape changes; no accepted v1 meaning is rewritten.
-      Partial: a separate interactive Scene now composes each declared page
-      from its own question, assertion, source-carrier, and limit obligations.
-      It neither consumes static geometry nor creates a DOM or HTML artifact;
-      uninterpreted native metadata is not copied into the scene. The existing
-      interactive Scene regressions remain intact. A separate neutral static
-      renderer paints only selected Scene carriers, reader questions, editorial
-      assertions, and limits; its SVG is rasterized through the pinned resvg
-      supply at the selected 6000px width without deriving it from HTML. A
-      packed offline consumer reproduces the same SVG after relocation. These
-      focused, static, and package checks pass; the new interactive Scene and
-      static SVG modules have 96.87% and 98.48% local branch coverage. A
-      conditional neutral Cytoscape 3.34.3 browser supply is pinned, licensed,
-      package-included, and checked by the single static gate. A standalone
-      interactive HTML renderer now projects the selected Scene without raw
-      source identities, retains private carrier bindings, and survives an
-      offline packed installation. A real Chrome test covers both reading
-      pages, responsive layout, external-request blocking, malicious labels,
-      and axe WCAG 2/2.1 A/AA on the overview, editorial page, and narrow
-      viewport. The focused 12 tests, static checks, and package check pass.
-      The full run passes 887 tests and skips 2, but global branch coverage
-      remains red at 93.39%. These probes are not human visual approval or a
-      paired Candidate; no release is claimed.
+      Partial: the one build command now dispatches the successor Build Request
+      to an unqualified Candidate v2 without changing historical v1 plans.
+      Independent static and interactive Scenes produce source-bound SVG,
+      Edition-selected-width PNG, and offline standalone HTML; source IDs stay
+      outside HTML. Tests cover 6000px and 1800px choices, identical Candidate
+      identity across fresh output locations, one-medium selection, later-medium
+      failure without a complete output, immutable pins, and unsupported
+      toolchain rejection. Packed installation reproduces both media after
+      relocation without the source repository. Exact built HTML passes Chrome
+      offline, responsive, and axe WCAG 2/2.1 A/AA checks; legacy self-hosted
+      golden identity was regenerated against selected installed bytes. Static,
+      package, and strict OpenSpec checks pass. The full run passes 898 tests,
+      skips 2, and fails only the global branch-coverage floor (93.40% < 95%).
+      Visible semantic coverage, human visual review, qualification binding,
+      full platform evidence, and release remain open.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually

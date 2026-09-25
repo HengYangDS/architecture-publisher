@@ -2,6 +2,10 @@ const digestSelection = Object.freeze([
   { name: 'file', kind: 'value' },
   { name: '--sha256', kind: 'option' },
 ]);
+const editionBuildSelection = Object.freeze([
+  ...digestSelection,
+  { name: '--output', kind: 'optional-option' },
+]);
 
 const command = (path, summary, usage, parameters, invoke) =>
   Object.freeze({ path: Object.freeze(path), summary, usage, parameters, invoke });
@@ -30,11 +34,11 @@ export const commandCatalog = Object.freeze([
   command(
     ['edition', 'build'],
     'Compile an exact Edition Candidate from direct inputs or one Edition Provider.',
-    'archpub edition build <request.json> --sha256 <digest>',
-    digestSelection,
-    async ({ file, '--sha256': digest }) => {
+    'archpub edition build <request.json> --sha256 <digest> [--output <candidate-directory>]',
+    editionBuildSelection,
+    async ({ file, '--sha256': digest, '--output': output }) => {
       const { compileEditionCandidateInput } = await import('../compiler/edition.mjs');
-      return compileEditionCandidateInput(file, digest);
+      return compileEditionCandidateInput(file, digest, output);
     },
   ),
   command(
@@ -140,6 +144,7 @@ function parse(entry, tail) {
       values[parameter.name] = value;
       continue;
     }
+    if (parameter.kind === 'optional-option' && tail[index] !== parameter.name) continue;
     if (tail[index] !== parameter.name || !tail[index + 1])
       throw usageError(entry.path[0], entry.usage);
     values[parameter.name] = tail[index + 1];

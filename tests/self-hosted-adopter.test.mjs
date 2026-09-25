@@ -16,15 +16,15 @@ import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const baseline = Object.freeze({
-  sourceSha256: '50e1042fa2d6d5d3213069a6f0fc3c03f2af45c89738f336556d06a9a1b48d50',
-  semanticDigest: 'ebdc0f9333ef193d6f722b2bd0db1fa654fb1901011024f4f5e60e270fe8bd5f',
-  editionDigest: '7e6f80c5f4f8fdc6106c71999bb4ab486e6ccad7bc6b195e9a21f66b39a06a74',
+  sourceSha256: '7fd77f2456589fa872f52961561b27425c147fba6556afd62cd8cd0109098888',
+  semanticDigest: 'ae6eb05146c326d349f7162a3b68a3ee5dcaa7c91591c1592b41ad83e213207a',
+  editionDigest: 'fbf1600937866cf090150e6677db573239126806dd418d8f5b818df37fe5c201',
   staticSceneDigest: '1b3fc1ba6c763ac05cfa4c606a831538852c9bbf004d803032b5a58d1565b09d',
   interactiveSceneDigest: 'b55858442005c133563241414664627eb8648dd3744c21e34c0ef0be44b0cd4b',
-  candidateSha256: '1ffcf71515cef279506a9b0954942799ebc9601c56973a4f5c797cd0ad77b4bb',
-  providerManifestSha256: 'b34fc869899cb1bc7a8cfd80f817be7728678387e45fa98921fe071f584faaa9',
-  providerMaterializationSha256: '653e642a5ad3e6cd89cb688c64133f34f0c3ca3aa33c40939c9d17065d8873b3',
-  bundleManifestSha256: '9d20ca87a8820b70cf45bb526fae9fc0ca5aa99f96824f679c8ecdd9ede1b5dd',
+  candidateSha256: '91b308b45b89256b7aadebc25a39f31cb8105d1d176c2a898e3c064dcf4ccf5b',
+  providerManifestSha256: 'dcd4657cbbc72f8614afa349f194df07e7304265e0010bb06ed32de99e0416c0',
+  providerMaterializationSha256: 'cd57ffc50a517bd1b5865b5c6138256ce53226bcd45f740c0c6be83a73f2345c',
+  bundleManifestSha256: 'b2af1df27768faee135785a6d89da91796f77416c4358aa85530c07ea4519dd3',
 });
 
 function run(command, args, cwd, env = process.env) {
