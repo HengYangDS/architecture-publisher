@@ -219,6 +219,17 @@ supplied the five group declarations. The probe omitted source-specific route di
 Candidate or public media; its line count cannot be compared as a
 meaning-preserving replacement for AIGW's current Edition.
 
+The same AIGW source has eleven claims, each with one explicit `dependsOn`
+relation at the same source revision; all eleven also match that relation's
+subject, predicate and object. Seven `claimCard` fact labels have identical
+values across all eleven claims: plane, condition, maturity, validity,
+coverage, selected claimant and model owner. Subject, predicate, object,
+scope and evidence authority vary or serve as per-claim anchors. A read-only
+claim-only SVG probe with exact cards rendered an 11-carrier, 1214 × 2637
+canvas, factoring the common plane and condition once. This is neither the
+five-group structural scene nor a qualified AIGW publication; it only bounds
+the cost of a nonduplicating static grammar.
+
 ## Consequences for ETHOS
 
 ETHOS is best treated as the hard trust skeleton for an agentic-native

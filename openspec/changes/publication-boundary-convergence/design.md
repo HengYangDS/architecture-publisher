@@ -781,8 +781,12 @@ claim must explicitly depend on that selected relation at the same source
 revision. Endpoint resemblance alone is insufficient. The carrier must
 separate topology from claim plane, condition, scope, validity, and provenance;
 its private map binds the relation and claim identities independently. Exact
-common values may be factored into one visible, explicitly scoped legend;
-exceptions stay attached to their own carriers. Neither grouping nor factoring
+common values may be factored into one visible, explicitly scoped legend. The
+first neutral static grammar factors only exactly equal plane, condition,
+maturity, validity, coverage, and claimant/owner context. Subject, predicate,
+object/value, scope, and evidence authority stay on each claim even when equal,
+so every claim retains a visible anchor. Exceptions stay attached to their
+own carriers. Neither grouping nor factoring
 changes semantic identity or grants source endorsement. Static and interactive
 media compose these obligations independently.
 

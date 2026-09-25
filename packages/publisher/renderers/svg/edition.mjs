@@ -5,6 +5,16 @@ const relationKey = ({ namespace, reference, sha256 }) =>
   JSON.stringify([namespace, reference, sha256]);
 const claimKey = relationKey;
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
+const sharedClaimLabels = new Set([
+  'Claim plane',
+  'Condition',
+  'Claimed maturity',
+  'Claim validity',
+  'Declared dependency coverage',
+  'Selected claimant',
+  'Projection claimant',
+  'Declared model owner',
+]);
 const advance = (value, size) => [...value].length * size * 0.61;
 const escape = (value) =>
   String(value)
@@ -12,6 +22,36 @@ const escape = (value) =>
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;');
+
+function factorClaimFacts(cards) {
+  for (const claim of cards) {
+    if (
+      !text(claim?.namespace) ||
+      !text(claim.id) ||
+      !text(claim.sha256) ||
+      !Array.isArray(claim.facts) ||
+      !claim.facts.length ||
+      claim.facts.some((fact) => !text(fact?.label) || !text(fact.value)) ||
+      new Set(claim.facts.map(({ label }) => label)).size !== claim.facts.length
+    )
+      fail('static_edition_claim_invalid');
+  }
+  const candidates =
+    cards.length > 1
+      ? cards[0].facts.filter(
+          ({ label, value }) =>
+            sharedClaimLabels.has(label) &&
+            cards.every((claim) =>
+              claim.facts.some((fact) => fact.label === label && fact.value === value),
+            ),
+        )
+      : [];
+  const candidateLabels = new Set(candidates.map(({ label }) => label));
+  const common = cards.some((claim) => claim.facts.every(({ label }) => candidateLabels.has(label)))
+    ? []
+    : candidates;
+  return { common, commonLabels: new Set(common.map(({ label }) => label)) };
+}
 
 function number(value) {
   if (!Number.isFinite(value) || Math.abs(value) > 10_000_000)
@@ -199,6 +239,11 @@ export function composeStaticEditionSvg(scene) {
   if ((scene.claimCards ?? []).some((claim) => !claim || typeof claim !== 'object'))
     fail('static_edition_claim_invalid');
   if (
+    (scene.nodes.length || scene.edges.length || scene.groups?.length) &&
+    scene.claimCards?.length
+  )
+    fail('static_edition_mixed_scene_unadmitted');
+  if (
     scene.editorialAssertions.some(
       (item) =>
         item?.kind !== 'editorial' ||
@@ -296,16 +341,41 @@ export function composeStaticEditionSvg(scene) {
   }
   const claimPlate = [];
   const claimCarriers = [];
+  const claimCards = scene.claimCards ?? [];
+  const { common, commonLabels } = factorClaimFacts(claimCards);
   let claimY = graphTop + 66;
-  for (const [position, claim] of (scene.claimCards ?? []).entries()) {
-    if (
-      typeof claim?.namespace !== 'string' ||
-      typeof claim.id !== 'string' ||
-      typeof claim.sha256 !== 'string' ||
-      !Array.isArray(claim.facts) ||
-      !claim.facts.length
-    )
-      fail('static_edition_claim_invalid');
+  if (common.length) {
+    claimY =
+      textLines(
+        claimPlate,
+        'COMMON TO ALL SELECTED CLAIMS',
+        74,
+        claimY,
+        graphWidth - 32,
+        11,
+        '#66736b',
+        600,
+        2,
+      ) + 8;
+    for (const { label, value } of common)
+      claimY =
+        textLines(
+          claimPlate,
+          `${label}: ${value}`,
+          74,
+          claimY,
+          graphWidth - 32,
+          14,
+          '#27352e',
+          400,
+          8,
+        ) + 5;
+    claimPlate.push(
+      `<line x1="74" y1="${number(claimY + 5)}" x2="${number(60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#aebbb0" stroke-width="1"/>`,
+    );
+    claimY += 27;
+  }
+  for (const [position, claim] of claimCards.entries()) {
     const graphicId = `c-${position}`;
     claimCarriers.push({
       graphicId,
@@ -313,8 +383,7 @@ export function composeStaticEditionSvg(scene) {
     });
     claimPlate.push(`<g data-graphic-id="${graphicId}">`);
     for (const fact of claim.facts) {
-      if (typeof fact?.label !== 'string' || typeof fact.value !== 'string')
-        fail('static_edition_claim_invalid');
+      if (commonLabels.has(fact.label)) continue;
       claimY =
         textLines(
           claimPlate,

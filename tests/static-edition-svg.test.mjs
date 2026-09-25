@@ -318,6 +318,93 @@ test('an editorial-only scene remains truthful and does not manufacture structur
   }
 });
 
+test('static claims factor only exact shared context while retaining each claim anchor', () => {
+  const input = staticEditionScene();
+  input.nodes = [];
+  input.edges = [];
+  input.bounds = null;
+  input.claimCards = [
+    {
+      namespace: 'fixture/claims',
+      id: 'first',
+      sha256: 'a'.repeat(64),
+      facts: [
+        { label: 'Claim plane', value: 'implemented' },
+        { label: 'Subject', value: 'Client' },
+        { label: 'Predicate', value: 'calls' },
+        { label: 'Object', value: 'Server' },
+        { label: 'Condition', value: 'none declared' },
+        { label: 'Scope', value: 'local' },
+      ],
+    },
+    {
+      namespace: 'fixture/claims',
+      id: 'second',
+      sha256: 'a'.repeat(64),
+      facts: [
+        { label: 'Claim plane', value: 'implemented' },
+        { label: 'Subject', value: 'Gateway' },
+        { label: 'Predicate', value: 'routes' },
+        { label: 'Object', value: 'Worker' },
+        { label: 'Condition', value: 'none declared' },
+        { label: 'Scope', value: 'remote' },
+      ],
+    },
+  ];
+  input.sourceAssertionCarriers = input.claimCards.map(({ namespace, id, sha256 }) => ({
+    assertionId: id,
+    selectionId: id,
+    kind: 'claim',
+    nodeRefs: [],
+    relationRefs: [],
+    claimRefs: [{ namespace, reference: id, sha256 }],
+  }));
+
+  const first = svg.composeStaticEditionSvg(input);
+  const content = first.bytes.toString('utf8');
+  assert.match(content, /COMMON TO ALL SELECTED CLAIMS/u);
+  assert.equal((content.match(/Claim plane: implemented/gu) ?? []).length, 1);
+  assert.equal((content.match(/Condition: none declared/gu) ?? []).length, 1);
+  for (const value of ['Subject: Client', 'Subject: Gateway', 'Scope: local', 'Scope: remote'])
+    assert.match(content, new RegExp(value, 'u'));
+  assert.equal(first.carriers.claims.length, 2);
+
+  const sameAnchors = structuredClone(input);
+  sameAnchors.claimCards[1].facts.find(({ label }) => label === 'Subject').value = 'Client';
+  sameAnchors.claimCards[1].facts.find(({ label }) => label === 'Scope').value = 'local';
+  const anchored = svg.composeStaticEditionSvg(sameAnchors).bytes.toString('utf8');
+  assert.equal((anchored.match(/Subject: Client/gu) ?? []).length, 2);
+  assert.equal((anchored.match(/Scope: local/gu) ?? []).length, 2);
+
+  input.claimCards[1].facts[0].value = 'observed';
+  const changed = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  assert.equal((changed.match(/Claim plane: implemented/gu) ?? []).length, 1);
+  assert.equal((changed.match(/Claim plane: observed/gu) ?? []).length, 1);
+});
+
+test('an uncomposed graph and claim plate cannot overlap as a purported mixed medium', () => {
+  const input = staticEditionScene();
+  input.claimCards = [
+    {
+      namespace: 'fixture/claims',
+      id: 'claim',
+      sha256: 'a'.repeat(64),
+      facts: [{ label: 'Claim plane', value: 'implemented' }],
+    },
+  ];
+  input.sourceAssertionCarriers.push({
+    assertionId: 'claim',
+    selectionId: 'claim',
+    kind: 'claim',
+    nodeRefs: [],
+    relationRefs: [],
+    claimRefs: [{ namespace: 'fixture/claims', reference: 'claim', sha256: 'a'.repeat(64) }],
+  });
+  assert.throws(() => svg.composeStaticEditionSvg(input), {
+    code: 'static_edition_mixed_scene_unadmitted',
+  });
+});
+
 test('the static Edition SVG is admitted by the pinned raster profile', async () => {
   const output = svg.composeStaticEditionSvg(staticEditionScene());
   const supply = await loadBundledFonts();

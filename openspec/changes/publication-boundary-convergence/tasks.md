@@ -359,70 +359,29 @@ third-party or generated supply rather than moving owned code outside coverage.
       Candidate, visible carrier, or acceptance is claimed. Native view
       membership qualification, aggregation, contradictions, and reader
       adequacy remain open.
-- [ ] 5.2 Using the selected foundation from Task 1, provide an explainable
-      neutral first build and bounded local refinement without author-written
-      renderer code, duplicate facts, or pixel geometry. In
-      `tests/neutral-authoring.test.mjs`, unsupported required font, layout,
-      dimension, or semantic distinction fails with a named diagnostic rather
-      than a substitute diagram or parallel generated-intent store.
-      Partial feasibility: a tracked, permission-restricted, empty-PATH probe
-      shows the existing verified LikeC4 supply yields repeatable WASM node and
-      route geometry for one native view. The same private verified parser and
-      bounded process-tree owner now serve a distinct source-bound layout
-      request. The parent rejects missing/forged nodes, relations, invalid
-      geometry, and dynamic views; an installed public consumer reproduces the
-      layout after relocation. The layout alone is not a finished medium.
-      The view choice is snapshotted before asynchronous supply reads and
-      namespace-ambiguous native IDs fail closed. Nine focused layout tests,
-      59 selected native/installed tests, static checks, package check, and
-      strict OpenSpec validation pass. A first neutral static Scene now joins
-      the exact medium assertion set to that layout, rejects forged/missing
-      members, partial aggregates, and unsupported policy, and crops bounds to
-      retained carriers. Its nine focused tests pass with 100% local branch
-      coverage; a packed public consumer reproduces the selected Scene after
-      relocation. The full behavior run passes 850 tests and skips 2; global
-      branch coverage is 93.08% against the unchanged 95% release gate. No
-      static SVG/PNG, interactive Scene/HTML, landing, or publication is claimed.
-      The current static composer still requires one LikeC4 view; this pilot
-      cannot stand in for a neutral Claim Model or mixed-source baseline.
-      Prove typed native/derived Claim Model selection and visible limits
-      without an editable duplicate graph before closing this task. Lock-only
-      or semantics-only conformance is insufficient: the installed public
-      Candidate path must preserve changed claim plane and condition through
-      distinct static and interactive carriers or fail before completion.
-      Current partial: native and Provider-derived selected claims compile
-      through the public build path into visible typed static and interactive
-      reading plates, without a LikeC4 copy or fabricated parser supply.
-      Changed plane or condition changes both media. Claim-only HTML does not
-      load the unused graph engine; source IDs remain private. Focused browser
-      checks cover offline use, responsiveness, and WCAG A/AA. One packed
-      Claim Model Candidate survives relocation, source-pin rejection, and
-      exact replay. Entity, relation, and mixed Claim Model media still fail
-      closed. Open: full adopter/platform parity, native evolution, input
-      closure, final visual review, and the 95% branch-coverage release gate.
-      Ruling: reuse Publisher's existing grouped geometry owner before adding a
-      private engine; on exact AIGW authored groups it already positions 12
-      entities and 11 relations without a new dependency. This is geometry
-      feasibility, not successor visual or semantic qualification. A local
-      12/11/11 AIGW build exposed an overloaded one-question Edition and
-      full-field compositor; its 1800×3928 static
-      output fails reader quality. Keep this task open. First test exact
-      relation/claim compound carriers and editorial grouping without losing
-      distinct identities or qualifiers; replace the shared geometry owner only
-      if a geometry-specific counterexample remains. The unqualified local
-      prototype was discarded. The next AIGW trial must preserve its four authored reader
-      questions and five semantic groups; the discarded one-question probe was
-      not editorial parity. First prove exact group membership and explicit
-      relation dependency before shared carriers; changed claim qualifiers must
-      change their visible expression. Do not add a second backend to disguise
-      this failure. Partial: the existing grouped geometry owner now projects
-      selected Claim Model relations without turning dependent claims into
-      edges. A source-adjacent trial on current AIGW inputs placed five groups,
-      twelve nodes and eleven relations; its eleven claims remain separate
-      obligations. Full behavior passes 1,023 tests with five skips; static and
-      package checks pass. It is not a public structural Candidate or qualified
-      medium; signed `779915c` has 92.93% branch coverage against the unchanged
-      95% release gate.
+- [ ] 5.2 Deliver an explainable neutral source-to-media composition without
+      duplicate editable facts, authored pixels, or a second layout engine.
+      Exact selected references, reader questions, group membership, typed
+      qualifiers, source identity and visible limits must survive both media;
+      infeasible composition fails instead of silently narrowing meaning.
+      Implemented: verified LikeC4 geometry and selected static Scene;
+      native/derived Claim Model claim-only Candidates with separate static and
+      interactive carriers, offline relocation, changed-plane/condition tests,
+      browser/accessibility checks and exact replay. The existing grouped
+      geometry owner positions AIGW's five groups, twelve entities and eleven
+      relations; its eleven claims remain separate obligations. A source probe
+      confirms all eleven claims explicitly depend on their matching relation.
+      Static claim-only rendering now factors only exact common context,
+      retains per-claim anchors, and rejects an uncomposed graph/claim overlay.
+      Its 1214 × 2637 AIGW probe remains text-heavy with unused right space:
+      no reader-quality or mixed-media acceptance is claimed.
+      Open: source-bound relation/claim compound carriers, four-question and
+      five-group AIGW composition, independent two-medium Candidate, installed
+      and human review. Reuse the current layout owner unless a measured
+      geometry failure requires replacement. Full behavior: 1,035 tests,
+      1,030 pass, five skips; branch coverage 92.97% < 95% (Task 7.5).
+      Detailed counterexamples and measured limits stay in
+      `docs/research/mechanism-evaluation.md`, not a second progress ledger.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
