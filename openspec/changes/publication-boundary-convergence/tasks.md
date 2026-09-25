@@ -268,10 +268,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       `include *` changes membership only with selected model files, and an
       unselected element reference fails. Ordered dynamic views are now
       source-bound opaque entries, not flattened into structural views.
-      Focused native tests pass 19/19; static and package checks pass. The
-      full run passes 781 tests, skips 2, but branch coverage is 92.85%
-      against 95%. Ruling: native
-      `.c4` format is `unversioned`; parser 1.59.4 is a separate toolchain
+      Element and relation metadata remain bounded opaque values, never
+      inferred policy. Focused native tests pass 21/21; static and package
+      checks pass. The full run passes 783 tests, skips 2, but branch coverage
+      is 92.86% against 95%. Ruling: native `.c4` format is `unversioned`;
+      parser 1.59.4 is a separate toolchain
       identity. Arbitrary parser callbacks are not attested, and package
       supply, complete read closure, full include/query semantics, bounded execution,
       installed build, and visible semantic coverage remain open.

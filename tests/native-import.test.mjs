@@ -154,6 +154,64 @@ test('dynamic view flow stays opaque instead of becoming a structural view', asy
   assert(index.semanticLimits.includes('native-view-semantics-uninterpreted'));
 });
 
+test('native metadata is retained as opaque values, not inferred claims', async () => {
+  const withMetadata = Buffer.from(
+    "specification { element component }\nmodel { left = component 'Left' { metadata { owner 'team-a' } }\n right = component 'Right'\n left -> right { metadata { policy 'review' } } }\n",
+  );
+  const index = await semantics.importLikeC4Native(
+    selection(
+      new Map([
+        ['example/model', withMetadata],
+        ['example/views', views],
+      ]),
+    ),
+    fromSources,
+  );
+  assert.deepEqual(index.elements.find(({ id }) => id === 'left').opaqueMetadata, {
+    owner: 'team-a',
+  });
+  assert.equal(
+    Object.hasOwn(
+      index.elements.find(({ id }) => id === 'right'),
+      'opaqueMetadata',
+    ),
+    false,
+  );
+  assert.deepEqual(index.relations[0].opaqueMetadata, { policy: 'review' });
+  assert.equal(Object.isFrozen(index.relations[0].opaqueMetadata), true);
+  assert(index.semanticLimits.includes('domain-metadata-opaque'));
+});
+
+test('native metadata with hidden fields cannot be silently dropped', async () => {
+  const parser = async (sources, options) => {
+    const upstream = await fromSources(sources, options);
+    const model = upstream.syncComputedModel();
+    return {
+      documentPaths: () => upstream.documentPaths(),
+      languageServices: upstream.languageServices,
+      ensureSingleProject: () => upstream.ensureSingleProject(),
+      syncComputedModel: () => ({
+        elements: () =>
+          [...model.elements()].map((element, index) =>
+            index === 0
+              ? {
+                  id: element.id,
+                  kind: element.kind,
+                  title: element.title,
+                  metadata: { [Symbol('hidden')]: 'unselected' },
+                }
+              : element,
+          ),
+        relationships: () => model.relationships(),
+        views: () => model.views(),
+      }),
+    };
+  };
+  await assert.rejects(semantics.importLikeC4Native(selection(), parser), {
+    code: 'native_likec4_metadata_invalid',
+  });
+});
+
 test('native LikeC4 import consumes the actual sealed materialization interface', async () => {
   const selected = selection();
   const sealed = sealMaterializedInputLock({
@@ -375,6 +433,7 @@ test('native LikeC4 import indexes selected source lines once for many reference
               id: `node-${index}`,
               kind: 'component',
               title: `Node ${index}`,
+              metadata: {},
             })),
           relationships: () => [],
           views: () => [],

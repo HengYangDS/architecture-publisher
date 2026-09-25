@@ -1,11 +1,21 @@
 import { createHash } from 'node:crypto';
-import { deepFreeze } from './document.mjs';
+import { deepFreeze, jsonValue, record } from './document.mjs';
 import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
 
 const sha = (value) => createHash('sha256').update(value).digest('hex');
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
 // Native .c4 files do not declare the parser package's release version.
 const NATIVE_FORMAT_VERSION = 'unversioned';
+
+function opaqueMetadata(value) {
+  if (!record(value)) fail('native_likec4_metadata_invalid');
+  try {
+    jsonValue(value, 0, new Set(), { nodes: 0, bytes: 0 }, new Set());
+    return Object.keys(value).length ? structuredClone(value) : null;
+  } catch {
+    fail('native_likec4_metadata_invalid');
+  }
+}
 
 function selectedSources(selection) {
   if (
@@ -152,11 +162,13 @@ export async function importLikeC4Native(selection, fromSources) {
   const elements = [...model.elements()].map((element) => {
     const origin = originFor(parser, { element: element.id }, byFile);
     if (!origin) fail('native_likec4_source_reference_missing');
+    const metadata = opaqueMetadata(element.metadata);
     return {
       id: element.id,
       namespace: origin.namespace,
       kind: element.kind ?? null,
       label: element.title ?? null,
+      ...(metadata === null ? {} : { opaqueMetadata: metadata }),
       origin,
     };
   });
@@ -167,6 +179,7 @@ export async function importLikeC4Native(selection, fromSources) {
     const from = elementById.get(relation.source.id);
     const to = elementById.get(relation.target.id);
     if (!origin || !from || !to) fail('native_likec4_source_reference_missing');
+    const metadata = opaqueMetadata(relation.metadata);
     return {
       id: relation.id,
       identityScope: 'parser-run',
@@ -175,6 +188,7 @@ export async function importLikeC4Native(selection, fromSources) {
       kind: relation.kind ?? null,
       direction: relation.isBidirectional ? 'bidirectional' : 'forward',
       label: relation.title ?? null,
+      ...(metadata === null ? {} : { opaqueMetadata: metadata }),
       origin,
     };
   });

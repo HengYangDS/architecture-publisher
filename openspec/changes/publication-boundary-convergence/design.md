@@ -377,6 +377,11 @@ preserves those steps, the native index lists it separately as an opaque view
 with kind and source origin, rather than placing it among supported structural
 views. A later Edition compiler must reject a semantic obligation that depends
 on such an opaque view; retaining its bound DSL bytes is not understanding it.
+Element and relation metadata are copied only as bounded `opaqueMetadata`
+values on their source-bound items. The enclosing item's location is not a
+claim of a precise metadata-key span. Keys such as `owner` or `policy` cannot
+become Publisher authority, plane, or acceptance facts without a separately
+admitted source vocabulary and interpretation rule.
 
 For the pinned LikeC4 1.59.4 implementation, `fromSources` creates virtual
 documents and selects its `NoFileSystem` provider when `useFileSystem` is false;
