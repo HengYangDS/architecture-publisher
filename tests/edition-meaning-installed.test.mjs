@@ -134,6 +134,7 @@ import { materializeBuildRequestInput } from 'architecture-publisher/provider';
 import { compileEditionMeaning } from 'architecture-publisher/compiler';
 import { importLikeC4Layout } from 'architecture-publisher/semantics';
 import { composeInteractiveEditionScene, composeStaticEditionScene } from 'architecture-publisher/scene';
+import { composeStaticEditionSvg } from 'architecture-publisher/renderers/svg';
 const file = fileURLToPath(new URL('./inputs/build-request.json', import.meta.url));
 try {
   const bytes = await fs.readFile(file);
@@ -147,6 +148,7 @@ try {
   });
   const staticScene = composeStaticEditionScene(meaning, layout);
   const interactiveScene = composeInteractiveEditionScene(meaning);
+  const staticSvg = composeStaticEditionSvg(staticScene);
   console.log(JSON.stringify({
     status: 'ok', lock: selected.lockSha256, semantic: meaning.native.semanticDigest,
     parser: meaning.native.parserSupply.sha256,
@@ -164,6 +166,12 @@ try {
       relations: staticScene.edges.flatMap((edge) =>
         edge.relations.map(({ reference }) => reference)),
       bounds: staticScene.bounds,
+    },
+    svg: {
+      sha256: createHash('sha256').update(staticSvg.bytes).digest('hex'),
+      width: staticSvg.width,
+      height: staticSvg.height,
+      rasterWidth: staticSvg.rasterWidth,
     },
     interactiveScene: {
       completeness: interactiveScene.completeness,
@@ -213,6 +221,10 @@ try {
   assert.deepEqual(first.scene.nodes, ['a']);
   assert.deepEqual(first.scene.relations, []);
   assert(first.scene.bounds.height > 0);
+  assert.equal(first.svg.rasterWidth, 1800);
+  assert(first.svg.width >= 880);
+  assert(first.svg.height > 0);
+  assert.match(first.svg.sha256, /^[0-9a-f]{64}$/u);
   assert.equal(first.interactiveScene.completeness, 'unqualified-scene');
   assert.deepEqual(first.interactiveScene.pages, [
     { id: 'overview', questions: ['shape'], nodes: ['a'], relations: [] },

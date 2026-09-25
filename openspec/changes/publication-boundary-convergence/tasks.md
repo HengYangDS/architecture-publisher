@@ -403,11 +403,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       from its own question, assertion, source-carrier, and limit obligations.
       It neither consumes static geometry nor creates a DOM or HTML artifact;
       uninterpreted native metadata is not copied into the scene. The existing
-      interactive Scene regressions remain intact. Focused and offline packed
-      relocation tests, static checks, and package checks pass. The full run
-      passes 857 tests and skips 2; the new scene module has 96.87% branch
-      coverage, but the global branch gate remains red at 93.12%. No paired
-      Candidate, dual-medium render, browser acceptance, or release is claimed.
+      interactive Scene regressions remain intact. A separate neutral static
+      renderer paints only selected Scene carriers, reader questions, editorial
+      assertions, and limits; its SVG is rasterized through the pinned resvg
+      supply at the selected 6000px width without deriving it from HTML. A
+      packed offline consumer reproduces the same SVG after relocation. These
+      focused, static, and package checks pass; the new interactive Scene and
+      static SVG modules have 96.87% and 98.48% local branch coverage. The full
+      run passes 872 tests and skips 2, but global branch coverage remains red
+      at 93.24%. The internal static preview is not visual acceptance. No
+      paired Candidate, interactive HTML, browser acceptance, or release is
+      claimed.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually
