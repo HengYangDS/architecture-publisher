@@ -1,0 +1,38 @@
+{
+  "schema": "architecture.provider-windows-probe/v1",
+  "status": "provisional-pass",
+  "sourceCommit": "7368f4ce8c65af622208420dc5460f6db080b081",
+  "sourceCommitSignature": "verified-git-ssh",
+  "selectedSourceArchiveSha256": "92aec4b4397e17aa09b297d73cc1c2e2e3331eff411f7c0483e645a1b5ccc714",
+  "testFileSha256": "b30129f977259a7f2bd6ecc0274ba4d3256aaf97622d466ba5dcd8e6fbc0d98c",
+  "platform": {
+    "os": "Windows 11 ARM64",
+    "node": "v26.9.0",
+    "executionIdentity": "NT AUTHORITY\\SYSTEM",
+    "guestIsolationRestored": true,
+    "guestScratchRemoved": true
+  },
+  "method": [
+    "A signed work-lane Git archive selected the Publisher package, test, and fixtures; its SHA-256 was checked after transfer to the native guest.",
+    "The native test packed Publisher, installed the archive offline with scripts disabled, and executed the relocated public CLI against a selected executable Provider.",
+    "The rejected Provider descendant exited before test completion; an unrelated sentinel remained alive.",
+    "A separate test replayed the historical v1 Provider, Candidate, and Qualification contracts from frozen fixture bytes.",
+    "The guest result and full log were read back independently; the guest and host log SHA-256 values agreed."
+  ],
+  "tests": {
+    "file": "tests/edition-provider-installed.test.mjs",
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "cases": [
+      "packed Publisher executes a relocated Provider and reclaims a rejected descendant",
+      "packed work-lane Publisher replays historical v1 contracts offline"
+    ],
+    "logSha256": "0de2d2092eebdee25d653730ec49a7ef8de689abe8a46fffe0f2410360f94d48"
+  },
+  "limits": [
+    "This is a local, provisional historical-v1 installed probe, not the frozen successor release or hosted Publisher CI.",
+    "It does not qualify successor v2 Provider composition, complete dependency observation, browser or human review, or source-product acceptance.",
+    "The raw log remains local in ignored test work; this record is an attributed observation and must be rerun on frozen release bytes."
+  ]
+}
