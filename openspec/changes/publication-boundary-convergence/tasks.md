@@ -486,6 +486,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       self evolution test pass (13/13 focused), and static, package, and strict
       OpenSpec checks pass. The Core's old live Atlas composer has been
       replaced by the single interactive HTML contract under Task 7.2.
+      The static evolution fork now connects affected views separately to
+      rebuild/verification and review/acceptance/publication; the unsupported
+      rebuild-to-review edge, orphan label, and compensating scope brace are
+      absent. Exact relation bindings, analytic geometry, emitted SVG paths,
+      installed dual-media build, eight-page Chrome/axe, and provisional 6000px
+      PNG inspection pass. This is not final-byte human approval.
       The regenerated truthful final Candidate still needs complete
       visual, semantic, and release acceptance; no publication is admitted.
 
@@ -615,7 +621,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      After live Composer retirement, the full behavior suite reports 1,079
+      The last full run, before the static evolution branch correction, reports 1,079
       pass, 6 skip, 0 fail; statements and lines are 97.61%, functions 99.49%,
       and branches 92.28%, below the unchanged 95% gate. At the current 8,410
       branch outcomes, at least 229 additional outcomes need evidence. Prioritize

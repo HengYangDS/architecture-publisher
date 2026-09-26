@@ -209,6 +209,14 @@ const EVOLUTION = Object.freeze([
     id: 'rebuild-verification',
     title: 'Rebuild + verify',
     lines: ['candidate · semantic · media'],
+    lineSemantics: [
+      relations(
+        'rebuild-renews-static',
+        'rebuild-renews-interactive',
+        'semantic-verification-renews-claims',
+        'medium-verification-renews-qualification',
+      ),
+    ],
     semantics: entities(
       'rebuild-obligations',
       'semantic-verification-obligations',
@@ -220,6 +228,16 @@ const EVOLUTION = Object.freeze([
     id: 'review-publication',
     title: 'Renew trust',
     lines: ['review · accept · publish', 'or explicitly withdraw'],
+    lineSemantics: [
+      relations(
+        'affected-views-require-human-review',
+        'affected-views-require-acceptance',
+        'affected-views-require-publication',
+        'human-review-obligation-renews-review',
+        'acceptance-obligation-renews-acceptance',
+        'publication-obligation-renews-publication',
+      ),
+    ],
     semantics: entities(
       'human-review-obligations',
       'acceptance-obligations',
@@ -613,6 +631,7 @@ export function composeArchitecturePublisherFlagship() {
           '400',
           'middle',
           'muted',
+          station.lineSemantics?.[index] ?? [],
         ),
       ),
     );
@@ -660,9 +679,9 @@ export function composeArchitecturePublisherFlagship() {
     edge(
       'evolution-4',
       'renewal',
-      'rebuild-verification',
+      'affected-views',
       'review-publication',
-      [point(1008, 700), point(1312, 700)],
+      [point(720, 708), point(720, 722), point(1320, 722), point(1320, 708)],
       relations(
         'affected-views-require-human-review',
         'affected-views-require-acceptance',
@@ -675,26 +694,27 @@ export function composeArchitecturePublisherFlagship() {
         'acceptance-obligation-renews-acceptance',
         'publication-obligation-renews-publication',
       ),
-      'review · renew',
-      1160,
-      684,
+      null,
+      null,
+      null,
     ),
   ];
   relationEdges.push(...evolutionEdges);
   for (const selectedEdge of evolutionEdges)
-    labels.push(
-      text(
-        `${selectedEdge.id}-label`,
-        selectedEdge.label,
-        selectedEdge.labelX,
-        selectedEdge.labelY,
-        10.5,
-        '600',
-        'middle',
-        'proof',
-        selectedEdge.semantics,
-      ),
-    );
+    if (selectedEdge.label)
+      labels.push(
+        text(
+          `${selectedEdge.id}-label`,
+          selectedEdge.label,
+          selectedEdge.labelX,
+          selectedEdge.labelY,
+          10.5,
+          '600',
+          'middle',
+          'proof',
+          selectedEdge.semantics,
+        ),
+      );
 
   const semanticGroups = [
       ...groups,

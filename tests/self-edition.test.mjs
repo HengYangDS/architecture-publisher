@@ -323,14 +323,43 @@ test('self successor authoring derives every selected claim and reader question 
     authoredRefinement.media.static.scene.nodes[0].semanticIds.length,
     edition.scenes.static.composition.groups[0].entities.length,
   );
-  assert.equal(
-    authoredRefinement.media.static.scene.edges.some(({ id }) => id === 'evolution-4'),
-    false,
-    'a visible arrow must not claim unrelated renewal relations',
+  const evolution = authoredRefinement.media.static.scene;
+  const qualifiedRelation = (id) => JSON.stringify(['architecture-publisher/self', 'relation', id]);
+  const trustBranch = evolution.edges.find(({ id }) => id === 'evolution-4');
+  assert.equal(trustBranch?.source, 'affected-views');
+  assert.equal(trustBranch.target, 'review-publication');
+  assert.deepEqual(trustBranch.semanticIds, [
+    qualifiedRelation('affected-views-require-human-review'),
+    qualifiedRelation('affected-views-require-acceptance'),
+    qualifiedRelation('affected-views-require-publication'),
+  ]);
+  assert.deepEqual(
+    evolution.texts.find(({ id }) => id === 'rebuild-verification-line-1')?.semanticIds,
+    [
+      qualifiedRelation('rebuild-renews-static'),
+      qualifiedRelation('rebuild-renews-interactive'),
+      qualifiedRelation('semantic-verification-renews-claims'),
+      qualifiedRelation('medium-verification-renews-qualification'),
+    ],
+  );
+  assert.deepEqual(
+    evolution.texts.find(({ id }) => id === 'review-publication-line-1')?.semanticIds,
+    [
+      qualifiedRelation('affected-views-require-human-review'),
+      qualifiedRelation('affected-views-require-acceptance'),
+      qualifiedRelation('affected-views-require-publication'),
+      qualifiedRelation('human-review-obligation-renews-review'),
+      qualifiedRelation('acceptance-obligation-renews-acceptance'),
+      qualifiedRelation('publication-obligation-renews-publication'),
+    ],
   );
   assert.equal(
-    authoredRefinement.media.static.scene.decorations.some(({ id }) => id === 'renewal-scope'),
-    true,
+    evolution.texts.some(({ id }) => id === 'evolution-4-label'),
+    false,
+  );
+  assert.equal(
+    evolution.decorations.some(({ id }) => id === 'renewal-scope'),
+    false,
   );
   assert.equal(
     authoredRefinement.media.static.scene.texts.some(

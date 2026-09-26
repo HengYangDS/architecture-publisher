@@ -38,13 +38,6 @@ function qualifyStaticScene(scene, edition, model) {
     }),
     texts: scene.texts.map((text) => ({
       ...text,
-      ...(text.id === 'evolution-4-label'
-        ? {
-            x: 1020,
-            baseline: 817,
-            box: { ...text.box, x: text.box.x - 140, y: text.box.y + 133 },
-          }
-        : {}),
       semanticIds: text.semanticIds.map(qualified),
     })),
     edges: scene.edges.flatMap((edge) => {
@@ -71,21 +64,7 @@ function qualifyStaticScene(scene, edition, model) {
         },
       ];
     }),
-    decorations: [
-      ...scene.decorations,
-      {
-        id: 'renewal-scope',
-        role: 'scope-brace',
-        tone: 'proof',
-        points: [
-          { x: 720, y: 780 },
-          { x: 720, y: 790 },
-          { x: 1320, y: 790 },
-          { x: 1320, y: 780 },
-        ],
-        strokeWidth: 1.2,
-      },
-    ],
+    decorations: scene.decorations,
   };
 }
 
