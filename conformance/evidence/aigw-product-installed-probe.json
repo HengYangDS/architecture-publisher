@@ -1,0 +1,54 @@
+{
+  "schema": "architecture.research-installed-probe/v1",
+  "workload": "aigw-product",
+  "sourceRevision": "4d8d18dfe645c47d71391ed9391db14d4025981d",
+  "publisherSourceCommit": "a05dfa421a97be90e53aaa037c8ed7d2fe4ae370",
+  "editionScope": "whole-product-with-client-projection-subset",
+  "node": "v26.10.0",
+  "platform": "darwin",
+  "package": {
+    "name": "architecture-publisher",
+    "version": "0.3.0-alpha.3",
+    "archiveSha256": "e224658fd4ed54288771672283279af0ac24ff5136e20e8db5f13caf384a936f",
+    "archiveBytes": 3872897
+  },
+  "requestSha256": "e78c4b4a38241d6b539d31918086cb75ee84ca3a5f15f1f5b4b06c289e6c4a32",
+  "selectedInputs": {
+    "product.request.json": "e78c4b4a38241d6b539d31918086cb75ee84ca3a5f15f1f5b4b06c289e6c4a32",
+    "editions/product.json": "14fe059c6253f30bd6d9013bc7b1cd9f6ed696ca5fa63fc05441f57853c67115",
+    "source/provider.json": "31c755406ff3f2772dd9efbe689c95b620061181c377dc39d7b5600fddff6134",
+    "source/model.json": "1975b7af02b3e28268feb9b4ed7fab88caac6e7bb44df484a6f133275775dabd",
+    "source/product-model.json": "5b93f8e5e177b5cfbdc3b2c9d9a2969ea24eff562bc827670810257ee9349c8f"
+  },
+  "exactDirectParity": true,
+  "exactRelocationParity": true,
+  "candidateSha256": "f89c62e604393dd919dd7a4bb14c0deb5f767c932db501dc6383a93e80b66c57",
+  "artifactSha256": {
+    "candidate.json": "538e207a62cb36e8974bf5d2911c58bfbb381d63ca7d6ee6b6eda39bb02b7970",
+    "interactive/architecture.html": "ad102110d0b16691ffe2cf999a1601be52d06d8f1c7cd0e6ba95f43a30610c17",
+    "manifest.json": "3bc821043646acb89b8defc5ffcd23c67efada138fdca1eefe9dd47e27c9ae33",
+    "static/architecture.png": "fad3651b9e815e3c7e0fbbf61e2e9cb36c2b343635f7258957940a3b2e31d9c2",
+    "static/architecture.svg": "9bbcd96a4446b7ab46e9c706208461f5c15fa7a393593a2eb9fba953ae4bcc5e"
+  },
+  "method": {
+    "package": "Local npm pack from exact Publisher source commit; archive digest checked.",
+    "installation": "Empty HOME and npm configuration; npm install --offline --ignore-scripts into a private consumer.",
+    "execution": "Installed public CLI, empty PATH and NODE_PATH, exact Build Request digest, no source checkout inside consumer.",
+    "relocation": "Copy installed consumer, remove original, rebuild both Editions and compare every Candidate member digest.",
+    "directComparison": "Build both Editions with the same source commit and selected AIGW bytes; compare every member digest."
+  },
+  "limits": [
+    "unreleased provisional package; not the selected AIGW release",
+    "macOS installed and relocated use only",
+    "source model claims are attributed, not independently verified",
+    "sourceRevision is the observed Git checkout, not a Provider content revision",
+    "no browser, accessibility, or human judgment on these installed bytes",
+    "no source-delta update or publication recovery proof",
+    "no AIGW acceptance, protected ref, hosted publication, or off-host disaster recovery"
+  ],
+  "changedPinRejection": {
+    "candidateAbsent": true,
+    "code": "materialized_pin_mismatch",
+    "status": "error"
+  }
+}

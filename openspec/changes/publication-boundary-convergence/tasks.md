@@ -538,7 +538,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       after offline installation and relocation; its 12 installed browser
       observations expose unreadable fit-to-canvas graph labels despite clean
       axe results. See `conformance/evidence/aigw-client-installed-probe.json`.
-      This is not the whole AIGW product or AIGW acceptance.
+      That earlier Client-only probe is not the whole AIGW product or AIGW
+      acceptance. A subsequent exact archive from signed Publisher `a05dfa4`
+      rebuilt AIGW `4d8d18df` Client Projection and whole-product Editions
+      byte-identically through direct, offline-installed, and relocated public
+      CLI use; the archive SHA-256 is
+      `e224658fd4ed54288771672283279af0ac24ff5136e20e8db5f13caf384a936f`.
+      A changed product-model pin failed without a Candidate. The two small
+      receipts in `conformance/evidence/aigw-client-paired-installed-probe.json`
+      and `conformance/evidence/aigw-product-installed-probe.json` bind the
+      selected inputs and all Candidate member digests. This is a provisional
+      macOS package proof, not final release, installed-browser review,
+      source-delta update, recovery, or AIGW acceptance.
 - [ ] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify

@@ -1,0 +1,48 @@
+{
+  "schema": "architecture.research-installed-probe/v1",
+  "workload": "aigw-client-projection",
+  "sourceRevision": "4d8d18dfe645c47d71391ed9391db14d4025981d",
+  "publisherSourceCommit": "a05dfa421a97be90e53aaa037c8ed7d2fe4ae370",
+  "editionScope": "client-projection-only",
+  "node": "v26.10.0",
+  "platform": "darwin",
+  "package": {
+    "name": "architecture-publisher",
+    "version": "0.3.0-alpha.3",
+    "archiveSha256": "e224658fd4ed54288771672283279af0ac24ff5136e20e8db5f13caf384a936f",
+    "archiveBytes": 3872897
+  },
+  "requestSha256": "29fe63c218c4c1264cf737746e589d5dc2e6dec91860ad42adb08844ebf71ed8",
+  "selectedInputs": {
+    "client-projection.request.json": "29fe63c218c4c1264cf737746e589d5dc2e6dec91860ad42adb08844ebf71ed8",
+    "editions/client-projection.json": "dce9784cf101c7449925c5eb773f7e753556b7f034be9fdc690c6a90d78045e1",
+    "source/provider.json": "31c755406ff3f2772dd9efbe689c95b620061181c377dc39d7b5600fddff6134",
+    "source/model.json": "1975b7af02b3e28268feb9b4ed7fab88caac6e7bb44df484a6f133275775dabd"
+  },
+  "exactDirectParity": true,
+  "exactRelocationParity": true,
+  "candidateSha256": "e40ab445e8b734fe5de371ebb09abc957e3a30fb73e253a23246adf8d640cb9a",
+  "artifactSha256": {
+    "candidate.json": "350b4c748f0877ee3efb44136da2a8fc14dd4ee80699e8d75a874ffb218fd0f6",
+    "interactive/architecture.html": "521b74c3bd9e14fb6a330f222dee77f3aa4ad90d54b94d767ac492b58e9c4941",
+    "manifest.json": "52a73bdaa38271e68637df22310e4d5c29288c7225c663094e82c614d9976590",
+    "static/architecture.png": "850d4331644dfb32182648e7417f11c22b8fefd4f3e31316a98f2ba1517cc3fe",
+    "static/architecture.svg": "d38a1fe98794cdc72b8e9e20295b08a1f9d73953addd328f8d8f7c31289a1776"
+  },
+  "method": {
+    "package": "Local npm pack from exact Publisher source commit; archive digest checked.",
+    "installation": "Empty HOME and npm configuration; npm install --offline --ignore-scripts into a private consumer.",
+    "execution": "Installed public CLI, empty PATH and NODE_PATH, exact Build Request digest, no source checkout inside consumer.",
+    "relocation": "Copy installed consumer, remove original, rebuild both Editions and compare every Candidate member digest.",
+    "directComparison": "Build both Editions with the same source commit and selected AIGW bytes; compare every member digest."
+  },
+  "limits": [
+    "unreleased provisional package; not the selected AIGW release",
+    "macOS installed and relocated use only",
+    "source model claims are attributed, not independently verified",
+    "sourceRevision is the observed Git checkout, not a Provider content revision",
+    "no browser, accessibility, or human judgment on these installed bytes",
+    "no source-delta update or publication recovery proof",
+    "no AIGW acceptance, protected ref, hosted publication, or off-host disaster recovery"
+  ]
+}
