@@ -1601,3 +1601,69 @@ This repairs geometric idempotence, not the small-screen reading grammar.
 The current Cytoscape renderer remains the sole product owner; the measured
 Dagre, ELK, and Graphviz probes remain alternatives pending cross-workload
 comparison and installed reader acceptance.
+
+### Reader-scoped LikeC4 sidecar and Publisher Candidate (2026-09-26)
+
+The unchanged di-effect source at `8a168b6b9c6933c30ab2ea25e60cac8a54212566`
+retained the three LikeC4 file hashes recorded above. Its dirty
+`.serena/project.yml` was not selected or modified. A researcher-authored,
+nine-line LikeC4 sidecar selected the five layer elements in a separate
+`editorial_layers` view. Installed LikeC4 1.59.4 reported 25 nodes and 35
+relations for the original `five_layers` view, versus five nodes and four
+relations for the sidecar view. This is native view editing, not Publisher
+discovering the right abstraction automatically.
+
+```likec4
+views {
+  view editorial_layers {
+    include layer_result
+    include layer_effect
+    include layer_computation
+    include layer_dependency
+    include layer_injector
+  }
+}
+```
+
+The public `edition build` path reproduced both unqualified, dual-medium
+Candidates from direct Build Requests. The sidecar request SHA-256 is
+`bcf9101a9237c7eb9364111468d2cf5800d8b35642009f23903ff2b62e16e5f8`;
+its Edition SHA-256 is
+`1cc6dcc0e49940e8c874250cd409fa8e43fa298724e599f54c123f6b369d8366`;
+the sidecar SHA-256 is
+`cbc3856853778ce3322ceed88324c1b7d3964f1cdb6a4c51b5537902a71c563c`.
+The resulting Candidate identity is
+`1aab3ea02f8b11bba179e14a85a3c0e957efbe118b4f7ae648b6bea864daee44`;
+its static PNG and interactive HTML hashes are respectively
+`a4535459e916b8a04496a8a1500dbb16f66ebf631fc0333243e65dc8f77290d2`
+and `9ecd5cef07666806ef3e7c8ddc4578ba8be26a8a4b7e7bacfe3c4e3f8307b8f2`.
+The static SVG has exactly five distinct node and four relation carriers;
+the interactive accessibility tree lists the same five nodes and four
+relations. Neither Candidate has a qualification or acceptance record.
+
+The Build Request attributes the three original files to the di-effect source
+model and the added view to `Architecture Publisher researcher`. Both media
+visibly say that the selection is researcher-authored and not source-endorsed
+or evidence of implementation. Those claimant and disclaimer strings are
+caller-supplied: this probe does **not** prove di-effect owner endorsement,
+the truth of the underlying model, or a machine-enforced separation of every
+source and editorial assertion in the rendered work. The request and Candidate
+were local research inputs, not accepted or published source-product assets.
+
+At 1280×720, the [desktop interactive screenshot](evidence/di-effect-editorial-sidecar-desktop.png)
+shows a complete but very small five-node horizontal graph. At 390×844, the
+[mobile screenshot](evidence/di-effect-editorial-sidecar-mobile.png) reflows
+it vertically, yet its node labels remain too small to read comfortably.
+Chrome observed no horizontal overflow or console errors, and its only
+request was the selected localhost HTML. The static 1800×2572 PNG is
+structurally complete but uses a tall one-column chain beside a long method-
+limits list; it is not a flagship reader composition. These observations
+distinguish DOM/accessibility structure from visible reader quality.
+
+**Disposition:** adopt the mature native-view selection mechanism as an
+editor-controlled input where source/editor attribution survives; reject raw
+`include *` as the answer to a five-layer reader question. Defer any claim that
+Publisher provides automatic editorial abstraction, readable narrow-screen
+composition, source-owner acceptance, or flagship dual-media quality. The next
+product gate is a readable, question-complete composition with visible
+provenance in both media, followed by the installed four-workload matrix.

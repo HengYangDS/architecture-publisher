@@ -390,7 +390,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       readable narrow-viewport and mixed-page composition, four-workload
       mechanism selection, installed exact-AIGW parity, source-owner approval,
       final human review, and predicate qualification. Detailed probes and
-      identities remain in `docs/research/mechanism-evaluation.md`.
+      identities remain in `docs/research/mechanism-evaluation.md`. A native
+      di-effect reader-view sidecar reduced 25/35 raw members to five nodes
+      and four relations through the public dual-medium build, but its static
+      composition and mobile labels remain unqualified and reader-poor;
+      source-owner endorsement is not established.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
