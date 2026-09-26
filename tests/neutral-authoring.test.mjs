@@ -225,6 +225,80 @@ test('grouped static composition retains only asserted members of a selected ups
   assert(!svg.includes('Beta'));
 });
 
+test('one static overview coexists with an independently selected interactive chapter', async (t) => {
+  const selected = await selectedNativeEdition(t, { width: 1800 });
+  const views = Buffer.from('views { view overview { include * }\n view detail { include * } }\n');
+  await fs.writeFile(path.join(selected.root, 'sources/views.c4'), views);
+  selected.request.sources.find(({ id }) => id === 'views').input.sha256 = sha(views);
+  selected.project.questions.push({
+    id: 'detail',
+    audience: 'maintainer',
+    text: 'What does the detailed chapter contain?',
+  });
+  selected.project.scope.selections.push({
+    id: 'detail',
+    namespace: 'fixture/views',
+    kind: 'reference',
+    reference: 'view:detail',
+    questions: ['detail'],
+  });
+  selected.project.presentation.interactive.views.push({ id: 'detail', questions: ['detail'] });
+  selected.project.presentation.static.views[0].groups = [
+    {
+      id: 'system',
+      label: 'Selected system',
+      elements: ['alpha', 'beta'].map((id) => ({ namespace: 'fixture/model', id })),
+    },
+  ];
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const requestBytes = Buffer.from(JSON.stringify(selected.request) + '\n');
+  await fs.writeFile(selected.file, requestBytes);
+  selected.digest = sha(requestBytes);
+
+  const output = path.join(selected.root, 'multi-view-candidate');
+  const built = await compileEditionCandidateInput(selected.file, selected.digest, output);
+  assert.equal(built.status, 'built');
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert(svg.includes('Alpha'));
+  assert(svg.includes('Beta'));
+  await fs.access(path.join(output, 'interactive/architecture.html'));
+
+  selected.project.scope.selections[1].questions.push('shape');
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const ambiguousOutput = path.join(selected.root, 'ambiguous-static-candidate');
+  await assert.rejects(
+    compileEditionCandidateInput(selected.file, selected.digest, ambiguousOutput),
+    { code: 'grouped_selection_layout_unadmitted' },
+  );
+  await assert.rejects(fs.access(ambiguousOutput), { code: 'ENOENT' });
+
+  selected.project.scope.selections[1].questions = ['detail'];
+  delete selected.project.presentation.static.views[0].groups;
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const upstreamOutput = path.join(selected.root, 'upstream-static-candidate');
+  const upstream = await compileEditionCandidateInput(
+    selected.file,
+    selected.digest,
+    upstreamOutput,
+  );
+  assert.equal(upstream.status, 'built');
+  const upstreamSvg = await fs.readFile(
+    path.join(upstreamOutput, 'static/architecture.svg'),
+    'utf8',
+  );
+  assert(upstreamSvg.includes('Alpha'));
+  assert(upstreamSvg.includes('Beta'));
+});
+
 test('grouped geometry does not place relation labels that the successor never renders', () => {
   const source = { namespace: 'fixture/model', sha256: 'a'.repeat(64) };
   const elements = ['alpha', 'beta'].map((id) => ({

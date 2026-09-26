@@ -9,6 +9,7 @@ import { composeAuthoredStaticCanvas } from '../scene/static/authored-canvas.mjs
 import {
   composeGroupedSelectionLayout,
   composeSelectedStaticRefinementLayout,
+  selectedStaticNativeViews,
 } from '../scene/static/grouped-selection.mjs';
 import { composeStaticEditionScene } from '../scene/static/edition.mjs';
 import { importLikeC4Layout } from '../semantics/native-likec4.mjs';
@@ -66,7 +67,7 @@ async function staticMedium(selected, meaning, scratch) {
   else if (!authoredCanvas && meaning.editorial.presentation.static.views[0].groups !== undefined)
     layout = composeGroupedSelectionLayout(meaning);
   else if (!authoredCanvas && !claimMode) {
-    const views = meaning.native.selections.filter(({ target }) => target.kind === 'view');
+    const views = selectedStaticNativeViews(meaning, meaning.media.static.views[0]);
     if (views.length !== 1) fail('static_scene_composition_ambiguous');
     const view = { namespace: views[0].source.namespace, id: views[0].target.id };
     layout = await importLikeC4Layout({

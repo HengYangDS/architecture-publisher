@@ -2,6 +2,7 @@ import { canonical, deepFreeze } from '../../semantics/document.mjs';
 import { fail } from '../../source/manifest.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { claimRelationLabel, linkClaimModelSources } from '../claim-relations.mjs';
+import { selectedStaticNativeViews } from './grouped-selection.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
@@ -160,7 +161,7 @@ export function composeStaticEditionScene(meaning, layout) {
   )
     fail('static_scene_group_mismatch');
   const editorialView = meaning.media.static.views[0];
-  const nativeViews = meaning.native.selections.filter(({ target }) => target.kind === 'view');
+  const nativeViews = selectedStaticNativeViews(meaning, editorialView);
   if (nativeViews.length !== (claimModelMode ? 0 : 1)) fail('static_scene_composition_ambiguous');
   const nativeView = nativeViews[0];
   if (claimModelMode) {

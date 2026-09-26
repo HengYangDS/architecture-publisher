@@ -403,11 +403,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       Cytoscape bytes. The grouped interactive slice now carries only its own
       Edition-authored partition through Scene, neutral geometry, visible
       compound nodes, and private graphic bindings. The final coverage join
-      rejects lost, relabeled, or forged grouping. Focused tests passed 52 with
-      one skip; the actual Chrome regression passed. Static/spec/package checks
-      passed. The latest coverage gate still fails at 92.81% branch coverage
-      against 95%, so integration and publication remain forbidden. AIGW has
-      not authored interactive groups; static groups are not inferred.
+      rejects lost, relabeled, or forged grouping. A public dual-medium
+      counterexample now builds one static overview beside a separately selected
+      interactive chapter with grouped and upstream static geometry. The sole
+      context view still works; competing or unattributed source views still
+      fail rather than being chosen silently. The 72 runnable focused tests,
+      static/spec/package checks, and the earlier Chrome regression pass.
+      Task 7.5 owns the still-failing global 95% branch gate. AIGW has not
+      authored interactive groups; static groups are not inferred.
       Publisher self, ETHOS and di-effect successor media, selected-media
       coverage, source/editor acceptance, final visual review, and predicate
       qualification remain open. Narrow-viewport checks are ordinary browser
@@ -642,19 +645,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The latest full run, before the final byte-exact manifest repair, reports
-      1,087 pass, 6 skip, 0 fail; statements and lines are 97.68%, functions
-      99.49%, and branches 93.19% (7,979/8,562), below the unchanged 95% gate.
-      The gap was 155 branch outcomes at that denominator, which may change.
-      On the current tree, the 87 runnable publication-focused tests, static
-      checks, strict OpenSpec validation, and package check pass; the global
-      coverage gate has not been rerun since the final byte repair.
-      The authored-static, semantic-change, visible-coverage, and publication
-      authority counterexamples are included. Next address renderer, Edition
-      evolution, publication, and qualification-process boundaries; do not
-      exclude owned production code,
-      weaken the browser journey, or mistake browser-only execution for Node
-      coverage.
+      The latest full run on this product tree reports 1,089 pass, 6 skip, 0
+      fail; statements and lines are 97.68%, functions 99.49%, and branches
+      93.21% (7,992/8,574), below the unchanged 95% gate. The gap is 154 branch
+      outcomes at that denominator, which may change. Static, strict OpenSpec,
+      and package checks pass. The authored-static, semantic-change,
+      visible-coverage, publication-authority, and scoped multi-view
+      counterexamples are included. Continue with high-risk renderer, Edition
+      evolution, source, and qualification-process boundaries; do not exclude
+      owned production code or weaken browser acceptance to raise the score.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

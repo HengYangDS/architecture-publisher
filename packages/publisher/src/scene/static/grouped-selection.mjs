@@ -7,6 +7,23 @@ const relationAddress = ({ id, origin }) => JSON.stringify([origin.namespace, id
 const authoredRelationAddress = ({ namespace, reference }) =>
   JSON.stringify([namespace, reference]);
 
+/** Resolve a sole context view or one static assertion among attributed sibling views. */
+export function selectedStaticNativeViews(meaning, view) {
+  const nativeViews = meaning.native.selections.filter(({ target }) => target.kind === 'view');
+  if (nativeViews.length <= 1) return nativeViews;
+  const sourceAssertions = meaning.assertions.filter(({ kind }) => kind === 'source');
+  const attributed = new Set(sourceAssertions.map(({ selection }) => selection));
+  const required = new Set(view.assertionIds);
+  const selectedIds = new Set(
+    sourceAssertions.filter(({ id }) => required.has(id)).map(({ selection }) => selection),
+  );
+  const selected = nativeViews.filter(({ selectionId }) => selectedIds.has(selectionId));
+  return selected.length === 1 &&
+    nativeViews.every(({ selectionId }) => attributed.has(selectionId))
+    ? selected
+    : nativeViews;
+}
+
 function addBound(map, id, item) {
   const previous = map.get(id);
   if (previous && canonical(previous) !== canonical(item))
@@ -37,7 +54,6 @@ function selectedStructure(meaning, requireGroups) {
 
   const nodes = new Map();
   const relations = new Map();
-  const nativeViews = meaning.native.selections.filter(({ target }) => target.kind === 'view');
   for (const id of view.assertionIds) {
     const assertion = assertions.get(id);
     if (!assertion) fail('grouped_selection_layout_unadmitted');
@@ -54,6 +70,7 @@ function selectedStructure(meaning, requireGroups) {
     for (const item of selected.members.elements) addBound(nodes, address(item), item);
     for (const item of selected.members.relations) addBound(relations, relationAddress(item), item);
   }
+  const nativeViews = selectedStaticNativeViews(meaning, view);
   if (nativeViews.length > 1) fail('grouped_selection_layout_unadmitted');
   return { view, authored, nodes, relations, selectedView: nativeViews[0] };
 }
