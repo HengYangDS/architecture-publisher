@@ -8,84 +8,7 @@ Claim Model v2 SHALL remain a validated versioned input with its original
 typed claims and source-bound provenance. A successor MAY instead import an
 admitted native architecture format or attributed projection into a disposable
 view-compilation index. Each adapter SHALL declare supported constructs,
-source-reference quality, admitted transformations, and losses. The index SHALL retain
-native format identity, exact selected bytes, claimant, typed relation kind,
-direction, plane, condition, scope, provenance, and unknown state where those
-fields are selected. Opaque constructs SHALL remain opaque; the compiler SHALL
-not claim to understand them merely because their bytes were retained. An
-unsupported distinction required by an Edition SHALL block or be explicitly
-excluded under the editor's reviewed scope, never be silently flattened.
-
-For the selected LikeC4 adapter, a source reference SHALL identify an explicit
-`element:<native-id>`, `view:<native-id>`, or one-based
-`relation:<line>:<column>` locator together with its selected source namespace
-and digest; labels and engine-generated relation IDs SHALL NOT resolve durable
-Edition identity. A selected structural view SHALL retain its exact computed
-member identities and an explicit qualification limit. A relation SHALL retain
-its endpoints, kind, direction, and source origin without inferred transitive
-or causal meaning. A computed relation whose source endpoints are absent from
-the selected view's visible element membership SHALL block that structural
-selection rather than create a dangling or falsely aggregated edge. Generated
-or uninterpreted dynamic views SHALL NOT silently satisfy an authored
-structural reference. Free-form LikeC4 queries SHALL fail until a separately
-admitted interpretation is specified.
-
-#### Scenario: Native LikeC4 sources are selected
-
-- **WHEN** an Edition selects authored LikeC4 model and view files
-- **THEN** Publisher imports their supported constructs and exact references
-  without requiring a tracked duplicate Claim Model
-- **AND** unsupported domain qualifiers are reported rather than inferred from
-  graphic colors or labels
-
-#### Scenario: An Edition selects an upstream-computed view
-
-- **WHEN** an Edition names one authored LikeC4 structural view by source
-  namespace and native view ID
-- **THEN** the adapter resolves its finite selected element and relation set
-  with source bindings
-- **AND** it preserves the upstream-computed-membership limit rather than
-  claiming that every visible assertion has been qualified
-
-#### Scenario: Upstream geometry is reused without becoming semantic authority
-
-- **WHEN** a selected authored structural LikeC4 view requests layout
-- **THEN** a separately bounded geometry projection retains the exact selected
-  view, node, and relation source bindings without parser-generated edge IDs
-- **AND** omitted members, unselected relations, invalid routes, and
-  uninterpreted dynamic views fail rather than becoming visible carriers
-- **AND** geometry alone grants no semantic, medium, or reader-quality approval
-
-#### Scenario: A generated relation ID changes
-
-- **WHEN** a subsequent native parse changes only a parser-run relation ID but
-  its selected source bytes, locator, and supported fields remain equal
-- **THEN** the source-location reference resolves the same selected meaning
-  without including the volatile ID in its semantic identity
-- **AND** a changed source locator or meaning does not inherit prior acceptance
-
-#### Scenario: Two native relations have the same endpoints
-
-- **WHEN** an authored LikeC4 file contains two relations with equal endpoints
-  at different source positions
-- **THEN** their one-based source locators resolve two distinct selections
-- **AND** a duplicate or ambiguous locator fails rather than choosing the
-  first engine-generated relation ID
-
-#### Scenario: A native construct is opaque
-
-- **WHEN** a selected source contains a construct whose meaning the adapter
-  cannot interpret
-- **THEN** its exact source binding and unknown status are preserved
-- **AND** a view that needs to reason about it fails or declares an explicit
-  limitation instead of claiming complete semantic coverage
-
-#### Scenario: Two sources use the same label
-
-- **WHEN** two source namespaces each contain an item labeled `authority`
-- **THEN** their identities remain distinct by namespace, native reference,
-  and revision
-- **AND** a cross-source relation requires a named proponent
+source-reference quality, admitted transformations, and losses.
 
 #### Scenario: Unsupported or inconsistent model content
 
@@ -122,18 +45,7 @@ adapter capabilities, not cardinality or generated layout IDs alone. Stable
 source-defined IDs MAY establish correspondence within their declared scope.
 When only revision-scoped locators or engine-generated IDs exist, Publisher
 SHALL report matching confidence and require explicit lineage for ambiguous
-rename, split, merge, moved source, or duplicate relation. Correspondence
-SHALL never imply semantic equivalence, source endorsement, or reusable
-acceptance. Unknown native changes SHALL remain unknown and conservatively
-affect dependent Editions.
-
-#### Scenario: An engine regenerates relation IDs after relocation
-
-- **WHEN** the same native model moves and the engine changes generated
-  relation IDs
-- **THEN** Publisher uses bound native references or reports correspondence
-  uncertainty
-- **AND** it does not claim every generated ID is a stable semantic identity
+rename, split, merge, moved source, or duplicate relation.
 
 #### Scenario: A relation changes qualifier
 
@@ -168,27 +80,7 @@ through declared native includes, imported references, Edition questions,
 selected predicates, and materialized view membership. It SHALL report
 rebuild, semantic verification, media verification, human review, acceptance,
 and publication separately. Unknown or unrepresented dependencies SHALL
-broaden applicable obligations. A source conflict MAY remain a visible
-subject of an Edition; broken input or an unadmitted authored transformation
-SHALL block the affected Candidate at input validation. The compiler SHALL not
-silently resolve disagreement or derive a transitive or universal claim from
-weaker source relations.
-
-#### Scenario: Target and observed sources disagree
-
-- **WHEN** exact attributed target and observed claims differ
-- **THEN** a comparison Edition may display the difference with source,
-  revision, and plane visibly distinguished
-- **AND** disagreement alone does not erase either claim or prohibit the
-  comparison
-
-#### Scenario: An aggregate changes quantifier
-
-- **WHEN** an editor groups several actors and labels a `some-member` flow as
-  an `all-member` invariant without matching source evidence
-- **THEN** the transformation fails declared semantic checks or remains an
-  explicit unaccepted editorial assertion
-- **AND** a carrier map or graph path does not make the stronger claim valid
+broaden applicable obligations.
 
 #### Scenario: An entity affects a relation and an assertion-only view
 
@@ -234,43 +126,155 @@ meaning.
 
 ## ADDED Requirements
 
-### Requirement: Claim Model import preserves typed claims
+### Requirement: Native adapter meaning and unknowns
 
-An admitted Claim Model v2 adapter SHALL accept exact native or derived bytes
-without requiring an editable LikeC4 copy. Semantic selection SHALL retain
-entity and relation identities and each selected claim's plane, condition,
-scope, validity, maturity, dependencies, and provenance. Layout-only graph
-geometry SHALL NOT discharge those semantics; unsupported expression SHALL
-fail or remain an explicit reader-question limit.
-Its selector format SHALL be `architecture.claim-model` version `2`; the JSON
-payload schema remains `architecture.claim-model/v2`.
+A derived index SHALL retain native format identity, exact selected bytes,
+claimant,
+typed relation kind, direction, plane, condition, scope, provenance, and
+unknown state where those fields are selected. Opaque constructs SHALL remain
+opaque; the compiler SHALL not claim to understand them merely because their
+bytes were retained. An unsupported distinction required by an Edition SHALL
+block or be explicitly excluded under the editor's reviewed scope, never be
+silently flattened.
 
-#### Scenario: A claim has the same endpoints but a changed condition
+#### Scenario: Native LikeC4 sources are selected
 
-- **WHEN** two Claim Model inputs retain entity and relation counts but change
-  a selected claim's condition or plane
-- **THEN** selected semantic identity changes and neither medium may reuse the
-  previous complete-coverage or acceptance claim
+- **WHEN** an Edition selects authored LikeC4 model and view files
+- **THEN** Publisher imports their supported constructs and exact references
+  without requiring a tracked duplicate Claim Model
+- **AND** unsupported domain qualifiers are reported rather than inferred from
+  graphic colors or labels
 
-### Requirement: Bounded admitted native parser execution
+#### Scenario: A native construct is opaque
 
-Publisher SHALL select an exact installed parser supply and locked native
-source bytes before executing a native importer. A public native-import path
-SHALL NOT accept an arbitrary parser callback or silently fall back to an
-ambient tool. Execution SHALL have finite input, output, time, and owned-process
-cleanup bounds. The returned index SHALL bind the consumed supply and selected
-source identities. A failed parser, selected-byte drift, output overflow,
-timeout, or unproved cleanup SHALL produce no successful native index or
-Candidate. Declared dependencies, no-filesystem parser options, process-tree
-cleanup, and runtime permission flags SHALL not individually establish a
-complete execution-read or sandbox claim; unknown reads remain explicit until
-installed-platform evidence closes them.
+- **WHEN** a selected source contains a construct whose meaning the adapter
+  cannot interpret
+- **THEN** its exact source binding and unknown status are preserved
+- **AND** a view that needs to reason about it fails or declares an explicit
+  limitation instead of claiming complete semantic coverage
 
-#### Scenario: The installed parser supply changes after verification
+### Requirement: LikeC4 source locator identity
 
-- **WHEN** a selected parser file changes before the importer executes it
-- **THEN** execution uses the exact verified bytes or fails without an index
-- **AND** no changed installed file or ambient dependency is substituted
+For the selected LikeC4 adapter, a source reference SHALL identify an explicit
+`element:<native-id>`, `view:<native-id>`, or one-based
+`relation:<line>:<column>` locator together with its selected source namespace
+and digest; labels and engine-generated relation IDs SHALL NOT resolve durable
+Edition identity. A relation SHALL retain its endpoints, kind, direction, and
+source origin without inferred transitive or causal meaning.
+
+#### Scenario: A generated relation ID changes
+
+- **WHEN** a subsequent native parse changes only a parser-run relation ID but
+  its selected source bytes, locator, and supported fields remain equal
+- **THEN** the source-location reference resolves the same selected meaning
+  without including the volatile ID in its semantic identity
+- **AND** a changed source locator or meaning does not inherit prior acceptance
+
+#### Scenario: Two native relations have the same endpoints
+
+- **WHEN** an authored LikeC4 file contains two relations with equal endpoints
+  at different source positions
+- **THEN** their one-based source locators resolve two distinct selections
+- **AND** a duplicate or ambiguous locator fails rather than choosing the
+  first engine-generated relation ID
+
+#### Scenario: Two sources use the same label
+
+- **WHEN** two source namespaces each contain an item labeled `authority`
+- **THEN** their identities remain distinct by namespace, native reference,
+  and revision
+- **AND** a cross-source relation requires a named proponent
+
+### Requirement: LikeC4 structural view membership
+
+A selected structural view SHALL retain its exact computed member identities
+and an explicit qualification limit. A computed relation whose source
+endpoints are absent from the selected view's visible element membership SHALL
+block that structural selection rather than create a dangling or falsely
+aggregated edge.
+
+#### Scenario: An Edition selects an upstream-computed view
+
+- **WHEN** an Edition names one authored LikeC4 structural view by source
+  namespace and native view ID
+- **THEN** the adapter resolves its finite selected element and relation set
+  with source bindings
+- **AND** it preserves the upstream-computed-membership limit rather than
+  claiming that every visible assertion has been qualified
+
+#### Scenario: Upstream geometry is reused without becoming semantic authority
+
+- **WHEN** a selected authored structural LikeC4 view requests layout
+- **THEN** a separately bounded geometry projection retains the exact selected
+  view, node, and relation source bindings without parser-generated edge IDs
+- **AND** omitted members, unselected relations, invalid routes, and
+  uninterpreted dynamic views fail rather than becoming visible carriers
+- **AND** geometry alone grants no semantic, medium, or reader-quality approval
+
+### Requirement: Unadmitted LikeC4 views and queries
+
+Generated or uninterpreted dynamic views SHALL NOT silently satisfy an
+authored structural reference. Free-form LikeC4 queries SHALL fail until a
+separately admitted interpretation is specified.
+
+#### Scenario: A free-form native view is selected
+
+- **WHEN** an Edition selects an uninterpreted dynamic view or free-form query
+- **THEN** structural import fails until a separately admitted interpretation
+  can preserve its selected meaning and visible membership
+
+### Requirement: Correspondence is not semantic approval
+
+Correspondence SHALL never imply semantic equivalence, source endorsement, or
+reusable acceptance. Unknown native changes SHALL remain unknown and
+conservatively affect dependent Editions.
+
+#### Scenario: An engine regenerates relation IDs after relocation
+
+- **WHEN** the same native model moves and the engine changes generated
+  relation IDs
+- **THEN** Publisher uses bound native references or reports correspondence
+  uncertainty
+- **AND** it does not claim every generated ID is a stable semantic identity
+
+### Requirement: Disagreement differs from invalid transformation
+
+A source conflict MAY remain a visible subject of an Edition; broken input or
+an unadmitted authored transformation SHALL block the affected Candidate at
+input validation. The compiler SHALL not silently resolve disagreement or
+derive a transitive or universal claim from weaker source relations.
+
+#### Scenario: Target and observed sources disagree
+
+- **WHEN** exact attributed target and observed claims differ
+- **THEN** a comparison Edition may display the difference with source,
+  revision, and plane visibly distinguished
+- **AND** disagreement alone does not erase either claim or prohibit the
+  comparison
+
+#### Scenario: An aggregate changes quantifier
+
+- **WHEN** an editor groups several actors and labels a `some-member` flow as
+  an `all-member` invariant without matching source evidence
+- **THEN** the transformation fails declared semantic checks or remains an
+  explicit unaccepted editorial assertion
+- **AND** a carrier map or graph path does not make the stronger claim valid
+
+### Requirement: Claim Model v2 selector identity
+
+The Claim Model v2 selector format SHALL be `architecture.claim-model` version
+`2`; the JSON payload schema remains `architecture.claim-model/v2`.
+
+#### Scenario: A Claim Model selector names another version
+
+- **WHEN** a selected Claim Model v2 payload has a selector with a different
+  format or version
+- **THEN** it fails input admission instead of being silently reinterpreted
+
+### Requirement: Failed native parser produces no index
+
+A failed parser, selected-byte drift, output overflow, timeout, or unproved
+cleanup SHALL produce no successful native index or Candidate.
 
 #### Scenario: Native parsing exceeds its execution bound
 
@@ -285,3 +289,48 @@ installed-platform evidence closes them.
   or containment capability
 - **THEN** native import fails closed without changing the general Publisher
   package's non-native semantics
+
+### Requirement: Native parser containment claims remain limited
+
+Declared dependencies, no-filesystem parser options, process-tree cleanup, and
+runtime permission flags SHALL not individually establish a complete
+execution-read or sandbox claim; unknown reads remain explicit until
+installed-platform evidence closes them.
+
+#### Scenario: Runtime flags are mistaken for a sandbox
+
+- **WHEN** native parsing uses process-tree cleanup or runtime permission flags
+  without complete execution-read evidence
+- **THEN** Publisher does not claim sandbox isolation or complete knowledge of
+  execution reads
+
+### Requirement: Claim Model import preserves typed claims
+
+An admitted Claim Model v2 adapter SHALL accept exact native or derived bytes
+without requiring an editable LikeC4 copy. Semantic selection SHALL retain
+entity and relation identities and each selected claim's plane, condition,
+scope, validity, maturity, dependencies, and provenance. Layout-only graph
+geometry SHALL NOT discharge those semantics; unsupported expression SHALL
+fail or remain an explicit reader-question limit.
+
+#### Scenario: A claim has the same endpoints but a changed condition
+
+- **WHEN** two Claim Model inputs retain entity and relation counts but change
+  a selected claim's condition or plane
+- **THEN** selected semantic identity changes and neither medium may reuse the
+  previous complete-coverage or acceptance claim
+
+### Requirement: Bounded admitted native parser execution
+
+Publisher SHALL select an exact installed parser supply and locked native
+source bytes before executing a native importer. A public native-import path
+SHALL NOT accept an arbitrary parser callback or silently fall back to an
+ambient tool. Execution SHALL have finite input, output, time, and
+owned-process cleanup bounds. The returned index SHALL bind the consumed
+supply and selected source identities.
+
+#### Scenario: The installed parser supply changes after verification
+
+- **WHEN** a selected parser file changes before the importer executes it
+- **THEN** execution uses the exact verified bytes or fails without an index
+- **AND** no changed installed file or ambient dependency is substituted

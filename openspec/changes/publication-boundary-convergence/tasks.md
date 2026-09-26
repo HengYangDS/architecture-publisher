@@ -683,14 +683,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       and prove valid v1 inputs still retain their historical meanings. Atomize
       overlong delta requirements without weakening them before promotion; the
       later Change archive must add no new normative behavior. Partial: the
-      Edition Provider, Source Intake, Publication Contract, and Semantic
-      Publication deltas have been atomized and promoted through isolated
-      official archive rehearsals. Their active base specs and the still-open
-      Change validate with zero diagnostics, and prior scenario names remain
-      present. The latest rehearsal reports 16 INFO across Edition Publication
-      and Semantic Compilation; these promotions and cross-spec v1
-      compatibility proof remain open. Packed Provider-specific historical v1
-      replay passes locally.
+      Edition Provider, Source Intake, Publication Contract, Semantic
+      Publication, and Semantic Compilation deltas have been atomized and
+      promoted through isolated official archive rehearsals. Their active base
+      specs and the still-open Change validate with zero diagnostics, and prior
+      scenario names remain present. The latest rehearsal reports 11 INFO in
+      Edition Publication; its promotion and cross-spec v1 compatibility proof
+      remain open. Packed Provider-specific historical v1 replay passes locally.
 - [ ] 7.5 Select the SemVer successor and update package manifests, lockfile,
       and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
       behavior tests until the complete owned scope reaches at least 95% in
