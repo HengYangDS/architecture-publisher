@@ -310,25 +310,29 @@ failure-domain evidence.
 ## Authority Matrix
 
 "Source product" means Architecture Publisher for its self-Edition, ETHOS for
-ETHOS, and AIGW for AIGW. The same repository may hold both a source-owned
-Edition and Publisher's generic code, but that co-location never transfers one
-role's authority to another. This is the current matrix; archived proposal
-matrices remain historical evidence, not a second active rule.
+ETHOS, and AIGW for AIGW. This matrix governs Publisher's interfaces, not
+another product's internal policy. One party may fill several roles, but
+co-location never transfers authority; a cross-source editor, accepter and
+custodian need not be any source product. Archived proposal matrices remain
+historical evidence, not a second active rule.
 
 Source → semantic validation → authored views → constrained composition →
 medium-specific rendering → artifact observations → authorized publication.
 
-| Concern                            | Authority                   | Other role                                                         | Not implied                                                             |
-| ---------------------------------- | --------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| Accepted meaning and claim content | Source product              | Adapter maps provenance/loss; Publisher owns and validates schema  | Observation or rendering cannot invent intent.                          |
-| Edition and flagship composition   | Source-owned Edition        | Provider materializes values; Publisher supplies public primitives | Authoring digest alone is not media proof.                              |
-| Provider transport                 | Publisher contract          | Source product selects exact data or package                       | No acceptance or repository effect.                                     |
-| Generic Scene, render, Candidate   | Publisher                   | Edition supplies authored inputs                                   | Structural output cannot inherit flagship approval.                     |
-| Predicate observations             | Predicate-specific verifier | Publisher binds exact Qualification Set                            | Technical pass is not human acceptance.                                 |
-| Human acceptance and Git           | Source-product governance   | ETHOS may govern; Skills remain methods                            | Publisher core inherits no source Work Lane, CAS, or release authority. |
-| File publication and recovery      | Publisher effect contract   | Source product authorizes exact target                             | A file effect cannot infer intent or authorization.                     |
-| Release subject and custody        | Source product              | Publisher records producer; selected store holds bytes             | Generated output need not enter source Git.                             |
-| Feedback to intent                 | Source product              | Publisher proposes a source-bound finding                          | No silent writeback.                                                    |
+| Concern                          | Authority                                          | Publisher role                                  | Not implied                                             |
+| -------------------------------- | -------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------- |
+| Native meaning and source claims | Source owner; named claimant per assertion         | Bind exact evidence and declared import loss    | A selected statement is not thereby implemented.        |
+| Editorial claims and Edition     | Edition editor                                     | Validate selection and compose reader works     | Editorial judgment is not source endorsement.           |
+| Provider interchange             | Publisher                                          | Validate one versioned input protocol           | The protocol does not choose a source package.          |
+| Provider selection               | Build Request author                               | Bind exact inputs offered by source owners      | Selection grants no source truth or effect.             |
+| Scene, rendering and Candidate   | Publisher                                          | Derive independently composed media             | Structural output is not flagship approval.             |
+| Predicate observations           | Predicate-specific verifier                        | Bind exact Qualification subjects and limits    | One PASS does not establish another predicate.          |
+| Candidate acceptance             | Designated accepter under product/editorial policy | Bind judgment to exact Candidate and policy     | A green build is not approval.                          |
+| Release authorization            | Designated release owner                           | Record selected release subject and decision    | Accepted media do not publish themselves.               |
+| Repository and Git effects       | Repository policy; Git owns objects and refs       | None without a separate source-owned adapter    | Publisher owns no Work Lane, CAS or ref transition.     |
+| Local file publication           | Target policy's designated authorization owner     | Plan, apply and recover exact filesystem effect | Local install is not Forge release or target authority. |
+| Artifact custody and retention   | Selected custodian                                 | Record producer and effect receipts             | Output need not enter source Git or off-host storage.   |
+| Feedback to source intent        | Each affected source owner                         | Propose an attributed, source-bound finding     | No silent writeback.                                    |
 
 These are modules and data contracts, not services, a graph database, an event
 bus or another governance kernel. Source adapters, backends and skills remain
