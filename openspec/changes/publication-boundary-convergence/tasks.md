@@ -538,17 +538,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       observations expose unreadable fit-to-canvas graph labels despite clean
       axe results. See `conformance/evidence/aigw-client-installed-probe.json`.
       That earlier Client-only probe is not the whole AIGW product or AIGW
-      acceptance. A subsequent exact archive from signed Publisher `a05dfa4`
-      rebuilt AIGW `4d8d18df` Client Projection and whole-product Editions
+      acceptance. The current exact archive from signed Publisher `0e391e7`
+      rebuilt AIGW `bd3c09d5` Client Projection and whole-product Editions
       byte-identically through direct, offline-installed, and relocated public
-      CLI use; the archive SHA-256 is
-      `e224658fd4ed54288771672283279af0ac24ff5136e20e8db5f13caf384a936f`.
-      A changed product-model pin failed without a Candidate. The two small
+      CLI use; its SHA-256 is
+      `a1601d1836a5fdaf33af92e632bb1fda73cb5aee43f58fcda09b3742140f7281`.
+      A changed product-model pin again failed without a Candidate. Chrome
+      read all ten pages from the installed-equivalent HTML at 1280×720;
+      graph labels remained at least 14.34px for the product and 16px for the
+      Client chapter, with no runtime/network errors, node-body overlaps,
+      horizontal overflow, or axe WCAG A/AA violations. The two small
       receipts in `conformance/evidence/aigw-client-paired-installed-probe.json`
       and `conformance/evidence/aigw-product-installed-probe.json` bind the
-      selected inputs and all Candidate member digests. This is a provisional
-      macOS package proof, not final release, installed-browser review,
-      source-delta update, recovery, or AIGW acceptance.
+      selected inputs and all Candidate member digests. This remains a
+      provisional macOS package and desktop browser check, not human visual
+      approval, final release, source-delta update, recovery, or AIGW acceptance.
 - [ ] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
