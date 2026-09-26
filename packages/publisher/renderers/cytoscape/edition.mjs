@@ -1,7 +1,10 @@
 import { loadBundledFonts } from '../fonts/index.mjs';
 import { fail } from '../../src/source/manifest.mjs';
 import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
-import { SOURCE_REPORTED_TOPOLOGY_NOTE } from '../../src/scene/claim-relations.mjs';
+import {
+  SOURCE_REPORTED_TOPOLOGY_NOTE,
+  UNLINKED_RELATION_NOTE,
+} from '../../src/scene/claim-relations.mjs';
 import { projectInteractivePage } from './model.mjs';
 import { loadCytoscapeSupply } from './supply.mjs';
 
@@ -123,6 +126,9 @@ function pageHtml(page, index, methodLimits) {
   const mixed = Boolean(page.nodes.length && page.claims?.length);
   const relationOnly =
     page.claims !== undefined && page.claims.length === 0 && page.relations.length > 0;
+  const linkedOrdinals = new Set((page.claims ?? []).map(({ relationOrdinal }) => relationOrdinal));
+  const unlinkedRelation =
+    page.claims !== undefined && page.relations.some((_, index) => !linkedOrdinals.has(index + 1));
   const questionItems = page.questions
     .map(
       (question) =>
@@ -170,7 +176,7 @@ function pageHtml(page, index, methodLimits) {
   return `<section class="edition-page" id="page-${index}" data-page="${index}" aria-labelledby="page-title-${index}">
     <header class="page-heading"><p class="eyebrow">Reading page ${index + 1}</p><h2 id="page-title-${index}">${escape(page.title)}</h2></header>
     <div class="page-grid"><div class="stage">${stage}${page.nodes.length ? `<button class="fit" type="button" data-fit="${index}">Fit graph</button>` : ''}</div>
-    <aside class="notes" aria-label="Page evidence">${relationOnly ? `<p class="source-note">${escape(SOURCE_REPORTED_TOPOLOGY_NOTE)}</p>` : ''}<h3>Reader questions</h3><ul>${questionItems}</ul>
+    <aside class="notes" aria-label="Page evidence">${unlinkedRelation ? `<p class="source-note">${escape(relationOnly ? SOURCE_REPORTED_TOPOLOGY_NOTE : UNLINKED_RELATION_NOTE)}</p>` : ''}<h3>Reader questions</h3><ul>${questionItems}</ul>
     ${nodeItems ? `<h3>Source nodes</h3><ul class="node-list">${nodeItems}</ul>` : ''}
     ${relationItems ? `<h3>Source relations</h3><ul class="relation-list">${relationItems}</ul>` : ''}
     ${editorial && page.nodes.length ? `<h3>Editorial assertions</h3><ul>${editorial}</ul>` : ''}

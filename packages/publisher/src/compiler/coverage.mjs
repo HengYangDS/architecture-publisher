@@ -71,19 +71,13 @@ function validateClaimLinks(page, selections, assertions, required) {
     page.sourceAssertionCarriers.map((carrier) => [carrier.assertionId, carrier]),
   );
   const linkedClaims = new Set();
-  const linkedRelations = new Set();
-  if (!required.size) {
-    if (
-      links !== undefined ||
-      page.sourceAssertionCarriers.some(
-        (carrier) =>
-          !selectedRelationMatches(
-            carrier,
-            selections.get(assertions.get(carrier.assertionId)?.selection),
-          ),
-      )
-    )
+  for (const carrier of page.sourceAssertionCarriers) {
+    const selection = selections.get(assertions.get(carrier.assertionId)?.selection);
+    if (selection?.target.kind === 'relation' && !selectedRelationMatches(carrier, selection))
       mismatch();
+  }
+  if (!required.size) {
+    if (links !== undefined) mismatch();
     return;
   }
   if (!Array.isArray(links) || links.length !== required.size) mismatch();
@@ -98,20 +92,13 @@ function validateClaimLinks(page, selections, assertions, required) {
       linkedClaims.has(claimAssertionId) ||
       claim?.kind !== 'claim' ||
       claim.claimRefs?.length !== 1 ||
-      !selectedRelationMatches(relation, relationSelection) ||
+      relation?.kind !== 'relation' ||
       !claimDependsOnSelectedRelation(claimSelection, relationSelection)
     )
       mismatch();
     linkedClaims.add(claimAssertionId);
-    linkedRelations.add(relationAssertionId);
   }
-  if (
-    linkedClaims.size !== required.size ||
-    page.sourceAssertionCarriers.some(
-      (carrier) => carrier.kind === 'relation' && !linkedRelations.has(carrier.assertionId),
-    )
-  )
-    mismatch();
+  if (linkedClaims.size !== required.size) mismatch();
 }
 
 /** Check the selected view-to-carrier join before building an unqualified Candidate. */

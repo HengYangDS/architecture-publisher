@@ -809,6 +809,123 @@ test('relation-only coverage rejects endpoints without the selected relation', a
   );
 });
 
+test('a mixed page keeps unclaimed relations structural beside linked claims', async (t) => {
+  const selected = await groupedMixedFixture(t, { model: twoRelationClaimModel() });
+  selected.project.scope.selections.push({
+    id: 'second-relation',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'relation:second',
+    questions: ['condition'],
+  });
+  selected.project.presentation.static.views[0].groups.push({
+    id: 'other-group',
+    label: 'Other',
+    elements: [{ namespace: modelNamespace, id: 'other' }],
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  const note =
+    'Unlinked relations show source topology only; typed claim status is not selected, and provenance is unverified.';
+  for (const [name, medium] of [
+    ['svg', svg],
+    ['html', html],
+  ]) {
+    const visible = medium.replace(/<[^>]*>/gu, ' ').replace(/\s+/gu, ' ');
+    assert(visible.includes(note), name);
+  }
+  assert(svg.includes('SOURCE RELATIONS'));
+  assert(svg.includes('SOURCE CLAIMS'));
+  assert(html.includes('Source relations'));
+  assert(html.includes('Source claims'));
+
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const staticScene = composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  assert.deepEqual(
+    staticScene.sourceAssertionCarriers
+      .filter(({ kind }) => kind === 'relation')
+      .map(({ relationRefs }) => relationRefs[0].reference)
+      .sort(),
+    ['request', 'second'],
+  );
+  assert.equal(staticScene.claimCards.length, 1);
+  assert.deepEqual(staticScene.claimRelationLinks, [
+    { claimAssertionId: 'selected-claim', relationAssertionId: 'selected-relation' },
+  ]);
+  const staticWrongLink = structuredClone(staticScene);
+  staticWrongLink.claimRelationLinks[0].relationAssertionId = 'second-relation';
+  const staticWrongRendered = composeStaticEditionSvg(staticWrongLink);
+  assert.throws(
+    () =>
+      validateVisibleSelection(meaning, 'static', staticWrongLink, staticWrongRendered.carriers),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
+  const staticForged = structuredClone(staticScene);
+  staticForged.edges = staticForged.edges.filter(
+    (edge) => !edge.relations.some(({ reference }) => reference === 'second'),
+  );
+  staticForged.sourceAssertionCarriers.find(
+    ({ assertionId }) => assertionId === 'second-relation',
+  ).relationRefs = [];
+  const staticRendered = composeStaticEditionSvg(staticForged);
+  assert.throws(
+    () => validateVisibleSelection(meaning, 'static', staticForged, staticRendered.carriers),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
+
+  const interactiveScene = composeInteractiveEditionScene(meaning);
+  assert.deepEqual(
+    interactiveScene.pages[0].sourceAssertionCarriers
+      .filter(({ kind }) => kind === 'relation')
+      .map(({ relationRefs }) => relationRefs[0].reference)
+      .sort(),
+    ['request', 'second'],
+  );
+  assert.equal(interactiveScene.pages[0].claimCards.length, 1);
+  assert.deepEqual(interactiveScene.pages[0].claimRelationLinks, [
+    { claimAssertionId: 'selected-claim', relationAssertionId: 'selected-relation' },
+  ]);
+  const interactiveWrongLink = structuredClone(interactiveScene);
+  interactiveWrongLink.pages[0].claimRelationLinks[0].relationAssertionId = 'second-relation';
+  const interactiveWrongRendered = await renderInteractiveEditionHtml(interactiveWrongLink);
+  assert.throws(
+    () =>
+      validateVisibleSelection(
+        meaning,
+        'interactive',
+        interactiveWrongLink,
+        interactiveWrongRendered.carriers,
+      ),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
+  const interactiveForged = structuredClone(interactiveScene);
+  interactiveForged.pages[0].relations = interactiveForged.pages[0].relations.filter(
+    ({ id }) => id !== 'second',
+  );
+  interactiveForged.pages[0].sourceAssertionCarriers.find(
+    ({ assertionId }) => assertionId === 'second-relation',
+  ).relationRefs = [];
+  const interactiveRendered = await renderInteractiveEditionHtml(interactiveForged);
+  assert.throws(
+    () =>
+      validateVisibleSelection(
+        meaning,
+        'interactive',
+        interactiveForged,
+        interactiveRendered.carriers,
+      ),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
+});
+
 test('typed claim dimensions use stable code-point order instead of host collation', async (t) => {
   const model = claimModel();
   model.claims.intended.condition = { z: 'tail', ä: 'accent' };

@@ -84,6 +84,15 @@ required coordinates or DOM structure.
 - **AND** the view SHALL NOT credit typed claim plane, validity, maturity, or
   implementation evidence that was not selected
 
+#### Scenario: A mixed view contains an unclaimed source relation
+
+- **WHEN** an Edition selects two source relations but a typed claim depends
+  on only one of them
+- **THEN** both relations retain independent source identities while the claim
+  links only to its declared dependency
+- **AND** the unlinked relation remains visibly source topology, not an
+  inherited claim status, and removing its edge cannot satisfy coverage
+
 #### Scenario: Repeated claim context is factored out
 
 - **WHEN** several selected claims have an exactly equal field value

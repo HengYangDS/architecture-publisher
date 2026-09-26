@@ -1,6 +1,9 @@
 import { fail } from '../../src/source/manifest.mjs';
 import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
-import { SOURCE_REPORTED_TOPOLOGY_NOTE } from '../../src/scene/claim-relations.mjs';
+import {
+  SOURCE_REPORTED_TOPOLOGY_NOTE,
+  UNLINKED_RELATION_NOTE,
+} from '../../src/scene/claim-relations.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
@@ -393,15 +396,19 @@ export function composeStaticEditionSvg(scene) {
   );
   const relationOnly =
     scene.claimCards !== undefined && scene.claimCards.length === 0 && scene.edges.length > 0;
+  const linkedRelationIds = new Set(
+    (scene.claimRelationLinks ?? []).map(({ relationAssertionId }) => relationAssertionId),
+  );
+  const unlinkedRelation =
+    scene.claimCards !== undefined &&
+    scene.sourceAssertionCarriers.some(
+      ({ assertionId, kind }) => kind === 'relation' && !linkedRelationIds.has(assertionId),
+    );
   y = namedSection(
     notes,
     'SOURCE STATUS',
-    relationOnly
-      ? [
-          {
-            text: SOURCE_REPORTED_TOPOLOGY_NOTE,
-          },
-        ]
+    unlinkedRelation
+      ? [{ text: relationOnly ? SOURCE_REPORTED_TOPOLOGY_NOTE : UNLINKED_RELATION_NOTE }]
       : [],
     notesX,
     y,

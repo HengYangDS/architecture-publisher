@@ -4,6 +4,8 @@ import { fail } from '../source/manifest.mjs';
 
 export const SOURCE_REPORTED_TOPOLOGY_NOTE =
   'Source-reported topology; provenance unverified; typed claim status not selected.';
+export const UNLINKED_RELATION_NOTE =
+  'Unlinked relations show source topology only; typed claim status is not selected, and provenance is unverified.';
 
 /** Derive one claim-to-relation association from selected source meaning. */
 export function linkClaimModelSources(view, assertions, selections, errorCode) {
@@ -28,12 +30,6 @@ export function linkClaimModelSources(view, assertions, selections, errorCode) {
     if (matches.length !== 1) fail(errorCode);
     return { claimAssertionId: assertionId, relationAssertionId: matches[0].assertionId };
   });
-  if (
-    relations.some(
-      ({ assertionId }) => !links.some((link) => link.relationAssertionId === assertionId),
-    )
-  )
-    fail(errorCode);
   return { relations: relations.map(({ selection }) => selection), links };
 }
 

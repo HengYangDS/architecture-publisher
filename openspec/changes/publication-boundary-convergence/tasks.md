@@ -396,15 +396,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       the structural scope limit was visible in SVG and HTML. This is a
       deliberate narrowing of the old overview, not editorial parity or
       acceptance. Relation-only views now expose source-reported status and
-      reject endpoint-only carrier forgeries. A mixed page with some unclaimed
-      relations remains unadmitted rather than silently credited as typed
-      claim coverage.
+      reject endpoint-only carrier forgeries. Mixed pages with some unclaimed
+      relations now retain separate source carriers and disclose their
+      structural-only status; forged removal of such an edge fails coverage.
       Open: source-owner-approved authoring, installed exact-AIGW paired parity,
       reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure
       requires replacement. Static, package and strict OpenSpec checks pass;
-      the 1,046-test run has 1,041 passes and five skips, but branch coverage
-      remains 92.89% < 95% (Task 7.5).
+      the current 1,051-test run has 1,046 passes and five skips, but branch
+      coverage remains 92.93% < 95% (Task 7.5).
       Detailed counterexamples and measured limits stay in
       `docs/research/mechanism-evaluation.md`, not a second progress ledger.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
