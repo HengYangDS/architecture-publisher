@@ -132,6 +132,15 @@ independent static and interactive media, their supplies, and disclosed limits.
 The input lock binds selected meaning; it does not by itself establish native
 dependency closure, source endorsement, or Candidate acceptance.
 
+An Edition may select a versioned, data-only `visualPolicy.override`. Its
+`architecture.scene-refinement/v1` resource must name every requested medium:
+each selects authored composition or the exact `{ "kind": "neutral" }` choice.
+Neutral runs that medium's ordinary compiler; it does not borrow its sibling's
+geometry or approval. Missing or extra media, unsupported choices, and an
+all-neutral no-op resource fail rather than silently falling back. The whole
+resource is bound to the input lock; each medium retains its own scene and
+artifact identities.
+
 Historical v1 plans retain their selected output field and original meaning.
 They select a Source Bundle, Claim Model member, and exact
 `architecture.edition/v1` file, then emit an

@@ -4,7 +4,9 @@ import path from 'node:path';
 import test from 'node:test';
 import { compileEditionMeaning } from '../packages/publisher/src/compiler/meaning.mjs';
 import { compileSelectedEditionCandidateInput } from '../packages/publisher/src/compiler/successor.mjs';
+import { parseSelectedSceneRefinement } from '../packages/publisher/src/edition/refinement.mjs';
 import { materializeBuildRequestInput } from '../packages/publisher/src/provider/build-request.mjs';
+import { composeStaticEditionScene } from '../packages/publisher/src/scene/static/edition.mjs';
 import { importLikeC4Layout } from '../packages/publisher/src/semantics/native-likec4.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
 
@@ -84,6 +86,143 @@ test('selected static refinement is byte-bound and changes only public-build geo
     candidate.media.static.artifacts[0].sha256,
     neutralCandidate.media.static.artifacts[0].sha256,
   );
+});
+
+test('explicit neutral interactive keeps a static refinement medium-local', async (t) => {
+  const first = await inputWithRefinement(
+    t,
+    (value) => {
+      value.media.interactive = { kind: 'neutral' };
+      return value;
+    },
+    ['static', 'interactive'],
+  );
+  const second = await inputWithRefinement(
+    t,
+    (value) => {
+      value.media.static.nodes[0].x += 45;
+      value.media.interactive = { kind: 'neutral' };
+      return value;
+    },
+    ['static', 'interactive'],
+  );
+  const build = async (fixture) => {
+    const result = await compileSelectedEditionCandidateInput(
+      fixture.file,
+      fixture.digest,
+      path.join(fixture.root, 'candidate'),
+    );
+    return {
+      result,
+      candidate: JSON.parse(await fs.readFile(path.join(result.output, 'candidate.json'), 'utf8')),
+    };
+  };
+  const original = await build(first);
+  const refined = await build(second);
+  assert.notEqual(original.result.lockSha256, refined.result.lockSha256);
+  assert.notEqual(
+    original.candidate.media.static.sceneSha256,
+    refined.candidate.media.static.sceneSha256,
+  );
+  assert.notEqual(
+    original.candidate.media.static.artifacts[0].sha256,
+    refined.candidate.media.static.artifacts[0].sha256,
+  );
+  assert.equal(
+    original.candidate.media.interactive.sceneSha256,
+    refined.candidate.media.interactive.sceneSha256,
+  );
+  assert.equal(
+    original.candidate.media.interactive.artifacts[0].sha256,
+    refined.candidate.media.interactive.artifacts[0].sha256,
+  );
+});
+
+test('explicit neutral static does not inherit interactive-only refinement identity', async (t) => {
+  const fixture = await selectedNativeEdition(t, { media: ['static', 'interactive'] });
+  const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
+  const meaning = await compileEditionMeaning(selected);
+  const layout = await importLikeC4Layout({
+    lock: selected.lock,
+    readSource: selected.readSource,
+    view: { namespace: 'fixture/views', id: 'overview' },
+  });
+  const sceneFor = (label) => {
+    const value = {
+      schema: 'architecture.scene-refinement/v1',
+      media: {
+        static: { kind: 'neutral' },
+        interactive: {
+          kind: 'authored-architecture',
+          pages: [
+            {
+              id: 'overview',
+              label,
+              purpose: 'overview',
+              scene: {
+                schema: 'architecture.interactive-scene/v1',
+                id: 'overview',
+                title: 'Selected architecture',
+                subtitle: label,
+                viewport: { width: 800, height: 600 },
+                nodes: [
+                  {
+                    id: 'alpha',
+                    label: 'Alpha',
+                    visualRole: 'structure',
+                    position: { x: 80, y: 100 },
+                    size: { width: 160, height: 80 },
+                  },
+                ],
+                groups: [],
+                edges: [],
+              },
+            },
+          ],
+        },
+      },
+    };
+    const bytes = Buffer.from(JSON.stringify(value) + '\n');
+    const refinement = parseSelectedSceneRefinement(bytes, ['static', 'interactive'], sha(bytes));
+    return composeStaticEditionScene(
+      {
+        ...meaning,
+        editorial: {
+          ...meaning.editorial,
+          visualPolicy: { profile: 'neutral', override: 'refinement.json' },
+        },
+        refinement,
+      },
+      layout,
+    );
+  };
+  const first = sceneFor('First direction');
+  const second = sceneFor('Second direction');
+  assert.deepEqual(first, second);
+  assert.equal(Object.hasOwn(first, 'refinement'), false);
+});
+
+test('neutral decisions cannot become an unobserved no-op or media payload', async (t) => {
+  for (const [name, mutate] of [
+    ['all-neutral', (value) => (value.media.static = { kind: 'neutral' })],
+    [
+      'neutral-media-payload',
+      (value) => {
+        value.media.interactive = { kind: 'neutral', html: '<p>unselected</p>' };
+      },
+    ],
+  ]) {
+    const fixture = await inputWithRefinement(
+      t,
+      mutate,
+      name === 'all-neutral' ? ['static'] : ['static', 'interactive'],
+    );
+    await assert.rejects(
+      compileEditionMeaning(await materializeBuildRequestInput(fixture.file, fixture.digest)),
+      { code: 'scene_refinement_invalid' },
+      name,
+    );
+  }
 });
 
 test('a selected refinement cannot add or remove source members', async (t) => {

@@ -2421,874 +2421,321 @@ const ref0 = function validate(data) {
       return true
     })()
     if (sub1) passes0++
+    const sub2 = (() => {
+      if (!(typeof data.media.static === "object" && data.media.static && !Array.isArray(data.media.static))) return false
+      if (!("kind" in data.media.static && hasOwn(data.media.static, "kind"))) return false
+      if (!(data.media.static.kind === "neutral")) return false
+      for (const key22 of Object.keys(data.media.static)) {
+        if (key22 !== "kind") return false
+      }
+      return true
+    })()
+    if (sub2) passes0++
     if (passes0 !== 1) {
       validate.errors = [{ keywordLocation: "#/properties/media/properties/static/oneOf", instanceLocation: "#/media/static" }]
       return false
     }
   }
   if ("interactive" in data.media && hasOwn(data.media, "interactive")) {
-    if (!(typeof data.media.interactive === "object" && data.media.interactive && !Array.isArray(data.media.interactive))) {
-      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/type", instanceLocation: "#/media/interactive" }]
-      return false
-    }
-    if (!("kind" in data.media.interactive && hasOwn(data.media.interactive, "kind"))) {
-      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/required", instanceLocation: "#/media/interactive/kind" }]
-      return false
-    }
-    if (!("pages" in data.media.interactive && hasOwn(data.media.interactive, "pages"))) {
-      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/required", instanceLocation: "#/media/interactive/pages" }]
-      return false
-    }
-    if (!(data.media.interactive.kind === "authored-architecture")) {
-      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/kind/const", instanceLocation: "#/media/interactive/kind" }]
-      return false
-    }
-    if (!Array.isArray(data.media.interactive.pages)) {
-      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/type", instanceLocation: "#/media/interactive/pages" }]
-      return false
-    }
-    if (data.media.interactive.pages.length > 64) {
-      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/maxItems", instanceLocation: "#/media/interactive/pages" }]
-      return false
-    }
-    if (data.media.interactive.pages.length < 1) {
-      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/minItems", instanceLocation: "#/media/interactive/pages" }]
-      return false
-    }
-    for (let ii = 0; ii < data.media.interactive.pages.length; ii++) {
-      if (ii in data.media.interactive.pages && hasOwn(data.media.interactive.pages, ii)) {
-        if (!(typeof data.media.interactive.pages[ii] === "object" && data.media.interactive.pages[ii] && !Array.isArray(data.media.interactive.pages[ii]))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/type", instanceLocation: "#/media/interactive/pages/"+ii }]
-          return false
-        }
-        if (!("id" in data.media.interactive.pages[ii] && hasOwn(data.media.interactive.pages[ii], "id"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"/id" }]
-          return false
-        }
-        if (!("label" in data.media.interactive.pages[ii] && hasOwn(data.media.interactive.pages[ii], "label"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"/label" }]
-          return false
-        }
-        if (!("purpose" in data.media.interactive.pages[ii] && hasOwn(data.media.interactive.pages[ii], "purpose"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"/purpose" }]
-          return false
-        }
-        if (!("scene" in data.media.interactive.pages[ii] && hasOwn(data.media.interactive.pages[ii], "scene"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene" }]
-          return false
-        }
-        if (!(typeof data.media.interactive.pages[ii].id === "string")) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/id/type", instanceLocation: "#/media/interactive/pages/"+ii+"/id" }]
-          return false
-        }
-        if (!(pattern0.test(data.media.interactive.pages[ii].id))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/id/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"/id" }]
-          return false
-        }
-        if (!(typeof data.media.interactive.pages[ii].label === "string")) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/label/type", instanceLocation: "#/media/interactive/pages/"+ii+"/label" }]
-          return false
-        }
-        if (data.media.interactive.pages[ii].label.length > 2048 && stringLength(data.media.interactive.pages[ii].label) > 2048) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/label/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"/label" }]
-          return false
-        }
-        if (data.media.interactive.pages[ii].label.length < 1 || stringLength(data.media.interactive.pages[ii].label) < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/label/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"/label" }]
-          return false
-        }
-        if (!(pattern1.test(data.media.interactive.pages[ii].label))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/label/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"/label" }]
-          return false
-        }
-        if (!(data.media.interactive.pages[ii].purpose === "overview" || data.media.interactive.pages[ii].purpose === "mechanism")) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/purpose/enum", instanceLocation: "#/media/interactive/pages/"+ii+"/purpose" }]
-          return false
-        }
-        if (!(typeof data.media.interactive.pages[ii].scene === "object" && data.media.interactive.pages[ii].scene && !Array.isArray(data.media.interactive.pages[ii].scene))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/type", instanceLocation: "#/media/interactive/pages/"+ii+"/scene" }]
-          return false
-        }
-        if (!("schema" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "schema"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/schema" }]
-          return false
-        }
-        if (!("id" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "id"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/id" }]
-          return false
-        }
-        if (!("title" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "title"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/title" }]
-          return false
-        }
-        if (!("subtitle" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "subtitle"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/subtitle" }]
-          return false
-        }
-        if (!("viewport" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "viewport"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/viewport" }]
-          return false
-        }
-        if (!("nodes" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "nodes"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/nodes" }]
-          return false
-        }
-        if (!("groups" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "groups"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/groups" }]
-          return false
-        }
-        if (!("edges" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "edges"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/edges" }]
-          return false
-        }
-        if (!(data.media.interactive.pages[ii].scene.schema === "architecture.interactive-scene/v1")) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/schema/const", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/schema" }]
-          return false
-        }
-        if (!(typeof data.media.interactive.pages[ii].scene.id === "string")) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/id/type", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/id" }]
-          return false
-        }
-        if (!(pattern0.test(data.media.interactive.pages[ii].scene.id))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/id/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/id" }]
-          return false
-        }
-        if (!(typeof data.media.interactive.pages[ii].scene.title === "string")) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/title/type", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/title" }]
-          return false
-        }
-        if (data.media.interactive.pages[ii].scene.title.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.title) > 2048) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/title/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/title" }]
-          return false
-        }
-        if (data.media.interactive.pages[ii].scene.title.length < 1 || stringLength(data.media.interactive.pages[ii].scene.title) < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/title/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/title" }]
-          return false
-        }
-        if (!(pattern1.test(data.media.interactive.pages[ii].scene.title))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/title/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/title" }]
-          return false
-        }
-        if (!(typeof data.media.interactive.pages[ii].scene.subtitle === "string")) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/subtitle/type", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/subtitle" }]
-          return false
-        }
-        if (data.media.interactive.pages[ii].scene.subtitle.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.subtitle) > 2048) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/subtitle/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/subtitle" }]
-          return false
-        }
-        if (data.media.interactive.pages[ii].scene.subtitle.length < 1 || stringLength(data.media.interactive.pages[ii].scene.subtitle) < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/subtitle/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/subtitle" }]
-          return false
-        }
-        if (!(pattern1.test(data.media.interactive.pages[ii].scene.subtitle))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/subtitle/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/subtitle" }]
-          return false
-        }
-        if (!(typeof data.media.interactive.pages[ii].scene.viewport === "object" && data.media.interactive.pages[ii].scene.viewport && !Array.isArray(data.media.interactive.pages[ii].scene.viewport))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/viewport/type", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/viewport" }]
-          return false
-        }
-        if (!("width" in data.media.interactive.pages[ii].scene.viewport && hasOwn(data.media.interactive.pages[ii].scene.viewport, "width"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/viewport/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/viewport/width" }]
-          return false
-        }
-        if (!("height" in data.media.interactive.pages[ii].scene.viewport && hasOwn(data.media.interactive.pages[ii].scene.viewport, "height"))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/viewport/required", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/viewport/height" }]
-          return false
-        }
-        if (!(typeof data.media.interactive.pages[ii].scene.viewport.width === "number")) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/viewport/properties/width/type", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/viewport/width" }]
-          return false
-        }
-        if (!(0 < data.media.interactive.pages[ii].scene.viewport.width)) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/viewport/properties/width/exclusiveMinimum", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/viewport/width" }]
-          return false
-        }
-        if (!(12000 >= data.media.interactive.pages[ii].scene.viewport.width)) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/viewport/properties/width/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/viewport/width" }]
-          return false
-        }
-        if (!(typeof data.media.interactive.pages[ii].scene.viewport.height === "number")) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/viewport/properties/height/type", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/viewport/height" }]
-          return false
-        }
-        if (!(0 < data.media.interactive.pages[ii].scene.viewport.height)) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/viewport/properties/height/exclusiveMinimum", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/viewport/height" }]
-          return false
-        }
-        if (!(12000 >= data.media.interactive.pages[ii].scene.viewport.height)) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/viewport/properties/height/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/viewport/height" }]
-          return false
-        }
-        for (const key22 of Object.keys(data.media.interactive.pages[ii].scene.viewport)) {
-          if (key22 !== "width" && key22 !== "height") {
-            validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/viewport/additionalProperties", instanceLocation: "#/media/interactive/pages/"+ii+"scene/viewport/"+pointerPart(key22) }]
-            return false
+    let passes1 = 0
+    const sub3 = (() => {
+      if (!(typeof data.media.interactive === "object" && data.media.interactive && !Array.isArray(data.media.interactive))) return false
+      if (!("kind" in data.media.interactive && hasOwn(data.media.interactive, "kind"))) return false
+      if (!("pages" in data.media.interactive && hasOwn(data.media.interactive, "pages"))) return false
+      if (!(data.media.interactive.kind === "authored-architecture")) return false
+      if (!Array.isArray(data.media.interactive.pages)) return false
+      if (data.media.interactive.pages.length > 64) return false
+      if (data.media.interactive.pages.length < 1) return false
+      for (let ii = 0; ii < data.media.interactive.pages.length; ii++) {
+        if (ii in data.media.interactive.pages && hasOwn(data.media.interactive.pages, ii)) {
+          if (!(typeof data.media.interactive.pages[ii] === "object" && data.media.interactive.pages[ii] && !Array.isArray(data.media.interactive.pages[ii]))) return false
+          if (!("id" in data.media.interactive.pages[ii] && hasOwn(data.media.interactive.pages[ii], "id"))) return false
+          if (!("label" in data.media.interactive.pages[ii] && hasOwn(data.media.interactive.pages[ii], "label"))) return false
+          if (!("purpose" in data.media.interactive.pages[ii] && hasOwn(data.media.interactive.pages[ii], "purpose"))) return false
+          if (!("scene" in data.media.interactive.pages[ii] && hasOwn(data.media.interactive.pages[ii], "scene"))) return false
+          if (!(typeof data.media.interactive.pages[ii].id === "string")) return false
+          if (!(pattern0.test(data.media.interactive.pages[ii].id))) return false
+          if (!(typeof data.media.interactive.pages[ii].label === "string")) return false
+          if (data.media.interactive.pages[ii].label.length > 2048 && stringLength(data.media.interactive.pages[ii].label) > 2048) return false
+          if (data.media.interactive.pages[ii].label.length < 1 || stringLength(data.media.interactive.pages[ii].label) < 1) return false
+          if (!(pattern1.test(data.media.interactive.pages[ii].label))) return false
+          if (!(data.media.interactive.pages[ii].purpose === "overview" || data.media.interactive.pages[ii].purpose === "mechanism")) return false
+          if (!(typeof data.media.interactive.pages[ii].scene === "object" && data.media.interactive.pages[ii].scene && !Array.isArray(data.media.interactive.pages[ii].scene))) return false
+          if (!("schema" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "schema"))) return false
+          if (!("id" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "id"))) return false
+          if (!("title" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "title"))) return false
+          if (!("subtitle" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "subtitle"))) return false
+          if (!("viewport" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "viewport"))) return false
+          if (!("nodes" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "nodes"))) return false
+          if (!("groups" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "groups"))) return false
+          if (!("edges" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "edges"))) return false
+          if (!(data.media.interactive.pages[ii].scene.schema === "architecture.interactive-scene/v1")) return false
+          if (!(typeof data.media.interactive.pages[ii].scene.id === "string")) return false
+          if (!(pattern0.test(data.media.interactive.pages[ii].scene.id))) return false
+          if (!(typeof data.media.interactive.pages[ii].scene.title === "string")) return false
+          if (data.media.interactive.pages[ii].scene.title.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.title) > 2048) return false
+          if (data.media.interactive.pages[ii].scene.title.length < 1 || stringLength(data.media.interactive.pages[ii].scene.title) < 1) return false
+          if (!(pattern1.test(data.media.interactive.pages[ii].scene.title))) return false
+          if (!(typeof data.media.interactive.pages[ii].scene.subtitle === "string")) return false
+          if (data.media.interactive.pages[ii].scene.subtitle.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.subtitle) > 2048) return false
+          if (data.media.interactive.pages[ii].scene.subtitle.length < 1 || stringLength(data.media.interactive.pages[ii].scene.subtitle) < 1) return false
+          if (!(pattern1.test(data.media.interactive.pages[ii].scene.subtitle))) return false
+          if (!(typeof data.media.interactive.pages[ii].scene.viewport === "object" && data.media.interactive.pages[ii].scene.viewport && !Array.isArray(data.media.interactive.pages[ii].scene.viewport))) return false
+          if (!("width" in data.media.interactive.pages[ii].scene.viewport && hasOwn(data.media.interactive.pages[ii].scene.viewport, "width"))) return false
+          if (!("height" in data.media.interactive.pages[ii].scene.viewport && hasOwn(data.media.interactive.pages[ii].scene.viewport, "height"))) return false
+          if (!(typeof data.media.interactive.pages[ii].scene.viewport.width === "number")) return false
+          if (!(0 < data.media.interactive.pages[ii].scene.viewport.width)) return false
+          if (!(12000 >= data.media.interactive.pages[ii].scene.viewport.width)) return false
+          if (!(typeof data.media.interactive.pages[ii].scene.viewport.height === "number")) return false
+          if (!(0 < data.media.interactive.pages[ii].scene.viewport.height)) return false
+          if (!(12000 >= data.media.interactive.pages[ii].scene.viewport.height)) return false
+          for (const key23 of Object.keys(data.media.interactive.pages[ii].scene.viewport)) {
+            if (key23 !== "width" && key23 !== "height") return false
           }
-        }
-        if (!(Array.isArray(data.media.interactive.pages[ii].scene.nodes))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/type", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/nodes" }]
-          return false
-        }
-        if (data.media.interactive.pages[ii].scene.nodes.length > 512) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/maxItems", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/nodes" }]
-          return false
-        }
-        if (data.media.interactive.pages[ii].scene.nodes.length < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/minItems", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/nodes" }]
-          return false
-        }
-        for (let jj = 0; jj < data.media.interactive.pages[ii].scene.nodes.length; jj++) {
-          if (jj in data.media.interactive.pages[ii].scene.nodes && hasOwn(data.media.interactive.pages[ii].scene.nodes, jj)) {
-            if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj] === "object" && data.media.interactive.pages[ii].scene.nodes[jj] && !Array.isArray(data.media.interactive.pages[ii].scene.nodes[jj]))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj }]
-              return false
-            }
-            if (!("id" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "id"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/id" }]
-              return false
-            }
-            if (!("label" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "label"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/label" }]
-              return false
-            }
-            if (!("visualRole" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "visualRole"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/visualRole" }]
-              return false
-            }
-            if (!("position" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "position"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/position" }]
-              return false
-            }
-            if (!("size" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "size"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/size" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].id === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/id/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/id" }]
-              return false
-            }
-            if (!(pattern0.test(data.media.interactive.pages[ii].scene.nodes[jj].id))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/id/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/id" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].label === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/label/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/label" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.nodes[jj].label.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.nodes[jj].label) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/label/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/label" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.nodes[jj].label.length < 1 || stringLength(data.media.interactive.pages[ii].scene.nodes[jj].label) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/label/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/label" }]
-              return false
-            }
-            if (!(pattern1.test(data.media.interactive.pages[ii].scene.nodes[jj].label))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/label/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/label" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].visualRole === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/visualRole/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/visualRole" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.nodes[jj].visualRole.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.nodes[jj].visualRole) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/visualRole/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/visualRole" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.nodes[jj].visualRole.length < 1 || stringLength(data.media.interactive.pages[ii].scene.nodes[jj].visualRole) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/visualRole/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/visualRole" }]
-              return false
-            }
-            if (!(pattern1.test(data.media.interactive.pages[ii].scene.nodes[jj].visualRole))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/visualRole/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/visualRole" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].position === "object" && data.media.interactive.pages[ii].scene.nodes[jj].position && !Array.isArray(data.media.interactive.pages[ii].scene.nodes[jj].position))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/position/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/position" }]
-              return false
-            }
-            if (!("x" in data.media.interactive.pages[ii].scene.nodes[jj].position && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj].position, "x"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/position/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/position/x" }]
-              return false
-            }
-            if (!("y" in data.media.interactive.pages[ii].scene.nodes[jj].position && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj].position, "y"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/position/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/position/y" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].position.x === "number")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/position/properties/x/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/position/x" }]
-              return false
-            }
-            if (!(-12000 <= data.media.interactive.pages[ii].scene.nodes[jj].position.x)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/position/properties/x/minimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/position/x" }]
-              return false
-            }
-            if (!(12000 >= data.media.interactive.pages[ii].scene.nodes[jj].position.x)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/position/properties/x/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/position/x" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].position.y === "number")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/position/properties/y/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/position/y" }]
-              return false
-            }
-            if (!(-12000 <= data.media.interactive.pages[ii].scene.nodes[jj].position.y)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/position/properties/y/minimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/position/y" }]
-              return false
-            }
-            if (!(12000 >= data.media.interactive.pages[ii].scene.nodes[jj].position.y)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/position/properties/y/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/position/y" }]
-              return false
-            }
-            for (const key23 of Object.keys(data.media.interactive.pages[ii].scene.nodes[jj].position)) {
-              if (key23 !== "x" && key23 !== "y") {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/position/additionalProperties", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"position/"+pointerPart(key23) }]
-                return false
+          if (!(Array.isArray(data.media.interactive.pages[ii].scene.nodes))) return false
+          if (data.media.interactive.pages[ii].scene.nodes.length > 512) return false
+          if (data.media.interactive.pages[ii].scene.nodes.length < 1) return false
+          for (let jj = 0; jj < data.media.interactive.pages[ii].scene.nodes.length; jj++) {
+            if (jj in data.media.interactive.pages[ii].scene.nodes && hasOwn(data.media.interactive.pages[ii].scene.nodes, jj)) {
+              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj] === "object" && data.media.interactive.pages[ii].scene.nodes[jj] && !Array.isArray(data.media.interactive.pages[ii].scene.nodes[jj]))) return false
+              if (!("id" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "id"))) return false
+              if (!("label" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "label"))) return false
+              if (!("visualRole" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "visualRole"))) return false
+              if (!("position" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "position"))) return false
+              if (!("size" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "size"))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].id === "string")) return false
+              if (!(pattern0.test(data.media.interactive.pages[ii].scene.nodes[jj].id))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].label === "string")) return false
+              if (data.media.interactive.pages[ii].scene.nodes[jj].label.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.nodes[jj].label) > 2048) return false
+              if (data.media.interactive.pages[ii].scene.nodes[jj].label.length < 1 || stringLength(data.media.interactive.pages[ii].scene.nodes[jj].label) < 1) return false
+              if (!(pattern1.test(data.media.interactive.pages[ii].scene.nodes[jj].label))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].visualRole === "string")) return false
+              if (data.media.interactive.pages[ii].scene.nodes[jj].visualRole.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.nodes[jj].visualRole) > 2048) return false
+              if (data.media.interactive.pages[ii].scene.nodes[jj].visualRole.length < 1 || stringLength(data.media.interactive.pages[ii].scene.nodes[jj].visualRole) < 1) return false
+              if (!(pattern1.test(data.media.interactive.pages[ii].scene.nodes[jj].visualRole))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].position === "object" && data.media.interactive.pages[ii].scene.nodes[jj].position && !Array.isArray(data.media.interactive.pages[ii].scene.nodes[jj].position))) return false
+              if (!("x" in data.media.interactive.pages[ii].scene.nodes[jj].position && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj].position, "x"))) return false
+              if (!("y" in data.media.interactive.pages[ii].scene.nodes[jj].position && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj].position, "y"))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].position.x === "number")) return false
+              if (!(-12000 <= data.media.interactive.pages[ii].scene.nodes[jj].position.x)) return false
+              if (!(12000 >= data.media.interactive.pages[ii].scene.nodes[jj].position.x)) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].position.y === "number")) return false
+              if (!(-12000 <= data.media.interactive.pages[ii].scene.nodes[jj].position.y)) return false
+              if (!(12000 >= data.media.interactive.pages[ii].scene.nodes[jj].position.y)) return false
+              for (const key24 of Object.keys(data.media.interactive.pages[ii].scene.nodes[jj].position)) {
+                if (key24 !== "x" && key24 !== "y") return false
               }
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].size === "object" && data.media.interactive.pages[ii].scene.nodes[jj].size && !Array.isArray(data.media.interactive.pages[ii].scene.nodes[jj].size))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/size/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/size" }]
-              return false
-            }
-            if (!("width" in data.media.interactive.pages[ii].scene.nodes[jj].size && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj].size, "width"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/size/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/size/width" }]
-              return false
-            }
-            if (!("height" in data.media.interactive.pages[ii].scene.nodes[jj].size && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj].size, "height"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/size/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/size/height" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].size.width === "number")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/size/properties/width/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/size/width" }]
-              return false
-            }
-            if (!(0 < data.media.interactive.pages[ii].scene.nodes[jj].size.width)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/size/properties/width/exclusiveMinimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/size/width" }]
-              return false
-            }
-            if (!(12000 >= data.media.interactive.pages[ii].scene.nodes[jj].size.width)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/size/properties/width/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/size/width" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].size.height === "number")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/size/properties/height/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/size/height" }]
-              return false
-            }
-            if (!(0 < data.media.interactive.pages[ii].scene.nodes[jj].size.height)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/size/properties/height/exclusiveMinimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/size/height" }]
-              return false
-            }
-            if (!(12000 >= data.media.interactive.pages[ii].scene.nodes[jj].size.height)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/size/properties/height/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/size/height" }]
-              return false
-            }
-            for (const key24 of Object.keys(data.media.interactive.pages[ii].scene.nodes[jj].size)) {
-              if (key24 !== "width" && key24 !== "height") {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/size/additionalProperties", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"size/"+pointerPart(key24) }]
-                return false
+              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].size === "object" && data.media.interactive.pages[ii].scene.nodes[jj].size && !Array.isArray(data.media.interactive.pages[ii].scene.nodes[jj].size))) return false
+              if (!("width" in data.media.interactive.pages[ii].scene.nodes[jj].size && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj].size, "width"))) return false
+              if (!("height" in data.media.interactive.pages[ii].scene.nodes[jj].size && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj].size, "height"))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].size.width === "number")) return false
+              if (!(0 < data.media.interactive.pages[ii].scene.nodes[jj].size.width)) return false
+              if (!(12000 >= data.media.interactive.pages[ii].scene.nodes[jj].size.width)) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].size.height === "number")) return false
+              if (!(0 < data.media.interactive.pages[ii].scene.nodes[jj].size.height)) return false
+              if (!(12000 >= data.media.interactive.pages[ii].scene.nodes[jj].size.height)) return false
+              for (const key25 of Object.keys(data.media.interactive.pages[ii].scene.nodes[jj].size)) {
+                if (key25 !== "width" && key25 !== "height") return false
               }
-            }
-            if ("detail" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "detail")) {
-              if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].detail === "string")) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/detail/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/detail" }]
-                return false
+              if ("detail" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "detail")) {
+                if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].detail === "string")) return false
+                if (data.media.interactive.pages[ii].scene.nodes[jj].detail.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.nodes[jj].detail) > 2048) return false
+                if (data.media.interactive.pages[ii].scene.nodes[jj].detail.length < 1 || stringLength(data.media.interactive.pages[ii].scene.nodes[jj].detail) < 1) return false
+                if (!(pattern1.test(data.media.interactive.pages[ii].scene.nodes[jj].detail))) return false
               }
-              if (data.media.interactive.pages[ii].scene.nodes[jj].detail.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.nodes[jj].detail) > 2048) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/detail/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/detail" }]
-                return false
-              }
-              if (data.media.interactive.pages[ii].scene.nodes[jj].detail.length < 1 || stringLength(data.media.interactive.pages[ii].scene.nodes[jj].detail) < 1) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/detail/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/detail" }]
-                return false
-              }
-              if (!(pattern1.test(data.media.interactive.pages[ii].scene.nodes[jj].detail))) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/detail/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/detail" }]
-                return false
-              }
-            }
-            if ("semanticIds" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "semanticIds")) {
-              if (!(Array.isArray(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds))) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/semanticIds/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/semanticIds" }]
-                return false
-              }
-              if (data.media.interactive.pages[ii].scene.nodes[jj].semanticIds.length > 4096) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/semanticIds/maxItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/semanticIds" }]
-                return false
-              }
-              if (data.media.interactive.pages[ii].scene.nodes[jj].semanticIds.length < 1) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/semanticIds/minItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/semanticIds" }]
-                return false
-              }
-              for (let kk = 0; kk < data.media.interactive.pages[ii].scene.nodes[jj].semanticIds.length; kk++) {
-                if (kk in data.media.interactive.pages[ii].scene.nodes[jj].semanticIds && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds, kk)) {
-                  if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk] === "string")) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/semanticIds/items/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"semanticIds/"+kk }]
-                    return false
-                  }
-                  if (data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk].length > 2048 && stringLength(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk]) > 2048) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/semanticIds/items/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"semanticIds/"+kk }]
-                    return false
-                  }
-                  if (data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk].length < 1 || stringLength(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk]) < 1) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/semanticIds/items/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"semanticIds/"+kk }]
-                    return false
-                  }
-                  if (!(pattern1.test(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk]))) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/semanticIds/items/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"semanticIds/"+kk }]
-                    return false
+              if ("semanticIds" in data.media.interactive.pages[ii].scene.nodes[jj] && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj], "semanticIds")) {
+                if (!(Array.isArray(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds))) return false
+                if (data.media.interactive.pages[ii].scene.nodes[jj].semanticIds.length > 4096) return false
+                if (data.media.interactive.pages[ii].scene.nodes[jj].semanticIds.length < 1) return false
+                for (let kk = 0; kk < data.media.interactive.pages[ii].scene.nodes[jj].semanticIds.length; kk++) {
+                  if (kk in data.media.interactive.pages[ii].scene.nodes[jj].semanticIds && hasOwn(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds, kk)) {
+                    if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk] === "string")) return false
+                    if (data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk].length > 2048 && stringLength(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk]) > 2048) return false
+                    if (data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk].length < 1 || stringLength(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk]) < 1) return false
+                    if (!(pattern1.test(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds[kk]))) return false
                   }
                 }
+                if (!unique(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds)) return false
               }
-              if (!unique(data.media.interactive.pages[ii].scene.nodes[jj].semanticIds)) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/properties/semanticIds/uniqueItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/semanticIds" }]
-                return false
-              }
-            }
-            for (const key25 of Object.keys(data.media.interactive.pages[ii].scene.nodes[jj])) {
-              if (key25 !== "id" && key25 !== "label" && key25 !== "visualRole" && key25 !== "position" && key25 !== "size" && key25 !== "detail" && key25 !== "semanticIds") {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/nodes/items/additionalProperties", instanceLocation: "#/media/interactive/pages/"+ii+"scene/nodes/"+jj+"/"+pointerPart(key25) }]
-                return false
+              for (const key26 of Object.keys(data.media.interactive.pages[ii].scene.nodes[jj])) {
+                if (key26 !== "id" && key26 !== "label" && key26 !== "visualRole" && key26 !== "position" && key26 !== "size" && key26 !== "detail" && key26 !== "semanticIds") return false
               }
             }
           }
-        }
-        if (!(Array.isArray(data.media.interactive.pages[ii].scene.groups))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/type", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/groups" }]
-          return false
-        }
-        if (data.media.interactive.pages[ii].scene.groups.length > 256) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/maxItems", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/groups" }]
-          return false
-        }
-        for (let ll = 0; ll < data.media.interactive.pages[ii].scene.groups.length; ll++) {
-          if (ll in data.media.interactive.pages[ii].scene.groups && hasOwn(data.media.interactive.pages[ii].scene.groups, ll)) {
-            if (!(typeof data.media.interactive.pages[ii].scene.groups[ll] === "object" && data.media.interactive.pages[ii].scene.groups[ll] && !Array.isArray(data.media.interactive.pages[ii].scene.groups[ll]))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll }]
-              return false
-            }
-            if (!("id" in data.media.interactive.pages[ii].scene.groups[ll] && hasOwn(data.media.interactive.pages[ii].scene.groups[ll], "id"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/id" }]
-              return false
-            }
-            if (!("label" in data.media.interactive.pages[ii].scene.groups[ll] && hasOwn(data.media.interactive.pages[ii].scene.groups[ll], "label"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/label" }]
-              return false
-            }
-            if (!("nodeIds" in data.media.interactive.pages[ii].scene.groups[ll] && hasOwn(data.media.interactive.pages[ii].scene.groups[ll], "nodeIds"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/nodeIds" }]
-              return false
-            }
-            if (!("padding" in data.media.interactive.pages[ii].scene.groups[ll] && hasOwn(data.media.interactive.pages[ii].scene.groups[ll], "padding"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/padding" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.groups[ll].id === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/id/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/id" }]
-              return false
-            }
-            if (!(pattern0.test(data.media.interactive.pages[ii].scene.groups[ll].id))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/id/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/id" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.groups[ll].label === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/label/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/label" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.groups[ll].label.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.groups[ll].label) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/label/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/label" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.groups[ll].label.length < 1 || stringLength(data.media.interactive.pages[ii].scene.groups[ll].label) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/label/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/label" }]
-              return false
-            }
-            if (!(pattern1.test(data.media.interactive.pages[ii].scene.groups[ll].label))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/label/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/label" }]
-              return false
-            }
-            if (!(Array.isArray(data.media.interactive.pages[ii].scene.groups[ll].nodeIds))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/nodeIds/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/nodeIds" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.groups[ll].nodeIds.length > 512) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/nodeIds/maxItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/nodeIds" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.groups[ll].nodeIds.length < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/nodeIds/minItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/nodeIds" }]
-              return false
-            }
-            for (let mm = 0; mm < data.media.interactive.pages[ii].scene.groups[ll].nodeIds.length; mm++) {
-              if (mm in data.media.interactive.pages[ii].scene.groups[ll].nodeIds && hasOwn(data.media.interactive.pages[ii].scene.groups[ll].nodeIds, mm)) {
-                if (!(typeof data.media.interactive.pages[ii].scene.groups[ll].nodeIds[mm] === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/nodeIds/items/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"nodeIds/"+mm }]
-                  return false
-                }
-                if (!(pattern0.test(data.media.interactive.pages[ii].scene.groups[ll].nodeIds[mm]))) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/nodeIds/items/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"nodeIds/"+mm }]
-                  return false
+          if (!(Array.isArray(data.media.interactive.pages[ii].scene.groups))) return false
+          if (data.media.interactive.pages[ii].scene.groups.length > 256) return false
+          for (let ll = 0; ll < data.media.interactive.pages[ii].scene.groups.length; ll++) {
+            if (ll in data.media.interactive.pages[ii].scene.groups && hasOwn(data.media.interactive.pages[ii].scene.groups, ll)) {
+              if (!(typeof data.media.interactive.pages[ii].scene.groups[ll] === "object" && data.media.interactive.pages[ii].scene.groups[ll] && !Array.isArray(data.media.interactive.pages[ii].scene.groups[ll]))) return false
+              if (!("id" in data.media.interactive.pages[ii].scene.groups[ll] && hasOwn(data.media.interactive.pages[ii].scene.groups[ll], "id"))) return false
+              if (!("label" in data.media.interactive.pages[ii].scene.groups[ll] && hasOwn(data.media.interactive.pages[ii].scene.groups[ll], "label"))) return false
+              if (!("nodeIds" in data.media.interactive.pages[ii].scene.groups[ll] && hasOwn(data.media.interactive.pages[ii].scene.groups[ll], "nodeIds"))) return false
+              if (!("padding" in data.media.interactive.pages[ii].scene.groups[ll] && hasOwn(data.media.interactive.pages[ii].scene.groups[ll], "padding"))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.groups[ll].id === "string")) return false
+              if (!(pattern0.test(data.media.interactive.pages[ii].scene.groups[ll].id))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.groups[ll].label === "string")) return false
+              if (data.media.interactive.pages[ii].scene.groups[ll].label.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.groups[ll].label) > 2048) return false
+              if (data.media.interactive.pages[ii].scene.groups[ll].label.length < 1 || stringLength(data.media.interactive.pages[ii].scene.groups[ll].label) < 1) return false
+              if (!(pattern1.test(data.media.interactive.pages[ii].scene.groups[ll].label))) return false
+              if (!(Array.isArray(data.media.interactive.pages[ii].scene.groups[ll].nodeIds))) return false
+              if (data.media.interactive.pages[ii].scene.groups[ll].nodeIds.length > 512) return false
+              if (data.media.interactive.pages[ii].scene.groups[ll].nodeIds.length < 1) return false
+              for (let mm = 0; mm < data.media.interactive.pages[ii].scene.groups[ll].nodeIds.length; mm++) {
+                if (mm in data.media.interactive.pages[ii].scene.groups[ll].nodeIds && hasOwn(data.media.interactive.pages[ii].scene.groups[ll].nodeIds, mm)) {
+                  if (!(typeof data.media.interactive.pages[ii].scene.groups[ll].nodeIds[mm] === "string")) return false
+                  if (!(pattern0.test(data.media.interactive.pages[ii].scene.groups[ll].nodeIds[mm]))) return false
                 }
               }
-            }
-            if (!unique(data.media.interactive.pages[ii].scene.groups[ll].nodeIds)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/nodeIds/uniqueItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/nodeIds" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.groups[ll].padding === "number")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/padding/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/padding" }]
-              return false
-            }
-            if (!(0 <= data.media.interactive.pages[ii].scene.groups[ll].padding)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/padding/minimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/padding" }]
-              return false
-            }
-            if (!(12000 >= data.media.interactive.pages[ii].scene.groups[ll].padding)) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/properties/padding/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/padding" }]
-              return false
-            }
-            for (const key26 of Object.keys(data.media.interactive.pages[ii].scene.groups[ll])) {
-              if (key26 !== "id" && key26 !== "label" && key26 !== "nodeIds" && key26 !== "padding") {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/groups/items/additionalProperties", instanceLocation: "#/media/interactive/pages/"+ii+"scene/groups/"+ll+"/"+pointerPart(key26) }]
-                return false
+              if (!unique(data.media.interactive.pages[ii].scene.groups[ll].nodeIds)) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.groups[ll].padding === "number")) return false
+              if (!(0 <= data.media.interactive.pages[ii].scene.groups[ll].padding)) return false
+              if (!(12000 >= data.media.interactive.pages[ii].scene.groups[ll].padding)) return false
+              for (const key27 of Object.keys(data.media.interactive.pages[ii].scene.groups[ll])) {
+                if (key27 !== "id" && key27 !== "label" && key27 !== "nodeIds" && key27 !== "padding") return false
               }
             }
           }
-        }
-        if (!(Array.isArray(data.media.interactive.pages[ii].scene.edges))) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/type", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/edges" }]
-          return false
-        }
-        if (data.media.interactive.pages[ii].scene.edges.length > 2048) {
-          validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/maxItems", instanceLocation: "#/media/interactive/pages/"+ii+"/scene/edges" }]
-          return false
-        }
-        for (let nn = 0; nn < data.media.interactive.pages[ii].scene.edges.length; nn++) {
-          if (nn in data.media.interactive.pages[ii].scene.edges && hasOwn(data.media.interactive.pages[ii].scene.edges, nn)) {
-            if (!(typeof data.media.interactive.pages[ii].scene.edges[nn] === "object" && data.media.interactive.pages[ii].scene.edges[nn] && !Array.isArray(data.media.interactive.pages[ii].scene.edges[nn]))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn }]
-              return false
-            }
-            if (!("id" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "id"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/id" }]
-              return false
-            }
-            if (!("from" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "from"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/from" }]
-              return false
-            }
-            if (!("to" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "to"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/to" }]
-              return false
-            }
-            if (!("label" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "label"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/label" }]
-              return false
-            }
-            if (!("visualRole" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "visualRole"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/visualRole" }]
-              return false
-            }
-            if (!("fromSide" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "fromSide"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/fromSide" }]
-              return false
-            }
-            if (!("toSide" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "toSide"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/toSide" }]
-              return false
-            }
-            if (!("route" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "route"))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/route" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].id === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/id/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/id" }]
-              return false
-            }
-            if (!(pattern0.test(data.media.interactive.pages[ii].scene.edges[nn].id))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/id/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/id" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].from === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/from/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/from" }]
-              return false
-            }
-            if (!(pattern0.test(data.media.interactive.pages[ii].scene.edges[nn].from))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/from/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/from" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].to === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/to/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/to" }]
-              return false
-            }
-            if (!(pattern0.test(data.media.interactive.pages[ii].scene.edges[nn].to))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/to/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/to" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].label === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/label/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/label" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.edges[nn].label.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.edges[nn].label) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/label/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/label" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.edges[nn].label.length < 1 || stringLength(data.media.interactive.pages[ii].scene.edges[nn].label) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/label/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/label" }]
-              return false
-            }
-            if (!(pattern1.test(data.media.interactive.pages[ii].scene.edges[nn].label))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/label/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/label" }]
-              return false
-            }
-            if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].visualRole === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/visualRole/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/visualRole" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.edges[nn].visualRole.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.edges[nn].visualRole) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/visualRole/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/visualRole" }]
-              return false
-            }
-            if (data.media.interactive.pages[ii].scene.edges[nn].visualRole.length < 1 || stringLength(data.media.interactive.pages[ii].scene.edges[nn].visualRole) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/visualRole/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/visualRole" }]
-              return false
-            }
-            if (!(pattern1.test(data.media.interactive.pages[ii].scene.edges[nn].visualRole))) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/visualRole/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/visualRole" }]
-              return false
-            }
-            if (!(data.media.interactive.pages[ii].scene.edges[nn].fromSide === "top" || data.media.interactive.pages[ii].scene.edges[nn].fromSide === "right" || data.media.interactive.pages[ii].scene.edges[nn].fromSide === "bottom" || data.media.interactive.pages[ii].scene.edges[nn].fromSide === "left")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/fromSide/enum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/fromSide" }]
-              return false
-            }
-            if (!(data.media.interactive.pages[ii].scene.edges[nn].toSide === "top" || data.media.interactive.pages[ii].scene.edges[nn].toSide === "right" || data.media.interactive.pages[ii].scene.edges[nn].toSide === "bottom" || data.media.interactive.pages[ii].scene.edges[nn].toSide === "left")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/toSide/enum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/toSide" }]
-              return false
-            }
-            if (!(data.media.interactive.pages[ii].scene.edges[nn].route === "auto" || data.media.interactive.pages[ii].scene.edges[nn].route === "straight" || data.media.interactive.pages[ii].scene.edges[nn].route === "orthogonal-h" || data.media.interactive.pages[ii].scene.edges[nn].route === "orthogonal-v")) {
-              validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/route/enum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/route" }]
-              return false
-            }
-            if ("labelPlacement" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "labelPlacement")) {
-              if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].labelPlacement === "object" && data.media.interactive.pages[ii].scene.edges[nn].labelPlacement && !Array.isArray(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement))) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement" }]
-                return false
-              }
-              if ("at" in data.media.interactive.pages[ii].scene.edges[nn].labelPlacement && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement, "at")) {
-                if (!(Array.isArray(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at))) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/at/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/at" }]
-                  return false
-                }
-                if (data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at.length > 2) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/at/maxItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/at" }]
-                  return false
-                }
-                if (data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at.length < 2) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/at/minItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/at" }]
-                  return false
-                }
-                for (let oo = 0; oo < data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at.length; oo++) {
-                  if (oo in data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at, oo)) {
-                    if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at[oo] === "number")) {
-                      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/at/items/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"labelPlacement/at/"+oo }]
-                      return false
+          if (!(Array.isArray(data.media.interactive.pages[ii].scene.edges))) return false
+          if (data.media.interactive.pages[ii].scene.edges.length > 2048) return false
+          for (let nn = 0; nn < data.media.interactive.pages[ii].scene.edges.length; nn++) {
+            if (nn in data.media.interactive.pages[ii].scene.edges && hasOwn(data.media.interactive.pages[ii].scene.edges, nn)) {
+              if (!(typeof data.media.interactive.pages[ii].scene.edges[nn] === "object" && data.media.interactive.pages[ii].scene.edges[nn] && !Array.isArray(data.media.interactive.pages[ii].scene.edges[nn]))) return false
+              if (!("id" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "id"))) return false
+              if (!("from" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "from"))) return false
+              if (!("to" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "to"))) return false
+              if (!("label" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "label"))) return false
+              if (!("visualRole" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "visualRole"))) return false
+              if (!("fromSide" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "fromSide"))) return false
+              if (!("toSide" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "toSide"))) return false
+              if (!("route" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "route"))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].id === "string")) return false
+              if (!(pattern0.test(data.media.interactive.pages[ii].scene.edges[nn].id))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].from === "string")) return false
+              if (!(pattern0.test(data.media.interactive.pages[ii].scene.edges[nn].from))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].to === "string")) return false
+              if (!(pattern0.test(data.media.interactive.pages[ii].scene.edges[nn].to))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].label === "string")) return false
+              if (data.media.interactive.pages[ii].scene.edges[nn].label.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.edges[nn].label) > 2048) return false
+              if (data.media.interactive.pages[ii].scene.edges[nn].label.length < 1 || stringLength(data.media.interactive.pages[ii].scene.edges[nn].label) < 1) return false
+              if (!(pattern1.test(data.media.interactive.pages[ii].scene.edges[nn].label))) return false
+              if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].visualRole === "string")) return false
+              if (data.media.interactive.pages[ii].scene.edges[nn].visualRole.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.edges[nn].visualRole) > 2048) return false
+              if (data.media.interactive.pages[ii].scene.edges[nn].visualRole.length < 1 || stringLength(data.media.interactive.pages[ii].scene.edges[nn].visualRole) < 1) return false
+              if (!(pattern1.test(data.media.interactive.pages[ii].scene.edges[nn].visualRole))) return false
+              if (!(data.media.interactive.pages[ii].scene.edges[nn].fromSide === "top" || data.media.interactive.pages[ii].scene.edges[nn].fromSide === "right" || data.media.interactive.pages[ii].scene.edges[nn].fromSide === "bottom" || data.media.interactive.pages[ii].scene.edges[nn].fromSide === "left")) return false
+              if (!(data.media.interactive.pages[ii].scene.edges[nn].toSide === "top" || data.media.interactive.pages[ii].scene.edges[nn].toSide === "right" || data.media.interactive.pages[ii].scene.edges[nn].toSide === "bottom" || data.media.interactive.pages[ii].scene.edges[nn].toSide === "left")) return false
+              if (!(data.media.interactive.pages[ii].scene.edges[nn].route === "auto" || data.media.interactive.pages[ii].scene.edges[nn].route === "straight" || data.media.interactive.pages[ii].scene.edges[nn].route === "orthogonal-h" || data.media.interactive.pages[ii].scene.edges[nn].route === "orthogonal-v")) return false
+              if ("labelPlacement" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "labelPlacement")) {
+                if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].labelPlacement === "object" && data.media.interactive.pages[ii].scene.edges[nn].labelPlacement && !Array.isArray(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement))) return false
+                if ("at" in data.media.interactive.pages[ii].scene.edges[nn].labelPlacement && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement, "at")) {
+                  if (!(Array.isArray(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at))) return false
+                  if (data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at.length > 2) return false
+                  if (data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at.length < 2) return false
+                  for (let oo = 0; oo < data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at.length; oo++) {
+                    if (oo in data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at, oo)) {
+                      if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at[oo] === "number")) return false
+                      if (!(-12000 <= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at[oo])) return false
+                      if (!(12000 >= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at[oo])) return false
                     }
-                    if (!(-12000 <= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at[oo])) {
-                      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/at/items/minimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"labelPlacement/at/"+oo }]
-                      return false
-                    }
-                    if (!(12000 >= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.at[oo])) {
-                      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/at/items/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"labelPlacement/at/"+oo }]
-                      return false
+                  }
+                }
+                if ("dx" in data.media.interactive.pages[ii].scene.edges[nn].labelPlacement && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement, "dx")) {
+                  if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dx === "number")) return false
+                  if (!(-12000 <= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dx)) return false
+                  if (!(12000 >= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dx)) return false
+                }
+                if ("dy" in data.media.interactive.pages[ii].scene.edges[nn].labelPlacement && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement, "dy")) {
+                  if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dy === "number")) return false
+                  if (!(-12000 <= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dy)) return false
+                  if (!(12000 >= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dy)) return false
+                }
+                if ("segment" in data.media.interactive.pages[ii].scene.edges[nn].labelPlacement && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement, "segment")) {
+                  if (!(Number.isInteger(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.segment))) return false
+                  if (!(0 <= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.segment)) return false
+                  if (!(2048 >= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.segment)) return false
+                }
+                for (const key28 of Object.keys(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement)) {
+                  if (key28 !== "at" && key28 !== "dx" && key28 !== "dy" && key28 !== "segment") return false
+                }
+              }
+              if ("semanticIds" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "semanticIds")) {
+                if (!(Array.isArray(data.media.interactive.pages[ii].scene.edges[nn].semanticIds))) return false
+                if (data.media.interactive.pages[ii].scene.edges[nn].semanticIds.length > 4096) return false
+                if (data.media.interactive.pages[ii].scene.edges[nn].semanticIds.length < 1) return false
+                for (let pp = 0; pp < data.media.interactive.pages[ii].scene.edges[nn].semanticIds.length; pp++) {
+                  if (pp in data.media.interactive.pages[ii].scene.edges[nn].semanticIds && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].semanticIds, pp)) {
+                    if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp] === "string")) return false
+                    if (data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp].length > 2048 && stringLength(data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp]) > 2048) return false
+                    if (data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp].length < 1 || stringLength(data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp]) < 1) return false
+                    if (!(pattern1.test(data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp]))) return false
+                  }
+                }
+                if (!unique(data.media.interactive.pages[ii].scene.edges[nn].semanticIds)) return false
+              }
+              if ("waypoints" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "waypoints")) {
+                if (!(Array.isArray(data.media.interactive.pages[ii].scene.edges[nn].waypoints))) return false
+                if (data.media.interactive.pages[ii].scene.edges[nn].waypoints.length > 2048) return false
+                if (data.media.interactive.pages[ii].scene.edges[nn].waypoints.length < 1) return false
+                for (let qq = 0; qq < data.media.interactive.pages[ii].scene.edges[nn].waypoints.length; qq++) {
+                  if (qq in data.media.interactive.pages[ii].scene.edges[nn].waypoints && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].waypoints, qq)) {
+                    if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq] === "object" && data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq] && !Array.isArray(data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq]))) return false
+                    if (!("x" in data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq], "x"))) return false
+                    if (!("y" in data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq], "y"))) return false
+                    if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].x === "number")) return false
+                    if (!(-12000 <= data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].x)) return false
+                    if (!(12000 >= data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].x)) return false
+                    if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].y === "number")) return false
+                    if (!(-12000 <= data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].y)) return false
+                    if (!(12000 >= data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].y)) return false
+                    for (const key29 of Object.keys(data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq])) {
+                      if (key29 !== "x" && key29 !== "y") return false
                     }
                   }
                 }
               }
-              if ("dx" in data.media.interactive.pages[ii].scene.edges[nn].labelPlacement && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement, "dx")) {
-                if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dx === "number")) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/dx/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/dx" }]
-                  return false
-                }
-                if (!(-12000 <= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dx)) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/dx/minimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/dx" }]
-                  return false
-                }
-                if (!(12000 >= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dx)) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/dx/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/dx" }]
-                  return false
-                }
-              }
-              if ("dy" in data.media.interactive.pages[ii].scene.edges[nn].labelPlacement && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement, "dy")) {
-                if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dy === "number")) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/dy/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/dy" }]
-                  return false
-                }
-                if (!(-12000 <= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dy)) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/dy/minimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/dy" }]
-                  return false
-                }
-                if (!(12000 >= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.dy)) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/dy/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/dy" }]
-                  return false
-                }
-              }
-              if ("segment" in data.media.interactive.pages[ii].scene.edges[nn].labelPlacement && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement, "segment")) {
-                if (!(Number.isInteger(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.segment))) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/segment/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/segment" }]
-                  return false
-                }
-                if (!(0 <= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.segment)) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/segment/minimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/segment" }]
-                  return false
-                }
-                if (!(2048 >= data.media.interactive.pages[ii].scene.edges[nn].labelPlacement.segment)) {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/properties/segment/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/labelPlacement/segment" }]
-                  return false
-                }
-              }
-              for (const key27 of Object.keys(data.media.interactive.pages[ii].scene.edges[nn].labelPlacement)) {
-                if (key27 !== "at" && key27 !== "dx" && key27 !== "dy" && key27 !== "segment") {
-                  validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/labelPlacement/additionalProperties", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"labelPlacement/"+pointerPart(key27) }]
-                  return false
-                }
-              }
-            }
-            if ("semanticIds" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "semanticIds")) {
-              if (!(Array.isArray(data.media.interactive.pages[ii].scene.edges[nn].semanticIds))) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/semanticIds/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/semanticIds" }]
-                return false
-              }
-              if (data.media.interactive.pages[ii].scene.edges[nn].semanticIds.length > 4096) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/semanticIds/maxItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/semanticIds" }]
-                return false
-              }
-              if (data.media.interactive.pages[ii].scene.edges[nn].semanticIds.length < 1) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/semanticIds/minItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/semanticIds" }]
-                return false
-              }
-              for (let pp = 0; pp < data.media.interactive.pages[ii].scene.edges[nn].semanticIds.length; pp++) {
-                if (pp in data.media.interactive.pages[ii].scene.edges[nn].semanticIds && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].semanticIds, pp)) {
-                  if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp] === "string")) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/semanticIds/items/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"semanticIds/"+pp }]
-                    return false
-                  }
-                  if (data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp].length > 2048 && stringLength(data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp]) > 2048) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/semanticIds/items/maxLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"semanticIds/"+pp }]
-                    return false
-                  }
-                  if (data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp].length < 1 || stringLength(data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp]) < 1) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/semanticIds/items/minLength", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"semanticIds/"+pp }]
-                    return false
-                  }
-                  if (!(pattern1.test(data.media.interactive.pages[ii].scene.edges[nn].semanticIds[pp]))) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/semanticIds/items/pattern", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"semanticIds/"+pp }]
-                    return false
-                  }
-                }
-              }
-              if (!unique(data.media.interactive.pages[ii].scene.edges[nn].semanticIds)) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/semanticIds/uniqueItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/semanticIds" }]
-                return false
-              }
-            }
-            if ("waypoints" in data.media.interactive.pages[ii].scene.edges[nn] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn], "waypoints")) {
-              if (!(Array.isArray(data.media.interactive.pages[ii].scene.edges[nn].waypoints))) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/waypoints" }]
-                return false
-              }
-              if (data.media.interactive.pages[ii].scene.edges[nn].waypoints.length > 2048) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/maxItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/waypoints" }]
-                return false
-              }
-              if (data.media.interactive.pages[ii].scene.edges[nn].waypoints.length < 1) {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/minItems", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/waypoints" }]
-                return false
-              }
-              for (let qq = 0; qq < data.media.interactive.pages[ii].scene.edges[nn].waypoints.length; qq++) {
-                if (qq in data.media.interactive.pages[ii].scene.edges[nn].waypoints && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].waypoints, qq)) {
-                  if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq] === "object" && data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq] && !Array.isArray(data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq]))) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/items/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"waypoints/"+qq }]
-                    return false
-                  }
-                  if (!("x" in data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq], "x"))) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"waypoints/"+qq+"/x" }]
-                    return false
-                  }
-                  if (!("y" in data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq] && hasOwn(data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq], "y"))) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/items/required", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"waypoints/"+qq+"/y" }]
-                    return false
-                  }
-                  if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].x === "number")) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/items/properties/x/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"waypoints/"+qq+"/x" }]
-                    return false
-                  }
-                  if (!(-12000 <= data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].x)) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/items/properties/x/minimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"waypoints/"+qq+"/x" }]
-                    return false
-                  }
-                  if (!(12000 >= data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].x)) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/items/properties/x/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"waypoints/"+qq+"/x" }]
-                    return false
-                  }
-                  if (!(typeof data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].y === "number")) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/items/properties/y/type", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"waypoints/"+qq+"/y" }]
-                    return false
-                  }
-                  if (!(-12000 <= data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].y)) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/items/properties/y/minimum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"waypoints/"+qq+"/y" }]
-                    return false
-                  }
-                  if (!(12000 >= data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq].y)) {
-                    validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/items/properties/y/maximum", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"waypoints/"+qq+"/y" }]
-                    return false
-                  }
-                  for (const key28 of Object.keys(data.media.interactive.pages[ii].scene.edges[nn].waypoints[qq])) {
-                    if (key28 !== "x" && key28 !== "y") {
-                      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/properties/waypoints/items/additionalProperties", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"waypoints/"+qq+"/"+pointerPart(key28) }]
-                      return false
-                    }
-                  }
-                }
-              }
-            }
-            for (const key29 of Object.keys(data.media.interactive.pages[ii].scene.edges[nn])) {
-              if (key29 !== "id" && key29 !== "from" && key29 !== "to" && key29 !== "label" && key29 !== "visualRole" && key29 !== "fromSide" && key29 !== "toSide" && key29 !== "route" && key29 !== "labelPlacement" && key29 !== "semanticIds" && key29 !== "waypoints") {
-                validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/properties/edges/items/additionalProperties", instanceLocation: "#/media/interactive/pages/"+ii+"scene/edges/"+nn+"/"+pointerPart(key29) }]
-                return false
+              for (const key30 of Object.keys(data.media.interactive.pages[ii].scene.edges[nn])) {
+                if (key30 !== "id" && key30 !== "from" && key30 !== "to" && key30 !== "label" && key30 !== "visualRole" && key30 !== "fromSide" && key30 !== "toSide" && key30 !== "route" && key30 !== "labelPlacement" && key30 !== "semanticIds" && key30 !== "waypoints") return false
               }
             }
           }
-        }
-        for (const key30 of Object.keys(data.media.interactive.pages[ii].scene)) {
-          if (key30 !== "schema" && key30 !== "id" && key30 !== "title" && key30 !== "subtitle" && key30 !== "viewport" && key30 !== "nodes" && key30 !== "groups" && key30 !== "edges") {
-            validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/properties/scene/additionalProperties", instanceLocation: "#/media/interactive/pages/"+ii+"scene/"+pointerPart(key30) }]
-            return false
+          for (const key31 of Object.keys(data.media.interactive.pages[ii].scene)) {
+            if (key31 !== "schema" && key31 !== "id" && key31 !== "title" && key31 !== "subtitle" && key31 !== "viewport" && key31 !== "nodes" && key31 !== "groups" && key31 !== "edges") return false
           }
-        }
-        for (const key31 of Object.keys(data.media.interactive.pages[ii])) {
-          if (key31 !== "id" && key31 !== "label" && key31 !== "purpose" && key31 !== "scene") {
-            validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/properties/pages/items/additionalProperties", instanceLocation: "#/media/interactive/pages/"+ii+"/"+pointerPart(key31) }]
-            return false
+          for (const key32 of Object.keys(data.media.interactive.pages[ii])) {
+            if (key32 !== "id" && key32 !== "label" && key32 !== "purpose" && key32 !== "scene") return false
           }
         }
       }
-    }
-    for (const key32 of Object.keys(data.media.interactive)) {
-      if (key32 !== "kind" && key32 !== "pages") {
-        validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/additionalProperties", instanceLocation: "#/media/interactive/"+pointerPart(key32) }]
-        return false
+      for (const key33 of Object.keys(data.media.interactive)) {
+        if (key33 !== "kind" && key33 !== "pages") return false
       }
-    }
-  }
-  for (const key33 of Object.keys(data.media)) {
-    if (key33 !== "static" && key33 !== "interactive") {
-      validate.errors = [{ keywordLocation: "#/properties/media/additionalProperties", instanceLocation: "#/media/"+pointerPart(key33) }]
+      return true
+    })()
+    if (sub3) passes1++
+    const sub4 = (() => {
+      if (!(typeof data.media.interactive === "object" && data.media.interactive && !Array.isArray(data.media.interactive))) return false
+      if (!("kind" in data.media.interactive && hasOwn(data.media.interactive, "kind"))) return false
+      if (!(data.media.interactive.kind === "neutral")) return false
+      for (const key34 of Object.keys(data.media.interactive)) {
+        if (key34 !== "kind") return false
+      }
+      return true
+    })()
+    if (sub4) passes1++
+    if (passes1 !== 1) {
+      validate.errors = [{ keywordLocation: "#/properties/media/properties/interactive/oneOf", instanceLocation: "#/media/interactive" }]
       return false
     }
   }
-  for (const key34 of Object.keys(data)) {
-    if (key34 !== "schema" && key34 !== "media") {
-      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key34) }]
+  for (const key35 of Object.keys(data.media)) {
+    if (key35 !== "static" && key35 !== "interactive") {
+      validate.errors = [{ keywordLocation: "#/properties/media/additionalProperties", instanceLocation: "#/media/"+pointerPart(key35) }]
+      return false
+    }
+  }
+  for (const key36 of Object.keys(data)) {
+    if (key36 !== "schema" && key36 !== "media") {
+      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key36) }]
       return false
     }
   }

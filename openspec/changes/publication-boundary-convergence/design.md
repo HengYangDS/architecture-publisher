@@ -788,6 +788,16 @@ unsupported refinement fails the affected medium rather than falling back
 to a falsely equivalent neutral output. Pre-rendered SVG/HTML and a self-only
 build command are not substitutes for this join.
 
+The selected resource makes an explicit decision for every requested medium.
+Each medium selects an authored refinement or the closed `{ "kind": "neutral" }`
+choice, which invokes that medium's ordinary compiler. A missing or extra
+medium, unknown choice, or all-neutral no-op resource fails before Candidate
+completion. The neutral choice is not a silent fallback: it lets a source editor
+refine static geometry without inventing interactive art direction, or vice
+versa. One medium's refinement cannot transfer its visible-meaning judgment or
+approval to its sibling. The resource bytes remain bound to the input lock;
+medium scenes and rendered artifacts retain independent identities.
+
 First reuse the existing static scene audit, SVG/raster primitives, and
 Archify/Atlas renderer boundaries. Generalize only a mechanism exercised by
 both the self-Edition and one unrelated Edition; do not add a renderer plugin

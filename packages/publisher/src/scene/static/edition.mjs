@@ -322,6 +322,7 @@ export function composeStaticEditionScene(meaning, layout) {
       }),
     }));
   const questions = new Map(meaning.questions.map((item) => [item.id, item]));
+  const staticRefinement = meaning.refinement?.media?.static;
   return deepFreeze({
     schema: 'architecture.edition-static-scene/v1',
     completeness: 'unqualified-scene',
@@ -329,7 +330,7 @@ export function composeStaticEditionScene(meaning, layout) {
     title: meaning.editorial.title,
     summary: meaning.editorial.narrative.summary,
     visualPolicy: meaning.refinement ? { profile: 'neutral' } : meaning.editorial.visualPolicy,
-    ...(meaning.refinement
+    ...(staticRefinement && staticRefinement.kind !== 'neutral'
       ? { refinement: { schema: meaning.refinement.schema, sha256: meaning.refinement.sha256 } }
       : {}),
     requestedWidth: meaning.editorial.presentation.static.width ?? null,

@@ -436,6 +436,7 @@ const staticCanvasRefinement = closed(['kind', 'view', 'scene'], {
   view: identifier,
   scene: canvasScene,
 });
+const neutralRefinement = closed(['kind'], { kind: { const: 'neutral' } });
 const interactiveSize = closed(['width', 'height'], {
   width: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
   height: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
@@ -512,8 +513,8 @@ export const SCENE_REFINEMENT_SCHEMA = deepFreeze({
     schema: { const: 'architecture.scene-refinement/v1' },
     media: {
       ...closed([], {
-        static: { oneOf: [staticGeometryRefinement, staticCanvasRefinement] },
-        interactive: interactiveArchitectureRefinement,
+        static: { oneOf: [staticGeometryRefinement, staticCanvasRefinement, neutralRefinement] },
+        interactive: { oneOf: [interactiveArchitectureRefinement, neutralRefinement] },
       }),
       minProperties: 1,
     },

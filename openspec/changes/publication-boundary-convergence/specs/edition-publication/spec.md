@@ -609,6 +609,17 @@ Historical v1 output rules SHALL remain truthfully classified.
 - **AND** suggested grouping or geometry does not become source truth or a
   parallel editorial intent store
 
+#### Scenario: One medium is intentionally neutral beside authored refinement
+
+- **WHEN** a selected data-only refinement explicitly chooses authored
+  composition for one requested medium and `neutral` for its sibling
+- **THEN** Publisher compiles each medium through its selected path and checks
+  its visible obligations independently
+- **AND** changing the authored medium does not silently replace the neutral
+  medium's composition or transfer its qualification
+- **AND** a missing or extra medium, unsupported choice, or all-neutral no-op
+  resource fails rather than falling back without an editorial decision
+
 #### Scenario: A policy is unsupported
 
 - **WHEN** no qualified renderer can honor a selected required font, semantic

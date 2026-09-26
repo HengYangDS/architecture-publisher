@@ -418,6 +418,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       static/spec/package checks, and the earlier Chrome regression pass.
       Task 7.5 owns the still-failing global 95% branch gate. AIGW has not
       authored interactive groups; static groups are not inferred.
+      The selected data-only refinement now names every requested medium and
+      permits an explicit neutral sibling without silent fallback. A
+      source-adjacent AIGW-derived trial rendered 3600×1704 static pixels versus
+      a prior 3600×5041 provisional baseline; two static layouts emitted identical
+      interactive HTML SHA-256
+      `2c02f37b9b5bd4fee91d4f5dd96ea983b2d45e0202bb27dce120094bb29362`.
+      The baseline and trial use different selected Edition and Publisher
+      bytes, so this is not an isolated quality or performance estimate. AIGW
+      art-direction approval, installed parity, and final visual quality remain
+      open.
       Publisher self, ETHOS and di-effect successor media, selected-media
       coverage, source/editor acceptance, final visual review, and predicate
       qualification remain open. Narrow-viewport checks are ordinary browser

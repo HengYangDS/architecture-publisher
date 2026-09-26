@@ -17,5 +17,7 @@ export function parseSelectedSceneRefinement(bytes, media, sha256) {
   )
     fail('scene_refinement_medium_unadmitted');
   if (!sceneRefinementValid(value)) fail('scene_refinement_invalid');
+  if (Object.values(value.media).every((decision) => decision.kind === 'neutral'))
+    fail('scene_refinement_invalid');
   return deepFreeze({ schema: value.schema, sha256, media: value.media });
 }

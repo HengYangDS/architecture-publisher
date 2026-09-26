@@ -250,7 +250,10 @@ export function composeInteractiveEditionScene(meaning) {
     edition: meaning.edition,
     title: meaning.editorial.title,
     summary: meaning.editorial.narrative.summary,
-    visualPolicy: meaning.editorial.visualPolicy,
+    visualPolicy:
+      meaning.refinement?.media?.interactive?.kind === 'neutral'
+        ? { profile: 'neutral' }
+        : meaning.editorial.visualPolicy,
     pages: views.map((view, index) =>
       composePage(
         view,

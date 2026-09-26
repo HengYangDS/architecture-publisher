@@ -57,12 +57,13 @@ async function destination(output) {
 }
 
 async function staticMedium(selected, meaning, scratch) {
-  const authoredCanvas = meaning.refinement?.media?.static?.kind === 'authored-canvas';
+  const staticRefinement = meaning.refinement?.media?.static;
+  const authoredCanvas = staticRefinement?.kind === 'authored-canvas';
   const claimMode = meaning.native.selections.some(
     ({ format }) => format === 'architecture.claim-model/v2',
   );
   let layout = null;
-  if (meaning.refinement && !authoredCanvas)
+  if (staticRefinement && staticRefinement.kind !== 'neutral' && !authoredCanvas)
     layout = composeSelectedStaticRefinementLayout(meaning, meaning.refinement);
   else if (!authoredCanvas && meaning.editorial.presentation.static.views[0].groups !== undefined)
     layout = composeGroupedSelectionLayout(meaning);
