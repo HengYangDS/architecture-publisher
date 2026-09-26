@@ -1371,3 +1371,30 @@ bytes, an accessible DOM companion to the canvas, deterministic rendering,
 installed/browser/visual qualification, and the frozen four-workload
 comparison. A failed condition rejects or narrows this backend rather than
 weakening the Edition and Candidate contract.
+
+### AIGW neutral overview spatial-budget counterexample (2026-09-26)
+
+At Publisher work HEAD `7c59f3f` and AIGW work HEAD `270ca0bd`, the staged
+Client Projection input built Candidate
+`8d98e8be8d0d6a618c96fbc242b6b69de799b67190d734e042fe165dd92e3faa`;
+its interactive HTML SHA-256 is
+`2dd0400f716a468b867be4c4f690eb0639edfec23647fa6148bd7455b83c13c8`.
+This is a limited, unqualified AIGW candidate, not the whole-product Edition.
+
+In background Chrome at 1280×720 CSS pixels, the first page's graph viewport
+measured 784×358. Twelve nodes and eleven relations occupied a 1388×719 model
+box; automatic fit set zoom to 0.376, making its 16px node font about 6.0 CSS
+pixels. Keeping the full source qualifiers in the adjacent relation list while
+showing only a short source label or kind on an edge removed the long-label
+collision, but did not enlarge the nodes. An exploratory 1190×598 full-width
+graph reached zoom 0.710 and about 11.4px effective node text, at the cost of
+moving the complete diagram below the first screen. The probe changed only
+background browser presentation, not the Candidate or source Edition.
+
+The limiting variable is the relation between selected scope, graph layout and
+available viewport, not only label length. Do not declare neutral visual
+acceptance from parser, accessibility or source-carrier checks. The next
+candidate must prove a legible complete-for-its-question overview through
+editor-authorized abstraction or a better bounded composition; it may instead
+report layout infeasibility without dropping meaning. No universal layout
+backend is selected by this single workload.

@@ -399,12 +399,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       reject endpoint-only carrier forgeries. Mixed pages with some unclaimed
       relations now retain separate source carriers and disclose their
       structural-only status; forged removal of such an edge fails coverage.
+      A fresh exact-candidate Chrome probe shows that compact edge captions
+      remove qualifier collisions but the 12/11 overview still fits 16px node
+      text at about 6px effective size. The measured viewport constraint and
+      non-accepted alternative are in `docs/research/mechanism-evaluation.md`;
+      do not treat caption shortening as visual acceptance.
       Open: source-owner-approved authoring, installed exact-AIGW paired parity,
       reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure
-      requires replacement. Static, package and strict OpenSpec checks pass;
-      the current 1,051-test run has 1,046 passes and five skips, but branch
-      coverage remains 92.93% < 95% (Task 7.5).
+      requires replacement. On code HEAD `7c59f3f`, the full 1,054-test run
+      had 1,049 passes, five skips and no test failures, but branch coverage
+      remains 92.93% < 95% (Task 7.5). Static, package and browser-focused
+      checks passed; this does not qualify the AIGW candidate.
       Detailed counterexamples and measured limits stay in
       `docs/research/mechanism-evaluation.md`, not a second progress ledger.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
