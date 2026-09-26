@@ -379,6 +379,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       wide, yet effective node type is 3.78px on Boundary and 8.84px on
       Selection, Effects and Delivery; the static overview remains text-heavy.
       This is provisional source-adjacent evidence, not visual acceptance.
+      A later uncommitted adaptive-height probe reduced Boundary's empty stage
+      to 178px but left its effective node type at 3.78px. Browser-only compact
+      spacing enlarged nodes while edge labels touched node bodies; a naive
+      transfer of AIGW's static groups into Cytoscape compounds produced
+      overlapping group regions and 7.25px node type. These probes did not
+      authorize interactive grouping or a geometry backend; the height-only
+      source experiment was discarded. The current interactive Scene rejects
+      authored groups even though the Edition contract admits medium-local
+      groups, so a complete interactive grouping path remains to be designed
+      and qualified rather than inferred from the static Edition.
       Cytoscape remains the sole production interactive owner. Graphviz, Dagre
       and ELK are measured alternatives, not selected product replacements.
       Resolve geometry, labels, stage spatial budget and evidence flow as one
