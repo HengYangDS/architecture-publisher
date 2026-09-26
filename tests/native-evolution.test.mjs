@@ -59,6 +59,67 @@ async function rewriteProject(fixture) {
   );
 }
 
+test('native evolution refuses malformed sides and implicit Edition ownership changes', async (t) => {
+  const baseline = await snapshot(
+    await selectedNativeEdition(t, { media: ['static', 'interactive'] }),
+  );
+  const cases = [
+    ['missing side', (input) => delete input.before, 'native_evolution_input_invalid'],
+    ['extra input authority', (input) => (input.extra = {}), 'native_evolution_input_invalid'],
+    [
+      'foreign lock schema',
+      (input) => (input.after.lock.schema = 'foreign'),
+      'native_evolution_input_invalid',
+    ],
+    [
+      'missing questions',
+      (input) => (input.after.meaning.questions = null),
+      'native_evolution_input_invalid',
+    ],
+    [
+      'missing assertions',
+      (input) => (input.after.meaning.assertions = null),
+      'native_evolution_input_invalid',
+    ],
+    [
+      'unselected medium',
+      (input) => (input.after.lock.media = ['static']),
+      'native_evolution_input_invalid',
+    ],
+    [
+      'changed Edition digest outside the lock',
+      (input) => (input.after.meaning.edition.sha256 = '0'.repeat(64)),
+      'native_evolution_input_invalid',
+    ],
+    [
+      'missing selected views',
+      (input) => (input.after.meaning.media.static.views = null),
+      'native_evolution_input_invalid',
+    ],
+    [
+      'renamed Edition',
+      (input) => {
+        input.after.lock.edition.id = 'renamed';
+        input.after.meaning.edition.id = 'renamed';
+      },
+      'native_evolution_edition_identity_changed',
+    ],
+    [
+      'changed editor',
+      (input) => {
+        input.after.lock.edition.editor = 'another-editor';
+        input.after.meaning.edition.editor = 'another-editor';
+      },
+      'native_evolution_editor_changed',
+    ],
+  ];
+  for (const [name, mutate, code] of cases) {
+    const input = { before: structuredClone(baseline), after: structuredClone(baseline) };
+    mutate(input);
+    assert.throws(() => compileNativeEditionEvolution(input), { code }, name);
+  }
+});
+
 test('retargeting a context-only editorial basis renews its reader views', async (t) => {
   const before = await selectedNativeEdition(t);
   const after = await selectedNativeEdition(t);

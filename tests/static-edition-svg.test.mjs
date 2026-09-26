@@ -214,6 +214,101 @@ test('the renderer rejects infeasible geometry without cropping selected meaning
   }
 });
 
+test('source carriers cannot duplicate, forge, or omit visible graph members', () => {
+  const cases = [
+    [
+      'duplicate node identity',
+      (input) => input.nodes.push(structuredClone(input.nodes[0])),
+      'static_edition_carrier_ambiguous',
+    ],
+    [
+      'duplicate relation identity',
+      (input) => input.edges[0].relations.push(structuredClone(input.edges[0].relations[0])),
+      'static_edition_carrier_ambiguous',
+    ],
+    [
+      'duplicate claim identity',
+      (input) => {
+        const claim = {
+          namespace: 'fixture/claims',
+          id: 'same',
+          sha256: 'a'.repeat(64),
+          facts: [{ label: 'Claim plane', value: 'implemented' }],
+        };
+        input.claimCards = [claim, structuredClone(claim)];
+      },
+      'static_edition_carrier_ambiguous',
+    ],
+    [
+      'empty assertion identity',
+      (input) => (input.sourceAssertionCarriers[0].assertionId = ''),
+      'static_edition_carrier_invalid',
+    ],
+    [
+      'duplicate assertion identity',
+      (input) =>
+        input.sourceAssertionCarriers.push(structuredClone(input.sourceAssertionCarriers[0])),
+      'static_edition_carrier_invalid',
+    ],
+    [
+      'unbound assertion',
+      (input) => {
+        input.sourceAssertionCarriers[0].nodeRefs = [];
+        input.sourceAssertionCarriers[0].relationRefs = [];
+      },
+      'static_edition_carrier_invalid',
+    ],
+    [
+      'malformed node reference',
+      (input) => (input.sourceAssertionCarriers[0].nodeRefs[0] = null),
+      'static_edition_carrier_invalid',
+    ],
+    [
+      'invented node reference',
+      (input) => (input.sourceAssertionCarriers[0].nodeRefs[0].id = 'invented'),
+      'static_edition_carrier_invalid',
+    ],
+    [
+      'malformed relation reference',
+      (input) => (input.sourceAssertionCarriers[0].relationRefs[0] = null),
+      'static_edition_carrier_invalid',
+    ],
+    [
+      'invented relation reference',
+      (input) => (input.sourceAssertionCarriers[0].relationRefs[0].reference = 'invented'),
+      'static_edition_carrier_invalid',
+    ],
+    [
+      'malformed claim reference',
+      (input) => (input.sourceAssertionCarriers[0].claimRefs = [null]),
+      'static_edition_carrier_invalid',
+    ],
+    [
+      'invented claim reference',
+      (input) =>
+        (input.sourceAssertionCarriers[0].claimRefs = [
+          { namespace: 'fixture/claims', reference: 'invented', sha256: 'a'.repeat(64) },
+        ]),
+      'static_edition_carrier_invalid',
+    ],
+    [
+      'unclaimed node',
+      (input) => input.sourceAssertionCarriers[0].nodeRefs.pop(),
+      'static_edition_carrier_unclaimed',
+    ],
+    [
+      'unclaimed relation',
+      (input) => (input.sourceAssertionCarriers[0].relationRefs = []),
+      'static_edition_carrier_unclaimed',
+    ],
+  ];
+  for (const [name, mutate, code] of cases) {
+    const input = staticEditionScene();
+    mutate(input);
+    assert.throws(() => svg.composeStaticEditionSvg(input), { code }, name);
+  }
+});
+
 test('long text wraps without truncating source language or hiding editorial scope', () => {
   const input = staticEditionScene();
   input.title = `${'x'.repeat(52)} Y`;

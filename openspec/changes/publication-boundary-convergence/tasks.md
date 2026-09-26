@@ -419,15 +419,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       Task 7.5 owns the still-failing global 95% branch gate. AIGW has not
       authored interactive groups; static groups are not inferred.
       The selected data-only refinement now names every requested medium and
-      permits an explicit neutral sibling without silent fallback. A
-      source-adjacent AIGW-derived trial rendered 3600×1704 static pixels versus
-      a prior 3600×5041 provisional baseline; two static layouts emitted identical
-      interactive HTML SHA-256
-      `2c02f37b9b5bd4fee91d4f5dd96ea983b2d45e0202bb27dce120094bb29362`.
-      The baseline and trial use different selected Edition and Publisher
-      bytes, so this is not an isolated quality or performance estimate. AIGW
-      art-direction approval, installed parity, and final visual quality remain
-      open.
+      permits an explicit neutral sibling without silent fallback. An authored
+      Scene now binds only its own medium decision, not a sibling's data. An
+      offline-installed package built both copied AIGW-derived trials through
+      the public CLI: source locks and all three media members matched their
+      earlier bytes; Candidate and manifest bytes changed to record the corrected
+      Scene identity. This is a mechanism probe, not AIGW source adoption or
+      qualification. Local visual inspection rejects the static trials as final:
+      whitespace is unbalanced and reader text is too small. AIGW editorial
+      approval and final media review remain open.
       Publisher self, ETHOS and di-effect successor media, selected-media
       coverage, source/editor acceptance, final visual review, and predicate
       qualification remain open. Narrow-viewport checks are ordinary browser
@@ -678,17 +678,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The latest retained pre-freeze integration run at signed source
-      `c529811` reports 1,113 pass, 6 skip, 0 fail; statements and lines
-      97.78%, functions 99.62%, and branches 93.40% (8,127/8,701). The
-      unchanged 95% branch gate fails; at this denominator, 139 more covered
-      outcomes are needed. The qualified-publication selector now covers all
-      73 measured branches with adversarial input and forged-bundle cases;
-      this local boundary gain is not the global acceptance gate.
-      Static, strict OpenSpec, and package checks pass. The earlier signed
-      `6eecb81` snapshot was 93.33% before this owner expansion. Continue with
-      high-risk renderer, Edition evolution, source, and qualification-process
-      boundaries; do not exclude owned code or weaken browser acceptance.
+      The current pre-freeze Lane tree reports 1,121 pass, 6 skip, 0 fail;
+      statements and lines 97.79%, functions 99.62%, and branches 93.80%
+      (8,252/8,797). At this measured denominator, 106 more covered branch
+      outcomes are needed. Adversarial static carrier and native evolution
+      admission cases improve coverage but do not satisfy the global 95% gate.
+      Static, strict OpenSpec, and package checks pass. Continue with high-risk
+      renderer, Edition evolution, source, and qualification-process boundaries;
+      do not exclude owned code or weaken browser acceptance.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%
