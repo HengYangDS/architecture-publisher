@@ -14,6 +14,7 @@ export { compareEditionInput } from './input.mjs';
 export {
   BUILD_REQUEST_SCHEMA,
   EDITION_PROJECT_SCHEMA,
+  SCENE_REFINEMENT_SCHEMA,
   validateBuildRequest,
   validateEditionProject,
 } from './authoring.mjs';

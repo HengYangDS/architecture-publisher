@@ -3,7 +3,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { materializeBuildRequestInput } from '../provider/build-request.mjs';
 import { composeInteractiveEditionScene } from '../scene/interactive/edition.mjs';
-import { composeGroupedSelectionLayout } from '../scene/static/grouped-selection.mjs';
+import {
+  composeGroupedSelectionLayout,
+  composeSelectedStaticRefinementLayout,
+} from '../scene/static/grouped-selection.mjs';
 import { composeStaticEditionScene } from '../scene/static/edition.mjs';
 import { importLikeC4Layout } from '../semantics/native-likec4.mjs';
 import { canonical } from '../semantics/document.mjs';
@@ -53,7 +56,9 @@ async function staticMedium(selected, meaning, scratch) {
     ({ format }) => format === 'architecture.claim-model/v2',
   );
   let layout = null;
-  if (meaning.editorial.presentation.static.views[0].groups !== undefined)
+  if (meaning.refinement)
+    layout = composeSelectedStaticRefinementLayout(meaning, meaning.refinement);
+  else if (meaning.editorial.presentation.static.views[0].groups !== undefined)
     layout = composeGroupedSelectionLayout(meaning);
   else if (!claimMode) {
     const views = meaning.native.selections.filter(({ target }) => target.kind === 'view');

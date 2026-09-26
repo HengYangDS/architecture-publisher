@@ -17,11 +17,14 @@ export function linkClaimModelSources(view, assertions, selections, errorCode) {
       assertionId,
       selection: selections.get(assertion.selection),
     }));
-  if (sources.some(({ selection }) => !['relation', 'claim'].includes(selection?.target.kind)))
+  if (
+    sources.some(
+      ({ selection }) => !['entity', 'relation', 'claim'].includes(selection?.target.kind),
+    )
+  )
     fail(errorCode);
   const relations = sources.filter(({ selection }) => selection.target.kind === 'relation');
   const claims = sources.filter(({ selection }) => selection.target.kind === 'claim');
-  if (!relations.length) fail(errorCode);
   const links = [];
   const subjectLinks = [];
   for (const { assertionId, selection } of claims) {

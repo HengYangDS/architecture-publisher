@@ -121,7 +121,7 @@ function composePage(view, selections, assertions, questions, claimMode, authore
       });
       continue;
     }
-    if (claimMode && selected.target.kind !== 'relation')
+    if (claimMode && !['entity', 'relation'].includes(selected.target.kind))
       fail('edition_scene_claim_model_unadmitted');
     const nodeRefs = selected.members.elements.map((member) => {
       const projected = element(member);
@@ -168,7 +168,7 @@ function composePage(view, selections, assertions, questions, claimMode, authore
     return question;
   });
   const claimSourceLinks =
-    claimMode && relations.size && claims.size
+    claimMode && nodes.size && claims.size
       ? linkClaimModelSources(
           view,
           assertions,
@@ -223,7 +223,8 @@ export function composeInteractiveEditionScene(meaning) {
     claimMode &&
     !meaning.native.selections.every(
       ({ format, target }) =>
-        format === 'architecture.claim-model/v2' && ['claim', 'relation'].includes(target.kind),
+        format === 'architecture.claim-model/v2' &&
+        ['claim', 'entity', 'relation'].includes(target.kind),
     )
   )
     fail('edition_scene_claim_model_unadmitted');

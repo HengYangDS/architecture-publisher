@@ -528,7 +528,10 @@ export function composeStaticEditionSvg(scene) {
     const orderedClaims = [...claimCards].sort(
       (left, right) => positionFor(left) - positionFor(right),
     );
-    const columns = Math.min(3, claimCards.length);
+    const columns = Math.min(
+      claimCards.length,
+      Math.max(1, Math.floor((claimWidth + 24) / (480 + 24))),
+    );
     const cardWidth = columns === 1 ? claimWidth : (claimWidth - (columns - 1) * 24) / columns;
     for (let row = 0; row < claimCards.length; row += columns) {
       let rowBottom = claimY;

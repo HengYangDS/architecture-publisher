@@ -5,6 +5,7 @@ import schemaSafe from '@exodus/schemasafe';
 import {
   BUILD_REQUEST_SCHEMA,
   EDITION_PROJECT_SCHEMA,
+  SCENE_REFINEMENT_SCHEMA,
 } from '../packages/publisher/src/edition/schema.mjs';
 
 const target = fileURLToPath(
@@ -18,7 +19,11 @@ const upstreamLicense = await fs.readFile(
 );
 const options = { mode: 'strong', includeErrors: true };
 const moduleFor = (schema) => schemaSafe.validator(schema, options).toModule();
-const modules = [moduleFor(BUILD_REQUEST_SCHEMA), moduleFor(EDITION_PROJECT_SCHEMA)];
+const modules = [
+  moduleFor(BUILD_REQUEST_SCHEMA),
+  moduleFor(EDITION_PROJECT_SCHEMA),
+  moduleFor(SCENE_REFINEMENT_SCHEMA),
+];
 if (modules.some((source) => source.includes('require(') || source.includes('import ')))
   throw Error('generated_validator_has_runtime_dependency');
 
@@ -28,6 +33,7 @@ const output = [
   '// @ts-nocheck',
   `export const buildRequestValid = ${modules[0]};`,
   `export const editionProjectValid = ${modules[1]};`,
+  `export const sceneRefinementValid = ${modules[2]};`,
   '',
 ].join('\n');
 

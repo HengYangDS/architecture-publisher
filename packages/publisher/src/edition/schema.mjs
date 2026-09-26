@@ -241,3 +241,52 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
     },
   ),
 });
+
+const coordinate = { type: 'number', minimum: -12000, maximum: 12000 };
+const visualNode = closed(['namespace', 'id', 'x', 'y', 'width', 'height'], {
+  namespace: text,
+  id: text,
+  x: coordinate,
+  y: coordinate,
+  width: { type: 'number', minimum: 96, maximum: 12000 },
+  height: { type: 'number', minimum: 64, maximum: 12000 },
+});
+const visualEndpoint = closed(['namespace', 'id'], { namespace: text, id: text });
+const visualRelation = closed(['namespace', 'reference'], {
+  namespace: text,
+  reference: text,
+});
+const visualEdge = closed(['from', 'to', 'relations', 'points'], {
+  from: visualEndpoint,
+  to: visualEndpoint,
+  relations: { type: 'array', minItems: 1, maxItems: 2048, items: visualRelation },
+  points: {
+    type: 'array',
+    minItems: 2,
+    maxItems: 2048,
+    items: { type: 'array', minItems: 2, maxItems: 2, items: coordinate },
+  },
+});
+const visualGroup = closed(['id', 'x', 'y', 'width', 'height'], {
+  id: identifier,
+  x: coordinate,
+  y: coordinate,
+  width: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
+  height: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
+});
+
+export const SCENE_REFINEMENT_SCHEMA = deepFreeze({
+  $id: 'architecture.scene-refinement/v1',
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  ...closed(['schema', 'media'], {
+    schema: { const: 'architecture.scene-refinement/v1' },
+    media: closed(['static'], {
+      static: closed(['view', 'nodes', 'edges', 'groups'], {
+        view: identifier,
+        nodes: { type: 'array', maxItems: 4096, items: visualNode },
+        edges: { type: 'array', maxItems: 8192, items: visualEdge },
+        groups: { type: 'array', maxItems: 256, items: visualGroup },
+      }),
+    }),
+  }),
+});

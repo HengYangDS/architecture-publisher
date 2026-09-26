@@ -2,7 +2,11 @@ import { deepFreeze, jsonValue } from '../semantics/document.mjs';
 import { fail, portablePath } from '../source/manifest.mjs';
 import { buildRequestValid, editionProjectValid } from './generated/validators.mjs';
 
-export { BUILD_REQUEST_SCHEMA, EDITION_PROJECT_SCHEMA } from './schema.mjs';
+export {
+  BUILD_REQUEST_SCHEMA,
+  EDITION_PROJECT_SCHEMA,
+  SCENE_REFINEMENT_SCHEMA,
+} from './schema.mjs';
 
 export const EDITION_AUTHORING_FILE_BYTES = 4 * 1024 * 1024;
 

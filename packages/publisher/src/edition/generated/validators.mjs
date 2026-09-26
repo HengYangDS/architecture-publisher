@@ -1802,3 +1802,558 @@ const ref0 = function validate(data) {
   return true
 };
 return ref0})();;
+export const sceneRefinementValid = (function() {
+'use strict'
+const hasOwn = Function.prototype.call.bind(Object.prototype.hasOwnProperty);
+const pattern0 = new RegExp("^[a-z][a-z0-9-]{0,79}$", "u");
+const stringLength = (string) =>
+  /[\uD800-\uDFFF]/.test(string) ? [...string].length : string.length;
+const pattern1 = new RegExp("^(?!\\s)(?!.*\\s$)[^\\u0000-\\u001f\\u007f]+$", "u");
+const pointerPart = (s) => (/~\//.test(s) ? `${s}`.replace(/~/g, '~0').replace(/\//g, '~1') : s);
+const ref0 = function validate(data) {
+  validate.errors = null
+  if (!(typeof data === "object" && data && !Array.isArray(data))) {
+    validate.errors = [{ keywordLocation: "#/type", instanceLocation: "#" }]
+    return false
+  }
+  if (!("schema" in data && hasOwn(data, "schema"))) {
+    validate.errors = [{ keywordLocation: "#/required", instanceLocation: "#/schema" }]
+    return false
+  }
+  if (!("media" in data && hasOwn(data, "media"))) {
+    validate.errors = [{ keywordLocation: "#/required", instanceLocation: "#/media" }]
+    return false
+  }
+  if (!(data.schema === "architecture.scene-refinement/v1")) {
+    validate.errors = [{ keywordLocation: "#/properties/schema/const", instanceLocation: "#/schema" }]
+    return false
+  }
+  if (!(typeof data.media === "object" && data.media && !Array.isArray(data.media))) {
+    validate.errors = [{ keywordLocation: "#/properties/media/type", instanceLocation: "#/media" }]
+    return false
+  }
+  if (!("static" in data.media && hasOwn(data.media, "static"))) {
+    validate.errors = [{ keywordLocation: "#/properties/media/required", instanceLocation: "#/media/static" }]
+    return false
+  }
+  if (!(typeof data.media.static === "object" && data.media.static && !Array.isArray(data.media.static))) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/type", instanceLocation: "#/media/static" }]
+    return false
+  }
+  if (!("view" in data.media.static && hasOwn(data.media.static, "view"))) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/required", instanceLocation: "#/media/static/view" }]
+    return false
+  }
+  if (!("nodes" in data.media.static && hasOwn(data.media.static, "nodes"))) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/required", instanceLocation: "#/media/static/nodes" }]
+    return false
+  }
+  if (!("edges" in data.media.static && hasOwn(data.media.static, "edges"))) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/required", instanceLocation: "#/media/static/edges" }]
+    return false
+  }
+  if (!("groups" in data.media.static && hasOwn(data.media.static, "groups"))) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/required", instanceLocation: "#/media/static/groups" }]
+    return false
+  }
+  if (!(typeof data.media.static.view === "string")) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/view/type", instanceLocation: "#/media/static/view" }]
+    return false
+  }
+  if (!pattern0.test(data.media.static.view)) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/view/pattern", instanceLocation: "#/media/static/view" }]
+    return false
+  }
+  if (!Array.isArray(data.media.static.nodes)) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/type", instanceLocation: "#/media/static/nodes" }]
+    return false
+  }
+  if (data.media.static.nodes.length > 4096) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/maxItems", instanceLocation: "#/media/static/nodes" }]
+    return false
+  }
+  for (let i = 0; i < data.media.static.nodes.length; i++) {
+    if (i in data.media.static.nodes && hasOwn(data.media.static.nodes, i)) {
+      if (!(typeof data.media.static.nodes[i] === "object" && data.media.static.nodes[i] && !Array.isArray(data.media.static.nodes[i]))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/type", instanceLocation: "#/media/static/nodes/"+i }]
+        return false
+      }
+      if (!("namespace" in data.media.static.nodes[i] && hasOwn(data.media.static.nodes[i], "namespace"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/required", instanceLocation: "#/media/static/nodes/"+i+"/namespace" }]
+        return false
+      }
+      if (!("id" in data.media.static.nodes[i] && hasOwn(data.media.static.nodes[i], "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/required", instanceLocation: "#/media/static/nodes/"+i+"/id" }]
+        return false
+      }
+      if (!("x" in data.media.static.nodes[i] && hasOwn(data.media.static.nodes[i], "x"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/required", instanceLocation: "#/media/static/nodes/"+i+"/x" }]
+        return false
+      }
+      if (!("y" in data.media.static.nodes[i] && hasOwn(data.media.static.nodes[i], "y"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/required", instanceLocation: "#/media/static/nodes/"+i+"/y" }]
+        return false
+      }
+      if (!("width" in data.media.static.nodes[i] && hasOwn(data.media.static.nodes[i], "width"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/required", instanceLocation: "#/media/static/nodes/"+i+"/width" }]
+        return false
+      }
+      if (!("height" in data.media.static.nodes[i] && hasOwn(data.media.static.nodes[i], "height"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/required", instanceLocation: "#/media/static/nodes/"+i+"/height" }]
+        return false
+      }
+      if (!(typeof data.media.static.nodes[i].namespace === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/namespace/type", instanceLocation: "#/media/static/nodes/"+i+"/namespace" }]
+        return false
+      }
+      if (data.media.static.nodes[i].namespace.length > 2048 && stringLength(data.media.static.nodes[i].namespace) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/namespace/maxLength", instanceLocation: "#/media/static/nodes/"+i+"/namespace" }]
+        return false
+      }
+      if (data.media.static.nodes[i].namespace.length < 1 || stringLength(data.media.static.nodes[i].namespace) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/namespace/minLength", instanceLocation: "#/media/static/nodes/"+i+"/namespace" }]
+        return false
+      }
+      if (!(pattern1.test(data.media.static.nodes[i].namespace))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/namespace/pattern", instanceLocation: "#/media/static/nodes/"+i+"/namespace" }]
+        return false
+      }
+      if (!(typeof data.media.static.nodes[i].id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/id/type", instanceLocation: "#/media/static/nodes/"+i+"/id" }]
+        return false
+      }
+      if (data.media.static.nodes[i].id.length > 2048 && stringLength(data.media.static.nodes[i].id) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/id/maxLength", instanceLocation: "#/media/static/nodes/"+i+"/id" }]
+        return false
+      }
+      if (data.media.static.nodes[i].id.length < 1 || stringLength(data.media.static.nodes[i].id) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/id/minLength", instanceLocation: "#/media/static/nodes/"+i+"/id" }]
+        return false
+      }
+      if (!(pattern1.test(data.media.static.nodes[i].id))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/id/pattern", instanceLocation: "#/media/static/nodes/"+i+"/id" }]
+        return false
+      }
+      if (!(typeof data.media.static.nodes[i].x === "number")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/x/type", instanceLocation: "#/media/static/nodes/"+i+"/x" }]
+        return false
+      }
+      if (!(-12000 <= data.media.static.nodes[i].x)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/x/minimum", instanceLocation: "#/media/static/nodes/"+i+"/x" }]
+        return false
+      }
+      if (!(12000 >= data.media.static.nodes[i].x)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/x/maximum", instanceLocation: "#/media/static/nodes/"+i+"/x" }]
+        return false
+      }
+      if (!(typeof data.media.static.nodes[i].y === "number")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/y/type", instanceLocation: "#/media/static/nodes/"+i+"/y" }]
+        return false
+      }
+      if (!(-12000 <= data.media.static.nodes[i].y)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/y/minimum", instanceLocation: "#/media/static/nodes/"+i+"/y" }]
+        return false
+      }
+      if (!(12000 >= data.media.static.nodes[i].y)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/y/maximum", instanceLocation: "#/media/static/nodes/"+i+"/y" }]
+        return false
+      }
+      if (!(typeof data.media.static.nodes[i].width === "number")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/width/type", instanceLocation: "#/media/static/nodes/"+i+"/width" }]
+        return false
+      }
+      if (!(96 <= data.media.static.nodes[i].width)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/width/minimum", instanceLocation: "#/media/static/nodes/"+i+"/width" }]
+        return false
+      }
+      if (!(12000 >= data.media.static.nodes[i].width)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/width/maximum", instanceLocation: "#/media/static/nodes/"+i+"/width" }]
+        return false
+      }
+      if (!(typeof data.media.static.nodes[i].height === "number")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/height/type", instanceLocation: "#/media/static/nodes/"+i+"/height" }]
+        return false
+      }
+      if (!(64 <= data.media.static.nodes[i].height)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/height/minimum", instanceLocation: "#/media/static/nodes/"+i+"/height" }]
+        return false
+      }
+      if (!(12000 >= data.media.static.nodes[i].height)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/properties/height/maximum", instanceLocation: "#/media/static/nodes/"+i+"/height" }]
+        return false
+      }
+      for (const key0 of Object.keys(data.media.static.nodes[i])) {
+        if (key0 !== "namespace" && key0 !== "id" && key0 !== "x" && key0 !== "y" && key0 !== "width" && key0 !== "height") {
+          validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/nodes/items/additionalProperties", instanceLocation: "#/media/static/nodes/"+i+"/"+pointerPart(key0) }]
+          return false
+        }
+      }
+    }
+  }
+  if (!Array.isArray(data.media.static.edges)) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/type", instanceLocation: "#/media/static/edges" }]
+    return false
+  }
+  if (data.media.static.edges.length > 8192) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/maxItems", instanceLocation: "#/media/static/edges" }]
+    return false
+  }
+  for (let j = 0; j < data.media.static.edges.length; j++) {
+    if (j in data.media.static.edges && hasOwn(data.media.static.edges, j)) {
+      if (!(typeof data.media.static.edges[j] === "object" && data.media.static.edges[j] && !Array.isArray(data.media.static.edges[j]))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/type", instanceLocation: "#/media/static/edges/"+j }]
+        return false
+      }
+      if (!("from" in data.media.static.edges[j] && hasOwn(data.media.static.edges[j], "from"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/required", instanceLocation: "#/media/static/edges/"+j+"/from" }]
+        return false
+      }
+      if (!("to" in data.media.static.edges[j] && hasOwn(data.media.static.edges[j], "to"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/required", instanceLocation: "#/media/static/edges/"+j+"/to" }]
+        return false
+      }
+      if (!("relations" in data.media.static.edges[j] && hasOwn(data.media.static.edges[j], "relations"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/required", instanceLocation: "#/media/static/edges/"+j+"/relations" }]
+        return false
+      }
+      if (!("points" in data.media.static.edges[j] && hasOwn(data.media.static.edges[j], "points"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/required", instanceLocation: "#/media/static/edges/"+j+"/points" }]
+        return false
+      }
+      if (!(typeof data.media.static.edges[j].from === "object" && data.media.static.edges[j].from && !Array.isArray(data.media.static.edges[j].from))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/type", instanceLocation: "#/media/static/edges/"+j+"/from" }]
+        return false
+      }
+      if (!("namespace" in data.media.static.edges[j].from && hasOwn(data.media.static.edges[j].from, "namespace"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/required", instanceLocation: "#/media/static/edges/"+j+"/from/namespace" }]
+        return false
+      }
+      if (!("id" in data.media.static.edges[j].from && hasOwn(data.media.static.edges[j].from, "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/required", instanceLocation: "#/media/static/edges/"+j+"/from/id" }]
+        return false
+      }
+      if (!(typeof data.media.static.edges[j].from.namespace === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/properties/namespace/type", instanceLocation: "#/media/static/edges/"+j+"/from/namespace" }]
+        return false
+      }
+      if (data.media.static.edges[j].from.namespace.length > 2048 && stringLength(data.media.static.edges[j].from.namespace) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/properties/namespace/maxLength", instanceLocation: "#/media/static/edges/"+j+"/from/namespace" }]
+        return false
+      }
+      if (data.media.static.edges[j].from.namespace.length < 1 || stringLength(data.media.static.edges[j].from.namespace) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/properties/namespace/minLength", instanceLocation: "#/media/static/edges/"+j+"/from/namespace" }]
+        return false
+      }
+      if (!(pattern1.test(data.media.static.edges[j].from.namespace))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/properties/namespace/pattern", instanceLocation: "#/media/static/edges/"+j+"/from/namespace" }]
+        return false
+      }
+      if (!(typeof data.media.static.edges[j].from.id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/properties/id/type", instanceLocation: "#/media/static/edges/"+j+"/from/id" }]
+        return false
+      }
+      if (data.media.static.edges[j].from.id.length > 2048 && stringLength(data.media.static.edges[j].from.id) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/properties/id/maxLength", instanceLocation: "#/media/static/edges/"+j+"/from/id" }]
+        return false
+      }
+      if (data.media.static.edges[j].from.id.length < 1 || stringLength(data.media.static.edges[j].from.id) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/properties/id/minLength", instanceLocation: "#/media/static/edges/"+j+"/from/id" }]
+        return false
+      }
+      if (!(pattern1.test(data.media.static.edges[j].from.id))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/properties/id/pattern", instanceLocation: "#/media/static/edges/"+j+"/from/id" }]
+        return false
+      }
+      for (const key1 of Object.keys(data.media.static.edges[j].from)) {
+        if (key1 !== "namespace" && key1 !== "id") {
+          validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/from/additionalProperties", instanceLocation: "#/media/static/edges/"+j+"from/"+pointerPart(key1) }]
+          return false
+        }
+      }
+      if (!(typeof data.media.static.edges[j].to === "object" && data.media.static.edges[j].to && !Array.isArray(data.media.static.edges[j].to))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/type", instanceLocation: "#/media/static/edges/"+j+"/to" }]
+        return false
+      }
+      if (!("namespace" in data.media.static.edges[j].to && hasOwn(data.media.static.edges[j].to, "namespace"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/required", instanceLocation: "#/media/static/edges/"+j+"/to/namespace" }]
+        return false
+      }
+      if (!("id" in data.media.static.edges[j].to && hasOwn(data.media.static.edges[j].to, "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/required", instanceLocation: "#/media/static/edges/"+j+"/to/id" }]
+        return false
+      }
+      if (!(typeof data.media.static.edges[j].to.namespace === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/properties/namespace/type", instanceLocation: "#/media/static/edges/"+j+"/to/namespace" }]
+        return false
+      }
+      if (data.media.static.edges[j].to.namespace.length > 2048 && stringLength(data.media.static.edges[j].to.namespace) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/properties/namespace/maxLength", instanceLocation: "#/media/static/edges/"+j+"/to/namespace" }]
+        return false
+      }
+      if (data.media.static.edges[j].to.namespace.length < 1 || stringLength(data.media.static.edges[j].to.namespace) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/properties/namespace/minLength", instanceLocation: "#/media/static/edges/"+j+"/to/namespace" }]
+        return false
+      }
+      if (!(pattern1.test(data.media.static.edges[j].to.namespace))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/properties/namespace/pattern", instanceLocation: "#/media/static/edges/"+j+"/to/namespace" }]
+        return false
+      }
+      if (!(typeof data.media.static.edges[j].to.id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/properties/id/type", instanceLocation: "#/media/static/edges/"+j+"/to/id" }]
+        return false
+      }
+      if (data.media.static.edges[j].to.id.length > 2048 && stringLength(data.media.static.edges[j].to.id) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/properties/id/maxLength", instanceLocation: "#/media/static/edges/"+j+"/to/id" }]
+        return false
+      }
+      if (data.media.static.edges[j].to.id.length < 1 || stringLength(data.media.static.edges[j].to.id) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/properties/id/minLength", instanceLocation: "#/media/static/edges/"+j+"/to/id" }]
+        return false
+      }
+      if (!(pattern1.test(data.media.static.edges[j].to.id))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/properties/id/pattern", instanceLocation: "#/media/static/edges/"+j+"/to/id" }]
+        return false
+      }
+      for (const key2 of Object.keys(data.media.static.edges[j].to)) {
+        if (key2 !== "namespace" && key2 !== "id") {
+          validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/to/additionalProperties", instanceLocation: "#/media/static/edges/"+j+"to/"+pointerPart(key2) }]
+          return false
+        }
+      }
+      if (!(Array.isArray(data.media.static.edges[j].relations))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/type", instanceLocation: "#/media/static/edges/"+j+"/relations" }]
+        return false
+      }
+      if (data.media.static.edges[j].relations.length > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/maxItems", instanceLocation: "#/media/static/edges/"+j+"/relations" }]
+        return false
+      }
+      if (data.media.static.edges[j].relations.length < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/minItems", instanceLocation: "#/media/static/edges/"+j+"/relations" }]
+        return false
+      }
+      for (let k = 0; k < data.media.static.edges[j].relations.length; k++) {
+        if (k in data.media.static.edges[j].relations && hasOwn(data.media.static.edges[j].relations, k)) {
+          if (!(typeof data.media.static.edges[j].relations[k] === "object" && data.media.static.edges[j].relations[k] && !Array.isArray(data.media.static.edges[j].relations[k]))) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/type", instanceLocation: "#/media/static/edges/"+j+"relations/"+k }]
+            return false
+          }
+          if (!("namespace" in data.media.static.edges[j].relations[k] && hasOwn(data.media.static.edges[j].relations[k], "namespace"))) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/required", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/namespace" }]
+            return false
+          }
+          if (!("reference" in data.media.static.edges[j].relations[k] && hasOwn(data.media.static.edges[j].relations[k], "reference"))) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/required", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/reference" }]
+            return false
+          }
+          if (!(typeof data.media.static.edges[j].relations[k].namespace === "string")) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/properties/namespace/type", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/namespace" }]
+            return false
+          }
+          if (data.media.static.edges[j].relations[k].namespace.length > 2048 && stringLength(data.media.static.edges[j].relations[k].namespace) > 2048) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/properties/namespace/maxLength", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/namespace" }]
+            return false
+          }
+          if (data.media.static.edges[j].relations[k].namespace.length < 1 || stringLength(data.media.static.edges[j].relations[k].namespace) < 1) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/properties/namespace/minLength", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/namespace" }]
+            return false
+          }
+          if (!(pattern1.test(data.media.static.edges[j].relations[k].namespace))) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/properties/namespace/pattern", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/namespace" }]
+            return false
+          }
+          if (!(typeof data.media.static.edges[j].relations[k].reference === "string")) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/properties/reference/type", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/reference" }]
+            return false
+          }
+          if (data.media.static.edges[j].relations[k].reference.length > 2048 && stringLength(data.media.static.edges[j].relations[k].reference) > 2048) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/properties/reference/maxLength", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/reference" }]
+            return false
+          }
+          if (data.media.static.edges[j].relations[k].reference.length < 1 || stringLength(data.media.static.edges[j].relations[k].reference) < 1) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/properties/reference/minLength", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/reference" }]
+            return false
+          }
+          if (!(pattern1.test(data.media.static.edges[j].relations[k].reference))) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/properties/reference/pattern", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/reference" }]
+            return false
+          }
+          for (const key3 of Object.keys(data.media.static.edges[j].relations[k])) {
+            if (key3 !== "namespace" && key3 !== "reference") {
+              validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/relations/items/additionalProperties", instanceLocation: "#/media/static/edges/"+j+"relations/"+k+"/"+pointerPart(key3) }]
+              return false
+            }
+          }
+        }
+      }
+      if (!(Array.isArray(data.media.static.edges[j].points))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/points/type", instanceLocation: "#/media/static/edges/"+j+"/points" }]
+        return false
+      }
+      if (data.media.static.edges[j].points.length > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/points/maxItems", instanceLocation: "#/media/static/edges/"+j+"/points" }]
+        return false
+      }
+      if (data.media.static.edges[j].points.length < 2) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/points/minItems", instanceLocation: "#/media/static/edges/"+j+"/points" }]
+        return false
+      }
+      for (let l = 0; l < data.media.static.edges[j].points.length; l++) {
+        if (l in data.media.static.edges[j].points && hasOwn(data.media.static.edges[j].points, l)) {
+          if (!(Array.isArray(data.media.static.edges[j].points[l]))) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/points/items/type", instanceLocation: "#/media/static/edges/"+j+"points/"+l }]
+            return false
+          }
+          if (data.media.static.edges[j].points[l].length > 2) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/points/items/maxItems", instanceLocation: "#/media/static/edges/"+j+"points/"+l }]
+            return false
+          }
+          if (data.media.static.edges[j].points[l].length < 2) {
+            validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/points/items/minItems", instanceLocation: "#/media/static/edges/"+j+"points/"+l }]
+            return false
+          }
+          for (let m = 0; m < data.media.static.edges[j].points[l].length; m++) {
+            if (m in data.media.static.edges[j].points[l] && hasOwn(data.media.static.edges[j].points[l], m)) {
+              if (!(typeof data.media.static.edges[j].points[l][m] === "number")) {
+                validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/points/items/items/type", instanceLocation: "#/media/static/edges/"+j+"points/"+l+"/"+m }]
+                return false
+              }
+              if (!(-12000 <= data.media.static.edges[j].points[l][m])) {
+                validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/points/items/items/minimum", instanceLocation: "#/media/static/edges/"+j+"points/"+l+"/"+m }]
+                return false
+              }
+              if (!(12000 >= data.media.static.edges[j].points[l][m])) {
+                validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/properties/points/items/items/maximum", instanceLocation: "#/media/static/edges/"+j+"points/"+l+"/"+m }]
+                return false
+              }
+            }
+          }
+        }
+      }
+      for (const key4 of Object.keys(data.media.static.edges[j])) {
+        if (key4 !== "from" && key4 !== "to" && key4 !== "relations" && key4 !== "points") {
+          validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/edges/items/additionalProperties", instanceLocation: "#/media/static/edges/"+j+"/"+pointerPart(key4) }]
+          return false
+        }
+      }
+    }
+  }
+  if (!Array.isArray(data.media.static.groups)) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/type", instanceLocation: "#/media/static/groups" }]
+    return false
+  }
+  if (data.media.static.groups.length > 256) {
+    validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/maxItems", instanceLocation: "#/media/static/groups" }]
+    return false
+  }
+  for (let n = 0; n < data.media.static.groups.length; n++) {
+    if (n in data.media.static.groups && hasOwn(data.media.static.groups, n)) {
+      if (!(typeof data.media.static.groups[n] === "object" && data.media.static.groups[n] && !Array.isArray(data.media.static.groups[n]))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/type", instanceLocation: "#/media/static/groups/"+n }]
+        return false
+      }
+      if (!("id" in data.media.static.groups[n] && hasOwn(data.media.static.groups[n], "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/required", instanceLocation: "#/media/static/groups/"+n+"/id" }]
+        return false
+      }
+      if (!("x" in data.media.static.groups[n] && hasOwn(data.media.static.groups[n], "x"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/required", instanceLocation: "#/media/static/groups/"+n+"/x" }]
+        return false
+      }
+      if (!("y" in data.media.static.groups[n] && hasOwn(data.media.static.groups[n], "y"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/required", instanceLocation: "#/media/static/groups/"+n+"/y" }]
+        return false
+      }
+      if (!("width" in data.media.static.groups[n] && hasOwn(data.media.static.groups[n], "width"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/required", instanceLocation: "#/media/static/groups/"+n+"/width" }]
+        return false
+      }
+      if (!("height" in data.media.static.groups[n] && hasOwn(data.media.static.groups[n], "height"))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/required", instanceLocation: "#/media/static/groups/"+n+"/height" }]
+        return false
+      }
+      if (!(typeof data.media.static.groups[n].id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/id/type", instanceLocation: "#/media/static/groups/"+n+"/id" }]
+        return false
+      }
+      if (!(pattern0.test(data.media.static.groups[n].id))) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/id/pattern", instanceLocation: "#/media/static/groups/"+n+"/id" }]
+        return false
+      }
+      if (!(typeof data.media.static.groups[n].x === "number")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/x/type", instanceLocation: "#/media/static/groups/"+n+"/x" }]
+        return false
+      }
+      if (!(-12000 <= data.media.static.groups[n].x)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/x/minimum", instanceLocation: "#/media/static/groups/"+n+"/x" }]
+        return false
+      }
+      if (!(12000 >= data.media.static.groups[n].x)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/x/maximum", instanceLocation: "#/media/static/groups/"+n+"/x" }]
+        return false
+      }
+      if (!(typeof data.media.static.groups[n].y === "number")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/y/type", instanceLocation: "#/media/static/groups/"+n+"/y" }]
+        return false
+      }
+      if (!(-12000 <= data.media.static.groups[n].y)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/y/minimum", instanceLocation: "#/media/static/groups/"+n+"/y" }]
+        return false
+      }
+      if (!(12000 >= data.media.static.groups[n].y)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/y/maximum", instanceLocation: "#/media/static/groups/"+n+"/y" }]
+        return false
+      }
+      if (!(typeof data.media.static.groups[n].width === "number")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/width/type", instanceLocation: "#/media/static/groups/"+n+"/width" }]
+        return false
+      }
+      if (!(0 < data.media.static.groups[n].width)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/width/exclusiveMinimum", instanceLocation: "#/media/static/groups/"+n+"/width" }]
+        return false
+      }
+      if (!(12000 >= data.media.static.groups[n].width)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/width/maximum", instanceLocation: "#/media/static/groups/"+n+"/width" }]
+        return false
+      }
+      if (!(typeof data.media.static.groups[n].height === "number")) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/height/type", instanceLocation: "#/media/static/groups/"+n+"/height" }]
+        return false
+      }
+      if (!(0 < data.media.static.groups[n].height)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/height/exclusiveMinimum", instanceLocation: "#/media/static/groups/"+n+"/height" }]
+        return false
+      }
+      if (!(12000 >= data.media.static.groups[n].height)) {
+        validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/properties/height/maximum", instanceLocation: "#/media/static/groups/"+n+"/height" }]
+        return false
+      }
+      for (const key5 of Object.keys(data.media.static.groups[n])) {
+        if (key5 !== "id" && key5 !== "x" && key5 !== "y" && key5 !== "width" && key5 !== "height") {
+          validate.errors = [{ keywordLocation: "#/properties/media/properties/static/properties/groups/items/additionalProperties", instanceLocation: "#/media/static/groups/"+n+"/"+pointerPart(key5) }]
+          return false
+        }
+      }
+    }
+  }
+  for (const key6 of Object.keys(data.media.static)) {
+    if (key6 !== "view" && key6 !== "nodes" && key6 !== "edges" && key6 !== "groups") {
+      validate.errors = [{ keywordLocation: "#/properties/media/properties/static/additionalProperties", instanceLocation: "#/media/static/"+pointerPart(key6) }]
+      return false
+    }
+  }
+  for (const key7 of Object.keys(data.media)) {
+    if (key7 !== "static") {
+      validate.errors = [{ keywordLocation: "#/properties/media/additionalProperties", instanceLocation: "#/media/"+pointerPart(key7) }]
+      return false
+    }
+  }
+  for (const key8 of Object.keys(data)) {
+    if (key8 !== "schema" && key8 !== "media") {
+      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key8) }]
+      return false
+    }
+  }
+  return true
+};
+return ref0})();;

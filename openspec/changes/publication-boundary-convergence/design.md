@@ -760,8 +760,8 @@ has 38 entities, 51 relations, and 89 derived claims across eight reader
 questions. Its source-owned static composition and interactive scene code
 author aggregations, routing, and hierarchy; Publisher already supplies font
 measurement, rasterization, Archify/Atlas rendering, and quality checks. The
-legacy self builders pass their own tests, but the successor scene compilers
-reject every non-null `visualPolicy.override`. Re-authoring the same model as a
+legacy self builders pass their own tests, but at design admission the successor
+scene compilers rejected every non-null `visualPolicy.override`. Re-authoring the same model as a
 neutral Edition Project cannot by itself establish flagship visual parity.
 Neutral-only output discards authored aggregation and geometry; accepting
 self-rendered files bypasses the common compiler's visible-meaning check; an

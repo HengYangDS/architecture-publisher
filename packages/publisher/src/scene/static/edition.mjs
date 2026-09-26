@@ -115,7 +115,8 @@ export function composeStaticEditionScene(meaning, layout) {
   if (
     meaning.editorial?.visualPolicy?.profile !== 'neutral' ||
     (meaning.editorial.visualPolicy.override !== undefined &&
-      meaning.editorial.visualPolicy.override !== null)
+      meaning.editorial.visualPolicy.override !== null &&
+      meaning.refinement?.media?.static === undefined)
   )
     fail('static_scene_visual_policy_unadmitted');
   const claimModelMode = meaning.native.selections.some(
@@ -196,7 +197,13 @@ export function composeStaticEditionScene(meaning, layout) {
         'static_scene_claim_relation_unbound',
       )
     : null;
-  const structural = claimSources?.relations ?? [nativeView];
+  const structural = claimModelMode
+    ? editorialView.assertionIds
+        .map((id) => assertions.get(id))
+        .filter((assertion) => assertion?.kind === 'source')
+        .map(({ selection }) => selections.get(selection))
+        .filter((selected) => ['entity', 'relation'].includes(selected?.target.kind))
+    : [nativeView];
   const semanticNodes = new Map();
   const semanticRelations = new Map();
   for (const selected of structural) {
@@ -320,7 +327,10 @@ export function composeStaticEditionScene(meaning, layout) {
     edition: meaning.edition,
     title: meaning.editorial.title,
     summary: meaning.editorial.narrative.summary,
-    visualPolicy: meaning.editorial.visualPolicy,
+    visualPolicy: meaning.refinement ? { profile: 'neutral' } : meaning.editorial.visualPolicy,
+    ...(meaning.refinement
+      ? { refinement: { schema: meaning.refinement.schema, sha256: meaning.refinement.sha256 } }
+      : {}),
     requestedWidth: meaning.editorial.presentation.static.width ?? null,
     editorialViewId: editorialView.id,
     nativeView: layout.view,

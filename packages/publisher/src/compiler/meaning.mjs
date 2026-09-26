@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { deriveEditionAssertions, validateEditionProject } from '../edition/authoring.mjs';
+import { parseSelectedSceneRefinement } from '../edition/refinement.mjs';
 import { deriveEditionQuestionObligations } from '../edition/selection.mjs';
 import { deepFreeze } from '../semantics/document.mjs';
 import { parseStrictJson } from '../source/json.mjs';
@@ -56,6 +57,23 @@ export async function compileEditionMeaning(input) {
   )
     fail('edition_meaning_media_invalid');
 
+  let refinement = null;
+  const override = project.visualPolicy.override ?? null;
+  if (override !== null) {
+    const selected = lock.edition.resources;
+    if (
+      !Array.isArray(selected) ||
+      selected.length !== 1 ||
+      selected[0].ref !== override ||
+      typeof input.readEditionOverride !== 'function'
+    )
+      fail('scene_refinement_resource_missing');
+    const bytes = input.readEditionOverride();
+    if (!Buffer.isBuffer(bytes) || sha(bytes) !== selected[0].sha256)
+      fail('scene_refinement_resource_mismatch');
+    refinement = parseSelectedSceneRefinement(bytes, media, selected[0].sha256);
+  }
+
   const native = await compileEditionNativeSelections({
     ...input,
     lock,
@@ -88,6 +106,7 @@ export async function compileEditionMeaning(input) {
       presentation: project.presentation,
       visualPolicy: project.visualPolicy,
     },
+    ...(refinement === null ? {} : { refinement }),
     questions: project.questions,
     assertions,
     media: mediaObligations,

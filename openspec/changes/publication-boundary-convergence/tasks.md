@@ -480,11 +480,25 @@ third-party or generated supply rather than moving owned code outside coverage.
       Current legacy self tests pass 23/23, but they do not exercise that path.
       The self model contains 38 entities, 51 relations, and 89 derived claims;
       its authored compositions cannot be replaced by neutral boxes. The
-      successor currently rejects selected visual overrides. Admit the
-      versioned, data-only scene refinement described in `design.md`, prove its
+      versioned, data-only scene refinement described in `design.md` must prove its
       source-to-graphic coverage with self and unrelated inputs, then verify
       exact installed artifact identities and obtain human visual acceptance
       before removing legacy self orchestration. This task remains open.
+      Partial: the public successor build now admits a byte-bound static-only
+      geometry refinement and refuses unsupported interactive refinement rather
+      than substituting neutral output. LikeC4 and unrelated grouped Claim Model
+      builds pass focused positive and forged-member counterexamples. Self-owned
+      successor Project derivation reuses the legacy author's questions and
+      claim choices; materialized meaning and manually composed sibling scenes
+      retain 38 entities, 51 relations, 89 claims, and eight interactive views.
+      This does not yet migrate self to the public dual-medium build, preserve
+      its flagship composition, or qualify any new visual artifact. The exact
+      current expanded coverage run passed 1088 tests, skipped 5, and failed
+      none; it reported 97.73% statements, 97.73% lines, 92.79% branches, and
+      99.24% functions. The refinement contract now uses the shared generated
+      closed-schema validation path rather than a separate handwritten shape
+      validator; a scalar source claim is representable without a fake relation.
+      The 95% branch gate remains red and forbids integration or publication.
 
 ## 6. Qualification and bounded publication
 

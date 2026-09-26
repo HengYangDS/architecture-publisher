@@ -731,6 +731,104 @@ test('a grouped static Scene retains relation and dependent claim as separate so
   });
 });
 
+test('a grouped Claim Model refinement keeps its typed claim linked to selected source structure', async (t) => {
+  const selected = await groupedMixedFixture(t, { media: ['static'] });
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const layout = composeGroupedSelectionLayout(meaning);
+  const refinement = {
+    schema: 'architecture.scene-refinement/v1',
+    media: {
+      static: {
+        view: 'overview',
+        nodes: layout.nodes.map(({ namespace, id, x, y, width, height }) => ({
+          namespace,
+          id,
+          x,
+          y,
+          width,
+          height,
+        })),
+        edges: layout.edges.map(({ from, to, relations, points }) => ({
+          from,
+          to,
+          relations: relations.map(({ namespace, reference }) => ({ namespace, reference })),
+          points,
+        })),
+        groups: layout.groups.map(({ id, x, y, width, height }) => ({
+          id,
+          x,
+          y,
+          width,
+          height,
+        })),
+      },
+    },
+  };
+  selected.project.visualPolicy.override = 'refinement.json';
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  await fs.writeFile(
+    path.join(selected.root, 'edition/refinement.json'),
+    JSON.stringify(refinement) + '\n',
+  );
+  const output = path.join(selected.root, 'refined-candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert.match(svg, /authorization: granted/u);
+  assert.match(svg, /ON SOURCE RELATION/u);
+  const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json'), 'utf8'));
+  assert.equal(candidate.obligations.static.views[0].assertionIds.length, 2);
+
+  refinement.media.static.edges[0].relations[0].reference = 'invented';
+  await fs.writeFile(
+    path.join(selected.root, 'edition/refinement.json'),
+    JSON.stringify(refinement) + '\n',
+  );
+  await assert.rejects(
+    compileEditionCandidateInput(
+      selected.requestPath,
+      selected.requestSha256,
+      path.join(selected.root, 'forged-candidate'),
+    ),
+    { code: 'scene_refinement_membership_mismatch' },
+  );
+});
+
+test('a grouped entity may carry a scalar claim without inventing a source relation', async (t) => {
+  const selected = await fixture(t, { reference: 'entity:client' });
+  selected.project.scope.selections[0].id = 'selected-entity';
+  selected.project.scope.selections.push({
+    id: 'selected-scalar',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'claim:observed',
+    questions: ['condition'],
+  });
+  const groups = [
+    {
+      id: 'client-group',
+      label: 'Client',
+      elements: [{ namespace: modelNamespace, id: 'client' }],
+    },
+  ];
+  selected.project.presentation.static.views[0].groups = groups;
+  selected.project.presentation.interactive.views[0].groups = structuredClone(groups);
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const output = path.join(selected.root, 'entity-scalar-candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  assert.match(svg, /ON SOURCE ENTITY/u);
+  assert.match(html, /observed/u);
+  assert.doesNotMatch(svg, /SOURCE RELATIONS<\/text>/u);
+});
+
 test('a mixed page carries a scalar claim on its own source subject without inventing an edge', async (t) => {
   const selected = await mixedScalarFixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
