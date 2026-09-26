@@ -122,30 +122,20 @@ function selectedRecord(record, candidate, obligations, candidateSha256) {
     fail('selected_qualification_limitations_invalid');
 }
 
-/** Bind submitted v2 records to one replayed Candidate without granting trust or acceptance. */
-export function bindSelectedQualificationSet(candidateValue, replay, setValue) {
-  const candidate = validateSelectedEditionCandidate(candidateValue);
+function bindCandidateDeclaredSet(candidate, obligations, setValue) {
   const candidateSha256 = selectedEditionCandidateDigest(candidate);
-  if (
-    replay?.status !== 'replayed' ||
-    replay.verdict !== 'match' ||
-    replay.candidateSha256 !== candidateSha256 ||
-    replay.inputLockSha256 !== candidate.input.lockSha256 ||
-    canonical(replay.replayedEditionObligations) !== canonical(candidate.obligations)
-  )
-    fail('selected_qualification_replay_mismatch');
   if (
     !exact(setValue, ['schema', 'candidateSha256', 'inputLockSha256', 'records']) ||
     setValue.schema !== 'architecture.qualification-set/v2' ||
     setValue.candidateSha256 !== candidateSha256 ||
-    setValue.inputLockSha256 !== replay.inputLockSha256 ||
+    setValue.inputLockSha256 !== candidate.input.lockSha256 ||
     !Array.isArray(setValue.records) ||
     setValue.records.length > 4096
   )
     fail('selected_qualification_set_invalid');
   const ids = new Set();
   for (const record of setValue.records) {
-    selectedRecord(record, candidate, replay.replayedEditionObligations, candidateSha256);
+    selectedRecord(record, candidate, obligations, candidateSha256);
     if (ids.has(record.id)) fail('selected_qualification_record_duplicate');
     ids.add(record.id);
   }
@@ -153,7 +143,7 @@ export function bindSelectedQualificationSet(candidateValue, replay, setValue) {
   qualificationSet.records.sort((left, right) => left.id.localeCompare(right.id));
   const missingSubmittedPassQuestionScopes = [];
   for (const medium of Object.keys(candidate.media).sort()) {
-    for (const view of replay.replayedEditionObligations[medium].views) {
+    for (const view of obligations[medium].views) {
       if (!requiredText(view?.id) || !Array.isArray(view.questionIds))
         fail('selected_qualification_scope_invalid');
       for (const question of view.questionIds) {
@@ -180,7 +170,7 @@ export function bindSelectedQualificationSet(candidateValue, replay, setValue) {
     qualificationSet,
     qualificationSetDigest: sha(qualificationSet),
     candidateSha256,
-    inputLockSha256: replay.inputLockSha256,
+    inputLockSha256: candidate.input.lockSha256,
     records: qualificationSet.records.length,
     attribution: 'submitted-unverified',
     missingSubmittedPassQuestionScopes,
@@ -189,4 +179,25 @@ export function bindSelectedQualificationSet(candidateValue, replay, setValue) {
     acceptance: 'not-performed',
     publication: 'not-performed',
   });
+}
+
+/** Check only Candidate-declared subjects; this is not a selected-source replay. */
+export function bindSubmittedQualificationSet(candidateValue, setValue) {
+  const candidate = validateSelectedEditionCandidate(candidateValue);
+  return bindCandidateDeclaredSet(candidate, candidate.obligations, setValue);
+}
+
+/** Bind submitted v2 records to one replayed Candidate without granting trust or acceptance. */
+export function bindSelectedQualificationSet(candidateValue, replay, setValue) {
+  const candidate = validateSelectedEditionCandidate(candidateValue);
+  const candidateSha256 = selectedEditionCandidateDigest(candidate);
+  if (
+    replay?.status !== 'replayed' ||
+    replay.verdict !== 'match' ||
+    replay.candidateSha256 !== candidateSha256 ||
+    replay.inputLockSha256 !== candidate.input.lockSha256 ||
+    canonical(replay.replayedEditionObligations) !== canonical(candidate.obligations)
+  )
+    fail('selected_qualification_replay_mismatch');
+  return bindCandidateDeclaredSet(candidate, replay.replayedEditionObligations, setValue);
 }

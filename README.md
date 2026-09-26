@@ -145,8 +145,16 @@ An `Edition Candidate` is built, not accepted. A `Qualification Set` records
 external predicate judgments, but does not authorize publication. A
 `Publication Plan` describes an effect, and apply/recovery require explicit
 caller-owned authorization.
+
 An invoker-selected v2 policy can assess submitted records against exact
 requirements; it cannot authenticate their authors or grant acceptance.
+
+Raw pair publication remains file-integrity-only. The qualified Edition form
+selects a dual-media Candidate, Qualification Set, policy, and prior report;
+one named decision adopts those exact bytes and a separate decision authorizes
+the local effect. The receipt attributes those decisions without authenticating
+the actors or granting a source-product or hosted release. Both forms use the
+same `publish plan/apply/recover` commands and file installer.
 
 ```text
 built ≠ qualified ≠ authorized ≠ published ≠ hosted-observed

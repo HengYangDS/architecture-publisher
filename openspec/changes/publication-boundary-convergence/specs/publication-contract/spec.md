@@ -19,6 +19,29 @@ or off-host retention.
 - **THEN** the existing installer may apply or recover its file effect
 - **AND** its receipt makes no semantic qualification or product-release claim
 
+#### Scenario: A qualified request selects prior evidence without replaying Provider code
+
+- **WHEN** `architecture.qualified-file-publication/v1` selects an exact
+  dual-media Candidate container, Qualification Set, policy, and prior report
+- **THEN** planning derives static SVG and PNG plus interactive HTML payloads,
+  claimant and editor attribution, and the target prestate from those bytes
+- **AND** it rechecks submitted policy fit but neither reruns the Provider nor
+  authenticates a verifier, accepter, or source claimant
+
+#### Scenario: Adoption and local effect authorization are separate
+
+- **WHEN** `architecture.qualified-file-authorization/v1` binds a plan
+- **THEN** one clause records the named accepter's exact Candidate and policy
+  adoption and another authorizes the local target effect
+- **AND** neither clause alone installs files or grants hosted release authority
+
+#### Scenario: Qualified recovery survives removal of original inputs
+
+- **WHEN** an authorized dual-media installation has a retained plan,
+  authorization, and recovery journal but no original Candidate or Provider
+- **THEN** recovery verifies the installed result or restores the retained
+  prestate without rematerializing source inputs
+
 #### Scenario: A multi-source analysis has one editor
 
 - **WHEN** an editor publishes a comparison using ETHOS and AIGW claims
@@ -46,14 +69,14 @@ or off-host retention.
 
 - **WHEN** the supplied authorization does not bind the exact Candidate,
   qualification set, target, prestate, or file-plan digest
-- **THEN** local publication fails before effects
+- **THEN** local publication fails before delivery target changes
 - **AND** a prior accepted publication remains untouched
 
 #### Scenario: A decision names another plan
 
 - **WHEN** either admission case receives authorization for another plan or
   target prestate
-- **THEN** the operation fails before filesystem, Git, package, or forge effects
+- **THEN** the operation fails before delivery target, Git, package, or forge effects
 - **AND** qualified admission also rejects a mismatched Candidate, Edition,
   qualification, policy, accepter, or custodian before effects
 

@@ -1,5 +1,7 @@
 import { hasExactFields } from '../source/manifest.mjs';
 
+export const QUALIFIED_SOURCE = 'architecture.qualified-edition-source/v1';
+
 export function exactFields(value, names, message, code) {
   if (!hasExactFields(value, names)) throw Object.assign(new Error(message), code ? { code } : {});
 }

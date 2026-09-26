@@ -234,10 +234,22 @@ Plan a bounded paired-file effect:
 archpub publish plan <request.json>
 ```
 
-The request explicitly selects source roots, the stable `native` and `atlas`
-publication destinations,
-recovery root, payload entries, dependencies, and optional prior replacement.
-The result is a dry plan; it writes no delivery target.
+The raw-pair request explicitly selects source roots, `native` and `atlas`
+file-plan destinations, recovery root, payload entries, dependencies, and
+optional prior replacement. It establishes file integrity only.
+
+A qualified Edition request instead uses
+`architecture.qualified-file-publication/v1`: `candidate` selects the exact
+dual-media Candidate container manifest and digest; `qualifications` selects
+the exact Qualification Set, selected policy, and prior `qualify verify` report
+as `{file, sha256}` values. It names `roles.releaseOwner` (nullable),
+`roles.custodian`, and `roles.effectAuthorizer`. `options.destinations` names
+`static` and `interactive` directories plus a `recoveryRoot`; `entries` gives
+each medium its `index.html` and `README.md`. Paths resolve relative to this
+request. The plan derives its three artifact payloads and source roles from
+the selected Candidate and input lock; callers cannot supply arbitrary payload
+rows in this mode. Both forms produce a dry plan without changing a delivery
+target.
 
 After a source product or operator supplies an exact authorization bound to the
 plan digest:
@@ -247,11 +259,21 @@ archpub publish apply <plan.json> <authorization.json>
 archpub publish recover <plan.json> <authorization.json>
 ```
 
-The file engine preserves foreign content, checks destination pre-state, records
-its journal before mutation, uses one writer boundary, and supports bounded
-interruption recovery. These commands establish local filesystem effects only;
-they do not claim hosted availability, release publication, or semantic
-acceptance.
+Raw authorization is `{ "decision": "AUTHORIZED", "planSha256": "<digest>" }`.
+Qualified authorization uses `architecture.qualified-file-authorization/v1`
+with the exact `planSha256`, an `acceptance` clause naming the selected policy's
+accepter and exact Candidate, Qualification Set, and policy digests, and a
+separate `effect` clause naming the local authorizer. `ACCEPTED` and
+`AUTHORIZED` are distinct decisions; neither is inferred from a submitted
+`PASS` report. The selected report is rechecked for Candidate-declared policy
+fit, not authenticated as a verifier or source replay. The qualified receipt
+records these attributed roles and decisions.
+
+The same file engine preserves foreign content, checks destination prestate,
+records its journal before delivery mutation, and supports bounded recovery
+without the original Candidate or Provider. The commands establish local
+filesystem effects only; they do not claim hosted availability, source-product
+release, independent verification, or off-host retention.
 
 ## Public JavaScript contracts
 

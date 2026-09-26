@@ -4,7 +4,12 @@ import {
   selectedEditionCandidateDigest,
   validateSelectedEditionCandidate,
 } from '../compiler/candidate.mjs';
-import { bindSelectedQualificationSet, requiredText, selectedScope } from './selected.mjs';
+import {
+  bindSelectedQualificationSet,
+  bindSubmittedQualificationSet,
+  requiredText,
+  selectedScope,
+} from './selected.mjs';
 
 const policyKey = ({ predicate, scope, verifier, method }) =>
   canonical({ predicate, scope, verifier, method });
@@ -87,14 +92,11 @@ function selectedPolicy(value, candidate, obligations, candidateSha256) {
   return requirements;
 }
 
-/** Assess submitted records against an invoker-selected policy without authenticating either actor. */
-export function assessSelectedQualificationPolicy(candidateValue, replay, setValue, policyValue) {
-  const candidate = validateSelectedEditionCandidate(candidateValue);
-  const bound = bindSelectedQualificationSet(candidate, replay, setValue);
+function assessBoundPolicy(candidate, bound, obligations, policyValue) {
   const requirements = selectedPolicy(
     policyValue,
     candidate,
-    replay.replayedEditionObligations,
+    obligations,
     selectedEditionCandidateDigest(candidate),
   );
   const seen = new Set();
@@ -142,4 +144,18 @@ export function assessSelectedQualificationPolicy(candidateValue, replay, setVal
     acceptance: 'not-performed',
     publication: 'not-performed',
   });
+}
+
+/** Assess submitted records against an invoker-selected policy without authenticating either actor. */
+export function assessSelectedQualificationPolicy(candidateValue, replay, setValue, policyValue) {
+  const candidate = validateSelectedEditionCandidate(candidateValue);
+  const bound = bindSelectedQualificationSet(candidate, replay, setValue);
+  return assessBoundPolicy(candidate, bound, replay.replayedEditionObligations, policyValue);
+}
+
+/** Check Candidate-declared policy fit without claiming a selected-source replay. */
+export function assessSubmittedQualificationPolicy(candidateValue, setValue, policyValue) {
+  const candidate = validateSelectedEditionCandidate(candidateValue);
+  const bound = bindSubmittedQualificationSet(candidate, setValue);
+  return assessBoundPolicy(candidate, bound, candidate.obligations, policyValue);
 }

@@ -5,7 +5,7 @@ import os from 'node:os';
 import { createHash, randomUUID } from 'node:crypto';
 import { parseStrictJson } from '../source/json.mjs';
 import { hasExactFields } from '../source/manifest.mjs';
-import { requireExplicitAcceptance } from './contract.mjs';
+import { QUALIFIED_SOURCE, requireExplicitAcceptance } from './contract.mjs';
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const encode = (v) => JSON.stringify(v, null, 2) + '\n';
 const inside = (a, b) => a === b || b.startsWith(a + path.sep);
@@ -358,7 +358,9 @@ function expectedManifest(plan, medium, acceptance) {
     files,
     globalAtomicity: false,
     sourceAuthority:
-      'Explicit input source; file installation grants no semantic or visual acceptance',
+      plan.source?.schema === QUALIFIED_SOURCE
+        ? 'Selected evidence and external decisions are attributed; local installation does not authenticate claimants or verifiers or grant hosted release'
+        : 'Explicit input source; file installation grants no semantic or visual acceptance',
   };
 }
 async function checkFiles(root, rows) {
@@ -449,6 +451,59 @@ function verifyPlanAcceptance(plan, acceptance) {
   if (plan.schema !== 'architecture.pair-files/v2')
     throw Error('Unsupported file installation plan');
   validateOptions(plan.options);
+  if (plan.source?.schema === QUALIFIED_SOURCE) {
+    const source = plan.source;
+    if (
+      !hasExactFields(source, [
+        'schema',
+        'candidateManifestSha256',
+        'candidateSha256',
+        'inputLockSha256',
+        'editionSha256',
+        'qualificationSetSha256',
+        'qualificationSetDigest',
+        'policySha256',
+        'reportSha256',
+        'evidenceAttribution',
+        'roles',
+      ]) ||
+      source.evidenceAttribution !== 'submitted-unverified' ||
+      !hasExactFields(source.roles, [
+        'claimants',
+        'editor',
+        'producer',
+        'verifiers',
+        'accepter',
+        'releaseOwner',
+        'custodian',
+        'effectAuthorizer',
+      ]) ||
+      source.roles.producer !== 'architecture-publisher' ||
+      !Array.isArray(source.roles.claimants) ||
+      !source.roles.claimants.length ||
+      !Array.isArray(source.roles.verifiers) ||
+      !hasExactFields(acceptance, ['schema', 'planSha256', 'acceptance', 'effect']) ||
+      acceptance.schema !== 'architecture.qualified-file-authorization/v1' ||
+      acceptance.planSha256 !== digest ||
+      !hasExactFields(acceptance.acceptance, [
+        'decision',
+        'accepter',
+        'candidateSha256',
+        'qualificationSetDigest',
+        'policySha256',
+      ]) ||
+      acceptance.acceptance.decision !== 'ACCEPTED' ||
+      acceptance.acceptance.accepter !== source.roles.accepter ||
+      acceptance.acceptance.candidateSha256 !== source.candidateSha256 ||
+      acceptance.acceptance.qualificationSetDigest !== source.qualificationSetDigest ||
+      acceptance.acceptance.policySha256 !== source.policySha256 ||
+      !hasExactFields(acceptance.effect, ['decision', 'authorizer']) ||
+      acceptance.effect.decision !== 'AUTHORIZED' ||
+      acceptance.effect.authorizer !== source.roles.effectAuthorizer
+    )
+      throw Error('Exact qualified Edition adoption and local effect authorization required');
+    return digest;
+  }
   requireExplicitAcceptance(
     acceptance,
     digest,

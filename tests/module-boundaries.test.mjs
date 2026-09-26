@@ -148,6 +148,31 @@ test('all shipped modules satisfy the package and semantic dependency graph', as
   );
 });
 
+test('only qualified publication admission may read Candidate and qualification predicates', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  for (const target of ['../compiler/candidate.mjs', '../qualification/policy.mjs']) {
+    const source = `import '${target}';`;
+    assert.deepEqual(
+      inspectModuleBoundaries(
+        'packages/publisher/src/publication/qualified.mjs',
+        source,
+        paths,
+        packageExports,
+      ),
+      [],
+    );
+    assert(
+      inspectModuleBoundaries(
+        'packages/publisher/src/publication/files.mjs',
+        source,
+        paths,
+        packageExports,
+      ).some(({ reason }) => reason.includes('forbidden dependency')),
+    );
+  }
+});
+
 test('development tools use declared package owners and dependencies', async () => {
   const { paths, modules } = await inventory([...runtimeRoots, 'tools']);
   const packageExports = await declaredPackageExports();

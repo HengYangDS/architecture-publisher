@@ -119,6 +119,16 @@ const owners = [
     ],
   ],
   [
+    'packages/publisher/src/publication/qualified.mjs',
+    [
+      'packages/publisher/src/publication/',
+      'packages/publisher/src/compiler/candidate.mjs',
+      'packages/publisher/src/qualification/policy.mjs',
+      'packages/publisher/src/semantics/',
+      'packages/publisher/src/source/',
+    ],
+  ],
+  [
     'packages/publisher/src/publication/',
     [
       'packages/publisher/src/publication/',

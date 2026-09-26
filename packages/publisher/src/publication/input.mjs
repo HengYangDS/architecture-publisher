@@ -9,7 +9,8 @@ import {
   installPairFiles,
   recoverPairFiles,
 } from './files.mjs';
-import { exactFields } from './contract.mjs';
+import { exactFields, QUALIFIED_SOURCE } from './contract.mjs';
+import { planQualifiedFilePublication } from './qualified.mjs';
 
 const fields = (value, names) =>
   exactFields(
@@ -44,6 +45,13 @@ export async function filePublication(operation, inputFile, authorizationFile) {
     semanticAcceptance: 'not-performed',
   };
   if (operation === 'plan') {
+    if (value?.schema === 'architecture.qualified-file-publication/v1')
+      return {
+        status: 'PLANNED',
+        scope: 'qualified-edition-local-file-effect',
+        semanticAcceptance: 'pending-external-decision',
+        plan: await planQualifiedFilePublication(value, base),
+      };
     fields(value, [
       'options',
       'source',
@@ -52,6 +60,10 @@ export async function filePublication(operation, inputFile, authorizationFile) {
       'dependencies',
       ...(Object.hasOwn(value, 'replacement') ? ['replacement'] : []),
     ]);
+    if (value.source?.schema === QUALIFIED_SOURCE)
+      throw Object.assign(new Error('Qualified source requires selected evidence'), {
+        code: 'file_publication_input_invalid',
+      });
     fields(value.options, ['sourceRoots', 'destinations', 'recoveryRoot']);
     fields(value.options.destinations, PUBLICATION_MEDIA);
     const resolve = (file) => {
@@ -85,10 +97,19 @@ export async function filePublication(operation, inputFile, authorizationFile) {
   }
   if (!['apply', 'recover'].includes(operation)) throw new Error('Unsupported file operation');
   const authorization = (await read(authorizationFile)).value;
-  fields(authorization, ['decision', 'planSha256']);
+  const qualified = value?.source?.schema === QUALIFIED_SOURCE;
+  if (!qualified) fields(authorization, ['decision', 'planSha256']);
   const result = await (operation === 'apply' ? installPairFiles : recoverPairFiles)(
     value,
     authorization,
   );
-  return { ...result, ...scope };
+  return {
+    ...result,
+    ...(qualified
+      ? {
+          scope: 'qualified-edition-local-file-effect',
+          semanticAcceptance: 'externally-declared',
+        }
+      : scope),
+  };
 }
