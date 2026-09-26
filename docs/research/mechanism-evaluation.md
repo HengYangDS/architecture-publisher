@@ -1528,3 +1528,39 @@ outside these images. Exercise cycles, bidirectional and parallel relations,
 ETHOS/self/di-effect, package relocation, browser behavior and human review
 before replacing the current geometry owner. A cross-workload failure or
 larger upkeep cost can reverse this preference.
+
+### Joint geometry and evidence-flow probe (2026-09-26)
+
+On unchanged Publisher `eeb5e29` and AIGW `270ca0bd`, a browser-only
+prototype used the same selected Client Projection page values. Dagre 3.1.1
+positioned twelve nodes and eleven relations left-to-right with a 26px rank
+gap, 16px node gap, 12px edge gap, and node widths measured from the bundled
+JetBrains Mono font at 14px. An inert inline SVG replaced the Cytoscape canvas
+only for this probe. A temporary DOM transformation shortened navigation,
+placed the graph across the content width, and flowed source questions, nodes,
+relations, qualifiers and method limits into separate evidence regions below
+it. No source input, Edition, Scene, Candidate, package, or product renderer
+changed. The short navigation labels were handpicked for this probe, not an
+admitted generic authoring contract.
+
+At 1440×900, the original installed Candidate's first page was 1,906px tall;
+the transformed page was 1,365px tall. Its 1,352×350 graph began at y=275px.
+At 1280×720, the complete twelve-node, eleven-relation diagram remained
+within y=275–625px; the sampled node text painted to a 16px-high CSS box, all
+twelve node labels had at least 12.4 SVG units of box clearance, and the page
+had no horizontal overflow. This is a desktop composition feasibility result,
+not an interactive or human quality verdict.
+
+![Desktop-only Dagre geometry and independent evidence-flow probe; not a Publisher Candidate](evidence/aigw-dagre-composition-desktop-probe.png)
+
+At 390px, shrinking the complete SVG made the sampled node text only 4px high.
+The prototype also removed the live Cytoscape canvas, so its focus, pan, zoom
+and Fit control were not meaningful. It fails mobile readability and
+interaction, despite preserving all selected relation text below the image.
+Changing Dagre to a top-to-bottom rank direction alone was estimated to leave
+the same overview at about 5.7px node text. A product candidate must retain
+complete source carriers and working focus/trace while using a distinct,
+readable narrow-viewport presentation; it cannot certify this screenshot or
+silently drop the hard-to-fit relations.
+
+![Narrow-viewport counterexample from the same inert prototype; not accepted media](evidence/aigw-dagre-composition-mobile-counterexample.png)

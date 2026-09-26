@@ -426,6 +426,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       expose a 1,013px graph/evidence column height disparity. The exact
       identities and limits are in the mechanism evaluation. A geometry swap
       alone cannot close this composition gap.
+      A joint Dagre/full-width evidence-flow browser-only probe made the whole
+      desktop graph visible within 1280×720 and shortened the 1440px first
+      page from 1,906px to 1,365px; its inert SVG and 4px mobile text fail
+      interaction and narrow-viewport readability. No backend is selected.
       Open: source-owner-approved authoring, installed exact-AIGW paired parity,
       reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure
