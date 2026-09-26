@@ -1391,6 +1391,8 @@ graph reached zoom 0.710 and about 11.4px effective node text, at the cost of
 moving the complete diagram below the first screen. The probe changed only
 background browser presentation, not the Candidate or source Edition.
 
+![Provisional AIGW overview after concise edge captions; node text remains too small for acceptance](evidence/aigw-neutral-overview-scale.png)
+
 The limiting variable is the relation between selected scope, graph layout and
 available viewport, not only label length. Do not declare neutral visual
 acceptance from parser, accessibility or source-carrier checks. The next
