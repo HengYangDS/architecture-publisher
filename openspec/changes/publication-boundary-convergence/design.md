@@ -6,6 +6,32 @@ This design and its revised specifications were approved on 2026-09-24. The
 same Change's `tasks.md` alone records implementation progress. Design or
 specification approval is not product acceptance or release evidence.
 
+### Program context (non-normative)
+
+The five worklines retain distinct purposes; this Change belongs to E.
+This map records program responsibility, not product semantics or a second
+progress ledger. This relocation does not change normative product decisions.
+
+| Workline                    | Owner and outcome                                                                                               | Boundary                                                     |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| A: accepted delivery        | Preserve qualified artwork, releases and reader installation                                                    | Do not redraw unchanged meaning or rewrite released evidence |
+| B: tool availability        | Bounded browser, authentication and runtime diagnosis                                                           | A usable supported path is not a universal upstream repair   |
+| C: ETHOS product            | Existing ETHOS contract and building task: intent, norms, adoption, lanes, execution, verification and feedback | The publisher cannot own ETHOS intent compilation or effects |
+| D: mechanism research       | Source-level evidence and counterexamples informing C and E                                                     | Adopt only with explicit cost and ownership benefit          |
+| E: architecture publication | This product: source meaning, authorship, composition, verification and recoverable evolution                   | One ETHOS edition does not prove arbitrary-domain capability |
+
+E progresses through bounded semantic compilation, explicit authorship and
+composition, a real independent adopter, broader domain qualification, then
+demand-led ecosystem interfaces. Research covers intent, code semantics,
+incremental execution, formal constraints, repository adoption and publication.
+GitLab projection and independently recoverable off-host backup require separate
+failure-domain evidence.
+
+The complete graphical editor, live synchronization service, plugin
+marketplace, universal semantic compiler, and automatic aesthetic optimizer
+remain outside Workline A. Do not advertise them as implemented or let them
+indefinitely delay fixed delivery.
+
 The selected historical baseline is the signed `v0.3.0-alpha.3` product line.
 No predecessor tag, Architecture Publisher 0.2 release, or signed artifact is
 rewritten. The read-only cases used to challenge this design are Publisher

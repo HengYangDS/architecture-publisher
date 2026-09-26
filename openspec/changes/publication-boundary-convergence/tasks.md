@@ -545,6 +545,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       limits, and
       ownership. `tests/ecosystem-projections.test.mjs` and
       `tests/product-identity.test.mjs` reject stale or rival command planes.
+      Partial: A–E program context is non-normative Change design; ETHOS-only
+      view and copy constraints are carried to its source-owned editor through
+      a non-authorizing migration handoff, not the generic product contract.
+      The actual successor CLI, examples, Skill and installed adopter paths
+      still require reconciliation.
 - [ ] 7.4 Promote the implemented delta requirements and role-based Purpose
       wording into active base specs before release freeze. Strictly validate the
       combined specs with no unresolved diagnostics, including advisory INFO,

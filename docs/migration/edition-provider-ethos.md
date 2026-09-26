@@ -52,8 +52,9 @@ responsibilities before deleting files:
   `write-boundary.mjs`, and `fonts.mjs` carry selected flagship expression
   and ETHOS-specific checks. Preserve the editor's decisions and exact visual
   obligations; the incumbent implementation files need not survive unchanged.
-  The Atlas catalog names 13 pages; neither it nor the selected view profile
-  authors per-page reader questions. Current `evolution.mjs` instead generates
+  The Atlas catalog names 13 pages as an ETHOS Edition property, not a
+  Publisher-wide cardinality; neither it nor the selected view profile authors
+  per-page reader questions. Current `evolution.mjs` instead generates
   default prompts from page labels. The named Edition editor must explicitly
   confirm or revise those defaults for the successor, not infer endorsement
   from labels alone. This does not invalidate the historical v1 Edition.
@@ -124,16 +125,24 @@ state. Its package location is an ETHOS ownership decision, not a prescribed
 `provider/` subdirectory. Selecting executable adaptation is a code-execution
 trust decision; process-tree cleanup is not an adversarial sandbox.
 
-Preserve ETHOS-specific reader-question decisions, approved aggregates and forbidden
-simplifications, Lane cooperation/competition/experimentation/all-drop
-semantics, target-versus-observed notices, and flagship art direction in
-ETHOS-owned authoring or source-specific checks. Do not move generic packing,
-derived hash maintenance, candidate assembly, browser execution, raster
+Preserve ETHOS-specific reader questions and approved abstraction across
+intent alignment and compilation, greenfield and brownfield adoption, repository
+quality, Lane cooperation/competition/experimentation/all-drop, object-scoped
+CAS, accepted integration, verification, attestation, runtime admission and
+continuity. Keep forbidden simplifications, target-versus-observed notices and
+flagship art direction in ETHOS-owned authoring or source-specific checks. Do
+not move generic packing, derived hash maintenance, candidate assembly,
+browser execution, raster
 conversion, qualification admission, standalone packaging, or local file
 effects into ETHOS merely to retain the old integration shape. A source-specific
 composition or verifier can remain only with an explicit distinct predicate.
 Static and interactive media share selected meaning but not geometry or
-approval. Provider conformance alone is never flagship review.
+approval. Provider conformance alone is never flagship review. OpenSpec and Git
+are ETHOS's selected carriers, not proof of lossless replacement by arbitrary
+SDD and VCS systems. The incumbent Edition uses English copy except the name
+问道 and an explicitly selected source poem; the ETHOS editor must preserve or
+explicitly revise this source-owned choice. Terminal design must not be
+advertised as fully implemented behavior.
 
 ## Conditional migration sequence
 

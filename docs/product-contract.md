@@ -291,26 +291,6 @@ remote readback, and declared human acceptance are independently accounted for.
 Local existence, a clean tree, a green test suite, or a package upload proves
 only its own boundary.
 
-## Program boundaries
-
-The five worklines retain distinct purposes; product phases below belong to E.
-This map defines responsibility, not a second progress ledger.
-
-| Workline                    | Owner and outcome                                                                                               | Boundary                                                     |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| A: accepted delivery        | Preserve qualified artwork, releases and reader installation                                                    | Do not redraw unchanged meaning or rewrite released evidence |
-| B: tool availability        | Bounded browser, authentication and runtime diagnosis                                                           | A usable supported path is not a universal upstream repair   |
-| C: ETHOS product            | Existing ETHOS contract and building task: intent, norms, adoption, lanes, execution, verification and feedback | The publisher cannot own ETHOS intent compilation or effects |
-| D: mechanism research       | Source-level evidence and counterexamples informing C and E                                                     | Adopt only with explicit cost and ownership benefit          |
-| E: architecture publication | This product: source meaning, authorship, composition, verification and recoverable evolution                   | One ETHOS edition does not prove arbitrary-domain capability |
-
-E progresses through bounded semantic compilation, explicit authorship and
-composition, a real independent adopter, broader domain qualification, then
-demand-led ecosystem interfaces. Research covers intent, code semantics,
-incremental execution, formal constraints, repository adoption and publication.
-GitLab projection and independently recoverable off-host backup require separate
-failure-domain evidence.
-
 ## Authority Matrix
 
 "Source product" means Architecture Publisher for its self-Edition, ETHOS for
@@ -361,27 +341,14 @@ claim, that relation receives no claim plane, validity, maturity, implementation
 evidence, or typed-claim coverage. A narrower medium must disclose its scope and
 earn its own acceptance rather than borrow another medium's claims.
 
-ETHOS views must preserve intent alignment/compilation, greenfield and brownfield,
-repository quality, concurrent cooperative or competing lanes, experiments and
-reasoned abandonment, object-scoped CAS, accepted integration, verification,
-attestation, runtime admission and continuity. Skills supply execution methods;
-they are not a second authority. OpenSpec and Git are selected concrete carriers,
-not proof that arbitrary SDD/VCS replacements are lossless. Terminal design must
-not be presented as fully implemented behavior.
-
-Static and interactive editions share semantic identities, not coordinates.
-The overview remains a complete intelligible system map. Detail pages each
-contain a complete mechanism view rather than disconnected fragments. Thirteen
-pages describe the accepted ETHOS edition, not a universal cardinality.
-
 ## Minimum independent product
 
 An installed CLI accepts explicit file input, typed diagrams and authored SVG;
 it renders, verifies identities, packages selected files and installs/replays
 an authorized pair through public commands. Non-ETHOS use must survive removal
 of ETHOS edition/integration modules. Raw file publication establishes integrity
-and controlled filesystem effects only; qualified ETHOS publication additionally
-requires its own applicable semantic, visual and browser evidence.
+and controlled filesystem effects only; a qualified Edition additionally
+requires its selected semantic and medium-specific evidence.
 
 Dependencies must be declared, pinned and independently obtainable. Paths in
 portable inputs are explicit and relative to their owning descriptor; installation
@@ -407,8 +374,8 @@ geometry; generator bounding boxes alone are insufficient.
 
 Use restrained color, contrast, scale and intentional negative space. Irregular
 shapes and decorative curves are not evidence of elegance. Philosophical intent
-belongs in coherent architecture and composition, not meaningless labels. Visible
-copy is English except the ETHOS name 问道 and an explicitly selected source poem.
+belongs in coherent architecture and composition, not meaningless labels. The
+Edition editor owns language and copy choices; renderers must not invent them.
 Do not add version badges, debug counters, diff counts or vendor plate labels.
 
 Geometry, source coverage, painted browser output, interaction, human visual
@@ -424,7 +391,7 @@ Stable semantic identities survive harmless label changes; split/merge/rename
 mappings require explicit source evidence, never guessed identity substitution.
 
 1. Keep explicit candidate inputs separate from accepted-output locks in the same renderer.
-2. Demonstrate one real ETHOS semantic update across source, views, both media,
+2. Demonstrate one real source-owned semantic update across source, views, both media,
    qualification and candidate publication without changing generic code or
    editing generated SVG/HTML.
 3. Exercise label growth, entity/edge insertion/removal, changed condition and
@@ -454,9 +421,10 @@ scenes. Automatic aesthetic optimization is not established by this increment.
 The shared semantic compiler admits one v2 Claim Model: a finite typed
 vocabulary, complete JSON qualifiers, byte-bound provenance, explicit planes,
 conditions, scope, maturity and validity, plus opaque claims whose dependency
-coverage remains unknown. The ETHOS adapter preserves source extensions and
-invokes this one comparison owner. It does not add a second diff engine, accept
-the retired v1 document at runtime or infer semantic equivalence.
+coverage remains unknown. A source-owned adapter using this model preserves
+source extensions and invokes this one comparison owner. It does not add a
+second diff engine, accept the retired v1 document at runtime, or infer
+semantic equivalence.
 
 Claim Model comparison reports meaning change only. Edition evolution then uses
 the complete before/after Editions as the sole scene-dependency authority. It
@@ -489,8 +457,3 @@ dependency. Remove only classified disposable work after checking consumers.
 Source acceptance, main promotion, signed tags, Release entries, downloaded bytes,
 clean-source restoration, actual installation and lane retirement are distinct
 completion boundaries. A source push or package upload proves none of the rest.
-
-The complete graphical editor, live synchronization service, plugin marketplace,
-universal semantic compiler and automatic aesthetic optimizer remain outside
-Workline A. Current implementation limits are stated in README; these aspirations
-must neither be advertised as implemented nor indefinitely delay fixed delivery.
