@@ -1399,6 +1399,76 @@ test('a mixed page carries a scalar claim on its own source subject without inve
     validateVisibleSelection(meaning, 'static', staticScene, staticRendered.carriers),
   );
 
+  const claimAssertionIds = new Set(
+    meaning.assertions
+      .filter(
+        ({ selection }) =>
+          meaning.native.selections.find(({ selectionId }) => selectionId === selection)?.target
+            .kind === 'claim',
+      )
+      .map(({ id }) => id),
+  );
+  for (const [name, mutate] of [
+    [
+      'duplicate claim card',
+      (value) => value.scene.claimCards.push(structuredClone(value.scene.claimCards[0])),
+    ],
+    [
+      'unselected claim card',
+      (value) => value.scene.claimCards.push({ ...value.scene.claimCards[0], id: 'invented' }),
+    ],
+    [
+      'non-claim assertion borrows a claim',
+      (value) => {
+        const carrier = value.scene.sourceAssertionCarriers.find(
+          ({ assertionId }) => !claimAssertionIds.has(assertionId),
+        );
+        carrier.claimRefs = structuredClone(
+          value.scene.sourceAssertionCarriers.find(({ assertionId }) =>
+            claimAssertionIds.has(assertionId),
+          ).claimRefs,
+        );
+      },
+    ],
+    [
+      'claim assertion hides its claim reference',
+      (value) => {
+        delete value.scene.sourceAssertionCarriers.find(({ assertionId }) =>
+          claimAssertionIds.has(assertionId),
+        ).claimRefs;
+      },
+    ],
+    [
+      'malformed selected claim',
+      (value) => {
+        value.meaning.native.selections.find(
+          ({ target }) => target.kind === 'claim',
+        ).members.claims = [];
+      },
+    ],
+    [
+      'selected relation loses every claim card',
+      (value) => {
+        delete value.scene.claimCards;
+        delete value.carriers.claims;
+      },
+    ],
+    ['relation claim loses its source link', (value) => (value.scene.claimRelationLinks = [])],
+    ['scalar claim loses its subject link', (value) => (value.scene.claimSubjectLinks = [])],
+  ]) {
+    const value = {
+      meaning: structuredClone(meaning),
+      scene: structuredClone(staticScene),
+      carriers: structuredClone(staticRendered.carriers),
+    };
+    mutate(value);
+    assert.throws(
+      () => validateVisibleSelection(value.meaning, 'static', value.scene, value.carriers),
+      { code: 'edition_visible_coverage_mismatch' },
+      name,
+    );
+  }
+
   const interactiveScene = composeInteractiveEditionScene(meaning);
   const page = interactiveScene.pages[0];
   assert.equal(page.nodes.length, 2);
@@ -1531,6 +1601,12 @@ test('a selected relation can publish structural media without inventing claim s
   const rendered = await renderInteractiveEditionHtml(scene);
   assert.doesNotThrow(() =>
     validateVisibleSelection(meaning, 'interactive', scene, rendered.carriers),
+  );
+  const inventedClaimLink = structuredClone(scene);
+  inventedClaimLink.pages[0].claimRelationLinks = [];
+  assert.throws(
+    () => validateVisibleSelection(meaning, 'interactive', inventedClaimLink, rendered.carriers),
+    { code: 'edition_visible_coverage_mismatch' },
   );
   const forged = structuredClone(scene);
   forged.pages[0].sourceAssertionCarriers[0].relationRefs[0].reference = 'not-selected';

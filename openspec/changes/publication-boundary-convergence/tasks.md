@@ -475,12 +475,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       Mixed scalar counterexamples reject a missing subject link, a forged
       subject dependency, and claim-card structures that would otherwise raise
       an untyped exception. Compiler coverage reuses the one source-link
-      derivation rather than maintaining a rival relation rule. The exact Claim
-      Model selection file passes 37 runnable tests with one declared browser
-      skip; this is not a final browser acceptance.
-      Focused tests pass 18/18; static, package, and strict OpenSpec checks pass.
-      Full behavior passes 950 tests, skips 4, with no test failure; branch
-      coverage is 93.48% against the 95% gate. Earlier Chrome checks observed
+      derivation rather than maintaining a rival relation rule. New adversarial
+      joins reject ambiguous question and graphic identities, borrowed claim
+      cards, missing claim links, and invented relation-only claim links. The
+      two focused files pass 62 tests with one declared browser skip; isolated
+      `compiler/coverage.mjs` branch coverage is 192/198 (96.96%), not a global
+      gate. Static and strict OpenSpec checks pass. Earlier Chrome checks observed
       source-namespace non-disclosure, but do not qualify the changed Candidate.
       Full visible coverage, browser/human review on final bytes, and acceptance
       remain open.
@@ -635,16 +635,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      On signed `49c93d5`, the last full run reports 1,079 pass, 6 skip, 0
-      fail; statements and lines are 97.62%, functions 99.49%, and branches
-      92.53% (7,821/8,452), below the unchanged 95% gate. The gap was 209
+      On signed `0c5c5c1`, the last full run reports 1,081 pass, 6 skip, 0
+      fail; statements and lines are 97.67%, functions 99.49%, and branches
+      93.01% (7,934/8,530), below the unchanged 95% gate. The gap is 170
       branch outcomes at that denominator, which may grow as new paths execute.
-      Adversarial authored-interactive carriers have an isolated 118/127 branch
-      run. New authored-static adversarial cases have an isolated 92/94 branch
-      run but have not entered a full gate. Continue with semantic change,
-      authored scenes, renderer and process boundaries; do not exclude owned
-      production code, weaken the browser journey, or mistake browser-only
-      execution for Node coverage.
+      The authored-static and semantic-change counterexamples are included in
+      this full run. Next address renderer, Edition evolution, publication and
+      qualification-process boundaries; do not exclude owned production code,
+      weaken the browser journey, or mistake browser-only execution for Node
+      coverage.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

@@ -180,6 +180,64 @@ test('compiler coverage join refuses a partial assertion-to-graphic binding', as
   });
 });
 
+test('compiler coverage rejects ambiguous question and graphic identities at the join', async () => {
+  const { validateVisibleSelection } =
+    await import('../packages/publisher/src/compiler/coverage.mjs');
+  const original = staticEditionScene();
+  const originalMeaning = selectedMeaning(original, 'static');
+  const originalCarriers = composeStaticEditionSvg(original).carriers;
+  for (const [name, mutate] of [
+    ['unknown medium', (value) => (value.medium = 'foreign')],
+    [
+      'duplicate assertion',
+      (value) => value.meaning.assertions.push(structuredClone(value.meaning.assertions[0])),
+    ],
+    ['missing scene source carriers', (value) => delete value.scene.sourceAssertionCarriers],
+    ['missing private assertion carriers', (value) => delete value.carriers.assertions],
+    [
+      'question obligation omitted',
+      (value) => (value.meaning.media.static.views[0].assertionsByQuestion = {}),
+    ],
+    [
+      'invented question assertion',
+      (value) => (value.meaning.media.static.views[0].assertionsByQuestion.shape = ['invented']),
+    ],
+    [
+      'duplicate graphic identity',
+      (value) => (value.carriers.nodes[1].graphicId = value.carriers.nodes[0].graphicId),
+    ],
+    ['empty graphic identity', (value) => (value.carriers.nodes[0].graphicId = '')],
+    [
+      'source assertion with no graphic',
+      (value) => {
+        value.carriers.assertions[0].nodeGraphicIds = [];
+        value.carriers.assertions[0].relationGraphicIds = [];
+      },
+    ],
+    [
+      'source assertion with unknown graphic',
+      (value) => (value.carriers.assertions[0].nodeGraphicIds = ['n-0', 'missing']),
+    ],
+    [
+      'two graphics claim one source node',
+      (value) => (value.carriers.nodes[1].source = structuredClone(value.carriers.nodes[0].source)),
+    ],
+  ]) {
+    const value = {
+      medium: 'static',
+      meaning: structuredClone(originalMeaning),
+      scene: structuredClone(original),
+      carriers: structuredClone(originalCarriers),
+    };
+    mutate(value);
+    assert.throws(
+      () => validateVisibleSelection(value.meaning, value.medium, value.scene, value.carriers),
+      { code: 'edition_visible_coverage_mismatch' },
+      name,
+    );
+  }
+});
+
 test('compiler coverage join refuses an omitted editorial assertion behind a limit', async () => {
   const { validateVisibleSelection } =
     await import('../packages/publisher/src/compiler/coverage.mjs');
