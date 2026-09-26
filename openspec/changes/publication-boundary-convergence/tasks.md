@@ -405,6 +405,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       Candidate with two graph nodes, one relation, and both typed claims.
       This proves the generic source-to-carrier path, not AIGW's final Edition,
       reader quality, installed parity or acceptance.
+      AIGW whole-product input `6620f638` also exposed a static composition
+      defect: one claim occupied a narrow centered plate despite available
+      width. A renderer-level RED/GREEN now uses the full claim region and two
+      reading columns without dropping facts or changing interactive bytes.
+      Its 3600-pixel trial height fell from 5453 to 5041 pixels; 65 focused
+      tests pass, one browser-dependent test skips; the full behavior suite
+      passes 1,066 tests with five declared skips. The result remains
+      text-heavy and is not visual acceptance or released-package evidence.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

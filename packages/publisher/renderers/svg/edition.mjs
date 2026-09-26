@@ -529,8 +529,7 @@ export function composeStaticEditionSvg(scene) {
       (left, right) => positionFor(left) - positionFor(right),
     );
     const columns = Math.min(3, claimCards.length);
-    const cardWidth =
-      columns === 1 ? Math.min(720, claimWidth) : (claimWidth - (columns - 1) * 24) / columns;
+    const cardWidth = columns === 1 ? claimWidth : (claimWidth - (columns - 1) * 24) / columns;
     for (let row = 0; row < claimCards.length; row += columns) {
       let rowBottom = claimY;
       for (let column = 0; column < columns && row + column < claimCards.length; column += 1) {
@@ -556,21 +555,27 @@ export function composeStaticEditionSvg(scene) {
             600,
             2,
           ) + 13;
-        for (const fact of claim.facts) {
-          if (commonLabels.has(fact.label)) continue;
-          cardY =
+        const facts = claim.facts.filter(({ label }) => !commonLabels.has(label));
+        const twoColumn = cardWidth >= 900 && facts.length >= 6;
+        const columnWidth = twoColumn ? (cardWidth - 60) / 2 : cardWidth - 32;
+        const columnY = [cardY, cardY];
+        const split = Math.ceil(facts.length / 2);
+        for (const [index, fact] of facts.entries()) {
+          const column = twoColumn && index >= split ? 1 : 0;
+          columnY[column] =
             textLines(
               content,
               `${fact.label}: ${fact.value}`,
-              x + 16,
-              cardY,
-              cardWidth - 32,
+              x + 16 + column * (columnWidth + 28),
+              columnY[column],
+              columnWidth,
               14,
               '#27352e',
               400,
               8,
             ) + 5;
         }
+        cardY = Math.max(...columnY);
         const bottom = cardY + 16;
         claimPlate.push(
           `<g data-graphic-id="${graphicId}">`,

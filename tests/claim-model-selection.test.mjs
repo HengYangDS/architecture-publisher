@@ -1120,6 +1120,25 @@ test('a selected relation and dependent claim build a source-bound static Candid
   assert.equal(selected.project.requiredAssertions, undefined);
 });
 
+test('one mixed static claim uses the available plate in two reading columns', async (t) => {
+  const selected = await groupedMixedFixture(t, { media: ['static'] });
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const scene = composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  const rendered = composeStaticEditionSvg(scene);
+  const svg = rendered.bytes.toString('utf8');
+  const claim = /<g data-graphic-id="c-0">([\s\S]*?)<\/g>/u.exec(svg)?.[1];
+  assert(claim);
+  const rect = /<rect x="([\d.]+)" y="[\d.]+" width="([\d.]+)"/u.exec(claim);
+  assert(rect);
+  assert(Number(rect[2]) >= rendered.width - 121);
+  const subject = /<text x="([\d.]+)"[^>]*>Subject:/u.exec(claim);
+  const claimant = /<text x="([\d.]+)"[^>]*>Selected claimant:/u.exec(claim);
+  assert(subject && claimant);
+  assert(Number(claimant[1]) > Number(subject[1]) + 150);
+  assert.equal(rendered.carriers.claims.length, 1);
+});
+
 test('a selected relation and dependent claim build a readable interactive Candidate', async (t) => {
   const selected = await groupedMixedFixture(t, { media: ['interactive'] });
   const output = path.join(selected.root, 'candidate');
