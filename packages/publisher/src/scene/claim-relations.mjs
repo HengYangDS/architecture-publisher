@@ -7,7 +7,7 @@ export const SOURCE_REPORTED_TOPOLOGY_NOTE =
 export const UNLINKED_RELATION_NOTE =
   'Unlinked relations show source topology only; typed claim status is not selected, and provenance is unverified.';
 
-/** Derive one claim-to-relation association from selected source meaning. */
+/** Derive relation and subject associations without inventing graph edges. */
 export function linkClaimModelSources(view, assertions, selections, errorCode) {
   if (!Array.isArray(view?.assertionIds)) fail(errorCode);
   const sources = view.assertionIds
@@ -22,15 +22,41 @@ export function linkClaimModelSources(view, assertions, selections, errorCode) {
   const relations = sources.filter(({ selection }) => selection.target.kind === 'relation');
   const claims = sources.filter(({ selection }) => selection.target.kind === 'claim');
   if (!relations.length) fail(errorCode);
-  if (!claims.length) return { relations: relations.map(({ selection }) => selection), links: [] };
-  const links = claims.map(({ assertionId, selection }) => {
+  const links = [];
+  const subjectLinks = [];
+  for (const { assertionId, selection } of claims) {
+    const claim = selection.members?.claims?.[0];
+    if (claim?.object === null) {
+      const subject = selection.members?.elements?.find((item) => item?.id === claim.subject);
+      if (
+        !subject ||
+        selection.members?.claims?.length !== 1 ||
+        !selection.predicate ||
+        selection.predicate.valueKind === 'entity' ||
+        subject.namespace !== selection.source?.namespace ||
+        subject.sha256 !== selection.source?.sha256 ||
+        !claim.dependsOn?.some(
+          (reference) => reference?.section === 'entities' && reference.id === claim.subject,
+        )
+      )
+        fail(errorCode);
+      subjectLinks.push({
+        claimAssertionId: assertionId,
+        subject: {
+          namespace: subject.namespace,
+          id: subject.id,
+          sha256: subject.sha256,
+        },
+      });
+      continue;
+    }
     const matches = relations.filter(({ selection: related }) =>
       claimDependsOnSelectedRelation(selection, related),
     );
     if (matches.length !== 1) fail(errorCode);
-    return { claimAssertionId: assertionId, relationAssertionId: matches[0].assertionId };
-  });
-  return { relations: relations.map(({ selection }) => selection), links };
+    links.push({ claimAssertionId: assertionId, relationAssertionId: matches[0].assertionId });
+  }
+  return { relations: relations.map(({ selection }) => selection), links, subjectLinks };
 }
 
 /** Preserve source-declared fields without turning them into typed claims. */

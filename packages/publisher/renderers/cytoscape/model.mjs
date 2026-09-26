@@ -18,21 +18,25 @@ function canonicalJsonLiteral(value) {
   }
 }
 
-function linkedClaimOrdinals(page, relations, claims) {
+function linkedClaimAnchors(page, relations, claims) {
   if (!page.nodes.length || !page.claimCards?.length) {
-    if (page.claimRelationLinks !== undefined) fail('render_interactive_claim_relation_invalid');
-    return new Map();
+    if (page.claimRelationLinks !== undefined || page.claimSubjectLinks !== undefined)
+      fail('render_interactive_claim_relation_invalid');
+    return { ordinals: new Map(), subjects: new Set() };
   }
+  const relationLinks = page.claimRelationLinks ?? [];
+  const subjectLinks = page.claimSubjectLinks ?? [];
   if (
-    !Array.isArray(page.claimRelationLinks) ||
-    page.claimRelationLinks.length !== page.claimCards.length
+    !Array.isArray(relationLinks) ||
+    !Array.isArray(subjectLinks) ||
+    relationLinks.length + subjectLinks.length !== page.claimCards.length
   )
     fail('render_interactive_claim_relation_invalid');
   const assertions = new Map(
     page.sourceAssertionCarriers.map((carrier) => [carrier.assertionId, carrier]),
   );
   const ordinals = new Map();
-  for (const link of page.claimRelationLinks) {
+  for (const link of relationLinks) {
     if (!link || typeof link !== 'object' || Array.isArray(link))
       fail('render_interactive_claim_relation_invalid');
     const claim = assertions.get(link.claimAssertionId);
@@ -53,8 +57,30 @@ function linkedClaimOrdinals(page, relations, claims) {
       fail('render_interactive_claim_relation_invalid');
     ordinals.set(claimGraphicId, Number(relationGraphicId.slice(2)) + 1);
   }
-  if (ordinals.size !== claims.size) fail('render_interactive_claim_relation_invalid');
-  return ordinals;
+  const subjects = new Set();
+  for (const link of subjectLinks) {
+    if (!link || typeof link !== 'object' || Array.isArray(link))
+      fail('render_interactive_claim_relation_invalid');
+    const claim = assertions.get(link.claimAssertionId);
+    const claimRef = claim?.claimRefs?.length === 1 ? claim.claimRefs[0] : null;
+    const graphicId = claimRef ? claims.get(claimKey(claimRef)) : null;
+    if (
+      claim?.kind !== 'claim' ||
+      !graphicId ||
+      ordinals.has(graphicId) ||
+      subjects.has(graphicId) ||
+      !text(link.subject?.namespace) ||
+      !text(link.subject?.id) ||
+      !text(link.subject?.sha256) ||
+      link.subject.namespace !== claimRef.namespace ||
+      link.subject.sha256 !== claimRef.sha256
+    )
+      fail('render_interactive_claim_relation_invalid');
+    subjects.add(graphicId);
+  }
+  if (ordinals.size + subjects.size !== claims.size)
+    fail('render_interactive_claim_relation_invalid');
+  return { ordinals, subjects };
 }
 
 /** Reduce one selected page to public reading data without raw source identity. */
@@ -171,15 +197,20 @@ export function projectInteractivePage(page, index) {
     claims.set(identity, graphicId);
     return { graphicId, facts: claim.facts };
   });
-  const claimOrdinals = linkedClaimOrdinals(page, relations, claims);
+  const claimAnchors = linkedClaimAnchors(page, relations, claims);
   const visibleClaims = publicClaims
     .map((claim) => ({
       ...claim,
-      ...(claimOrdinals.has(claim.graphicId)
-        ? { relationOrdinal: claimOrdinals.get(claim.graphicId) }
+      ...(claimAnchors.ordinals.has(claim.graphicId)
+        ? { relationOrdinal: claimAnchors.ordinals.get(claim.graphicId) }
         : {}),
+      ...(claimAnchors.subjects.has(claim.graphicId) ? { sourceAnchor: 'entity' } : {}),
     }))
-    .sort((left, right) => (left.relationOrdinal ?? 0) - (right.relationOrdinal ?? 0));
+    .sort(
+      (left, right) =>
+        (left.relationOrdinal ?? Number.MAX_SAFE_INTEGER) -
+        (right.relationOrdinal ?? Number.MAX_SAFE_INTEGER),
+    );
 
   const questions = new Map(page.questions.map((question) => [question?.id, question]));
   if (questions.size !== page.questions.length) fail('render_interactive_identity_ambiguous');

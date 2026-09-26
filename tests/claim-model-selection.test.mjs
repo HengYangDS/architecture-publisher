@@ -190,6 +190,28 @@ async function groupedMixedFixture(
   return { ...selected, requestSha256: sha(requestBytes) };
 }
 
+async function mixedScalarFixture(t) {
+  const model = claimModel();
+  model.claims['other-status'] = {
+    ...structuredClone(model.claims.observed),
+    subject: 'other',
+    dependsOn: [{ section: 'entities', id: 'other' }],
+  };
+  const selected = await groupedMixedFixture(t, { model });
+  selected.project.scope.selections.push({
+    id: 'selected-scalar',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'claim:other-status',
+    questions: ['condition'],
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  return selected;
+}
+
 function twoRelationClaimModel() {
   const model = claimModel();
   model.relations.second = {
@@ -705,6 +727,102 @@ test('a grouped static Scene retains relation and dependent claim as separate so
   changedClaimant.native.selections[1].source.claimant = 'another-claimant';
   assert.throws(() => composeStaticEditionScene(changedClaimant, layout), {
     code: 'static_scene_claim_relation_unbound',
+  });
+});
+
+test('a mixed page carries a scalar claim on its own source subject without inventing an edge', async (t) => {
+  const selected = await mixedScalarFixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const staticScene = composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  assert.equal(staticScene.nodes.length, 2);
+  assert.equal(staticScene.edges.length, 1);
+  assert.equal(staticScene.claimCards.length, 2);
+  assert.deepEqual(staticScene.claimSubjectLinks, [
+    {
+      claimAssertionId: 'selected-scalar',
+      subject: {
+        namespace: modelNamespace,
+        id: 'other',
+        sha256: meaning.native.selections[0].source.sha256,
+      },
+    },
+  ]);
+  const staticRendered = composeStaticEditionSvg(staticScene);
+  assert.match(staticRendered.bytes.toString('utf8'), /ON SOURCE ENTITY/u);
+  assert.doesNotThrow(() =>
+    validateVisibleSelection(meaning, 'static', staticScene, staticRendered.carriers),
+  );
+
+  const interactiveScene = composeInteractiveEditionScene(meaning);
+  const page = interactiveScene.pages[0];
+  assert.equal(page.nodes.length, 2);
+  assert.equal(page.relations.length, 1);
+  assert.deepEqual(page.claimSubjectLinks, staticScene.claimSubjectLinks);
+  const projected = projectInteractivePage(page, 0);
+  assert(projected.publicPage.claims.some(({ sourceAnchor }) => sourceAnchor === 'entity'));
+  assert.doesNotThrow(() =>
+    validateVisibleSelection(meaning, 'interactive', interactiveScene, [projected.carriers]),
+  );
+
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  assert.match(html, /ON SOURCE ENTITY/u);
+  assert.match(html, /healthy/u);
+  assert.match(html, /other/u);
+});
+
+test('a mixed scalar claim cannot forge or lose its subject dependency', async (t) => {
+  const selected = await mixedScalarFixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const wrongDependency = structuredClone(meaning);
+  wrongDependency.native.selections.find(
+    ({ target }) => target.id === 'other-status',
+  ).members.claims[0].dependsOn = [{ section: 'entities', id: 'server' }];
+  assert.throws(() => composeInteractiveEditionScene(wrongDependency), {
+    code: 'interactive_scene_claim_relation_unbound',
+  });
+  for (const [change, code] of [
+    [
+      (selection) => {
+        selection.members.elements[0] = null;
+      },
+      'edition_claim_card_invalid',
+    ],
+    [
+      (selection) => {
+        selection.members.claims[0].dependsOn = [null];
+      },
+      'interactive_scene_claim_relation_unbound',
+    ],
+  ]) {
+    const malformed = structuredClone(meaning);
+    change(malformed.native.selections.find(({ target }) => target.id === 'other-status'));
+    assert.throws(() => composeInteractiveEditionScene(malformed), { code });
+  }
+  const scene = structuredClone(
+    composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning)),
+  );
+  const missing = structuredClone(scene);
+  delete missing.claimSubjectLinks;
+  assert.throws(() => composeStaticEditionSvg(missing), {
+    code: 'static_edition_claim_relation_invalid',
+  });
+  const interactive = composeInteractiveEditionScene(meaning);
+  const projected = projectInteractivePage(interactive.pages[0], 0);
+  const missingInteractive = structuredClone(interactive);
+  delete missingInteractive.pages[0].claimSubjectLinks;
+  assert.throws(
+    () =>
+      validateVisibleSelection(meaning, 'interactive', missingInteractive, [projected.carriers]),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
+  scene.claimSubjectLinks[0].subject.id = 'invented';
+  const rendered = composeStaticEditionSvg(scene);
+  assert.throws(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers), {
+    code: 'edition_visible_coverage_mismatch',
   });
 });
 

@@ -137,14 +137,14 @@ function composePage(view, selections, assertions, questions, claimMode) {
     if (!question) fail('interactive_scene_question_unbound');
     return question;
   });
-  const claimRelationLinks =
+  const claimSourceLinks =
     claimMode && relations.size && claims.size
       ? linkClaimModelSources(
           view,
           assertions,
           selections,
           'interactive_scene_claim_relation_unbound',
-        ).links
+        )
       : null;
   return {
     id: view.id,
@@ -162,7 +162,10 @@ function composePage(view, selections, assertions, questions, claimMode) {
           claimCards: [...claims.entries()]
             .sort(([left], [right]) => compare(left, right))
             .map(([, value]) => value),
-          ...(claimRelationLinks === null ? {} : { claimRelationLinks }),
+          ...(claimSourceLinks?.links.length ? { claimRelationLinks: claimSourceLinks.links } : {}),
+          ...(claimSourceLinks?.subjectLinks.length
+            ? { claimSubjectLinks: claimSourceLinks.subjectLinks }
+            : {}),
         }
       : {}),
     sourceAssertionCarriers,

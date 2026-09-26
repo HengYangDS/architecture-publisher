@@ -211,8 +211,8 @@ function pageHtml(page, index, methodLimits) {
     : '';
   const claimStage = `${commonContext}<div class="claim-stage">${(page.claims ?? [])
     .map(
-      ({ graphicId, facts, relationOrdinal }) =>
-        `<article class="claim-card" data-graphic-id="${graphicId}">${relationOrdinal ? `<p class="claim-link">ON SOURCE RELATION ${String(relationOrdinal).padStart(2, '0')}</p>` : ''}<dl class="claim-facts">${facts
+      ({ graphicId, facts, relationOrdinal, sourceAnchor }) =>
+        `<article class="claim-card" data-graphic-id="${graphicId}">${relationOrdinal ? `<p class="claim-link">ON SOURCE RELATION ${String(relationOrdinal).padStart(2, '0')}</p>` : sourceAnchor === 'entity' ? '<p class="claim-link">ON SOURCE ENTITY</p>' : ''}<dl class="claim-facts">${facts
           .filter(({ label }) => !commonLabels.has(label))
           .map(({ label, value }) => `<dt>${escape(label)}</dt><dd>${escape(value)}</dd>`)
           .join('')}</dl></article>`,

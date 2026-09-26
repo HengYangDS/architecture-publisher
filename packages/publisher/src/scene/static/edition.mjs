@@ -335,6 +335,9 @@ export function composeStaticEditionScene(meaning, layout) {
     ...(claimModelMode
       ? {
           ...(claimSources?.links.length ? { claimRelationLinks: claimSources.links } : {}),
+          ...(claimSources?.subjectLinks.length
+            ? { claimSubjectLinks: claimSources.subjectLinks }
+            : {}),
           claimCards: [...cards.values()].sort(compareClaims),
         }
       : {}),

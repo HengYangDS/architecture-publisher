@@ -196,10 +196,13 @@ function validateSourceCarriers(scene) {
     fail('static_edition_carrier_unclaimed');
 }
 
-function linkedClaimRelations(scene) {
+function linkedClaims(scene) {
+  const relationLinks = scene.claimRelationLinks ?? [];
+  const subjectLinks = scene.claimSubjectLinks ?? [];
   if (
-    !Array.isArray(scene.claimRelationLinks) ||
-    scene.claimRelationLinks.length !== scene.claimCards.length
+    !Array.isArray(relationLinks) ||
+    !Array.isArray(subjectLinks) ||
+    relationLinks.length + subjectLinks.length !== scene.claimCards.length
   )
     fail('static_edition_claim_relation_invalid');
   const assertions = new Map(
@@ -207,7 +210,7 @@ function linkedClaimRelations(scene) {
   );
   const relations = new Set(scene.edges.flatMap((edge) => edge.relations.map(relationKey)));
   const links = new Map();
-  for (const link of scene.claimRelationLinks) {
+  for (const link of relationLinks) {
     if (!link || typeof link !== 'object' || Array.isArray(link))
       fail('static_edition_claim_relation_invalid');
     const { claimAssertionId, relationAssertionId } = link;
@@ -224,14 +227,36 @@ function linkedClaimRelations(scene) {
       fail('static_edition_claim_relation_invalid');
     links.set(claimKey(claim.claimRefs[0]), relationKey(relation.relationRefs[0]));
   }
+  const subjects = new Map();
+  for (const link of subjectLinks) {
+    if (!link || typeof link !== 'object' || Array.isArray(link))
+      fail('static_edition_claim_relation_invalid');
+    const claim = assertions.get(link.claimAssertionId);
+    const identity = claim?.claimRefs?.length === 1 ? claimKey(claim.claimRefs[0]) : null;
+    if (
+      claim?.kind !== 'claim' ||
+      !identity ||
+      links.has(identity) ||
+      subjects.has(identity) ||
+      !text(link.subject?.namespace) ||
+      !text(link.subject?.id) ||
+      !text(link.subject?.sha256) ||
+      link.subject.namespace !== claim.claimRefs[0].namespace ||
+      link.subject.sha256 !== claim.claimRefs[0].sha256
+    )
+      fail('static_edition_claim_relation_invalid');
+    subjects.set(identity, link.subject);
+  }
   if (
-    links.size !== scene.claimCards.length ||
+    links.size + subjects.size !== scene.claimCards.length ||
     scene.claimCards.some(
-      ({ namespace, id, sha256 }) => !links.has(claimKey({ namespace, reference: id, sha256 })),
+      ({ namespace, id, sha256 }) =>
+        !links.has(claimKey({ namespace, reference: id, sha256 })) &&
+        !subjects.has(claimKey({ namespace, reference: id, sha256 })),
     )
   )
     fail('static_edition_claim_relation_invalid');
-  return links;
+  return { relations: links, subjects };
 }
 
 function validateStaticScene(scene) {
@@ -259,7 +284,7 @@ function validateStaticScene(scene) {
   const mixed = Boolean(
     (scene.nodes.length || scene.edges.length || scene.groups?.length) && scene.claimCards?.length,
   );
-  if (!mixed && scene.claimRelationLinks !== undefined)
+  if (!mixed && (scene.claimRelationLinks !== undefined || scene.claimSubjectLinks !== undefined))
     fail('static_edition_claim_relation_invalid');
   if (
     scene.editorialAssertions.some(
@@ -290,7 +315,7 @@ function validateStaticScene(scene) {
 /** Paint an unqualified, source-bound static Scene without acquiring meaning. */
 export function composeStaticEditionSvg(scene) {
   const mixed = validateStaticScene(scene);
-  const claimLinks = mixed ? linkedClaimRelations(scene) : null;
+  const claimLinks = mixed ? linkedClaims(scene) : null;
   const rasterWidth = scene.requestedWidth ?? 1800;
   if (!Number.isSafeInteger(rasterWidth) || rasterWidth < 320 || rasterWidth > 12000)
     fail('static_edition_width_invalid');
@@ -488,9 +513,14 @@ export function composeStaticEditionSvg(scene) {
         .map((relation, index) => [relationKey(relation), index]),
     );
     const positionFor = (claim) => {
-      const relationIdentity = claimLinks.get(
-        claimKey({ namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 }),
-      );
+      const identity = claimKey({
+        namespace: claim.namespace,
+        reference: claim.id,
+        sha256: claim.sha256,
+      });
+      const relationIdentity = claimLinks.relations.get(identity);
+      if (relationIdentity === undefined && claimLinks.subjects.has(identity))
+        return relationPositions.size;
       const position = relationPositions.get(relationIdentity);
       if (position === undefined) fail('static_edition_claim_relation_invalid');
       return position;
@@ -513,7 +543,11 @@ export function composeStaticEditionSvg(scene) {
         cardY =
           textLines(
             content,
-            `ON SOURCE RELATION ${String(relationPosition + 1).padStart(2, '0')}`,
+            claimLinks.subjects.has(
+              claimKey({ namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 }),
+            )
+              ? 'ON SOURCE ENTITY'
+              : `ON SOURCE RELATION ${String(relationPosition + 1).padStart(2, '0')}`,
             x + 16,
             cardY,
             cardWidth - 32,

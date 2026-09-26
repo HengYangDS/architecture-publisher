@@ -397,6 +397,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       source-owner endorsement is not established. A browser RED/GREEN now
       keeps a linear chain without in-graph edge labels readable at both widths
       in the existing renderer; this does not solve dense or edge-labeled views.
+      AIGW whole-product source `db115100` exposed a different loss: a scalar
+      recommendation claim beside selected relations could not enter the mixed
+      Scene. A focused RED/GREEN now gives subject-dependent scalar claims a
+      separately bound card in both media, without inventing a graph edge or
+      weakening relation-dependent claim links. The fixture builds a paired
+      Candidate with two graph nodes, one relation, and both typed claims.
+      This proves the generic source-to-carrier path, not AIGW's final Edition,
+      reader quality, installed parity or acceptance.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -451,6 +459,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       this is a selected-canary check, not general disclosure proof.
       On editorial-only pages, each visible limit now stays with its reader
       question instead of being flattened into an unattributed stage list.
+      Mixed scalar counterexamples reject a missing subject link, a forged
+      subject dependency, and claim-card structures that would otherwise raise
+      an untyped exception. Compiler coverage reuses the one source-link
+      derivation rather than maintaining a rival relation rule. The exact Claim
+      Model selection file passes 37 runnable tests with one declared browser
+      skip; this is not a final browser acceptance.
       Focused tests pass 18/18; static, package, and strict OpenSpec checks pass.
       Full behavior passes 950 tests, skips 4, with no test failure; branch
       coverage is 93.48% against the 95% gate. Earlier Chrome checks observed
@@ -568,9 +582,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       human judgments on final static and interactive bytes for faithfulness,
       readability, hierarchy, density, and visual quality. Do not reuse
       provisional Candidate identities or review after any selected input changes.
-      The current provisional worktree passes 1,063 behavior tests with five
+      The current provisional worktree passes 1,065 behavior tests with five
       declared skips; static and package checks pass. Branch coverage is
-      92.99%, below the unchanged 95% gate. No release admission is inferred.
+      92.96%, below the unchanged 95% gate. No release admission is inferred.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

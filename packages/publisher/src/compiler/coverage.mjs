@@ -1,7 +1,7 @@
 import { canonical } from '../source/json.mjs';
 import { fail } from '../source/manifest.mjs';
 import { claimCard } from '../scene/claim-card.mjs';
-import { claimDependsOnSelectedRelation } from '../semantics/native-claim-model.mjs';
+import { linkClaimModelSources } from '../scene/claim-relations.mjs';
 
 const mismatch = () => fail('edition_visible_coverage_mismatch');
 const same = (left, right) => canonical(left) === canonical(right);
@@ -65,40 +65,33 @@ function selectedRelationMatches(carrier, selection) {
   );
 }
 
-function validateClaimLinks(page, selections, assertions, required) {
-  const links = page.claimRelationLinks;
-  const carriers = new Map(
-    page.sourceAssertionCarriers.map((carrier) => [carrier.assertionId, carrier]),
-  );
-  const linkedClaims = new Set();
+function validateClaimLinks(view, page, selections, assertions, required) {
   for (const carrier of page.sourceAssertionCarriers) {
     const selection = selections.get(assertions.get(carrier.assertionId)?.selection);
     if (selection?.target.kind === 'relation' && !selectedRelationMatches(carrier, selection))
       mismatch();
   }
   if (!required.size) {
-    if (links !== undefined) mismatch();
+    if (page.claimRelationLinks !== undefined || page.claimSubjectLinks !== undefined) mismatch();
     return;
   }
-  if (!Array.isArray(links) || links.length !== required.size) mismatch();
-  for (const link of links) {
-    if (!link || typeof link !== 'object' || Array.isArray(link)) mismatch();
-    const { claimAssertionId, relationAssertionId } = link;
-    const claim = carriers.get(claimAssertionId);
-    const relation = carriers.get(relationAssertionId);
-    const claimSelection = selections.get(assertions.get(claimAssertionId)?.selection);
-    const relationSelection = selections.get(assertions.get(relationAssertionId)?.selection);
-    if (
-      linkedClaims.has(claimAssertionId) ||
-      claim?.kind !== 'claim' ||
-      claim.claimRefs?.length !== 1 ||
-      relation?.kind !== 'relation' ||
-      !claimDependsOnSelectedRelation(claimSelection, relationSelection)
-    )
-      mismatch();
-    linkedClaims.add(claimAssertionId);
-  }
-  if (linkedClaims.size !== required.size) mismatch();
+  const expected = linkClaimModelSources(
+    view,
+    assertions,
+    selections,
+    'edition_visible_coverage_mismatch',
+  );
+  if (expected.links.length + expected.subjectLinks.length !== required.size) mismatch();
+  if (
+    (expected.links.length
+      ? !Array.isArray(page.claimRelationLinks) || !same(page.claimRelationLinks, expected.links)
+      : page.claimRelationLinks !== undefined) ||
+    (expected.subjectLinks.length
+      ? !Array.isArray(page.claimSubjectLinks) ||
+        !same(page.claimSubjectLinks, expected.subjectLinks)
+      : page.claimSubjectLinks !== undefined)
+  )
+    mismatch();
 }
 
 /** Check the selected view-to-carrier join before building an unqualified Candidate. */
@@ -172,7 +165,7 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     if (hasClaimModelRelations && page.claimCards === undefined) mismatch();
     if (page.claimCards !== undefined) {
       const required = validateClaimCarriers(page, selections, assertions);
-      if (hasClaimModelRelations) validateClaimLinks(page, selections, assertions, required);
+      if (hasClaimModelRelations) validateClaimLinks(view, page, selections, assertions, required);
     }
     if (
       !view.assertionsByQuestion ||

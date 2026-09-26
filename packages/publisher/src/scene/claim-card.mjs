@@ -55,6 +55,7 @@ export function claimCard(selection) {
     !Array.isArray(selection.members?.claims) ||
     selection.members.claims.length !== 1 ||
     !Array.isArray(selection.members.elements) ||
+    selection.members.elements.some((item) => !record(item) || !text(item.id)) ||
     !record(claim) ||
     claim.id !== selection.target.id ||
     !text(claim.plane) ||

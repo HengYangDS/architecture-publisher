@@ -72,6 +72,18 @@ required coordinates or DOM structure.
 - **AND** matching endpoints alone or an unadorned arrow cannot satisfy the
   claim's visible obligation
 
+#### Scenario: A scalar claim shares a page with source relations
+
+- **WHEN** an Edition selects a Claim Model scalar claim that explicitly
+  depends on its subject entity alongside independently selected relations
+- **THEN** both media retain the scalar claim's typed value, plane, condition,
+  scope, maturity, validity, provenance and exact source identity in a visible
+  subject-attributed carrier
+- **AND** neither medium invents a source relation or links that claim to an
+  unrelated edge merely to satisfy graph layout
+- **AND** a missing or forged subject dependency fails qualification rather
+  than silently omitting the required claim
+
 #### Scenario: A source relation is selected without a typed claim
 
 - **WHEN** a medium selects source-reported relation topology but no typed
