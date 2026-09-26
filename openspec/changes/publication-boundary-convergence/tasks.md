@@ -210,8 +210,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       exited descendants; without it, the PID-liveness assertion failed, so
       that failure is not silently dismissed as a product defect or proof.
       This remains source-lane, not released-package evidence. Windows native
-      execution, complete dependency observation and a full Candidate build
-      remain unproved.
+      execution, complete dependency observation and a Provider-backed full
+      Candidate build remain unproved.
 - [x] 3.3 Prove identical selected-input lock identity and distinct invocation
       receipts across direct, declarative, executable, and mixed selections in
       `tests/provider-join.test.mjs`, the sole successor cross-mode fixture.
@@ -436,6 +436,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       harness. The source-adjacent mixed Chrome check is Task 5.2, not packed-
       browser acceptance. The earlier neutral browser case passed offline,
       responsive and axe checks; final installed bytes still require Task 7.5.
+      At signed source `3fa59e2`, the packed dual-medium journey passes 1/1
+      on macOS arm64 Node 26.10 and offline Linux arm64 Node 26.9 and 24.19.
+      Each run installs locally packed bytes, relocates without a source repo,
+      builds LikeC4 and mixed Claim Model media, matches exact Candidate replay,
+      and refuses admission under an incomplete named policy. This is not a
+      released-package or final-adopter qualification.
       Static, package and strict OpenSpec checks pass; the branch coverage
       deficit remains the Task 7.5 gate.
       Visible semantic coverage, human visual review, qualification binding,
