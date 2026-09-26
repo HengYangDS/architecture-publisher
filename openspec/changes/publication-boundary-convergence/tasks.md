@@ -412,6 +412,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       bake-off must measure exact font/edge geometry and full installed media
       before any replacement; do not add a permanent second engine or demand
       premature source abstraction.
+      On the same AIGW subset, exact-font Dagre and ELK route probes both passed
+      four bounded geometry intersection checks and all endpoint checks;
+      Dagre is provisionally lower-cost, not selected. Complete comparative
+      inputs, images, limits and remaining counterexamples are in the research
+      record; the current renderer remains the only product owner.
       Open: source-owner-approved authoring, installed exact-AIGW paired parity,
       reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure

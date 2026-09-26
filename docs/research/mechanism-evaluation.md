@@ -1466,3 +1466,43 @@ geometry, source-to-graphic identity, interactive focus/trace, accessibility,
 installed supply and ETHOS/self/di-effect workloads before replacing the
 current owner. Do not retain two permanent engines or ask AIGW to narrow its
 meaning merely to mask a backend limitation.
+
+### Exact-font geometry comparison on the same AIGW subset (2026-09-26)
+
+The previously recorded Dagre/ELK package probes did not render edge routes
+and labels with the selected Publisher font. This follow-up kept the same
+twelve public nodes and eleven directed relations. For these ASCII labels,
+node widths used the bundled JetBrains Mono Regular font's measured 600/1000-em
+advance at 14px plus 30px padding; edge-label widths used 12px text plus 8px
+padding. Each layout returned node, label, route and endpoint coordinates.
+A disposable adapter drew those coordinates as SVG; the existing strict SVG
+validator and resvg supply rendered it with the exact bundled font. No source
+claim, Edition, Candidate or production renderer was changed.
+
+- **[Dagre 3.1.1](https://www.npmjs.com/package/@dagrejs/dagre/v/3.1.1):**
+  left-to-right with a 30px rank gap; 1355.6×338 model bounds;
+  [1800×449 PNG](evidence/aigw-dagre-metric-layout.png). All eleven endpoints
+  met their nodes. MIT with Graphlib 4.0.5; the earlier isolated ESM supply
+  was 48,343 bytes.
+- **[ELK JS 0.12.0](https://www.npmjs.com/package/elkjs/v/0.12.0):** layered
+  polyline with a 15px interlayer gap; 1404.5×316 model bounds;
+  [1800×405 PNG](evidence/aigw-elk-metric-layout.png). EPL-2.0 OR
+  GPL-3.0-or-later; official tarball 1,685,655 bytes, installed package 7.7 MB,
+  bundled runtime about 1.6 MB.
+
+For **both** outputs, the four tested intersection classes—node/label,
+label/label, unrelated edge/node and edge/other-label—returned zero. Every
+edge endpoint met its declared source or target node.
+
+Both registry `latest` tags matched these versions at collection. At a 1190px
+diagram width, their 14px node type would be approximately 12.3px (Dagre)
+and 11.9px (ELK); these are geometric scale estimates, not browser-observed
+text size or a reader verdict. Both images retain the causal spine and avoid
+the Graphviz font-rebinding overflow on this subset. Dagre is the provisional
+lower-ownership **geometry** preference here; its lighter license and supply
+surface are material, but not a product selection. Full source qualifiers,
+claim planes, provenance, accessible HTML and publication evidence remain
+outside these images. Exercise cycles, bidirectional and parallel relations,
+ETHOS/self/di-effect, package relocation, browser behavior and human review
+before replacing the current geometry owner. A cross-workload failure or
+larger upkeep cost can reverse this preference.
