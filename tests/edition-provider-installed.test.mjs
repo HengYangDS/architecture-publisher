@@ -39,7 +39,12 @@ async function waitForExit(pid) {
 }
 
 function run(command, args, cwd, env, timeout = 60_000) {
-  const result = spawnSync(command, args, {
+  const windowsNpm = process.platform === 'win32' && command === 'npm';
+  const executable = windowsNpm ? process.execPath : command;
+  const selectedArgs = windowsNpm
+    ? [path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js'), ...args]
+    : args;
+  const result = spawnSync(executable, selectedArgs, {
     cwd,
     env,
     input: '',
