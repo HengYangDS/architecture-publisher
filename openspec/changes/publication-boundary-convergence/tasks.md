@@ -420,18 +420,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       authored interactive groups; static groups are not inferred.
       The selected data-only refinement now names every requested medium and
       permits an explicit neutral sibling without silent fallback. An authored
-      Scene now binds only its own medium decision, not a sibling's data. An
-      offline-installed package built both copied AIGW-derived trials through
-      the public CLI: source locks and all three media members matched their
-      earlier bytes; Candidate and manifest bytes changed to record the corrected
-      Scene identity. This is a mechanism probe, not AIGW source adoption or
-      qualification. A measured mixed-static compositor now selects the shorter
-      feasible claim placement without collapsing a dense two-column card.
+      Scene now binds only its own medium decision, not a sibling's data. A
+      measured mixed-static compositor selects the shorter feasible claim
+      placement without collapsing a dense two-column card. The exact locally
+      packed source at signed `e97e87c` (archive SHA-256
+      `f6281e2ff40fcca7b2be4e1a05af6f22a028075dbc4a0615038cd8485e5222bd`)
+      rebuilt both copied AIGW-derived trials after offline installation and
+      relocation: all six Candidate members matched direct public CLI bytes.
       On unchanged AIGW-derived trial inputs, the horizontal 3600px static
       image shortened from 1704 to 1292px and the two-row alternative from 2178
-      to 2065px; interactive HTML remained byte-identical. Focused counterexamples
+      to 2065px; source locks and interactive HTML remained byte-identical.
+      Focused counterexamples
       preserve the old short-note layout and reject an infeasible candidate
-      without losing a valid one. These trials reduce blank canvas, but reader
+      without losing a valid one. This is a mechanism probe, not AIGW source
+      adoption or qualification. These trials reduce blank canvas, but reader
       text and overall art direction remain below flagship quality; AIGW
       editorial approval and final media review remain open.
       Publisher self, ETHOS and di-effect successor media, selected-media
