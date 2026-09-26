@@ -13,6 +13,11 @@ may contain incompatible changes.
 - Updated the official OpenSpec development validator to `1.13.2`; Publisher
   runtime and historical release bytes are unchanged.
 
+### Fixed
+
+- Missing selected renderer inputs, Archify supply members, or output parents
+  now fail with scoped diagnostics before any final HTML is created.
+
 ## [0.3.0-alpha.3] - 2026-09-24
 
 ### Fixed

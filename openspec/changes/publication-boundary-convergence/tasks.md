@@ -472,7 +472,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       builds LikeC4 and mixed Claim Model media, matches exact Candidate replay,
       and refuses admission under an incomplete named policy. This is not a
       released-package or final-adopter qualification.
-      Static, package and strict OpenSpec checks pass; the branch coverage
+      An installed public CLI regression now rejects missing selected input,
+      removed Archify supply, and unselected extra supply with named diagnostics
+      and no final HTML. A source renderer regression also rejects a missing
+      output parent by name; this is failure attribution, not final renderer or
+      browser qualification. Focused renderer and boundary tests, static,
+      package and strict OpenSpec checks pass; the branch coverage
       deficit remains the Task 7.5 gate.
       Visible semantic coverage, human visual review, qualification binding,
       full platform evidence, and release remain open.
@@ -687,8 +692,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
       The current pre-freeze Lane tree reports 1,123 pass, 6 skip, 0 fail;
-      statements and lines 97.78%, functions 99.62%, and branches 93.77%
-      (8,271/8,820). At this measured denominator, 108 more covered branch
+      statements and lines 97.76%, functions 99.62%, and branches 93.75%
+      (8,277/8,828). At this measured denominator, 110 more covered branch
       outcomes are needed. Adversarial static carrier and native evolution
       admission cases improve coverage but do not satisfy the global 95% gate.
       Static, strict OpenSpec, and package checks pass. Continue with high-risk

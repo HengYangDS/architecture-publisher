@@ -374,6 +374,13 @@ test('native renderer rejects malformed selection before loading supply or writi
     ),
     { code: 'render_showcase_required' },
   );
+  await assert.rejects(
+    renderer.renderNativeDiagram(
+      { ...selected, output: path.join(f.root, 'absent', 'diagram.html') },
+      async () => {},
+    ),
+    { code: 'render_output_parent_invalid' },
+  );
   assert.deepEqual(await fs.readdir(f.root), ['diagram.json']);
 });
 

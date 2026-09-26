@@ -111,12 +111,45 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
   assert.equal(rejected.status, 1);
   assert(JSON.parse(rejected.stdout).error.diagnostics.length > 0);
   await fs.writeFile(input, content);
-  await fs.appendFile(
-    path.join(pkg, 'renderers/archify/supply/renderers/shared/utils.mjs'),
-    '\n// modified\n',
-  );
+  const supplyMember = path.join(pkg, 'renderers/archify/supply/renderers/shared/utils.mjs');
+  const originalSupply = await fs.readFile(supplyMember);
+  await fs.appendFile(supplyMember, '\n// modified\n');
   const tampered = invoke([...args.slice(0, -1), path.join(out, 'tampered.html')]);
   assert.equal(tampered.status, 1);
   assert.equal(JSON.parse(tampered.stdout).error.code, 'render_supply_invalid');
+  await fs.writeFile(supplyMember, originalSupply);
+  const removed = path.join(out, 'removed-utils.mjs');
+  await fs.rename(supplyMember, removed);
+  try {
+    const target = path.join(out, 'missing-supply.html');
+    const missing = invoke([...args.slice(0, -1), target]);
+    assert.equal(missing.status, 1);
+    assert.equal(JSON.parse(missing.stdout).error.code, 'render_supply_invalid');
+    await assert.rejects(fs.stat(target), { code: 'ENOENT' });
+  } finally {
+    await fs.rename(removed, supplyMember);
+  }
+  const extra = path.join(pkg, 'renderers/archify/supply/unselected.txt');
+  await fs.writeFile(extra, 'not selected');
+  try {
+    const target = path.join(out, 'extra-supply.html');
+    const unexpected = invoke([...args.slice(0, -1), target]);
+    assert.equal(unexpected.status, 1);
+    assert.equal(JSON.parse(unexpected.stdout).error.code, 'render_supply_invalid');
+    await assert.rejects(fs.stat(target), { code: 'ENOENT' });
+  } finally {
+    await fs.unlink(extra);
+  }
+  const movedInput = path.join(out, 'moved-service.json');
+  await fs.rename(input, movedInput);
+  try {
+    const target = path.join(out, 'missing-input.html');
+    const missing = invoke([...args.slice(0, -1), target]);
+    assert.equal(missing.status, 1);
+    assert.equal(JSON.parse(missing.stdout).error.code, 'render_input_type_invalid');
+    await assert.rejects(fs.stat(target), { code: 'ENOENT' });
+  } finally {
+    await fs.rename(movedInput, input);
+  }
   assert.equal(invoke(['render']).status, 2);
 });

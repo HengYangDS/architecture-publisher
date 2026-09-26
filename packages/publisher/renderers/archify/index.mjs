@@ -13,9 +13,19 @@ const supplyDigest = '091c49f7b7c95fd8a022705f743cb6b0701fefc4abb1cad588b09a91e4
 const types = new Set(['architecture', 'workflow', 'sequence', 'dataflow', 'lifecycle']);
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 async function bytes(file, maximum, code) {
-  const stat = await fs.lstat(file);
+  let stat;
+  try {
+    stat = await fs.lstat(file);
+  } catch {
+    fail(code);
+  }
   if (!stat.isFile() || stat.isSymbolicLink() || stat.size > maximum) fail(code);
-  const result = await fs.readFile(file);
+  let result;
+  try {
+    result = await fs.readFile(file);
+  } catch {
+    fail(code);
+  }
   if (result.length !== stat.size) fail(code);
   return result;
 }
@@ -203,9 +213,16 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
   if (diagram?.diagram_type !== plan.type) fail('render_type_mismatch');
   if (diagram?.meta?.quality_profile !== 'showcase') fail('render_showcase_required');
   offlineInput(diagram);
-  const parent = path.dirname(plan.output),
+  const parent = path.dirname(plan.output);
+  let stat;
+  let resolvedParent;
+  try {
     stat = await fs.lstat(parent);
-  if (!stat.isDirectory() || stat.isSymbolicLink() || (await fs.realpath(parent)) !== parent)
+    resolvedParent = await fs.realpath(parent);
+  } catch {
+    fail('render_output_parent_invalid');
+  }
+  if (!stat.isDirectory() || stat.isSymbolicLink() || resolvedParent !== parent)
     fail('render_output_parent_invalid');
   try {
     await fs.lstat(plan.output);
