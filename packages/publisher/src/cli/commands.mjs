@@ -69,7 +69,7 @@ export const commandCatalog = Object.freeze([
   ),
   command(
     ['qualify', 'verify'],
-    'Admit one exact Qualification Set against selected authority.',
+    'Bind submitted qualification records to exact selected authority.',
     'archpub qualify verify <request.json> --sha256 <digest> [--execute-providers <id@digest,...>]',
     qualificationSelection,
     async ({ file, '--sha256': digest, '--execute-providers': providers }) => {
@@ -138,7 +138,7 @@ const scopeSummaries = Object.freeze({
   edition: 'Compile audience-specific Architecture Editions.',
   evolution: 'Plan work caused by semantic change.',
   render: 'Produce medium-specific artifact bytes.',
-  qualify: 'Verify exact externally produced qualification evidence.',
+  qualify: 'Check exact inputs and bind submitted qualification records.',
   publish: 'Plan, apply, or recover bounded publication effects.',
 });
 

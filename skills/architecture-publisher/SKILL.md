@@ -27,11 +27,13 @@ not own intent, workflow state, authorization, or generated artifacts.
    the reported source-bound structure, Edition, scene, renderer, artifact, and
    optional Provider provenance identities. It performs no qualification or
    publication.
-4. Admit an externally produced exact Qualification Set with
-   `archpub qualify verify <request.json> --sha256 <digest>`. The request selects
-   the exact Claim Model, Edition, Candidate, and Qualification Set. Verification
-   rederives Candidate authority and its conjunctive verdict; it neither executes
-   predicates nor manufactures acceptance.
+4. Run `archpub qualify verify <request.json> --sha256 <digest>` against an exact
+   externally produced Qualification Set. Historical v1 selects the Claim Model,
+   Edition, Candidate, and set and computes its conjunctive admission without
+   executing predicates. Successor v2 replays the selected Candidate and binds
+   submitted records, but reports `records-bound` and `admitted: false` without
+   an accepter-owned policy. Neither route authenticates a verifier's claim or
+   authorizes publication.
 5. When browser evidence is required, run the repository's explicit observer
    against the exact output manifest. Keep browser, human and hosted acceptance
    separate.

@@ -45,7 +45,7 @@ async function selectedInput(t, supplied = null) {
 test('v2 qualification input replays one exact Candidate without granting acceptance', async (t) => {
   const { built, inputBytes, inputPath } = await selectedInput(t);
   const result = await verifyQualificationInput(inputPath, sha(inputBytes));
-  assert.equal(result.status, 'verified');
+  assert.equal(result.status, 'records-bound');
   assert.equal(result.candidateSha256, built.candidateSha256);
   assert.equal(result.inputLockSha256, built.lockSha256);
   assert.equal(result.records, 0);
@@ -155,6 +155,8 @@ test('v2 qualification executes only an explicitly chosen exact Provider', async
     { encoding: 'utf8', timeout: 20_000 },
   );
   assert.equal(command.status, 0, command.stdout + command.stderr);
-  assert.equal(JSON.parse(command.stdout).admitted, false);
+  const output = JSON.parse(command.stdout);
+  assert.equal(output.status, 'records-bound');
+  assert.equal(output.admitted, false);
   assert(Number.isSafeInteger(Number(await fs.readFile(executionMarker, 'utf8'))));
 });

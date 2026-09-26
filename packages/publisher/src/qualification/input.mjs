@@ -134,7 +134,7 @@ async function verifySelectedQualificationPlan(plan, parent, executionChoice) {
     selectedSet.value,
   );
   return {
-    status: 'verified',
+    status: 'records-bound',
     qualificationSetDigest: bound.qualificationSetDigest,
     candidateSha256: bound.candidateSha256,
     inputLockSha256: bound.inputLockSha256,

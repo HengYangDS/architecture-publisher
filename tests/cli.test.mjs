@@ -38,6 +38,13 @@ test('scoped help is concise and derived from the routed commands', () => {
   assert.match(edition.stdout, /^ {2}build\b/m);
   assert.match(edition.stdout, /direct inputs or one Edition Provider/u);
   assert.doesNotMatch(edition.stdout, /^ {2}provider\b/m);
+
+  const qualify = run(['qualify', '--help']);
+  assert.equal(qualify.status, 0, qualify.stderr);
+  assert.match(qualify.stdout, /Check exact inputs and bind submitted qualification records/u);
+  assert.doesNotMatch(qualify.stdout, /Verify exact externally produced qualification evidence/u);
+  assert.match(qualify.stdout, /Bind submitted qualification records/u);
+  assert.doesNotMatch(qualify.stdout, /Admit one exact Qualification Set/u);
 });
 
 test('usage errors identify the failing invocation and next help action', () => {
