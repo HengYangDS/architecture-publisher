@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { validateEdition } from 'architecture-publisher/edition';
 import { createMetricReader } from 'architecture-publisher/renderers/svg';
 import { canonical, deepFreeze, validateClaimModel } from 'architecture-publisher/semantics';
+import { parseStrictJson } from 'architecture-publisher/source';
 import { architecturePublisherInteractiveScenes } from './interactive-scenes.mjs';
 import { composeArchitecturePublisherInteractiveScene } from './interactive-scene.mjs';
 import { SELF_NAMESPACE } from './project.mjs';
@@ -97,12 +98,11 @@ export function refinementFromSelfEdition(sourceModel, authoredEdition, metricBy
     canonical(edition.scenes.interactive) !== canonical(architecturePublisherInteractiveScenes())
   )
     fail('self_refinement_authorship_mismatch');
-  let metrics;
-  try {
-    metrics = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(metricBytes));
-  } catch {
-    fail('self_refinement_metric_invalid');
-  }
+  const metrics = parseStrictJson(
+    metricBytes,
+    'self_refinement_metric_invalid',
+    'self_refinement_metric_json_duplicate_key',
+  );
   const composition = composeArchitecturePublisherFlagship();
   if (canonical(edition.scenes.static.composition) !== canonical(composition.editionComposition))
     fail('self_refinement_authorship_mismatch');

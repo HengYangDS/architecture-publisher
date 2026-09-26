@@ -1,7 +1,12 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { noSymlinkAncestors, regularBytes, writeSourceBundle } from 'architecture-publisher/source';
+import {
+  noSymlinkAncestors,
+  parseStrictJson,
+  regularBytes,
+  writeSourceBundle,
+} from 'architecture-publisher/source';
 import { claimModelDigest, validateClaimModel } from 'architecture-publisher/semantics';
 import { editionDigest, validateEdition } from 'architecture-publisher/edition';
 import { architecturePublisherClaimModel } from './model.mjs';
@@ -113,12 +118,11 @@ function claimsFor(scene) {
 
 function selectedProductVersion(members) {
   const bytes = members.find(({ path: name }) => name === 'sources/core-package.source')?.content;
-  let selected;
-  try {
-    selected = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
-  } catch {
-    fail('self_core_package_invalid');
-  }
+  const selected = parseStrictJson(
+    bytes,
+    'self_core_package_invalid',
+    'self_core_package_json_duplicate_key',
+  );
   if (
     selected?.name !== 'architecture-publisher' ||
     typeof selected.version !== 'string' ||
@@ -433,12 +437,7 @@ export async function prepareArchitecturePublisherEditionInput(file) {
   const selected = path.resolve(file);
   await noSymlinkAncestors(selected);
   const bytes = await regularBytes(selected, 1024 * 1024);
-  let input;
-  try {
-    input = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
-  } catch {
-    fail('self_input_invalid');
-  }
+  const input = parseStrictJson(bytes, 'self_input_invalid', 'self_input_json_duplicate_key');
   const base = path.dirname(selected);
   if (typeof input.output !== 'string' || !input.output) fail('self_output_path_invalid');
   input.output = path.resolve(base, input.output);

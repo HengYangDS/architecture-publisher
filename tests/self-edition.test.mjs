@@ -646,6 +646,74 @@ test('self Edition rejects a selected core package with foreign product identity
   });
 });
 
+test('self Edition rejects duplicate core-package identity before output', async (t) => {
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-duplicate-package-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const selected = JSON.parse(
+    await fs.readFile(path.join(root, 'packages/publisher/package.json'), 'utf8'),
+  );
+  const bytes = Buffer.from(
+    JSON.stringify(selected).replace('"name":', '"name":"foreign-publisher","name":') + '\n',
+  );
+  const selectedPath = path.join(parent, 'duplicate-package.json');
+  await fs.writeFile(selectedPath, bytes);
+  const output = path.join(parent, 'prepared');
+  const input = await request(output);
+  input.sources['core-package'] = { path: selectedPath, sha256: sha256(bytes) };
+  await assert.rejects(prepareArchitecturePublisherEdition(input), {
+    code: 'self_core_package_json_duplicate_key',
+  });
+  await assert.rejects(fs.access(output), { code: 'ENOENT' });
+});
+
+test('self Edition rejects duplicate selected typography facts before output', async (t) => {
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-duplicate-metrics-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const original = await fs.readFile(
+    path.join(root, 'editions/self/src/edition/static/authoring/metrics.json'),
+    'utf8',
+  );
+  const bytes = Buffer.from(original.replace('"schema":', '"schema":"forged-metrics","schema":'));
+  assert.notEqual(bytes.toString(), original);
+  const selectedPath = path.join(parent, 'duplicate-metrics.json');
+  await fs.writeFile(selectedPath, bytes);
+  const output = path.join(parent, 'prepared');
+  const input = await request(output);
+  input.sources['self-static-metrics'] = { path: selectedPath, sha256: sha256(bytes) };
+  await assert.rejects(prepareArchitecturePublisherEdition(input), {
+    code: 'self_refinement_metric_json_duplicate_key',
+  });
+  await assert.rejects(fs.access(output), { code: 'ENOENT' });
+});
+
+test('self Edition input rejects duplicate output authority before effects', async (t) => {
+  const { prepareArchitecturePublisherEditionInput } =
+    await import('../editions/self/src/edition/prepare.mjs');
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-duplicate-input-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const output = path.join(parent, 'prepared');
+  const input = await request(output);
+  const bytes = Buffer.from(
+    JSON.stringify(input).replace('"output":', '"output":"elsewhere","output":') + '\n',
+  );
+  const inputFile = path.join(parent, 'duplicate-input.json');
+  await fs.writeFile(inputFile, bytes);
+  await assert.rejects(prepareArchitecturePublisherEditionInput(inputFile), {
+    code: 'self_input_json_duplicate_key',
+  });
+  await assert.rejects(fs.access(output), { code: 'ENOENT' });
+});
+
 test('the evolution view carries semantic delta and distinct renewal obligations', async (t) => {
   const { prepareArchitecturePublisherEdition } =
     await import('../editions/self/src/edition/prepare.mjs');

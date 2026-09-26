@@ -499,9 +499,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       and their displaced tests are deleted; current self claims now name the
       generic authored SVG renderer and interactive compositor. The installed
       self package authors portable inputs; packed Core builds both media after
-      that package is removed. Its eight-page Chrome and axe journey and the
-      self evolution test pass (13/13 focused), and static, package, and strict
-      OpenSpec checks pass. The Core's old live Atlas composer has been
+      that package is removed. Its earlier eight-page Chrome and axe journey
+      and self evolution test pass. The current self-Edition file passes 14
+      runnable tests with one declared browser skip, including installed
+      relocation and rejection of ambiguous selected input, core-package, and
+      typography JSON before output. Static, package, and strict OpenSpec
+      checks pass. The Core's old live Atlas composer has been
       replaced by the single interactive HTML contract under Task 7.2.
       The static evolution fork now connects affected views separately to
       rebuild/verification and review/acceptance/publication; the unsupported
@@ -645,9 +648,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The latest full run on this product tree reports 1,089 pass, 6 skip, 0
-      fail; statements and lines are 97.68%, functions 99.49%, and branches
-      93.21% (7,992/8,574), below the unchanged 95% gate. The gap is 154 branch
+      The latest full run on this product tree reports 1,092 pass, 6 skip, 0
+      fail; statements and lines are 97.76%, functions 99.62%, and branches
+      93.22% (7,992/8,573), below the unchanged 95% gate. The gap is 153 branch
       outcomes at that denominator, which may change. Static, strict OpenSpec,
       and package checks pass. The authored-static, semantic-change,
       visible-coverage, publication-authority, and scoped multi-view
