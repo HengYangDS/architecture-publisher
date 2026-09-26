@@ -1401,6 +1401,28 @@ editor-authorized abstraction or a better bounded composition; it may instead
 report layout infeasibility without dropping meaning. No universal layout
 backend is selected by this single workload.
 
+An installed-package replay on Publisher `1fdb2d9` and unchanged AIGW
+`270ca0bd` narrows the counterexample. The locally packed archive SHA-256 was
+`81447cb709f729064d3da19d200b8e269eb71b40666db82805f1ab051aa34dba`;
+the copied AIGW Build Request SHA-256 was
+`29fe63c218c4c1264cf737746e589d5dc2e6dec91860ad42adb08844ebf71ed8`.
+The installed public build and replay matched Candidate
+`0623ff0482e7603dc97f9696583d554f8df8fea6d4ee510762c706dbec2bf8fb`;
+the four-page HTML SHA-256 was
+`caea11cfc7f8e7ee1a575949499029d160707fed70a04048437dc5d802ca88b8`;
+the static PNG SHA-256 was
+`850d4331644dfb32182648e7417f11c22b8fefd4f3e31316a98f2ba1517cc3fe`.
+This is byte replay, not qualification, source endorsement or AIGW acceptance.
+The changed HTML presents relation qualifiers as source-reported, unverified
+fields beside concise graph labels. At 1440×900 in background Chrome, page one
+still measured a 894×414 graph beside a 426×1427 evidence column; the 1,013px
+height disparity leaves most of the left column empty. At 390px, there was no
+horizontal overflow, but the overview was 2,771px tall. The static overview
+still repeats a long qualifier prefix for individual relations. Thus a geometry
+backend swap alone cannot repair the neutral composition: the next candidate
+must jointly test graph scale and the independent flow of evidence, without
+removing selected meaning or importing a source-product layout default.
+
 ### A mature layout alternative on the same AIGW input (2026-09-26)
 
 The prior scale failure does **not** establish that AIGW must change its

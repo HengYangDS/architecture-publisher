@@ -421,6 +421,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       canonical JSON literals in the interactive Scene and adjacent readable
       relation fields, visibly source-reported and unverified rather than
       flattening them into graph labels. Static presentation remains independent.
+      A provisional packed offline install at Publisher `1fdb2d9` rebuilt and replayed
+      AIGW `270ca0bd`'s staged Client Projection Candidate; browser measurements
+      expose a 1,013px graph/evidence column height disparity. The exact
+      identities and limits are in the mechanism evaluation. A geometry swap
+      alone cannot close this composition gap.
       Open: source-owner-approved authoring, installed exact-AIGW paired parity,
       reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure
