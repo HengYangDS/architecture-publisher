@@ -691,7 +691,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The current pre-freeze Lane tree reports 1,123 pass, 6 skip, 0 fail;
+      With installed Chrome selected, the current pre-freeze Lane tree reports
+      1,127 pass, 2 explicitly input-gated skips, 0 behavior failures;
       statements and lines 97.76%, functions 99.62%, and branches 93.75%
       (8,277/8,828). At this measured denominator, 110 more covered branch
       outcomes are needed. Adversarial static carrier and native evolution
