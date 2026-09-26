@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import { createHash, randomUUID } from 'node:crypto';
+import { parseStrictJson } from '../source/json.mjs';
 import { hasExactFields } from '../source/manifest.mjs';
 import { requireExplicitAcceptance } from './contract.mjs';
 const sha = (b) => createHash('sha256').update(b).digest('hex');
@@ -369,10 +370,11 @@ async function checkFiles(root, rows) {
 }
 async function verifyInstalled(plan, medium, acceptance) {
   const root = plan.options.destinations[medium],
-    m = JSON.parse(await fs.readFile(path.join(root, 'delivery-manifest.json')));
+    manifestBytes = await fs.readFile(path.join(root, 'delivery-manifest.json')),
+    m = expectedManifest(plan, medium, acceptance);
   equal(
-    encode(m),
-    encode(expectedManifest(plan, medium, acceptance)),
+    Buffer.compare(manifestBytes, Buffer.from(encode(m))),
+    0,
     'Installed manifest differs from approved content',
   );
   await checkFiles(root, m.files);
@@ -399,7 +401,7 @@ async function verifyInstalled(plan, medium, acceptance) {
     m.files
       .concat({
         path: 'delivery-manifest.json',
-        sha256: sha(await fs.readFile(path.join(root, 'delivery-manifest.json'))),
+        sha256: sha(manifestBytes),
       })
       .map((f) => `${f.sha256}  ${f.path}`)
       .join('\n') + '\n';
@@ -489,8 +491,12 @@ async function withPairWriter(plan, acceptance, recover, action) {
       throw Error('Legacy writer lock recovery requires inspection');
     if (await exists(lock)) {
       await noLinks(ownerFile);
-      const bytes = await fs.readFile(ownerFile, 'utf8'),
-        previous = JSON.parse(bytes);
+      const bytes = await fs.readFile(ownerFile),
+        previous = parseStrictJson(
+          bytes,
+          'publication_writer_lock_json_invalid',
+          'publication_writer_lock_json_duplicate_key',
+        );
       if (typeof previous.token !== 'string' || !/^[a-f0-9-]{36}$/.test(previous.token))
         throw Error('Invalid writer lock identity');
       sameSet(await fs.readdir(lock), ['owner.json'], 'Ambiguous writer lock content');
@@ -502,7 +508,11 @@ async function withPairWriter(plan, acceptance, recover, action) {
       await fs.mkdir(history, { recursive: true });
       const retained = path.join(history, previous.token);
       if (await exists(retained)) throw Error('Retained writer lock already exists');
-      equal(await fs.readFile(ownerFile, 'utf8'), bytes, 'Writer lock changed before recovery');
+      equal(
+        Buffer.compare(await fs.readFile(ownerFile), bytes),
+        0,
+        'Writer lock changed before recovery',
+      );
       if (alive(previous.pid)) throw Error('An active installer holds the writer lock');
       // Keep the nonempty token tombstone: a delayed reclaimer cannot rename a
       // newer owner over it, even if it observed the old owner before this move.
@@ -759,7 +769,7 @@ async function recoverLockedPair(
   );
   const journalFile = path.join(op, 'operation.json');
   await noLinks(journalFile);
-  const recorded = await fs.readFile(journalFile, 'utf8').catch((error) => {
+  const recorded = await fs.readFile(journalFile).catch((error) => {
     if (error.code === 'ENOENT') return null;
     throw error;
   });
@@ -793,7 +803,11 @@ async function recoverLockedPair(
       globalAtomicity: false,
     };
   }
-  const journal = JSON.parse(recorded);
+  const journal = parseStrictJson(
+    recorded,
+    'publication_journal_json_invalid',
+    'publication_journal_json_duplicate_key',
+  );
   equal(journal.planSha256, digest, 'Recovery journal plan mismatch');
   equal(
     encode(journal.destinations),
@@ -864,7 +878,11 @@ async function publishLockedPair(
     );
     const operationFile = path.join(o.recoveryRoot, digest.slice(0, 20), 'operation.json');
     await noLinks(operationFile);
-    const operation = JSON.parse(await fs.readFile(operationFile));
+    const operation = parseStrictJson(
+      await fs.readFile(operationFile),
+      'publication_journal_json_invalid',
+      'publication_journal_json_duplicate_key',
+    );
     if (
       operation.planSha256 !== digest ||
       operation.status !== 'INSTALLED' ||

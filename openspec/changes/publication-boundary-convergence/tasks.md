@@ -548,6 +548,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       and authorization; mismatch fails before effects and preserves prior output.
       Preview/export needs no custodian. Do not claim Git/Forge, hosted availability,
       or off-host DR from a local receipt.
+      Partial: the public file-plan and authorization readers reject repeated
+      JSON authority keys. Writer-lock and recovery-journal readers reject
+      ambiguous keys and malformed UTF-8;
+      installed receipt replay compares exact emitted bytes, so a duplicate-key
+      manifest plus matching edited checksum cannot impersonate approved output.
+      Focused RED/GREEN proves refusal before new effects. Candidate binding,
+      trusted qualification, named acceptance, and custody remain open.
 
 ## 7. Installed acceptance and release
 
@@ -635,13 +642,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      On signed `0c5c5c1`, the last full run reports 1,081 pass, 6 skip, 0
-      fail; statements and lines are 97.67%, functions 99.49%, and branches
-      93.01% (7,934/8,530), below the unchanged 95% gate. The gap is 170
-      branch outcomes at that denominator, which may grow as new paths execute.
-      The authored-static and semantic-change counterexamples are included in
-      this full run. Next address renderer, Edition evolution, publication and
-      qualification-process boundaries; do not exclude owned production code,
+      The latest full run, before the final byte-exact manifest repair, reports
+      1,087 pass, 6 skip, 0 fail; statements and lines are 97.68%, functions
+      99.49%, and branches 93.19% (7,979/8,562), below the unchanged 95% gate.
+      The gap was 155 branch outcomes at that denominator, which may change.
+      On the current tree, the 87 runnable publication-focused tests, static
+      checks, strict OpenSpec validation, and package check pass; the global
+      coverage gate has not been rerun since the final byte repair.
+      The authored-static, semantic-change, visible-coverage, and publication
+      authority counterexamples are included. Next address renderer, Edition
+      evolution, publication, and qualification-process boundaries; do not
+      exclude owned production code,
       weaken the browser journey, or mistake browser-only execution for Node
       coverage.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec

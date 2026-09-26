@@ -409,6 +409,26 @@ test('foreign-host and different-plan writer records are preserved and refused',
   assert.equal((await recoverPairFiles(plan, acceptance)).status, 'ROLLED_BACK');
 });
 
+test('recovery rejects duplicated writer identity without moving retained state', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    authorization = approve(plan);
+  await interruptWriter(dir, plan, authorization, 'save-native', 'after');
+  const ownerFile = path.join(dir, '.architecture-publication-writer/owner.json');
+  const original = await fs.readFile(ownerFile, 'utf8');
+  const altered = original.replace('"host":', '"host":"forged.invalid","host":');
+  assert.notEqual(altered, original);
+  await fs.writeFile(ownerFile, altered);
+  const nativeBefore = await inventory(options.destinations.native);
+  const atlasBefore = await inventory(options.destinations.atlas);
+  await assert.rejects(recoverPairFiles(plan, authorization), {
+    code: 'publication_writer_lock_json_duplicate_key',
+  });
+  assert.equal(await fs.readFile(ownerFile, 'utf8'), altered);
+  assert.deepEqual(await inventory(options.destinations.native), nativeBefore);
+  assert.deepEqual(await inventory(options.destinations.atlas), atlasBefore);
+});
+
 test('pair publisher belongs to existing delivery entry and dry-run preserves both targets', async (t) => {
   assert.equal(typeof planFiles, 'function');
   const { options } = await fixture(t),
@@ -691,6 +711,79 @@ test('replay rejects coordinated entry, manifest and checksum drift', async (t) 
   );
 });
 
+test('replay rejects a duplicate-key manifest even if its checksum is updated', async (t) => {
+  const { options } = await fixture(t),
+    plan = await planFiles(options),
+    authorization = approve(plan);
+  await installPairFiles(plan, authorization);
+  const target = options.destinations.native;
+  const manifestFile = path.join(target, 'delivery-manifest.json');
+  const manifest = await fs.readFile(manifestFile, 'utf8');
+  const altered = manifest.replace(
+    '"planSha256":',
+    `"planSha256": "${'0'.repeat(64)}",\n  "planSha256":`,
+  );
+  assert.notEqual(altered, manifest);
+  await fs.writeFile(manifestFile, altered);
+  const checksumFile = path.join(target, 'SHA256SUMS');
+  const checksums = await fs.readFile(checksumFile, 'utf8');
+  await fs.writeFile(
+    checksumFile,
+    checksums.replace(
+      /^[a-f0-9]{64} {2}delivery-manifest\.json$/m,
+      `${sha(altered)}  delivery-manifest.json`,
+    ),
+  );
+  const nativeBefore = await inventory(target);
+  const atlasBefore = await inventory(options.destinations.atlas);
+  await assert.rejects(
+    installPairFiles(plan, authorization),
+    /Installed manifest differs from approved content/,
+  );
+  assert.deepEqual(await inventory(target), nativeBefore);
+  assert.deepEqual(await inventory(options.destinations.atlas), atlasBefore);
+});
+
+test('replay compares emitted manifest bytes, not lossy UTF-8 decoding', async (t) => {
+  const { options } = await fixture(t);
+  const baseline = await planFiles(options);
+  const plan = await planPairFiles({
+    options,
+    source: { id: 'replacement-\ufffd' },
+    payload: baseline.payload,
+    entries: baseline.entries,
+    dependencies: baseline.dependencies,
+  });
+  const authorization = approve(plan);
+  await installPairFiles(plan, authorization);
+  const target = options.destinations.native;
+  const manifestFile = path.join(target, 'delivery-manifest.json');
+  const original = await fs.readFile(manifestFile);
+  const marker = Buffer.from('\ufffd');
+  const index = original.indexOf(marker);
+  assert(index >= 0);
+  const altered = Buffer.concat([
+    original.subarray(0, index),
+    Buffer.from([0xff]),
+    original.subarray(index + marker.length),
+  ]);
+  assert.equal(altered.toString('utf8'), original.toString('utf8'));
+  await fs.writeFile(manifestFile, altered);
+  const checksumFile = path.join(target, 'SHA256SUMS');
+  const checksums = await fs.readFile(checksumFile, 'utf8');
+  await fs.writeFile(
+    checksumFile,
+    checksums.replace(
+      /^[a-f0-9]{64} {2}delivery-manifest\.json$/m,
+      `${sha(altered)}  delivery-manifest.json`,
+    ),
+  );
+  await assert.rejects(
+    installPairFiles(plan, authorization),
+    /Installed manifest differs from approved content/,
+  );
+});
+
 test('a replay must refer to the actually recorded operation, not a newly invented plan hash', async (t) => {
   const { options } = await fixture(t),
     p = await planFiles(options);
@@ -734,6 +827,57 @@ test('an installed receipt cannot be replayed with a contradictory operation jou
     /Recorded operation does not confirm delivery/,
   );
   assert.deepEqual(await inventory(options.destinations.native), before);
+});
+
+test('replay and recovery reject duplicated journal authority before effects', async (t) => {
+  const { options } = await fixture(t),
+    plan = await planFiles(options),
+    authorization = approve(plan);
+  await installPairFiles(plan, authorization);
+  const journalFile = path.join(options.recoveryRoot, plan.sha256.slice(0, 20), 'operation.json');
+  const original = await fs.readFile(journalFile, 'utf8');
+  const altered = original.replace('"status":', '"status":"ROLLED_BACK","status":');
+  assert.notEqual(altered, original);
+  await fs.writeFile(journalFile, altered);
+  const nativeBefore = await inventory(options.destinations.native);
+  const atlasBefore = await inventory(options.destinations.atlas);
+  await assert.rejects(installPairFiles(plan, authorization), {
+    code: 'publication_journal_json_duplicate_key',
+  });
+  await assert.rejects(recoverPairFiles(plan, authorization), {
+    code: 'publication_journal_json_duplicate_key',
+  });
+  assert.deepEqual(await inventory(options.destinations.native), nativeBefore);
+  assert.deepEqual(await inventory(options.destinations.atlas), atlasBefore);
+});
+
+test('replay and recovery reject invalid UTF-8 in a recorded journal', async (t) => {
+  const { options } = await fixture(t),
+    plan = await planFiles(options),
+    authorization = approve(plan);
+  await installPairFiles(plan, authorization);
+  const journalFile = path.join(options.recoveryRoot, plan.sha256.slice(0, 20), 'operation.json');
+  const original = await fs.readFile(journalFile);
+  assert.equal(original.subarray(-2).toString(), '}\n');
+  await fs.writeFile(
+    journalFile,
+    Buffer.concat([
+      original.subarray(0, -2),
+      Buffer.from(',"note":"'),
+      Buffer.from([0xff]),
+      Buffer.from('"}\n'),
+    ]),
+  );
+  const nativeBefore = await inventory(options.destinations.native);
+  const atlasBefore = await inventory(options.destinations.atlas);
+  await assert.rejects(installPairFiles(plan, authorization), {
+    code: 'publication_journal_json_invalid',
+  });
+  await assert.rejects(recoverPairFiles(plan, authorization), {
+    code: 'publication_journal_json_invalid',
+  });
+  assert.deepEqual(await inventory(options.destinations.native), nativeBefore);
+  assert.deepEqual(await inventory(options.destinations.atlas), atlasBefore);
 });
 
 test('incomplete rollback still reports recovery paths when writing the journal also fails', async (t) => {

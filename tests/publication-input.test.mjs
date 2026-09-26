@@ -106,6 +106,30 @@ test('file-publication input rejects ambiguous or unsafe selection before effect
   await assert.rejects(filePublication('unknown', safe), /Unsupported file operation/);
 });
 
+test('file-publication rejects repeated plan and authorization keys before effects', async (t) => {
+  const { root, input, write } = await fixture(t);
+  const ambiguousRequest =
+    JSON.stringify(input).replace('"source":', '"source":{"id":"forged"},"source":') + '\n';
+  const requestFile = path.join(root, 'ambiguous-request.json');
+  await fs.writeFile(requestFile, ambiguousRequest);
+  await assert.rejects(filePublication('plan', requestFile), {
+    code: 'file_publication_input_json_duplicate_key',
+  });
+
+  const planned = await filePublication('plan', await write('valid-request.json', input));
+  const planFile = await write('plan.json', planned.plan);
+  const authorizationFile = path.join(root, 'ambiguous-authorization.json');
+  await fs.writeFile(
+    authorizationFile,
+    `{"decision":"DENIED","decision":"AUTHORIZED","planSha256":"${planned.plan.sha256}"}\n`,
+  );
+  await assert.rejects(filePublication('apply', planFile, authorizationFile), {
+    code: 'file_publication_input_json_duplicate_key',
+  });
+  assert.deepEqual(await fs.readdir(path.join(root, 'native')), []);
+  assert.deepEqual(await fs.readdir(path.join(root, 'atlas')), []);
+});
+
 test('file-publication input treats replacement and dependencies as explicit selections', async (t) => {
   const { root, input, write } = await fixture(t);
   await assert.rejects(filePublication('plan', path.join(root, 'sources')), {
