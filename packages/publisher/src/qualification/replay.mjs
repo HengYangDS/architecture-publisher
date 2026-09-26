@@ -63,7 +63,7 @@ export async function replaySelectedCandidate(input, executionChoice = []) {
       rebuilt.manifestSha256 !== bundle.manifestSha256
     )
       fail('selected_candidate_replay_mismatch');
-    // Full byte replay binds these obligations to the selected Edition without a second Provider run.
+    // Full byte replay rebuilds from pinned inputs; an explicitly selected Provider can run again.
     const replay = {
       status: 'replayed',
       verdict: 'match',

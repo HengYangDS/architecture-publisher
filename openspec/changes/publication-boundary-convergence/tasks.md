@@ -535,7 +535,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       publication are withheld. A selected new renderer or toolchain may create
       a new Candidate without an unrelated Edition authoring change.
       Partial: exact v2 Candidate replay binds the input lock and rederived
-      Edition question scopes without a second Provider run; submitted records
+      Edition question scopes by rebuilding from pinned inputs. An executable
+      Provider runs again only with the invoker's separate exact choice, as
+      `tests/selected-candidate-replay.test.mjs` demonstrates. Submitted records
       cannot invent subjects, medium-local scopes, or verifier authority. The
       invoker separately chooses executable Providers and, optionally, exact
       `architecture.qualification-policy/v1` bytes. The latter assesses finite
@@ -662,10 +664,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The latest retained pre-freeze qualified-publication integration run reports
-      1,106 pass, 6 skip, 0 fail; statements and lines 97.77%, functions
-      99.62%, and branches 93.20% (8,083/8,672). The unchanged 95% branch
-      gate fails; at this denominator, 156 more covered outcomes are needed.
+      The latest retained pre-freeze qualified-publication integration run at
+      signed source `c72b9a4` reports 1,110 pass, 6 skip, 0 fail; statements
+      and lines 97.77%, functions 99.62%, and branches 93.22% (8,088/8,676).
+      The unchanged 95% branch gate fails; at this denominator, 155 more
+      covered outcomes are needed.
       Static, strict OpenSpec, and package checks pass. The earlier signed
       `6eecb81` snapshot was 93.33% before this owner expansion. Continue with
       high-risk renderer, Edition evolution, source, and qualification-process
