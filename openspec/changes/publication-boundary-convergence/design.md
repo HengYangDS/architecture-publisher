@@ -753,6 +753,47 @@ Generic defaults must earn reader quality; they are not a license for uniform
 boxes, excessive blank space, or hidden-only coverage. Manual art direction is
 an override of a qualified baseline, not the price of entry.
 
+### Selected scene refinement for flagship Editions
+
+The self-Edition makes the override boundary concrete. Its current source model
+has 38 entities, 51 relations, and 89 derived claims across eight reader
+questions. Its source-owned static composition and interactive scene code
+author aggregations, routing, and hierarchy; Publisher already supplies font
+measurement, rasterization, Archify/Atlas rendering, and quality checks. The
+legacy self builders pass their own tests, but the successor scene compilers
+reject every non-null `visualPolicy.override`. Re-authoring the same model as a
+neutral Edition Project cannot by itself establish flagship visual parity.
+Neutral-only output discards authored aggregation and geometry; accepting
+self-rendered files bypasses the common compiler's visible-meaning check; an
+executable renderer registry adds a new trust and upgrade surface before a
+second backend need is demonstrated.
+
+Use the existing selected `visualPolicy.override` resource as a versioned,
+data-only scene refinement. The editor may prepare it from source-owned code,
+but `archpub edition build` consumes only its selected bytes. Each refined
+medium retains its own scene, source-qualified semantic-to-graphic bindings,
+dimensions, visible limits, and selected backend supplies. Publisher checks
+the refinement against the same required assertions, actual source members,
+allowed and forbidden aggregates, and disclosure policy as the neutral path;
+private bindings do not enter public media without explicit disclosure.
+Group membership alone never authorizes a collapsed claim. Missing or
+unsupported refinement fails the affected medium rather than falling back
+to a falsely equivalent neutral output. Pre-rendered SVG/HTML and a self-only
+build command are not substitutes for this join.
+
+First reuse the existing static scene audit, SVG/raster primitives, and
+Archify/Atlas renderer boundaries. Generalize only a mechanism exercised by
+both the self-Edition and one unrelated Edition; do not add a renderer plugin
+registry or import self package code into Publisher Core for this case. Keep
+legacy self output immutable until exact selected-meaning coverage, installed
+reproduction, independent static/interactive behavior, and human visual
+acceptance pass on the public successor path. If the current scene contracts
+cannot carry those obligations without loss, revise that contract explicitly
+instead of weakening parity or claiming that a carrier map proves meaning.
+The successor may earn a different accepted visual composition; byte equality
+is required for repeat builds of the same selected inputs and supplies, not
+between a new Edition and historical signed release artifacts.
+
 Static and interactive scenes compile independently from the same selected
 semantic obligations. A static overview may use carefully chosen aggregates
 and visible relational text; interactive pages may reveal mechanisms and

@@ -477,6 +477,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       installed, and visual parity. Exercise `tests/self-edition.test.mjs`,
       `tests/self-static-flagship.test.mjs`, and
       `tests/self-interactive-atlas.test.mjs` on the packaged public path.
+      Current legacy self tests pass 23/23, but they do not exercise that path.
+      The self model contains 38 entities, 51 relations, and 89 derived claims;
+      its authored compositions cannot be replaced by neutral boxes. The
+      successor currently rejects selected visual overrides. Admit the
+      versioned, data-only scene refinement described in `design.md`, prove its
+      source-to-graphic coverage with self and unrelated inputs, then verify
+      exact installed artifact identities and obtain human visual acceptance
+      before removing legacy self orchestration. This task remains open.
 
 ## 6. Qualification and bounded publication
 

@@ -172,6 +172,17 @@ explicit disclosure selection.
 - **THEN** unchanged static artifact identity remains independent
 - **AND** the interactive medium receives fresh applicable qualification
 
+#### Scenario: An editor selects a flagship scene refinement
+
+- **WHEN** an Edition selects a versioned visual-refinement resource for a medium
+- **THEN** the same public build path binds its exact bytes and independently
+  checks source-qualified visible coverage, aggregation limits, dimensions, and
+  selected renderer supplies before producing that medium
+- **AND** an unselected source member, missing claim, forged graphic binding,
+  unsupported visual policy, or unavailable selected resource fails closed
+  rather than producing a neutral-looking substitute or accepting pre-rendered
+  media as semantic proof
+
 #### Scenario: Different Editions select different widths
 
 - **WHEN** an ETHOS flagship selects 6000 pixels and another Edition selects a
