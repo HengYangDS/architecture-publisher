@@ -10,8 +10,6 @@ prestates, plan digest, and explicit effect authorization; it claims file
 integrity only and requires no Candidate. Qualified admission additionally
 binds an exact Candidate, applicable qualifications, selected policy, named
 accepter adoption, custodian, and separate effect authorization to the plan.
-Neither case grants source release, Git or Forge effects, hosted availability,
-or off-host retention.
 
 #### Scenario: A raw pair has no semantic authority
 
@@ -60,13 +58,6 @@ or off-host retention.
 - **THEN** admission follows that policy's same-person rule
 - **AND** the decision is not mislabeled independent verification
 
-#### Scenario: A valid Candidate lacks release custody
-
-- **WHEN** a qualified Candidate has no selected release owner or custodian
-- **THEN** local preview and export remain available
-- **AND** no hosted release, indefinite retention, or off-host recovery claim
-  is emitted
-
 #### Scenario: A plan or artifact changes after authorization
 
 - **WHEN** the supplied authorization does not bind the exact Candidate,
@@ -95,3 +86,17 @@ or off-host retention.
   producer, that source product as claimant for its own assertions, and the
   separately designated release owner
 - **AND** artifact storage does not transfer any of those authorities
+
+## ADDED Requirements
+
+### Requirement: Local file effects do not grant release custody
+
+Neither raw nor qualified local admission SHALL grant source release, Git or
+Forge effects, hosted availability, or off-host retention.
+
+#### Scenario: A valid Candidate lacks release custody
+
+- **WHEN** a qualified Candidate has no selected release owner or custodian
+- **THEN** local preview and export remain available
+- **AND** no hosted release, indefinite retention, or off-host recovery claim
+  is emitted
