@@ -27,6 +27,7 @@ import { canonical } from '../packages/publisher/src/source/json.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/static/grouped-selection.mjs';
 import { claimCard } from '../packages/publisher/src/scene/claim-card.mjs';
+import { composeAuthoredInteractiveArchitecture } from '../packages/publisher/src/scene/interactive/authored-architecture.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const modelFormat = { id: 'architecture.claim-model', version: '2' };
@@ -891,6 +892,159 @@ test('an unrelated Claim Model builds source-checked interactive HTML', async (t
   );
   assert(!Object.hasOwn(atlas.sources['selected-1'], 'base64'));
   assert(!html.includes(JSON.stringify(selected.model)));
+
+  const meaning = await compileEditionMeaning(
+    await materializeBuildRequestInput(selected.requestPath, selected.requestSha256),
+  );
+  assert.deepEqual(
+    composeAuthoredInteractiveArchitecture(meaning).pages.map(({ id }) => id),
+    ['overview'],
+  );
+  for (const [name, mutate, code] of [
+    [
+      'wrong refinement kind',
+      (value) => (value.refinement.media.interactive.kind = 'foreign'),
+      'authored_interactive_input_invalid',
+    ],
+    [
+      'page count mismatch',
+      (value) =>
+        value.refinement.media.interactive.pages.push(
+          structuredClone(value.refinement.media.interactive.pages[0]),
+        ),
+      'authored_interactive_input_invalid',
+    ],
+    [
+      'duplicate assertion identity',
+      (value) => value.assertions.push(structuredClone(value.assertions[0])),
+      'authored_interactive_input_invalid',
+    ],
+    [
+      'duplicate native selection identity',
+      (value) => value.native.selections.push(structuredClone(value.native.selections[0])),
+      'authored_interactive_input_invalid',
+    ],
+    [
+      'page identity mismatch',
+      (value) => (value.refinement.media.interactive.pages[0].id = 'other'),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'page subtitle mismatch',
+      (value) => (value.refinement.media.interactive.pages[0].label = 'Other meaning'),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'missing source assertion',
+      (value) => (value.media.interactive.views[0].assertionIds = []),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'editorial assertion substituted for source evidence',
+      (value) => (value.assertions[0].kind = 'editorial'),
+      'authored_interactive_editorial_unadmitted',
+    ],
+    [
+      'unselected source assertion',
+      (value) => (value.assertions[0].selection = 'missing'),
+      'authored_interactive_source_unadmitted',
+    ],
+    [
+      'malformed qualified reference',
+      (value) =>
+        (value.refinement.media.interactive.pages[0].scene.nodes[0].semanticIds[0] = 'not-json'),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'noncanonical qualified reference',
+      (value) =>
+        (value.refinement.media.interactive.pages[0].scene.nodes[0].semanticIds[0] =
+          '[ "fixture/claims", "entity", "client" ]'),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'unselected entity on a visible node',
+      (value) =>
+        (value.refinement.media.interactive.pages[0].scene.nodes[0].semanticIds[0] = ref(
+          'entity',
+          'other',
+        )),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'node without a semantic binding',
+      (value) => delete value.refinement.media.interactive.pages[0].scene.nodes[0].semanticIds,
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'relation without an entity carrier',
+      (value) =>
+        (value.refinement.media.interactive.pages[0].scene.nodes[0].semanticIds = [
+          ref('relation', 'request'),
+        ]),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'duplicate entity on two visible nodes',
+      (value) =>
+        (value.refinement.media.interactive.pages[0].scene.nodes[1].semanticIds = [
+          ...value.refinement.media.interactive.pages[0].scene.nodes[0].semanticIds,
+        ]),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'relation put inside a node without both endpoints',
+      (value) =>
+        value.refinement.media.interactive.pages[0].scene.nodes[0].semanticIds.push(
+          ref('relation', 'request'),
+        ),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'edge without semantic binding',
+      (value) => delete value.refinement.media.interactive.pages[0].scene.edges[0].semanticIds,
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'edge identity collides with a node',
+      (value) => (value.refinement.media.interactive.pages[0].scene.edges[0].id = 'client'),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'edge loses one relation endpoint',
+      (value) => (value.refinement.media.interactive.pages[0].scene.edges[0].to = 'client'),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'selected relation is absent from the scene',
+      (value) => (value.refinement.media.interactive.pages[0].scene.edges = []),
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'relation rendered in reverse direction',
+      (value) => {
+        const edge = value.refinement.media.interactive.pages[0].scene.edges[0];
+        [edge.from, edge.to] = [edge.to, edge.from];
+      },
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'missing declared provenance authority',
+      (value) => {
+        for (const item of value.native.selections) item.provenanceSources = {};
+      },
+      'authored_interactive_semantic_mismatch',
+    ],
+    [
+      'mechanism page substituted for the overview',
+      (value) => (value.refinement.media.interactive.pages[0].purpose = 'mechanism'),
+      'authored_interactive_narrative_invalid',
+    ],
+  ]) {
+    const mutated = structuredClone(meaning);
+    mutate(mutated);
+    assert.throws(() => composeAuthoredInteractiveArchitecture(mutated), { code }, name);
+  }
 
   resource.media.interactive.pages[0].scene.edges[0].semanticIds = [ref('relation', 'invented')];
   await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');
