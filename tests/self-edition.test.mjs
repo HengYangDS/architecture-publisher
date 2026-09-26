@@ -35,7 +35,7 @@ const selectedSources = Object.freeze({
   'self-static-metrics': 'editions/self/src/edition/static/authoring/metrics.json',
   'self-interactive-scene-owner': 'editions/self/src/edition/interactive-scenes.mjs',
   'self-interactive-composition-owner': 'editions/self/src/edition/interactive-scene.mjs',
-  'interactive-compositor-owner': 'packages/publisher/src/rendering/atlas.mjs',
+  'interactive-compositor-owner': 'packages/publisher/src/rendering/interactive-html.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
@@ -893,7 +893,8 @@ test('the installed self Edition compiles both media after its author package is
         const selected = data.pages[id];
         await page.getByRole('button', { name: selected.shortLabel, exact: true }).click();
         await page.waitForFunction(
-          (label) => globalThis.document.getElementById('atlas-page-label').textContent === label,
+          (label) =>
+            globalThis.document.getElementById('interactive-page-label').textContent === label,
           selected.label,
         );
         const frame = page.frames().find((item) => item.parentFrame() === page.mainFrame());
@@ -909,7 +910,7 @@ test('the installed self Edition compiles both media after its author package is
       );
       await page.getByRole('button', { name: 'Source references' }).click();
       assert.match(
-        await page.locator('#atlas-source-code').innerText(),
+        await page.locator('#interactive-source-code').innerText(),
         /Source bytes are not embedded/u,
       );
       assert.deepEqual(errors, []);

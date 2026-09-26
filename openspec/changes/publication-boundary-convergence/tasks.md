@@ -484,8 +484,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       self package authors portable inputs; packed Core builds both media after
       that package is removed. Its eight-page Chrome and axe journey and the
       self evolution test pass (13/13 focused), and static, package, and strict
-      OpenSpec checks pass. The Core's old live Atlas composer remains Task 7.2
-      work. The regenerated truthful final Candidate still needs complete
+      OpenSpec checks pass. The Core's old live Atlas composer has been
+      replaced by the single interactive HTML contract under Task 7.2.
+      The regenerated truthful final Candidate still needs complete
       visual, semantic, and release acceptance; no publication is admitted.
 
 ## 6. Qualification and bounded publication
@@ -563,7 +564,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       selected inputs and all Candidate member digests. This remains a
       provisional macOS package and desktop browser check, not human visual
       approval, final release, source-delta update, recovery, or AIGW acceptance.
-- [ ] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
+- [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
       consumer closure, `tests/package-boundaries.test.mjs`,
@@ -575,9 +576,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       remains exact. A single collision-safe exact-field predicate now replaces
       repeated delimiter comparisons and local validators; malformed key names
       failed RED and pass GREEN. The self-only build engines and their tests
-      are now removed; the shared live Atlas composer and its old contract,
-      exports, and tests still require subtraction. Task 7.2 remains open;
-      the coverage gate and its measured status are in Task 7.5.
+      are removed. The old live Atlas composer, dual-mode contract, redundant
+      export, and displaced tests are removed in favor of one interactive HTML
+      contract; no Composer-only package dependency remained. Consumer-reference
+      audit, package and module boundaries, dry-run package contents, installed
+      self-use, eight-page Chrome/axe behavior, and the full behavior suite pass.
+      The coverage gate and its measured status remain Task 7.5.
 - [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,
@@ -611,10 +615,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The last full run after self-only deletion reported 1,079 pass, 6 skip,
-      one stale identity-test failure and 92.37% branches. That test now passes
-      7/7 after its deleted-file references were removed; the current full
-      suite is not yet reverified. No coverage dimension waives the 95% gate.
+      After live Composer retirement, the full behavior suite reports 1,079
+      pass, 6 skip, 0 fail; statements and lines are 97.61%, functions 99.49%,
+      and branches 92.28%, below the unchanged 95% gate. At the current 8,410
+      branch outcomes, at least 229 additional outcomes need evidence. Prioritize
+      meaningful counterexamples in semantic change, authored scenes, renderer
+      and process boundaries; do not exclude owned production code, weaken the
+      browser journey, or mistake browser-only execution for Node coverage.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

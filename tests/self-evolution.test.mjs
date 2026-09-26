@@ -25,7 +25,7 @@ const selectedSources = Object.freeze({
   'self-static-metrics': 'editions/self/src/edition/static/authoring/metrics.json',
   'self-interactive-scene-owner': 'editions/self/src/edition/interactive-scenes.mjs',
   'self-interactive-composition-owner': 'editions/self/src/edition/interactive-scene.mjs',
-  'interactive-compositor-owner': 'packages/publisher/src/rendering/atlas.mjs',
+  'interactive-compositor-owner': 'packages/publisher/src/rendering/interactive-html.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
