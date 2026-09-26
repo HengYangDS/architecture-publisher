@@ -9,6 +9,7 @@ import { filePublication } from '../packages/publisher/src/publication/input.mjs
 import { verifyQualificationInput } from '../packages/publisher/src/qualification/index.mjs';
 import { canonical } from '../packages/publisher/src/semantics/document.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
+import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
 import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
 
@@ -212,6 +213,146 @@ test('a forged policy-complete report cannot make an empty Qualification Set pub
   const selectedRequest = await f.write('forged-request.json', request);
   await assert.rejects(filePublication('plan', selectedRequest.file), {
     code: 'qualified_report_invalid',
+  });
+  assert.deepEqual(await fs.readdir(path.join(f.selected.root, 'delivery')), []);
+});
+
+test('qualified publication rejects malformed selectors and roles before local effects', async (t) => {
+  const f = await fixture(t);
+  const cases = [
+    [
+      'absolute-candidate',
+      (request) =>
+        (request.candidate.manifest = path.join(f.selected.root, 'candidate/manifest.json')),
+      'qualified_path_invalid',
+    ],
+    [
+      'escaping-candidate',
+      (request) => (request.candidate.manifest = '../candidate/manifest.json'),
+      'qualified_path_invalid',
+    ],
+    [
+      'malformed-set-reference',
+      (request) => (request.qualifications.set.extra = true),
+      'qualified_reference_invalid',
+    ],
+    [
+      'changed-set-reference',
+      (request) => (request.qualifications.set.sha256 = '0'.repeat(64)),
+      'qualified_reference_changed',
+    ],
+    [
+      'directory-as-set',
+      (request) => {
+        request.qualifications.set.file = 'delivery';
+        request.qualifications.set.sha256 = '0'.repeat(64);
+      },
+      'qualified_reference_invalid',
+    ],
+    [
+      'blank-release-owner',
+      (request) => (request.roles.releaseOwner = ' '),
+      'qualified_input_invalid',
+    ],
+    ['blank-custodian', (request) => (request.roles.custodian = ''), 'qualified_input_invalid'],
+    [
+      'empty-target',
+      (request) => (request.options.destinations.static = ''),
+      'qualified_path_invalid',
+    ],
+    [
+      'missing-medium-entry',
+      (request) => delete request.entries.interactive,
+      'qualified_input_invalid',
+    ],
+  ];
+  for (const [name, mutate, code] of cases) {
+    const request = structuredClone(f.request);
+    mutate(request);
+    const selected = await f.write(`invalid-${name}.json`, request);
+    await assert.rejects(filePublication('plan', selected.file), { code }, name);
+    assert.deepEqual(await fs.readdir(path.join(f.selected.root, 'delivery')), [], name);
+  }
+});
+
+test('qualified publication rejects altered Candidate containers before local effects', async (t) => {
+  const f = await fixture(t);
+  const forge = async (name, mutate, code) => {
+    const source = structuredClone(f.bundle.source);
+    const members = f.bundle.members.map(({ path: member, content }) => ({
+      path: member,
+      content: Buffer.from(content),
+    }));
+    await mutate(source, members);
+    const output = `forged-${name}`;
+    const written = await writeSourceBundle(path.join(f.selected.root, output), source, members);
+    const request = structuredClone(f.request);
+    request.candidate = { manifest: `${output}/manifest.json`, sha256: written.manifestSha256 };
+    const selected = await f.write(`${name}-request.json`, request);
+    await assert.rejects(filePublication('plan', selected.file), { code }, name);
+    assert.deepEqual(await fs.readdir(path.join(f.selected.root, 'delivery')), [], name);
+  };
+  const rewriteLock = (source, members, update, format = canonical) => {
+    const lockMember = members.find(({ path: member }) => member === 'input-lock.json');
+    const lock = JSON.parse(lockMember.content);
+    update(lock);
+    lockMember.content = Buffer.from(format(lock));
+    const candidateMember = members.find(({ path: member }) => member === 'candidate.json');
+    const candidate = JSON.parse(candidateMember.content);
+    candidate.input.lockSha256 = sha(lockMember.content);
+    candidateMember.content = Buffer.from(JSON.stringify(candidate, null, 2) + '\n');
+    source.revision = candidate.input.lockSha256;
+  };
+  await forge(
+    'invalid-lock',
+    (source, members) => rewriteLock(source, members, (lock) => (lock.edition.editor = '')),
+    'qualified_input_lock_invalid',
+  );
+  await forge(
+    'noncanonical-lock',
+    (source, members) =>
+      rewriteLock(
+        source,
+        members,
+        () => {},
+        (lock) => JSON.stringify(lock, null, 2) + '\n',
+      ),
+    'qualified_input_lock_invalid',
+  );
+  await forge(
+    'missing-lock',
+    (_source, members) => {
+      members.splice(
+        members.findIndex(({ path: member }) => member === 'input-lock.json'),
+        1,
+      );
+    },
+    'qualified_candidate_incomplete',
+  );
+  await forge(
+    'changed-artifact',
+    (_source, members) => {
+      const member = members.find(({ path: selected }) => selected === 'static/architecture.svg');
+      member.content = Buffer.concat([member.content, Buffer.from('\n')]);
+    },
+    'qualified_candidate_artifact_mismatch',
+  );
+  await forge(
+    'extra-member',
+    (_source, members) => members.push({ path: 'surplus.txt', content: Buffer.from('surplus') }),
+    'qualified_candidate_members_invalid',
+  );
+
+  const malformedSet = JSON.parse(
+    await fs.readFile(path.join(f.selected.root, 'qualification-set.json'), 'utf8'),
+  );
+  malformedSet.schema = 'unselected-schema';
+  const set = await f.write('malformed-set.json', malformedSet);
+  const request = structuredClone(f.request);
+  request.qualifications.set = { file: 'malformed-set.json', sha256: set.sha256 };
+  const selected = await f.write('malformed-set-request.json', request);
+  await assert.rejects(filePublication('plan', selected.file), {
+    code: 'qualified_evidence_invalid',
   });
   assert.deepEqual(await fs.readdir(path.join(f.selected.root, 'delivery')), []);
 });
