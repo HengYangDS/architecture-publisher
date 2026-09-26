@@ -531,7 +531,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       relocated offline build, common Provider conformance, source-delta update,
       native comparison, legacy replay, and recovery; record exact input, package,
       Candidate, and media digests in `conformance/`. These provisional bytes
-      are not final release or human-review identities.
+      are not final release or human-review identities. Partial: the
+      researcher-owned di-effect Edition rebuilt all five Candidate files
+      byte-identically from direct, offline-installed, and relocated use of
+      one exact package; see `conformance/evidence/di-effect-installed-probe.json`.
+      Installed Chrome at two widths found no console/network/overflow or
+      axe A/AA defect; this does not establish di-effect owner or human
+      acceptance, other workload parity, publication, or recovery.
 - [ ] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify

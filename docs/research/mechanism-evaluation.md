@@ -1665,9 +1665,9 @@ editor-controlled input where source/editor attribution survives; reject raw
 `include *` as the answer to a five-layer reader question. Defer any claim that
 Publisher provides automatic editorial abstraction, readable narrow-screen
 composition for general views, source-owner acceptance, or flagship dual-media
-quality. The next
-product gate is a readable, question-complete composition with visible
-provenance in both media, followed by the installed four-workload matrix.
+quality. The next product gate is a readable, question-complete composition
+with visible provenance in both media, followed by the installed four-workload
+matrix.
 
 ### Bounded path composition in the existing interactive renderer (2026-09-26)
 
@@ -1679,11 +1679,11 @@ pixels. Fewer selected nodes alone did not make the work readable.
 
 A browser RED/GREEN now selects a compact layout **only** for one connected,
 forward linear path with no in-graph edge labels and node labels of at most
-24 code units. It retains the existing Cytoscape owner, uses 184×56 nodes and spacing factor
-0.45, and leaves other topologies on their existing path. The five-node,
-four-relation regression verifies no node-body overlap and at least 12 CSS
-pixels of effective label size at both viewports; the dense branching case
-does not receive the compact class. This is a bounded pattern, not a general
+24 code units. It retains the existing Cytoscape owner, uses 184×56 nodes
+and spacing factor 0.45, and leaves other topologies on their existing path.
+The five-node, four-relation regression verifies no node-body overlap and at
+least 12 CSS pixels of effective label size at both viewports; the dense
+branching case does not receive the compact class. This is a bounded pattern, not a general
 graph-layout solution or a visual-acceptance verdict.
 
 Rebuilding the same pinned sidecar request through public `edition build`
@@ -1700,3 +1700,32 @@ shows the resulting readable chain. Its restrained generic boxes are still
 structural output; dense, in-graph-labeled, branching, cyclic, and long-label
 views have not earned the same readability claim, and the static composition
 remains unchanged and unqualified.
+
+### Relocated offline di-effect consumer probe (2026-09-26)
+
+At Publisher `feb0744`, a provisional `architecture-publisher` 0.3.0-alpha.3
+archive with SHA-256
+`be3394512e3e640abec2b02ebe8cd2943dc3be32a2c4266b7186858b2080f399`
+was packed from the generic package and installed offline outside all source
+repositories. The consumer received only the six pinned request, Edition, and
+LikeC4 files listed in
+[`conformance/evidence/di-effect-installed-probe.json`](../../conformance/evidence/di-effect-installed-probe.json).
+The npm invocation used fresh user and global configuration files and a fresh
+HOME; installed `edition build` ran with empty `PATH`, `NODE_PATH`, and
+`NODE_OPTIONS`. The installed consumer was copied to a second location, its
+first location removed, and the same public command rebuilt into a fresh
+output directory.
+
+Candidate `bc4eed8ef6945d2d95b09d7856e2b819480378916befbf30843f6d0098b96a91`
+and all five Candidate files were byte-identical among source-adjacent,
+installed, and relocated builds. This establishes a bounded macOS/Node
+v26.10.0 package and relocation property for the researcher-authored
+di-effect Edition. Chrome 154 opened the relocated HTML at 1280×720 and
+390×844: five nodes and four relations remained visible, effective node-font
+size was 13.55 and 13.45 CSS pixels, and no horizontal overflow, console
+error, or external request occurred. axe-core 4.13.0 reported no WCAG 2/2.1
+A/AA violations or incomplete checks at those viewports. The mobile screenshot
+was byte-identical to the source-adjacent observation. The Candidate remains
+unqualified: these checks do not establish source-owner endorsement, human
+visual acceptance, publication/recovery, or any other workload's installed
+parity. The receipt is conformance evidence, not release authority.
