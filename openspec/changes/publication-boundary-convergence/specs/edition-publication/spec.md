@@ -615,8 +615,9 @@ Historical v1 output rules SHALL remain truthfully classified.
   composition for one requested medium and `neutral` for its sibling
 - **THEN** Publisher compiles each medium through its selected path and checks
   its visible obligations independently
-- **AND** changing the authored medium does not silently replace the neutral
-  medium's composition or transfer its qualification
+- **AND** changing either medium's decision does not alter the sibling Scene
+  identity or visible artifact bytes, even when both media are authored
+- **AND** neither medium transfers its qualification to the other
 - **AND** a missing or extra medium, unsupported choice, or all-neutral no-op
   resource fails rather than falling back without an editorial decision
 

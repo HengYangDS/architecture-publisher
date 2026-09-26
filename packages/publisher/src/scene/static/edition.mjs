@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { canonical, deepFreeze } from '../../semantics/document.mjs';
 import { fail } from '../../source/manifest.mjs';
 import { claimCard } from '../claim-card.mjs';
@@ -331,7 +332,12 @@ export function composeStaticEditionScene(meaning, layout) {
     summary: meaning.editorial.narrative.summary,
     visualPolicy: meaning.refinement ? { profile: 'neutral' } : meaning.editorial.visualPolicy,
     ...(staticRefinement && staticRefinement.kind !== 'neutral'
-      ? { refinement: { schema: meaning.refinement.schema, sha256: meaning.refinement.sha256 } }
+      ? {
+          refinement: {
+            schema: meaning.refinement.schema,
+            decisionSha256: createHash('sha256').update(canonical(staticRefinement)).digest('hex'),
+          },
+        }
       : {}),
     requestedWidth: meaning.editorial.presentation.static.width ?? null,
     editorialViewId: editorialView.id,

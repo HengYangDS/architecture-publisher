@@ -796,7 +796,9 @@ completion. The neutral choice is not a silent fallback: it lets a source editor
 refine static geometry without inventing interactive art direction, or vice
 versa. One medium's refinement cannot transfer its visible-meaning judgment or
 approval to its sibling. The resource bytes remain bound to the input lock;
-medium scenes and rendered artifacts retain independent identities.
+an authored Scene records only the digest of its medium decision, so editing
+the sibling decision cannot change its Scene identity or visible artifact
+bytes, even when both media are authored.
 
 First reuse the existing static scene audit, SVG/raster primitives, and
 Archify/Atlas renderer boundaries. Generalize only a mechanism exercised by

@@ -4,6 +4,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { compileEditionMeaning } from '../packages/publisher/src/compiler/meaning.mjs';
 import { compileSelectedEditionCandidateInput } from '../packages/publisher/src/compiler/successor.mjs';
+import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/index.mjs';
 import { parseSelectedSceneRefinement } from '../packages/publisher/src/edition/refinement.mjs';
 import { materializeBuildRequestInput } from '../packages/publisher/src/provider/build-request.mjs';
 import { composeStaticEditionScene } from '../packages/publisher/src/scene/static/edition.mjs';
@@ -49,6 +50,37 @@ async function inputWithRefinement(t, change = (value) => value, media = ['stati
   );
   await fs.writeFile(path.join(fixture.root, 'edition/refinement.json'), bytes);
   return { ...fixture, refinement, overrideDigest: sha(bytes) };
+}
+
+function authoredInteractive(label) {
+  return {
+    kind: 'authored-architecture',
+    pages: [
+      {
+        id: 'overview',
+        label,
+        purpose: 'overview',
+        scene: {
+          schema: 'architecture.interactive-scene/v1',
+          id: 'overview',
+          title: 'Selected architecture',
+          subtitle: label,
+          viewport: { width: 800, height: 600 },
+          nodes: [
+            {
+              id: 'alpha',
+              label: 'Alpha',
+              visualRole: 'structure',
+              position: { x: 80, y: 100 },
+              size: { width: 160, height: 80 },
+            },
+          ],
+          groups: [],
+          edges: [],
+        },
+      },
+    ],
+  };
 }
 
 test('selected static refinement is byte-bound and changes only public-build geometry', async (t) => {
@@ -152,34 +184,7 @@ test('explicit neutral static does not inherit interactive-only refinement ident
       schema: 'architecture.scene-refinement/v1',
       media: {
         static: { kind: 'neutral' },
-        interactive: {
-          kind: 'authored-architecture',
-          pages: [
-            {
-              id: 'overview',
-              label,
-              purpose: 'overview',
-              scene: {
-                schema: 'architecture.interactive-scene/v1',
-                id: 'overview',
-                title: 'Selected architecture',
-                subtitle: label,
-                viewport: { width: 800, height: 600 },
-                nodes: [
-                  {
-                    id: 'alpha',
-                    label: 'Alpha',
-                    visualRole: 'structure',
-                    position: { x: 80, y: 100 },
-                    size: { width: 160, height: 80 },
-                  },
-                ],
-                groups: [],
-                edges: [],
-              },
-            },
-          ],
-        },
+        interactive: authoredInteractive(label),
       },
     };
     const bytes = Buffer.from(JSON.stringify(value) + '\n');
@@ -200,6 +205,33 @@ test('explicit neutral static does not inherit interactive-only refinement ident
   const second = sceneFor('Second direction');
   assert.deepEqual(first, second);
   assert.equal(Object.hasOwn(first, 'refinement'), false);
+});
+
+test('authored static identity excludes a sibling authored interactive decision', async (t) => {
+  const sceneFor = async (label) => {
+    const fixture = await inputWithRefinement(
+      t,
+      (value) => {
+        value.media.interactive = authoredInteractive(label);
+        return value;
+      },
+      ['static', 'interactive'],
+    );
+    const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
+    const meaning = await compileEditionMeaning(selected);
+    const layout = await importLikeC4Layout({
+      lock: selected.lock,
+      readSource: selected.readSource,
+      view: { namespace: 'fixture/views', id: 'overview' },
+    });
+    return composeStaticEditionScene(meaning, layout);
+  };
+  const first = await sceneFor('First direction');
+  const second = await sceneFor('Second direction');
+  assert.deepEqual(first, second);
+  assert.match(first.refinement.decisionSha256, /^[a-f0-9]{64}$/u);
+  assert.equal(Object.hasOwn(first.refinement, 'sha256'), false);
+  assert.deepEqual(composeStaticEditionSvg(first).bytes, composeStaticEditionSvg(second).bytes);
 });
 
 test('neutral decisions cannot become an unobserved no-op or media payload', async (t) => {

@@ -138,8 +138,9 @@ each selects authored composition or the exact `{ "kind": "neutral" }` choice.
 Neutral runs that medium's ordinary compiler; it does not borrow its sibling's
 geometry or approval. Missing or extra media, unsupported choices, and an
 all-neutral no-op resource fail rather than silently falling back. The whole
-resource is bound to the input lock; each medium retains its own scene and
-artifact identities.
+resource is bound to the input lock. A medium Scene records only the digest of
+its own authored decision; a sibling-only edit cannot change that Scene's
+identity or visible artifact bytes.
 
 Historical v1 plans retain their selected output field and original meaning.
 They select a Source Bundle, Claim Model member, and exact
