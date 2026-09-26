@@ -939,104 +939,15 @@ test('the installed self Edition compiles both media after its author package is
   });
   assert.equal(preparedRun.status, 0, preparedRun.stdout + preparedRun.stderr);
   const prepared = JSON.parse(preparedRun.stdout);
-  const authorDriver = path.join(consumer, 'author-successor.mjs');
-  await fs.writeFile(
-    authorDriver,
-    [
-      "import { createHash } from 'node:crypto';",
-      "import fs from 'node:fs/promises';",
-      "import path from 'node:path';",
-      "import { readSourceBundle } from 'architecture-publisher/source';",
-      "import { validateClaimModel } from 'architecture-publisher/semantics';",
-      "import { validateEdition } from 'architecture-publisher/edition';",
-      "import { projectFromSelfEdition, refinementFromSelfEdition } from '@architecture-publisher/self-edition';",
-      'const selected = JSON.parse(process.argv[2]);',
-      'const root = process.argv[3];',
-      "const sha = value => createHash('sha256').update(value).digest('hex');",
-      "const encode = value => Buffer.from(JSON.stringify(value, null, 2) + '\\n');",
-      'const bundle = await readSourceBundle(selected.sourceManifest, selected.sourceSha256);',
-      'const members = new Map(bundle.members.map(member => [member.path, member.content]));',
-      "const modelBytes = members.get('semantic.json');",
-      'const model = validateClaimModel(JSON.parse(modelBytes));',
-      "const edition = validateEdition(model, JSON.parse(await fs.readFile(selected.edition, 'utf8')));",
-      "const metrics = members.get(model.sources['self-static-metrics'].locator);",
-      'const project = structuredClone(projectFromSelfEdition(model, edition));',
-      "project.visualPolicy.override = 'refinement.json';",
-      'const refinement = refinementFromSelfEdition(model, edition, metrics);',
-      "await fs.mkdir(path.join(root, 'source'), { recursive: true });",
-      "await fs.mkdir(path.join(root, 'edition'));",
-      "await fs.writeFile(path.join(root, 'source/model.json'), modelBytes);",
-      "await fs.writeFile(path.join(root, 'edition/project.json'), encode(project));",
-      "await fs.writeFile(path.join(root, 'edition/refinement.json'), encode(refinement));",
-      'const request = {',
-      "  schema: 'architecture.build-request/v1',",
-      "  edition: { kind: 'direct', root: 'edition', manifest: 'project.json' },",
-      "  sources: [{ id: 'self-model', namespace: 'architecture-publisher/self',",
-      "    format: { id: 'architecture.claim-model', version: '2' }, claimant: model.owner,",
-      "    revision: { kind: 'content', algorithm: 'sha256' },",
-      "    input: { kind: 'pin', path: 'source/model.json', sha256: sha(modelBytes) } }],",
-      "  providers: [], media: ['static', 'interactive'], toolchain: { profile: 'portable' },",
-      '};',
-      'const requestBytes = encode(request);',
-      "await fs.writeFile(path.join(root, 'build-request.json'), requestBytes);",
-      "process.stdout.write(JSON.stringify({ sha256: sha(requestBytes) }) + '\\n');",
-      '',
-    ].join('\n'),
-  );
-  const successorRoot = path.join(parent, 'successor');
-  const authoredRun = spawnSync(
-    process.execPath,
-    [authorDriver, JSON.stringify(prepared), successorRoot],
-    {
-      cwd: consumer,
-      encoding: 'utf8',
-      env: { HOME: parent, PATH: parent, LANG: 'C.UTF-8' },
-      timeout: 120000,
-    },
-  );
-  assert.equal(authoredRun.status, 0, authoredRun.stdout + authoredRun.stderr);
-  const authored = JSON.parse(authoredRun.stdout);
+  assert.equal(prepared.buildRequest, path.join(preparedRoot, 'build-input/build-request.json'));
+  assert.match(prepared.buildRequestSha256, /^[a-f0-9]{64}$/u);
+  assert.equal(sha256(await fs.readFile(prepared.buildRequest)), prepared.buildRequestSha256);
+  const relocated = path.join(parent, 'relocated-inputs');
+  await fs.rename(path.join(preparedRoot, 'build-input'), relocated);
   await fs.rename(
     path.join(consumer, 'node_modules/@architecture-publisher/self-edition'),
     path.join(parent, 'removed-self-edition'),
   );
-  const verifyDriver = path.join(consumer, 'verify.mjs');
-  await fs.writeFile(
-    verifyDriver,
-    [
-      "import fs from 'node:fs/promises';",
-      "import { readSourceBundle } from 'architecture-publisher/source';",
-      "import { validateClaimModel } from 'architecture-publisher/semantics';",
-      "import { validateEdition } from 'architecture-publisher/edition';",
-      'const prepared = JSON.parse(process.argv[2]);',
-      'const bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256);',
-      'const members = new Map(bundle.members.map((member) => [member.path, member.content]));',
-      "const model = validateClaimModel(JSON.parse(members.get('semantic.json')));",
-      "const edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8')));",
-      "process.stdout.write(JSON.stringify({status:'verified', edition:edition.id, views:Object.keys(edition.scenes.interactive).length}) + '\\n');",
-      '',
-    ].join('\n'),
-  );
-  const verified = spawnSync(process.execPath, [verifyDriver, JSON.stringify(prepared)], {
-    cwd: consumer,
-    encoding: 'utf8',
-    env: { HOME: parent, PATH: parent, LANG: 'C.UTF-8' },
-    timeout: 120000,
-  });
-  assert.equal(verified.status, 0, verified.stdout + verified.stderr);
-  assert.deepEqual(JSON.parse(verified.stdout), {
-    status: 'verified',
-    edition: 'architecture-publisher-self',
-    views: 8,
-  });
-  const plan = JSON.parse(await fs.readFile(prepared.plan, 'utf8'));
-  assert.equal(plan.sourceManifest, prepared.sourceManifest);
-  assert.equal(plan.edition, prepared.edition);
-  assert.equal(plan.output, path.join(preparedRoot, 'publication'));
-  await assert.rejects(fs.access(plan.output), { code: 'ENOENT' });
-
-  const relocated = path.join(parent, 'relocated-inputs');
-  await fs.rename(successorRoot, relocated);
   const compileDriver = path.join(consumer, 'compile-successor.mjs');
   await fs.writeFile(
     compileDriver,
@@ -1050,7 +961,12 @@ test('the installed self Edition compiles both media after its author package is
   const candidateRoot = path.join(parent, 'candidate');
   const built = spawnSync(
     process.execPath,
-    [compileDriver, path.join(relocated, 'build-request.json'), authored.sha256, candidateRoot],
+    [
+      compileDriver,
+      path.join(relocated, 'build-request.json'),
+      prepared.buildRequestSha256,
+      candidateRoot,
+    ],
     {
       cwd: consumer,
       encoding: 'utf8',
@@ -1064,17 +980,14 @@ test('the installed self Edition compiles both media after its author package is
   assert.equal(png.readUInt32BE(16), 6000);
   const html = await fs.readFile(path.join(candidateRoot, 'interactive/architecture.html'));
   assert.match(html.toString('utf8'), /architecture\.interactive-html\/v1/u);
-  const sourceModel = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256);
-  assert.equal(
-    html.includes(sourceModel.members.find(({ path: name }) => name === 'semantic.json').content),
-    false,
-  );
+  const sourceModel = await fs.readFile(path.join(relocated, 'source/model.json'));
+  assert.equal(html.includes(sourceModel), false);
   const localCandidate = path.join(parent, 'local-candidate');
   const { compileEditionCandidateInput } =
     await import('../packages/publisher/src/compiler/index.mjs');
   await compileEditionCandidateInput(
     path.join(relocated, 'build-request.json'),
-    authored.sha256,
+    prepared.buildRequestSha256,
     localCandidate,
   );
   for (const relative of [

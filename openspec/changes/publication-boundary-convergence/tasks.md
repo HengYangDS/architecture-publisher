@@ -489,11 +489,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       eight interactive diagrams and a non-self Claim Model example pass
       source-to-graphic checks and render through Archify into one metadata-only
       interactive HTML artifact. Selected claim facts are accessible from its
-      reader control without embedding source files. A packed, offline-installed
-      Core built both media from relocated, source-authored inputs after removal
-      of the self Edition package; Candidate JSON, SVG, PNG, and HTML match the
-      local public build by hash. Chrome read all eight pages from that installed
-      HTML with no page errors, external requests, or axe WCAG A/AA violations;
+      reader control without embedding source files. The installed self package
+      now prepares the portable Build Request, model, Edition project, and
+      data-only refinement itself; the test-only authoring duplicate was removed.
+      A packed, offline-installed Core built both media from that relocated input
+      after removal of the self Edition package; Candidate JSON, SVG, PNG, and
+      HTML match the local public build by hash. Chrome read all eight pages
+      from that installed HTML with no page errors, external requests, or axe
+      WCAG A/AA violations;
       the opaque iframe sandbox remains intact. Focused browser, static,
       package, and strict OpenSpec checks pass. This is provisional installed
       browser evidence, not final-byte human visual acceptance. The current
@@ -623,8 +626,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      Current non-browser full-suite coverage is 92.25% branches against the
-      unchanged 95% gate; the other dimensions are not used to waive it.
+      Current `npm run test:coverage` reports 1,093 pass, 6 skip, 0 fail, and
+      92.25% branches against the unchanged 95% gate; the other dimensions do
+      not waive it.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

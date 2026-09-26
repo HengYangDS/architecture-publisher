@@ -5,6 +5,8 @@ import { noSymlinkAncestors, regularBytes, writeSourceBundle } from 'architectur
 import { claimModelDigest, validateClaimModel } from 'architecture-publisher/semantics';
 import { editionDigest, validateEdition } from 'architecture-publisher/edition';
 import { architecturePublisherClaimModel } from './model.mjs';
+import { projectFromSelfEdition, SELF_NAMESPACE } from './project.mjs';
+import { refinementFromSelfEdition } from './refinement.mjs';
 import { architecturePublisherStaticScene, staticAuthoringDigest } from './static-scene.mjs';
 import { architecturePublisherInteractiveScenes } from './interactive-scenes.mjs';
 
@@ -301,6 +303,40 @@ function editionFor(model, sourceSha256, sources, productVersion) {
   };
 }
 
+async function writeBuildInput(scratch, model, edition, semanticBytes, metricBytes) {
+  const root = path.join(scratch, 'build-input');
+  const project = structuredClone(projectFromSelfEdition(model, edition));
+  project.visualPolicy.override = 'refinement.json';
+  const refinement = refinementFromSelfEdition(model, edition, metricBytes);
+  const request = {
+    schema: 'architecture.build-request/v1',
+    edition: { kind: 'direct', root: 'edition', manifest: 'project.json' },
+    sources: [
+      {
+        id: 'self-model',
+        namespace: SELF_NAMESPACE,
+        format: { id: 'architecture.claim-model', version: '2' },
+        claimant: model.owner,
+        revision: { kind: 'content', algorithm: 'sha256' },
+        input: { kind: 'pin', path: 'source/model.json', sha256: sha256(semanticBytes) },
+      },
+    ],
+    providers: [],
+    media: ['static', 'interactive'],
+    toolchain: { profile: 'portable' },
+  };
+  const requestBytes = encode(request);
+  await fs.mkdir(path.join(root, 'source'), { recursive: true });
+  await fs.mkdir(path.join(root, 'edition'));
+  await fs.writeFile(path.join(root, 'source/model.json'), semanticBytes, { flag: 'wx' });
+  await fs.writeFile(path.join(root, 'edition/project.json'), encode(project), { flag: 'wx' });
+  await fs.writeFile(path.join(root, 'edition/refinement.json'), encode(refinement), {
+    flag: 'wx',
+  });
+  await fs.writeFile(path.join(root, 'build-request.json'), requestBytes, { flag: 'wx' });
+  return sha256(requestBytes);
+}
+
 export async function prepareArchitecturePublisherEdition(input) {
   if (
     !exact(input, ['schema', 'source', 'sources', 'output']) ||
@@ -358,6 +394,14 @@ export async function prepareArchitecturePublisherEdition(input) {
         editionSha256: sha256(editionBytes),
         output: path.join(final, 'publication'),
       };
+    const buildRequestSha256 = await writeBuildInput(
+      scratch,
+      model,
+      edition,
+      semanticBytes,
+      members.find(({ path: memberPath }) => memberPath === selected['self-static-metrics'].locator)
+        ?.content,
+    );
     await fs.writeFile(path.join(scratch, 'edition.json'), editionBytes, {
       flag: 'wx',
     });
@@ -374,6 +418,8 @@ export async function prepareArchitecturePublisherEdition(input) {
       editionSha256: plan.editionSha256,
       editionDigest: editionDigest(model, edition),
       plan: path.join(final, 'plan.json'),
+      buildRequest: path.join(final, 'build-input/build-request.json'),
+      buildRequestSha256,
       adoptionRole: 'self-hosted',
       independentAdopterEvidence: false,
       humanAcceptance: 'not-performed',
