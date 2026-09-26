@@ -668,11 +668,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The latest retained pre-freeze qualified-publication integration run at
-      signed source `c72b9a4` reports 1,110 pass, 6 skip, 0 fail; statements
-      and lines 97.77%, functions 99.62%, and branches 93.22% (8,088/8,676).
-      The unchanged 95% branch gate fails; at this denominator, 155 more
-      covered outcomes are needed.
+      The latest retained pre-freeze integration run at signed source
+      `c529811` reports 1,113 pass, 6 skip, 0 fail; statements and lines
+      97.78%, functions 99.62%, and branches 93.40% (8,127/8,701). The
+      unchanged 95% branch gate fails; at this denominator, 139 more covered
+      outcomes are needed. The qualified-publication selector now covers all
+      73 measured branches with adversarial input and forged-bundle cases;
+      this local boundary gain is not the global acceptance gate.
       Static, strict OpenSpec, and package checks pass. The earlier signed
       `6eecb81` snapshot was 93.33% before this owner expansion. Continue with
       high-risk renderer, Edition evolution, source, and qualification-process
