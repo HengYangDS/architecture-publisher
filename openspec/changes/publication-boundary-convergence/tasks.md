@@ -213,12 +213,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       one complete static/interactive Candidate through the public CLI with
       empty user configuration and a PATH containing no commands; its exact
       input lock and three artifact members are checked. This remains
-      source-lane, not released-package evidence. An archive of the signed Lane
-      commit passed the historical-v1 packed executable Provider and immutable
-      replay tests 2/2 on native Windows ARM64; the selected archive and read-back log
-      digests are recorded in `conformance/evidence/windows-provider-installed-probe.json`.
-      Successor-v2 Windows conformance, complete dependency observation, and
-      final frozen-release qualification remain unproved.
+      source-lane, not released-package evidence. Provisional native Windows
+      ARM64 runs from signed Lane commits pass historical-v1 installed replay
+      2/2, successor-v2 selected input 1/1, and a full installed executable-
+      Provider static/interactive Candidate 1/1. All runs select the same
+      Publisher package source tree; exact archive and read-back log digests
+      are in `conformance/evidence/windows-provider-installed-probe.json`.
+      Complete dependency observation, the full Windows counterexample matrix,
+      hosted CI, and final frozen-release qualification remain unproved.
 - [x] 3.3 Prove identical selected-input lock identity and distinct invocation
       receipts across direct, declarative, executable, and mixed selections in
       `tests/provider-join.test.mjs`, the sole successor cross-mode fixture.

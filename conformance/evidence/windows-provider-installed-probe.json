@@ -1,10 +1,8 @@
 {
   "schema": "architecture.provider-windows-probe/v1",
   "status": "provisional-pass",
-  "sourceCommit": "7368f4ce8c65af622208420dc5460f6db080b081",
-  "sourceCommitSignature": "verified-git-ssh",
-  "selectedSourceArchiveSha256": "92aec4b4397e17aa09b297d73cc1c2e2e3331eff411f7c0483e645a1b5ccc714",
-  "testFileSha256": "b30129f977259a7f2bd6ecc0274ba4d3256aaf97622d466ba5dcd8e6fbc0d98c",
+  "observedDate": "2026-09-27",
+  "publisherPackageGitTree": "105ad8f4c13c246e85d7e169c70336eb4bd72737",
   "platform": {
     "os": "Windows 11 ARM64",
     "node": "v26.9.0",
@@ -13,26 +11,68 @@
     "guestScratchRemoved": true
   },
   "method": [
-    "A signed work-lane Git archive selected the Publisher package, test, and fixtures; its SHA-256 was checked after transfer to the native guest.",
-    "The native test packed Publisher, installed the archive offline with scripts disabled, and executed the relocated public CLI against a selected executable Provider.",
-    "The rejected Provider descendant exited before test completion; an unrelated sentinel remained alive.",
-    "A separate test replayed the historical v1 Provider, Candidate, and Qualification contracts from frozen fixture bytes.",
-    "The guest result and full log were read back independently; the guest and host log SHA-256 values agreed."
+    "Each run transferred a SHA-256-checked archive of its signed work-lane commit to the native guest.",
+    "The selected test packed and installed Publisher locally with npm offline and scripts disabled.",
+    "Guest test exit and full log were read back separately; host and guest log SHA-256 values agreed.",
+    "All runs selected the same Publisher package source tree; test and evidence commits differed."
   ],
-  "tests": {
-    "file": "tests/edition-provider-installed.test.mjs",
-    "passed": 2,
-    "failed": 0,
-    "skipped": 0,
-    "cases": [
-      "packed Publisher executes a relocated Provider and reclaims a rejected descendant",
-      "packed work-lane Publisher replays historical v1 contracts offline"
-    ],
-    "logSha256": "0de2d2092eebdee25d653730ec49a7ef8de689abe8a46fffe0f2410360f94d48"
-  },
+  "runs": [
+    {
+      "scope": "historical-v1-installed-replay",
+      "sourceCommit": "7368f4ce8c65af622208420dc5460f6db080b081",
+      "selectedSourceArchiveSha256": "92aec4b4397e17aa09b297d73cc1c2e2e3331eff411f7c0483e645a1b5ccc714",
+      "testFile": "tests/edition-provider-installed.test.mjs",
+      "testFileSha256": "b30129f977259a7f2bd6ecc0274ba4d3256aaf97622d466ba5dcd8e6fbc0d98c",
+      "tests": {
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0
+      },
+      "logSha256": "0de2d2092eebdee25d653730ec49a7ef8de689abe8a46fffe0f2410360f94d48",
+      "observations": [
+        "Relocated executable Provider builds through the installed public CLI; timeout reclaims its descendant without killing an unrelated sentinel.",
+        "Frozen historical v1 Provider, Candidate, and Qualification values replay offline."
+      ]
+    },
+    {
+      "scope": "successor-v2-selected-input",
+      "sourceCommit": "9d7441cf74a6f9d0c6b59cc15b647ee6aac11929",
+      "selectedSourceArchiveSha256": "e8549596373388c57a622655db79f292189fd8ddbce031f680d5093ea816fe89",
+      "testFile": "tests/provider-installed-selection.test.mjs",
+      "testFileSha256": "f115483da93912c3a7a51a6bae09eb3cd5fb64064f91437fe4d8d3ff8a6c7328",
+      "tests": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "logSha256": "9832eb70fc9ae49426c3d1046c2527527cabd0c8c4782c1a423aa3cc12ac8d88",
+      "observations": [
+        "Offline-installed Publisher and executable Provider produce the selected native and derived input lock.",
+        "Adjacent decoys do not change selection; relocated installation and inputs replay identically."
+      ]
+    },
+    {
+      "scope": "successor-v2-dual-medium-candidate",
+      "sourceCommit": "2acb868b70941108b46be70ac461a657e5f0c41f",
+      "selectedSourceArchiveSha256": "ec76cb7edb4084230c6a08fd3c92630a0e79dcdb48685e073b5d4db23b62a159",
+      "testFile": "tests/provider-candidate-installed.test.mjs",
+      "testFileSha256": "5fc4bbda9c3921a5485ba2cbbe4d980ab2f2e4816793dbadb9a4e640d6ee7ff3",
+      "tests": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "logSha256": "a1f2886815d18e1e6deb400364d9a7dcfd588061331e4b866a34f254ac9c131f",
+      "observations": [
+        "Offline-installed public CLI executes an installed executable Provider and builds one complete Candidate.",
+        "Candidate binds the exact input lock and contains nonempty static SVG, static PNG, and standalone interactive HTML."
+      ]
+    }
+  ],
   "limits": [
-    "This is a local, provisional historical-v1 installed probe, not the frozen successor release or hosted Publisher CI.",
-    "It does not qualify successor v2 Provider composition, complete dependency observation, browser or human review, or source-product acceptance.",
-    "The raw log remains local in ignored test work; this record is an attributed observation and must be rerun on frozen release bytes."
+    "These are provisional local native probes, not a frozen successor release or hosted Publisher CI.",
+    "The historical v1, successor selected-input, and full Candidate runs used different signed test commits even though Publisher package source bytes matched.",
+    "Complete dependency observation, every Windows process-tree counterexample, final package/release identity, browser and human review, adopter acceptance, and publication remain unproved.",
+    "Raw logs remain in ignored local test work; these attributed observations must be repeated on the final frozen candidate."
   ]
 }
