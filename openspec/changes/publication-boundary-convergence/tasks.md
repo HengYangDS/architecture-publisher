@@ -404,6 +404,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       text at about 6px effective size. The measured viewport constraint and
       non-accepted alternative are in `docs/research/mechanism-evaluation.md`;
       do not treat caption shortening as visual acceptance.
+      A separate local Graphviz WASM probe on the same selected 12/11 topology
+      produced a readable causal layout without editing AIGW meaning. Its
+      direct SVG is not an interactive or installed Candidate; the next
+      backend bake-off must test it as a replacement geometry owner, not add
+      a permanent second engine or demand premature source abstraction.
       Open: source-owner-approved authoring, installed exact-AIGW paired parity,
       reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure

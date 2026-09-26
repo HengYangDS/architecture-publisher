@@ -1,0 +1,28 @@
+digraph architecture {
+graph [rankdir=LR, bgcolor="#fffefa", pad="0.2", nodesep="0.30", ranksep="0.75", splines=polyline, outputorder=edgesfirst];
+node [shape=box, style="rounded,filled", fillcolor="#fffefa", color="#84978a", penwidth=1.3, fontname="Helvetica", fontsize=14, margin="0.18,0.12"];
+edge [color="#60786a", fontcolor="#27352e", penwidth=1.2, fontname="Helvetica", fontsize=10, arrowsize=0.65];
+"n-0" [label="Adapter contract"];
+"n-1" [label="Claude Code"];
+"n-2" [label="Claude Desktop"];
+"n-3" [label="CLI"];
+"n-4" [label="Codex"];
+"n-5" [label="Configuration"];
+"n-6" [label="Credential store"];
+"n-7" [label="Native discovery"];
+"n-8" [label="Hermes"];
+"n-9" [label="Client registry"];
+"n-10" [label="Synchronizer"];
+"n-11" [label="Guarded transaction"];
+"n-3" -> "n-10" [label="delegates"];
+"n-5" -> "n-10" [label="configures"];
+"n-0" -> "n-1" [label="realized-by"];
+"n-0" -> "n-2" [label="realized-by"];
+"n-0" -> "n-4" [label="realized-by"];
+"n-0" -> "n-8" [label="realized-by"];
+"n-0" -> "n-11" [label="guards"];
+"n-6" -> "n-0" [label="supplies-credentials"];
+"n-7" -> "n-10" [label="reports-to"];
+"n-9" -> "n-0" [label="dispatches"];
+"n-10" -> "n-9" [label="delegates"];
+}

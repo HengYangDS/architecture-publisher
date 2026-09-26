@@ -1400,3 +1400,34 @@ candidate must prove a legible complete-for-its-question overview through
 editor-authorized abstraction or a better bounded composition; it may instead
 report layout infeasibility without dropping meaning. No universal layout
 backend is selected by this single workload.
+
+### A mature layout alternative on the same AIGW input (2026-09-26)
+
+The prior scale failure does **not** establish that AIGW must change its
+reader question or aggregate its source nodes. A throwaway browser-only
+relation matrix made all eleven relations readable within the 1280×720 first
+screen, but repeated source names and flattened the causal spine; it is a
+possible accessible companion, not an equivalent overview replacement.
+
+The exact candidate above was projected to a 1,192-byte
+[DOT input](evidence/aigw-graphviz-input.dot) with the same twelve public nodes,
+eleven directions and short source relation labels. Full qualifiers remained
+in the candidate's adjacent relation list; the DOT is a geometry probe, not
+a complete publication. Homebrew Graphviz 16.1.0 produced a 1090×297pt SVG.
+The already installed transitive `@hpcc-js/wasm-graphviz` 1.22.2, containing
+Graphviz 15.0.0, produced a 1114×297pt SVG in a bounded local probe (22ms
+load, 11ms layout on this host). Its
+[rasterized view](evidence/aigw-graphviz-wasm-probe.png) shows the full causal
+spine with no obvious node or edge-label collision at inspection scale. This
+is a stronger geometric candidate than the current Cytoscape `breadthfirst`
+auto-fit on this workload, not a cross-workload quality verdict.
+
+The WASM dependency is currently transitive through LikeC4, not an admitted
+Publisher supply. Raw Graphviz SVG includes a DTD and generator metadata;
+neither can enter the public HTML without the product's closed-input and
+sanitization rules. Offline installed use, source-to-graphic identity,
+interactive focus/trace, accessibility, replacement cost, and ETHOS/self/
+di-effect parity remain unproved. Evaluate Graphviz WASM as a replacement
+geometry owner against those predicates; do not retain it beside the current
+owner indefinitely or ask AIGW to narrow its meaning merely to mask a poor
+layout choice.
