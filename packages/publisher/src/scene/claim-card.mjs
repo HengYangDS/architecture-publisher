@@ -20,7 +20,7 @@ const shareableContext = new Set([
   'Claim plane',
   'Condition',
   'Claimed maturity',
-  'Claim validity',
+  'Claimant-declared validity',
   'Declared dependency coverage',
   'Selected claimant',
   'Projection claimant',
@@ -111,7 +111,7 @@ export function claimCard(selection) {
       { label: 'Condition', value: dimensions(claim.condition) },
       { label: 'Scope', value: dimensions(claim.scope) },
       { label: 'Claimed maturity', value: claim.maturity },
-      { label: 'Claim validity', value: claim.validity },
+      { label: 'Claimant-declared validity', value: claim.validity },
       { label: 'Declared dependency coverage', value: claim.coverage },
       {
         label: selection.sourceClass === 'derived' ? 'Projection claimant' : 'Selected claimant',

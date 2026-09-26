@@ -413,6 +413,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       tests pass, one browser-dependent test skips; the full behavior suite
       passes 1,066 tests with five declared skips. The result remains
       text-heavy and is not visual acceptance or released-package evidence.
+      A second RED/GREEN makes claim validity explicitly claimant-declared in
+      both media, so the source field cannot read as Publisher verification.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

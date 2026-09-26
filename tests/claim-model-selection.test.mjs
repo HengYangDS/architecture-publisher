@@ -571,12 +571,13 @@ test('a typed claim builds independent media with visible qualifiers and no fake
   assert(painted.includes('Selected claimant: fixture-maintainer'));
   assert(painted.includes('Declared model owner: example:system'));
   assert(painted.includes('Claim plane: intended'));
-  assert(painted.includes('Claim validity: affirmed'));
+  assert(painted.includes('Claimant-declared validity: affirmed'));
+  assert(!painted.includes('Claim validity: affirmed'));
   assert(painted.includes('Declared dependency coverage: complete'));
   assert.match(reading, /<dt>Selected claimant<\/dt><dd>fixture-maintainer<\/dd>/u);
   assert.match(reading, /<dt>Declared model owner<\/dt><dd>example:system<\/dd>/u);
   assert.match(reading, /<dt>Claim plane<\/dt><dd>intended<\/dd>/u);
-  assert.match(reading, /<dt>Claim validity<\/dt><dd>affirmed<\/dd>/u);
+  assert.match(reading, /<dt>Claimant-declared validity<\/dt><dd>affirmed<\/dd>/u);
   assert.doesNotMatch(svg, /fixture\/claims|contract\.md/u);
   assert.doesNotMatch(html, /fixture\/claims|contract\.md/u);
 });
@@ -1182,7 +1183,7 @@ test('interactive claim context is factored only when exact and leaves per-claim
   const claims = /<section class="linked-claims"[^>]*>([\s\S]*?)<\/section>/u.exec(html)?.[1];
   assert(claims);
   assert(claims.includes('COMMON TO ALL SELECTED CLAIMS'));
-  assert.equal((claims.match(/<dt>Claim validity<\/dt>/gu) ?? []).length, 1);
+  assert.equal((claims.match(/<dt>Claimant-declared validity<\/dt>/gu) ?? []).length, 1);
   assert.equal((claims.match(/<dt>Selected claimant<\/dt>/gu) ?? []).length, 1);
   assert.equal((claims.match(/<dt>Claim plane<\/dt>/gu) ?? []).length, 2);
   assert.equal((claims.match(/<dt>Subject<\/dt>/gu) ?? []).length, 2);
