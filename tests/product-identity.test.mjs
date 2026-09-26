@@ -228,14 +228,14 @@ test('product documentation has one semantic owner and a concise entry point', a
   );
   assert.match(operations, /architecture\.edition\/v1/);
   assert.match(operations, /editionSha256/);
-  assert.match(operations, /current 0\.3 public surface/i);
+  assert.match(operations, /0\.3 work-lane CLI surface/i);
+  assert.match(operations, /not a claim of released/i);
   assert.doesNotMatch(operations, /current 0\.2 public surface/i);
   assert.match(operations, /root `package\.json` is the sole release-version authority/i);
   assert.match(operations, /Changelog[\s\S]*is not evidence that a tag/i);
-  assert.match(operations, /protected `v\*` family/i);
   assert.match(operations, /signed,\s+annotated `v<version>` tag/i);
   assert.doesNotMatch(operations, /architecture\.semantic-publication\/v2/);
-  assert.match(skill, /Edition file/);
+  assert.match(skill, /architecture\.edition-project\/v1/);
   assert.doesNotMatch(skill, /semantic member, authoring file/);
   assert.match(operations, /Historical alpha\.7 identity/i);
   assert.doesNotMatch(readme, /active 0\.2 Change/i);
@@ -258,9 +258,9 @@ test('terminal topology keeps live Editions with their source products', async (
   const contract = [readme, product, edition, adoption].join('\n');
 
   assert.match(contract, /source-owned live Edition/i);
-  assert.match(contract, /portable standard values or an independently\s+installed package/i);
+  assert.match(contract, /declaratively or through one selected\s+executable package/i);
   assert.match(contract, /no adjacent checkout/i);
-  assert.match(contract, /migration staging/i);
+  assert.match(contract, /not the new-authoring contract/i);
   assert.match(adoption, /second mutable ETHOS or AIGW (?:Provider or )?Edition/i);
   assert.match(adoption, /same immutable candidate\s+digests/i);
   assert.match(adoption, /central mutable adapter and Edition are removed/i);

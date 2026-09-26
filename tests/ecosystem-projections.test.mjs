@@ -39,7 +39,7 @@ test('the packaged Skill remains a thin public CLI projection', async () => {
   );
   assert.match(skill, /archpub edition build/);
   assert.match(skill, /archpub publish plan/);
-  assert.match(skill, /does not grant acceptance or authority/i);
+  assert.match(skill, /grants no acceptance or authority/i);
   assert.doesNotMatch(skill, /\.architecture-state|\.comet|sqlite|daemon/i);
 
   const packed = spawnSync('npm', ['pack', '--ignore-scripts', '--json', '--dry-run'], {

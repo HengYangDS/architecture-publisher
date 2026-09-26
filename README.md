@@ -82,7 +82,7 @@ The current generic journeys are:
 ```sh
 archpub source pack <request.json> --sha256 <digest>
 archpub source verify <manifest.json> --sha256 <digest>
-archpub edition build <request.json> --sha256 <digest>
+archpub edition build <request.json> --sha256 <digest> --output <candidate-directory>
 archpub evolution plan <request.json> --sha256 <digest>
 archpub render interactive <type> <input.json> --sha256 <digest> --output <artifact.html>
 archpub render raster <request.json>
@@ -93,8 +93,11 @@ archpub publish apply <plan.json> <authorization.json>
 archpub publish recover <plan.json> <authorization.json>
 ```
 
-Every path and digest is caller-selected. A direct build supplies the standard
-values; a Provider build materializes those same values before the same compiler.
+The `--output` form is required for a successor Build Request; historical v1
+plans retain their own output field. Every path and digest is caller-selected.
+One Build Request may combine direct inputs and optional selected Edition
+Providers before the same compiler. Selecting an executable Provider is a
+code-execution trust decision, not sandboxed interpretation.
 Installed operation is designed to be offline and independent of Git, ETHOS,
 adjacent checkouts, personal credentials, and ambient repository discovery.
 

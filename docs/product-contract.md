@@ -80,12 +80,13 @@ separately authored files:
    Candidate output directory separately; historical v1 plans retain their
    original output-field meaning.
 
-An Edition Provider is an optional source-owned transport boundary before the
-compiler. A declarative Provider selects portable standard values; an executable
-Provider materializes the same values through one independently installed,
-bounded child-process export. Both converge before semantic compilation. The
-Provider does not interpret claims, compose scenes, qualify artifacts, authorize
-effects, or own publication.
+An Edition Provider is an optional transport boundary owned by its designated
+source or editor. Declarative delivery selects exact portable bytes; executable
+delivery prepares exact selected bytes through one independently installed,
+bounded child-process export. A Provider may supply an attributed derived
+projection, but cannot make it source-endorsed or validated merely by returning
+it. Both modes converge before semantic compilation. Providers do not compose
+scenes, qualify artifacts, authorize effects, or own publication.
 
 In the unreleased successor Edition Project, a source selection's question
 list is the sole authored source-assertion record; its assertion ID is derived
@@ -131,8 +132,9 @@ publication cannot infer intent.
 The output is not merely a PNG or HTML file and not every generated directory is
 a publication. The product distinguishes:
 
-- **Edition Candidate** — exact source, Claim Model, Edition, scene, renderer,
-  and artifact identities; it is rendered but not thereby qualified.
+- **Edition Candidate** — exact selected input lock, Edition, scene, renderer
+  supply, and artifact identities; historical Claim Model inputs retain their
+  own identity. It is rendered but not thereby qualified.
 - **Qualification Set** — non-compensating semantic, coverage, geometry,
   browser, accessibility, installed-use, recovery, and human-review judgments
   over exact subjects.
@@ -190,13 +192,14 @@ workspace without acquiring authority over any selected source assertion.
 Neither first-party path requires a tracked duplicate Claim Model when admitted
 native inputs suffice. The Publisher repository may keep compact immutable
 protocol fixtures and exact conformance receipts, but it may not retain a second
-mutable implementation of an adopter's Edition. During the 0.2 migration,
-existing central extension packages are migration staging only and are removed
-after source-owned installed parity is proved.
+mutable implementation of an adopter's Edition.
 
-Cross-repository use occurs through one `architecture.edition-provider/v1`
-manifest selecting portable standard values or an independently installed
-package by exact identity. Both modes enter through `archpub edition build`;
+New authoring selects one versioned Build Request with direct inputs and optional
+`architecture.edition-provider/v2` manifests. Each Provider transports exact
+native, derived, or Edition bytes declaratively or through one selected
+executable package; multiple Providers may contribute distinct namespaces.
+Historical Provider v1 remains accepted for replay of exact prior inputs; it is
+not the new-authoring contract. Both versions enter through `archpub edition build`;
 there is no Provider command tree, registry, or ambient discovery. Ordinary
 execution has no adjacent checkout dependency, repository-name dispatch,
 local-user path, or implicit source discovery. The source repository's native

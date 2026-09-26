@@ -1,0 +1,41 @@
+{
+  "schema": "architecture.edition-project/v1",
+  "id": "selected-edition-example",
+  "editor": "example-maintainer",
+  "title": "A small service topology",
+  "audiences": [{ "id": "maintainer", "label": "Maintainers" }],
+  "questions": [
+    {
+      "id": "flow",
+      "audience": "maintainer",
+      "text": "What connects the two components?"
+    }
+  ],
+  "scope": {
+    "sourceNamespaces": ["example/model", "example/views"],
+    "selections": [
+      {
+        "id": "overview",
+        "namespace": "example/views",
+        "kind": "reference",
+        "reference": "view:overview",
+        "questions": ["flow"]
+      }
+    ],
+    "limits": []
+  },
+  "omissions": [],
+  "narrative": { "summary": "One source-bound view of two connected components." },
+  "presentation": {
+    "static": {
+      "views": [{ "id": "overview", "questions": ["flow"] }],
+      "intent": "Show the selected connection at a glance.",
+      "width": 1800
+    },
+    "interactive": {
+      "views": [{ "id": "overview", "questions": ["flow"] }],
+      "intent": "Explore the selected connection."
+    }
+  },
+  "visualPolicy": { "profile": "neutral" }
+}

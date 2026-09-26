@@ -2,9 +2,9 @@
 
 # Architecture Publisher operational reference
 
-This document describes the current 0.3 public surface. Historical release facts
-are isolated at the end. The OpenSpec task ledger owns implementation status;
-this reference does not.
+This document describes the 0.3 work-lane CLI surface, not a claim of released
+or adopter-accepted bytes. Historical release facts are isolated at the end.
+The OpenSpec task ledger owns implementation status; this reference does not.
 
 ## Release identity
 
@@ -34,10 +34,10 @@ repository, infer intent from code, execute an SDD lifecycle, or synthesize
 acceptance.
 
 ```text
-Source Bundle -> Claim Model -> Edition -> Edition Candidate
-                                      -> Qualification Set
-                                      -> Publication Plan
-                                      -> effect and recovery receipts
+selected source bytes -> checked native or Claim Model meaning
+                      -> authored Edition -> Edition Candidate
+                      -> Qualification Set -> Publication Plan
+                      -> effect and recovery receipts
 ```
 
 A successful command reports only its named operation. In particular:
@@ -114,16 +114,29 @@ establish semantic acceptance or publication authority.
 
 ### Edition Candidate
 
+For new authoring, select an exact `architecture.build-request/v1` and an absent
+Candidate directory:
+
 ```sh
-archpub edition build <request.json> --sha256 <request-digest>
+archpub edition build <request.json> --sha256 <request-digest> --output <candidate-directory>
 ```
 
-The request selects an exact Source Bundle, one Claim Model member, one exact
-Edition file, and an absent output directory. The build validates semantic and
-Edition contracts, compiles independent static and interactive scenes, invokes
-selected renderers, and emits an `architecture.edition-candidate/v1` bundle.
-The selected Edition itself uses the closed `architecture.edition/v1` schema,
-and the request binds its exact `editionSha256` before compilation.
+The Build Request selects direct native source bytes and optional exact
+`architecture.edition-provider/v2` manifests, one authored
+`architecture.edition-project/v1`, requested media, and a toolchain profile.
+Providers may be declarative or executable and may contribute distinct
+namespaces; an executable Provider executes selected package code under bounded
+process supervision, not a filesystem or network sandbox. The build emits an
+`architecture.edition-candidate/v2` bundle with a canonical `input-lock.json`,
+independent static and interactive media, their supplies, and disclosed limits.
+The input lock binds selected meaning; it does not by itself establish native
+dependency closure, source endorsement, or Candidate acceptance.
+
+Historical v1 plans retain their selected output field and original meaning.
+They select a Source Bundle, Claim Model member, and exact
+`architecture.edition/v1` file, then emit an
+`architecture.edition-candidate/v1` bundle. The v1 request binds
+`editionSha256`; do not pass `--output` to a v1 plan.
 
 The result is `status: built` with `qualification: not-performed` and
 `publication: not-performed`. Generated files are never authoring inputs.
@@ -134,7 +147,10 @@ The result is `status: built` with `qualification: not-performed` and
 archpub evolution plan <request.json> --sha256 <request-digest>
 ```
 
-The request schema is `architecture.semantic-compare-input/v2`. It selects exact
+For native successor inputs, `architecture.semantic-compare-input/v3` selects
+exact before/after Build Requests. Direct and declarative Provider selections
+are admitted; executable Provider comparison currently fails before execution.
+The historical `architecture.semantic-compare-input/v2` selects exact
 before/after Claim Models, Edition sets, and explicit correspondences. The pure
 compiler returns separate obligations for:
 
@@ -215,6 +231,13 @@ select an exact policy:
 ```sh
 archpub qualify verify <request.json> --sha256 <digest> --policy <policy.json> --policy-sha256 <digest>
 ```
+
+If replay selects executable Providers, the invoker must separately pass
+`--execute-providers <id@manifest-digest,...>` before any policy options. Replay
+rebuilds Candidate bytes from pinned inputs and runs those selected Providers
+again; the Candidate or submitted evidence cannot grant execution permission.
+The canonical input lock embedded in the Candidate permits later attribution
+without rerunning a Provider, but it is not a full byte replay by itself.
 
 `architecture.qualification-policy/v1` names the claimed accepter, exact
 Candidate digest (which binds the input lock), accepted Candidate limits, and

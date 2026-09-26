@@ -4,9 +4,30 @@ These examples demonstrate portable, source-bound use of the generic product.
 They are intentionally small and do not claim flagship visual acceptance or
 support for every architecture domain.
 
-Each example contains independently authored interactive JSON and static SVG
-with shared semantic identities. Neither medium is derived from the other.
-Updated variants make real semantic changes rather than title-only changes.
+The low-level rendering examples contain independently authored interactive
+JSON and static SVG with shared semantic identities. Neither medium is derived
+from the other. Updated variants make real semantic changes rather than
+title-only changes.
+
+## Selected Edition build
+
+`selected-edition/` is a complete source-bound successor Build Request with two
+LikeC4 inputs and one authored Edition Project. From the repository root after
+installing the workspace dependencies, use a fresh output directory:
+
+```sh
+request=examples/selected-edition/build-request.json
+digest=$(node -p "require('node:crypto').createHash('sha256').update(require('node:fs').readFileSync('$request')).digest('hex')")
+mkdir -p build/examples
+./node_modules/.bin/archpub edition build "$request" --sha256 "$digest" \
+  --output build/examples/selected-edition
+```
+
+The Candidate contains `static/architecture.svg`,
+`static/architecture.png`, and standalone `interactive/architecture.html` as
+sibling media. It remains unqualified and unpublished. The relocated CLI test
+rebuilds the same Candidate from two independent paths without reading an
+adjacent checkout.
 
 ## Interactive rendering
 

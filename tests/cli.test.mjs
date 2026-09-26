@@ -36,8 +36,11 @@ test('scoped help is concise and derived from the routed commands', () => {
   const edition = run(['edition', '--help']);
   assert.equal(edition.status, 0, edition.stderr);
   assert.match(edition.stdout, /^ {2}build\b/m);
-  assert.match(edition.stdout, /direct inputs or one Edition Provider/u);
+  assert.match(edition.stdout, /direct inputs and optional Edition Providers/u);
   assert.doesNotMatch(edition.stdout, /^ {2}provider\b/m);
+  const editionCommand = run(['edition', 'build', '--help']);
+  assert.equal(editionCommand.status, 0, editionCommand.stderr);
+  assert.match(editionCommand.stdout, /\[--output <candidate-directory>\]/u);
 
   const qualify = run(['qualify', '--help']);
   assert.equal(qualify.status, 0, qualify.stderr);

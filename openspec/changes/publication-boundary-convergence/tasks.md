@@ -640,8 +640,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       Partial: A–E program context is non-normative Change design; ETHOS-only
       view and copy constraints are carried to its source-owned editor through
       a non-authorizing migration handoff, not the generic product contract.
-      The actual successor CLI, examples, Skill and installed adopter paths
-      still require reconciliation.
+      The current CLI help, README, product and operational references, Provider
+      reference, and repository Skill now distinguish v2 selected-input builds
+      from historical v1, including executable replay effects. A complete
+      source-bound example builds the same paired Candidate after relocation.
+      Migration handoffs, installed adopter paths, and final release guidance
+      still require reconciliation; this task remains open.
 - [ ] 7.4 Promote the implemented delta requirements and role-based Purpose
       wording into active base specs before release freeze. Strictly validate the
       combined specs with no unresolved diagnostics, including advisory INFO,

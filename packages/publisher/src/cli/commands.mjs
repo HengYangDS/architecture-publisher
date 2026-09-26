@@ -63,7 +63,7 @@ export const commandCatalog = Object.freeze([
   ),
   command(
     ['edition', 'build'],
-    'Compile an exact Edition Candidate from direct inputs or one Edition Provider.',
+    'Compile an exact Edition Candidate from direct inputs and optional Edition Providers.',
     'archpub edition build <request.json> --sha256 <digest> [--output <candidate-directory>]',
     editionBuildSelection,
     async ({ file, '--sha256': digest, '--output': output }) => {

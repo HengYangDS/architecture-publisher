@@ -55,14 +55,14 @@ each source retains authority over its own assertions. Architecture Publisher
 owns the Edition contract and compiler, not adopter Edition content.
 
 The Publisher self-Edition is therefore owned by the Architecture Publisher
-repository. An adopter may deliver its Edition through one source-owned Edition
-Provider: either portable standard values or one independently installed package
-export. The installed compiler must produce the same Candidate with no adjacent
-checkout, ambient repository search, or hard-coded workstation path. Provider
-delivery metadata belongs only to outer provenance; it does not alter Claim
-Model, Edition, scene, or Candidate identity. A central copy used during
-migration is not a second authority and must be removed after source-owned
-parity is proved.
+repository. Historical Provider v1 may deliver portable standard values or one
+independently installed package export. Its delivery metadata stays in outer
+provenance under that historical contract. The successor may combine direct and
+multiple Provider v2 inputs. Equal selected-input locks across delivery modes
+do not imply equal Candidates: closure, disclosed limits, scenes, or media can
+differ and require separate qualification. Installed use must not depend on an
+adjacent checkout, ambient repository search, or hard-coded workstation path.
+A central mutable adopter copy cannot become a second authority.
 
 ## Audience and questions
 
