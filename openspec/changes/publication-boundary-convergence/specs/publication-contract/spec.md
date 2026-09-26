@@ -27,6 +27,8 @@ or off-host retention.
   claimant and editor attribution, and the target prestate from those bytes
 - **AND** it rechecks submitted policy fit but neither reruns the Provider nor
   authenticates a verifier, accepter, or source claimant
+- **AND** an explicit local custody target may be outside the request directory
+  without allowing it to overlap selected source files
 
 #### Scenario: Adoption and local effect authorization are separate
 

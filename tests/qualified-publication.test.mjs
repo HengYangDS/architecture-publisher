@@ -311,3 +311,19 @@ test('relocated offline package uses the same public qualified plan, apply, and 
   await fs.access(path.join(f.selected.root, 'delivery/static/architecture.png'));
   await fs.access(path.join(f.selected.root, 'delivery/interactive/architecture.html'));
 });
+
+test('a local custodian can select explicit absolute delivery and recovery targets', async (t) => {
+  const f = await fixture(t);
+  const request = structuredClone(f.request);
+  request.options.destinations.static = path.join(f.selected.root, 'delivery/static');
+  request.options.destinations.interactive = path.join(f.selected.root, 'delivery/interactive');
+  request.options.recoveryRoot = path.join(f.selected.root, 'recovery');
+  const selected = await f.write('absolute-targets.json', request);
+  const planned = await filePublication('plan', selected.file);
+  assert.equal(planned.plan.options.destinations.native, request.options.destinations.static);
+  assert.equal(planned.plan.options.destinations.atlas, request.options.destinations.interactive);
+  assert.equal(planned.plan.options.recoveryRoot, request.options.recoveryRoot);
+  request.options.destinations.static = path.join(f.selected.root, 'candidate');
+  const overlapping = await f.write('overlapping-target.json', request);
+  await assert.rejects(filePublication('plan', overlapping.file), /Source\/destination overlap/);
+});

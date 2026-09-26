@@ -245,8 +245,11 @@ the exact Qualification Set, selected policy, and prior `qualify verify` report
 as `{file, sha256}` values. It names `roles.releaseOwner` (nullable),
 `roles.custodian`, and `roles.effectAuthorizer`. `options.destinations` names
 `static` and `interactive` directories plus a `recoveryRoot`; `entries` gives
-each medium its `index.html` and `README.md`. Paths resolve relative to this
-request. The plan derives its three artifact payloads and source roles from
+each medium its `index.html` and `README.md`. Candidate and evidence paths are
+portable paths relative to this request. Local delivery and recovery targets
+may instead be explicit absolute paths; the plan binds their canonical resolved
+locations and rejects overlap with selected sources. The plan derives its three
+artifact payloads and source roles from
 the selected Candidate and input lock; callers cannot supply arbitrary payload
 rows in this mode. Both forms produce a dry plan without changing a delivery
 target.

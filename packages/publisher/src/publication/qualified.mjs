@@ -20,7 +20,7 @@ function fail(code) {
   throw Object.assign(new Error(code), { code });
 }
 
-function selectedPath(base, name) {
+function selectedInputPath(base, name) {
   if (typeof name !== 'string' || path.isAbsolute(name)) fail('qualified_path_invalid');
   try {
     portablePath(name);
@@ -30,10 +30,15 @@ function selectedPath(base, name) {
   return path.resolve(base, ...name.split('/'));
 }
 
+function selectedTargetPath(base, name) {
+  if (typeof name !== 'string' || !name.trim()) fail('qualified_path_invalid');
+  return path.resolve(base, name);
+}
+
 async function selectedJson(base, reference) {
   if (!hasExactFields(reference, ['file', 'sha256']) || !isDigest(reference.sha256))
     fail('qualified_reference_invalid');
-  const file = selectedPath(base, reference.file);
+  const file = selectedInputPath(base, reference.file);
   await noLinks(file);
   const stat = await fs.lstat(file);
   if (!stat.isFile() || stat.size > 4 * 1024 * 1024) fail('qualified_reference_invalid');
@@ -129,7 +134,7 @@ export async function planQualifiedFilePublication(value, base) {
     !hasExactFields(value.entries, ['static', 'interactive'])
   )
     fail('qualified_input_invalid');
-  const manifestPath = selectedPath(base, value.candidate.manifest);
+  const manifestPath = selectedInputPath(base, value.candidate.manifest);
   const bundle = await readSourceBundle(manifestPath, value.candidate.sha256, true);
   const root = path.dirname(manifestPath);
   const members = new Map(bundle.members.map((member) => [member.path, member]));
@@ -215,10 +220,10 @@ export async function planQualifiedFilePublication(value, base) {
   const options = {
     sourceRoots: [root],
     destinations: {
-      native: selectedPath(base, value.options.destinations.static),
-      atlas: selectedPath(base, value.options.destinations.interactive),
+      native: selectedTargetPath(base, value.options.destinations.static),
+      atlas: selectedTargetPath(base, value.options.destinations.interactive),
     },
-    recoveryRoot: selectedPath(base, value.options.recoveryRoot),
+    recoveryRoot: selectedTargetPath(base, value.options.recoveryRoot),
   };
   const dependencies = [
     { file: manifestPath, sha256: value.candidate.sha256 },
