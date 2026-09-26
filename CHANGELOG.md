@@ -8,6 +8,11 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- Updated the official OpenSpec development validator to `1.13.2`; Publisher
+  runtime and historical release bytes are unchanged.
+
 ## [0.3.0-alpha.3] - 2026-09-24
 
 ### Fixed
