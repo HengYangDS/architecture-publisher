@@ -537,7 +537,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       one exact package; see `conformance/evidence/di-effect-installed-probe.json`.
       Installed Chrome at two widths found no console/network/overflow or
       axe A/AA defect; this does not establish di-effect owner or human
-      acceptance, other workload parity, publication, or recovery.
+      acceptance, other workload parity, publication, or recovery. The same
+      archive also rebuilt the AIGW Client Projection chapter byte-identically
+      after offline installation and relocation; its 12 installed browser
+      observations expose unreadable fit-to-canvas graph labels despite clean
+      axe results. See `conformance/evidence/aigw-client-installed-probe.json`.
+      This is not the whole AIGW product or AIGW acceptance.
 - [ ] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify

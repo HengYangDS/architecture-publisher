@@ -1729,3 +1729,36 @@ was byte-identical to the source-adjacent observation. The Candidate remains
 unqualified: these checks do not establish source-owner endorsement, human
 visual acceptance, publication/recovery, or any other workload's installed
 parity. The receipt is conformance evidence, not release authority.
+
+### Relocated offline AIGW Client Projection counterexample (2026-09-26)
+
+The clean AIGW Work Lane at `270ca0bdf2aeb5a5ef3abfce0d00a0b25a015488`
+provided one `architecture.edition-provider/v2` declarative source and a
+separately authored Client Projection Edition. Four exact selected files were
+copied without editing AIGW. The same provisional Publisher archive used in
+the di-effect probe built Candidate
+`e40ab445e8b734fe5de371ebb09abc957e3a30fb73e253a23246adf8d640cb9a`.
+Its Candidate, manifest, static SVG/PNG, and interactive HTML were byte-
+identical across copied direct, offline-installed, and relocated builds. The
+[installed probe receipt](../../conformance/evidence/aigw-client-installed-probe.json)
+binds the package, four inputs, five output files, and browser observations.
+This is **Client Projection only**, not the whole AIGW product or AIGW approval.
+
+Installed Chrome 154 exercised all four pages at 1440, 901, and 390 CSS
+pixels. All 12 page/viewport observations had no horizontal overflow or axe-
+core 4.13.0 WCAG 2/2.1 A/AA violation. Yet fit-to-canvas effective graph
+label sizes ranged from 6.59–10.83 CSS pixels at 1440, 5.69–8.06 at 901,
+and 2.68–8.96 at 390. The
+[390-pixel overview](evidence/aigw-client-installed-mobile-counterexample.png)
+is visibly unreadable despite complete DOM lists and a clean accessibility
+scan. The static Candidate likewise retains source structure but places dense
+relation prose beside its graph; it has not earned a reader-quality verdict.
+
+**Disposition:** accept the bounded installation and Provider-interchange
+evidence, not the publication. The source editor must decide what the overview
+should abstract or disclose; Publisher must offer an intelligible composition
+or report infeasibility rather than hide the defect behind `Fit graph`, a
+passing axe scan, or exact-byte replay. This is a Publisher composition and
+qualification gap, not permission to change AIGW's source meaning or release
+decision. The full-product AIGW Edition remains an independent, uncompleted
+workload.
