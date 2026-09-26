@@ -3,6 +3,45 @@ import test from 'node:test';
 import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
 
+function pageWithClaim(anchor) {
+  const page = interactiveEditionScene().pages[0];
+  const digest = 'a'.repeat(64);
+  page.claimCards = [
+    {
+      namespace: 'private/model',
+      id: 'claim-one',
+      sha256: digest,
+      facts: [{ label: 'Claim plane', value: 'implemented' }],
+    },
+  ];
+  page.sourceAssertionCarriers.push({
+    assertionId: 'claim-assertion',
+    kind: 'claim',
+    nodeRefs: [],
+    relationRefs: [],
+    claimRefs: [{ namespace: 'private/model', reference: 'claim-one', sha256: digest }],
+  });
+  if (anchor === 'subject') {
+    page.claimSubjectLinks = [
+      {
+        claimAssertionId: 'claim-assertion',
+        subject: { namespace: 'private/model', id: 'secret-alpha', sha256: digest },
+      },
+    ];
+  } else {
+    page.sourceAssertionCarriers.push({
+      assertionId: 'relation-assertion',
+      kind: 'relation',
+      nodeRefs: [],
+      relationRefs: [{ namespace: 'private/model', reference: 'relation:4:2', sha256: digest }],
+    });
+    page.claimRelationLinks = [
+      { claimAssertionId: 'claim-assertion', relationAssertionId: 'relation-assertion' },
+    ];
+  }
+  return page;
+}
+
 test('only asserted source members may become visible graph carriers', () => {
   const addedNode = interactiveEditionScene().pages[0];
   addedNode.nodes.push({ ...addedNode.nodes[0], id: 'secret-ghost', label: 'Ghost' });
@@ -222,6 +261,152 @@ test('source-reported relation qualifiers remain structured and fail closed when
       code: 'render_interactive_relation_qualifiers_invalid',
     });
   }
+});
+
+test('typed claim anchors cannot borrow another relation, card, or subject', () => {
+  assert.deepEqual(
+    projectInteractivePage(pageWithClaim('subject'), 0).publicPage.claims[0].sourceAnchor,
+    'entity',
+  );
+  assert.equal(
+    projectInteractivePage(pageWithClaim('relation'), 0).publicPage.claims[0].relationOrdinal,
+    1,
+  );
+  const cases = [
+    ['non-array relation links', 'relation', (page) => (page.claimRelationLinks = {})],
+    ['null relation link', 'relation', (page) => (page.claimRelationLinks[0] = null)],
+    [
+      'unknown relation assertion',
+      'relation',
+      (page) => (page.claimRelationLinks[0].relationAssertionId = 'absent'),
+    ],
+    [
+      'unselected relation',
+      'relation',
+      (page) => (page.sourceAssertionCarriers.at(-1).relationRefs[0].reference = 'absent'),
+    ],
+    ['unselected claim card', 'relation', (page) => (page.claimCards[0].id = 'other')],
+    ['non-array subject links', 'subject', (page) => (page.claimSubjectLinks = {})],
+    ['null subject link', 'subject', (page) => (page.claimSubjectLinks[0] = null)],
+    [
+      'missing claim reference',
+      'subject',
+      (page) => (page.sourceAssertionCarriers.at(-1).claimRefs = []),
+    ],
+    [
+      'wrong subject namespace',
+      'subject',
+      (page) => (page.claimSubjectLinks[0].subject.namespace = 'other'),
+    ],
+    [
+      'wrong subject digest',
+      'subject',
+      (page) => (page.claimSubjectLinks[0].subject.sha256 = 'b'.repeat(64)),
+    ],
+    [
+      'duplicate claim card',
+      'subject',
+      (page) => page.claimCards.push(structuredClone(page.claimCards[0])),
+    ],
+  ];
+  for (const [name, anchor, mutate] of cases) {
+    const page = pageWithClaim(anchor);
+    mutate(page);
+    assert.throws(
+      () => projectInteractivePage(page, 0),
+      {
+        code:
+          name === 'duplicate claim card'
+            ? 'render_interactive_identity_ambiguous'
+            : 'render_interactive_claim_relation_invalid',
+      },
+      name,
+    );
+  }
+  const emptyFacts = pageWithClaim('subject');
+  emptyFacts.claimCards[0].facts = [];
+  assert.throws(() => projectInteractivePage(emptyFacts, 0), {
+    code: 'render_interactive_claim_invalid',
+  });
+});
+
+test('group, question, and carrier shapes fail before public page projection', () => {
+  const cases = [
+    ['empty groups', (page) => (page.groups = []), 'render_interactive_group_invalid'],
+    [
+      'unnamed group',
+      (page) =>
+        (page.groups = [
+          {
+            id: 'all',
+            label: '',
+            elements: [
+              { namespace: 'private/model', id: 'secret-alpha' },
+              { namespace: 'private/model', id: 'secret-beta' },
+            ],
+          },
+        ]),
+      'render_interactive_group_invalid',
+    ],
+    [
+      'incomplete grouping',
+      (page) =>
+        (page.groups = [
+          {
+            id: 'part',
+            label: 'Part',
+            elements: [{ namespace: 'private/model', id: 'secret-alpha' }],
+          },
+        ]),
+      'render_interactive_group_invalid',
+    ],
+    [
+      'malformed group element',
+      (page) =>
+        (page.groups = [
+          {
+            id: 'all',
+            label: 'All',
+            elements: [{ id: 'secret-alpha' }, { namespace: 'private/model', id: 'secret-beta' }],
+          },
+        ]),
+      'render_interactive_group_invalid',
+    ],
+    [
+      'empty question inventory',
+      (page) => {
+        page.questionIds = [];
+        page.questions = [];
+        page.limitsByQuestion = {};
+      },
+      'render_interactive_question_invalid',
+    ],
+    [
+      'malformed relation carrier',
+      (page) => (page.sourceAssertionCarriers[0].relationRefs[0] = null),
+      'render_interactive_carrier_invalid',
+    ],
+    [
+      'malformed claim carrier',
+      (page) => (page.sourceAssertionCarriers[0].claimRefs = [null]),
+      'render_interactive_carrier_invalid',
+    ],
+    [
+      'empty source qualifier',
+      (page) => (page.relations[0].sourceQualifiers = [{ name: 'scope', value: '' }]),
+      'render_interactive_relation_qualifiers_invalid',
+    ],
+  ];
+  for (const [name, mutate, code] of cases) {
+    const page = interactiveEditionScene().pages[0];
+    mutate(page);
+    assert.throws(() => projectInteractivePage(page, 0), { code }, name);
+  }
+  const page = interactiveEditionScene().pages[1];
+  page.claimRelationLinks = [];
+  assert.throws(() => projectInteractivePage(page, 1), {
+    code: 'render_interactive_claim_relation_invalid',
+  });
 });
 
 test('reader questions, editorial claims, and source carriers remain explicit', () => {
