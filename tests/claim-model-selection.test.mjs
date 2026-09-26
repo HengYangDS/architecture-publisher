@@ -28,6 +28,7 @@ import { claimModel } from './fixtures/claim-model.mjs';
 import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/static/grouped-selection.mjs';
 import { claimCard } from '../packages/publisher/src/scene/claim-card.mjs';
 import { composeAuthoredInteractiveArchitecture } from '../packages/publisher/src/scene/interactive/authored-architecture.mjs';
+import { composeAuthoredStaticCanvas } from '../packages/publisher/src/scene/static/authored-canvas.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const modelFormat = { id: 'architecture.claim-model', version: '2' };
@@ -1190,6 +1191,177 @@ test('an unrelated Claim Model uses the same authored canvas with source-checked
     (await fs.readFile(path.join(output, 'static/architecture.png'))).readUInt32BE(16),
     1200,
   );
+
+  const meaning = await compileEditionMeaning(
+    await materializeBuildRequestInput(selected.requestPath, selected.requestSha256),
+  );
+  assert.equal(
+    composeAuthoredStaticCanvas(meaning).scene.schema,
+    'architecture.authored-static-scene/v1',
+  );
+  const canvas = (value) => value.refinement.media.static.scene;
+  const firstAssertion = (value) =>
+    value.assertions.find(({ id }) => value.media.static.views[0].assertionIds[0] === id);
+  for (const [name, mutate, code] of [
+    [
+      'wrong view identity',
+      (value) => (value.refinement.media.static.view = 'other'),
+      'authored_canvas_input_invalid',
+    ],
+    [
+      'duplicate assertion identity',
+      (value) => value.assertions.push(structuredClone(value.assertions[0])),
+      'authored_canvas_input_invalid',
+    ],
+    [
+      'duplicate selection identity',
+      (value) => value.native.selections.push(structuredClone(value.native.selections[0])),
+      'authored_canvas_input_invalid',
+    ],
+    [
+      'same source meaning selected under two assertion IDs',
+      (value) => {
+        const view = value.media.static.views[0];
+        const assertion = value.assertions.find(
+          (item) =>
+            view.assertionIds.includes(item.id) &&
+            value.native.selections.some(
+              (selection) =>
+                selection.selectionId === item.selection && selection.target.kind === 'entity',
+            ),
+        );
+        const selection = structuredClone(
+          value.native.selections.find((item) => item.selectionId === assertion.selection),
+        );
+        selection.selectionId = 'duplicate-source';
+        value.native.selections.push(selection);
+        value.assertions.push({
+          ...assertion,
+          id: 'duplicate-source-assertion',
+          selection: selection.selectionId,
+        });
+        view.assertionIds.push('duplicate-source-assertion');
+      },
+      'authored_canvas_membership_mismatch',
+    ],
+    [
+      'editorial assertion as source',
+      (value) => (firstAssertion(value).kind = 'editorial'),
+      'authored_canvas_editorial_unadmitted',
+    ],
+    [
+      'unselected source assertion',
+      (value) => (firstAssertion(value).selection = 'missing'),
+      'authored_canvas_source_unadmitted',
+    ],
+    [
+      'non-string source reference',
+      (value) => (canvas(value).requiredSemanticIds[0] = 42),
+      'authored_canvas_reference_invalid',
+    ],
+    [
+      'malformed source reference',
+      (value) => (canvas(value).requiredSemanticIds[0] = 'not-json'),
+      'authored_canvas_reference_invalid',
+    ],
+    [
+      'noncanonical source reference',
+      (value) =>
+        (canvas(value).requiredSemanticIds[0] = '[ "fixture/claims", "entity", "client" ]'),
+      'authored_canvas_reference_invalid',
+    ],
+    [
+      'duplicate declared reference',
+      (value) => canvas(value).requiredSemanticIds.push(canvas(value).requiredSemanticIds[0]),
+      'authored_canvas_membership_mismatch',
+    ],
+    [
+      'unselected declared reference',
+      (value) => (canvas(value).requiredSemanticIds[0] = semantic('entity', 'other')),
+      'authored_canvas_membership_mismatch',
+    ],
+    [
+      'duplicate node graphic',
+      (value) => (canvas(value).nodes[1].id = canvas(value).nodes[0].id),
+      'authored_canvas_graphic_ambiguous',
+    ],
+    [
+      'duplicate entity carrier',
+      (value) => (canvas(value).nodes[1].semanticIds = [...canvas(value).nodes[0].semanticIds]),
+      'authored_canvas_membership_mismatch',
+    ],
+    [
+      'missing entity carrier',
+      (value) => (canvas(value).nodes[0].semanticIds = []),
+      'authored_canvas_membership_mismatch',
+    ],
+    [
+      'duplicate text graphic',
+      (value) => (canvas(value).texts[1].id = canvas(value).texts[0].id),
+      'authored_canvas_graphic_ambiguous',
+    ],
+    [
+      'hidden source text',
+      (value) => (canvas(value).texts[0].visible = false),
+      'authored_canvas_membership_mismatch',
+    ],
+    [
+      'duplicate text source',
+      (value) => (canvas(value).texts[1].semanticIds = [...canvas(value).texts[0].semanticIds]),
+      'authored_canvas_membership_mismatch',
+    ],
+    [
+      'missing relation text',
+      (value) => (canvas(value).texts[2].semanticIds = []),
+      'authored_canvas_membership_mismatch',
+    ],
+    [
+      'duplicate edge graphic',
+      (value) => canvas(value).edges.push(structuredClone(canvas(value).edges[0])),
+      'authored_canvas_graphic_ambiguous',
+    ],
+    [
+      'missing edge endpoint',
+      (value) => (canvas(value).edges[0].target = 'missing'),
+      'authored_canvas_edge_binding_mismatch',
+    ],
+    [
+      'edge without relation binding',
+      (value) => (canvas(value).edges[0].semanticIds = []),
+      'authored_canvas_edge_binding_mismatch',
+    ],
+    [
+      'entity miscast as edge relation',
+      (value) => (canvas(value).edges[0].semanticIds = [semantic('entity', 'client')]),
+      'authored_canvas_edge_binding_mismatch',
+    ],
+    [
+      'relation with absent semantic endpoint',
+      (value) => (canvas(value).edges[0].target = 'client'),
+      'authored_canvas_edge_binding_mismatch',
+    ],
+    [
+      'relation rendered in reverse',
+      (value) => {
+        const edge = canvas(value).edges[0];
+        [edge.source, edge.target] = [edge.target, edge.source];
+      },
+      'authored_canvas_edge_binding_mismatch',
+    ],
+    [
+      'relation assigned to two arrows',
+      (value) => {
+        const duplicate = structuredClone(canvas(value).edges[0]);
+        duplicate.id = 'request-copy';
+        canvas(value).edges.push(duplicate);
+      },
+      'authored_canvas_edge_binding_mismatch',
+    ],
+  ]) {
+    const mutated = structuredClone(meaning);
+    mutate(mutated);
+    assert.throws(() => composeAuthoredStaticCanvas(mutated), { code }, name);
+  }
 
   resource.media.static.scene.edges[0].semanticIds = [semantic('relation', 'invented')];
   await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');

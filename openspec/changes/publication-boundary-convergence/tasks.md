@@ -621,17 +621,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The last full run, before the static evolution branch correction, reports 1,079
-      pass, 6 skip, 0 fail; statements and lines are 97.61%, functions 99.49%,
-      and branches 92.28%, below the unchanged 95% gate. At that run's 8,410
-      branch outcomes, the gap was at least 229; the denominator may change as
-      previously unvisited branches execute. The authored interactive compiler
-      now has adversarial checks for missing, duplicate, malformed, reversed,
-      and source-unbound carriers; its isolated targeted run covers 118/127
-      branch outcomes, not the global gate. Prioritize
-      meaningful counterexamples in semantic change, authored scenes, renderer
-      and process boundaries; do not exclude owned production code, weaken the
-      browser journey, or mistake browser-only execution for Node coverage.
+      On signed `49c93d5`, the last full run reports 1,079 pass, 6 skip, 0
+      fail; statements and lines are 97.62%, functions 99.49%, and branches
+      92.53% (7,821/8,452), below the unchanged 95% gate. The gap was 209
+      branch outcomes at that denominator, which may grow as new paths execute.
+      Adversarial authored-interactive carriers have an isolated 118/127 branch
+      run. New authored-static adversarial cases have an isolated 92/94 branch
+      run but have not entered a full gate. Continue with semantic change,
+      authored scenes, renderer and process boundaries; do not exclude owned
+      production code, weaken the browser journey, or mistake browser-only
+      execution for Node coverage.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%
