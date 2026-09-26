@@ -431,6 +431,70 @@ test('a VCS locator fails closed when no external Git executable is available', 
   }
 });
 
+test('VCS selection ignores a source-controlled Git binary reached through PATH', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('POSIX executable-link counterexample; Windows executable selection is separate');
+    return;
+  }
+  const { f, repo } = await vcsFixture(t);
+  const selected = Buffer.from('{"system":"committed"}\n');
+  await fs.writeFile(path.join(repo, 'system.json'), selected);
+  git(repo, 'add', 'system.json');
+  git(repo, 'commit', '-qm', 'selected');
+  const marker = path.join(f.root, 'source-git-executed');
+  const sourceGit = path.join(f.root, 'git');
+  await fs.writeFile(
+    sourceGit,
+    `#!/bin/sh\nprintf invoked > ${JSON.stringify(marker)}\nexit 99\n`,
+    { mode: 0o755 },
+  );
+  await fs.chmod(sourceGit, 0o755);
+  const outside = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-external-git-link-'),
+  );
+  t.after(() => fs.rm(outside, { recursive: true, force: true }));
+  await fs.symlink(sourceGit, path.join(outside, 'git'));
+  const oldPath = process.env.PATH;
+  try {
+    process.env.PATH = ['relative-bin', path.join(f.root, 'missing-bin'), outside, oldPath].join(
+      path.delimiter,
+    );
+    const materialized = await materializeBuildRequestInput(f.requestPath, await f.save());
+    assert.deepEqual(materialized.read('system-source'), selected);
+  } finally {
+    process.env.PATH = oldPath;
+  }
+  await assert.rejects(fs.access(marker), { code: 'ENOENT' });
+});
+
+test('VCS command output is bounded before it can become source evidence', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('POSIX executable fixture; native Windows VCS limits are tested separately');
+    return;
+  }
+  const { f } = await vcsFixture(t);
+  const outside = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-oversized-git-'),
+  );
+  t.after(() => fs.rm(outside, { recursive: true, force: true }));
+  const fakeGit = path.join(outside, 'git');
+  await fs.writeFile(
+    fakeGit,
+    `#!${process.execPath}\nprocess.stdout.write('x'.repeat(2 * 1024 * 1024));\n`,
+    { mode: 0o755 },
+  );
+  await fs.chmod(fakeGit, 0o755);
+  const oldPath = process.env.PATH;
+  try {
+    process.env.PATH = outside;
+    await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {
+      code: 'file_size_exceeded',
+    });
+  } finally {
+    process.env.PATH = oldPath;
+  }
+});
+
 test('a source-owned request can select its own repository root', async (t) => {
   const f = await fixture(t);
   git(f.root, 'init', '-q');

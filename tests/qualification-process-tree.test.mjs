@@ -225,6 +225,87 @@ test('a malformed ownership message cannot borrow a passing worker reply', async
   );
 });
 
+for (const [name, event] of [
+  ['a worker registering its own PID', "{ action: 'register', pid: process.pid }"],
+  ['an unregistered worker release', "{ action: 'release', pid: process.pid }"],
+])
+  test(`${name} cannot borrow a passing reply`, async (t) => {
+    const { runBoundedQualification } = await import(boundaryUrl);
+    const scratch = await fs.mkdtemp(
+      path.join(await fs.realpath(os.tmpdir()), 'archpub-qual-rejected-event-'),
+    );
+    t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+    const outer = path.join(scratch, 'outer.mjs');
+    const requestPath = path.join(scratch, 'request.json');
+    await fs.writeFile(requestPath, '{}');
+    await fs.writeFile(
+      outer,
+      `process.once('message', ({ accepted }) => {
+        if (accepted) throw new Error('invalid event accepted');
+        process.stdout.write('{"status":"ok"}\\n');
+        setInterval(() => {}, 1000);
+      });
+      process.send({ kind: 'qualification-ownership-event', id: 1, ...${event} });`,
+    );
+    await assert.rejects(
+      runBoundedQualification({
+        worker: outer,
+        requestPath,
+        scratch,
+        timeoutMs: 2_000,
+        maximumBytes: 1024,
+        decode: (raw) => JSON.parse(raw),
+      }),
+      { code: 'qualification_ownership_protocol_invalid' },
+    );
+  });
+
+test('qualification cannot accept stderr beside an otherwise valid worker reply', async (t) => {
+  const { runBoundedQualification } = await import(boundaryUrl);
+  const scratch = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-qual-stderr-'),
+  );
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const outer = path.join(scratch, 'outer.mjs');
+  const requestPath = path.join(scratch, 'request.json');
+  await fs.writeFile(requestPath, '{}');
+  await fs.writeFile(
+    outer,
+    `process.stderr.write('unexpected worker output');
+     process.stdout.write('{"status":"ok"}\\n');
+     setInterval(() => {}, 1000);`,
+  );
+  await assert.rejects(
+    runBoundedQualification({
+      worker: outer,
+      requestPath,
+      scratch,
+      timeoutMs: 2_000,
+      maximumBytes: 1024,
+      decode: (raw) => JSON.parse(raw),
+    }),
+    { code: 'qualification_worker_failed' },
+  );
+});
+
+test('qualification rejects invalid invocation and unavailable ownership before effects', async () => {
+  const { invokeQualificationWorker, withQualificationOwnership } = await import(boundaryUrl);
+  for (const [operation, executionChoice, policyChoice] of [
+    ['unknown', [], null],
+    ['input', null, null],
+    ['replay', [], {}],
+  ])
+    await assert.rejects(invokeQualificationWorker(operation, {}, executionChoice, policyChoice), {
+      code: 'qualification_invocation_invalid',
+    });
+  await assert.rejects(
+    withQualificationOwnership(async () => {}),
+    {
+      code: 'qualification_owner_unavailable',
+    },
+  );
+});
+
 test('independent parent deadline preempts a blocked qualification event loop', async (t) => {
   const { runBoundedQualification } = await import(boundaryUrl);
   const scratch = await fs.mkdtemp(
