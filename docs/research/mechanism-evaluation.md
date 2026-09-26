@@ -1422,12 +1422,47 @@ spine with no obvious node or edge-label collision at inspection scale. This
 is a stronger geometric candidate than the current Cytoscape `breadthfirst`
 auto-fit on this workload, not a cross-workload quality verdict.
 
-The WASM dependency is currently transitive through LikeC4, not an admitted
-Publisher supply. Raw Graphviz SVG includes a DTD and generator metadata;
-neither can enter the public HTML without the product's closed-input and
-sanitization rules. Offline installed use, source-to-graphic identity,
-interactive focus/trace, accessibility, replacement cost, and ETHOS/self/
-di-effect parity remain unproved. Evaluate Graphviz WASM as a replacement
-geometry owner against those predicates; do not retain it beside the current
-owner indefinitely or ask AIGW to narrow its meaning merely to mask a poor
-layout choice.
+The rasterized view used Graphviz's Helvetica output. It proves topology
+layout potential, not compatibility with the product's bundled font or
+qualification of the final pixels.
+
+### Portable Graphviz supply and font-metric counterexample (2026-09-26)
+
+The [npm registry](https://registry.npmjs.org/@hpcc-js/wasm-graphviz/1.29.1)
+reported stable `@hpcc-js/wasm-graphviz` 1.29.1, Apache-2.0, no runtime
+dependencies and integrity
+`sha512-koAQL0wlryEMeBs4/cQC3GB5ziITv66gR9DU/SWYjjup+iQ+Nbjcqxeaef+sffN4F4cBYZ3P31B5z7+cbSABbw==`.
+The 1,366,332-byte tarball matched that integrity. An isolated consumer
+installed it offline without scripts; after relocation, macOS Node 26 with
+empty HOME and PATH produced the same 13,112-byte SVG SHA-256
+`12089bb8b51ab5e04d2d1ea04a32bded5945d49cffbb5aaf88109f4defae4110`
+from the exact DOT. Its internal Graphviz version was 16.1.0. This proves
+that bounded local path, not Node 22, Linux, Windows, browser qualification,
+or Publisher package integration.
+
+A disposable single-file browser prototype embedded an 857,333-byte bundle.
+The current Publisher-style CSP (`script-src 'unsafe-inline'`) rejected
+`WebAssembly.instantiate`; adding `wasm-unsafe-eval` allowed twelve nodes and
+eleven edges with no console error and only the HTML request. Build-time
+layout is therefore the preferable candidate: it avoids a larger reader
+artifact and a runtime CSP relaxation. This is a design inference, not an
+implemented Publisher backend.
+
+Raw Graphviz SVG contains a DTD, generator metadata, pt dimensions, class
+attributes and Helvetica text. The existing raster validator rejects it.
+Removing the prolog, converting dimensions, removing classes and binding the
+bundled JetBrains Mono font passed that validator, but actual raster output
+[overflowed multiple node boxes](evidence/aigw-graphviz-font-mismatch.png).
+Setting the DOT font name to JetBrains Mono still overflowed: the WASM layout
+did not use the exact bundled glyph advances. A local fixed-width probe using
+the bundled font's 600/1000-em advance removed that node overflow, but
+expanded the SVG to 1448pt wide; edge-label envelopes and target-viewport
+readability remain unqualified. Parser acceptance is not painted-geometry
+acceptance.
+
+Graphviz remains a promising **replacement geometry owner**, not a drop-in
+renderer or selected product dependency. Compare exact font and edge-label
+geometry, source-to-graphic identity, interactive focus/trace, accessibility,
+installed supply and ETHOS/self/di-effect workloads before replacing the
+current owner. Do not retain two permanent engines or ask AIGW to narrow its
+meaning merely to mask a backend limitation.
