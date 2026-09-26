@@ -74,6 +74,15 @@ async function runtimeDigest(directory) {
   members.sort(({ path: left }, { path: right }) => left.localeCompare(right));
   return sha(Buffer.from(JSON.stringify(members)));
 }
+
+async function accessibleDiagramRuntime(native) {
+  const file = path.join(native, 'renderers/shared/cli.mjs');
+  const content = await fs.readFile(file, 'utf8');
+  const original = 'return `role="img" lang=';
+  if (content.split(original).length !== 2) fail('render_svg_accessibility_seam_invalid');
+  await fs.writeFile(file, content.replace(original, 'return `role="group" lang='));
+}
+
 function offlineInput(value) {
   if (!value || typeof value !== 'object') return;
   for (const [key, child] of Object.entries(value)) {
@@ -112,6 +121,7 @@ export async function renderDiagram(plan) {
     async (native, notice) => {
       const file = path.join(native, 'assets/template.html'),
         embedded = await embedFonts(await fs.readFile(file, 'utf8'));
+      await accessibleDiagramRuntime(native);
       await fs.writeFile(
         file,
         embedded.html.replace('</head>', '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>'),
@@ -153,6 +163,7 @@ async function renderSemanticDiagram(plan) {
     const file = path.join(native, 'assets/template.html'),
       embedded = await embedFonts(await fs.readFile(file, 'utf8')),
       template = semanticPublicationTemplate(embedded.html);
+    await accessibleDiagramRuntime(native);
     await fs.writeFile(
       file,
       template.replace('</head>', '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>'),

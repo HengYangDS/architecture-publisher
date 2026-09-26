@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
+import http from 'node:http';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import axe from 'axe-core';
+import { chromium } from 'playwright-core';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import {
@@ -861,10 +865,10 @@ test('the semantics view connects uncertainty and claims to Edition authorship',
   assert(relations.has('uncertainty-broadens-edition'));
 });
 
-test('the installed self Edition prepares portable standard inputs and leaves Core independent', async (t) => {
-  const scratch = path.join(root, 'build/test-work');
-  await fs.mkdir(scratch, { recursive: true });
-  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-installed-'));
+test('the installed self Edition compiles both media after its author package is removed', async (t) => {
+  const parent = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'publisher-self-installed-'),
+  );
   t.after(() => fs.rm(parent, { recursive: true, force: true }));
   const packedCore = spawnSync(
       'npm',
@@ -935,6 +939,63 @@ test('the installed self Edition prepares portable standard inputs and leaves Co
   });
   assert.equal(preparedRun.status, 0, preparedRun.stdout + preparedRun.stderr);
   const prepared = JSON.parse(preparedRun.stdout);
+  const authorDriver = path.join(consumer, 'author-successor.mjs');
+  await fs.writeFile(
+    authorDriver,
+    [
+      "import { createHash } from 'node:crypto';",
+      "import fs from 'node:fs/promises';",
+      "import path from 'node:path';",
+      "import { readSourceBundle } from 'architecture-publisher/source';",
+      "import { validateClaimModel } from 'architecture-publisher/semantics';",
+      "import { validateEdition } from 'architecture-publisher/edition';",
+      "import { projectFromSelfEdition, refinementFromSelfEdition } from '@architecture-publisher/self-edition';",
+      'const selected = JSON.parse(process.argv[2]);',
+      'const root = process.argv[3];',
+      "const sha = value => createHash('sha256').update(value).digest('hex');",
+      "const encode = value => Buffer.from(JSON.stringify(value, null, 2) + '\\n');",
+      'const bundle = await readSourceBundle(selected.sourceManifest, selected.sourceSha256);',
+      'const members = new Map(bundle.members.map(member => [member.path, member.content]));',
+      "const modelBytes = members.get('semantic.json');",
+      'const model = validateClaimModel(JSON.parse(modelBytes));',
+      "const edition = validateEdition(model, JSON.parse(await fs.readFile(selected.edition, 'utf8')));",
+      "const metrics = members.get(model.sources['self-static-metrics'].locator);",
+      'const project = structuredClone(projectFromSelfEdition(model, edition));',
+      "project.visualPolicy.override = 'refinement.json';",
+      'const refinement = refinementFromSelfEdition(model, edition, metrics);',
+      "await fs.mkdir(path.join(root, 'source'), { recursive: true });",
+      "await fs.mkdir(path.join(root, 'edition'));",
+      "await fs.writeFile(path.join(root, 'source/model.json'), modelBytes);",
+      "await fs.writeFile(path.join(root, 'edition/project.json'), encode(project));",
+      "await fs.writeFile(path.join(root, 'edition/refinement.json'), encode(refinement));",
+      'const request = {',
+      "  schema: 'architecture.build-request/v1',",
+      "  edition: { kind: 'direct', root: 'edition', manifest: 'project.json' },",
+      "  sources: [{ id: 'self-model', namespace: 'architecture-publisher/self',",
+      "    format: { id: 'architecture.claim-model', version: '2' }, claimant: model.owner,",
+      "    revision: { kind: 'content', algorithm: 'sha256' },",
+      "    input: { kind: 'pin', path: 'source/model.json', sha256: sha(modelBytes) } }],",
+      "  providers: [], media: ['static', 'interactive'], toolchain: { profile: 'portable' },",
+      '};',
+      'const requestBytes = encode(request);',
+      "await fs.writeFile(path.join(root, 'build-request.json'), requestBytes);",
+      "process.stdout.write(JSON.stringify({ sha256: sha(requestBytes) }) + '\\n');",
+      '',
+    ].join('\n'),
+  );
+  const successorRoot = path.join(parent, 'successor');
+  const authoredRun = spawnSync(
+    process.execPath,
+    [authorDriver, JSON.stringify(prepared), successorRoot],
+    {
+      cwd: consumer,
+      encoding: 'utf8',
+      env: { HOME: parent, PATH: parent, LANG: 'C.UTF-8' },
+      timeout: 120000,
+    },
+  );
+  assert.equal(authoredRun.status, 0, authoredRun.stdout + authoredRun.stderr);
+  const authored = JSON.parse(authoredRun.stdout);
   await fs.rename(
     path.join(consumer, 'node_modules/@architecture-publisher/self-edition'),
     path.join(parent, 'removed-self-edition'),
@@ -973,6 +1034,179 @@ test('the installed self Edition prepares portable standard inputs and leaves Co
   assert.equal(plan.edition, prepared.edition);
   assert.equal(plan.output, path.join(preparedRoot, 'publication'));
   await assert.rejects(fs.access(plan.output), { code: 'ENOENT' });
+
+  const relocated = path.join(parent, 'relocated-inputs');
+  await fs.rename(successorRoot, relocated);
+  const compileDriver = path.join(consumer, 'compile-successor.mjs');
+  await fs.writeFile(
+    compileDriver,
+    [
+      "import { compileEditionCandidateInput } from 'architecture-publisher/compiler';",
+      'const result = await compileEditionCandidateInput(process.argv[2], process.argv[3], process.argv[4]);',
+      "process.stdout.write(JSON.stringify(result) + '\\n');",
+      '',
+    ].join('\n'),
+  );
+  const candidateRoot = path.join(parent, 'candidate');
+  const built = spawnSync(
+    process.execPath,
+    [compileDriver, path.join(relocated, 'build-request.json'), authored.sha256, candidateRoot],
+    {
+      cwd: consumer,
+      encoding: 'utf8',
+      env: { HOME: parent, PATH: parent, LANG: 'C.UTF-8' },
+      timeout: 120000,
+    },
+  );
+  assert.equal(built.status, 0, built.stdout + built.stderr);
+  assert.deepEqual(JSON.parse(built.stdout).media.sort(), ['interactive', 'static']);
+  const png = await fs.readFile(path.join(candidateRoot, 'static/architecture.png'));
+  assert.equal(png.readUInt32BE(16), 6000);
+  const html = await fs.readFile(path.join(candidateRoot, 'interactive/architecture.html'));
+  assert.match(html.toString('utf8'), /architecture\.interactive-html\/v1/u);
+  const sourceModel = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256);
+  assert.equal(
+    html.includes(sourceModel.members.find(({ path: name }) => name === 'semantic.json').content),
+    false,
+  );
+  const localCandidate = path.join(parent, 'local-candidate');
+  const { compileEditionCandidateInput } =
+    await import('../packages/publisher/src/compiler/index.mjs');
+  await compileEditionCandidateInput(
+    path.join(relocated, 'build-request.json'),
+    authored.sha256,
+    localCandidate,
+  );
+  for (const relative of [
+    'candidate.json',
+    'static/architecture.svg',
+    'static/architecture.png',
+    'interactive/architecture.html',
+  ])
+    assert.equal(
+      sha256(await fs.readFile(path.join(candidateRoot, relative))),
+      sha256(await fs.readFile(path.join(localCandidate, relative))),
+      relative,
+    );
+  await t.test(
+    'the installed interactive artifact reads all eight pages without external requests',
+    {
+      skip: !path.isAbsolute(process.env.ARCHPUB_BROWSER_EXECUTABLE ?? ''),
+      timeout: 45_000,
+    },
+    async (browserTest) => {
+      const data = JSON.parse(
+        html
+          .toString('utf8')
+          .match(
+            /<script id="architecture-interactive-data" type="application\/json">([\s\S]*?)<\/script>/u,
+          )[1],
+      );
+      assert.equal(data.order.length, 8);
+      const pages = new Map(
+        data.order.map((id) => [
+          `/views/${id}.html`,
+          data.pages[id].pieces
+            .map((piece) => (typeof piece === 'number' ? data.blocks[piece] : piece))
+            .join(''),
+        ]),
+      );
+      const server = http.createServer((request, response) => {
+        if (request.url === '/favicon.ico') {
+          response.writeHead(204).end();
+          return;
+        }
+        if (pages.has(request.url)) {
+          response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          response.end(pages.get(request.url));
+          return;
+        }
+        if (request.url !== '/architecture.html') {
+          response.writeHead(404).end();
+          return;
+        }
+        response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        response.end(html);
+      });
+      await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+      browserTest.after(() => new Promise((resolve) => server.close(resolve)));
+      const browser = await chromium.launch({
+        executablePath: process.env.ARCHPUB_BROWSER_EXECUTABLE,
+        headless: true,
+        chromiumSandbox: true,
+        timeout: 15_000,
+      });
+      browserTest.after(() => browser.close());
+      const page = await browser.newPage({
+        viewport: { width: 1440, height: 900 },
+        reducedMotion: 'reduce',
+      });
+      const errors = [];
+      page.on('pageerror', (error) => errors.push(error.message));
+      const origin = `http://127.0.0.1:${server.address().port}`;
+      await page.route('**/*', (route) => {
+        if (route.request().url().startsWith(`${origin}/`)) return route.continue();
+        errors.push(`external-request:${route.request().url()}`);
+        return route.abort();
+      });
+      await page.goto(`${origin}/architecture.html`, { waitUntil: 'load' });
+      await page.addScriptTag({ content: axe.source });
+      const violations = async (frame) =>
+        frame.evaluate(async () => {
+          const result = await globalThis.axe.run(globalThis.document, {
+            runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+          });
+          return result.violations.map(({ id, nodes }) => ({
+            id,
+            targets: nodes.map(({ target }) => target),
+          }));
+        });
+      assert.deepEqual(await violations(page), []);
+      for (const id of data.order) {
+        const selected = data.pages[id];
+        await page.getByRole('button', { name: selected.shortLabel, exact: true }).click();
+        await page.waitForFunction(
+          (label) => globalThis.document.getElementById('atlas-page-label').textContent === label,
+          selected.label,
+        );
+        const frame = page.frames().find((item) => item.parentFrame() === page.mainFrame());
+        await frame.waitForSelector('svg', { timeout: 8_000 });
+        assert.equal((await frame.locator('svg[role="group"]').count()) > 0, true, id);
+      }
+      await page.getByRole('button', { name: 'Selected meaning' }).click();
+      assert.match(await page.locator('#interactive-facts').innerText(), /Claim plane/u);
+      await page.keyboard.press('Escape');
+      assert.equal(
+        await page.getByRole('button', { name: 'Selected meaning' }).getAttribute('aria-expanded'),
+        'false',
+      );
+      await page.getByRole('button', { name: 'Source references' }).click();
+      assert.match(
+        await page.locator('#atlas-source-code').innerText(),
+        /Source bytes are not embedded/u,
+      );
+      assert.deepEqual(errors, []);
+      assert.equal(
+        await page.evaluate(
+          () => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth,
+        ),
+        true,
+      );
+      const auditPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+      auditPage.on('pageerror', (error) => errors.push(error.message));
+      await auditPage.route('**/*', (route) => {
+        if (route.request().url().startsWith(`${origin}/`)) return route.continue();
+        errors.push(`external-request:${route.request().url()}`);
+        return route.abort();
+      });
+      for (const id of data.order) {
+        await auditPage.goto(`${origin}/views/${id}.html`, { waitUntil: 'load' });
+        await auditPage.addScriptTag({ content: axe.source });
+        assert.deepEqual(await violations(auditPage), [], id);
+      }
+      assert.deepEqual(errors, []);
+    },
+  );
 });
 
 test('the self-publication entry canonicalizes an absent output below a filesystem alias', async (t) => {

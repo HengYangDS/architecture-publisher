@@ -122,7 +122,52 @@ test('renders explicit non-ETHOS data through nine native showcase checks', asyn
   assert.equal(r.semanticAcceptance, 'not-performed');
   assert.match(bytes.toString(), /Order service/);
   assert.match(bytes.toString(), /<svg/);
+  assert.equal(/<svg\b[^>]*role="group"/u.test(bytes.toString()), true);
   assert.deepEqual((await fs.readdir(f.root)).sort(), ['diagram.html', 'diagram.json']);
+});
+test('semantic architecture keeps interactive SVG children accessible', async (t) => {
+  const f = await setup(t);
+  const output = path.join(f.root, 'semantic.html');
+  const scene = {
+    schema: 'architecture.interactive-scene/v1',
+    id: 'overview',
+    title: 'Selected service',
+    subtitle: 'One checked relation',
+    viewport: { width: 960, height: 540 },
+    nodes: [
+      {
+        id: 'source',
+        label: 'Source',
+        visualRole: 'external',
+        position: { x: 70, y: 180 },
+        size: { width: 220, height: 100 },
+      },
+      {
+        id: 'target',
+        label: 'Target',
+        visualRole: 'backend',
+        position: { x: 620, y: 180 },
+        size: { width: 220, height: 100 },
+      },
+    ],
+    groups: [],
+    edges: [
+      {
+        id: 'source-target',
+        from: 'source',
+        to: 'target',
+        label: 'hands off',
+        visualRole: 'emphasis',
+        fromSide: 'right',
+        toSide: 'left',
+        route: 'straight',
+      },
+    ],
+  };
+  await renderer.renderArchitectureScene({ scene, output });
+  const html = await fs.readFile(output, 'utf8');
+  assert.equal(/<svg\b[^>]*role="group"/u.test(html), true);
+  assert.equal(/role="button"/u.test(html), true);
 });
 test('rejects changed input before creating output', async (t) => {
   const f = await setup(t);

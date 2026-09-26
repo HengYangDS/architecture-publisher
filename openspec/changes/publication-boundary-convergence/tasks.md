@@ -489,15 +489,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       eight interactive diagrams and a non-self Claim Model example pass
       source-to-graphic checks and render through Archify into one metadata-only
       interactive HTML artifact. Selected claim facts are accessible from its
-      reader control without embedding source files. Focused behavior, static,
-      package, and strict OpenSpec checks pass; Chrome exercised the exact
-      provisional self HTML overview and meaning inspector. This is not full
-      eight-page browser, accessibility, installed, or human visual acceptance.
-      The latest complete coverage run preceded the fact-inspector edits; it
-      reported 92.29% branches and one obsolete legacy metric-inventory test
-      expectation, since corrected with a focused pass. Thus current-tree full
-      coverage is unproved and the 95% gate remains red. The old self-only
-      builders and live Atlas v1 composer are temporary displacement targets,
+      reader control without embedding source files. A packed, offline-installed
+      Core built both media from relocated, source-authored inputs after removal
+      of the self Edition package; Candidate JSON, SVG, PNG, and HTML match the
+      local public build by hash. Chrome read all eight pages from that installed
+      HTML with no page errors, external requests, or axe WCAG A/AA violations;
+      the opaque iframe sandbox remains intact. Focused browser, static,
+      package, and strict OpenSpec checks pass. This is provisional installed
+      browser evidence, not final-byte human visual acceptance. The current
+      coverage result and remaining gate are recorded only in Task 7.5. The old
+      self-only builders and live Atlas v1 composer are temporary displacement targets,
       not a second terminal protocol; remove them only after exact accepted
       parity on the public path. No integration or publication is admitted.
 
@@ -622,6 +623,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
+      Current non-browser full-suite coverage is 92.25% branches against the
+      unchanged 95% gate; the other dimensions are not used to waive it.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%
