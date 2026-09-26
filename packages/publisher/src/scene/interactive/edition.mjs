@@ -1,5 +1,5 @@
 import { canonical, deepFreeze, record, text } from '../../semantics/document.mjs';
-import { fail, isDigest } from '../../source/manifest.mjs';
+import { fail, hasExactFields, isDigest } from '../../source/manifest.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { claimRelationQualifiers, linkClaimModelSources } from '../claim-relations.mjs';
 
@@ -63,7 +63,37 @@ function addBound(map, identity, value) {
   map.set(identity, value);
 }
 
-function composePage(view, selections, assertions, questions, claimMode) {
+function selectedGroups(authored, nodes) {
+  if (authored === undefined) return {};
+  if (!Array.isArray(authored) || !authored.length)
+    fail('interactive_scene_group_membership_invalid');
+  const groupIds = new Set();
+  const members = new Set();
+  for (const group of authored) {
+    if (
+      !hasExactFields(group, ['id', 'label', 'elements']) ||
+      !text(group.id) ||
+      !text(group.label) ||
+      groupIds.has(group.id) ||
+      !Array.isArray(group.elements) ||
+      !group.elements.length
+    )
+      fail('interactive_scene_group_membership_invalid');
+    groupIds.add(group.id);
+    for (const item of group.elements) {
+      if (!hasExactFields(item, ['namespace', 'id']) || !text(item.namespace) || !text(item.id))
+        fail('interactive_scene_group_membership_invalid');
+      const identity = key(item);
+      if (!nodes.has(identity) || members.has(identity))
+        fail('interactive_scene_group_membership_invalid');
+      members.add(identity);
+    }
+  }
+  if (members.size !== nodes.size) fail('interactive_scene_group_membership_invalid');
+  return { groups: structuredClone(authored) };
+}
+
+function composePage(view, selections, assertions, questions, claimMode, authoredGroups) {
   const nodes = new Map();
   const relations = new Map();
   const claims = new Map();
@@ -157,6 +187,7 @@ function composePage(view, selections, assertions, questions, claimMode) {
     relations: [...relations.entries()]
       .sort(([left], [right]) => compare(left, right))
       .map(([, value]) => value),
+    ...selectedGroups(authoredGroups, nodes),
     ...(claimMode
       ? {
           claimCards: [...claims.entries()]
@@ -185,8 +216,6 @@ export function composeInteractiveEditionScene(meaning) {
     !record(meaning.editorial)
   )
     fail('interactive_scene_input_invalid');
-  if (meaning.editorial.presentation?.interactive?.views?.some((view) => view.groups !== undefined))
-    fail('interactive_scene_group_unadmitted');
   const claimMode = meaning.native.selections.some(
     ({ format }) => format === 'architecture.claim-model/v2',
   );
@@ -202,11 +231,16 @@ export function composeInteractiveEditionScene(meaning) {
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
   const questions = new Map(meaning.questions.map((item) => [item.id, item]));
   const views = meaning.media.interactive.views;
+  const authoredViews = meaning.editorial.presentation?.interactive?.views;
   if (
     selections.size !== meaning.native.selections.length ||
     assertions.size !== meaning.assertions.length ||
     questions.size !== meaning.questions.length ||
-    new Set(views.map(({ id }) => id)).size !== views.length
+    new Set(views.map(({ id }) => id)).size !== views.length ||
+    (authoredViews !== undefined &&
+      (!Array.isArray(authoredViews) ||
+        authoredViews.length !== views.length ||
+        authoredViews.some((view, index) => view?.id !== views[index].id)))
   )
     fail('interactive_scene_identity_ambiguous');
   return deepFreeze({
@@ -216,7 +250,16 @@ export function composeInteractiveEditionScene(meaning) {
     title: meaning.editorial.title,
     summary: meaning.editorial.narrative.summary,
     visualPolicy: meaning.editorial.visualPolicy,
-    pages: views.map((view) => composePage(view, selections, assertions, questions, claimMode)),
+    pages: views.map((view, index) =>
+      composePage(
+        view,
+        selections,
+        assertions,
+        questions,
+        claimMode,
+        authoredViews?.[index]?.groups,
+      ),
+    ),
     limits: meaning.limits,
   });
 }

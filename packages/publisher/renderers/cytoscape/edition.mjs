@@ -63,8 +63,17 @@ function graphFor(index) {
   const container = document.getElementById('graph-' + index);
   const direction = container.clientWidth < 520 ? 'downward' : 'rightward';
   const selected = page.geometry[direction];
+  const parentByNode = new Map((page.groups || []).flatMap(group =>
+    group.nodeIds.map(id => [id, group.id])
+  ));
   const elements = [
-    ...page.nodes.map(node => ({ data: { id: node.id, label: node.label } })),
+    ...(page.groups || []).map(group => ({ data: {
+      id: group.id, label: group.label, group: 'reading',
+    } })),
+    ...page.nodes.map(node => ({ data: {
+      id: node.id, label: node.label,
+      ...(parentByNode.has(node.id) ? { parent: parentByNode.get(node.id) } : {}),
+    } })),
     ...page.relations.map(relation => ({ data: relation })),
   ];
   const graph = cytoscape({
@@ -78,6 +87,16 @@ function graphFor(index) {
         'font-weight': 600, color: '#21332a',
         'text-valign': 'center', 'text-halign': 'center',
         'text-wrap': 'wrap', 'text-max-width': 146,
+      } },
+      { selector: 'node[group]', style: {
+        'background-color': '#e7eee6', 'background-opacity': 0.24,
+        'border-color': '#879b89', 'border-width': 1,
+        'border-style': 'dashed', 'padding': 18,
+        'font-family': 'JetBrains Mono', 'font-size': 16,
+        'font-weight': 600, color: '#314638',
+        'text-valign': 'top', 'text-halign': 'center',
+        'text-wrap': 'wrap', 'text-max-width': 210,
+        'compound-sizing-wrt-labels': 'include',
       } },
       { selector: 'edge', style: {
         width: 2.5, 'line-color': '#60786a',
@@ -163,12 +182,17 @@ function pageHtml(page, index, methodLimits) {
         `<li><p>${escape(question.text)}</p>${question.limits.length ? `<ul class="limits">${question.limits.map((limit) => `<li>${escape(limit)}</li>`).join('')}</ul>` : ''}</li>`,
     )
     .join('');
-  const nodeItems = page.nodes
-    .map(
-      (node, at) =>
-        `<li><button type="button" data-focus-node="${node.id}"><span class="ordinal">${String(at + 1).padStart(2, '0')}</span><span>${escape(node.label)}</span>${node.kind ? `<small>${escape(node.kind)}</small>` : ''}</button></li>`,
-    )
-    .join('');
+  const nodeById = new Map(page.nodes.map((node, at) => [node.id, { node, at }]));
+  const nodeItem = ({ node, at }) =>
+    `<li><button type="button" data-focus-node="${node.id}"><span class="ordinal">${String(at + 1).padStart(2, '0')}</span><span>${escape(node.label)}</span>${node.kind ? `<small>${escape(node.kind)}</small>` : ''}</button></li>`;
+  const nodeItems = page.groups?.length
+    ? page.groups
+        .map(
+          (group) =>
+            `<li class="node-group"><h4>${escape(group.label)}</h4><ul>${group.nodeIds.map((id) => nodeItem(nodeById.get(id))).join('')}</ul></li>`,
+        )
+        .join('')
+    : page.nodes.map((node, at) => nodeItem({ node, at })).join('');
   const relationItems = page.relations
     .map((relation, at) => {
       const arrow = relation.direction === 'bidirectional' ? '↔' : '→';
@@ -263,6 +287,7 @@ function css(fonts) {
   .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}.linked-claims .claim-stage{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
   .claim-context{border-bottom:1px solid #d3dbd1;margin-bottom:18px}.claim-context dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 18px;margin:14px 0 20px}.claim-context dt{font-size:10px;color:#526158}.claim-context dd{font-size:12px;line-height:1.45;margin:4px 0 0;overflow-wrap:anywhere}
   .notes{border-left:1px solid #d3dbd1;padding:0 0 0 28px;min-width:0}.notes .evidence-section+.evidence-section{margin-top:22px}.notes h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 9px}.notes ul{list-style:none;margin:0;padding:0}.notes li{font-size:13px;line-height:1.55;overflow-wrap:anywhere}.notes li+li{margin-top:9px}.notes p{margin:0}.notes small{display:block;font-size:10px;color:#4c5a50;margin-top:3px}.notes button{display:flex;gap:11px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:2px 0;line-height:1.5;font-size:13px}.notes button:hover{text-decoration:underline}.notes button small{margin-left:auto}.ordinal{font-size:10px;color:#4c5a50}.limits{border-left:2px solid #b3c4b6;padding-left:10px!important;margin-top:7px!important;color:#526158}
+  .node-group h4{font-size:12px;line-height:1.4;margin:0 0 7px;color:#314638}.node-group+.node-group{margin-top:16px!important}.node-group ul{padding-left:11px!important;border-left:1px solid #b3c4b6}.node-group ul li+li{margin-top:5px}
   .page-grid--graph .notes{display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1fr) minmax(0,1.6fr);gap:24px;border-left:0;border-top:1px solid #d3dbd1;margin-top:18px;padding:20px 0 0}.page-grid--graph .notes .evidence-section+.evidence-section{margin-top:0}.page-grid--graph .evidence-methods{grid-column:1/-1;border-top:1px solid #d3dbd1;padding-top:12px}.page-grid--graph .method-limits{display:flex;flex-wrap:wrap;gap:6px 20px}.page-grid--graph .method-limits li{margin:0}
   .relation-qualifier-note{font-size:11px;color:#526158;margin:0 0 9px!important}.relation-qualifiers{display:grid;grid-template-columns:minmax(76px,.7fr) minmax(0,1.3fr);gap:4px 10px;margin:5px 0 0 12px;padding-left:10px;border-left:2px solid #b3c4b6}.relation-qualifiers dt{font-size:11px;color:#526158}.relation-qualifiers dd{font-size:12px;margin:0;overflow-wrap:anywhere}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}

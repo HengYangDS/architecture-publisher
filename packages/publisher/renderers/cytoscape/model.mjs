@@ -116,6 +116,42 @@ export function projectInteractivePage(page, index) {
     };
   });
 
+  let publicGroups;
+  let privateGroups;
+  if (page.groups !== undefined) {
+    if (!Array.isArray(page.groups) || !page.groups.length)
+      fail('render_interactive_group_invalid');
+    const ids = new Set();
+    const grouped = new Set();
+    privateGroups = page.groups.map((group, position) => {
+      if (
+        !hasExactFields(group, ['id', 'label', 'elements']) ||
+        !text(group.id) ||
+        !text(group.label) ||
+        ids.has(group.id) ||
+        !Array.isArray(group.elements) ||
+        !group.elements.length
+      )
+        fail('render_interactive_group_invalid');
+      ids.add(group.id);
+      const nodeIds = group.elements.map((item) => {
+        if (!hasExactFields(item, ['namespace', 'id'])) fail('render_interactive_group_invalid');
+        const identity = key(item);
+        const graphicId = nodes.get(identity);
+        if (!graphicId || grouped.has(graphicId)) fail('render_interactive_group_invalid');
+        grouped.add(graphicId);
+        return graphicId;
+      });
+      return { editorialId: group.id, label: group.label, graphicId: `g-${position}`, nodeIds };
+    });
+    if (grouped.size !== publicNodes.length) fail('render_interactive_group_invalid');
+    publicGroups = privateGroups.map(({ graphicId, label, nodeIds }) => ({
+      id: graphicId,
+      label,
+      nodeIds,
+    }));
+  }
+
   const relations = new Map();
   const publicRelations = page.relations.map((relation, position) => {
     if (
@@ -300,6 +336,7 @@ export function projectInteractivePage(page, index) {
       title: publicQuestions[0].text,
       questions: publicQuestions,
       nodes: publicNodes,
+      ...(publicGroups === undefined ? {} : { groups: publicGroups }),
       relations: publicRelations,
       ...(page.claimCards === undefined ? {} : { claims: visibleClaims }),
       editorialAssertions: publicEditorial,
@@ -310,6 +347,7 @@ export function projectInteractivePage(page, index) {
         source: { namespace: node.namespace, id: node.id },
         graphicId: `n-${position}`,
       })),
+      ...(privateGroups === undefined ? {} : { groups: privateGroups }),
       relations: page.relations.map((relation, position) => ({
         source: {
           namespace: relation.origin.namespace,

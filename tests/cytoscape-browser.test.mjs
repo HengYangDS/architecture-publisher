@@ -64,6 +64,25 @@ test(
       });
     }
     const chainCandidate = await renderInteractiveEditionHtml(chainScene);
+    const groupedScene = structuredClone(chainScene);
+    const grouped = groupedScene.pages[0];
+    grouped.nodes.pop();
+    grouped.relations.pop();
+    grouped.sourceAssertionCarriers[0].nodeRefs.pop();
+    grouped.sourceAssertionCarriers[0].relationRefs.pop();
+    grouped.groups = [
+      {
+        id: 'input',
+        label: 'Input',
+        elements: grouped.nodes.slice(0, 2).map(({ namespace, id }) => ({ namespace, id })),
+      },
+      {
+        id: 'effect',
+        label: 'Effect',
+        elements: grouped.nodes.slice(2).map(({ namespace, id }) => ({ namespace, id })),
+      },
+    ];
+    const groupedCandidate = await renderInteractiveEditionHtml(groupedScene);
     const branchingScene = interactiveEditionScene();
     const branching = branchingScene.pages[0];
     const nodeTemplate = branching.nodes[0];
@@ -110,7 +129,13 @@ test(
     const branchingCandidate = await renderInteractiveEditionHtml(branchingScene);
     const server = http.createServer((request, response) => {
       if (
-        !['/edition.html', '/hostile.html', '/chain.html', '/branching.html'].includes(request.url)
+        ![
+          '/edition.html',
+          '/hostile.html',
+          '/chain.html',
+          '/branching.html',
+          '/grouped.html',
+        ].includes(request.url)
       ) {
         response.writeHead(404);
         response.end();
@@ -127,7 +152,9 @@ test(
             ? chainCandidate.bytes
             : request.url === '/branching.html'
               ? branchingCandidate.bytes
-              : candidate.bytes,
+              : request.url === '/grouped.html'
+                ? groupedCandidate.bytes
+                : candidate.bytes,
       );
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -327,6 +354,38 @@ test(
       desktopBranch.effectiveEdgeFontSize >= 11,
       `branching relation references are too small: ${JSON.stringify(desktopBranch)}`,
     );
+    assert.deepEqual(errors, []);
+
+    await page.goto(`${origin}/grouped.html`, { waitUntil: 'load', timeout: 15_000 });
+    await page.waitForSelector('#graph-0[data-rendered="true"]', { timeout: 8_000 });
+    const visualGroups = await page.evaluate(() => {
+      const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
+      return graph.nodes('[group]').map((group) => ({
+        label: group.data('label'),
+        members: group.children().map((node) => node.id()),
+        bounds: group.boundingBox({ includeLabels: true }),
+        font: Number.parseFloat(group.style('font-size')) * graph.zoom(),
+      }));
+    });
+    assert.deepEqual(
+      visualGroups.map(({ label, members }) => [label, members.length]),
+      [
+        ['Input', 2],
+        ['Effect', 2],
+      ],
+    );
+    assert(visualGroups.every(({ font }) => font >= 12));
+    assert(
+      visualGroups[0].bounds.x2 <= visualGroups[1].bounds.x1 ||
+        visualGroups[0].bounds.y2 <= visualGroups[1].bounds.y1,
+      `reading groups overlap: ${JSON.stringify(visualGroups)}`,
+    );
+    assert.deepEqual(await page.locator('#page-0 .node-list h4').allTextContents(), [
+      'Input',
+      'Effect',
+    ]);
+    await page.addScriptTag({ content: axe.source });
+    await assertAccessible('grouped reading page');
     assert.deepEqual(errors, []);
   },
 );

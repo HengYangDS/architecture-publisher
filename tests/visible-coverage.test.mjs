@@ -204,6 +204,96 @@ test('compiler coverage join binds each interactive carrier map to its page', as
   });
 });
 
+test('compiler coverage join binds authored interactive groups and their visible members', async () => {
+  const { validateVisibleSelection } =
+    await import('../packages/publisher/src/compiler/coverage.mjs');
+  const scene = interactiveEditionScene();
+  scene.pages[0].groups = [
+    {
+      id: 'input',
+      label: 'Input',
+      elements: [{ namespace: 'private/model', id: 'secret-alpha' }],
+    },
+    {
+      id: 'effect',
+      label: 'Effect',
+      elements: [{ namespace: 'private/model', id: 'secret-beta' }],
+    },
+  ];
+  const meaning = selectedMeaning(scene, 'interactive');
+  meaning.editorial = {
+    presentation: {
+      interactive: {
+        views: [
+          { id: 'overview', groups: structuredClone(scene.pages[0].groups) },
+          { id: 'limit' },
+        ],
+      },
+    },
+  };
+  const carriers = (await renderInteractiveEditionHtml(scene)).carriers;
+  assert.doesNotThrow(() => validateVisibleSelection(meaning, 'interactive', scene, carriers));
+  const lost = structuredClone(scene);
+  delete lost.pages[0].groups;
+  assert.throws(() => validateVisibleSelection(meaning, 'interactive', lost, carriers), {
+    code: 'edition_visible_coverage_mismatch',
+  });
+  const forged = structuredClone(carriers);
+  forged[0].groups[0].nodeIds = ['n-1'];
+  assert.throws(() => validateVisibleSelection(meaning, 'interactive', scene, forged), {
+    code: 'edition_visible_coverage_mismatch',
+  });
+  const relabeled = structuredClone(scene);
+  relabeled.pages[0].groups[0].label = 'Not input';
+  assert.throws(() => validateVisibleSelection(meaning, 'interactive', relabeled, carriers), {
+    code: 'edition_visible_coverage_mismatch',
+  });
+  const missingCarrier = structuredClone(carriers);
+  delete missingCarrier[0].groups;
+  assert.throws(() => validateVisibleSelection(meaning, 'interactive', scene, missingCarrier), {
+    code: 'edition_visible_coverage_mismatch',
+  });
+  const swappedScene = structuredClone(scene);
+  const swappedMeaning = structuredClone(meaning);
+  for (const value of [
+    swappedScene.pages[0],
+    swappedMeaning.editorial.presentation.interactive.views[0],
+  ])
+    [value.groups[0].elements, value.groups[1].elements] = [
+      value.groups[1].elements,
+      value.groups[0].elements,
+    ];
+  assert.throws(
+    () => validateVisibleSelection(swappedMeaning, 'interactive', swappedScene, carriers),
+    {
+      code: 'edition_visible_coverage_mismatch',
+    },
+  );
+  const foreignScene = structuredClone(scene);
+  const foreignMeaning = structuredClone(meaning);
+  foreignScene.pages[0].groups[0].elements[0].namespace = 'other/model';
+  foreignMeaning.editorial.presentation.interactive.views[0].groups[0].elements[0].namespace =
+    'other/model';
+  assert.throws(
+    () => validateVisibleSelection(foreignMeaning, 'interactive', foreignScene, carriers),
+    {
+      code: 'edition_visible_coverage_mismatch',
+    },
+  );
+  const duplicateScene = structuredClone(scene);
+  const duplicateMeaning = structuredClone(meaning);
+  const duplicateCarriers = structuredClone(carriers);
+  const repeated = { namespace: 'private/model', id: 'secret-alpha' };
+  duplicateScene.pages[0].groups[0].elements.push(repeated);
+  duplicateMeaning.editorial.presentation.interactive.views[0].groups[0].elements.push(repeated);
+  duplicateCarriers[0].groups[0].nodeIds.push('n-0');
+  assert.throws(
+    () =>
+      validateVisibleSelection(duplicateMeaning, 'interactive', duplicateScene, duplicateCarriers),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
+});
+
 test('compiler coverage join refuses interactive assertion substitution and false question coverage', async () => {
   const { validateVisibleSelection } =
     await import('../packages/publisher/src/compiler/coverage.mjs');

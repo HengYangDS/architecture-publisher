@@ -66,3 +66,72 @@ test('cyclic and parallel source relations retain their direction through one ge
     );
   }
 });
+
+test('explicit reading groups enclose only their authored nodes in both orientations', async () => {
+  const { layoutInteractivePages } =
+    await import('../packages/publisher/renderers/dagre/layout.mjs');
+  const page = {
+    nodes: ['Input A', 'Input B', 'Effect A', 'Effect B'].map((label, index) => ({
+      id: `n-${index}`,
+      label,
+    })),
+    relations: [
+      ['n-0', 'n-1'],
+      ['n-1', 'n-2'],
+      ['n-2', 'n-3'],
+    ].map(([source, target], index) => ({ id: `r-${index}`, source, target })),
+    groups: [
+      { id: 'g-0', label: 'Input', nodeIds: ['n-0', 'n-1'] },
+      { id: 'g-1', label: 'Effect', nodeIds: ['n-2', 'n-3'] },
+    ],
+  };
+  const layouts = (await layoutInteractivePages([page])).layouts[0];
+  for (const direction of ['rightward', 'downward']) {
+    const selected = layouts[direction];
+    assert.deepEqual(
+      selected.groups.map(({ id }) => id),
+      ['g-0', 'g-1'],
+    );
+    for (const group of selected.groups) {
+      const authored = page.groups.find(({ id }) => id === group.id);
+      for (const id of authored.nodeIds) {
+        const node = selected.positions[id];
+        assert(node.x - 85 >= group.x);
+        assert(node.x + 85 <= group.x + group.width);
+        assert(node.y - 32 >= group.y);
+        assert(node.y + 32 <= group.y + group.height);
+      }
+    }
+    assert(
+      selected.groups[0].x + selected.groups[0].width <= selected.groups[1].x ||
+        selected.groups[0].y + selected.groups[0].height <= selected.groups[1].y,
+    );
+  }
+});
+
+test('grouped geometry rejects incomplete or conflicting authored membership', async () => {
+  const { layoutInteractivePages } =
+    await import('../packages/publisher/renderers/dagre/layout.mjs');
+  const page = {
+    nodes: [
+      { id: 'n-0', label: 'A' },
+      { id: 'n-1', label: 'B' },
+    ],
+    relations: [{ id: 'r-0', source: 'n-0', target: 'n-1' }],
+    groups: [
+      { id: 'g-0', label: 'Input', nodeIds: ['n-0'] },
+      { id: 'g-1', label: 'Effect', nodeIds: ['n-1'] },
+    ],
+  };
+  for (const change of [
+    (value) => value.groups.pop(),
+    (value) => value.groups[1].nodeIds.push('n-0'),
+    (value) => (value.groups[1].id = 'n-1'),
+  ]) {
+    const invalid = structuredClone(page);
+    change(invalid);
+    await assert.rejects(layoutInteractivePages([invalid]), {
+      code: 'render_interactive_group_invalid',
+    });
+  }
+});

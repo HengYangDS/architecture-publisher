@@ -45,6 +45,42 @@ test('same-label nodes in different source namespaces retain distinct private bi
   assert.equal(JSON.stringify(projected.publicPage).includes('other/model'), false);
 });
 
+test('authored interactive groups retain membership without disclosing source addresses', () => {
+  const page = interactiveEditionScene().pages[0];
+  page.groups = [
+    {
+      id: 'input',
+      label: 'Input',
+      elements: [{ namespace: 'private/model', id: 'secret-alpha' }],
+    },
+    {
+      id: 'effect',
+      label: 'Effect',
+      elements: [{ namespace: 'private/model', id: 'secret-beta' }],
+    },
+  ];
+  const projected = projectInteractivePage(page, 0);
+  assert.deepEqual(projected.publicPage.groups, [
+    { id: 'g-0', label: 'Input', nodeIds: ['n-0'] },
+    { id: 'g-1', label: 'Effect', nodeIds: ['n-1'] },
+  ]);
+  assert.deepEqual(projected.carriers.groups, [
+    { editorialId: 'input', label: 'Input', graphicId: 'g-0', nodeIds: ['n-0'] },
+    { editorialId: 'effect', label: 'Effect', graphicId: 'g-1', nodeIds: ['n-1'] },
+  ]);
+  assert.equal(JSON.stringify(projected.publicPage).includes('private/model'), false);
+  const missing = structuredClone(page);
+  missing.groups[1].elements[0].id = 'absent';
+  assert.throws(() => projectInteractivePage(missing, 0), {
+    code: 'render_interactive_group_invalid',
+  });
+  const duplicate = structuredClone(page);
+  duplicate.groups[1].elements[0].id = 'secret-alpha';
+  assert.throws(() => projectInteractivePage(duplicate, 0), {
+    code: 'render_interactive_group_invalid',
+  });
+});
+
 test('authored view identity supplies concise navigation without replacing the reader question', () => {
   const page = interactiveEditionScene().pages[0];
   page.id = 'source-flow';

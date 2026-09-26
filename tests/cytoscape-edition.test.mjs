@@ -49,6 +49,36 @@ test('a short path uses the same selected geometry owner rather than a special c
   assert(result.supplies.some(({ id }) => id === 'dagre-layout'));
 });
 
+test('authored interactive groups become visible reading sections with bound graphic members', async () => {
+  const { renderInteractiveEditionHtml } =
+    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+  const scene = interactiveEditionScene();
+  scene.pages[0].groups = [
+    {
+      id: 'input',
+      label: 'Input <selected>',
+      elements: [{ namespace: 'private/model', id: 'secret-alpha' }],
+    },
+    {
+      id: 'effect',
+      label: 'Effect',
+      elements: [{ namespace: 'private/model', id: 'secret-beta' }],
+    },
+  ];
+  const rendered = await renderInteractiveEditionHtml(scene);
+  const html = rendered.bytes.toString('utf8');
+  assert.match(html, /<h4>Input &lt;selected&gt;<\/h4>/u);
+  assert.match(html, /<h4>Effect<\/h4>/u);
+  assert.doesNotMatch(html, /<h4>Input <selected><\/h4>/u);
+  assert.deepEqual(
+    rendered.carriers[0].groups.map(({ graphicId, nodeIds }) => [graphicId, nodeIds]),
+    [
+      ['g-0', ['n-0']],
+      ['g-1', ['n-1']],
+    ],
+  );
+});
+
 test('a source claim preserves the unchanged graph reading width', async () => {
   const { renderInteractiveEditionHtml } =
     await import('../packages/publisher/renderers/cytoscape/index.mjs');

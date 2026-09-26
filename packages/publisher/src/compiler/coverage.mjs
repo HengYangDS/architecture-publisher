@@ -94,6 +94,62 @@ function validateClaimLinks(view, page, selections, assertions, required) {
     mismatch();
 }
 
+function validateInteractiveGroups(meaning, view, index, page, map, nodeGraphics, graphicIds) {
+  const authoredViews = meaning.editorial?.presentation?.interactive?.views;
+  if (
+    authoredViews !== undefined &&
+    (!Array.isArray(authoredViews) ||
+      authoredViews.length !== meaning.media.interactive.views.length ||
+      authoredViews[index]?.id !== view.id)
+  )
+    mismatch();
+  const authoredGroups = authoredViews?.[index]?.groups;
+  if (authoredGroups === undefined) {
+    if (page.groups !== undefined || map.groups !== undefined) mismatch();
+    return;
+  }
+  if (
+    !Array.isArray(authoredGroups) ||
+    !authoredGroups.length ||
+    !same(page.groups, authoredGroups) ||
+    !Array.isArray(map.groups) ||
+    map.groups.length !== authoredGroups.length
+  )
+    mismatch();
+  const groupIds = new Set();
+  const memberIds = new Set();
+  const groupGraphicIds = new Set();
+  for (const [at, authored] of authoredGroups.entries()) {
+    const carrier = map.groups[at];
+    if (
+      !Array.isArray(authored?.elements) ||
+      groupIds.has(authored.id) ||
+      typeof carrier?.graphicId !== 'string' ||
+      !carrier.graphicId ||
+      graphicIds.has(carrier.graphicId) ||
+      groupGraphicIds.has(carrier.graphicId)
+    )
+      mismatch();
+    groupIds.add(authored.id);
+    groupGraphicIds.add(carrier.graphicId);
+    const nodeIds = authored.elements.map((source) => source && nodeGraphics.get(nodeKey(source)));
+    for (const id of nodeIds) {
+      if (!id || memberIds.has(id)) mismatch();
+      memberIds.add(id);
+    }
+    if (
+      !same(carrier, {
+        editorialId: authored.id,
+        label: authored.label,
+        graphicId: carrier.graphicId,
+        nodeIds,
+      })
+    )
+      mismatch();
+  }
+  if (memberIds.size !== map.nodes.length) mismatch();
+}
+
 /** Check the selected view-to-carrier join before building an unqualified Candidate. */
 export function validateVisibleSelection(meaning, medium, scene, carriers) {
   const views = meaning?.media?.[medium]?.views;
@@ -223,6 +279,8 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     const claimGraphics = new Map(
       (map.claims ?? []).map(({ source, graphicId }) => [claimKey(source), graphicId]),
     );
+    if (medium === 'interactive')
+      validateInteractiveGroups(meaning, view, index, page, map, nodeGraphics, graphicIds);
     if (
       nodeGraphics.size !== map.nodes.length ||
       relationGraphics.size !== map.relations.length ||

@@ -392,10 +392,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       Projection pages at 16px at 1280×720, with zero node-body overlaps or
       horizontal overflow; both static SVGs remain byte-identical. The packed
       offline installed renderer relocates and rejects altered Dagre or
-      Cytoscape bytes. Static/spec/package gates pass; the full behavior run
-      has 1,076 passes and two skips, but branch coverage is 92.89% below 95%,
-      so integration and publication remain forbidden. The interactive Scene
-      still rejects authored groups; do not infer them from static groups.
+      Cytoscape bytes. The grouped interactive slice now carries only its own
+      Edition-authored partition through Scene, neutral geometry, visible
+      compound nodes, and private graphic bindings. The final coverage join
+      rejects lost, relabeled, or forged grouping. Focused tests passed 52 with
+      one skip; the actual Chrome regression passed. Static/spec/package checks
+      passed. The latest coverage gate still fails at 92.81% branch coverage
+      against 95%, so integration and publication remain forbidden. AIGW has
+      not authored interactive groups; static groups are not inferred.
       Publisher self, ETHOS and di-effect successor media, selected-media
       coverage, source/editor acceptance, final visual review, and predicate
       qualification remain open. Narrow-viewport checks are ordinary browser

@@ -31,14 +31,46 @@ function checkedPage(page) {
       fail('render_interactive_layout_invalid');
     relations.add(relation.id);
   }
+  if (page.groups === undefined) return;
+  if (!Array.isArray(page.groups) || !page.groups.length) fail('render_interactive_group_invalid');
+  const groups = new Set();
+  const members = new Set();
+  for (const group of page.groups) {
+    if (
+      !text(group?.id) ||
+      !text(group.label) ||
+      nodes.has(group.id) ||
+      groups.has(group.id) ||
+      !Array.isArray(group.nodeIds) ||
+      !group.nodeIds.length
+    )
+      fail('render_interactive_group_invalid');
+    groups.add(group.id);
+    for (const id of group.nodeIds) {
+      if (!nodes.has(id) || members.has(id)) fail('render_interactive_group_invalid');
+      members.add(id);
+    }
+  }
+  if (members.size !== nodes.size) fail('render_interactive_group_invalid');
 }
 
 function composeOrientation(page, runtime, rankdir) {
   const { context, dagre, layoutScript } = runtime;
-  const graph = new dagre.graphlib.Graph({ multigraph: true });
-  graph.setGraph({ rankdir, ranksep: 50, nodesep: 24, edgesep: 12, marginx: 20, marginy: 20 });
+  const grouped = page.groups !== undefined;
+  const graph = new dagre.graphlib.Graph({ multigraph: true, compound: grouped });
+  graph.setGraph({
+    rankdir,
+    ranksep: 50,
+    nodesep: grouped ? 64 : 24,
+    edgesep: 12,
+    marginx: 20,
+    marginy: 20,
+  });
   graph.setDefaultEdgeLabel(() => ({}));
+  if (grouped) for (const group of page.groups) graph.setNode(group.id, { width: 0, height: 0 });
   for (const node of page.nodes) graph.setNode(node.id, { ...nodeSize });
+  if (grouped)
+    for (const group of page.groups) for (const id of group.nodeIds) graph.setParent(id, group.id);
   for (const relation of page.relations)
     graph.setEdge(relation.source, relation.target, {}, relation.id);
   try {
@@ -53,7 +85,7 @@ function composeOrientation(page, runtime, rankdir) {
   }
   const { width, height } = graph.graph();
   const positions = Object.fromEntries(
-    page.nodes.map(({ id }) => {
+    [...page.nodes, ...(page.groups ?? [])].map(({ id }) => {
       const { x, y } = graph.node(id) ?? {};
       if (!Number.isFinite(x) || !Number.isFinite(y)) fail('render_interactive_layout_infeasible');
       return [id, { x, y }];
@@ -68,7 +100,38 @@ function composeOrientation(page, runtime, rankdir) {
       if (Math.abs(a.x - b.x) < nodeSize.width + 2 && Math.abs(a.y - b.y) < nodeSize.height + 2)
         fail('render_interactive_layout_infeasible');
     }
-  return { bounds: { width, height }, positions };
+  const groups = page.groups?.map(({ id }) => {
+    const box = graph.node(id);
+    if (
+      !box ||
+      ![box.x, box.y, box.width, box.height].every(Number.isFinite) ||
+      box.width <= 0 ||
+      box.height <= 0
+    )
+      fail('render_interactive_layout_infeasible');
+    return {
+      id,
+      x: box.x - box.width / 2,
+      y: box.y - box.height / 2,
+      width: box.width,
+      height: box.height,
+    };
+  });
+  if (groups)
+    for (const group of groups) {
+      const members = page.groups.find(({ id }) => id === group.id).nodeIds;
+      for (const id of members) {
+        const node = positions[id];
+        if (
+          node.x - nodeSize.width / 2 < group.x ||
+          node.x + nodeSize.width / 2 > group.x + group.width ||
+          node.y - nodeSize.height / 2 < group.y ||
+          node.y + nodeSize.height / 2 > group.y + group.height
+        )
+          fail('render_interactive_layout_infeasible');
+      }
+    }
+  return { bounds: { width, height }, positions, ...(groups ? { groups } : {}) };
 }
 
 /** Compute disposable geometry from selected public page data and pinned bytes. */

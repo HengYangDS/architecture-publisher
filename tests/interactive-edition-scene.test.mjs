@@ -170,6 +170,41 @@ test('same-label identities from separate source namespaces never collapse', () 
   );
 });
 
+test('interactive groups come only from their own authored view and partition selected nodes', () => {
+  const input = meaning();
+  const groups = [
+    {
+      id: 'input',
+      label: 'Input',
+      elements: [{ namespace: 'example/model', id: 'a' }],
+    },
+    {
+      id: 'effect',
+      label: 'Effect',
+      elements: [{ namespace: 'example/model', id: 'b' }],
+    },
+  ];
+  input.editorial.presentation.interactive.views = [
+    { id: 'source-page', groups },
+    { id: 'uncertainty-page' },
+  ];
+  const scene = scenes.composeInteractiveEditionScene(input);
+  assert.deepEqual(scene.pages[0].groups, groups);
+  assert.equal(Object.hasOwn(scene.pages[1], 'groups'), false);
+  assert.equal(Object.isFrozen(scene.pages[0].groups[0]), true);
+  for (const change of [
+    (value) => value.pop(),
+    (value) => (value[1].elements[0].id = 'a'),
+    (value) => (value[1].elements[0].namespace = 'foreign'),
+  ]) {
+    const invalid = structuredClone(input);
+    change(invalid.editorial.presentation.interactive.views[0].groups);
+    assert.throws(() => scenes.composeInteractiveEditionScene(invalid), {
+      code: 'interactive_scene_group_membership_invalid',
+    });
+  }
+});
+
 test('an interactive page rejects absent endpoints and unbound assertions', () => {
   const missingEndpoint = meaning();
   missingEndpoint.native.selections[0].members.elements.pop();
