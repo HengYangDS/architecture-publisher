@@ -39,9 +39,7 @@ containing native source items, optional derived projections with exact
 attributed lineage. Every item SHALL identify its kind, claimant, native
 format and version where applicable, revision evidence, and exact selected
 bytes. A Publisher Claim Model is an admitted input, not a mandatory second
-editable model. Direct, declarative, and executable inputs SHALL converge
-before one `archpub edition build` path. The envelope SHALL reject Candidate,
-qualification, acceptance, publication, and repository-transition claims.
+editable model.
 
 #### Scenario: Executable output is a projection
 
@@ -88,17 +86,7 @@ explicitly selected installed entry point for attributed input preparation.
 Executable adaptation MAY use admitted public input and semantic contracts,
 but SHALL NOT import Publisher renderers, browser runtime, qualification
 admission, local publication effects, or source-product governance through the
-Provider boundary. Publisher core SHALL NOT statically import or ambiently
-discover adopter code, branch on adopter identity, or operate a second Provider
-command tree. A Provider MAY materialize exact Edition authoring bytes; it SHALL
-NOT compose scenes or mint editor acceptance.
-
-#### Scenario: A Provider creates editorial choices
-
-- **WHEN** an executable Provider infers an audience, omission, or aggregation
-  not selected in exact Edition authoring
-- **THEN** it marks the choice as an attributed proposal for editor review
-- **AND** the compiler does not silently treat it as accepted source intent
+Provider boundary.
 
 #### Scenario: Provider package imports a forbidden layer
 
@@ -134,26 +122,7 @@ Declarative mode SHALL select exact portable files without executing adopter
 code. Executable mode SHALL run offline from an installed package with sanitized
 inherited configuration and the existing bounded process-tree supervision. It
 SHALL remain an explicit code-execution trust decision, not an OS, filesystem,
-network, or credential sandbox. The materializer SHALL validate selected output
-bytes and declared dependency references; it SHALL distinguish checked input
-closure from Provider-declared or unobserved reads. Missing, changed, escaping,
-ambiguous, unselected, or oversized selected input SHALL fail before a
-successful envelope. No receipt SHALL claim hermetic Provider execution solely
-from declared dependencies or process-tree cleanup.
-
-#### Scenario: A selected native include is unresolved
-
-- **WHEN** a selected adapter cannot resolve a required native include or
-  external resource during materialization
-- **THEN** the input fails or carries an explicit unqualified dependency limit
-  according to the selected build policy
-- **AND** it does not claim closed-input reproducibility
-
-#### Scenario: An executable Provider reports a complete dependency list
-
-- **WHEN** Publisher checks only the Provider's declared list and output bytes
-- **THEN** the receipt labels the list as declared rather than observed complete
-- **AND** neither bounded execution nor offline replay is called hermetic proof
+network, or credential sandbox.
 
 #### Scenario: Installed executable provider is relocated
 
@@ -183,8 +152,7 @@ self and unrelated adopters. The profile SHALL test exact input and output
 identity, protocol shape, provenance, resource bounds, dependency direction,
 relocation, later-stage claim rejection, and applicable determinism. It SHALL
 record which dependency reads and execution effects were observed versus merely
-declared. Passing conformance SHALL NOT establish native-format truth, source
-endorsement, editorial adequacy, product acceptance, or hosted publication.
+declared.
 
 #### Scenario: Different adopters select different modes
 
@@ -205,11 +173,7 @@ endorsement, editorial adequacy, product acceptance, or hosted publication.
 Publisher MAY emit exact input, coverage, ambiguity, or rejected-output
 findings. A finding SHALL be routed to the owner of the affected assertion,
 editorial choice, adapter, or protocol, not automatically to the source
-repository. Feedback is a non-authorizing proposal. A superseded Provider form
-SHALL be removed only after its replacement satisfies common conformance,
-selected consumer journeys, and any reviewed semantic successor. Mutable
-parallel Providers SHALL not remain merely for compatibility; immutable
-historical receipts stay with their designated custodian.
+repository. Feedback is a non-authorizing proposal.
 
 #### Scenario: Publisher finds an uncovered claim
 
@@ -266,23 +230,110 @@ approval command plane. Conflicting or ambiguous Edition roots SHALL fail
 before compilation. An Edition stored independently of all source repositories
 SHALL be selectable without changing source authority.
 
-For a direct Edition, the Build Request's `edition` selector SHALL name its
-authoring root and manifest. For a Provider-supplied Edition, that selector
-SHALL name only the selected Provider ID; the corresponding exact Provider
-manifest still has its own path and digest in the Build Request's `providers`
-selection. The selected Provider's single Edition item SHALL supply the exact
-authored bytes. The `edition` selector SHALL NOT repeat a delivery-specific
-root or file path for Provider mode. A selected Provider lacking Edition
-material, or another selected Provider contributing Edition material even
-with identical bytes, SHALL fail before compilation. Any authored Edition
-resource not bound as exact selected input SHALL fail rather than be read from
-an ambient Provider directory or omitted from identity.
-
 #### Scenario: Two Providers supply Edition roots
 
 - **WHEN** a Build Request cannot select exactly one intended Edition root
 - **THEN** input preparation rejects the ambiguous selection
 - **AND** it does not merge audience, scope, or omissions implicitly
+
+### Requirement: Provider modes converge before one build path
+
+Direct, declarative, and executable inputs SHALL converge before one
+`archpub edition build` path. The envelope SHALL reject Candidate,
+qualification, acceptance, publication, and repository-transition claims.
+
+#### Scenario: A direct Edition uses the shared build path
+
+- **WHEN** a Build Request selects a direct Edition and no Provider
+- **THEN** the same selected-input contract reaches `archpub edition build`
+- **AND** no Provider identity or second build command is invented
+
+#### Scenario: Declarative material claims acceptance
+
+- **WHEN** a declarative Provider envelope contains an acceptance or publication
+  claim beside selected input
+- **THEN** materialization rejects the later-stage value
+
+### Requirement: Generic core cannot acquire adopter logic
+
+Publisher core SHALL NOT statically import or ambiently discover adopter code,
+branch on adopter identity, or operate a second Provider command tree.
+
+#### Scenario: An adopter package is present beside Publisher
+
+- **WHEN** a local checkout or installed package is not selected by the Build
+  Request
+- **THEN** generic core does not discover or import it ambiently
+
+### Requirement: Provider preparation does not author editorial decisions
+
+A Provider MAY materialize exact Edition authoring bytes; it SHALL NOT compose
+scenes or mint editor acceptance.
+
+#### Scenario: A Provider creates editorial choices
+
+- **WHEN** an executable Provider infers an audience, omission, or aggregation
+  not selected in exact Edition authoring
+- **THEN** it marks the choice as an attributed proposal for editor review
+- **AND** the compiler does not silently treat it as accepted source intent
+
+### Requirement: Provider input validation and closure claims are bounded
+
+The materializer SHALL validate selected output bytes and declared dependency
+references; it SHALL distinguish checked input closure from Provider-declared
+or unobserved reads. Missing, changed, escaping, ambiguous, unselected, or
+oversized selected input SHALL fail before a successful envelope. No receipt
+SHALL claim hermetic Provider execution solely from declared dependencies or
+process-tree cleanup.
+
+#### Scenario: A selected native include is unresolved
+
+- **WHEN** a selected adapter cannot resolve a required native include or
+  external resource during materialization
+- **THEN** the input fails or carries an explicit unqualified dependency limit
+  according to the selected build policy
+- **AND** it does not claim closed-input reproducibility
+
+#### Scenario: An executable Provider reports a complete dependency list
+
+- **WHEN** Publisher checks only the Provider's declared list and output bytes
+- **THEN** the receipt labels the list as declared rather than observed complete
+- **AND** neither bounded execution nor offline replay is called hermetic proof
+
+### Requirement: Conformance does not grant other authority
+
+Passing conformance SHALL NOT establish native-format truth, source
+endorsement, editorial adequacy, product acceptance, or hosted publication.
+
+#### Scenario: Conformance is offered as release approval
+
+- **WHEN** a passing Provider conformance report is supplied without product
+  acceptance or hosted-publication authority
+- **THEN** the report remains non-authorizing evidence
+
+### Requirement: Provider retirement follows parity and selected custody
+
+A superseded Provider form SHALL be removed only after its replacement
+satisfies common conformance, selected consumer journeys, and any reviewed
+semantic successor. Mutable parallel Providers SHALL not remain merely for
+compatibility; immutable historical receipts stay with their designated
+custodian.
+
+#### Scenario: A compatibility Provider remains selectable after retirement
+
+- **WHEN** the incumbent form has been superseded and its owner has approved
+  retirement
+- **THEN** the mutable compatibility form is removed from live selection
+- **AND** immutable historical receipts remain with their designated custodian
+
+### Requirement: Edition selectors are mode-specific
+
+For a direct Edition, the Build Request's `edition` selector SHALL name its
+authoring root and manifest. For a Provider-supplied Edition, that selector
+SHALL name only the selected Provider ID; the corresponding exact Provider
+manifest still has its own path and digest in the Build Request's `providers`
+selection. The `edition` selector SHALL NOT repeat a delivery-specific root or
+file path for Provider mode.
 
 #### Scenario: Provider delivery mode changes without editorial change
 
@@ -291,6 +342,25 @@ an ambient Provider directory or omitted from identity.
 - **THEN** the Build Request selects that Provider without changing an Edition
   filesystem locator or the selected Edition identity
 - **AND** the delivery path remains invocation evidence only
+
+### Requirement: Only the selected Provider supplies Edition material
+
+The selected Provider's single Edition item SHALL supply the exact authored
+bytes. A selected Provider lacking Edition material, or another selected
+Provider contributing Edition material even with identical bytes, SHALL fail
+before compilation.
+
+#### Scenario: The selected Provider lacks Edition material
+
+- **WHEN** a Build Request selects a Provider for the Edition and that Provider
+  supplies no Edition item
+- **THEN** input preparation fails before compilation
+- **AND** it does not borrow an Edition item from another selected Provider
+
+### Requirement: Authored Edition resources are exact selected input
+
+Any authored Edition resource not bound as exact selected input SHALL fail
+rather than be read from an ambient Provider directory or omitted from identity.
 
 #### Scenario: Provider Edition references an unselected resource
 

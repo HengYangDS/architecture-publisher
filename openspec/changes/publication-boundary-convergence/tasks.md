@@ -682,7 +682,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       combined specs with no unresolved diagnostics, including advisory INFO,
       and prove valid v1 inputs still retain their historical meanings. Atomize
       overlong delta requirements without weakening them before promotion; the
-      later Change archive must add no new normative behavior.
+      later Change archive must add no new normative behavior. Partial: the
+      Edition Provider delta preserves every prior normative sentence and
+      scenario name while splitting six overlong requirements; the official
+      archive rehearsal reports no Edition Provider INFO, and its exact merged
+      spec is promoted to the active base. The Change stays open. The same
+      rehearsal still reports 27 INFO across the other five affected specs;
+      their promotion and cross-spec v1 compatibility proof remain open. The
+      packed Provider-specific historical v1 replay passes locally.
 - [ ] 7.5 Select the SemVer successor and update package manifests, lockfile,
       and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
       behavior tests until the complete owned scope reaches at least 95% in
