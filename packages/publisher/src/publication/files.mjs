@@ -515,9 +515,17 @@ function verifyPlanAcceptance(plan, acceptance) {
 async function withPairWriter(plan, acceptance, recover, action) {
   const digest = verifyPlanAcceptance(plan, acceptance),
     o = plan.options;
+  const parent = path.dirname(o.destinations.native);
+  let parentStat;
+  try {
+    parentStat = await fs.lstat(parent);
+  } catch (error) {
+    if (error.code !== 'ENOENT' && error.code !== 'ENOTDIR') throw error;
+  }
+  if (!parentStat?.isDirectory() || parentStat.isSymbolicLink())
+    throw Error('Destination parent must exist');
   equal(encode(await canonicalOptions(o)), encode(o), 'Canonical writer path changed');
-  const parent = path.dirname(o.destinations.native),
-    lock = path.join(parent, '.architecture-publication-writer'),
+  const lock = path.join(parent, '.architecture-publication-writer'),
     history = lock + '-history';
   const token = randomUUID(),
     owner = {

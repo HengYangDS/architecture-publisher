@@ -505,6 +505,36 @@ test('missing or mismatched acceptance, stale plan and destination drift refuse 
   await assert.rejects(fs.stat(options.recoveryRoot), { code: 'ENOENT' });
 });
 
+test('a destination parent removed after planning cannot be recreated implicitly', async (t) => {
+  const { dir, options } = await fixture(t);
+  const parent = path.join(dir, 'future-delivery');
+  await fs.mkdir(parent);
+  options.destinations = {
+    native: path.join(parent, 'native'),
+    atlas: path.join(parent, 'atlas'),
+  };
+  const plan = await planFiles(options);
+  await fs.rmdir(parent);
+
+  await assert.rejects(installPairFiles(plan, approve(plan)), /Destination parent must exist/);
+  await assert.rejects(fs.stat(parent), { code: 'ENOENT' });
+  await assert.rejects(fs.stat(options.recoveryRoot), { code: 'ENOENT' });
+
+  if (process.platform !== 'win32') {
+    const outside = path.join(dir, 'unrelated');
+    await fs.mkdir(outside);
+    await fs.symlink(outside, parent);
+    await assert.rejects(installPairFiles(plan, approve(plan)), /Destination parent must exist/);
+    assert.deepEqual(await fs.readdir(outside), []);
+    await fs.unlink(parent);
+  }
+
+  await fs.writeFile(parent, 'foreign file');
+  await assert.rejects(installPairFiles(plan, approve(plan)), /Destination parent must exist/);
+  assert.equal(await fs.readFile(parent, 'utf8'), 'foreign file');
+  await assert.rejects(fs.stat(options.recoveryRoot), { code: 'ENOENT' });
+});
+
 test('second installation failure restores both original directory states', async (t) => {
   const { options } = await fixture(t),
     p = await planFiles(options);

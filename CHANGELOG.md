@@ -17,6 +17,8 @@ may contain incompatible changes.
 
 - Missing selected renderer inputs, Archify supply members, or output parents
   now fail with scoped diagnostics before any final HTML is created.
+- A destination parent removed or replaced after publication planning now fails
+  before writer-lock preparation, without recreating it or touching foreign bytes.
 
 ## [0.3.0-alpha.3] - 2026-09-24
 
