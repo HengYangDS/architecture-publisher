@@ -560,7 +560,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       installed receipt replay compares exact emitted bytes, so a duplicate-key
       manifest plus matching edited checksum cannot impersonate approved output.
       Focused RED/GREEN proves refusal before new effects. Candidate binding,
-      trusted qualification, named acceptance, and custody remain open.
+      trusted qualification, named acceptance, and custody remain open. The
+      signed delta now distinguishes raw file-integrity from qualified Edition
+      admission; this corrects the contract, not the implementation.
 
 ## 7. Installed acceptance and release
 
@@ -648,11 +650,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The latest full run on this product tree reports 1,092 pass, 6 skip, 0
-      fail; statements and lines are 97.76%, functions 99.62%, and branches
-      93.22% (7,992/8,573), below the unchanged 95% gate. The gap is 153 branch
-      outcomes at that denominator, which may change. Static, strict OpenSpec,
-      and package checks pass. The authored-static, semantic-change,
+      The prior full run at `37d7c6a` reported 1,092 pass, 6 skip, 0 fail
+      and branches 93.22% (7,992/8,573). After the VCS and qualification
+      counterexamples, `npm run test:coverage` at signed `6eecb81` reports a
+      branch-floor failure: statements and lines 97.76%, functions 99.62%,
+      branches 93.33% (8,018/8,591). At that denominator, 144 more covered
+      branch outcomes are needed for 95%; this count may change. Static, strict
+      OpenSpec, and package checks pass. The authored-static, semantic-change,
       visible-coverage, publication-authority, and scoped multi-view
       counterexamples are included. Continue with high-risk renderer, Edition
       evolution, source, and qualification-process boundaries; do not exclude
