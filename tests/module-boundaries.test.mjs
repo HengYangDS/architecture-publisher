@@ -238,6 +238,19 @@ test('only the LikeC4 supply owner may read the bundled parser resource', async 
   );
 });
 
+test('the Dagre layout owner cannot import an unselected computed module', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  assert(
+    inspectModuleBoundaries(
+      'packages/publisher/renderers/dagre/layout.mjs',
+      'import(unselectedUrl);',
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('computed dependency')),
+  );
+});
+
 test('the neutral process-tree owner serves only admitted protocol supervisors', async () => {
   const { paths } = await inventory(runtimeRoots);
   const packageExports = await declaredPackageExports();

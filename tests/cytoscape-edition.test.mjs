@@ -14,7 +14,7 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.equal(result.completeness, 'unqualified-medium');
   assert.deepEqual(
     result.supplies.map(({ id }) => id),
-    ['cytoscape', 'font-supply'],
+    ['cytoscape', 'dagre-layout', 'font-supply'],
   );
   assert.match(html, /<!doctype html>/iu);
   assert.match(html, /Selected architecture/u);
@@ -25,6 +25,7 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.match(html, /calls/u);
   assert.match(html, /Runtime safety is not established\./u);
   assert.match(html, /No runtime observation was selected\./u);
+  assert.match(html, /--graph-wide-height:\d+px;--graph-down-height:\d+px/u);
   assert.match(html, /Cytoscape Consortium/u);
   assert.doesNotMatch(
     html,
@@ -37,62 +38,15 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.deepEqual(result.carriers[1].nodes, []);
 });
 
-test('compact graph geometry is limited to short forward paths without in-graph edge labels', async () => {
+test('a short path uses the same selected geometry owner rather than a special chain layout', async () => {
   const { renderInteractiveEditionHtml } =
     await import('../packages/publisher/renderers/cytoscape/index.mjs');
-  const base = interactiveEditionScene();
-  base.pages[0].relations[0].label = null;
-  base.pages[0].relations[0].kind = null;
-  const usesCompact = async (scene) =>
-    (await renderInteractiveEditionHtml(scene)).bytes
-      .toString('utf8')
-      .includes('class="graph graph--chain"');
-  const addThird = (scene, from, to) => {
-    const page = scene.pages[0];
-    const third = { ...page.nodes[1], id: 'secret-third', label: 'Gamma' };
-    page.nodes.push(third);
-    const relation = {
-      ...page.relations[0],
-      id: 'relation-third',
-      from: { namespace: page.nodes[from].namespace, id: page.nodes[from].id },
-      to: { namespace: page.nodes[to].namespace, id: page.nodes[to].id },
-    };
-    page.relations.push(relation);
-    page.sourceAssertionCarriers[0].nodeRefs.push({ namespace: third.namespace, id: third.id });
-    page.sourceAssertionCarriers[0].relationRefs.push({
-      namespace: relation.origin.namespace,
-      reference: relation.id,
-      sha256: relation.origin.sha256,
-    });
-  };
-
-  assert.equal(await usesCompact(base), true);
-  const rejected = [
-    ['in-graph edge label', (scene) => (scene.pages[0].relations[0].label = 'calls')],
-    ['bidirectional edge', (scene) => (scene.pages[0].relations[0].direction = 'bidirectional')],
-    [
-      'long node label',
-      (scene) => (scene.pages[0].nodes[0].label = 'A source label beyond compact width'),
-    ],
-    [
-      'one node',
-      (scene) => {
-        const page = scene.pages[0];
-        page.nodes.pop();
-        page.relations = [];
-        page.sourceAssertionCarriers[0].nodeRefs.pop();
-        page.sourceAssertionCarriers[0].relationRefs = [];
-      },
-    ],
-    ['fork', (scene) => addThird(scene, 0, 2)],
-    ['convergence', (scene) => addThird(scene, 2, 1)],
-    ['cycle beside an isolated node', (scene) => addThird(scene, 1, 0)],
-  ];
-  for (const [name, alter] of rejected) {
-    const scene = structuredClone(base);
-    alter(scene);
-    assert.equal(await usesCompact(scene), false, name);
-  }
+  const scene = interactiveEditionScene();
+  scene.pages[0].relations[0].label = null;
+  scene.pages[0].relations[0].kind = null;
+  const result = await renderInteractiveEditionHtml(scene);
+  assert(!result.bytes.toString('utf8').includes('graph--chain'));
+  assert(result.supplies.some(({ id }) => id === 'dagre-layout'));
 });
 
 test('a source claim preserves the unchanged graph reading width', async () => {
@@ -246,7 +200,7 @@ test('an unlabeled source relation stays structural without an invented kind', a
   assert.doesNotMatch(html, /Alpha &amp; one → Beta ·/u);
 });
 
-test('graph edge labels stay concise while the adjacent relation retains exact qualifiers', async () => {
+test('diagram ordinals link to complete adjacent source relations and qualifiers', async () => {
   const { renderInteractiveEditionHtml } =
     await import('../packages/publisher/renderers/cytoscape/index.mjs');
   const scene = interactiveEditionScene();
@@ -259,7 +213,7 @@ test('graph edge labels stay concise while the adjacent relation retains exact q
     relation.label,
     'Source relation qualifiers (unverified): state: desired client bindings · configures',
   );
-  assert.equal(relation.graphLabel, 'configures');
+  assert.equal(relation.graphLabel, '01');
 
   const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
   assert.match(html, /label: 'data\(graphLabel\)'/u);
@@ -269,12 +223,12 @@ test('graph edge labels stay concise while the adjacent relation retains exact q
   );
 });
 
-test('a short authored relation label takes precedence over its generic kind', () => {
+test('a short authored relation stays separate from its diagram ordinal', () => {
   const scene = interactiveEditionScene();
   scene.pages[0].relations[0].label = 'calls';
   scene.pages[0].relations[0].kind = 'dependency';
   const { publicPage } = projectInteractivePage(scene.pages[0], 0);
-  assert.equal(publicPage.relations[0].graphLabel, 'calls');
+  assert.equal(publicPage.relations[0].graphLabel, '01');
   assert.equal(publicPage.relations[0].label, 'calls · dependency');
 });
 
@@ -285,7 +239,7 @@ test('a long untyped relation stays in the readable list rather than crowding th
   scene.pages[0].relations[0].label = 'synchronizes all selected native client registrations';
   scene.pages[0].relations[0].kind = null;
   const { publicPage } = projectInteractivePage(scene.pages[0], 0);
-  assert.equal(publicPage.relations[0].graphLabel, '');
+  assert.equal(publicPage.relations[0].graphLabel, '01');
   assert.equal(publicPage.relations[0].label, scene.pages[0].relations[0].label);
   const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
   assert.match(

@@ -25,7 +25,7 @@ function child(command, args, cwd, environment, expectedStatus = 0) {
   return result.stdout;
 }
 
-test('offline installed neutral HTML survives relocation and rejects changed supply', async (t) => {
+test('offline installed neutral HTML survives relocation and rejects changed supplies', async (t) => {
   const work = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-interactive-'));
   t.after(() => fs.rm(work, { recursive: true, force: true }));
   const home = path.join(work, 'home');
@@ -117,12 +117,24 @@ try {
   assert(first.bytes > 400_000);
   assert.deepEqual(
     first.supplies.map(({ id }) => id),
-    ['cytoscape', 'font-supply'],
+    ['cytoscape', 'dagre-layout', 'font-supply'],
   );
   assert.deepEqual(first.pages, ['overview', 'limit']);
   const relocated = path.join(work, 'relocated');
   await fs.cp(consumer, relocated, { recursive: true });
   await fs.rm(consumer, { recursive: true, force: true });
+  assert.deepEqual(run(relocated), first);
+  const dagrePath = path.join(
+    relocated,
+    'node_modules/architecture-publisher/renderers/dagre/supply/dagre.min.js',
+  );
+  const dagreBytes = await fs.readFile(dagrePath);
+  await fs.appendFile(dagrePath, 'changed');
+  assert.deepEqual(run(relocated, 1), {
+    status: 'error',
+    code: 'render_dagre_supply_invalid',
+  });
+  await fs.writeFile(dagrePath, dagreBytes);
   assert.deepEqual(run(relocated), first);
   await fs.appendFile(
     path.join(

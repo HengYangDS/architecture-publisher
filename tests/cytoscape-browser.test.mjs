@@ -64,8 +64,54 @@ test(
       });
     }
     const chainCandidate = await renderInteractiveEditionHtml(chainScene);
+    const branchingScene = interactiveEditionScene();
+    const branching = branchingScene.pages[0];
+    const nodeTemplate = branching.nodes[0];
+    const relationTemplate = branching.relations[0];
+    const labels = [
+      'Operator',
+      'Controller',
+      'Configuration',
+      'Admitted adapters',
+      'Native projection',
+      'Native client',
+      'Selected endpoint',
+    ];
+    branching.nodes = labels.map((label, index) => ({
+      ...nodeTemplate,
+      id: `branch-node-${index}`,
+      label,
+    }));
+    branching.relations = [
+      [0, 1],
+      [1, 2],
+      [1, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+    ].map(([from, to], index) => ({
+      ...relationTemplate,
+      id: `branch-relation-${index}`,
+      from: { namespace: nodeTemplate.namespace, id: branching.nodes[from].id },
+      to: { namespace: nodeTemplate.namespace, id: branching.nodes[to].id },
+      label: `relation-${index}`,
+    }));
+    branching.sourceAssertionCarriers[0].nodeRefs = branching.nodes.map(({ namespace, id }) => ({
+      namespace,
+      id,
+    }));
+    branching.sourceAssertionCarriers[0].relationRefs = branching.relations.map(
+      ({ id, origin }) => ({
+        namespace: origin.namespace,
+        reference: id,
+        sha256: origin.sha256,
+      }),
+    );
+    const branchingCandidate = await renderInteractiveEditionHtml(branchingScene);
     const server = http.createServer((request, response) => {
-      if (!['/edition.html', '/hostile.html', '/chain.html'].includes(request.url)) {
+      if (
+        !['/edition.html', '/hostile.html', '/chain.html', '/branching.html'].includes(request.url)
+      ) {
         response.writeHead(404);
         response.end();
         return;
@@ -79,7 +125,9 @@ test(
           ? hostileCandidate.bytes
           : request.url === '/chain.html'
             ? chainCandidate.bytes
-            : candidate.bytes,
+            : request.url === '/branching.html'
+              ? branchingCandidate.bytes
+              : candidate.bytes,
       );
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -116,6 +164,10 @@ test(
     assert.equal(response.status(), 200);
     await page.waitForSelector('#graph-0[data-rendered="true"]', { timeout: 8_000 });
     await page.evaluate(() => globalThis.document.fonts.ready);
+    assert.match(
+      await page.locator('#graph-0').getAttribute('style'),
+      /--graph-wide-height:\s*\d+px;\s*--graph-down-height:\s*\d+px/u,
+    );
     await page.addScriptTag({ content: axe.source });
     const assertAccessible = async (label) => {
       const violations = await page.evaluate(async () => {
@@ -201,7 +253,7 @@ test(
     assert.equal((await page.getByText('<img src=x onerror=', { exact: false }).count()) > 0, true);
     assert.deepEqual(errors, []);
 
-    const chainReading = () =>
+    const graphReading = () =>
       page.evaluate(() => {
         const container = globalThis.document.getElementById('graph-0');
         const graph = Reflect.get(container, '_cyreg').cy;
@@ -230,14 +282,16 @@ test(
           nodeCount: graph.nodes().length,
           relationCount: graph.edges().length,
           effectiveFontSize: Number.parseFloat(graph.nodes()[0].style('font-size')) * graph.zoom(),
+          effectiveEdgeFontSize:
+            Number.parseFloat(graph.edges()[0].style('font-size')) * graph.zoom(),
           overlap,
         };
       });
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto(`${origin}/chain.html`, { waitUntil: 'load', timeout: 15_000 });
     await page.waitForSelector('#graph-0[data-rendered="true"]', { timeout: 8_000 });
-    const desktopChain = await chainReading();
-    assert.equal(desktopChain.pattern.includes('graph--chain'), true);
+    const desktopChain = await graphReading();
+    assert.equal(desktopChain.pattern.includes('graph--chain'), false);
     assert.deepEqual([desktopChain.nodeCount, desktopChain.relationCount], [5, 4]);
     assert.equal(desktopChain.overlap, false);
     assert(
@@ -251,11 +305,27 @@ test(
           globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(resolve)),
         ),
     );
-    const mobileChain = await chainReading();
+    const mobileChain = await graphReading();
     assert.equal(mobileChain.overlap, false);
     assert(
       mobileChain.effectiveFontSize >= 12,
       `mobile chain labels are too small: ${JSON.stringify(mobileChain)}`,
+    );
+    assert.deepEqual(errors, []);
+
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto(`${origin}/branching.html`, { waitUntil: 'load', timeout: 15_000 });
+    await page.waitForSelector('#graph-0[data-rendered="true"]', { timeout: 8_000 });
+    const desktopBranch = await graphReading();
+    assert.deepEqual([desktopBranch.nodeCount, desktopBranch.relationCount], [7, 6]);
+    assert.equal(desktopBranch.overlap, false);
+    assert(
+      desktopBranch.effectiveFontSize >= 12,
+      `branching reader graph is too small: ${JSON.stringify(desktopBranch)}`,
+    );
+    assert(
+      desktopBranch.effectiveEdgeFontSize >= 11,
+      `branching relation references are too small: ${JSON.stringify(desktopBranch)}`,
     );
     assert.deepEqual(errors, []);
   },

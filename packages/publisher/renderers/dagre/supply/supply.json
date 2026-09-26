@@ -1,0 +1,29 @@
+{
+  "schema": "architecture.geometry-supply/v1",
+  "packages": [
+    {
+      "name": "@dagrejs/dagre",
+      "version": "3.1.1",
+      "license": "MIT",
+      "integrity": "sha512-zroZB1dFOFiGgv4Xcrn1DckB1o4aOikPqD2NDQPV0WM//CXGcS6xiD0rNkqHmw6FEg4tabt4nxPLwgCWT+Vb2A=="
+    },
+    {
+      "name": "@dagrejs/graphlib",
+      "version": "4.0.5",
+      "license": "MIT",
+      "integrity": "sha512-7xrBTqIts3o+PMUZX97wSc+7TUbW+/rULzGNCTP6yooNVDXbzw4Wutg/H/xOutTB/c/k0YqOAavgPh4/Zk9PFA=="
+    }
+  ],
+  "files": [
+    {
+      "path": "dagre.min.js",
+      "bytes": 48956,
+      "sha256": "3152d214941a5df3a3d4c079dfa338c3cd7a6c0d4c1b4c3a2fdb6bba6f6facf9"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1062,
+      "sha256": "6a349742a6cb219d5a2fc8d0844f6d89a6efc62e20c664450d884fc7ff2d6015"
+    }
+  ]
+}

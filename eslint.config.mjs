@@ -9,6 +9,7 @@ export default [
       'openspec/changes/archive/**',
       'packages/publisher/renderers/archify/supply/**',
       'packages/publisher/renderers/cytoscape/supply/**',
+      'packages/publisher/renderers/dagre/supply/**',
       'packages/publisher/renderers/fonts/supply/**',
       'packages/publisher/renderers/resvg/supply/**',
       'packages/publisher/supplies/likec4/**',

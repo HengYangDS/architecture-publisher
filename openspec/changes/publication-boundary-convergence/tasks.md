@@ -373,33 +373,33 @@ third-party or generated supply rather than moving owned code outside coverage.
       private graphic bindings. Focused tests reject lost or forged carriers;
       browser regression restores graph geometry after viewport round trips.
       A RED/GREEN now prevents a source claim from shrinking an unchanged graph.
-      The byte-bound whole-product AIGW trial in
-      `docs/research/mechanism-evaluation.md` retained its semantic lock and
-      static PNG while rebuilding HTML. At 1280×720 the graph stage is 1190px
-      wide, yet effective node type is 3.78px on Boundary and 8.84px on
-      Selection, Effects and Delivery; the static overview remains text-heavy.
-      This is provisional source-adjacent evidence, not visual acceptance.
-      A later uncommitted adaptive-height probe reduced Boundary's empty stage
-      to 178px but left its effective node type at 3.78px. Browser-only compact
-      spacing enlarged nodes while edge labels touched node bodies; a naive
-      transfer of AIGW's static groups into Cytoscape compounds produced
-      overlapping group regions and 7.25px node type. These probes did not
-      authorize interactive grouping or a geometry backend; the height-only
-      source experiment was discarded. The current interactive Scene rejects
-      authored groups even though the Edition contract admits medium-local
-      groups, so a complete interactive grouping path remains to be designed
-      and qualified rather than inferred from the static Edition.
-      Cytoscape remains the sole production interactive owner. Graphviz, Dagre
-      and ELK are measured alternatives, not selected product replacements.
-      Resolve geometry, labels, stage spatial budget and evidence flow as one
-      reader-scoped design; then test the selected route on Publisher self,
-      ETHOS, whole-product AIGW and its limited Client Projection, and native
-      di-effect. Preserve each view's selected meaning and limits without an
-      adopter-name branch; return infeasible composition to its Edition editor.
-      Finish installed exact-AIGW parity, source/editor acceptance, final human
-      review, and predicate qualification. Historical narrow-viewport probes
-      are browser regressions, not a separate architecture workstream. No
-      source-adjacent Candidate or partial test is final acceptance.
+      Ruling: on exact AIGW source at `bd3c09d5`, the old interactive
+      breadth-first route painted Boundary at 3.78 CSS pixels and Client
+      Projection Overview at 8.46 CSS pixels at 1280×720. Compact spacing alone
+      caused node overlap, so the Work Lane now computes neutral geometry from
+      exact selected public page data with pinned Dagre 3.1.1; Cytoscape owns
+      interaction only. Edge ordinals lead to complete adjacent source-relation
+      text, and CSS reserves each page's geometry-bounded height before graph
+      startup. Verified UMD bytes run in a bounded Node VM as a loader, not a
+      security sandbox. This replaces the prior special-chain layout without
+      changing source meaning
+      or static geometry; if cross-workload qualification reverses the choice,
+      only the renderer geometry and affected media review must change.
+      A generic 7-node/6-relation browser test failed at 3.78px before the
+      repair and passes above 12px without node overlap; cycle and parallel-edge
+      geometry remains stable. The current AIGW
+      source-adjacent whole-product pages paint at 14.34–16px and its Client
+      Projection pages at 16px at 1280×720, with zero node-body overlaps or
+      horizontal overflow; both static SVGs remain byte-identical. The packed
+      offline installed renderer relocates and rejects altered Dagre or
+      Cytoscape bytes. Static/spec/package gates pass; the full behavior run
+      has 1,076 passes and two skips, but branch coverage is 92.89% below 95%,
+      so integration and publication remain forbidden. The interactive Scene
+      still rejects authored groups; do not infer them from static groups.
+      Publisher self, ETHOS and di-effect successor media, selected-media
+      coverage, source/editor acceptance, final visual review, and predicate
+      qualification remain open. Narrow-viewport checks are ordinary browser
+      regressions, not a separate architecture workstream.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

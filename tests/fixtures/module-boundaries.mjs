@@ -143,10 +143,15 @@ const owners = [
     'packages/publisher/renderers/cytoscape/',
     [
       'packages/publisher/renderers/cytoscape/',
+      'packages/publisher/renderers/dagre/layout.mjs',
       'packages/publisher/renderers/fonts/',
       'packages/publisher/src/scene/',
       'packages/publisher/src/source/',
     ],
+  ],
+  [
+    'packages/publisher/renderers/dagre/',
+    ['packages/publisher/renderers/dagre/', 'packages/publisher/src/source/'],
   ],
   [
     'packages/publisher/renderers/fonts/',
@@ -198,6 +203,7 @@ const owners = [
 
 const resourceOwners = [
   ['packages/publisher/src/semantics/supply.mjs', ['packages/publisher/supplies/likec4/']],
+  ['packages/publisher/renderers/dagre/supply.mjs', ['packages/publisher/renderers/dagre/supply/']],
   ['conformance/journeys/self-host/', ['conformance/journeys/self-host/', 'packages/publisher/']],
 ];
 
