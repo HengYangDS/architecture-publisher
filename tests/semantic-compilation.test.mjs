@@ -152,6 +152,11 @@ test('unknown coverage and opaque context are explicit delta reasons', async () 
   context.context.policy = { text: 'Changed policy' };
   delta = compileClaimModelDelta(a, context);
   assert(delta.globalReasons.includes('opaque-context-change'));
+
+  const vocabulary = structuredClone(a);
+  vocabulary.vocabulary.entities.push('other-component');
+  delta = compileClaimModelDelta(a, vocabulary);
+  assert(delta.globalReasons.includes('vocabulary-change'));
 });
 
 test('opaque context transitions retain stable whole-value change reporting', async () => {
@@ -260,6 +265,11 @@ test('rename, split and merge require disjoint source-backed removed and added i
         ...mapping,
         evidence: [{ ...mapping.evidence[0], sha256: 'f'.repeat(64) }],
       },
+      {
+        ...mapping,
+        evidence: [{ ...mapping.evidence[0], source: 'unselected' }],
+      },
+      { ...mapping, evidence: [mapping.evidence[0], mapping.evidence[0]] },
       { ...mapping, from: ['server'] },
       { ...mapping, kind: 'guess' },
       ...['toString', 'constructor', '__proto__'].map((kind) => ({
@@ -272,6 +282,7 @@ test('rename, split and merge require disjoint source-backed removed and added i
       () => compileClaimModelDelta(a, b, [mapping, mapping]),
       /semantic_correspondence/,
     );
+    assert.throws(() => compileClaimModelDelta(a, b, null), /semantic_correspondence_invalid/);
   }
 });
 

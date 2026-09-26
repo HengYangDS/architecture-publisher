@@ -325,10 +325,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       or Linux/Windows proof. Claim Model native and derived selections now
       enter the same delta owner. Typed claim, entity, relation, and predicate
       changes trigger existing obligations; changed derived bytes or bindings
-      and incomplete dependencies remain explicit uncertainty. The latest full
-      check passes static/spec checks and 1,012 behavior tests with five skips;
-      the package check passes separately. Branch coverage is 93.02% against
-      the unchanged 95% gate, so release is blocked. Open: explicit executable
+      and incomplete dependencies remain explicit uncertainty. New adversarial
+      tests reject ambiguous source/selection identity and distinguish source,
+      projection, supply, output, and dependency-closure changes without
+      inventing approval. The 44 focused tests and static/spec checks pass;
+      isolated `semantics/change.mjs` branch coverage is 178/185 (96.21%),
+      not the global gate in Task 7.5. Open: explicit executable
       comparison, full-model dependency precision, package-only change evidence,
       final installed-platform parity, and coverage.
 

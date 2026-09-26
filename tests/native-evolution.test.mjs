@@ -32,6 +32,12 @@ async function nativeDelta(before, after) {
   );
 }
 
+function resealNativeSide(side) {
+  side.native.semanticDigest = sha(canonical(side.native.selections));
+  side.native.subjectLockSha256 = sha(canonical(side.lock));
+  return side;
+}
+
 async function replaceSource(fixture, source, bytes) {
   const entry = fixture.request.sources.find(({ id }) => id === source);
   assert(entry);
@@ -162,6 +168,249 @@ test('native comparison of identical selected inputs has no invented change', as
   assert.deepEqual(delta.unknown, []);
   assert.equal(delta.supplyChanged, false);
   assert.equal(delta.hasChanges, false);
+});
+
+test('native change admission rejects ambiguous source and selection identity', async (t) => {
+  const selected = await snapshot(await selectedNativeEdition(t));
+  const before = resealNativeSide({
+    lock: structuredClone(selected.lock),
+    native: structuredClone(selected.meaning.native),
+  });
+  for (const [name, mutate] of [
+    ['missing selected source array', (side) => (side.lock.sources = null)],
+    [
+      'duplicate source namespace',
+      (side) => side.lock.sources.push(structuredClone(side.lock.sources[0])),
+    ],
+    [
+      'derived namespace collides with source',
+      (side) =>
+        side.lock.derived.push({
+          namespace: side.lock.sources[0].namespace,
+          sha256: 'a'.repeat(64),
+        }),
+    ],
+    [
+      'duplicate derived namespace',
+      (side) =>
+        side.lock.derived.push(
+          ...[0, 1].map(() => ({ namespace: 'fixture/derived', sha256: 'a'.repeat(64) })),
+        ),
+    ],
+    [
+      'selected source digest differs from its lock',
+      (side) => (side.native.selections[0].source.sha256 = '0'.repeat(64)),
+    ],
+    [
+      'duplicate selection identity',
+      (side) => side.native.selections.push(structuredClone(side.native.selections[0])),
+    ],
+    [
+      'duplicate selected element identity',
+      (side) =>
+        side.native.selections[0].members.elements.push(
+          structuredClone(side.native.selections[0].members.elements[0]),
+        ),
+    ],
+  ]) {
+    const after = structuredClone(before);
+    mutate(after);
+    resealNativeSide(after);
+    assert.throws(
+      () => compileNativeSelectionDelta(before, after),
+      {
+        code: 'native_evolution_input_invalid',
+      },
+      name,
+    );
+  }
+});
+
+test('native delta distinguishes changed bytes, bindings, supplied output and uncertainty', async (t) => {
+  const selected = await snapshot(await selectedNativeEdition(t));
+  const before = resealNativeSide({
+    lock: structuredClone(selected.lock),
+    native: structuredClone(selected.meaning.native),
+  });
+  const changed = (mutate) => {
+    const after = structuredClone(before);
+    mutate(after);
+    return resealNativeSide(after);
+  };
+  const reason = (delta, expected) =>
+    assert(
+      delta.unknown.some(({ reason: value }) => value === expected),
+      expected,
+    );
+
+  const addedSource = compileNativeSelectionDelta(
+    before,
+    changed((side) =>
+      side.lock.sources.push({ ...side.lock.sources[0], namespace: 'fixture/extra' }),
+    ),
+  );
+  assert.deepEqual(addedSource.sourceBytes.added, ['fixture/extra']);
+  const removedSource = structuredClone(before);
+  removedSource.lock.sources.push({ ...removedSource.lock.sources[0], namespace: 'fixture/extra' });
+  assert.deepEqual(
+    compileNativeSelectionDelta(resealNativeSide(removedSource), before).sourceBytes.removed,
+    ['fixture/extra'],
+  );
+
+  const addedDerived = compileNativeSelectionDelta(
+    before,
+    changed((side) =>
+      side.lock.derived.push({ namespace: 'fixture/derived', sha256: 'a'.repeat(64) }),
+    ),
+  );
+  reason(addedDerived, 'derived-projection-added');
+  const priorDerived = changed((side) =>
+    side.lock.derived.push({
+      namespace: 'fixture/derived',
+      sha256: 'a'.repeat(64),
+      claimant: 'before',
+    }),
+  );
+  reason(compileNativeSelectionDelta(priorDerived, before), 'derived-projection-removed');
+  reason(
+    compileNativeSelectionDelta(
+      priorDerived,
+      changed((side) =>
+        side.lock.derived.push({
+          namespace: 'fixture/derived',
+          sha256: 'a'.repeat(64),
+          claimant: 'after',
+        }),
+      ),
+    ),
+    'derived-projection-binding-changed',
+  );
+  reason(
+    compileNativeSelectionDelta(
+      priorDerived,
+      changed((side) =>
+        side.lock.derived.push({ namespace: 'fixture/derived', sha256: 'b'.repeat(64) }),
+      ),
+    ),
+    'derived-projection-bytes-changed',
+  );
+
+  const outputDrift = compileNativeSelectionDelta(
+    before,
+    changed(
+      (side) =>
+        (side.native.selections[0].members.elements[0].label = 'Changed without input change'),
+    ),
+  );
+  reason(outputDrift, 'native-output-drift');
+  assert(
+    outputDrift.supported.some(
+      ({ subject, fields }) => subject.kind === 'element' && fields.includes('label'),
+    ),
+  );
+  reason(
+    compileNativeSelectionDelta(
+      before,
+      changed((side) => side.native.limits.push('new-limit')),
+    ),
+    'native-limits-changed',
+  );
+  reason(
+    compileNativeSelectionDelta(
+      before,
+      changed((side) => (side.native.nativeClosure = 'partial')),
+    ),
+    'native-closure-changed',
+  );
+  assert.equal(
+    compileNativeSelectionDelta(
+      before,
+      changed((side) => (side.native.parserSupply = { changed: true })),
+    ).supplyChanged,
+    true,
+  );
+  reason(
+    compileNativeSelectionDelta(
+      before,
+      changed((side) => side.native.selections[0].limits.push('new-limit')),
+    ),
+    'selection-limits-changed',
+  );
+  reason(
+    compileNativeSelectionDelta(
+      before,
+      changed((side) => (side.native.selections[0].format = 'foreign/dsl')),
+    ),
+    'native-selection-format-changed',
+  );
+  const removedSelection = compileNativeSelectionDelta(
+    before,
+    changed((side) => side.native.selections.pop()),
+  );
+  assert(
+    removedSelection.supported.some(
+      ({ subject, fields }) => subject.kind === 'selection' && fields.includes('removed'),
+    ),
+  );
+  const addedSelection = compileNativeSelectionDelta(
+    before,
+    changed((side) => {
+      const additional = structuredClone(side.native.selections[0]);
+      additional.selectionId = 'additional-view';
+      side.native.selections.push(additional);
+    }),
+  );
+  assert(
+    addedSelection.supported.some(
+      ({ subject, fields }) => subject.kind === 'selection' && fields.includes('added'),
+    ),
+  );
+  assert(
+    compileNativeSelectionDelta(
+      before,
+      changed((side) => (side.native.selections[0].target.id = 'new-view')),
+    ).supported.some(
+      ({ subject, fields }) => subject.kind === 'selection' && fields.includes('id'),
+    ),
+  );
+  assert.deepEqual(
+    compileNativeSelectionDelta(
+      before,
+      changed(
+        (side) =>
+          (side.lock.sources.find(({ namespace }) => namespace === 'fixture/model').claimant =
+            'new-owner'),
+      ),
+    ).sourceBindings.changed,
+    ['fixture/model'],
+  );
+  const changedBytes = compileNativeSelectionDelta(
+    before,
+    changed((side) => {
+      const selectedSource = side.native.selections[0].source;
+      side.lock.sources.find(({ namespace }) => namespace === selectedSource.namespace).sha256 =
+        'b'.repeat(64);
+      selectedSource.sha256 = 'b'.repeat(64);
+      side.native.nativeClosure = 'partial';
+    }),
+  );
+  assert.deepEqual(changedBytes.sourceBytes.changed, [
+    before.native.selections[0].source.namespace,
+  ]);
+  reason(changedBytes, 'dependency-closure-unproved');
+  const complete = changed((side) => (side.native.nativeClosure = 'complete'));
+  const changedComplete = structuredClone(complete);
+  const selectedSource = changedComplete.native.selections[0].source;
+  changedComplete.lock.sources.find(
+    ({ namespace }) => namespace === selectedSource.namespace,
+  ).sha256 = 'b'.repeat(64);
+  selectedSource.sha256 = 'b'.repeat(64);
+  const provedClosure = compileNativeSelectionDelta(complete, resealNativeSide(changedComplete));
+  assert.deepEqual(provedClosure.sourceBytes.changed, [selectedSource.namespace]);
+  assert.equal(
+    provedClosure.unknown.some(({ reason: value }) => value === 'dependency-closure-unproved'),
+    false,
+  );
 });
 
 test('native comparison does not hide changed source attribution behind equal content bytes', async (t) => {
