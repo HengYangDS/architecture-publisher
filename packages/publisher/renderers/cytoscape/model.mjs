@@ -104,11 +104,14 @@ export function projectInteractivePage(page, index) {
     const qualifiers = [relation.label, relation.kind]
       .filter((value, at, all) => text(value) && all.indexOf(value) === at)
       .join(' · ');
+    const graphLabel =
+      [relation.label, relation.kind].find((value) => text(value) && value.length <= 24) ?? '';
     return {
       id: graphicId,
       source,
       target,
       label: qualifiers,
+      graphLabel,
       direction: relation.direction,
     };
   });

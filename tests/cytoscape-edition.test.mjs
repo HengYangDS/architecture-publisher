@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
 
 test('a neutral standalone HTML keeps every page complete without source-byte disclosure', async () => {
@@ -142,4 +143,52 @@ test('an unlabeled source relation stays structural without an invented kind', a
   const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
   assert.match(html, /Alpha &amp; one → Beta<\/button>/u);
   assert.doesNotMatch(html, /Alpha &amp; one → Beta ·/u);
+});
+
+test('graph edge labels stay concise while the adjacent relation retains exact qualifiers', async () => {
+  const { renderInteractiveEditionHtml } =
+    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+  const scene = interactiveEditionScene();
+  scene.pages[0].relations[0].label =
+    'Source relation qualifiers (unverified): state: desired client bindings';
+  scene.pages[0].relations[0].kind = 'configures';
+  const { publicPage } = projectInteractivePage(scene.pages[0], 0);
+  const relation = publicPage.relations[0];
+  assert.equal(
+    relation.label,
+    'Source relation qualifiers (unverified): state: desired client bindings · configures',
+  );
+  assert.equal(relation.graphLabel, 'configures');
+
+  const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
+  assert.match(html, /label: 'data\(graphLabel\)'/u);
+  assert.match(
+    html,
+    /Alpha &amp; one → Beta · Source relation qualifiers \(unverified\): state: desired client bindings · configures/u,
+  );
+});
+
+test('a short authored relation label takes precedence over its generic kind', () => {
+  const scene = interactiveEditionScene();
+  scene.pages[0].relations[0].label = 'calls';
+  scene.pages[0].relations[0].kind = 'dependency';
+  const { publicPage } = projectInteractivePage(scene.pages[0], 0);
+  assert.equal(publicPage.relations[0].graphLabel, 'calls');
+  assert.equal(publicPage.relations[0].label, 'calls · dependency');
+});
+
+test('a long untyped relation stays in the readable list rather than crowding the graph', async () => {
+  const { renderInteractiveEditionHtml } =
+    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+  const scene = interactiveEditionScene();
+  scene.pages[0].relations[0].label = 'synchronizes all selected native client registrations';
+  scene.pages[0].relations[0].kind = null;
+  const { publicPage } = projectInteractivePage(scene.pages[0], 0);
+  assert.equal(publicPage.relations[0].graphLabel, '');
+  assert.equal(publicPage.relations[0].label, scene.pages[0].relations[0].label);
+  const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
+  assert.match(
+    html,
+    /Alpha &amp; one → Beta · synchronizes all selected native client registrations/u,
+  );
 });

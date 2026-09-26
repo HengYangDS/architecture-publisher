@@ -67,7 +67,7 @@ function graphFor(index) {
       { selector: 'edge', style: {
         width: 2.5, 'line-color': '#60786a',
         'target-arrow-shape': 'triangle', 'target-arrow-color': '#60786a',
-        'curve-style': 'bezier', label: 'data(label)',
+        'curve-style': 'bezier', label: 'data(graphLabel)',
         'font-family': 'JetBrains Mono', 'font-size': 13,
         color: '#27352e', 'text-background-color': '#fffefa',
         'text-background-opacity': 1, 'text-background-padding': 5,
