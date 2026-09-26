@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { materializeBuildRequestInput } from '../packages/publisher/src/provider/index.mjs';
+import { readSelectedInput } from '../packages/publisher/src/source/materialize.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -634,4 +635,62 @@ test('direct materialization rejects unselected sources and missing requested-me
   await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {
     code: 'materialized_selected_media_incomplete',
   });
+});
+
+test('selected input rejects a missing selector and malformed pin before opening bytes', async (t) => {
+  const f = await fixture(t);
+  for (const selection of [null, {}, { kind: 'other', path: 'sources/system.json' }])
+    await assert.rejects(readSelectedInput(f.root, selection), {
+      code: 'materialized_selection_invalid',
+    });
+  await assert.rejects(
+    readSelectedInput(f.root, {
+      kind: 'pin',
+      path: 'sources/system.json',
+      sha256: 'not-a-digest',
+    }),
+    { code: 'materialized_pin_invalid' },
+  );
+  const bytes = await fs.readFile(f.sourcePath);
+  const selected = await readSelectedInput(f.root, {
+    kind: 'pin',
+    path: 'sources/system.json',
+    sha256: sha(bytes),
+  });
+  assert.deepEqual(selected.content, bytes);
+  assert.equal(selected.vcsObject, null);
+});
+
+test('a selected VCS blob read fails closed if the chosen Git command cannot read it', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('POSIX executable fixture; native Windows VCS selection is tested separately');
+    return;
+  }
+  const { f, repo } = await vcsFixture(t);
+  const outside = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-git-failure-'),
+  );
+  t.after(() => fs.rm(outside, { recursive: true, force: true }));
+  const fakeGit = path.join(outside, 'git');
+  await fs.writeFile(
+    fakeGit,
+    `#!${process.execPath}\nconst operation = process.argv[2];
+if (operation === 'rev-parse' && process.argv[3] === '--show-toplevel') process.stdout.write(${JSON.stringify(repo)} + '\\n');
+else if (operation === 'rev-parse') process.stdout.write('a'.repeat(40) + '\\n');
+else if (operation === 'ls-tree') process.stdout.write('100644 blob ' + 'b'.repeat(40) + '\\tsystem.json\\0');
+else if (operation === 'cat-file') process.exitCode = 1;
+else process.exitCode = 2;
+`,
+    { mode: 0o755 },
+  );
+  await fs.chmod(fakeGit, 0o755);
+  const oldPath = process.env.PATH;
+  try {
+    process.env.PATH = outside;
+    await assert.rejects(materializeBuildRequestInput(f.requestPath, await f.save()), {
+      code: 'materialized_vcs_object_unavailable',
+    });
+  } finally {
+    process.env.PATH = oldPath;
+  }
 });

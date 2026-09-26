@@ -257,6 +257,50 @@ test('native Claim Model selection retains a typed claim rather than a bare arro
   assert(meaning.limits.includes('claim-model-provenance-unverified'));
 });
 
+test('claim-only static composition admits neither mixed parsers nor unbound assertions', async (t) => {
+  const selected = await fixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  assert.equal(composeStaticEditionScene(meaning, null).claimCards.length, 1);
+
+  const mixed = structuredClone(meaning);
+  mixed.native.selections.push({
+    ...structuredClone(mixed.native.selections[0]),
+    selectionId: 'foreign-format',
+    format: 'likec4/dsl',
+  });
+  assert.throws(() => composeStaticEditionScene(mixed, null), {
+    code: 'edition_scene_claim_model_unadmitted',
+  });
+  const grouped = structuredClone(meaning);
+  grouped.editorial.presentation.static.views[0].groups = [];
+  assert.throws(() => composeStaticEditionScene(grouped, null), {
+    code: 'static_scene_group_unadmitted',
+  });
+  const unknownAssertion = structuredClone(meaning);
+  unknownAssertion.media.static.views[0].assertionIds = ['not-selected'];
+  assert.throws(() => composeStaticEditionScene(unknownAssertion, null), {
+    code: 'static_scene_assertion_unbound',
+  });
+  const unboundSelection = structuredClone(meaning);
+  unboundSelection.assertions[0].selection = 'not-selected';
+  assert.throws(() => composeStaticEditionScene(unboundSelection, null), {
+    code: 'static_scene_assertion_unbound',
+  });
+});
+
+test('a Claim Model structural Scene cannot borrow an upstream view identity', async (t) => {
+  const selected = await groupedMixedFixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const layout = structuredClone(composeGroupedSelectionLayout(meaning));
+  assert.equal(layout.view, null);
+  layout.view = { namespace: modelNamespace, id: 'invented', sha256: 'a'.repeat(64) };
+  assert.throws(() => composeStaticEditionScene(meaning, layout), {
+    code: 'static_scene_native_membership_mismatch',
+  });
+});
+
 test('a condition change alters selected meaning without changing graph cardinality', async (t) => {
   const first = await fixture(t);
   const changedModel = claimModel();
@@ -507,6 +551,47 @@ test('a predicate change is attributed to its predicate ID, not the claim ID', a
         subject.kind === 'predicate' && subject.id === 'calls' && fields.includes('cardinality'),
     ),
   );
+});
+
+test('native comparison preserves uncertain Claim Model authorship and membership drift', async (t) => {
+  const selected = await fixture(t);
+  const prior = await evolutionSide(selected);
+  const before = { lock: prior.lock, native: prior.meaning.native };
+  const compare = (mutate) => {
+    const after = structuredClone(before);
+    mutate(after.native.selections[0], after.lock);
+    after.native.semanticDigest = sha(Buffer.from(canonical(after.native.selections)));
+    after.native.subjectLockSha256 = sha(Buffer.from(canonical(after.lock)));
+    return compileNativeSelectionDelta(before, after);
+  };
+  const owner = compare((selection) => (selection.sourceOwner = 'another-claimant'));
+  assert(owner.unknown.some(({ reason }) => reason === 'claim-model-sourceOwner-changed'));
+  const provenance = compare((selection) => (selection.provenanceSources = ['different-source']));
+  assert(provenance.unknown.some(({ reason }) => reason === 'claim-model-provenance-changed'));
+  const namespace = compare((selection, lock) => {
+    lock.sources.find(({ namespace: id }) => id === modelNamespace).namespace = 'fixture/renamed';
+    selection.source.namespace = 'fixture/renamed';
+  });
+  assert(namespace.unknown.some(({ reason }) => reason === 'claim-model-namespace-changed'));
+  const membership = compare((selection) => {
+    selection.members.claims.push({ ...selection.members.claims[0], id: 'new-claim' });
+  });
+  assert(
+    membership.supported.some(
+      ({ subject, fields }) => subject.kind === 'selection-membership' && fields.includes('claims'),
+    ),
+  );
+  const unrecognized = compare((selection) => {
+    selection.members.claims[0].projectionNote = 'not source meaning';
+  });
+  assert(
+    unrecognized.unknown.some(({ reason }) => reason === 'claim-model-member-field-unrecognized'),
+  );
+  for (const mutate of [
+    (selection) => (selection.members.claims = null),
+    (selection) => selection.members.claims.push(structuredClone(selection.members.claims[0])),
+  ])
+    assert.throws(() => compare(mutate), { code: 'native_evolution_input_invalid' });
 });
 
 test('native evolution rejects a forged Claim Model source class', async (t) => {

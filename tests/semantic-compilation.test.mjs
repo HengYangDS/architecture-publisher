@@ -259,6 +259,13 @@ test('rename, split and merge require disjoint source-backed removed and added i
     assert.deepEqual(delta.correspondences, [mapping]);
     assert.deepEqual(delta.removed.entities, [...from].sort());
     assert.deepEqual(delta.added.entities, [...to].sort());
+    const beforeEvidence = {
+      ...mapping,
+      evidence: [{ ...mapping.evidence[0], version: 'before' }],
+    };
+    assert.deepEqual(compileClaimModelDelta(a, b, [beforeEvidence]).correspondences, [
+      beforeEvidence,
+    ]);
     for (const invalid of [
       { ...mapping, evidence: [] },
       {
@@ -268,6 +275,14 @@ test('rename, split and merge require disjoint source-backed removed and added i
       {
         ...mapping,
         evidence: [{ ...mapping.evidence[0], source: 'unselected' }],
+      },
+      {
+        ...mapping,
+        evidence: [{ ...beforeEvidence.evidence[0], source: 'unselected' }],
+      },
+      {
+        ...mapping,
+        evidence: [{ ...beforeEvidence.evidence[0], sha256: 'f'.repeat(64) }],
       },
       { ...mapping, evidence: [mapping.evidence[0], mapping.evidence[0]] },
       { ...mapping, from: ['server'] },

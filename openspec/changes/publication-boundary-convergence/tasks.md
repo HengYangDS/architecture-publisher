@@ -699,15 +699,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      With installed Chrome selected, the current pre-freeze Lane tree reports
-      1,127 pass, 2 explicitly input-gated skips, 0 behavior failures;
-      statements and lines 97.76%, functions 99.62%, and branches 93.75%
-      (8,277/8,828). At this measured denominator, 110 more covered branch
-      outcomes are needed. Adversarial static carrier and native evolution
-      admission cases improve coverage but do not satisfy the global 95% gate.
-      Static, strict OpenSpec, and package checks pass. Continue with high-risk
-      renderer, Edition evolution, source, and qualification-process boundaries;
-      do not exclude owned code or weaken browser acceptance.
+      With installed Chrome selected, the current pre-freeze Lane tree passes
+      1,183 tests, skips 2 explicitly external-input-gated tests, and has 0
+      behavior failures. The unchanged owned-runtime gate passes at 97.92%
+      statements and lines, 95.00% branches (8,571/9,022), and 99.62%
+      functions. Static, strict OpenSpec, and package checks also pass. The
+      branch result has a narrow margin and is not final release evidence:
+      Tasks 7.3–7.4, frozen installed workloads, exact-byte visual review,
+      exact-HEAD proof, and protected publication remain open. Do not weaken
+      coverage inclusion or substitute the pre-freeze result for Task 7.6.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

@@ -510,6 +510,76 @@ test('a mixed graph and claim plate require exact source-bound links', () => {
   });
 });
 
+test('a static renderer refuses unbound claim and group authoring before painting', () => {
+  for (const [name, mutate, code] of [
+    [
+      'duplicate claim fact',
+      (scene) => {
+        scene.claimCards[0].facts.push(structuredClone(scene.claimCards[0].facts[0]));
+      },
+      'static_edition_claim_invalid',
+    ],
+    [
+      'missing question IDs',
+      (scene) => {
+        scene.questionIds = null;
+      },
+      'static_edition_question_invalid',
+    ],
+    [
+      'degenerate authored group',
+      (scene) => {
+        scene.groups = [{ id: 'scope', x: 0, y: 0, width: 0, height: 100 }];
+      },
+      'static_edition_geometry_invalid',
+    ],
+  ]) {
+    const scene = linkedMixedScene();
+    mutate(scene);
+    assert.throws(() => svg.composeStaticEditionSvg(scene), { code }, name);
+  }
+  const unlinked = staticEditionScene();
+  unlinked.claimRelationLinks = [];
+  assert.throws(() => svg.composeStaticEditionSvg(unlinked), {
+    code: 'static_edition_claim_relation_invalid',
+  });
+});
+
+test('mixed-plate subject links require one claim anchor and the same source identity', () => {
+  for (const [name, mutate] of [
+    ['malformed subject link', (scene) => (scene.claimSubjectLinks = [null])],
+    [
+      'unknown claim assertion',
+      (scene) =>
+        (scene.claimSubjectLinks = [
+          {
+            claimAssertionId: 'unknown',
+            subject: { namespace: 'fixture/claims', id: 'subject', sha256: 'a'.repeat(64) },
+          },
+        ]),
+    ],
+    [
+      'cross-source subject',
+      (scene) =>
+        (scene.claimSubjectLinks = [
+          {
+            claimAssertionId: 'claim',
+            subject: { namespace: 'foreign/source', id: 'subject', sha256: 'a'.repeat(64) },
+          },
+        ]),
+    ],
+  ]) {
+    const scene = linkedMixedScene();
+    scene.claimRelationLinks = [];
+    mutate(scene);
+    assert.throws(
+      () => svg.composeStaticEditionSvg(scene),
+      { code: 'static_edition_claim_relation_invalid' },
+      name,
+    );
+  }
+});
+
 test('mixed neutral composition flows graph and claims beside longer reader notes', () => {
   const input = linkedMixedScene();
   input.limits = Array.from({ length: 15 }, (_, index) => `method-${index}`);

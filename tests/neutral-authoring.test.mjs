@@ -15,7 +15,11 @@ import {
 } from '../packages/publisher/src/semantics/index.mjs';
 import { selectedNativeEdition } from './fixtures/selected-native-edition.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
-import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/static/grouped-selection.mjs';
+import {
+  composeGroupedSelectionLayout,
+  composeSelectedStaticRefinementLayout,
+  selectedStaticNativeViews,
+} from '../packages/publisher/src/scene/static/grouped-selection.mjs';
 import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/index.mjs';
 import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/cytoscape/index.mjs';
 import {
@@ -410,6 +414,140 @@ test('grouped geometry consumes selected Claim Model relations without treating 
   claimOnly.media.static.views[0].assertionIds = ['intended'];
   assert.throws(() => composeGroupedSelectionLayout(claimOnly), {
     code: 'grouped_geometry_input_invalid',
+  });
+});
+
+test('static grouping refuses missing, duplicated, or contradictory source authority', async () => {
+  const project = editionProject();
+  project.presentation.static.views[0].groups = [
+    { id: 'entry', label: 'Entry', elements: [{ namespace: 'example/model', id: 'a' }] },
+    { id: 'service', label: 'Service', elements: [{ namespace: 'example/model', id: 'b' }] },
+  ];
+  const { meaning } = await selectedInputs(project);
+  assert.equal(composeGroupedSelectionLayout(meaning).nodes.length, 2);
+  for (const mutate of [
+    (value) => (value.media.static.views[0].id = 'not-authored'),
+    (value) => delete value.editorial.presentation.static.views[0].groups,
+    (value) => (value.media.static.views[0].assertionIds = ['not-selected']),
+    (value) => value.assertions.push(structuredClone(value.assertions[0])),
+    (value) => value.native.selections.push(structuredClone(value.native.selections[0])),
+    (value) => (value.native.selections[0].format = 'not-admitted'),
+    (value) => (value.native.selections[0].members.elements = null),
+  ]) {
+    const invalid = structuredClone(meaning);
+    mutate(invalid);
+    assert.throws(() => composeGroupedSelectionLayout(invalid), {
+      code: 'grouped_selection_layout_unadmitted',
+    });
+  }
+  const conflicting = structuredClone(meaning);
+  const second = structuredClone(conflicting.native.selections[0]);
+  second.selectionId = 'contradictory-view';
+  second.members.elements[0].label = 'Not the selected label';
+  conflicting.native.selections.push(second);
+  conflicting.assertions.push({
+    id: 'contradiction',
+    kind: 'source',
+    selection: second.selectionId,
+  });
+  conflicting.media.static.views[0].assertionIds.push('contradiction');
+  assert.throws(() => composeGroupedSelectionLayout(conflicting), {
+    code: 'grouped_selection_semantic_conflict',
+  });
+});
+
+test('source-attributed sibling views resolve only a uniquely selected static view', () => {
+  const views = [
+    { target: { kind: 'view' }, selectionId: 'left' },
+    { target: { kind: 'view' }, selectionId: 'right' },
+  ];
+  const meaning = {
+    native: { selections: views },
+    assertions: [
+      { id: 'left-claim', kind: 'source', selection: 'left' },
+      { id: 'right-claim', kind: 'source', selection: 'right' },
+    ],
+  };
+  assert.deepEqual(selectedStaticNativeViews(meaning, { assertionIds: ['left-claim'] }), [
+    views[0],
+  ]);
+  assert.deepEqual(selectedStaticNativeViews(meaning, { assertionIds: [] }), views);
+  assert.deepEqual(
+    selectedStaticNativeViews(
+      { ...meaning, assertions: meaning.assertions.slice(0, 1) },
+      { assertionIds: ['left-claim'] },
+    ),
+    views,
+  );
+});
+
+test('authored static refinement cannot reassign selected geometry or relation provenance', async () => {
+  const project = editionProject();
+  project.presentation.static.views[0].groups = [
+    { id: 'entry', label: 'Entry', elements: [{ namespace: 'example/model', id: 'a' }] },
+    { id: 'service', label: 'Service', elements: [{ namespace: 'example/model', id: 'b' }] },
+  ];
+  const { meaning } = await selectedInputs(project);
+  const selected = composeGroupedSelectionLayout(meaning);
+  const refinement = {
+    media: {
+      static: {
+        view: meaning.media.static.views[0].id,
+        nodes: structuredClone(selected.nodes),
+        groups: structuredClone(selected.groups),
+        edges: structuredClone(selected.edges),
+      },
+    },
+  };
+  assert.equal(composeSelectedStaticRefinementLayout(meaning, refinement).nodes.length, 2);
+  const wrongView = structuredClone(refinement);
+  wrongView.media.static.view = 'unselected';
+  assert.throws(() => composeSelectedStaticRefinementLayout(meaning, wrongView), {
+    code: 'scene_refinement_composition_unadmitted',
+  });
+  for (const mutate of [
+    (value) => value.media.static.nodes.pop(),
+    (value) => (value.media.static.nodes[1] = structuredClone(value.media.static.nodes[0])),
+    (value) => value.media.static.groups.pop(),
+    (value) => (value.media.static.groups[1] = structuredClone(value.media.static.groups[0])),
+    (value) => (value.media.static.edges[0].relations = null),
+    (value) => (value.media.static.edges[0].points = null),
+    (value) => (value.media.static.edges[0].from.id = 'b'),
+    (value) => (value.media.static.edges[0].relations[0].reference = 'unselected'),
+    (value) => value.media.static.edges.push(structuredClone(value.media.static.edges[0])),
+  ]) {
+    const invalid = structuredClone(refinement);
+    mutate(invalid);
+    assert.throws(() => composeSelectedStaticRefinementLayout(meaning, invalid), {
+      code: 'scene_refinement_membership_mismatch',
+    });
+  }
+});
+
+test('static Scene composition rejects group geometry that contradicts authored membership', async () => {
+  const project = editionProject();
+  project.presentation.static.views[0].groups = [
+    { id: 'entry', label: 'Entry', elements: [{ namespace: 'example/model', id: 'a' }] },
+    { id: 'service', label: 'Service', elements: [{ namespace: 'example/model', id: 'b' }] },
+  ];
+  const { meaning } = await selectedInputs(project);
+  const layout = composeGroupedSelectionLayout(meaning);
+  assert.equal(scenes.composeStaticEditionScene(meaning, layout).groups.length, 2);
+
+  const wrongClosure = structuredClone(layout);
+  wrongClosure.closure = 'upstream-layout-unqualified';
+  assert.throws(() => scenes.composeStaticEditionScene(meaning, wrongClosure), {
+    code: 'static_scene_input_invalid',
+  });
+  const relabeled = structuredClone(layout);
+  relabeled.groups[0].label = 'Not authored';
+  assert.throws(() => scenes.composeStaticEditionScene(meaning, relabeled), {
+    code: 'static_scene_group_mismatch',
+  });
+  const displaced = structuredClone(layout);
+  displaced.groups[0].x += 1_000;
+  assert.throws(() => scenes.composeStaticEditionScene(meaning, displaced), {
+    code: 'static_scene_group_mismatch',
   });
 });
 

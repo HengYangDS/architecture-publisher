@@ -78,6 +78,13 @@ test('public native import selects the verified bundled parser and rejects overr
   await assert.rejects(semantics.importLikeC4Native(selection(), fromSources), {
     code: 'native_likec4_parser_override_forbidden',
   });
+  await assert.rejects(
+    semantics.importLikeC4Layout(
+      { ...selection(), view: { namespace: 'example/views', id: 'overview' } },
+      fromSources,
+    ),
+    { code: 'native_likec4_parser_override_forbidden' },
+  );
 });
 
 test('native importer explicitly requests upstream no-filesystem mode', async () => {

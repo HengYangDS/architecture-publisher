@@ -568,6 +568,40 @@ test('unchanged native Edition inputs produce no new obligations', async (t) => 
   assert(Object.values(result.obligations).every((items) => items.length === 0));
 });
 
+test('toolchain and Edition resource revisions renew release obligations independently', async (t) => {
+  const fixture = await selectedNativeEdition(t);
+  const before = await snapshot(fixture);
+  for (const [name, mutate, reason] of [
+    [
+      'toolchain',
+      (side) => {
+        side.lock.toolchain.profile = 'revised-runtime';
+      },
+      'toolchain-changed',
+    ],
+    [
+      'Edition resource',
+      (side) => {
+        side.lock.edition.resources.push({
+          ref: 'art-direction.json',
+          bytes: 3,
+          sha256: sha('{}\n'),
+        });
+      },
+      'edition-resource-changed',
+    ],
+  ]) {
+    const after = structuredClone(before);
+    mutate(after);
+    after.meaning.native.subjectLockSha256 = sha(canonical(after.lock));
+    const result = compileNativeEditionEvolution({ before, after });
+    assert(result.editions.affected[0].reasons.includes(reason), name);
+    assert.equal(result.obligations.semanticVerification.length, 1, name);
+    assert.equal(result.obligations.acceptance.length, 1, name);
+    assert.equal(result.obligations.publication.length, 1, name);
+  }
+});
+
 test('editorial-only changes still require new media and acceptance without minting native changes', async (t) => {
   const before = await selectedNativeEdition(t);
   const after = await selectedNativeEdition(t, { title: 'Revised reader atlas' });

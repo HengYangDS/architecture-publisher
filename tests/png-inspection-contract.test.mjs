@@ -29,7 +29,7 @@ function chunk(type, data) {
 function png(filter = 0, options = {}) {
   const header = Buffer.alloc(13);
   header.writeUInt32BE(2, 0);
-  header.writeUInt32BE(1, 4);
+  header.writeUInt32BE(options.height ?? 1, 4);
   header[8] = 8;
   header[9] = options.colorType ?? 6;
   const raw = options.raw ?? Buffer.from([filter, 0, 0, 0, 255, 255, 255, 255, 255]);
@@ -55,7 +55,30 @@ test('RGBA inspection decodes every standard row filter from valid PNG chunks', 
   );
 });
 
+test('Paeth reconstruction chooses prior-row and upper-left samples when they are nearest', () => {
+  const raw = Buffer.from([0, 50, 0, 0, 255, 100, 0, 0, 255, 4, 206, 0, 0, 0, 0, 0, 0, 0]);
+  const report = inspectRgbaPngCanvas(png(4, { height: 2, raw }), {
+    background: [0, 0, 0, 255],
+  });
+  assert.equal(report.height, 2);
+  assert.equal(report.inkPixels, 3);
+});
+
+test('painted-canvas thresholds expose clearance, fill and balance independently', () => {
+  const report = inspectRgbaPngCanvas(png(), {
+    minimumClearance: 1,
+    minimumEnvelopeFraction: 1,
+    maximumCenterOffsetFraction: 0.1,
+  });
+  assert.deepEqual(
+    report.failures.map(({ code }) => code),
+    ['png-canvas-clearance', 'png-canvas-fill', 'png-canvas-balance'],
+  );
+  assert.equal(report.inkPixels, 1);
+});
+
 test('PNG inspection rejects truncated, unsupported and inconsistent raster bytes', () => {
+  assert.throws(() => inspectRgbaPngCanvas('not PNG bytes'), { code: 'png_canvas_invalid' });
   const cases = [
     ['truncated chunk', png().subarray(0, 12), 'png_canvas_invalid'],
     ['truncated data', png().subarray(0, 30), 'png_canvas_invalid'],
@@ -171,6 +194,12 @@ test('painted element inspection distinguishes color, shape and unassigned ink',
     code: 'png_elements_scene_invalid',
   });
 
+  const twoInkPixels = png(0, {
+    raw: Buffer.from([0, 255, 255, 255, 255, 255, 255, 255, 255]),
+  });
+  const unassigned = inspectRgbaPngElements(twoInkPixels, scene, options);
+  assert.equal(unassigned.unassignedInkPixels, 1);
+
   assert.throws(
     () => inspectRgbaPngCanvas(bytes, { background: [0, 0, 0, 255], colorDistance: 500 }),
     {
@@ -219,4 +248,21 @@ test('painted arrows and rules require source-declared geometry', () => {
   assert.throws(() => inspectRgbaPngElements(png(), invalid, options), {
     code: 'png_elements_scene_invalid',
   });
+
+  const noDirection = structuredClone(scene);
+  noDirection.edges[0].points.pop();
+  assert.throws(() => inspectRgbaPngElements(png(), noDirection, options), {
+    code: 'png_elements_scene_invalid',
+  });
+
+  for (const kind of ['renewal', 'trust', 'flow']) {
+    const selected = structuredClone(scene);
+    selected.edges[0].kind = kind;
+    assert(
+      inspectRgbaPngElements(png(), selected, options).regions.some(
+        ({ id }) => id === 'edge:edge:stroke',
+      ),
+      kind,
+    );
+  }
 });

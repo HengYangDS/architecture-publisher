@@ -163,6 +163,19 @@ test('source-only changes rebind the Edition without unnecessary scene rebuild',
   assert.equal(result.obligations.publication[0].action, 'replace');
 });
 
+test('vocabulary changes broaden review without pretending graph cardinality changed', async () => {
+  const { compileEditionEvolution } = await api();
+  const { before, after } = pair();
+  after.model.vocabulary.predicates.calls.cardinality = 'multiple';
+  rebind(after);
+  const result = compile(compileEditionEvolution, before, after);
+  assert.deepEqual(result.delta.changed.vocabulary, ['predicates']);
+  assert(result.editions.affected[0].reasons.includes('vocabulary-changed:predicates'));
+  assert.equal(result.editions.affected[0].scope, 'complete');
+  assert.equal(result.obligations.acceptance.length, 1);
+  assert.equal(result.obligations.publication.length, 1);
+});
+
 test('flagship source-only changes do not fabricate visual review', async () => {
   const { compileEditionEvolution } = await api(),
     { before, after } = pair();

@@ -306,6 +306,25 @@ test('qualification rejects invalid invocation and unavailable ownership before 
   );
 });
 
+test('qualification ownership ignores malformed and unsolicited acknowledgements', async () => {
+  const { withQualificationOwnership } = await import(boundaryUrl);
+  const originalSend = process.send;
+  const originalConnected = process.connected;
+  process.send = () => {};
+  process.connected = true;
+  try {
+    const result = await withQualificationOwnership(async () => {
+      process.emit('message', { kind: 'other', id: 1, accepted: true });
+      process.emit('message', { kind: 'qualification-ownership-ack', id: 999, accepted: true });
+      return 'no authority was minted';
+    });
+    assert.equal(result, 'no authority was minted');
+  } finally {
+    process.send = originalSend;
+    process.connected = originalConnected;
+  }
+});
+
 test('independent parent deadline preempts a blocked qualification event loop', async (t) => {
   const { runBoundedQualification } = await import(boundaryUrl);
   const scratch = await fs.mkdtemp(

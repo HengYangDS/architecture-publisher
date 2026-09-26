@@ -60,6 +60,49 @@ test('v2 rejects v1 and closes every semantic shape', () => {
   }
 });
 
+test('semantic admission bounds nested JSON and section cardinality before interpretation', () => {
+  const deeplyNested = claimModel();
+  let nested = 'leaf';
+  for (let index = 0; index < 65; index++) nested = [nested];
+  deeplyNested.context.deep = nested;
+  assert.throws(() => validateClaimModel(deeplyNested), {
+    code: 'semantic_depth_exceeded',
+  });
+
+  const malformedSection = claimModel();
+  malformedSection.context = null;
+  assert.throws(() => validateClaimModel(malformedSection), {
+    code: 'semantic_section_invalid',
+  });
+
+  const oversizedSection = claimModel();
+  oversizedSection.context = Object.fromEntries(
+    Array.from({ length: 20_001 }, (_, index) => [`context-${index}`, 'selected']),
+  );
+  assert.throws(() => validateClaimModel(oversizedSection), {
+    code: 'semantic_size_exceeded',
+  });
+});
+
+test('a claim cannot inherit truth from an empty or incomplete source authority', () => {
+  const noSources = claimModel();
+  noSources.sources = {};
+  assert.throws(() => validateClaimModel(noSources), {
+    code: 'semantic_provenance_required',
+  });
+
+  const incompletePredicate = claimModel();
+  incompletePredicate.sources.observation = {
+    sha256: '2'.repeat(64),
+    locator: 'observation.json',
+    authority: 'Separate runtime observation',
+  };
+  incompletePredicate.vocabulary.predicates.calls.provenance.push('observation');
+  assert.throws(() => validateClaimModel(incompletePredicate), {
+    code: 'semantic_claim_provenance_incomplete',
+  });
+});
+
 test('unknown coverage preserves opaque value and cannot pretend formal dependency knowledge', () => {
   const model = claimModel();
   model.claims.published.dependsOn = [];

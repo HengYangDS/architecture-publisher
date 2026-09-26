@@ -135,3 +135,77 @@ test('grouped geometry rejects incomplete or conflicting authored membership', a
     });
   }
 });
+
+test('geometry rejects malformed public pages before treating them as layout input', async () => {
+  const { layoutInteractivePages } =
+    await import('../packages/publisher/renderers/dagre/layout.mjs');
+  const page = {
+    nodes: [
+      { id: 'n-0', label: 'Input' },
+      { id: 'n-1', label: 'Effect' },
+    ],
+    relations: [{ id: 'r-0', source: 'n-0', target: 'n-1' }],
+  };
+  for (const pages of [null, [], {}])
+    await assert.rejects(layoutInteractivePages(pages), {
+      code: 'render_interactive_layout_invalid',
+    });
+  for (const mutate of [
+    (item) => (item.nodes = null),
+    (item) => (item.relations = null),
+    (item) => (item.nodes = Array.from({ length: 513 }, (_, index) => ({ id: `n-${index}` }))),
+    (item) => (item.relations = Array.from({ length: 2049 }, (_, index) => ({ id: `r-${index}` }))),
+    (item) => (item.nodes[0].id = ''),
+    (item) => (item.nodes[0].label = '   '),
+    (item) => (item.nodes[1].id = 'n-0'),
+    (item) => (item.relations[0].id = ''),
+    (item) => item.relations.push({ ...item.relations[0] }),
+    (item) => (item.relations[0].source = 'not-selected'),
+  ]) {
+    const invalid = structuredClone(page);
+    mutate(invalid);
+    await assert.rejects(layoutInteractivePages([invalid]), {
+      code: 'render_interactive_layout_invalid',
+    });
+  }
+});
+
+test('authored groups reject ambiguous and incomplete membership', async () => {
+  const { layoutInteractivePages } =
+    await import('../packages/publisher/renderers/dagre/layout.mjs');
+  const page = {
+    nodes: [
+      { id: 'n-0', label: 'Input' },
+      { id: 'n-1', label: 'Effect' },
+    ],
+    relations: [{ id: 'r-0', source: 'n-0', target: 'n-1' }],
+    groups: [
+      { id: 'g-0', label: 'Source', nodeIds: ['n-0'] },
+      { id: 'g-1', label: 'Target', nodeIds: ['n-1'] },
+    ],
+  };
+  for (const mutate of [
+    (item) => (item.groups = []),
+    (item) => (item.groups = null),
+    (item) => (item.groups[0].id = ''),
+    (item) => (item.groups[0].label = ''),
+    (item) => (item.groups[1].id = 'g-0'),
+    (item) => (item.groups[0].nodeIds = []),
+    (item) => (item.groups[0].nodeIds = null),
+    (item) => (item.groups[0].nodeIds = ['missing']),
+    (item) => (item.groups[0].nodeIds = ['n-0', 'n-0']),
+  ]) {
+    const invalid = structuredClone(page);
+    mutate(invalid);
+    await assert.rejects(layoutInteractivePages([invalid]), {
+      code: 'render_interactive_group_invalid',
+    });
+  }
+});
+
+test('an explicitly empty public page needs no invented geometry', async () => {
+  const { layoutInteractivePages } =
+    await import('../packages/publisher/renderers/dagre/layout.mjs');
+  const result = await layoutInteractivePages([{ nodes: [], relations: [] }]);
+  assert.deepEqual(result.layouts, [null]);
+});

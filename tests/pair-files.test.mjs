@@ -183,6 +183,181 @@ test('recovery refuses a missing retained preimage instead of inventing prior by
   );
 });
 
+test('recovery refuses a changed retained output before moving either destination', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  await interruptWriter(dir, plan, acceptance, 'save-native', 'after');
+  const operation = path.join(options.recoveryRoot, plan.sha256.slice(0, 20));
+  const failed = path.join(operation, 'failed-native');
+  await fs.mkdir(failed);
+  await fs.writeFile(path.join(failed, 'foreign.txt'), 'not the selected output');
+  const atlasBefore = await inventory(options.destinations.atlas);
+
+  await assert.rejects(
+    recoverPairFiles(plan, acceptance),
+    /Recovery retained output changed: native/,
+  );
+  assert.equal(
+    await fs.readFile(path.join(failed, 'foreign.txt'), 'utf8'),
+    'not the selected output',
+  );
+  assert.deepEqual(await inventory(options.destinations.atlas), atlasBefore);
+  await assert.rejects(fs.stat(options.destinations.native), { code: 'ENOENT' });
+});
+
+test('recovery refuses duplicate prior state even when both copies have exact bytes', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  await interruptWriter(dir, plan, acceptance, 'save-native', 'after');
+  const operation = path.join(options.recoveryRoot, plan.sha256.slice(0, 20));
+  const prior = path.join(operation, 'prior-native');
+  await fs.cp(prior, options.destinations.native, { recursive: true });
+  const nativeBefore = await inventory(options.destinations.native);
+  const atlasBefore = await inventory(options.destinations.atlas);
+
+  await assert.rejects(
+    recoverPairFiles(plan, acceptance),
+    /Recovery has ambiguous duplicate prior: native/,
+  );
+  assert.deepEqual(await inventory(options.destinations.native), nativeBefore);
+  assert.deepEqual(await inventory(options.destinations.atlas), atlasBefore);
+  assert.deepEqual(await inventory(prior), nativeBefore);
+});
+
+test('recovery does not overwrite an existing retained output identity', async (t) => {
+  const { options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  assert.equal((await installPairFiles(plan, acceptance)).status, 'INSTALLED');
+  const operation = path.join(options.recoveryRoot, plan.sha256.slice(0, 20));
+  const failed = path.join(operation, 'failed-native');
+  await fs.cp(options.destinations.native, failed, { recursive: true });
+  const journalFile = path.join(operation, 'operation.json');
+  const journal = JSON.parse(await fs.readFile(journalFile, 'utf8'));
+  journal.status = 'INSTALLING';
+  await fs.writeFile(journalFile, JSON.stringify(journal, null, 2) + '\n');
+  const nativeBefore = await inventory(options.destinations.native);
+  const atlasBefore = await inventory(options.destinations.atlas);
+
+  await assert.rejects(
+    recoverPairFiles(plan, acceptance),
+    /Recovery retained output already occupied: native/,
+  );
+  assert.deepEqual(await inventory(options.destinations.native), nativeBefore);
+  assert.deepEqual(await inventory(options.destinations.atlas), atlasBefore);
+  assert.deepEqual(await inventory(failed), nativeBefore);
+});
+
+test('stale writer recovery preserves an already occupied tombstone', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  await interruptWriter(dir, plan, acceptance, 'save-native', 'after');
+  const lock = path.join(dir, '.architecture-publication-writer');
+  const owner = JSON.parse(await fs.readFile(path.join(lock, 'owner.json'), 'utf8'));
+  const retained = path.join(lock + '-history', owner.token);
+  await fs.mkdir(retained, { recursive: true });
+  const atlasBefore = await inventory(options.destinations.atlas);
+
+  await assert.rejects(recoverPairFiles(plan, acceptance), /Retained writer lock already exists/);
+  assert.equal((await fs.stat(lock)).isDirectory(), true);
+  assert.equal((await fs.stat(retained)).isDirectory(), true);
+  assert.deepEqual(await inventory(options.destinations.atlas), atlasBefore);
+  await assert.rejects(fs.stat(options.destinations.native), { code: 'ENOENT' });
+});
+
+test('stale writer recovery rechecks a PID that becomes active before reclamation', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  await interruptWriter(dir, plan, acceptance, 'save-native', 'after');
+  const lock = path.join(dir, '.architecture-publication-writer');
+  const owner = JSON.parse(await fs.readFile(path.join(lock, 'owner.json'), 'utf8'));
+  const originalKill = process.kill;
+  let checks = 0;
+  process.kill = (pid, signal) => {
+    if (pid !== owner.pid || signal !== 0) return originalKill(pid, signal);
+    checks++;
+    if (checks === 1) throw Object.assign(new Error('not running yet'), { code: 'ESRCH' });
+    return true;
+  };
+  try {
+    await assert.rejects(
+      recoverPairFiles(plan, acceptance),
+      /An active installer holds the writer lock/,
+    );
+  } finally {
+    process.kill = originalKill;
+  }
+  assert.equal(checks, 2);
+  assert.equal((await fs.stat(lock)).isDirectory(), true);
+  await assert.rejects(fs.stat(options.destinations.native), { code: 'ENOENT' });
+});
+
+test('a competing writer lock appearing during preparation is never replaced', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  const lock = path.join(dir, '.architecture-publication-writer');
+  const originalWriteFile = fs.writeFile;
+  let raced = false;
+  fs.writeFile = async (file, ...args) => {
+    const result = await originalWriteFile(file, ...args);
+    if (
+      !raced &&
+      typeof file === 'string' &&
+      file.startsWith(lock + '-pending-') &&
+      path.basename(file) === 'owner.json'
+    ) {
+      raced = true;
+      await fs.mkdir(lock);
+      await originalWriteFile(path.join(lock, 'owner.json'), 'competing writer bytes');
+    }
+    return result;
+  };
+  try {
+    await assert.rejects(
+      installPairFiles(plan, acceptance),
+      /Another installer acquired the writer lock/,
+    );
+  } finally {
+    fs.writeFile = originalWriteFile;
+  }
+  assert.equal(raced, true);
+  assert.equal(await fs.readFile(path.join(lock, 'owner.json'), 'utf8'), 'competing writer bytes');
+  await assert.rejects(fs.stat(options.recoveryRoot), { code: 'ENOENT' });
+});
+
+test('writer release cannot overwrite an occupied retained identity', async (t) => {
+  const { dir, options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  const lock = path.join(dir, '.architecture-publication-writer');
+  let retained;
+  await assert.rejects(
+    installPairFiles(plan, acceptance, {
+      writeJournal: async (file, bytes) => {
+        await fs.writeFile(file, bytes);
+        if (JSON.parse(bytes).status === 'INSTALLED' && !retained) {
+          const owner = JSON.parse(await fs.readFile(path.join(lock, 'owner.json'), 'utf8'));
+          retained = path.join(lock + '-history', owner.token);
+          await fs.mkdir(retained, { recursive: true });
+        }
+      },
+    }),
+    /Writer release identity already retained/,
+  );
+  assert(retained);
+  assert.equal((await fs.stat(lock)).isDirectory(), true);
+  assert.equal((await fs.stat(retained)).isDirectory(), true);
+  assert.equal(
+    await fs.readFile(path.join(options.destinations.native, 'owner-note.txt'), 'utf8'),
+    'keep this exact byte',
+  );
+});
+
 test('recovery refuses an unknown persisted journal state without moving destinations', async (t) => {
   const { dir, options } = await fixture(t),
     plan = await planFiles(options),
@@ -482,6 +657,41 @@ test('exact pair install preserves foreign bytes, previous entries and every atl
   }
   const again = await installPairFiles(p, approve(p));
   assert.equal(again.status, 'ALREADY_INSTALLED');
+});
+
+test('installed verification refuses a lost preserved directory', async (t) => {
+  const { options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  assert.equal((await installPairFiles(plan, acceptance)).status, 'INSTALLED');
+  const preserved = path.join(options.destinations.native, 'empty');
+  await fs.rmdir(preserved);
+  await assert.rejects(recoverPairFiles(plan, acceptance), /Installed directory set mismatch/);
+  await fs.mkdir(preserved);
+
+  const sums = path.join(options.destinations.native, 'SHA256SUMS');
+  const originalReadFile = fs.readFile;
+  let replaced = false;
+  fs.readFile = async (file, ...args) => {
+    const result = await originalReadFile(file, ...args);
+    if (file === sums && !replaced) {
+      await fs.rmdir(preserved);
+      await fs.writeFile(preserved, 'concurrent replacement');
+      replaced = true;
+    }
+    return result;
+  };
+  try {
+    await assert.rejects(recoverPairFiles(plan, acceptance), /Preserved directory missing/);
+  } finally {
+    fs.readFile = originalReadFile;
+  }
+  assert.equal(replaced, true);
+  assert.equal(await fs.readFile(preserved, 'utf8'), 'concurrent replacement');
+  assert.equal(
+    await fs.readFile(path.join(options.destinations.native, 'owner-note.txt'), 'utf8'),
+    'keep this exact byte',
+  );
 });
 
 test('missing or mismatched acceptance, stale plan and destination drift refuse all writes', async (t) => {
@@ -992,6 +1202,97 @@ test('initial journal failure never exposes an incomplete operation', async (t) 
   });
   assert.equal((await recoverPairFiles(plan, acceptance)).status, 'NOT_STARTED');
   assert.equal((await installPairFiles(plan, acceptance)).status, 'INSTALLED');
+});
+
+test('a concurrent operation identity appearing during preparation is not overwritten', async (t) => {
+  const { options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan),
+    operation = path.join(options.recoveryRoot, plan.sha256.slice(0, 20));
+  const nativeBefore = await inventory(options.destinations.native);
+  const atlasBefore = await inventory(options.destinations.atlas);
+  await assert.rejects(
+    installPairFiles(plan, acceptance, {
+      writeJournal: async (file, bytes) => {
+        await fs.writeFile(file, bytes);
+        if (path.basename(file) === 'operation.json' && file.includes(`${path.sep}.prepare-`))
+          await fs.mkdir(operation);
+      },
+    }),
+    /Operation appeared during preparation/,
+  );
+  assert.deepEqual(await inventory(options.destinations.native), nativeBefore);
+  assert.deepEqual(await inventory(options.destinations.atlas), atlasBefore);
+  assert.deepEqual(await fs.readdir(operation), []);
+});
+
+test('a destination arriving at the install boundary is retained, not overwritten', async (t) => {
+  const { options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  const foreign = path.join(options.destinations.native, 'foreign.txt');
+  let arrived = false;
+  await assert.rejects(
+    installPairFiles(plan, acceptance, {
+      writeJournal: async (file, bytes) => {
+        await fs.writeFile(file, bytes);
+        const journal = JSON.parse(bytes);
+        if (
+          !arrived &&
+          journal.intent?.action === 'install-new' &&
+          journal.intent.medium === 'native'
+        ) {
+          await fs.mkdir(options.destinations.native);
+          await fs.writeFile(foreign, 'foreign arrival');
+          arrived = true;
+        }
+      },
+    }),
+    (error) => {
+      assert.match(error.message, /Destination arrived concurrently at install boundary/);
+      assert.match(error.message, /RECOVERY_REQUIRED/);
+      return true;
+    },
+  );
+  assert.equal(arrived, true);
+  assert.equal(await fs.readFile(foreign, 'utf8'), 'foreign arrival');
+  assert.equal(
+    await fs.readFile(
+      path.join(options.recoveryRoot, plan.sha256.slice(0, 20), 'prior-native', 'index.html'),
+      'utf8',
+    ),
+    'old entry',
+  );
+});
+
+test('rollback refuses a destination arriving after retaining new output', async (t) => {
+  const { options } = await fixture(t),
+    plan = await planFiles(options),
+    acceptance = approve(plan);
+  const foreign = path.join(options.destinations.native, 'foreign.txt');
+  let arrived = false;
+  const rename = async (from, to) => {
+    if (from.includes('stage') && to === options.destinations.atlas)
+      throw Error('injected second installation failure');
+    const result = await fs.rename(from, to);
+    if (!arrived && from === options.destinations.native && to.endsWith('failed-native')) {
+      await fs.mkdir(options.destinations.native);
+      await fs.writeFile(foreign, 'foreign recovery arrival');
+      arrived = true;
+    }
+    return result;
+  };
+  await assert.rejects(installPairFiles(plan, acceptance, { rename }), (error) => {
+    assert.match(error.message, /RECOVERY_REQUIRED/);
+    assert.match(error.message, /Recovery destination arrived concurrently/);
+    return true;
+  });
+  assert.equal(arrived, true);
+  assert.equal(await fs.readFile(foreign, 'utf8'), 'foreign recovery arrival');
+  assert.equal(
+    await fs.readFile(path.join(options.destinations.atlas, 'index.html'), 'utf8'),
+    'old entry',
+  );
 });
 
 for (const phase of ['plan.json', 'acceptance.json', 'operation.json', 'activation'])

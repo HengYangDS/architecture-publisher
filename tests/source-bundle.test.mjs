@@ -279,6 +279,55 @@ test('rejects changed size, missing and undeclared members', async (t) => {
   await assert.rejects(readSourceBundle(f.file, f.digest), { code: 'bundle_members_mismatch' });
 });
 
+test('a selected bundle refuses special filesystem entries', async (t) => {
+  const f = await fixture(t);
+  const special = path.join(f.root, 'foreign-special');
+  await fs.writeFile(special, 'test-owned non-regular classification');
+  const nativeLstat = fs.lstat;
+  fs.lstat = async (file, ...args) => {
+    const stat = await nativeLstat(file, ...args);
+    return file === special
+      ? {
+          isSymbolicLink: () => false,
+          isDirectory: () => false,
+          isFile: () => false,
+        }
+      : stat;
+  };
+  try {
+    await assert.rejects(readSourceBundle(f.file, f.digest), {
+      code: 'bundle_type_unsupported',
+    });
+  } finally {
+    fs.lstat = nativeLstat;
+  }
+});
+
+test('a selected bundle detects manifest changes after all member reads', async (t) => {
+  const f = await fixture(t);
+  const member = path.join(f.root, 'input/model.json');
+  const nativeOpen = fs.open;
+  let changed = false;
+  fs.open = async (file, ...args) => {
+    const handle = await nativeOpen(file, ...args);
+    if (file === member && !changed) {
+      const nativeClose = handle.close.bind(handle);
+      handle.close = async () => {
+        await nativeClose();
+        await fs.writeFile(f.file, '{"changed":true}\n');
+        changed = true;
+      };
+    }
+    return handle;
+  };
+  try {
+    await assert.rejects(readSourceBundle(f.file, f.digest), { code: 'bundle_changed' });
+  } finally {
+    fs.open = nativeOpen;
+  }
+  assert.equal(changed, true);
+});
+
 test('rejects symlink members and symlink manifest', async (t) => {
   const f = await fixture(t);
   await fs.rename(path.join(f.root, 'input/model.json'), path.join(f.root, 'input/actual.json'));

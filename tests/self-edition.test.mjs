@@ -629,6 +629,130 @@ test('self Edition product version follows the selected core package bytes', asy
   assert.equal(edition.product.version, '0.3.0-alpha.99');
 });
 
+test('self-authored interactive pages refuse missing or extra semantic carriers', async (t) => {
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
+  const { composeArchitecturePublisherInteractiveScene } =
+    await import('../editions/self/src/edition/interactive-scene.mjs');
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-interactive-admission-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const prepared = await prepareArchitecturePublisherEdition(
+    await request(path.join(parent, 'prepared')),
+  );
+  const bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256);
+  const model = validateClaimModel(
+    JSON.parse(bundle.members.find(({ path: name }) => name === 'semantic.json').content),
+  );
+  const edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8')));
+  const viewFor = (id) => {
+    const authored = edition.scenes.interactive[id];
+    return {
+      id,
+      label: authored.label,
+      purpose: authored.purpose,
+      ...structuredClone(authored.composition),
+    };
+  };
+  const overview = viewFor('overview');
+  const composed = composeArchitecturePublisherInteractiveScene(model, edition, overview);
+  assert(composed.nodes.length > 0);
+
+  assert.throws(
+    () =>
+      composeArchitecturePublisherInteractiveScene(model, edition, { ...overview, id: 'other' }),
+    { code: 'self_interactive_layout_missing' },
+  );
+  const missingGroup = structuredClone(overview);
+  missingGroup.groups.pop();
+  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, edition, missingGroup), {
+    code: 'self_interactive_group_missing',
+  });
+  const missingRelation = structuredClone(overview);
+  const selectedRelation = composed.edges[0].semanticIds[0].slice('relation:'.length);
+  missingRelation.relations = missingRelation.relations.filter(({ id }) => id !== selectedRelation);
+  assert.throws(
+    () => composeArchitecturePublisherInteractiveScene(model, edition, missingRelation),
+    { code: 'self_interactive_relation_invalid' },
+  );
+  const extraGroup = structuredClone(overview);
+  extraGroup.groups.push({ id: 'not-authored', label: 'Not selected', entities: [] });
+  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, edition, extraGroup), {
+    code: 'self_interactive_group_coverage_invalid',
+  });
+  const unrepresented = structuredClone(overview);
+  unrepresented.relations.push({ id: selectedRelation });
+  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, edition, unrepresented), {
+    code: 'self_interactive_relation_coverage_invalid',
+  });
+  const semantics = viewFor('semantics');
+  semantics.groups = semantics.groups.filter(({ id }) => id !== 'sources');
+  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, edition, semantics), {
+    code: 'self_interactive_edge_endpoint_missing',
+  });
+});
+
+test('self Edition preparation rejects malformed selected inputs before output effects', async (t) => {
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-admission-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const output = path.join(parent, 'prepared');
+  const baseline = await request(output);
+  for (const [name, mutate, code] of [
+    ['missing input', () => null, 'self_input_invalid'],
+    [
+      'foreign source owner',
+      (input) => ((input.source.id = 'foreign'), input),
+      'self_input_invalid',
+    ],
+    [
+      'unselected source key',
+      (input) => ((input.sources.unknown = input.sources['core-package']), input),
+      'self_input_invalid',
+    ],
+    [
+      'relative source path',
+      (input) => ((input.sources['core-package'].path = 'package.json'), input),
+      'self_source_invalid',
+    ],
+    [
+      'invalid source digest',
+      (input) => ((input.sources['core-package'].sha256 = 'unbound'), input),
+      'self_source_invalid',
+    ],
+    [
+      'relative output',
+      (input) => ((input.output = 'prepared'), input),
+      'self_output_path_invalid',
+    ],
+  ]) {
+    const invalid = mutate(structuredClone(baseline));
+    await assert.rejects(prepareArchitecturePublisherEdition(invalid), { code }, name);
+    await assert.rejects(fs.access(output), { code: 'ENOENT' });
+  }
+
+  const parentFile = path.join(parent, 'not-a-directory');
+  await fs.writeFile(parentFile, 'foreign bytes');
+  await assert.rejects(
+    prepareArchitecturePublisherEdition({ ...baseline, output: path.join(parentFile, 'prepared') }),
+    { code: 'self_output_parent_invalid' },
+  );
+  assert.equal(await fs.readFile(parentFile, 'utf8'), 'foreign bytes');
+
+  const alteredSource = path.join(parent, 'altered-package.json');
+  await fs.writeFile(alteredSource, '{"not":"the selected package"}\n');
+  const changed = structuredClone(baseline);
+  changed.sources['core-package'].path = alteredSource;
+  await assert.rejects(prepareArchitecturePublisherEdition(changed), {
+    code: 'self_source_digest_mismatch',
+  });
+  await assert.rejects(fs.access(output), { code: 'ENOENT' });
+});
+
 test('self Edition rejects a selected core package with foreign product identity', async (t) => {
   const { prepareArchitecturePublisherEdition } =
     await import('../editions/self/src/edition/prepare.mjs');
