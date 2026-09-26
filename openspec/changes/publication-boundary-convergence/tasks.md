@@ -367,76 +367,30 @@ third-party or generated supply rather than moving owned code outside coverage.
       Exact selected references, reader questions, group membership, typed
       qualifiers, source identity and visible limits must survive both media;
       infeasible composition fails instead of silently narrowing meaning.
-      Implemented: verified LikeC4 geometry and selected static Scene;
-      native/derived Claim Model claim-only Candidates with separate static and
-      interactive carriers, offline relocation, changed-plane/condition tests,
-      browser/accessibility checks and exact replay. The existing grouped
-      geometry owner positions AIGW's five groups, twelve entities and eleven
-      relations. The public successor now composes exact relation/claim links
-      into sibling static SVG/PNG and four-page interactive HTML without a
-      second edited model or layout engine. Source tests cover distinct
-      carriers, question-local subsets, visible linkage, forged identity and
-      dependency rejection, and exact Candidate replay. A temporary read-only
-      source-adjacent trial on AIGW HEAD `04f593a4` built both media for four
-      questions, five static groups, 12 entities, 11 relations and 11 claims;
-      replay matched. Background Chrome displayed all four complete pages,
-      with 11/3/6/2 linked claims, no console errors or horizontal overflow at
-      1280/390 CSS pixels, and no axe WCAG 2/2.1 A/AA violations. These
-      temporary files were removed. This is not AIGW source-owned Provider
-      adoption, installed parity, predicate qualification or visual acceptance:
-      static claim prose remains dense and interactive graph labels small.
-      A later exact-field factoring pass removed seven repeated context facts
-      from each claim card on the AIGW overview without hiding per-claim
-      anchors; its 1280px HTML page shortened from 4,463 to 3,627 CSS pixels.
-      Fresh Chrome/axe checks again found four complete pages, no console
-      errors, no mobile horizontal overflow and no WCAG 2/2.1 A/AA violations.
-      The new HTML bytes are still provisional and not human-approved.
-      A later exact public build of AIGW's staged v2 input produced both media
-      from a relation-only structural overview and claim-bearing detail pages;
-      the structural scope limit was visible in SVG and HTML. This is a
-      deliberate narrowing of the old overview, not editorial parity or
-      acceptance. Relation-only views now expose source-reported status and
-      reject endpoint-only carrier forgeries. Mixed pages with some unclaimed
-      relations now retain separate source carriers and disclose their
-      structural-only status; forged removal of such an edge fails coverage.
-      A fresh exact-candidate Chrome probe shows that compact edge captions
-      remove qualifier collisions but the 12/11 overview still fits 16px node
-      text at about 6px effective size. The measured viewport constraint and
-      non-accepted alternative are in `docs/research/mechanism-evaluation.md`;
-      do not treat caption shortening as visual acceptance.
-      A separate Graphviz WASM probe showed a clearer causal topology without
-      editing AIGW meaning. Latest stable 1.29.1 passed isolated macOS offline
-      installation and relocation, but current HTML CSP rejects runtime WASM;
-      build-time layout remains a candidate only. Rebinding its SVG to the
-      bundled font passed parsing yet overflowed node boxes. The backend
-      bake-off must measure exact font/edge geometry and full installed media
-      before any replacement; do not add a permanent second engine or demand
-      premature source abstraction.
-      On the same AIGW subset, exact-font Dagre and ELK route probes both passed
-      four bounded geometry intersection checks and all endpoint checks;
-      Dagre is provisionally lower-cost, not selected. Complete comparative
-      inputs, images, limits and remaining counterexamples are in the research
-      record; the current renderer remains the only product owner.
-      A focused RED/GREEN now keeps Claim Model relation qualifiers as sorted,
-      canonical JSON literals in the interactive Scene and adjacent readable
-      relation fields, visibly source-reported and unverified rather than
-      flattening them into graph labels. Static presentation remains independent.
-      A provisional packed offline install at Publisher `1fdb2d9` rebuilt and replayed
-      AIGW `270ca0bd`'s staged Client Projection Candidate; browser measurements
-      expose a 1,013px graph/evidence column height disparity. The exact
-      identities and limits are in the mechanism evaluation. A geometry swap
-      alone cannot close this composition gap.
-      A joint Dagre/full-width evidence-flow browser-only probe made the whole
-      desktop graph visible within 1280×720 and shortened the 1440px first
-      page from 1,906px to 1,365px; its inert SVG and 4px mobile text fail
-      interaction and narrow-viewport readability. No backend is selected.
-      Open: source-owner-approved authoring, installed exact-AIGW paired parity,
-      reader-quality refinement, final browser/human review and qualification.
-      Reuse the current layout owner unless a measured geometry failure
-      requires replacement. Current release gates are tracked in Task 7.5;
-      this does not qualify the AIGW candidate.
-      Detailed counterexamples and measured limits stay in
-      `docs/research/mechanism-evaluation.md`, not a second progress ledger.
+      Current partial result: one public build handles selected LikeC4 and
+      Claim Model inputs; the existing grouped compositor carries source-bound
+      relations and typed claim cards into sibling static SVG/PNG and standalone
+      HTML. Focused counterexamples cover selected assertions, visible limits,
+      qualifiers, mixed claimed/unclaimed relations, forged carriers, and exact
+      replay. A staged AIGW Client Projection at `270ca0bd` yields four reader
+      pages over 12 nodes, 11 relations, and 11 claims. This is a limited
+      chapter, not whole-product AIGW or source-owner acceptance.
+      The relation-only overview now places its graph above distinct evidence
+      sections; claim-bearing pages retain adjacent evidence. The full reader
+      question remains accessible in navigation. A dense-graph browser RED/GREEN
+      caught cumulative Cytoscape bounds after desktop/mobile/desktop relayout;
+      the corrected geometry returns to its initial scale. Source-adjacent
+      Chrome exercised all four AIGW pages at 1440, 901, and 390 CSS pixels
+      without page errors, external requests, horizontal overflow, or axe WCAG
+      A/AA violations. At 390px, the overview still fits 16px node text to
+      about 2.7 CSS pixels; claim details also remain dense. No visual
+      acceptance or installed parity follows from these checks.
+      Graphviz, Dagre, and ELK remain compared candidates, not selected
+      backends; the current renderer is the sole production owner. Finish
+      readable narrow-viewport and mixed-page composition, four-workload
+      mechanism selection, installed exact-AIGW parity, source-owner approval,
+      final human review, and predicate qualification. Detailed probes and
+      identities remain in `docs/research/mechanism-evaluation.md`.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -583,8 +537,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       self-hosted golden was removed; the frozen first-party release matrix
       remains exact. A single collision-safe exact-field predicate now replaces
       repeated delimiter comparisons and local validators; malformed key names
-      failed RED and pass GREEN. Current branch coverage is 93.51%, below the
-      unchanged 95% release floor. Task 7.2 remains open.
+      failed RED and pass GREEN. Task 7.2 remains open; the sole current
+      coverage gate and its measured status are in Task 7.5.
 - [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,
@@ -615,10 +569,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       `EALLOWSCRIPTS` failures. The test entry now clears inherited npm config
       and selects two distinct tracked empty config files, without editing host
       policy. Focused installed tests pass 9/9; static and package checks pass.
-      The latest Work Lane source passes 1,051 behavior tests with five skips,
-      37 Chrome-targeted tests, static checks and package checks. The complete
-      owned-scope branch coverage is 92.94%, below 95%; no release admission is
-      inferred.
+      The latest exact Work Lane source passes 1,056 of 1,058 behavior tests
+      with two declared skips, plus static and package checks. The last
+      coverage run, before the final responsive-relayout repair, measured
+      92.95% branches; exact-source coverage remains unverified and the 95%
+      release gate is open. No release admission is inferred.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

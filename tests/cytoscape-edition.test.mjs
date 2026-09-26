@@ -37,6 +37,45 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.deepEqual(result.carriers[1].nodes, []);
 });
 
+test('claim-bearing detail does not inherit structural overview canvas placement', async () => {
+  const { renderInteractiveEditionHtml } =
+    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+  const scene = interactiveEditionScene();
+  const revision = 'a'.repeat(64);
+  const claim = { namespace: 'private/model', id: 'claim-one', sha256: revision };
+  const layoutClass = (html) =>
+    html.match(
+      /<section class="edition-page" id="page-0"[\s\S]*?<div class="(page-grid[^"]*)"/u,
+    )?.[1];
+
+  const overview = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
+  assert.equal(layoutClass(overview), 'page-grid page-grid--graph');
+
+  scene.pages[0].claimCards = [
+    { ...claim, facts: [{ label: 'Claim plane', value: 'implemented' }] },
+  ];
+  scene.pages[0].sourceAssertionCarriers.push(
+    {
+      assertionId: 'relation-assertion',
+      kind: 'relation',
+      nodeRefs: [],
+      relationRefs: [{ namespace: claim.namespace, reference: 'relation:4:2', sha256: revision }],
+    },
+    {
+      assertionId: 'claim-assertion',
+      kind: 'claim',
+      nodeRefs: [],
+      relationRefs: [],
+      claimRefs: [{ namespace: claim.namespace, reference: claim.id, sha256: revision }],
+    },
+  );
+  scene.pages[0].claimRelationLinks = [
+    { claimAssertionId: 'claim-assertion', relationAssertionId: 'relation-assertion' },
+  ];
+  const detail = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
+  assert.equal(layoutClass(detail), 'page-grid');
+});
+
 test('malformed or excessive Scenes fail before loading renderer supply', async () => {
   const { renderInteractiveEditionHtml } =
     await import('../packages/publisher/renderers/cytoscape/index.mjs');

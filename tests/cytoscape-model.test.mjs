@@ -45,6 +45,15 @@ test('same-label nodes in different source namespaces retain distinct private bi
   assert.equal(JSON.stringify(projected.publicPage).includes('other/model'), false);
 });
 
+test('authored view identity supplies concise navigation without replacing the reader question', () => {
+  const page = interactiveEditionScene().pages[0];
+  page.id = 'source-flow';
+  const { publicPage } = projectInteractivePage(page, 0);
+  assert.equal(publicPage.id, 'page-0');
+  assert.equal(publicPage.navigationLabel, 'Source Flow');
+  assert.equal(publicPage.title, 'What is connected?');
+});
+
 test('malformed nested references and repeated assertions fail with owned diagnostics', () => {
   const cases = [
     [

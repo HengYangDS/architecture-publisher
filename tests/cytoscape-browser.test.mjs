@@ -16,7 +16,26 @@ test(
     timeout: 35_000,
   },
   async (t) => {
-    const candidate = await renderInteractiveEditionHtml(interactiveEditionScene());
+    const scene = interactiveEditionScene();
+    const overview = scene.pages[0];
+    for (let index = 0; index < 10; index += 1) {
+      const id = 'client-' + index;
+      const relationId = 'relation-client-' + index;
+      const endpoint = { namespace: overview.nodes[1].namespace, id };
+      overview.nodes.push({ ...overview.nodes[1], id, label: 'Client ' + index });
+      overview.relations.push({
+        ...overview.relations[0],
+        id: relationId,
+        from: overview.relations[0].to,
+        to: endpoint,
+      });
+      overview.sourceAssertionCarriers[0].nodeRefs.push(endpoint);
+      overview.sourceAssertionCarriers[0].relationRefs.push({
+        ...overview.sourceAssertionCarriers[0].relationRefs[0],
+        reference: relationId,
+      });
+    }
+    const candidate = await renderInteractiveEditionHtml(scene);
     const hostileScene = interactiveEditionScene();
     hostileScene.pages[0].nodes[0].label = '<img src=x onerror="window.__archpub_injected=true">';
     const hostileCandidate = await renderInteractiveEditionHtml(hostileScene);
@@ -80,8 +99,16 @@ test(
       });
       assert.deepEqual(violations, [], `${label} accessibility violations`);
     };
+    const graphGeometry = () =>
+      page.evaluate(() => {
+        const registry = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg');
+        const graph = registry.cy;
+        const bounds = graph.elements().boundingBox();
+        return { zoom: graph.zoom(), width: bounds.w, height: bounds.h };
+      });
     await assertAccessible('overview');
     assert.equal(await page.locator('#graph-0').getAttribute('data-layout'), 'rightward');
+    const initialGeometry = await graphGeometry();
     assert.equal((await page.locator('#page-0 canvas').count()) > 0, true);
     assert.equal(await page.locator('#page-1').isHidden(), true);
     assert.equal(await page.getByRole('button', { name: 'Alpha & one component' }).count(), 1);
@@ -115,6 +142,21 @@ test(
       ),
       true,
     );
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(resolve)),
+        ),
+    );
+    assert.equal(await page.locator('#graph-0').getAttribute('data-layout'), 'rightward');
+    const restoredGeometry = await graphGeometry();
+    for (const measure of ['zoom', 'width', 'height'])
+      assert(
+        Math.abs(restoredGeometry[measure] - initialGeometry[measure]) <=
+          initialGeometry[measure] * 0.01,
+        'responsive relayout changed ' + measure,
+      );
     assert.deepEqual(errors, []);
     await page.goto(`${origin}/hostile.html`, { waitUntil: 'load', timeout: 15_000 });
     await page.waitForSelector('#graph-0[data-rendered="true"]', { timeout: 8_000 });

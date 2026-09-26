@@ -6,6 +6,8 @@ const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ origin, id }) => JSON.stringify([origin.namespace, id, origin.sha256]);
 const claimKey = ({ namespace, reference, sha256 }) =>
   JSON.stringify([namespace, reference, sha256]);
+const navigationLabel = (id) =>
+  id.replaceAll('-', ' ').replace(/\b[a-z]/gu, (letter) => letter.toUpperCase());
 
 function canonicalJsonLiteral(value) {
   if (typeof value !== 'string' || !value.length) return false;
@@ -265,6 +267,7 @@ export function projectInteractivePage(page, index) {
   return {
     publicPage: {
       id: `page-${index}`,
+      navigationLabel: navigationLabel(page.id),
       title: publicQuestions[0].text,
       questions: publicQuestions,
       nodes: publicNodes,

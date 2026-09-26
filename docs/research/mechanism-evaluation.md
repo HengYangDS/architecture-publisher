@@ -1564,3 +1564,40 @@ readable narrow-viewport presentation; it cannot certify this screenshot or
 silently drop the hard-to-fit relations.
 
 ![Narrow-viewport counterexample from the same inert prototype; not accepted media](evidence/aigw-dagre-composition-mobile-counterexample.png)
+
+### Source-adjacent neutral Candidate and responsive relayout (2026-09-26)
+
+AIGW Work Lane `270ca0bd` supplied the unchanged Client Projection Build Request
+SHA-256 `29fe63c218c4c1264cf737746e589d5dc2e6dec91860ad42adb08844ebf71ed8`.
+The Publisher worktree built Candidate
+`f4cece0a96e8728342abf1d3b7852dfe2771f579a04a290b51c060607ea9029d`
+with HTML SHA-256 `616c6ada33fdf076bc9e2884d913b496606c4facfd2c0d70cd3361892153fe24`
+and static PNG SHA-256
+`850d4331644dfb32182648e7417f11c22b8fefd4f3e31316a98f2ba1517cc3fe`.
+This was a source-adjacent, unqualified Candidate, not the frozen installed
+successor or an AIGW-approved Edition.
+
+The relation-only overview gives its graph the 1,352px desktop reading width
+and places reader questions, source nodes, relations, and method limits in
+separate regions below it. Claim-bearing detail pages retain adjacent evidence
+rather than stretching sparse graphs across the whole canvas. The four pages
+preserved the selected 12/11 structural overview and 4/6/2 linked claim
+carriers. Background Chrome at 1440, 901, and 390 CSS pixels observed no
+horizontal overflow, page errors, external requests, or axe WCAG 2/2.1 A/AA
+violations. This checks DOM and interaction boundaries, not visual acceptance.
+The narrow overview still fits a 16px Cytoscape node face at zoom 0.167,
+roughly 2.7 CSS pixels effective size; at 901px, mixed-page graph columns are
+only 461px wide. Claim cards remain prose-dense. A short navigation label
+mechanically derived from an authored view ID has not yet earned generic
+editorial approval. These are reader-quality counterexamples.
+
+The same candidate exposed a separate runtime defect: after
+1440→390→1440 resizing, repeated Cytoscape `breadthfirst` layout inherited
+its fitted viewport transform. The 12/11 model bounds grew from about
+1,969×516 to 4,856×2,223 model units, and desktop zoom fell from 0.628 to
+0.146. A focused browser RED/GREEN now resets zoom and pan before a direction
+change; exact initial bounds and zoom returned after the same roundtrip.
+This repairs geometric idempotence, not the small-screen reading grammar.
+The current Cytoscape renderer remains the sole product owner; the measured
+Dagre, ELK, and Graphviz probes remain alternatives pending cross-workload
+comparison and installed reader acceptance.
