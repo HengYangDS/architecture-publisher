@@ -479,7 +479,7 @@ test('static claims factor only exact shared context while retaining each claim 
   assert.equal((changed.match(/Claim plane: observed/gu) ?? []).length, 1);
 });
 
-test('a mixed graph and claim plate require exact source-bound links', () => {
+function linkedMixedScene() {
   const input = staticEditionScene();
   input.claimCards = [
     {
@@ -497,9 +497,53 @@ test('a mixed graph and claim plate require exact source-bound links', () => {
     relationRefs: [],
     claimRefs: [{ namespace: 'fixture/claims', reference: 'claim', sha256: 'a'.repeat(64) }],
   });
+  input.sourceAssertionCarriers[0].kind = 'relation';
+  input.claimRelationLinks = [{ claimAssertionId: 'claim', relationAssertionId: 'source-shape' }];
+  return input;
+}
+
+test('a mixed graph and claim plate require exact source-bound links', () => {
+  const input = linkedMixedScene();
+  delete input.claimRelationLinks;
   assert.throws(() => svg.composeStaticEditionSvg(input), {
     code: 'static_edition_claim_relation_invalid',
   });
+});
+
+test('mixed neutral composition flows graph and claims beside longer reader notes', () => {
+  const input = linkedMixedScene();
+  input.limits = Array.from({ length: 15 }, (_, index) => `method-${index}`);
+  const output = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  const at = (label) => {
+    const match = new RegExp(`<text x="([\\d.]+)" y="([\\d.]+)"[^>]*>${label}<\\/text>`, 'u').exec(
+      output,
+    );
+    assert(match, label);
+    return { x: Number(match[1]), y: Number(match[2]) };
+  };
+  const claims = at('SOURCE CLAIMS');
+  const lastNote = at('method-14');
+  const notes = at('READER QUESTIONS');
+  const transform = /<g transform="translate\(([\d.-]+) ([\d.-]+)\)">/u.exec(output);
+  assert(transform);
+  const card = /<g data-graphic-id="c-0">\s*<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)"/u.exec(
+    output,
+  );
+  assert(card);
+  assert(claims.y > Number(transform[2]) + input.bounds.height + 40);
+  assert(claims.y < lastNote.y);
+  assert(Number(card[1]) + Number(card[3]) < notes.x - 20);
+});
+
+test('an infeasible side candidate cannot discard a readable full-width claim', () => {
+  const input = linkedMixedScene();
+  input.limits = Array.from({ length: 15 }, (_, index) => `method-${index}`);
+  input.claimCards[0].facts = [{ label: 'Description', value: 'x'.repeat(700) }];
+  const output = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  assert.match(output, /SOURCE CLAIMS/u);
+  assert.match(output, /Description:/u);
+  const pieces = [...output.matchAll(/<text[^>]*>(x+)<\/text>/gu)].map((match) => match[1]);
+  assert.equal(pieces.join(''), 'x'.repeat(700));
 });
 
 test('the static Edition SVG is admitted by the pinned raster profile', async () => {

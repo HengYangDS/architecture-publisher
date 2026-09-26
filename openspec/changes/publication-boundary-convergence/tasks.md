@@ -425,9 +425,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       the public CLI: source locks and all three media members matched their
       earlier bytes; Candidate and manifest bytes changed to record the corrected
       Scene identity. This is a mechanism probe, not AIGW source adoption or
-      qualification. Local visual inspection rejects the static trials as final:
-      whitespace is unbalanced and reader text is too small. AIGW editorial
-      approval and final media review remain open.
+      qualification. A measured mixed-static compositor now selects the shorter
+      feasible claim placement without collapsing a dense two-column card.
+      On unchanged AIGW-derived trial inputs, the horizontal 3600px static
+      image shortened from 1704 to 1292px and the two-row alternative from 2178
+      to 2065px; interactive HTML remained byte-identical. Focused counterexamples
+      preserve the old short-note layout and reject an infeasible candidate
+      without losing a valid one. These trials reduce blank canvas, but reader
+      text and overall art direction remain below flagship quality; AIGW
+      editorial approval and final media review remain open.
       Publisher self, ETHOS and di-effect successor media, selected-media
       coverage, source/editor acceptance, final visual review, and predicate
       qualification remain open. Narrow-viewport checks are ordinary browser
@@ -678,9 +684,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The current pre-freeze Lane tree reports 1,121 pass, 6 skip, 0 fail;
-      statements and lines 97.79%, functions 99.62%, and branches 93.80%
-      (8,252/8,797). At this measured denominator, 106 more covered branch
+      The current pre-freeze Lane tree reports 1,123 pass, 6 skip, 0 fail;
+      statements and lines 97.78%, functions 99.62%, and branches 93.77%
+      (8,271/8,820). At this measured denominator, 108 more covered branch
       outcomes are needed. Adversarial static carrier and native evolution
       admission cases improve coverage but do not satisfy the global 95% gate.
       Static, strict OpenSpec, and package checks pass. Continue with high-risk

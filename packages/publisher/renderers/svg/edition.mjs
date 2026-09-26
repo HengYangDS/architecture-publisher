@@ -462,176 +462,209 @@ export function composeStaticEditionSvg(scene) {
     y,
     notesWidth,
   );
-  const topHeight = Math.max(300, (bounds?.height ?? 0) + 120, y - graphTop + 32);
-  const claimSectionY = graphTop + topHeight + 34;
-  const claimPlate = [];
-  const claimCarriers = [];
+  const structureHeight = Math.max(300, (bounds?.height ?? 0) + 120);
+  const notesHeight = y - graphTop + 32;
   const claimCards = scene.claimCards ?? [];
   const { common, commonLabels } = factorClaimFacts(claimCards);
-  const claimX = mixed ? 60 : 74;
-  const claimWidth = mixed ? width - 120 : graphWidth - 32;
-  let claimY = mixed ? claimSectionY : graphTop + 66;
-  if (mixed)
-    claimY =
-      textLines(claimPlate, 'SOURCE CLAIMS', claimX, claimY, claimWidth, 11, '#66736b', 600, 1) +
-      18;
-  if (common.length) {
-    claimY =
-      textLines(
-        claimPlate,
-        'COMMON TO ALL SELECTED CLAIMS',
-        claimX,
-        claimY,
-        claimWidth,
-        11,
-        '#66736b',
-        600,
-        2,
-      ) + 8;
-    for (const { label, value } of common)
+  const paintClaims = (placement) => {
+    const claimSectionY =
+      graphTop +
+      (placement === 'side' ? structureHeight : Math.max(structureHeight, notesHeight)) +
+      34;
+    const claimPlate = [];
+    const claimCarriers = [];
+    const claimX = mixed ? 60 : 74;
+    const claimWidth = mixed && placement === 'footer' ? width - 120 : graphWidth - 32;
+    let claimY = mixed ? claimSectionY : graphTop + 66;
+    let denseSingleColumnCards = 0;
+    if (mixed)
+      claimY =
+        textLines(claimPlate, 'SOURCE CLAIMS', claimX, claimY, claimWidth, 11, '#66736b', 600, 1) +
+        18;
+    if (common.length) {
       claimY =
         textLines(
           claimPlate,
-          `${label}: ${value}`,
+          'COMMON TO ALL SELECTED CLAIMS',
           claimX,
           claimY,
           claimWidth,
-          14,
-          '#27352e',
-          400,
-          8,
-        ) + 5;
-    claimPlate.push(
-      `<line x1="${claimX}" y1="${number(claimY + 5)}" x2="${number(mixed ? claimX + claimWidth : 60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#aebbb0" stroke-width="1"/>`,
-    );
-    claimY += 27;
-  }
-  if (mixed) {
-    const relationPositions = new Map(
-      scene.edges
-        .flatMap((edge) => edge.relations)
-        .map((relation, index) => [relationKey(relation), index]),
-    );
-    const positionFor = (claim) => {
-      const identity = claimKey({
-        namespace: claim.namespace,
-        reference: claim.id,
-        sha256: claim.sha256,
-      });
-      const relationIdentity = claimLinks.relations.get(identity);
-      if (relationIdentity === undefined && claimLinks.subjects.has(identity))
-        return relationPositions.size;
-      const position = relationPositions.get(relationIdentity);
-      if (position === undefined) fail('static_edition_claim_relation_invalid');
-      return position;
-    };
-    const orderedClaims = [...claimCards].sort(
-      (left, right) => positionFor(left) - positionFor(right),
-    );
-    const columns = Math.min(
-      claimCards.length,
-      Math.max(1, Math.floor((claimWidth + 24) / (480 + 24))),
-    );
-    const cardWidth = columns === 1 ? claimWidth : (claimWidth - (columns - 1) * 24) / columns;
-    for (let row = 0; row < claimCards.length; row += columns) {
-      let rowBottom = claimY;
-      for (let column = 0; column < columns && row + column < claimCards.length; column += 1) {
-        const claim = orderedClaims[row + column];
-        const graphicId = `c-${row + column}`;
-        const relationPosition = positionFor(claim);
-        const x = columns === 1 ? (width - cardWidth) / 2 : claimX + column * (cardWidth + 24);
-        const content = [];
-        let cardY = claimY + 32;
-        cardY =
+          11,
+          '#66736b',
+          600,
+          2,
+        ) + 8;
+      for (const { label, value } of common)
+        claimY =
           textLines(
-            content,
-            claimLinks.subjects.has(
-              claimKey({ namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 }),
-            )
-              ? 'ON SOURCE ENTITY'
-              : `ON SOURCE RELATION ${String(relationPosition + 1).padStart(2, '0')}`,
-            x + 16,
-            cardY,
-            cardWidth - 32,
-            11,
-            '#66736b',
-            600,
-            2,
-          ) + 13;
-        const facts = claim.facts.filter(({ label }) => !commonLabels.has(label));
-        const twoColumn = cardWidth >= 900 && facts.length >= 6;
-        const columnWidth = twoColumn ? (cardWidth - 60) / 2 : cardWidth - 32;
-        const columnY = [cardY, cardY];
-        const split = Math.ceil(facts.length / 2);
-        for (const [index, fact] of facts.entries()) {
-          const column = twoColumn && index >= split ? 1 : 0;
-          columnY[column] =
+            claimPlate,
+            `${label}: ${value}`,
+            claimX,
+            claimY,
+            claimWidth,
+            14,
+            '#27352e',
+            400,
+            8,
+          ) + 5;
+      claimPlate.push(
+        `<line x1="${claimX}" y1="${number(claimY + 5)}" x2="${number(mixed ? claimX + claimWidth : 60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#aebbb0" stroke-width="1"/>`,
+      );
+      claimY += 27;
+    }
+    if (mixed) {
+      const relationPositions = new Map(
+        scene.edges
+          .flatMap((edge) => edge.relations)
+          .map((relation, index) => [relationKey(relation), index]),
+      );
+      const positionFor = (claim) => {
+        const identity = claimKey({
+          namespace: claim.namespace,
+          reference: claim.id,
+          sha256: claim.sha256,
+        });
+        const relationIdentity = claimLinks.relations.get(identity);
+        if (relationIdentity === undefined && claimLinks.subjects.has(identity))
+          return relationPositions.size;
+        const position = relationPositions.get(relationIdentity);
+        if (position === undefined) fail('static_edition_claim_relation_invalid');
+        return position;
+      };
+      const orderedClaims = [...claimCards].sort(
+        (left, right) => positionFor(left) - positionFor(right),
+      );
+      const columns = Math.min(
+        claimCards.length,
+        Math.max(1, Math.floor((claimWidth + 24) / (480 + 24))),
+      );
+      const cardWidth = columns === 1 ? claimWidth : (claimWidth - (columns - 1) * 24) / columns;
+      for (let row = 0; row < claimCards.length; row += columns) {
+        let rowBottom = claimY;
+        for (let column = 0; column < columns && row + column < claimCards.length; column += 1) {
+          const claim = orderedClaims[row + column];
+          const graphicId = `c-${row + column}`;
+          const relationPosition = positionFor(claim);
+          const x =
+            columns === 1 && placement === 'footer'
+              ? (width - cardWidth) / 2
+              : claimX + column * (cardWidth + 24);
+          const content = [];
+          let cardY = claimY + 32;
+          cardY =
             textLines(
               content,
+              claimLinks.subjects.has(
+                claimKey({ namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 }),
+              )
+                ? 'ON SOURCE ENTITY'
+                : `ON SOURCE RELATION ${String(relationPosition + 1).padStart(2, '0')}`,
+              x + 16,
+              cardY,
+              cardWidth - 32,
+              11,
+              '#66736b',
+              600,
+              2,
+            ) + 13;
+          const facts = claim.facts.filter(({ label }) => !commonLabels.has(label));
+          const twoColumn = cardWidth >= 900 && facts.length >= 6;
+          if (facts.length >= 6 && !twoColumn) denseSingleColumnCards += 1;
+          const columnWidth = twoColumn ? (cardWidth - 60) / 2 : cardWidth - 32;
+          const columnY = [cardY, cardY];
+          const split = Math.ceil(facts.length / 2);
+          for (const [index, fact] of facts.entries()) {
+            const column = twoColumn && index >= split ? 1 : 0;
+            columnY[column] =
+              textLines(
+                content,
+                `${fact.label}: ${fact.value}`,
+                x + 16 + column * (columnWidth + 28),
+                columnY[column],
+                columnWidth,
+                14,
+                '#27352e',
+                400,
+                8,
+              ) + 5;
+          }
+          cardY = Math.max(...columnY);
+          const bottom = cardY + 16;
+          claimPlate.push(
+            `<g data-graphic-id="${graphicId}">`,
+            `<rect x="${number(x)}" y="${number(claimY)}" width="${number(cardWidth)}" height="${number(bottom - claimY)}" rx="12" fill="#fffefa" stroke="#c4ccc2" stroke-width="1"/>`,
+            ...content,
+            '</g>',
+          );
+          claimCarriers.push({
+            graphicId,
+            source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
+          });
+          rowBottom = Math.max(rowBottom, bottom);
+        }
+        claimY = rowBottom + 24;
+      }
+    } else {
+      for (const [position, claim] of claimCards.entries()) {
+        const graphicId = `c-${position}`;
+        claimCarriers.push({
+          graphicId,
+          source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
+        });
+        claimPlate.push(`<g data-graphic-id="${graphicId}">`);
+        for (const fact of claim.facts) {
+          if (commonLabels.has(fact.label)) continue;
+          claimY =
+            textLines(
+              claimPlate,
               `${fact.label}: ${fact.value}`,
-              x + 16 + column * (columnWidth + 28),
-              columnY[column],
-              columnWidth,
+              74,
+              claimY,
+              graphWidth - 32,
               14,
               '#27352e',
               400,
               8,
             ) + 5;
         }
-        cardY = Math.max(...columnY);
-        const bottom = cardY + 16;
         claimPlate.push(
-          `<g data-graphic-id="${graphicId}">`,
-          `<rect x="${number(x)}" y="${number(claimY)}" width="${number(cardWidth)}" height="${number(bottom - claimY)}" rx="12" fill="#fffefa" stroke="#c4ccc2" stroke-width="1"/>`,
-          ...content,
+          `<line x1="74" y1="${number(claimY + 5)}" x2="${number(60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#d3dbd1" stroke-width="1"/>`,
           '</g>',
         );
-        claimCarriers.push({
-          graphicId,
-          source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
-        });
-        rowBottom = Math.max(rowBottom, bottom);
+        claimY += 27;
       }
-      claimY = rowBottom + 24;
     }
-  } else {
-    for (const [position, claim] of claimCards.entries()) {
-      const graphicId = `c-${position}`;
-      claimCarriers.push({
-        graphicId,
-        source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
-      });
-      claimPlate.push(`<g data-graphic-id="${graphicId}">`);
-      for (const fact of claim.facts) {
-        if (commonLabels.has(fact.label)) continue;
-        claimY =
-          textLines(
-            claimPlate,
-            `${fact.label}: ${fact.value}`,
-            74,
-            claimY,
-            graphWidth - 32,
-            14,
-            '#27352e',
-            400,
-            8,
-          ) + 5;
-      }
-      claimPlate.push(
-        `<line x1="74" y1="${number(claimY + 5)}" x2="${number(60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#d3dbd1" stroke-width="1"/>`,
-        '</g>',
-      );
-      claimY += 27;
+    return { claimSectionY, claimPlate, claimCarriers, claimY, denseSingleColumnCards };
+  };
+  const heightFor = ({ claimCarriers, claimY }) =>
+    Math.max(structureHeight, notesHeight, claimCarriers.length ? claimY - graphTop + 32 : 0);
+  const attemptClaims = (placement) => {
+    try {
+      return paintClaims(placement);
+    } catch (error) {
+      if (error?.code === 'static_edition_text_unrepresentable') return null;
+      throw error;
     }
-  }
-  const graphHeight = Math.max(topHeight, claimCarriers.length ? claimY - graphTop + 32 : 0);
+  };
+  const footer = attemptClaims('footer');
+  const side = mixed ? attemptClaims('side') : null;
+  if (!footer && !side) fail('static_edition_text_unrepresentable');
+  const useSide =
+    side &&
+    (!footer ||
+      (side.denseSingleColumnCards <= footer.denseSingleColumnCards &&
+        heightFor(side) < heightFor(footer)));
+  const chosen = useSide ? side : footer;
+  if (!chosen) fail('static_edition_text_unrepresentable');
+  const { claimSectionY, claimPlate, claimCarriers } = chosen;
+  const contentHeight = heightFor(chosen);
   const translateX = bounds ? 60 + (graphWidth - bounds.width) / 2 - bounds.x : 0;
   const translateY = bounds
     ? mixed
       ? graphTop + 42 - bounds.y
-      : graphTop + 42 + (graphHeight - 42 - bounds.height) / 2 - bounds.y
+      : graphTop + 42 + (contentHeight - 42 - bounds.height) / 2 - bounds.y
     : 0;
-  const height = Math.ceil(graphTop + graphHeight + 48);
+  const height = Math.ceil(graphTop + contentHeight + 48);
   if (height > 12_000) fail('static_edition_geometry_invalid');
   const nodeGraphicIds = new Map(
     nodeCarriers.map(({ source, graphicId }) => [key(source), graphicId]),
@@ -649,10 +682,10 @@ export function composeStaticEditionSvg(scene) {
     `<rect width="${width}" height="${height}" fill="#f5f3ed"/>`,
     `<defs><marker id="source-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse"><path d="M 0 0 L 10 4 L 0 8 Z" fill="#60786a"/></marker></defs>`,
     `<line x1="60" y1="${number(graphTop - 18)}" x2="${width - 60}" y2="${number(graphTop - 18)}" stroke="#c4ccc2" stroke-width="1"/>`,
-    `<line x1="${number(notesX - gap / 2)}" y1="${number(graphTop)}" x2="${number(notesX - gap / 2)}" y2="${number(mixed ? graphTop + topHeight - 18 : height - 48)}" stroke="#d3dbd1" stroke-width="1"/>`,
+    `<line x1="${number(notesX - gap / 2)}" y1="${number(graphTop)}" x2="${number(notesX - gap / 2)}" y2="${number(mixed && !useSide ? graphTop + Math.max(structureHeight, notesHeight) - 18 : height - 48)}" stroke="#d3dbd1" stroke-width="1"/>`,
     ...(mixed
       ? [
-          `<line x1="60" y1="${number(claimSectionY - 24)}" x2="${number(width - 60)}" y2="${number(claimSectionY - 24)}" stroke="#c4ccc2" stroke-width="1"/>`,
+          `<line x1="60" y1="${number(claimSectionY - 24)}" x2="${number(useSide ? 60 + graphWidth - 32 : width - 60)}" y2="${number(claimSectionY - 24)}" stroke="#c4ccc2" stroke-width="1"/>`,
         ]
       : []),
     ...header,

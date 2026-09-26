@@ -925,6 +925,15 @@ own carriers. Neither grouping nor factoring
 changes semantic identity or grants source endorsement. Static and interactive
 media compose these obligations independently.
 
+For mixed neutral static media, graph, claim plate, and reader notes form one
+measured composition. The renderer evaluates a full-width claim footer and a
+claim continuation below the graph beside longer notes with the same text
+layout code. It selects the shorter feasible canvas only if the side placement
+does not collapse a dense claim from two reading columns to one. An infeasible
+candidate cannot discard a feasible sibling; both media identity and source
+coverage remain unchanged by this geometric choice. No adopter-specific style
+or second layout engine is introduced.
+
 A visible assertion must be linked to a source or editorial claim, and every
 required claim for that medium must have a visible carrier for coverage to
 pass. An omission changes that medium's editorial scope and requires a new
