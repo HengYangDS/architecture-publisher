@@ -1,0 +1,18 @@
+digraph G {
+graph [rankdir=LR, splines=ortho, bgcolor="transparent", pad="0.15", nodesep="0.32", ranksep="0.48"];
+node [shape=box, style="rounded,filled", fillcolor="#fffefa", color="#84978a", fontname="Helvetica", fontsize=14, margin="0.16,0.12"];
+edge [color="#60786a", fontname="Helvetica", fontsize=11, arrowsize=0.7];
+"n-0" [label="Admitted adapters"];
+"n-1" [label="AIGW"];
+"n-2" [label="Native client"];
+"n-3" [label="Configuration"];
+"n-4" [label="Selected endpoint"];
+"n-5" [label="Native projection"];
+"n-6" [label="Operator"];
+"n-1" -> "n-3" [label="maintains"];
+"n-1" -> "n-0" [label="dispatches"];
+"n-2" -> "n-4" [label="sends-requests-to"];
+"n-6" -> "n-1" [label="invokes"];
+"n-5" -> "n-2" [label="configures"];
+"n-0" -> "n-5" [label="applies"];
+}

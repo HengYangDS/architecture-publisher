@@ -1,0 +1,15 @@
+digraph G {
+  graph [rankdir=TB, newrank=true, compound=true, splines=polyline, bgcolor="transparent", pad="0.20", nodesep="0.38", ranksep="0.60"];
+  node [shape=box, style="rounded,filled", fillcolor="#fffefa", color="#84978a", fontname="Helvetica", fontsize=14, margin="0.18,0.14"];
+  edge [color="#60786a", fontname="Helvetica", fontsize=11, arrowsize=0.7];
+  subgraph cluster_intent { label="Operator intent"; labelloc=t; style="rounded,filled"; color="#cad8cd"; fillcolor="#f4f8f3"; "n-6" [label="Operator"]; "n-3" [label="Configuration"]; { rank=same; "n-6"; "n-3"; } }
+  subgraph cluster_control { label="AIGW control"; labelloc=t; style="rounded,filled"; color="#cad8cd"; fillcolor="#f4f8f3"; "n-1" [label="AIGW"]; "n-0" [label="Admitted adapters"]; { rank=same; "n-1"; "n-0"; } }
+  subgraph cluster_effect { label="Native effect"; labelloc=t; style="rounded,filled"; color="#cad8cd"; fillcolor="#f4f8f3"; "n-5" [label="Native projection"]; "n-2" [label="Native client"]; { rank=same; "n-5"; "n-2"; } }
+  subgraph cluster_traffic { label="External traffic"; labelloc=t; style="rounded,filled"; color="#cad8cd"; fillcolor="#f4f8f3"; "n-4" [label="Selected endpoint"]; }
+  "n-6" -> "n-1" [label="invokes"];
+  "n-1" -> "n-3" [label="maintains", constraint=false];
+  "n-1" -> "n-0" [label="dispatches"];
+  "n-0" -> "n-5" [label="applies"];
+  "n-5" -> "n-2" [label="configures"];
+  "n-2" -> "n-4" [label="sends requests to"];
+}

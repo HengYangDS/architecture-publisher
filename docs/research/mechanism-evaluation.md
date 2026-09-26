@@ -1489,6 +1489,38 @@ installed supply and ETHOS/self/di-effect workloads before replacing the
 current owner. Do not retain two permanent engines or ask AIGW to narrow its
 meaning merely to mask a backend limitation.
 
+The current full-product counterexample uses Publisher `d9d1ee7`, AIGW
+`6620f638`, Build Request SHA-256
+`d65efd045fc99b8eba39330bb5a5fc29a126c6f6007fe0878e11458b6ec39014`,
+and source-adjacent Candidate
+`f8d92190ebc0249da1392bc533b7047a464b2fe7c874516e1bb789bf216a1fbd`.
+At 1280×720, Chrome showed a tiny Boundary graph and shallow Selection and
+Delivery graph bands inside fixed stages. The static 3600×5041 overview was
+text-heavy and asked only `boundary`; the interactive Edition asked six
+questions. These are provisional agent observations, not AIGW acceptance.
+The renderer currently grants full reading width only to graph pages without
+claim cards, although a claim-bearing page emits its claim cards below the
+graph. A DOM-only probe gave Boundary, Selection and Delivery the full graph
+width: their stages widened from 784 to 1190 CSS pixels. Selection and
+Delivery became more readable to the agent, but Boundary remained too small;
+the fixed 358px graph height also retained blank space. Claim presence is not
+a sound proxy for spatial need. A class change alone is not a product repair or
+visual acceptance; geometry, evidence placement and stage height must be
+resolved together without an adopter-name branch.
+
+On the same public Boundary nodes and six directed relations, Graphviz 16.1.0
+laid out the [direct DOT](evidence/aigw-product-boundary-dot.dot) at 1080×117pt;
+`unflatten -l 3` left those dimensions unchanged. A probe that borrowed
+AIGW's four **static** groups as an unapproved interactive hypothesis reduced
+bounds to 435×375pt, but the
+[grouped DOT](evidence/aigw-product-boundary-grouped.dot) produced
+[edge-label and group-title collisions](evidence/aigw-product-boundary-grouped.png).
+The committed DOT reproduces that PNG byte-for-byte with Graphviz 16.1.0.
+Orthogonal Graphviz reported that it does not handle edge labels. This stops
+an automatic engine swap as a complete repair: view-scoped editorial grouping,
+label treatment and medium-specific reader adequacy still need one coherent
+owner. It neither selects Graphviz nor disqualifies it as a bounded backend.
+
 ### Exact-font geometry comparison on the same AIGW subset (2026-09-26)
 
 The previously recorded Dagre/ELK package probes did not render edge routes
@@ -1558,10 +1590,11 @@ The prototype also removed the live Cytoscape canvas, so its focus, pan, zoom
 and Fit control were not meaningful. It fails mobile readability and
 interaction, despite preserving all selected relation text below the image.
 Changing Dagre to a top-to-bottom rank direction alone was estimated to leave
-the same overview at about 5.7px node text. A product candidate must retain
-complete source carriers and working focus/trace while using a distinct,
-readable narrow-viewport presentation; it cannot certify this screenshot or
-silently drop the hard-to-fit relations.
+the same overview at about 5.7px node text. This rejected small-viewport probe
+does not authorize a separate narrow-screen architecture workstream. The active
+gate is question-complete, legible selected media in their declared reading
+context, with source carriers, focus/trace and limits intact. Ordinary browser
+and accessibility checks remain independent.
 
 ![Narrow-viewport counterexample from the same inert prototype; not accepted media](evidence/aigw-dagre-composition-mobile-counterexample.png)
 
@@ -1597,7 +1630,7 @@ its fitted viewport transform. The 12/11 model bounds grew from about
 1,969×516 to 4,856×2,223 model units, and desktop zoom fell from 0.628 to
 0.146. A focused browser RED/GREEN now resets zoom and pan before a direction
 change; exact initial bounds and zoom returned after the same roundtrip.
-This repairs geometric idempotence, not the small-screen reading grammar.
+This repairs geometric idempotence only; it does not qualify reader adequacy.
 The current Cytoscape renderer remains the sole product owner; the measured
 Dagre, ELK, and Graphviz probes remain alternatives pending cross-workload
 comparison and installed reader acceptance.
@@ -1663,11 +1696,10 @@ distinguish DOM/accessibility structure from visible reader quality.
 **Disposition:** adopt the mature native-view selection mechanism as an
 editor-controlled input where source/editor attribution survives; reject raw
 `include *` as the answer to a five-layer reader question. Defer any claim that
-Publisher provides automatic editorial abstraction, readable narrow-screen
-composition for general views, source-owner acceptance, or flagship dual-media
-quality. The next product gate is a readable, question-complete composition
-with visible provenance in both media, followed by the installed four-workload
-matrix.
+Publisher provides automatic editorial abstraction, source-owner acceptance,
+or flagship dual-media quality. The next product gate is a readable,
+question-complete composition with visible provenance in both media, followed
+by the installed four-workload matrix.
 
 ### Bounded path composition in the existing interactive renderer (2026-09-26)
 
@@ -1696,10 +1728,11 @@ Background Chrome measured effective labels of 13.55 CSS pixels at 1280×720
 and 13.45 at 390×844, with five nodes, four relations, no horizontal overflow,
 no console errors, and only the selected localhost request. The
 [narrow-viewport screenshot](evidence/di-effect-editorial-chain-mobile.png)
-shows the resulting readable chain. Its restrained generic boxes are still
-structural output; dense, in-graph-labeled, branching, cyclic, and long-label
-views have not earned the same readability claim, and the static composition
-remains unchanged and unqualified.
+shows the resulting readable chain. This bounded regression behavior is not
+a narrow-screen product workstream or a substitute for the full Edition. Its
+restrained generic boxes are still structural output; dense, in-graph-labeled,
+branching, cyclic, and long-label views have not earned the same readability
+claim, and the static composition remains unchanged and unqualified.
 
 ### Relocated offline di-effect consumer probe (2026-09-26)
 

@@ -367,56 +367,27 @@ third-party or generated supply rather than moving owned code outside coverage.
       Exact selected references, reader questions, group membership, typed
       qualifiers, source identity and visible limits must survive both media;
       infeasible composition fails instead of silently narrowing meaning.
-      Current partial result: one public build handles selected LikeC4 and
-      Claim Model inputs; the existing grouped compositor carries source-bound
-      relations and typed claim cards into sibling static SVG/PNG and standalone
-      HTML. Focused counterexamples cover selected assertions, visible limits,
-      qualifiers, mixed claimed/unclaimed relations, forged carriers, and exact
-      replay. A staged AIGW Client Projection at `270ca0bd` yields four reader
-      pages over 12 nodes, 11 relations, and 11 claims. This is a limited
-      chapter, not whole-product AIGW or source-owner acceptance.
-      The relation-only overview now places its graph above distinct evidence
-      sections; claim-bearing pages retain adjacent evidence. The full reader
-      question remains accessible in navigation. A dense-graph browser RED/GREEN
-      caught cumulative Cytoscape bounds after desktop/mobile/desktop relayout;
-      the corrected geometry returns to its initial scale. Source-adjacent
-      Chrome exercised all four AIGW pages at 1440, 901, and 390 CSS pixels
-      without page errors, external requests, horizontal overflow, or axe WCAG
-      A/AA violations. At 390px, the overview still fits 16px node text to
-      about 2.7 CSS pixels; claim details also remain dense. No visual
-      acceptance or installed parity follows from these checks.
-      Graphviz, Dagre, and ELK remain compared candidates, not selected
-      backends; the current renderer is the sole production owner. Finish
-      reader-scoped mixed-page composition, four-workload mechanism selection,
-      installed exact-AIGW parity, source-owner approval, final human review,
-      and predicate qualification. Narrow-viewport observations are ordinary
-      browser regression evidence, not a separate architecture medium or a
-      mobile-specific workstream. Detailed probes and identities remain in
-      `docs/research/mechanism-evaluation.md`. A native
-      di-effect reader-view sidecar reduced 25/35 raw members to five nodes
-      and four relations through the public dual-medium build, but its initial
-      static composition and mobile labels were reader-poor and unqualified;
-      source-owner endorsement is not established. A browser RED/GREEN now
-      keeps a linear chain without in-graph edge labels readable at both widths
-      in the existing renderer; this does not solve dense or edge-labeled views.
-      AIGW whole-product source `db115100` exposed a different loss: a scalar
-      recommendation claim beside selected relations could not enter the mixed
-      Scene. A focused RED/GREEN now gives subject-dependent scalar claims a
-      separately bound card in both media, without inventing a graph edge or
-      weakening relation-dependent claim links. The fixture builds a paired
-      Candidate with two graph nodes, one relation, and both typed claims.
-      This proves the generic source-to-carrier path, not AIGW's final Edition,
-      reader quality, installed parity or acceptance.
-      AIGW whole-product input `6620f638` also exposed a static composition
-      defect: one claim occupied a narrow centered plate despite available
-      width. A renderer-level RED/GREEN now uses the full claim region and two
-      reading columns without dropping facts or changing interactive bytes.
-      Its 3600-pixel trial height fell from 5453 to 5041 pixels; 65 focused
-      tests pass, one browser-dependent test skips; the full behavior suite
-      passes 1,066 tests with five declared skips. The result remains
-      text-heavy and is not visual acceptance or released-package evidence.
-      A second RED/GREEN makes claim validity explicitly claimant-declared in
-      both media, so the source field cannot read as Publisher verification.
+      Partial: the public build compiles selected LikeC4 and Claim Model inputs
+      into sibling media. The grouped compositor carries source-bound relations,
+      relation-dependent and scalar claims, claimant-declared validity, and
+      private graphic bindings. Focused tests reject lost or forged carriers;
+      browser regression restores graph geometry after viewport round trips.
+      The byte-bound whole-product AIGW desktop trial in
+      `docs/research/mechanism-evaluation.md` remains unaccepted: claim-bearing
+      pages allocate less graph width solely because claims exist, although
+      claim cards are emitted below; the Boundary graph remains too small even
+      in a full-width DOM-only probe, and the static overview is text-heavy.
+      Cytoscape remains the sole production interactive owner. Graphviz, Dagre
+      and ELK are measured alternatives, not selected product replacements.
+      Resolve geometry, labels, stage spatial budget and evidence flow as one
+      reader-scoped design; then test the selected route on Publisher self,
+      ETHOS, whole-product AIGW and its limited Client Projection, and native
+      di-effect. Preserve each view's selected meaning and limits without an
+      adopter-name branch; return infeasible composition to its Edition editor.
+      Finish installed exact-AIGW parity, source/editor acceptance, final human
+      review, and predicate qualification. Historical narrow-viewport probes
+      are browser regressions, not a separate architecture workstream. No
+      source-adjacent Candidate or partial test is final acceptance.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
