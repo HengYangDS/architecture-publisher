@@ -4,26 +4,29 @@
 
 ### Requirement: One publication admission predicate
 
-Publisher SHALL use one exact-subject local-publication admission predicate
-that binds Candidate, applicable qualifications, selected acceptance policy,
-named accepter, custody target, and file plan. The manifest SHALL distinguish
-source claimants, Edition editor, transformation producer, verifier, accepter,
-release authority, and custodian even when one actor fills several roles.
-An Edition spanning multiple sources SHALL not infer a single product owner or
-source endorsement from storage location. Official multi-source endorsement
-SHALL name each endorsing source explicitly. The generic predicate SHALL not
-issue source-product release authorization, advance refs, create Forge Releases,
-assert hosted availability, or certify off-host retention. Source-specific
-acceptance and release rules remain explicit extensions owned by their
-respective products.
+Publisher SHALL use one local file-effect owner with disjoint raw-pair and
+qualified-Edition admissions. Raw admission binds exact files, targets,
+prestates, plan digest, and explicit effect authorization; it claims file
+integrity only and requires no Candidate. Qualified admission additionally
+binds an exact Candidate, applicable qualifications, selected policy, named
+accepter adoption, custodian, and separate effect authorization to the plan.
+Neither case grants source release, Git or Forge effects, hosted availability,
+or off-host retention.
+
+#### Scenario: A raw pair has no semantic authority
+
+- **WHEN** a caller authorizes an exact raw-file plan without an Edition or Candidate
+- **THEN** the existing installer may apply or recover its file effect
+- **AND** its receipt makes no semantic qualification or product-release claim
 
 #### Scenario: A multi-source analysis has one editor
 
 - **WHEN** an editor publishes a comparison using ETHOS and AIGW claims
-- **THEN** the Candidate retains both source claimants and revisions and names
-  the editor's independent conclusions
-- **AND** local publication does not imply either source owner endorsed those
-  conclusions
+- **THEN** the qualified manifest distinguishes each claimant and revision,
+  attributes editorial conclusions to the editor, and names the producer,
+  verifier, accepter, release owner, and custodian even when roles coincide
+- **AND** neither source ownership nor endorsement follows from storage;
+  official multi-source endorsement names each endorsing source explicitly
 
 #### Scenario: A designated accepter approves the Candidate
 
@@ -48,10 +51,11 @@ respective products.
 
 #### Scenario: A decision names another plan
 
-- **WHEN** a generic or qualified publication decision does not bind the selected
-  plan digest, Edition identity, declared publication subject, custody target,
-  or applicable qualifications
+- **WHEN** either admission case receives authorization for another plan or
+  target prestate
 - **THEN** the operation fails before filesystem, Git, package, or forge effects
+- **AND** qualified admission also rejects a mismatched Candidate, Edition,
+  qualification, policy, accepter, or custodian before effects
 
 #### Scenario: A valid artifact lacks flagship qualification
 
