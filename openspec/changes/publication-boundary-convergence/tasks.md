@@ -203,9 +203,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       containing no commands.
       Adjacent decoy directories do not change it; after copying the installed
       product and deleting the original temporary tree, the selected lock and
-      bytes remain identical. This is macOS installed-input evidence, not a
-      Candidate build, complete dependency observation, or native Linux/Windows
-      conformance.
+      bytes remain identical. At signed source `3fa59e2`, the executable,
+      worker-lifetime, installed-selection and installed-replay suites pass
+      50/50 on macOS arm64 Node 26.10 and on isolated, offline Linux arm64
+      Node 26.9 and 24.19. The Linux harness uses an init process to reap
+      exited descendants; without it, the PID-liveness assertion failed, so
+      that failure is not silently dismissed as a product defect or proof.
+      This remains source-lane, not released-package evidence. Windows native
+      execution, complete dependency observation and a full Candidate build
+      remain unproved.
 - [x] 3.3 Prove identical selected-input lock identity and distinct invocation
       receipts across direct, declarative, executable, and mixed selections in
       `tests/provider-join.test.mjs`, the sole successor cross-mode fixture.
