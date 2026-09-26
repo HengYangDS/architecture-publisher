@@ -453,6 +453,13 @@ cross-Provider access uses typed semantic keys, never one flat namespace of
 Provider-local IDs. An Edition resource missing its logical reference or exact
 bytes fails before compilation.
 
+Lock equivalence is not Candidate equivalence. A Candidate separately binds its
+selected input closure, disclosed limits, scenes, and media. Delivery modes can
+select the same locked meaning and produce the same visible carriers, while a
+different closure or an unobserved executable dependency changes the Candidate
+or its scene identity. Qualification and human review therefore bind the exact
+Candidate and media, never just the shared lock or a cross-mode test result.
+
 Historical v1 manifests and signed outputs retain their old meanings and bytes;
 a SemVer successor does not reinterpret them in place.
 

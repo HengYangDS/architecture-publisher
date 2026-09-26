@@ -228,6 +228,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       run passed 746 tests, skipped 2, but branch coverage remains 93.06%
       against 95%. This task proves selected-input equivalence only, not
       installed successor qualification or permission to integrate or publish.
+      `tests/provider-candidate-equivalence.test.mjs` additionally proves that
+      equal selected locks and semantic digests do not authorize Candidate
+      equivalence: direct/declarative fixture media match, while executable
+      dependency limits change the scene identities disclosed in its Candidate.
 - [ ] 3.4 Test owner-routed non-authorizing findings and Provider retirement in
       `tests/edition-provider-conformance.test.mjs`: an assertion, editorial,
       adapter, or protocol gap goes to that owner; a mutable predecessor retires
