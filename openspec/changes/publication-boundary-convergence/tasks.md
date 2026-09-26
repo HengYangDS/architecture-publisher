@@ -392,9 +392,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       final human review, and predicate qualification. Detailed probes and
       identities remain in `docs/research/mechanism-evaluation.md`. A native
       di-effect reader-view sidecar reduced 25/35 raw members to five nodes
-      and four relations through the public dual-medium build, but its static
-      composition and mobile labels remain unqualified and reader-poor;
-      source-owner endorsement is not established.
+      and four relations through the public dual-medium build, but its initial
+      static composition and mobile labels were reader-poor and unqualified;
+      source-owner endorsement is not established. A browser RED/GREEN now
+      keeps a linear chain without in-graph edge labels readable at both widths
+      in the existing renderer; this does not solve dense or edge-labeled views.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -578,11 +580,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       `EALLOWSCRIPTS` failures. The test entry now clears inherited npm config
       and selects two distinct tracked empty config files, without editing host
       policy. Focused installed tests pass 9/9; static and package checks pass.
-      The latest exact Work Lane source passes 1,056 of 1,058 behavior tests
-      with two declared skips, plus static and package checks. The last
-      coverage run, before the final responsive-relayout repair, measured
-      92.95% branches; exact-source coverage remains unverified and the 95%
-      release gate is open. No release admission is inferred.
+      The current runtime and test inputs pass 1,057 of 1,059 behavior tests
+      with two declared skips, plus static and package checks. The latest
+      `npm run test:coverage` measures 97.66% statements/lines, 92.96%
+      branches, and 99.22% functions. The 95% branch gate remains red; no
+      release admission is inferred.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

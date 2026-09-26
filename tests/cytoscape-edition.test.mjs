@@ -37,6 +37,64 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.deepEqual(result.carriers[1].nodes, []);
 });
 
+test('compact graph geometry is limited to short forward paths without in-graph edge labels', async () => {
+  const { renderInteractiveEditionHtml } =
+    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+  const base = interactiveEditionScene();
+  base.pages[0].relations[0].label = null;
+  base.pages[0].relations[0].kind = null;
+  const usesCompact = async (scene) =>
+    (await renderInteractiveEditionHtml(scene)).bytes
+      .toString('utf8')
+      .includes('class="graph graph--chain"');
+  const addThird = (scene, from, to) => {
+    const page = scene.pages[0];
+    const third = { ...page.nodes[1], id: 'secret-third', label: 'Gamma' };
+    page.nodes.push(third);
+    const relation = {
+      ...page.relations[0],
+      id: 'relation-third',
+      from: { namespace: page.nodes[from].namespace, id: page.nodes[from].id },
+      to: { namespace: page.nodes[to].namespace, id: page.nodes[to].id },
+    };
+    page.relations.push(relation);
+    page.sourceAssertionCarriers[0].nodeRefs.push({ namespace: third.namespace, id: third.id });
+    page.sourceAssertionCarriers[0].relationRefs.push({
+      namespace: relation.origin.namespace,
+      reference: relation.id,
+      sha256: relation.origin.sha256,
+    });
+  };
+
+  assert.equal(await usesCompact(base), true);
+  const rejected = [
+    ['in-graph edge label', (scene) => (scene.pages[0].relations[0].label = 'calls')],
+    ['bidirectional edge', (scene) => (scene.pages[0].relations[0].direction = 'bidirectional')],
+    [
+      'long node label',
+      (scene) => (scene.pages[0].nodes[0].label = 'A source label beyond compact width'),
+    ],
+    [
+      'one node',
+      (scene) => {
+        const page = scene.pages[0];
+        page.nodes.pop();
+        page.relations = [];
+        page.sourceAssertionCarriers[0].nodeRefs.pop();
+        page.sourceAssertionCarriers[0].relationRefs = [];
+      },
+    ],
+    ['fork', (scene) => addThird(scene, 0, 2)],
+    ['convergence', (scene) => addThird(scene, 2, 1)],
+    ['cycle beside an isolated node', (scene) => addThird(scene, 1, 0)],
+  ];
+  for (const [name, alter] of rejected) {
+    const scene = structuredClone(base);
+    alter(scene);
+    assert.equal(await usesCompact(scene), false, name);
+  }
+});
+
 test('claim-bearing detail does not inherit structural overview canvas placement', async () => {
   const { renderInteractiveEditionHtml } =
     await import('../packages/publisher/renderers/cytoscape/index.mjs');

@@ -23,23 +23,57 @@ const scriptJson = (value) =>
     .replaceAll('\u2028', '\\u2028')
     .replaceAll('\u2029', '\\u2029');
 
+function isCompactChain(page) {
+  if (
+    page.nodes.length < 2 ||
+    page.relations.length !== page.nodes.length - 1 ||
+    page.nodes.some(({ label }) => label.length > 24)
+  )
+    return false;
+  const next = new Map(page.nodes.map(({ id }) => [id, null]));
+  const incoming = new Map(page.nodes.map(({ id }) => [id, false]));
+  for (const relation of page.relations) {
+    if (
+      relation.direction !== 'forward' ||
+      relation.graphLabel ||
+      !next.has(relation.source) ||
+      !next.has(relation.target) ||
+      next.get(relation.source) !== null ||
+      incoming.get(relation.target)
+    )
+      return false;
+    next.set(relation.source, relation.target);
+    incoming.set(relation.target, true);
+  }
+  const roots = [...incoming].filter(([, hasIncoming]) => !hasIncoming);
+  if (roots.length !== 1) return false;
+  const visited = new Set();
+  let current = roots[0][0];
+  while (current !== null && !visited.has(current)) {
+    visited.add(current);
+    current = next.get(current);
+  }
+  return current === null && visited.size === page.nodes.length;
+}
+
 const viewerScript = String.raw`
 const pages = JSON.parse(document.getElementById('edition-data').textContent);
 const sections = [...document.querySelectorAll('.edition-page')];
 const tabs = [...document.querySelectorAll('[data-page-index]')];
 const graphs = new Map();
 const observers = new Map();
-const layoutOptions = direction => ({
+const layoutOptions = (direction, compact) => ({
   name: 'breadthfirst', directed: true, direction,
-  spacingFactor: 1.25, padding: 44, animate: false,
+  spacingFactor: compact ? 0.45 : 1.25, padding: 44, animate: false,
 });
 function syncGraph(graph, container) {
   const direction = container.clientWidth < 520 ? 'downward' : 'rightward';
+  const compact = container.classList.contains('graph--chain');
   graph.resize();
   if (container.dataset.layout !== direction) {
     graph.zoom(1);
     graph.pan({ x: 0, y: 0 });
-    graph.layout(layoutOptions(direction)).run();
+    graph.layout(layoutOptions(direction, compact)).run();
     container.dataset.layout = direction;
   }
   graph.fit(undefined, 44);
@@ -50,6 +84,7 @@ function graphFor(index) {
   if (!page.nodes.length) return null;
   const container = document.getElementById('graph-' + index);
   const direction = container.clientWidth < 520 ? 'downward' : 'rightward';
+  const compact = container.classList.contains('graph--chain');
   const elements = [
     ...page.nodes.map(node => ({ data: { id: node.id, label: node.label } })),
     ...page.relations.map(relation => ({ data: relation })),
@@ -58,13 +93,13 @@ function graphFor(index) {
     container, elements,
     style: [
       { selector: 'node', style: {
-        shape: 'round-rectangle', width: 212, height: 104,
+        shape: 'round-rectangle', width: compact ? 184 : 212, height: compact ? 56 : 104,
         'background-color': '#fffefa', 'border-width': 2,
         'border-color': '#84978a', label: 'data(label)',
         'font-family': 'JetBrains Mono', 'font-size': 16,
         'font-weight': 600, color: '#21332a',
         'text-valign': 'center', 'text-halign': 'center',
-        'text-wrap': 'wrap', 'text-max-width': 184,
+        'text-wrap': 'wrap', 'text-max-width': compact ? 160 : 184,
       } },
       { selector: 'edge', style: {
         width: 2.5, 'line-color': '#60786a',
@@ -79,7 +114,7 @@ function graphFor(index) {
       } },
       { selector: ':selected', style: { 'border-color': '#214f3c', 'line-color': '#214f3c' } },
     ],
-    layout: layoutOptions(direction),
+    layout: layoutOptions(direction, compact),
   });
   graphs.set(index, graph);
   container.dataset.layout = direction;
@@ -131,6 +166,7 @@ function evidenceSection(title, content, kind) {
 
 function pageHtml(page, index, methodLimits) {
   const nodes = new Map(page.nodes.map((node) => [node.id, node.label]));
+  const compactChain = isCompactChain(page);
   const mixed = Boolean(page.nodes.length && page.claims?.length);
   const relationOnly =
     page.claims !== undefined && page.claims.length === 0 && page.relations.length > 0;
@@ -186,7 +222,7 @@ function pageHtml(page, index, methodLimits) {
     ? `<p class="source-note">${escape(relationOnly ? SOURCE_REPORTED_TOPOLOGY_NOTE : UNLINKED_RELATION_NOTE)}</p>`
     : '';
   const stage = page.nodes.length
-    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Pan and zoom in the graph; the lists below provide keyboard-accessible reading and focus.</p>`
+    ? `<div class="graph-wrap"><div class="graph${compactChain ? ' graph--chain' : ''}" id="graph-${index}" aria-hidden="true"></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Pan and zoom in the graph; the lists below provide keyboard-accessible reading and focus.</p>`
     : page.claims?.length
       ? claimStage
       : editorialStage;

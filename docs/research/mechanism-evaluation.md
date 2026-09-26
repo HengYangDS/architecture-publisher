@@ -1664,6 +1664,39 @@ distinguish DOM/accessibility structure from visible reader quality.
 editor-controlled input where source/editor attribution survives; reject raw
 `include *` as the answer to a five-layer reader question. Defer any claim that
 Publisher provides automatic editorial abstraction, readable narrow-screen
-composition, source-owner acceptance, or flagship dual-media quality. The next
+composition for general views, source-owner acceptance, or flagship dual-media
+quality. The next
 product gate is a readable, question-complete composition with visible
 provenance in both media, followed by the installed four-workload matrix.
+
+### Bounded path composition in the existing interactive renderer (2026-09-26)
+
+The five-node sidecar isolated a renderer cause from editorial selection.
+Before repair, fixed 212×104 Cytoscape nodes with breadth-first spacing factor
+1.25 and whole-graph fit yielded zoom 0.292 at 1280×720 and 0.282 at 390×844.
+Sixteen-pixel model labels therefore painted at about 4.67 and 4.51 CSS
+pixels. Fewer selected nodes alone did not make the work readable.
+
+A browser RED/GREEN now selects a compact layout **only** for one connected,
+forward linear path with no in-graph edge labels and node labels of at most
+24 code units. It retains the existing Cytoscape owner, uses 184×56 nodes and spacing factor
+0.45, and leaves other topologies on their existing path. The five-node,
+four-relation regression verifies no node-body overlap and at least 12 CSS
+pixels of effective label size at both viewports; the dense branching case
+does not receive the compact class. This is a bounded pattern, not a general
+graph-layout solution or a visual-acceptance verdict.
+
+Rebuilding the same pinned sidecar request through public `edition build`
+produced unqualified Candidate
+`bc4eed8ef6945d2d95b09d7856e2b819480378916befbf30843f6d0098b96a91`.
+Its static SVG and PNG hashes stayed identical to the earlier Candidate;
+only interactive HTML changed to
+`9296d8fe5bfb531c47a74d21f903121252424695d53170b781348ff5a7c7983f`.
+Background Chrome measured effective labels of 13.55 CSS pixels at 1280×720
+and 13.45 at 390×844, with five nodes, four relations, no horizontal overflow,
+no console errors, and only the selected localhost request. The
+[narrow-viewport screenshot](evidence/di-effect-editorial-chain-mobile.png)
+shows the resulting readable chain. Its restrained generic boxes are still
+structural output; dense, in-graph-labeled, branching, cyclic, and long-label
+views have not earned the same readability claim, and the static composition
+remains unchanged and unqualified.
