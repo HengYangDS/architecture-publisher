@@ -387,10 +387,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       acceptance or installed parity follows from these checks.
       Graphviz, Dagre, and ELK remain compared candidates, not selected
       backends; the current renderer is the sole production owner. Finish
-      readable narrow-viewport and mixed-page composition, four-workload
-      mechanism selection, installed exact-AIGW parity, source-owner approval,
-      final human review, and predicate qualification. Detailed probes and
-      identities remain in `docs/research/mechanism-evaluation.md`. A native
+      reader-scoped mixed-page composition, four-workload mechanism selection,
+      installed exact-AIGW parity, source-owner approval, final human review,
+      and predicate qualification. Narrow-viewport observations are ordinary
+      browser regression evidence, not a separate architecture medium or a
+      mobile-specific workstream. Detailed probes and identities remain in
+      `docs/research/mechanism-evaluation.md`. A native
       di-effect reader-view sidecar reduced 25/35 raw members to five nodes
       and four relations through the public dual-medium build, but its initial
       static composition and mobile labels were reader-poor and unqualified;
@@ -603,9 +605,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       human judgments on final static and interactive bytes for faithfulness,
       readability, hierarchy, density, and visual quality. Do not reuse
       provisional Candidate identities or review after any selected input changes.
-      The current provisional worktree passes 1,065 behavior tests with five
-      declared skips; static and package checks pass. Branch coverage is
-      92.96%, below the unchanged 95% gate. No release admission is inferred.
+      Historical provisional test and coverage snapshots do not qualify the
+      frozen final inputs. Rerun all four unchanged 95% coverage gates and the
+      full checks on those exact inputs; no release admission is inferred.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%
@@ -623,11 +625,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       Client Projection versus whole-product limits, declarative journey, media
       identities, and rollback criteria. AIGW separately admits its own migration,
       acceptance, release, and retirement of displaced materialization.
-      Read-only at AIGW `d288eb5`: its v1 declarative Provider still tracks a
-      Claim Model plus copied source bytes and release-derived hashes; the
-      current successor compiler directly admits only LikeC4. Migration must
-      first select a truthful AIGW-owned architecture source or attributed
-      projection path, not merely relocate those snapshots.
+      Reobserve AIGW source, Provider and Edition inputs at handoff; a dated
+      source snapshot or an assumed single native format is not an admission.
+      Migration must select a truthful AIGW-owned architecture source or
+      attributed projection path, not merely relocate copied snapshots.
 - [ ] 8.2 Send ETHOS's single writer a retained-versus-displaced integration
       map and exact executable journey. Preserve ETHOS-native claims, Lane
       cooperation/competition/experiment/all-drop meaning, repository-quality
