@@ -372,11 +372,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       relation-dependent and scalar claims, claimant-declared validity, and
       private graphic bindings. Focused tests reject lost or forged carriers;
       browser regression restores graph geometry after viewport round trips.
-      The byte-bound whole-product AIGW desktop trial in
-      `docs/research/mechanism-evaluation.md` remains unaccepted: claim-bearing
-      pages allocate less graph width solely because claims exist, although
-      claim cards are emitted below; the Boundary graph remains too small even
-      in a full-width DOM-only probe, and the static overview is text-heavy.
+      A RED/GREEN now prevents a source claim from shrinking an unchanged graph.
+      The byte-bound whole-product AIGW trial in
+      `docs/research/mechanism-evaluation.md` retained its semantic lock and
+      static PNG while rebuilding HTML. At 1280×720 the graph stage is 1190px
+      wide, yet effective node type is 3.78px on Boundary and 8.84px on
+      Selection, Effects and Delivery; the static overview remains text-heavy.
+      This is provisional source-adjacent evidence, not visual acceptance.
       Cytoscape remains the sole production interactive owner. Graphviz, Dagre
       and ELK are measured alternatives, not selected product replacements.
       Resolve geometry, labels, stage spatial budget and evidence flow as one

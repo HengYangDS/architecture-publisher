@@ -253,7 +253,7 @@ function pageHtml(page, index, methodLimits) {
   ].join('');
   return `<section class="edition-page" id="page-${index}" data-page="${index}" aria-labelledby="page-title-${index}">
     <header class="page-heading"><p class="eyebrow">Reading page ${index + 1}</p><h2 id="page-title-${index}">${escape(page.title)}</h2></header>
-    <div class="page-grid${page.nodes.length && !mixed ? ' page-grid--graph' : ''}"><div class="stage">${page.nodes.length ? sourceStatus : ''}${stage}</div>
+    <div class="page-grid${page.nodes.length ? ' page-grid--graph' : ''}"><div class="stage">${page.nodes.length ? sourceStatus : ''}${stage}</div>
     <aside class="notes" aria-label="Page evidence">${page.nodes.length ? '' : sourceStatus}${evidence}</aside></div>${mixed ? `<section class="linked-claims" aria-label="Source claims"><h3>Source claims</h3>${claimStage}</section>` : ''}</section>`;
 }
 

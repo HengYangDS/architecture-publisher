@@ -1498,15 +1498,22 @@ At 1280×720, Chrome showed a tiny Boundary graph and shallow Selection and
 Delivery graph bands inside fixed stages. The static 3600×5041 overview was
 text-heavy and asked only `boundary`; the interactive Edition asked six
 questions. These are provisional agent observations, not AIGW acceptance.
-The renderer currently grants full reading width only to graph pages without
-claim cards, although a claim-bearing page emits its claim cards below the
-graph. A DOM-only probe gave Boundary, Selection and Delivery the full graph
-width: their stages widened from 784 to 1190 CSS pixels. Selection and
-Delivery became more readable to the agent, but Boundary remained too small;
-the fixed 358px graph height also retained blank space. Claim presence is not
-a sound proxy for spatial need. A class change alone is not a product repair or
-visual acceptance; geometry, evidence placement and stage height must be
-resolved together without an adopter-name branch.
+At Publisher `d9d1ee7`, the renderer granted full reading width only to
+graph pages without claim cards, although a claim-bearing page emitted its
+claim cards below the graph. A DOM-only probe widened Boundary, Selection and
+Delivery stages from 784 to 1190 CSS pixels. Claim presence was not a sound
+proxy for spatial need. A subsequent RED/GREEN removed that coupling. With the
+same AIGW request, the semantic lock and static PNG remained unchanged; the
+new provisional Candidate is
+`700f600273dfd9344efd30db9f2121c3cd2fae1a8a33288fb6be64b8d7191bd4`
+and its HTML SHA-256 is
+`90101b9228c1737f621869ff28c08812e393b517e3c4549e2f31118a37d73102`.
+At 1280×720, all graph pages used 1190×358 CSS-pixel stages with evidence
+below. Effective 16px node type still painted at 3.78px on Boundary, 8.84px
+on Selection, Effects and Delivery, and 15.95px on Credentials and
+Verification. The fixed stage also retained blank space. The code change
+repairs one false layout dependency, not reader adequacy; geometry, evidence
+placement and stage height still need a coherent, source-neutral solution.
 
 On the same public Boundary nodes and six directed relations, Graphviz 16.1.0
 laid out the [direct DOT](evidence/aigw-product-boundary-dot.dot) at 1080×117pt;

@@ -95,7 +95,7 @@ test('compact graph geometry is limited to short forward paths without in-graph 
   }
 });
 
-test('claim-bearing detail does not inherit structural overview canvas placement', async () => {
+test('a source claim preserves the unchanged graph reading width', async () => {
   const { renderInteractiveEditionHtml } =
     await import('../packages/publisher/renderers/cytoscape/index.mjs');
   const scene = interactiveEditionScene();
@@ -131,7 +131,11 @@ test('claim-bearing detail does not inherit structural overview canvas placement
     { claimAssertionId: 'claim-assertion', relationAssertionId: 'relation-assertion' },
   ];
   const detail = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
-  assert.equal(layoutClass(detail), 'page-grid');
+  assert.equal(layoutClass(detail), 'page-grid page-grid--graph');
+  assert(
+    detail.indexOf('<section class="linked-claims"') >
+      detail.indexOf('<div class="page-grid page-grid--graph"'),
+  );
 });
 
 test('malformed or excessive Scenes fail before loading renderer supply', async () => {
