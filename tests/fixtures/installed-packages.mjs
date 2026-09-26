@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { parseNpmPackRecord } from './npm-pack-report.mjs';
+import { npmInvocation, parseNpmPackRecord } from './npm-pack-report.mjs';
 
 function run(command, args, cwd, timeout = 60000) {
-  const result = spawnSync(command, args, {
+  const selected = command === 'npm' ? npmInvocation(args) : { command, args };
+  const result = spawnSync(selected.command, selected.args, {
     cwd,
     encoding: 'utf8',
     timeout,
