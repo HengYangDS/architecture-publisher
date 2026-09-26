@@ -6,7 +6,12 @@ relations:
   governed_by: product-contract.md
 ---
 
-# Architecture Edition contract
+# Architecture Edition v1 contract
+
+This page describes the historical Edition v1 input, which selects one exact
+Claim Model. The unreleased successor in the active OpenSpec Change also admits
+native sources without a tracked duplicate Claim Model. Its design does not
+retroactively change valid v1 Editions or establish a released capability.
 
 An Edition is the smallest complete public unit of Architecture Publisher. It is
 not a theme, diagram file, renderer preset, or copy of the source model. It is a
@@ -42,10 +47,12 @@ coverage expands review; it never licenses omission.
 
 ## Source ownership
 
-A concrete source-owned live Edition remains with the product whose architecture
-it states, so accepted intent, current implementation, observations, omissions,
-and approval cannot drift into a central catalogue. Architecture Publisher owns
-the Edition contract and compiler; it does not own ETHOS or AIGW Edition content.
+First-party live ETHOS and AIGW Editions remain with their source products, so
+their selected meaning, omissions, and approvals do not drift into a central
+catalogue. This placement is not a universal ownership rule: the successor
+assigns an independent or cross-source Edition to its designated editor, while
+each source retains authority over its own assertions. Architecture Publisher
+owns the Edition contract and compiler, not adopter Edition content.
 
 The Publisher self-Edition is therefore owned by the Architecture Publisher
 repository. An adopter may deliver its Edition through one source-owned Edition

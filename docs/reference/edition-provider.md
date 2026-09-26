@@ -8,6 +8,10 @@ relations:
 
 # Edition Provider
 
+This page specifies the historical Provider v1 transport of standard values.
+The active successor design admits native inputs without requiring a tracked
+duplicate Claim Model; that successor is not yet a released Provider contract.
+
 An **Edition Provider** is a narrow, source-owned boundary that materializes the
 portable values consumed by Architecture Publisher. It is transport and
 adaptation, not a second compiler, registry, workflow engine, or authority.

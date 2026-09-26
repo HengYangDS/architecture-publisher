@@ -11,9 +11,10 @@ Publication performs bounded, recoverable effects.
 ## Product chain
 
 ```text
-source-owned values --or-- Edition Provider
-                 \               /
-                  Source Bundle + Claim Model + Edition
+selected source evidence + checked interpretation + authored Edition
+     (direct inputs or optional Edition Provider transport)
+                                  |
+                         archpub edition build
                                   |
                                   v
           Edition Candidate
@@ -31,6 +32,9 @@ source-owned values --or-- Edition Provider
 
 Each arrow is a contract boundary. A later layer may project an earlier value;
 it cannot reinterpret it or grant authority to it.
+Native inputs do not require a tracked duplicate Claim Model or a Source Bundle
+as separately authored files. The Provider is a transport choice, not another
+compiler or approval path.
 
 - [Product contract](docs/product-contract.md) defines the canonical product
   meaning and authority boundaries.
