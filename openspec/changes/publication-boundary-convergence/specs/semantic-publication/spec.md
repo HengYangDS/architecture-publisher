@@ -72,6 +72,18 @@ required coordinates or DOM structure.
 - **AND** matching endpoints alone or an unadorned arrow cannot satisfy the
   claim's visible obligation
 
+#### Scenario: A source relation is selected without a typed claim
+
+- **WHEN** a medium selects source-reported relation topology but no typed
+  claim for that reader question
+- **THEN** it MAY show the relation as source structure with its exact identity
+  bound in private carrier evidence, and its source-reported status and any
+  declared scope limit visible to readers
+- **AND** relation qualifiers SHALL remain visibly marked as source-reported,
+  unverified fields even if their wording resembles typed claim status
+- **AND** the view SHALL NOT credit typed claim plane, validity, maturity, or
+  implementation evidence that was not selected
+
 #### Scenario: Repeated claim context is factored out
 
 - **WHEN** several selected claims have an exactly equal field value

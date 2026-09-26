@@ -391,6 +391,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       Fresh Chrome/axe checks again found four complete pages, no console
       errors, no mobile horizontal overflow and no WCAG 2/2.1 A/AA violations.
       The new HTML bytes are still provisional and not human-approved.
+      A later exact public build of AIGW's staged v2 input produced both media
+      from a relation-only structural overview and claim-bearing detail pages;
+      the structural scope limit was visible in SVG and HTML. This is a
+      deliberate narrowing of the old overview, not editorial parity or
+      acceptance. Relation-only views now expose source-reported status and
+      reject endpoint-only carrier forgeries. A mixed page with some unclaimed
+      relations remains unadmitted rather than silently credited as typed
+      claim coverage.
       Open: source-owner-approved authoring, installed exact-AIGW paired parity,
       reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure

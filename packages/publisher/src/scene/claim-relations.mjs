@@ -2,6 +2,9 @@ import { canonical, record } from '../semantics/document.mjs';
 import { claimDependsOnSelectedRelation } from '../semantics/native-claim-model.mjs';
 import { fail } from '../source/manifest.mjs';
 
+export const SOURCE_REPORTED_TOPOLOGY_NOTE =
+  'Source-reported topology; provenance unverified; typed claim status not selected.';
+
 /** Derive one claim-to-relation association from selected source meaning. */
 export function linkClaimModelSources(view, assertions, selections, errorCode) {
   if (!Array.isArray(view?.assertionIds)) fail(errorCode);
@@ -16,7 +19,8 @@ export function linkClaimModelSources(view, assertions, selections, errorCode) {
     fail(errorCode);
   const relations = sources.filter(({ selection }) => selection.target.kind === 'relation');
   const claims = sources.filter(({ selection }) => selection.target.kind === 'claim');
-  if (!relations.length || !claims.length) fail(errorCode);
+  if (!relations.length) fail(errorCode);
+  if (!claims.length) return { relations: relations.map(({ selection }) => selection), links: [] };
   const links = claims.map(({ assertionId, selection }) => {
     const matches = relations.filter(({ selection: related }) =>
       claimDependsOnSelectedRelation(selection, related),
@@ -38,11 +42,11 @@ export function claimRelationLabel(relation, errorCode) {
   if (!record(relation?.qualifiers)) fail(errorCode);
   const names = Object.keys(relation.qualifiers).sort();
   return names.length
-    ? names
+    ? `Source relation qualifiers (unverified): ${names
         .map((name) => {
           const value = relation.qualifiers[name];
           return `${name}: ${typeof value === 'string' ? value : canonical(value)}`;
         })
-        .join(' · ')
+        .join(' · ')}`
     : null;
 }

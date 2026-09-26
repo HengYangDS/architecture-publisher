@@ -334,7 +334,7 @@ export function composeStaticEditionScene(meaning, layout) {
     sourceAssertionCarriers,
     ...(claimModelMode
       ? {
-          claimRelationLinks: claimSources?.links ?? fail('static_scene_claim_relation_unbound'),
+          ...(claimSources?.links.length ? { claimRelationLinks: claimSources.links } : {}),
           claimCards: [...cards.values()].sort(compareClaims),
         }
       : {}),

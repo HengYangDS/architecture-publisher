@@ -344,6 +344,15 @@ needs a readable carrier; every visible claim needs a source. Counts and labels
 alone do not establish equivalence. Code reachability cannot establish intended
 architecture or deployed behavior.
 
+The transferable discipline is attributed meaning, exact selection, bounded
+derivation, predicate-specific evidence, and authorized effects, not a shared
+domain ontology or a requirement to use this compiler. A selected Claim Model
+relation can answer a structural reader question as source-reported topology;
+its qualifiers remain visibly source-declared fields. Without a selected typed
+claim, that relation receives no claim plane, validity, maturity, implementation
+evidence, or typed-claim coverage. A narrower medium must disclose its scope and
+earn its own acceptance rather than borrow another medium's claims.
+
 ETHOS views must preserve intent alignment/compilation, greenfield and brownfield,
 repository quality, concurrent cooperative or competing lanes, experiments and
 reasoned abandonment, object-scoped CAS, accepted integration, verification,

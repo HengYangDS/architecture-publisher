@@ -624,7 +624,7 @@ test('claim condition and plane changes alter both visible media without changin
   assert.match(built[2].html, /<dd>observed<\/dd>/u);
 });
 
-test('unsupported Claim Model entity and relation media remain fail-closed', async (t) => {
+test('ungrouped Claim Model entity and relation selections fail closed', async (t) => {
   for (const reference of ['entity:client', 'relation:request']) {
     const selected = await fixture(t, { reference });
     const output = path.join(selected.root, 'candidate');
@@ -653,7 +653,10 @@ test('a grouped static Scene retains relation and dependent claim as separate so
     scene.edges[0].relations.map(({ reference }) => reference),
     ['request'],
   );
-  assert.equal(scene.edges[0].relations[0].label, 'phase: selected · z: tail · ä: accent');
+  assert.equal(
+    scene.edges[0].relations[0].label,
+    'Source relation qualifiers (unverified): phase: selected · z: tail · ä: accent',
+  );
   assert.equal(scene.claimCards.length, 1);
   assert.deepEqual(scene.claimRelationLinks, [
     { claimAssertionId: 'selected-claim', relationAssertionId: 'selected-relation' },
@@ -703,6 +706,107 @@ test('a grouped static Scene retains relation and dependent claim as separate so
   assert.throws(() => composeStaticEditionScene(changedClaimant, layout), {
     code: 'static_scene_claim_relation_unbound',
   });
+});
+
+test('a selected relation can publish structural media without inventing claim status', async (t) => {
+  const model = claimModel();
+  model.relations.request.qualifiers = { 'Claim plane': 'implemented' };
+  const selected = await groupedMixedFixture(t, { model });
+  selected.project.scope.selections = selected.project.scope.selections.filter(({ reference }) =>
+    reference.startsWith('relation:'),
+  );
+  selected.project.scope.limits.push({
+    question: 'condition',
+    reason: 'Relation topology only; typed claim status is not selected.',
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+
+  const output = path.join(selected.root, 'candidate');
+  const built = await compileEditionCandidateInput(
+    selected.requestPath,
+    selected.requestSha256,
+    output,
+  );
+  assert.deepEqual(built.media, ['interactive', 'static']);
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  for (const [name, medium] of [
+    ['svg', svg],
+    ['html', html],
+  ]) {
+    const visible = medium.replace(/<[^>]*>/gu, ' ').replace(/\s+/gu, ' ');
+    assert(visible.includes('Relation topology only; typed claim status is not selected.'), name);
+    assert(
+      visible.includes('Source relation qualifiers (unverified): Claim plane: implemented'),
+      name,
+    );
+    assert(
+      visible.includes(
+        'Source-reported topology; provenance unverified; typed claim status not selected.',
+      ),
+      name,
+    );
+  }
+  assert(svg.includes('SOURCE RELATIONS'));
+  assert(!svg.includes('SOURCE CLAIMS'));
+  assert(html.includes('Source relations'));
+  assert(!html.includes('Source claims'));
+
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const scene = composeInteractiveEditionScene(meaning);
+  assert.deepEqual(scene.pages[0].claimCards, []);
+  const rendered = await renderInteractiveEditionHtml(scene);
+  assert.doesNotThrow(() =>
+    validateVisibleSelection(meaning, 'interactive', scene, rendered.carriers),
+  );
+  const forged = structuredClone(scene);
+  forged.pages[0].sourceAssertionCarriers[0].relationRefs[0].reference = 'not-selected';
+  assert.throws(() => validateVisibleSelection(meaning, 'interactive', forged, rendered.carriers), {
+    code: 'edition_visible_coverage_mismatch',
+  });
+});
+
+test('relation-only coverage rejects endpoints without the selected relation', async (t) => {
+  const selected = await groupedMixedFixture(t);
+  selected.project.scope.selections = selected.project.scope.selections.filter(({ reference }) =>
+    reference.startsWith('relation:'),
+  );
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+
+  const staticScene = composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  const staticForged = structuredClone(staticScene);
+  staticForged.edges = [];
+  staticForged.sourceAssertionCarriers[0].relationRefs = [];
+  const staticRendered = composeStaticEditionSvg(staticForged);
+  assert.throws(
+    () => validateVisibleSelection(meaning, 'static', staticForged, staticRendered.carriers),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
+
+  const interactiveScene = composeInteractiveEditionScene(meaning);
+  const interactiveForged = structuredClone(interactiveScene);
+  interactiveForged.pages[0].relations = [];
+  interactiveForged.pages[0].sourceAssertionCarriers[0].relationRefs = [];
+  const interactiveRendered = await renderInteractiveEditionHtml(interactiveForged);
+  assert.throws(
+    () =>
+      validateVisibleSelection(
+        meaning,
+        'interactive',
+        interactiveForged,
+        interactiveRendered.carriers,
+      ),
+    { code: 'edition_visible_coverage_mismatch' },
+  );
 });
 
 test('typed claim dimensions use stable code-point order instead of host collation', async (t) => {

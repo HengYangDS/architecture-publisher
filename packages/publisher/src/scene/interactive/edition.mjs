@@ -128,9 +128,8 @@ function composePage(view, selections, assertions, questions, claimMode) {
     if (!question) fail('interactive_scene_question_unbound');
     return question;
   });
-  if (claimMode && relations.size && !claims.size) fail('edition_scene_claim_model_unadmitted');
   const claimRelationLinks =
-    claimMode && relations.size
+    claimMode && relations.size && claims.size
       ? linkClaimModelSources(
           view,
           assertions,

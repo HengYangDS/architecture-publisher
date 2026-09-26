@@ -39,6 +39,32 @@ function validateClaimCarriers(page, selections, assertions) {
   return required;
 }
 
+function selectedRelationMatches(carrier, selection) {
+  const relation = selection?.members?.relations?.[0];
+  return (
+    carrier?.kind === 'relation' &&
+    selection?.target.kind === 'relation' &&
+    Array.isArray(selection.members?.relations) &&
+    selection.members.relations.length === 1 &&
+    relation?.origin?.namespace &&
+    relation.origin.sha256 &&
+    Array.isArray(selection.members.elements) &&
+    Array.isArray(carrier.nodeRefs) &&
+    Array.isArray(carrier.relationRefs) &&
+    same(carrier.relationRefs, [
+      {
+        namespace: relation.origin.namespace,
+        reference: relation.id,
+        sha256: relation.origin.sha256,
+      },
+    ]) &&
+    same(
+      carrier.nodeRefs,
+      selection.members.elements.map(({ namespace, id }) => ({ namespace, id })),
+    )
+  );
+}
+
 function validateClaimLinks(page, selections, assertions, required) {
   const links = page.claimRelationLinks;
   const carriers = new Map(
@@ -46,6 +72,20 @@ function validateClaimLinks(page, selections, assertions, required) {
   );
   const linkedClaims = new Set();
   const linkedRelations = new Set();
+  if (!required.size) {
+    if (
+      links !== undefined ||
+      page.sourceAssertionCarriers.some(
+        (carrier) =>
+          !selectedRelationMatches(
+            carrier,
+            selections.get(assertions.get(carrier.assertionId)?.selection),
+          ),
+      )
+    )
+      mismatch();
+    return;
+  }
   if (!Array.isArray(links) || links.length !== required.size) mismatch();
   for (const link of links) {
     if (!link || typeof link !== 'object' || Array.isArray(link)) mismatch();
@@ -54,27 +94,11 @@ function validateClaimLinks(page, selections, assertions, required) {
     const relation = carriers.get(relationAssertionId);
     const claimSelection = selections.get(assertions.get(claimAssertionId)?.selection);
     const relationSelection = selections.get(assertions.get(relationAssertionId)?.selection);
-    const sourceRelation = relationSelection?.members?.relations?.[0];
     if (
       linkedClaims.has(claimAssertionId) ||
       claim?.kind !== 'claim' ||
-      relation?.kind !== 'relation' ||
       claim.claimRefs?.length !== 1 ||
-      relation.relationRefs?.length !== 1 ||
-      !sourceRelation?.origin?.namespace ||
-      !sourceRelation.origin.sha256 ||
-      !Array.isArray(relationSelection.members?.elements) ||
-      !same(relation.relationRefs, [
-        {
-          namespace: sourceRelation.origin.namespace,
-          reference: sourceRelation.id,
-          sha256: sourceRelation.origin.sha256,
-        },
-      ]) ||
-      !same(
-        relation.nodeRefs,
-        relationSelection.members.elements.map(({ namespace, id }) => ({ namespace, id })),
-      ) ||
+      !selectedRelationMatches(relation, relationSelection) ||
       !claimDependsOnSelectedRelation(claimSelection, relationSelection)
     )
       mismatch();
@@ -152,13 +176,16 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
       )
     )
       mismatch();
+    const hasClaimModelRelations = sourceIds.some((id) => {
+      const selected = selections.get(assertions.get(id).selection);
+      return (
+        selected?.format === 'architecture.claim-model/v2' && selected.target.kind === 'relation'
+      );
+    });
+    if (hasClaimModelRelations && page.claimCards === undefined) mismatch();
     if (page.claimCards !== undefined) {
       const required = validateClaimCarriers(page, selections, assertions);
-      if (
-        (medium === 'static' && page.edges?.length) ||
-        (medium === 'interactive' && page.relations?.length)
-      )
-        validateClaimLinks(page, selections, assertions, required);
+      if (hasClaimModelRelations) validateClaimLinks(page, selections, assertions, required);
     }
     if (
       !view.assertionsByQuestion ||

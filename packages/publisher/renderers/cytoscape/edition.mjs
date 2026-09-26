@@ -1,6 +1,7 @@
 import { loadBundledFonts } from '../fonts/index.mjs';
 import { fail } from '../../src/source/manifest.mjs';
 import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
+import { SOURCE_REPORTED_TOPOLOGY_NOTE } from '../../src/scene/claim-relations.mjs';
 import { projectInteractivePage } from './model.mjs';
 import { loadCytoscapeSupply } from './supply.mjs';
 
@@ -120,6 +121,8 @@ document.fonts.ready.then(() => show(0));
 function pageHtml(page, index, methodLimits) {
   const nodes = new Map(page.nodes.map((node) => [node.id, node.label]));
   const mixed = Boolean(page.nodes.length && page.claims?.length);
+  const relationOnly =
+    page.claims !== undefined && page.claims.length === 0 && page.relations.length > 0;
   const questionItems = page.questions
     .map(
       (question) =>
@@ -167,7 +170,7 @@ function pageHtml(page, index, methodLimits) {
   return `<section class="edition-page" id="page-${index}" data-page="${index}" aria-labelledby="page-title-${index}">
     <header class="page-heading"><p class="eyebrow">Reading page ${index + 1}</p><h2 id="page-title-${index}">${escape(page.title)}</h2></header>
     <div class="page-grid"><div class="stage">${stage}${page.nodes.length ? `<button class="fit" type="button" data-fit="${index}">Fit graph</button>` : ''}</div>
-    <aside class="notes" aria-label="Page evidence"><h3>Reader questions</h3><ul>${questionItems}</ul>
+    <aside class="notes" aria-label="Page evidence">${relationOnly ? `<p class="source-note">${escape(SOURCE_REPORTED_TOPOLOGY_NOTE)}</p>` : ''}<h3>Reader questions</h3><ul>${questionItems}</ul>
     ${nodeItems ? `<h3>Source nodes</h3><ul class="node-list">${nodeItems}</ul>` : ''}
     ${relationItems ? `<h3>Source relations</h3><ul class="relation-list">${relationItems}</ul>` : ''}
     ${editorial && page.nodes.length ? `<h3>Editorial assertions</h3><ul>${editorial}</ul>` : ''}
@@ -188,6 +191,7 @@ function css(fonts) {
   .shell{max-width:1720px;margin:auto;padding:32px 44px 44px}.masthead{border-bottom:1px solid #c4ccc2;padding-bottom:22px}.masthead h1{font-size:clamp(28px,3vw,43px);line-height:1.15;margin:0}.masthead p{font-size:15px;color:#53645a;max-width:72ch;margin:12px 0 0}
   .navigation{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}.navigation button{border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:10px 18px;font-size:12px;text-align:left;max-width:35ch}.navigation button[aria-current=page]{background:#214f3c;color:#fffefa;border-color:#214f3c}
   .edition-page[hidden]{display:none}.page-heading{display:flex;align-items:baseline;gap:18px;margin:12px 0 18px}.page-heading h2{font-size:clamp(20px,2vw,28px);line-height:1.3;margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
+  .source-note{font-size:11px;line-height:1.45;color:#526158;margin:0 0 18px;padding-left:12px;border-left:2px solid #b3c4b6}
   .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.stage{position:relative;min-width:0}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:clamp(360px,46vh,660px)}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-instruction{font-size:11px;color:#4c5a50;margin:10px 0 0}.fit{position:absolute;right:16px;top:16px;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
   .claim-stage{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;align-content:start}.claim-card{min-width:0;background:#fffefa;border:1px solid #c4ccc2;border-radius:18px;padding:22px 25px}.claim-facts{display:grid;grid-template-columns:minmax(80px,1fr) minmax(0,2.2fr);gap:9px 16px;margin:0}.claim-facts dt{font-size:11px;color:#526158}.claim-facts dd{font-size:13px;line-height:1.45;margin:0;overflow-wrap:anywhere}
   .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}.linked-claims .claim-stage{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}

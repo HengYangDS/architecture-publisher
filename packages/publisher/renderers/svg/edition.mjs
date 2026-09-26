@@ -1,5 +1,6 @@
 import { fail } from '../../src/source/manifest.mjs';
 import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
+import { SOURCE_REPORTED_TOPOLOGY_NOTE } from '../../src/scene/claim-relations.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
@@ -389,6 +390,22 @@ export function composeStaticEditionSvg(scene) {
         graphicId,
       };
     }),
+  );
+  const relationOnly =
+    scene.claimCards !== undefined && scene.claimCards.length === 0 && scene.edges.length > 0;
+  y = namedSection(
+    notes,
+    'SOURCE STATUS',
+    relationOnly
+      ? [
+          {
+            text: SOURCE_REPORTED_TOPOLOGY_NOTE,
+          },
+        ]
+      : [],
+    notesX,
+    y,
+    notesWidth,
   );
   y = namedSection(notes, 'SOURCE RELATIONS', relationItems, notesX, y, notesWidth);
   y = namedSection(
