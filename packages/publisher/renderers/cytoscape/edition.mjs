@@ -145,9 +145,15 @@ function pageHtml(page, index, methodLimits) {
     .map((relation, at) => {
       const arrow = relation.direction === 'bidirectional' ? '↔' : '→';
       const words = `${nodes.get(relation.source)} ${arrow} ${nodes.get(relation.target)}${relation.label ? ` · ${relation.label}` : ''}`;
-      return `<li><button type="button" data-focus-relation="${relation.id}">${mixed ? `<span class="ordinal">${String(at + 1).padStart(2, '0')}</span>` : ''}${escape(words)}</button></li>`;
+      const sourceQualifiers = relation.sourceQualifiers?.length
+        ? `<dl class="relation-qualifiers">${relation.sourceQualifiers.map(({ name, value }) => `<dt>${escape(name || '""')}</dt><dd>${escape(value)}</dd>`).join('')}</dl>`
+        : '';
+      return `<li><button type="button" data-focus-relation="${relation.id}">${mixed ? `<span class="ordinal">${String(at + 1).padStart(2, '0')}</span>` : ''}${escape(words)}</button>${sourceQualifiers}</li>`;
     })
     .join('');
+  const qualifierNote = page.relations.some((relation) => relation.sourceQualifiers?.length)
+    ? '<p class="relation-qualifier-note">Source-reported relation qualifiers · unverified</p>'
+    : '';
   const editorial = page.editorialAssertions
     .map(
       ({ statement, proponent }) =>
@@ -178,7 +184,7 @@ function pageHtml(page, index, methodLimits) {
     <div class="page-grid"><div class="stage">${stage}${page.nodes.length ? `<button class="fit" type="button" data-fit="${index}">Fit graph</button>` : ''}</div>
     <aside class="notes" aria-label="Page evidence">${unlinkedRelation ? `<p class="source-note">${escape(relationOnly ? SOURCE_REPORTED_TOPOLOGY_NOTE : UNLINKED_RELATION_NOTE)}</p>` : ''}<h3>Reader questions</h3><ul>${questionItems}</ul>
     ${nodeItems ? `<h3>Source nodes</h3><ul class="node-list">${nodeItems}</ul>` : ''}
-    ${relationItems ? `<h3>Source relations</h3><ul class="relation-list">${relationItems}</ul>` : ''}
+    ${relationItems ? `<h3>Source relations</h3>${qualifierNote}<ul class="relation-list">${relationItems}</ul>` : ''}
     ${editorial && page.nodes.length ? `<h3>Editorial assertions</h3><ul>${editorial}</ul>` : ''}
     ${methodLimits.length ? `<h3>Method limits</h3><ul class="method-limits">${methodLimits.map((limit) => `<li><code>${escape(limit)}</code></li>`).join('')}</ul>` : ''}
     </aside></div>${mixed ? `<section class="linked-claims" aria-label="Source claims"><h3>Source claims</h3>${claimStage}</section>` : ''}</section>`;
@@ -203,6 +209,7 @@ function css(fonts) {
   .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}.linked-claims .claim-stage{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
   .claim-context{border-bottom:1px solid #d3dbd1;margin-bottom:18px}.claim-context dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 18px;margin:14px 0 20px}.claim-context dt{font-size:10px;color:#526158}.claim-context dd{font-size:12px;line-height:1.45;margin:4px 0 0;overflow-wrap:anywhere}
   .notes{border-left:1px solid #d3dbd1;padding:0 0 0 28px;min-width:0}.notes h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 9px}.notes h3:not(:first-child){margin-top:22px}.notes ul{list-style:none;margin:0;padding:0}.notes li{font-size:13px;line-height:1.55;overflow-wrap:anywhere}.notes li+li{margin-top:9px}.notes p{margin:0}.notes small{display:block;font-size:10px;color:#4c5a50;margin-top:3px}.notes button{display:flex;gap:11px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:2px 0;line-height:1.5;font-size:13px}.notes button:hover{text-decoration:underline}.notes button small{margin-left:auto}.ordinal{font-size:10px;color:#4c5a50}.limits{border-left:2px solid #b3c4b6;padding-left:10px!important;margin-top:7px!important;color:#526158}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
+  .notes{border-left:1px solid #d3dbd1;padding:0 0 0 28px;min-width:0}.notes h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 9px}.notes h3:not(:first-child){margin-top:22px}.notes ul{list-style:none;margin:0;padding:0}.notes li{font-size:13px;line-height:1.55;overflow-wrap:anywhere}.notes li+li{margin-top:9px}.notes p{margin:0}.notes small{display:block;font-size:10px;color:#4c5a50;margin-top:3px}.notes button{display:flex;gap:11px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:2px 0;line-height:1.5;font-size:13px}.notes button:hover{text-decoration:underline}.notes button small{margin-left:auto}.ordinal{font-size:10px;color:#4c5a50}.limits{border-left:2px solid #b3c4b6;padding-left:10px!important;margin-top:7px!important;color:#526158}.relation-qualifier-note{font-size:11px;color:#526158;margin:0 0 9px!important}.relation-qualifiers{display:grid;grid-template-columns:minmax(76px,.7fr) minmax(0,1.3fr);gap:4px 10px;margin:5px 0 0 12px;padding-left:10px;border-left:2px solid #b3c4b6}.relation-qualifiers dt{font-size:11px;color:#526158}.relation-qualifiers dd{font-size:12px;margin:0;overflow-wrap:anywhere}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}
   @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:1fr}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.graph{height:clamp(340px,50vh,520px)}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}`;
 }

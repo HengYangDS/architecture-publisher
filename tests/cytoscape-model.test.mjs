@@ -145,6 +145,40 @@ test('source nodes and relations require distinct identities and actual endpoint
   assert.equal(result.relations[0].label, 'peer');
 });
 
+test('source-reported relation qualifiers remain structured and fail closed when malformed', () => {
+  const page = interactiveEditionScene().pages[0];
+  page.relations[0].sourceQualifiers = [
+    { name: 'scope', value: '"selected account"' },
+    { name: 'enabled', value: 'false' },
+    { name: '', value: '""' },
+  ];
+  const projected = projectInteractivePage(page, 0).publicPage;
+  assert.deepEqual(projected.relations[0].sourceQualifiers, [
+    { name: 'scope', value: '"selected account"' },
+    { name: 'enabled', value: 'false' },
+    { name: '', value: '""' },
+  ]);
+  for (const invalid of [
+    null,
+    {},
+    [{ name: 'scope', value: undefined }],
+    [{ name: 'scope', value: false }],
+    [{ name: 'scope', value: 'not-json' }],
+    [{ name: 'scope', value: ' "noncanonical" ' }],
+    [{ name: 'scope', value: 'present', extra: true }],
+    [
+      { name: 'scope', value: 'first' },
+      { name: 'scope', value: 'second' },
+    ],
+  ]) {
+    const altered = interactiveEditionScene().pages[0];
+    altered.relations[0].sourceQualifiers = invalid;
+    assert.throws(() => projectInteractivePage(altered, 0), {
+      code: 'render_interactive_relation_qualifiers_invalid',
+    });
+  }
+});
+
 test('reader questions, editorial claims, and source carriers remain explicit', () => {
   const cases = [
     [

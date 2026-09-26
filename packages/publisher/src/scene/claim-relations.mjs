@@ -33,16 +33,22 @@ export function linkClaimModelSources(view, assertions, selections, errorCode) {
   return { relations: relations.map(({ selection }) => selection), links };
 }
 
-/** Show declared relation qualifiers without inventing claim status. */
-export function claimRelationLabel(relation, errorCode) {
+/** Preserve source-declared fields without turning them into typed claims. */
+export function claimRelationQualifiers(relation, errorCode) {
   if (!record(relation?.qualifiers)) fail(errorCode);
-  const names = Object.keys(relation.qualifiers).sort();
-  return names.length
-    ? `Source relation qualifiers (unverified): ${names
-        .map((name) => {
-          const value = relation.qualifiers[name];
-          return `${name}: ${typeof value === 'string' ? value : canonical(value)}`;
-        })
+  return Object.keys(relation.qualifiers)
+    .sort()
+    .map((name) => ({ name, value: structuredClone(relation.qualifiers[name]) }));
+}
+
+/** Show declared relation qualifiers in the independent static composition. */
+export function claimRelationLabel(relation, errorCode) {
+  const qualifiers = claimRelationQualifiers(relation, errorCode);
+  return qualifiers.length
+    ? `Source relation qualifiers (unverified): ${qualifiers
+        .map(
+          ({ name, value }) => `${name}: ${typeof value === 'string' ? value : canonical(value)}`,
+        )
         .join(' · ')}`
     : null;
 }

@@ -417,13 +417,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       Dagre is provisionally lower-cost, not selected. Complete comparative
       inputs, images, limits and remaining counterexamples are in the research
       record; the current renderer remains the only product owner.
+      A focused RED/GREEN now keeps Claim Model relation qualifiers as sorted,
+      canonical JSON literals in the interactive Scene and adjacent readable
+      relation fields, visibly source-reported and unverified rather than
+      flattening them into graph labels. Static presentation remains independent.
       Open: source-owner-approved authoring, installed exact-AIGW paired parity,
       reader-quality refinement, final browser/human review and qualification.
       Reuse the current layout owner unless a measured geometry failure
-      requires replacement. On code HEAD `7c59f3f`, the full 1,054-test run
-      had 1,049 passes, five skips and no test failures, but branch coverage
-      remains 92.93% < 95% (Task 7.5). Static, package and browser-focused
-      checks passed; this does not qualify the AIGW candidate.
+      requires replacement. Current release gates are tracked in Task 7.5;
+      this does not qualify the AIGW candidate.
       Detailed counterexamples and measured limits stay in
       `docs/research/mechanism-evaluation.md`, not a second progress ledger.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
@@ -604,8 +606,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       `EALLOWSCRIPTS` failures. The test entry now clears inherited npm config
       and selects two distinct tracked empty config files, without editing host
       policy. Focused installed tests pass 9/9; static and package checks pass.
-      Full behavior passes 819 tests, skips 2, and still fails only branch
-      coverage at 92.89%; no release admission is inferred.
+      The latest Work Lane source passes 1,051 behavior tests with five skips,
+      37 Chrome-targeted tests, static checks and package checks. The complete
+      owned-scope branch coverage is 92.94%, below 95%; no release admission is
+      inferred.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

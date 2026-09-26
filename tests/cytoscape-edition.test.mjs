@@ -192,3 +192,22 @@ test('a long untyped relation stays in the readable list rather than crowding th
     /Alpha &amp; one → Beta · synchronizes all selected native client registrations/u,
   );
 });
+
+test('source-reported qualifier fields are visible and HTML-escaped beside their relation', async () => {
+  const { renderInteractiveEditionHtml } =
+    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+  const scene = interactiveEditionScene();
+  scene.pages[0].relations[0].sourceQualifiers = [
+    { name: 'scope', value: '"<script>globalThis.injection=1</script>"' },
+    { name: 'enabled', value: 'false' },
+  ];
+  const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
+  assert(html.includes('Source-reported relation qualifiers · unverified'));
+  assert(
+    html.includes(
+      '<dt>scope</dt><dd>&quot;&lt;script&gt;globalThis.injection=1&lt;/script&gt;&quot;</dd>',
+    ),
+  );
+  assert(html.includes('<dt>enabled</dt><dd>false</dd>'));
+  assert(!html.includes('<script>globalThis.injection=1</script>'));
+});

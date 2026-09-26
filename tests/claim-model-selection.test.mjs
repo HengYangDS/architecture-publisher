@@ -740,16 +740,19 @@ test('a selected relation can publish structural media without inventing claim s
     const visible = medium.replace(/<[^>]*>/gu, ' ').replace(/\s+/gu, ' ');
     assert(visible.includes('Relation topology only; typed claim status is not selected.'), name);
     assert(
-      visible.includes('Source relation qualifiers (unverified): Claim plane: implemented'),
-      name,
-    );
-    assert(
       visible.includes(
         'Source-reported topology; provenance unverified; typed claim status not selected.',
       ),
       name,
     );
   }
+  const visibleStatic = svg.replace(/<[^>]*>/gu, ' ').replace(/\s+/gu, ' ');
+  assert(
+    visibleStatic.includes('Source relation qualifiers (unverified): Claim plane: implemented'),
+  );
+  assert(html.includes('Source-reported relation qualifiers · unverified'));
+  assert(html.includes('<dt>Claim plane</dt><dd>&quot;implemented&quot;</dd>'));
+  assert(!html.includes('Source relation qualifiers (unverified): Claim plane: implemented'));
   assert(svg.includes('SOURCE RELATIONS'));
   assert(!svg.includes('SOURCE CLAIMS'));
   assert(html.includes('Source relations'));
@@ -759,6 +762,9 @@ test('a selected relation can publish structural media without inventing claim s
   const meaning = await compileEditionMeaning(input);
   const scene = composeInteractiveEditionScene(meaning);
   assert.deepEqual(scene.pages[0].claimCards, []);
+  assert.deepEqual(scene.pages[0].relations[0].sourceQualifiers, [
+    { name: 'Claim plane', value: '"implemented"' },
+  ]);
   const rendered = await renderInteractiveEditionHtml(scene);
   assert.doesNotThrow(() =>
     validateVisibleSelection(meaning, 'interactive', scene, rendered.carriers),

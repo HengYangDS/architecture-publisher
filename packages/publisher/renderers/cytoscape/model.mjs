@@ -1,10 +1,20 @@
-import { fail } from '../../src/source/manifest.mjs';
+import { fail, hasExactFields } from '../../src/source/manifest.mjs';
+import { canonical, parseStrictJson } from '../../src/source/json.mjs';
 
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ origin, id }) => JSON.stringify([origin.namespace, id, origin.sha256]);
 const claimKey = ({ namespace, reference, sha256 }) =>
   JSON.stringify([namespace, reference, sha256]);
+
+function canonicalJsonLiteral(value) {
+  if (typeof value !== 'string' || !value.length) return false;
+  try {
+    return canonical(parseStrictJson(Buffer.from(value), 'invalid', 'duplicate')) === value;
+  } catch {
+    return false;
+  }
+}
 
 function linkedClaimOrdinals(page, relations, claims) {
   if (!page.nodes.length || !page.claimCards?.length) {
@@ -97,6 +107,25 @@ export function projectInteractivePage(page, index) {
     const source = nodes.get(key(relation.from));
     const target = nodes.get(key(relation.to));
     if (!source || !target) fail('render_interactive_relation_endpoint_missing');
+    const sourceQualifiers = relation.sourceQualifiers;
+    if (sourceQualifiers !== undefined) {
+      if (!Array.isArray(sourceQualifiers)) fail('render_interactive_relation_qualifiers_invalid');
+      let bytes = 0;
+      const names = new Set();
+      for (const field of sourceQualifiers) {
+        if (
+          !hasExactFields(field, ['name', 'value']) ||
+          typeof field.name !== 'string' ||
+          typeof field.value !== 'string' ||
+          names.has(field.name)
+        )
+          fail('render_interactive_relation_qualifiers_invalid');
+        names.add(field.name);
+        bytes += Buffer.byteLength(field.name) + Buffer.byteLength(field.value);
+        if (bytes > 16 * 1024 * 1024 || !canonicalJsonLiteral(field.value))
+          fail('render_interactive_relation_qualifiers_invalid');
+      }
+    }
     const identity = relationKey(relation);
     if (relations.has(identity)) fail('render_interactive_identity_ambiguous');
     const graphicId = `r-${position}`;
@@ -113,6 +142,9 @@ export function projectInteractivePage(page, index) {
       label: qualifiers,
       graphLabel,
       direction: relation.direction,
+      ...(sourceQualifiers === undefined
+        ? {}
+        : { sourceQualifiers: structuredClone(sourceQualifiers) }),
     };
   });
 

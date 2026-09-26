@@ -1,7 +1,7 @@
 import { canonical, deepFreeze, record, text } from '../../semantics/document.mjs';
 import { fail, isDigest } from '../../source/manifest.mjs';
 import { claimCard } from '../claim-card.mjs';
-import { claimRelationLabel, linkClaimModelSources } from '../claim-relations.mjs';
+import { claimRelationQualifiers, linkClaimModelSources } from '../claim-relations.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ id, origin }) => JSON.stringify([origin.namespace, id, origin.sha256]);
@@ -50,6 +50,9 @@ function relation(value) {
     direction: value.direction,
     label: value.label,
     origin: structuredClone(value.origin),
+    ...(value.sourceQualifiers === undefined
+      ? {}
+      : { sourceQualifiers: structuredClone(value.sourceQualifiers) }),
   };
 }
 
@@ -96,12 +99,18 @@ function composePage(view, selections, assertions, questions, claimMode) {
       return { namespace: projected.namespace, id: projected.id };
     });
     const relationRefs = selected.members.relations.map((member) => {
+      const sourceQualifiers = claimMode
+        ? claimRelationQualifiers(member, 'interactive_scene_relation_qualifiers_invalid').map(
+            ({ name, value }) => ({ name, value: canonical(value) }),
+          )
+        : [];
       const projected = relation(
         claimMode
           ? {
               ...member,
               direction: 'forward',
-              label: claimRelationLabel(member, 'interactive_scene_relation_qualifiers_invalid'),
+              label: null,
+              ...(sourceQualifiers.length ? { sourceQualifiers } : {}),
             }
           : member,
       );
