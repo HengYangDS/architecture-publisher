@@ -27,14 +27,12 @@ const sourceAuthorities = Object.freeze({
   'self-static-scene-owner': 'Flagship static Edition scene contract',
   'self-static-composition-owner': 'Flagship static authored composition',
   'self-static-compiler-owner': 'Flagship measured scene compiler',
-  'self-static-svg-owner': 'Flagship SVG renderer',
-  'self-static-flagship-owner': 'Flagship static build composition root',
+  'static-renderer-owner': 'Generic authored SVG renderer',
   'self-static-metrics': 'Recorded typography input; not fresh runtime observation',
   'self-interactive-scene-owner': 'Independent flagship interactive scene authorship',
   'self-interactive-composition-owner':
     'Flagship interactive visual-carrier composition and routing',
-  'self-interactive-atlas-owner':
-    'Flagship standalone Atlas composition and source-inspection owner',
+  'interactive-compositor-owner': 'Generic standalone interactive HTML compositor',
   'source-owner': 'Source Bundle validation and exclusive output implementation',
   'claim-owner': 'Claim Model schema, validation, and canonical identity owner',
   'evolution-owner': 'Semantic delta and Edition evolution obligation compiler',
@@ -291,7 +289,7 @@ function editionFor(model, sourceSha256, sources, productVersion) {
           scope: {
             kind: 'viewport',
             medium: 'interactive',
-            artifact: 'standalone-atlas',
+            artifact: 'architecture-html',
             width: 1440,
             height: 1000,
           },

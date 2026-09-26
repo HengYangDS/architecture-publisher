@@ -14,7 +14,7 @@ It is a downstream consumer, not part of the generic kernel. It does not scan a
 repository, infer product intent, grant acceptance, authorize publication, or
 retain generated artifacts as source.
 
-The package owns the self-Edition's art direction. Separate static and Atlas
-builders remain only as migration comparison paths; they are not the terminal
-build interface. Preparation emits selected inputs; the generic build emits an
-unqualified Candidate. Neither grants human acceptance or publication.
+The package owns the self-Edition's art direction, not a build engine.
+Preparation emits selected inputs; the generic build emits an unqualified
+Candidate. Neither grants human acceptance or publication. Historical self-only
+builders remain in signed releases, not in this package.

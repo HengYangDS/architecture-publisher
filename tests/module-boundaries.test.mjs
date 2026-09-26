@@ -97,7 +97,7 @@ test('extensions depend inward through public package exports', async () => {
   const packageExports = await declaredPackageExports();
   assert.deepEqual(
     inspectModuleBoundaries(
-      'editions/self/src/edition/static-flagship.mjs',
+      'editions/self/src/edition/refinement.mjs',
       "import { loadBundledFonts } from 'architecture-publisher/renderers/fonts';",
       paths,
       packageExports,
@@ -105,7 +105,7 @@ test('extensions depend inward through public package exports', async () => {
     [],
   );
   const deep = inspectModuleBoundaries(
-    'editions/self/src/edition/static-flagship.mjs',
+    'editions/self/src/edition/refinement.mjs',
     "import '../../../../packages/publisher/src/source/bundle.mjs';",
     paths,
     packageExports,

@@ -1,0 +1,32 @@
+{
+  "purpose": "Immutable comparison for retiring the self-only builders",
+  "baselineCommit": "8742c4918a0724ad96db7499fff5cbdd5e2cb903",
+  "selectedSourceCount": 24,
+  "sourceManifestSha256": "7fb71e5a7b6eb8bc8d08e791aaf049f6e7479a43440af0cdf422c92d7c6b8149",
+  "buildRequestSha256": "cb9bd94b9287f35920bdf1676751c51ae0870df1d7a5c648418fe47b4c3c8ed1",
+  "claimModelSha256": "741189b9780e0ceb5d0c4ec6f3f69c51be588e0d7264942384439f63d478a21f",
+  "legacy": {
+    "candidateSchema": "architecture.edition-candidate/v1",
+    "manifestSha256": "41993415040f0b3c1d670d9af4d2097d9230b656350bf5acbd3a2b0f786e4252",
+    "files": {
+      "candidate.json": "acb4af113cce40725b414d53c11c2c17ffe2de7dc03165f0fe0a873dac8c0534",
+      "static/architecture-publisher.svg": "1c768de9c20593107ec55025cca07f5078b37661923470760390d19d9d2a338a",
+      "static/architecture-publisher-6000.png": "4a81c81c611b035d7b6c75b895734f89cedc94bee72b52f8f7b1f66867b98490",
+      "interactive/architecture-publisher.html": "ec22bacc0246a53c653a0eaad826bb978012f2cd75f6c35e5585cbf5120474c5"
+    }
+  },
+  "publicBuild": {
+    "candidateSchema": "architecture.edition-candidate/v2",
+    "files": {
+      "candidate.json": "dbb6d15c9a5a1e8604097165771d56dadf135f291d66830fd20a61046470b083",
+      "static/architecture.svg": "0611f72092dfc16f656ad7fa553388c3af9de3324f1b1da09a8f069098762a7f",
+      "static/architecture.png": "9856c453d073cf0be91d1530426803248f957f21338d7195ca1a1a24d58a8a22",
+      "interactive/architecture.html": "b92b0794f2961f53dfbaac1f4d2a4f4916de67e07fd260f8e2d447e941aa14b1"
+    }
+  },
+  "limits": [
+    "Hashes were read from two local builds using the same selected inputs at the baseline commit; this is not semantic or visual equivalence.",
+    "Only hashes and the signed source commit are tracked here; generated media remain local and are not off-host disaster recovery evidence.",
+    "The post-retirement self model and media require fresh qualification and exact-byte human review before release."
+  ]
+}

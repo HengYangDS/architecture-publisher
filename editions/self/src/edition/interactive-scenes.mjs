@@ -13,7 +13,7 @@ const overviewGroups = Object.freeze([
   [
     'rendering',
     'Replaceable rendering',
-    ['static-artifact', 'static-renderer', 'interactive-renderer', 'interactive-atlas'],
+    ['static-artifact', 'static-renderer', 'interactive-renderer', 'interactive-artifact'],
   ],
   ['candidate', 'Exact candidate', ['edition-candidate']],
   [
@@ -97,7 +97,7 @@ const mechanisms = Object.freeze({
       ['static-artifact', 'SVG and 6000px PNG', ['static-artifact']],
       ['interactive-scene', 'Interactive scenes', ['interactive-scenes']],
       ['interactive-renderer', 'Interactive renderer', ['interactive-renderer']],
-      ['interactive-artifact', 'Standalone HTML atlas', ['interactive-atlas']],
+      ['interactive-artifact', 'Standalone interactive HTML', ['interactive-artifact']],
       ['candidate', 'Edition Candidate', ['edition-candidate']],
     ],
     relations: [

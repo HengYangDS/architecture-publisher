@@ -94,9 +94,9 @@ const PIPELINE = Object.freeze([
   },
   {
     id: 'interactive-artifact',
-    title: 'Standalone atlas',
+    title: 'Standalone HTML',
     lines: ['search · focus · trace'],
-    semantics: entities('interactive-renderer', 'interactive-atlas'),
+    semantics: entities('interactive-renderer', 'interactive-artifact'),
     x: 790,
     y: 400,
     r: 8,

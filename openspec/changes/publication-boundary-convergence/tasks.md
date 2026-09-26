@@ -470,40 +470,23 @@ third-party or generated supply rather than moving owned code outside coverage.
       source-namespace non-disclosure, but do not qualify the changed Candidate.
       Full visible coverage, browser/human review on final bytes, and acceptance
       remain open.
-- [ ] 5.5 Migrate `editions/self/` to the same public Build Request, Edition,
-      and dual-medium compiler used by unrelated adopters. Preserve self-owned
-      source meaning and selected flagship art direction, but remove hidden
-      self-only compilation paths after exact semantic, static, interactive,
-      installed, and visual parity. Exercise `tests/self-edition.test.mjs`,
-      `tests/self-static-flagship.test.mjs`, and
-      `tests/self-interactive-atlas.test.mjs` on the packaged public path.
-      Current legacy self tests pass 23/23, but they do not exercise that path.
-      The self model contains 38 entities, 51 relations, and 89 derived claims;
-      its authored compositions cannot be replaced by neutral boxes. The
-      versioned, data-only scene refinement described in `design.md` must prove its
-      source-to-graphic coverage with self and unrelated inputs, then verify
-      exact installed artifact identities and obtain human visual acceptance
-      before removing legacy self orchestration. This task remains open.
-      Partial: the same public Build Request now consumes exact source-owned,
-      data-only refinements for both self media: the static Candidate is 6000px;
-      eight interactive diagrams and a non-self Claim Model example pass
-      source-to-graphic checks and render through Archify into one metadata-only
-      interactive HTML artifact. Selected claim facts are accessible from its
-      reader control without embedding source files. The installed self package
-      now prepares the portable Build Request, model, Edition project, and
-      data-only refinement itself; the test-only authoring duplicate was removed.
-      A packed, offline-installed Core built both media from that relocated input
-      after removal of the self Edition package; Candidate JSON, SVG, PNG, and
-      HTML match the local public build by hash. Chrome read all eight pages
-      from that installed HTML with no page errors, external requests, or axe
-      WCAG A/AA violations;
-      the opaque iframe sandbox remains intact. Focused browser, static,
-      package, and strict OpenSpec checks pass. This is provisional installed
-      browser evidence, not final-byte human visual acceptance. The current
-      coverage result and remaining gate are recorded only in Task 7.5. The old
-      self-only builders and live Atlas v1 composer are temporary displacement targets,
-      not a second terminal protocol; remove them only after exact accepted
-      parity on the public path. No integration or publication is admitted.
+- [ ] 5.5 Keep the first-party self Edition on the same public Build Request,
+      Edition Project, data-only refinement, and dual-medium compiler as other
+      adopters. Preserve its source-owned meaning and flagship art direction;
+      prove selected-meaning coverage, installed relocation, independent media,
+      browser accessibility, and final-byte human visual acceptance. The signed
+      pre-retirement commit `8742c49` and
+      `conformance/evidence/self-migration-baseline.json` preserve exact old and
+      public-build comparison hashes, not semantic or visual equivalence.
+      Current: the self-only Candidate, Atlas, static flagship, and SVG builders
+      and their displaced tests are deleted; current self claims now name the
+      generic authored SVG renderer and interactive compositor. The installed
+      self package authors portable inputs; packed Core builds both media after
+      that package is removed. Its eight-page Chrome and axe journey and the
+      self evolution test pass (13/13 focused), and static, package, and strict
+      OpenSpec checks pass. The Core's old live Atlas composer remains Task 7.2
+      work. The regenerated truthful final Candidate still needs complete
+      visual, semantic, and release acceptance; no publication is admitted.
 
 ## 6. Qualification and bounded publication
 
@@ -591,8 +574,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       self-hosted golden was removed; the frozen first-party release matrix
       remains exact. A single collision-safe exact-field predicate now replaces
       repeated delimiter comparisons and local validators; malformed key names
-      failed RED and pass GREEN. Task 7.2 remains open; the sole current
-      coverage gate and its measured status are in Task 7.5.
+      failed RED and pass GREEN. The self-only build engines and their tests
+      are now removed; the shared live Atlas composer and its old contract,
+      exports, and tests still require subtraction. Task 7.2 remains open;
+      the coverage gate and its measured status are in Task 7.5.
 - [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,
@@ -626,9 +611,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      Current `npm run test:coverage` reports 1,093 pass, 6 skip, 0 fail, and
-      92.25% branches against the unchanged 95% gate; the other dimensions do
-      not waive it.
+      The last full run after self-only deletion reported 1,079 pass, 6 skip,
+      one stale identity-test failure and 92.37% branches. That test now passes
+      7/7 after its deleted-file references were removed; the current full
+      suite is not yet reverified. No coverage dimension waives the 95% gate.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

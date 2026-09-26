@@ -271,9 +271,9 @@ test('the released self Edition depends only on durable source authorities', asy
     [
       'editions/self/src/edition/model.mjs',
       'editions/self/src/edition/prepare.mjs',
+      'editions/self/src/edition/project.mjs',
+      'editions/self/src/edition/refinement.mjs',
       'tests/self-edition.test.mjs',
-      'tests/self-static-flagship.test.mjs',
-      'tests/self-interactive-atlas.test.mjs',
       'tests/self-evolution.test.mjs',
     ].map((file) => fs.readFile(path.join(root, file), 'utf8')),
   );

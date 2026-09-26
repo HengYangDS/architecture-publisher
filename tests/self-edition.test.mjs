@@ -11,10 +11,6 @@ import axe from 'axe-core';
 import { chromium } from 'playwright-core';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
-import {
-  editionCandidateDigest,
-  validateEditionCandidate,
-} from '../packages/publisher/src/compiler/candidate.mjs';
 import { validateEdition } from '../packages/publisher/src/edition/contract.mjs';
 import { validateClaimModel } from '../packages/publisher/src/semantics/document.mjs';
 import { SELF_ENTITY_IDS } from '../editions/self/src/edition/model.mjs';
@@ -35,12 +31,11 @@ const selectedSources = Object.freeze({
   'self-static-scene-owner': 'editions/self/src/edition/static-scene.mjs',
   'self-static-composition-owner': 'editions/self/src/edition/static/composition.mjs',
   'self-static-compiler-owner': 'editions/self/src/edition/static/scene.mjs',
-  'self-static-svg-owner': 'editions/self/src/edition/static/svg.mjs',
-  'self-static-flagship-owner': 'editions/self/src/edition/static-flagship.mjs',
+  'static-renderer-owner': 'packages/publisher/renderers/svg/canvas.mjs',
   'self-static-metrics': 'editions/self/src/edition/static/authoring/metrics.json',
   'self-interactive-scene-owner': 'editions/self/src/edition/interactive-scenes.mjs',
   'self-interactive-composition-owner': 'editions/self/src/edition/interactive-scene.mjs',
-  'self-interactive-atlas-owner': 'editions/self/src/edition/atlas.mjs',
+  'interactive-compositor-owner': 'packages/publisher/src/rendering/atlas.mjs',
   'source-owner': 'packages/publisher/src/source/write.mjs',
   'claim-owner': 'packages/publisher/src/semantics/document.mjs',
   'evolution-owner': 'packages/publisher/src/edition/evolution.mjs',
@@ -115,7 +110,7 @@ test('the first-party self Edition covers the complete product chain and authori
     'static-scene',
     'interactive-scenes',
     'static-artifact',
-    'interactive-atlas',
+    'interactive-artifact',
     'edition-candidate',
     'qualification-set',
     'acceptance',
@@ -177,7 +172,7 @@ test('the first-party self Edition covers the complete product chain and authori
     'static-scene-enters-renderer',
     'backend-renders-static',
   ]);
-  assert.deepEqual(directedPath(model.relations, 'edition', 'interactive-atlas'), [
+  assert.deepEqual(directedPath(model.relations, 'edition', 'interactive-artifact'), [
     'edition-authors-interactive',
     'interactive-scenes-enter-renderer',
     'backend-renders-interactive',
@@ -219,7 +214,7 @@ test('the first-party self Edition covers the complete product chain and authori
     'the selected source model does not treat renderer implementation as an existing accepted artifact',
   );
   assert.deepEqual(
-    [role('interactive-atlas').plane, role('interactive-atlas').maturity],
+    [role('interactive-artifact').plane, role('interactive-artifact').maturity],
     ['implemented', 'implemented'],
   );
   assert.deepEqual(
@@ -267,11 +262,11 @@ test('the first-party self Edition covers the complete product chain and authori
     ]),
     [
       ['faithful', 'static', 'flagship-png', 'physical', 6000, 3375],
-      ['faithful', 'interactive', 'standalone-atlas', 'viewport', 1440, 1000],
+      ['faithful', 'interactive', 'architecture-html', 'viewport', 1440, 1000],
       ['intelligible', 'static', 'flagship-png', 'physical', 6000, 3375],
-      ['intelligible', 'interactive', 'standalone-atlas', 'viewport', 1440, 1000],
+      ['intelligible', 'interactive', 'architecture-html', 'viewport', 1440, 1000],
       ['restrained', 'static', 'flagship-png', 'physical', 6000, 3375],
-      ['restrained', 'interactive', 'standalone-atlas', 'viewport', 1440, 1000],
+      ['restrained', 'interactive', 'architecture-html', 'viewport', 1440, 1000],
     ],
   );
   assert.equal(model.context.selfUse, true);
@@ -620,187 +615,6 @@ test('self Edition rejects a selected core package with foreign product identity
   await assert.rejects(prepareArchitecturePublisherEdition(input), {
     code: 'self_core_package_invalid',
   });
-});
-
-test('the first-party self Edition emits one exact candidate from independent sibling media', async (t) => {
-  const { buildArchitecturePublisherCandidate, prepareArchitecturePublisherEdition } =
-      await import('../editions/self/src/edition/index.mjs'),
-    scratch = path.join(root, 'build/test-work');
-  await fs.mkdir(scratch, { recursive: true });
-  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-candidate-'));
-  t.after(() => fs.rm(parent, { recursive: true, force: true }));
-  const prepared = await prepareArchitecturePublisherEdition(
-      await request(path.join(parent, 'prepared')),
-    ),
-    plan = JSON.parse(await fs.readFile(prepared.plan, 'utf8')),
-    output = path.join(parent, 'candidate'),
-    result = await buildArchitecturePublisherCandidate({ ...plan, output }),
-    bundle = await readSourceBundle(result.manifestPath, result.manifestSha256),
-    members = new Map(bundle.members.map((member) => [member.path, member.content])),
-    candidate = validateEditionCandidate(JSON.parse(members.get('candidate.json')));
-
-  assert.equal(result.status, 'built');
-  assert.equal(result.candidateSha256, editionCandidateDigest(candidate));
-  assert.equal(candidate.source.manifestSha256, prepared.sourceSha256);
-  assert.equal(candidate.claimModel.digest, prepared.semanticDigest);
-  assert.equal(candidate.edition.sha256, prepared.editionSha256);
-  assert.equal(candidate.edition.digest, prepared.editionDigest);
-  assert.equal(result.views, 8);
-  assert.deepEqual([...members.keys()].sort(), [
-    'candidate.json',
-    'interactive/architecture-publisher.html',
-    'static/architecture-publisher-6000.png',
-    'static/architecture-publisher.svg',
-  ]);
-  assert.deepEqual(
-    candidate.media.static.supplies.map(({ id }) => id),
-    ['font-supply', 'raster-supply', 'self-static-runtime'],
-  );
-  assert.deepEqual(
-    candidate.media.interactive.supplies.map(({ id }) => id),
-    ['archify', 'font-supply', 'runtime', 'self-interactive-runtime'],
-  );
-  assert.notEqual(candidate.media.static.sceneSha256, candidate.media.interactive.sceneSha256);
-  assert.equal(candidate.obligations.length, 13);
-  assert.deepEqual(
-    candidate.obligations
-      .filter(({ kind }) => kind === 'human')
-      .map(({ predicate, scope }) => [predicate, scope.medium, scope.artifact]),
-    [
-      ['faithful', 'static', 'flagship-png'],
-      ['faithful', 'interactive', 'standalone-atlas'],
-      ['intelligible', 'static', 'flagship-png'],
-      ['intelligible', 'interactive', 'standalone-atlas'],
-      ['restrained', 'static', 'flagship-png'],
-      ['restrained', 'interactive', 'standalone-atlas'],
-    ],
-  );
-  for (const medium of Object.values(candidate.media))
-    for (const artifact of medium.artifacts) {
-      const bytes = members.get(artifact.path);
-      assert(bytes, `missing candidate artifact: ${artifact.path}`);
-      assert.equal(artifact.bytes, bytes.length);
-      assert.equal(artifact.sha256, sha256(bytes));
-    }
-  for (const forbidden of ['qualification', 'humanAcceptance', 'publication'])
-    assert.equal(candidate[forbidden], undefined);
-});
-
-test('self Candidate rejects malformed plans before touching the destination', async (t) => {
-  const { buildArchitecturePublisherCandidate } =
-    await import('../editions/self/src/edition/candidate.mjs');
-  const scratch = path.join(root, 'build/test-work');
-  await fs.mkdir(scratch, { recursive: true });
-  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-plan-'));
-  t.after(() => fs.rm(parent, { recursive: true, force: true }));
-  const base = {
-    sourceManifest: path.join(root, 'absent-source.json'),
-    sourceSha256: 'a'.repeat(64),
-    semanticMember: 'semantic.json',
-    edition: path.join(root, 'absent-edition.json'),
-    editionSha256: 'b'.repeat(64),
-    output: path.join(parent, 'candidate'),
-  };
-  for (const plan of [
-    null,
-    { ...base, extra: true },
-    { ...base, sourceManifest: 'relative-source.json' },
-    { ...base, edition: 'relative-edition.json' },
-    { ...base, output: 'relative-output' },
-    { ...base, sourceSha256: 'invalid' },
-    { ...base, editionSha256: 'invalid' },
-  ])
-    await assert.rejects(buildArchitecturePublisherCandidate(plan), {
-      code: 'self_candidate_plan_invalid',
-    });
-  await assert.rejects(
-    buildArchitecturePublisherCandidate({
-      ...base,
-      output: path.join(parent, 'missing/candidate'),
-    }),
-    { code: 'self_candidate_output_parent_invalid' },
-  );
-  const notDirectory = path.join(parent, 'not-directory');
-  await fs.writeFile(notDirectory, 'occupied');
-  await assert.rejects(
-    buildArchitecturePublisherCandidate({ ...base, output: path.join(notDirectory, 'candidate') }),
-    { code: 'self_candidate_output_parent_invalid' },
-  );
-  const nested = path.join(parent, 'nested');
-  await fs.mkdir(nested);
-  await assert.rejects(
-    buildArchitecturePublisherCandidate({
-      ...base,
-      output: `${nested}${path.sep}..${path.sep}candidate`,
-    }),
-    { code: 'self_candidate_output_parent_invalid' },
-  );
-  await assert.rejects(fs.stat(base.output), { code: 'ENOENT' });
-});
-
-test('self Candidate rejects stale authority and occupied output before rendering', async (t) => {
-  const { buildArchitecturePublisherCandidate, prepareArchitecturePublisherEdition } =
-    await import('../editions/self/src/edition/index.mjs');
-  const scratch = path.join(root, 'build/test-work');
-  await fs.mkdir(scratch, { recursive: true });
-  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-admission-'));
-  t.after(() => fs.rm(parent, { recursive: true, force: true }));
-  const prepared = await prepareArchitecturePublisherEdition(
-    await request(path.join(parent, 'prepared')),
-  );
-  const plan = {
-    ...JSON.parse(await fs.readFile(prepared.plan, 'utf8')),
-    output: path.join(parent, 'candidate'),
-  };
-  await assert.rejects(
-    buildArchitecturePublisherCandidate({ ...plan, semanticMember: 'missing.json' }),
-    { code: 'self_candidate_claim_model_missing' },
-  );
-  const bundle = await readSourceBundle(plan.sourceManifest, plan.sourceSha256);
-  const otherMember = bundle.members.find(({ path: name }) => name !== plan.semanticMember);
-  assert(otherMember);
-  await assert.rejects(
-    buildArchitecturePublisherCandidate({ ...plan, semanticMember: otherMember.path }),
-    { code: 'self_candidate_claim_model_invalid' },
-  );
-  await assert.rejects(
-    buildArchitecturePublisherCandidate({ ...plan, editionSha256: '0'.repeat(64) }),
-    { code: 'self_candidate_edition_mismatch' },
-  );
-  const invalidEdition = path.join(parent, 'invalid-edition.json');
-  const invalidBytes = Buffer.from('{invalid');
-  await fs.writeFile(invalidEdition, invalidBytes);
-  await assert.rejects(
-    buildArchitecturePublisherCandidate({
-      ...plan,
-      edition: invalidEdition,
-      editionSha256: sha256(invalidBytes),
-    }),
-    { code: 'self_candidate_edition_invalid' },
-  );
-  const edition = JSON.parse(await fs.readFile(plan.edition, 'utf8'));
-  for (const [name, changed] of [
-    ['foreign-id', { ...edition, id: 'foreign-edition' }],
-    [
-      'foreign-source',
-      { ...edition, source: { ...edition.source, manifestSha256: 'f'.repeat(64) } },
-    ],
-  ]) {
-    const file = path.join(parent, `${name}.json`);
-    const bytes = encode(changed);
-    await fs.writeFile(file, bytes);
-    await assert.rejects(
-      buildArchitecturePublisherCandidate({
-        ...plan,
-        edition: file,
-        editionSha256: sha256(bytes),
-      }),
-      { code: 'self_candidate_edition_invalid' },
-    );
-  }
-  await fs.writeFile(plan.output, 'occupied');
-  await assert.rejects(buildArchitecturePublisherCandidate(plan), { code: 'output_exists' });
-  assert.equal(await fs.readFile(plan.output, 'utf8'), 'occupied');
 });
 
 test('the evolution view carries semantic delta and distinct renewal obligations', async (t) => {

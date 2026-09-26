@@ -785,10 +785,16 @@ First reuse the existing static scene audit, SVG/raster primitives, and
 Archify/Atlas renderer boundaries. Generalize only a mechanism exercised by
 both the self-Edition and one unrelated Edition; do not add a renderer plugin
 registry or import self package code into Publisher Core for this case. Keep
-legacy self output immutable until exact selected-meaning coverage, installed
-reproduction, independent static/interactive behavior, and human visual
-acceptance pass on the public successor path. If the current scene contracts
-cannot carry those obligations without loss, revise that contract explicitly
+signed historical refs and verified comparison evidence immutable.
+The live legacy builders may be removed after exact selected-meaning coverage,
+installed reproduction, and independent static/interactive browser and
+accessibility behavior pass on the public successor path. Their deletion must
+not wait for approval of a Candidate that still attributes the new interactive
+artifact to the old self-only Atlas builder. Re-author the self Claim Model and
+provenance against the surviving owners, then obtain human visual acceptance of
+the resulting exact static and interactive bytes before integration or release.
+If the current scene contracts cannot carry those obligations without loss,
+revise that contract explicitly
 instead of weakening parity or claiming that a carrier map proves meaning.
 The successor may earn a different accepted visual composition; byte equality
 is required for repeat builds of the same selected inputs and supplies, not
@@ -798,11 +804,12 @@ Historical signed releases retain their own Atlas v1 bytes and meaning. That
 does not require a live successor compatibility path. The terminal product
 names its unqualified interactive medium an interactive artifact, not an
 Atlas or a publication effect. After the public self-Edition passes semantic,
-installed, browser, accessibility, and human visual acceptance, retire the
-legacy self-only static, Atlas, and Candidate builders and the displaced live
-Atlas composer. Keep one public build path and one active interactive-artifact
-contract; history remains recoverable from its immutable release, not from a
-second current implementation.
+installed, browser, and accessibility acceptance, retire the legacy self-only
+static, Atlas, and Candidate builders and the displaced live Atlas composer.
+Then regenerate the truthful final self Candidate and obtain human visual
+acceptance before release. Keep one public build path and one active
+interactive-artifact contract; history remains recoverable from its immutable
+release, not from a second current implementation.
 
 Static and interactive scenes compile independently from the same selected
 semantic obligations. A static overview may use carefully chosen aggregates

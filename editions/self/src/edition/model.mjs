@@ -32,7 +32,7 @@ export const SELF_ENTITY_IDS = Object.freeze([
   'static-artifact',
   'static-renderer',
   'interactive-scenes',
-  'interactive-atlas',
+  'interactive-artifact',
   'interactive-renderer',
   'edition-candidate',
   'qualification-set',
@@ -210,7 +210,7 @@ const entityDefinitions = Object.freeze({
   'static-renderer': entity(
     'capability',
     'Static renderer',
-    'self-static-svg-owner',
+    'static-renderer-owner',
     'Translates the static scene into vector bytes without owning meaning.',
     fact('implemented', 'implemented', { medium: 'svg' }),
   ),
@@ -221,10 +221,10 @@ const entityDefinitions = Object.freeze({
     'Own complete overview and mechanism compositions independently.',
     fact('implemented', 'implemented', { medium: 'interactive' }),
   ),
-  'interactive-atlas': entity(
+  'interactive-artifact': entity(
     'artifact',
-    'Standalone flagship HTML atlas',
-    'self-interactive-atlas-owner',
+    'Standalone interactive HTML',
+    'interactive-compositor-owner',
     'Packages complete responsive overview and mechanism pages with source inspection.',
     fact('implemented', 'implemented', {
       delivery: 'flagship-standalone-html',
@@ -509,7 +509,7 @@ export const SELF_RELATIONS = Object.freeze({
     'feeds',
     'static-scene',
     'static-renderer',
-    'self-static-svg-owner',
+    'static-renderer-owner',
     fact('implemented', 'implemented', { medium: 'static' }),
   ),
   'interactive-scenes-enter-renderer': relation(
@@ -523,14 +523,14 @@ export const SELF_RELATIONS = Object.freeze({
     'renders',
     'static-renderer',
     'static-artifact',
-    'self-static-flagship-owner',
+    'static-renderer-owner',
     fact('implemented', 'implemented', { delivery: 'flagship-6000px' }),
   ),
   'backend-renders-interactive': relation(
     'renders',
     'interactive-renderer',
-    'interactive-atlas',
-    'self-interactive-atlas-owner',
+    'interactive-artifact',
+    'interactive-compositor-owner',
     fact('implemented', 'implemented', { delivery: 'flagship-standalone-html' }),
   ),
   'static-enters-candidate': relation(
@@ -542,7 +542,7 @@ export const SELF_RELATIONS = Object.freeze({
   ),
   'interactive-enters-candidate': relation(
     'bundles',
-    'interactive-atlas',
+    'interactive-artifact',
     'edition-candidate',
     'compiler-owner',
     fact('implemented', 'implemented', { artifact: 'flagship-interactive' }),
