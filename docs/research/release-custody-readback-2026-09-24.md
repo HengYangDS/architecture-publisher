@@ -180,3 +180,23 @@ missing files have independently bound original identities. Targeted searches
 of the owned Publisher build trees found no `source.tar.xz` or
 `qualification.tar.xz` candidate. A later visually similar archive or reader
 file must not be uploaded as historical content without exact identity proof.
+
+## Bounded repeat observation (2026-09-26)
+
+The installed `glab` 1.119.0, using the repository's authenticated GitLab
+host with `GLAB_NO_PROMPT=1`, closed stdin and caller-owned process deadlines,
+read project 1323 as
+`dig/research/human-agent-stewardship/architecture-publisher`. Its package
+listing still contained ten versions and none of the three missing versions
+named above. The exact `v0.1.0-alpha.0` Release record still had twelve asset
+links; `HEAD` to each returned HTTP 404. No asset was downloaded, replaced,
+deleted or uploaded.
+
+This reconfirms the **primary-forge availability gap at this observation time**,
+not loss of all original copies. The other 72 historical links were not
+rehashed in this pass. The local Documents HTML still hashes to the later
+`0.1.0-alpha.1`/`alpha.3` HTML identity and cannot substitute for alpha.0.
+Time Machine could not mount its destination and listed no local snapshots;
+that observation does not prove that no independent backup exists. The repair
+bar above remains unchanged: original bytes plus independent identity evidence
+before any no-overwrite restoration and exact remote readback.
