@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { npmInvocation, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import {
   alpha3CandidateDigest,
   alpha3QualificationDigest,
@@ -39,12 +39,8 @@ async function waitForExit(pid) {
 }
 
 function run(command, args, cwd, env, timeout = 60_000) {
-  const windowsNpm = process.platform === 'win32' && command === 'npm';
-  const executable = windowsNpm ? process.execPath : command;
-  const selectedArgs = windowsNpm
-    ? [path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js'), ...args]
-    : args;
-  const result = spawnSync(executable, selectedArgs, {
+  const selected = command === 'npm' ? npmInvocation(args) : { command, args };
+  const result = spawnSync(selected.command, selected.args, {
     cwd,
     env,
     input: '',

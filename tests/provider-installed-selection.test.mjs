@@ -6,14 +6,15 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { npmInvocation, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 function run(command, args, cwd, env) {
-  const result = spawnSync(command, args, {
+  const selected = command === 'npm' ? npmInvocation(args) : { command, args };
+  const result = spawnSync(selected.command, selected.args, {
     cwd,
     env,
     input: '',

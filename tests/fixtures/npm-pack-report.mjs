@@ -1,3 +1,14 @@
+import path from 'node:path';
+
+/** Invoke npm through the selected Node installation instead of a Windows cmd shim. */
+export function npmInvocation(args) {
+  if (process.platform !== 'win32') return { command: 'npm', args };
+  return {
+    command: process.execPath,
+    args: [path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js'), ...args],
+  };
+}
+
 /** Parse the one-package npm pack report across supported npm JSON envelopes. */
 export function parseNpmPackRecord(output) {
   const value = JSON.parse(output);
