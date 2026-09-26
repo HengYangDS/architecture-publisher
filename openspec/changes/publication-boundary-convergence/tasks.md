@@ -484,21 +484,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       source-to-graphic coverage with self and unrelated inputs, then verify
       exact installed artifact identities and obtain human visual acceptance
       before removing legacy self orchestration. This task remains open.
-      Partial: the public successor build now admits a byte-bound static-only
-      geometry refinement and refuses unsupported interactive refinement rather
-      than substituting neutral output. LikeC4 and unrelated grouped Claim Model
-      builds pass focused positive and forged-member counterexamples. Self-owned
-      successor Project derivation reuses the legacy author's questions and
-      claim choices; materialized meaning and manually composed sibling scenes
-      retain 38 entities, 51 relations, 89 claims, and eight interactive views.
-      This does not yet migrate self to the public dual-medium build, preserve
-      its flagship composition, or qualify any new visual artifact. The exact
-      current expanded coverage run passed 1088 tests, skipped 5, and failed
-      none; it reported 97.73% statements, 97.73% lines, 92.79% branches, and
-      99.24% functions. The refinement contract now uses the shared generated
-      closed-schema validation path rather than a separate handwritten shape
-      validator; a scalar source claim is representable without a fake relation.
-      The 95% branch gate remains red and forbids integration or publication.
+      Partial: the same public Build Request now consumes exact source-owned,
+      data-only refinements for both self media: the static Candidate is 6000px;
+      eight interactive diagrams and a non-self Claim Model example pass
+      source-to-graphic checks and render through Archify into one metadata-only
+      interactive HTML artifact. Selected claim facts are accessible from its
+      reader control without embedding source files. Focused behavior, static,
+      package, and strict OpenSpec checks pass; Chrome exercised the exact
+      provisional self HTML overview and meaning inspector. This is not full
+      eight-page browser, accessibility, installed, or human visual acceptance.
+      The latest complete coverage run preceded the fact-inspector edits; it
+      reported 92.29% branches and one obsolete legacy metric-inventory test
+      expectation, since corrected with a focused pass. Thus current-tree full
+      coverage is unproved and the 95% gate remains red. The old self-only
+      builders and live Atlas v1 composer are temporary displacement targets,
+      not a second terminal protocol; remove them only after exact accepted
+      parity on the public path. No integration or publication is admitted.
 
 ## 6. Qualification and bounded publication
 

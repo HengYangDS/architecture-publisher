@@ -274,19 +274,248 @@ const visualGroup = closed(['id', 'x', 'y', 'width', 'height'], {
   width: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
   height: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
 });
+const canvasPoint = closed(['x', 'y'], { x: coordinate, y: coordinate });
+const canvasBox = closed(['x', 'y', 'width', 'height'], {
+  x: coordinate,
+  y: coordinate,
+  width: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
+  height: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
+});
+const semanticIds = {
+  type: 'array',
+  maxItems: 4096,
+  uniqueItems: true,
+  items: text,
+};
+const canvasScene = closed(
+  [
+    'schema',
+    'title',
+    'subtitle',
+    'width',
+    'height',
+    'referenceWidth',
+    'spine',
+    'paint',
+    'nodes',
+    'texts',
+    'edges',
+    'decorations',
+    'requiredSemanticIds',
+  ],
+  {
+    schema: { const: 'architecture.authored-static-scene/v1' },
+    title: text,
+    subtitle: text,
+    width: { type: 'number', minimum: 320, maximum: 12000 },
+    height: { type: 'number', minimum: 320, maximum: 12000 },
+    referenceWidth: { type: 'number', minimum: 320, maximum: 12000 },
+    spine: { type: 'array', maxItems: 512, uniqueItems: true, items: identifier },
+    paint: {
+      type: 'object',
+      required: ['paper'],
+      minProperties: 1,
+      maxProperties: 32,
+      patternProperties: {
+        '^[a-z][a-z0-9-]{0,79}$': { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
+      },
+      additionalProperties: false,
+    },
+    nodes: {
+      type: 'array',
+      maxItems: 512,
+      items: closed(
+        ['id', 'kind', 'tone', 'center', 'radius', 'box', 'paintBox', 'strokeWidth', 'semanticIds'],
+        {
+          id: identifier,
+          kind: text,
+          tone: identifier,
+          center: canvasPoint,
+          radius: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
+          box: canvasBox,
+          paintBox: canvasBox,
+          strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
+          semanticIds: { ...semanticIds, minItems: 1 },
+        },
+      ),
+    },
+    texts: {
+      type: 'array',
+      maxItems: 4096,
+      items: closed(
+        [
+          'id',
+          'text',
+          'fontSize',
+          'weight',
+          'anchor',
+          'tone',
+          'x',
+          'baseline',
+          'visible',
+          'semanticIds',
+          'box',
+        ],
+        {
+          id: identifier,
+          text,
+          fontSize: { type: 'number', exclusiveMinimum: 0, maximum: 300 },
+          weight: { enum: ['400', '600'] },
+          anchor: { enum: ['start', 'middle', 'end'] },
+          tone: identifier,
+          x: coordinate,
+          baseline: coordinate,
+          visible: { type: 'boolean' },
+          semanticIds,
+          box: canvasBox,
+        },
+      ),
+    },
+    edges: {
+      type: 'array',
+      maxItems: 8192,
+      items: closed(
+        [
+          'id',
+          'kind',
+          'source',
+          'target',
+          'points',
+          'strokeWidth',
+          'arrow',
+          'arrowGeometry',
+          'semanticIds',
+          'strokeTone',
+        ],
+        {
+          id: identifier,
+          kind: text,
+          source: identifier,
+          target: identifier,
+          points: { type: 'array', minItems: 2, maxItems: 2048, items: canvasPoint },
+          strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
+          arrow: { type: 'boolean' },
+          arrowGeometry: closed(['length', 'halfWidth', 'strokeWidth'], {
+            length: { type: 'number', minimum: 0, maximum: 100 },
+            halfWidth: { type: 'number', minimum: 0, maximum: 100 },
+            strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
+          }),
+          semanticIds,
+          strokeTone: identifier,
+        },
+      ),
+    },
+    decorations: {
+      type: 'array',
+      maxItems: 4096,
+      items: closed(['id', 'role', 'tone', 'points', 'strokeWidth'], {
+        id: identifier,
+        role: text,
+        tone: identifier,
+        points: { type: 'array', minItems: 2, maxItems: 2048, items: canvasPoint },
+        strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
+      }),
+    },
+    requiredSemanticIds: {
+      type: 'array',
+      minItems: 1,
+      maxItems: 8192,
+      uniqueItems: true,
+      items: text,
+    },
+  },
+);
+const staticGeometryRefinement = closed(['view', 'nodes', 'edges', 'groups'], {
+  view: identifier,
+  nodes: { type: 'array', maxItems: 4096, items: visualNode },
+  edges: { type: 'array', maxItems: 8192, items: visualEdge },
+  groups: { type: 'array', maxItems: 256, items: visualGroup },
+});
+const staticCanvasRefinement = closed(['kind', 'view', 'scene'], {
+  kind: { const: 'authored-canvas' },
+  view: identifier,
+  scene: canvasScene,
+});
+const interactiveSize = closed(['width', 'height'], {
+  width: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
+  height: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
+});
+const interactiveNode = closed(['id', 'label', 'visualRole', 'position', 'size'], {
+  id: identifier,
+  label: text,
+  visualRole: text,
+  position: canvasPoint,
+  size: interactiveSize,
+  detail: text,
+  semanticIds: { ...semanticIds, minItems: 1 },
+});
+const interactiveGroup = closed(['id', 'label', 'nodeIds', 'padding'], {
+  id: identifier,
+  label: text,
+  nodeIds: { type: 'array', minItems: 1, maxItems: 512, uniqueItems: true, items: identifier },
+  padding: { type: 'number', minimum: 0, maximum: 12000 },
+});
+const interactiveLabelPlacement = closed([], {
+  at: { type: 'array', minItems: 2, maxItems: 2, items: coordinate },
+  dx: coordinate,
+  dy: coordinate,
+  segment: { type: 'integer', minimum: 0, maximum: 2048 },
+});
+const interactiveEdge = closed(
+  ['id', 'from', 'to', 'label', 'visualRole', 'fromSide', 'toSide', 'route'],
+  {
+    id: identifier,
+    from: identifier,
+    to: identifier,
+    label: text,
+    visualRole: text,
+    fromSide: { enum: ['top', 'right', 'bottom', 'left'] },
+    toSide: { enum: ['top', 'right', 'bottom', 'left'] },
+    route: { enum: ['auto', 'straight', 'orthogonal-h', 'orthogonal-v'] },
+    labelPlacement: interactiveLabelPlacement,
+    semanticIds: { ...semanticIds, minItems: 1 },
+    waypoints: { type: 'array', minItems: 1, maxItems: 2048, items: canvasPoint },
+  },
+);
+const interactiveArchitectureScene = closed(
+  ['schema', 'id', 'title', 'subtitle', 'viewport', 'nodes', 'groups', 'edges'],
+  {
+    schema: { const: 'architecture.interactive-scene/v1' },
+    id: identifier,
+    title: text,
+    subtitle: text,
+    viewport: interactiveSize,
+    nodes: { type: 'array', minItems: 1, maxItems: 512, items: interactiveNode },
+    groups: { type: 'array', maxItems: 256, items: interactiveGroup },
+    edges: { type: 'array', maxItems: 2048, items: interactiveEdge },
+  },
+);
+const interactiveArchitectureRefinement = closed(['kind', 'pages'], {
+  kind: { const: 'authored-architecture' },
+  pages: {
+    type: 'array',
+    minItems: 1,
+    maxItems: 64,
+    items: closed(['id', 'label', 'purpose', 'scene'], {
+      id: identifier,
+      label: text,
+      purpose: { enum: ['overview', 'mechanism'] },
+      scene: interactiveArchitectureScene,
+    }),
+  },
+});
 
 export const SCENE_REFINEMENT_SCHEMA = deepFreeze({
   $id: 'architecture.scene-refinement/v1',
   $schema: 'http://json-schema.org/draft-07/schema#',
   ...closed(['schema', 'media'], {
     schema: { const: 'architecture.scene-refinement/v1' },
-    media: closed(['static'], {
-      static: closed(['view', 'nodes', 'edges', 'groups'], {
-        view: identifier,
-        nodes: { type: 'array', maxItems: 4096, items: visualNode },
-        edges: { type: 'array', maxItems: 8192, items: visualEdge },
-        groups: { type: 'array', maxItems: 256, items: visualGroup },
+    media: {
+      ...closed([], {
+        static: { oneOf: [staticGeometryRefinement, staticCanvasRefinement] },
+        interactive: interactiveArchitectureRefinement,
       }),
-    }),
+      minProperties: 1,
+    },
   }),
 });

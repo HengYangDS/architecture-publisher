@@ -95,6 +95,7 @@ const owners = [
       'packages/publisher/src/semantics/',
       'packages/publisher/src/edition/',
       'packages/publisher/src/scene/',
+      'packages/publisher/src/rendering/atlas.mjs',
       'packages/publisher/renderers/',
     ],
   ],

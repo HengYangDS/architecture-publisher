@@ -794,6 +794,16 @@ The successor may earn a different accepted visual composition; byte equality
 is required for repeat builds of the same selected inputs and supplies, not
 between a new Edition and historical signed release artifacts.
 
+Historical signed releases retain their own Atlas v1 bytes and meaning. That
+does not require a live successor compatibility path. The terminal product
+names its unqualified interactive medium an interactive artifact, not an
+Atlas or a publication effect. After the public self-Edition passes semantic,
+installed, browser, accessibility, and human visual acceptance, retire the
+legacy self-only static, Atlas, and Candidate builders and the displaced live
+Atlas composer. Keep one public build path and one active interactive-artifact
+contract; history remains recoverable from its immutable release, not from a
+second current implementation.
+
 Static and interactive scenes compile independently from the same selected
 semantic obligations. A static overview may use carefully chosen aggregates
 and visible relational text; interactive pages may reveal mechanisms and

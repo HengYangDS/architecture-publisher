@@ -279,6 +279,7 @@ test('the first-party self Edition covers the complete product chain and authori
 test('self successor authoring derives every selected claim and reader question from one owner', async (t) => {
   const self = await import('../editions/self/src/edition/index.mjs');
   assert.equal(typeof self.projectFromSelfEdition, 'function');
+  assert.equal(typeof self.refinementFromSelfEdition, 'function');
   const { materializeBuildRequestInput } =
     await import('../packages/publisher/src/provider/build-request.mjs');
   const { compileEditionMeaning } = await import('../packages/publisher/src/compiler/meaning.mjs');
@@ -302,6 +303,81 @@ test('self successor authoring derives every selected claim and reader question 
   const model = validateClaimModel(JSON.parse(modelBytes));
   const edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8')));
   const project = self.projectFromSelfEdition(model, edition);
+  const metrics = bundle.members.find(
+    ({ path: name }) => name === model.sources['self-static-metrics'].locator,
+  ).content;
+  const authoredRefinement = self.refinementFromSelfEdition(model, edition, metrics);
+  assert.equal(authoredRefinement.schema, 'architecture.scene-refinement/v1');
+  assert.equal(authoredRefinement.media.static.kind, 'authored-canvas');
+  assert.equal(
+    authoredRefinement.media.static.scene.schema,
+    'architecture.authored-static-scene/v1',
+  );
+  assert.equal(authoredRefinement.media.static.scene.requiredSemanticIds.length, 89);
+  assert.deepEqual(JSON.parse(authoredRefinement.media.static.scene.requiredSemanticIds[0]), [
+    'architecture-publisher/self',
+    'entity',
+    'accepted-intent',
+  ]);
+  assert.equal(Object.hasOwn(authoredRefinement.media.static.scene, 'coverage'), false);
+  assert.equal(
+    authoredRefinement.media.static.scene.nodes[0].semanticIds.length,
+    edition.scenes.static.composition.groups[0].entities.length,
+  );
+  assert.equal(
+    authoredRefinement.media.static.scene.edges.some(({ id }) => id === 'evolution-4'),
+    false,
+    'a visible arrow must not claim unrelated renewal relations',
+  );
+  assert.equal(
+    authoredRefinement.media.static.scene.decorations.some(({ id }) => id === 'renewal-scope'),
+    true,
+  );
+  assert.equal(
+    authoredRefinement.media.static.scene.texts.some(
+      ({ id, text }) => id === 'target-caveat' && text.includes('Target architecture'),
+    ),
+    true,
+  );
+  assert.equal(authoredRefinement.media.interactive.kind, 'authored-architecture');
+  assert.deepEqual(
+    authoredRefinement.media.interactive.pages.map(({ id }) => id),
+    edition.narrative,
+  );
+  assert.equal(authoredRefinement.media.interactive.pages[0].scene.nodes.length < 38, true);
+  assert.deepEqual(
+    JSON.parse(authoredRefinement.media.interactive.pages[0].scene.nodes[0].semanticIds[0]),
+    ['architecture-publisher/self', 'entity', 'accepted-intent'],
+  );
+  assert.doesNotMatch(JSON.stringify(authoredRefinement), /<svg|<html/iu);
+  const { auditScene, auditEmittedEdges } =
+    await import('../packages/publisher/src/qualification/index.mjs');
+  const { renderAuthoredCanvasSvg } = await import('../packages/publisher/renderers/svg/index.mjs');
+  const authoredCanvas = authoredRefinement.media.static.scene;
+  const geometry = auditScene(authoredCanvas, {
+    minimumFont: 10,
+    ownerClearance: 8,
+    textClearance: 5,
+    endpointTolerance: 1,
+    minimumTerminal: 14,
+    widthGrowth: 0.04,
+    heightGrowth: 0.04,
+  });
+  assert.deepEqual(geometry.failures, []);
+  const emitted = auditEmittedEdges(
+    renderAuthoredCanvasSvg(authoredCanvas).toString('utf8'),
+    authoredCanvas,
+    {
+      endpointTolerance: 1,
+      minimumTerminal: 14,
+    },
+  );
+  assert.deepEqual(emitted.failures, []);
+  const tamperedMetrics = Buffer.from(metrics);
+  tamperedMetrics[0] ^= 1;
+  assert.throws(() => self.refinementFromSelfEdition(model, edition, tamperedMetrics), {
+    code: 'self_refinement_metric_mismatch',
+  });
   assert.equal(project.schema, 'architecture.edition-project/v1');
   assert.equal(
     project.scope.selections.filter(({ reference }) => reference.startsWith('claim:')).length,
@@ -418,6 +494,90 @@ test('self successor authoring derives every selected claim and reader question 
       interactiveRendered.carriers,
     ),
   );
+  const selectedProject = structuredClone(project);
+  selectedProject.visualPolicy.override = 'refinement.json';
+  await fs.writeFile(path.join(sourceRoot, 'edition/project.json'), encode(selectedProject));
+  const resourceBytes = encode(authoredRefinement);
+  await fs.writeFile(path.join(sourceRoot, 'edition/refinement.json'), resourceBytes);
+  const selectedWithRefinement = await materializeBuildRequestInput(
+    requestPath,
+    sha256(requestBytes),
+  );
+  const refinedMeaning = await compileEditionMeaning(selectedWithRefinement);
+  assert.equal(refinedMeaning.refinement.sha256, sha256(resourceBytes));
+  assert.deepEqual(Object.keys(refinedMeaning.refinement.media), ['static', 'interactive']);
+  const { composeAuthoredInteractiveArchitecture } =
+    await import('../packages/publisher/src/scene/interactive/authored-architecture.mjs');
+  const omitted = structuredClone(refinedMeaning);
+  omitted.refinement.media.interactive.pages[0].scene.nodes[0].semanticIds.pop();
+  assert.throws(() => composeAuthoredInteractiveArchitecture(omitted), {
+    code: 'authored_interactive_semantic_mismatch',
+  });
+  const forged = structuredClone(refinedMeaning);
+  forged.refinement.media.interactive.pages[0].scene.edges[0].semanticIds[0] =
+    '["architecture-publisher/self","relation","not-selected"]';
+  assert.throws(() => composeAuthoredInteractiveArchitecture(forged), {
+    code: 'authored_interactive_semantic_mismatch',
+  });
+
+  const { compileEditionCandidateInput } =
+    await import('../packages/publisher/src/compiler/index.mjs');
+  const pairedRoot = path.join(parent, 'public-pair');
+  const paired = await compileEditionCandidateInput(requestPath, sha256(requestBytes), pairedRoot);
+  assert.deepEqual(paired.media.sort(), ['interactive', 'static']);
+  const interactiveBytes = await fs.readFile(
+    path.join(pairedRoot, 'interactive/architecture.html'),
+  );
+  const atlasMatch = interactiveBytes
+    .toString('utf8')
+    .match(
+      /<script id="architecture-interactive-data" type="application\/json">([\s\S]*?)<\/script>/u,
+    );
+  assert(atlasMatch, 'the public build emits authored interactive HTML');
+  const atlas = JSON.parse(atlasMatch[1]);
+  assert.equal(atlas.schema, 'architecture.interactive-html/v1');
+  assert.deepEqual(atlas.order, edition.narrative);
+  assert(Object.values(atlas.pages).every(({ sourceIds }) => sourceIds.length > 0));
+  assert(Object.values(atlas.pages).every(({ facts }) => facts.length > 0));
+  assert(
+    atlas.pages.overview.facts.some(({ facts }) =>
+      facts.some(({ label }) => label === 'Declared evidence authority'),
+    ),
+  );
+  assert(Object.values(atlas.sources).every((source) => !Object.hasOwn(source, 'base64')));
+  assert.equal(
+    interactiveBytes.includes(modelBytes),
+    false,
+    'private source bytes stay outside HTML',
+  );
+
+  const staticProject = structuredClone(selectedProject);
+  staticProject.id = 'architecture-publisher-self-static-probe';
+  staticProject.questions = staticProject.questions.filter(({ id }) => id === 'overview');
+  staticProject.scope.selections = staticProject.scope.selections.map((selection) => ({
+    ...selection,
+    questions: ['overview'],
+  }));
+  staticProject.presentation.interactive.views = [{ id: 'overview', questions: ['overview'] }];
+  await fs.writeFile(path.join(sourceRoot, 'edition/project.json'), encode(staticProject));
+  const staticRequestBytes = encode({ ...buildRequest, media: ['static'] });
+  await fs.writeFile(requestPath, staticRequestBytes);
+  await fs.writeFile(
+    path.join(sourceRoot, 'edition/refinement.json'),
+    encode({
+      schema: authoredRefinement.schema,
+      media: { static: authoredRefinement.media.static },
+    }),
+  );
+  const candidateRoot = path.join(parent, 'public-static');
+  const built = await compileEditionCandidateInput(
+    requestPath,
+    sha256(staticRequestBytes),
+    candidateRoot,
+  );
+  assert.equal(built.status, 'built');
+  const png = await fs.readFile(path.join(candidateRoot, 'static/architecture.png'));
+  assert.equal(png.readUInt32BE(16), 6000);
 });
 
 test('self Edition product version follows the selected core package bytes', async (t) => {

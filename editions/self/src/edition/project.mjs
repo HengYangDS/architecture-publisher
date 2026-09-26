@@ -1,7 +1,7 @@
 import { validateEdition, validateEditionProject } from 'architecture-publisher/edition';
 import { validateClaimModel } from 'architecture-publisher/semantics';
 
-const namespace = 'architecture-publisher/self';
+export const SELF_NAMESPACE = 'architecture-publisher/self';
 
 /** Derive successor authoring from the existing self-owned reader and claim choices. */
 export function projectFromSelfEdition(sourceModel, authoredEdition) {
@@ -12,7 +12,7 @@ export function projectFromSelfEdition(sourceModel, authoredEdition) {
     questionIds.filter((id) => edition.questions[id].claims.includes(claimId));
   const selection = (kind, id, claimId) => ({
     id: `${kind}-${id}`,
-    namespace,
+    namespace: SELF_NAMESPACE,
     kind: 'reference',
     reference: `${kind}:${id}`,
     questions: questionsFor(claimId),
@@ -21,7 +21,7 @@ export function projectFromSelfEdition(sourceModel, authoredEdition) {
     composition.groups.map(({ id, label, entities }) => ({
       id,
       label,
-      elements: entities.map((id) => ({ namespace, id })),
+      elements: entities.map((id) => ({ namespace: SELF_NAMESPACE, id })),
     }));
   const staticWidths = new Set(
     edition.qualification.human
@@ -44,7 +44,7 @@ export function projectFromSelfEdition(sourceModel, authoredEdition) {
       text: edition.questions[id].prompt,
     })),
     scope: {
-      sourceNamespaces: [namespace],
+      sourceNamespaces: [SELF_NAMESPACE],
       selections: [
         ...Object.keys(model.entities).map((id) => selection('entity', id, `role-${id}`)),
         ...Object.keys(model.relations).map((id) => selection('relation', id, `flow-${id}`)),

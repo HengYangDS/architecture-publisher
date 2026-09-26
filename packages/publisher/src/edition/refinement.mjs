@@ -13,10 +13,7 @@ export function parseSelectedSceneRefinement(bytes, media, sha256) {
     value.media === null ||
     typeof value.media !== 'object' ||
     Array.isArray(value.media) ||
-    Object.keys(value.media).length !== 1 ||
-    !Object.hasOwn(value.media, 'static') ||
-    media.length !== 1 ||
-    media[0] !== 'static'
+    Object.keys(value.media).sort().join('\n') !== [...media].sort().join('\n')
   )
     fail('scene_refinement_medium_unadmitted');
   if (!sceneRefinementValid(value)) fail('scene_refinement_invalid');

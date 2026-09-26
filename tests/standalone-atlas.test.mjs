@@ -151,6 +151,68 @@ test('standalone Atlas retains exact page bytes and one source-bound navigation 
   assert.doesNotMatch(text, /ETHOS|archify\/plate|data-preset-badge/);
 });
 
+test('interactive HTML binds selected meaning without disclosing source bytes', async () => {
+  const { composeInteractiveHtml } = await api();
+  const input = fixture();
+  input.schema = 'architecture.interactive-html-composition/v1';
+  input.build = {
+    lockSha256: 'e'.repeat(64),
+    editionSha256: input.editionSha256,
+    semanticDigest: input.semanticDigest,
+  };
+  delete input.source;
+  delete input.semanticDigest;
+  delete input.editionSha256;
+  delete input.editionDigest;
+  input.sources = [
+    {
+      id: 'selected-1',
+      kind: 'native',
+      namespace: 'fixture/claims',
+      sha256: 'f'.repeat(64),
+      claimant: 'fixture-maintainer',
+    },
+  ];
+  for (const page of input.pages) {
+    page.sourceIds = ['selected-1'];
+    page.subjectSources = { compiler: ['selected-1'] };
+    page.facts = [
+      {
+        reference: '["fixture/claims","entity","compiler"]',
+        sourceSha256: 'f'.repeat(64),
+        graphicId: 'compiler',
+        title: 'Compiler',
+        facts: [{ label: 'Source kind', value: 'backend' }],
+      },
+    ];
+  }
+  const output = composeInteractiveHtml(input).toString('utf8');
+  const match = output.match(
+    /<script id="architecture-interactive-data" type="application\/json">([\s\S]*?)<\/script>/u,
+  );
+  assert(match);
+  const data = JSON.parse(match[1]);
+  assert.equal(data.schema, 'architecture.interactive-html/v1');
+  assert.deepEqual(data.build, input.build);
+  assert.deepEqual(data.sources['selected-1'], {
+    kind: 'native',
+    namespace: 'fixture/claims',
+    sha256: 'f'.repeat(64),
+    claimant: 'fixture-maintainer',
+  });
+  assert.deepEqual(data.pages.overview.facts, input.pages[0].facts);
+  assert.doesNotMatch(output, /ZXhwb3J0IGNvbnN0IG1lYW5pbmc/);
+  assert.match(output, /Source references/);
+  assert.match(output, /Selected meaning/);
+  assert.match(output, /Interactive architecture<\/title>/);
+
+  input.sources[0].content = Buffer.from('secret');
+  assert.throws(() => composeInteractiveHtml(input), { code: 'atlas_source_invalid' });
+  delete input.sources[0].content;
+  input.pages[0].facts[0].graphicId = 'not-visible';
+  assert.throws(() => composeInteractiveHtml(input), { code: 'atlas_page_facts_invalid' });
+});
+
 test('standalone Atlas fails closed on drift, incomplete navigation, and executable dependencies', async () => {
   const { composeStandaloneAtlas } = await api();
   const changed = fixture();

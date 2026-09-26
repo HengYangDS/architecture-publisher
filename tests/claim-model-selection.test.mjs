@@ -797,6 +797,113 @@ test('a grouped Claim Model refinement keeps its typed claim linked to selected 
   );
 });
 
+test('an unrelated Claim Model builds source-checked interactive HTML', async (t) => {
+  const selected = await groupedMixedFixture(t, { media: ['interactive'] });
+  selected.project.presentation.interactive.views[0].groups = structuredClone(
+    selected.project.presentation.static.views[0].groups,
+  );
+  selected.project.visualPolicy.override = 'refinement.json';
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const ref = (kind, id) => JSON.stringify([modelNamespace, kind, id]);
+  const resource = {
+    schema: 'architecture.scene-refinement/v1',
+    media: {
+      interactive: {
+        kind: 'authored-architecture',
+        pages: [
+          {
+            id: 'overview',
+            label: 'Source relation and claim',
+            purpose: 'overview',
+            scene: {
+              schema: 'architecture.interactive-scene/v1',
+              id: 'overview',
+              title: selected.project.title,
+              subtitle: 'Source relation and claim',
+              viewport: { width: 960, height: 540 },
+              nodes: [
+                {
+                  id: 'client',
+                  label: 'Client',
+                  visualRole: 'external',
+                  position: { x: 70, y: 180 },
+                  size: { width: 220, height: 100 },
+                  semanticIds: [ref('entity', 'client')],
+                },
+                {
+                  id: 'server',
+                  label: 'Server',
+                  visualRole: 'backend',
+                  position: { x: 620, y: 180 },
+                  size: { width: 220, height: 100 },
+                  semanticIds: [ref('entity', 'server')],
+                },
+              ],
+              groups: [],
+              edges: [
+                {
+                  id: 'request',
+                  from: 'client',
+                  to: 'server',
+                  label: 'request',
+                  visualRole: 'emphasis',
+                  fromSide: 'right',
+                  toSide: 'left',
+                  route: 'straight',
+                  semanticIds: [ref('relation', 'request')],
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  };
+  const resourcePath = path.join(selected.root, 'edition/refinement.json');
+  await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');
+  const output = path.join(selected.root, 'authored-interactive');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  const match = html.match(
+    /<script id="architecture-interactive-data" type="application\/json">([\s\S]*?)<\/script>/u,
+  );
+  assert(match);
+  const atlas = JSON.parse(match[1]);
+  assert.equal(atlas.schema, 'architecture.interactive-html/v1');
+  assert.deepEqual(atlas.order, ['overview']);
+  assert.deepEqual(atlas.pages.overview.subjectSources, {
+    client: ['selected-1'],
+    server: ['selected-1'],
+    request: ['selected-1'],
+  });
+  assert(
+    atlas.pages.overview.facts.some(({ facts }) =>
+      facts.some(({ label, value }) => label === 'Claim plane' && value === 'intended'),
+    ),
+  );
+  assert(
+    atlas.pages.overview.facts.some(({ facts }) =>
+      facts.some(({ label, value }) => label === 'Condition' && value.includes('authorization')),
+    ),
+  );
+  assert(!Object.hasOwn(atlas.sources['selected-1'], 'base64'));
+  assert(!html.includes(JSON.stringify(selected.model)));
+
+  resource.media.interactive.pages[0].scene.edges[0].semanticIds = [ref('relation', 'invented')];
+  await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');
+  await assert.rejects(
+    compileEditionCandidateInput(
+      selected.requestPath,
+      selected.requestSha256,
+      path.join(selected.root, 'forged-interactive'),
+    ),
+    { code: 'authored_interactive_semantic_mismatch' },
+  );
+});
+
 test('a grouped entity may carry a scalar claim without inventing a source relation', async (t) => {
   const selected = await fixture(t, { reference: 'entity:client' });
   selected.project.scope.selections[0].id = 'selected-entity';
@@ -827,6 +934,119 @@ test('a grouped entity may carry a scalar claim without inventing a source relat
   assert.match(svg, /ON SOURCE ENTITY/u);
   assert.match(html, /observed/u);
   assert.doesNotMatch(svg, /SOURCE RELATIONS<\/text>/u);
+});
+
+test('an unrelated Claim Model uses the same authored canvas with source-checked aggregates', async (t) => {
+  const selected = await groupedMixedFixture(t, { media: ['static'] });
+  selected.project.presentation.static.width = 1200;
+  for (const id of ['client', 'server'])
+    selected.project.scope.selections.push({
+      id: `selected-${id}`,
+      namespace: modelNamespace,
+      kind: 'reference',
+      reference: `entity:${id}`,
+      questions: ['condition'],
+    });
+  selected.project.visualPolicy.override = 'refinement.json';
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const semantic = (kind, id) => JSON.stringify([modelNamespace, kind, id]);
+  const box = (x, y, width, height) => ({ x, y, width, height });
+  const node = (id, x) => ({
+    id,
+    kind: 'stage',
+    tone: 'ink',
+    center: { x, y: 200 },
+    radius: 12,
+    box: box(x - 12, 188, 24, 24),
+    paintBox: box(x - 13, 187, 26, 26),
+    strokeWidth: 2,
+    semanticIds: [semantic('entity', id)],
+  });
+  const label = (id, value, x, y, bound) => ({
+    id,
+    text: value,
+    fontSize: 16,
+    weight: '600',
+    anchor: 'middle',
+    tone: 'ink',
+    x,
+    baseline: y,
+    visible: true,
+    semanticIds: [bound],
+    box: box(x - 32, y - 20, 64, 20),
+  });
+  const resource = {
+    schema: 'architecture.scene-refinement/v1',
+    media: {
+      static: {
+        kind: 'authored-canvas',
+        view: 'overview',
+        scene: {
+          schema: 'architecture.authored-static-scene/v1',
+          title: selected.project.title,
+          subtitle: selected.project.narrative.summary,
+          width: 800,
+          height: 400,
+          referenceWidth: 800,
+          spine: ['client', 'server'],
+          paint: { paper: '#f3f0e8', ink: '#26362f', line: '#7d9183' },
+          nodes: [node('client', 100), node('server', 600)],
+          texts: [
+            label('client-label', 'Client', 100, 150, semantic('entity', 'client')),
+            label('server-label', 'Server', 600, 150, semantic('entity', 'server')),
+            label('relation-label', 'Calls', 350, 180, semantic('relation', 'request')),
+          ],
+          edges: [
+            {
+              id: 'request',
+              kind: 'flow',
+              source: 'client',
+              target: 'server',
+              points: [
+                { x: 112, y: 200 },
+                { x: 588, y: 200 },
+              ],
+              strokeWidth: 1.5,
+              arrow: true,
+              arrowGeometry: { length: 8, halfWidth: 4, strokeWidth: 1.2 },
+              semanticIds: [semantic('relation', 'request')],
+              strokeTone: 'line',
+            },
+          ],
+          decorations: [],
+          requiredSemanticIds: [
+            semantic('entity', 'client'),
+            semantic('entity', 'server'),
+            semantic('relation', 'request'),
+          ],
+        },
+      },
+    },
+  };
+  const resourcePath = path.join(selected.root, 'edition/refinement.json');
+  await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');
+  const output = path.join(selected.root, 'canvas-candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
+  assert(candidate.limits.includes('authored-canvas-claim-facts-not-exhaustively-painted'));
+  assert.equal(
+    (await fs.readFile(path.join(output, 'static/architecture.png'))).readUInt32BE(16),
+    1200,
+  );
+
+  resource.media.static.scene.edges[0].semanticIds = [semantic('relation', 'invented')];
+  await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');
+  await assert.rejects(
+    compileEditionCandidateInput(
+      selected.requestPath,
+      selected.requestSha256,
+      path.join(selected.root, 'forged-canvas'),
+    ),
+    { code: 'authored_canvas_edge_binding_mismatch' },
+  );
 });
 
 test('a mixed page carries a scalar claim on its own source subject without inventing an edge', async (t) => {

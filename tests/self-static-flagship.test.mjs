@@ -205,7 +205,14 @@ test('the self flagship emits a complete restrained 6000px static Edition', asyn
     expectedMetrics = composeArchitecturePublisherFlagship().labels.map(({ text, size, weight }) =>
       JSON.stringify([text, size, weight]),
     );
-  assert.deepEqual(metrics.records.map(([key]) => key).sort(), expectedMetrics.sort());
+  assert.deepEqual(
+    metrics.records.map(([key]) => key).sort(),
+    [
+      ...expectedMetrics,
+      JSON.stringify(['Target architecture · not a current-state claim', 11, '400']),
+    ].sort(),
+  );
+  assert.doesNotMatch(svg, /Target architecture · not a current-state claim/u);
   assert.deepEqual(coverage.entities, [...SELF_ENTITY_IDS].sort());
   assert.deepEqual(coverage.relations, [...SELF_RELATION_IDS].sort());
   assert.deepEqual(coverage.missingEntities, []);

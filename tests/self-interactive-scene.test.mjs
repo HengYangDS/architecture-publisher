@@ -52,6 +52,46 @@ test('self interactive scenes bind complete semantics to authored visual carrier
   }
 });
 
+test('authored arrows bind only relations within their visible endpoint aggregates', () => {
+  const views = architecturePublisherInteractiveScenes();
+  const model = semanticModel(views);
+  for (const [id, view] of Object.entries(views)) {
+    const scene = composeArchitecturePublisherInteractiveScene(
+      model,
+      { title: 'Architecture Publisher', visualGrammar: { entityTypes: {}, relationTypes: {} } },
+      { id, ...view.composition, label: view.label },
+    );
+    const nodes = new Map(
+      scene.nodes.map((node) => [
+        node.id,
+        new Set(
+          node.semanticIds
+            .filter((item) => item.startsWith('entity:'))
+            .map((item) => item.slice(7)),
+        ),
+      ]),
+    );
+    for (const edge of scene.edges) {
+      const from = nodes.get(edge.from);
+      const to = nodes.get(edge.to);
+      assert(from && to, `${id}:${edge.id}: endpoints`);
+      let crosses = false;
+      for (const semantic of edge.semanticIds) {
+        assert(semantic.startsWith('relation:'), `${id}:${edge.id}: relation binding`);
+        const relation = model.relations[semantic.slice(9)];
+        assert(relation, `${id}:${edge.id}: selected relation`);
+        assert(
+          (from.has(relation.subject) || to.has(relation.subject)) &&
+            (from.has(relation.object) || to.has(relation.object)),
+          `${id}:${edge.id}:${semantic}: foreign endpoint`,
+        );
+        if (from.has(relation.subject) && to.has(relation.object)) crosses = true;
+      }
+      assert(crosses, `${id}:${edge.id}: no directed crossing`);
+    }
+  }
+});
+
 test('self overview is a complete visual system map, not an atomic box dump', () => {
   const view = architecturePublisherInteractiveScenes().overview;
   const model = semanticModel({ overview: view });
