@@ -541,7 +541,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       exercises the v2 policy path. The three-selector v2 input and provisional
       120-second invocation deadline do not grant policy or evidence authority.
       Focused and relocated installed policy checks pass; Task 7.5 owns the
-      current global coverage gate.
+      current global coverage gate. The Candidate bundle now carries canonical
+      `input-lock.json` bytes for later claimant/editor attribution without a
+      Provider rerun; this does not authenticate a claimant or admit evidence.
       Still open: final renderer/toolchain closure, predicate-specific trusted
       evidence and adopter acceptance, native Windows containment, exact final
       Candidate review, and the unchanged 95% coverage gate. Task 6.1 is not

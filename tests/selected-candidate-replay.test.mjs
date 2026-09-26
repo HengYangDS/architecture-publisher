@@ -44,6 +44,29 @@ test('exact selected inputs and current runtime replay all Candidate bytes witho
   assert.equal(Object.hasOwn(result, 'admitted'), false);
 });
 
+test('Candidate carries its exact input lock for later role attribution without Provider replay', async (t) => {
+  const fixture = await selectedNativeEdition(t, { width: 1800 });
+  const built = await compileEditionCandidateInput(
+    fixture.file,
+    fixture.digest,
+    path.join(fixture.root, 'candidate'),
+  );
+  const bundle = await readSourceBundle(built.manifestPath, built.manifestSha256);
+  const members = new Map(
+    bundle.members.map(({ path: memberPath, content }) => [memberPath, content]),
+  );
+  const candidate = JSON.parse(members.get('candidate.json'));
+  const lockBytes = members.get('input-lock.json');
+  assert(lockBytes);
+  assert.equal(sha(lockBytes), built.lockSha256);
+  assert.equal(sha(lockBytes), candidate.input.lockSha256);
+  const lock = JSON.parse(lockBytes);
+  assert.equal(lock.schema, 'architecture.materialized-input-lock/v1');
+  assert.equal(lock.edition.editor, fixture.project.editor);
+  assert(lock.sources.length > 0);
+  assert(lock.sources.every((source) => source.claimant && source.revision));
+});
+
 test('replay rejects duplicate keys in the selected Candidate container manifest', async (t) => {
   const fixture = await selectedNativeEdition(t, { width: 1800 });
   const built = await compileEditionCandidateInput(

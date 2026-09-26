@@ -275,7 +275,11 @@ export async function compileSelectedEditionCandidateInput(
     const written = await writeSourceBundle(
       target,
       { id: 'edition-candidate', revision: selected.lockSha256 },
-      [{ path: 'candidate.json', content: candidateBytes }, ...files],
+      [
+        { path: 'input-lock.json', content: Buffer.from(selected.lockJson) },
+        { path: 'candidate.json', content: candidateBytes },
+        ...files,
+      ],
     );
     return {
       status: 'built',
