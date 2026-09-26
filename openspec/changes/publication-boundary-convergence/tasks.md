@@ -209,9 +209,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       Node 26.9 and 24.19. The Linux harness uses an init process to reap
       exited descendants; without it, the PID-liveness assertion failed, so
       that failure is not silently dismissed as a product defect or proof.
-      This remains source-lane, not released-package evidence. Windows native
-      execution, complete dependency observation and a Provider-backed full
-      Candidate build remain unproved.
+      A current macOS offline-installed Core and executable Provider now build
+      one complete static/interactive Candidate through the public CLI with
+      empty user configuration and a PATH containing no commands; its exact
+      input lock and three artifact members are checked. This remains
+      source-lane, not released-package evidence. Windows native execution and
+      complete dependency observation remain unproved.
 - [x] 3.3 Prove identical selected-input lock identity and distinct invocation
       receipts across direct, declarative, executable, and mixed selections in
       `tests/provider-join.test.mjs`, the sole successor cross-mode fixture.
