@@ -14,8 +14,12 @@ import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.m
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 
-async function fixture(t, { media, claimants } = {}) {
-  const selected = await selectedNativeEdition(t, { width: 1800, ...(media ? { media } : {}) });
+async function fixture(t, { media, claimants, title } = {}) {
+  const selected = await selectedNativeEdition(t, {
+    width: 1800,
+    ...(media ? { media } : {}),
+    ...(title ? { title } : {}),
+  });
   if (claimants) {
     assert.equal(claimants.length, selected.request.sources.length);
     selected.request.sources.forEach((source, index) => {
@@ -326,4 +330,67 @@ test('a local custodian can select explicit absolute delivery and recovery targe
   request.options.destinations.static = path.join(f.selected.root, 'candidate');
   const overlapping = await f.write('overlapping-target.json', request);
   await assert.rejects(filePublication('plan', overlapping.file), /Source\/destination overlap/);
+});
+
+test('qualified replacement changes only the prior managed Candidate and preserves foreign files', async (t) => {
+  const first = await fixture(t);
+  const firstRequest = await first.write('publication-request.json', first.request);
+  const firstPlan = (await filePublication('plan', firstRequest.file)).plan;
+  const firstPlanFile = await first.write('publication-plan.json', firstPlan);
+  const firstAuthorization = authorizationFor(first, firstPlan);
+  const firstAuthorizationFile = await first.write(
+    'publication-authorization.json',
+    firstAuthorization,
+  );
+  assert.equal(
+    (await filePublication('apply', firstPlanFile.file, firstAuthorizationFile.file)).status,
+    'INSTALLED',
+  );
+  for (const medium of ['static', 'interactive'])
+    await fs.writeFile(path.join(first.selected.root, `delivery/${medium}/keep.txt`), 'keep\n');
+
+  const second = await fixture(t, { title: 'Revised system architecture' });
+  assert.notEqual(second.built.candidateSha256, first.built.candidateSha256);
+  const nextRequest = structuredClone(second.request);
+  nextRequest.options.destinations.static = path.join(first.selected.root, 'delivery/static');
+  nextRequest.options.destinations.interactive = path.join(
+    first.selected.root,
+    'delivery/interactive',
+  );
+  nextRequest.options.recoveryRoot = path.join(first.selected.root, 'recovery');
+  nextRequest.replacement = { plan: firstPlan, authorization: firstAuthorization };
+  const nextRequestFile = await second.write('publication-request.json', nextRequest);
+  const managedSvg = path.join(first.selected.root, 'delivery/static/architecture.svg');
+  const priorSvg = await fs.readFile(managedSvg);
+  await fs.writeFile(managedSvg, 'user edit\n');
+  await assert.rejects(filePublication('plan', nextRequestFile.file));
+  assert.equal(await fs.readFile(managedSvg, 'utf8'), 'user edit\n');
+  await fs.writeFile(managedSvg, priorSvg);
+  const nextPlan = (await filePublication('plan', nextRequestFile.file)).plan;
+  assert.equal(nextPlan.replacement.plan.sha256, firstPlan.sha256);
+  const nextPlanFile = await second.write('publication-plan.json', nextPlan);
+  const nextAuthorizationFile = await second.write(
+    'publication-authorization.json',
+    authorizationFor(second, nextPlan),
+  );
+  assert.equal(
+    (await filePublication('apply', nextPlanFile.file, nextAuthorizationFile.file)).status,
+    'INSTALLED',
+  );
+  assert.equal(
+    (await filePublication('recover', nextPlanFile.file, nextAuthorizationFile.file)).status,
+    'ALREADY_INSTALLED',
+  );
+  const nextSvg = second.bundle.members.find(
+    ({ path: name }) => name === 'static/architecture.svg',
+  );
+  assert.deepEqual(
+    await fs.readFile(path.join(first.selected.root, 'delivery/static/architecture.svg')),
+    nextSvg.content,
+  );
+  for (const medium of ['static', 'interactive'])
+    assert.equal(
+      await fs.readFile(path.join(first.selected.root, `delivery/${medium}/keep.txt`), 'utf8'),
+      'keep\n',
+    );
 });

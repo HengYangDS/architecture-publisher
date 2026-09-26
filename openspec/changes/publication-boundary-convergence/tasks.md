@@ -548,7 +548,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       evidence and adopter acceptance, native Windows containment, exact final
       Candidate review, and the unchanged 95% coverage gate. Task 6.1 is not
       complete.
-- [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
+- [x] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In
       `tests/publication-contract.test.mjs` and
       `tests/pair-replacement.test.mjs`, require exact Candidate, qualifications,
@@ -556,17 +556,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       and authorization; mismatch fails before delivery effects and preserves prior output.
       Preview/export needs no custodian. Do not claim Git/Forge, hosted availability,
       or off-host DR from a local receipt.
-      Partial: the same public CLI now derives a dual-media plan from an exact
+      The same public CLI derives a dual-media plan from an exact
       Candidate bundle, input lock, Qualification Set, policy, and report. It
       re-assesses submitted policy fit without a Provider or source replay,
       records distinct actor roles, requires separate accepter adoption and
       local effect authorization, and recovers without original input files.
       Source and offline-installed counterexamples reject forged PASS, changed
-      evidence, mismatched authorization, and altered prestates. Existing raw
-      file and replacement behavior remains covered. The receipt attributes,
-      but cannot authenticate, actors or grant release authority. Still open:
-      qualified replacement, final trusted evidence and human acceptance,
-      exact final Candidate, and the unchanged global quality gate.
+      evidence, mismatched authorization, altered prestates, and a user-edited
+      prior managed file. Qualified replacement preserves foreign content and
+      replays exact installed bytes. Existing raw-file behavior remains covered.
+      The receipt attributes but cannot authenticate actors or grant release
+      authority; trusted evidence, final human acceptance, and the 95% global
+      gate remain with Tasks 6.1 and 7.5–7.6, not this local-effect mechanism.
 
 ## 7. Installed acceptance and release
 
@@ -654,7 +655,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      The current pre-freeze qualified-publication integration run reports
+      The latest retained pre-freeze qualified-publication integration run reports
       1,106 pass, 6 skip, 0 fail; statements and lines 97.77%, functions
       99.62%, and branches 93.20% (8,083/8,672). The unchanged 95% branch
       gate fails; at this denominator, 156 more covered outcomes are needed.
