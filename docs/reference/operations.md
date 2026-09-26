@@ -208,6 +208,24 @@ Edition, validates record identities and uniqueness, and computes the
 non-compensating conjunction of `PASS`, `FAIL`, and `UNKNOWN`. It does not run a
 verifier, turn self-declaration into evidence, grant authorization, or publish.
 
+The unreleased successor v2 uses the same command with exact Build Request,
+Candidate container, and Qualification Set selectors. An invoker may separately
+select an exact policy:
+
+```sh
+archpub qualify verify <request.json> --sha256 <digest> --policy <policy.json> --policy-sha256 <digest>
+```
+
+`architecture.qualification-policy/v1` names the claimed accepter, exact
+Candidate digest (which binds the input lock), accepted Candidate limits, and
+finite required predicate/scope/verifier/method tuples with permitted record
+limitations. It must require a question-scoped predicate for each selected
+view/question. The Qualification Set cannot choose its own policy. The result
+distinguishes missing, non-PASS, unselected, and unaccepted-limit submissions.
+It remains `records-bound` and `admitted: false`: neither verifier nor accepter
+identity is authenticated by this generic command. The source product owns
+trust, acceptance, release, and custody decisions.
+
 ### Recoverable publication
 
 Plan a bounded paired-file effect:

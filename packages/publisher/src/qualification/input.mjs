@@ -8,6 +8,7 @@ import { admitQualificationSet, qualificationSetDigest } from './contract.mjs';
 import { invokeQualificationWorker } from './process-boundary.mjs';
 import { replaySelectedCandidate } from './replay.mjs';
 import { bindSelectedQualificationSet } from './selected.mjs';
+import { assessSelectedQualificationPolicy } from './policy.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -109,7 +110,7 @@ async function verifyLegacyQualificationPlan(plan, parent) {
   };
 }
 
-async function verifySelectedQualificationPlan(plan, parent, executionChoice) {
+async function verifySelectedQualificationPlan(plan, parent, executionChoice, policyChoice) {
   if (
     !exact(plan, ['schema', 'request', 'candidate', 'qualification']) ||
     plan.schema !== 'architecture.qualification-input/v2'
@@ -119,6 +120,14 @@ async function verifySelectedQualificationPlan(plan, parent, executionChoice) {
   const candidate = selectedReference(parent, plan.candidate);
   selectedReference(parent, plan.qualification);
   const selectedSet = await selectedJson(parent, plan.qualification, 'set', true);
+  const selectedPolicy = policyChoice
+    ? await selectedJson(
+        path.dirname(policyChoice.file),
+        { path: path.basename(policyChoice.file), sha256: policyChoice.sha256 },
+        'policy',
+        true,
+      )
+    : null;
   const replayed = await replaySelectedCandidate(
     {
       requestPath: request.path,
@@ -128,11 +137,14 @@ async function verifySelectedQualificationPlan(plan, parent, executionChoice) {
     },
     executionChoice,
   );
-  const bound = bindSelectedQualificationSet(
-    replayed.candidate,
-    replayed.replay,
-    selectedSet.value,
-  );
+  const bound = selectedPolicy
+    ? assessSelectedQualificationPolicy(
+        replayed.candidate,
+        replayed.replay,
+        selectedSet.value,
+        selectedPolicy.value,
+      )
+    : bindSelectedQualificationSet(replayed.candidate, replayed.replay, selectedSet.value);
   return {
     status: 'records-bound',
     qualificationSetDigest: bound.qualificationSetDigest,
@@ -145,11 +157,28 @@ async function verifySelectedQualificationPlan(plan, parent, executionChoice) {
     admitted: bound.admitted,
     acceptance: bound.acceptance,
     publication: bound.publication,
+    ...(selectedPolicy
+      ? {
+          policySha256: selectedPolicy.sha256,
+          policy: bound.policy,
+          policyAttribution: bound.policyAttribution,
+          submittedVerdict: bound.submittedVerdict,
+          missingRequirements: bound.missingRequirements,
+          unselectedRecords: bound.unselectedRecords,
+          unacceptedLimitations: bound.unacceptedLimitations,
+          nonPassingRecords: bound.nonPassingRecords,
+        }
+      : {}),
   };
 }
 
 /** Execute only inside the supervised worker after the total deadline starts. */
-export async function verifyQualificationInsideWorker(file, expectedSha256, executionChoice) {
+export async function verifyQualificationInsideWorker(
+  file,
+  expectedSha256,
+  executionChoice,
+  policyChoice = null,
+) {
   if (!isDigest(expectedSha256)) fail('qualification_digest_required');
   const planPath = path.resolve(file);
   await noSymlinkAncestors(planPath);
@@ -158,17 +187,39 @@ export async function verifyQualificationInsideWorker(file, expectedSha256, exec
 
   const plan = parseQualificationPlan(bytes);
   if (plan?.schema === 'architecture.qualification-input/v2')
-    return verifySelectedQualificationPlan(plan, path.dirname(planPath), executionChoice);
+    return verifySelectedQualificationPlan(
+      plan,
+      path.dirname(planPath),
+      executionChoice,
+      policyChoice,
+    );
+  if (policyChoice !== null) fail('qualification_policy_choice_unadmitted');
   if (executionChoice.length) fail('qualification_execution_choice_unadmitted');
   return verifyLegacyQualificationPlan(plan, path.dirname(planPath));
 }
 
 /** One public route; version dispatch happens only after supervised selected reads. */
-export async function verifyQualificationInput(file, expectedSha256, executionChoice = []) {
+export async function verifyQualificationInput(
+  file,
+  expectedSha256,
+  executionChoice = [],
+  policyChoice = null,
+) {
   if (!isDigest(expectedSha256)) fail('qualification_digest_required');
+  if (
+    policyChoice !== null &&
+    (!exact(policyChoice, ['file', 'sha256']) ||
+      typeof policyChoice.file !== 'string' ||
+      !policyChoice.file ||
+      !isDigest(policyChoice.sha256))
+  )
+    fail('qualification_policy_choice_invalid');
   return invokeQualificationWorker(
     'input',
     { file: path.resolve(file), sha256: expectedSha256 },
     executionChoice,
+    policyChoice === null
+      ? null
+      : { file: path.resolve(policyChoice.file), sha256: policyChoice.sha256 },
   );
 }

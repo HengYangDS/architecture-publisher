@@ -477,43 +477,25 @@ third-party or generated supply rather than moving owned code outside coverage.
       human post-build qualification fails; only applicable qualification and
       publication are withheld. A selected new renderer or toolchain may create
       a new Candidate without an unrelated Edition authoring change.
-      Partial: exact current-package replay rejects forged or copied Candidate
-      bytes, changed pins, and unselected Provider execution before admitting
-      records. It rejects duplicate keys in the v2 Candidate container while
-      preserving historical v1 reading. One successful replay binds the Edition
-      question scope without a second Provider run. The v2 record binder checks
-      exact Candidate/lock subjects, medium, artifact, view/question pairs, and
-      assertion membership; even all-PASS submitted records remain unauthenticated
-      and non-admitted without accepter policy. The package-private start gate
-      prevents selected worker code before acknowledged ownership registration;
-      rejection, timeout, permission, and release-failure counterexamples pass.
-      The same supervisor now retains owner IPC for nested registration and an
-      invocation-local scope without changing public compiler inputs. Tests
-      reject scope overrides, owner loss, and late work after scope closure.
-      A package-private parent registry now receives nested ownership before
-      selected code starts. POSIX counterexamples prove that its independent
-      deadline reclaims a registered detached group, rejects an early reply,
-      and leaves an unrelated sentinel alive; a blocked event loop does not
-      delay the parent. Selected Windows `SystemRoot` is propagated, but native
-      Windows containment is unproved. The existing `qualify verify` route now
-      selects v2 Build Request, Candidate container, and Qualification Set by
-      exact digest, then replays inside that parent deadline. Only the invoking
-      CLI/API can separately select executable Provider ID and manifest digest;
-      malformed Set bytes fail before Provider execution. Source tests cover
-      direct and executable Providers, duplicate keys, and historical v1
-      behavior. Ruling: the v2 input has only three selectors; the 120-second
-      provisional work deadline is invocation-owned, not evidence authority.
-      Public replay and `qualify verify` now use the same independently
-      supervised invocation worker. A public-replay Provider-parent regression
-      passed RED before this repair and GREEN after it; historical v1 duplicate
-      JSON keys retain their original reading semantics. The 28 focused tests,
-      static, package, and warning-free strict OpenSpec checks pass. Full
-      behavior passes 986/990 with four skips; branch coverage is 93.26%,
-      below the required 95%. The held worker flushes V8 coverage before
-      parent termination, so its executed branches are measured rather than
-      silently reported as unexecuted. Installed/native Windows and
-      policy-bound predicate evidence remain open.
-      Task 6.1 is not complete.
+      Partial: exact v2 Candidate replay binds the input lock and rederived
+      Edition question scopes without a second Provider run; submitted records
+      cannot invent subjects, medium-local scopes, or verifier authority. The
+      invoker separately chooses executable Providers and, optionally, exact
+      `architecture.qualification-policy/v1` bytes. The latter assesses finite
+      required predicate/scope/verifier/method tuples and explicit limits but
+      remains `invoker-selected-unverified`, `records-bound`, and non-admitted
+      even for submitted PASS. Historical v1 semantics remain unchanged.
+      One independently supervised invocation owns registered nested workers;
+      POSIX counterexamples cover timeout, early reply, blocked event loop,
+      cleanup and an unrelated sentinel. A relocated offline package now
+      exercises the v2 policy path. The three-selector v2 input and provisional
+      120-second invocation deadline do not grant policy or evidence authority.
+      Focused and relocated installed policy checks pass; Task 7.5 owns the
+      current global coverage gate.
+      Still open: final renderer/toolchain closure, predicate-specific trusted
+      evidence and adopter acceptance, native Windows containment, exact final
+      Candidate review, and the unchanged 95% coverage gate. Task 6.1 is not
+      complete.
 - [ ] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In
       `tests/publication-contract.test.mjs` and
@@ -586,16 +568,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       human judgments on final static and interactive bytes for faithfulness,
       readability, hierarchy, density, and visual quality. Do not reuse
       provisional Candidate identities or review after any selected input changes.
-      Interim toolchain correction: host npm 11.19.1 propagated a personal
-      `allow-scripts` setting into nested installed-package tests, producing 16
-      `EALLOWSCRIPTS` failures. The test entry now clears inherited npm config
-      and selects two distinct tracked empty config files, without editing host
-      policy. Focused installed tests pass 9/9; static and package checks pass.
-      The current runtime and test inputs pass 1,057 of 1,059 behavior tests
-      with two declared skips, plus static and package checks. The latest
-      `npm run test:coverage` measures 97.66% statements/lines, 92.96%
-      branches, and 99.22% functions. The 95% branch gate remains red; no
-      release admission is inferred.
+      The current provisional worktree passes 1,063 behavior tests with five
+      declared skips; static and package checks pass. Branch coverage is
+      92.99%, below the unchanged 95% gate. No release admission is inferred.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

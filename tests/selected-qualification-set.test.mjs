@@ -7,6 +7,7 @@ import {
   selectedEditionCandidateDigest,
 } from '../packages/publisher/src/compiler/index.mjs';
 import * as qualification from '../packages/publisher/src/qualification/index.mjs';
+import { assessSelectedQualificationPolicy } from '../packages/publisher/src/qualification/policy.mjs';
 import { canonical } from '../packages/publisher/src/semantics/document.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
@@ -58,6 +59,23 @@ function selectedSet(replay, records) {
     candidateSha256: replay.candidateSha256,
     inputLockSha256: replay.inputLockSha256,
     records,
+  };
+}
+
+function policyFor(candidate, replay, records) {
+  return {
+    schema: 'architecture.qualification-policy/v1',
+    id: 'fixture-review-policy',
+    accepter: 'fixture-editor',
+    candidateSha256: replay.candidateSha256,
+    acceptedCandidateLimits: [...candidate.limits],
+    requirements: records.map(({ predicate, scope, verifier, method }) => ({
+      predicate,
+      scope,
+      verifier,
+      method,
+      allowedLimitations: [],
+    })),
   };
 }
 
@@ -148,6 +166,11 @@ test('submitted question coverage remains non-authorizing and rejects invented s
   assert.throws(() => qualification.bindSelectedQualificationSet(candidate, replay, wrongLock), {
     code: 'selected_qualification_set_invalid',
   });
+  const selfSelectedPolicy = { ...set, policy: 'self-selected' };
+  assert.throws(
+    () => qualification.bindSelectedQualificationSet(candidate, replay, selfSelectedPolicy),
+    { code: 'selected_qualification_set_invalid' },
+  );
 
   const malformedCandidate = structuredClone(candidate);
   malformedCandidate.obligations.static.views = [null];
@@ -316,4 +339,149 @@ test('v2 scope and record validation fails closed on malformed submitted evidenc
       ),
     { code: 'selected_qualification_replay_mismatch' },
   );
+});
+
+test('an exact selected policy assesses submitted predicates without authenticating or accepting them', async (t) => {
+  const { candidate, replay } = await selectedCandidate(t);
+  const records = [questionRecord(candidate, 'static'), questionRecord(candidate, 'interactive')];
+  const policy = policyFor(candidate, replay, records);
+  const result = assessSelectedQualificationPolicy(
+    candidate,
+    replay,
+    selectedSet(replay, records),
+    policy,
+  );
+  assert.equal(result.completeness, 'submitted-policy-complete');
+  assert.equal(result.submittedVerdict, 'PASS');
+  assert.equal(result.policyAttribution, 'invoker-selected-unverified');
+  assert.equal(result.attribution, 'submitted-unverified');
+  assert.deepEqual(result.missingRequirements, []);
+  assert.deepEqual(result.unselectedRecords, []);
+  assert.deepEqual(result.unacceptedLimitations, []);
+  assert.equal(result.admitted, false);
+  assert.equal(result.acceptance, 'not-performed');
+  assert.equal(result.publication, 'not-performed');
+
+  const samePersonReview = structuredClone(records[0]);
+  samePersonReview.id = 'review.static.png';
+  samePersonReview.predicate = 'visual-readability';
+  samePersonReview.scope = { kind: 'artifact', medium: 'static', artifact: 'architecture-png' };
+  samePersonReview.subject = {
+    kind: 'artifact',
+    sha256: candidate.media.static.artifacts.find(({ id }) => id === 'architecture-png').sha256,
+  };
+  samePersonReview.verifier = {
+    kind: 'human',
+    id: 'fixture-editor',
+    implementationSha256: sha(Buffer.from('human-method')),
+  };
+  samePersonReview.method = 'visual-inspection/v1';
+  const withReview = [...records, samePersonReview];
+  const reviewed = assessSelectedQualificationPolicy(
+    candidate,
+    replay,
+    selectedSet(replay, withReview),
+    policyFor(candidate, replay, withReview),
+  );
+  assert.equal(reviewed.completeness, 'submitted-policy-complete');
+  assert.equal(reviewed.attribution, 'submitted-unverified');
+  assert.equal(reviewed.admitted, false);
+});
+
+test('policy assessment keeps missing, failing, and unaccepted-limit evidence separate', async (t) => {
+  const { candidate, replay } = await selectedCandidate(t);
+  const records = [questionRecord(candidate, 'static'), questionRecord(candidate, 'interactive')];
+  const policy = policyFor(candidate, replay, records);
+  const assess = (submitted) =>
+    assessSelectedQualificationPolicy(candidate, replay, selectedSet(replay, submitted), policy);
+  const missing = assess(records.slice(0, 1));
+  assert.equal(missing.completeness, 'submitted-policy-incomplete');
+  assert.equal(missing.submittedVerdict, 'UNKNOWN');
+  assert.deepEqual(missing.missingRequirements, [1]);
+
+  const failed = structuredClone(records);
+  failed[1].verdict = 'FAIL';
+  assert.equal(assess(failed).submittedVerdict, 'FAIL');
+
+  const limited = structuredClone(records);
+  limited[0].limitations = ['small-screen-unreviewed'];
+  const limitedResult = assess(limited);
+  assert.equal(limitedResult.completeness, 'submitted-policy-incomplete');
+  assert.equal(limitedResult.submittedVerdict, 'UNKNOWN');
+  assert.deepEqual(limitedResult.unacceptedLimitations, ['question.static']);
+  const acceptingPolicy = structuredClone(policy);
+  acceptingPolicy.requirements[0].allowedLimitations = ['small-screen-unreviewed'];
+  const acceptedLimit = assessSelectedQualificationPolicy(
+    candidate,
+    replay,
+    selectedSet(replay, limited),
+    acceptingPolicy,
+  );
+  assert.equal(acceptedLimit.completeness, 'submitted-policy-complete');
+  assert.equal(acceptedLimit.submittedVerdict, 'PASS');
+
+  const extra = structuredClone(records[0]);
+  extra.id = 'extra';
+  extra.predicate = 'unsupported-certification';
+  extra.verdict = 'FAIL';
+  const unselected = assess([...records, extra]);
+  assert.equal(unselected.completeness, 'submitted-policy-incomplete');
+  assert.equal(unselected.submittedVerdict, 'UNKNOWN');
+  assert.deepEqual(unselected.unselectedRecords, ['extra']);
+});
+
+test('a policy can acknowledge any valid Candidate limit by exact value', async (t) => {
+  const selected = await selectedCandidate(t);
+  const candidate = structuredClone(selected.candidate);
+  candidate.limits = [' valid selected limit '];
+  const replay = {
+    ...selected.replay,
+    candidateSha256: selectedEditionCandidateDigest(candidate),
+  };
+  const records = [questionRecord(candidate, 'static'), questionRecord(candidate, 'interactive')];
+  const assessed = assessSelectedQualificationPolicy(
+    candidate,
+    replay,
+    selectedSet(replay, records),
+    policyFor(candidate, replay, records),
+  );
+  assert.equal(assessed.completeness, 'submitted-policy-complete');
+});
+
+test('a policy cannot select another Candidate or omit a promised question', async (t) => {
+  const { candidate, replay } = await selectedCandidate(t);
+  const records = [questionRecord(candidate, 'static'), questionRecord(candidate, 'interactive')];
+  const policy = policyFor(candidate, replay, records);
+  const assess = (selected) =>
+    assessSelectedQualificationPolicy(candidate, replay, selectedSet(replay, records), selected);
+  assert.throws(() => assess({ ...policy, candidateSha256: '0'.repeat(64) }), {
+    code: 'selected_qualification_policy_identity_mismatch',
+  });
+  assert.throws(() => assess({ ...policy, inputLockSha256: replay.inputLockSha256 }), {
+    code: 'selected_qualification_policy_invalid',
+  });
+  assert.throws(() => assess({ ...policy, acceptedCandidateLimits: ['not-selected'] }), {
+    code: 'selected_qualification_policy_limits_mismatch',
+  });
+  assert.throws(() => assess({ ...policy, requirements: policy.requirements.slice(0, 1) }), {
+    code: 'selected_qualification_policy_question_missing',
+  });
+  assert.throws(
+    () =>
+      assess({
+        ...policy,
+        requirements: [...policy.requirements, structuredClone(policy.requirements[0])],
+      }),
+    { code: 'selected_qualification_policy_duplicate' },
+  );
+  const invented = structuredClone(policy);
+  invented.requirements[0].scope.view = 'invented';
+  assert.throws(() => assess(invented), { code: 'selected_qualification_policy_scope_invalid' });
+  const wrongMethod = structuredClone(policy);
+  wrongMethod.requirements[0].method = 'another-method/v1';
+  const mismatch = assess(wrongMethod);
+  assert.equal(mismatch.completeness, 'submitted-policy-incomplete');
+  assert.equal(mismatch.submittedVerdict, 'UNKNOWN');
+  assert.deepEqual(mismatch.missingRequirements, [0]);
+  assert.deepEqual(mismatch.unselectedRecords, ['question.static']);
 });

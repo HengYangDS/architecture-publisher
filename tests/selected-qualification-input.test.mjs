@@ -6,6 +6,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/index.mjs';
 import { verifyQualificationInput } from '../packages/publisher/src/qualification/index.mjs';
+import { canonical } from '../packages/publisher/src/semantics/document.mjs';
+import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import {
   executableModelProvider,
   selectedNativeEdition,
@@ -42,6 +44,40 @@ async function selectedInput(t, supplied = null) {
   return { selected, built, input, inputBytes, inputPath, setBytes, setPath };
 }
 
+async function selectedPolicy({ selected, built }) {
+  const bundle = await readSourceBundle(built.manifestPath, built.manifestSha256);
+  const candidate = JSON.parse(
+    bundle.members.find(({ path: member }) => member === 'candidate.json').content,
+  );
+  const requirements = Object.keys(candidate.media).flatMap((medium) =>
+    candidate.obligations[medium].views.flatMap((view) =>
+      view.questionIds.map((question) => ({
+        predicate: 'visible-question',
+        scope: { kind: 'question', medium, view: view.id, question },
+        verifier: {
+          kind: 'machine',
+          id: 'fixture-checker',
+          implementationSha256: sha(Buffer.from('fixture-checker')),
+        },
+        method: 'carrier-inspection/v1',
+        allowedLimitations: [],
+      })),
+    ),
+  );
+  const policy = {
+    schema: 'architecture.qualification-policy/v1',
+    id: 'fixture-policy',
+    accepter: 'fixture-editor',
+    candidateSha256: built.candidateSha256,
+    acceptedCandidateLimits: candidate.limits,
+    requirements,
+  };
+  const bytes = Buffer.from(JSON.stringify(policy) + '\n');
+  const file = path.join(selected.root, 'qualification-policy.json');
+  await fs.writeFile(file, bytes);
+  return { file, sha256: sha(bytes), candidate, policy };
+}
+
 test('v2 qualification input replays one exact Candidate without granting acceptance', async (t) => {
   const { built, inputBytes, inputPath } = await selectedInput(t);
   const result = await verifyQualificationInput(inputPath, sha(inputBytes));
@@ -55,6 +91,121 @@ test('v2 qualification input replays one exact Candidate without granting accept
   assert.equal(result.acceptance, 'not-performed');
   assert.equal(result.publication, 'not-performed');
   assert.equal(result.missingSubmittedPassQuestionScopes.length, 2);
+});
+
+test('invoker-selected policy is exact but cannot confer acceptance authority', async (t) => {
+  const fixture = await selectedInput(t);
+  const policy = await selectedPolicy(fixture);
+  const result = await verifyQualificationInput(fixture.inputPath, sha(fixture.inputBytes), [], {
+    file: policy.file,
+    sha256: policy.sha256,
+  });
+  assert.equal(result.status, 'records-bound');
+  assert.equal(result.policySha256, policy.sha256);
+  assert.equal(result.policyAttribution, 'invoker-selected-unverified');
+  assert.equal(result.completeness, 'submitted-policy-incomplete');
+  assert.deepEqual(result.missingRequirements, [0, 1]);
+  assert.equal(result.admitted, false);
+
+  const command = spawnSync(
+    process.execPath,
+    [
+      cli,
+      'qualify',
+      'verify',
+      fixture.inputPath,
+      '--sha256',
+      sha(fixture.inputBytes),
+      '--policy',
+      policy.file,
+      '--policy-sha256',
+      policy.sha256,
+    ],
+    { encoding: 'utf8', timeout: 20_000 },
+  );
+  assert.equal(command.status, 0, command.stdout + command.stderr);
+  assert.equal(JSON.parse(command.stdout).policySha256, policy.sha256);
+});
+
+test('submitted PASS records can fit the selected policy without becoming accepted evidence', async (t) => {
+  const fixture = await selectedInput(t);
+  const selected = await selectedPolicy(fixture);
+  const records = selected.policy.requirements.map((requirement, index) => ({
+    id: `question-${index}`,
+    predicate: requirement.predicate,
+    subject: {
+      kind: 'medium',
+      sha256: sha(Buffer.from(canonical(selected.candidate.media[requirement.scope.medium]))),
+    },
+    scope: requirement.scope,
+    verifier: requirement.verifier,
+    method: requirement.method,
+    observations: [{ name: 'visible', value: true }],
+    verdict: 'PASS',
+    limitations: [],
+  }));
+  const setBytes = Buffer.from(
+    JSON.stringify({
+      schema: 'architecture.qualification-set/v2',
+      candidateSha256: fixture.built.candidateSha256,
+      inputLockSha256: fixture.built.lockSha256,
+      records,
+    }) + '\n',
+  );
+  await fs.writeFile(fixture.setPath, setBytes);
+  const input = {
+    ...fixture.input,
+    qualification: { path: 'qualification-set.json', sha256: sha(setBytes) },
+  };
+  const inputBytes = Buffer.from(JSON.stringify(input) + '\n');
+  await fs.writeFile(fixture.inputPath, inputBytes);
+  const result = await verifyQualificationInput(fixture.inputPath, sha(inputBytes), [], {
+    file: selected.file,
+    sha256: selected.sha256,
+  });
+  assert.equal(result.completeness, 'submitted-policy-complete');
+  assert.equal(result.submittedVerdict, 'PASS');
+  assert.equal(result.attribution, 'submitted-unverified');
+  assert.equal(result.policyAttribution, 'invoker-selected-unverified');
+  assert.equal(result.admitted, false);
+  assert.equal(result.acceptance, 'not-performed');
+});
+
+test('changed selected policy bytes fail before executable Provider code starts', async (t) => {
+  const selected = await selectedNativeEdition(t, { width: 1800 });
+  const { executionMarker, manifestSha256 } = await executableModelProvider(selected);
+  const fixture = await selectedInput(t, selected);
+  const policy = await selectedPolicy(fixture);
+  await fs.rm(executionMarker);
+  await assert.rejects(
+    verifyQualificationInput(
+      fixture.inputPath,
+      sha(fixture.inputBytes),
+      [{ id: 'model-provider', manifestSha256 }],
+      { file: policy.file, sha256: '0'.repeat(64) },
+    ),
+    { code: 'qualification_policy_digest_mismatch' },
+  );
+  await assert.rejects(fs.access(executionMarker), { code: 'ENOENT' });
+});
+
+test('a policy with duplicate JSON keys cannot borrow an exact digest', async (t) => {
+  const fixture = await selectedInput(t);
+  const policy = await selectedPolicy(fixture);
+  const bytes = Buffer.from(
+    (await fs.readFile(policy.file, 'utf8')).replace(
+      '"schema":',
+      '"schema":"architecture.qualification-policy/v1","schema":',
+    ),
+  );
+  await fs.writeFile(policy.file, bytes);
+  await assert.rejects(
+    verifyQualificationInput(fixture.inputPath, sha(fixture.inputBytes), [], {
+      file: policy.file,
+      sha256: sha(bytes),
+    }),
+    { code: 'qualification_policy_json_duplicate_key' },
+  );
 });
 
 test('the sole qualify command forwards invoker-owned Provider choice separately from evidence', async (t) => {
@@ -113,6 +264,29 @@ test('evidence cannot carry its own executable Provider permission', async (t) =
   await assert.rejects(verifyQualificationInput(inputPath, sha(injected)), {
     code: 'qualification_input_invalid',
   });
+  const selectedPolicy = Buffer.from(JSON.stringify({ ...input, policy: 'self-selected' }) + '\n');
+  await fs.writeFile(inputPath, selectedPolicy);
+  await assert.rejects(verifyQualificationInput(inputPath, sha(selectedPolicy)), {
+    code: 'qualification_input_invalid',
+  });
+});
+
+test('historical v1 cannot borrow successor policy selection', async (t) => {
+  const fixture = await selectedInput(t);
+  const policy = await selectedPolicy(fixture);
+  const legacy = Buffer.from(
+    JSON.stringify({ ...fixture.input, schema: 'architecture.qualification-input/v1' }) + '\n',
+  );
+  await fs.writeFile(fixture.inputPath, legacy);
+  await assert.rejects(
+    verifyQualificationInput(fixture.inputPath, sha(legacy), [], {
+      file: policy.file,
+      sha256: policy.sha256,
+    }),
+    {
+      code: 'qualification_policy_choice_unadmitted',
+    },
+  );
 });
 
 test('invalid Qualification Set bytes fail before any Candidate replay', async (t) => {

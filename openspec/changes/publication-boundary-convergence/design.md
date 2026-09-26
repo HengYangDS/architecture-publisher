@@ -291,9 +291,28 @@ same person, but that does not make the judgment independent implementation
 verification. Policy and final acceptance remain separate from source and
 Edition authorship.
 
-This is a proposed contract delta within the approved Change, not implemented
-or approved evidence of qualification. Historical Qualification Set and Input
-v1 retain their meanings and command route.
+An invoker claiming the accepter role selects policy bytes by exact path and
+SHA-256 outside the three-selector v2 qualification input. This prevents
+submitted evidence from choosing its own rule and keeps one `qualify verify`
+command. The finite `architecture.qualification-policy/v1` value names its
+accepter and exact Candidate digest, which already binds the input lock. It
+acknowledges the Candidate's limits and enumerates required predicate, scope,
+verifier identity, method, and allowed record limitations. There is no implicit
+wildcard selector or second policy engine. A source product may derive this
+per-Candidate value from its accepted policy; Publisher does not own that
+derivation.
+
+Publisher compares submitted records to those exact tuples and reports missing,
+failing, unknown, unselected, or limited evidence separately. Every selected
+view/question must have a named requirement. Even a complete submitted PASS
+set remains `invoker-selected-unverified`: the CLI cannot authenticate the
+claimed accepter or verifier, decide editorial adequacy, or authorize a source
+product release. A human verifier may equal the editor when explicitly named
+by that policy; this is not independent implementation verification.
+
+This contract delta remains within the approved Change; implementation and
+acceptance status belong only in `tasks.md`. Historical Qualification Set and
+Input v1 retain their meanings and command route.
 
 An authoring locator does not claim immutability. Publisher materializes the
 selected inputs and generates their content-addressed identities in a lock

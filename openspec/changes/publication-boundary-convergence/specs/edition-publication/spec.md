@@ -467,6 +467,37 @@ their original meaning.
   authenticated or explicitly adopted by the accepter
 - **AND** the record is not described as an independent implementation check
 
+### Requirement: Invoker-selected qualification policy remains attributed
+
+An invoker MAY select an exact versioned policy file separately from the three
+v2 evidence selectors. The policy SHALL name its claimed accepter, exact
+Candidate digest, accepted Candidate limits, and a finite set of required
+predicate/scope/verifier/method tuples with permitted record limitations.
+Submitted evidence SHALL NOT select or alter that policy. Every selected
+view/question SHALL have a required question-scoped predicate.
+
+Publisher SHALL distinguish missing, non-PASS, unselected, and unaccepted-limit
+records against that exact policy. A policy-fit PASS set is only an attributed
+submission: without authenticated verifier provenance or an explicit
+accepter-owned trust decision, Publisher SHALL NOT call it independently
+verified, accepted, admitted, or published. Policy selection via the generic
+CLI alone SHALL NOT assert that the claimed accepter authorized it.
+
+#### Scenario: Evidence attempts to choose its own policy
+
+- **WHEN** a v2 Qualification Set or input embeds a policy or alters the
+  invoker-selected policy digest
+- **THEN** the extra field or changed digest is rejected before record assessment
+- **AND** no submitted PASS becomes an acceptance claim
+
+#### Scenario: Selected policy lacks one reader question
+
+- **WHEN** an exact policy omits a required view/question scope, or submitted
+  records omit one policy requirement
+- **THEN** the missing policy scope is rejected or the missing submitted record
+  is reported without a complete policy-fit claim
+- **AND** a record from another medium, verifier, or method cannot substitute
+
 ### Requirement: Edition views and omission targets are closed
 
 An Edition Project SHALL declare an ordered, nonempty set of uniquely named

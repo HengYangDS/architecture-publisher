@@ -9,14 +9,25 @@ let envelope;
 try {
   const invocation = JSON.parse(fs.readFileSync(0, 'utf8'));
   if (
-    !hasExactFields(invocation, ['schema', 'operation', 'selection', 'executionChoice']) ||
+    !hasExactFields(invocation, [
+      'schema',
+      'operation',
+      'selection',
+      'executionChoice',
+      ...(Object.hasOwn(invocation, 'policyChoice') ? ['policyChoice'] : []),
+    ]) ||
     invocation.schema !== 'architecture.qualification-invocation/v1' ||
     !['input', 'replay'].includes(invocation.operation) ||
     (invocation.operation === 'input' &&
       (!hasExactFields(invocation.selection, ['file', 'sha256']) ||
         typeof invocation.selection.file !== 'string' ||
         typeof invocation.selection.sha256 !== 'string')) ||
-    !Array.isArray(invocation.executionChoice)
+    !Array.isArray(invocation.executionChoice) ||
+    (Object.hasOwn(invocation, 'policyChoice') &&
+      (invocation.operation !== 'input' ||
+        !hasExactFields(invocation.policyChoice, ['file', 'sha256']) ||
+        typeof invocation.policyChoice.file !== 'string' ||
+        typeof invocation.policyChoice.sha256 !== 'string'))
   )
     throw Object.assign(new Error('qualification_invocation_invalid'), {
       code: 'qualification_invocation_invalid',
@@ -27,6 +38,7 @@ try {
           invocation.selection.file,
           invocation.selection.sha256,
           invocation.executionChoice,
+          invocation.policyChoice ?? null,
         )
       : (await replaySelectedCandidate(invocation.selection, invocation.executionChoice)).replay,
   );

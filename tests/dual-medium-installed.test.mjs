@@ -256,4 +256,73 @@ console.log(JSON.stringify(result));
   assert.equal(mixedReplay.verdict, 'match');
   assert.equal(mixedReplay.candidateSha256, mixedSecond.candidateSha256);
   assert.equal(mixedReplay.qualification, 'not-performed');
+
+  const candidate = JSON.parse(candidateBytes);
+  const policy = {
+    schema: 'architecture.qualification-policy/v1',
+    id: 'installed-reader-policy',
+    accepter: 'fixture-editor',
+    candidateSha256: second.candidateSha256,
+    acceptedCandidateLimits: candidate.limits,
+    requirements: Object.keys(candidate.media).flatMap((medium) =>
+      candidate.obligations[medium].views.flatMap((view) =>
+        view.questionIds.map((question) => ({
+          predicate: 'visible-question',
+          scope: { kind: 'question', medium, view: view.id, question },
+          verifier: {
+            kind: 'machine',
+            id: 'installed-checker',
+            implementationSha256: sha(Buffer.from('installed-checker')),
+          },
+          method: 'carrier-inspection/v1',
+          allowedLimitations: [],
+        })),
+      ),
+    ),
+  };
+  const policyFile = path.join(relocated, 'qualification-policy.json');
+  const policyBytes = Buffer.from(JSON.stringify(policy) + '\n');
+  await fs.writeFile(policyFile, policyBytes);
+  const setBytes = Buffer.from(
+    JSON.stringify({
+      schema: 'architecture.qualification-set/v2',
+      candidateSha256: second.candidateSha256,
+      inputLockSha256: candidate.input.lockSha256,
+      records: [],
+    }) + '\n',
+  );
+  await fs.writeFile(path.join(relocated, 'qualification-set.json'), setBytes);
+  const inputBytes = Buffer.from(
+    JSON.stringify({
+      schema: 'architecture.qualification-input/v2',
+      request: { path: 'inputs/build-request.json', sha256: fixture.digest },
+      candidate: { path: 'candidate/manifest.json', sha256: second.manifestSha256 },
+      qualification: { path: 'qualification-set.json', sha256: sha(setBytes) },
+    }) + '\n',
+  );
+  const inputFile = path.join(relocated, 'qualification-input.json');
+  await fs.writeFile(inputFile, inputBytes);
+  const installedCli = path.join(relocated, 'node_modules/architecture-publisher/src/cli/main.mjs');
+  const assessed = JSON.parse(
+    child(
+      process.execPath,
+      [
+        installedCli,
+        'qualify',
+        'verify',
+        inputFile,
+        '--sha256',
+        sha(inputBytes),
+        '--policy',
+        policyFile,
+        '--policy-sha256',
+        sha(policyBytes),
+      ],
+      relocated,
+      nodeEnvironment,
+    ),
+  );
+  assert.equal(assessed.policySha256, sha(policyBytes));
+  assert.equal(assessed.completeness, 'submitted-policy-incomplete');
+  assert.equal(assessed.admitted, false);
 });

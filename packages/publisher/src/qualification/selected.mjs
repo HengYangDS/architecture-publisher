@@ -12,11 +12,11 @@ const sha = (value) =>
     .update(Buffer.from(canonical(value)))
     .digest('hex');
 
-function requiredText(value) {
+export function requiredText(value) {
   return text(value) && value === value.trim() && Buffer.byteLength(value) <= 2048;
 }
 
-function selectedScope(scope, candidate, obligations, candidateSha256) {
+export function selectedScope(scope, candidate, obligations, candidateSha256) {
   if (!scope || typeof scope !== 'object' || Array.isArray(scope))
     fail('selected_qualification_scope_invalid');
   if (scope.kind === 'candidate') {

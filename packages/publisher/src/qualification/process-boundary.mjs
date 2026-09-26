@@ -100,8 +100,17 @@ export async function runBoundedQualification({
 }
 
 /** One private invocation owner for both v2 verification and public replay. */
-export async function invokeQualificationWorker(operation, selection, executionChoice = []) {
-  if (!['input', 'replay'].includes(operation) || !Array.isArray(executionChoice))
+export async function invokeQualificationWorker(
+  operation,
+  selection,
+  executionChoice = [],
+  policyChoice = null,
+) {
+  if (
+    !['input', 'replay'].includes(operation) ||
+    !Array.isArray(executionChoice) ||
+    (policyChoice !== null && operation !== 'input')
+  )
     fail('qualification_invocation_invalid');
   const scratch = await fs.mkdtemp(
     path.join(await fs.realpath(os.tmpdir()), 'archpub-qualification-'),
@@ -117,6 +126,7 @@ export async function invokeQualificationWorker(operation, selection, executionC
         operation,
         selection: structuredClone(selection),
         executionChoice: structuredClone(executionChoice),
+        ...(policyChoice === null ? {} : { policyChoice: structuredClone(policyChoice) }),
       }),
       { flag: 'wx', mode: 0o600 },
     );

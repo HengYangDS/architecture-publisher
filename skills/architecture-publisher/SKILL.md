@@ -31,9 +31,10 @@ not own intent, workflow state, authorization, or generated artifacts.
    externally produced Qualification Set. Historical v1 selects the Claim Model,
    Edition, Candidate, and set and computes its conjunctive admission without
    executing predicates. Successor v2 replays the selected Candidate and binds
-   submitted records, but reports `records-bound` and `admitted: false` without
-   an accepter-owned policy. Neither route authenticates a verifier's claim or
-   authorizes publication.
+   submitted records. An invoker may supply `--policy` and `--policy-sha256`
+   separately to assess exact submitted-policy fit;
+   v2 still reports `records-bound` and `admitted: false`. Neither route
+   authenticates verifier or accepter identity or authorizes publication.
 5. When browser evidence is required, run the repository's explicit observer
    against the exact output manifest. Keep browser, human and hosted acceptance
    separate.

@@ -45,6 +45,9 @@ test('scoped help is concise and derived from the routed commands', () => {
   assert.doesNotMatch(qualify.stdout, /Verify exact externally produced qualification evidence/u);
   assert.match(qualify.stdout, /Bind submitted qualification records/u);
   assert.doesNotMatch(qualify.stdout, /Admit one exact Qualification Set/u);
+  const qualifyCommand = run(['qualify', 'verify', '--help']);
+  assert.equal(qualifyCommand.status, 0, qualifyCommand.stderr);
+  assert.match(qualifyCommand.stdout, /--policy <file> --policy-sha256 <digest>/u);
 });
 
 test('usage errors identify the failing invocation and next help action', () => {
@@ -68,6 +71,7 @@ test('command parsing refuses unknown verbs, incomplete selectors and trailing a
     ['source', 'verify', 'request.json', '--sha256'],
     ['source', 'verify', 'request.json', '--wrong', 'a'.repeat(64)],
     ['source', 'verify', 'request.json', '--sha256', 'a'.repeat(64), 'extra'],
+    ['qualify', 'verify', 'request.json', '--sha256', 'a'.repeat(64), '--policy', 'policy.json'],
   ]) {
     const result = run(args);
     assert.equal(result.status, 2, args.join(' '));

@@ -145,6 +145,8 @@ An `Edition Candidate` is built, not accepted. A `Qualification Set` records
 external predicate judgments, but does not authorize publication. A
 `Publication Plan` describes an effect, and apply/recovery require explicit
 caller-owned authorization.
+An invoker-selected v2 policy can assess submitted records against exact
+requirements; it cannot authenticate their authors or grant acceptance.
 
 ```text
 built ≠ qualified ≠ authorized ≠ published ≠ hosted-observed

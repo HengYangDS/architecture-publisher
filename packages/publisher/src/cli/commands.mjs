@@ -9,6 +9,8 @@ const editionBuildSelection = Object.freeze([
 const qualificationSelection = Object.freeze([
   ...digestSelection,
   { name: '--execute-providers', kind: 'optional-option' },
+  { name: '--policy', kind: 'optional-option' },
+  { name: '--policy-sha256', kind: 'optional-option' },
 ]);
 
 function executionChoice(value) {
@@ -21,6 +23,18 @@ function executionChoice(value) {
     selected.set(match[1], match[2]);
   }
   return [...selected].map(([id, manifestSha256]) => ({ id, manifestSha256 }));
+}
+
+function policyChoice(file, sha256) {
+  if (file === undefined && sha256 === undefined) return null;
+  if (
+    typeof file !== 'string' ||
+    !file ||
+    typeof sha256 !== 'string' ||
+    !/^[a-f0-9]{64}$/u.test(sha256)
+  )
+    throw usageError('qualify', 'Select both --policy and --policy-sha256');
+  return { file, sha256 };
 }
 
 const command = (path, summary, usage, parameters, invoke) =>
@@ -70,11 +84,22 @@ export const commandCatalog = Object.freeze([
   command(
     ['qualify', 'verify'],
     'Bind submitted qualification records to exact selected authority.',
-    'archpub qualify verify <request.json> --sha256 <digest> [--execute-providers <id@digest,...>]',
+    'archpub qualify verify <request.json> --sha256 <digest> [--execute-providers <id@digest,...>] [--policy <file> --policy-sha256 <digest>]',
     qualificationSelection,
-    async ({ file, '--sha256': digest, '--execute-providers': providers }) => {
+    async ({
+      file,
+      '--sha256': digest,
+      '--execute-providers': providers,
+      '--policy': policy,
+      '--policy-sha256': policyDigest,
+    }) => {
       const { verifyQualificationInput } = await import('../qualification/input.mjs');
-      return verifyQualificationInput(file, digest, executionChoice(providers));
+      return verifyQualificationInput(
+        file,
+        digest,
+        executionChoice(providers),
+        policyChoice(policy, policyDigest),
+      );
     },
   ),
   command(
