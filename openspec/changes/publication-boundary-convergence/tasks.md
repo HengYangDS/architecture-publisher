@@ -760,9 +760,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       The four affected base specs are now promoted. An isolated official
       archive rehearsal leaves all 16 base specs byte-identical and validates
       16/16 with `issues: []`; the open Change and base validate 17/17 with no
-      issues. Focused contract tests pass 41/41. This does not yet prove the
-      zero-source-change consumer journey, every endorsement/retirement case,
-      or source-owner acceptance; this task remains open.
+      issues. Focused contract tests pass 41/41. A standalone independent-editor
+      CLI example builds both media after relocation without changing selected
+      input files or the source fixture. This proves the generic zero-write
+      route, not ETHOS/AIGW adoption, endorsement, or retirement; the task
+      remains open.
 - [ ] 7.5 Select the SemVer successor and update package manifests, lockfile,
       and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
       behavior tests until the complete owned scope reaches at least 95% in
