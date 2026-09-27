@@ -243,10 +243,11 @@ test('product documentation has one semantic owner and a concise entry point', a
   await assert.rejects(fs.stat(path.join(root, 'docs/product-design.md')), { code: 'ENOENT' });
 });
 
-test('terminal topology keeps live Editions with their source products', async () => {
+test('adopter authority does not require source-repository co-location', async () => {
   const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
   const product = await fs.readFile(path.join(root, 'docs/product-contract.md'), 'utf8');
   const edition = await fs.readFile(path.join(root, 'docs/edition-contract.md'), 'utf8');
+  const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');
   const adoption = await fs.readFile(
     path.join(root, 'openspec/specs/ecosystem-adoption/spec.md'),
     'utf8',
@@ -254,15 +255,32 @@ test('terminal topology keeps live Editions with their source products', async (
   await assert.rejects(fs.stat(path.join(root, 'openspec/changes/architecture-publisher-0-2')), {
     code: 'ENOENT',
   });
-  const contract = [readme, product, edition, adoption].join('\n');
+  const contract = [readme, product, edition, operations, adoption].join('\n');
 
-  assert.match(contract, /source-owned live Edition/i);
   assert.match(contract, /declaratively or through one selected\s+executable package/i);
   assert.match(contract, /no adjacent checkout/i);
   assert.match(contract, /not the new-authoring contract/i);
-  assert.match(adoption, /second mutable ETHOS or AIGW (?:Provider or )?Edition/i);
-  assert.match(adoption, /same immutable candidate\s+digests/i);
-  assert.match(adoption, /central mutable adapter and Edition are removed/i);
+  assert.match(adoption, /### Requirement: Adopter placement follows named authority/u);
+  assert.match(adoption, /### Requirement: Independent Editions do not require source adoption/u);
+  assert.match(
+    adoption,
+    /Provider and Edition roots MAY be source-co-located or maintained separately/u,
+  );
+  assert.match(
+    adoption,
+    /SHALL NOT require source-repository changes or an ordinary\s+source-product CI dependency/u,
+  );
+  assert.doesNotMatch(
+    adoption,
+    /Each mutable first-party adopter Provider and Edition SHALL live with/u,
+  );
+  assert.match(readme, /Edition placement\s+follows the designated editor/u);
+  assert.match(product, /A live Edition belongs to its designated editor/u);
+  assert.match(
+    edition,
+    /An independent Edition may be maintained outside any selected source repository/u,
+  );
+  assert.match(operations, /First-party co-location is optional/u);
 });
 
 test('the released self Edition depends only on durable source authorities', async () => {

@@ -47,12 +47,12 @@ coverage expands review; it never licenses omission.
 
 ## Source ownership
 
-First-party live ETHOS and AIGW Editions remain with their source products, so
-their selected meaning, omissions, and approvals do not drift into a central
-catalogue. This placement is not a universal ownership rule: the successor
-assigns an independent or cross-source Edition to its designated editor, while
-each source retains authority over its own assertions. Architecture Publisher
-owns the Edition contract and compiler, not adopter Edition content.
+An independent Edition may be maintained outside any selected source repository.
+ETHOS and AIGW retain authority over their native assertions, while each
+designated editor owns its Edition's selection, omissions, and presentation.
+A source product may elect co-location or an external editor; neither physical
+choice grants source endorsement or approval. Architecture Publisher owns the
+Edition contract and compiler, not adopter Edition content or source policy.
 
 The Publisher self-Edition is therefore owned by the Architecture Publisher
 repository. Historical Provider v1 may deliver portable standard values or one
@@ -62,7 +62,8 @@ multiple Provider v2 inputs. Equal selected-input locks across delivery modes
 do not imply equal Candidates: closure, disclosed limits, scenes, or media can
 differ and require separate qualification. Installed use must not depend on an
 adjacent checkout, ambient repository search, or hard-coded workstation path.
-A central mutable adopter copy cannot become a second authority.
+Publisher may retain compact immutable fixtures and receipts, not a second
+mutable adopter Edition after its designated owner accepts a successor.
 
 ## Audience and questions
 

@@ -116,12 +116,13 @@ selected-content digest.
 
 ### Requirement: Materialized dependency evidence is not overstated
 
-The input lock SHALL bind exact selected native, derived and Edition bytes,
-includes and resources, adapter attribution, media, and the requested toolchain
-profile, not later consumption. The Candidate SHALL bind actually selected and
-checked parser, backend, font, renderer and Publisher implementation supplies.
-Evidence SHALL distinguish observed, checked-declared, declared-only,
-unresolved and ambient facts; none proves hermetic Provider preparation.
+The lock SHALL bind selected native, derived and Edition bytes, includes,
+resources, adapter identity, media and toolchain profile, not later
+consumption. Candidate SHALL bind checked, selected parser, backend, font,
+renderer and Publisher implementation file sets. Package identity is execution
+evidence, not Candidate input. Evidence SHALL
+distinguish observed, checked-declared, declared-only, unresolved and ambient
+facts; none proves hermetic Provider preparation or original-builder provenance.
 
 #### Scenario: A native model imports another file
 
@@ -228,13 +229,13 @@ canonically sorted, independently of input order and object-key spelling.
 
 ### Requirement: Compiler closure does not inherit declared dependencies
 
-Actual observed dependencies MAY enter the lock with exact identities while
-observation methods remain separate evidence; unobserved dependencies remain
-explicit limits, not proof of closure. An unresolved or ambient compiler input
-SHALL fail or make reproducibility explicitly unqualified; a Provider
-declaration alone SHALL NOT establish a complete read set or hermetic
-preparation. The lock is a generated replay record, not a
-source-author-maintained truth store.
+Selected upstream dependencies SHALL enter the lock with exact identities;
+read methods remain evidence. Selected downstream compiler and renderer
+supplies enter the Candidate only after consumer checks. Unobserved
+dependencies remain limits. Unresolved or ambient compiler inputs SHALL fail
+or make replay explicitly unqualified. Provider declarations alone do not
+prove a complete read set or hermetic preparation. The generated lock is not
+source-author-maintained truth.
 
 #### Scenario: A Provider declares dependencies without observation
 

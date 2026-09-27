@@ -292,13 +292,12 @@ approval from a green build, same-person signature, or file location.
 
 ### Requirement: Successor Candidate manifest binds selected supplies
 
-The successor Candidate SHALL use a distinct versioned manifest from
-historical Claim Model/Edition v1 Candidates. Its unqualified value SHALL bind
-the selected input lock, Edition bytes, native semantic digest, the finite set
-of semantic supplies actually consumed (which may be empty), each selected
-medium's independently composed Scene and artifact/supply inventory, and
-derived reader obligations and limits. The build output directory SHALL remain
-outside Candidate semantic identity.
+Candidate v2 SHALL bind input lock, Edition, semantic digest, selected checked
+semantic supplies, and each medium's independent Scene, artifacts and checked
+supplies. Supply records SHALL state identity, basis and method; checked file
+sets are not execution traces. Publisher semantic and media file sets remain
+distinct. Unselected implementations, package-only content and output paths
+stay outside Candidate identity. Reader obligations and limits remain visible.
 
 #### Scenario: One selected input produces two sibling media
 
@@ -757,3 +756,34 @@ rather than silently substitute style or drop meaning.
   distinction, layout constraint, or output dimension
 - **THEN** compilation fails with a specific unsupported-policy diagnostic
 - **AND** it does not emit an apparently qualified substitute
+
+### Requirement: Installed package identity is separate execution evidence
+
+Successor build and replay SHALL report the current installed Publisher package's
+declared content-tree identity, method, and scope outside the lock and
+Candidate. Package drift detected before emission SHALL fail. Package-only
+changes may alter this evidence without changing Candidate bytes. The tree
+is not archive identity, original-builder attestation, or acceptance; the
+designated accepter's publication policy decides what else to require.
+
+#### Scenario: Package-only content changes
+
+- **WHEN** the same exact inputs and selected implementation file sets are
+  built from two packages differing only in nonselected content
+- **THEN** Candidate and artifact identities remain equal while the current
+  installed-package tree identities differ
+- **AND** a replay match does not claim which package built the original Candidate
+
+#### Scenario: Installed package changes during compilation
+
+- **WHEN** the installed package content differs between the build's opening
+  and pre-emission checks
+- **THEN** compilation fails before emitting a successful Candidate
+
+#### Scenario: Qualification report remains derivable
+
+- **WHEN** successor qualification selects a Policy and replays a Candidate
+- **THEN** its records-bound report remains derivable from the selected
+  Candidate, Qualification Set, and Policy without a package-tree field
+- **AND** the separate replay result retains current package evidence without
+  claiming the original builder or authenticating the installed package

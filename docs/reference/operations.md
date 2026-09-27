@@ -457,17 +457,23 @@ generation. Evidence is applicable only to its exact bytes and declared scope.
 
 ## First-party conformance consumers
 
+First-party co-location is optional. The locations below describe current
+selected inputs, not a Publisher requirement or source-product CI gate.
+
 - `conformance/journeys/self-host/` is a bounded structural self-use journey through the
   public generic contracts. It is not the final flagship self-Edition.
 - `editions/self/` is the source-owned Architecture Publisher self-Edition.
 - `conformance/fixtures/ethos-source-owned-handoff.json` records the immutable
   ETHOS package, parity, semantic-successor, and remaining-acceptance boundary.
-  The mutable ETHOS adapter and Edition live only in the ETHOS repository.
+  Current mutable ETHOS adapter and Edition files reside in ETHOS; their
+  continuation or retirement requires its product owner's decision. Their
+  placement grants Publisher no source authority.
 - `conformance/fixtures/aigw-source-owned-handoff.json` records the exact AIGW
   source owner, current and historical semantic values, reproduced candidate,
-  and remaining governance limits. The mutable AIGW Edition lives only in the
-  AIGW repository. Its opt-in conformance journey accepts explicit relocated
-  Edition and source roots; ordinary runtime never discovers an adjacent checkout.
+  and remaining governance limits. Current mutable AIGW Edition files reside
+  in AIGW; their continuation or retirement requires its product owner's
+  decision. Its opt-in conformance journey accepts explicit relocated Edition
+  and source roots; ordinary runtime never discovers an adjacent checkout.
 - The first-party contract matrix preserves the exact 0.2.0-alpha.0
   interoperability baseline and binds the published v0.3.0-alpha.1 successor to
   its signed release, package identities, qualification set, and human review.

@@ -118,10 +118,13 @@ conformance/fixtures/aigw-source-owned-handoff.json
 ```
 
 The terminal product repository keeps the generic package, renderer supply,
-the source-owned live Edition for Architecture Publisher itself, and compact
-conformance fixtures. The live ETHOS and AIGW Editions belong to their source
-repositories. Conformance consumes portable standard values or an independently
-installed package; ordinary runtime has no adjacent checkout dependency.
+its self-Edition, and compact conformance fixtures. ETHOS and AIGW retain
+authority over their own source assertions and acceptance. Edition placement
+follows the designated editor: the editor may work independently, or a source
+product may elect co-location. Neither choice transfers source authority or
+requires a source-product CI gate for independent, read-only analysis.
+Conformance consumes portable standard values or an independently installed
+package; ordinary runtime has no adjacent checkout dependency.
 
 The root remains a private development and conformance workspace, not the
 published package. The core never imports a concrete Edition. A source-owned

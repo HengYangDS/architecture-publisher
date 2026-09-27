@@ -184,15 +184,18 @@ It also owns the source-owned live Edition for Architecture Publisher itself,
 because that Edition describes this source product.
 
 A live Edition belongs to its designated editor, not automatically to the
-repository whose architecture it describes. First-party ETHOS and AIGW Editions
-are source-owned: each source product owns its native meaning, adapter where
-needed, authored Edition, native authorization, and release decision. An
-independent or cross-source editor may instead own an Edition in its own
-workspace without acquiring authority over any selected source assertion.
-Neither first-party path requires a tracked duplicate Claim Model when admitted
-native inputs suffice. The Publisher repository may keep compact immutable
-protocol fixtures and exact conformance receipts, but it may not retain a second
-mutable implementation of an adopter's Edition.
+repository whose architecture it describes. ETHOS and AIGW retain authority
+over their native meaning, any adapter they elect, authorization, acceptance,
+and release. Each may designate an internal or external Edition editor. An
+independent or cross-source editor may work from exact read-only source bytes
+without changing the source repository or acquiring authority over its
+assertions. Official endorsement of selected source scope requires an explicit
+source-owner decision; the designated accepter separately accepts the exact
+Candidate. Publisher does not require source-repository changes or an ordinary
+source-product CI gate for independent analysis. Neither first-party path
+requires a duplicate editable Claim Model when admitted native inputs suffice.
+Publisher may keep compact immutable fixtures and receipts, but not a second
+mutable implementation after an adopter accepts its canonical Edition.
 
 New authoring selects one versioned Build Request with direct inputs and optional
 `architecture.edition-provider/v2` manifests. Each Provider transports exact
