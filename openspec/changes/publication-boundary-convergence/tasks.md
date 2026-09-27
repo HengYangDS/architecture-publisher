@@ -748,15 +748,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
-      With installed Chrome selected, the current pre-freeze Lane tree passes
-      1,183 tests, skips 2 explicitly external-input-gated tests, and has 0
-      behavior failures. The unchanged owned-runtime gate passes at 97.92%
-      statements and lines, 95.01% branches (8,572/9,022), and 99.62%
-      functions. Static, strict OpenSpec, and package checks also pass. The
-      branch result has a narrow margin and is not final release evidence:
-      Task 7.3, frozen installed workloads, exact-byte visual review,
-      exact-HEAD proof, and protected publication remain open. Do not weaken
-      coverage inclusion or substitute the pre-freeze result for Task 7.6.
+      At signed source `2528794`, `npm run check` passes with 97.94% statements
+      and lines, 95.01% branches (8,629/9,082), and 99.63% functions. Strict
+      OpenSpec validation has no diagnostics, and the three exact-HEAD ETHOS
+      proof gates pass under attestation `a37ffc84`. Local CAS advanced
+      `candidate/dev` to that source. This is pre-freeze, not release evidence:
+      Task 7.3, final installed workloads, exact-byte visual and human review,
+      protected refs, hosted CI, and remote readback remain open. Do not weaken
+      coverage or substitute this provisional result for Task 7.6.
       The work Lane now selects untagged `0.3.0-alpha.4` across workspace,
       Core, self-Edition, and lockfile. A focused RED/GREEN rejects changed
       development HEAD bytes reusing the signed `v0.3.0-alpha.3` version; the
