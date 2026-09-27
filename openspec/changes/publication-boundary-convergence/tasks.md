@@ -536,8 +536,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       SVG text elements per figure, zero text overlaps, sampled path/text
       contacts, or text overflow at 1280 CSS pixels. Full tests pass 1,250
       with seven skips; branch coverage is 95.03%, and static/strict OpenSpec
-      checks pass. These are source-adjacent provisional bytes, not current
-      packed-install parity, final human visual approval, or AIGW acceptance;
+      checks pass. The exact Product and Client HTML pass a ten-page Chrome
+      structural/axe check at 1280×800 with no page errors, external requests,
+      horizontal overflow, or WCAG A/AA findings; the provisional receipt is
+      `build/review/aigw-static-group-key-provisional-20260928/interactive-browser-audit.json`.
+      These observations are not final human visual approval or AIGW acceptance;
       Task 5.2 remains open.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
@@ -781,6 +784,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       model bytes without output. Exact identities and unproved limits are in
       `conformance/evidence/aigw-successor-installed-probe.json`; this is not
       AIGW owner acceptance, final visual review, or released-package parity.
+      At signed Publisher `9a8f1a1` and AIGW `bdb77d55`, a new `alpha.4`
+      preview archive installs offline with isolated HOME/cache. Public CLI
+      builds from seven copied selected AIGW files under empty PATH match all
+      six direct Candidate members for both Editions before and after package
+      relocation. Exact identities and limits are in
+      `conformance/evidence/aigw-grouped-static-probe.json`; the source checkout
+      remained available, and this is not final released-package or owner
+      acceptance.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify

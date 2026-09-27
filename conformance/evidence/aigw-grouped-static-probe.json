@@ -1,0 +1,53 @@
+{
+  "schema": "architecture.installed-aigw-parity/v1",
+  "publisherHead": "9a8f1a1bfc08c5acfa718130bb3b561b8e5b634a",
+  "aigwHead": "bdb77d5572f923466c8d9a3519c918acddb19e41",
+  "packageVersion": "0.3.0-alpha.4",
+  "archiveSha256": "863839ad67b6b5ced00479882736c136da06c71109c47b652dbd172942fa2cf8",
+  "selected": {
+    "product.request.json": "ee7cf3c942cb0da2f5a9306492f05a5c808a98271e03c060a40a99fd23a5b7df",
+    "client-projection.request.json": "79fafbd8d61f9d9c5e7c1023ce0d2d171d5d2293e201fb562edf16131d6bd725",
+    "editions/product.json": "7c206cf3b2ca7fbf1cb83a3981ed21c82a576c0f96a3b9578e0c6c5f87694673",
+    "editions/client-projection.json": "dce9784cf101c7449925c5eb773f7e753556b7f034be9fdc690c6a90d78045e1",
+    "source/product-model.json": "09265249a41528fc019daf9c33075b9664a927a9328c95c6904fb28bf31ca9dd",
+    "source/model.json": "bd652d38a23be474ac95d2b34628be1bbfbe6660d342035bf8fd5000157a79e2",
+    "source/provider.json": "87f4e84479c38b79526f775f9fa0324b2cbc7ac695f441a0fdae76420e5f12df"
+  },
+  "results": {
+    "product": {
+      "requestSha256": "ee7cf3c942cb0da2f5a9306492f05a5c808a98271e03c060a40a99fd23a5b7df",
+      "candidateSha256": "0cdc05ee5173f7639b50529d1985ece0f393596a5ad57b24f5d39f998555aefe",
+      "packageTreeSha256": "310479445497375ca155ca610e25825119a02d2e1f001615ecb04c14f4c2d07d",
+      "members": {
+        "input-lock.json": "ba489222f97ee52c9e5928d886243bbffcdc3406095beb057f228c4949b89dad",
+        "candidate.json": "c7be70a3bb1242d1f9ef725af6edd8562dc8fef50015c24b3ce64dbb1dc81a41",
+        "manifest.json": "11eeb6f4455c8a34b6b99cee0cdd885b2c226684f53acbc98f7eb5cda0a3fa13",
+        "static/architecture.svg": "e69118c651ea4cd5e36aeaec0fb8664dd1ce1f4fd2aee14fcf6bd7c0ad856731",
+        "static/architecture.png": "28e77aa47b610705a7e9843ecd04064559503f87a77e2c4630f5a08fda129a6a",
+        "interactive/architecture.html": "956c236f9c3fae40e21e64f01c8084416331662c575291e42baee03287a29981"
+      }
+    },
+    "client-projection": {
+      "requestSha256": "79fafbd8d61f9d9c5e7c1023ce0d2d171d5d2293e201fb562edf16131d6bd725",
+      "candidateSha256": "0f8325c64d57661b52e34a40c463e0c4f328c3df65a744d2bb917c9bbf0500d9",
+      "packageTreeSha256": "310479445497375ca155ca610e25825119a02d2e1f001615ecb04c14f4c2d07d",
+      "members": {
+        "input-lock.json": "d0b948472eb2151cd6eb133efe6e5c8f257db7887b9b7056fec985d7423315a1",
+        "candidate.json": "2dd22541ccc0cf7da74db6112c1605f4757ed6a837bd0f65fed20d64a63c79d4",
+        "manifest.json": "728fe76fa99c943bf29d3fd1db598fcd4f0c83fdcea044b92fdad48ba5c0fc90",
+        "static/architecture.svg": "50a838fea8ce4dc0fd6f1da810849705d24998d2feca2b79f3bf59b2c0b1e333",
+        "static/architecture.png": "965f5a81ca2974edafbf1fcd8f7f22da4b9f39e952a1238f0edd7597644db9d8",
+        "interactive/architecture.html": "670d09ee4a7a3a342d9c4f1de03545bab3fa22f30ece7eb4012fd5744587bee3"
+      }
+    }
+  },
+  "constraints": {
+    "npmOffline": true,
+    "registry": "registry.invalid",
+    "emptyPathDuringBuild": true,
+    "isolatedHome": true,
+    "relocatedPackage": true,
+    "sourceCheckoutAbsence": "not_proven"
+  },
+  "status": "provisional-not-released"
+}
