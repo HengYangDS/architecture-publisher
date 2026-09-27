@@ -389,3 +389,98 @@ test(
     assert.deepEqual(errors, []);
   },
 );
+
+test(
+  'unequal source claims read in order without stretched empty cards',
+  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 20_000 },
+  async (t) => {
+    const scene = interactiveEditionScene();
+    const selected = scene.pages[0];
+    const revision = 'a'.repeat(64);
+    selected.sourceAssertionCarriers.push({
+      assertionId: 'relation-assertion',
+      kind: 'relation',
+      nodeRefs: [],
+      relationRefs: [{ namespace: 'private/model', reference: 'relation:4:2', sha256: revision }],
+    });
+    selected.claimCards = [1, 2, 3].map((index) => ({
+      namespace: 'private/model',
+      id: `claim-${index}`,
+      sha256: revision,
+      facts: [
+        { label: 'Claim plane', value: 'implemented' },
+        { label: 'Subject', value: 'Alpha & one' },
+        { label: 'Predicate', value: 'calls' },
+        { label: 'Object', value: 'Beta' },
+        {
+          label: 'Declared evidence authority',
+          value: 'Selected implementation evidence '.repeat(index === 2 ? 25 : 5),
+        },
+      ],
+    }));
+    for (const index of [1, 2, 3])
+      selected.sourceAssertionCarriers.push({
+        assertionId: `claim-assertion-${index}`,
+        kind: 'claim',
+        nodeRefs: [],
+        relationRefs: [],
+        claimRefs: [{ namespace: 'private/model', reference: `claim-${index}`, sha256: revision }],
+      });
+    selected.claimRelationLinks = [1, 2, 3].map((index) => ({
+      claimAssertionId: `claim-assertion-${index}`,
+      relationAssertionId: 'relation-assertion',
+    }));
+    const html = await renderInteractiveEditionHtml(scene);
+    const browser = await chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 15_000,
+    });
+    t.after(() => browser.close());
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.setContent(html.bytes.toString('utf8'), { waitUntil: 'load' });
+    await page.evaluate(() => globalThis.document.fonts.ready);
+    const measured = () =>
+      page.evaluate(() =>
+        [...globalThis.document.querySelectorAll('#page-0 .claim-card')].map((card) => {
+          const box = card.getBoundingClientRect();
+          const facts = card.querySelector('.claim-facts').getBoundingClientRect();
+          return { top: box.top, bottom: box.bottom, blank: box.bottom - facts.bottom };
+        }),
+      );
+    const desktop = await measured();
+    assert.equal(desktop.length, 3);
+    assert(
+      desktop.every(({ blank }) => blank < 30),
+      JSON.stringify(desktop),
+    );
+    assert(desktop.every(({ top }, index) => !index || top >= desktop[index - 1].bottom));
+    await page.addScriptTag({ content: axe.source });
+    const violations = () =>
+      page.evaluate(async () => {
+        const result = await globalThis.axe.run(globalThis.document, {
+          runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+        });
+        return result.violations.map(({ id }) => id);
+      });
+    assert.deepEqual(await violations(), []);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(resolve)),
+        ),
+    );
+    const narrow = await page.evaluate(() => ({
+      viewport: globalThis.innerWidth,
+      scrollWidth: globalThis.document.documentElement.scrollWidth,
+      overflow: [...globalThis.document.querySelectorAll('#page-0 *')]
+        .filter((element) => element.getBoundingClientRect().right > globalThis.innerWidth + 1)
+        .slice(0, 8)
+        .map((element) => `${element.tagName.toLowerCase()}.${element.className}`),
+    }));
+    assert(narrow.scrollWidth <= narrow.viewport, JSON.stringify(narrow));
+    assert.deepEqual(await violations(), []);
+  },
+);

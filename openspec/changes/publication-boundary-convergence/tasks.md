@@ -488,16 +488,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       Fill-only groups, content-dependent geometry, and per-gap spacing reduce
       empty frames without widening unrelated gaps. On unchanged AIGW external
       trial input (`bfb1b6c6`), the direct Candidate at
-      `build/review/aigw-two-view-trial/candidate-layout-refined` has a
+      `build/review/aigw-two-view-trial/candidate-claim-ledger` has a
       3600×2357 PNG, down from 3600×2513; its SVG has zero edge-segment
       contacts versus four, preserves 64 visible text items, and has no
-      measured text collision in Chrome 154. The interactive HTML is
-      byte-identical to the earlier trial. Direct and offline installed
-      Candidates match all six members byte-for-byte. The frozen full check
-      passes 1217 tests with 6 skips and 95.05% branch coverage; evidence is
-      `build/review/aigw-two-view-trial/full-check-layout-refined.log` and the
-      `visual-audit-repair.json` for the byte-identical media. This is not AIGW
-      adoption, human approval or full qualification.
+      measured text collision in Chrome 154. The interactive medium now flows
+      unequal claim details in source order rather than stretching shorter
+      cards to the longest card's height. Chrome 154 checked all six trial
+      pages: no horizontal overflow, external request, script error or
+      WCAG 2.1 A/AA violation. Direct and offline installed Candidates match
+      all six members byte-for-byte. The full check passes 1217 tests with
+      7 skips and 95.05% branch coverage; evidence is
+      `build/review/aigw-two-view-trial/full-check-claim-ledger.log`,
+      `claim-ledger-browser.json`, and `visual-audit-repair.json` for the
+      byte-identical static media. This is not AIGW adoption, human approval
+      or full qualification.
       Remaining: extend the measured Scene audit to the complete neutral page,
       rank feasible whole-page candidates and review visual mass/readability
       on the final selected media before Task 7.5 freeze.
