@@ -257,18 +257,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       equal selected locks and semantic digests do not authorize Candidate
       equivalence: direct/declarative fixture media match, while executable
       dependency limits change the scene identities disclosed in its Candidate.
-- [ ] 3.4 Test owner-attributed, non-authorizing findings and Provider retirement
-      in `tests/edition-provider-conformance.test.mjs`: a finding names the exact
-      selected subject, predicate, and responsible role or unresolved owner,
-      then returns to the invoker without dispatch, issue creation, or source
-      write. Assertion, editorial, adapter, and protocol gaps remain distinct;
-      the invoker decides whether and how to hand off the local finding, while
-      only the affected owner decides whether to adopt it. A mutable predecessor
-      retires only after exact consumer parity or reviewed semantic successor
-      and owner approval; historical receipts remain immutable. This draft
-      corrects a previously implied Publisher-owned feedback delivery. No new
-      feedback store, registry, command plane, or source-governance adapter is
-      authorized by the Change.
+- [ ] 3.4 Exercise local, non-authorizing diagnostics at the successor v2
+      selected-input and Edition boundaries. Any returned finding binds its
+      exact selected subject, predicate, responsible role, and declared owner
+      or explicitly unresolved ownership. Distinguish source assertion,
+      editorial choice, adapter, and protocol gaps in the relevant v2 tests;
+      return findings to the invoker without dispatch, issue creation, source
+      writes, or inferred recipients. The invoker controls handoff and the
+      affected owner controls adoption. Prove conformance cannot retire a
+      predecessor: retirement requires exact consumer parity or a reviewed
+      semantic successor, explicit incumbent-owner approval, and preserved
+      historical receipts. Keep `tests/edition-provider-conformance.test.mjs`
+      on the historical v1 profile; do not add a feedback store, registry,
+      command plane, or source-governance adapter.
 
 ## 4. Native semantics and conservative change
 
