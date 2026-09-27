@@ -541,7 +541,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       horizontal overflow, or WCAG A/AA findings; the provisional receipt is
       `build/review/aigw-static-group-key-provisional-20260928/interactive-browser-audit.json`.
       These observations are not final human visual approval or AIGW acceptance;
-      Task 5.2 remains open.
+      Task 5.2 remains open. The reader subsequently rejected both AIGW static
+      compositions, not only Product: the Product PNG at SHA-256
+      `28e77aa47b610705a7e9843ecd04064559503f87a77e2c4630f5a08fda129a6a`
+      and Client Projection PNG at SHA-256
+      `965f5a81ca2974edafbf1fcd8f7f22da4b9f39e952a1238f0edd7597644db9d8`
+      (built from AIGW `b1f4d212`) both have reported overlap, excessive blank
+      area, and weak whole-page composition. Passing sampled collision checks
+      does not override this visual failure. Rework the shared neutral figure
+      composition and source-owned static selection/art direction as distinct
+      responsibilities; do not release either static Candidate or treat the
+      current AIGW Edition as visually accepted.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
