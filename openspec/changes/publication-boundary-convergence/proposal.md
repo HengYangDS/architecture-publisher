@@ -77,7 +77,8 @@ publication, not a new lifecycle or command plane.
   an explicit source-owner decision.
 - `edition-provider`: Declarative and executable input preparation yield one
   selected-input envelope without later-stage claims or mandatory source-repo
-  placement.
+  placement. Any feedback stays an attributed local result for caller-controlled
+  handoff, not a Publisher-owned dispatch workflow.
 - `edition-publication`: One editor-owned Edition project selects questions,
   sources, scope, exclusions, attributed editorial assertions, and
   medium-specific obligations; Publisher derives seals and Candidates.

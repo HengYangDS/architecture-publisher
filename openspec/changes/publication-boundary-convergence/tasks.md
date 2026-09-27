@@ -257,11 +257,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       equal selected locks and semantic digests do not authorize Candidate
       equivalence: direct/declarative fixture media match, while executable
       dependency limits change the scene identities disclosed in its Candidate.
-- [ ] 3.4 Test owner-routed non-authorizing findings and Provider retirement in
-      `tests/edition-provider-conformance.test.mjs`: an assertion, editorial,
-      adapter, or protocol gap goes to that owner; a mutable predecessor retires
-      only after exact consumer parity and owner approval, while historical
-      receipts remain immutable.
+- [ ] 3.4 Test owner-attributed, non-authorizing findings and Provider retirement
+      in `tests/edition-provider-conformance.test.mjs`: a finding names the exact
+      selected subject, predicate, and responsible role or unresolved owner,
+      then returns to the invoker without dispatch, issue creation, or source
+      write. Assertion, editorial, adapter, and protocol gaps remain distinct;
+      the invoker decides whether and how to hand off the local finding, while
+      only the affected owner decides whether to adopt it. A mutable predecessor
+      retires only after exact consumer parity or reviewed semantic successor
+      and owner approval; historical receipts remain immutable. This draft
+      corrects a previously implied Publisher-owned feedback delivery. No new
+      feedback store, registry, command plane, or source-governance adapter is
+      authorized by the Change.
 
 ## 4. Native semantics and conservative change
 
@@ -742,38 +749,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       is not named an Atlas. Final released-package identities, installed
       adopter paths, and release guidance still require reconciliation; this
       task remains open.
-- [ ] 7.4 Promote the implemented delta requirements and role-based Purpose
-      wording into active base specs before release freeze. Strictly validate the
-      combined specs with no unresolved diagnostics, including advisory INFO,
-      and prove valid v1 inputs still retain their historical meanings. Atomize
-      overlong delta requirements without weakening them before promotion; the
-      later Change archive must add no new normative behavior. All six changed
-      capabilities were atomized and promoted through isolated official archive
-      rehearsals. The active base specs and still-open Change validate with zero
-      diagnostics, including INFO; prior scenario names remain present. A final
-      isolated official archive leaves all 16 active base specs byte-identical.
-      The Task 2.5 frozen-hash source and packed offline-installed journeys prove
-      the selected historical v1 meanings; the focused post-promotion replay
-      passes 9/9. This closes spec promotion, not the separate coverage or
-      release gates. Reopened after independent boundary review found that the
-      active `ecosystem-adoption` spec still mandates physical co-location,
-      Provider-only adoption, and a Claim Model for AIGW, contradicting the
-      role-based, direct/native successor contracts. The new ecosystem-adoption
-      delta is a review candidate, not
-      promoted base behavior; align source-owner endorsement, editor placement,
-      and non-invasive adoption before repeating strict validation and the
-      isolated official archive rehearsal. Exercise a zero-source-change
-      independent Edition, optional co-located first-party routes, multi-source
-      endorsement separation, fail-closed selected bytes, and owner-admitted
-      retirement before marking this reopened task complete. An isolated
-      official archive of the current draft updates exactly
-      `ecosystem-adoption`, `edition-publication`, and `source-intake`; all 16
-      resulting base specs pass strict validation. This is a rehearsal, not
-      base promotion or source-owner acceptance. The current
-      `tests/product-identity.test.mjs` still passes against the old base text;
-      replace its physical-placement string assertion with role and public-
-      contract checks when promoting the delta, and reconcile README, Edition
-      guidance, and operations without treating present location as a rule.
+- [ ] 7.4 Promote the reviewed role-based deltas into active specs before release
+      freeze; the later official archive must add no new normative behavior.
+      Prove historical v1 input meanings, a zero-source-change independent
+      Edition, optional co-located routes, multi-source endorsement separation,
+      fail-closed selected bytes, and owner-approved retirement. Replace the
+      physical-placement assertion in `tests/product-identity.test.mjs`; align
+      README, Edition guidance, and operations without imposing a source-product
+      CI gate. Validate all 16 specs with no issues, including advisory INFO.
+      The 2026-09-27 isolated archive rehearsal updates only
+      `ecosystem-adoption`, `edition-provider`, `edition-publication`, and
+      `source-intake` and validates 16/16 with `issues: []`; it does not promote
+      the active base or grant source-owner acceptance.
 - [ ] 7.5 Select the SemVer successor and update package manifests, lockfile,
       and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
       behavior tests until the complete owned scope reaches at least 95% in

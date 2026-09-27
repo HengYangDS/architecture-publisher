@@ -4,13 +4,13 @@
 
 ### Requirement: Three independent first-party consumers
 
-The current product line SHALL exercise one public Build Request, selected-input
-protocol, semantic compilation, Edition, independent media, qualification, and
-publication contracts through Publisher self-use, ETHOS, and AIGW. Self-use MAY
-select direct inputs; an adopter MAY select declarative or executable Providers.
-These routes SHALL converge before the common compiler without inventing a
-Provider identity for direct selection. Product-specific meaning SHALL remain
-with its named source and editor rather than branches in the generic kernel.
+Publisher self-use, ETHOS, and AIGW SHALL exercise the same public Build Request,
+selected-input, semantic compilation, Edition, independent media,
+qualification, and publication contracts. Self-use MAY select direct inputs;
+an adopter MAY select either Provider mode. All routes SHALL converge before
+the common compiler without giving direct selection a Provider identity.
+Product-specific meaning SHALL remain with its named source and editor, never
+in generic-kernel product branches.
 
 #### Scenario: A generic kernel module is evaluated for product-specific logic
 
@@ -97,16 +97,24 @@ Each selected Provider SHALL retain its declared identity, and each Edition
 SHALL name one editor. The adopter's own policy designates accountable
 maintainers and the canonical mutable Edition; Publisher SHALL NOT infer these
 roles from physical placement. Each selected source retains authority over its
-native assertions and any claim of official endorsement.
-The Edition editor owns its authored choices, while a Provider only transports
-or prepares exact selected inputs. Their roots MAY be source-co-located or
-maintained separately. Publisher SHALL NOT require source-repository changes or
-an ordinary source-product CI dependency for independent, attributed analysis
-of exact read-only source inputs. Placement, Provider conformance, and a passing
-build SHALL NOT grant source endorsement, Edition acceptance, or publication
-authority. Publisher MAY retain its own self-Edition and compact immutable
-adopter fixtures and receipts, but SHALL NOT retain a second mutable adopter
-Edition after its designated owner accepts a successor.
+native assertions and official endorsement. The Edition editor owns its
+authored choices; a Provider only transports or prepares exact selected inputs.
+
+#### Scenario: One Edition selects two source products
+
+- **WHEN** an independent Edition selects assertions from two source products
+  and only one source owner endorses its exact selected scope
+- **THEN** the other source's assertions remain attributed but unendorsed
+- **AND** the editor, accepter, and custodian do not inherit either source's
+  authority by co-location or Provider selection
+
+### Requirement: Independent Editions do not require source adoption
+
+Provider and Edition roots MAY be source-co-located or maintained separately.
+Publisher SHALL NOT require source-repository changes or an ordinary
+source-product CI dependency for independent, attributed analysis of exact
+read-only source inputs. Placement, Provider conformance, and a passing build
+SHALL NOT grant source endorsement, Edition acceptance, or publication authority.
 
 #### Scenario: An independent editor reads a source without adoption
 
@@ -128,6 +136,13 @@ Edition after its designated owner accepts a successor.
 - **AND** Publisher records only exact invoker-supplied external decision
   evidence; it neither authenticates the issuer nor grants that authority
 
+### Requirement: First-party placement and retirement follow adopter policy
+
+Publisher MAY retain its own self-Edition and compact immutable adopter
+fixtures and receipts, but SHALL NOT retain a second mutable adopter Edition
+after its designated owner accepts a successor. A source product MAY elect
+co-location or an ordinary CI gate; neither is a Publisher protocol requirement.
+
 #### Scenario: A source product elects a co-located integration
 
 - **WHEN** AIGW selects its declarative Provider or ETHOS selects an executable
@@ -136,14 +151,6 @@ Edition after its designated owner accepts a successor.
   contracts without making that placement a protocol requirement
 - **AND** neither integration makes Publisher an ordinary core CI prerequisite
   unless its product owner separately chooses that gate
-
-#### Scenario: One Edition selects two source products
-
-- **WHEN** an independent Edition selects assertions from two source products
-  and only one source owner endorses its exact selected scope
-- **THEN** the other source's assertions remain attributed but unendorsed
-- **AND** the editor, accepter, and custodian do not inherit either source's
-  authority by co-location or Provider selection
 
 #### Scenario: A first-party integration is replaced
 
