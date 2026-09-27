@@ -360,6 +360,7 @@ export function composeStaticEditionScene(meaning, layout) {
     nodes,
     edges,
     ...(authoredGroups === undefined ? {} : { groups }),
+    ...(layout.groupPresentation ? { groupPresentation: layout.groupPresentation } : {}),
     sourceAssertionCarriers,
     ...(claimModelMode
       ? {

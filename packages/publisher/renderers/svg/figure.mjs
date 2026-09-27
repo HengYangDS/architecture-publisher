@@ -13,7 +13,7 @@ const bodyLeading = 26;
 const number = (value) => Number(value.toFixed(2));
 
 function checkedViews(views) {
-  if (!Array.isArray(views) || views.length < 2 || views.length > 256)
+  if (!Array.isArray(views) || views.length < 1 || views.length > 256)
     fail('static_figure_views_invalid');
   const ids = new Set();
   return views.map(({ id, scene, rendered }) => {
@@ -142,16 +142,21 @@ function sharedNotes(views, width) {
   return { markup: output.join('\n'), height: y };
 }
 
-function panel(view, width) {
+function panel(view, width, options = {}) {
   const { scene, parts } = view;
+  const notesWidth = options.notesWidth ?? width;
+  if (notesWidth < 320 || notesWidth > width) fail('static_figure_width_unrepresentable');
   const output = [];
   let y = 0;
   for (const question of scene.questions)
     y = wrapped(output, question.text, 0, y + 19, width, 18, '#21332a', 600, 4) + 8;
   y += 22;
+  const graphStart = y;
   if (parts.bounds) {
     const { bounds } = parts;
-    const graphX = (width - bounds.width) / 2;
+    const graphAreaWidth = options.graphAlign === 'local-center' ? notesWidth : width;
+    const graphX = (graphAreaWidth - bounds.width) / 2;
+    if (graphX < 0) fail('static_figure_width_unrepresentable');
     output.push(
       `<g transform="translate(${number(graphX - bounds.x)} ${number(y - bounds.y)})">`,
       parts.graph,
@@ -159,12 +164,13 @@ function panel(view, width) {
     );
     y += bounds.height + 28;
   }
+  const notesStart = y;
   if (parts.relations.length) {
     output.push(
       `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">SOURCE RELATIONS</text>`,
     );
     y += 38;
-    const columns = relationColumns(parts.relations, width);
+    const columns = relationColumns(parts.relations, notesWidth);
     for (const item of columns.entries) {
       const x = item.column * (columns.columnWidth + 28);
       output.push(`<g data-graphic-id="${escape(item.graphicId)}">`);
@@ -196,7 +202,7 @@ function panel(view, width) {
     Object.values(scene.limitsByQuestion)
       .flat()
       .map(({ reason }) => ({ text: reason })),
-    width,
+    notesWidth,
     y,
   );
   y = section(
@@ -205,10 +211,10 @@ function panel(view, width) {
     scene.editorialAssertions.map(({ statement, proponent }) => ({
       text: `${statement} · Editorial judgment · ${proponent} · unverified`,
     })),
-    width,
+    notesWidth,
     y,
   );
-  return { markup: output.join('\n'), height: Math.ceil(y) };
+  return { markup: output.join('\n'), height: Math.ceil(y), graphStart, notesStart };
 }
 
 /** Compose scene parts on one canvas; a completed page is not a panel primitive. */
@@ -222,7 +228,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
   );
   const even = Math.max(...minimumWidths.filter((_, index) => index % 2 === 0));
   const odd = Math.max(...minimumWidths.filter((_, index) => index % 2 === 1));
-  let columns = even + odd + gutter <= available ? 2 : 1;
+  let columns = selected.length > 1 && even + odd + gutter <= available ? 2 : 1;
   let widths = columns === 2 ? [even, odd] : [Math.max(...minimumWidths)];
   let painted = selected.map((view, index) => panel(view, widths[index % columns]));
   if (columns === 2 && selected.length === 2) {
@@ -243,6 +249,37 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
     widths.reduce((sum, value) => sum + value, 0) + (columns - 1) * gutter + 2 * margin,
   );
   if (width > sourceWidthLimit || width > rasterWidth) fail('static_figure_width_unrepresentable');
+  let sharedSidecar = null;
+  if (columns === 1 && !selected.at(-1).parts.claim) {
+    const index = selected.length - 1;
+    const common = sharedNotes(selected, widths[0]);
+    const stackedHeight = painted[index].height + (common.height ? 25 + common.height : 0);
+    for (const asideWidth of [360, 420, 480, 540]) {
+      const localWidth = widths[0] - asideWidth - gutter;
+      if (localWidth < 620) continue;
+      let aside;
+      let item;
+      try {
+        aside = sharedNotes(selected, asideWidth);
+        const graphFits = (selected[index].parts.bounds?.width ?? Infinity) <= localWidth;
+        item = panel(selected[index], widths[0], {
+          notesWidth: localWidth,
+          graphAlign: graphFits ? 'local-center' : 'center',
+        });
+        const asideY = graphFits ? item.graphStart : item.notesStart;
+        item.height = Math.max(item.height, Math.ceil(asideY + aside.height + 20));
+        if (
+          aside.height &&
+          item.height < stackedHeight &&
+          (!sharedSidecar || item.height < sharedSidecar.item.height)
+        )
+          sharedSidecar = { index, localWidth, asideWidth, asideY, aside, item };
+      } catch (cause) {
+        if (cause?.code !== 'static_edition_text_unrepresentable') throw cause;
+      }
+    }
+    if (sharedSidecar) painted[index] = sharedSidecar.item;
+  }
 
   const content = [];
   let headerY = margin + 31;
@@ -278,11 +315,20 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
     rowY = bottom + 35;
   }
 
-  const shorter = painted[0].height <= painted[1].height ? 0 : 1;
+  const shorter = selected.length === 1 || painted[0].height <= painted[1].height ? 0 : 1;
   const sharedWidth = columns === 2 && selected.length === 2 ? widths[shorter] : width - 2 * margin;
   const common = sharedNotes(selected, sharedWidth);
   if (common.height) {
-    if (columns === 2 && selected.length === 2) {
+    if (sharedSidecar) {
+      const x = margin + sharedSidecar.localWidth + gutter;
+      const y = placements[sharedSidecar.index].y + sharedSidecar.asideY;
+      content.push(
+        `<g data-common-sidecar="true" transform="translate(${number(x)} ${number(y)})">`,
+        `<line x1="${-gutter / 2}" y1="0" x2="${-gutter / 2}" y2="${number(sharedSidecar.aside.height)}" stroke="#c4ccc2" stroke-width="1"/>`,
+        sharedSidecar.aside.markup,
+        '</g>',
+      );
+    } else if (columns === 2 && selected.length === 2) {
       const x = margin + (shorter ? widths[0] + gutter : 0);
       const y = top + painted[shorter].height + 12;
       content.push(

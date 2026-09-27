@@ -47,6 +47,55 @@ test('joint composition lays independent views side by side and factors common l
   assert.equal((svg.match(/data-static-view=/gu) ?? []).length, 2);
 });
 
+test('a sole neutral view uses the same complete figure grammar', () => {
+  const result = composeStaticFigureSvg({
+    title: 'One reading',
+    summary: 'Question, source structure, limits, and status share one page.',
+    rasterWidth: 1800,
+    views: [view('sole', 0)],
+  });
+  const svg = result.bytes.toString('utf8');
+
+  assert.equal(result.placements.length, 1);
+  assert(svg.includes('data-static-view="sole"'));
+  assert(svg.includes('How does sole connect?'));
+  assert(svg.includes('METHOD LIMITS'));
+});
+
+test('shared qualifications use the open side of a compact stacked view', () => {
+  const first = view('first', 0);
+  const second = view('second', 1, {
+    limits: [
+      'source-one-not-verified',
+      'source-two-not-verified',
+      'source-three-not-verified',
+      'source-four-not-verified',
+    ],
+  });
+  first.scene.limits = [...second.scene.limits];
+  first.rendered.parts.bounds = { x: 0, y: 0, width: 1100, height: 240 };
+  second.rendered.parts.bounds = { x: 0, y: 0, width: 600, height: 240 };
+  const result = composeStaticFigureSvg({
+    title: 'Open sidecar',
+    summary: 'Both views keep their source-qualified structure.',
+    rasterWidth: 1800,
+    views: [first, second],
+  });
+
+  const svg = result.bytes.toString('utf8');
+  const sidecarX = Number(
+    svg.match(/data-common-sidecar="true" transform="translate\(([\d.]+) /u)?.[1],
+  );
+  const localGraphX = Number(
+    svg.match(/data-static-view="second"[\s\S]*?<g transform="translate\(([\d.]+) /u)?.[1],
+  );
+  assert(Number.isFinite(sidecarX));
+  assert(localGraphX > 0);
+  const gap = sidecarX - (result.placements[1].x + localGraphX + 600);
+  assert(gap >= 20 && gap <= 200, `shared notes need a readable, bounded gutter: ${gap}`);
+  assert.equal((svg.match(/source-one-not-verified/gu) ?? []).length, 1);
+});
+
 test('relation columns preserve source order in a top-to-bottom reading path', () => {
   const first = view('first', 0, { wide: true });
   first.rendered.parts.relations = Array.from({ length: 4 }, (_, index) => ({
@@ -193,6 +242,27 @@ test('one source-status explanation serves two relation-only views', () => {
   assert.equal((svg.match(/SOURCE STATUS/gu) ?? []).length, 1);
 });
 
+test('a mixed view does not give an unlinked relation its selected claim status', () => {
+  const mixed = view('mixed', 0, { relationOnly: true });
+  mixed.scene.claimCards = [{ id: 'selected-claim' }];
+  mixed.rendered.parts.claim = {
+    markup: '<g data-graphic-id="static-view-0-c-0"><text x="0" y="20">Selected claim</text></g>',
+    x: 0,
+    y: 0,
+    width: 320,
+    height: 40,
+  };
+  const svg = composeStaticFigureSvg({
+    title: 'Mixed status',
+    summary: 'A selected claim does not validate another source relation.',
+    rasterWidth: 1800,
+    views: [mixed],
+  }).bytes.toString('utf8');
+
+  assert(svg.includes('Unlinked relations show source topology only'));
+  assert(!svg.includes('Source-reported topology; provenance unverified'));
+});
+
 test('a prevalidated local claim plate stays within its view', () => {
   const first = view('first', 0);
   first.rendered.parts.claim = {
@@ -239,7 +309,7 @@ test('the figure rejects malformed membership and an unrepresentable relation le
   const first = view('first', 0);
   const second = view('second', 1);
   const input = { title: 'Figure', summary: 'Selected views.', rasterWidth: 1800 };
-  assert.throws(() => composeStaticFigureSvg({ ...input, views: [first] }), {
+  assert.throws(() => composeStaticFigureSvg({ ...input, views: [] }), {
     code: 'static_figure_views_invalid',
   });
   assert.throws(() => composeStaticFigureSvg({ ...input, views: [first, first] }), {

@@ -85,8 +85,7 @@ function nativeView(selectedView) {
     : null;
 }
 
-/** Project selected structural assertions through one replaceable geometry owner. */
-export function composeGroupedSelectionLayout(meaning) {
+function composeSelectedLayout(meaning, geometryOwner) {
   const { authored, nodes, relations, selectedView } = selectedStructure(meaning, true);
   const claimModelMode = meaning.native.selections.some(
     ({ format }) => format === 'architecture.claim-model/v2',
@@ -95,7 +94,7 @@ export function composeGroupedSelectionLayout(meaning) {
   for (const [row, group] of authored.groups.entries())
     for (const [column, member] of group.elements.entries())
       placement.set(address(member), { row, column });
-  const geometry = composeGroupedGeometry({
+  const geometry = geometryOwner({
     nodes: [...nodes].map(([id, item]) => ({ id, label: item.label })),
     groups: authored.groups.map((group) => ({
       id: group.id,
@@ -123,55 +122,66 @@ export function composeGroupedSelectionLayout(meaning) {
       };
     }),
   });
-  return deepFreeze({
-    closure: 'grouped-layout-unqualified',
-    view: nativeView(selectedView),
-    groups: geometry.layout.groups.map((group, index) => ({
-      id: group.id,
-      label: group.label,
-      elements: authored.groups[index].elements,
-      x: group.x,
-      y: group.y,
-      width: group.w,
-      height: group.h,
-    })),
-    nodes: [...geometry.layout.nodes].map(([id, box]) => {
-      const node = nodes.get(id);
-      return {
-        namespace: node.namespace,
-        id: node.id,
-        sha256: node.sha256,
-        x: box.x,
-        y: box.y,
-        width: box.w,
-        height: box.h,
-      };
-    }),
-    edges: geometry.routes.map((route) => {
-      const relation = relations.get(route.id);
-      return {
-        from: relation.from,
-        to: relation.to,
-        relations: [
-          {
-            namespace: relation.origin.namespace,
-            reference: relation.id,
-            sha256: relation.origin.sha256,
-          },
-        ],
-        points: route.points,
-        ...(route.label
-          ? {
-              caption: {
-                text: relation.kind.replaceAll('-', ' '),
-                point: route.label,
-                box: route.labelBox,
-              },
-            }
-          : {}),
-      };
-    }),
-  });
+  const assemble = (selected) =>
+    deepFreeze({
+      closure: 'grouped-layout-unqualified',
+      view: nativeView(selectedView),
+      groups: selected.layout.groups.map((group, index) => ({
+        id: group.id,
+        label: group.label,
+        elements: authored.groups[index].elements,
+        x: group.x,
+        y: group.y,
+        width: group.w,
+        height: group.h,
+        ...(group.caption ? { caption: group.caption } : {}),
+      })),
+      ...(selected.layout.groupPresentation
+        ? { groupPresentation: selected.layout.groupPresentation }
+        : {}),
+      nodes: [...selected.layout.nodes].map(([id, box]) => {
+        const node = nodes.get(id);
+        return {
+          namespace: node.namespace,
+          id: node.id,
+          sha256: node.sha256,
+          x: box.x,
+          y: box.y,
+          width: box.w,
+          height: box.h,
+        };
+      }),
+      edges: selected.routes.map((route) => {
+        const relation = relations.get(route.id);
+        return {
+          from: relation.from,
+          to: relation.to,
+          relations: [
+            {
+              namespace: relation.origin.namespace,
+              reference: relation.id,
+              sha256: relation.origin.sha256,
+            },
+          ],
+          points: route.points,
+          ...(route.label
+            ? {
+                caption: {
+                  text: relation.kind.replaceAll('-', ' '),
+                  point: route.label,
+                  box: route.labelBox,
+                },
+              }
+            : {}),
+        };
+      }),
+    });
+  return geometry instanceof Promise ? geometry.then(assemble) : assemble(geometry);
+}
+
+/** Keep the frozen historical layout path until its selected consumers retire. */
+export function composeGroupedSelectionLayout(meaning, geometryOwner = composeGroupedGeometry) {
+  return composeSelectedLayout(meaning, geometryOwner);
 }
 
 /** Bind authored geometry to selected members without requiring neutral geometry to exist. */

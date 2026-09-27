@@ -21,6 +21,7 @@ import { fail } from '../source/manifest.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
 import { renderInteractiveEditionHtml } from '../../renderers/cytoscape/index.mjs';
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
+import { composeDagreGroupedGeometry } from '../../renderers/dagre/static.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
 import { verifyAuthoredCanvasTextBoxes } from '../../renderers/resvg/measurement.mjs';
 import {
@@ -119,7 +120,7 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
     layout = composeSelectedStaticRefinementLayout(meaning, meaning.refinement);
   } else if (meaning.editorial.presentation.static.views[0].groups !== undefined) {
     implementationProfile = 'static-grouped';
-    layout = composeGroupedSelectionLayout(meaning);
+    layout = await composeGroupedSelectionLayout(meaning, composeDagreGroupedGeometry);
   } else if (!claimMode) {
     implementationProfile = 'static-likec4';
     const views = selectedStaticNativeViews(meaning, meaning.media.static.views[0]);
@@ -167,6 +168,21 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
 async function staticMedium(selected, meaning, scratch) {
   const views = meaning.media.static.views;
   if (!Array.isArray(views) || !views.length) fail('static_figure_views_invalid');
+  const firstViewAssertions = new Set(views[0].assertionIds);
+  const claimSelections = new Set(
+    meaning.native.selections
+      .filter(({ target }) => target.kind === 'claim')
+      .map(({ selectionId }) => selectionId),
+  );
+  const firstViewHasClaims = meaning.assertions.some(
+    ({ id, kind, selection }) =>
+      kind === 'source' && firstViewAssertions.has(id) && claimSelections.has(selection),
+  );
+  const useFigure =
+    views.length > 1 ||
+    (!firstViewHasClaims &&
+      meaning.editorial.presentation.static.views[0].groups !== undefined &&
+      (!meaning.refinement?.media?.static || meaning.refinement.media.static.kind === 'neutral'));
   if (
     views.length > 1 &&
     meaning.refinement?.media?.static !== undefined &&
@@ -183,13 +199,13 @@ async function staticMedium(selected, meaning, scratch) {
         selected,
         scoped,
         fontSupply,
-        views.length === 1 ? {} : { idPrefix: `static-view-${index}-`, fragment: true },
+        useFigure ? { idPrefix: `static-view-${index}-`, fragment: true } : {},
       )),
     });
   }
   let scene;
   let rendered;
-  if (parts.length === 1) {
+  if (!useFigure) {
     ({ scene, rendered } = parts[0]);
     if (meaning.refinement?.media?.static?.kind !== 'authored-canvas')
       validateVisibleSelection(meaning, 'static', scene, rendered.carriers);
@@ -215,10 +231,9 @@ async function staticMedium(selected, meaning, scratch) {
     validateVisibleSelection(meaning, 'static', scene, rendered.carriers);
   }
   const limits = parts.flatMap((part) => part.limits);
-  const implementationProfile =
-    parts.length === 1
-      ? parts[0].implementationProfile
-      : [...new Set(parts.map((part) => part.implementationProfile)), 'static-figure'];
+  const implementationProfile = !useFigure
+    ? parts[0].implementationProfile
+    : [...new Set(parts.map((part) => part.implementationProfile)), 'static-figure'];
   const fonts = fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
   if (fonts.length !== 2 || !fontSupply.license?.bytes) fail('static_edition_font_supply_invalid');
   const svg = embedFonts(rendered.bytes, fonts, fontSupply.license);

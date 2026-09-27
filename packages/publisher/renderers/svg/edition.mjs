@@ -339,6 +339,8 @@ function validateStaticScene(scene) {
     !Array.isArray(scene.nodes) ||
     !Array.isArray(scene.edges) ||
     (scene.groups !== undefined && !Array.isArray(scene.groups)) ||
+    (scene.groupPresentation !== undefined &&
+      (scene.groupPresentation !== 'captions' || !scene.groups?.length)) ||
     (scene.claimCards !== undefined && !Array.isArray(scene.claimCards)) ||
     scene.edges.some((edge) => !edge || !Array.isArray(edge.relations)) ||
     !Array.isArray(scene.questions) ||
@@ -410,6 +412,27 @@ function checkedRelationCaption(edge) {
   return caption;
 }
 
+function captionedGroupGraphic(group) {
+  const caption = group.caption;
+  const box = caption?.box;
+  if (
+    !box ||
+    ![caption.x, caption.y, box.x, box.y, box.w, box.h].every(Number.isFinite) ||
+    box.w <= 0 ||
+    box.h <= 0 ||
+    caption.x < box.x ||
+    caption.y < box.y ||
+    caption.x + advance(group.label, 14) > box.x + box.w ||
+    caption.y > box.y + box.h ||
+    box.x < group.x ||
+    box.y < group.y ||
+    box.x + box.w > group.x + group.width ||
+    box.y + box.h > group.y + group.height
+  )
+    fail('static_edition_group_heading_collision');
+  return `<text x="${number(caption.x)}" y="${number(caption.y)}" fill="#526158" font-size="14" font-weight="600">${escape(group.label)}</text>`;
+}
+
 /** Paint an unqualified, source-bound static Scene without acquiring meaning. */
 export function composeStaticEditionSvg(scene, options = {}) {
   const idPrefix = options.idPrefix ?? '';
@@ -454,6 +477,10 @@ export function composeStaticEditionSvg(scene, options = {}) {
       },
     }));
   for (const group of scene.groups ?? []) {
+    if (scene.groupPresentation === 'captions') {
+      graph.push(captionedGroupGraphic(group));
+      continue;
+    }
     const lines = wrap(group.label, group.width - 52, 14, 2);
     const headerBottom =
       group.y + groupTitleBaseline + (lines.length - 1) * groupTitleLeading + groupTitleClearance;
