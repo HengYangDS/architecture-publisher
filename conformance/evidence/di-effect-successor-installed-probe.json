@@ -42,6 +42,85 @@
     "no human visual acceptance",
     "no publication or recovery effect",
     "not a released Publisher package",
-    "no alpha.4 browser or accessibility requalification"
-  ]
+    "Desktop browser observations do not prove readable canvas labels, visual quality, or cross-platform behavior"
+  ],
+  "browser": {
+    "driver": "project-installed playwright-core; headless Chrome local-file load",
+    "version": "154.0.8037.58",
+    "accessibilityTool": "axe-core 4.13.0",
+    "htmlSha256": "80bddf1ca74280d36c735c59fd23b6afe1bda74a4ce554e6097b7f7a23aff352",
+    "observations": [
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "title": "di-effect core layers — editorial research view",
+        "heading": "di-effect core layers — editorial research view",
+        "graphRendered": "true",
+        "graphSize": {
+          "width": 1352,
+          "height": 220
+        },
+        "canvas": [
+          {
+            "width": 1350,
+            "height": 218,
+            "contained": true
+          },
+          {
+            "width": 1350,
+            "height": 218,
+            "contained": true
+          },
+          {
+            "width": 1350,
+            "height": 218,
+            "contained": true
+          }
+        ],
+        "horizontalOverflowCssPx": 0,
+        "violations": [],
+        "incompleteCount": 0
+      },
+      {
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "title": "di-effect core layers — editorial research view",
+        "heading": "di-effect core layers — editorial research view",
+        "graphRendered": "true",
+        "graphSize": {
+          "width": 1192,
+          "height": 220
+        },
+        "canvas": [
+          {
+            "width": 1190,
+            "height": 218,
+            "contained": true
+          },
+          {
+            "width": 1190,
+            "height": 218,
+            "contained": true
+          },
+          {
+            "width": 1190,
+            "height": 218,
+            "contained": true
+          }
+        ],
+        "horizontalOverflowCssPx": 0,
+        "violations": [],
+        "incompleteCount": 0
+      }
+    ],
+    "screenshotSha256": {
+      "desktop1440": "aee7707c1920027050949288380576f99f0c4c278ac4ffd841215f1d12007c64",
+      "desktop1280": "b8ef3050112181e450b8330fa87294193b16c693f7b03f4e7ee7ff05cfc10d9f"
+    },
+    "errors": []
+  }
 }

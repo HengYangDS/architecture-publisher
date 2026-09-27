@@ -652,9 +652,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       Changing a pinned source returns `materialized_pin_mismatch` without
       output. Exact identities and limits are in
       `conformance/evidence/di-effect-successor-installed-probe.json`. The
-      static SVG/PNG bytes match the alpha.3 probe; changed HTML has not had a
-      new browser, accessibility, or human review. This remains an editor-side
-      pre-release experiment, not di-effect source-owner acceptance. The earlier
+      static SVG/PNG bytes match the alpha.3 probe. The changed HTML rendered
+      in headless Chrome 154 at two desktop widths with no page or network
+      errors, horizontal overflow, or axe A/AA violations; canvas containment
+      does not prove label readability or visual quality. No human review has
+      accepted these bytes. This remains an editor-side pre-release experiment,
+      not di-effect source-owner acceptance. The earlier
       alpha.3 archive also rebuilt the AIGW Client Projection chapter
       byte-identically after offline installation and relocation; its 12
       installed browser observations expose unreadable fit-to-canvas graph
