@@ -71,6 +71,7 @@ export async function replaySelectedCandidate(input, executionChoice = []) {
       candidateSha256,
       inputLockSha256: rebuilt.lockSha256,
       candidateManifestSha256: bundle.manifestSha256,
+      installedPackage: rebuilt.installedPackage,
       replayedEditionObligations: candidate.obligations,
       qualification: 'not-performed',
       acceptance: 'not-performed',

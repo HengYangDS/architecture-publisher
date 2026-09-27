@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/index.mjs';
+import { editionProviderPackageDigest } from '../packages/publisher/src/provider/index.mjs';
 import * as qualification from '../packages/publisher/src/qualification/index.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
@@ -14,6 +16,7 @@ import {
 } from './fixtures/selected-native-edition.mjs';
 
 const verifySelectedCandidateReplay = qualification.verifySelectedCandidateReplay;
+const packageRoot = fileURLToPath(new URL('../packages/publisher/', import.meta.url));
 
 test('exact selected inputs and current runtime replay all Candidate bytes without qualification', async (t) => {
   assert.equal(typeof verifySelectedCandidateReplay, 'function');
@@ -34,6 +37,9 @@ test('exact selected inputs and current runtime replay all Candidate bytes witho
   assert.equal(result.candidateSha256, built.candidateSha256);
   assert.equal(result.inputLockSha256, built.lockSha256);
   assert.equal(result.candidateManifestSha256, built.manifestSha256);
+  assert.equal(built.requestSha256, fixture.digest);
+  assert.equal(built.installedPackage?.scope, 'current-invocation-installed-content');
+  assert.deepEqual(result.installedPackage, built.installedPackage);
   assert.deepEqual(result.replayedEditionObligations.static.questionIds, ['shape']);
   assert.deepEqual(result.replayedEditionObligations.static.views[0].assertionsByQuestion.shape, [
     'overview',
@@ -42,6 +48,128 @@ test('exact selected inputs and current runtime replay all Candidate bytes witho
   assert.equal(result.acceptance, 'not-performed');
   assert.equal(result.publication, 'not-performed');
   assert.equal(Object.hasOwn(result, 'admitted'), false);
+});
+
+test('package-only changes alter execution evidence without changing Candidate identity', async (t) => {
+  const fixture = await selectedNativeEdition(t, { width: 1800 });
+  const original = await compileEditionCandidateInput(
+    fixture.file,
+    fixture.digest,
+    path.join(fixture.root, 'original-candidate'),
+  );
+  const relocatedRoot = path.join(fixture.root, 'relocated-package');
+  await fs.cp(packageRoot, relocatedRoot, {
+    recursive: true,
+    filter: (source) => path.basename(source) !== 'node_modules',
+  });
+  await fs.appendFile(path.join(relocatedRoot, 'README.md'), '\nPackage-only note.\n');
+  const relocated = await import(
+    pathToFileURL(path.join(relocatedRoot, 'src/compiler/index.mjs')).href
+  );
+  const changedPackage = await relocated.compileEditionCandidateInput(
+    fixture.file,
+    fixture.digest,
+    path.join(fixture.root, 'relocated-candidate'),
+  );
+  assert.equal(changedPackage.candidateSha256, original.candidateSha256);
+  assert.equal(changedPackage.manifestSha256, original.manifestSha256);
+  assert.notEqual(changedPackage.installedPackage.treeSha256, original.installedPackage.treeSha256);
+});
+
+test('a package change during Provider preparation fails before Candidate emission', async (t) => {
+  const fixture = await selectedNativeEdition(t, { width: 1800 });
+  await executableModelProvider(fixture);
+  const relocatedRoot = path.join(fixture.root, 'relocated-package');
+  await fs.cp(packageRoot, relocatedRoot, {
+    recursive: true,
+    filter: (source) => path.basename(source) !== 'node_modules',
+  });
+  const providerRoot = path.join(fixture.root, 'provider/package');
+  await fs.writeFile(
+    path.join(providerRoot, 'provider.mjs'),
+    `import fs from 'node:fs/promises';
+export async function materializeEditionProvider() {
+  await fs.appendFile(${JSON.stringify(path.join(relocatedRoot, 'README.md'))}, '\\nChanged during build.\\n');
+  return { schema: 'architecture.edition-provider-reply/v2', derived: [] };
+}
+`,
+  );
+  const manifestPath = path.join(fixture.root, 'provider/provider.json');
+  const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+  manifest.delivery.package.contentSha256 = await editionProviderPackageDigest(providerRoot);
+  const manifestBytes = Buffer.from(JSON.stringify(manifest) + '\n');
+  await fs.writeFile(manifestPath, manifestBytes);
+  fixture.request.providers[0].sha256 = sha(manifestBytes);
+  const requestBytes = Buffer.from(JSON.stringify(fixture.request) + '\n');
+  await fs.writeFile(fixture.file, requestBytes);
+  fixture.digest = sha(requestBytes);
+  const relocated = await import(
+    pathToFileURL(path.join(relocatedRoot, 'src/compiler/index.mjs')).href
+  );
+  const output = path.join(fixture.root, 'candidate');
+  await assert.rejects(
+    relocated.compileEditionCandidateInput(fixture.file, fixture.digest, output),
+    {
+      code: 'publisher_installed_package_changed_during_build',
+    },
+  );
+  await assert.rejects(fs.access(output), { code: 'ENOENT' });
+});
+
+test('selected build rejects a non-directory or aliased output parent before effects', async (t) => {
+  const fixture = await selectedNativeEdition(t, { width: 1800 });
+  const regularParent = path.join(fixture.root, 'regular-parent');
+  await fs.writeFile(regularParent, 'not a directory');
+  await assert.rejects(
+    compileEditionCandidateInput(
+      fixture.file,
+      fixture.digest,
+      path.join(regularParent, 'candidate'),
+    ),
+    { code: 'edition_candidate_output_parent_invalid' },
+  );
+  const physicalParent = path.join(fixture.root, 'physical-parent');
+  await fs.mkdir(physicalParent);
+  await fs.mkdir(path.join(physicalParent, 'inside'));
+  const aliasedParent = path.join(fixture.root, 'aliased-parent');
+  await fs.symlink(physicalParent, aliasedParent, 'dir');
+  await assert.rejects(
+    compileEditionCandidateInput(
+      fixture.file,
+      fixture.digest,
+      path.join(aliasedParent, 'inside', 'candidate'),
+    ),
+    { code: 'edition_candidate_output_parent_invalid' },
+  );
+  await assert.rejects(fs.access(path.join(physicalParent, 'inside', 'candidate')), {
+    code: 'ENOENT',
+  });
+});
+
+test('replay refuses a source bundle without its Candidate member', async (t) => {
+  const fixture = await selectedNativeEdition(t, { width: 1800 });
+  const built = await compileEditionCandidateInput(
+    fixture.file,
+    fixture.digest,
+    path.join(fixture.root, 'candidate'),
+  );
+  const selected = await readSourceBundle(built.manifestPath, built.manifestSha256);
+  const withoutCandidate = await writeSourceBundle(
+    path.join(fixture.root, 'without-candidate'),
+    selected.source,
+    selected.members
+      .filter(({ path: memberPath }) => memberPath !== 'candidate.json')
+      .map(({ path: memberPath, content }) => ({ path: memberPath, content })),
+  );
+  await assert.rejects(
+    verifySelectedCandidateReplay({
+      requestPath: fixture.file,
+      requestSha256: fixture.digest,
+      candidateManifestPath: withoutCandidate.manifestPath,
+      candidateManifestSha256: withoutCandidate.manifestSha256,
+    }),
+    { code: 'selected_candidate_missing' },
+  );
 });
 
 test('Candidate carries its exact input lock for later role attribution without Provider replay', async (t) => {

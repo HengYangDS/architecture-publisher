@@ -135,8 +135,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       changes do not alter that identity; selected-file drift or a missing
       manifest member fails. The next slice also binds an independent semantic
       compiler file set and typed evidence basis/method for selected supplies.
-      Common orchestration closure and the broad rendering-supply limit remain
-      open. Do not mark this task complete from these file-set slices alone.
+      The complete installed package tree is build/replay execution evidence,
+      not Candidate identity or an original-builder attestation. Relocation,
+      package-only change, and during-build drift counterexamples are covered.
+      Keep this task open until the native adapter and media tasks complete
+      their acceptance; archive selection and builder provenance belong to
+      the designated accepter's publication policy.
 - [x] 2.5 Replay exact Source Bundle v1, Claim Model v2, Edition v1,
       Provider v1, Candidate v1, and Qualification Set v1 meanings in source
       tests and a packed, offline-installed work-lane package. The frozen hash

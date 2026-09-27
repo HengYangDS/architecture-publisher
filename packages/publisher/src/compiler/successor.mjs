@@ -14,6 +14,7 @@ import {
 import { composeStaticEditionScene } from '../scene/static/edition.mjs';
 import { importLikeC4Layout } from '../semantics/native-likec4.mjs';
 import { canonical } from '../semantics/document.mjs';
+import { readPublisherInstalledPackage } from '../runtime.mjs';
 import { fail } from '../source/manifest.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
 import { renderInteractiveEditionHtml } from '../../renderers/cytoscape/index.mjs';
@@ -262,6 +263,7 @@ export async function compileSelectedEditionCandidateInput(
   executionChoice,
 ) {
   const { target, parent } = await destination(output);
+  const installedPackage = await readPublisherInstalledPackage();
   const selected = await materializeBuildRequestInput(requestPath, digest, executionChoice);
   if (selected.lock.toolchain.profile !== 'portable') fail('edition_toolchain_profile_unadmitted');
   const meaning = await compileEditionMeaning(selected);
@@ -305,6 +307,8 @@ export async function compileSelectedEditionCandidateInput(
       limits: [...new Set([...meaning.limits, ...mediumLimits])],
     });
     const candidateBytes = Buffer.from(JSON.stringify(candidate, null, 2) + '\n');
+    if (canonical(await readPublisherInstalledPackage()) !== canonical(installedPackage))
+      fail('publisher_installed_package_changed_during_build');
     const written = await writeSourceBundle(
       target,
       { id: 'edition-candidate', revision: selected.lockSha256 },
@@ -319,7 +323,9 @@ export async function compileSelectedEditionCandidateInput(
       output: target,
       ...written,
       lockSha256: selected.lockSha256,
+      requestSha256: digest,
       candidateSha256: selectedEditionCandidateDigest(candidate),
+      installedPackage,
       media: Object.keys(media),
     };
   } finally {

@@ -22,6 +22,9 @@ export async function readPublisherIdentity() {
 }
 
 async function visit(directory, prefix, members) {
+  const stat = await fs.lstat(directory);
+  if (stat.isSymbolicLink()) throw Error('Publisher runtime symlink');
+  if (!stat.isDirectory()) throw Error('Unsupported publisher runtime member');
   for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
     const file = path.join(directory, entry.name);
@@ -32,6 +35,14 @@ async function visit(directory, prefix, members) {
       members.push({ file, path: relative, bytes: bytes.length, sha256: sha256(bytes) });
     } else throw Error('Unsupported publisher runtime member');
   }
+}
+
+async function regularMember(file, relative) {
+  const stat = await fs.lstat(file);
+  if (!stat.isFile() || stat.isSymbolicLink()) throw Error('Publisher package member invalid');
+  const bytes = await fs.readFile(file);
+  if (bytes.length !== stat.size) throw Error('Publisher package member changed');
+  return { path: relative, bytes: bytes.length, sha256: sha256(bytes) };
 }
 
 /** Return the exact installed product closure without exposing layout assumptions. */
@@ -48,4 +59,37 @@ export async function readPublisherRuntime() {
     sha256: sha256(bytes),
   });
   return members.sort((left, right) => left.path.localeCompare(right.path));
+}
+
+/** Fingerprint the complete declared installed package content, not archive bytes or its original builder. */
+export async function readPublisherInstalledPackage() {
+  const identity = await readPublisherIdentity();
+  const members = (await readPublisherRuntime()).map(({ path: member, bytes, sha256: digest }) => ({
+    path: member,
+    bytes,
+    sha256: digest,
+  }));
+  const supplies = [];
+  await visit(path.join(root, 'supplies'), 'supplies', supplies);
+  members.push(
+    ...supplies.map(({ path: member, bytes, sha256: digest }) => ({
+      path: member,
+      bytes,
+      sha256: digest,
+    })),
+  );
+  members.push(await regularMember(path.join(root, 'README.md'), 'README.md'));
+  members.sort((left, right) =>
+    Buffer.compare(Buffer.from(left.path, 'utf8'), Buffer.from(right.path, 'utf8')),
+  );
+  return Object.freeze({
+    schema: 'architecture.publisher-installed-package/v1',
+    name: identity.name,
+    version: identity.version,
+    treeSha256: sha256(Buffer.from(JSON.stringify(members))),
+    files: members.length,
+    bytes: members.reduce((total, member) => total + member.bytes, 0),
+    method: 'declared-package-tree-sha256/v1',
+    scope: 'current-invocation-installed-content',
+  });
 }

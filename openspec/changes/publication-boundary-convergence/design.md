@@ -219,8 +219,21 @@ authorize source truth or publication. Output paths are invocation results,
 never Candidate fields. Historical `architecture.edition-candidate/v1` remains
 unchanged and replayable.
 
+Selected semantic and media implementation file sets belong in that Candidate
+only after their consumers check them. The common Publisher orchestrator and
+unselected media do not: placing the complete package in the Candidate would
+make a README-only change alter semantic identity, and bundling a generated
+identity pin with the orchestrator would create a self-reference. Instead, the
+build and replay results report a separate identity for the current installed
+package's declared content tree: `package.json`, `README.md`, `src/`,
+`renderers/`, and `supplies/`. This is invocation evidence. The builder checks
+for package drift before successful Candidate emission; it does not promise an
+atomic filesystem snapshot against a concurrent same-user mutator. The tree
+digest hashes each member's path, size, and byte digest in UTF-8 path-byte
+order, independent of the host's collation setting.
+
 For successor qualification, first verify the Candidate's exact file envelope,
-then replay the selected Build Request through the same installed Publisher
+then replay the selected Build Request through the verifier's installed Publisher
 package into a private temporary output and compare the complete bundle
 manifest and normalized Candidate digest. A self-consistent forged container,
 changed pin, or copied Edition therefore fails before any external predicate
@@ -228,6 +241,10 @@ record can borrow its authority. This is current-runtime byte equivalence, not
 an attestation of the original builder or independent proof of semantic or
 visual truth. The replay operation is a qualification-library primitive that
 will be used by the existing `qualify verify` command; it adds no command plane.
+The current package tree identity reported by replay is not the selected npm
+archive digest or evidence that the original builder used that package. Archive
+selection, authenticated builder provenance, and their publication policy are
+separate decisions; a self-reported qualification record cannot grant them.
 Before replay, the verifier shall inspect the pinned Build Request and Provider
 manifests without executing Provider code. Evidence supplied in the v2 input
 cannot authorize that execution. The invoking verifier must separately pass

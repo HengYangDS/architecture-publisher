@@ -252,6 +252,15 @@ again; the Candidate or submitted evidence cannot grant execution permission.
 The canonical input lock embedded in the Candidate permits later attribution
 without rerunning a Provider, but it is not a full byte replay by itself.
 
+Successor build and replay report the current installed Publisher package tree
+separately from Candidate identity. The tree covers declared package content,
+including the manifest, README, runtime, renderers, and supplies. A README-only
+change changes this execution evidence but not an otherwise identical Candidate.
+Member paths use UTF-8 byte order, not host collation, for the tree digest.
+The tree digest is neither the packed archive digest nor proof of which package
+built an earlier Candidate. An accepter requiring original-builder provenance
+must select and verify it independently; a replay match alone cannot supply it.
+
 `architecture.qualification-policy/v1` names the claimed accepter, exact
 Candidate digest (which binds the input lock), accepted Candidate limits, and
 finite required predicate/scope/verifier/method tuples with permitted record
