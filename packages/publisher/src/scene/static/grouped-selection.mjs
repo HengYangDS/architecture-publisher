@@ -88,6 +88,9 @@ function nativeView(selectedView) {
 /** Project selected structural assertions through one replaceable geometry owner. */
 export function composeGroupedSelectionLayout(meaning) {
   const { authored, nodes, relations, selectedView } = selectedStructure(meaning, true);
+  const claimModelMode = meaning.native.selections.some(
+    ({ format }) => format === 'architecture.claim-model/v2',
+  );
   const placement = new Map();
   for (const [row, group] of authored.groups.entries())
     for (const [column, member] of group.elements.entries())
@@ -106,13 +109,14 @@ export function composeGroupedSelectionLayout(meaning) {
       const target = placement.get(to);
       if (!source || !target) fail('grouped_selection_layout_unadmitted');
       if (from === to) fail('grouped_selection_self_relation_unrepresentable');
+      const caption = claimModelMode ? item.kind.replaceAll('-', ' ') : '';
       const lateral = source.row === target.row;
       const forward = lateral ? source.column < target.column : source.row < target.row;
       return {
         id,
         from,
         to,
-        text: '',
+        text: /^[\x20-\x7e]+$/u.test(caption) && [...caption].length <= 32 ? caption : '',
         fromSide: lateral ? (forward ? 'right' : 'left') : forward ? 'bottom' : 'top',
         toSide: lateral ? (forward ? 'left' : 'right') : forward ? 'top' : 'bottom',
         route: lateral ? 'orthogonal-h' : 'orthogonal-v',
@@ -156,6 +160,15 @@ export function composeGroupedSelectionLayout(meaning) {
           },
         ],
         points: route.points,
+        ...(route.label
+          ? {
+              caption: {
+                text: relation.kind.replaceAll('-', ' '),
+                point: route.label,
+                box: route.labelBox,
+              },
+            }
+          : {}),
       };
     }),
   });

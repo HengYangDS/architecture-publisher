@@ -275,7 +275,7 @@ function placeLabels(selectedRoutes, layout) {
   const strokes = selectedRoutes.flatMap((route) => segments(route.points));
   return selectedRoutes.map((route) => {
     if (!route.text) return { ...route, label: null };
-    const w = route.text.length * 8 + 16,
+    const w = route.text.length * 8.6 + 16,
       h = 24;
     const candidates = segments(route.points).sort(
       (a, b) =>
@@ -301,7 +301,7 @@ function placeLabels(selectedRoutes, layout) {
           )
             continue;
           occupied.push(box);
-          return { ...route, label: [box.x + w / 2, box.y + 16] };
+          return { ...route, label: [box.x + w / 2, box.y + 16], labelBox: box };
         }
       }
     }
@@ -329,9 +329,9 @@ function groupLayout(graph) {
   if (longestNode > 32 || longestRelation > 32)
     fail('semantic_publication_static_label_infeasible');
   const onGraphLabels = longestRelation > 0;
-  const nodeWidth = Math.max(230, Math.ceil(longestNode * 10.2 + 56)),
+  const nodeWidth = Math.max(230, Math.ceil(longestNode * 9.76 + 32)),
     nodeHeight = 92,
-    nodeGap = Math.max(70, Math.ceil(longestRelation * 10 + 56)),
+    nodeGap = Math.max(70, Math.ceil(longestRelation * 8.6 + 40)),
     groupGaps = graph.groups
       .slice(1)
       .map((_, row) =>
@@ -353,7 +353,7 @@ function groupLayout(graph) {
     groupWidths = onGraphLabels
       ? minimumWidths.map(() => Math.max(...minimumWidths))
       : minimumWidths,
-    width = Math.max(1200, ...groupWidths.map((value) => value + 160)),
+    width = Math.max(1200, ...groupWidths.map((value) => value + 80)),
     groups = [],
     nodes = new Map();
   let y = 190;

@@ -105,6 +105,12 @@ function boundsOf(scene) {
       if (!Array.isArray(point) || point.length !== 2) fail('static_edition_geometry_invalid');
       include(point[0], point[1]);
     }
+    const caption = checkedRelationCaption(edge);
+    if (caption) {
+      const box = caption.box;
+      include(box.x, box.y);
+      include(box.x + box.w, box.y + box.h);
+    }
   }
   for (const group of scene.groups ?? []) {
     if (group.width <= 0 || group.height <= 0) fail('static_edition_geometry_invalid');
@@ -362,6 +368,33 @@ function validateStaticScene(scene) {
   return mixed;
 }
 
+function checkedRelationCaption(edge) {
+  const caption = edge.caption;
+  if (caption === undefined) return null;
+  if (!caption || typeof caption !== 'object' || Array.isArray(caption))
+    fail('static_edition_relation_caption_invalid');
+  const box = caption.box;
+  const point = caption.point;
+  if (
+    edge.relations.length !== 1 ||
+    typeof edge.relations[0]?.kind !== 'string' ||
+    caption.text !== edge.relations[0].kind.replaceAll('-', ' ') ||
+    !Array.isArray(point) ||
+    point.length !== 2 ||
+    !point.every(Number.isFinite) ||
+    !box ||
+    ![box.x, box.y, box.w, box.h].every(Number.isFinite) ||
+    box.w <= 0 ||
+    box.h <= 0 ||
+    point[0] - advance(caption.text, 14) / 2 < box.x ||
+    point[0] + advance(caption.text, 14) / 2 > box.x + box.w ||
+    point[1] - 14 < box.y ||
+    point[1] + 4 > box.y + box.h
+  )
+    fail('static_edition_relation_caption_invalid');
+  return caption;
+}
+
 /** Paint an unqualified, source-bound static Scene without acquiring meaning. */
 export function composeStaticEditionSvg(scene, options = {}) {
   const idPrefix = options.idPrefix ?? '';
@@ -395,7 +428,16 @@ export function composeStaticEditionSvg(scene, options = {}) {
   const graph = [];
   const labels = new Map(scene.nodes.map((node) => [key(node), node.label]));
   const nodeCarriers = [];
-  const relationCarriers = [];
+  const relationCarriers = scene.edges
+    .flatMap(({ relations }) => relations)
+    .map((relation, index) => ({
+      graphicId: `${idPrefix}r-${index}`,
+      source: {
+        namespace: relation.namespace,
+        reference: relation.reference,
+        sha256: relation.sha256,
+      },
+    }));
   for (const group of scene.groups ?? []) {
     const lines = wrap(group.label, group.width - 52, 14, 2);
     const headerBottom =
@@ -420,9 +462,11 @@ export function composeStaticEditionSvg(scene, options = {}) {
         `<text x="${number(headingX)}" y="${number(group.y + groupTitleBaseline + index * groupTitleLeading)}" fill="#526158" font-size="14" font-weight="600">${escape(line)}</text>`,
       );
   }
+  let relationOffset = 0;
   for (const edge of scene.edges) {
     if (!labels.has(key(edge.from)) || !labels.has(key(edge.to)))
       fail('static_edition_relation_endpoint_missing');
+    const caption = checkedRelationCaption(edge);
     const directions = new Set(edge.relations.map(({ direction }) => direction));
     if (directions.size !== 1 || !['forward', 'bidirectional'].includes([...directions][0]))
       fail('static_edition_direction_unrepresentable');
@@ -430,9 +474,18 @@ export function composeStaticEditionSvg(scene, options = {}) {
     const start = directions.has('bidirectional')
       ? ` marker-start="url(#${idPrefix}source-arrow)"`
       : '';
+    const carrierOnGraph = caption && edge.relations[0].label === null;
+    if (carrierOnGraph)
+      graph.push(`<g data-graphic-id="${relationCarriers[relationOffset].graphicId}">`);
     graph.push(
       `<path d="M ${points.join(' L ')}" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"${start} marker-end="url(#${idPrefix}source-arrow)"/>`,
     );
+    if (caption)
+      graph.push(
+        `<text x="${number(caption.point[0])}" y="${number(caption.point[1])}" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">${escape(caption.text)}</text>`,
+      );
+    if (carrierOnGraph) graph.push('</g>');
+    relationOffset += edge.relations.length;
   }
   for (const [position, node] of scene.nodes.entries()) {
     const x = number(node.x);
@@ -475,24 +528,20 @@ export function composeStaticEditionSvg(scene, options = {}) {
       y,
       notesWidth,
     );
+  let relationIndex = 0;
   const relationItems = scene.edges.flatMap((edge) =>
-    edge.relations.map((relation) => {
-      const qualifiers = [relation.label, relation.kind]
+    edge.relations.flatMap((relation) => {
+      const graphicId = relationCarriers[relationIndex++].graphicId;
+      if (edge.caption && relation.label === null) return [];
+      const qualifiers = [relation.label, ...(edge.caption ? [] : [relation.kind])]
         .filter((value, index, all) => value && all.indexOf(value) === index)
         .join(' · ');
-      const graphicId = `${idPrefix}r-${relationCarriers.length}`;
-      relationCarriers.push({
-        graphicId,
-        source: {
-          namespace: relation.namespace,
-          reference: relation.reference,
-          sha256: relation.sha256,
+      return [
+        {
+          text: `${mixed ? `${String(relationIndex).padStart(2, '0')} · ` : ''}${labels.get(key(edge.from))} ${relation.direction === 'bidirectional' ? '↔' : '→'} ${labels.get(key(edge.to))}${qualifiers ? ` · ${qualifiers}` : ''}`,
+          graphicId,
         },
-      });
-      return {
-        text: `${mixed ? `${String(relationCarriers.length).padStart(2, '0')} · ` : ''}${labels.get(key(edge.from))} ${relation.direction === 'bidirectional' ? '↔' : '→'} ${labels.get(key(edge.to))}${qualifiers ? ` · ${qualifiers}` : ''}`,
-        graphicId,
-      };
+      ];
     }),
   );
   const relationOnly =

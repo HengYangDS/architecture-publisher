@@ -512,13 +512,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       Remaining: extend the measured Scene audit to the complete neutral page,
       rank feasible whole-page candidates and review visual mass/readability
       on the final selected media before Task 7.5 freeze.
-      AIGW `candidate-reading-pair` and `candidate-authored-overview` remain
-      non-adopting trials. The latter selects 16 of 22 source entities and 14
-      of 20 relations but failed human visual review for optical near-contacts,
-      excessive blank space, and unbalanced whole-page composition. A machine
-      geometry pass is not visual acceptance; do not promote or transplant its
-      authored pixels into AIGW. Product-owned whole-page composition and
-      exact-media review remain open.
+      On the same locked AIGW two-view input, generic source relation verbs now
+      sit beside their edges; only qualifier-bearing relations retain notes.
+      Measured group geometry allows the paired 3600×2174 PNG instead of the
+      3600×2475 ledger layout, with identical input-lock and interactive HTML
+      bytes. The exact Candidate at
+      `build/review/aigw-two-view-trial/candidate-inline-relations-current`
+      replays byte-for-byte. Chrome SVG inspection found 62 text elements with
+      no text overlap or sampled path/text contact within four SVG units; this
+      narrow audit is not whole-page aesthetic acceptance. The current full
+      check passed 1231 tests, skipped 2 input-dependent tests, and reached
+      95.09% branch coverage. The separate `candidate-authored-overview` still
+      fails human visual review; do not transplant its pixels into AIGW.
+      Product-owned whole-page composition and final-media review remain open.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

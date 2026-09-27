@@ -42,7 +42,18 @@ function visibleBounds(nodes, edges, groups = []) {
     include(node.x, node.y);
     include(node.x + node.width, node.y + node.height);
   }
-  for (const edge of edges) for (const point of edge.points) include(point[0], point[1]);
+  for (const edge of edges) {
+    for (const point of edge.points) include(point[0], point[1]);
+    if (Object.hasOwn(edge, 'caption')) {
+      if (!edge.caption || typeof edge.caption !== 'object' || Array.isArray(edge.caption))
+        fail('static_scene_geometry_invalid');
+      const box = edge.caption.box;
+      if (!box || ![box.x, box.y, box.w, box.h].every(Number.isFinite) || box.w <= 0 || box.h <= 0)
+        fail('static_scene_geometry_invalid');
+      include(box.x, box.y);
+      include(box.x + box.w, box.y + box.h);
+    }
+  }
   for (const group of groups) {
     if (group.width <= 0 || group.height <= 0) fail('static_scene_geometry_invalid');
     include(group.x, group.y);

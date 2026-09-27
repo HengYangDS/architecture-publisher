@@ -238,8 +238,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 32256,
-        "sha256": "76820a85cf7c20db8012c43681fae7b9f0a935b1ab192fe10bcd5bbd49ef075b"
+        "bytes": 34131,
+        "sha256": "2584c3ac64cd269b94f9fca8050f1814d92b835fcf86cd326802f2be4b76282c"
       },
       {
         "path": "src/compiler/media.mjs",
@@ -258,18 +258,18 @@
       },
       {
         "path": "src/scene/static/architecture.mjs",
-        "bytes": 14557,
-        "sha256": "abcf7f0f5db3d5e132cd70b55a9d30847d100a1e9c57f9467e1c80b678f6bce2"
+        "bytes": 14574,
+        "sha256": "a7252c292d97abecc4ba5761b646fc028160bbaa5ac480dc9935873a9db06bb4"
       },
       {
         "path": "src/scene/static/edition.mjs",
-        "bytes": 14602,
-        "sha256": "864ce04aa7b59d8376fe8e9ae5717a011266598ba16695dbfa4b545e9d557d73"
+        "bytes": 15056,
+        "sha256": "5aae8fe0da391a0a1e02cf44ee9a2ea9d19dc01a3bbc2b0940df952fd63a9dcf"
       },
       {
         "path": "src/scene/static/grouped-selection.mjs",
-        "bytes": 9603,
-        "sha256": "9696b388af11a172eed4ba700e87474b3e287a74529f09b2d677cac3aa88ed5f"
+        "bytes": 10118,
+        "sha256": "8d4175175c3a8476aeeb2b69d85c630b027f07f6626199501fd0c34b38cfec9a"
       },
       {
         "path": "src/semantics/document.mjs",
@@ -345,8 +345,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 32256,
-        "sha256": "76820a85cf7c20db8012c43681fae7b9f0a935b1ab192fe10bcd5bbd49ef075b"
+        "bytes": 34131,
+        "sha256": "2584c3ac64cd269b94f9fca8050f1814d92b835fcf86cd326802f2be4b76282c"
       },
       {
         "path": "src/compiler/media.mjs",
@@ -365,18 +365,18 @@
       },
       {
         "path": "src/scene/static/architecture.mjs",
-        "bytes": 14557,
-        "sha256": "abcf7f0f5db3d5e132cd70b55a9d30847d100a1e9c57f9467e1c80b678f6bce2"
+        "bytes": 14574,
+        "sha256": "a7252c292d97abecc4ba5761b646fc028160bbaa5ac480dc9935873a9db06bb4"
       },
       {
         "path": "src/scene/static/edition.mjs",
-        "bytes": 14602,
-        "sha256": "864ce04aa7b59d8376fe8e9ae5717a011266598ba16695dbfa4b545e9d557d73"
+        "bytes": 15056,
+        "sha256": "5aae8fe0da391a0a1e02cf44ee9a2ea9d19dc01a3bbc2b0940df952fd63a9dcf"
       },
       {
         "path": "src/scene/static/grouped-selection.mjs",
-        "bytes": 9603,
-        "sha256": "9696b388af11a172eed4ba700e87474b3e287a74529f09b2d677cac3aa88ed5f"
+        "bytes": 10118,
+        "sha256": "8d4175175c3a8476aeeb2b69d85c630b027f07f6626199501fd0c34b38cfec9a"
       },
       {
         "path": "src/semantics/document.mjs",
@@ -452,8 +452,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 32256,
-        "sha256": "76820a85cf7c20db8012c43681fae7b9f0a935b1ab192fe10bcd5bbd49ef075b"
+        "bytes": 34131,
+        "sha256": "2584c3ac64cd269b94f9fca8050f1814d92b835fcf86cd326802f2be4b76282c"
       },
       {
         "path": "src/compiler/media.mjs",
@@ -477,18 +477,18 @@
       },
       {
         "path": "src/scene/static/architecture.mjs",
-        "bytes": 14557,
-        "sha256": "abcf7f0f5db3d5e132cd70b55a9d30847d100a1e9c57f9467e1c80b678f6bce2"
+        "bytes": 14574,
+        "sha256": "a7252c292d97abecc4ba5761b646fc028160bbaa5ac480dc9935873a9db06bb4"
       },
       {
         "path": "src/scene/static/edition.mjs",
-        "bytes": 14602,
-        "sha256": "864ce04aa7b59d8376fe8e9ae5717a011266598ba16695dbfa4b545e9d557d73"
+        "bytes": 15056,
+        "sha256": "5aae8fe0da391a0a1e02cf44ee9a2ea9d19dc01a3bbc2b0940df952fd63a9dcf"
       },
       {
         "path": "src/scene/static/grouped-selection.mjs",
-        "bytes": 9603,
-        "sha256": "9696b388af11a172eed4ba700e87474b3e287a74529f09b2d677cac3aa88ed5f"
+        "bytes": 10118,
+        "sha256": "8d4175175c3a8476aeeb2b69d85c630b027f07f6626199501fd0c34b38cfec9a"
       },
       {
         "path": "src/semantics/document.mjs",
@@ -701,8 +701,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 32256,
-        "sha256": "76820a85cf7c20db8012c43681fae7b9f0a935b1ab192fe10bcd5bbd49ef075b"
+        "bytes": 34131,
+        "sha256": "2584c3ac64cd269b94f9fca8050f1814d92b835fcf86cd326802f2be4b76282c"
       },
       {
         "path": "renderers/svg/figure.mjs",

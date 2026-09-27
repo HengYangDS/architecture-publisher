@@ -429,3 +429,42 @@ test('the neutral owner does not narrow admitted v1 group counts', () => {
   assert.equal(selected.layout.nodes.size, 136);
   assert.equal(selected.layout.groups.length, 17);
 });
+
+test('measured node and edge captions fit a three-member group without excess horizontal padding', () => {
+  const selected = groupedGeometry.composeGroupedGeometry({
+    nodes: [
+      { id: 'artifact', label: 'Signed local artifact' },
+      { id: 'peer', label: 'External forge peer' },
+      { id: 'installed', label: 'Installed product copy' },
+    ],
+    groups: [
+      {
+        id: 'distribution',
+        label: 'Distribution',
+        members: ['artifact', 'peer', 'installed'],
+      },
+    ],
+    relations: [
+      {
+        id: 'published',
+        from: 'artifact',
+        to: 'peer',
+        text: 'publishes asset to',
+        fromSide: 'right',
+        toSide: 'left',
+        route: 'straight',
+      },
+      {
+        id: 'installed',
+        from: 'peer',
+        to: 'installed',
+        text: 'installs as',
+        fromSide: 'right',
+        toSide: 'left',
+        route: 'straight',
+      },
+    ],
+  });
+  assert(selected.layout.width <= 1300);
+  assert(selected.routes.every(({ label, labelBox }) => label && labelBox));
+});

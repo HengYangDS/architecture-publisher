@@ -305,6 +305,77 @@ test('a Claim Model structural Scene cannot borrow an upstream view identity', a
   });
 });
 
+test('neutral Claim Model layout carries a plain relation on its visible edge, not a duplicate ledger', async (t) => {
+  const selected = await groupedMixedFixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const layout = composeGroupedSelectionLayout(meaning);
+  assert.equal(layout.edges.length, 1);
+  assert.equal(layout.edges[0].caption?.text, 'calls');
+  assert.equal(layout.edges[0].caption?.point.length, 2);
+
+  const scene = composeStaticEditionScene(meaning, layout);
+  const rendered = composeStaticEditionSvg(scene, { idPrefix: 'probe-', fragment: true });
+  assert.match(rendered.parts.graph, /data-graphic-id="probe-r-0"[\s\S]*?>calls<\/text>/u);
+  assert.deepEqual(rendered.parts.relations, []);
+  assert.deepEqual(
+    rendered.carriers.relations.map(({ graphicId }) => graphicId),
+    ['probe-r-0'],
+  );
+  assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers));
+});
+
+test('a long source relation type remains visible in the ledger when it cannot fit on an edge', async (t) => {
+  const model = claimModel();
+  const kind = 'publishes-a-resource-to-an-independent-forge';
+  model.vocabulary.relations = [kind];
+  model.relations.request.type = kind;
+  model.vocabulary.predicates[kind] = model.vocabulary.predicates.calls;
+  delete model.vocabulary.predicates.calls;
+  for (const claim of Object.values(model.claims))
+    if (claim.predicate === 'calls') claim.predicate = kind;
+  const selected = await groupedMixedFixture(t, { model });
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const layout = composeGroupedSelectionLayout(meaning);
+  assert.equal(layout.edges[0].caption, undefined);
+  const scene = composeStaticEditionScene(meaning, layout);
+  const rendered = composeStaticEditionSvg(scene, { fragment: true });
+  assert.match(rendered.parts.relations[0].text, /publishes-a-resource-to-an-independent-forge/u);
+});
+
+test('an invalid edge caption fails with a typed renderer error before bounds projection', async (t) => {
+  const selected = await groupedMixedFixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const layout = composeGroupedSelectionLayout(meaning);
+  const scene = composeStaticEditionScene(meaning, layout);
+  for (const mutate of [
+    (edge) => (edge.caption = null),
+    (edge) => (edge.caption.box = null),
+    (edge) => (edge.caption.box.w = 0),
+    (edge) => (edge.caption.point = null),
+    (edge) => (edge.caption.point = [0]),
+    (edge) => (edge.caption.point = [NaN, 0]),
+    (edge) => (edge.caption.point[0] = edge.caption.box.x - 1),
+    (edge) => (edge.caption.point[0] = edge.caption.box.x + edge.caption.box.w + 1),
+    (edge) => (edge.caption.point[1] = edge.caption.box.y - 1),
+    (edge) => (edge.caption.point[1] = edge.caption.box.y + edge.caption.box.h + 1),
+    (edge) => (edge.caption.text = 'forged relation'),
+  ]) {
+    const invalid = structuredClone(scene);
+    mutate(invalid.edges[0]);
+    assert.throws(() => composeStaticEditionSvg(invalid), {
+      code: 'static_edition_relation_caption_invalid',
+    });
+  }
+  const malformedLayout = structuredClone(layout);
+  malformedLayout.edges[0].caption.box = null;
+  assert.throws(() => composeStaticEditionScene(meaning, malformedLayout), {
+    code: 'static_scene_geometry_invalid',
+  });
+});
+
 test('a condition change alters selected meaning without changing graph cardinality', async (t) => {
   const first = await fixture(t);
   const changedModel = claimModel();
@@ -1785,6 +1856,7 @@ test('a selected relation can publish structural media without inventing claim s
   assert(
     visibleStatic.includes('Source relation qualifiers (unverified): Claim plane: implemented'),
   );
+  assert(!visibleStatic.includes('Claim plane: implemented · calls'));
   assert(html.includes('Source-reported relation qualifiers · unverified'));
   assert(html.includes('<dt>Claim plane</dt><dd>&quot;implemented&quot;</dd>'));
   assert(!html.includes('Source relation qualifiers (unverified): Claim plane: implemented'));
@@ -1888,7 +1960,8 @@ test('a mixed page keeps unclaimed relations structural beside linked claims', a
     const visible = medium.replace(/<[^>]*>/gu, ' ').replace(/\s+/gu, ' ');
     assert(visible.includes(note), name);
   }
-  assert(svg.includes('SOURCE RELATIONS'));
+  assert.equal((svg.match(/data-graphic-id="r-[01]"/gu) ?? []).length, 2);
+  assert(!svg.includes('SOURCE RELATIONS'));
   assert(svg.includes('SOURCE CLAIMS'));
   assert(html.includes('Source relations'));
   assert(html.includes('Source claims'));
@@ -2036,7 +2109,8 @@ test('a selected relation and dependent claim build a source-bound static Candid
     .join(' ');
   assert(painted.includes('SOURCE STRUCTURE'));
   assert(painted.includes('SOURCE CLAIMS'));
-  assert.match(painted, /client → server/u);
+  assert.match(painted, /calls/u);
+  assert.match(svg, /data-graphic-id="r-0"/u);
   assert.match(painted, /Claim plane: intended/u);
   assert.match(painted, /authorization: granted/u);
   assert(!svg.includes('fixture/claims'), 'private source identity leaked into static SVG');
@@ -2102,7 +2176,8 @@ test('two static views become one figure without merging their source assertions
   assert.equal((svg.match(/data-static-view=/gu) ?? []).length, 2);
   assert.equal((svg.match(/METHOD LIMITS/gu) ?? []).length, 1);
   assert.equal((svg.match(/READER QUESTIONS/gu) ?? []).length, 0);
-  assert.equal((svg.match(/>01 · /gu) ?? []).length, 2);
+  assert.match(svg, /data-graphic-id="static-view-0-r-0"/u);
+  assert.match(svg, /data-graphic-id="static-view-1-r-0"/u);
   assert.match(svg, /When may the client call\?/u);
   assert.match(svg, /When may the server call\?/u);
   assert.equal(candidate.media.static.artifacts.length, 2);
