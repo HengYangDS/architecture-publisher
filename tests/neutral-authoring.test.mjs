@@ -199,6 +199,51 @@ test('a selected grouped view builds visible static groups through the shared ge
   assert(!svg.includes('fixture/model'));
 });
 
+test('a static group heading must reserve space above its member nodes', async () => {
+  const project = editionProject();
+  project.presentation.static.views[0].groups = [
+    { id: 'entry', label: 'Entry boundary', elements: [{ namespace: 'example/model', id: 'a' }] },
+    {
+      id: 'service',
+      label: 'Service boundary',
+      elements: [{ namespace: 'example/model', id: 'b' }],
+    },
+  ];
+  const { meaning } = await selectedInputs(project);
+  const scene = structuredClone(
+    scenes.composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning)),
+  );
+  const group = scene.groups[0];
+  const member = scene.nodes.find(({ id }) => id === 'a');
+  const oldBottom = group.y + group.height;
+  group.y = member.y - 30;
+  group.height = oldBottom - group.y;
+  const points = [
+    ...scene.nodes.flatMap(({ x, y, width, height }) => [
+      [x, y],
+      [x + width, y + height],
+    ]),
+    ...scene.groups.flatMap(({ x, y, width, height }) => [
+      [x, y],
+      [x + width, y + height],
+    ]),
+    ...scene.edges.flatMap(({ points }) => points),
+  ];
+  const xs = points.map(([x]) => x);
+  const ys = points.map(([, y]) => y);
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  scene.bounds = {
+    x: minX,
+    y: minY,
+    width: Math.max(...xs) - minX,
+    height: Math.max(...ys) - minY,
+  };
+  assert.throws(() => composeStaticEditionSvg(scene), {
+    code: 'static_edition_group_heading_collision',
+  });
+});
+
 test('grouped static composition retains only asserted members of a selected upstream view', async (t) => {
   const selected = await selectedNativeEdition(t, { media: ['static'], width: 1800 });
   selected.project.scope.selections.push({

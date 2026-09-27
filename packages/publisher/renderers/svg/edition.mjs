@@ -11,6 +11,9 @@ const relationKey = ({ namespace, reference, sha256 }) =>
 const claimKey = relationKey;
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const advance = (value, size) => [...value].length * size * 0.61;
+const groupTitleBaseline = 31;
+const groupTitleLeading = 19;
+const groupTitleClearance = 17;
 const escape = (value) =>
   String(value)
     .replaceAll('&', '&amp;')
@@ -339,12 +342,25 @@ export function composeStaticEditionSvg(scene) {
   const relationCarriers = [];
   for (const group of scene.groups ?? []) {
     const lines = wrap(group.label, group.width - 52, 14, 2);
+    const headerBottom =
+      group.y + groupTitleBaseline + (lines.length - 1) * groupTitleLeading + groupTitleClearance;
+    if (
+      headerBottom >= group.y + group.height ||
+      scene.nodes.some(
+        (node) =>
+          node.x < group.x + group.width &&
+          node.x + node.width > group.x &&
+          node.y < headerBottom &&
+          node.y + node.height > group.y,
+      )
+    )
+      fail('static_edition_group_heading_collision');
     graph.push(
       `<rect x="${number(group.x)}" y="${number(group.y)}" width="${number(group.width)}" height="${number(group.height)}" rx="18" fill="#eef0e9" stroke="#c4ccc2" stroke-width="1.4"/>`,
     );
     for (const [index, line] of lines.entries())
       graph.push(
-        `<text x="${number(group.x + 26)}" y="${number(group.y + 31 + index * 19)}" fill="#526158" font-size="14" font-weight="600">${escape(line)}</text>`,
+        `<text x="${number(group.x + 26)}" y="${number(group.y + groupTitleBaseline + index * groupTitleLeading)}" fill="#526158" font-size="14" font-weight="600">${escape(line)}</text>`,
       );
   }
   for (const edge of scene.edges) {
