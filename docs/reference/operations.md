@@ -145,6 +145,13 @@ resource is bound to the input lock. A medium Scene records only the digest of
 its own authored decision; a sibling-only edit cannot change that Scene's
 identity or visible artifact bytes.
 
+Authored static canvas validation uses measured glyph boxes in the scene's
+`referenceWidth` units. It requires font size at least 10, an 8-unit inset for
+text inside its owning node, 5 units of clearance between text and other text
+or painted marks, and a 14-unit terminal route. These are technical lower
+bounds, not an art direction or human visual approval; the editor must still
+judge hierarchy, density, and balanced use of space on the exact rendered PNG.
+
 Historical v1 plans retain their selected output field and original meaning.
 They select a Source Bundle, Claim Model member, and exact
 `architecture.edition/v1` file, then emit an

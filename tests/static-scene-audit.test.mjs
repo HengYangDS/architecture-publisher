@@ -124,6 +124,23 @@ test('scene audit reports visible meaning, readable text and connection defects'
   }
 });
 
+test('scene audit rejects text that clears glyph ink but not the required spacing', () => {
+  const selected = scene();
+  selected.texts.push({
+    ...selected.texts[0],
+    id: 'near-label',
+    semanticIds: [],
+    box: { x: 20, y: 15, width: 4, height: 5 },
+  });
+  assert.deepEqual(auditScene(selected, contract).failures, []);
+  assert(
+    auditScene(selected, { ...contract, textClearance: 5 }).failures.some(
+      ({ code, id, other }) =>
+        code === 'text-clearance' && id === 'label' && other === 'near-label',
+    ),
+  );
+});
+
 test('scene audit rejects invalid extents and duplicate node identities', () => {
   const invalidExtent = scene();
   invalidExtent.referenceWidth = 0;

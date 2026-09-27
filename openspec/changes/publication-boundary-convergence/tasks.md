@@ -911,6 +911,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       identity for cross-product migration trials, not frozen or released
       `alpha.4` bytes. Final release notes, package identities, and acceptance
       remain open in this task.
+      A later authored-canvas counterexample showed that strict glyph
+      intersection was insufficient: two labels could pass with inadequate
+      spacing. Focused RED/GREEN now enforces text clearance in the public
+      compiler, and the self-Edition moved one label to satisfy its existing
+      conservative geometry check. `npm run check` passes with 97.95% lines and
+      statements, 95.05% branches, and 99.53% functions. These are still
+      pre-freeze inputs; rebuild, exact-media review, and release
+      admission remain open.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

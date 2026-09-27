@@ -52,6 +52,9 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Authored static canvases now reject near-contact text as well as strict glyph
+  overlap. The compiler applies a technical font, owner-inset, text-to-paint,
+  and terminal-route floor; passing it does not imply visual acceptance.
 - Current installed-package content is reported as separate build/replay
   execution evidence, not Candidate identity or original-builder provenance.
   Policy-backed qualification reports remain exactly derivable from their

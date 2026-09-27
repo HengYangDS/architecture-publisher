@@ -150,6 +150,7 @@ const PIPELINE = Object.freeze([
     r: 8,
     tone: 'proof',
     titleY: 232,
+    lineX: 1295,
     lineY: 366,
   },
   {

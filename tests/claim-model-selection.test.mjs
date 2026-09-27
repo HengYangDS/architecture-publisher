@@ -1453,6 +1453,35 @@ test('one authored canvas binds two views and selected relation endpoints withou
     await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');
   }
 
+  const cramped = structuredClone(resource);
+  const clientLabel = cramped.media.static.scene.texts[0];
+  const serverLabel = cramped.media.static.scene.texts[1];
+  serverLabel.x = clientLabel.box.x + clientLabel.box.width + 2 + serverLabel.box.width / 2;
+  serverLabel.box = measurer.box({
+    text: serverLabel.text,
+    fontSize: serverLabel.fontSize,
+    weight: serverLabel.weight,
+    anchor: serverLabel.anchor,
+    x: serverLabel.x,
+    baseline: serverLabel.baseline,
+  });
+  await fs.writeFile(resourcePath, JSON.stringify(cramped) + '\n');
+  try {
+    await assert.rejects(
+      compileEditionCandidateInput(
+        selected.requestPath,
+        selected.requestSha256,
+        path.join(selected.root, 'cramped-candidate'),
+      ),
+      {
+        code: 'authored_canvas_geometry_invalid',
+        message: /authored_canvas_geometry_invalid:text-clearance/u,
+      },
+    );
+  } finally {
+    await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');
+  }
+
   const falselyMeasured = structuredClone(resource);
   falselyMeasured.media.static.scene.texts[0].text = 'A'.repeat(100);
   await fs.writeFile(resourcePath, JSON.stringify(falselyMeasured) + '\n');

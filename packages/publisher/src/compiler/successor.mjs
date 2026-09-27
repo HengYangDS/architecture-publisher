@@ -49,11 +49,11 @@ const checkedSupply = (supply, method) => ({
   method,
 });
 const authoredCanvasGeometry = Object.freeze({
-  minimumFont: 0,
-  ownerClearance: 0,
-  textClearance: 0,
+  minimumFont: 10,
+  ownerClearance: 8,
+  textClearance: 5,
   endpointTolerance: 1,
-  minimumTerminal: 1,
+  minimumTerminal: 14,
   widthGrowth: 0,
   heightGrowth: 0,
 });

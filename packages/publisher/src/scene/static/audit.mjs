@@ -125,6 +125,8 @@ export function auditScene(scene, contract) {
   for (let i = 0; i < texts.length; i++)
     for (let j = i + 1; j < texts.length; j++)
       if (overlaps(texts[i].box, texts[j].box)) add('text-overlap', texts[i].id, texts[j].id);
+      else if (overlaps(expand(texts[i].box, contract.textClearance), texts[j].box))
+        add('text-clearance', texts[i].id, texts[j].id);
   for (let i = 0; i < nodes.length; i++)
     for (let j = i + 1; j < nodes.length; j++)
       if (overlaps(nodes[i].box, nodes[j].box)) add('node-overlap', nodes[i].id, nodes[j].id);
