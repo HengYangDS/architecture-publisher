@@ -136,8 +136,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       manifest member fails. The next slice also binds an independent semantic
       compiler file set and typed evidence basis/method for selected supplies.
       The complete installed package tree is build/replay execution evidence,
-      not Candidate identity or an original-builder attestation. Relocation,
-      package-only change, and during-build drift counterexamples are covered.
+      not Candidate identity or original-builder attestation. The v2
+      qualification report excludes it: publication admission must rederive
+      exact report fields without trusting a self-reported package claim.
+      Relocation, package-only change, and during-build drift counterexamples
+      are covered.
       A packed offline-installed package test compares the npm member
       inventory with the current package tree and verifies identity after
       relocation.

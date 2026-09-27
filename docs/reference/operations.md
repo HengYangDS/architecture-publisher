@@ -253,7 +253,12 @@ The canonical input lock embedded in the Candidate permits later attribution
 without rerunning a Provider, but it is not a full byte replay by itself.
 
 Successor build and replay report the current installed Publisher package tree
-separately from Candidate identity. The tree covers declared package content,
+separately from Candidate identity. The v2 `qualify verify` report deliberately
+omits that tree: for a policy-backed report, publication admission rederives
+its exact fields from the Candidate, Qualification Set, and selected Policy
+without authenticating the replay package. The separate replay result retains
+current-package evidence.
+The tree covers declared package content,
 including the manifest, README, runtime, renderers, and supplies. A README-only
 change changes this execution evidence but not an otherwise identical Candidate.
 Member paths use UTF-8 byte order, not host collation, for the tree digest.

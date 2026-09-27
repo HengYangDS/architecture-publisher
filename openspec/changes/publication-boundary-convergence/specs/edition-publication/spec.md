@@ -22,7 +22,7 @@ stay outside Candidate identity. Reader obligations and limits remain visible.
 
 ## ADDED Requirements
 
-### Requirement: Build and replay identify the current installed package separately
+### Requirement: Installed package identity is separate execution evidence
 
 Successor build and replay SHALL report the current installed Publisher package's
 declared content-tree identity, method, and scope outside the lock and
@@ -44,3 +44,11 @@ designated accepter's publication policy decides what else to require.
 - **WHEN** the installed package content differs between the build's opening
   and pre-emission checks
 - **THEN** compilation fails before emitting a successful Candidate
+
+#### Scenario: Qualification report remains derivable
+
+- **WHEN** successor qualification selects a Policy and replays a Candidate
+- **THEN** its records-bound report remains derivable from the selected
+  Candidate, Qualification Set, and Policy without a package-tree field
+- **AND** the separate replay result retains current package evidence without
+  claiming the original builder or authenticating the installed package

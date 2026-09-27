@@ -84,6 +84,7 @@ test('v2 qualification input replays one exact Candidate without granting accept
   assert.equal(result.status, 'records-bound');
   assert.equal(result.candidateSha256, built.candidateSha256);
   assert.equal(result.inputLockSha256, built.lockSha256);
+  assert.equal(Object.hasOwn(result, 'replayInstalledPackage'), false);
   assert.equal(result.records, 0);
   assert.equal(result.attribution, 'submitted-unverified');
   assert.equal(result.completeness, 'not-assessed-no-policy');
@@ -124,7 +125,9 @@ test('invoker-selected policy is exact but cannot confer acceptance authority', 
     { encoding: 'utf8', timeout: 20_000 },
   );
   assert.equal(command.status, 0, command.stdout + command.stderr);
-  assert.equal(JSON.parse(command.stdout).policySha256, policy.sha256);
+  const reported = JSON.parse(command.stdout);
+  assert.equal(reported.policySha256, policy.sha256);
+  assert.equal(Object.hasOwn(reported, 'replayInstalledPackage'), false);
 });
 
 test('submitted PASS records can fit the selected policy without becoming accepted evidence', async (t) => {

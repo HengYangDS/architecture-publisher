@@ -245,6 +245,13 @@ The current package tree identity reported by replay is not the selected npm
 archive digest or evidence that the original builder used that package. Archive
 selection, authenticated builder provenance, and their publication policy are
 separate decisions; a self-reported qualification record cannot grant them.
+The v2 qualification report deliberately excludes that current replay tree:
+policy-backed publication admission rederives its exact report from the
+Candidate, Qualification Set, and selected Policy without re-executing or
+authenticating the qualifier's package. The separate replay result retains
+invocation evidence for an accepter to assess. Adding an untrusted package
+claim to the report would break its exact derivation without proving
+original-builder provenance.
 Before replay, the verifier shall inspect the pinned Build Request and Provider
 manifests without executing Provider code. Evidence supplied in the v2 input
 cannot authorize that execution. The invoking verifier must separately pass
