@@ -1141,6 +1141,67 @@ test('the installed self Edition compiles both media after its author package is
         ),
         true,
       );
+      const readerPage = await browser.newPage({
+        viewport: { width: 1280, height: 720 },
+        reducedMotion: 'reduce',
+      });
+      readerPage.on('pageerror', (error) => errors.push(error.message));
+      await readerPage.route('**/*', (route) => {
+        if (route.request().url().startsWith(`${origin}/`)) return route.continue();
+        errors.push(`external-request:${route.request().url()}`);
+        return route.abort();
+      });
+      await readerPage.goto(`${origin}/architecture.html`, { waitUntil: 'load' });
+      for (const id of data.order) {
+        const selected = data.pages[id];
+        await readerPage.getByRole('button', { name: selected.shortLabel, exact: true }).click();
+        const frame = readerPage
+          .frames()
+          .find((item) => item.parentFrame() === readerPage.mainFrame());
+        await frame.waitForSelector('svg', { timeout: 8_000 });
+        const fit = await frame.evaluate(async () => {
+          await globalThis.document.fonts.ready;
+          const stage = globalThis.document
+            .querySelector('.diagram-container')
+            .getBoundingClientRect();
+          const svg = globalThis.document.querySelector('svg');
+          const visible = (element) => {
+            const style = globalThis.getComputedStyle(element);
+            return style.visibility !== 'hidden' && style.opacity !== '0';
+          };
+          const text = [...svg.querySelectorAll('text')]
+            .filter(visible)
+            .map((element) => element.getBoundingClientRect());
+          const nodes = [...svg.querySelectorAll('[data-node-id]')].map((element) =>
+            element.getBoundingClientRect(),
+          );
+          return {
+            textCount: text.length,
+            completeText: text.filter(
+              (box) =>
+                box.left >= stage.left - 1 &&
+                box.right <= stage.right + 1 &&
+                box.top >= stage.top - 1 &&
+                box.bottom <= stage.bottom + 1,
+            ).length,
+            nodeCount: nodes.length,
+            completeNodes: nodes.filter(
+              (box) =>
+                box.left >= stage.left - 1 &&
+                box.right <= stage.right + 1 &&
+                box.top >= stage.top - 1 &&
+                box.bottom <= stage.bottom + 1,
+            ).length,
+            bottomGapRatio:
+              (stage.bottom - Math.max(...nodes.map(({ bottom }) => bottom))) / stage.height,
+          };
+        });
+        assert(fit.textCount > 0, `${id}: visible text`);
+        assert.equal(fit.completeText, fit.textCount, `${id}: text fit`);
+        assert.equal(fit.completeNodes, fit.nodeCount, `${id}: complete fit`);
+        if (id === 'overview')
+          assert(fit.bottomGapRatio <= 0.14, `overview: bottom gap ${fit.bottomGapRatio}`);
+      }
       const auditPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
       auditPage.on('pageerror', (error) => errors.push(error.message));
       await auditPage.route('**/*', (route) => {

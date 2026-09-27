@@ -547,7 +547,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       rebuild-to-review edge, orphan label, and compensating scope brace are
       absent. Exact relation bindings, analytic geometry, emitted SVG paths,
       installed dual-media build, eight-page Chrome/axe, and provisional 6000px
-      PNG inspection pass. This is not final-byte human approval.
+      PNG inspection pass. The 1280×720 installed-browser regression now checks
+      that all eight pages keep visible text and nodes inside the stage; it does
+      not certify typography or editorial quality. This is not final-byte human
+      approval.
       The regenerated truthful final Candidate still needs complete
       visual, semantic, and release acceptance; no publication is admitted.
 
