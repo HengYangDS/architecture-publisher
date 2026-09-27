@@ -143,6 +143,16 @@ function segmentHitsBox(from, to, box) {
   return true;
 }
 
+function headingOverlapsCaption(heading, caption) {
+  const clearance = 3;
+  return (
+    heading.x < caption.x + caption.w + clearance &&
+    heading.x + heading.width + clearance > caption.x &&
+    heading.y < caption.y + caption.h + clearance &&
+    heading.y + heading.height + clearance > caption.y
+  );
+}
+
 function groupHeadingX(group, lines, edges) {
   const textWidth = Math.max(...lines.map((line) => advance(line, 14))) + 12;
   const left = group.x + 26;
@@ -155,8 +165,10 @@ function groupHeadingX(group, lines, edges) {
   for (const x of positions) {
     const box = { x: x - 3, y: boxY - 3, width: textWidth + 6, height: boxHeight + 6 };
     if (
-      edges.some(({ points }) =>
-        points.slice(1).some((point, index) => segmentHitsBox(points[index], point, box)),
+      edges.some(
+        ({ points, caption }) =>
+          points.slice(1).some((point, index) => segmentHitsBox(points[index], point, box)) ||
+          (caption && headingOverlapsCaption(box, caption.box)),
       )
     )
       continue;

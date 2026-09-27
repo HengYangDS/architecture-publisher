@@ -262,6 +262,21 @@ test('a static group heading must reserve space above its member nodes', async (
   const headingX = /<text x="([\d.]+)"[^>]*>Entry boundary<\/text>/u.exec(relocated)?.[1];
   assert(headingX);
   assert(Number(headingX) > movableHeading.x + 26);
+
+  const captioned = structuredClone(normal);
+  const captionedGroup = captioned.groups[0];
+  const captionBox = { x: captionedGroup.x + 26, y: captionedGroup.y + 13, w: 100, h: 24 };
+  captioned.edges[0].relations[0].kind = 'calls';
+  captioned.edges[0].relations[0].label = null;
+  captioned.edges[0].caption = {
+    text: 'calls',
+    point: [captionBox.x + 50, captionBox.y + 16],
+    box: captionBox,
+  };
+  const withCaption = composeStaticEditionSvg(captioned).bytes.toString('utf8');
+  const movedHeadingX = /<text x="([\d.]+)"[^>]*>Entry boundary<\/text>/u.exec(withCaption)?.[1];
+  assert(movedHeadingX);
+  assert(Number(movedHeadingX) > captionBox.x + captionBox.w + 6);
 });
 
 test('grouped static composition retains only asserted members of a selected upstream view', async (t) => {

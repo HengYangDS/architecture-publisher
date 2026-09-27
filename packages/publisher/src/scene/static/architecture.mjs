@@ -2,6 +2,7 @@ import { fail } from '../../source/manifest.mjs';
 
 const sides = new Set(['top', 'right', 'bottom', 'left']);
 const routes = new Set(['straight', 'orthogonal-h', 'orthogonal-v']);
+const portSpacing = 22;
 
 function point(box, side, offset = 0) {
   if (side === 'top') return [box.x + box.w / 2 + offset, box.y];
@@ -162,16 +163,28 @@ function adjacentVerticalGap(relation, rows) {
   return { row: Math.min(from, to), upper: from < to ? relation.from : relation.to };
 }
 
-function verticalCorridors(graph, layout) {
+function endpoints(relation, layout, offsets) {
+  return [
+    point(layout.nodes.get(relation.from), relation.fromSide, offsets.get(relation.id + ':from')),
+    point(layout.nodes.get(relation.to), relation.toSide, offsets.get(relation.id + ':to')),
+  ];
+}
+
+function verticalCorridors(graph, layout, offsets) {
   const rows = groupRows(graph);
   const corridors = new Map();
   for (const relation of graph.relations) {
     const gap = adjacentVerticalGap(relation, rows);
     if (!gap) continue;
-    const box = layout.nodes.get(gap.upper);
-    const lower = layout.nodes.get(gap.upper === relation.from ? relation.to : relation.from);
+    const [from, to] = endpoints(relation, layout, offsets);
     const entries = corridors.get(gap.row) ?? [];
-    entries.push({ id: relation.id, x: box.x + box.w / 2, lowerX: lower.x + lower.w / 2 });
+    entries.push({
+      relation,
+      from,
+      to,
+      x: gap.upper === relation.from ? from[0] : to[0],
+      lowerX: gap.upper === relation.from ? to[0] : from[0],
+    });
     corridors.set(gap.row, entries);
   }
   const bends = new Map();
@@ -180,16 +193,48 @@ function verticalCorridors(graph, layout) {
     const lower = layout.groups[row + 1];
     const first = upper.y + upper.h + 12;
     const last = lower.y - 12;
-    const span = (entries.length - 1) * 22;
-    entries.sort((a, b) => a.x - b.x || a.lowerX - b.lowerX || a.id.localeCompare(b.id));
+    const span = (entries.length - 1) * portSpacing;
+    entries.sort(
+      (a, b) => a.x - b.x || a.lowerX - b.lowerX || a.relation.id.localeCompare(b.relation.id),
+    );
     const start = (first + last - span) / 2;
-    entries.forEach(({ id }, index) => bends.set(id, start + index * 22));
+    // A nested fan-out needs bend order derived from actual ports, not source order.
+    const predecessors = new Map(entries.map(({ relation }) => [relation.id, new Set()]));
+    for (const [index, left] of entries.entries())
+      for (const right of entries.slice(index + 1)) {
+        const routed = (entry, bend) => routePoints(entry.from, entry.to, 'orthogonal-v', bend);
+        const leftBeforeRight = !pathsTouch(
+          routed(left, start),
+          routed(right, start + portSpacing),
+        );
+        const rightBeforeLeft = !pathsTouch(
+          routed(left, start + portSpacing),
+          routed(right, start),
+        );
+        if (!leftBeforeRight && !rightBeforeLeft)
+          fail(
+            'semantic_publication_static_route_crossing',
+            left.relation.id + ':' + right.relation.id,
+          );
+        if (!leftBeforeRight) predecessors.get(left.relation.id).add(right.relation.id);
+        if (!rightBeforeLeft) predecessors.get(right.relation.id).add(left.relation.id);
+      }
+    const pending = new Set(entries.map(({ relation }) => relation.id));
+    for (let index = 0; index < entries.length; index += 1) {
+      const next = entries.find(
+        ({ relation }) =>
+          pending.has(relation.id) &&
+          [...predecessors.get(relation.id)].every((id) => !pending.has(id)),
+      );
+      if (!next) fail('semantic_publication_static_route_crossing');
+      bends.set(next.relation.id, start + index * portSpacing);
+      pending.delete(next.relation.id);
+    }
   }
   return bends;
 }
 
 function composeRoutes(graph, layout) {
-  const bends = verticalCorridors(graph, layout);
   const slots = new Map();
   for (const authored of graph.relations) {
     for (const [id, side, peer, endpoint] of [
@@ -212,26 +257,18 @@ function composeRoutes(graph, layout) {
         a.authored.id.localeCompare(b.authored.id),
     );
     const box = layout.nodes.get(key.slice(0, key.lastIndexOf(':')));
-    if ((entries.length - 1) * 22 > (horizontal ? box.w : box.h) - 40)
+    if ((entries.length - 1) * portSpacing > (horizontal ? box.w : box.h) - 40)
       fail('semantic_publication_static_port_infeasible');
     entries.forEach((entry, index) =>
       offsets.set(
         entry.authored.id + ':' + entry.endpoint,
-        (index - (entries.length - 1) / 2) * 22,
+        (index - (entries.length - 1) / 2) * portSpacing,
       ),
     );
   }
+  const bends = verticalCorridors(graph, layout, offsets);
   const selected = graph.relations.map((authored) => {
-    const from = point(
-      layout.nodes.get(authored.from),
-      authored.fromSide,
-      offsets.get(authored.id + ':from'),
-    );
-    const to = point(
-      layout.nodes.get(authored.to),
-      authored.toSide,
-      offsets.get(authored.id + ':to'),
-    );
+    const [from, to] = endpoints(authored, layout, offsets);
     const points = routePoints(from, to, authored.route, bends.get(authored.id));
     for (const [id, box] of layout.nodes) {
       if ([authored.from, authored.to].includes(id)) continue;
@@ -313,7 +350,13 @@ function groupLayout(graph) {
   const rows = groupRows(graph);
   const corridorCounts = new Map();
   const labeledGaps = new Set();
+  const topPorts = new Map();
   for (const relation of graph.relations) {
+    for (const [id, side] of [
+      [relation.from, relation.fromSide],
+      [relation.to, relation.toSide],
+    ])
+      if (side === 'top') topPorts.set(id, (topPorts.get(id) ?? 0) + 1);
     const gap = adjacentVerticalGap(relation, rows);
     if (gap) corridorCounts.set(gap.row, (corridorCounts.get(gap.row) ?? 0) + 1);
     const from = rows.get(relation.from);
@@ -337,7 +380,7 @@ function groupLayout(graph) {
       .map((_, row) =>
         Math.max(
           labeledGaps.has(row) ? 120 : 62,
-          corridorCounts.has(row) ? 24 + (corridorCounts.get(row) - 1) * 22 : 0,
+          corridorCounts.has(row) ? 24 + (corridorCounts.get(row) - 1) * portSpacing : 0,
         ),
       ),
     groupPad = onGraphLabels ? 34 : 24,
@@ -347,7 +390,10 @@ function groupLayout(graph) {
         group.members.length * nodeWidth +
           Math.max(0, group.members.length - 1) * nodeGap +
           groupPad * 2,
-        [...group.label].length * 18 + 80,
+        // Multiple entering ports need a lateral shelf for the group heading.
+        [...group.label].length * 18 +
+          80 +
+          Math.max(0, ...group.members.map((id) => (topPorts.get(id) ?? 0) - 1)) * portSpacing,
       ),
     ),
     groupWidths = minimumWidths,

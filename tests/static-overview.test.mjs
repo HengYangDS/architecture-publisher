@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { composeStaticOverview } from '../packages/publisher/renderers/svg/architecture.mjs';
+import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/edition.mjs';
 import * as groupedGeometry from '../packages/publisher/src/scene/static/architecture.mjs';
+import { staticEditionScene } from './fixtures/static-edition-scene.mjs';
 
 const { composeStaticArchitectureScene } = groupedGeometry;
 
@@ -273,6 +275,100 @@ test('fan-out corridor order follows target ports rather than relation IDs', () 
 
   assert(bends.c[1][1] < bends.a[1][1]);
   assert.equal(bends.b.length, 2);
+});
+
+test('rightward fan-out selects a corridor order without crossing the adjacent port', () => {
+  const { routes } = groupedGeometry.composeGroupedGeometry({
+    nodes: ['source', 'left-a', 'left-b', 'near', 'far'].map((id) => ({ id, label: id })),
+    groups: [
+      { id: 'source-group', label: 'Source', members: ['source'] },
+      { id: 'targets', label: 'Targets', members: ['left-a', 'left-b', 'near', 'far'] },
+    ],
+    relations: ['near', 'far'].map((id) => ({
+      id,
+      from: 'source',
+      to: id,
+      text: 'realized by',
+      fromSide: 'bottom',
+      toSide: 'top',
+      route: 'orthogonal-v',
+    })),
+  });
+
+  assert.equal(routes.length, 2);
+  assert(routes.every(({ points }) => points.length === 4));
+  assert(routes.every(({ labelBox }) => labelBox?.w > 0));
+});
+
+test('a singleton group admits its heading beside three incoming ports', () => {
+  const ids = ['a', 'b', 'c', 'target'];
+  const { layout, routes } = groupedGeometry.composeGroupedGeometry({
+    nodes: ids.map((id) => ({ id, label: id })),
+    groups: [
+      { id: 'sources', label: 'Sources', members: ids.slice(0, 3) },
+      { id: 'target', label: 'Desired-state coordination', members: ['target'] },
+    ],
+    relations: ids.slice(0, 3).map((id) => ({
+      id,
+      from: id,
+      to: 'target',
+      text: '',
+      fromSide: 'bottom',
+      toSide: 'top',
+      route: 'orthogonal-v',
+    })),
+  });
+  const scene = staticEditionScene();
+  const { namespace, sha256, origin } = scene.nodes[0];
+  scene.nodes = [...layout.nodes].map(([id, box]) => ({
+    namespace,
+    id,
+    sha256,
+    origin,
+    kind: 'component',
+    label: id,
+    x: box.x,
+    y: box.y,
+    width: box.w,
+    height: box.h,
+  }));
+  scene.groups = layout.groups.map(({ x, y, w, h, ...group }) => ({
+    ...group,
+    x,
+    y,
+    width: w,
+    height: h,
+  }));
+  scene.edges = routes.map(({ id, from, to, points }) => ({
+    from: { namespace, id: from },
+    to: { namespace, id: to },
+    relations: [
+      {
+        namespace,
+        reference: `relation:${id}`,
+        sha256,
+        label: 'calls',
+        kind: null,
+        direction: 'forward',
+        origin,
+      },
+    ],
+    points,
+  }));
+  scene.sourceAssertionCarriers[0].nodeRefs = ids.map((id) => ({ namespace, id }));
+  scene.sourceAssertionCarriers[0].relationRefs = routes.map(({ id }) => ({
+    namespace,
+    reference: `relation:${id}`,
+    sha256,
+  }));
+  scene.bounds = {
+    x: layout.groups[0].x,
+    y: layout.groups[0].y,
+    width: layout.groups[0].w,
+    height: layout.groups[1].y + layout.groups[1].h - layout.groups[0].y,
+  };
+
+  assert.doesNotThrow(() => composeStaticEditionSvg(scene, { fragment: true }));
 });
 
 test('an upward adjacent relation bends between groups rather than through a heading', () => {

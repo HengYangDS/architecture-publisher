@@ -238,8 +238,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 34131,
-        "sha256": "2584c3ac64cd269b94f9fca8050f1814d92b835fcf86cd326802f2be4b76282c"
+        "bytes": 34530,
+        "sha256": "c8878342694beee4549b3dff49efe7e70b6365aeb47cc2db76a036a56faedf85"
       },
       {
         "path": "src/compiler/media.mjs",
@@ -258,8 +258,8 @@
       },
       {
         "path": "src/scene/static/architecture.mjs",
-        "bytes": 14492,
-        "sha256": "9f1eaeba3f5a9aa5bd93c39984b3763b37bb4699d95a8c86c0adaded4052d42f"
+        "bytes": 16520,
+        "sha256": "94c9e377941cc7f49e172a629d0f9d84a775309cc62483a17ffcdc26d2707fd1"
       },
       {
         "path": "src/scene/static/edition.mjs",
@@ -345,8 +345,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 34131,
-        "sha256": "2584c3ac64cd269b94f9fca8050f1814d92b835fcf86cd326802f2be4b76282c"
+        "bytes": 34530,
+        "sha256": "c8878342694beee4549b3dff49efe7e70b6365aeb47cc2db76a036a56faedf85"
       },
       {
         "path": "src/compiler/media.mjs",
@@ -365,8 +365,8 @@
       },
       {
         "path": "src/scene/static/architecture.mjs",
-        "bytes": 14492,
-        "sha256": "9f1eaeba3f5a9aa5bd93c39984b3763b37bb4699d95a8c86c0adaded4052d42f"
+        "bytes": 16520,
+        "sha256": "94c9e377941cc7f49e172a629d0f9d84a775309cc62483a17ffcdc26d2707fd1"
       },
       {
         "path": "src/scene/static/edition.mjs",
@@ -452,8 +452,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 34131,
-        "sha256": "2584c3ac64cd269b94f9fca8050f1814d92b835fcf86cd326802f2be4b76282c"
+        "bytes": 34530,
+        "sha256": "c8878342694beee4549b3dff49efe7e70b6365aeb47cc2db76a036a56faedf85"
       },
       {
         "path": "src/compiler/media.mjs",
@@ -477,8 +477,8 @@
       },
       {
         "path": "src/scene/static/architecture.mjs",
-        "bytes": 14492,
-        "sha256": "9f1eaeba3f5a9aa5bd93c39984b3763b37bb4699d95a8c86c0adaded4052d42f"
+        "bytes": 16520,
+        "sha256": "94c9e377941cc7f49e172a629d0f9d84a775309cc62483a17ffcdc26d2707fd1"
       },
       {
         "path": "src/scene/static/edition.mjs",
@@ -701,8 +701,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 34131,
-        "sha256": "2584c3ac64cd269b94f9fca8050f1814d92b835fcf86cd326802f2be4b76282c"
+        "bytes": 34530,
+        "sha256": "c8878342694beee4549b3dff49efe7e70b6365aeb47cc2db76a036a56faedf85"
       },
       {
         "path": "renderers/svg/figure.mjs",
