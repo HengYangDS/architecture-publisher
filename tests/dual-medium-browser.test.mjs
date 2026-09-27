@@ -61,11 +61,34 @@ test(
     await page.waitForSelector('#graph-0[data-rendered="true"]', { timeout: 8_000 });
     await page.evaluate(() => globalThis.document.fonts.ready);
     const desktopLayout = await page.evaluate(() => {
-      const graph = globalThis.document.querySelector('#graph-0').getBoundingClientRect();
+      const container = globalThis.document.querySelector('#graph-0');
+      const graph = container.getBoundingClientRect();
+      const cy = Reflect.get(container, '_cyreg').cy;
+      const painted = cy.elements().renderedBoundingBox();
+      const boundary = globalThis.document
+        .querySelector('#page-0 .reading-boundary')
+        ?.getBoundingClientRect();
       const notes = globalThis.document.querySelector('#page-0 .notes').getBoundingClientRect();
-      return { graphWidth: graph.width, graphBottom: graph.bottom, notesTop: notes.top };
+      return {
+        graphWidth: graph.width,
+        paintedWidth: painted.w,
+        zoom: cy.zoom(),
+        authoredBounds: JSON.parse(
+          globalThis.document.getElementById('edition-data').textContent,
+        )[0].geometry.rightward.bounds,
+        nodePositions: cy.nodes().map((node) => ({ id: node.id(), position: node.position() })),
+        graphBottom: graph.bottom,
+        boundaryLeft: boundary?.left ?? null,
+        graphRight: graph.right,
+        notesTop: notes.top,
+      };
     });
-    assert(desktopLayout.graphWidth > 1200, 'the graph must use the reading width');
+    assert(
+      desktopLayout.paintedWidth / desktopLayout.graphWidth > 0.6,
+      `the graph canvas has excessive empty width: ${JSON.stringify(desktopLayout)}`,
+    );
+    if (desktopLayout.boundaryLeft !== null)
+      assert(desktopLayout.boundaryLeft >= desktopLayout.graphRight + 20);
     assert(desktopLayout.notesTop > desktopLayout.graphBottom, 'evidence must follow the graph');
     assert.equal(await page.locator('.navigation button').first().innerText(), 'Overview');
     assert.equal(

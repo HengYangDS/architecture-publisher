@@ -691,8 +691,8 @@
       },
       {
         "path": "renderers/svg/figure.mjs",
-        "bytes": 12194,
-        "sha256": "677411aef53e879c02f853cd81f53fedfa907fa3d815f795b8af367b0e7fa8fb"
+        "bytes": 12244,
+        "sha256": "955ce879b985016ff7527bcd83ad4f3aec955ffbc61d1063482fc0516e5d0b58"
       },
       {
         "path": "src/compiler/media.mjs",
@@ -748,8 +748,8 @@
     "interactive-neutral": [
       {
         "path": "renderers/cytoscape/edition.mjs",
-        "bytes": 22526,
-        "sha256": "ce42db4e90074775f07586ed650d5b901e9fd43242a2d919f346e9b10c745f7f"
+        "bytes": 25082,
+        "sha256": "cacb1c7278d5b2a26e6b1f24fae4b718d81afa727d131af971c193f71f45eeac"
       },
       {
         "path": "renderers/cytoscape/model.mjs",

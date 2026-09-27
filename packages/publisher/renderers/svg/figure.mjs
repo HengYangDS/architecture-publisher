@@ -9,6 +9,7 @@ const margin = 54;
 const gutter = 42;
 const maximum = 12_000;
 const sourceWidthLimit = 2_600;
+const bodyLeading = 26;
 const number = (value) => Number(value.toFixed(2));
 
 function checkedViews(views) {
@@ -42,7 +43,7 @@ function checkedViews(views) {
 
 function wrapped(output, value, x, y, width, size, color, weight = 400, limit = 12) {
   const lines = wrap(value, width, size, limit);
-  const leading = Math.ceil(size * 1.45);
+  const leading = Math.ceil(size * 1.7);
   for (const [index, line] of lines.entries())
     output.push(
       `<text x="${number(x)}" y="${number(y + index * leading)}" fill="${color}" font-size="${size}" font-weight="${weight}">${escape(line)}</text>`,
@@ -55,7 +56,7 @@ function section(output, heading, items, width, y) {
   output.push(
     `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">${escape(heading)}</text>`,
   );
-  y += 34;
+  y += 38;
   for (const item of items) {
     const lines = wrap(item.text, width, 14, 5);
     output.push('<g>');
@@ -63,7 +64,7 @@ function section(output, heading, items, width, y) {
       output.push(
         `<text x="0" y="${number(y)}" fill="#27352e" font-size="14">${escape(line)}</text>`,
       );
-      y += 21;
+      y += bodyLeading;
     }
     output.push('</g>');
     y += 9;
@@ -78,7 +79,7 @@ function relationColumns(items, width) {
       const columnWidth = (width - (columns - 1) * 28) / columns;
       const measured = items.map((item) => {
         const lines = wrap(item.text, columnWidth, 14, 5);
-        return { ...item, lines, height: lines.length * 21 + 13 };
+        return { ...item, lines, height: lines.length * bodyLeading + 13 };
       });
       const prefix = [0];
       for (const item of measured) prefix.push(prefix.at(-1) + item.height);
@@ -162,14 +163,14 @@ function panel(view, width) {
     output.push(
       `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">SOURCE RELATIONS</text>`,
     );
-    y += 34;
+    y += 38;
     const columns = relationColumns(parts.relations, width);
     for (const item of columns.entries) {
       const x = item.column * (columns.columnWidth + 28);
       output.push(`<g data-graphic-id="${escape(item.graphicId)}">`);
       for (const [index, line] of item.lines.entries())
         output.push(
-          `<text x="${number(x)}" y="${number(y + item.y + index * 21)}" fill="#27352e" font-size="14">${escape(line)}</text>`,
+          `<text x="${number(x)}" y="${number(y + item.y + index * bodyLeading)}" fill="#27352e" font-size="14">${escape(line)}</text>`,
         );
       output.push('</g>');
     }

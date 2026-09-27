@@ -30,6 +30,9 @@ const sections = [...document.querySelectorAll('.edition-page')];
 const tabs = [...document.querySelectorAll('[data-page-index]')];
 const graphs = new Map();
 const observers = new Map();
+function graphDirection() {
+  return window.matchMedia('(max-width: 559px)').matches ? 'downward' : 'rightward';
+}
 function fitGraph(graph) {
   graph.fit(undefined, 24);
   if (graph.zoom() > 1) {
@@ -47,7 +50,7 @@ function placeGraph(graph, container, page, direction) {
   container.dataset.layout = direction;
 }
 function syncGraph(graph, container, page) {
-  const direction = container.clientWidth < 520 ? 'downward' : 'rightward';
+  const direction = graphDirection();
   graph.resize();
   if (container.dataset.layout !== direction) {
     graph.zoom(1);
@@ -61,7 +64,7 @@ function graphFor(index) {
   const page = pages[index];
   if (!page.nodes.length) return null;
   const container = document.getElementById('graph-' + index);
-  const direction = container.clientWidth < 520 ? 'downward' : 'rightward';
+  const direction = graphDirection();
   const selected = page.geometry[direction];
   const parentByNode = new Map((page.groups || []).flatMap(group =>
     group.nodeIds.map(id => [id, group.id])
@@ -232,13 +235,39 @@ function pageHtml(page, index, methodLimits) {
   const graphStyle = page.nodes.length
     ? ` style="--graph-wide-height:${graphHeight(page.geometry.rightward)}px;--graph-down-height:${graphHeight(page.geometry.downward)}px"`
     : '';
+  const graphNaturalWidth = page.nodes.length
+    ? Math.ceil(page.geometry.rightward.bounds.width + 64)
+    : null;
+  const boundaryQuestionItems = page.questions
+    .map(({ text: question, limits }) => {
+      const distinctQuestion = question === page.title ? '' : `<p>${escape(question)}</p>`;
+      const boundaries = limits.length
+        ? `<ul class="limits">${limits.map((limit) => `<li>${escape(limit)}</li>`).join('')}</ul>`
+        : '';
+      return distinctQuestion || boundaries ? `<li>${distinctQuestion}${boundaries}</li>` : '';
+    })
+    .join('');
+  const pairedGraph =
+    graphNaturalWidth !== null &&
+    graphNaturalWidth <= 960 &&
+    Boolean(boundaryQuestionItems || sourceStatus);
+  const gridClass = page.nodes.length
+    ? ` page-grid--graph${pairedGraph ? ' page-grid--paired' : ''}`
+    : '';
+  const gridStyle =
+    graphNaturalWidth === null ? '' : ` style="--graph-natural-width:${graphNaturalWidth}px"`;
   const stage = page.nodes.length
     ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Edge numbers match the source relations below. Pan and zoom in the graph; the lists provide keyboard-accessible reading and focus.</p>`
     : page.claims?.length
       ? claimStage
       : editorialStage;
+  const readingBoundary = pairedGraph
+    ? `<aside class="reading-boundary" aria-label="Reading boundary"><h3>Reading boundary</h3>${boundaryQuestionItems ? `<ul>${boundaryQuestionItems}</ul>` : ''}${sourceStatus}</aside>`
+    : '';
   const evidence = [
-    evidenceSection('Reader questions', `<ul>${questionItems}</ul>`, 'questions'),
+    pairedGraph
+      ? ''
+      : evidenceSection('Reader questions', `<ul>${questionItems}</ul>`, 'questions'),
     evidenceSection(
       'Source nodes',
       nodeItems ? `<ul class="node-list">${nodeItems}</ul>` : '',
@@ -264,8 +293,8 @@ function pageHtml(page, index, methodLimits) {
   ].join('');
   return `<section class="edition-page" id="page-${index}" data-page="${index}" aria-labelledby="page-title-${index}">
     <header class="page-heading"><p class="eyebrow">Reading page ${index + 1}</p><h2 id="page-title-${index}">${escape(page.title)}</h2></header>
-    <div class="page-grid${page.nodes.length ? ' page-grid--graph' : ''}"><div class="stage">${page.nodes.length ? sourceStatus : ''}${stage}</div>
-    <aside class="notes" aria-label="Page evidence">${page.nodes.length ? '' : sourceStatus}${evidence}</aside></div>${mixed ? `<section class="linked-claims" aria-label="Source claims"><h3>Source claims</h3>${claimStage}</section>` : ''}</section>`;
+    <div class="page-grid${gridClass}"${gridStyle}><div class="stage">${page.nodes.length && !pairedGraph ? sourceStatus : ''}${stage}</div>
+    ${readingBoundary}<aside class="notes" aria-label="Page evidence">${page.nodes.length ? '' : sourceStatus}${evidence}</aside></div>${mixed ? `<section class="linked-claims" aria-label="Source claims"><h3>Source claims</h3>${claimStage}</section>` : ''}</section>`;
 }
 
 function css(fonts) {
@@ -282,16 +311,18 @@ function css(fonts) {
   .navigation{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.navigation button{border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:10px 18px;font-size:12px;text-align:left;max-width:35ch}.navigation button[aria-current=page]{background:#214f3c;color:#fffefa;border-color:#214f3c}
   .edition-page[hidden]{display:none}.page-heading{display:flex;align-items:baseline;gap:18px;margin:10px 0 14px}.page-heading h2{font-size:clamp(20px,2vw,28px);line-height:1.3;margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
   .source-note{font-size:11px;line-height:1.45;color:#526158;margin:0 0 12px;padding-left:12px;border-left:2px solid #b3c4b6}
-  .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.page-grid--graph{display:block}.stage{position:relative;min-width:0}.graph-wrap{position:relative}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:var(--graph-wide-height,220px)}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-instruction{font-size:11px;color:#4c5a50;margin:10px 0 0}.fit{position:absolute;right:16px;top:16px;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
+  .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.page-grid--graph{grid-template-columns:minmax(0,1fr)}.page-grid--graph .stage{grid-column:1/-1;width:100%;max-width:var(--graph-natural-width);margin-inline:auto}.page-grid--paired{grid-template-columns:minmax(0,var(--graph-natural-width)) minmax(0,1fr);gap:24px;align-items:start}.page-grid--paired .stage{grid-column:1;grid-row:1;margin:0}.stage{position:relative;min-width:0}.graph-wrap{position:relative}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:var(--graph-wide-height,220px)}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-instruction{font-size:11px;color:#4c5a50;margin:10px 0 0}.fit{position:absolute;right:16px;top:16px;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
   .claim-stage{display:block}.claim-card{border-top:1px solid #c4ccc2;padding:20px 0}.claim-card:last-child{border-bottom:1px solid #c4ccc2}.claim-facts{display:grid;grid-template-columns:minmax(120px,180px) minmax(0,1fr);gap:9px 16px;margin:0}.claim-facts dt{font-size:11px;color:#526158}.claim-facts dd{font-size:13px;line-height:1.45;margin:0;overflow-wrap:anywhere}
   .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}
   .claim-context{border-bottom:1px solid #d3dbd1;margin-bottom:18px}.claim-context dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 18px;margin:14px 0 20px}.claim-context dt{font-size:10px;color:#526158}.claim-context dd{font-size:12px;line-height:1.45;margin:4px 0 0;overflow-wrap:anywhere}
   .notes{border-left:1px solid #d3dbd1;padding:0 0 0 28px;min-width:0}.notes .evidence-section+.evidence-section{margin-top:22px}.notes h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 9px}.notes ul{list-style:none;margin:0;padding:0}.notes li{font-size:13px;line-height:1.55;overflow-wrap:anywhere}.notes li+li{margin-top:9px}.notes p{margin:0}.notes small{display:block;font-size:10px;color:#4c5a50;margin-top:3px}.notes button{display:flex;gap:11px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:2px 0;line-height:1.5;font-size:13px}.notes button:hover{text-decoration:underline}.notes button small{margin-left:auto}.ordinal{font-size:10px;color:#4c5a50}.limits{border-left:2px solid #b3c4b6;padding-left:10px!important;margin-top:7px!important;color:#526158}
   .node-group h4{font-size:12px;line-height:1.4;margin:0 0 7px;color:#314638}.node-group+.node-group{margin-top:16px!important}.node-group ul{padding-left:11px!important;border-left:1px solid #b3c4b6}.node-group ul li+li{margin-top:5px}
-  .page-grid--graph .notes{display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1fr) minmax(0,1.6fr);gap:24px;border-left:0;border-top:1px solid #d3dbd1;margin-top:18px;padding:20px 0 0}.page-grid--graph .notes .evidence-section+.evidence-section{margin-top:0}.page-grid--graph .evidence-methods{grid-column:1/-1;border-top:1px solid #d3dbd1;padding-top:12px}.page-grid--graph .method-limits{display:flex;flex-wrap:wrap;gap:6px 20px}.page-grid--graph .method-limits li{margin:0}
+  .page-grid--graph .notes{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1fr) minmax(0,1.6fr);gap:24px;border-left:0;border-top:1px solid #d3dbd1;padding:20px 0 0}.page-grid--graph .notes .evidence-section+.evidence-section{margin-top:0}.page-grid--graph .evidence-methods{grid-column:1/-1;border-top:1px solid #d3dbd1;padding-top:12px}.page-grid--graph .method-limits{display:flex;flex-wrap:wrap;gap:6px 20px}.page-grid--graph .method-limits li{margin:0}
+  .page-grid--paired .reading-boundary{grid-column:2;grid-row:1;min-width:0;border-left:1px solid #d3dbd1;padding:14px 0 0 24px}.reading-boundary h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 12px}.reading-boundary ul{list-style:none;margin:0;padding:0}.reading-boundary li{font-size:14px;line-height:1.55}.reading-boundary li+li{margin-top:10px}.reading-boundary .limits{padding-left:12px!important}.reading-boundary .source-note{margin-top:16px}.page-grid--paired .notes{grid-row:2;grid-template-columns:minmax(0,1fr) minmax(0,1.55fr)}
   .relation-qualifier-note{font-size:11px;color:#526158;margin:0 0 9px!important}.relation-qualifiers{display:grid;grid-template-columns:minmax(76px,.7fr) minmax(0,1.3fr);gap:4px 10px;margin:5px 0 0 12px;padding-left:10px;border-left:2px solid #b3c4b6}.relation-qualifiers dt{font-size:11px;color:#526158}.relation-qualifiers dd{font-size:12px;margin:0;overflow-wrap:anywhere}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}
-  @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:1fr}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.page-grid--graph .notes{grid-template-columns:1fr;gap:22px}.page-grid--graph .evidence-methods{grid-column:auto}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}
+  @media(max-width:1390px){.page-grid--paired{grid-template-columns:minmax(0,1fr)}.page-grid--paired .stage{grid-column:1;grid-row:1;margin-inline:auto}.page-grid--paired .reading-boundary{grid-column:1;grid-row:2;border-left:0;border-top:1px solid #d3dbd1;padding:18px 0 0}.page-grid--paired .notes{grid-column:1;grid-row:3}}
+  @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:minmax(0,1fr)}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.page-grid--graph .notes,.page-grid--paired .notes{grid-template-columns:minmax(0,1fr);gap:22px}.page-grid--graph .evidence-methods,.page-grid--paired .evidence-methods{grid-column:auto}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}
   @media(max-width:559px){.graph{height:var(--graph-down-height,220px)}.claim-facts{grid-template-columns:1fr;gap:3px}.claim-facts dd{margin-bottom:9px}}`;
 }
 

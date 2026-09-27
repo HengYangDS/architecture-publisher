@@ -505,6 +505,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       Remaining: extend the measured Scene audit to the complete neutral page,
       rank feasible whole-page candidates and review visual mass/readability
       on the final selected media before Task 7.5 freeze.
+      Latest non-adopting AIGW trial: `candidate-reading-pair` has 8-pixel
+      minimum static text clearance and 80–94% interactive graph-width fill;
+      Chrome-enabled checks pass (1,223 pass, 2 skip, 95.06% branches).
+      Whole-page static art direction remains open.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

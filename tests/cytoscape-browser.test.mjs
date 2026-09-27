@@ -17,6 +17,7 @@ test(
   },
   async (t) => {
     const scene = interactiveEditionScene();
+    const compactCandidate = await renderInteractiveEditionHtml(interactiveEditionScene());
     const overview = scene.pages[0];
     for (let index = 0; index < 10; index += 1) {
       const id = 'client-' + index;
@@ -135,6 +136,7 @@ test(
           '/chain.html',
           '/branching.html',
           '/grouped.html',
+          '/compact.html',
         ].includes(request.url)
       ) {
         response.writeHead(404);
@@ -154,7 +156,9 @@ test(
               ? branchingCandidate.bytes
               : request.url === '/grouped.html'
                 ? groupedCandidate.bytes
-                : candidate.bytes,
+                : request.url === '/compact.html'
+                  ? compactCandidate.bytes
+                  : candidate.bytes,
       );
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -386,6 +390,32 @@ test(
     ]);
     await page.addScriptTag({ content: axe.source });
     await assertAccessible('grouped reading page');
+    assert.deepEqual(errors, []);
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`${origin}/compact.html`, { waitUntil: 'load', timeout: 15_000 });
+    await page.waitForSelector('#graph-0[data-rendered="true"]', { timeout: 8_000 });
+    const compact = await page.evaluate(() => {
+      const bounds = (selector) =>
+        globalThis.document.querySelector(selector).getBoundingClientRect();
+      const stage = bounds('#page-0 .stage');
+      const boundary = bounds('#page-0 .reading-boundary');
+      const evidence = bounds('#page-0 .notes');
+      return {
+        stageWidth: stage.width,
+        pageWidth: bounds('#page-0').width,
+        boundaryStartsAfterStage: boundary.left >= stage.right + 20,
+        evidenceStartsAfterStage: evidence.top >= stage.bottom + 20,
+        scrollWidth: globalThis.document.documentElement.scrollWidth,
+        viewport: globalThis.innerWidth,
+      };
+    });
+    assert(compact.stageWidth < compact.pageWidth * 0.6, JSON.stringify(compact));
+    assert.equal(compact.boundaryStartsAfterStage, true);
+    assert.equal(compact.evidenceStartsAfterStage, true);
+    assert(compact.scrollWidth <= compact.viewport, JSON.stringify(compact));
+    await page.addScriptTag({ content: axe.source });
+    await assertAccessible('compact reading page');
     assert.deepEqual(errors, []);
   },
 );

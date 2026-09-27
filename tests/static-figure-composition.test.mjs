@@ -76,6 +76,29 @@ test('relation columns preserve source order in a top-to-bottom reading path', (
   assert(positions[0].x < positions[2].x);
 });
 
+test('wrapped figure relation lines reserve readable vertical clearance', () => {
+  const first = view('first', 0);
+  first.rendered.parts.relations = [
+    {
+      graphicId: 'static-view-0-r-0',
+      text: 'A source relation preserves its selected qualifier and ownership boundary '.repeat(3),
+    },
+  ];
+  const svg = composeStaticFigureSvg({
+    title: 'Readable relation',
+    summary: 'Selected relation detail.',
+    rasterWidth: 1800,
+    views: [first, view('second', 1)],
+  }).bytes.toString('utf8');
+  const lines = svg.match(/<g data-graphic-id="static-view-0-r-0">([\s\S]*?)<\/g>/u)?.[1] ?? '';
+  const baselines = [...lines.matchAll(/<text x="[\d.]+" y="([\d.]+)"/gu)].map(([, y]) =>
+    Number(y),
+  );
+  assert(baselines.length > 1);
+  for (let index = 1; index < baselines.length; index += 1)
+    assert(baselines[index] - baselines[index - 1] >= 26);
+});
+
 test('narrow requested raster and an odd view count retain every selected view', () => {
   const selected = [view('first', 0), view('second', 1), view('third', 2)];
   const narrow = composeStaticFigureSvg({

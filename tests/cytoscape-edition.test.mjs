@@ -26,6 +26,12 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.match(html, /Runtime safety is not established\./u);
   assert.match(html, /No runtime observation was selected\./u);
   assert.match(html, /--graph-wide-height:\d+px;--graph-down-height:\d+px/u);
+  assert.match(html, /--graph-natural-width:\d+px/u);
+  assert.match(html, /class="page-grid page-grid--graph page-grid--paired"/u);
+  assert.match(html, /<aside class="reading-boundary" aria-label="Reading boundary">/u);
+  assert.match(html, /<aside class="notes" aria-label="Page evidence">/u);
+  const firstPage = html.split('<section class="edition-page" id="page-1"')[0];
+  assert.doesNotMatch(firstPage, /class="evidence-section evidence-questions"/u);
   assert.match(html, /Cytoscape Consortium/u);
   assert.doesNotMatch(
     html,
@@ -91,7 +97,7 @@ test('a source claim preserves the unchanged graph reading width', async () => {
     )?.[1];
 
   const overview = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
-  assert.equal(layoutClass(overview), 'page-grid page-grid--graph');
+  assert.equal(layoutClass(overview), 'page-grid page-grid--graph page-grid--paired');
 
   scene.pages[0].claimCards = [
     { ...claim, facts: [{ label: 'Claim plane', value: 'implemented' }] },
@@ -115,7 +121,7 @@ test('a source claim preserves the unchanged graph reading width', async () => {
     { claimAssertionId: 'claim-assertion', relationAssertionId: 'relation-assertion' },
   ];
   const detail = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
-  assert.equal(layoutClass(detail), 'page-grid page-grid--graph');
+  assert.equal(layoutClass(detail), 'page-grid page-grid--graph page-grid--paired');
   assert(
     detail.indexOf('<section class="linked-claims"') >
       detail.indexOf('<div class="page-grid page-grid--graph"'),
