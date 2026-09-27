@@ -138,6 +138,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       The complete installed package tree is build/replay execution evidence,
       not Candidate identity or an original-builder attestation. Relocation,
       package-only change, and during-build drift counterexamples are covered.
+      A packed offline-installed package test compares the npm member
+      inventory with the current package tree and verifies identity after
+      relocation.
       Keep this task open until the native adapter and media tasks complete
       their acceptance; archive selection and builder provenance belong to
       the designated accepter's publication policy.

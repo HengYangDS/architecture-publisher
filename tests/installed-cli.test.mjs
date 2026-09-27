@@ -88,6 +88,31 @@ test('packed CLI verifies relocated non-Git input without development executable
   const packageJson = JSON.parse(await fs.readFile(path.join(pkg, 'package.json'), 'utf8'));
   const declared = JSON.parse(await fs.readFile(path.join(publisher, 'package.json'), 'utf8'));
   assert.deepEqual(packageJson.dependencies ?? {}, declared.dependencies ?? {});
+  const installedRuntime = await import(pathToFileURL(path.join(pkg, 'src/runtime.mjs')));
+  const installedIdentity = await installedRuntime.readPublisherInstalledPackage();
+  const packedMembers = await Promise.all(
+    info.files.map(async ({ path: memberPath }) => {
+      const content = await fs.readFile(path.join(pkg, memberPath));
+      return { path: memberPath, bytes: content.length, sha256: sha(content) };
+    }),
+  );
+  packedMembers.sort((left, right) =>
+    Buffer.compare(Buffer.from(left.path, 'utf8'), Buffer.from(right.path, 'utf8')),
+  );
+  assert.equal(installedIdentity.files, packedMembers.length);
+  assert.equal(
+    installedIdentity.bytes,
+    packedMembers.reduce((total, member) => total + member.bytes, 0),
+  );
+  assert.equal(installedIdentity.treeSha256, sha(Buffer.from(JSON.stringify(packedMembers))));
+  assert.equal(installedIdentity.scope, 'current-invocation-installed-content');
+  assert.equal(Object.hasOwn(installedIdentity, 'archiveSha256'), false);
+  const relocatedPackage = path.join(tmp, 'relocated-publisher');
+  await fs.cp(pkg, relocatedPackage, { recursive: true });
+  const relocatedRuntime = await import(
+    pathToFileURL(path.join(relocatedPackage, 'src/runtime.mjs'))
+  );
+  assert.deepEqual(await relocatedRuntime.readPublisherInstalledPackage(), installedIdentity);
   const authoring = await import(pathToFileURL(path.join(pkg, 'src/edition/index.mjs')));
   assert.equal(typeof authoring.validateBuildRequest, 'function');
   const buildRequest = {
