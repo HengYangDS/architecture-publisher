@@ -1,0 +1,37 @@
+{
+  "schema": "architecture.research-installed-probe/v1",
+  "workload": "ethos-package-version-pin",
+  "observedAt": "2026-09-27",
+  "platform": "darwin",
+  "node": "v26.10.0",
+  "publisherSourceCommit": "1a61ed81dc8b9f5c7d73adbeed695365b934051c",
+  "ethosSourceCommit": "ff1cc69d2f8468c3ec0111881db6f1d261f9ee09",
+  "workLanePublisher": {
+    "name": "architecture-publisher",
+    "version": "0.3.0-alpha.3",
+    "archiveSha256": "b17b77a52ecc5834319462a833dbf8098ef4311ac4a1014b95e0504ae24963b3"
+  },
+  "sourceOwnedEthos": {
+    "name": "@architecture-publisher/ethos",
+    "version": "0.3.0-alpha.0",
+    "archiveSha256": "0e9a1f2d7fdd441887654cd2ef13a097fb3104281d7f59aaefd038ca0382442a",
+    "requiredPublisherVersion": "0.3.0-alpha.1",
+    "providerContract": "architecture.edition-provider/v1"
+  },
+  "trial": {
+    "method": "Pack both clean source revisions; install their exact archives in an isolated offline npm consumer with empty HOME and cache, disabled scripts, closed stdin, bounded commands, and an unreachable registry.",
+    "installExit": 1,
+    "failureCode": "ENOTCACHED",
+    "unresolvedDeclaredDependency": "architecture-publisher@0.3.0-alpha.1"
+  },
+  "control": {
+    "publisherSignedTag": "v0.3.0-alpha.1",
+    "publisherArchiveSha256": "c2707bcffc9ba0cea277cb3b6f4fb6f04f2755996781f92c035fa9cadb4dcc37",
+    "installExit": 0
+  },
+  "limits": [
+    "This isolates the source-owned exact version pin; it does not test successor Provider v2 behavior.",
+    "The work-lane package has an unreleased version label and is identified only by its source commit and archive digest.",
+    "No ETHOS semantic, static, interactive, human, rollback, acceptance, or release parity is established."
+  ]
+}

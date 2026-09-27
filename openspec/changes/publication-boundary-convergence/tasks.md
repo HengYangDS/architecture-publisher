@@ -644,6 +644,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       selected inputs and all Candidate member digests. This remains a
       provisional macOS package and desktop browser check, not human visual
       approval, final release, source-delta update, recovery, or AIGW acceptance.
+      An isolated offline package trial now identifies ETHOS's first installed
+      successor obstacle: its current source-owned package requires Publisher
+      `0.3.0-alpha.1`, while the current work-lane archive identifies itself as
+      `0.3.0-alpha.3`. The pair cannot install with an empty cache; the signed
+      alpha.1 control installs. The bounded contrast and limits are in
+      `conformance/evidence/ethos-install-pin-probe.json`. This is a source-owned
+      dependency selection gap, not evidence of v2 semantics or flagship parity.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
@@ -742,6 +749,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       cooperation/competition/experiment/all-drop meaning, repository-quality
       SSOT, governance, independent-verification predicates, and flagship art
       direction; ETHOS separately admits semantic/media/rollback acceptance.
+      A preliminary non-authorizing exact package-pin counterexample was sent
+      to the ETHOS owner task on 2026-09-27; the final released-package journey
+      and source-owned acceptance handoff remain open.
 - [ ] 8.3 Hand the completed SDD/DR, COMET, SpecD, semantic-graph, intent,
       and independent-verification research to the existing ETHOS knowledge
       owner with source citations and adopt/reject/defer boundaries. Keep only
