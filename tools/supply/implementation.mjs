@@ -70,9 +70,20 @@ async function selectedFiles(entries) {
     )
     .map((name) => name.slice('packages/publisher/'.length))
     .sort();
+  if (
+    !paths.length ||
+    paths.some(
+      (name) =>
+        !/^(?:src|renderers)\//u.test(name) ||
+        path.posix.normalize(name) !== name ||
+        name.split('/').includes('..'),
+    )
+  )
+    throw Error('publisher_implementation_input_path_invalid');
   return Promise.all(
     paths.map(async (name) => {
       const bytes = await fs.readFile(path.join(root, 'packages/publisher', name));
+      if (!bytes.length) throw Error('publisher_implementation_input_empty');
       return { path: name, bytes: bytes.length, sha256: sha(bytes) };
     }),
   );
