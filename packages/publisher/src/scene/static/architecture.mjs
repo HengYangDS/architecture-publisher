@@ -350,9 +350,7 @@ function groupLayout(graph) {
         [...group.label].length * 18 + 80,
       ),
     ),
-    groupWidths = onGraphLabels
-      ? minimumWidths.map(() => Math.max(...minimumWidths))
-      : minimumWidths,
+    groupWidths = minimumWidths,
     width = Math.max(1200, ...groupWidths.map((value) => value + 80)),
     groups = [],
     nodes = new Map();

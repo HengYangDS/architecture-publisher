@@ -514,17 +514,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       on the final selected media before Task 7.5 freeze.
       On the same locked AIGW two-view input, generic source relation verbs now
       sit beside their edges; only qualifier-bearing relations retain notes.
-      Measured group geometry allows the paired 3600×2174 PNG instead of the
-      3600×2475 ledger layout, with identical input-lock and interactive HTML
-      bytes. The exact Candidate at
-      `build/review/aigw-two-view-trial/candidate-inline-relations-current`
-      replays byte-for-byte. Chrome SVG inspection found 62 text elements with
-      no text overlap or sampled path/text contact within four SVG units; this
-      narrow audit is not whole-page aesthetic acceptance. The current full
-      check passed 1231 tests, skipped 2 input-dependent tests, and reached
-      95.09% branch coverage. The separate `candidate-authored-overview` still
-      fails human visual review; do not transplant its pixels into AIGW.
-      Product-owned whole-page composition and final-media review remain open.
+      Intrinsic group widths prevent a one-member group from inheriting an
+      unrelated wide frame. The exact Candidate at
+      `build/review/aigw-two-view-trial/candidate-intrinsic-current` replays;
+      its 3600×2174 PNG retains the prior input-lock and interactive HTML bytes.
+      Chrome 154 measured 62 SVG text elements, no text overlap and no sampled
+      path/text contact within four SVG units; evidence is
+      `build/review/aigw-two-view-trial/intrinsic-browser-audit.json`. This is
+      not whole-page aesthetic acceptance. The full check passed 1232 tests,
+      skipped 2 input-dependent tests, and reached 95.07% branch coverage.
+      The separate `candidate-authored-overview` still fails human visual
+      review; do not transplant its pixels into AIGW. Product-owned whole-page
+      composition and final-media review remain open.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

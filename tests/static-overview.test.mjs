@@ -124,6 +124,32 @@ test('a single-node group does not inherit a three-node group frame', () => {
   assert(target.w < callers.w);
 });
 
+test('an on-edge caption does not force a small group to inherit a wider group frame', () => {
+  const { layout, routes } = groupedGeometry.composeGroupedGeometry({
+    nodes: ['first', 'second', 'third', 'target'].map((id) => ({ id, label: id })),
+    groups: [
+      { id: 'sources', label: 'Sources', members: ['first', 'second', 'third'] },
+      { id: 'consumer', label: 'Consumer', members: ['target'] },
+    ],
+    relations: [
+      {
+        id: 'delivery',
+        from: 'second',
+        to: 'target',
+        text: 'delivers to',
+        fromSide: 'bottom',
+        toSide: 'top',
+        route: 'orthogonal-v',
+      },
+    ],
+  });
+  const [sources, consumer] = layout.groups;
+  const target = layout.nodes.get('target');
+  assert(consumer.w < sources.w);
+  assert(consumer.w <= target.w + 80);
+  assert(routes[0].labelBox);
+});
+
 test('group spacing leaves a readable heading without doubling node height', () => {
   const { layout } = unlabeledGraph();
   const callers = layout.groups.find(({ id }) => id === 'inputs');
