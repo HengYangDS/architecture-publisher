@@ -67,6 +67,28 @@ test('Candidate carries its exact input lock for later role attribution without 
   assert(lock.sources.every((source) => source.claimant && source.revision));
 });
 
+test('Candidate identifies selected Publisher media implementations without changing input identity', async (t) => {
+  const fixture = await selectedNativeEdition(t, { width: 1800 });
+  const built = await compileEditionCandidateInput(
+    fixture.file,
+    fixture.digest,
+    path.join(fixture.root, 'candidate'),
+  );
+  const bundle = await readSourceBundle(built.manifestPath, built.manifestSha256);
+  const members = new Map(bundle.members.map(({ path: name, content }) => [name, content]));
+  const candidate = JSON.parse(members.get('candidate.json'));
+  const lock = JSON.parse(members.get('input-lock.json'));
+  assert.equal(Object.hasOwn(lock, 'renderer'), false);
+  for (const medium of ['static', 'interactive']) {
+    const selected = candidate.media[medium].supplies.find(
+      ({ id }) => id === `publisher-${medium}-implementation`,
+    );
+    assert(selected, `${medium} must identify its selected Publisher implementation`);
+    assert.match(selected.sha256, /^[a-f0-9]{64}$/u);
+    assert.equal(selected.method, 'checked-installed-file-set/v1');
+  }
+});
+
 test('replay rejects duplicate keys in the selected Candidate container manifest', async (t) => {
   const fixture = await selectedNativeEdition(t, { width: 1800 });
   const built = await compileEditionCandidateInput(

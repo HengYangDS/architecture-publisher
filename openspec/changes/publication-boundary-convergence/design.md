@@ -400,11 +400,13 @@ dependency declaration does not establish observed reads or enforced access
 confinement. Without appropriate observation or isolation, Publisher cannot
 claim that Provider materialization was hermetic or that no undeclared file,
 environment value, or network resource influenced it. The Publisher-generated
-lock binds the exact materialized bytes Publisher verified and consumed,
-adapter/backend versions, checked fonts and other supplies, toolchain
-configuration, and Edition bytes. Dependency records state their evidence
-method and limits; Provider declarations are not silently promoted into a
-proved complete closure.
+input lock binds the exact materialized native, derived, and Edition bytes
+Publisher checked, upstream adapter attribution, selected media, and requested
+toolchain profile. The Candidate binds selected parser, backend, font,
+rendering, and Publisher-owned implementation supplies only after their
+consumers check them. Invocation evidence records execution method and host
+facts. Dependency records state their evidence method and limits; Provider
+declarations are not silently promoted into a proved complete closure.
 
 There is one canonical materialized-input lock, not a direct-mode lock and a
 Provider-mode lock. Its selected meaning consists of one Edition's authored

@@ -108,8 +108,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       24/24; static and package checks passed. This slice's full check passed 694
       tests, skipped 2, and failed only the branch coverage gate at 92.91%; no
       integration or publication is admitted.
-- [ ] 2.4 Bind exact includes, resources, selected Edition bytes, backend and
-      adapter versions, fonts, rendering supplies, and toolchain configuration.
+- [ ] 2.4 Bind selected source, Edition, resource, and upstream adapter identity
+      in the input lock; bind checked parser, backend, font, renderer, and
+      Publisher implementation supplies in the Candidate after consumption.
       `tests/input-closure.test.mjs` distinguishes observed, checked-declared,
       merely declared, unresolved, and ambient dependencies. Do not equate a
       Provider declaration with hermetic preparation. Ruling: this task cannot
@@ -128,6 +129,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       checks passed; the full check passed 697 tests, skipped 2, and failed only
       branch coverage at 92.93%. Resume complete closure at its actual consumers,
       then close this task before Candidate qualification and protected publication.
+      The later reviewed slice corrected the lock/Candidate stage boundary and
+      added a generated, selected-media Publisher file-set identity with
+      installed-byte checks. README and unselected-medium changes do not alter
+      that identity; selected-file drift fails. The broad rendering-supply limit
+      remains until the other supply evidence methods and full selected closure
+      are checked. Do not mark this task complete from the file-set slice alone.
 - [x] 2.5 Replay exact Source Bundle v1, Claim Model v2, Edition v1,
       Provider v1, Candidate v1, and Qualification Set v1 meanings in source
       tests and a packed, offline-installed work-lane package. The frozen hash

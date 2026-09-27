@@ -70,12 +70,17 @@ function validateArtifact(value) {
   }
 }
 
-function validateSupply(value) {
-  if (!exact(value, SUPPLY_FIELDS) || !text(value.id) || !isDigest(value.sha256))
+function validateSupply(value, selected = false) {
+  if (
+    !(selected ? hasExactFields(value, SUPPLY_FIELDS, ['method']) : exact(value, SUPPLY_FIELDS)) ||
+    !text(value.id) ||
+    !isDigest(value.sha256) ||
+    (selected && Object.hasOwn(value, 'method') && !text(value.method))
+  )
     fail('candidate_supply_invalid');
 }
 
-function validateMedium(value) {
+function validateMedium(value, selected = false) {
   if (
     !exact(value, MEDIA_FIELDS) ||
     !isDigest(value.sceneSha256) ||
@@ -86,7 +91,7 @@ function validateMedium(value) {
   )
     fail('candidate_medium_invalid');
   for (const artifact of value.artifacts) validateArtifact(artifact);
-  for (const supply of value.supplies) validateSupply(supply);
+  for (const supply of value.supplies) validateSupply(supply, selected);
   unique(value.artifacts, ({ id }) => id, 'candidate_artifact_duplicate');
   unique(value.artifacts, ({ path }) => path, 'candidate_artifact_duplicate');
   unique(value.supplies, ({ id }) => id, 'candidate_supply_duplicate');
@@ -275,7 +280,7 @@ export function validateSelectedEditionCandidate(value) {
     new Set(value.limits).size !== value.limits.length
   )
     fail('selected_candidate_invalid');
-  for (const supply of value.input.semanticSupplies) validateSupply(supply);
+  for (const supply of value.input.semanticSupplies) validateSupply(supply, true);
   unique(value.input.semanticSupplies, ({ id }) => id, 'candidate_supply_duplicate');
   const media = Object.keys(value.media).sort();
   if (
@@ -291,11 +296,22 @@ export function validateSelectedEditionCandidate(value) {
       !isDigest(selectedMedium.carrierSha256)
     )
       fail('selected_candidate_media_invalid');
-    validateMedium({
-      sceneSha256: selectedMedium.sceneSha256,
-      artifacts: selectedMedium.artifacts,
-      supplies: selectedMedium.supplies,
-    });
+    validateMedium(
+      {
+        sceneSha256: selectedMedium.sceneSha256,
+        artifacts: selectedMedium.artifacts,
+        supplies: selectedMedium.supplies,
+      },
+      true,
+    );
+    if (
+      !selectedMedium.supplies.some(
+        (supply) =>
+          supply.id === `publisher-${medium}-implementation` &&
+          supply.method === 'checked-installed-file-set/v1',
+      )
+    )
+      fail('selected_candidate_implementation_supply_missing');
     const required =
       medium === 'static'
         ? [

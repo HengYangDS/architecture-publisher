@@ -22,6 +22,25 @@ the exact bytes actually consumed.
 - **WHEN** supplied bytes differ from the caller's selected manifest digest or a listed member identity
 - **THEN** verification fails before a successful result is emitted
 
+### Requirement: Compiler closure does not inherit declared dependencies
+
+Actually selected upstream input dependencies SHALL enter the lock with exact
+identities while read methods remain separate evidence. Downstream compiler
+and rendering supplies SHALL enter the Candidate only after their selected
+consumers run and check them. Unobserved dependencies remain explicit limits,
+not proof of closure. An unresolved or ambient compiler input SHALL fail or
+make reproducibility explicitly unqualified; a Provider declaration alone
+SHALL NOT establish a complete read set or hermetic preparation. The lock is a
+generated input replay record, not a source-author-maintained truth store.
+
+#### Scenario: A Provider declares dependencies without observation
+
+- **WHEN** an executable Provider returns a list that Publisher does not
+  independently observe or confine
+- **THEN** the receipt states that limitation
+- **AND** reproducibility from the checked materialized output is not conflated
+  with hermetic reproducibility of Provider preparation
+
 ## ADDED Requirements
 
 ### Requirement: Source revision evidence is typed and scoped
@@ -63,11 +82,12 @@ selected-content digest.
 
 ### Requirement: Materialized dependency evidence is not overstated
 
-A successor input lock SHALL bind the exact selected native and Edition bytes,
-resolved includes and resources, adapter and backend identities, checked font
-and rendering supplies, and selected toolchain configuration needed for the
-claimed compilation closure. Each dependency SHALL identify whether it was
-observed, checked from a declaration, or merely declared.
+The input lock SHALL bind exact selected native, derived and Edition bytes,
+includes and resources, adapter attribution, media, and the requested toolchain
+profile, not later consumption. The Candidate SHALL bind actually selected and
+checked parser, backend, font, renderer and Publisher implementation supplies.
+Evidence SHALL distinguish observed, checked-declared, declared-only,
+unresolved and ambient facts; none proves hermetic Provider preparation.
 
 #### Scenario: A native model imports another file
 
@@ -171,21 +191,3 @@ canonically sorted, independently of input order and object-key spelling.
 - **THEN** the global join preserves both selected meanings without a flat ID
   collision
 - **AND** renaming either local ID alone does not change the lock digest
-
-### Requirement: Compiler closure does not inherit declared dependencies
-
-Actual observed dependencies MAY enter the lock with exact identities while
-observation methods remain separate evidence; unobserved dependencies remain
-explicit limits, not proof of closure. An unresolved or ambient compiler input
-SHALL fail or make reproducibility explicitly unqualified; a Provider
-declaration alone SHALL NOT establish a complete read set or hermetic
-preparation. The lock is a generated replay record, not a
-source-author-maintained truth store.
-
-#### Scenario: A Provider declares dependencies without observation
-
-- **WHEN** an executable Provider returns a list that Publisher does not
-  independently observe or confine
-- **THEN** the receipt states that limitation
-- **AND** reproducibility from the checked materialized output is not conflated
-  with hermetic reproducibility of Provider preparation

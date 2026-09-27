@@ -131,6 +131,28 @@ predicates. Unknown dependency or ambiguous lineage SHALL broaden obligations.
   produce a new Candidate with fresh applicable qualification without requiring
   an unrelated Edition authoring change
 
+### Requirement: Successor Candidate manifest binds selected supplies
+
+The successor Candidate SHALL use a distinct versioned manifest from
+historical Claim Model/Edition v1 Candidates. Its unqualified value SHALL bind
+the selected input lock, Edition bytes, native semantic digest, the finite set
+of semantic supplies actually consumed (which may be empty), and each selected
+medium's independently composed Scene, artifacts, and checked supply inventory,
+including the selected Publisher-owned implementation file set and its evidence
+method. Unselected media implementations and package-only content SHALL NOT
+enter a medium's supply identity. Derived reader obligations and unresolved or
+ambient limits remain visible. The build output directory SHALL remain outside
+Candidate semantic identity.
+
+#### Scenario: One selected input produces two sibling media
+
+- **WHEN** a successor Build Request selects static and interactive media and
+  the same materialized inputs are built at two fresh output locations
+- **THEN** the two builds have identical Candidate and artifact identities
+- **AND** the static SVG/PNG and interactive HTML have distinct Scene hashes,
+  artifact hashes, and medium-specific supplies without shared coordinates or
+  DOM ownership
+
 ## ADDED Requirements
 
 ### Requirement: Edition project root and derived identity
@@ -252,25 +274,6 @@ approval from a green build, same-person signature, or file location.
   truth has not been assessed
 - **THEN** only those automated predicates pass
 - **AND** the Candidate receives no inferred domain or flagship acceptance
-
-### Requirement: Successor Candidate manifest binds selected supplies
-
-The successor Candidate SHALL use a distinct versioned manifest from
-historical Claim Model/Edition v1 Candidates. Its unqualified value SHALL bind
-the selected input lock, Edition bytes, native semantic digest, the finite set
-of semantic supplies actually consumed (which may be empty), each selected
-medium's independently composed Scene and artifact/supply inventory, and
-derived reader obligations and limits. The build output directory SHALL remain
-outside Candidate semantic identity.
-
-#### Scenario: One selected input produces two sibling media
-
-- **WHEN** a successor Build Request selects static and interactive media and
-  the same materialized inputs are built at two fresh output locations
-- **THEN** the two builds have identical Candidate and artifact identities
-- **AND** the static SVG/PNG and interactive HTML have distinct Scene hashes,
-  artifact hashes, and medium-specific supplies without shared coordinates or
-  DOM ownership
 
 ### Requirement: Source-to-graphic maps are trace carriers
 

@@ -116,11 +116,12 @@ selected-content digest.
 
 ### Requirement: Materialized dependency evidence is not overstated
 
-A successor input lock SHALL bind the exact selected native and Edition bytes,
-resolved includes and resources, adapter and backend identities, checked font
-and rendering supplies, and selected toolchain configuration needed for the
-claimed compilation closure. Each dependency SHALL identify whether it was
-observed, checked from a declaration, or merely declared.
+The input lock SHALL bind exact selected native, derived and Edition bytes,
+includes and resources, adapter attribution, media, and the requested toolchain
+profile, not later consumption. The Candidate SHALL bind actually selected and
+checked parser, backend, font, renderer and Publisher implementation supplies.
+Evidence SHALL distinguish observed, checked-declared, declared-only,
+unresolved and ambient facts; none proves hermetic Provider preparation.
 
 #### Scenario: A native model imports another file
 

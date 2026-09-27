@@ -43,6 +43,7 @@ test('packed CLI verifies relocated non-Git input without development executable
   assert(info.files.some((f) => f.path === 'src/cli/main.mjs'));
   const bundled = new Set(info.bundled ?? []);
   const admittedSupplyFiles = new Set([
+    'supplies/implementation.json',
     'supplies/likec4/parser.mjs',
     'supplies/likec4/supply.json',
     'supplies/likec4/THIRD-PARTY-NOTICES.txt',

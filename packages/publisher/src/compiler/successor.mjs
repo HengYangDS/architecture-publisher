@@ -22,6 +22,7 @@ import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
 import { composeStaticEditionSvg, renderAuthoredCanvasSvg } from '../../renderers/svg/index.mjs';
 import { selectedEditionCandidateDigest, validateSelectedEditionCandidate } from './candidate.mjs';
 import { validateVisibleSelection } from './coverage.mjs';
+import { readImplementationSupply } from './implementation-supply.mjs';
 import { compileEditionMeaning } from './meaning.mjs';
 import { embedFonts, rasterizeSvg } from './media.mjs';
 
@@ -62,12 +63,17 @@ async function staticMedium(selected, meaning, scratch) {
   const claimMode = meaning.native.selections.some(
     ({ format }) => format === 'architecture.claim-model/v2',
   );
+  let implementationProfile = 'static-claim';
   let layout = null;
-  if (staticRefinement && staticRefinement.kind !== 'neutral' && !authoredCanvas)
+  if (authoredCanvas) implementationProfile = 'static-authored';
+  else if (staticRefinement && staticRefinement.kind !== 'neutral') {
+    implementationProfile = 'static-grouped';
     layout = composeSelectedStaticRefinementLayout(meaning, meaning.refinement);
-  else if (!authoredCanvas && meaning.editorial.presentation.static.views[0].groups !== undefined)
+  } else if (meaning.editorial.presentation.static.views[0].groups !== undefined) {
+    implementationProfile = 'static-grouped';
     layout = composeGroupedSelectionLayout(meaning);
-  else if (!authoredCanvas && !claimMode) {
+  } else if (!claimMode) {
+    implementationProfile = 'static-likec4';
     const views = selectedStaticNativeViews(meaning, meaning.media.static.views[0]);
     if (views.length !== 1) fail('static_scene_composition_ambiguous');
     const view = { namespace: views[0].source.namespace, id: views[0].target.id };
@@ -124,6 +130,7 @@ async function staticMedium(selected, meaning, scratch) {
       supplies: [
         { id: 'font-supply', sha256: fontSupply.sha256 },
         { id: 'raster-supply', sha256: png.result.supply.sha256 },
+        await readImplementationSupply(implementationProfile),
       ],
     },
   };
@@ -208,7 +215,7 @@ async function authoredInteractiveMedium(selected, meaning, scratch) {
       sceneSha256: sha(Buffer.from(canonical(authored.pages.map(({ scene }) => scene)))),
       carrierSha256: sha(Buffer.from(canonical(authored.carriers))),
       artifacts: [artifact('architecture-html', file.path, 'text/html', bytes)],
-      supplies: [...supplies.values()],
+      supplies: [...supplies.values(), await readImplementationSupply('interactive-authored')],
     },
   };
 }
@@ -226,7 +233,7 @@ async function interactiveMedium(selected, meaning, scratch) {
       sceneSha256: sha(Buffer.from(canonical(scene))),
       carrierSha256: sha(Buffer.from(canonical(rendered.carriers))),
       artifacts: [artifact('architecture-html', file.path, 'text/html', file.content)],
-      supplies: rendered.supplies,
+      supplies: [...rendered.supplies, await readImplementationSupply('interactive-neutral')],
     },
   };
 }
