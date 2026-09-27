@@ -121,6 +121,9 @@ test('v2 executable Provider materializes exact native inputs and derived output
   ]);
   assert.deepEqual(result.read('native', 'model'), f.native);
   assert.deepEqual(result.read('derived', 'index'), f.derived);
+  assert.throws(() => result.read('derived', 'unselected'), {
+    code: 'edition_provider_v2_item_unselected',
+  });
   assert.equal(result.invocation.delivery, 'executable');
   assert(result.limits.includes('provider-dependencies-unobserved'));
 });

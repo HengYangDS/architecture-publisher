@@ -677,17 +677,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       source-bound example builds the same paired Candidate after relocation.
       Migration handoffs, installed adopter paths, and final release guidance
       still require reconciliation; this task remains open.
-- [ ] 7.4 Promote the implemented delta requirements and role-based Purpose
+- [x] 7.4 Promote the implemented delta requirements and role-based Purpose
       wording into active base specs before release freeze. Strictly validate the
       combined specs with no unresolved diagnostics, including advisory INFO,
       and prove valid v1 inputs still retain their historical meanings. Atomize
       overlong delta requirements without weakening them before promotion; the
-      later Change archive must add no new normative behavior. Partial: the
-      All six changed capabilities have been atomized and promoted through
-      isolated official archive rehearsals. The active base specs and still-open
-      Change validate with zero diagnostics, including INFO; prior scenario
-      names remain present. Cross-spec v1 compatibility proof remains open.
-      Packed Provider-specific historical v1 replay passes locally.
+      later Change archive must add no new normative behavior. All six changed
+      capabilities were atomized and promoted through isolated official archive
+      rehearsals. The active base specs and still-open Change validate with zero
+      diagnostics, including INFO; prior scenario names remain present. The
+      Task 2.5 frozen-hash source and packed offline-installed journeys prove
+      the selected historical v1 meanings; the focused post-promotion replay
+      passes 9/9. This closes spec promotion, not the separate coverage or
+      release gates.
 - [ ] 7.5 Select the SemVer successor and update package manifests, lockfile,
       and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
       behavior tests until the complete owned scope reaches at least 95% in
@@ -707,10 +709,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       With installed Chrome selected, the current pre-freeze Lane tree passes
       1,183 tests, skips 2 explicitly external-input-gated tests, and has 0
       behavior failures. The unchanged owned-runtime gate passes at 97.92%
-      statements and lines, 95.00% branches (8,571/9,022), and 99.62%
+      statements and lines, 95.01% branches (8,572/9,022), and 99.62%
       functions. Static, strict OpenSpec, and package checks also pass. The
       branch result has a narrow margin and is not final release evidence:
-      Tasks 7.3–7.4, frozen installed workloads, exact-byte visual review,
+      Task 7.3, frozen installed workloads, exact-byte visual review,
       exact-HEAD proof, and protected publication remain open. Do not weaken
       coverage inclusion or substitute the pre-freeze result for Task 7.6.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec

@@ -2,8 +2,10 @@
 
 ## Purpose
 
-Define an Edition as the audience-specific, source-bound unit that compiles one
-semantic authority into independently composed and qualified publications.
+Define an Edition as an editor-owned audience, question, selection, and
+presentation contract over attributed claims from one or more source owners.
+Compilation yields one paired Candidate with independently composed media;
+source, editor, verifier, accepter, and custodian authorities remain distinct.
 
 ## Requirements
 
