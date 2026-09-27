@@ -166,11 +166,28 @@ function panel(view, width, options = {}) {
   }
   const notesStart = y;
   if (parts.relations.length) {
+    const context = parts.relations[0].context;
+    const sharedContext =
+      typeof context === 'string' &&
+      context.trim() &&
+      parts.relations.every((item) => item.context === context);
     output.push(
       `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">SOURCE RELATIONS</text>`,
     );
     y += 38;
-    const columns = relationColumns(parts.relations, notesWidth);
+    if (sharedContext) y = wrapped(output, context, 0, y, notesWidth, 12, '#66736b') + 8;
+    const items = sharedContext
+      ? parts.relations.map((item) => {
+          const marker = ` · ${context}: `;
+          const index = item.text.lastIndexOf(marker);
+          if (index < 0) fail('static_figure_relation_context_invalid');
+          return {
+            ...item,
+            text: `${item.text.slice(0, index)} · ${item.text.slice(index + marker.length)}`,
+          };
+        })
+      : parts.relations;
+    const columns = relationColumns(items, notesWidth);
     for (const item of columns.entries) {
       const x = item.column * (columns.columnWidth + 28);
       output.push(`<g data-graphic-id="${escape(item.graphicId)}">`);

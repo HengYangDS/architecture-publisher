@@ -526,18 +526,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       The separate `candidate-authored-overview` still fails human visual
       review; do not transplant its pixels into AIGW. Product-owned whole-page
       composition and final-media review remain open.
-      A further exact AIGW Client Projection input exposed an existing
-      rightward fan-out crossing. Port-aware corridor ordering and a heading
-      shelf now allow the exact request with SHA-256
-      `79fafbd8d61f9d9c5e7c1023ce0d2d171d5d2293e201fb562edf16131d6bd725`
-      to build through the public CLI. The renderer also keeps group headings
-      clear of relation captions and separates wrapped note lines and source
-      relation items. On the exact Client Projection static SVG, a Chrome spot
-      check found the nearest note-text gap increased from two to six CSS
-      pixels without changing the 3600×2959 canvas. Focused RED/GREEN and a
-      Chrome-enabled full check passed (1,235 pass, two explicit external-input
-      skips; branch coverage 95.06%). These are routing and legibility gains,
-      not whole-page visual approval; the composition remains unqualified.
+      Current neutral-static slice: on exact AIGW source `709fd813`, the
+      public CLI builds Product and Client Projection through the pinned
+      Dagre supply. A heading shelf and relation-caption clearance preserve
+      their visible structure. A homogeneous qualifier list states its exact
+      unverified context once while retaining each source relation, value,
+      and graphic carrier; unlike notes are never given a shared status.
+      Both current Candidates under
+      `build/review/aigw-static-dual-dagre-20260928/` pass source-file
+      integrity verification. Their SVG, PNG, and HTML bytes are unchanged by
+      the qualifier SSOT refactor. Chrome 154 at 1280 CSS pixels found no
+      measured text overlap, sampled path/text contact, card-border contact,
+      escaped text, or external request in either static SVG. The full check
+      passed 1,247 tests with seven explicit skips and 95.01% branch coverage.
+      This does not establish source acceptance, installed parity, whole-page
+      aesthetic approval, or release; Task 5.2 remains open.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

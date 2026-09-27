@@ -125,6 +125,83 @@ test('relation columns preserve source order in a top-to-bottom reading path', (
   assert(positions[0].x < positions[2].x);
 });
 
+test('a repeated source qualifier context is stated once without dropping relation facts', () => {
+  const selected = view('qualifiers', 0);
+  const context = 'Source relation qualifiers (unverified)';
+  selected.rendered.parts.relations = [
+    {
+      graphicId: 'static-view-0-r-0',
+      text: `Configuration → Synchronizer · ${context}: state: desired bindings`,
+      context,
+    },
+    {
+      graphicId: 'static-view-0-r-1',
+      text: `Discovery → Synchronizer · ${context}: state: observed surfaces`,
+      context,
+    },
+  ];
+  const svg = composeStaticFigureSvg({
+    title: 'Qualified relations',
+    summary: 'Each source fact remains distinct.',
+    rasterWidth: 1800,
+    views: [selected],
+  }).bytes.toString('utf8');
+
+  assert.equal((svg.match(/Source relation qualifiers \(unverified\)/gu) ?? []).length, 1);
+  assert(svg.includes('Configuration → Synchronizer · state: desired bindings'));
+  assert(svg.includes('Discovery → Synchronizer · state: observed surfaces'));
+  assert.equal((svg.match(/data-graphic-id="static-view-0-r-[01]"/gu) ?? []).length, 2);
+});
+
+test('a qualifier context is not generalized across unlike relation notes', () => {
+  const selected = view('mixed-notes', 0);
+  const context = 'Source relation qualifiers (unverified)';
+  selected.rendered.parts.relations = [
+    {
+      graphicId: 'static-view-0-r-0',
+      text: `Configuration → Synchronizer · ${context}: state: desired bindings`,
+      context,
+    },
+    { graphicId: 'static-view-0-r-1', text: 'Synchronizer → Registry · delegates' },
+  ];
+  const svg = composeStaticFigureSvg({
+    title: 'Mixed relation notes',
+    summary: 'Only the first relation has an unverified qualifier.',
+    rasterWidth: 1800,
+    views: [selected],
+  }).bytes.toString('utf8');
+  const visible = [...svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/gu)]
+    .map(([, value]) => value)
+    .join(' ')
+    .replace(/\s+/gu, ' ');
+
+  assert(visible.includes(`${context}: state: desired bindings`));
+  assert(visible.includes('Synchronizer → Registry · delegates'));
+  assert.equal((visible.match(/Source relation qualifiers \(unverified\)/gu) ?? []).length, 1);
+});
+
+test('a declared repeated context must occur in the full relation text', () => {
+  const selected = view('invalid-context', 0);
+  selected.rendered.parts.relations = [
+    {
+      graphicId: 'static-view-0-r-0',
+      text: 'Configuration → Synchronizer · state: desired bindings',
+      context: 'Source relation qualifiers (unverified)',
+    },
+  ];
+
+  assert.throws(
+    () =>
+      composeStaticFigureSvg({
+        title: 'Invalid context',
+        summary: 'Do not make an unsupported shared claim.',
+        rasterWidth: 1800,
+        views: [selected],
+      }),
+    { code: 'static_figure_relation_context_invalid' },
+  );
+});
+
 test('wrapped figure relation lines reserve readable vertical clearance', () => {
   const first = view('first', 0);
   first.rendered.parts.relations = [

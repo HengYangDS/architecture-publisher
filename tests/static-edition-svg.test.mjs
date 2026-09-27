@@ -141,6 +141,14 @@ test('malformed editorial and relation collections fail with a named diagnostic'
   }
 });
 
+test('a nontext source relation label fails rather than becoming a caption', () => {
+  const input = staticEditionScene();
+  input.edges[0].relations[0].label = 42;
+  assert.throws(() => svg.composeStaticEditionSvg(input), {
+    code: 'static_edition_relation_label_invalid',
+  });
+});
+
 test('the renderer refuses unsupported scene authority and dimensions', () => {
   const cases = [
     ['absent scene', () => null, 'static_edition_scene_invalid'],

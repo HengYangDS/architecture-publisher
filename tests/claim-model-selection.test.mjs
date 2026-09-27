@@ -913,6 +913,9 @@ test('a grouped static Scene retains relation and dependent claim as separate so
     scene.edges[0].relations[0].label,
     'Source relation qualifiers (unverified): phase: selected · z: tail · ä: accent',
   );
+  const fragment = composeStaticEditionSvg(scene, { fragment: true });
+  assert.equal(fragment.parts.relations[0].context, 'Source relation qualifiers (unverified)');
+  assert.equal(Object.hasOwn(fragment.parts.relations[0], 'compactText'), false);
   assert.equal(scene.claimCards.length, 1);
   assert.deepEqual(scene.claimRelationLinks, [
     { claimAssertionId: 'selected-claim', relationAssertionId: 'selected-relation' },
@@ -1853,9 +1856,11 @@ test('a selected relation can publish structural media without inventing claim s
     );
   }
   const visibleStatic = svg.replace(/<[^>]*>/gu, ' ').replace(/\s+/gu, ' ');
-  assert(
-    visibleStatic.includes('Source relation qualifiers (unverified): Claim plane: implemented'),
+  assert.equal(
+    (visibleStatic.match(/Source relation qualifiers \(unverified\)/gu) ?? []).length,
+    1,
   );
+  assert(visibleStatic.includes('Claim plane: implemented'));
   assert(!visibleStatic.includes('Claim plane: implemented · calls'));
   assert(html.includes('Source-reported relation qualifiers · unverified'));
   assert(html.includes('<dt>Claim plane</dt><dd>&quot;implemented&quot;</dd>'));

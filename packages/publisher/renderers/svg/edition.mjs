@@ -1,6 +1,7 @@
 import { fail } from '../../src/source/manifest.mjs';
 import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
 import {
+  SOURCE_RELATION_QUALIFIER_CONTEXT,
   SOURCE_REPORTED_TOPOLOGY_NOTE,
   UNLINKED_RELATION_NOTE,
 } from '../../src/scene/claim-relations.mjs';
@@ -574,14 +575,23 @@ export function composeStaticEditionSvg(scene, options = {}) {
   const relationItems = scene.edges.flatMap((edge) =>
     edge.relations.flatMap((relation) => {
       const graphicId = relationCarriers[relationIndex++].graphicId;
+      if (relation.label !== null && typeof relation.label !== 'string')
+        fail('static_edition_relation_label_invalid');
       if (edge.caption && relation.label === null) return [];
-      const qualifiers = [relation.label, ...(edge.caption ? [] : [relation.kind])]
+      const identity = `${mixed ? `${String(relationIndex).padStart(2, '0')} · ` : ''}${labels.get(key(edge.from))} ${relation.direction === 'bidirectional' ? '↔' : '→'} ${labels.get(key(edge.to))}`;
+      const details = [relation.label, ...(edge.caption ? [] : [relation.kind])]
         .filter((value, index, all) => value && all.indexOf(value) === index)
         .join(' · ');
+      const context =
+        scene.claimCards !== undefined &&
+        relation.label?.startsWith(`${SOURCE_RELATION_QUALIFIER_CONTEXT}: `)
+          ? SOURCE_RELATION_QUALIFIER_CONTEXT
+          : null;
       return [
         {
-          text: `${mixed ? `${String(relationIndex).padStart(2, '0')} · ` : ''}${labels.get(key(edge.from))} ${relation.direction === 'bidirectional' ? '↔' : '→'} ${labels.get(key(edge.to))}${qualifiers ? ` · ${qualifiers}` : ''}`,
+          text: `${identity}${details ? ` · ${details}` : ''}`,
           graphicId,
+          ...(context ? { context } : {}),
         },
       ];
     }),

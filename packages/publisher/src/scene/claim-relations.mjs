@@ -6,6 +6,7 @@ export const SOURCE_REPORTED_TOPOLOGY_NOTE =
   'Source-reported topology; provenance unverified; typed claim status not selected.';
 export const UNLINKED_RELATION_NOTE =
   'Unlinked relations show source topology only; typed claim status is not selected, and provenance is unverified.';
+export const SOURCE_RELATION_QUALIFIER_CONTEXT = 'Source relation qualifiers (unverified)';
 
 /** Derive relation and subject associations without inventing graph edges. */
 export function linkClaimModelSources(view, assertions, selections, errorCode) {
@@ -74,7 +75,7 @@ export function claimRelationQualifiers(relation, errorCode) {
 export function claimRelationLabel(relation, errorCode) {
   const qualifiers = claimRelationQualifiers(relation, errorCode);
   return qualifiers.length
-    ? `Source relation qualifiers (unverified): ${qualifiers
+    ? `${SOURCE_RELATION_QUALIFIER_CONTEXT}: ${qualifiers
         .map(
           ({ name, value }) => `${name}: ${typeof value === 'string' ? value : canonical(value)}`,
         )
