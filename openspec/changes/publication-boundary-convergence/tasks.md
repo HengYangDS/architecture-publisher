@@ -539,8 +539,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       measured text overlap, sampled path/text contact, card-border contact,
       escaped text, or external request in either static SVG. The full check
       passed 1,247 tests with seven explicit skips and 95.01% branch coverage.
-      This does not establish source acceptance, installed parity, whole-page
-      aesthetic approval, or release; Task 5.2 remains open.
+      A packed offline installation with isolated HOME and an empty build PATH
+      reproduced all six Candidate members for both exact AIGW requests;
+      `build/review/aigw-static-dual-dagre-20260928/installed-parity.json`
+      records the provisional archive and member digests. The original AIGW
+      source checkout remained available, so its absence is not proven.
+      Source acceptance, whole-page aesthetic approval, and release remain
+      open; Task 5.2 is not complete.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
