@@ -742,7 +742,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       is not named an Atlas. Final released-package identities, installed
       adopter paths, and release guidance still require reconciliation; this
       task remains open.
-- [x] 7.4 Promote the implemented delta requirements and role-based Purpose
+- [ ] 7.4 Promote the implemented delta requirements and role-based Purpose
       wording into active base specs before release freeze. Strictly validate the
       combined specs with no unresolved diagnostics, including advisory INFO,
       and prove valid v1 inputs still retain their historical meanings. Atomize
@@ -755,7 +755,25 @@ third-party or generated supply rather than moving owned code outside coverage.
       The Task 2.5 frozen-hash source and packed offline-installed journeys prove
       the selected historical v1 meanings; the focused post-promotion replay
       passes 9/9. This closes spec promotion, not the separate coverage or
-      release gates.
+      release gates. Reopened after independent boundary review found that the
+      active `ecosystem-adoption` spec still mandates physical co-location,
+      Provider-only adoption, and a Claim Model for AIGW, contradicting the
+      role-based, direct/native successor contracts. The new ecosystem-adoption
+      delta is a review candidate, not
+      promoted base behavior; align source-owner endorsement, editor placement,
+      and non-invasive adoption before repeating strict validation and the
+      isolated official archive rehearsal. Exercise a zero-source-change
+      independent Edition, optional co-located first-party routes, multi-source
+      endorsement separation, fail-closed selected bytes, and owner-admitted
+      retirement before marking this reopened task complete. An isolated
+      official archive of the current draft updates exactly
+      `ecosystem-adoption`, `edition-publication`, and `source-intake`; all 16
+      resulting base specs pass strict validation. This is a rehearsal, not
+      base promotion or source-owner acceptance. The current
+      `tests/product-identity.test.mjs` still passes against the old base text;
+      replace its physical-placement string assertion with role and public-
+      contract checks when promoting the delta, and reconcile README, Edition
+      guidance, and operations without treating present location as a rule.
 - [ ] 7.5 Select the SemVer successor and update package manifests, lockfile,
       and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
       behavior tests until the complete owned scope reaches at least 95% in

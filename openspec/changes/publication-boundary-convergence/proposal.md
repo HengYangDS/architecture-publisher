@@ -71,6 +71,10 @@ publication, not a new lifecycle or command plane.
 
 - `source-intake`: Authoring locators or exact pins materialize a closed,
   content-bound input lock; revision kind and verification scope are explicit.
+- `ecosystem-adoption`: Separate source authority and editorial ownership from
+  physical placement; permit read-only external Editions without imposing
+  Publisher files or CI on source products, while official endorsement remains
+  an explicit source-owner decision.
 - `edition-provider`: Declarative and executable input preparation yield one
   selected-input envelope without later-stage claims or mandatory source-repo
   placement.
