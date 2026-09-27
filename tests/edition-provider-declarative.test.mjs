@@ -88,7 +88,10 @@ test('declarative provider materializes exact ordinary inputs', async (t) => {
   assert.deepEqual(result.receipt.subject, provider.subject);
   assert.deepEqual(result.receipt.materialized, provider.expected);
   assert.equal(result.receipt.producer.name, 'architecture-publisher');
-  assert.equal(result.receipt.producer.version, '0.3.0-alpha.3');
+  const packageJson = JSON.parse(
+    await fs.readFile(new URL('../packages/publisher/package.json', import.meta.url), 'utf8'),
+  );
+  assert.equal(result.receipt.producer.version, packageJson.version);
   assert.equal(result.receipt.execution.kind, 'declarative');
   assert.equal(result.receipt.execution.deterministic, true);
 });

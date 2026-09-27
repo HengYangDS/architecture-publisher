@@ -10,7 +10,7 @@ const root = path.resolve(import.meta.dirname, '..');
 test('current package identity and predecessor release are explicit', async () => {
   const packageJson = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
   const packageLock = JSON.parse(await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'));
-  assert.equal(packageJson.version, '0.3.0-alpha.3');
+  assert.match(packageJson.version, /^0\.3\.0-alpha\.[0-9]+$/u);
   assert.equal(packageLock.version, packageJson.version);
   assert.equal(packageLock.packages[''].version, packageJson.version);
 

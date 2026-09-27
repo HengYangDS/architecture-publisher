@@ -734,6 +734,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       Task 7.3, frozen installed workloads, exact-byte visual review,
       exact-HEAD proof, and protected publication remain open. Do not weaken
       coverage inclusion or substitute the pre-freeze result for Task 7.6.
+      The work Lane now selects untagged `0.3.0-alpha.4` across workspace,
+      Core, self-Edition, and lockfile. A focused RED/GREEN rejects changed
+      development HEAD bytes reusing the signed `v0.3.0-alpha.3` version; the
+      historical tag is unchanged. This assigns a unique provisional package
+      identity for cross-product migration trials, not frozen or released
+      `alpha.4` bytes. Final release notes, package identities, and acceptance
+      remain open in this task.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

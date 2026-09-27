@@ -12,6 +12,13 @@ const runGit = (...args) => {
   return result.stdout.trim();
 };
 
+test('a development HEAD does not reuse a signed release version for changed bytes', async () => {
+  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+  const tag = `v${workspace.version}`;
+  if (!runGit('tag', '--list', tag)) return;
+  assert.equal(runGit('rev-parse', 'HEAD'), runGit('rev-parse', `${tag}^{}`));
+});
+
 test('alpha.7 migration baseline preserves exact local and remote identities', async () => {
   const baseline = JSON.parse(
     await fs.readFile(path.join(root, 'docs/migration/alpha7-baseline.json'), 'utf8'),
@@ -66,7 +73,7 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
   const repositoryName = path.basename(path.dirname(commonDirectory));
 
   assert.equal(packageJson.name, 'architecture-publisher');
-  assert.equal(packageJson.version, '0.3.0-alpha.3');
+  assert.match(packageJson.version, /^0\.3\.0-alpha\.[0-9]+$/u);
   assert.deepEqual(packageJson.bin, { archpub: 'src/cli/main.mjs' });
   assert.equal(packageJson.exports['./provider'], './src/provider/index.mjs');
   assert.deepEqual(Object.keys(packageJson.bin), ['archpub']);
@@ -105,25 +112,11 @@ test('release history follows Keep a Changelog with one SemVer identity', async 
   assert.match(changelog, /^# Changelog$/mu);
   assert.match(changelog, /Keep a Changelog.*Semantic Versioning/su);
   assert.match(changelog, /^## \[Unreleased\]$/mu);
-  assert.match(
-    changelog,
-    new RegExp(
-      `^## \\[${workspace.version.replaceAll('.', '\\.')}\\] - [0-9]{4}-[0-9]{2}-[0-9]{2}$`,
-      'mu',
-    ),
-  );
   assert.match(changelog, /^### Added$/mu);
   assert.match(changelog, /^### Changed$/mu);
   assert.match(changelog, /^### Fixed$/mu);
   assert.match(changelog, /^### Security$/mu);
   assert.match(changelog, /^\[Unreleased\]: \.\.\/\.\.\/compare\//mu);
-  assert.match(
-    changelog,
-    new RegExp(
-      `^\\[${workspace.version.replaceAll('.', '\\.')}\\]: \\.\\.\\/\\.\\.\\/compare\\/`,
-      'mu',
-    ),
-  );
 
   const releases = new Map(
     [...changelog.matchAll(/^## \[([^\]]+)\] - ([0-9]{4}-[0-9]{2}-[0-9]{2})$/gmu)].map(
@@ -132,17 +125,23 @@ test('release history follows Keep a Changelog with one SemVer identity', async 
   );
   assert.equal(releases.size, [...changelog.matchAll(/^## \[[^\]]+\] - /gmu)].length);
   const releaseVersions = [...releases.keys()];
-  assert.equal(releaseVersions[0], workspace.version);
   for (const [version, date] of releases) {
     assert.match(version, semanticVersion);
     assert.equal(new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10), date);
   }
   const tags = runGit('tag', '--list', 'v*', '--sort=-version:refname').split('\n').filter(Boolean);
   const taggedVersions = tags.map((tag) => tag.slice(1));
-  assert.deepEqual(
-    taggedVersions.includes(workspace.version) ? releaseVersions : releaseVersions.slice(1),
-    taggedVersions,
-  );
+  const preparedVersion =
+    !taggedVersions.includes(workspace.version) && releaseVersions[0] === workspace.version;
+  assert.deepEqual(preparedVersion ? releaseVersions.slice(1) : releaseVersions, taggedVersions);
+  if (preparedVersion)
+    assert.match(
+      changelog,
+      new RegExp(
+        `^\\[${workspace.version.replaceAll('.', '\\.')}\\]: \\.\\.\\/\\.\\.\\/compare\\/`,
+        'mu',
+      ),
+    );
   for (const tag of tags) {
     const version = tag.slice(1);
     assert.equal(
