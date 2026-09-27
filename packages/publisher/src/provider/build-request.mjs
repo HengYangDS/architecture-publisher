@@ -42,7 +42,30 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256, 
   const providers = [];
   for (const selection of request.providers) {
     const manifestPath = path.resolve(root, ...selection.manifest.split('/'));
-    const selectedManifest = await readSelectedProviderManifest(manifestPath, selection.sha256);
+    let selectedManifest;
+    try {
+      selectedManifest = await readSelectedProviderManifest(manifestPath, selection.sha256);
+    } catch (error) {
+      if (error?.code === 'edition_provider_v2_invalid') {
+        error.diagnostics = [
+          {
+            code: error.code,
+            severity: 'error',
+            message: 'Selected Provider manifest violates the v2 contract.',
+            predicate: 'provider-manifest-schema',
+            subject: {
+              kind: 'provider-manifest',
+              selectionId: selection.id,
+              sha256: selection.sha256,
+            },
+            responsibility: { role: 'provider-author', declaredOwner: null },
+            evidence: {},
+            supportedFixes: [],
+          },
+        ];
+      }
+      throw error;
+    }
     providers.push({ selection, selectedManifest });
   }
   if (offered !== null) {

@@ -269,7 +269,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       semantic successor, explicit incumbent-owner approval, and preserved
       historical receipts. Keep `tests/edition-provider-conformance.test.mjs`
       on the historical v1 profile; do not add a feedback store, registry,
-      command plane, or source-governance adapter.
+      command plane, or source-governance adapter. Partial: a digest-matching
+      v2 manifest that fails structural validation returns a local exact-subject,
+      protocol-role diagnostic through the existing CLI error; changed manifest
+      bytes remain unassigned rather than blaming the provider author. Source,
+      editorial, adapter, and retirement cases remain open.
 
 ## 4. Native semantics and conservative change
 

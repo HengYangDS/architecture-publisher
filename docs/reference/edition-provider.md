@@ -46,6 +46,15 @@ lock does not transfer Candidate identity, qualification, or approval across
 delivery modes. The successor build requires an explicit `--output` directory
 and produces an unqualified `architecture.edition-candidate/v2` bundle.
 
+When an exact selected v2 Provider manifest parses but fails structural
+validation, the existing CLI error includes a local diagnostic bound to the
+Build Request's Provider selection ID and manifest digest. It identifies the
+provider-author role but leaves `declaredOwner` null because this manifest
+declares no owner. A changed manifest digest is a different failure and does
+not blame its author.
+Publisher neither dispatches the diagnostic nor edits the selected source;
+the invoker decides whether to hand it to a responsible party.
+
 ## Shared role boundaries
 
 | Field                | Meaning                                                        |

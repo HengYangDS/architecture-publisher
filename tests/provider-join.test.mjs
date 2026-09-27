@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import {
   editionProviderPackageDigest,
   materializeBuildRequestInput,
@@ -409,6 +411,68 @@ test('global join rejects ambiguous derived meaning and false Edition metadata',
   f.providers.alpha.manifest.selected.edition.editor = 'false-editor';
   await assert.rejects(f.materialize(), {
     code: 'materialized_provider_edition_identity_mismatch',
+  });
+});
+
+test('invalid v2 Provider manifest returns a local, owner-unresolved diagnostic', async (t) => {
+  const f = await fixture(t);
+  f.providers.alpha.manifest.selected.derived[0].derivedFrom = ['missing'];
+  const { requestPath, digest } = await f.save();
+  const selected = f.request.providers[0];
+  const nativePath = path.join(f.providers.alpha.directory, 'native.json');
+  const nativeBefore = sha(await fs.readFile(nativePath));
+  const subject = {
+    kind: 'provider-manifest',
+    selectionId: selected.id,
+    sha256: selected.sha256,
+  };
+
+  await assert.rejects(materializeBuildRequestInput(requestPath, digest), (error) => {
+    assert.equal(error.code, 'edition_provider_v2_invalid');
+    assert.equal(error.diagnostics?.length, 1);
+    const [finding] = error.diagnostics;
+    assert.equal(finding.predicate, 'provider-manifest-schema');
+    assert.deepEqual(finding.subject, subject);
+    assert.deepEqual(finding.responsibility, {
+      role: 'provider-author',
+      declaredOwner: null,
+    });
+    return true;
+  });
+
+  const output = path.join(f.root, 'candidate');
+  const cli = fileURLToPath(new URL('../packages/publisher/src/cli/main.mjs', import.meta.url));
+  const result = spawnSync(
+    process.execPath,
+    [cli, 'edition', 'build', requestPath, '--sha256', digest, '--output', output],
+    {
+      cwd: f.root,
+      env: { HOME: f.root, PATH: f.root, LANG: 'C.UTF-8' },
+      encoding: 'utf8',
+      timeout: 15_000,
+    },
+  );
+  assert.equal(result.status, 1, result.stderr);
+  const response = JSON.parse(result.stdout);
+  assert.equal(response.error.code, 'edition_provider_v2_invalid');
+  assert.deepEqual(response.error.diagnostics[0].subject, subject);
+  assert.equal(response.error.diagnostics[0].predicate, 'provider-manifest-schema');
+  assert.deepEqual(response.error.diagnostics[0].responsibility, {
+    role: 'provider-author',
+    declaredOwner: null,
+  });
+  assert.equal(sha(await fs.readFile(nativePath)), nativeBefore);
+  await assert.rejects(fs.stat(output), { code: 'ENOENT' });
+});
+
+test('changed selected manifest bytes do not implicate the Provider author', async (t) => {
+  const f = await fixture(t);
+  const { requestPath, digest } = await f.save();
+  await fs.appendFile(path.join(f.providers.alpha.directory, 'provider.json'), ' ');
+  await assert.rejects(materializeBuildRequestInput(requestPath, digest), (error) => {
+    assert.equal(error.code, 'edition_provider_v2_manifest_digest_mismatch');
+    assert.equal(error.diagnostics, undefined);
+    return true;
   });
 });
 
