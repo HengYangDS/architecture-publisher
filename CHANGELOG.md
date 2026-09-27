@@ -8,6 +8,8 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.3.0-alpha.4] - 2026-09-28
+
 ### Added
 
 - Added one versioned Build Request and Edition Project path for direct,
@@ -256,7 +258,8 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
-[Unreleased]: ../../compare/v0.3.0-alpha.3...main
+[Unreleased]: ../../compare/v0.3.0-alpha.4...main
+[0.3.0-alpha.4]: ../../compare/v0.3.0-alpha.3...v0.3.0-alpha.4
 [0.3.0-alpha.3]: ../../compare/v0.3.0-alpha.2...v0.3.0-alpha.3
 [0.3.0-alpha.2]: ../../compare/v0.3.0-alpha.1...v0.3.0-alpha.2
 [0.3.0-alpha.1]: ../../compare/v0.3.0-alpha.0...v0.3.0-alpha.1
