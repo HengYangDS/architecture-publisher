@@ -105,6 +105,7 @@ export function composeGroupedSelectionLayout(meaning) {
       const source = placement.get(from);
       const target = placement.get(to);
       if (!source || !target) fail('grouped_selection_layout_unadmitted');
+      if (from === to) fail('grouped_selection_self_relation_unrepresentable');
       const lateral = source.row === target.row;
       const forward = lateral ? source.column < target.column : source.row < target.row;
       return {

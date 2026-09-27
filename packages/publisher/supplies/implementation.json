@@ -268,8 +268,8 @@
       },
       {
         "path": "src/scene/static/grouped-selection.mjs",
-        "bytes": 9523,
-        "sha256": "b1edfb81e3f32ee155e6397709192e55babf5da74b72c7d0ae2d455d0dab46cf"
+        "bytes": 9603,
+        "sha256": "9696b388af11a172eed4ba700e87474b3e287a74529f09b2d677cac3aa88ed5f"
       },
       {
         "path": "src/semantics/document.mjs",
@@ -375,8 +375,8 @@
       },
       {
         "path": "src/scene/static/grouped-selection.mjs",
-        "bytes": 9523,
-        "sha256": "b1edfb81e3f32ee155e6397709192e55babf5da74b72c7d0ae2d455d0dab46cf"
+        "bytes": 9603,
+        "sha256": "9696b388af11a172eed4ba700e87474b3e287a74529f09b2d677cac3aa88ed5f"
       },
       {
         "path": "src/semantics/document.mjs",
@@ -487,8 +487,8 @@
       },
       {
         "path": "src/scene/static/grouped-selection.mjs",
-        "bytes": 9523,
-        "sha256": "b1edfb81e3f32ee155e6397709192e55babf5da74b72c7d0ae2d455d0dab46cf"
+        "bytes": 9603,
+        "sha256": "9696b388af11a172eed4ba700e87474b3e287a74529f09b2d677cac3aa88ed5f"
       },
       {
         "path": "src/semantics/document.mjs",

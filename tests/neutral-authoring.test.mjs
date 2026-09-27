@@ -449,6 +449,18 @@ test('grouped geometry does not place relation labels that the successor never r
   const upper = vertical.nodes.find(({ id }) => id === 'alpha');
   assert.equal(vertical.edges[0].points[0][1], lower.y);
   assert.equal(vertical.edges[0].points.at(-1)[1], upper.y + upper.height);
+
+  const self = structuredClone(meaning);
+  self.native.selections[0].members.relations = [
+    {
+      ...self.native.selections[0].members.relations[0],
+      id: 'relation-self',
+      to: { namespace: source.namespace, id: 'alpha' },
+    },
+  ];
+  assert.throws(() => composeGroupedSelectionLayout(self), {
+    code: 'grouped_selection_self_relation_unrepresentable',
+  });
 });
 
 test('grouped geometry consumes selected Claim Model relations without treating claims as edges', () => {
