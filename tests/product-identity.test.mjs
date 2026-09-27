@@ -225,6 +225,13 @@ test('product documentation has one semantic owner and a concise entry point', a
     edition,
     /audience[\s\S]*questions[\s\S]*required claims[\s\S]*omission policy[\s\S]*static scene[\s\S]*interactive scenes/i,
   );
+  const selfOperations = operations
+    .split('The first-party self-Edition exports:')[1]
+    ?.split('The current source-owned ETHOS integration package exports:')[0];
+  assert(selfOperations);
+  assert.match(selfOperations, /prepares explicit source-bound inputs/iu);
+  assert.match(selfOperations, /generic (?:Core|compiler).*both media/isu);
+  assert.doesNotMatch(selfOperations, /\brenders\b/iu);
   assert.match(operations, /architecture\.edition\/v1/);
   assert.match(operations, /editionSha256/);
   assert.match(operations, /0\.3 work-lane CLI surface/i);

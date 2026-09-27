@@ -855,10 +855,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       Migration handoffs now distinguish AIGW's provisional installed Client
       and whole-product probes from source-owner acceptance, and ETHOS's exact
       package-pin prerequisite from v2 semantic or flagship parity. The README
-      identifies the linked Edition v1 contract as historical; generic output
-      is not named an Atlas. Final released-package identities, installed
-      adopter paths, and release guidance still require reconciliation; this
-      task remains open.
+      identifies the linked Edition v1 contract as historical. The operational
+      reference now assigns paired-media compilation to the generic Core, not
+      the self-Edition; successor output is not called an Atlas. Final
+      released-package identities, installed adopter paths, and release
+      guidance still require reconciliation; this task remains open.
 - [ ] 7.4 Promote the reviewed role-based deltas into active specs before release
       freeze; the later official archive must add no new normative behavior.
       Prove historical v1 input meanings, a zero-source-change independent

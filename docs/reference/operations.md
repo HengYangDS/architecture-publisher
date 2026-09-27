@@ -366,10 +366,11 @@ The first-party self-Edition exports:
 @architecture-publisher/self-edition/runtime
 ```
 
-Its public Edition surface prepares explicit source-bound inputs and renders the
-independent flagship static candidate. The render result remains unqualified
-and unpublished until the later qualification and publication contracts admit
-those exact bytes.
+Its public Edition surface prepares explicit source-bound inputs, including its
+editorial selection and visual refinement. The generic Core builds both media
+through one public Build Request and returns an unqualified Candidate. That
+Candidate remains unpublished until distinct qualification, acceptance, and
+publication decisions are bound to its exact bytes.
 
 The current source-owned ETHOS integration package exports:
 
