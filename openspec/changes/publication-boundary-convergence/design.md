@@ -742,9 +742,12 @@ copied into a second prose list when the graph can carry them readably.
 Layout is a bounded search over complete-page candidates, not a graph-engine
 result followed by independent text placement. The bundled font's measured
 glyph bounds and each painted mark's bounds reserve space before placement.
-Group headings require a header region disjoint from member nodes. Relation
-labels and claim annotations remain near their subjects unless that would
-reduce legibility. The existing static Scene audit owns collision, clearance,
+Painted group headings require a header region disjoint from member nodes.
+When a causal layout interleaves editorial groups, spatial proximity is not
+membership: the selected Dagre path leaves group extents unpainted and puts
+exact group/member pairs in a measured reading key. Relation labels and claim
+annotations remain near their subjects unless that would reduce legibility.
+The existing static Scene audit owns collision, clearance,
 containment, edge-attachment and crossing predicates; extend that owner to
 cover the neutral compositor rather than create another visual authority.
 Candidate ranking considers readable font size, crossings, relation-to-claim
@@ -755,7 +758,7 @@ crossing or reading-order break. No score alone proves aesthetic acceptance.
 
 The one-view path is the same constrained case, not a separate rendering
 standard. A graph layout supply may propose node/edge coordinates, but it may
-not authorize group, text or page geometry. The AIGW Dagre experiment at
+not authorize group meaning, text or page geometry. The AIGW Dagre experiment at
 `build/review/aigw-overview-trial-1X9e3q/dagre-static.png` shortened a
 3600-pixel figure from 3071 to 1930 pixels while visibly overlapping group
 headings with nodes and leaving large empty regions. That output is a rejected
@@ -778,8 +781,8 @@ not page-level semantic composition. D2's [layout documentation](https://d2lang.
 also distinguishes engine-specific capability. Retain ELK as a possible
 bounded graph-coordinate supply; do not adopt D2 or Graphviz as the Publisher
 page authority, ship the host CLI, or treat a graph-only trial as a Candidate.
-First implement and test the joint page contract; change graph supply only
-when a named whole-page counterexample proves the existing one inadequate.
+Keep the joint page contract as the decision boundary; change graph supply
+only when a named whole-page counterexample proves the existing one inadequate.
 
 Publisher owns deterministic composition, source-carrier validation and
 conjunctive qualification. A named editor may supply a data-only refinement
