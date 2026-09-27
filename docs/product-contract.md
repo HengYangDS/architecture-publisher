@@ -143,11 +143,11 @@ a publication. The product distinguishes:
 - **Edition Publication** — reader artifacts plus exact build, qualification,
   publication, and recovery identities after the authorized effect.
 
-Reader-facing artifacts normally include an independent static SVG/PNG and a
-standalone interactive HTML atlas. Their manifest and receipts explain what the
-bytes mean, where they came from, which checks passed, which limits remain, and
-which effect occurred. Installation, hosted availability, and release are
-separate claims.
+Reader-facing artifacts normally include an independently composed static
+SVG/PNG pair and one standalone interactive HTML document. Their manifest and
+receipts explain what the bytes mean, where they came from, which checks passed,
+which limits remain, and which effect occurred. Installation, hosted
+availability, and release are separate claims.
 
 ## Product identity
 
@@ -413,11 +413,12 @@ require a bounded adapter; effortless arbitrary redesign is not promised.
 
 Candidate preparation binds explicit authored text sites and complete-value
 source identities. Checked preimages prevent stale edits, and a complete page
-permutation preserves the atlas while allowing explicit reading order. The
-refresh example uses this same contract. Unsupported topology requires a future
-bounded composition change, not guessed identity substitution. A source-manifest
-change rebinds the Edition, invalidates acceptance and publication, and requires
-fresh semantic plus installed-use verification. It does not by itself imply that
+permutation preserves the declared interactive views while allowing explicit
+reading order. The refresh example uses this same contract. Unsupported
+topology requires a future bounded composition change, not guessed identity
+substitution. A source-manifest change rebinds the Edition, invalidates
+acceptance and publication, and requires fresh semantic plus installed-use
+verification. It does not by itself imply that
 scene geometry changed; changed or unrepresented meaning determines the affected
 scenes. Automatic aesthetic optimization is not established by this increment.
 

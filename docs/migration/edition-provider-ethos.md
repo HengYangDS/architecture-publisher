@@ -1,7 +1,7 @@
 ---
 subject: ethos:edition-provider-migration
 role: handoff
-state: incumbent-observed-successor-spec-reviewed
+state: incumbent-observed-successor-provisional
 relations:
   uses: ../reference/edition-provider.md
 ---
@@ -12,7 +12,9 @@ This packet separates the observed ETHOS v1 integration from a conditional
 successor migration. It is an input to ETHOS's own single writer, Change, and
 Work Lane. It does not authorize edits to ETHOS, acceptance of new artwork, or
 publication. The linked Provider reference describes the released v1 protocol;
-the successor specification is reviewed, but implementation and release are pending.
+the successor is implemented in a Publisher work lane but is not a selected
+ETHOS release. Publisher implementation or release does not authorize ETHOS
+migration.
 
 ## Observed incumbent
 
@@ -160,7 +162,7 @@ advertised as fully implemented behavior.
 4. Compare the successor's structural and flagship outputs with the incumbent
    at their actual promises. Require visible semantic coverage, independent
    static and interactive composition, exact consumed authoring, 6000-pixel
-   raster when selected, all complete Atlas pages, browser/accessibility
+   raster when selected, all declared interactive pages, browser/accessibility
    evidence, and human visual review bound to final bytes. Parity or an
    explicitly reviewed successor delta is required; a digest mapping alone
    does not suffice.
@@ -180,3 +182,12 @@ qualification, human decision, repository effect, and hosted publication.
 Publisher may report findings but cannot approve an ETHOS Change, advance its
 refs, or treat a generated drawing as source truth. This packet has not
 executed the successor journey and grants no migration approval.
+
+At ETHOS dev `ff1cc69d2` on 2026-09-27, the source-owned integration package
+still pins Publisher `0.3.0-alpha.1` and returns Provider v1 values. The
+isolated offline comparison in
+`conformance/evidence/ethos-install-pin-probe.json` shows that it installs with
+the signed alpha.1 archive but not with the current work-lane archive labeled
+alpha.3. This isolates an exact package dependency prerequisite, not a v2
+semantic, media, flagship, or source-owner acceptance result. The ETHOS owner
+must select and requalify the eventual released Publisher bytes independently.

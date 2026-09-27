@@ -1,7 +1,7 @@
 ---
 subject: aigw:edition-provider-migration
 role: handoff
-state: v1-location-observed-successor-spec-reviewed
+state: v1-location-observed-successor-provisional
 relations:
   uses: ../reference/edition-provider.md
 ---
@@ -9,9 +9,11 @@ relations:
 # AIGW Edition Provider boundary
 
 This packet separates an observed AIGW v1 adoption from a proposed successor
-migration. It is not AIGW authorization, acceptance, or publication. The
-successor specification is reviewed, but its implementation and release are
-pending; no AIGW source change is authorized by this packet.
+migration. It is not AIGW authorization, acceptance, or publication. As of
+2026-09-27, the successor is implemented in a Publisher work lane with
+provisional installed conformance, not a selected AIGW release or migration.
+Publisher implementation or release does not authorize AIGW migration; no AIGW
+source change is authorized by this packet.
 
 ## Observed v1 state
 
@@ -133,5 +135,10 @@ sources, revision computation, Provider reply, Edition project, Candidate,
 static and interactive media, qualification, and release. It must distinguish
 an installed Publisher build from AIGW acceptance. Publisher conformance cannot
 approve an AIGW Change, advance its refs, or make generated media source truth.
-This packet has not executed that successor journey and does not claim that the
-v1 installed tests qualify the future protocol.
+Provisional installed and relocated Client Projection and whole-product builds
+at Publisher `0e391e7` and AIGW `bd3c09d5` are recorded in
+`conformance/evidence/aigw-client-paired-installed-probe.json` and
+`conformance/evidence/aigw-product-installed-probe.json`. Those exact Candidate
+bytes are not final released inputs, AIGW acceptance, a source-delta update, or
+publication recovery. This packet has not executed AIGW's source-owned
+successor migration.

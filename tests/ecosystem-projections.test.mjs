@@ -147,7 +147,7 @@ test('provider guidance preserves one command plane and explicit ownership bound
   assert.match(normalizedAigw, /it is not a Git commit/iu);
   assert.match(
     normalizedAigw,
-    /successor specification is reviewed, but its implementation and release are pending/iu,
+    /Publisher implementation or release does not authorize AIGW migration/iu,
   );
   assert.match(normalizedAigw, /no AIGW source change is authorized/iu);
 
@@ -175,7 +175,7 @@ test('provider guidance preserves one command plane and explicit ownership bound
     assert.match(normalizedEthos, new RegExp(term, 'iu'), term);
   assert.match(
     normalizedEthos,
-    /successor specification is reviewed, but implementation and release are pending/iu,
+    /Publisher implementation or release does not authorize ETHOS migration/iu,
   );
 
   const recovery = documents['docs/reference/disaster-recovery-decision-contract.md'];

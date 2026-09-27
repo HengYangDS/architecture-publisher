@@ -38,10 +38,11 @@ compiler or approval path.
 
 - [Product contract](docs/product-contract.md) defines the canonical product
   meaning and authority boundaries.
-- [Edition contract](docs/edition-contract.md) defines audience, coverage,
-  independent scenes, and qualification obligations.
+- [Edition contract](docs/edition-contract.md) records the historical v1
+  audience, coverage, scene, and qualification contract; successor authoring is
+  selected through the versioned Build Request and Edition Project.
 - [Edition Provider reference](docs/reference/edition-provider.md) defines the
-  optional source-owned materialization boundary.
+  optional owner-attributed materialization boundary.
 - [Changelog](CHANGELOG.md) records notable released changes and compatibility
   notes under Semantic Versioning.
 - [Operational reference](docs/reference/operations.md) documents the current

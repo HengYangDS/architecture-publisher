@@ -682,8 +682,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       reference, and repository Skill now distinguish v2 selected-input builds
       from historical v1, including executable replay effects. A complete
       source-bound example builds the same paired Candidate after relocation.
-      Migration handoffs, installed adopter paths, and final release guidance
-      still require reconciliation; this task remains open.
+      Migration handoffs now distinguish AIGW's provisional installed Client
+      and whole-product probes from source-owner acceptance, and ETHOS's exact
+      package-pin prerequisite from v2 semantic or flagship parity. The README
+      identifies the linked Edition v1 contract as historical; generic output
+      is not named an Atlas. Final released-package identities, installed
+      adopter paths, and release guidance still require reconciliation; this
+      task remains open.
 - [x] 7.4 Promote the implemented delta requirements and role-based Purpose
       wording into active base specs before release freeze. Strictly validate the
       combined specs with no unresolved diagnostics, including advisory INFO,
