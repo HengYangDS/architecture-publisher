@@ -6,7 +6,12 @@ import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mj
 import { staticEditionScene } from './fixtures/static-edition-scene.mjs';
 
 function selectedMeaning(scene, medium) {
-  const pages = medium === 'static' ? [scene] : scene.pages;
+  const pages =
+    medium === 'static'
+      ? scene.schema === 'architecture.edition-static-figure/v1'
+        ? scene.views
+        : [scene]
+      : scene.pages;
   const assertions = new Map();
   const views = pages.map((page) => {
     const selected = [
@@ -40,6 +45,49 @@ function selectedMeaning(scene, medium) {
   });
   return { assertions: [...assertions.values()], media: { [medium]: { views } } };
 }
+
+test('a multi-view figure cannot lose, reorder, or reuse another view graphic', async () => {
+  const { validateVisibleSelection } =
+    await import('../packages/publisher/src/compiler/coverage.mjs');
+  const first = staticEditionScene();
+  const second = staticEditionScene();
+  second.editorialViewId = 'followup';
+  second.questionIds = ['followup'];
+  second.questions[0].id = 'followup';
+  second.limitsByQuestion = { followup: second.limitsByQuestion.shape };
+  second.sourceAssertionCarriers[0].assertionId = 'source-followup';
+  const figure = {
+    schema: 'architecture.edition-static-figure/v1',
+    views: [first, second],
+    placements: [{ id: 'overview' }, { id: 'followup' }],
+  };
+  const meaning = selectedMeaning(figure, 'static');
+  const maps = [
+    composeStaticEditionSvg(first, { idPrefix: 'static-view-0-', fragment: true }).carriers,
+    composeStaticEditionSvg(second, { idPrefix: 'static-view-1-', fragment: true }).carriers,
+  ];
+  assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', figure, maps));
+  for (const mutate of [
+    (value) => delete value.figure.placements,
+    (value) => value.figure.placements.pop(),
+    (value) => (value.figure.placements[1].id = 'overview'),
+    (value) => (value.maps[1].nodes[0].graphicId = value.maps[0].nodes[0].graphicId),
+    (value) => value.figure.views.pop(),
+    (value) => value.maps.pop(),
+    (value) => (value.maps[1] = null),
+    (value) => delete value.maps[1].nodes,
+    (value) => delete value.maps[1].relations,
+    (value) => (value.maps[1].claims = []),
+    (value) => (value.maps[1].assertions = []),
+  ]) {
+    const value = structuredClone({ meaning, figure, maps });
+    mutate(value);
+    assert.throws(
+      () => validateVisibleSelection(value.meaning, 'static', value.figure, value.maps),
+      { code: 'edition_visible_coverage_mismatch' },
+    );
+  }
+});
 
 test('interactive rendering refuses a question present only in hidden scene metadata', async () => {
   const scene = interactiveEditionScene();

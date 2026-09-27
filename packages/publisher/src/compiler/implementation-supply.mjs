@@ -15,13 +15,23 @@ const profileNames = [
   'static-grouped',
   'static-likec4',
   'static-authored',
+  'static-figure',
   'interactive-neutral',
   'interactive-authored',
 ];
 
 /** @internal Check a relocated package in regression tests. */
 export async function verifyImplementationSupplyAtRoot(root, profile) {
-  if (!profileNames.includes(profile)) fail('publisher_implementation_profile_invalid');
+  const profiles = typeof profile === 'string' ? [profile] : profile;
+  if (
+    !Array.isArray(profiles) ||
+    !profiles.length ||
+    profiles.length > 8 ||
+    new Set(profiles).size !== profiles.length ||
+    profiles.some((name) => !profileNames.includes(name)) ||
+    (profiles.length > 1 && profiles.some((name) => !name.startsWith('static-')))
+  )
+    fail('publisher_implementation_profile_invalid');
   const manifestPath = path.join(root, 'supplies/implementation.json');
   let bytes;
   try {
@@ -35,7 +45,17 @@ export async function verifyImplementationSupplyAtRoot(root, profile) {
   // The generated pin fixes the schema and profile membership; rechecking
   // their shape here would be a second, redundant authority.
   const manifest = JSON.parse(bytes);
-  const files = manifest.profiles[profile];
+  const selected = new Map();
+  for (const name of profiles)
+    for (const item of manifest.profiles[name]) {
+      const previous = selected.get(item.path);
+      if (previous && canonical(previous) !== canonical(item))
+        fail('publisher_implementation_supply_invalid');
+      selected.set(item.path, item);
+    }
+  const files = [...selected.values()].sort((left, right) =>
+    left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
+  );
   for (const item of files) {
     try {
       const file = path.join(root, ...item.path.split('/'));
@@ -48,9 +68,9 @@ export async function verifyImplementationSupplyAtRoot(root, profile) {
     }
   }
   return {
-    id: profile.startsWith('semantic-')
+    id: profiles[0].startsWith('semantic-')
       ? 'publisher-semantic-file-set'
-      : `publisher-${profile.startsWith('static-') ? 'static' : 'interactive'}-media-file-set`,
+      : `publisher-${profiles[0].startsWith('static-') ? 'static' : 'interactive'}-media-file-set`,
     sha256: sha(Buffer.from(canonical(files))),
     basis: 'checked-declared',
     method: 'checked-installed-file-set/v1',

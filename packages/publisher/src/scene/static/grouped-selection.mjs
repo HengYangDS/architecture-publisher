@@ -88,6 +88,10 @@ function nativeView(selectedView) {
 /** Project selected structural assertions through one replaceable geometry owner. */
 export function composeGroupedSelectionLayout(meaning) {
   const { authored, nodes, relations, selectedView } = selectedStructure(meaning, true);
+  const placement = new Map();
+  for (const [row, group] of authored.groups.entries())
+    for (const [column, member] of group.elements.entries())
+      placement.set(address(member), { row, column });
   const geometry = composeGroupedGeometry({
     nodes: [...nodes].map(([id, item]) => ({ id, label: item.label })),
     groups: authored.groups.map((group) => ({
@@ -95,15 +99,24 @@ export function composeGroupedSelectionLayout(meaning) {
       label: group.label,
       members: group.elements.map(address),
     })),
-    relations: [...relations].map(([id, item]) => ({
-      id,
-      from: address(item.from),
-      to: address(item.to),
-      text: '',
-      fromSide: 'bottom',
-      toSide: 'top',
-      route: 'orthogonal-v',
-    })),
+    relations: [...relations].map(([id, item]) => {
+      const from = address(item.from);
+      const to = address(item.to);
+      const source = placement.get(from);
+      const target = placement.get(to);
+      if (!source || !target) fail('grouped_selection_layout_unadmitted');
+      const lateral = source.row === target.row;
+      const forward = lateral ? source.column < target.column : source.row < target.row;
+      return {
+        id,
+        from,
+        to,
+        text: '',
+        fromSide: lateral ? (forward ? 'right' : 'left') : forward ? 'bottom' : 'top',
+        toSide: lateral ? (forward ? 'left' : 'right') : forward ? 'top' : 'bottom',
+        route: lateral ? 'orthogonal-h' : 'orthogonal-v',
+      };
+    }),
   });
   return deepFreeze({
     closure: 'grouped-layout-unqualified',

@@ -68,6 +68,8 @@ function wrap(value, width, size, limit = 12) {
   return lines;
 }
 
+export { escape as escapeStaticText, wrap as wrapStaticText };
+
 function textLines(output, content, x, y, width, size, color, weight = 400, limit = 12) {
   const lines = wrap(content, width, size, limit);
   for (const [index, line] of lines.entries())
@@ -110,6 +112,51 @@ function boundsOf(scene) {
     include(group.x + group.width, group.y + group.height);
   }
   return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+}
+
+function segmentHitsBox(from, to, box) {
+  let lower = 0;
+  let upper = 1;
+  const dx = to[0] - from[0];
+  const dy = to[1] - from[1];
+  for (const [p, q] of [
+    [-dx, from[0] - box.x],
+    [dx, box.x + box.width - from[0]],
+    [-dy, from[1] - box.y],
+    [dy, box.y + box.height - from[1]],
+  ]) {
+    if (p === 0) {
+      if (q < 0) return false;
+      continue;
+    }
+    const ratio = q / p;
+    if (p < 0) lower = Math.max(lower, ratio);
+    else upper = Math.min(upper, ratio);
+    if (lower > upper) return false;
+  }
+  return true;
+}
+
+function groupHeadingX(group, lines, edges) {
+  const textWidth = Math.max(...lines.map((line) => advance(line, 14))) + 12;
+  const left = group.x + 26;
+  const right = group.x + group.width - 26 - textWidth;
+  if (right < left) fail('static_edition_group_heading_collision');
+  const boxY = group.y + 13;
+  const boxHeight = groupTitleBaseline + (lines.length - 1) * groupTitleLeading + 4 - 13;
+  const positions = [left, right, (left + right) / 2];
+  for (let x = left + 20; x < right; x += 20) positions.push(x);
+  for (const x of positions) {
+    const box = { x: x - 3, y: boxY - 3, width: textWidth + 6, height: boxHeight + 6 };
+    if (
+      edges.some(({ points }) =>
+        points.slice(1).some((point, index) => segmentHitsBox(points[index], point, box)),
+      )
+    )
+      continue;
+    return x;
+  }
+  fail('static_edition_group_heading_collision');
 }
 
 function namedSection(output, name, items, x, y, width) {
@@ -316,7 +363,16 @@ function validateStaticScene(scene) {
 }
 
 /** Paint an unqualified, source-bound static Scene without acquiring meaning. */
-export function composeStaticEditionSvg(scene) {
+export function composeStaticEditionSvg(scene, options = {}) {
+  const idPrefix = options.idPrefix ?? '';
+  const fragment = options.fragment === true;
+  if (
+    Object.keys(options).some((key) => !['idPrefix', 'fragment'].includes(key)) ||
+    typeof idPrefix !== 'string' ||
+    !/^[a-z0-9-]*$/u.test(idPrefix) ||
+    (options.fragment !== undefined && typeof options.fragment !== 'boolean')
+  )
+    fail('static_edition_render_options_invalid');
   const mixed = validateStaticScene(scene);
   const claimLinks = mixed ? linkedClaims(scene) : null;
   const rasterWidth = scene.requestedWidth ?? 1800;
@@ -355,12 +411,13 @@ export function composeStaticEditionSvg(scene) {
       )
     )
       fail('static_edition_group_heading_collision');
+    const headingX = groupHeadingX(group, lines, scene.edges);
     graph.push(
       `<rect x="${number(group.x)}" y="${number(group.y)}" width="${number(group.width)}" height="${number(group.height)}" rx="18" fill="#eef0e9" stroke="#c4ccc2" stroke-width="1.4"/>`,
     );
     for (const [index, line] of lines.entries())
       graph.push(
-        `<text x="${number(group.x + 26)}" y="${number(group.y + groupTitleBaseline + index * groupTitleLeading)}" fill="#526158" font-size="14" font-weight="600">${escape(line)}</text>`,
+        `<text x="${number(headingX)}" y="${number(group.y + groupTitleBaseline + index * groupTitleLeading)}" fill="#526158" font-size="14" font-weight="600">${escape(line)}</text>`,
       );
   }
   for (const edge of scene.edges) {
@@ -370,9 +427,11 @@ export function composeStaticEditionSvg(scene) {
     if (directions.size !== 1 || !['forward', 'bidirectional'].includes([...directions][0]))
       fail('static_edition_direction_unrepresentable');
     const points = edge.points.map(([x, y]) => `${number(x)} ${number(y)}`);
-    const start = directions.has('bidirectional') ? ' marker-start="url(#source-arrow)"' : '';
+    const start = directions.has('bidirectional')
+      ? ` marker-start="url(#${idPrefix}source-arrow)"`
+      : '';
     graph.push(
-      `<path d="M ${points.join(' L ')}" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"${start} marker-end="url(#source-arrow)"/>`,
+      `<path d="M ${points.join(' L ')}" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"${start} marker-end="url(#${idPrefix}source-arrow)"/>`,
     );
   }
   for (const [position, node] of scene.nodes.entries()) {
@@ -385,7 +444,7 @@ export function composeStaticEditionSvg(scene) {
     const kindLines = node.kind === null ? [] : wrap(node.kind, nodeWidth - 28, 10, 1);
     if (kindLines.length && labelLines.length > 1 && nodeHeight < 86)
       fail('static_edition_node_unrepresentable');
-    const graphicId = `n-${position}`;
+    const graphicId = `${idPrefix}n-${position}`;
     nodeCarriers.push({
       graphicId,
       source: { namespace: node.namespace, id: node.id, sha256: node.sha256 },
@@ -407,20 +466,21 @@ export function composeStaticEditionSvg(scene) {
   }
   y = graphTop + 28;
   const notes = [];
-  y = namedSection(
-    notes,
-    'READER QUESTIONS',
-    scene.questions.map(({ text }) => ({ text })),
-    notesX,
-    y,
-    notesWidth,
-  );
+  if (!fragment)
+    y = namedSection(
+      notes,
+      'READER QUESTIONS',
+      scene.questions.map(({ text }) => ({ text })),
+      notesX,
+      y,
+      notesWidth,
+    );
   const relationItems = scene.edges.flatMap((edge) =>
     edge.relations.map((relation) => {
       const qualifiers = [relation.label, relation.kind]
         .filter((value, index, all) => value && all.indexOf(value) === index)
         .join(' · ');
-      const graphicId = `r-${relationCarriers.length}`;
+      const graphicId = `${idPrefix}r-${relationCarriers.length}`;
       relationCarriers.push({
         graphicId,
         source: {
@@ -493,7 +553,7 @@ export function composeStaticEditionSvg(scene) {
     const claimWidth = mixed && placement === 'footer' ? width - 120 : graphWidth - 32;
     let claimY = mixed ? claimSectionY : graphTop + 66;
     let denseSingleColumnCards = 0;
-    if (mixed)
+    if (mixed && !fragment)
       claimY =
         textLines(claimPlate, 'SOURCE CLAIMS', claimX, claimY, claimWidth, 11, '#66736b', 600, 1) +
         18;
@@ -559,7 +619,7 @@ export function composeStaticEditionSvg(scene) {
         let rowBottom = claimY;
         for (let column = 0; column < columns && row + column < claimCards.length; column += 1) {
           const claim = orderedClaims[row + column];
-          const graphicId = `c-${row + column}`;
+          const graphicId = `${idPrefix}c-${row + column}`;
           const relationPosition = positionFor(claim);
           const x =
             columns === 1 && placement === 'footer'
@@ -622,7 +682,7 @@ export function composeStaticEditionSvg(scene) {
       }
     } else {
       for (const [position, claim] of claimCards.entries()) {
-        const graphicId = `c-${position}`;
+        const graphicId = `${idPrefix}c-${position}`;
         claimCarriers.push({
           graphicId,
           source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
@@ -650,7 +710,15 @@ export function composeStaticEditionSvg(scene) {
         claimY += 27;
       }
     }
-    return { claimSectionY, claimPlate, claimCarriers, claimY, denseSingleColumnCards };
+    return {
+      claimSectionY,
+      claimPlate,
+      claimCarriers,
+      claimY,
+      claimX,
+      claimWidth,
+      denseSingleColumnCards,
+    };
   };
   const heightFor = ({ claimCarriers, claimY }) =>
     Math.max(structureHeight, notesHeight, claimCarriers.length ? claimY - graphTop + 32 : 0);
@@ -666,6 +734,7 @@ export function composeStaticEditionSvg(scene) {
   const side = mixed ? attemptClaims('side') : null;
   if (!footer && !side) fail('static_edition_text_unrepresentable');
   const useSide =
+    !fragment &&
     side &&
     (!footer ||
       (side.denseSingleColumnCards <= footer.denseSingleColumnCards &&
@@ -691,12 +760,8 @@ export function composeStaticEditionSvg(scene) {
   const claimGraphicIds = new Map(
     claimCarriers.map(({ source, graphicId }) => [claimKey(source), graphicId]),
   );
-  const lines = [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="edition-title edition-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">`,
-    `<title id="edition-title">${escape(scene.title)}</title>`,
-    `<desc id="edition-description">${escape(scene.summary)}</desc>`,
-    `<rect width="${width}" height="${height}" fill="#f5f3ed"/>`,
-    `<defs><marker id="source-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse"><path d="M 0 0 L 10 4 L 0 8 Z" fill="#60786a"/></marker></defs>`,
+  const bodyPrelude = [
+    `<defs><marker id="${idPrefix}source-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse"><path d="M 0 0 L 10 4 L 0 8 Z" fill="#60786a"/></marker></defs>`,
     `<line x1="60" y1="${number(graphTop - 18)}" x2="${width - 60}" y2="${number(graphTop - 18)}" stroke="#c4ccc2" stroke-width="1"/>`,
     `<line x1="${number(notesX - gap / 2)}" y1="${number(graphTop)}" x2="${number(notesX - gap / 2)}" y2="${number(mixed && !useSide ? graphTop + Math.max(structureHeight, notesHeight) - 18 : height - 48)}" stroke="#d3dbd1" stroke-width="1"/>`,
     ...(mixed
@@ -704,13 +769,61 @@ export function composeStaticEditionSvg(scene) {
           `<line x1="60" y1="${number(claimSectionY - 24)}" x2="${number(useSide ? 60 + graphWidth - 32 : width - 60)}" y2="${number(claimSectionY - 24)}" stroke="#c4ccc2" stroke-width="1"/>`,
         ]
       : []),
-    ...header,
+  ];
+  const bodyContent = [
     `<text x="60" y="${number(graphTop + 28)}" fill="#66736b" font-size="11" font-weight="600">${claimCarriers.length && !mixed ? 'SOURCE CLAIMS' : 'SOURCE STRUCTURE'}</text>`,
     `<g transform="translate(${number(translateX)} ${number(translateY)})">`,
     ...graph,
     '</g>',
     ...claimPlate,
     ...notes,
+  ];
+  const carriers = {
+    nodes: nodeCarriers,
+    relations: relationCarriers,
+    ...(scene.claimCards === undefined ? {} : { claims: claimCarriers }),
+    assertions: scene.sourceAssertionCarriers.map(
+      ({ assertionId, nodeRefs, relationRefs, claimRefs }) => ({
+        assertionId,
+        nodeGraphicIds: nodeRefs.map((ref) => nodeGraphicIds.get(key(ref))),
+        relationGraphicIds: relationRefs.map((ref) => relationGraphicIds.get(relationKey(ref))),
+        ...(scene.claimCards === undefined
+          ? {}
+          : {
+              claimGraphicIds: (claimRefs ?? []).map((ref) => claimGraphicIds.get(claimKey(ref))),
+            }),
+      }),
+    ),
+  };
+  if (fragment) {
+    return {
+      parts: {
+        graph: graph.join('\n'),
+        bounds,
+        relations: relationItems,
+        claim:
+          claimCarriers.length > 0
+            ? {
+                markup: claimPlate.join('\n'),
+                x: chosen.claimX,
+                y: mixed ? chosen.claimSectionY : graphTop + 66,
+                width: chosen.claimWidth,
+                height: chosen.claimY - (mixed ? chosen.claimSectionY : graphTop + 66),
+              }
+            : null,
+      },
+      rasterWidth,
+      carriers,
+    };
+  }
+  const lines = [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="edition-title edition-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">`,
+    `<title id="edition-title">${escape(scene.title)}</title>`,
+    `<desc id="edition-description">${escape(scene.summary)}</desc>`,
+    `<rect width="${width}" height="${height}" fill="#f5f3ed"/>`,
+    ...bodyPrelude,
+    ...header,
+    ...bodyContent,
     '</svg>',
     '',
   ];
@@ -719,22 +832,6 @@ export function composeStaticEditionSvg(scene) {
     width,
     height,
     rasterWidth,
-    carriers: {
-      nodes: nodeCarriers,
-      relations: relationCarriers,
-      ...(scene.claimCards === undefined ? {} : { claims: claimCarriers }),
-      assertions: scene.sourceAssertionCarriers.map(
-        ({ assertionId, nodeRefs, relationRefs, claimRefs }) => ({
-          assertionId,
-          nodeGraphicIds: nodeRefs.map((ref) => nodeGraphicIds.get(key(ref))),
-          relationGraphicIds: relationRefs.map((ref) => relationGraphicIds.get(relationKey(ref))),
-          ...(scene.claimCards === undefined
-            ? {}
-            : {
-                claimGraphicIds: (claimRefs ?? []).map((ref) => claimGraphicIds.get(claimKey(ref))),
-              }),
-        }),
-      ),
-    },
+    carriers,
   };
 }

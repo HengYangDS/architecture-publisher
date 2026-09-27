@@ -477,19 +477,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       coverage, source/editor acceptance, final visual review, and predicate
       qualification remain open. Narrow-viewport checks are ordinary browser
       regressions, not a separate architecture workstream.
-      Contract gap: the Project admits multiple static views while the current
-      compiler rejects them. Implement one source-bound SVG/PNG with separate
-      per-view semantic carriers and one measured complete-page composition
-      before Task 7.5 freeze. Reject group-heading collisions, text/mark
-      overlap, clipping, unreadable compaction and unsupported visual mass
-      distribution; compare feasible whole-page candidates and inspect the
-      final raster. AIGW `484d0003` external trials showed a single curated
-      overview can build without source-repository edits, but generic output
-      remains text-heavy; a direct Dagre swap shortened the canvas yet
-      overlapped group labels. The uncommitted full-panel SVG splice was
-      withdrawn because it repeated complete page furniture rather than
-      solving composition. Do not equate either provisional image with AIGW
-      acceptance.
+      Partial: ordered static views now compile into one source-bound figure
+      from graph, relation, claim and limit parts, with separate carrier maps
+      and common method notes factored once. A same-row route-through-node and
+      group-heading/edge collision were reproduced and repaired. On the
+      unchanged AIGW external trial input (`bfb1b6c6`), the static PNG is
+      3600×2513 instead of the rejected 3600×4186 stack; direct and offline
+      installed media match byte-for-byte. Headless Chrome 154 found no
+      text/text, text/line, text/path or text/frame collision on that exact
+      SVG. This is not AIGW adoption, human approval or full qualification.
+      Remaining: extend the measured Scene audit to the complete neutral page,
+      rank feasible whole-page candidates and review visual mass/readability
+      on the final selected media before Task 7.5 freeze.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

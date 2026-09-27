@@ -60,6 +60,41 @@ test('generated implementation profiles select owned code without package or sib
   });
 });
 
+test('a static figure binds the union of selected media code as one supply', async () => {
+  const manifest = JSON.parse(
+    await fs.readFile(path.join(product, 'supplies/implementation.json'), 'utf8'),
+  );
+  const selected = await readImplementationSupply(['static-grouped', 'static-figure']);
+  assert.equal(selected.id, 'publisher-static-media-file-set');
+  assert.match(selected.sha256, /^[a-f0-9]{64}$/u);
+  assert.notEqual(selected.sha256, (await readImplementationSupply('static-grouped')).sha256);
+  const paths = new Set(
+    ['static-grouped', 'static-figure'].flatMap((name) =>
+      manifest.profiles[name].map(({ path: file }) => file),
+    ),
+  );
+  assert(paths.has('renderers/svg/figure.mjs'));
+  assert(!paths.has('renderers/cytoscape/edition.mjs'));
+  await assert.rejects(readImplementationSupply(['static-grouped', 'interactive-neutral']), {
+    code: 'publisher_implementation_profile_invalid',
+  });
+});
+
+test('a selected implementation profile set rejects absent, repeated, and oversized authority', async () => {
+  for (const invalid of [
+    null,
+    [],
+    Array(9).fill('static-claim'),
+    ['static-claim', 'static-claim'],
+    ['static-claim', 'unknown'],
+    ['semantic-claim', 'static-claim'],
+  ]) {
+    await assert.rejects(readImplementationSupply(invalid), {
+      code: 'publisher_implementation_profile_invalid',
+    });
+  }
+});
+
 test('selected installed code drifts fail, while README and unselected media do not change a supply', async (t) => {
   const temp = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-code-supply-'));
   t.after(() => fs.rm(temp, { recursive: true, force: true }));

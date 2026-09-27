@@ -249,7 +249,10 @@ function groupLayout(graph) {
     groupPad = 34,
     headerHeight = 54,
     widest = Math.max(...graph.groups.map((group) => group.members.length)),
-    groupWidth = widest * nodeWidth + Math.max(0, widest - 1) * nodeGap + groupPad * 2,
+    groupWidth = Math.max(
+      widest * nodeWidth + Math.max(0, widest - 1) * nodeGap + groupPad * 2,
+      ...graph.groups.map((group) => [...group.label].length * 18 + 80),
+    ),
     width = Math.max(1200, groupWidth + 160),
     groups = [],
     nodes = new Map();

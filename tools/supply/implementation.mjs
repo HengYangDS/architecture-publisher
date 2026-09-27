@@ -43,6 +43,7 @@ const profiles = {
     'packages/publisher/src/scene/static/authored-canvas.mjs',
     'packages/publisher/renderers/svg/canvas.mjs',
   ],
+  'static-figure': [...baseStatic, 'packages/publisher/renderers/svg/figure.mjs'],
   'interactive-neutral': [
     'packages/publisher/src/scene/interactive/edition.mjs',
     'packages/publisher/renderers/cytoscape/edition.mjs',

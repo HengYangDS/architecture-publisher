@@ -1932,6 +1932,71 @@ test('a selected relation and dependent claim build a source-bound static Candid
   assert.equal(selected.project.requiredAssertions, undefined);
 });
 
+test('two static views become one figure without merging their source assertions', async (t) => {
+  const selected = await groupedMixedFixture(t, {
+    model: twoRelationClaimModel(),
+    media: ['static'],
+  });
+  selected.project.questions.push({
+    id: 'followup',
+    audience: 'maintainer',
+    text: 'When may the server call?',
+  });
+  selected.project.scope.selections.push(
+    {
+      id: 'second-relation',
+      namespace: modelNamespace,
+      kind: 'reference',
+      reference: 'relation:second',
+      questions: ['followup'],
+    },
+    {
+      id: 'second-claim',
+      namespace: modelNamespace,
+      kind: 'reference',
+      reference: 'claim:aaa',
+      questions: ['followup'],
+    },
+  );
+  selected.project.presentation.static.views.push({
+    id: 'followup',
+    questions: ['followup'],
+    groups: [
+      {
+        id: 'shared-server',
+        label: 'Shared server',
+        elements: [{ namespace: modelNamespace, id: 'server' }],
+      },
+      {
+        id: 'other-target',
+        label: 'Other target',
+        elements: [{ namespace: modelNamespace, id: 'other' }],
+      },
+    ],
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert.deepEqual(
+    candidate.obligations.static.views.map(({ id }) => id),
+    ['overview', 'followup'],
+  );
+  assert.equal((svg.match(/<svg\b/gu) ?? []).length, 1);
+  assert.equal((svg.match(/data-static-view=/gu) ?? []).length, 2);
+  assert.equal((svg.match(/METHOD LIMITS/gu) ?? []).length, 1);
+  assert.equal((svg.match(/READER QUESTIONS/gu) ?? []).length, 0);
+  assert.match(svg, /When may the client call\?/u);
+  assert.match(svg, /When may the server call\?/u);
+  assert.equal(candidate.media.static.artifacts.length, 2);
+  assert(!svg.includes(modelNamespace), 'private source identity leaked into static SVG');
+});
+
 test('one mixed static claim uses the available plate in two reading columns', async (t) => {
   const selected = await groupedMixedFixture(t, { media: ['static'] });
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);

@@ -210,9 +210,8 @@ test('a static group heading must reserve space above its member nodes', async (
     },
   ];
   const { meaning } = await selectedInputs(project);
-  const scene = structuredClone(
-    scenes.composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning)),
-  );
+  const normal = scenes.composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  const scene = structuredClone(normal);
   const group = scene.groups[0];
   const member = scene.nodes.find(({ id }) => id === 'a');
   const oldBottom = group.y + group.height;
@@ -242,6 +241,27 @@ test('a static group heading must reserve space above its member nodes', async (
   assert.throws(() => composeStaticEditionSvg(scene), {
     code: 'static_edition_group_heading_collision',
   });
+
+  const crossing = structuredClone(normal);
+  const heading = crossing.groups[0];
+  crossing.edges[0].points = [
+    [heading.x + 4, heading.y + 31],
+    [heading.x + heading.width - 4, heading.y + 31],
+  ];
+  assert.throws(() => composeStaticEditionSvg(crossing), {
+    code: 'static_edition_group_heading_collision',
+  });
+
+  const relocatable = structuredClone(normal);
+  const movableHeading = relocatable.groups[0];
+  relocatable.edges[0].points = [
+    [movableHeading.x + 40, movableHeading.y + 4],
+    [movableHeading.x + 40, movableHeading.y + 50],
+  ];
+  const relocated = composeStaticEditionSvg(relocatable).bytes.toString('utf8');
+  const headingX = /<text x="([\d.]+)"[^>]*>Entry boundary<\/text>/u.exec(relocated)?.[1];
+  assert(headingX);
+  assert(Number(headingX) > movableHeading.x + 26);
 });
 
 test('grouped static composition retains only asserted members of a selected upstream view', async (t) => {
@@ -382,18 +402,53 @@ test('grouped geometry does not place relation labels that the successor never r
           views: [
             {
               id: 'overview',
-              groups: ['alpha', 'beta'].map((id) => ({
-                id,
-                label: id,
-                elements: [{ namespace: source.namespace, id }],
-              })),
+              groups: [
+                {
+                  id: 'pair',
+                  label: 'Pair',
+                  elements: ['alpha', 'beta'].map((id) => ({ namespace: source.namespace, id })),
+                },
+              ],
             },
           ],
         },
       },
     },
   };
-  assert.equal(composeGroupedSelectionLayout(meaning).edges.length, 3);
+  const layout = composeGroupedSelectionLayout(meaning);
+  assert.equal(layout.edges.length, 3);
+  const alpha = layout.nodes.find(({ id }) => id === 'alpha');
+  const beta = layout.nodes.find(({ id }) => id === 'beta');
+  for (const edge of layout.edges) {
+    assert.equal(edge.points[0][0], alpha.x + alpha.width);
+    assert.equal(edge.points.at(-1)[0], beta.x);
+  }
+
+  const reverse = structuredClone(meaning);
+  reverse.native.selections[0].members.relations = [
+    {
+      ...reverse.native.selections[0].members.relations[0],
+      id: 'relation-reverse',
+      from: { namespace: source.namespace, id: 'beta' },
+      to: { namespace: source.namespace, id: 'alpha' },
+    },
+  ];
+  const lateral = composeGroupedSelectionLayout(reverse);
+  const reverseBeta = lateral.nodes.find(({ id }) => id === 'beta');
+  const reverseAlpha = lateral.nodes.find(({ id }) => id === 'alpha');
+  assert.equal(lateral.edges[0].points[0][0], reverseBeta.x);
+  assert.equal(lateral.edges[0].points.at(-1)[0], reverseAlpha.x + reverseAlpha.width);
+
+  reverse.editorial.presentation.static.views[0].groups = ['alpha', 'beta'].map((id) => ({
+    id,
+    label: id,
+    elements: [{ namespace: source.namespace, id }],
+  }));
+  const vertical = composeGroupedSelectionLayout(reverse);
+  const lower = vertical.nodes.find(({ id }) => id === 'beta');
+  const upper = vertical.nodes.find(({ id }) => id === 'alpha');
+  assert.equal(vertical.edges[0].points[0][1], lower.y);
+  assert.equal(vertical.edges[0].points.at(-1)[1], upper.y + upper.height);
 });
 
 test('grouped geometry consumes selected Claim Model relations without treating claims as edges', () => {

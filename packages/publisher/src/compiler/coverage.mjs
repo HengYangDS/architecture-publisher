@@ -153,8 +153,9 @@ function validateInteractiveGroups(meaning, view, index, page, map, nodeGraphics
 /** Check the selected view-to-carrier join before building an unqualified Candidate. */
 export function validateVisibleSelection(meaning, medium, scene, carriers) {
   const views = meaning?.media?.[medium]?.views;
-  const pages = medium === 'static' ? [scene] : scene?.pages;
-  const maps = medium === 'static' ? [carriers] : carriers;
+  const figure = medium === 'static' && scene?.schema === 'architecture.edition-static-figure/v1';
+  const pages = medium === 'static' ? (figure ? scene.views : [scene]) : scene?.pages;
+  const maps = medium === 'static' ? (figure ? carriers : [carriers]) : carriers;
   if (
     !['static', 'interactive'].includes(medium) ||
     !Array.isArray(meaning?.assertions) ||
@@ -163,6 +164,28 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     !Array.isArray(maps) ||
     views.length !== pages.length ||
     views.length !== maps.length
+  )
+    mismatch();
+  if (
+    figure &&
+    (!Array.isArray(scene.placements) ||
+      scene.placements.length !== views.length ||
+      scene.placements.some(({ id }, index) => id !== views[index].id) ||
+      new Set(
+        maps.flatMap((map) =>
+          [...(map?.nodes ?? []), ...(map?.relations ?? []), ...(map?.claims ?? [])].map(
+            ({ graphicId }) => graphicId,
+          ),
+        ),
+      ).size !==
+        maps.reduce(
+          (count, map) =>
+            count +
+            (map?.nodes?.length ?? 0) +
+            (map?.relations?.length ?? 0) +
+            (map?.claims?.length ?? 0),
+          0,
+        ))
   )
     mismatch();
   const assertions = new Map(meaning.assertions.map((assertion) => [assertion.id, assertion]));

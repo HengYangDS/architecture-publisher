@@ -20,7 +20,11 @@ import { writeSourceBundle } from '../source/write.mjs';
 import { renderInteractiveEditionHtml } from '../../renderers/cytoscape/index.mjs';
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
-import { composeStaticEditionSvg, renderAuthoredCanvasSvg } from '../../renderers/svg/index.mjs';
+import {
+  composeStaticEditionSvg,
+  composeStaticFigureSvg,
+  renderAuthoredCanvasSvg,
+} from '../../renderers/svg/index.mjs';
 import { selectedEditionCandidateDigest, validateSelectedEditionCandidate } from './candidate.mjs';
 import { validateVisibleSelection } from './coverage.mjs';
 import { readImplementationSupply } from './implementation-supply.mjs';
@@ -63,7 +67,24 @@ async function destination(output) {
   return { target, parent };
 }
 
-async function staticMedium(selected, meaning, scratch) {
+function staticViewMeaning(meaning, index) {
+  const view = meaning.media.static.views[index];
+  const authored = meaning.editorial.presentation.static.views[index];
+  if (!view || !authored || view.id !== authored.id) fail('static_figure_view_mismatch');
+  return {
+    ...meaning,
+    editorial: {
+      ...meaning.editorial,
+      presentation: {
+        ...meaning.editorial.presentation,
+        static: { ...meaning.editorial.presentation.static, views: [authored] },
+      },
+    },
+    media: { ...meaning.media, static: { ...meaning.media.static, views: [view] } },
+  };
+}
+
+async function staticView(selected, meaning, options = {}) {
   const staticRefinement = meaning.refinement?.media?.static;
   const authoredCanvas = staticRefinement?.kind === 'authored-canvas';
   const claimMode = meaning.native.selections.some(
@@ -105,9 +126,64 @@ async function staticMedium(selected, meaning, scratch) {
     limits = authored.limits;
   } else {
     scene = composeStaticEditionScene(meaning, layout);
-    rendered = composeStaticEditionSvg(scene);
+    rendered = composeStaticEditionSvg(scene, options);
+  }
+  return { scene, rendered, limits, implementationProfile };
+}
+
+async function staticMedium(selected, meaning, scratch) {
+  const views = meaning.media.static.views;
+  if (!Array.isArray(views) || !views.length) fail('static_figure_views_invalid');
+  if (
+    views.length > 1 &&
+    meaning.refinement?.media?.static !== undefined &&
+    meaning.refinement.media.static.kind !== 'neutral'
+  )
+    fail('static_figure_refinement_unadmitted');
+  const parts = [];
+  for (const [index, view] of views.entries()) {
+    const scoped = views.length === 1 ? meaning : staticViewMeaning(meaning, index);
+    parts.push({
+      id: view.id,
+      ...(await staticView(
+        selected,
+        scoped,
+        views.length === 1 ? {} : { idPrefix: `static-view-${index}-`, fragment: true },
+      )),
+    });
+  }
+  let scene;
+  let rendered;
+  if (parts.length === 1) {
+    ({ scene, rendered } = parts[0]);
+    if (meaning.refinement?.media?.static?.kind !== 'authored-canvas')
+      validateVisibleSelection(meaning, 'static', scene, rendered.carriers);
+  } else {
+    const figure = composeStaticFigureSvg({
+      title: meaning.editorial.title,
+      summary: meaning.editorial.narrative.summary,
+      rasterWidth: meaning.editorial.presentation.static.width ?? 1800,
+      views: parts.map(({ id, scene: part, rendered: fragment }) => ({
+        id,
+        scene: part,
+        rendered: fragment,
+      })),
+    });
+    scene = {
+      schema: 'architecture.edition-static-figure/v1',
+      edition: meaning.edition,
+      title: meaning.editorial.title,
+      views: parts.map(({ scene: part }) => part),
+      placements: figure.placements,
+    };
+    rendered = { ...figure, carriers: parts.map(({ rendered: fragment }) => fragment.carriers) };
     validateVisibleSelection(meaning, 'static', scene, rendered.carriers);
   }
+  const limits = parts.flatMap((part) => part.limits);
+  const implementationProfile =
+    parts.length === 1
+      ? parts[0].implementationProfile
+      : [...new Set(parts.map((part) => part.implementationProfile)), 'static-figure'];
   const fontSupply = await loadBundledFonts();
   const fonts = fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
   if (fonts.length !== 2 || !fontSupply.license?.bytes) fail('static_edition_font_supply_invalid');
