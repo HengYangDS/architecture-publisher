@@ -1,0 +1,38 @@
+{
+  "schema": "architecture.research-installed-probe/v1",
+  "workload": "architecture-publisher-self",
+  "publisherSourceCommit": "b636c04b72798a30bc9021a9abd7c32534aa1b20",
+  "platform": "darwin",
+  "node": "v26.10.0",
+  "packages": {
+    "architecture-publisher": {
+      "version": "0.3.0-alpha.3",
+      "archiveSha256": "b17b77a52ecc5834319462a833dbf8098ef4311ac4a1014b95e0504ae24963b3"
+    },
+    "@architecture-publisher/self-edition": {
+      "version": "0.3.0-alpha.3",
+      "archiveSha256": "4eb4292f8eb5306d4d0b5ee332e0739c6d181a1fbad96a7a8bea8fc45c0708a0"
+    }
+  },
+  "selectedSourceCount": 23,
+  "buildRequestSha256": "cae04a561fe3cab4f00e0b9cfb80bcb2a98b1b17c153958ab9dcee28c011e2fb",
+  "artifactSha256": {
+    "candidate.json": "dd4f8b0f76375cc4c4277879b0ca2f05ecc90a680fa65efb5c37d011b792732d",
+    "manifest.json": "f037fddb0d80da3ce961c4be7272fb5a72b232c4ae09b13bd8915d9f0a1a6253",
+    "static/architecture.svg": "f4e2d685fbe5fc41b714b51305f2033716c9feb08b5e9463de72f3799228ec0e",
+    "static/architecture.png": "f59b5d6a9bd44fb30385aa71443fd9699309eaeda07b7ac36145948220874c1e",
+    "interactive/architecture.html": "7a562e0865989d72347c3e6dadbee9553c5025ddd7bb5bc579addbb35820c1db"
+  },
+  "staticRaster": {
+    "width": 6000,
+    "height": 3375
+  },
+  "interactivePageCount": 8,
+  "method": "Pack the exact signed work-lane Core and self-Edition sources, install both archives offline with empty HOME and cache, prepare 23 exact copied source files through the installed self package, relocate its build inputs, remove the installed self package, and build both media through the installed public archpub command with no Git on PATH.",
+  "limits": [
+    "The work-lane alpha.3 package bytes differ from the historical released alpha.3 bytes and are identified here only by source commit and archive digest.",
+    "This is first-party self-use, not independent adopter evidence.",
+    "No browser, accessibility, or human visual qualification of these exact retained artifacts was performed.",
+    "No acceptance, publication, recovery, hosted release, or off-host restoration is established."
+  ]
+}

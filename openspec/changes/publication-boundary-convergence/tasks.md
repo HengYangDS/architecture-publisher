@@ -651,6 +651,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       alpha.1 control installs. The bounded contrast and limits are in
       `conformance/evidence/ethos-install-pin-probe.json`. This is a source-owned
       dependency selection gap, not evidence of v2 semantics or flagship parity.
+      The first-party installed self-Edition now produces a retained provisional
+      6000-pixel static PNG and eight-page interactive HTML after its author
+      package is removed and its selected build inputs are relocated; exact
+      package and five Candidate-member identities are in
+      `conformance/evidence/self-installed-probe.json`. This proves installed
+      self-use only, not final-byte browser, human, or release acceptance.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
