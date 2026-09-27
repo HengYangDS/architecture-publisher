@@ -716,7 +716,7 @@ a question with neither a retained assertion nor a disclosed limit. This
 projection is a compilation obligation over authored choices, not proof that
 the source claim is true or the rendered carrier is readable.
 
-### Static views are bounded panels in one figure
+### Static views form one jointly composed figure
 
 At Publisher `3bd5645`, the Edition schema accepts ordered static views, but
 the scene compiler rejects every selection with more than one. This is a
@@ -730,20 +730,47 @@ all six questions into one graph exceeded the grouped layout's useful range;
 one oversized group failed admission and a valid four-group trial failed on
 edge routing. Neither failure proves that no authored layout can work.
 
-The successor shall compose each authored static view separately and place
-their readable, source-bound panels into one SVG/PNG. Panel order is the
-Edition's view order; each panel retains its own questions, limits, source
-assertions and graphic carriers. Shared source entities do not become
-cross-panel edges. Publisher owns deterministic packing, structural fit and
-carrier validation; a named editor may supply a data-only refinement for
-flagship art direction. The generic path shall not import ETHOS or AIGW
-renderers or require their repositories to carry Publisher presentation code.
-The one-view path remains a valid case. A Dagre compound-layout experiment on
-the same AIGW overview retained source carriers and shortened a 3600-pixel
-figure from 3071 to 1930 pixels, but visibly overlapped group titles and used
-diagonal routes. Reuse that checked supply only after the static panel's own
-geometry and visual predicates pass; speed or canvas reduction alone is not
-acceptance.
+The successor shall compile each ordered view's assertions and source-qualified
+graphic carriers independently, then compose **one page** from measured visual
+elements: title, question, groups, nodes, relations, claim annotations, limits,
+and any necessary reader notes. A view may occupy a visual region, but an
+already-rendered page is not a panel primitive. Shared source entities do not
+create cross-view edges or transfer a claim between views. No selected fact may
+be omitted merely to meet a size target, and source relations should not be
+copied into a second prose list when the graph can carry them readably.
+
+Layout is a bounded search over complete-page candidates, not a graph-engine
+result followed by independent text placement. The bundled font's measured
+glyph bounds and each painted mark's bounds reserve space before placement.
+Group headings require a header region disjoint from member nodes. Relation
+labels and claim annotations remain near their subjects unless that would
+reduce legibility. The existing static Scene audit owns collision, clearance,
+containment, edge-attachment and crossing predicates; extend that owner to
+cover the neutral compositor rather than create another visual authority.
+Candidate ranking considers readable font size, crossings, relation-to-claim
+distance, canvas area, largest unused region and visual-center displacement.
+Whitespace is not forbidden: a less spacious candidate wins only when it
+preserves the same meaning and readability without adding a worse collision,
+crossing or reading-order break. No score alone proves aesthetic acceptance.
+
+The one-view path is the same constrained case, not a separate rendering
+standard. A graph layout supply may propose node/edge coordinates, but it may
+not authorize group, text or page geometry. The AIGW Dagre experiment at
+`build/review/aigw-overview-trial-1X9e3q/dagre-static.png` shortened a
+3600-pixel figure from 3071 to 1930 pixels while visibly overlapping group
+headings with nodes and leaving large empty regions. That output is a rejected
+counterexample, not a candidate to publish. A partial implementation that
+pre-renders full views and nests their SVGs was also withdrawn before commit:
+it duplicates headings, notes and backgrounds and cannot solve page-level
+geometry. Both counterexamples must fail the final static review.
+
+Publisher owns deterministic composition, source-carrier validation and
+conjunctive qualification. A named editor may supply a data-only refinement
+for flagship art direction; it still passes the same page-level gates. The
+generic path shall not import ETHOS or AIGW renderers or require their
+repositories to carry Publisher presentation code. If no complete candidate
+can carry every selected assertion legibly, compilation fails and reports the
+unrepresentable view instead of shrinking text or silently dropping content.
 
 ### One authored source-selection record
 

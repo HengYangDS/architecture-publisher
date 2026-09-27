@@ -20,6 +20,47 @@ stay outside Candidate identity. Reader obligations and limits remain visible.
   artifact hashes, and medium-specific supplies without shared coordinates or
   DOM ownership
 
+### Requirement: Static views compose one faithful figure
+
+When static media is selected, its ordered views SHALL produce one standalone
+SVG and one PNG through a complete-page composition. Each view SHALL retain
+its own questions, assertions, limits, and graphic-carrier bindings. The
+figure SHALL distinguish views without inventing cross-view relations or
+transferring a claim or acceptance between them. All visible text, structural
+marks, annotation and decoration SHALL fit together: clipping, obscuring
+overlap, insufficient clearance, or missing visible carriers SHALL fail before
+a complete Candidate. Graph-only layout success is insufficient.
+
+#### Scenario: Two static views answer distinct questions
+
+- **WHEN** an Edition selects two static views with distinct questions and
+  source assertions, including one source entity present in both views
+- **THEN** one static SVG and PNG visibly distinguish both views and retain
+  each view's own assertion-to-graphic carriers and limits
+- **AND** no edge or endorsement is inferred merely from the shared entity
+
+#### Scenario: One static view cannot be represented
+
+- **WHEN** any selected static view cannot fit without structural loss or
+  overlap in the composed figure
+- **THEN** no complete static Candidate is emitted
+- **AND** Publisher does not silently drop or shrink that view to force a pass
+
+#### Scenario: Graph geometry ignores a group heading
+
+- **WHEN** a proposed node placement occupies a group heading's measured area
+- **THEN** that complete-page candidate is rejected even if its graph edges
+  route and the raster is shorter than another candidate
+- **AND** the renderer does not mask the collision by painting the heading
+  behind or in front of the node
+
+#### Scenario: Compactness conflicts with legibility
+
+- **WHEN** two layouts carry the same selected assertions and one reduces
+  empty area only by shrinking text or increasing collisions or crossings
+- **THEN** Publisher does not choose that layout solely for its smaller canvas
+- **AND** human review of visual hierarchy and unused space remains required
+
 ## ADDED Requirements
 
 ### Requirement: Installed package identity is separate execution evidence
@@ -52,28 +93,3 @@ designated accepter's publication policy decides what else to require.
   Candidate, Qualification Set, and Policy without a package-tree field
 - **AND** the separate replay result retains current package evidence without
   claiming the original builder or authenticating the installed package
-
-### Requirement: Static views compose one faithful figure
-
-When static media is selected, its ordered views SHALL produce one standalone
-SVG and one PNG. Each view SHALL retain its own questions, assertions, limits,
-and graphic-carrier bindings.
-The figure SHALL distinguish the views without inventing cross-view relations
-or transferring a claim or acceptance between them. Clipping, obscuring
-text/node/panel overlap, or missing visible carriers SHALL fail before a
-complete Candidate.
-
-#### Scenario: Two static views answer distinct questions
-
-- **WHEN** an Edition selects two static views with distinct questions and
-  source assertions, including one source entity present in both views
-- **THEN** one static SVG and PNG visibly distinguish both views and retain
-  each view's own assertion-to-graphic carriers and limits
-- **AND** no edge or endorsement is inferred merely from the shared entity
-
-#### Scenario: One static view cannot be represented
-
-- **WHEN** any selected static view cannot fit without structural loss or
-  overlap in the composed figure
-- **THEN** no complete static Candidate is emitted
-- **AND** Publisher does not silently drop or shrink that view to force a pass

@@ -478,12 +478,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       qualification remain open. Narrow-viewport checks are ordinary browser
       regressions, not a separate architecture workstream.
       Contract gap: the Project admits multiple static views while the current
-      compiler rejects them. Implement one source-bound SVG/PNG with separately
-      verified, ordered static panels before Task 7.5 freeze. AIGW `484d0003`
-      external trials showed a single curated overview can build without
-      source-repository edits, but generic output remains text-heavy; a direct
-      Dagre swap shortened the canvas yet overlapped group labels. Do not
-      equate either provisional image with AIGW acceptance.
+      compiler rejects them. Implement one source-bound SVG/PNG with separate
+      per-view semantic carriers and one measured complete-page composition
+      before Task 7.5 freeze. Reject group-heading collisions, text/mark
+      overlap, clipping, unreadable compaction and unsupported visual mass
+      distribution; compare feasible whole-page candidates and inspect the
+      final raster. AIGW `484d0003` external trials showed a single curated
+      overview can build without source-repository edits, but generic output
+      remains text-heavy; a direct Dagre swap shortened the canvas yet
+      overlapped group labels. The uncommitted full-panel SVG splice was
+      withdrawn because it repeated complete page furniture rather than
+      solving composition. Do not equate either provisional image with AIGW
+      acceptance.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
