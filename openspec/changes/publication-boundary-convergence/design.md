@@ -764,6 +764,23 @@ pre-renders full views and nests their SVGs was also withdrawn before commit:
 it duplicates headings, notes and backgrounds and cannot solve page-level
 geometry. Both counterexamples must fail the final static review.
 
+A bounded graph-engine comparison on the same selected AIGW 12-node,
+10-relation input used local Graphviz 16.1.0 and D2 0.9.0 with its bundled ELK
+layout. Graphviz's [official orthogonal-routing contract](https://graphviz.org/docs/attrs/splines/)
+states that `dot` does not handle edge labels in `splines=ortho`; replacing
+them with external labels removed the warning but did not make the whole graph
+a balanced page. D2/ELK kept group headings clear and produced coherent
+orthogonal routes, yet its graph-only `2980 × 624` viewBox left the disconnected
+distribution path as a separate island and supplied no placement for claims,
+limits or reader notes. [ELK Layered](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-layered.html)
+supports compound graphs, ports and edge labels, but those are graph features,
+not page-level semantic composition. D2's [layout documentation](https://d2lang.com/tour/layouts/)
+also distinguishes engine-specific capability. Retain ELK as a possible
+bounded graph-coordinate supply; do not adopt D2 or Graphviz as the Publisher
+page authority, ship the host CLI, or treat a graph-only trial as a Candidate.
+First implement and test the joint page contract; change graph supply only
+when a named whole-page counterexample proves the existing one inadequate.
+
 Publisher owns deterministic composition, source-carrier validation and
 conjunctive qualification. A named editor may supply a data-only refinement
 for flagship art direction; it still passes the same page-level gates. The
