@@ -1,9 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {
-  auditCanvasEnvelope,
-  auditScene,
-} from '../packages/publisher/src/qualification/static/scene.mjs';
+import { auditCanvasEnvelope, auditScene } from '../packages/publisher/src/scene/static/audit.mjs';
 
 const contract = Object.freeze({
   widthGrowth: 0,

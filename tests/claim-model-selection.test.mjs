@@ -29,6 +29,8 @@ import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/s
 import { claimCard } from '../packages/publisher/src/scene/claim-card.mjs';
 import { composeAuthoredInteractiveArchitecture } from '../packages/publisher/src/scene/interactive/authored-architecture.mjs';
 import { composeAuthoredStaticCanvas } from '../packages/publisher/src/scene/static/authored-canvas.mjs';
+import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
+import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg/measurement.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const modelFormat = { id: 'architecture.claim-model', version: '2' };
@@ -1200,6 +1202,7 @@ test('an unrelated Claim Model uses the same authored canvas with source-checked
   );
   const semantic = (kind, id) => JSON.stringify([modelNamespace, kind, id]);
   const box = (x, y, width, height) => ({ x, y, width, height });
+  const measurer = await createBundledTextMeasurer(await loadBundledFonts());
   const node = (id, x) => ({
     id,
     kind: 'stage',
@@ -1222,7 +1225,14 @@ test('an unrelated Claim Model uses the same authored canvas with source-checked
     baseline: y,
     visible: true,
     semanticIds: [bound],
-    box: box(x - 32, y - 20, 64, 20),
+    box: measurer.box({
+      text: value,
+      fontSize: 16,
+      weight: '600',
+      anchor: 'middle',
+      x,
+      baseline: y,
+    }),
   });
   const resource = {
     schema: 'architecture.scene-refinement/v1',
@@ -1282,6 +1292,40 @@ test('an unrelated Claim Model uses the same authored canvas with source-checked
     (await fs.readFile(path.join(output, 'static/architecture.png'))).readUInt32BE(16),
     1200,
   );
+
+  const collided = structuredClone(resource);
+  collided.media.static.scene.texts[1].box = {
+    ...collided.media.static.scene.texts[0].box,
+  };
+  await fs.writeFile(resourcePath, JSON.stringify(collided) + '\n');
+  try {
+    await assert.rejects(
+      compileEditionCandidateInput(
+        selected.requestPath,
+        selected.requestSha256,
+        path.join(selected.root, 'collided-candidate'),
+      ),
+      { code: 'authored_canvas_geometry_invalid' },
+    );
+  } finally {
+    await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');
+  }
+
+  const falselyMeasured = structuredClone(resource);
+  falselyMeasured.media.static.scene.texts[0].text = 'A'.repeat(100);
+  await fs.writeFile(resourcePath, JSON.stringify(falselyMeasured) + '\n');
+  try {
+    await assert.rejects(
+      compileEditionCandidateInput(
+        selected.requestPath,
+        selected.requestSha256,
+        path.join(selected.root, 'falsely-measured-candidate'),
+      ),
+      { code: 'authored_canvas_text_metrics_invalid' },
+    );
+  } finally {
+    await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');
+  }
 
   const meaning = await compileEditionMeaning(
     await materializeBuildRequestInput(selected.requestPath, selected.requestSha256),

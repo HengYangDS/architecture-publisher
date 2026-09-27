@@ -582,10 +582,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       cards, missing claim links, and invented relation-only claim links. The
       two focused files pass 62 tests with one declared browser skip; isolated
       `compiler/coverage.mjs` branch coverage is 192/198 (96.96%), not a global
-      gate. Static and strict OpenSpec checks pass. Earlier Chrome checks observed
-      source-namespace non-disclosure, but do not qualify the changed Candidate.
-      Full visible coverage, browser/human review on final bytes, and acceptance
-      remain open.
+      gate. The public authored-canvas build now rejects measured text/edge
+      collisions, forged glyph boxes, and emitted path drift using the selected
+      bundled fonts. A Chrome-enabled full check passes 1226 tests with 2 skips;
+      all four coverage gates pass, including 95.07% branches. This does not
+      qualify generic multi-view composition or final art. An isolated AIGW
+      16-entity/14-relation overview remains an unadopted trial; source-owner
+      and human visual acceptance remain open.
 - [ ] 5.5 Keep the first-party self Edition on the same public Build Request,
       Edition Project, data-only refinement, and dual-medium compiler as other
       adopters. Preserve its source-owned meaning and flagship art direction;

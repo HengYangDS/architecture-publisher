@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { auditEmittedEdges } from '../packages/publisher/src/qualification/static/emitted-path.mjs';
+import { auditEmittedEdges } from '../packages/publisher/src/scene/static/emitted-path.mjs';
 
 const limits = Object.freeze({ minimumTerminal: 2, endpointTolerance: 0.1 });
 const scene = (arrow = true) => ({

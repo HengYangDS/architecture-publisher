@@ -12,6 +12,8 @@ import {
   selectedStaticNativeViews,
 } from '../scene/static/grouped-selection.mjs';
 import { composeStaticEditionScene } from '../scene/static/edition.mjs';
+import { auditEmittedEdges } from '../scene/static/emitted-path.mjs';
+import { auditCanvasEnvelope, auditScene } from '../scene/static/audit.mjs';
 import { importLikeC4Layout } from '../semantics/native-likec4.mjs';
 import { canonical } from '../semantics/document.mjs';
 import { readPublisherInstalledPackage } from '../runtime.mjs';
@@ -20,6 +22,7 @@ import { writeSourceBundle } from '../source/write.mjs';
 import { renderInteractiveEditionHtml } from '../../renderers/cytoscape/index.mjs';
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
+import { verifyAuthoredCanvasTextBoxes } from '../../renderers/resvg/measurement.mjs';
 import {
   composeStaticEditionSvg,
   composeStaticFigureSvg,
@@ -43,6 +46,24 @@ const checkedSupply = (supply, method) => ({
   ...supply,
   basis: 'checked-declared',
   method,
+});
+const authoredCanvasGeometry = Object.freeze({
+  minimumFont: 0,
+  ownerClearance: 0,
+  textClearance: 0,
+  endpointTolerance: 1,
+  minimumTerminal: 1,
+  widthGrowth: 0,
+  heightGrowth: 0,
+});
+const authoredCanvasContainment = Object.freeze({
+  hard_gates: {
+    geometry_each_scale: {
+      canvas_clearance_source_units_min: 0,
+      font_width_growth_fraction: 0,
+      font_height_growth_fraction: 0,
+    },
+  },
 });
 
 async function destination(output) {
@@ -84,7 +105,7 @@ function staticViewMeaning(meaning, index) {
   };
 }
 
-async function staticView(selected, meaning, options = {}) {
+async function staticView(selected, meaning, fontSupply, options = {}) {
   const staticRefinement = meaning.refinement?.media?.static;
   const authoredCanvas = staticRefinement?.kind === 'authored-canvas';
   const claimMode = meaning.native.selections.some(
@@ -116,10 +137,22 @@ async function staticView(selected, meaning, options = {}) {
   if (authoredCanvas) {
     const authored = composeAuthoredStaticCanvas(meaning);
     scene = authored.scene;
+    const geometry = auditScene(scene, authoredCanvasGeometry);
+    const canvas = auditCanvasEnvelope(scene, authoredCanvasContainment);
+    if (geometry.failures.length || canvas.failures.length)
+      fail(
+        'authored_canvas_geometry_invalid',
+        `authored_canvas_geometry_invalid:${[...geometry.failures, ...canvas.failures][0].code}`,
+      );
+    await verifyAuthoredCanvasTextBoxes(scene, fontSupply);
     const rasterWidth = meaning.editorial.presentation.static.width;
     if (!Number.isSafeInteger(rasterWidth)) fail('authored_canvas_width_required');
+    const svg = renderAuthoredCanvasSvg(scene);
+    const emitted = auditEmittedEdges(svg.toString('utf8'), scene, authoredCanvasGeometry);
+    if (emitted.failures.length)
+      fail('authored_canvas_emitted_geometry_invalid', emitted.failures[0].code);
     rendered = {
-      bytes: renderAuthoredCanvasSvg(scene),
+      bytes: svg,
       rasterWidth,
       carriers: authored.carriers,
     };
@@ -140,6 +173,7 @@ async function staticMedium(selected, meaning, scratch) {
     meaning.refinement.media.static.kind !== 'neutral'
   )
     fail('static_figure_refinement_unadmitted');
+  const fontSupply = await loadBundledFonts();
   const parts = [];
   for (const [index, view] of views.entries()) {
     const scoped = views.length === 1 ? meaning : staticViewMeaning(meaning, index);
@@ -148,6 +182,7 @@ async function staticMedium(selected, meaning, scratch) {
       ...(await staticView(
         selected,
         scoped,
+        fontSupply,
         views.length === 1 ? {} : { idPrefix: `static-view-${index}-`, fragment: true },
       )),
     });
@@ -184,7 +219,6 @@ async function staticMedium(selected, meaning, scratch) {
     parts.length === 1
       ? parts[0].implementationProfile
       : [...new Set(parts.map((part) => part.implementationProfile)), 'static-figure'];
-  const fontSupply = await loadBundledFonts();
   const fonts = fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
   if (fonts.length !== 2 || !fontSupply.license?.bytes) fail('static_edition_font_supply_invalid');
   const svg = embedFonts(rendered.bytes, fonts, fontSupply.license);

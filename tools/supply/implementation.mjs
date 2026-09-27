@@ -40,7 +40,10 @@ const profiles = {
   ],
   'static-authored': [
     ...baseStatic,
+    'packages/publisher/renderers/resvg/measurement.mjs',
     'packages/publisher/src/scene/static/authored-canvas.mjs',
+    'packages/publisher/src/scene/static/audit.mjs',
+    'packages/publisher/src/scene/static/emitted-path.mjs',
     'packages/publisher/renderers/svg/canvas.mjs',
   ],
   'static-figure': [...baseStatic, 'packages/publisher/renderers/svg/figure.mjs'],

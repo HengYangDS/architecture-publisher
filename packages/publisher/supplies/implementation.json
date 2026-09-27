@@ -573,6 +573,11 @@
         "sha256": "d067d4d4dc3733d0dd83f4ebf25348b98d91e694bd0b8b150496f3552727a839"
       },
       {
+        "path": "renderers/resvg/measurement.mjs",
+        "bytes": 4162,
+        "sha256": "721f46506ba563c3f4fddcdf1610ccf7692e9ac6718258d954a1f162f7d2ffc2"
+      },
+      {
         "path": "renderers/resvg/supply.mjs",
         "bytes": 1923,
         "sha256": "8d6c08c7152b08114b34bd5f59437bb825651df7bb3ef7d545b07c6b4ae3c154"
@@ -608,9 +613,19 @@
         "sha256": "fd68bd222df282180640f396b7e1207dbd496487729d857c1a289f2205ce0125"
       },
       {
+        "path": "src/scene/static/audit.mjs",
+        "bytes": 12068,
+        "sha256": "9eeafa5eb7fcaff8002755cd6b8fba84af8e190a56ea016718f85fbe063eb1bb"
+      },
+      {
         "path": "src/scene/static/authored-canvas.mjs",
         "bytes": 6902,
         "sha256": "771a6ee964300335112a71d1a241f54e2fae08578bb0f47f28f5cf161aff9a3d"
+      },
+      {
+        "path": "src/scene/static/emitted-path.mjs",
+        "bytes": 4394,
+        "sha256": "1be4d219c10cba5d929ab56b46f0da86f4c91fa9a82adc14157b71b07a39f308"
       },
       {
         "path": "src/semantics/document.mjs",

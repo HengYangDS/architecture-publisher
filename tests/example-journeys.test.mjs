@@ -9,7 +9,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import sax from '../packages/publisher/renderers/resvg/supply/sax/sax.cjs';
 import { parse as parseFont } from '../packages/publisher/renderers/resvg/supply/opentype/opentype.mjs';
-import { auditScene } from '../packages/publisher/src/qualification/static/scene.mjs';
+import { auditScene } from '../packages/publisher/src/scene/static/audit.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
