@@ -12,6 +12,33 @@ const sourceWidthLimit = 2_600;
 const bodyLeading = 26;
 const number = (value) => Number(value.toFixed(2));
 
+function validGroups(groups) {
+  if (!Array.isArray(groups)) return false;
+  const ids = new Set();
+  const labels = new Set();
+  const members = new Set();
+  for (const group of groups) {
+    if (
+      typeof group?.id !== 'string' ||
+      !group.id ||
+      ids.has(group.id) ||
+      typeof group.label !== 'string' ||
+      !group.label.trim() ||
+      labels.has(group.label) ||
+      !Array.isArray(group.members) ||
+      !group.members.length
+    )
+      return false;
+    ids.add(group.id);
+    labels.add(group.label);
+    for (const member of group.members) {
+      if (typeof member !== 'string' || !member.trim() || members.has(member)) return false;
+      members.add(member);
+    }
+  }
+  return true;
+}
+
 function checkedViews(views) {
   if (!Array.isArray(views) || views.length < 1 || views.length > 256)
     fail('static_figure_views_invalid');
@@ -27,6 +54,7 @@ function checkedViews(views) {
       !scene.questions.length ||
       scene.questions.some(({ text }) => typeof text !== 'string' || !text.trim()) ||
       typeof parts?.graph !== 'string' ||
+      !validGroups(parts.groups) ||
       !Array.isArray(parts.relations) ||
       (parts.claim !== null &&
         (typeof parts.claim?.markup !== 'string' ||
@@ -68,6 +96,31 @@ function section(output, heading, items, width, y) {
     }
     output.push('</g>');
     y += 9;
+  }
+  return y + 10;
+}
+
+function readingGroupKey(output, groups, width, y) {
+  if (!groups.length) return y;
+  output.push(
+    `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">READING GROUPS</text>`,
+  );
+  y += 38;
+  const columns = Math.min(groups.length, width >= 1500 ? 3 : width >= 950 ? 2 : 1);
+  const columnGap = 42;
+  const columnWidth = (width - (columns - 1) * columnGap) / columns;
+  for (let start = 0; start < groups.length; start += columns) {
+    const row = groups
+      .slice(start, start + columns)
+      .map(({ label, members }) => wrap(`${label}: ${members.join(' · ')}`, columnWidth, 14, 4));
+    for (const [column, lines] of row.entries()) {
+      const x = column * (columnWidth + columnGap);
+      for (const [index, line] of lines.entries())
+        output.push(
+          `<text x="${number(x)}" y="${number(y + index * bodyLeading)}" fill="#27352e" font-size="14">${escape(line)}</text>`,
+        );
+    }
+    y += Math.max(...row.map((lines) => lines.length * bodyLeading)) + 9;
   }
   return y + 10;
 }
@@ -164,6 +217,7 @@ function panel(view, width, options = {}) {
     );
     y += bounds.height + 28;
   }
+  y = readingGroupKey(output, parts.groups, notesWidth, y);
   const notesStart = y;
   if (parts.relations.length) {
     const context = parts.relations[0].context;

@@ -62,6 +62,51 @@ test('a sole neutral view uses the same complete figure grammar', () => {
   assert(svg.includes('METHOD LIMITS'));
 });
 
+test('a complete figure states exact reading-group membership outside the causal graph', () => {
+  const selected = view('grouped', 0);
+  selected.rendered.parts.groups = [
+    { id: 'control', label: 'Control intent', members: ['Operator', 'Guarded transaction'] },
+    { id: 'projection', label: 'Client configuration', members: ['Native projection'] },
+  ];
+  const svg = composeStaticFigureSvg({
+    title: 'Grouped figure',
+    summary: 'Editorial grouping does not add causal edges.',
+    rasterWidth: 1800,
+    views: [selected],
+  }).bytes.toString('utf8');
+
+  assert(svg.includes('READING GROUPS'));
+  assert(svg.includes('Control intent: Operator · Guarded transaction'));
+  assert(svg.includes('Client configuration: Native projection'));
+  assert.equal((svg.match(/READING GROUPS/gu) ?? []).length, 1);
+});
+
+test('reading groups occupy balanced columns instead of a left-only list', () => {
+  const selected = view('grouped', 0);
+  selected.rendered.parts.bounds = { x: 0, y: 0, width: 1800, height: 80 };
+  selected.rendered.parts.groups = [
+    { id: 'one', label: 'First boundary', members: ['Alpha & one'] },
+    { id: 'two', label: 'Second boundary', members: ['Beta'] },
+    { id: 'three', label: 'Third boundary', members: ['Gamma'] },
+  ];
+  const svg = composeStaticFigureSvg({
+    title: 'Grouped figure',
+    summary: 'A source-bound reading.',
+    rasterWidth: 2600,
+    views: [selected],
+  }).bytes.toString('utf8');
+  const positions = ['First boundary', 'Second boundary', 'Third boundary'].map((label) => {
+    const match = new RegExp(`<text x="([\\d.]+)" y="([\\d.]+)"[^>]*>${label}:`, 'u').exec(svg);
+    assert(match, label);
+    return match.slice(1).map(Number);
+  });
+
+  assert(positions[0][0] < positions[1][0]);
+  assert.equal(positions[0][1], positions[1][1]);
+  assert.equal(positions[0][0], positions[2][0]);
+  assert(positions[2][1] > positions[0][1]);
+});
+
 test('shared qualifications use the open side of a compact stacked view', () => {
   const first = view('first', 0);
   const second = view('second', 1, {
@@ -411,6 +456,18 @@ test('the figure rejects malformed membership and an unrepresentable relation le
     (item) => (item.scene.questions[0].text = ''),
     (item) => (item.rendered.parts.graph = null),
     (item) => (item.rendered.parts.relations = null),
+    (item) => (item.rendered.parts.groups = null),
+    (item) => (item.rendered.parts.groups = [{ id: 'empty', label: 'Empty', members: [] }]),
+    (item) =>
+      (item.rendered.parts.groups = [
+        { id: 'first', label: 'First', members: ['Alpha'] },
+        { id: 'second', label: 'Second', members: ['Alpha'] },
+      ]),
+    (item) =>
+      (item.rendered.parts.groups = [
+        { id: 'first', label: 'Same', members: ['Alpha'] },
+        { id: 'second', label: 'Same', members: ['Beta'] },
+      ]),
     (item) => (item.rendered.parts.claim = { markup: 'claim', x: NaN }),
     (item) => (item.rendered.rasterWidth = 1800.5),
   ]) {

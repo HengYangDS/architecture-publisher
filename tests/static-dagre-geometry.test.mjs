@@ -43,18 +43,19 @@ test('source labels remain data and cannot create extra graphic members', async 
   assert.equal(result.routes.length, input.relations.length);
 });
 
-test('a long group heading remains visible outside its small member', async () => {
+test('a long editorial group label does not widen its member geometry', async () => {
   const result = await composeDagreGroupedGeometry({
     nodes: [{ id: 'core', label: 'Core' }],
     groups: [{ id: 'coordination', label: 'Desired-state coordination', members: ['core'] }],
     relations: [],
   });
   const group = result.layout.groups[0];
-  const estimatedHeading = [...group.label].length * 14 * 0.61;
   const node = result.layout.nodes.get('core');
 
-  assert(group.caption.box.w >= estimatedHeading);
-  assert(group.caption.box.y + group.caption.box.h < node.y);
+  assert.equal(result.layout.groupPresentation, 'key');
+  assert.equal(group.label, 'Desired-state coordination');
+  assert.equal(group.caption, undefined);
+  assert(group.w <= node.w + 40);
 });
 
 test('a fan-out stays compact when source groups cross graph ranks', async () => {
@@ -201,7 +202,7 @@ test('a delivery fork keeps every caption clear of the converging asset route', 
   }
 });
 
-test('a wide fan-out can keep its stage heading above the origin rather than below every branch', async () => {
+test('a wide fan-out keeps exact editorial memberships even when geometry interleaves them', async () => {
   const ids = [
     'cli',
     'configuration',
@@ -255,10 +256,13 @@ test('a wide fan-out can keep its stage heading above the origin rather than bel
     ],
     relations: links.map(([from, to, text], index) => ({ id: `r${index}`, from, to, text })),
   });
-  const heading = result.layout.groups.find(({ id }) => id === 'safety').caption.box;
-  const origin = result.layout.nodes.get('contract');
-
-  assert(heading.y + heading.h < origin.y);
+  assert.equal(result.layout.groupPresentation, 'key');
+  assert.deepEqual(result.layout.groups.find(({ id }) => id === 'safety').members, [
+    'contract',
+    'transaction',
+  ]);
+  assert.deepEqual(result.layout.groups.find(({ id }) => id === 'clients').members, ids.slice(8));
+  assert(result.layout.groups.every((group) => group.caption === undefined));
 });
 
 test('grouped geometry rejects malformed source membership before requesting coordinates', async () => {
@@ -280,15 +284,16 @@ test('grouped geometry rejects malformed source membership before requesting coo
     });
 });
 
-test('a heading too wide for a local group fails rather than covering the graph', async () => {
-  await assert.rejects(
-    composeDagreGroupedGeometry({
-      nodes: [{ id: 'core', label: 'Core' }],
-      groups: [{ id: 'core-group', label: 'Heading '.repeat(8), members: ['core'] }],
-      relations: [],
-    }),
-    { code: 'static_dagre_group_caption_infeasible' },
-  );
+test('a long editorial group label remains data for a separately measured key', async () => {
+  const label = 'Heading '.repeat(8).trim();
+  const result = await composeDagreGroupedGeometry({
+    nodes: [{ id: 'core', label: 'Core' }],
+    groups: [{ id: 'core-group', label, members: ['core'] }],
+    relations: [],
+  });
+
+  assert.equal(result.layout.groups[0].label, label);
+  assert(result.layout.groups[0].w < [...label].length * 14 * 0.61);
 });
 
 test('the selected Dagre adapter refuses invalid flat nodes and relations', async () => {

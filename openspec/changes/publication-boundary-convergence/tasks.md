@@ -526,26 +526,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       The separate `candidate-authored-overview` still fails human visual
       review; do not transplant its pixels into AIGW. Product-owned whole-page
       composition and final-media review remain open.
-      Current neutral-static slice: on exact AIGW source `709fd813`, the
-      public CLI builds Product and Client Projection through the pinned
-      Dagre supply. A heading shelf and relation-caption clearance preserve
-      their visible structure. A homogeneous qualifier list states its exact
-      unverified context once while retaining each source relation, value,
-      and graphic carrier; unlike notes are never given a shared status.
-      Both current Candidates under
-      `build/review/aigw-static-dual-dagre-20260928/` pass source-file
-      integrity verification. Their SVG, PNG, and HTML bytes are unchanged by
-      the qualifier SSOT refactor. Chrome 154 at 1280 CSS pixels found no
-      measured text overlap, sampled path/text contact, card-border contact,
-      escaped text, or external request in either static SVG. The full check
-      passed 1,247 tests with seven explicit skips and 95.01% branch coverage.
-      A packed offline installation with isolated HOME and an empty build PATH
-      reproduced all six Candidate members for both exact AIGW requests;
-      `build/review/aigw-static-dual-dagre-20260928/installed-parity.json`
-      records the provisional archive and member digests. The original AIGW
-      source checkout remained available, so its absence is not proven.
-      Source acceptance, whole-page aesthetic approval, and release remain
-      open; Task 5.2 is not complete.
+      Current neutral-static slice: the signed AIGW source `bdb77d55` adds a
+      source-backed control-to-transaction relation. Publisher's compact Dagre
+      placement now uses an exact-member reading key instead of floating group
+      headings that visually reassigned members. Public CLI trials for Product
+      and Client Projection are under
+      `build/review/aigw-static-group-key-provisional-20260928/`, bound to request
+      SHA-256 `ee7cf3c9` and `79fafbd8` respectively. Chrome 154 measured 67
+      SVG text elements per figure, zero text overlaps, sampled path/text
+      contacts, or text overflow at 1280 CSS pixels. Full tests pass 1,250
+      with seven skips; branch coverage is 95.03%, and static/strict OpenSpec
+      checks pass. These are source-adjacent provisional bytes, not current
+      packed-install parity, final human visual approval, or AIGW acceptance;
+      Task 5.2 remains open.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

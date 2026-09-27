@@ -46,13 +46,16 @@ a complete Candidate. Graph-only layout success is insufficient.
 - **THEN** no complete static Candidate is emitted
 - **AND** Publisher does not silently drop or shrink that view to force a pass
 
-#### Scenario: Graph geometry ignores a group heading
+#### Scenario: Editorial groups interleave in causal placement
 
-- **WHEN** a proposed node placement occupies a group heading's measured area
-- **THEN** that complete-page candidate is rejected even if its graph edges
-  route and the raster is shorter than another candidate
-- **AND** the renderer does not mask the collision by painting the heading
-  behind or in front of the node
+- **WHEN** a source-authorized static view assigns each selected node to one
+  editorial group but a compact causal layout interleaves those groups
+- **THEN** Publisher preserves every group label and exact member list in a
+  reading key outside the causal graph
+- **AND** it does not paint a floating group heading or enclosure that could
+  imply a different membership or invent a source relation
+- **AND** missing, duplicate, or visually ambiguous members fail with a named
+  diagnostic rather than being omitted or silently reassigned
 
 #### Scenario: Compactness conflicts with legibility
 

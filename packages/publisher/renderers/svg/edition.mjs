@@ -341,7 +341,7 @@ function validateStaticScene(scene) {
     !Array.isArray(scene.edges) ||
     (scene.groups !== undefined && !Array.isArray(scene.groups)) ||
     (scene.groupPresentation !== undefined &&
-      (scene.groupPresentation !== 'captions' || !scene.groups?.length)) ||
+      (!['captions', 'key'].includes(scene.groupPresentation) || !scene.groups?.length)) ||
     (scene.claimCards !== undefined && !Array.isArray(scene.claimCards)) ||
     scene.edges.some((edge) => !edge || !Array.isArray(edge.relations)) ||
     !Array.isArray(scene.questions) ||
@@ -384,6 +384,45 @@ function validateStaticScene(scene) {
     fail('static_edition_question_invalid');
   validateSourceCarriers(scene);
   return mixed;
+}
+
+function readingGroups(scene) {
+  if (scene.groupPresentation !== 'key') return [];
+  const nodes = new Map(scene.nodes.map((node) => [key(node), node.label]));
+  const groupIds = new Set();
+  const groupLabels = new Set();
+  const members = new Set();
+  const labels = new Set();
+  const groups = scene.groups.map((group) => {
+    if (
+      !text(group?.id) ||
+      groupIds.has(group.id) ||
+      !text(group.label) ||
+      groupLabels.has(group.label) ||
+      !Array.isArray(group.elements) ||
+      !group.elements.length
+    )
+      fail('static_edition_group_key_invalid');
+    groupIds.add(group.id);
+    groupLabels.add(group.label);
+    return {
+      id: group.id,
+      label: group.label,
+      members: group.elements.map((element) => {
+        if (!text(element?.namespace) || !text(element.id))
+          fail('static_edition_group_key_invalid');
+        const identity = key(element);
+        const label = nodes.get(identity);
+        if (!label || members.has(identity) || labels.has(label))
+          fail('static_edition_group_key_invalid');
+        members.add(identity);
+        labels.add(label);
+        return label;
+      }),
+    };
+  });
+  if (members.size !== nodes.size) fail('static_edition_group_key_invalid');
+  return groups;
 }
 
 function checkedRelationCaption(edge) {
@@ -447,12 +486,15 @@ export function composeStaticEditionSvg(scene, options = {}) {
     fail('static_edition_render_options_invalid');
   const mixed = validateStaticScene(scene);
   const claimLinks = mixed ? linkedClaims(scene) : null;
+  const groups = readingGroups(scene);
   const rasterWidth = scene.requestedWidth ?? 1800;
   if (!Number.isSafeInteger(rasterWidth) || rasterWidth < 320 || rasterWidth > 12000)
     fail('static_edition_width_invalid');
-  const bounds = boundsOf(scene);
-  if (JSON.stringify(bounds) !== JSON.stringify(scene.bounds))
+  const sourceBounds = boundsOf(scene);
+  if (JSON.stringify(sourceBounds) !== JSON.stringify(scene.bounds))
     fail('static_edition_bounds_mismatch');
+  const bounds =
+    scene.groupPresentation === 'key' ? boundsOf({ ...scene, groups: [] }) : sourceBounds;
   const graphWidth = Math.max(640, Math.ceil((bounds?.width ?? 0) + 120));
   const notesWidth = 400;
   const gap = 54;
@@ -478,6 +520,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
       },
     }));
   for (const group of scene.groups ?? []) {
+    if (scene.groupPresentation === 'key') continue;
     if (scene.groupPresentation === 'captions') {
       graph.push(captionedGroupGraphic(group));
       continue;
@@ -567,6 +610,15 @@ export function composeStaticEditionSvg(scene, options = {}) {
       notes,
       'READER QUESTIONS',
       scene.questions.map(({ text }) => ({ text })),
+      notesX,
+      y,
+      notesWidth,
+    );
+  if (!fragment)
+    y = namedSection(
+      notes,
+      'READING GROUPS',
+      groups.map(({ label, members }) => ({ text: `${label}: ${members.join(' · ')}` })),
       notesX,
       y,
       notesWidth,
@@ -901,6 +953,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
       parts: {
         graph: graph.join('\n'),
         bounds,
+        groups,
         relations: relationItems,
         claim:
           claimCarriers.length > 0

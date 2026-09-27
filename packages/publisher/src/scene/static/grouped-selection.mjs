@@ -134,7 +134,6 @@ function composeSelectedLayout(meaning, geometryOwner) {
         y: group.y,
         width: group.w,
         height: group.h,
-        ...(group.caption ? { caption: group.caption } : {}),
       })),
       ...(selected.layout.groupPresentation
         ? { groupPresentation: selected.layout.groupPresentation }

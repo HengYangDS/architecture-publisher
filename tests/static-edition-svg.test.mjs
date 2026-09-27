@@ -149,6 +149,48 @@ test('a nontext source relation label fails rather than becoming a caption', () 
   });
 });
 
+test('a reading-group key names exact members without placing a false enclosure on the graph', () => {
+  const input = staticEditionScene();
+  input.groupPresentation = 'key';
+  input.groups = [
+    {
+      id: 'entry',
+      label: 'Entry boundary',
+      elements: [{ namespace: 'example/model', id: 'a' }],
+      x: 0,
+      y: 0,
+      width: 160,
+      height: 80,
+    },
+    {
+      id: 'service',
+      label: 'Service boundary',
+      elements: [{ namespace: 'example/model', id: 'b' }],
+      x: 260,
+      y: 0,
+      width: 160,
+      height: 80,
+    },
+  ];
+  const fragment = svg.composeStaticEditionSvg(input, { fragment: true });
+
+  assert(!fragment.parts.graph.includes('Entry boundary'));
+  assert.deepEqual(fragment.parts.groups, [
+    { id: 'entry', label: 'Entry boundary', members: ['Alpha & one'] },
+    { id: 'service', label: 'Service boundary', members: ['Beta'] },
+  ]);
+  assert(svg.composeStaticEditionSvg(input).bytes.toString('utf8').includes('READING GROUPS'));
+  input.groups[1].elements = [{ namespace: 'example/model', id: 'a' }];
+  assert.throws(() => svg.composeStaticEditionSvg(input), {
+    code: 'static_edition_group_key_invalid',
+  });
+  input.groups[1].elements = [{ namespace: 'example/model', id: 'b' }];
+  input.groups[1].label = 'Entry boundary';
+  assert.throws(() => svg.composeStaticEditionSvg(input), {
+    code: 'static_edition_group_key_invalid',
+  });
+});
+
 test('the renderer refuses unsupported scene authority and dimensions', () => {
   const cases = [
     ['absent scene', () => null, 'static_edition_scene_invalid'],

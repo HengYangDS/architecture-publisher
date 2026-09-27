@@ -194,6 +194,7 @@ test('a selected grouped view builds visible static groups through the shared ge
   const built = await compileEditionCandidateInput(selected.file, selected.digest, output);
   assert.equal(built.status, 'built');
   const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert(svg.includes('READING GROUPS'));
   assert(svg.includes('Entry boundary'));
   assert(svg.includes('Service boundary'));
   assert(!svg.includes('fixture/model'));

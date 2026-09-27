@@ -152,50 +152,6 @@ function placeRelationLabels(routes, nodes) {
   });
 }
 
-function captionedGroups(groups, nodes, routes) {
-  const occupied = [...nodes.values()];
-  const edges = routes.flatMap(({ points }) =>
-    points.slice(1).map((to, index) => [points[index], to]),
-  );
-  const labels = routes.flatMap(({ labelBox }) => (labelBox ? [labelBox] : []));
-  return groups.map((group) => {
-    const w = Math.ceil([...group.label].length * 14 * 0.61 + 12);
-    const h = 22;
-    if (w > 360) fail('static_dagre_group_caption_infeasible');
-    const candidates = [
-      ...[12, 48, 84, 120, 156, 192, 228].flatMap((gap) => [
-        { x: group.x, y: group.y - h - gap, w, h },
-        { x: group.x + group.w - w, y: group.y - h - gap, w, h },
-      ]),
-      { x: group.x, y: group.y + group.h + 12, w, h },
-      { x: group.x + group.w - w, y: group.y + group.h + 12, w, h },
-      { x: group.x - w - 12, y: group.y + 10, w, h },
-      { x: group.x + group.w + 12, y: group.y + 10, w, h },
-    ];
-    const caption = candidates.find(
-      (box) =>
-        box.x >= 40 &&
-        box.y >= 100 &&
-        ![...occupied, ...labels].some((other) => boxesOverlap(box, other, 8)) &&
-        !edges.some(([from, to]) => segmentHitsBox(from, to, box)),
-    );
-    if (!caption) fail('static_dagre_group_caption_infeasible', group.id);
-    occupied.push(caption);
-    const left = Math.min(group.x, caption.x);
-    const top = Math.min(group.y, caption.y);
-    const right = Math.max(group.x + group.w, caption.x + caption.w);
-    const bottom = Math.max(group.y + group.h, caption.y + caption.h);
-    return {
-      ...group,
-      x: left,
-      y: top,
-      w: right - left,
-      h: bottom - top,
-      caption: { x: caption.x, y: caption.y + 16, box: caption },
-    };
-  });
-}
-
 /** The existing pinned Dagre supply proposes coordinates, never source meaning. */
 export async function composeDagreGroupedGeometry(value) {
   const input = checkedInput(value);
@@ -254,7 +210,7 @@ export async function composeDagreGroupedGeometry(value) {
   });
   const layout = { width: selected.width + 160, height: selected.height + 290 };
   const labeledRoutes = placeRelationLabels(routes, nodes);
-  const groups = captionedGroups(memberGroups, nodes, labeledRoutes);
+  const groups = memberGroups;
   layout.width = Math.max(layout.width, ...groups.map(({ x, w }) => x + w + 40));
   layout.height = Math.max(layout.height, ...groups.map(({ y, h }) => y + h + 30));
   layout.width = Math.max(
@@ -266,7 +222,7 @@ export async function composeDagreGroupedGeometry(value) {
     ...labeledRoutes.flatMap(({ labelBox }) => (labelBox ? [labelBox.y + labelBox.h + 30] : [])),
   );
   return {
-    layout: { ...layout, groups, nodes, groupPresentation: 'captions' },
+    layout: { ...layout, groups, nodes, groupPresentation: 'key' },
     routes: labeledRoutes,
     supplySha256: selected.supplySha256,
   };
