@@ -8,17 +8,61 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- Added one versioned Build Request and Edition Project path for direct,
+  declarative-Provider, and executable-Provider input selection through the
+  existing `archpub edition build` command. Selected bytes, source claimants,
+  derivations, and unresolved dependencies remain distinguishable.
+- Added a bounded LikeC4 importer for supported native constructs. Unsupported
+  or opaque meaning is rejected or disclosed; generated parser identities do
+  not become source or editorial authority.
+- Added independently composed static SVG/selected-width PNG and standalone
+  interactive HTML from one selected Edition, including source-owned,
+  data-only visual refinement and a first-party installed self-Edition.
+- Added Candidate v2 binding for the exact input lock, selected semantic and
+  medium-specific supplies, scenes, and artifacts. Candidate replay and the v2
+  Qualification Set bind submitted observations without authenticating a
+  claimant, verifier, or accepter.
+- Added an optional qualified local publication path with separately named
+  acceptance and effect authorization, exact prestate checks, replacement, and
+  recovery. It does not publish Git or Forge refs or establish off-host custody.
+
 ### Changed
 
-- Updated the official OpenSpec development validator to `1.13.2`; Publisher
-  runtime and historical release bytes are unchanged.
+- The first-party self-Edition now authors portable inputs for the generic
+  compiler rather than owning a parallel build engine. Source products retain
+  their own claims, Edition choices, acceptance, and release decisions.
+- Neutral interactive geometry uses pinned Dagre layout and Cytoscape
+  interaction, with selected-source and visible-carrier checks; static and
+  interactive media do not share geometry or approval.
+- Updated the official OpenSpec development validator to `1.13.2`; this
+  tooling update does not change compiled runtime or historical release bytes.
+- An installed build proves only its selected inputs and effects, not complete
+  upstream read closure, source-domain truth, adopter acceptance, hosted
+  release, or independent off-host recovery.
+
+### Removed
+
+- Removed the displaced self-only build engines and live Atlas composer from
+  the successor path. Historical signed artifacts and valid v1 input meanings
+  remain unchanged.
 
 ### Fixed
 
+- Current installed-package content is reported as separate build/replay
+  execution evidence, not Candidate identity or original-builder provenance.
+  Policy-backed qualification reports remain exactly derivable from their
+  selected Candidate, Qualification Set, and Policy.
 - Missing selected renderer inputs, Archify supply members, or output parents
   now fail with scoped diagnostics before any final HTML is created.
 - A destination parent removed or replaced after publication planning now fails
   before writer-lock preparation, without recreating it or touching foreign bytes.
+
+### Security
+
+- Executable Provider process-tree supervision bounds ordinary descendants
+  but is not an operating-system, filesystem, network, or credential sandbox.
 
 ## [0.3.0-alpha.3] - 2026-09-24
 
