@@ -109,8 +109,35 @@ export async function compileEditionNativeSelections(input) {
   }
 
   const selections = project.scope.selections.map((selection) => {
-    if (claimModels.has(selection.namespace))
-      return resolveClaimModelSelection(claimModels.get(selection.namespace), selection);
+    if (claimModels.has(selection.namespace)) {
+      const imported = claimModels.get(selection.namespace);
+      try {
+        return resolveClaimModelSelection(imported, selection);
+      } catch (error) {
+        if (error?.code === 'native_claim_model_reference_unselected')
+          error.diagnostics = [
+            {
+              code: error.code,
+              severity: 'error',
+              message: 'Selected Claim Model reference is absent from the bound model.',
+              predicate: 'selected-reference-resolves',
+              subject: {
+                kind: 'edition-source-reference',
+                editionId: project.id,
+                editionSha256: lock.edition.sha256,
+                selectionId: selection.id,
+                namespace: selection.namespace,
+                reference: selection.reference,
+                sourceSha256: imported.source.sha256,
+              },
+              responsibility: { role: 'edition-editor', declaredOwner: project.editor },
+              evidence: {},
+              supportedFixes: [],
+            },
+          ];
+        throw error;
+      }
+    }
     if (sources.has(selection.namespace) && likeFormat(sources.get(selection.namespace).format))
       return resolveLikeC4Selection(likeIndex, selection);
     fail('native_format_unadmitted');

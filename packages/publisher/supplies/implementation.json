@@ -9,8 +9,8 @@
       },
       {
         "path": "src/compiler/native.mjs",
-        "bytes": 5682,
-        "sha256": "2133c885c8e1e2f75a6354b053273bc596329c281f2ead6883a5d6516f33b6ea"
+        "bytes": 6672,
+        "sha256": "0f2aca8d824802eda577c7a7b270a1b400b7398dda5eb7028b81cde14a15912b"
       },
       {
         "path": "src/edition/authoring.mjs",
@@ -106,8 +106,8 @@
       },
       {
         "path": "src/compiler/native.mjs",
-        "bytes": 5682,
-        "sha256": "2133c885c8e1e2f75a6354b053273bc596329c281f2ead6883a5d6516f33b6ea"
+        "bytes": 6672,
+        "sha256": "0f2aca8d824802eda577c7a7b270a1b400b7398dda5eb7028b81cde14a15912b"
       },
       {
         "path": "src/edition/authoring.mjs",

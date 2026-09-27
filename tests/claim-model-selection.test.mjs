@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import axe from 'axe-core';
 import { chromium } from 'playwright-core';
 import {
@@ -339,12 +341,77 @@ test('unknown coverage and missing Claim Model IDs cannot masquerade as complete
   );
   assert(meaning.limits.includes('claim-coverage-unknown:published'));
   const missing = await fixture(t, { reference: 'claim:absent' });
-  await assert.rejects(
-    compileEditionMeaning(
-      await materializeBuildRequestInput(missing.requestPath, missing.requestSha256),
-    ),
-    { code: 'native_claim_model_reference_unselected' },
+  const selected = await materializeBuildRequestInput(missing.requestPath, missing.requestSha256);
+  await assert.rejects(compileEditionMeaning(selected), (error) => {
+    assert.equal(error.code, 'native_claim_model_reference_unselected');
+    assert.deepEqual(error.diagnostics, [
+      {
+        code: error.code,
+        severity: 'error',
+        message: 'Selected Claim Model reference is absent from the bound model.',
+        predicate: 'selected-reference-resolves',
+        subject: {
+          kind: 'edition-source-reference',
+          editionId: missing.project.id,
+          editionSha256: selected.lock.edition.sha256,
+          selectionId: 'selected-claim',
+          namespace: modelNamespace,
+          reference: 'claim:absent',
+          sourceSha256: selected.lock.sources[0].sha256,
+        },
+        responsibility: { role: 'edition-editor', declaredOwner: missing.project.editor },
+        evidence: {},
+        supportedFixes: [],
+      },
+    ]);
+    return true;
+  });
+});
+
+test('public Edition build returns a local, non-authorizing missing-reference diagnostic', async (t) => {
+  const missing = await fixture(t, { reference: 'claim:absent' });
+  const output = path.join(missing.root, 'candidate');
+  const result = spawnSync(
+    process.execPath,
+    [
+      fileURLToPath(new URL('../packages/publisher/src/cli/main.mjs', import.meta.url)),
+      'edition',
+      'build',
+      missing.requestPath,
+      '--sha256',
+      missing.requestSha256,
+      '--output',
+      output,
+    ],
+    { cwd: missing.root, encoding: 'utf8', timeout: 30_000 },
   );
+  assert.equal(result.status, 1, result.stderr);
+  const response = JSON.parse(result.stdout);
+  assert.equal(response.error.code, 'native_claim_model_reference_unselected');
+  assert.deepEqual(
+    response.error.diagnostics?.map(({ subject, responsibility, predicate }) => ({
+      subject,
+      responsibility,
+      predicate,
+    })),
+    [
+      {
+        subject: {
+          kind: 'edition-source-reference',
+          editionId: missing.project.id,
+          editionSha256: sha(await fs.readFile(path.join(missing.root, 'edition/project.json'))),
+          selectionId: 'selected-claim',
+          namespace: modelNamespace,
+          reference: 'claim:absent',
+          sourceSha256: sha(await fs.readFile(path.join(missing.root, 'sources/model.json'))),
+        },
+        responsibility: { role: 'edition-editor', declaredOwner: missing.project.editor },
+        predicate: 'selected-reference-resolves',
+      },
+    ],
+  );
+  assert.equal(JSON.stringify(response).includes(missing.root), false);
+  await assert.rejects(fs.stat(output), { code: 'ENOENT' });
 });
 
 test('entity and relation selections retain typed identity and exact model origin', async (t) => {

@@ -272,8 +272,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       command plane, or source-governance adapter. Partial: a digest-matching
       v2 manifest that fails structural validation returns a local exact-subject,
       protocol-role diagnostic through the existing CLI error; changed manifest
-      bytes remain unassigned rather than blaming the provider author. Source,
-      editorial, adapter, and retirement cases remain open.
+      bytes remain unassigned rather than blaming the provider author. A missing
+      selected Claim Model ID now yields a local Edition-editor diagnostic
+      bound to the exact Edition, selection, namespace, reference, and selected
+      source SHA;
+      the public CLI returns it without creating a Candidate or inferring a
+      source owner. The Chrome-enabled full check passed 1227 tests, skipped 2
+      input-dependent tests, and reached 95.05% branch coverage; the skips do
+      not qualify external inputs. Other source, editorial, adapter, and
+      retirement findings remain open.
 
 ## 4. Native semantics and conservative change
 
