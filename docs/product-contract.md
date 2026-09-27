@@ -306,20 +306,20 @@ historical evidence, not a second active rule.
 Source → semantic validation → authored views → constrained composition →
 medium-specific rendering → artifact observations → authorized publication.
 
-| Concern                          | Authority                                          | Publisher role                                  | Not implied                                             |
-| -------------------------------- | -------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------- |
-| Native meaning and source claims | Source owner; named claimant per assertion         | Bind exact evidence and declared import loss    | A selected statement is not thereby implemented.        |
-| Editorial claims and Edition     | Edition editor                                     | Validate selection and compose reader works     | Editorial judgment is not source endorsement.           |
-| Provider interchange             | Publisher                                          | Validate one versioned input protocol           | The protocol does not choose a source package.          |
-| Provider selection               | Build Request author                               | Bind exact inputs offered by source owners      | Selection grants no source truth or effect.             |
-| Scene, rendering and Candidate   | Publisher                                          | Derive independently composed media             | Structural output is not flagship approval.             |
-| Predicate observations           | Predicate-specific verifier                        | Bind exact Qualification subjects and limits    | One PASS does not establish another predicate.          |
-| Candidate acceptance             | Designated accepter under product/editorial policy | Bind judgment to exact Candidate and policy     | A green build is not approval.                          |
-| Release authorization            | Designated release owner                           | Record selected release subject and decision    | Accepted media do not publish themselves.               |
-| Repository and Git effects       | Repository policy; Git owns objects and refs       | None without a separate source-owned adapter    | Publisher owns no Work Lane, CAS or ref transition.     |
-| Local file publication           | Target policy's designated authorization owner     | Plan, apply and recover exact filesystem effect | Local install is not Forge release or target authority. |
-| Artifact custody and retention   | Selected custodian                                 | Record producer and effect receipts             | Output need not enter source Git or off-host storage.   |
-| Feedback to source intent        | Each affected source owner                         | Propose an attributed, source-bound finding     | No silent writeback.                                    |
+| Concern                          | Authority                                          | Publisher role                                              | Not implied                                             |
+| -------------------------------- | -------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------- |
+| Native meaning and source claims | Source owner; named claimant per assertion         | Bind exact evidence and declared import loss                | A selected statement is not thereby implemented.        |
+| Editorial claims and Edition     | Edition editor                                     | Validate selection and compose reader works                 | Editorial judgment is not source endorsement.           |
+| Provider interchange             | Publisher                                          | Validate one versioned input protocol                       | The protocol does not choose a source package.          |
+| Provider selection               | Build Request author                               | Bind exact inputs; retain separate declared claimant/editor | Selection grants no source truth or effect.             |
+| Scene, rendering and Candidate   | Publisher                                          | Derive independently composed media                         | Structural output is not flagship approval.             |
+| Predicate observations           | Predicate-specific verifier                        | Bind exact Qualification subjects and limits                | One PASS does not establish another predicate.          |
+| Candidate acceptance             | Designated accepter under product/editorial policy | Bind judgment to exact Candidate and policy                 | A green build is not approval.                          |
+| Release authorization            | Designated release owner                           | Record selected release subject and decision                | Accepted media do not publish themselves.               |
+| Repository and Git effects       | Repository policy; Git owns objects and refs       | None without a separate source-owned adapter                | Publisher owns no Work Lane, CAS or ref transition.     |
+| Local file publication           | Target policy's designated authorization owner     | Plan, apply and recover exact filesystem effect             | Local install is not Forge release or target authority. |
+| Artifact custody and retention   | Selected custodian                                 | Record producer and effect receipts                         | Output need not enter source Git or off-host storage.   |
+| Feedback to source intent        | Each affected source owner                         | Propose an attributed, source-bound finding                 | No silent writeback.                                    |
 
 These are modules and data contracts, not services, a graph database, an event
 bus or another governance kernel. Source adapters, backends and skills remain
