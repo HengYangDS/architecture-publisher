@@ -633,7 +633,7 @@ test('a typed claim builds independent media with visible qualifiers and no fake
   assert.deepEqual(Object.keys(candidate.media).sort(), ['interactive', 'static']);
   assert.deepEqual(
     candidate.media.interactive.supplies.map(({ id }) => id),
-    ['font-supply', 'publisher-interactive-implementation'],
+    ['font-supply', 'publisher-interactive-media-file-set'],
   );
   const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
   const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
