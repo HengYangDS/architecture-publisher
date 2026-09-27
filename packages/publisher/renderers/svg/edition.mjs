@@ -413,7 +413,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
       fail('static_edition_group_heading_collision');
     const headingX = groupHeadingX(group, lines, scene.edges);
     graph.push(
-      `<rect x="${number(group.x)}" y="${number(group.y)}" width="${number(group.width)}" height="${number(group.height)}" rx="18" fill="#eef0e9" stroke="#c4ccc2" stroke-width="1.4"/>`,
+      `<rect x="${number(group.x)}" y="${number(group.y)}" width="${number(group.width)}" height="${number(group.height)}" rx="18" fill="#eef0e9"/>`,
     );
     for (const [index, line] of lines.entries())
       graph.push(

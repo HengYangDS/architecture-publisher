@@ -29,6 +29,25 @@ test('a neutral static SVG shows the selected structure and authored limits', ()
   assert.doesNotMatch(content, /backend|archify|privateNote/u);
 });
 
+test('group membership remains visible without painting a frame through a relation', () => {
+  const scene = staticEditionScene();
+  scene.groups = [
+    { id: 'source', label: 'Source', x: -40, y: -60, width: 240, height: 160 },
+    { id: 'target', label: 'Target', x: 220, y: -60, width: 240, height: 160 },
+  ];
+  scene.bounds = { x: -40, y: -60, width: 500, height: 160 };
+  const rendered = svg.composeStaticEditionSvg(scene).bytes.toString('utf8');
+  const groups = [...rendered.matchAll(/<rect x="(?:-40|220)" y="-60"[^>]*>/gu)].map(
+    ([markup]) => markup,
+  );
+
+  assert.equal(groups.length, 2);
+  assert(groups.every((markup) => markup.includes('fill=')));
+  assert(groups.every((markup) => !markup.includes('stroke=')));
+  assert.match(rendered, />Source<\/text>/u);
+  assert.match(rendered, />Target<\/text>/u);
+});
+
 test('static publication bytes expose graphic carriers, not private source identities', () => {
   const result = svg.composeStaticEditionSvg(staticEditionScene());
   const content = result.bytes.toString('utf8');

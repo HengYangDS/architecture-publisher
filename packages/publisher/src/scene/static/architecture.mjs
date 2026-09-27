@@ -10,7 +10,7 @@ function point(box, side, offset = 0) {
   return [box.x, box.y + box.h / 2 + offset];
 }
 
-function routePoints(from, to, route) {
+function routePoints(from, to, route, bend) {
   if (route === 'straight') return [from, to];
   if (route === 'orthogonal-h') {
     if (from[1] === to[1]) return [from, to];
@@ -18,7 +18,7 @@ function routePoints(from, to, route) {
     return [from, [middle, from[1]], [middle, to[1]], to];
   }
   if (from[0] === to[0]) return [from, to];
-  const middle = (from[1] + to[1]) / 2;
+  const middle = bend ?? (from[1] + to[1]) / 2;
   return [from, [from[0], middle], [to[0], middle], to];
 }
 
@@ -45,6 +45,31 @@ function intersectsSegment(from, to, box, padding = 0) {
 
 function segments(points) {
   return points.slice(1).map((to, index) => [points[index], to]);
+}
+
+function pathsTouch(left, right) {
+  const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+  const on = (a, b, c) =>
+    c[0] >= Math.min(a[0], b[0]) &&
+    c[0] <= Math.max(a[0], b[0]) &&
+    c[1] >= Math.min(a[1], b[1]) &&
+    c[1] <= Math.max(a[1], b[1]);
+  for (const [a, b] of segments(left))
+    for (const [c, d] of segments(right)) {
+      const abC = cross(a, b, c);
+      const abD = cross(a, b, d);
+      const cdA = cross(c, d, a);
+      const cdB = cross(c, d, b);
+      if (
+        (abC === 0 && on(a, b, c)) ||
+        (abD === 0 && on(a, b, d)) ||
+        (cdA === 0 && on(c, d, a)) ||
+        (cdB === 0 && on(c, d, b)) ||
+        (abC * abD < 0 && cdA * cdB < 0)
+      )
+        return true;
+    }
+  return false;
 }
 
 function boxesOverlap(a, b, padding = 0) {
@@ -118,7 +143,53 @@ function checkedGraph(input) {
   return { nodes, groups: input.groups, relations: input.relations };
 }
 
+function groupRows(graph) {
+  return new Map(graph.groups.flatMap((group, row) => group.members.map((id) => [id, row])));
+}
+
+function adjacentVerticalGap(relation, rows) {
+  const from = rows.get(relation.from);
+  const to = rows.get(relation.to);
+  if (
+    relation.route !== 'orthogonal-v' ||
+    Math.abs(from - to) !== 1 ||
+    !(
+      (from < to && relation.fromSide === 'bottom' && relation.toSide === 'top') ||
+      (from > to && relation.fromSide === 'top' && relation.toSide === 'bottom')
+    )
+  )
+    return null;
+  return { row: Math.min(from, to), upper: from < to ? relation.from : relation.to };
+}
+
+function verticalCorridors(graph, layout) {
+  const rows = groupRows(graph);
+  const corridors = new Map();
+  for (const relation of graph.relations) {
+    const gap = adjacentVerticalGap(relation, rows);
+    if (!gap) continue;
+    const box = layout.nodes.get(gap.upper);
+    const lower = layout.nodes.get(gap.upper === relation.from ? relation.to : relation.from);
+    const entries = corridors.get(gap.row) ?? [];
+    entries.push({ id: relation.id, x: box.x + box.w / 2, lowerX: lower.x + lower.w / 2 });
+    corridors.set(gap.row, entries);
+  }
+  const bends = new Map();
+  for (const [row, entries] of corridors) {
+    const upper = layout.groups[row];
+    const lower = layout.groups[row + 1];
+    const first = upper.y + upper.h + 12;
+    const last = lower.y - 12;
+    const span = (entries.length - 1) * 22;
+    entries.sort((a, b) => a.x - b.x || a.lowerX - b.lowerX || a.id.localeCompare(b.id));
+    const start = (first + last - span) / 2;
+    entries.forEach(({ id }, index) => bends.set(id, start + index * 22));
+  }
+  return bends;
+}
+
 function composeRoutes(graph, layout) {
+  const bends = verticalCorridors(graph, layout);
   const slots = new Map();
   for (const authored of graph.relations) {
     for (const [id, side, peer, endpoint] of [
@@ -150,7 +221,7 @@ function composeRoutes(graph, layout) {
       ),
     );
   }
-  return graph.relations.map((authored) => {
+  const selected = graph.relations.map((authored) => {
     const from = point(
       layout.nodes.get(authored.from),
       authored.fromSide,
@@ -161,7 +232,7 @@ function composeRoutes(graph, layout) {
       authored.toSide,
       offsets.get(authored.id + ':to'),
     );
-    const points = routePoints(from, to, authored.route);
+    const points = routePoints(from, to, authored.route, bends.get(authored.id));
     for (const [id, box] of layout.nodes) {
       if ([authored.from, authored.to].includes(id)) continue;
       if (segments(points).some(([a, b]) => intersectsSegment(a, b, box, 6)))
@@ -169,6 +240,11 @@ function composeRoutes(graph, layout) {
     }
     return { id: authored.id, from: authored.from, to: authored.to, text: authored.text, points };
   });
+  for (const [index, left] of selected.entries())
+    for (const right of selected.slice(index + 1))
+      if (pathsTouch(left.points, right.points))
+        fail('semantic_publication_static_route_crossing', left.id + ':' + right.id);
+  return selected;
 }
 
 function placeLabels(selectedRoutes, layout) {
@@ -234,6 +310,16 @@ function placeLabels(selectedRoutes, layout) {
 }
 
 function groupLayout(graph) {
+  const rows = groupRows(graph);
+  const corridorCounts = new Map();
+  const labeledGaps = new Set();
+  for (const relation of graph.relations) {
+    const gap = adjacentVerticalGap(relation, rows);
+    if (gap) corridorCounts.set(gap.row, (corridorCounts.get(gap.row) ?? 0) + 1);
+    const from = rows.get(relation.from);
+    const to = rows.get(relation.to);
+    if (relation.text && Math.abs(from - to) === 1) labeledGaps.add(Math.min(from, to));
+  }
   const longestNode = Math.max(
       ...graph.groups.flatMap((group) =>
         group.members.map((id) => [...graph.nodes.get(id).label].length),
@@ -242,25 +328,40 @@ function groupLayout(graph) {
     longestRelation = Math.max(0, ...graph.relations.map((item) => [...item.text].length));
   if (longestNode > 32 || longestRelation > 32)
     fail('semantic_publication_static_label_infeasible');
+  const onGraphLabels = longestRelation > 0;
   const nodeWidth = Math.max(230, Math.ceil(longestNode * 10.2 + 56)),
     nodeHeight = 92,
     nodeGap = Math.max(70, Math.ceil(longestRelation * 10 + 56)),
-    groupGap = 70,
-    groupPad = 34,
-    headerHeight = 54,
-    widest = Math.max(...graph.groups.map((group) => group.members.length)),
-    groupWidth = Math.max(
-      widest * nodeWidth + Math.max(0, widest - 1) * nodeGap + groupPad * 2,
-      ...graph.groups.map((group) => [...group.label].length * 18 + 80),
+    groupGaps = graph.groups
+      .slice(1)
+      .map((_, row) =>
+        Math.max(
+          labeledGaps.has(row) ? 120 : 62,
+          corridorCounts.has(row) ? 24 + (corridorCounts.get(row) - 1) * 22 : 0,
+        ),
+      ),
+    groupPad = onGraphLabels ? 34 : 24,
+    headerHeight = onGraphLabels ? 54 : 40,
+    minimumWidths = graph.groups.map((group) =>
+      Math.max(
+        group.members.length * nodeWidth +
+          Math.max(0, group.members.length - 1) * nodeGap +
+          groupPad * 2,
+        [...group.label].length * 18 + 80,
+      ),
     ),
-    width = Math.max(1200, groupWidth + 160),
+    groupWidths = onGraphLabels
+      ? minimumWidths.map(() => Math.max(...minimumWidths))
+      : minimumWidths,
+    width = Math.max(1200, ...groupWidths.map((value) => value + 160)),
     groups = [],
     nodes = new Map();
   let y = 190;
-  for (const group of graph.groups) {
+  for (const [row, group] of graph.groups.entries()) {
     const rowWidth =
         group.members.length * nodeWidth + Math.max(0, group.members.length - 1) * nodeGap,
       height = headerHeight + nodeHeight + groupPad * 2,
+      groupWidth = groupWidths[row],
       x = (width - groupWidth) / 2,
       rowX = (width - rowWidth) / 2;
     groups.push({ ...group, x, y, w: groupWidth, h: height });
@@ -271,9 +372,9 @@ function groupLayout(graph) {
         w: nodeWidth,
         h: nodeHeight,
       });
-    y += height + groupGap;
+    y += height + (groupGaps[row] ?? 0);
   }
-  return { width, height: y - groupGap + 100, groups, nodes };
+  return { width, height: y + 100, groups, nodes };
 }
 
 /** Derive geometry only; node and relation IDs remain opaque to this owner. */

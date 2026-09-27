@@ -480,12 +480,24 @@ third-party or generated supply rather than moving owned code outside coverage.
       Partial: ordered static views now compile into one source-bound figure
       from graph, relation, claim and limit parts, with separate carrier maps
       and common method notes factored once. A same-row route-through-node and
-      group-heading/edge collision were reproduced and repaired. On the
-      unchanged AIGW external trial input (`bfb1b6c6`), the static PNG is
-      3600×2513 instead of the rejected 3600×4186 stack; direct and offline
-      installed media match byte-for-byte. Headless Chrome 154 found no
-      text/text, text/line, text/path or text/frame collision on that exact
-      SVG. This is not AIGW adoption, human approval or full qualification.
+      group-heading/edge collision were reproduced and repaired. A subsequent
+      visual review found four edge-segment contacts missed by the earlier
+      text-only browser audit; that audit was not a whole-page collision
+      verdict. The neutral grouped owner now separates inter-group corridors,
+      rejects infeasible edge crossings, and retains room for on-graph labels.
+      Fill-only groups, content-dependent geometry, and per-gap spacing reduce
+      empty frames without widening unrelated gaps. On unchanged AIGW external
+      trial input (`bfb1b6c6`), the direct Candidate at
+      `build/review/aigw-two-view-trial/candidate-layout-refined` has a
+      3600×2357 PNG, down from 3600×2513; its SVG has zero edge-segment
+      contacts versus four, preserves 64 visible text items, and has no
+      measured text collision in Chrome 154. The interactive HTML is
+      byte-identical to the earlier trial. Direct and offline installed
+      Candidates match all six members byte-for-byte. The frozen full check
+      passes 1217 tests with 6 skips and 95.05% branch coverage; evidence is
+      `build/review/aigw-two-view-trial/full-check-layout-refined.log` and the
+      `visual-audit-repair.json` for the byte-identical media. This is not AIGW
+      adoption, human approval or full qualification.
       Remaining: extend the measured Scene audit to the complete neutral page,
       rank feasible whole-page candidates and review visual mass/readability
       on the final selected media before Task 7.5 freeze.
