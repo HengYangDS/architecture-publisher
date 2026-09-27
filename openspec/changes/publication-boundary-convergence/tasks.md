@@ -685,8 +685,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       later Change archive must add no new normative behavior. All six changed
       capabilities were atomized and promoted through isolated official archive
       rehearsals. The active base specs and still-open Change validate with zero
-      diagnostics, including INFO; prior scenario names remain present. The
-      Task 2.5 frozen-hash source and packed offline-installed journeys prove
+      diagnostics, including INFO; prior scenario names remain present. A final
+      isolated official archive leaves all 16 active base specs byte-identical.
+      The Task 2.5 frozen-hash source and packed offline-installed journeys prove
       the selected historical v1 meanings; the focused post-promotion replay
       passes 9/9. This closes spec promotion, not the separate coverage or
       release gates.
