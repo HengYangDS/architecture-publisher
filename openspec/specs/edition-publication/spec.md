@@ -679,6 +679,31 @@ second authored list.
 - **THEN** each view is identified within its medium without a duplicate
   media-question authority
 
+### Requirement: Static views compose one faithful figure
+
+When static media is selected, its ordered views SHALL produce one standalone
+SVG and one PNG. Each view SHALL retain its own questions, assertions, limits,
+and graphic-carrier bindings.
+The figure SHALL distinguish the views without inventing cross-view relations
+or transferring a claim or acceptance between them. Clipping, obscuring
+text/node/panel overlap, or missing visible carriers SHALL fail before a
+complete Candidate.
+
+#### Scenario: Two static views answer distinct questions
+
+- **WHEN** an Edition selects two static views with distinct questions and
+  source assertions, including one source entity present in both views
+- **THEN** one static SVG and PNG visibly distinguish both views and retain
+  each view's own assertion-to-graphic carriers and limits
+- **AND** no edge or endorsement is inferred merely from the shared entity
+
+#### Scenario: One static view cannot be represented
+
+- **WHEN** any selected static view cannot fit without structural loss or
+  overlap in the composed figure
+- **THEN** no complete static Candidate is emitted
+- **AND** Publisher does not silently drop or shrink that view to force a pass
+
 ### Requirement: Historical Edition and Provider contracts remain truthful
 
 Previously valid Edition v1 and Provider v1 inputs SHALL retain their selected

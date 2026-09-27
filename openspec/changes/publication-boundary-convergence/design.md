@@ -716,6 +716,35 @@ a question with neither a retained assertion nor a disclosed limit. This
 projection is a compilation obligation over authored choices, not proof that
 the source claim is true or the rendered carrier is readable.
 
+### Static views are bounded panels in one figure
+
+At Publisher `3bd5645`, the Edition schema accepts ordered static views, but
+the scene compiler rejects every selection with more than one. This is a
+contract-to-implementation gap, not permission to reduce the source-authoring
+contract to one view. AIGW `484d0003` made the consequence concrete: its static
+`boundary` view answers one of six questions under a broader shared title.
+An external, non-authorizing editorial trial selected a holistic overview and
+built a 12-node, 10-relation static figure without modifying AIGW. That figure
+is more truthful in scope but remains a text-heavy neutral baseline. Combining
+all six questions into one graph exceeded the grouped layout's useful range;
+one oversized group failed admission and a valid four-group trial failed on
+edge routing. Neither failure proves that no authored layout can work.
+
+The successor shall compose each authored static view separately and place
+their readable, source-bound panels into one SVG/PNG. Panel order is the
+Edition's view order; each panel retains its own questions, limits, source
+assertions and graphic carriers. Shared source entities do not become
+cross-panel edges. Publisher owns deterministic packing, structural fit and
+carrier validation; a named editor may supply a data-only refinement for
+flagship art direction. The generic path shall not import ETHOS or AIGW
+renderers or require their repositories to carry Publisher presentation code.
+The one-view path remains a valid case. A Dagre compound-layout experiment on
+the same AIGW overview retained source carriers and shortened a 3600-pixel
+figure from 3071 to 1930 pixels, but visibly overlapped group titles and used
+diagonal routes. Reuse that checked supply only after the static panel's own
+geometry and visual predicates pass; speed or canvas reduction alone is not
+acceptance.
+
 ### One authored source-selection record
 
 An in-memory, source-adjacent translation of AIGW's four questions, five
