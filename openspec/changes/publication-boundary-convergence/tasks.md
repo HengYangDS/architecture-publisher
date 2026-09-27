@@ -650,8 +650,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       that all eight pages keep visible text and nodes inside the stage; it does
       not certify typography or editorial quality. This is not final-byte human
       approval.
-      The regenerated truthful final Candidate still needs complete
-      visual, semantic, and release acceptance; no publication is admitted.
+      At signed Publisher `78b65f9`, a fresh offline-installed self preview
+      has the same static SVG and 6000px PNG bytes as the earlier visually
+      approved `79c1be9` trial. Its HTML differs only in bound source/lock
+      identities; all eight 1440×1000 Chrome screenshots are byte-identical to
+      that trial. The new HTML SHA-256 is
+      `39ca287a813282c4aa8f2b30f05ca2152112ea47179fd39cf082f447e18b71a8`.
+      All eight pages pass Chrome/axe with no console error, external request,
+      horizontal overflow, or WCAG A/AA finding. Evidence is under
+      `build/review/self-alpha4-current-78b65f9/`. These are provisional
+      bytes: the changed HTML still needs exact-byte human review, and the
+      final Candidate needs semantic, installed and release acceptance.
 
 ## 6. Qualification and bounded publication
 
