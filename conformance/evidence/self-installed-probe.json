@@ -16,6 +16,8 @@
   },
   "selectedSourceCount": 23,
   "buildRequestSha256": "cae04a561fe3cab4f00e0b9cfb80bcb2a98b1b17c153958ab9dcee28c011e2fb",
+  "inputLockSha256": "ea91ed111e29d89cac63054787f3f4dcfc72b5f7d21d2d6c229cd1aa548a704e",
+  "candidateDigest": "449ccd0bd2dd50a4437bdbddf52ff1eed2a004887b78ad753632b9d45e9afc9f",
   "artifactSha256": {
     "candidate.json": "dd4f8b0f76375cc4c4277879b0ca2f05ecc90a680fa65efb5c37d011b792732d",
     "manifest.json": "f037fddb0d80da3ce961c4be7272fb5a72b232c4ae09b13bd8915d9f0a1a6253",
