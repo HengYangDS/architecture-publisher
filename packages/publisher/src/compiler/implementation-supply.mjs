@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { canonical, parseStrictJson } from '../source/json.mjs';
 import { fail, isDigest, portablePath } from '../source/manifest.mjs';
+import { IMPLEMENTATION_MANIFEST_SHA256 } from './implementation-identity.mjs';
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -23,8 +24,11 @@ export async function verifyImplementationSupplyAtRoot(root, profile) {
   let manifest;
   try {
     await noSymlinkAncestors(manifestPath);
+    const bytes = await regularBytes(manifestPath, 1024 * 1024);
+    if (sha(bytes) !== IMPLEMENTATION_MANIFEST_SHA256)
+      fail('publisher_implementation_supply_invalid');
     manifest = parseStrictJson(
-      await regularBytes(manifestPath, 1024 * 1024),
+      bytes,
       'publisher_implementation_supply_invalid',
       'publisher_implementation_supply_invalid',
     );
@@ -68,7 +72,7 @@ export async function verifyImplementationSupplyAtRoot(root, profile) {
     previous = item.path;
   }
   return {
-    id: `publisher-${profile.startsWith('static-') ? 'static' : 'interactive'}-implementation`,
+    id: `publisher-${profile.startsWith('static-') ? 'static' : 'interactive'}-media-file-set`,
     sha256: sha(Buffer.from(canonical(files))),
     method: 'checked-installed-file-set/v1',
   };

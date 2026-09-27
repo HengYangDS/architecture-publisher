@@ -6,6 +6,7 @@ import { build } from 'esbuild';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const output = path.join(root, 'packages/publisher/supplies/implementation.json');
+const identity = path.join(root, 'packages/publisher/src/compiler/implementation-identity.mjs');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const baseStatic = [
   'packages/publisher/src/compiler/media.mjs',
@@ -86,11 +87,19 @@ const manifest = {
   ),
 };
 const content = JSON.stringify(manifest, null, 2) + '\n';
+const identityContent =
+  '/** Generated from the selected Publisher media file sets. Do not edit. */\n' +
+  'export const IMPLEMENTATION_MANIFEST_SHA256 =\n' +
+  `  '${sha(Buffer.from(content))}';\n`;
 if (process.argv.includes('--check')) {
-  if ((await fs.readFile(output, 'utf8').catch(() => null)) !== content)
+  if (
+    (await fs.readFile(output, 'utf8').catch(() => null)) !== content ||
+    (await fs.readFile(identity, 'utf8').catch(() => null)) !== identityContent
+  )
     throw Error('publisher_implementation_supply_drift');
 } else if (process.argv.length === 2 || process.argv.includes('--write')) {
   await fs.writeFile(output, content);
+  await fs.writeFile(identity, identityContent);
 } else {
   throw Error('usage: node tools/supply/implementation.mjs [--check|--write]');
 }

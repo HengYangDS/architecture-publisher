@@ -67,7 +67,7 @@ test('Candidate carries its exact input lock for later role attribution without 
   assert(lock.sources.every((source) => source.claimant && source.revision));
 });
 
-test('Candidate identifies selected Publisher media implementations without changing input identity', async (t) => {
+test('Candidate identifies checked Publisher media file sets without changing input identity', async (t) => {
   const fixture = await selectedNativeEdition(t, { width: 1800 });
   const built = await compileEditionCandidateInput(
     fixture.file,
@@ -81,9 +81,9 @@ test('Candidate identifies selected Publisher media implementations without chan
   assert.equal(Object.hasOwn(lock, 'renderer'), false);
   for (const medium of ['static', 'interactive']) {
     const selected = candidate.media[medium].supplies.find(
-      ({ id }) => id === `publisher-${medium}-implementation`,
+      ({ id }) => id === `publisher-${medium}-media-file-set`,
     );
-    assert(selected, `${medium} must identify its selected Publisher implementation`);
+    assert(selected, `${medium} must identify its checked Publisher media files`);
     assert.match(selected.sha256, /^[a-f0-9]{64}$/u);
     assert.equal(selected.method, 'checked-installed-file-set/v1');
   }

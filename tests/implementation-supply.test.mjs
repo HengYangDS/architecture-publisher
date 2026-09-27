@@ -83,6 +83,15 @@ test('an installed implementation manifest cannot omit, alias, or misstate selec
     JSON.stringify({ ...baseline, profiles: null }),
     JSON.stringify({
       ...baseline,
+      profiles: {
+        ...baseline.profiles,
+        'static-claim': baseline.profiles['static-claim'].filter(
+          ({ path: file }) => file !== 'renderers/svg/edition.mjs',
+        ),
+      },
+    }),
+    JSON.stringify({
+      ...baseline,
       profiles: { ...baseline.profiles, 'static-claim': [] },
     }),
     JSON.stringify({

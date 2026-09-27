@@ -130,11 +130,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       branch coverage at 92.93%. Resume complete closure at its actual consumers,
       then close this task before Candidate qualification and protected publication.
       The later reviewed slice corrected the lock/Candidate stage boundary and
-      added a generated, selected-media Publisher file-set identity with
-      installed-byte checks. README and unselected-medium changes do not alter
-      that identity; selected-file drift fails. The broad rendering-supply limit
-      remains until the other supply evidence methods and full selected closure
-      are checked. Do not mark this task complete from the file-set slice alone.
+      added a generated, selected media-stage Publisher file-set identity with
+      an installed manifest pin and byte checks. README and unselected-medium
+      changes do not alter that identity; selected-file drift or a missing
+      manifest member fails. The common/semantic compiler closure and other
+      supply evidence methods remain open, as does the broad rendering-supply
+      limit. Do not mark this task complete from the file-set slice alone.
 - [x] 2.5 Replay exact Source Bundle v1, Claim Model v2, Edition v1,
       Provider v1, Candidate v1, and Qualification Set v1 meanings in source
       tests and a packed, offline-installed work-lane package. The frozen hash

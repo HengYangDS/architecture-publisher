@@ -307,7 +307,7 @@ export function validateSelectedEditionCandidate(value) {
     if (
       !selectedMedium.supplies.some(
         (supply) =>
-          supply.id === `publisher-${medium}-implementation` &&
+          supply.id === `publisher-${medium}-media-file-set` &&
           supply.method === 'checked-installed-file-set/v1',
       )
     )
