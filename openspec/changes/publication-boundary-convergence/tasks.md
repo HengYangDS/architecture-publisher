@@ -646,10 +646,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       Installed Chrome at two widths found no console/network/overflow or
       axe A/AA defect; this does not establish di-effect owner or human
       acceptance, other workload parity, publication, or recovery. The same
-      archive also rebuilt the AIGW Client Projection chapter byte-identically
-      after offline installation and relocation; its 12 installed browser
-      observations expose unreadable fit-to-canvas graph labels despite clean
-      axe results. See `conformance/evidence/aigw-client-installed-probe.json`.
+      frozen di-effect sidecar now also builds from the untagged alpha.4 Core
+      archive made at signed Publisher `79c1be9`: an offline install, repeat,
+      and relocated installed run produce the same six Candidate members.
+      Changing a pinned source returns `materialized_pin_mismatch` without
+      output. Exact identities and limits are in
+      `conformance/evidence/di-effect-successor-installed-probe.json`. The
+      static SVG/PNG bytes match the alpha.3 probe; changed HTML has not had a
+      new browser, accessibility, or human review. This remains an editor-side
+      pre-release experiment, not di-effect source-owner acceptance. The earlier
+      alpha.3 archive also rebuilt the AIGW Client Projection chapter
+      byte-identically after offline installation and relocation; its 12
+      installed browser observations expose unreadable fit-to-canvas graph
+      labels despite clean axe results. See
+      `conformance/evidence/aigw-client-installed-probe.json`.
       That earlier Client-only probe is not the whole AIGW product or AIGW
       acceptance. The current exact archive from signed Publisher `0e391e7`
       rebuilt AIGW `bd3c09d5` Client Projection and whole-product Editions

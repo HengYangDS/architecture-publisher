@@ -1,0 +1,47 @@
+{
+  "schema": "architecture.research-installed-probe/v1",
+  "observedAt": "2026-09-27T06:48:26.455Z",
+  "workload": "di-effect-editorial-sidecar",
+  "platform": "darwin-arm64",
+  "node": "v26.10.0",
+  "probeHead": "d37952f87c3ca3902a9d4fd4bd4e5fcc29fd6587",
+  "sourceClaimRevision": "8a168b6b9c6933c30ab2ea25e60cac8a54212566",
+  "package": {
+    "name": "architecture-publisher",
+    "version": "0.3.0-alpha.4",
+    "archiveSha256": "6164b5c7234a20599700be7b474f20d594106e223ae1f301977c64bc486564cf",
+    "buildSourceCommit": "79c1be9aec3fc8a8026ae5743c4692270f8196d9"
+  },
+  "selectedInputs": {
+    "request.json": "bcf9101a9237c7eb9364111468d2cf5800d8b35642009f23903ff2b62e16e5f8",
+    "edition/project.json": "1cc6dcc0e49940e8c874250cd409fa8e43fa298724e599f54c123f6b369d8366",
+    "sources/di_effect_core_layers.c4": "45d81011acbf12ad35ce2daef4b27773d66b9fa73f3aac084f252c29aa9bfbcd",
+    "sources/di_effect_packages.c4": "683df86d00ed3467a21942c00f79f2252871b8159a5957e1c196fd90eb3886a3",
+    "sources/di_effect_runtime_path.c4": "b601586c58810816b5489a95be0e4e5830c6e6b5237bc179d1c88a0ef194ef5e",
+    "sources/editorial_layers.c4": "cbc3856853778ce3322ceed88324c1b7d3964f1cdb6a4c51b5537902a71c563c"
+  },
+  "candidateSha256": "8e98e1b6eda1de2ae988d862a9cec09e3bc3857173521a7688c2ab8818c529df",
+  "artifactSha256": {
+    "candidate.json": "8e98e1b6eda1de2ae988d862a9cec09e3bc3857173521a7688c2ab8818c529df",
+    "input-lock.json": "e3611bf4502025d9222b26bcc2105bf65dcceeacd5cc645511e625a555824142",
+    "interactive/architecture.html": "80bddf1ca74280d36c735c59fd23b6afe1bda74a4ce554e6097b7f7a23aff352",
+    "manifest.json": "1d5e0e27daa7278fcbbaa967498d1511db88477975d9cdb892d9142e2df72cae",
+    "static/architecture.png": "a4535459e916b8a04496a8a1500dbb16f66ebf631fc0333243e65dc8f77290d2",
+    "static/architecture.svg": "cddcbe49744f3cf5640dbfe47be26c93b35a7afe8917dfff98fccb922abce1e1"
+  },
+  "repeatByteIdentical": true,
+  "relocationByteIdentical": true,
+  "changedPinnedSource": {
+    "rejected": true,
+    "errorCode": "materialized_pin_mismatch",
+    "outputAbsent": true
+  },
+  "limits": [
+    "Candidate unqualified",
+    "no di-effect source-owner acceptance",
+    "no human visual acceptance",
+    "no publication or recovery effect",
+    "not a released Publisher package",
+    "no alpha.4 browser or accessibility requalification"
+  ]
+}
