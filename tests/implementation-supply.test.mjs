@@ -42,6 +42,19 @@ test('generated implementation profiles select owned code without package or sib
       ({ path: file }) => file === 'src/semantics/native-worker.mjs',
     ),
   );
+  assert(Array.isArray(manifest.profiles['semantic-likec4']));
+  assert(Array.isArray(manifest.profiles['semantic-claim']));
+  assert(
+    manifest.profiles['semantic-likec4'].some(
+      ({ path: file }) => file === 'src/semantics/native-worker.mjs',
+    ),
+  );
+  assert(
+    manifest.profiles['semantic-claim'].every(
+      ({ path: file }) =>
+        !file.startsWith('renderers/') && file !== 'src/semantics/native-worker.mjs',
+    ),
+  );
   await assert.rejects(readImplementationSupply('unknown'), {
     code: 'publisher_implementation_profile_invalid',
   });

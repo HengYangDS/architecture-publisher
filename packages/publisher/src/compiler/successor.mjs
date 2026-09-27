@@ -34,6 +34,11 @@ const artifact = (id, artifactPath, mediaType, content) => ({
   bytes: content.length,
   sha256: sha(content),
 });
+const checkedSupply = (supply, method) => ({
+  ...supply,
+  basis: 'checked-declared',
+  method,
+});
 
 async function destination(output) {
   const target = path.resolve(output);
@@ -128,8 +133,11 @@ async function staticMedium(selected, meaning, scratch) {
         artifact('architecture-png', files[1].path, 'image/png', png.bytes),
       ],
       supplies: [
-        { id: 'font-supply', sha256: fontSupply.sha256 },
-        { id: 'raster-supply', sha256: png.result.supply.sha256 },
+        checkedSupply({ id: 'font-supply', sha256: fontSupply.sha256 }, 'bundled-file-check/v1'),
+        checkedSupply(
+          { id: 'raster-supply', sha256: png.result.supply.sha256 },
+          'bundled-file-check/v1',
+        ),
         await readImplementationSupply(implementationProfile),
       ],
     },
@@ -215,7 +223,12 @@ async function authoredInteractiveMedium(selected, meaning, scratch) {
       sceneSha256: sha(Buffer.from(canonical(authored.pages.map(({ scene }) => scene)))),
       carrierSha256: sha(Buffer.from(canonical(authored.carriers))),
       artifacts: [artifact('architecture-html', file.path, 'text/html', bytes)],
-      supplies: [...supplies.values(), await readImplementationSupply('interactive-authored')],
+      supplies: [
+        ...[...supplies.values()].map((supply) =>
+          checkedSupply(supply, 'renderer-returned-check/v1'),
+        ),
+        await readImplementationSupply('interactive-authored'),
+      ],
     },
   };
 }
@@ -233,7 +246,10 @@ async function interactiveMedium(selected, meaning, scratch) {
       sceneSha256: sha(Buffer.from(canonical(scene))),
       carrierSha256: sha(Buffer.from(canonical(rendered.carriers))),
       artifacts: [artifact('architecture-html', file.path, 'text/html', file.content)],
-      supplies: [...rendered.supplies, await readImplementationSupply('interactive-neutral')],
+      supplies: [
+        ...rendered.supplies.map((supply) => checkedSupply(supply, 'renderer-returned-check/v1')),
+        await readImplementationSupply('interactive-neutral'),
+      ],
     },
   };
 }
@@ -249,6 +265,10 @@ export async function compileSelectedEditionCandidateInput(
   const selected = await materializeBuildRequestInput(requestPath, digest, executionChoice);
   if (selected.lock.toolchain.profile !== 'portable') fail('edition_toolchain_profile_unadmitted');
   const meaning = await compileEditionMeaning(selected);
+  const semanticProfile = selected.lock.sources.some(({ format }) => format.id === 'likec4/dsl')
+    ? 'semantic-likec4'
+    : 'semantic-claim';
+  const semanticImplementation = await readImplementationSupply(semanticProfile);
   const scratch = await fs.mkdtemp(path.join(parent, '.edition-candidate-'));
   try {
     const media = {};
@@ -270,7 +290,12 @@ export async function compileSelectedEditionCandidateInput(
         lockSha256: selected.lockSha256,
         editionSha256: selected.lock.edition.sha256,
         semanticDigest: meaning.native.semanticDigest,
-        semanticSupplies: meaning.native.parserSupply === null ? [] : [meaning.native.parserSupply],
+        semanticSupplies: [
+          ...(meaning.native.parserSupply === null
+            ? []
+            : [checkedSupply(meaning.native.parserSupply, 'native-parser-returned-check/v1')]),
+          semanticImplementation,
+        ],
         closure: selected.closure,
       },
       media,

@@ -36,6 +36,13 @@ const CANDIDATE_FIELDS = Object.freeze([
 const MEDIA_FIELDS = Object.freeze(['sceneSha256', 'artifacts', 'supplies']);
 const ARTIFACT_FIELDS = Object.freeze(['id', 'path', 'mediaType', 'bytes', 'sha256']);
 const SUPPLY_FIELDS = Object.freeze(['id', 'sha256']);
+const SELECTED_SUPPLY_FIELDS = Object.freeze(['id', 'sha256', 'basis', 'method']);
+const SELECTED_SUPPLY_METHOD_BASIS = Object.freeze({
+  'bundled-file-check/v1': 'checked-declared',
+  'renderer-returned-check/v1': 'checked-declared',
+  'native-parser-returned-check/v1': 'checked-declared',
+  'checked-installed-file-set/v1': 'checked-declared',
+});
 const OBLIGATION_FIELDS = Object.freeze(['kind', 'predicate']);
 const HUMAN_OBLIGATION_FIELDS = Object.freeze(['kind', 'predicate', 'scope']);
 
@@ -72,10 +79,11 @@ function validateArtifact(value) {
 
 function validateSupply(value, selected = false) {
   if (
-    !(selected ? hasExactFields(value, SUPPLY_FIELDS, ['method']) : exact(value, SUPPLY_FIELDS)) ||
+    !exact(value, selected ? SELECTED_SUPPLY_FIELDS : SUPPLY_FIELDS) ||
     !text(value.id) ||
     !isDigest(value.sha256) ||
-    (selected && Object.hasOwn(value, 'method') && !text(value.method))
+    (selected &&
+      (!text(value.method) || SELECTED_SUPPLY_METHOD_BASIS[value.method] !== value.basis))
   )
     fail('candidate_supply_invalid');
 }
@@ -282,6 +290,15 @@ export function validateSelectedEditionCandidate(value) {
     fail('selected_candidate_invalid');
   for (const supply of value.input.semanticSupplies) validateSupply(supply, true);
   unique(value.input.semanticSupplies, ({ id }) => id, 'candidate_supply_duplicate');
+  if (
+    !value.input.semanticSupplies.some(
+      (supply) =>
+        supply.id === 'publisher-semantic-file-set' &&
+        supply.basis === 'checked-declared' &&
+        supply.method === 'checked-installed-file-set/v1',
+    )
+  )
+    fail('selected_candidate_semantic_supply_missing');
   const media = Object.keys(value.media).sort();
   if (
     !media.length ||

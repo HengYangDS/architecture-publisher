@@ -1,6 +1,205 @@
 {
   "schema": "architecture.publisher-implementation-supply/v1",
   "profiles": {
+    "semantic-claim": [
+      {
+        "path": "src/compiler/meaning.mjs",
+        "bytes": 4921,
+        "sha256": "1a0a6e02cb3e488ece4f4156cf5242e0c2d785a533da3cfbb91789fc99d072e9"
+      },
+      {
+        "path": "src/compiler/native.mjs",
+        "bytes": 5682,
+        "sha256": "2133c885c8e1e2f75a6354b053273bc596329c281f2ead6883a5d6516f33b6ea"
+      },
+      {
+        "path": "src/edition/authoring.mjs",
+        "bytes": 7922,
+        "sha256": "e252a66344386c598d18c9b250b92cec3bbd101369c368895870a833446dd11e"
+      },
+      {
+        "path": "src/edition/generated/validators.mjs",
+        "bytes": 206372,
+        "sha256": "3bd8ee206005460e4cd67a6fe92d91a2493182005c423aca43b0bcc27f27f8c9"
+      },
+      {
+        "path": "src/edition/refinement.mjs",
+        "bytes": 1202,
+        "sha256": "c1e6c10c36834d1becc9db28a95bcb403bfb0136a73e63059727539525a7e800"
+      },
+      {
+        "path": "src/edition/schema.mjs",
+        "bytes": 15588,
+        "sha256": "3870598ad95a376401c10909c21c24438df74bcab1a79548d8bb7cad9f6383e0"
+      },
+      {
+        "path": "src/edition/selection.mjs",
+        "bytes": 7916,
+        "sha256": "c89066d511973cf45e83a564864df6d5cd0c2a92974e98a841f343f14c9be006"
+      },
+      {
+        "path": "src/runtime/process-tree.mjs",
+        "bytes": 12660,
+        "sha256": "2e1afd4995569860f857ec156892882f8f5c0dbf36c96112d201c7d000a34526"
+      },
+      {
+        "path": "src/semantics/document.mjs",
+        "bytes": 15802,
+        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+      },
+      {
+        "path": "src/semantics/native-claim-model.mjs",
+        "bytes": 6205,
+        "sha256": "8501b4a05ae42217d9dd13c8ba1f2bf2eb9fce2dfe9e3e798ff379b78375d49f"
+      },
+      {
+        "path": "src/semantics/native-execution.mjs",
+        "bytes": 12627,
+        "sha256": "9c0bc76eb211e126e5ca109f47c910fd5dda15239f2689a9bab3aad083c8e751"
+      },
+      {
+        "path": "src/semantics/native-layout.mjs",
+        "bytes": 7156,
+        "sha256": "5e62022a663a14b4da26f6dc42b3c0958860940b3ee063175b49c3d3d98c18fb"
+      },
+      {
+        "path": "src/semantics/native-likec4.mjs",
+        "bytes": 11706,
+        "sha256": "4db06135a1b687f2ff2da1fc47807030a633c57b4f8cc1f76c687c12b78a1708"
+      },
+      {
+        "path": "src/semantics/native-selection.mjs",
+        "bytes": 5781,
+        "sha256": "6aeefa2083aa3fd3d57b2995fa3842c34da2706f84c091c9782f0661ee463e4c"
+      },
+      {
+        "path": "src/semantics/supply.mjs",
+        "bytes": 1737,
+        "sha256": "e6cc023b2acaef105df740d83f798bf46d91af500628eaaebe695d7aea711d1b"
+      },
+      {
+        "path": "src/source/files.mjs",
+        "bytes": 5207,
+        "sha256": "da48e80d8c88a2f8280b77c1e2ad3173148ce0654dceaec52b5d1a356199cc20"
+      },
+      {
+        "path": "src/source/json.mjs",
+        "bytes": 1963,
+        "sha256": "4e1aa643c69b5ed0cd80e83bc7797272db0dd00da60f5fb5d37203dbed4f2cce"
+      },
+      {
+        "path": "src/source/manifest.mjs",
+        "bytes": 3672,
+        "sha256": "d7f83ba5154cfdfae20c73c648a063b636762ab280ca96e0fc0d79827b0a543c"
+      },
+      {
+        "path": "src/source/materialize.mjs",
+        "bytes": 10581,
+        "sha256": "792bbbc249d3777d4b98eb80a8c010359bb28bd88d92fce88e690e97debee8ed"
+      }
+    ],
+    "semantic-likec4": [
+      {
+        "path": "src/compiler/meaning.mjs",
+        "bytes": 4921,
+        "sha256": "1a0a6e02cb3e488ece4f4156cf5242e0c2d785a533da3cfbb91789fc99d072e9"
+      },
+      {
+        "path": "src/compiler/native.mjs",
+        "bytes": 5682,
+        "sha256": "2133c885c8e1e2f75a6354b053273bc596329c281f2ead6883a5d6516f33b6ea"
+      },
+      {
+        "path": "src/edition/authoring.mjs",
+        "bytes": 7922,
+        "sha256": "e252a66344386c598d18c9b250b92cec3bbd101369c368895870a833446dd11e"
+      },
+      {
+        "path": "src/edition/generated/validators.mjs",
+        "bytes": 206372,
+        "sha256": "3bd8ee206005460e4cd67a6fe92d91a2493182005c423aca43b0bcc27f27f8c9"
+      },
+      {
+        "path": "src/edition/refinement.mjs",
+        "bytes": 1202,
+        "sha256": "c1e6c10c36834d1becc9db28a95bcb403bfb0136a73e63059727539525a7e800"
+      },
+      {
+        "path": "src/edition/schema.mjs",
+        "bytes": 15588,
+        "sha256": "3870598ad95a376401c10909c21c24438df74bcab1a79548d8bb7cad9f6383e0"
+      },
+      {
+        "path": "src/edition/selection.mjs",
+        "bytes": 7916,
+        "sha256": "c89066d511973cf45e83a564864df6d5cd0c2a92974e98a841f343f14c9be006"
+      },
+      {
+        "path": "src/runtime/process-tree.mjs",
+        "bytes": 12660,
+        "sha256": "2e1afd4995569860f857ec156892882f8f5c0dbf36c96112d201c7d000a34526"
+      },
+      {
+        "path": "src/semantics/document.mjs",
+        "bytes": 15802,
+        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+      },
+      {
+        "path": "src/semantics/native-claim-model.mjs",
+        "bytes": 6205,
+        "sha256": "8501b4a05ae42217d9dd13c8ba1f2bf2eb9fce2dfe9e3e798ff379b78375d49f"
+      },
+      {
+        "path": "src/semantics/native-execution.mjs",
+        "bytes": 12627,
+        "sha256": "9c0bc76eb211e126e5ca109f47c910fd5dda15239f2689a9bab3aad083c8e751"
+      },
+      {
+        "path": "src/semantics/native-layout.mjs",
+        "bytes": 7156,
+        "sha256": "5e62022a663a14b4da26f6dc42b3c0958860940b3ee063175b49c3d3d98c18fb"
+      },
+      {
+        "path": "src/semantics/native-likec4.mjs",
+        "bytes": 11706,
+        "sha256": "4db06135a1b687f2ff2da1fc47807030a633c57b4f8cc1f76c687c12b78a1708"
+      },
+      {
+        "path": "src/semantics/native-selection.mjs",
+        "bytes": 5781,
+        "sha256": "6aeefa2083aa3fd3d57b2995fa3842c34da2706f84c091c9782f0661ee463e4c"
+      },
+      {
+        "path": "src/semantics/native-worker.mjs",
+        "bytes": 3734,
+        "sha256": "24943523806245b7fddbeb081c0e3903a36e550b270d64f82ca6fb6ff88e59f6"
+      },
+      {
+        "path": "src/semantics/supply.mjs",
+        "bytes": 1737,
+        "sha256": "e6cc023b2acaef105df740d83f798bf46d91af500628eaaebe695d7aea711d1b"
+      },
+      {
+        "path": "src/source/files.mjs",
+        "bytes": 5207,
+        "sha256": "da48e80d8c88a2f8280b77c1e2ad3173148ce0654dceaec52b5d1a356199cc20"
+      },
+      {
+        "path": "src/source/json.mjs",
+        "bytes": 1963,
+        "sha256": "4e1aa643c69b5ed0cd80e83bc7797272db0dd00da60f5fb5d37203dbed4f2cce"
+      },
+      {
+        "path": "src/source/manifest.mjs",
+        "bytes": 3672,
+        "sha256": "d7f83ba5154cfdfae20c73c648a063b636762ab280ca96e0fc0d79827b0a543c"
+      },
+      {
+        "path": "src/source/materialize.mjs",
+        "bytes": 10581,
+        "sha256": "792bbbc249d3777d4b98eb80a8c010359bb28bd88d92fce88e690e97debee8ed"
+      }
+    ],
     "static-claim": [
       {
         "path": "renderers/fonts/index.mjs",

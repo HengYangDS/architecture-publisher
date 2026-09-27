@@ -324,7 +324,10 @@ try {
   assert.equal(claimFirst.status, 'ok');
   assert.equal(claimFirst.plane, 'intended');
   assert.equal(claimFirst.sourceClass, 'native');
-  assert.deepEqual(claimFirst.semanticSupplies, []);
+  assert.deepEqual(
+    claimFirst.semanticSupplies.map(({ id }) => id),
+    ['publisher-semantic-file-set'],
+  );
   assert.deepEqual(claimFirst.media, ['interactive', 'static']);
   assert.equal(claimFirst.visible, true);
   assert.match(claimFirst.candidateSha256, /^[0-9a-f]{64}$/u);

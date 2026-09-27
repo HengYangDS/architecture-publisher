@@ -9,6 +9,8 @@ import { IMPLEMENTATION_MANIFEST_SHA256 } from './implementation-identity.mjs';
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const profileNames = [
+  'semantic-claim',
+  'semantic-likec4',
   'static-claim',
   'static-grouped',
   'static-likec4',
@@ -46,8 +48,11 @@ export async function verifyImplementationSupplyAtRoot(root, profile) {
     }
   }
   return {
-    id: `publisher-${profile.startsWith('static-') ? 'static' : 'interactive'}-media-file-set`,
+    id: profile.startsWith('semantic-')
+      ? 'publisher-semantic-file-set'
+      : `publisher-${profile.startsWith('static-') ? 'static' : 'interactive'}-media-file-set`,
     sha256: sha(Buffer.from(canonical(files))),
+    basis: 'checked-declared',
     method: 'checked-installed-file-set/v1',
   };
 }

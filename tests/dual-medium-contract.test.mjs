@@ -21,7 +21,7 @@ test('one exact Build Request yields location-independent sibling media and a co
   assert.equal(candidate.input.lockSha256, built.lockSha256);
   assert.deepEqual(
     candidate.input.semanticSupplies.map(({ id }) => id),
-    ['likec4-parser'],
+    ['likec4-parser', 'publisher-semantic-file-set'],
   );
   assert.equal(Object.hasOwn(candidate.input, 'parserSupplySha256'), false);
   assert.deepEqual(Object.keys(candidate.media).sort(), ['interactive', 'static']);
@@ -164,8 +164,13 @@ test('Candidate structural validation is public but does not grant source author
   assert.equal(validateSelectedEditionCandidate(candidate).qualification, 'unqualified');
   assert.equal(selectedEditionCandidateDigest(candidate), result.candidateSha256);
   const parserFree = structuredClone(candidate);
-  parserFree.input.semanticSupplies = [];
-  assert.deepEqual(validateSelectedEditionCandidate(parserFree).input.semanticSupplies, []);
+  parserFree.input.semanticSupplies = parserFree.input.semanticSupplies.filter(
+    ({ id }) => id !== 'likec4-parser',
+  );
+  assert.deepEqual(
+    validateSelectedEditionCandidate(parserFree).input.semanticSupplies.map(({ id }) => id),
+    ['publisher-semantic-file-set'],
+  );
   assert.notEqual(selectedEditionCandidateDigest(parserFree), result.candidateSha256);
   for (const change of [
     (value) => (value.qualification = 'accepted'),
@@ -174,6 +179,15 @@ test('Candidate structural validation is public but does not grant source author
     (value) => (value.input.extraAuthority = true),
     (value) => value.input.semanticSupplies.push(value.input.semanticSupplies[0]),
     (value) => (value.input.semanticSupplies[0].sha256 = 'not-a-digest'),
+    (value) => delete value.input.semanticSupplies[0].basis,
+    (value) => (value.input.semanticSupplies[0].basis = 'declared-only'),
+    (value) => delete value.media.static.supplies[0].method,
+    (value) => (value.input.semanticSupplies = []),
+    (value) => {
+      value.media.static.supplies.find(({ id }) => id === 'publisher-static-media-file-set').basis =
+        'observed';
+    },
+    (value) => (value.media.interactive.supplies[0].method = 'unrecognized-check/v1'),
   ]) {
     const altered = structuredClone(candidate);
     change(altered);

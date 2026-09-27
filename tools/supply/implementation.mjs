@@ -13,7 +13,13 @@ const baseStatic = [
   'packages/publisher/renderers/fonts/index.mjs',
   'packages/publisher/renderers/resvg/worker.mjs',
 ];
+const baseSemantic = [
+  'packages/publisher/src/compiler/meaning.mjs',
+  'packages/publisher/src/compiler/native.mjs',
+];
 const profiles = {
+  'semantic-claim': baseSemantic,
+  'semantic-likec4': [...baseSemantic, 'packages/publisher/src/semantics/native-worker.mjs'],
   'static-claim': [
     ...baseStatic,
     'packages/publisher/src/scene/static/edition.mjs',

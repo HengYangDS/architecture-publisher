@@ -131,6 +131,9 @@ process supervision, not a filesystem or network sandbox. The build emits an
 independent static and interactive media, their supplies, and disclosed limits.
 The input lock binds selected meaning; it does not by itself establish native
 dependency closure, source endorsement, or Candidate acceptance.
+Successor supply records state their evidence basis and method. A checked
+semantic or media-stage file set identifies installed bytes, not observed code
+execution or complete common-compiler closure; remaining limits stay explicit.
 
 An Edition may select a versioned, data-only `visualPolicy.override`. Its
 `architecture.scene-refinement/v1` resource must name every requested medium:

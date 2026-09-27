@@ -135,16 +135,17 @@ predicates. Unknown dependency or ambiguous lineage SHALL broaden obligations.
 
 The successor Candidate SHALL use a distinct versioned manifest from
 historical Claim Model/Edition v1 Candidates. Its unqualified value SHALL bind
-the selected input lock, Edition bytes, native semantic digest, the finite set
-of semantic supplies actually consumed (which may be empty), and each selected
-medium's independently composed Scene, artifacts, and checked supply inventory,
-including the selected Publisher-owned media-stage file set and its evidence
-method. The Candidate SHALL separately bind selected common and semantic
-compiler implementation before complete compilation closure is claimed;
-the media-stage record alone is insufficient. Unselected media implementations
-and package-only content SHALL NOT enter a medium's supply identity. Derived
-reader obligations and unresolved or ambient limits remain visible. The build
-output directory SHALL remain outside Candidate semantic identity.
+the selected input lock, Edition bytes, native semantic digest, selected
+semantic supplies, and each selected medium's independent Scene, artifacts,
+and checked supply inventory. Supply records SHALL state identity, evidence
+basis, and method; a checked file set SHALL NOT be called an observed execution
+trace. Publisher-owned semantic and media-stage file sets SHALL be distinct.
+The Candidate SHALL separately bind common compiler implementation before
+complete compilation closure is claimed; these file sets alone are
+insufficient. Unselected media implementations and package-only content SHALL
+NOT enter a medium's supply identity. Derived reader obligations and
+unresolved or ambient limits remain visible. The build output directory SHALL
+remain outside Candidate semantic identity.
 
 #### Scenario: One selected input produces two sibling media
 

@@ -79,6 +79,18 @@ test('Candidate identifies checked Publisher media file sets without changing in
   const candidate = JSON.parse(members.get('candidate.json'));
   const lock = JSON.parse(members.get('input-lock.json'));
   assert.equal(Object.hasOwn(lock, 'renderer'), false);
+  const semantic = candidate.input.semanticSupplies.find(
+    ({ id }) => id === 'publisher-semantic-file-set',
+  );
+  assert(semantic, 'selected semantic compiler files must be identified');
+  assert.equal(semantic.method, 'checked-installed-file-set/v1');
+  for (const supply of [
+    ...candidate.input.semanticSupplies,
+    ...Object.values(candidate.media).flatMap(({ supplies }) => supplies),
+  ]) {
+    assert.deepEqual(Object.keys(supply).sort(), ['basis', 'id', 'method', 'sha256']);
+    assert.equal(supply.basis, 'checked-declared');
+  }
   for (const medium of ['static', 'interactive']) {
     const selected = candidate.media[medium].supplies.find(
       ({ id }) => id === `publisher-${medium}-media-file-set`,

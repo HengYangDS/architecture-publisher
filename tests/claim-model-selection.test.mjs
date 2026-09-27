@@ -382,7 +382,10 @@ test('derived Claim Model keeps its exact native ancestry and attributed status'
   const output = path.join(selected.root, 'candidate');
   await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
   const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
-  assert.deepEqual(candidate.input.semanticSupplies, []);
+  assert.deepEqual(
+    candidate.input.semanticSupplies.map(({ id }) => id),
+    ['publisher-semantic-file-set'],
+  );
   assert(candidate.limits.includes('claim-model-provenance-unverified'));
   assert(candidate.limits.includes('adapter-code-unverified:claim-selection/model'));
   const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
@@ -629,7 +632,10 @@ test('a typed claim builds independent media with visible qualifiers and no fake
   assert.equal(replay.candidateSha256, built.candidateSha256);
   assert.equal(replay.qualification, 'not-performed');
   const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
-  assert.deepEqual(candidate.input.semanticSupplies, []);
+  assert.deepEqual(
+    candidate.input.semanticSupplies.map(({ id }) => id),
+    ['publisher-semantic-file-set'],
+  );
   assert.deepEqual(Object.keys(candidate.media).sort(), ['interactive', 'static']);
   assert.deepEqual(
     candidate.media.interactive.supplies.map(({ id }) => id),
