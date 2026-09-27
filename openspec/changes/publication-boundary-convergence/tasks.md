@@ -666,19 +666,24 @@ third-party or generated supply rather than moving owned code outside coverage.
       selected inputs and all Candidate member digests. This remains a
       provisional macOS package and desktop browser check, not human visual
       approval, final release, source-delta update, recovery, or AIGW acceptance.
-      An isolated offline package trial now identifies ETHOS's first installed
-      successor obstacle: its current source-owned package requires Publisher
-      `0.3.0-alpha.1`, while the current work-lane archive identifies itself as
-      `0.3.0-alpha.3`. The pair cannot install with an empty cache; the signed
-      alpha.1 control installs. The bounded contrast and limits are in
+      An earlier isolated offline trial identified ETHOS's first installed
+      successor obstacle: the selected source-owned package required Publisher
+      `0.3.0-alpha.1`, while that trial's work-lane archive identified itself as
+      `0.3.0-alpha.3`. The pair could not install with an empty cache; the signed
+      alpha.1 control installed. The dated contrast and limits are in
       `conformance/evidence/ethos-install-pin-probe.json`. This is a source-owned
       dependency selection gap, not evidence of v2 semantics or flagship parity.
-      The first-party installed self-Edition now produces a retained provisional
-      6000-pixel static PNG and eight-page interactive HTML after its author
-      package is removed and its selected build inputs are relocated; exact
-      package and five Candidate-member identities are in
-      `conformance/evidence/self-installed-probe.json`. This proves installed
-      self-use only, not final-byte browser, human, or release acceptance.
+      The refreshed self probe at signed Publisher `79c1be9` binds the untagged
+      alpha.4 Core and self-Edition archives, 23 relocated selected sources,
+      and six exact Candidate members. Linux arm64 Node 26.9 and 24.19 emit the
+      same six bytes as macOS Node 26.10; exact HTML passes eight pages at two
+      desktop viewports in Chrome without page errors, external requests, axe
+      A/AA violations, or text/node overflow. Qualification replay remains
+      records-bound and unadmitted; isolated raw file-effect apply/recover
+      preserves foreign files without semantic acceptance. Identities and limits
+      are in `conformance/evidence/self-installed-probe.json`. The task requester
+      reported visual approval of those static and interactive bytes, but review
+      size/policy metadata and final release qualification remain open.
       At signed Publisher `31d1566` and provisional AIGW Lane `bd3c09d`, the
       untagged `alpha.4` Core archive builds both AIGW Editions from seven
       copied selected files under empty HOME/PATH, repeats and relocates with
