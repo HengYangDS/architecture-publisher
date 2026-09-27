@@ -1991,6 +1991,7 @@ test('two static views become one figure without merging their source assertions
   assert.equal((svg.match(/data-static-view=/gu) ?? []).length, 2);
   assert.equal((svg.match(/METHOD LIMITS/gu) ?? []).length, 1);
   assert.equal((svg.match(/READER QUESTIONS/gu) ?? []).length, 0);
+  assert.equal((svg.match(/>01 · /gu) ?? []).length, 2);
   assert.match(svg, /When may the client call\?/u);
   assert.match(svg, /When may the server call\?/u);
   assert.equal(candidate.media.static.artifacts.length, 2);

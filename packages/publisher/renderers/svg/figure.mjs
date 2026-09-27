@@ -73,18 +73,38 @@ function section(output, heading, items, width, y) {
 
 function relationColumns(items, width) {
   const candidates = [1, 2]
-    .filter((columns) => columns === 1 || width >= 760)
+    .filter((columns) => columns === 1 || (width >= 760 && items.length > 1))
     .map((columns) => {
       const columnWidth = (width - (columns - 1) * 28) / columns;
-      const heights = Array(columns).fill(0);
-      const entries = [];
-      for (const item of items) {
-        const lines = wrap(item.text.replace(/^\d{2} · /u, ''), columnWidth, 14, 5);
-        const column = heights.indexOf(Math.min(...heights));
-        entries.push({ ...item, lines, column, y: heights[column] });
-        heights[column] += lines.length * 21 + 13;
+      const measured = items.map((item) => {
+        const lines = wrap(item.text, columnWidth, 14, 5);
+        return { ...item, lines, height: lines.length * 21 + 13 };
+      });
+      const prefix = [0];
+      for (const item of measured) prefix.push(prefix.at(-1) + item.height);
+      let split = items.length;
+      if (columns === 2) {
+        let best = Infinity;
+        for (let index = 1; index < items.length; index += 1) {
+          const height = Math.max(prefix[index], prefix.at(-1) - prefix[index]);
+          if (height < best) {
+            best = height;
+            split = index;
+          }
+        }
       }
-      return { entries, columns, columnWidth, height: Math.max(...heights) };
+      const entries = measured.map((item, index) => ({
+        ...item,
+        column: index < split ? 0 : 1,
+        y: index < split ? prefix[index] : prefix[index] - prefix[split],
+      }));
+      return {
+        entries,
+        columns,
+        columnWidth,
+        height:
+          columns === 1 ? prefix.at(-1) : Math.max(prefix[split], prefix.at(-1) - prefix[split]),
+      };
     });
   return candidates.sort((a, b) => a.height - b.height || a.columns - b.columns)[0];
 }

@@ -691,8 +691,8 @@
       },
       {
         "path": "renderers/svg/figure.mjs",
-        "bytes": 11612,
-        "sha256": "0259c8ad57c80164801b3715dd006a84f077a73ac9b258380876b25ec05a6528"
+        "bytes": 12194,
+        "sha256": "677411aef53e879c02f853cd81f53fedfa907fa3d815f795b8af367b0e7fa8fb"
       },
       {
         "path": "src/compiler/media.mjs",

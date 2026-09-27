@@ -11,6 +11,11 @@ function view(id, index, options = {}) {
   scene.editorialViewId = id;
   scene.questions[0].text = options.question ?? `How does ${id} connect?`;
   scene.limits = options.limits ?? ['source-not-observed'];
+  if (options.wide) {
+    scene.nodes[1].x = 640;
+    scene.edges[0].points[1][0] = 640;
+    scene.bounds.width = 800;
+  }
   if (options.scopeLimits) scene.limitsByQuestion.shape = options.scopeLimits;
   if (options.relationOnly) {
     scene.claimCards = [];
@@ -40,6 +45,35 @@ test('joint composition lays independent views side by side and factors common l
   assert.equal((svg.match(/METHOD LIMITS/gu) ?? []).length, 1);
   assert.equal((svg.match(/<svg\b/gu) ?? []).length, 1);
   assert.equal((svg.match(/data-static-view=/gu) ?? []).length, 2);
+});
+
+test('relation columns preserve source order in a top-to-bottom reading path', () => {
+  const first = view('first', 0, { wide: true });
+  first.rendered.parts.relations = Array.from({ length: 4 }, (_, index) => ({
+    graphicId: `static-view-0-r-${index}`,
+    text: `Relation ${index + 1}`,
+  }));
+  const svg = composeStaticFigureSvg({
+    title: 'Ordered relations',
+    summary: 'Read down the first column, then the second.',
+    rasterWidth: 1800,
+    views: [first, view('second', 1, { wide: true })],
+  }).bytes.toString('utf8');
+  const positions = [
+    ...svg.matchAll(
+      /<g data-graphic-id="static-view-0-r-(\d)">\n<text x="([\d.]+)" y="([\d.]+)"/gu,
+    ),
+  ].map(([, ordinal, x, y]) => ({ ordinal: Number(ordinal), x: Number(x), y: Number(y) }));
+  assert.equal(positions.length, 4);
+  assert.deepEqual(
+    positions.map(({ ordinal }) => ordinal),
+    [0, 1, 2, 3],
+  );
+  assert.equal(positions[0].x, positions[1].x);
+  assert(positions[0].y < positions[1].y);
+  assert.equal(positions[2].x, positions[3].x);
+  assert(positions[2].y < positions[3].y);
+  assert(positions[0].x < positions[2].x);
 });
 
 test('narrow requested raster and an odd view count retain every selected view', () => {
