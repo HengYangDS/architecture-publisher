@@ -1,0 +1,69 @@
+{
+  "schema": "architecture.research-installed-probe/v1",
+  "workload": "aigw-successor-two-editions",
+  "status": "provisional-not-released",
+  "observedAt": "2026-09-27",
+  "publisher": {
+    "sourceCommit": "31d1566d03e74ea7b9cfd3c76e1cc21f55ac1c5b",
+    "package": "architecture-publisher",
+    "version": "0.3.0-alpha.4",
+    "archiveSha256": "c572da4a8c8b7302bc4c69bf522c49e6ea951112ab4fd461f73caba9bc0a697e"
+  },
+  "aigw": {
+    "sourceCommit": "bd3c09d5584aea1729b9eafc9de6c8f38418be54",
+    "selectedRoot": "architecture/edition-provider",
+    "selectedSha256": {
+      "client-projection.request.json": "29fe63c218c4c1264cf737746e589d5dc2e6dec91860ad42adb08844ebf71ed8",
+      "product.request.json": "d65efd045fc99b8eba39330bb5a5fc29a126c6f6007fe0878e11458b6ec39014",
+      "source/provider.json": "31c755406ff3f2772dd9efbe689c95b620061181c377dc39d7b5600fddff6134",
+      "source/model.json": "1975b7af02b3e28268feb9b4ed7fab88caac6e7bb44df484a6f133275775dabd",
+      "source/product-model.json": "9f8746a52fdd3c9001b5198661bb7dc3101acecf61cfb6cab754f0523601d108",
+      "editions/client-projection.json": "dce9784cf101c7449925c5eb773f7e753556b7f034be9fdc690c6a90d78045e1",
+      "editions/product.json": "41c873bce91e18a6dc7d2f0d75cef4dbc5e8f96d1c2efe9d64256c95bdec6cef"
+    }
+  },
+  "method": "Pack signed Publisher source, install the exact Core archive with empty HOME/cache and offline npm, copy only seven selected AIGW inputs outside the source checkout, build both Editions through installed archpub with empty PATH, repeat both builds, relocate the installed Core after deleting its original consumer, and rebuild byte-identically. A changed Provider model fails with edition_provider_v2_member_size_mismatch; a changed pinned product model fails with materialized_pin_mismatch; neither emits a Candidate.",
+  "candidates": {
+    "client-projection": {
+      "candidateJsonSha256": "9311eb7ca6c514cb121cbfb2a40c3c2e092d0e88cfd22d363707a3b9797bd7ad",
+      "manifestSha256": "2b9e0aebf3e626f890ecc6bc24c7d5a61a0fe489886eef70b95cc0b8c598ed38",
+      "inputLockSha256": "a21a191cbeaf595d94f5443a5abfafec727774a23cb941bc6f61eabed9d37a86",
+      "closure": "selected-inputs-only",
+      "artifactSha256": {
+        "interactive/architecture.html": "e65c8373e46b7e41945a60eba53f05e57676dd318720888250a976fedcd425bd",
+        "static/architecture.svg": "d38a1fe98794cdc72b8e9e20295b08a1f9d73953addd328f8d8f7c31289a1776",
+        "static/architecture.png": "850d4331644dfb32182648e7417f11c22b8fefd4f3e31316a98f2ba1517cc3fe"
+      },
+      "limits": [
+        "native-dependency-closure-unchecked",
+        "edition-dependency-closure-unchecked",
+        "rendering-supplies-unchecked",
+        "path-confinement-under-concurrent-mutation-unproved",
+        "claim-model-provenance-unverified"
+      ]
+    },
+    "product": {
+      "candidateJsonSha256": "cd3dce766a2dfa9f7611b5ce494f7031392c22930c225d70842b6ad95a2469d2",
+      "manifestSha256": "77dda75788d479e67d56674ceb344b57a0b31e1fb7e28d88e4f2cfd30ff99a0e",
+      "inputLockSha256": "44cf3b4dbdfbb9c6eebb59ae31c7a5069fa25160d7e65823653f40d0fdff0973",
+      "closure": "selected-inputs-only",
+      "artifactSha256": {
+        "interactive/architecture.html": "2c02f37b9b5b5bd4fee91d4f5dd96ea983b2d45e0202bb27dce120094bb29362",
+        "static/architecture.svg": "f97683fa7e5ac2e6a39f1577e06433efbf2d3312359de927c9635b88c0729c20",
+        "static/architecture.png": "65536540d2b1bd6c5228d1cc02eba9f55b6958fd432e8ca851d8348d642f7985"
+      },
+      "limits": [
+        "native-dependency-closure-unchecked",
+        "edition-dependency-closure-unchecked",
+        "rendering-supplies-unchecked",
+        "path-confinement-under-concurrent-mutation-unproved",
+        "claim-model-provenance-unverified"
+      ]
+    }
+  },
+  "limits": [
+    "The AIGW source commit is a provisional work-lane revision, not current dev or AIGW owner acceptance.",
+    "The package is a signed-source local preview, not a protected tag, GitLab release, or final frozen artifact.",
+    "This probe does not qualify browser behavior, accessibility, visual judgment, semantic truth, source-delta update, local publication recovery, hosted CI, or AIGW release."
+  ]
+}

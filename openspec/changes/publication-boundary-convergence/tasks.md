@@ -657,6 +657,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       package and five Candidate-member identities are in
       `conformance/evidence/self-installed-probe.json`. This proves installed
       self-use only, not final-byte browser, human, or release acceptance.
+      At signed Publisher `31d1566` and provisional AIGW Lane `bd3c09d`, the
+      untagged `alpha.4` Core archive builds both AIGW Editions from seven
+      copied selected files under empty HOME/PATH, repeats and relocates with
+      byte-identical Candidate members, and rejects changed Provider/product
+      model bytes without output. Exact identities and unproved limits are in
+      `conformance/evidence/aigw-successor-installed-probe.json`; this is not
+      AIGW owner acceptance, final visual review, or released-package parity.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
