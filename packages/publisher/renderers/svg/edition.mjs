@@ -14,6 +14,8 @@ const advance = (value, size) => [...value].length * size * 0.61;
 const groupTitleBaseline = 31;
 const groupTitleLeading = 19;
 const groupTitleClearance = 17;
+const noteLineLeading = 26;
+const noteItemGap = 9;
 const escape = (value) =>
   String(value)
     .replaceAll('&', '&amp;')
@@ -187,8 +189,9 @@ function namedSection(output, name, items, x, y, width) {
       output.push(
         `<text${attribute} x="${number(x)}" y="${number(y)}" fill="#27352e" font-size="15">${escape(row)}</text>`,
       );
-      y += 22;
+      y += noteLineLeading;
     }
+    y += noteItemGap;
   }
   return y + 17;
 }

@@ -531,11 +531,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       shelf now allow the exact request with SHA-256
       `79fafbd8d61f9d9c5e7c1023ce0d2d171d5d2293e201fb562edf16131d6bd725`
       to build through the public CLI. The renderer also keeps group headings
-      clear of relation captions.
-      Focused RED/GREEN and a Chrome-enabled full check passed (1,234 pass,
-      two explicit external-input skips; branch coverage 95.06%). This is
-      routing and text-clearance progress, not visual approval: the sidebar
-      remains cramped and the whole-page composition remains unqualified.
+      clear of relation captions and separates wrapped note lines and source
+      relation items. On the exact Client Projection static SVG, a Chrome spot
+      check found the nearest note-text gap increased from two to six CSS
+      pixels without changing the 3600×2959 canvas. Focused RED/GREEN and a
+      Chrome-enabled full check passed (1,235 pass, two explicit external-input
+      skips; branch coverage 95.06%). These are routing and legibility gains,
+      not whole-page visual approval; the composition remains unqualified.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

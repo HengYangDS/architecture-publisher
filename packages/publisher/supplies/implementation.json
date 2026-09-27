@@ -238,8 +238,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 34530,
-        "sha256": "c8878342694beee4549b3dff49efe7e70b6365aeb47cc2db76a036a56faedf85"
+        "bytes": 34616,
+        "sha256": "3e6c7bd95f185bfae90b3787e4712ebd6f0c17d359dbeabd61cfe921d9e9b32a"
       },
       {
         "path": "src/compiler/media.mjs",
@@ -345,8 +345,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 34530,
-        "sha256": "c8878342694beee4549b3dff49efe7e70b6365aeb47cc2db76a036a56faedf85"
+        "bytes": 34616,
+        "sha256": "3e6c7bd95f185bfae90b3787e4712ebd6f0c17d359dbeabd61cfe921d9e9b32a"
       },
       {
         "path": "src/compiler/media.mjs",
@@ -452,8 +452,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 34530,
-        "sha256": "c8878342694beee4549b3dff49efe7e70b6365aeb47cc2db76a036a56faedf85"
+        "bytes": 34616,
+        "sha256": "3e6c7bd95f185bfae90b3787e4712ebd6f0c17d359dbeabd61cfe921d9e9b32a"
       },
       {
         "path": "src/compiler/media.mjs",
@@ -701,8 +701,8 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 34530,
-        "sha256": "c8878342694beee4549b3dff49efe7e70b6365aeb47cc2db76a036a56faedf85"
+        "bytes": 34616,
+        "sha256": "3e6c7bd95f185bfae90b3787e4712ebd6f0c17d359dbeabd61cfe921d9e9b32a"
       },
       {
         "path": "renderers/svg/figure.mjs",

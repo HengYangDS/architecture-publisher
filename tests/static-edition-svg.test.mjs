@@ -73,6 +73,39 @@ test('small source structure and reading notes occupy distinct landscape regions
   assert(rendered.height / rendered.width < 0.65);
 });
 
+test('wrapped source relations have readable line and item separation', () => {
+  const scene = staticEditionScene();
+  const first = scene.edges[0].relations[0];
+  first.label = 'Selected recipient state under a client binding that remains source-reported';
+  const second = {
+    ...first,
+    reference: 'relation:5:2',
+    label: 'Another independently attributed relation with its own selected qualifier',
+  };
+  scene.edges[0].relations.push(second);
+  scene.sourceAssertionCarriers[0].relationRefs.push({
+    namespace: second.namespace,
+    reference: second.reference,
+    sha256: second.sha256,
+  });
+  const markup = svg.composeStaticEditionSvg(scene).bytes.toString('utf8');
+  const baselines = (id) =>
+    [
+      ...markup.matchAll(
+        new RegExp(`<text data-graphic-id="${id}" x="[\\d.]+" y="([\\d.]+)"`, 'gu'),
+      ),
+    ].map(([, y]) => Number(y));
+  const firstLines = baselines('r-0');
+  const secondLines = baselines('r-1');
+
+  assert(firstLines.length > 1);
+  assert(secondLines.length > 1);
+  for (const lines of [firstLines, secondLines])
+    for (let index = 1; index < lines.length; index += 1)
+      assert(lines[index] - lines[index - 1] >= 26);
+  assert(secondLines[0] - firstLines.at(-1) >= 35);
+});
+
 test('fractional native geometry is not rejected by serialization rounding', () => {
   const input = staticEditionScene();
   input.nodes[1].x = 260.125;
