@@ -553,10 +553,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       responsibilities. The neutral width and side-rail probes did not solve
       whole-page hierarchy; use the selected whole-medium authored scene
       contract where neutral geometry cannot meet the reader question. Do not
-      release either static Candidate or treat the current AIGW Edition as
-      visually accepted. Publisher's public build now accepts one data-only
-      authored static canvas across ordered views, retains per-view assertion
-      attribution, and derives exact selected relation endpoints without
+      accept or publish either AIGW static Candidate or treat the current AIGW
+      Edition as visually accepted. Publisher's public build now accepts one
+      data-only authored static canvas across ordered views, retains per-view
+      assertion attribution, and derives exact selected relation endpoints without
       duplicate entity selections. The unrelated Claim Model public-build and
       negative-boundary test pass; `npm run check` passed 1,250 tests with seven
       skips and 95.05% branch coverage (all four dimensions above 95%). This
@@ -881,13 +881,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       statements, lines, branches, and functions; require `npm run check` to
       pass without relaxing inclusion or thresholds. Only then freeze final
       product inputs. From that frozen source, repack the exact installed
-      product and rebuild final Candidates for all Task 7.1 workloads; rerun
-      offline/relocation/recovery checks. Inspect every final static overview
-      and HTML page in a real browser; exercise geometry, keyboard,
-      accessibility, reduced motion, and no-network behavior. Obtain separate
-      human judgments on final static and interactive bytes for faithfulness,
-      readability, hierarchy, density, and visual quality. Do not reuse
-      provisional Candidate identities or review after any selected input changes.
+      product and rebuild Publisher-owned self and independent-editor Candidates
+      plus the Task 7.1 external conformance workloads; rerun their applicable
+      offline/relocation/recovery checks. Inspect every Publisher-owned final
+      static overview and HTML page in a real browser; exercise geometry,
+      keyboard, accessibility, reduced motion, and no-network behavior. Obtain
+      separate human judgments on Publisher-owned final static and interactive
+      bytes for faithfulness, readability, hierarchy, density, and visual
+      quality. A generic compiler defect exposed by an external workload blocks
+      Publisher release. ETHOS and AIGW retain their own art, acceptance, and
+      publication; neither becomes Publisher proof or a prerequisite for its
+      release. Do not reuse provisional Candidate identities or review after
+      any selected input changes.
       Historical provisional test and coverage snapshots do not qualify the
       frozen final inputs. Rerun all four unchanged 95% coverage gates and the
       full checks on those exact inputs; no release admission is inferred.
