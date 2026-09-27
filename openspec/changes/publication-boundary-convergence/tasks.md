@@ -549,9 +549,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       (built from AIGW `b1f4d212`) both have reported overlap, excessive blank
       area, and weak whole-page composition. Passing sampled collision checks
       does not override this visual failure. Rework the shared neutral figure
-      composition and source-owned static selection/art direction as distinct
-      responsibilities; do not release either static Candidate or treat the
-      current AIGW Edition as visually accepted.
+      composition and source-owned static art direction as distinct
+      responsibilities. The neutral width and side-rail probes did not solve
+      whole-page hierarchy; use the selected whole-medium authored scene
+      contract where neutral geometry cannot meet the reader question. Do not
+      release either static Candidate or treat the current AIGW Edition as
+      visually accepted. Publisher's public build now accepts one data-only
+      authored static canvas across ordered views, retains per-view assertion
+      attribution, and derives exact selected relation endpoints without
+      duplicate entity selections. The unrelated Claim Model public-build and
+      negative-boundary test pass; `npm run check` passed 1,250 tests with seven
+      skips and 95.05% branch coverage (all four dimensions above 95%). This
+      is a generic contract and does not change the rejected AIGW media or
+      substitute for AIGW-authored static art and exact-byte visual acceptance.
 - [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

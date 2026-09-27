@@ -902,6 +902,24 @@ an authored Scene records only the digest of its medium decision, so editing
 the sibling decision cannot change its Scene identity or visible artifact
 bytes, even when both media are authored.
 
+The authored static decision applies to the complete one-frame medium, not
+one arbitrary member of its ordered view list. Its scene binds the union of
+selected structural assertions, while its carrier record retains attribution
+to every selected view. Thus one Editor may compose distinct reader questions
+on a single sheet without merging their source meaning. The authored decision
+needs no per-view selector: the Edition already selects the views, and a second
+selector could contradict it. This generalizes the same existing canvas audit
+and SVG/raster path used by the self-Edition; it is not an AIGW renderer branch,
+a second static artifact, or permission to submit pre-rendered media. The
+neutral composer remains available but cannot be called visually accepted merely
+because its collision checks pass. Final media and human review remain exact.
+Source-selected relations already bind their endpoint members. An authored
+canvas may render those members directly; requiring the Editor to select the
+same entities a second time would create a redundant source declaration.
+Publisher derives only exact relation members, rejects contradictory source
+identity, and still requires every authored node, relation and visible label
+to bind selected meaning.
+
 First reuse the existing static scene audit, SVG/raster primitives, and
 Archify/Atlas renderer boundaries. Generalize only a mechanism exercised by
 both the self-Edition and one unrelated Edition; do not add a renderer plugin

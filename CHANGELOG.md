@@ -19,7 +19,9 @@ may contain incompatible changes.
   not become source or editorial authority.
 - Added independently composed static SVG/selected-width PNG and standalone
   interactive HTML from one selected Edition, including source-owned,
-  data-only visual refinement and a first-party installed self-Edition.
+  data-only visual refinement and a first-party installed self-Edition. One
+  authored static canvas can cover all ordered static views; a selected
+  relation supplies its exact endpoint members without duplicate selections.
 - Added Candidate v2 binding for the exact input lock, selected semantic and
   medium-specific supplies, scenes, and artifacts. Candidate replay and the v2
   Qualification Set bind submitted observations without authenticating a

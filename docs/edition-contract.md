@@ -88,6 +88,17 @@ The static scene owns a single-frame hierarchy, grouping, spatial grammar,
 typography, routing, annotation, canvas and export size. It must remain useful
 when printed or viewed without interaction.
 
+An authored static refinement targets that complete medium, including every
+ordered static view, rather than selecting one view again. Publisher checks the
+union of source assertions against the authored scene and retains per-view
+assertion attribution in its carrier identity. This permits source-owned whole-
+page art direction without accepting pre-rendered media or transferring a
+relation or claim between reader questions. Neutral composition remains an
+explicit alternative, not an automatic fallback from a failed refinement.
+An explicitly selected relation supplies its exact endpoint members to the
+static scene; the editor does not need duplicate entity selections merely to
+draw those endpoints.
+
 ### Interactive scenes
 
 The interactive scene set owns responsive composition, navigation, focus,

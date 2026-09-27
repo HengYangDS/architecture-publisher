@@ -431,9 +431,8 @@ const staticGeometryRefinement = closed(['view', 'nodes', 'edges', 'groups'], {
   edges: { type: 'array', maxItems: 8192, items: visualEdge },
   groups: { type: 'array', maxItems: 256, items: visualGroup },
 });
-const staticCanvasRefinement = closed(['kind', 'view', 'scene'], {
+const staticCanvasRefinement = closed(['kind', 'scene'], {
   kind: { const: 'authored-canvas' },
-  view: identifier,
   scene: canvasScene,
 });
 const neutralRefinement = closed(['kind'], { kind: { const: 'neutral' } });

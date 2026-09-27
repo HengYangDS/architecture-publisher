@@ -26,20 +26,30 @@ const selectionReference = ({ source, target }) =>
 
 /** Re-derive source-to-graphic anchors without accepting authored coverage claims. */
 export function composeAuthoredStaticCanvas(meaning) {
-  const view = meaning?.media?.static?.views?.[0];
+  const views = meaning?.media?.static?.views;
   const selected = meaning?.refinement?.media?.static;
   const scene = selected?.scene;
   if (
-    meaning?.media?.static?.views?.length !== 1 ||
+    !Array.isArray(views) ||
+    !views.length ||
+    views.some(
+      (view) =>
+        typeof view?.id !== 'string' ||
+        !view.id ||
+        !Array.isArray(view.assertionIds) ||
+        !view.assertionIds.length ||
+        view.assertionIds.some((id) => typeof id !== 'string' || !id) ||
+        new Set(view.assertionIds).size !== view.assertionIds.length,
+    ) ||
+    new Set(views.map(({ id }) => id)).size !== views.length ||
     selected?.kind !== 'authored-canvas' ||
-    selected.view !== view.id ||
     scene?.schema !== 'architecture.authored-static-scene/v1' ||
     scene.title !== meaning.editorial?.title ||
-    !Array.isArray(view.assertionIds) ||
     !Array.isArray(meaning.assertions) ||
     !Array.isArray(meaning.native?.selections)
   )
     fail('authored_canvas_input_invalid');
+  const requiredAssertionIds = [...new Set(views.flatMap(({ assertionIds }) => assertionIds))];
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
   if (
@@ -48,8 +58,19 @@ export function composeAuthoredStaticCanvas(meaning) {
   )
     fail('authored_canvas_input_invalid');
   const required = new Map();
+  const selectedStructure = new Set();
   const selectedByAssertion = new Map();
-  for (const id of view.assertionIds) {
+  const addMember = (id, item) => {
+    const previous = required.get(id);
+    if (
+      previous &&
+      (previous.source.namespace !== item.source.namespace ||
+        previous.source.sha256 !== item.source.sha256)
+    )
+      fail('authored_canvas_membership_mismatch');
+    if (!previous) required.set(id, item);
+  };
+  for (const id of requiredAssertionIds) {
     const assertion = assertions.get(id);
     if (assertion?.kind !== 'source') fail('authored_canvas_editorial_unadmitted');
     const item = selections.get(assertion.selection);
@@ -61,8 +82,26 @@ export function composeAuthoredStaticCanvas(meaning) {
     selectedByAssertion.set(id, item);
     if (item.target.kind === 'claim') continue;
     const key = selectionReference(item);
-    if (required.has(key)) fail('authored_canvas_membership_mismatch');
-    required.set(key, item);
+    if (selectedStructure.has(key)) fail('authored_canvas_membership_mismatch');
+    selectedStructure.add(key);
+    addMember(key, item);
+    if (item.target.kind === 'relation') {
+      if (!Array.isArray(item.members?.elements) || !item.members.elements.length)
+        fail('authored_canvas_source_unadmitted');
+      for (const element of item.members.elements) {
+        if (
+          typeof element?.id !== 'string' ||
+          !element.id ||
+          element.namespace !== item.source.namespace ||
+          element.sha256 !== item.source.sha256
+        )
+          fail('authored_canvas_source_unadmitted');
+        addMember(JSON.stringify([element.namespace, 'entity', element.id]), {
+          source: item.source,
+          target: { kind: 'entity', id: element.id },
+        });
+      }
+    }
   }
   const declared = scene.requiredSemanticIds.map((id) => {
     reference(id);
@@ -136,25 +175,26 @@ export function composeAuthoredStaticCanvas(meaning) {
     if (!crosses) fail('authored_canvas_edge_binding_mismatch');
   }
 
-  const links = linkClaimModelSources(
-    view,
-    assertions,
-    selections,
-    'authored_canvas_claim_unbound',
+  const links = views.map((view) =>
+    linkClaimModelSources(view, assertions, selections, 'authored_canvas_claim_unbound'),
   );
   const relationAnchor = new Map(
-    links.links.map(({ claimAssertionId, relationAssertionId }) => [
-      claimAssertionId,
-      selectionReference(selectedByAssertion.get(relationAssertionId)),
-    ]),
+    links.flatMap(({ links: selectedLinks }) =>
+      selectedLinks.map(({ claimAssertionId, relationAssertionId }) => [
+        claimAssertionId,
+        selectionReference(selectedByAssertion.get(relationAssertionId)),
+      ]),
+    ),
   );
   const subjectAnchor = new Map(
-    links.subjectLinks.map(({ claimAssertionId, subject }) => [
-      claimAssertionId,
-      JSON.stringify([subject.namespace, 'entity', subject.id]),
-    ]),
+    links.flatMap(({ subjectLinks }) =>
+      subjectLinks.map(({ claimAssertionId, subject }) => [
+        claimAssertionId,
+        JSON.stringify([subject.namespace, 'entity', subject.id]),
+      ]),
+    ),
   );
-  const carriers = view.assertionIds.map((id) => {
+  const carriers = requiredAssertionIds.map((id) => {
     const item = selectedByAssertion.get(id);
     const anchor =
       item.target.kind === 'claim'
@@ -178,6 +218,7 @@ export function composeAuthoredStaticCanvas(meaning) {
     scene,
     carriers: {
       schema: 'architecture.authored-canvas-carriers/v1',
+      views: views.map(({ id, assertionIds }) => ({ id, assertionIds: [...assertionIds] })),
       assertions: carriers,
       nodeGraphics: [...entityGraphics],
       textGraphics: [...textGraphics],

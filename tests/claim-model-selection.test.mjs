@@ -1325,17 +1325,19 @@ test('a grouped entity may carry a scalar claim without inventing a source relat
   assert.doesNotMatch(svg, /SOURCE RELATIONS<\/text>/u);
 });
 
-test('an unrelated Claim Model uses the same authored canvas with source-checked aggregates', async (t) => {
+test('one authored canvas binds two views and selected relation endpoints without duplicate selections', async (t) => {
   const selected = await groupedMixedFixture(t, { media: ['static'] });
   selected.project.presentation.static.width = 1200;
-  for (const id of ['client', 'server'])
-    selected.project.scope.selections.push({
-      id: `selected-${id}`,
-      namespace: modelNamespace,
-      kind: 'reference',
-      reference: `entity:${id}`,
-      questions: ['condition'],
-    });
+  selected.project.questions.push({
+    id: 'shared-client',
+    audience: 'maintainer',
+    text: 'Which client is shared across the selected readings?',
+  });
+  selected.project.presentation.static.views.push({
+    id: 'shared-client',
+    questions: ['shared-client'],
+  });
+  selected.project.scope.selections[0].questions.push('shared-client');
   selected.project.visualPolicy.override = 'refinement.json';
   await fs.writeFile(
     path.join(selected.root, 'edition/project.json'),
@@ -1380,7 +1382,6 @@ test('an unrelated Claim Model uses the same authored canvas with source-checked
     media: {
       static: {
         kind: 'authored-canvas',
-        view: 'overview',
         scene: {
           schema: 'architecture.authored-static-scene/v1',
           title: selected.project.title,
@@ -1471,18 +1472,32 @@ test('an unrelated Claim Model uses the same authored canvas with source-checked
   const meaning = await compileEditionMeaning(
     await materializeBuildRequestInput(selected.requestPath, selected.requestSha256),
   );
-  assert.equal(
-    composeAuthoredStaticCanvas(meaning).scene.schema,
-    'architecture.authored-static-scene/v1',
+  const authored = composeAuthoredStaticCanvas(meaning);
+  assert.equal(authored.scene.schema, 'architecture.authored-static-scene/v1');
+  assert.deepEqual(
+    authored.carriers.views.map(({ id }) => id),
+    ['overview', 'shared-client'],
   );
   const canvas = (value) => value.refinement.media.static.scene;
   const firstAssertion = (value) =>
     value.assertions.find(({ id }) => value.media.static.views[0].assertionIds[0] === id);
   for (const [name, mutate, code] of [
     [
-      'wrong view identity',
-      (value) => (value.refinement.media.static.view = 'other'),
+      'empty selected view',
+      (value) => (value.media.static.views[1].assertionIds = []),
       'authored_canvas_input_invalid',
+    ],
+    [
+      'claim cannot borrow a relation from another view',
+      (value) => {
+        const claim = value.assertions.find(
+          ({ selection }) =>
+            value.native.selections.find((item) => item.selectionId === selection)?.target.kind ===
+            'claim',
+        );
+        value.media.static.views[1].assertionIds = [claim.id];
+      },
+      'authored_canvas_claim_unbound',
     ],
     [
       'duplicate assertion identity',
@@ -1503,7 +1518,7 @@ test('an unrelated Claim Model uses the same authored canvas with source-checked
             view.assertionIds.includes(item.id) &&
             value.native.selections.some(
               (selection) =>
-                selection.selectionId === item.selection && selection.target.kind === 'entity',
+                selection.selectionId === item.selection && selection.target.kind === 'relation',
             ),
         );
         const selection = structuredClone(
@@ -1528,6 +1543,14 @@ test('an unrelated Claim Model uses the same authored canvas with source-checked
     [
       'unselected source assertion',
       (value) => (firstAssertion(value).selection = 'missing'),
+      'authored_canvas_source_unadmitted',
+    ],
+    [
+      'relation endpoint with contradictory source digest',
+      (value) => {
+        const relation = value.native.selections.find(({ target }) => target.kind === 'relation');
+        relation.members.elements[0].sha256 = '0'.repeat(64);
+      },
       'authored_canvas_source_unadmitted',
     ],
     [

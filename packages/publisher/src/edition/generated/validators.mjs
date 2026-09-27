@@ -2043,11 +2043,8 @@ const ref0 = function validate(data) {
     const sub1 = (() => {
       if (!(typeof data.media.static === "object" && data.media.static && !Array.isArray(data.media.static))) return false
       if (!("kind" in data.media.static && hasOwn(data.media.static, "kind"))) return false
-      if (!("view" in data.media.static && hasOwn(data.media.static, "view"))) return false
       if (!("scene" in data.media.static && hasOwn(data.media.static, "scene"))) return false
       if (!(data.media.static.kind === "authored-canvas")) return false
-      if (!(typeof data.media.static.view === "string")) return false
-      if (!pattern0.test(data.media.static.view)) return false
       if (!(typeof data.media.static.scene === "object" && data.media.static.scene && !Array.isArray(data.media.static.scene))) return false
       if (!("schema" in data.media.static.scene && hasOwn(data.media.static.scene, "schema"))) return false
       if (!("title" in data.media.static.scene && hasOwn(data.media.static.scene, "title"))) return false
@@ -2416,7 +2413,7 @@ const ref0 = function validate(data) {
         if (key20 !== "schema" && key20 !== "title" && key20 !== "subtitle" && key20 !== "width" && key20 !== "height" && key20 !== "referenceWidth" && key20 !== "spine" && key20 !== "paint" && key20 !== "nodes" && key20 !== "texts" && key20 !== "edges" && key20 !== "decorations" && key20 !== "requiredSemanticIds") return false
       }
       for (const key21 of Object.keys(data.media.static)) {
-        if (key21 !== "kind" && key21 !== "view" && key21 !== "scene") return false
+        if (key21 !== "kind" && key21 !== "scene") return false
       }
       return true
     })()

@@ -178,30 +178,35 @@ async function staticMedium(selected, meaning, scratch) {
     ({ id, kind, selection }) =>
       kind === 'source' && firstViewAssertions.has(id) && claimSelections.has(selection),
   );
+  const wholeAuthoredCanvas = meaning.refinement?.media?.static?.kind === 'authored-canvas';
   const useFigure =
-    views.length > 1 ||
+    (!wholeAuthoredCanvas && views.length > 1) ||
     (!firstViewHasClaims &&
       meaning.editorial.presentation.static.views[0].groups !== undefined &&
       (!meaning.refinement?.media?.static || meaning.refinement.media.static.kind === 'neutral'));
   if (
     views.length > 1 &&
     meaning.refinement?.media?.static !== undefined &&
-    meaning.refinement.media.static.kind !== 'neutral'
+    !['neutral', 'authored-canvas'].includes(meaning.refinement.media.static.kind)
   )
     fail('static_figure_refinement_unadmitted');
   const fontSupply = await loadBundledFonts();
   const parts = [];
-  for (const [index, view] of views.entries()) {
-    const scoped = views.length === 1 ? meaning : staticViewMeaning(meaning, index);
-    parts.push({
-      id: view.id,
-      ...(await staticView(
-        selected,
-        scoped,
-        fontSupply,
-        useFigure ? { idPrefix: `static-view-${index}-`, fragment: true } : {},
-      )),
-    });
+  if (wholeAuthoredCanvas) {
+    parts.push({ id: 'whole-medium', ...(await staticView(selected, meaning, fontSupply)) });
+  } else {
+    for (const [index, view] of views.entries()) {
+      const scoped = views.length === 1 ? meaning : staticViewMeaning(meaning, index);
+      parts.push({
+        id: view.id,
+        ...(await staticView(
+          selected,
+          scoped,
+          fontSupply,
+          useFigure ? { idPrefix: `static-view-${index}-`, fragment: true } : {},
+        )),
+      });
+    }
   }
   let scene;
   let rendered;

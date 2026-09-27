@@ -39,6 +39,26 @@ a complete Candidate. Graph-only layout success is insufficient.
   each view's own assertion-to-graphic carriers and limits
 - **AND** no edge or endorsement is inferred merely from the shared entity
 
+#### Scenario: One authored static canvas covers ordered views
+
+- **WHEN** an editor selects one data-only authored static scene for two or
+  more ordered static views
+- **THEN** Publisher binds the complete scene to the union of their selected
+  source assertions and retains each view's own assertion attribution
+- **AND** the scene is rendered through the ordinary static SVG and PNG path,
+  not accepted as pre-rendered media
+- **AND** absent, duplicated, or extra source meaning fails rather than being
+  repaired by dropping a view, forging a cross-view relation, or reusing an
+  unrelated graphic carrier
+
+#### Scenario: A selected relation supplies its endpoint members
+
+- **WHEN** an authored static canvas selects a source relation without separate
+  entity selections for its exact endpoints
+- **THEN** Publisher admits those source-bound endpoint members as visible
+  nodes without requiring duplicate Edition selections
+- **AND** an unrelated or source-inconsistent entity still fails
+
 #### Scenario: One static view cannot be represented
 
 - **WHEN** any selected static view cannot fit without structural loss or

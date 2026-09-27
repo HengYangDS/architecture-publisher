@@ -142,7 +142,6 @@ export function refinementFromSelfEdition(sourceModel, authoredEdition, metricBy
     media: {
       static: {
         kind: 'authored-canvas',
-        view: 'overview',
         scene: qualifyStaticScene(scene, edition, model),
       },
       interactive: { kind: 'authored-architecture', pages },
