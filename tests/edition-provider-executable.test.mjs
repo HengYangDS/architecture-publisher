@@ -442,15 +442,19 @@ test('Provider package refuses a non-regular socket member', async (t) => {
     t.skip('Windows named pipes are not filesystem package members');
     return;
   }
-  const root = await copyFixture(t);
-  const socketPath = path.join(root, 'package/provider.sock');
+  const packageRoot = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'ap-pkg-'));
+  t.after(() => fs.rm(packageRoot, { recursive: true, force: true }));
+  await fs.cp(new URL('./fixtures/providers/executable/package/', import.meta.url), packageRoot, {
+    recursive: true,
+  });
+  const socketPath = path.join(packageRoot, 'provider.sock');
   const server = net.createServer();
   await new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(socketPath, resolve);
   });
   try {
-    await assert.rejects(editionProviderPackageDigest(path.join(root, 'package')), {
+    await assert.rejects(editionProviderPackageDigest(packageRoot), {
       code: 'edition_provider_package_content_invalid',
     });
   } finally {
