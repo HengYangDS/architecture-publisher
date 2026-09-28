@@ -2798,7 +2798,7 @@ test('source-controlled claim values cannot inject HTML or SVG markup', async (t
 });
 
 test(
-  'claim media remain visible, responsive, accessible, and offline in Chrome',
+  'claim media remain visible, accessible, and offline in Chrome',
   {
     skip: !path.isAbsolute(process.env.ARCHPUB_BROWSER_EXECUTABLE ?? ''),
     timeout: 35_000,
@@ -2857,14 +2857,6 @@ test(
         }));
       });
     assert.deepEqual(await violations(), []);
-    await page.setViewportSize({ width: 390, height: 844 });
-    assert.deepEqual(await violations(), []);
-    assert.equal(
-      await page.evaluate(
-        () => globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth,
-      ),
-      true,
-    );
     await page.goto(`${origin}/architecture.svg`, { waitUntil: 'load' });
     assert.equal((await page.locator('[data-graphic-id="c-0"] text').count()) > 0, true);
     const collisions = await page.evaluate(() => {

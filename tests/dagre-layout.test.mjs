@@ -3,7 +3,7 @@ import test from 'node:test';
 import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
 
-test('one pinned geometry owner produces stable independent orientations without changing public meaning', async () => {
+test('one pinned geometry owner produces one selected interactive layout without changing public meaning', async () => {
   const { layoutInteractivePages } =
     await import('../packages/publisher/renderers/dagre/layout.mjs');
   const source = projectInteractivePage(interactiveEditionScene().pages[0], 0).publicPage;
@@ -13,19 +13,13 @@ test('one pinned geometry owner produces stable independent orientations without
   assert.deepEqual(first, second);
   assert.deepEqual(source, original);
   assert.match(first.supplySha256, /^[0-9a-f]{64}$/u);
-  const { rightward, downward } = first.layouts[0];
-  assert(rightward.bounds.width > rightward.bounds.height);
-  assert(rightward.bounds.width > downward.bounds.width);
-  assert(downward.bounds.height > rightward.bounds.height);
-  assert.deepEqual(
-    Object.keys(rightward.positions).sort(),
-    source.nodes.map(({ id }) => id).sort(),
-  );
-  assert.deepEqual(Object.keys(downward.positions).sort(), source.nodes.map(({ id }) => id).sort());
-  assert(rightward.positions['n-0'].x < rightward.positions['n-1'].x);
-  assert(downward.positions['n-0'].y < downward.positions['n-1'].y);
+  const layout = first.layouts[0];
+  assert.deepEqual(Object.keys(layout), ['bounds', 'positions']);
+  assert(layout.bounds.width > layout.bounds.height);
+  assert.deepEqual(Object.keys(layout.positions).sort(), source.nodes.map(({ id }) => id).sort());
+  assert(layout.positions['n-0'].x < layout.positions['n-1'].x);
   assert(
-    rightward.positions['n-1'].x - rightward.positions['n-0'].x - 170 >= 48,
+    layout.positions['n-1'].x - layout.positions['n-0'].x - 170 >= 48,
     'edge number and arrow need clearance between adjacent node bodies',
   );
 });
@@ -56,18 +50,14 @@ test('cyclic and parallel source relations retain their direction through one ge
   const first = await layoutInteractivePages([page]);
   assert.deepEqual(page, original);
   assert.deepEqual(first, await layoutInteractivePages([page]));
-  for (const direction of ['rightward', 'downward']) {
-    const selected = first.layouts[0][direction];
-    assert.equal(Object.keys(selected.positions).length, 3);
-    assert(
-      Object.values(selected.positions).every(
-        ({ x, y }) => Number.isFinite(x) && Number.isFinite(y),
-      ),
-    );
-  }
+  const selected = first.layouts[0];
+  assert.equal(Object.keys(selected.positions).length, 3);
+  assert(
+    Object.values(selected.positions).every(({ x, y }) => Number.isFinite(x) && Number.isFinite(y)),
+  );
 });
 
-test('explicit reading groups enclose only their authored nodes in both orientations', async () => {
+test('explicit reading groups enclose only their authored nodes', async () => {
   const { layoutInteractivePages } =
     await import('../packages/publisher/renderers/dagre/layout.mjs');
   const page = {
@@ -86,27 +76,24 @@ test('explicit reading groups enclose only their authored nodes in both orientat
     ],
   };
   const layouts = (await layoutInteractivePages([page])).layouts[0];
-  for (const direction of ['rightward', 'downward']) {
-    const selected = layouts[direction];
-    assert.deepEqual(
-      selected.groups.map(({ id }) => id),
-      ['g-0', 'g-1'],
-    );
-    for (const group of selected.groups) {
-      const authored = page.groups.find(({ id }) => id === group.id);
-      for (const id of authored.nodeIds) {
-        const node = selected.positions[id];
-        assert(node.x - 85 >= group.x);
-        assert(node.x + 85 <= group.x + group.width);
-        assert(node.y - 32 >= group.y);
-        assert(node.y + 32 <= group.y + group.height);
-      }
+  assert.deepEqual(
+    layouts.groups.map(({ id }) => id),
+    ['g-0', 'g-1'],
+  );
+  for (const group of layouts.groups) {
+    const authored = page.groups.find(({ id }) => id === group.id);
+    for (const id of authored.nodeIds) {
+      const node = layouts.positions[id];
+      assert(node.x - 85 >= group.x);
+      assert(node.x + 85 <= group.x + group.width);
+      assert(node.y - 32 >= group.y);
+      assert(node.y + 32 <= group.y + group.height);
     }
-    assert(
-      selected.groups[0].x + selected.groups[0].width <= selected.groups[1].x ||
-        selected.groups[0].y + selected.groups[0].height <= selected.groups[1].y,
-    );
   }
+  assert(
+    layouts.groups[0].x + layouts.groups[0].width <= layouts.groups[1].x ||
+      layouts.groups[0].y + layouts.groups[0].height <= layouts.groups[1].y,
+  );
 });
 
 test('grouped geometry rejects incomplete or conflicting authored membership', async () => {

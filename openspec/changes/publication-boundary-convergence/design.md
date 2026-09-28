@@ -132,6 +132,11 @@ The following constraints are non-compensating:
 7. The same public path must build Publisher's self-Edition and unrelated
    adopters. A hidden self-only renderer is not evidence of generic ability.
 
+Reader contexts are chosen by the Edition editor. An exploratory browser
+observation does not establish a new device target or authorize an alternate
+architecture representation. Qualification tests the selected context and
+its exact medium, not an inferred device matrix.
+
 ## Alternatives and selection
 
 | Approach                                                   | Advantage                                                                      | Disqualifying limit or condition                                                                                                                  |

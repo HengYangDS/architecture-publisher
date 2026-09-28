@@ -257,12 +257,7 @@ export async function layoutInteractivePages(pages) {
   const runtime = await selectedRuntime();
   return {
     layouts: pages.map((page) =>
-      page.nodes.length
-        ? {
-            rightward: composeOrientation(page, runtime, 'LR'),
-            downward: composeOrientation(page, runtime, 'TB'),
-          }
-        : null,
+      page.nodes.length ? composeOrientation(page, runtime, 'LR') : null,
     ),
     supplySha256: runtime.supply.manifestSha256,
     license: runtime.supply.license,

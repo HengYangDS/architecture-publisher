@@ -25,7 +25,11 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.match(html, /calls/u);
   assert.match(html, /Runtime safety is not established\./u);
   assert.match(html, /No runtime observation was selected\./u);
-  assert.match(html, /--graph-wide-height:\d+px;--graph-down-height:\d+px/u);
+  assert.match(html, /--graph-height:\d+px/u);
+  assert.doesNotMatch(
+    html,
+    /--graph-wide-height|--graph-down-height|matchMedia\('\(max-width: 559px\)'\)/u,
+  );
   assert.match(html, /--graph-natural-width:\d+px/u);
   assert.match(html, /class="page-grid page-grid--graph page-grid--paired"/u);
   assert.match(html, /<aside class="reading-boundary" aria-label="Reading boundary">/u);

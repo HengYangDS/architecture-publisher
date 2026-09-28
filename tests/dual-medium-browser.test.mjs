@@ -75,7 +75,7 @@ test(
         zoom: cy.zoom(),
         authoredBounds: JSON.parse(
           globalThis.document.getElementById('edition-data').textContent,
-        )[0].geometry.rightward.bounds,
+        )[0].geometry.bounds,
         nodePositions: cy.nodes().map((node) => ({ id: node.id(), position: node.position() })),
         graphBottom: graph.bottom,
         boundaryLeft: boundary?.left ?? null,
@@ -110,21 +110,6 @@ test(
           targets: nodes.map(({ target }) => target),
         }));
       });
-    assert.deepEqual(await accessible(), []);
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.evaluate(
-      () =>
-        new Promise((resolve) =>
-          globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(resolve)),
-        ),
-    );
-    assert.equal(await page.locator('#graph-0').getAttribute('data-layout'), 'downward');
-    const mobileLayout = await page.evaluate(() => {
-      const graph = globalThis.document.querySelector('#graph-0').getBoundingClientRect();
-      const notes = globalThis.document.querySelector('#page-0 .notes').getBoundingClientRect();
-      return { graphBottom: graph.bottom, notesTop: notes.top };
-    });
-    assert(mobileLayout.notesTop > mobileLayout.graphBottom);
     assert.deepEqual(await accessible(), []);
     assert.deepEqual(errors, []);
     await page.goto(`${origin}/architecture.svg`, { waitUntil: 'load', timeout: 15_000 });

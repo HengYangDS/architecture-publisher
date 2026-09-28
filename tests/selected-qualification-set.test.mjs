@@ -404,13 +404,13 @@ test('policy assessment keeps missing, failing, and unaccepted-limit evidence se
   assert.equal(assess(failed).submittedVerdict, 'FAIL');
 
   const limited = structuredClone(records);
-  limited[0].limitations = ['small-screen-unreviewed'];
+  limited[0].limitations = ['glyph-review-unavailable'];
   const limitedResult = assess(limited);
   assert.equal(limitedResult.completeness, 'submitted-policy-incomplete');
   assert.equal(limitedResult.submittedVerdict, 'UNKNOWN');
   assert.deepEqual(limitedResult.unacceptedLimitations, ['question.static']);
   const acceptingPolicy = structuredClone(policy);
-  acceptingPolicy.requirements[0].allowedLimitations = ['small-screen-unreviewed'];
+  acceptingPolicy.requirements[0].allowedLimitations = ['glyph-review-unavailable'];
   const acceptedLimit = assessSelectedQualificationPolicy(
     candidate,
     replay,

@@ -310,8 +310,8 @@
     "static-grouped": [
       {
         "path": "renderers/dagre/layout.mjs",
-        "bytes": 8990,
-        "sha256": "b10d6e5401ab5219ed1cabaca6f0025098088c61a53097388d83c3747b0f1d92"
+        "bytes": 8873,
+        "sha256": "2bf6f745addc7fe7fbda2d9cd04d8d84168bd65c961fe632bb97a6f9d063e17e"
       },
       {
         "path": "renderers/dagre/static.mjs",
@@ -778,8 +778,8 @@
     "interactive-neutral": [
       {
         "path": "renderers/cytoscape/edition.mjs",
-        "bytes": 27428,
-        "sha256": "e6c359c365f8a44c3bd5213311b8e63f40cd72b505397988f414536b09c1443c"
+        "bytes": 24081,
+        "sha256": "ce16cca1ae78f5a9a40d175af59d5733978967d594c5394331801d3980177056"
       },
       {
         "path": "renderers/cytoscape/model.mjs",
@@ -793,8 +793,8 @@
       },
       {
         "path": "renderers/dagre/layout.mjs",
-        "bytes": 8990,
-        "sha256": "b10d6e5401ab5219ed1cabaca6f0025098088c61a53097388d83c3747b0f1d92"
+        "bytes": 8873,
+        "sha256": "2bf6f745addc7fe7fbda2d9cd04d8d84168bd65c961fe632bb97a6f9d063e17e"
       },
       {
         "path": "renderers/dagre/supply.mjs",

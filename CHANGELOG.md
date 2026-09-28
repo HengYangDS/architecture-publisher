@@ -17,12 +17,11 @@ may contain incompatible changes.
   Scene authoring surface as `createRecordedMetricReader`. Existing signed
   releases retain their original API and bytes.
 
-### Fixed
+### Removed
 
-- A dense interactive graph now opens at a readable focus only when fitting its
-  compact viewport would shrink primary node text below 12 CSS pixels. Explicit
-  focus, direct interaction, and Fit are no longer overwritten by a same-layout
-  resize; the complete graph and source lists remain available.
+- The unselected alternate interactive layout and its automatic
+  camera behavior. The standalone reader keeps one complete graph, source
+  lists, pan, zoom, and explicit Fit.
 
 ## [0.3.0-alpha.4] - 2026-09-28
 

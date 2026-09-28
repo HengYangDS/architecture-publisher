@@ -241,13 +241,13 @@ relations, eleven distinct claim cards and 22 independently bound source
 assertions. Its eleven relation/claim links derive from same-source typed
 dependencies, not another edited input. Exact Candidate replay matched.
 Background Chrome showed four complete pages with 11, 3, 6 and 2 linked
-claims, no console errors or horizontal overflow at 1280 and 390 CSS pixels,
+claims, no console errors or horizontal overflow at 1280 CSS pixels,
 and no axe WCAG 2/2.1 A/AA violations. This was a source-adjacent authoring
 trial, not an installed or source-owned AIGW Provider migration. A subsequent
 exact-field factoring pass expressed seven page-common claim facts once;
 at 1280 CSS pixels the first interactive page shortened from 4,463 to 3,627
 pixels. All four pages again showed 11/3/6/2 claim carriers with no console
-errors, no mobile horizontal overflow and no axe WCAG 2/2.1 A/AA violations.
+errors, no horizontal overflow and no axe WCAG 2/2.1 A/AA violations.
 The static work remains text-dense, interactive graph labels are small and
 per-claim anchors remain long; no final reader-quality, source-owner or human
 acceptance was granted. All owned temporary Candidates, browser sessions and
@@ -1382,8 +1382,7 @@ This is byte replay, not qualification, source endorsement or AIGW acceptance.
 The changed HTML presents relation qualifiers as source-reported, unverified
 fields beside concise graph labels. At 1440×900 in background Chrome, page one
 still measured a 894×414 graph beside a 426×1427 evidence column; the 1,013px
-height disparity leaves most of the left column empty. At 390px, there was no
-horizontal overflow, but the overview was 2,771px tall. The static overview
+height disparity leaves most of the left column empty. The static overview
 still repeats a long qualifier prefix for individual relations. Thus a geometry
 backend swap alone cannot repair the neutral composition: the next candidate
 must jointly test graph scale and the independent flow of evidence, without
@@ -1558,20 +1557,12 @@ not an interactive or human quality verdict.
 
 ![Desktop-only Dagre geometry and independent evidence-flow probe; not a Publisher Candidate](evidence/aigw-dagre-composition-desktop-probe.png)
 
-At 390px, shrinking the complete SVG made the sampled node text only 4px high.
-The prototype also removed the live Cytoscape canvas, so its focus, pan, zoom
-and Fit control were not meaningful. It fails mobile readability and
-interaction, despite preserving all selected relation text below the image.
-Changing Dagre to a top-to-bottom rank direction alone was estimated to leave
-the same overview at about 5.7px node text. This rejected small-viewport probe
-does not authorize a separate narrow-screen architecture workstream. The active
-gate is question-complete, legible selected media in their declared reading
-context, with source carriers, focus/trace and limits intact. Ordinary browser
-and accessibility checks remain independent.
+The prototype removed the live Cytoscape canvas, so its focus, pan, zoom and
+Fit control were not meaningful. It did not prove an interactive Candidate.
+The active gate is question-complete, legible selected media in the Edition's
+declared reading context, with source carriers, focus/trace and limits intact.
 
-![Narrow-viewport counterexample from the same inert prototype; not accepted media](evidence/aigw-dagre-composition-mobile-counterexample.png)
-
-### Source-adjacent neutral Candidate and responsive relayout (2026-09-26)
+### Source-adjacent neutral Candidate and editorial layout (2026-09-26)
 
 AIGW Work Lane `270ca0bd` supplied the unchanged Client Projection Build Request
 SHA-256 `29fe63c218c4c1264cf737746e589d5dc2e6dec91860ad42adb08844ebf71ed8`.
@@ -1588,22 +1579,13 @@ and places reader questions, source nodes, relations, and method limits in
 separate regions below it. Claim-bearing detail pages retain adjacent evidence
 rather than stretching sparse graphs across the whole canvas. The four pages
 preserved the selected 12/11 structural overview and 4/6/2 linked claim
-carriers. Background Chrome at 1440, 901, and 390 CSS pixels observed no
-horizontal overflow, page errors, external requests, or axe WCAG 2/2.1 A/AA
-violations. This checks DOM and interaction boundaries, not visual acceptance.
-The narrow overview still fits a 16px Cytoscape node face at zoom 0.167,
-roughly 2.7 CSS pixels effective size; at 901px, mixed-page graph columns are
-only 461px wide. Claim cards remain prose-dense. A short navigation label
+carriers. Background Chrome at 1440 CSS pixels observed no horizontal
+overflow, page errors, external requests, or axe WCAG 2/2.1 A/AA violations.
+This checks DOM and interaction boundaries, not visual acceptance. Claim
+cards remain prose-dense. A short navigation label
 mechanically derived from an authored view ID has not yet earned generic
 editorial approval. These are reader-quality counterexamples.
 
-The same candidate exposed a separate runtime defect: after
-1440→390→1440 resizing, repeated Cytoscape `breadthfirst` layout inherited
-its fitted viewport transform. The 12/11 model bounds grew from about
-1,969×516 to 4,856×2,223 model units, and desktop zoom fell from 0.628 to
-0.146. A focused browser RED/GREEN now resets zoom and pan before a direction
-change; exact initial bounds and zoom returned after the same roundtrip.
-This repairs geometric idempotence only; it does not qualify reader adequacy.
 The current Cytoscape renderer remains the sole product owner; the measured
 Dagre, ELK, and Graphviz probes remain alternatives pending cross-workload
 comparison and installed reader acceptance.
@@ -1657,9 +1639,7 @@ source and editorial assertion in the rendered work. The request and Candidate
 were local research inputs, not accepted or published source-product assets.
 
 At 1280×720, the [desktop interactive screenshot](evidence/di-effect-editorial-sidecar-desktop.png)
-shows a complete but very small five-node horizontal graph. At 390×844, the
-[mobile screenshot](evidence/di-effect-editorial-sidecar-mobile.png) reflows
-it vertically, yet its node labels remain too small to read comfortably.
+shows a complete but very small five-node horizontal graph.
 Chrome observed no horizontal overflow or console errors, and its only
 request was the selected localhost HTML. The static 1800×2572 PNG is
 structurally complete but uses a tall one-column chain beside a long method-
@@ -1673,39 +1653,6 @@ Publisher provides automatic editorial abstraction, source-owner acceptance,
 or flagship dual-media quality. The next product gate is a readable,
 question-complete composition with visible provenance in both media, followed
 by the installed four-workload matrix.
-
-### Bounded path composition in the existing interactive renderer (2026-09-26)
-
-The five-node sidecar isolated a renderer cause from editorial selection.
-Before repair, fixed 212×104 Cytoscape nodes with breadth-first spacing factor
-1.25 and whole-graph fit yielded zoom 0.292 at 1280×720 and 0.282 at 390×844.
-Sixteen-pixel model labels therefore painted at about 4.67 and 4.51 CSS
-pixels. Fewer selected nodes alone did not make the work readable.
-
-A browser RED/GREEN now selects a compact layout **only** for one connected,
-forward linear path with no in-graph edge labels and node labels of at most
-24 code units. It retains the existing Cytoscape owner, uses 184×56 nodes
-and spacing factor 0.45, and leaves other topologies on their existing path.
-The five-node, four-relation regression verifies no node-body overlap and at
-least 12 CSS pixels of effective label size at both viewports; the dense
-branching case does not receive the compact class. This is a bounded pattern, not a general
-graph-layout solution or a visual-acceptance verdict.
-
-Rebuilding the same pinned sidecar request through public `edition build`
-produced unqualified Candidate
-`bc4eed8ef6945d2d95b09d7856e2b819480378916befbf30843f6d0098b96a91`.
-Its static SVG and PNG hashes stayed identical to the earlier Candidate;
-only interactive HTML changed to
-`9296d8fe5bfb531c47a74d21f903121252424695d53170b781348ff5a7c7983f`.
-Background Chrome measured effective labels of 13.55 CSS pixels at 1280×720
-and 13.45 at 390×844, with five nodes, four relations, no horizontal overflow,
-no console errors, and only the selected localhost request. The
-[narrow-viewport screenshot](evidence/di-effect-editorial-chain-mobile.png)
-shows the resulting readable chain. This bounded regression behavior is not
-a narrow-screen product workstream or a substitute for the full Edition. Its
-restrained generic boxes are still structural output; dense, in-graph-labeled,
-branching, cyclic, and long-label views have not earned the same readability
-claim, and the static composition remains unchanged and unqualified.
 
 ### Relocated offline di-effect consumer probe (2026-09-26)
 
@@ -1726,12 +1673,11 @@ Candidate `bc4eed8ef6945d2d95b09d7856e2b819480378916befbf30843f6d0098b96a91`
 and all five Candidate files were byte-identical among source-adjacent,
 installed, and relocated builds. This establishes a bounded macOS/Node
 v26.10.0 package and relocation property for the researcher-authored
-di-effect Edition. Chrome 154 opened the relocated HTML at 1280×720 and
-390×844: five nodes and four relations remained visible, effective node-font
-size was 13.55 and 13.45 CSS pixels, and no horizontal overflow, console
-error, or external request occurred. axe-core 4.13.0 reported no WCAG 2/2.1
-A/AA violations or incomplete checks at those viewports. The mobile screenshot
-was byte-identical to the source-adjacent observation. The Candidate remains
+di-effect Edition. Chrome 154 opened the relocated HTML at 1280×720: five
+nodes and four relations remained visible, effective node-font size was 13.55
+CSS pixels, and no horizontal overflow, console error, or external request
+occurred. axe-core 4.13.0 reported no WCAG 2/2.1 A/AA violations or
+incomplete checks. The Candidate remains
 unqualified: these checks do not establish source-owner endorsement, human
 visual acceptance, publication/recovery, or any other workload's installed
 parity. The receipt is conformance evidence, not release authority.
@@ -1750,13 +1696,10 @@ identical across copied direct, offline-installed, and relocated builds. The
 binds the package, four inputs, five output files, and browser observations.
 This is **Client Projection only**, not the whole AIGW product or AIGW approval.
 
-Installed Chrome 154 exercised all four pages at 1440, 901, and 390 CSS
-pixels. All 12 page/viewport observations had no horizontal overflow or axe-
-core 4.13.0 WCAG 2/2.1 A/AA violation. Yet fit-to-canvas effective graph
-label sizes ranged from 6.59–10.83 CSS pixels at 1440, 5.69–8.06 at 901,
-and 2.68–8.96 at 390. The
-[390-pixel overview](evidence/aigw-client-installed-mobile-counterexample.png)
-is visibly unreadable despite complete DOM lists and a clean accessibility
+Installed Chrome 154 exercised all four pages at 1440 CSS pixels. They had
+no horizontal overflow or axe-core 4.13.0 WCAG 2/2.1 A/AA violation. Yet
+fit-to-canvas effective graph label sizes ranged from 6.59–10.83 CSS pixels
+at that desktop width, despite complete DOM lists and a clean accessibility
 scan. The static Candidate likewise retains source structure but places dense
 relation prose beside its graph; it has not earned a reader-quality verdict.
 

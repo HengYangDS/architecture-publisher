@@ -544,8 +544,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       editorial approval and final media review remain open.
       Publisher self, ETHOS and di-effect successor media, selected-media
       coverage, source/editor acceptance, final visual review, and predicate
-      qualification remain open. Narrow-viewport checks are ordinary browser
-      regressions, not a separate architecture workstream.
+      qualification remain open.
       Partial: ordered static views now compile into one source-bound figure
       from graph, relation, claim and limit parts, with separate carrier maps
       and common method notes factored once. A same-row route-through-node and
@@ -648,8 +647,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       both LikeC4 and mixed Claim Model inputs through relocated sibling media
       and exact Candidate replay without a source repository or a second pack
       harness. The source-adjacent mixed Chrome check is Task 5.2, not packed-
-      browser acceptance. The earlier neutral browser case passed offline,
-      responsive and axe checks; final installed bytes still require Task 7.5.
+      browser acceptance. The earlier neutral browser case passed offline and
+      axe checks; final installed bytes still require Task 7.5.
       At signed source `3fa59e2`, the packed dual-medium journey passes 1/1
       on macOS arm64 Node 26.10 and offline Linux arm64 Node 26.9 and 24.19.
       Each run installs locally packed bytes, relocates without a source repo,
@@ -664,18 +663,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       package and strict OpenSpec checks pass; the branch coverage
       deficit remains the Task 7.5 gate.
       Visible semantic coverage, human visual review, qualification binding,
-      full platform evidence, and release remain open. AIGW's exact installed
-      Client Projection exposed an additional generic viewport defect: a dense
-      graph fits to roughly six-pixel node text and resize can erase the
-      reader's focus. Repair the single complete interactive graph, not a
-      substitute narrow representation; verify compact initial readability,
-      source-list/direct focus, resize, explicit Fit, offline behavior, and
-      browser accessibility against the new spec scenario. The generic reader
-      now preserves one graph and reader-controlled camera; a 375px dense
-      fixture opens at readable scale, with first source-list focus, direct
-      focus, manual background action, resize, and Fit checked in real Chrome.
-      Three browser tests passed twice with axe and no external requests.
-      AIGW's exact installed media acceptance and successor release remain open.
+      full platform evidence, and release remain open. The editor withdrew the
+      device-specific reading target on 2026-09-29. Its alternate graph layout,
+      automatic camera, active tests, and proposed requirement are removed;
+      historical research observations do not become acceptance gates.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually

@@ -127,6 +127,10 @@ Editions cannot change claims; scenes cannot change meaning; renderers cannot
 add product claims; qualification cannot manufacture human acceptance; and
 publication cannot infer intent.
 
+Only reading contexts declared by the Edition editor enter acceptance. A
+browser resize or exploratory screenshot does not create another Edition,
+device target, or approval obligation.
+
 ## Outputs
 
 The output is not merely a PNG or HTML file and not every generated directory is

@@ -30,10 +30,6 @@ const sections = [...document.querySelectorAll('.edition-page')];
 const tabs = [...document.querySelectorAll('[data-page-index]')];
 const graphs = new Map();
 const observers = new Map();
-const viewports = new Map();
-function graphDirection() {
-  return window.matchMedia('(max-width: 559px)').matches ? 'downward' : 'rightward';
-}
 function fitGraph(graph) {
   graph.fit(undefined, 24);
   if (graph.zoom() > 1) {
@@ -41,69 +37,16 @@ function fitGraph(graph) {
     graph.center();
   }
 }
-function placeGraph(graph, container, page, direction) {
-  const selected = page.geometry[direction];
+function syncGraph(graph) {
   graph.resize();
-  graph.layout({
-    name: 'preset', fit: false, animate: false,
-    positions: node => selected.positions[node.id()],
-  }).run();
-  container.dataset.layout = direction;
-}
-function frameFirstRelation(graph, page) {
-  const relation = page.relations[0];
-  const first = graph.getElementById(relation?.source || page.nodes[0]?.id);
-  if (first.empty()) return false;
-  const focus = relation ? first.union(graph.getElementById(relation.target)) : first;
-  first.select();
-  graph.zoom(1);
-  graph.center(focus);
-  const firstTop = first.renderedPosition().y - first.renderedHeight() / 2;
-  graph.panBy({ x: 0, y: Math.max(56, graph.height() * 0.12) - firstTop });
-  return true;
-}
-function syncGraph(graph, container, page, index) {
-  const viewport = viewports.get(index);
-  const direction = graphDirection();
-  graph.resize();
-  if (container.dataset.layout !== direction) {
-    graph.zoom(1);
-    graph.pan({ x: 0, y: 0 });
-    placeGraph(graph, container, page, direction);
-    if (viewport.mode === 'manual') viewport.mode = 'fit';
-  }
-  if (viewport.mode === 'manual') return;
-  if (viewport.mode === 'focus') {
-    const focused = graph.getElementById(viewport.id);
-    if (focused.nonempty()) {
-      graph.zoom(viewport.zoom);
-      graph.center(focused);
-      return;
-    }
-    viewport.mode = 'fit';
-  }
-  if (viewport.mode === 'auto') {
-    if (frameFirstRelation(graph, page)) return;
-    viewport.mode = 'fit';
-  }
   fitGraph(graph);
-  if (viewport.mode === 'initial') {
-    const primaryFontSize = Number.parseFloat(graph.nodes().first().style('font-size'));
-    viewport.mode =
-      direction === 'downward' &&
-      graph.zoom() * primaryFontSize < 12 &&
-      frameFirstRelation(graph, page)
-        ? 'auto'
-        : 'fit';
-  }
 }
 function graphFor(index) {
   if (graphs.has(index)) return graphs.get(index);
   const page = pages[index];
   if (!page.nodes.length) return null;
   const container = document.getElementById('graph-' + index);
-  const direction = graphDirection();
-  const selected = page.geometry[direction];
+  const selected = page.geometry;
   const parentByNode = new Map((page.groups || []).flatMap(group =>
     group.nodeIds.map(id => [id, group.id])
   ));
@@ -158,29 +101,7 @@ function graphFor(index) {
     },
   });
   graphs.set(index, graph);
-  viewports.set(index, { mode: 'initial' });
-  container.dataset.layout = direction;
-  const readerGesture = () => {
-    const viewport = viewports.get(index);
-    if (viewport.mode === 'auto') graph.$(':selected').unselect();
-    viewport.mode = 'manual';
-  };
-  container.addEventListener('pointerdown', readerGesture);
-  container.addEventListener('wheel', readerGesture, { passive: true });
-  graph.on('tap', event => {
-    const viewport = viewports.get(index);
-    if (event.target === graph) {
-      graph.$(':selected').unselect();
-      viewport.mode = 'manual';
-    } else {
-      graph.$(':selected').unselect();
-      event.target.select();
-      viewport.mode = 'focus';
-      viewport.id = event.target.id();
-      viewport.zoom = graph.zoom();
-    }
-  });
-  const observer = new ResizeObserver(() => syncGraph(graph, container, page, index));
+  const observer = new ResizeObserver(() => syncGraph(graph));
   observer.observe(container);
   observers.set(index, observer);
   container.dataset.rendered = 'true';
@@ -194,7 +115,7 @@ function show(index) {
   });
   requestAnimationFrame(() => {
     const graph = graphFor(index);
-    if (graph) syncGraph(graph, document.getElementById('graph-' + index), pages[index], index);
+    if (graph) syncGraph(graph);
   });
 }
 tabs.forEach((tab, index) => tab.addEventListener('click', () => show(index)));
@@ -204,10 +125,6 @@ document.querySelectorAll('[data-focus-node], [data-focus-relation]').forEach(bu
     const graph = graphFor(index);
     if (!graph) return;
     const id = button.dataset.focusNode || button.dataset.focusRelation;
-    const viewport = viewports.get(index);
-    viewport.mode = 'focus';
-    viewport.id = id;
-    viewport.zoom = 1.35;
     graph.$(':selected').unselect();
     const selected = graph.getElementById(id);
     selected.select();
@@ -217,13 +134,8 @@ document.querySelectorAll('[data-focus-node], [data-focus-relation]').forEach(bu
 });
 document.querySelectorAll('[data-fit]').forEach(button => {
   button.addEventListener('click', () => {
-    const index = Number(button.dataset.fit);
-    const graph = graphFor(index);
-    if (graph) {
-      viewports.get(index).mode = 'fit';
-      graph.$(':selected').unselect();
-      fitGraph(graph);
-    }
+    const graph = graphFor(Number(button.dataset.fit));
+    if (graph) fitGraph(graph);
   });
 });
 document.fonts.ready.then(() => show(0));
@@ -301,11 +213,9 @@ function pageHtml(page, index, methodLimits) {
     ? `<p class="source-note">${escape(relationOnly ? SOURCE_REPORTED_TOPOLOGY_NOTE : UNLINKED_RELATION_NOTE)}</p>`
     : '';
   const graphStyle = page.nodes.length
-    ? ` style="--graph-wide-height:${graphHeight(page.geometry.rightward)}px;--graph-down-height:${graphHeight(page.geometry.downward)}px"`
+    ? ` style="--graph-height:${graphHeight(page.geometry)}px"`
     : '';
-  const graphNaturalWidth = page.nodes.length
-    ? Math.ceil(page.geometry.rightward.bounds.width + 64)
-    : null;
+  const graphNaturalWidth = page.nodes.length ? Math.ceil(page.geometry.bounds.width + 64) : null;
   const boundaryQuestionItems = page.questions
     .map(({ text: question, limits }) => {
       const distinctQuestion = question === page.title ? '' : `<p>${escape(question)}</p>`;
@@ -325,7 +235,7 @@ function pageHtml(page, index, methodLimits) {
   const gridStyle =
     graphNaturalWidth === null ? '' : ` style="--graph-natural-width:${graphNaturalWidth}px"`;
   const stage = page.nodes.length
-    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Pan and zoom the complete graph; Fit graph restores the overview. Edge numbers match the keyboard-accessible source lists below.</p>`
+    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Edge numbers match the source relations below. Pan and zoom in the graph; the lists provide keyboard-accessible reading and focus.</p>`
     : page.claims?.length
       ? claimStage
       : editorialStage;
@@ -379,7 +289,7 @@ function css(fonts) {
   .navigation{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.navigation button{border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:10px 18px;font-size:12px;text-align:left;max-width:35ch}.navigation button[aria-current=page]{background:#214f3c;color:#fffefa;border-color:#214f3c}
   .edition-page[hidden]{display:none}.page-heading{display:flex;align-items:baseline;gap:18px;margin:10px 0 14px}.page-heading h2{font-size:clamp(20px,2vw,28px);line-height:1.3;margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
   .source-note{font-size:11px;line-height:1.45;color:#526158;margin:0 0 12px;padding-left:12px;border-left:2px solid #b3c4b6}
-  .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.page-grid--graph{grid-template-columns:minmax(0,1fr)}.page-grid--graph .stage{grid-column:1/-1;width:100%;max-width:var(--graph-natural-width);margin-inline:auto}.page-grid--paired{grid-template-columns:minmax(0,var(--graph-natural-width)) minmax(0,1fr);gap:24px;align-items:start}.page-grid--paired .stage{grid-column:1;grid-row:1;margin:0}.stage{position:relative;min-width:0}.graph-wrap{position:relative}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:var(--graph-wide-height,220px)}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-instruction{font-size:11px;color:#4c5a50;margin:10px 0 0}.fit{position:absolute;right:16px;top:16px;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
+  .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.page-grid--graph{grid-template-columns:minmax(0,1fr)}.page-grid--graph .stage{grid-column:1/-1;width:100%;max-width:var(--graph-natural-width);margin-inline:auto}.page-grid--paired{grid-template-columns:minmax(0,var(--graph-natural-width)) minmax(0,1fr);gap:24px;align-items:start}.page-grid--paired .stage{grid-column:1;grid-row:1;margin:0}.stage{position:relative;min-width:0}.graph-wrap{position:relative}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:var(--graph-height,220px)}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-instruction{font-size:11px;color:#4c5a50;margin:10px 0 0}.fit{position:absolute;right:16px;top:16px;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
   .claim-stage{display:block}.claim-card{border-top:1px solid #c4ccc2;padding:20px 0}.claim-card:last-child{border-bottom:1px solid #c4ccc2}.claim-facts{display:grid;grid-template-columns:minmax(120px,180px) minmax(0,1fr);gap:9px 16px;margin:0}.claim-facts dt{font-size:11px;color:#526158}.claim-facts dd{font-size:13px;line-height:1.45;margin:0;overflow-wrap:anywhere}
   .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}
   .claim-context{border-bottom:1px solid #d3dbd1;margin-bottom:18px}.claim-context dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 18px;margin:14px 0 20px}.claim-context dt{font-size:10px;color:#526158}.claim-context dd{font-size:12px;line-height:1.45;margin:4px 0 0;overflow-wrap:anywhere}
@@ -390,8 +300,7 @@ function css(fonts) {
   .relation-qualifier-note{font-size:11px;color:#526158;margin:0 0 9px!important}.relation-qualifiers{display:grid;grid-template-columns:minmax(76px,.7fr) minmax(0,1.3fr);gap:4px 10px;margin:5px 0 0 12px;padding-left:10px;border-left:2px solid #b3c4b6}.relation-qualifiers dt{font-size:11px;color:#526158}.relation-qualifiers dd{font-size:12px;margin:0;overflow-wrap:anywhere}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}
   @media(max-width:1390px){.page-grid--paired{grid-template-columns:minmax(0,1fr)}.page-grid--paired .stage{grid-column:1;grid-row:1;margin-inline:auto}.page-grid--paired .reading-boundary{grid-column:1;grid-row:2;border-left:0;border-top:1px solid #d3dbd1;padding:18px 0 0}.page-grid--paired .notes{grid-column:1;grid-row:3}}
-  @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:minmax(0,1fr)}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.page-grid--graph .notes,.page-grid--paired .notes{grid-template-columns:minmax(0,1fr);gap:22px}.page-grid--graph .evidence-methods,.page-grid--paired .evidence-methods{grid-column:auto}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}
-  @media(max-width:559px){.graph{height:var(--graph-down-height,220px)}.claim-facts{grid-template-columns:1fr;gap:3px}.claim-facts dd{margin-bottom:9px}}`;
+  @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:minmax(0,1fr)}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.page-grid--graph .notes,.page-grid--paired .notes{grid-template-columns:minmax(0,1fr);gap:22px}.page-grid--graph .evidence-methods,.page-grid--paired .evidence-methods{grid-column:auto}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}`;
 }
 
 /** Compile one unqualified standalone reading work from an independent Scene. */
