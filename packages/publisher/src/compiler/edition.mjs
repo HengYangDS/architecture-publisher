@@ -109,7 +109,7 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
       selectedFonts = await loadBundledFonts(),
       fonts = selectedFonts.fonts.filter((font) => [400, 600].includes(font.weight)),
       overviewSvg = embedFonts(staticResult.bytes, fonts, selectedFonts.license),
-      overviewPng = await rasterizeSvg(scratch, staticResult.bytes, source.source, fonts, 2400);
+      overviewPng = await rasterizeSvg(scratch, staticResult.bytes, fonts, 2400);
     for (const view of projections.interactiveScenes) {
       const output = path.join(scratch, view.id + '.html'),
         scene = interactiveArchitectureScene(document, selected.value, view),

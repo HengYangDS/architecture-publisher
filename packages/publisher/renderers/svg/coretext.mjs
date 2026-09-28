@@ -4,7 +4,6 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fail, hasExactFields as fields } from '../../src/protocol/values.mjs';
-import { writeSourceBundle } from '../../src/source/write.mjs';
 import { createRecordedMetricReader } from '../../src/scene/typography/recorded-metrics.mjs';
 import { fileIdentity } from './files.mjs';
 
@@ -15,10 +14,10 @@ const absolute = (p) => typeof p === 'string' && path.isAbsolute(p);
 /** Validate the selected request without reading host tools or requiring macOS. */
 export function validateCoreTextPlan(plan) {
   if (
-    !fields(plan, ['compiler', 'sdk', 'fonts', 'requests', 'output']) ||
+    !fields(plan, ['compiler', 'sdk', 'fonts', 'requests', 'scratchRoot']) ||
     !fields(plan.compiler, ['path', 'sha256']) ||
     !fields(plan.sdk, ['path', 'settingsSha256']) ||
-    !absolute(plan.output) ||
+    !absolute(plan.scratchRoot) ||
     !absolute(plan.sdk.path) ||
     !Array.isArray(plan.fonts) ||
     plan.fonts.length < 1 ||
@@ -73,27 +72,33 @@ export function validateCoreTextPlan(plan) {
 }
 
 /** Explicit opt-in macOS measurement. This is not an SDK or OS sandbox. */
-export async function measureCoreText(plan) {
+export async function measureCoreTextBytes(plan) {
   if (process.platform !== 'darwin') fail('coretext_platform_unsupported');
   const requests = validateCoreTextPlan(plan);
+  let selected;
+  try {
+    selected = structuredClone(plan);
+  } catch {
+    fail('coretext_plan_invalid');
+  }
   const compiler = await fileIdentity(
-    plan.compiler.path,
-    plan.compiler.sha256,
+    selected.compiler.path,
+    selected.compiler.sha256,
     512 * 1024 * 1024,
     'coretext_compiler_changed',
   );
   await fs.access(compiler.path, constants.X_OK);
-  const sdkPath = await fs.realpath(plan.sdk.path);
+  const sdkPath = await fs.realpath(selected.sdk.path);
   if (!(await fs.stat(sdkPath)).isDirectory()) fail('coretext_sdk_invalid');
   const sdk = await fileIdentity(
     path.join(sdkPath, 'SDKSettings.json'),
-    plan.sdk.settingsSha256,
+    selected.sdk.settingsSha256,
     1024 * 1024,
     'coretext_sdk_changed',
   );
   const fonts = [];
   let fontBytes = 0;
-  for (const f of plan.fonts) {
+  for (const f of selected.fonts) {
     const identity = await fileIdentity(
       f.path,
       f.sha256,
@@ -104,20 +109,14 @@ export async function measureCoreText(plan) {
     fonts.push({ ...structuredClone(f), ...identity });
   }
   if (fontBytes > 256 * 1024 * 1024) fail('coretext_font_limit');
-  const parent = path.dirname(plan.output),
+  const parent = selected.scratchRoot,
     parentStat = await fs.lstat(parent);
   if (
     !parentStat.isDirectory() ||
     parentStat.isSymbolicLink() ||
     (await fs.realpath(parent)) !== parent
   )
-    fail('output_parent_invalid');
-  try {
-    await fs.lstat(plan.output);
-    fail('output_exists');
-  } catch (e) {
-    if (e.code !== 'ENOENT') throw e;
-  }
+    fail('coretext_scratch_root_invalid');
   const scratch = await fs.mkdtemp(path.join(parent, '.architecture-coretext-'));
   try {
     const helper = await fs.readFile(new URL('./coretext.swift', import.meta.url));
@@ -126,7 +125,7 @@ export async function measureCoreText(plan) {
     await fs.writeFile(script, helper, { flag: 'wx' });
     const env = {
       HOME: scratch,
-      PATH: path.dirname(plan.compiler.path),
+      PATH: path.dirname(selected.compiler.path),
       TMPDIR: scratch,
       TMP: scratch,
       TEMP: scratch,
@@ -134,7 +133,7 @@ export async function measureCoreText(plan) {
       SDKROOT: sdkPath,
     };
     const compiled = spawnSync(
-      plan.compiler.path,
+      selected.compiler.path,
       [
         '-sdk',
         sdkPath,
@@ -218,7 +217,7 @@ export async function measureCoreText(plan) {
     };
     createRecordedMetricReader(metrics);
     await fileIdentity(
-      plan.compiler.path,
+      selected.compiler.path,
       compiler.sha256,
       512 * 1024 * 1024,
       'coretext_compiler_changed',
@@ -231,6 +230,7 @@ export async function measureCoreText(plan) {
     );
     for (const f of fonts)
       await fileIdentity(f.path, f.sha256, 128 * 1024 * 1024, 'coretext_font_changed');
+    const metricsBytes = encode(metrics);
     const result = {
       status: 'measured',
       freshMeasurement: 'performed',
@@ -240,24 +240,13 @@ export async function measureCoreText(plan) {
       helperSha256: sha(helper),
       fonts,
       observations,
-      metricsSha256: sha(encode(metrics)),
+      metricsSha256: sha(metricsBytes),
       browserAcceptance: 'not-performed',
       semanticAcceptance: 'not-performed',
       scope:
         'Fresh CoreText run with explicit font identities. Compiler bytes and SDK settings are checked, not the complete operating-system/SDK closure.',
     };
-    const output = await writeSourceBundle(
-      plan.output,
-      {
-        id: 'coretext:measurements',
-        revision: sha(encode({ requests, fonts, compiler, sdk, helper: sha(helper) })),
-      },
-      [
-        { path: 'metrics.json', content: encode(metrics) },
-        { path: 'observation.json', content: encode(result) },
-      ],
-    );
-    return { ...result, output };
+    return { result, metricsBytes, requests };
   } finally {
     await fs.rm(scratch, { recursive: true, force: true });
   }

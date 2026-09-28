@@ -25,6 +25,13 @@ may contain incompatible changes.
 - Separated bounded file input and strict protocol values from Source Bundle
   meaning. Independent editors receive two file-input operations; the Source
   subpath no longer exports generic file and validator primitives.
+- Moved raster Source Bundle selection and CoreText result packaging to the
+  rendering owner. Resvg and CoreText backends now expose byte-level operations
+  without Source Bundle authority; the compiler no longer creates a temporary
+  bundle to rasterize its already-selected SVG. The existing CLI command
+  contracts remain, and representative raster and measurement outputs passed
+  exact-byte comparison against the previous work-lane HEAD. The old direct
+  backend function names are removed from this unreleased successor surface.
 
 ### Removed
 

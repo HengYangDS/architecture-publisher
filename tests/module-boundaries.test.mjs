@@ -131,6 +131,38 @@ test('protocol and file input stay below Source Bundle and renderer semantics', 
   );
 });
 
+test('media backends cannot acquire Source Bundle authority', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  for (const [backend, sourceImport] of [
+    ['renderers/resvg/index.mjs', "import '../../src/source/bundle.mjs';"],
+    ['renderers/svg/coretext.mjs', "import '../../src/source/write.mjs';"],
+  ]) {
+    const problems = inspectModuleBoundaries(
+      `packages/publisher/${backend}`,
+      sourceImport,
+      paths,
+      packageExports,
+    );
+    assert(
+      problems.some(({ reason }) => reason.includes('forbidden dependency')),
+      backend,
+    );
+  }
+});
+
+test('compiler media composition does not mint a disposable Source Bundle', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  const problems = inspectModuleBoundaries(
+    'packages/publisher/src/compiler/media.mjs',
+    "import { writeSourceBundle } from '../source/write.mjs';",
+    paths,
+    packageExports,
+  );
+  assert(problems.some(({ reason }) => reason.includes('forbidden dependency')));
+});
+
 test('extensions depend inward through public package exports', async () => {
   const { paths } = await inventory(runtimeRoots);
   const packageExports = await declaredPackageExports();

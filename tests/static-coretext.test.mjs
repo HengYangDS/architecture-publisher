@@ -10,10 +10,43 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 async function api() {
-  const entry = new URL('../packages/publisher/renderers/svg/coretext.mjs', import.meta.url);
-  await assert.doesNotReject(fs.access(entry), 'explicit CoreText adapter exists');
-  return (await import(entry)).measureCoreText;
+  const entry = new URL('../packages/publisher/src/rendering/measurement.mjs', import.meta.url);
+  await assert.doesNotReject(fs.access(entry), 'explicit CoreText publication exists');
+  return (await import(entry)).measureTypographyBundle;
 }
+test(
+  'CoreText backend returns measurement bytes without publishing a Source Bundle',
+  { skip: process.platform !== 'darwin' },
+  async (t) => {
+    const { measureCoreTextBytes } =
+      await import('../packages/publisher/renderers/svg/coretext.mjs');
+    assert.equal(typeof measureCoreTextBytes, 'function');
+    const f = await setup(t);
+    const { output, ...selection } = f.plan;
+    const measured = await measureCoreTextBytes({ ...selection, scratchRoot: f.dir });
+    assert.equal(measured.result.status, 'measured');
+    assert(Buffer.isBuffer(measured.metricsBytes));
+    await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+  },
+);
+
+test(
+  'CoreText backend binds selected font identity before asynchronous reads',
+  { skip: process.platform !== 'darwin' },
+  async (t) => {
+    const { measureCoreTextBytes } =
+      await import('../packages/publisher/renderers/svg/coretext.mjs');
+    const f = await setup(t);
+    const { output, ...selection } = f.plan;
+    const plan = { ...selection, scratchRoot: f.dir };
+    const pending = measureCoreTextBytes(plan);
+    plan.fonts[0].postscript = 'Unselected-Font';
+    const measured = await pending;
+    assert.equal(measured.result.observations[0].fonts[0].postscript, 'JetBrainsMono-Regular');
+    assert.equal(measured.requests[0].text, 'Reliable work');
+    await assert.rejects(fs.stat(output), { code: 'ENOENT' });
+  },
+);
 async function setup(t) {
   const base = path.join(root, 'build/test-work');
   await fs.mkdir(base, { recursive: true });
@@ -63,6 +96,102 @@ test('CoreText adapter refuses implicit selection and unsupported hosts', async 
   });
 });
 
+test(
+  'measurement handoff rejects relative output before touching selected host tools',
+  { skip: process.platform !== 'darwin' },
+  async () => {
+    const measure = await api();
+    const plan = { compiler: {}, sdk: {}, fonts: [], requests: [], output: 'relative' };
+    await assert.rejects(measure(plan), { code: 'coretext_plan_invalid' });
+    await assert.rejects(measure({ ...plan, output: null }), { code: 'coretext_plan_invalid' });
+    await assert.rejects(
+      measure({ ...plan, output: '/not-selected/output', compiler: { path: () => 'invalid' } }),
+      { code: 'coretext_plan_invalid' },
+    );
+  },
+);
+
+test(
+  'CoreText handoff and backend reject oversized selections before cloning members',
+  { skip: process.platform !== 'darwin' },
+  async () => {
+    const fonts = Array.from({ length: 17 }, () => ({}));
+    let reads = 0;
+    Object.defineProperty(fonts, 0, {
+      get() {
+        reads += 1;
+        return {};
+      },
+    });
+    const selection = {
+      compiler: { path: '/not-selected', sha256: '0'.repeat(64) },
+      sdk: { path: '/not-selected', settingsSha256: '0'.repeat(64) },
+      fonts,
+      requests: [{ text: 'x', size: 12, font: 'regular' }],
+    };
+    const measure = await api();
+    await assert.rejects(measure({ ...selection, output: '/not-selected/output' }), {
+      code: 'coretext_plan_invalid',
+    });
+    assert.equal(reads, 0);
+    const { measureCoreTextBytes } =
+      await import('../packages/publisher/renderers/svg/coretext.mjs');
+    await assert.rejects(measureCoreTextBytes({ ...selection, scratchRoot: '/not-selected' }), {
+      code: 'coretext_plan_invalid',
+    });
+    assert.equal(reads, 0);
+  },
+);
+
+test(
+  'CoreText handoff and backend reject noncloneable selected values before host reads',
+  { skip: process.platform !== 'darwin' },
+  async () => {
+    const selection = {
+      compiler: { path: '/not-selected', sha256: () => 'invalid' },
+      sdk: { path: '/not-selected', settingsSha256: '0'.repeat(64) },
+      fonts: [
+        {
+          id: 'regular',
+          path: '/not-selected',
+          sha256: '0'.repeat(64),
+          postscript: 'Selected-Regular',
+          cascade: [],
+        },
+      ],
+      requests: [{ text: 'x', size: 12, font: 'regular' }],
+    };
+    const measure = await api();
+    await assert.rejects(measure({ ...selection, output: '/not-selected/output' }), {
+      code: 'coretext_plan_invalid',
+    });
+    const { measureCoreTextBytes } =
+      await import('../packages/publisher/renderers/svg/coretext.mjs');
+    await assert.rejects(measureCoreTextBytes({ ...selection, scratchRoot: '/not-selected' }), {
+      code: 'coretext_plan_invalid',
+    });
+  },
+);
+
+test(
+  'measurement handoff retains its selected request across asynchronous work',
+  { skip: process.platform !== 'darwin' },
+  async (t) => {
+    const measure = await api();
+    const f = await setup(t);
+    const plan = structuredClone(f.plan);
+    const selectedOutput = plan.output;
+    const unselectedOutput = path.join(f.dir, 'unselected');
+    const pending = measure(plan);
+    plan.requests[0].text = 'Mutated after selection';
+    plan.output = unselectedOutput;
+    await pending;
+    const metrics = JSON.parse(await fs.readFile(path.join(selectedOutput, 'metrics.json')));
+    assert.equal(metrics.records[0][0], JSON.stringify(['Reliable work', 18, '400']));
+    await assert.rejects(fs.stat(unselectedOutput), { code: 'ENOENT' });
+  },
+);
+
 test('CoreText request preflight is portable and does not read selected host tools', async () => {
   const entry = new URL('../packages/publisher/renderers/svg/coretext.mjs', import.meta.url);
   const { validateCoreTextPlan } = await import(entry);
@@ -81,7 +210,7 @@ test('CoreText request preflight is portable and does not read selected host too
       },
     ],
     requests: [{ text: 'Selected label', size: 12, font: 'regular' }],
-    output: path.join(unavailable, 'output'),
+    scratchRoot: unavailable,
   };
   const requests = validateCoreTextPlan(base);
   assert.deepEqual(requests, base.requests);

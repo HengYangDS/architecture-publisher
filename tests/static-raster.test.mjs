@@ -20,10 +20,62 @@ test('the supplied XML parser rejects character references outside XML Char', ()
   }
 });
 async function api() {
-  const entry = new URL('../packages/publisher/renderers/resvg/index.mjs', import.meta.url);
-  await assert.doesNotReject(fs.access(entry), 'public raster implementation exists');
-  return (await import(entry)).rasterize;
+  const entry = new URL('../packages/publisher/src/rendering/raster.mjs', import.meta.url);
+  await assert.doesNotReject(fs.access(entry), 'public raster bundle operation exists');
+  return (await import(entry)).rasterizeBundle;
 }
+
+test('raster backend consumes selected bytes without Source Bundle authority', async (t) => {
+  const { rasterizeBytes } = await import('../packages/publisher/renderers/resvg/index.mjs');
+  assert.equal(typeof rasterizeBytes, 'function');
+  const base = path.join(root, 'build/test-work');
+  await fs.mkdir(base, { recursive: true });
+  const dir = await fs.mkdtemp(path.join(base, 'raster-bytes-'));
+  t.after(() => fs.rm(dir, { recursive: true, force: true }));
+  const plan = {
+    svg: Buffer.from(shape),
+    fonts: [],
+    width: 800,
+    output: path.join(dir, 'figure.png'),
+  };
+  const result = await rasterizeBytes(plan);
+  assert.equal(result.artifact.sha256, hash(await fs.readFile(plan.output)));
+  assert.equal(Object.hasOwn(result, 'source'), false);
+  assert.equal(Object.hasOwn(result, 'manifestSha256'), false);
+  await assert.rejects(
+    rasterizeBytes({ ...plan, source: { id: 'unverified' }, output: path.join(dir, 'extra.png') }),
+    { code: 'raster_plan_invalid' },
+  );
+  await assert.rejects(
+    rasterizeBytes({ ...plan, svg: '<svg/>', output: path.join(dir, 'invalid.png') }),
+    { code: 'raster_plan_invalid' },
+  );
+  await assert.rejects(rasterizeBytes({ ...plan, output: 'relative.png' }), {
+    code: 'raster_path_required',
+  });
+  await assert.rejects(fs.stat(path.join(dir, 'invalid.png')), { code: 'ENOENT' });
+});
+
+test('raster backend binds caller bytes and output before its first await', async (t) => {
+  const { rasterizeBytes } = await import('../packages/publisher/renderers/resvg/index.mjs');
+  const base = path.join(root, 'build/test-work');
+  await fs.mkdir(base, { recursive: true });
+  const dir = await fs.mkdtemp(path.join(base, 'raster-snapshot-'));
+  t.after(() => fs.rm(dir, { recursive: true, force: true }));
+  const original = Buffer.from(shape);
+  const output = path.join(dir, 'selected.png');
+  const unselected = path.join(dir, 'unselected.png');
+  const plan = { svg: Buffer.from(original), fonts: [], width: 800, output };
+  const pending = rasterizeBytes(plan);
+  plan.svg.fill(0);
+  plan.width = 1600;
+  plan.output = unselected;
+  const result = await pending;
+  assert.equal(result.width, 800);
+  assert.equal(result.svgSha256, hash(original));
+  assert.equal(result.artifact.sha256, hash(await fs.readFile(output)));
+  await assert.rejects(fs.stat(unselected), { code: 'ENOENT' });
+});
 async function setup(t, svg = shape, fonts = false, extraMembers = []) {
   const base = path.join(root, 'build/test-work');
   await fs.mkdir(base, { recursive: true });
@@ -61,6 +113,59 @@ async function setup(t, svg = shape, fonts = false, extraMembers = []) {
     },
   };
 }
+test('raster bundle handoff rejects unselected paths and malformed font selectors', async (t) => {
+  const f = await setup(t);
+  const rasterize = await api();
+  await assert.rejects(rasterize({ ...f.plan, manifest: 'input/manifest.json' }), {
+    code: 'raster_path_required',
+  });
+  await assert.rejects(rasterize({ ...f.plan, output: 'relative.png' }), {
+    code: 'raster_path_required',
+  });
+  await assert.rejects(rasterize({ ...f.plan, fonts: [{ path: 'figure.svg' }] }), {
+    code: 'raster_fonts_invalid',
+  });
+  await assert.rejects(
+    rasterize({
+      ...f.plan,
+      fonts: [{ path: 'figure.svg', family: () => 'invalid', weight: 400 }],
+    }),
+    { code: 'raster_plan_invalid' },
+  );
+  await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+});
+
+test('raster bundle handoff rejects oversized selections before cloning members', async (t) => {
+  const f = await setup(t);
+  const rasterize = await api();
+  const fonts = Array.from({ length: RASTER_LIMITS.fonts + 1 }, () => ({}));
+  let reads = 0;
+  Object.defineProperty(fonts, 0, {
+    get() {
+      reads += 1;
+      return {};
+    },
+  });
+  await assert.rejects(rasterize({ ...f.plan, fonts }), { code: 'raster_fonts_invalid' });
+  assert.equal(reads, 0);
+});
+
+test('raster bundle handoff retains its selected plan across asynchronous reading', async (t) => {
+  const f = await setup(t);
+  const rasterize = await api();
+  const selected = structuredClone(f.plan);
+  const output = selected.output;
+  const unselected = path.join(f.dir, 'unselected.png');
+  const pending = rasterize(selected);
+  selected.svg = 'absent.svg';
+  selected.width = 1600;
+  selected.output = unselected;
+  selected.fonts.push({ path: 'figure.svg' });
+  const result = await pending;
+  assert.equal(result.width, 800);
+  assert.equal(result.artifact.sha256, hash(await fs.readFile(output)));
+  await assert.rejects(fs.stat(unselected), { code: 'ENOENT' });
+});
 test('rasterizes an explicit shape-only SVG without fonts or interactive dependencies', async (t) => {
   const f = await setup(t),
     rasterize = await api(),

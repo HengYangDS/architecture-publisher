@@ -217,13 +217,7 @@ async function staticMedium(selected, meaning, scratch) {
   const fonts = fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
   if (fonts.length !== 2 || !fontSupply.license?.bytes) fail('static_edition_font_supply_invalid');
   const svg = embedFonts(rendered.bytes, fonts, fontSupply.license);
-  const png = await rasterizeSvg(
-    scratch,
-    rendered.bytes,
-    { id: selected.lock.edition.id, revision: selected.lockSha256 },
-    fonts,
-    rendered.rasterWidth,
-  );
+  const png = await rasterizeSvg(scratch, rendered.bytes, fonts, rendered.rasterWidth);
   const files = [
     { path: 'static/architecture.svg', content: svg },
     { path: 'static/architecture.png', content: png.bytes },

@@ -1178,9 +1178,21 @@ public export are deleted, not re-exported.
    The former generic Source exports have no successor aliases. Prove exact-byte
    and fail-closed parity for Source Bundles, backend supplies, and installed
    direct/Provider journeys. Renderer imports of generic Source helpers are
-   forbidden; the remaining raster input and CoreText output uses of actual
-   Source Bundles require their own consumer-level handoff before forbidding
-   renderer-to-Source dependencies entirely.
+   forbidden. The remaining genuine Source Bundle uses move to `rendering/`,
+   which owns the public command's selected-input and output handoffs: raster
+   input is verified as a closed bundle before the backend receives SVG and
+   font bytes; CoreText measurement bytes are packaged only after the backend
+   returns. Neither backend can read or mint Source Bundle authority. The
+   compiler already owns its selected SVG and font bytes, so it calls the
+   raster backend directly rather than constructing a disposable Source Bundle
+   and reading it back. Keep the existing CLI input and output contracts and
+   exact artifact bytes; replace the direct backend exports with byte-level
+   names instead of a compatibility facade. Historical signed packages remain
+   unchanged. The handoff snapshots caller-owned plan values before its first
+   asynchronous read. The raster backend also snapshots SVG bytes and output
+   selection; the CoreText backend snapshots its selected tool and font records.
+   This binds receipts to observed in-process selections, not to an unclaimed
+   atomic filesystem snapshot under a hostile concurrent mutator.
 2. **Build input, not Provider policy.** Direct source and Edition selections
    join Provider results at one private compiler input boundary. `provider/`
    retains its versioned selection, validation, and bounded execution. Ordinary consumers invoke one

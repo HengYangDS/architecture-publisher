@@ -418,6 +418,13 @@ violations, and changes detected during the read; it does not certify a digest,
 atomic ancestor confinement, source meaning, or acceptance. The `source`
 subpath exposes complete Source Bundle operations, not those generic helpers.
 
+`rendering` owns the public raster command's closed Source Bundle selection and
+the measurement command's Source Bundle output. Its backends expose
+`rasterizeBytes` and `measureCoreTextBytes`: they receive selected bytes or
+explicit measurement inputs, not Source Bundle authority. The compiler passes
+its already-selected SVG and font bytes directly to Resvg; it does not create
+a temporary Source Bundle merely to call the backend.
+
 The font-supply export owns verified font and license bytes shared by sibling
 renderers. Archify consumes that capability but does not own or re-export it.
 

@@ -57,6 +57,14 @@ test('workspace separates the generic product from concrete Editions', async () 
   assert.equal(typeof sceneApi.createRecordedMetricReader, 'function');
   const svgApi = await import(pathToFileURL(path.join(publisher, 'renderers/svg/index.mjs')));
   assert.equal(Object.hasOwn(svgApi, 'createMetricReader'), false);
+  assert.equal(typeof svgApi.measureCoreTextBytes, 'function');
+  assert.equal(Object.hasOwn(svgApi, 'measureCoreText'), false);
+  const resvgApi = await import(pathToFileURL(path.join(publisher, 'renderers/resvg/public.mjs')));
+  assert.equal(typeof resvgApi.rasterizeBytes, 'function');
+  assert.equal(Object.hasOwn(resvgApi, 'rasterize'), false);
+  const renderingApi = await import(pathToFileURL(path.join(publisher, 'src/rendering/index.mjs')));
+  assert.equal(typeof renderingApi.rasterizeBundle, 'function');
+  assert.equal(typeof renderingApi.measureTypographyBundle, 'function');
   const publicApi = await import(pathToFileURL(path.join(publisher, 'src/index.mjs')));
   assert.deepEqual(Object.keys(publicApi).sort(), [
     'compiler',

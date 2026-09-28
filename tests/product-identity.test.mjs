@@ -69,8 +69,6 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
     'utf8',
   );
   const cli = await fs.readFile(path.join(root, 'packages/publisher/src/cli/main.mjs'), 'utf8');
-  const commonDirectory = runGit('rev-parse', '--path-format=absolute', '--git-common-dir');
-  const repositoryName = path.basename(path.dirname(commonDirectory));
 
   assert.equal(packageJson.name, 'architecture-publisher');
   assert.match(packageJson.version, /^0\.3\.0-alpha\.[0-9]+$/u);
@@ -85,7 +83,7 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
   assert.equal(packageLock.name, workspace.name);
   assert.equal(packageLock.version, workspace.version);
   assert.deepEqual(packageLock.packages['packages/publisher'].bin, packageJson.bin);
-  assert.match(profile, new RegExp(`^profile_id = "${repositoryName}"$`, 'm'));
+  assert.match(profile, new RegExp(`^profile_id = "${packageJson.name}"$`, 'm'));
   assert.match(openspec, /Govern Architecture Publisher changes through ETHOS\./);
   assert.match(readme, /^# Architecture Publisher$/m);
   assert.match(readme, /\|\s*Canonical repository\s*\|\s*`architecture-publisher`\s*\|/);

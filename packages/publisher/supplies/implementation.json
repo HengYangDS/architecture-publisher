@@ -218,8 +218,8 @@
       },
       {
         "path": "renderers/resvg/index.mjs",
-        "bytes": 6658,
-        "sha256": "3cb846f3fc25f405f41e949524f3956991cf75ae8ab58280988f3efb0a0e40a0"
+        "bytes": 6143,
+        "sha256": "601872dfdfcebb0ff58ba0df3ca504405d1de71dd190c8fcd3fc56282d765073"
       },
       {
         "path": "renderers/resvg/limits.mjs",
@@ -253,18 +253,8 @@
       },
       {
         "path": "src/compiler/media.mjs",
-        "bytes": 1884,
-        "sha256": "c5ecbf11691b314f07efa6123119fa1002af70c0d21f62afb8eef3a7186a4956"
-      },
-      {
-        "path": "src/file-input/contract.mjs",
-        "bytes": 2520,
-        "sha256": "f6413d34cd20514b2cbf05efa442e73c078a7d4b99a30fab9c412bc93510e3d7"
-      },
-      {
-        "path": "src/file-input/read.mjs",
-        "bytes": 5642,
-        "sha256": "dbbab2ea44c8d8e958e9c53a8280854f6e7ae5f86b48280e186decc400a9fc1a"
+        "bytes": 1412,
+        "sha256": "223d6d73de68a1847fb12fa3b403f116b31a073e8c634a144b724a548b0bfcaa"
       },
       {
         "path": "src/protocol/json.mjs",
@@ -310,21 +300,6 @@
         "path": "src/semantics/native-claim-model.mjs",
         "bytes": 6207,
         "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
-      },
-      {
-        "path": "src/source/bundle.mjs",
-        "bytes": 643,
-        "sha256": "7ce0887ebfbaf17e63b453435e31dcd220ef0b966175e145da0ab9654e82ccbd"
-      },
-      {
-        "path": "src/source/manifest.mjs",
-        "bytes": 807,
-        "sha256": "dbe0fb5f53da018ceafe416df41bc5a767505ad7bb9305602bade9bbc79a7efc"
-      },
-      {
-        "path": "src/source/write.mjs",
-        "bytes": 2823,
-        "sha256": "098ed803ea55ec424e9280cd961ff9ad483c6ca2b7c25d022ced4785e315ae03"
       }
     ],
     "static-grouped": [
@@ -350,8 +325,8 @@
       },
       {
         "path": "renderers/resvg/index.mjs",
-        "bytes": 6658,
-        "sha256": "3cb846f3fc25f405f41e949524f3956991cf75ae8ab58280988f3efb0a0e40a0"
+        "bytes": 6143,
+        "sha256": "601872dfdfcebb0ff58ba0df3ca504405d1de71dd190c8fcd3fc56282d765073"
       },
       {
         "path": "renderers/resvg/limits.mjs",
@@ -385,8 +360,8 @@
       },
       {
         "path": "src/compiler/media.mjs",
-        "bytes": 1884,
-        "sha256": "c5ecbf11691b314f07efa6123119fa1002af70c0d21f62afb8eef3a7186a4956"
+        "bytes": 1412,
+        "sha256": "223d6d73de68a1847fb12fa3b403f116b31a073e8c634a144b724a548b0bfcaa"
       },
       {
         "path": "src/file-input/contract.mjs",
@@ -442,21 +417,6 @@
         "path": "src/semantics/native-claim-model.mjs",
         "bytes": 6207,
         "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
-      },
-      {
-        "path": "src/source/bundle.mjs",
-        "bytes": 643,
-        "sha256": "7ce0887ebfbaf17e63b453435e31dcd220ef0b966175e145da0ab9654e82ccbd"
-      },
-      {
-        "path": "src/source/manifest.mjs",
-        "bytes": 807,
-        "sha256": "dbe0fb5f53da018ceafe416df41bc5a767505ad7bb9305602bade9bbc79a7efc"
-      },
-      {
-        "path": "src/source/write.mjs",
-        "bytes": 2823,
-        "sha256": "098ed803ea55ec424e9280cd961ff9ad483c6ca2b7c25d022ced4785e315ae03"
       }
     ],
     "static-likec4": [
@@ -467,8 +427,8 @@
       },
       {
         "path": "renderers/resvg/index.mjs",
-        "bytes": 6658,
-        "sha256": "3cb846f3fc25f405f41e949524f3956991cf75ae8ab58280988f3efb0a0e40a0"
+        "bytes": 6143,
+        "sha256": "601872dfdfcebb0ff58ba0df3ca504405d1de71dd190c8fcd3fc56282d765073"
       },
       {
         "path": "renderers/resvg/limits.mjs",
@@ -502,8 +462,8 @@
       },
       {
         "path": "src/compiler/media.mjs",
-        "bytes": 1884,
-        "sha256": "c5ecbf11691b314f07efa6123119fa1002af70c0d21f62afb8eef3a7186a4956"
+        "bytes": 1412,
+        "sha256": "223d6d73de68a1847fb12fa3b403f116b31a073e8c634a144b724a548b0bfcaa"
       },
       {
         "path": "src/file-input/contract.mjs",
@@ -594,21 +554,6 @@
         "path": "src/semantics/supply.mjs",
         "bytes": 1740,
         "sha256": "485923d983a7980163ef29cce280cac945d395e0852782513feccfb172e65a69"
-      },
-      {
-        "path": "src/source/bundle.mjs",
-        "bytes": 643,
-        "sha256": "7ce0887ebfbaf17e63b453435e31dcd220ef0b966175e145da0ab9654e82ccbd"
-      },
-      {
-        "path": "src/source/manifest.mjs",
-        "bytes": 807,
-        "sha256": "dbe0fb5f53da018ceafe416df41bc5a767505ad7bb9305602bade9bbc79a7efc"
-      },
-      {
-        "path": "src/source/write.mjs",
-        "bytes": 2823,
-        "sha256": "098ed803ea55ec424e9280cd961ff9ad483c6ca2b7c25d022ced4785e315ae03"
       }
     ],
     "static-authored": [
@@ -619,8 +564,8 @@
       },
       {
         "path": "renderers/resvg/index.mjs",
-        "bytes": 6658,
-        "sha256": "3cb846f3fc25f405f41e949524f3956991cf75ae8ab58280988f3efb0a0e40a0"
+        "bytes": 6143,
+        "sha256": "601872dfdfcebb0ff58ba0df3ca504405d1de71dd190c8fcd3fc56282d765073"
       },
       {
         "path": "renderers/resvg/limits.mjs",
@@ -659,18 +604,8 @@
       },
       {
         "path": "src/compiler/media.mjs",
-        "bytes": 1884,
-        "sha256": "c5ecbf11691b314f07efa6123119fa1002af70c0d21f62afb8eef3a7186a4956"
-      },
-      {
-        "path": "src/file-input/contract.mjs",
-        "bytes": 2520,
-        "sha256": "f6413d34cd20514b2cbf05efa442e73c078a7d4b99a30fab9c412bc93510e3d7"
-      },
-      {
-        "path": "src/file-input/read.mjs",
-        "bytes": 5642,
-        "sha256": "dbbab2ea44c8d8e958e9c53a8280854f6e7ae5f86b48280e186decc400a9fc1a"
+        "bytes": 1412,
+        "sha256": "223d6d73de68a1847fb12fa3b403f116b31a073e8c634a144b724a548b0bfcaa"
       },
       {
         "path": "src/protocol/json.mjs",
@@ -711,21 +646,6 @@
         "path": "src/semantics/native-claim-model.mjs",
         "bytes": 6207,
         "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
-      },
-      {
-        "path": "src/source/bundle.mjs",
-        "bytes": 643,
-        "sha256": "7ce0887ebfbaf17e63b453435e31dcd220ef0b966175e145da0ab9654e82ccbd"
-      },
-      {
-        "path": "src/source/manifest.mjs",
-        "bytes": 807,
-        "sha256": "dbe0fb5f53da018ceafe416df41bc5a767505ad7bb9305602bade9bbc79a7efc"
-      },
-      {
-        "path": "src/source/write.mjs",
-        "bytes": 2823,
-        "sha256": "098ed803ea55ec424e9280cd961ff9ad483c6ca2b7c25d022ced4785e315ae03"
       }
     ],
     "static-figure": [
@@ -736,8 +656,8 @@
       },
       {
         "path": "renderers/resvg/index.mjs",
-        "bytes": 6658,
-        "sha256": "3cb846f3fc25f405f41e949524f3956991cf75ae8ab58280988f3efb0a0e40a0"
+        "bytes": 6143,
+        "sha256": "601872dfdfcebb0ff58ba0df3ca504405d1de71dd190c8fcd3fc56282d765073"
       },
       {
         "path": "renderers/resvg/limits.mjs",
@@ -776,18 +696,8 @@
       },
       {
         "path": "src/compiler/media.mjs",
-        "bytes": 1884,
-        "sha256": "c5ecbf11691b314f07efa6123119fa1002af70c0d21f62afb8eef3a7186a4956"
-      },
-      {
-        "path": "src/file-input/contract.mjs",
-        "bytes": 2520,
-        "sha256": "f6413d34cd20514b2cbf05efa442e73c078a7d4b99a30fab9c412bc93510e3d7"
-      },
-      {
-        "path": "src/file-input/read.mjs",
-        "bytes": 5642,
-        "sha256": "dbbab2ea44c8d8e958e9c53a8280854f6e7ae5f86b48280e186decc400a9fc1a"
+        "bytes": 1412,
+        "sha256": "223d6d73de68a1847fb12fa3b403f116b31a073e8c634a144b724a548b0bfcaa"
       },
       {
         "path": "src/protocol/json.mjs",
@@ -818,21 +728,6 @@
         "path": "src/semantics/native-claim-model.mjs",
         "bytes": 6207,
         "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
-      },
-      {
-        "path": "src/source/bundle.mjs",
-        "bytes": 643,
-        "sha256": "7ce0887ebfbaf17e63b453435e31dcd220ef0b966175e145da0ab9654e82ccbd"
-      },
-      {
-        "path": "src/source/manifest.mjs",
-        "bytes": 807,
-        "sha256": "dbe0fb5f53da018ceafe416df41bc5a767505ad7bb9305602bade9bbc79a7efc"
-      },
-      {
-        "path": "src/source/write.mjs",
-        "bytes": 2823,
-        "sha256": "098ed803ea55ec424e9280cd961ff9ad483c6ca2b7c25d022ced4785e315ae03"
       }
     ],
     "interactive-neutral": [

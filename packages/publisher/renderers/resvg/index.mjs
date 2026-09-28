@@ -4,56 +4,49 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { readSourceBundle } from '../../src/source/bundle.mjs';
 import { fail, hasExactFields as fields } from '../../src/protocol/values.mjs';
-import { portablePath } from '../../src/file-input/contract.mjs';
 import { verifyRasterSupply } from './supply.mjs';
 import { RASTER_LIMITS as limits } from './limits.mjs';
 
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 
-/** PNG rendering only. Input meaning, visual approval and installation are separate. */
-export async function rasterize(plan) {
-  if (!fields(plan, ['manifest', 'manifestSha256', 'svg', 'fonts', 'width', 'output']))
-    fail('raster_plan_invalid');
-  for (const key of ['manifest', 'output'])
-    if (typeof plan[key] !== 'string' || !path.isAbsolute(plan[key])) fail('raster_path_required');
+/** Render selected bytes; source identity and selection belong to the caller. */
+export async function rasterizeBytes(plan) {
+  if (!fields(plan, ['svg', 'fonts', 'width', 'output'])) fail('raster_plan_invalid');
+  if (typeof plan.output !== 'string' || !path.isAbsolute(plan.output))
+    fail('raster_path_required');
+  if (!Buffer.isBuffer(plan.svg)) fail('raster_plan_invalid');
   if (!Number.isSafeInteger(plan.width) || plan.width < 1 || plan.width > limits.width)
     fail('raster_dimensions_invalid');
   if (!Array.isArray(plan.fonts) || plan.fonts.length > limits.fonts) fail('raster_fonts_invalid');
-  const bundle = await readSourceBundle(plan.manifest, plan.manifestSha256);
-  const members = new Map(bundle.members.map((m) => [m.path, m.content]));
-  const svg = members.get(portablePath(plan.svg));
-  if (!svg) fail('raster_svg_missing');
-  if (svg.length > limits.svgBytes) fail('raster_svg_size_exceeded');
-  const selected = new Set([plan.svg]);
+  if (plan.svg.length > limits.svgBytes) fail('raster_svg_size_exceeded');
+  const svg = Buffer.from(plan.svg);
+  const output = plan.output;
+  const width = plan.width;
   let total = 0;
   const fonts = plan.fonts.map((font) => {
     if (
-      !fields(font, ['path', 'family', 'weight']) ||
+      !fields(font, ['family', 'weight', 'bytes']) ||
       typeof font.family !== 'string' ||
       !font.family.trim() ||
       font.family.length > 128 ||
       !Number.isInteger(font.weight) ||
       font.weight < 100 ||
-      font.weight > 900
+      font.weight > 900 ||
+      !Buffer.isBuffer(font.bytes) ||
+      font.bytes.length > limits.fontBytes
     )
       fail('raster_fonts_invalid');
-    const name = portablePath(font.path),
-      bytes = members.get(name);
-    if (!bytes || selected.has(name) || bytes.length > limits.fontBytes)
-      fail('raster_fonts_invalid');
-    selected.add(name);
-    total += bytes.length;
-    return { ...font, bytes: bytes.toString('base64') };
+    total += font.bytes.length;
+    return { family: font.family, weight: font.weight, bytes: font.bytes.toString('base64') };
   });
   if (total > limits.fontTotalBytes) fail('raster_fonts_invalid');
-  const parent = path.dirname(plan.output),
+  const parent = path.dirname(output),
     stat = await fs.lstat(parent);
   if (!stat.isDirectory() || stat.isSymbolicLink() || (await fs.realpath(parent)) !== parent)
     fail('raster_output_parent_invalid');
   try {
-    await fs.lstat(plan.output);
+    await fs.lstat(output);
     fail('raster_output_exists');
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
@@ -70,7 +63,7 @@ export async function rasterize(plan) {
       JSON.stringify({
         svg: svg.toString('base64'),
         fonts,
-        width: plan.width,
+        width,
       }),
       { flag: 'wx', mode: 0o600 },
     );
@@ -135,7 +128,7 @@ export async function rasterize(plan) {
       png.length < 33 ||
       png.length > limits.pngBytes ||
       !png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])) ||
-      response.width !== plan.width ||
+      response.width !== width ||
       !Number.isInteger(response.height) ||
       response.height < 1 ||
       response.height > limits.height ||
@@ -147,19 +140,17 @@ export async function rasterize(plan) {
     const candidate = path.join(scratch, 'candidate.png');
     await fs.writeFile(candidate, png, { flag: 'wx' });
     try {
-      await fs.copyFile(candidate, plan.output, constants.COPYFILE_EXCL);
+      await fs.copyFile(candidate, output, constants.COPYFILE_EXCL);
     } catch (error) {
       if (error.code === 'EEXIST') fail('raster_output_exists');
       throw error;
     }
     const artifact = { bytes: png.length, sha256: sha(png) };
-    if (sha(await fs.readFile(plan.output)) !== artifact.sha256) fail('raster_output_changed');
+    if (sha(await fs.readFile(output)) !== artifact.sha256) fail('raster_output_changed');
     return {
       status: 'rendered',
       width: response.width,
       height: response.height,
-      source: bundle.source,
-      manifestSha256: bundle.manifestSha256,
       svgSha256: sha(svg),
       artifact,
       supply,

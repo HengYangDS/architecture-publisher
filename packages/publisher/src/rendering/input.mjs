@@ -32,18 +32,18 @@ export async function renderInteractiveInput(type, input, inputSha256, output) {
 
 /** Adapt an explicit raster request without exposing a renderer-vendor command. */
 export async function renderRasterInput(file) {
-  const { rasterize } = await import('../../renderers/resvg/index.mjs');
+  const { rasterizeBundle } = await import('./raster.mjs');
   const { base, value: plan } = await selectedJson(file, 1024 * 1024, 'raster_plan_invalid');
   for (const key of ['manifest', 'output']) {
     if (typeof plan?.[key] !== 'string' || !plan[key]) inputError('raster_plan_invalid');
     plan[key] = path.resolve(base, plan[key]);
   }
-  return rasterize(plan);
+  return rasterizeBundle(plan);
 }
 
 /** Measure explicitly selected typography inputs through the native backend. */
 export async function measureTypographyInput(file) {
-  const { measureCoreText } = await import('../../renderers/svg/coretext.mjs');
+  const { measureTypographyBundle } = await import('./measurement.mjs');
   const { base, value: plan } = await selectedJson(
     file,
     8 * 1024 * 1024,
@@ -62,5 +62,5 @@ export async function measureTypographyInput(file) {
     if (!font || typeof font !== 'object') inputError('measurement_plan_invalid');
     font.path = resolve(font.path);
   }
-  return measureCoreText(plan);
+  return measureTypographyBundle(plan);
 }

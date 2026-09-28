@@ -1,7 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { writeSourceBundle } from '../source/write.mjs';
-import { rasterize } from '../../renderers/resvg/index.mjs';
+import { rasterizeBytes } from '../../renderers/resvg/index.mjs';
 
 /** Bind exact font bytes and their license into a standalone SVG artifact. */
 export function embedFonts(svg, fonts, license) {
@@ -32,27 +31,17 @@ export function embedFonts(svg, fonts, license) {
 }
 
 /** Rasterize one independently composed SVG through the pinned resvg supply. */
-export async function rasterizeSvg(scratch, svg, source, fonts, width) {
-  const bundle = await writeSourceBundle(
-      path.join(scratch, 'static-input'),
-      { id: `${source.id}:static-overview`, revision: source.revision ?? '' },
-      [
-        { path: 'overview.svg', content: svg },
-        ...fonts.map((font) => ({ path: font.path, content: font.bytes })),
-      ],
-    ),
-    output = path.join(scratch, 'overview.png'),
-    result = await rasterize({
-      manifest: bundle.manifestPath,
-      manifestSha256: bundle.manifestSha256,
-      svg: 'overview.svg',
-      fonts: fonts.map((font) => ({
-        path: font.path,
-        family: 'JetBrains Mono',
-        weight: font.weight,
-      })),
-      width,
-      output,
-    });
+export async function rasterizeSvg(scratch, svg, fonts, width) {
+  const output = path.join(scratch, 'overview.png');
+  const result = await rasterizeBytes({
+    svg,
+    fonts: fonts.map((font) => ({
+      family: 'JetBrains Mono',
+      weight: font.weight,
+      bytes: font.bytes,
+    })),
+    width,
+    output,
+  });
   return { bytes: await fs.readFile(output), result };
 }

@@ -93,6 +93,10 @@ const owners = [
     ],
   ],
   [
+    'packages/publisher/src/compiler/media.mjs',
+    ['packages/publisher/src/compiler/', 'packages/publisher/renderers/'],
+  ],
+  [
     'packages/publisher/src/compiler/',
     [
       'packages/publisher/src/compiler/',
@@ -182,18 +186,13 @@ const owners = [
   ],
   [
     'packages/publisher/renderers/svg/',
-    [
-      'packages/publisher/renderers/svg/',
-      'packages/publisher/src/source/',
-      'packages/publisher/src/scene/',
-    ],
+    ['packages/publisher/renderers/svg/', 'packages/publisher/src/scene/'],
   ],
   [
     'packages/publisher/renderers/resvg/',
     [
       'packages/publisher/renderers/resvg/',
       'packages/publisher/renderers/svg/',
-      'packages/publisher/src/source/',
       'packages/publisher/renderers/resvg/supply/',
     ],
   ],

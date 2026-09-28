@@ -915,7 +915,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       Candidate identity for three selected implementation file sets; a changed
       source pin failed before output. The exact comparison and limits are in
       `conformance/evidence/di-effect-selected-implementation-renewal.json`.
-- [ ] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
+- [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
       consumer closure, `tests/package-boundaries.test.mjs`,
@@ -955,9 +955,26 @@ third-party or generated supply rather than moving owned code outside coverage.
       `file-input` contract. Source and installed-use regressions, static and
       package checks, and the full coverage gate pass on this work-tree slice
       (98.00/95.02/99.65/98.00% statements/branches/functions/lines).
-      Raster input and CoreText output still consume actual Source Bundles;
-      their consumer-level handoff and final installed migration acceptance
-      keep Task 7.2 open.
+      Raster Source selection and CoreText Source output now belong to
+      `rendering/`; both media backends accept selected bytes or measurement
+      inputs without Source imports, and the compiler no longer mints a
+      disposable raster-input bundle. Public backend functions have precise
+      byte-level names with no old-name aliases. RED/GREEN tests cover module
+      direction, preflight limits, caller mutation before awaits, and retained
+      CLI behavior. Against signed HEAD `d879cea`, a representative PNG and
+      all three CoreText bundle files match byte-for-byte; the disposable
+      comparison directories were removed. The macOS full coverage gate passes
+      at 98.00/95.02/99.65/98.00% statements/branches/functions/lines;
+      static, package, and strict OpenSpec checks pass. An isolated Linux
+      arm64 Node 26.9 full `npm run check` on the same work-tree snapshot
+      passes 1,272 tests with 23 platform skips, 97.17/95.08/98.97/97.17%
+      statements/branches/functions/lines, and package validation. A first
+      clone at `/work` exposed a test that mistook checkout basename for
+      product identity; the owner assertion now derives identity from the
+      package contract, and a relocated `/work` regression passes on macOS
+      and Linux. These are local candidate checks, not Windows, hosted CI,
+      source-product adoption, or release acceptance; those obligations
+      remain in Tasks 7.5–8.2.
 - [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,
