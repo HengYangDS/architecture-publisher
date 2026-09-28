@@ -743,12 +743,18 @@ third-party or generated supply rather than moving owned code outside coverage.
 ## 7. Installed acceptance and release
 
 - [ ] 7.1 Use a provisional exact package archive, not source-adjacent imports,
-      to test replacement parity on frozen
-      self, ETHOS, full AIGW, Client Projection, and di-effect inputs. Verify
-      relocated offline build, common Provider conformance, source-delta update,
-      native comparison, legacy replay, and recovery; record exact input, package,
-      Candidate, and media digests in `conformance/`. These provisional bytes
-      are not final release or human-review identities. Partial: the
+      to test generic replacement parity on frozen self and independent-editor
+      inputs. Probe frozen ETHOS, whole AIGW, Client Projection, and di-effect
+      inputs and attribute each result to the product or source owner. For
+      compatible selected inputs, verify relocated offline build, common Provider
+      conformance, source-delta update, native comparison, legacy replay, and
+      recovery; record exact input, package, Candidate, and media digests in
+      `conformance/`. A generic compiler failure on compatible external input
+      blocks Publisher release. A source-owned package pin or pending adopter
+      approval does not: source migration may require an already published
+      Publisher package and remains a separate goal obligation. These
+      provisional bytes are not final release or human-review identities.
+      Partial: the
       researcher-owned di-effect Edition rebuilt all five Candidate files
       byte-identically from direct, offline-installed, and relocated use of
       one exact package; see `conformance/evidence/di-effect-installed-probe.json`.
@@ -920,6 +926,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       statements, 95.05% branches, and 99.53% functions. These are still
       pre-freeze inputs; rebuild, exact-media review, and release
       admission remain open.
+      Later signed test commits `0d24921` and `201c0e5` cover changed source
+      roots, portable member aliases, nested Provider package identity, and
+      non-regular package members. At `201c0e5`, exact-HEAD ETHOS proof passed
+      three gates under Attestation `9076a19b`; local `candidate/dev` and the
+      sole remote proposal ref match that commit. GitLab Pipeline `8521` passed
+      at the same SHA: 1,245 tests passed, 17 were explicitly skipped, none
+      failed, and branch coverage was 95.03% without changing the threshold.
+      This is hosted source readiness, not package freeze, final-byte review,
+      protected-ref publication, or release acceptance.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%
