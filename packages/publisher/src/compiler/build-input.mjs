@@ -4,12 +4,12 @@ import { deriveSourceRevision } from '../edition/revision.mjs';
 import { assembleEditionSelection } from '../edition/selection.mjs';
 import { exact } from '../semantics/document.mjs';
 import { fail, isDigest } from '../source/manifest.mjs';
-import { materializeSelectedDeclarativeFiles } from './declarative-selection.mjs';
+import { materializeSelectedDeclarativeFiles } from '../provider/declarative-selection.mjs';
 import {
   materializePreparedExecutableInputs,
   prepareSelectedExecutableInputs,
-} from './executable-selection.mjs';
-import { readSelectedProviderManifest } from './manifest.mjs';
+} from '../provider/executable-selection.mjs';
+import { readSelectedProviderManifest } from '../provider/manifest.mjs';
 
 function selectedExecutionChoice(choice) {
   if (choice === undefined) return null;

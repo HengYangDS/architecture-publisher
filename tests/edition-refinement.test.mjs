@@ -6,7 +6,7 @@ import { compileEditionMeaning } from '../packages/publisher/src/compiler/meanin
 import { compileSelectedEditionCandidateInput } from '../packages/publisher/src/compiler/successor.mjs';
 import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/index.mjs';
 import { parseSelectedSceneRefinement } from '../packages/publisher/src/edition/refinement.mjs';
-import { materializeBuildRequestInput } from '../packages/publisher/src/provider/build-request.mjs';
+import { materializeBuildRequestInput } from '../packages/publisher/src/compiler/build-input.mjs';
 import { composeStaticEditionScene } from '../packages/publisher/src/scene/static/edition.mjs';
 import { importLikeC4Layout } from '../packages/publisher/src/semantics/native-likec4.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';

@@ -941,7 +941,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       inventory, owner-correct replacements, deleted incumbents, full first-party
       type-check scope, and relocated installed journeys. The renderer adopter
       tripwire now has a RED/GREEN regression, but that alone does not close the
-      semantic boundary.
+      semantic boundary. The Build Request join now lives in private
+      `compiler/build-input.mjs`; its Provider export and former file are gone.
+      ETHOS and AIGW source integrations do not consume the removed symbol.
+      Focused direct/mixed and offline-installed checks pass, as do static,
+      package, and the full 1,275-pass/3-skip suite with 97.96/95.02/99.54/97.96%
+      statement/branch/function/line coverage. The verified-file-envelope,
+      Scene/qualification boundary, and complete public-consumer audit remain.
 - [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,

@@ -220,7 +220,6 @@ const resourceOwners = [
 ];
 
 const selectedProviderModules = new Set([
-  'packages/publisher/src/provider/build-request.mjs',
   'packages/publisher/src/provider/declarative-selection.mjs',
   'packages/publisher/src/provider/executable-selection.mjs',
   'packages/publisher/src/provider/manifest.mjs',

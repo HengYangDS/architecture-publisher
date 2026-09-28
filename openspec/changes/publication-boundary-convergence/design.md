@@ -1180,9 +1180,9 @@ public export are deleted, not re-exported.
    Prove exact-byte and fail-closed parity for Source Bundles, backend supplies,
    and installed direct/Provider journeys; then forbid renderer imports of
    Source Bundle semantics.
-2. **Build input, not Provider policy.** `provider/build-request.mjs` joins
-   direct source and Edition selections to Provider results. Build-input
-   coordination shall own that one join; `provider/` retains its versioned
+2. **Build input, not Provider policy.** Direct source and Edition selections
+   join Provider results at one private compiler input boundary. `provider/`
+   retains its versioned
    selection, validation, and bounded execution. Ordinary consumers invoke one
    complete Candidate build. Prove direct, declarative, executable, and mixed
    selections reach the same downstream lock without inventing a Provider for

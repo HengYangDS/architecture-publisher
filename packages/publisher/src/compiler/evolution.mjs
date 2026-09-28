@@ -2,10 +2,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { compileNativeEditionEvolution } from '../edition/evolution.mjs';
 import { compareEditionInput } from '../edition/input.mjs';
-import {
-  materializePreparedBuildRequestInput,
-  prepareBuildRequestInput,
-} from '../provider/build-request.mjs';
+import { materializePreparedBuildRequestInput, prepareBuildRequestInput } from './build-input.mjs';
 import { exact, semanticError, text } from '../semantics/document.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { parseStrictJson } from '../source/json.mjs';

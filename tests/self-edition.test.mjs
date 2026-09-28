@@ -280,7 +280,7 @@ test('self successor authoring derives every selected claim and reader question 
   assert.equal(typeof self.projectFromSelfEdition, 'function');
   assert.equal(typeof self.refinementFromSelfEdition, 'function');
   const { materializeBuildRequestInput } =
-    await import('../packages/publisher/src/provider/build-request.mjs');
+    await import('../packages/publisher/src/compiler/build-input.mjs');
   const { compileEditionMeaning } = await import('../packages/publisher/src/compiler/meaning.mjs');
   const { composeSelectedStaticRefinementLayout } =
     await import('../packages/publisher/src/scene/static/grouped-selection.mjs');

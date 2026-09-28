@@ -32,6 +32,11 @@ test('workspace separates the generic product from concrete Editions', async () 
     'withMaterializedEditionProvider',
   ])
     assert.equal(typeof providerApi[name], 'function');
+  assert.equal(Object.hasOwn(providerApi, 'materializeBuildRequestInput'), false);
+  await fs.access(path.join(publisher, 'src/compiler/build-input.mjs'));
+  await assert.rejects(fs.stat(path.join(publisher, 'src/provider/build-request.mjs')), {
+    code: 'ENOENT',
+  });
   const compilerApi = await import(pathToFileURL(path.join(publisher, 'src/compiler/index.mjs')));
   assert.equal(typeof compilerApi.compileEditionCandidateInput, 'function');
   assert.equal(Object.hasOwn(compilerApi, 'compileEditionCandidate'), false);
@@ -135,6 +140,8 @@ test('the packed generic product contains no concrete domain package', () => {
   assert(files.includes('src/edition/generated/validators.mjs'));
   assert(files.includes('src/edition/generated/LICENSE.schemasafe'));
   assert(files.includes('src/provider/contract.mjs'));
+  assert(files.includes('src/compiler/build-input.mjs'));
+  assert(!files.includes('src/provider/build-request.mjs'));
   assert(files.every((file) => !/(^|\/)(adapters|editions)(\/|$)/.test(file)));
   assert(files.every((file) => !/(^|\/)(ethos|aigw)(\/|$)/i.test(file)));
 });

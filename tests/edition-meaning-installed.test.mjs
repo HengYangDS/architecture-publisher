@@ -135,7 +135,7 @@ test('offline installed Edition meaning, Scenes, and Candidate survive relocatio
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { materializeBuildRequestInput } from 'architecture-publisher/provider';
+import { materializeBuildRequestInput } from './node_modules/architecture-publisher/src/compiler/build-input.mjs';
 import { compileEditionMeaning } from 'architecture-publisher/compiler';
 import { importLikeC4Layout } from 'architecture-publisher/semantics';
 import { composeInteractiveEditionScene, composeStaticEditionScene } from 'architecture-publisher/scene';
@@ -284,7 +284,7 @@ try {
     `import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { materializeBuildRequestInput } from 'architecture-publisher/provider';
+import { materializeBuildRequestInput } from './node_modules/architecture-publisher/src/compiler/build-input.mjs';
 import { compileEditionMeaning, compileEditionCandidateInput } from 'architecture-publisher/compiler';
 const file = fileURLToPath(new URL('./claim-inputs/build-request.json', import.meta.url));
 try {

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { materializeBuildRequestInput } from '../provider/build-request.mjs';
+import { materializeBuildRequestInput } from './build-input.mjs';
 import { composeInteractiveHtml } from '../rendering/interactive-html.mjs';
 import { composeAuthoredInteractiveArchitecture } from '../scene/interactive/authored-architecture.mjs';
 import { composeInteractiveEditionScene } from '../scene/interactive/edition.mjs';

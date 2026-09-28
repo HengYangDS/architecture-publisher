@@ -11,7 +11,7 @@ import {
 } from '../packages/publisher/src/compiler/index.mjs';
 import { compileNativeEditionEvolution } from '../packages/publisher/src/edition/evolution.mjs';
 import { compareEvolutionInput } from '../packages/publisher/src/compiler/evolution.mjs';
-import { materializeBuildRequestInput } from '../packages/publisher/src/provider/index.mjs';
+import { materializeBuildRequestInput } from '../packages/publisher/src/compiler/build-input.mjs';
 import { compileNativeSelectionDelta } from '../packages/publisher/src/semantics/change.mjs';
 import { canonical } from '../packages/publisher/src/source/json.mjs';
 import {

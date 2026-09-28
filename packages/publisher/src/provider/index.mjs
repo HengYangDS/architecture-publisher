@@ -1,7 +1,6 @@
 export { editionProviderDigest, validateEditionProvider } from './contract.mjs';
 export { EDITION_PROVIDER_LIMITS } from './limits.mjs';
 export { validateEditionProviderV2 } from './selection-contract.mjs';
-export { materializeBuildRequestInput } from './build-request.mjs';
 export {
   validateProviderMaterialization,
   validateProviderReply,

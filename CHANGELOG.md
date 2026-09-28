@@ -16,6 +16,9 @@ may contain incompatible changes.
 - Moved the recorded typography reader from the SVG renderer surface to the
   Scene authoring surface as `createRecordedMetricReader`. Existing signed
   releases retain their original API and bytes.
+- Moved Build Request joining to private compiler input coordination and
+  removed its low-level Provider export. The public `archpub edition build`
+  operation remains the complete consumer path.
 
 ### Removed
 

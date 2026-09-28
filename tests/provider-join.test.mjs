@@ -6,10 +6,8 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import {
-  editionProviderPackageDigest,
-  materializeBuildRequestInput,
-} from '../packages/publisher/src/provider/index.mjs';
+import { materializeBuildRequestInput } from '../packages/publisher/src/compiler/build-input.mjs';
+import { editionProviderPackageDigest } from '../packages/publisher/src/provider/index.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const format = { id: 'example/native-json', version: '1' };

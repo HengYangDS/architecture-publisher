@@ -249,7 +249,7 @@ export function materializeEditionProvider(request) {
   const requestBytes = Buffer.from(JSON.stringify(request) + '\n');
   const requestPath = path.join(work, 'build-request.json');
   await fs.writeFile(requestPath, requestBytes);
-  const script = `import { materializeBuildRequestInput } from 'architecture-publisher/provider';
+  const script = `import { materializeBuildRequestInput } from './node_modules/architecture-publisher/src/compiler/build-input.mjs';
 const result = await materializeBuildRequestInput(process.argv[1], process.argv[2]);
 process.stdout.write(JSON.stringify({
   lockSha256: result.lockSha256,
