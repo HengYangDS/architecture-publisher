@@ -931,8 +931,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       audit, package and module boundaries, dry-run package contents, installed
       self-use, eight-page Chrome/axe behavior, and the full behavior suite pass.
       The coverage gate and its measured status remain Task 7.5. Reopened on
-      2026-09-29: the reviewed module-depth table identifies remaining mixed
-      owners and public helper exports. Close with an exact export/consumer
+      2026-09-29: the reviewed module-depth corrections identify remaining mixed
+      owners and public helper exports. The explicitly internal
+      `compileEditionCandidate` public export was removed with package-boundary
+      RED/GREEN evidence. Close with an exact export/consumer
       inventory, owner-correct replacements, deleted incumbents, full first-party
       type-check scope, and relocated installed journeys. The renderer adopter
       tripwire now has a RED/GREEN regression, but that alone does not close the

@@ -32,6 +32,9 @@ test('workspace separates the generic product from concrete Editions', async () 
     'withMaterializedEditionProvider',
   ])
     assert.equal(typeof providerApi[name], 'function');
+  const compilerApi = await import(pathToFileURL(path.join(publisher, 'src/compiler/index.mjs')));
+  assert.equal(typeof compilerApi.compileEditionCandidateInput, 'function');
+  assert.equal(Object.hasOwn(compilerApi, 'compileEditionCandidate'), false);
   const publicApi = await import(pathToFileURL(path.join(publisher, 'src/index.mjs')));
   assert.deepEqual(Object.keys(publicApi).sort(), [
     'compiler',
