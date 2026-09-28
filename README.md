@@ -151,7 +151,8 @@ coverage obligations, not coordinates, DOM, screenshots, or approval.
 - Static output is composed for one-frame causal comprehension and deterministic
   SVG/high-resolution PNG delivery.
 - Interactive output is composed for a complete first screen, exploration,
-  focus, trace, source inspection, and complete mechanism pages.
+  focus, trace, and contextual inspection of selected meaning and source
+  identity—not a source-code browser—across complete mechanism pages.
 
 Neither medium is generated from the other.
 

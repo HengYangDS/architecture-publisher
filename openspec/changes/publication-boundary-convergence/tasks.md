@@ -667,6 +667,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       device-specific reading target on 2026-09-29. Its alternate graph layout,
       automatic camera, active tests, and proposed requirement are removed;
       historical research observations do not become acceptance gates.
+      A later reader counterexample found that `Source references` offered no
+      source code, clipped its placeholder and covered the diagram. The single
+      `Inspect` reading state now indexes selected subjects and records, labels
+      source identity without a false code link, and returns keyboard focus;
+      final exact-byte review remains Task 7.5.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually
@@ -1075,6 +1080,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       Pipeline `8545` passed 1,249 tests with 17 skips and 95.12% Linux branch
       coverage without changing the four 95% gates. This is pre-freeze source
       readiness, not package or release acceptance.
+      The prior alpha.5 self HTML visual approval was superseded by the
+      reported source-inspection defect; the unchanged static PNG approval does
+      not transfer to a revised HTML. Fresh final-byte review is required.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

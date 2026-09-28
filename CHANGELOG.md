@@ -10,6 +10,10 @@ may contain incompatible changes.
 
 ### Changed
 
+- Replaced the interactive reader's dead-end source-code placeholder and
+  page-wide fact dump with one reversible `Inspect` state. It indexes visible
+  subjects, preserves every selected record, distinguishes source identity from
+  source content, and returns keyboard focus to the invoking graphic or control.
 - Reconciled current Provider v2 and source-adopter migration guidance with the
   signed `v0.3.0-alpha.4` release, without treating Publisher release as source
   acceptance or independent off-host recovery.

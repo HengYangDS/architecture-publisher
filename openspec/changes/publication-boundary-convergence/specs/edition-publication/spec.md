@@ -96,6 +96,36 @@ a complete Candidate. Graph-only layout success is insufficient.
 
 ## ADDED Requirements
 
+### Requirement: Interactive inspection preserves selected meaning
+
+Standalone interactive media SHALL provide a reversible reading state for
+selected meaning. Its subject index SHALL reach every visible graphic and every
+selected record without a page-wide record dump or a panel covering only part
+of the diagram. Keyboard entry and return SHALL preserve a useful focus target.
+
+#### Scenario: Reader inspects a diagram subject
+
+- **WHEN** a reader opens inspection from a diagram subject or the chapter header
+- **THEN** the subject index reaches every selected record without dropping one
+- **AND** the complete diagram remains available on return at the same chapter
+- **AND** a keyboard reader returns to the invoking subject or header control
+
+### Requirement: Source identity is not source content
+
+Interactive inspection SHALL label a selected source's namespace, claimant, and
+exact digest as provenance metadata. It SHALL distinguish that identity from
+source bytes and verified domain truth. Without a source-owner-supplied
+verifiable locator, Publisher SHALL NOT offer a source-code pane or inferred
+file or network link.
+
+#### Scenario: A standalone work has no source-code link
+
+- **WHEN** the exact selected source identity is available but source bytes and
+  an owner-supplied locator are not part of the interactive work
+- **THEN** inspection presents the identity and its scope without a dead-end
+  source-code control or an invented path
+- **AND** the Candidate manifest and input lock remain the exact audit carriers
+
 ### Requirement: Installed package identity is separate execution evidence
 
 Successor build and replay SHALL report the current installed Publisher package's

@@ -476,7 +476,11 @@ artifact bytes, or approval.
 
 - Static output targets single-frame comprehension and exact SVG/PNG geometry.
 - Interactive output targets a complete first-screen overview plus complete
-  mechanism pages, navigation, focus, trace, and source inspection.
+  mechanism pages, navigation, focus, trace, and contextual inspection.
+
+The interactive `Inspect` state makes selected meaning and source identity
+readable without covering part of the diagram. It does not embed source files or
+invent a code link. Use the Candidate manifest and input lock for exact audit.
 
 A screenshot of HTML is not the static compiler. An HTML wrapper around a poster
 is not the interactive compiler.

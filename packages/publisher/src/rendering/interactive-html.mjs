@@ -142,20 +142,21 @@ function interactiveReader() {
   const data = JSON.parse(payload.textContent);
   const frame = document.getElementById('interactive-frame');
   const pageLabel = document.getElementById('interactive-page-label');
-  const sourcePanel = document.getElementById('interactive-source-panel');
-  const sourceTitle = document.getElementById('interactive-source-title');
-  const sourceContext = document.getElementById('interactive-source-context');
-  const sourceList = document.getElementById('interactive-source-list');
-  const sourceCode = document.getElementById('interactive-source-code');
-  const sourceMeta = document.getElementById('interactive-source-meta');
-  const sourceToggle = document.getElementById('interactive-sources');
-  const sourceClose = document.getElementById('interactive-source-close');
-  const sourceSection = document.getElementById('interactive-source-section');
-  const meaningToggle = document.getElementById('interactive-meaning');
-  const factsPanel = document.getElementById('interactive-facts');
+  const main = document.getElementById('interactive-main');
+  const inspector = document.getElementById('interactive-inspector');
+  const inspectTitle = document.getElementById('interactive-inspect-title');
+  const inspectContext = document.getElementById('interactive-inspect-context');
+  const inspectSearch = document.getElementById('interactive-inspect-search');
+  const inspectIndex = document.getElementById('interactive-inspect-index');
+  const inspectEmpty = document.getElementById('interactive-inspect-empty');
+  const inspectContent = document.getElementById('interactive-inspect-content');
+  const inspectBasis = document.getElementById('interactive-inspect-basis');
+  const inspectToggle = document.getElementById('interactive-inspect');
+  const inspectBack = document.getElementById('interactive-inspect-back');
   const error = document.getElementById('interactive-error');
   let active = null;
-  let activeSourceIds = [];
+  let subjectLabels = new Map();
+  let returnToGraphic = null;
 
   const selectedId = () => {
     try {
@@ -176,94 +177,153 @@ function interactiveReader() {
     url.hash = 'page=' + encodeURIComponent(id);
     history[replace ? 'replaceState' : 'pushState'](null, '', url);
   };
-  const renderSource = (id) => {
-    const source = data.sources[id];
-    if (!source) return false;
-    sourceTitle.textContent = id;
-    sourceMeta.textContent = source.namespace + ' · sha256:' + source.sha256.slice(0, 12);
-    sourceCode.textContent =
-      'Source bytes are not embedded. Inspect the selected source by its namespace and digest.';
-    for (const button of sourceList.querySelectorAll('[data-interactive-source]'))
+  const showBasis = (sourceIds) => {
+    inspectBasis.replaceChildren();
+    const details = document.createElement('details');
+    details.id = 'interactive-inspect-basis-details';
+    const summary = document.createElement('summary');
+    summary.textContent = 'Source identity';
+    details.appendChild(summary);
+    const note = document.createElement('p');
+    note.textContent =
+      'These are selected input identities, not embedded source files or verified domain truth.';
+    details.appendChild(note);
+    for (const id of sourceIds) {
+      const source = data.sources[id];
+      if (!source) continue;
+      const record = document.createElement('dl');
+      for (const [label, value] of [
+        ['Namespace', source.namespace],
+        ['Claimant', source.claimant],
+        ['Input kind', source.kind],
+        ['SHA-256', source.sha256],
+      ]) {
+        const term = document.createElement('dt');
+        const definition = document.createElement('dd');
+        term.textContent = label;
+        definition.textContent = value;
+        record.append(term, definition);
+      }
+      details.appendChild(record);
+    }
+    inspectBasis.appendChild(details);
+  };
+  const showSelection = (graphicId, label) => {
+    const selected = page();
+    const entries = graphicId ? selected.facts.filter((fact) => fact.graphicId === graphicId) : [];
+    inspectContent.replaceChildren();
+    inspectContext.textContent = selected.label;
+    inspectTitle.textContent = graphicId
+      ? subjectLabels.get(graphicId) || label || entries[0]?.title || 'Selected graphic'
+      : 'Inspect this diagram';
+    const intro = document.createElement('p');
+    intro.className = 'inspect-intro';
+    intro.textContent = graphicId
+      ? entries.length
+        ? `${entries.length} selected meaning records. Open a record for its exact fields.`
+        : 'This graphic has a selected source binding but no typed assertion in this Edition.'
+      : 'Choose a component or relationship to read its selected meaning and source identity.';
+    inspectContent.appendChild(intro);
+    for (const [index, entry] of entries.entries()) {
+      const details = document.createElement('details');
+      details.open = index === 0;
+      const summary = document.createElement('summary');
+      summary.textContent = entry.title;
+      details.appendChild(summary);
+      const fields = document.createElement('dl');
+      for (const fact of entry.facts) {
+        const term = document.createElement('dt');
+        const definition = document.createElement('dd');
+        term.textContent = fact.label;
+        definition.textContent = fact.value;
+        fields.append(term, definition);
+      }
+      details.appendChild(fields);
+      inspectContent.appendChild(details);
+    }
+    const sources = graphicId ? selected.subjectSources[graphicId] : selected.sourceIds;
+    showBasis(sources);
+    for (const button of inspectIndex.querySelectorAll('button'))
       button.setAttribute(
         'aria-current',
-        button.dataset.interactiveSource === id ? 'true' : 'false',
+        button.dataset.graphicId === graphicId ? 'true' : 'false',
       );
-    return true;
   };
-  const showSources = (ids, context) => {
-    activeSourceIds = ids.filter((id) => Object.prototype.hasOwnProperty.call(data.sources, id));
-    sourcePanel.dataset.mode = 'sources';
-    sourceList.hidden = false;
-    sourceSection.hidden = false;
-    factsPanel.hidden = true;
-    meaningToggle.setAttribute('aria-expanded', 'false');
-    sourceContext.textContent = context;
-    sourceList.textContent = '';
-    for (const id of activeSourceIds) {
-      const source = data.sources[id];
+  const showIndex = () => {
+    const selected = page();
+    const factsByGraphic = new Map();
+    for (const fact of selected.facts) {
+      const previous = factsByGraphic.get(fact.graphicId);
+      if (previous) previous.count += 1;
+      else factsByGraphic.set(fact.graphicId, { count: 1, firstTitle: fact.title });
+    }
+    inspectIndex.replaceChildren();
+    inspectEmpty.hidden = true;
+    for (const graphicId of Object.keys(selected.subjectSources)) {
+      const facts = factsByGraphic.get(graphicId);
+      const count = facts?.count ?? 0;
       const button = document.createElement('button');
       button.type = 'button';
-      button.dataset.interactiveSource = id;
-      button.innerHTML = '<strong></strong><small></small>';
-      button.querySelector('strong').textContent = id;
-      button.querySelector('small').textContent = source.kind + ' · ' + source.claimant;
-      button.addEventListener('click', () => renderSource(id));
-      sourceList.appendChild(button);
+      button.dataset.graphicId = graphicId;
+      const title = document.createElement('strong');
+      title.textContent = subjectLabels.get(graphicId) || facts?.firstTitle || graphicId;
+      const detail = document.createElement('small');
+      detail.textContent = `${count} selected ${count === 1 ? 'record' : 'records'}`;
+      button.append(title, detail);
+      button.addEventListener('click', () => showSelection(graphicId));
+      inspectIndex.appendChild(button);
     }
-    sourcePanel.hidden = false;
-    sourceToggle.setAttribute('aria-expanded', 'true');
-    if (activeSourceIds.length) renderSource(activeSourceIds[0]);
-    else {
-      sourceTitle.textContent = 'No bound source';
-      sourceMeta.textContent = '';
-      sourceCode.textContent = 'This selection has no source binding.';
-    }
-    sourceClose.focus();
   };
-  const showMeaning = (graphicId) => {
-    const selected = page();
-    const entries = graphicId
-      ? selected.facts.filter((fact) => fact.graphicId === graphicId)
-      : selected.facts;
-    if (!entries.length) return false;
-    sourcePanel.dataset.mode = 'meaning';
-    sourceTitle.textContent = 'Selected meaning';
-    sourceContext.textContent = selected.label;
-    sourceList.hidden = true;
-    sourceSection.hidden = true;
-    factsPanel.hidden = false;
-    factsPanel.replaceChildren();
-    for (const entry of entries) {
-      const article = document.createElement('article');
-      const title = document.createElement('h3');
-      title.textContent = entry.title;
-      article.appendChild(title);
-      const dl = document.createElement('dl');
-      for (const fact of entry.facts) {
-        const dt = document.createElement('dt');
-        const dd = document.createElement('dd');
-        dt.textContent = fact.label;
-        dd.textContent = fact.value;
-        dl.append(dt, dd);
-      }
-      article.appendChild(dl);
-      factsPanel.appendChild(article);
-    }
-    sourcePanel.hidden = false;
-    sourceToggle.setAttribute('aria-expanded', 'false');
-    meaningToggle.setAttribute('aria-expanded', 'true');
-    sourceClose.focus();
+  const showInspector = (graphicId, label) => {
+    if (graphicId && !Object.prototype.hasOwnProperty.call(page().subjectSources, graphicId))
+      return false;
+    returnToGraphic = graphicId ?? null;
+    inspectSearch.value = '';
+    showIndex();
+    showSelection(graphicId ?? Object.keys(page().subjectSources)[0], label);
+    inspector.hidden = false;
+    main.dataset.reading = 'inspect';
+    frame.inert = true;
+    frame.setAttribute('aria-hidden', 'true');
+    inspectToggle.setAttribute('aria-expanded', 'true');
+    inspectBack.focus();
     return true;
   };
-  const closeSources = () => {
-    const target = sourcePanel.dataset.mode === 'meaning' ? meaningToggle : sourceToggle;
-    sourcePanel.hidden = true;
-    sourceToggle.setAttribute('aria-expanded', 'false');
-    meaningToggle.setAttribute('aria-expanded', 'false');
-    target.focus();
+  const closeInspector = (restoreFocus = true) => {
+    const graphicId = restoreFocus ? returnToGraphic : null;
+    returnToGraphic = null;
+    inspector.hidden = true;
+    delete main.dataset.reading;
+    frame.inert = false;
+    frame.removeAttribute('aria-hidden');
+    inspectToggle.setAttribute('aria-expanded', 'false');
+    if (graphicId)
+      frame.contentWindow.postMessage(
+        { type: 'architecture-interactive:restore-focus', page: active, subject: graphicId },
+        '*',
+      );
+    else if (restoreFocus) inspectToggle.focus();
   };
   const hydrate = (selected) => {
     const parsed = new DOMParser().parseFromString(rebuild(selected), 'text/html');
+    const nodeLabels = new Map();
+    for (const node of parsed.querySelectorAll('[data-node-id]')) {
+      const id = node.getAttribute('data-node-id');
+      const label = node.getAttribute('data-node-label');
+      if (id && label && !nodeLabels.has(id)) nodeLabels.set(id, label);
+    }
+    subjectLabels = new Map(nodeLabels);
+    for (const edge of parsed.querySelectorAll('[data-edge-id]')) {
+      const id = edge.getAttribute('data-edge-id');
+      if (!id || subjectLabels.has(id)) continue;
+      const from = nodeLabels.get(edge.getAttribute('data-edge-from'));
+      const to = nodeLabels.get(edge.getAttribute('data-edge-to'));
+      if (from && to)
+        subjectLabels.set(
+          id,
+          `${from} → ${to}${edge.getAttribute('data-edge-label') ? ` · ${edge.getAttribute('data-edge-label')}` : ''}`,
+        );
+    }
     parsed.documentElement.setAttribute('data-interactive-member', 'true');
     parsed.documentElement.setAttribute('data-theme', 'light');
     const style = parsed.createElement('style');
@@ -293,9 +353,16 @@ function interactiveReader() {
         if(!id)return;
         event.preventDefault();parent.postMessage({type:'architecture-interactive:navigate',page:id},'*');
       },true);
-      function inspect(subject){const id=subject.getAttribute('data-node-id')||subject.getAttribute('data-edge-id');parent.postMessage({type:'architecture-interactive:sources',page:page,subject:id,label:subject.getAttribute('data-node-label')||subject.getAttribute('data-edge-label')||id},'*');}
+      function inspect(subject){const id=subject.getAttribute('data-node-id')||subject.getAttribute('data-edge-id');parent.postMessage({type:'architecture-interactive:inspect',page:page,subject:id,label:subject.getAttribute('data-node-label')||subject.getAttribute('data-edge-label')||id},'*');}
       document.addEventListener('dblclick',function(event){const subject=event.target.closest&&event.target.closest('[data-node-id],[data-edge-id]');if(subject)inspect(subject);},true);
       document.addEventListener('keydown',function(event){const subject=event.target.closest&&event.target.closest('[data-node-id],[data-edge-id]');if(subject&&(event.key==='i'||event.key==='I')){event.preventDefault();inspect(subject);}},true);
+      window.addEventListener('message',function(event){
+        const message=event.data;
+        if(event.source!==parent||!message||message.type!=='architecture-interactive:restore-focus'||message.page!==page||typeof message.subject!=='string'||!/^[a-z][a-z0-9-]{0,79}$/.test(message.subject))return;
+        const id=message.subject;
+        const subject=document.querySelector('[data-node-id="'+id+'"][tabindex], [data-edge-id="'+id+'"][tabindex]');
+        if(subject)subject.focus();
+      });
     })();`;
     parsed.body.appendChild(bridge);
     return '<!DOCTYPE html>\n' + parsed.documentElement.outerHTML;
@@ -309,12 +376,13 @@ function interactiveReader() {
     for (const button of document.querySelectorAll('[data-interactive-page]'))
       button.setAttribute('aria-current', button.dataset.interactivePage === id ? 'page' : 'false');
     if (id === active) return;
+    if (!inspector.hidden) closeInspector(false);
     active = id;
     frame.srcdoc = hydrate(selected);
   };
   const navigate = (id) => {
     if (!Object.prototype.hasOwnProperty.call(data.pages, id)) return false;
-    if (!sourcePanel.hidden) closeSources();
+    if (!inspector.hidden) closeInspector(false);
     setLocation(id, false);
     render();
     return true;
@@ -322,20 +390,24 @@ function interactiveReader() {
 
   for (const button of document.querySelectorAll('[data-interactive-page]'))
     button.addEventListener('click', () => navigate(button.dataset.interactivePage));
-  sourceToggle.addEventListener('click', () => {
-    if (sourcePanel.hidden || sourcePanel.dataset.mode !== 'sources')
-      showSources(page().sourceIds, page().label);
-    else closeSources();
+  inspectToggle.addEventListener('click', () => {
+    if (inspector.hidden) showInspector();
+    else closeInspector();
   });
-  meaningToggle.addEventListener('click', () => {
-    if (sourcePanel.hidden || sourcePanel.dataset.mode !== 'meaning') showMeaning();
-    else closeSources();
+  inspectBack.addEventListener('click', () => closeInspector());
+  inspectSearch.addEventListener('input', () => {
+    const query = inspectSearch.value.trim().toLocaleLowerCase();
+    let matches = 0;
+    for (const button of inspectIndex.querySelectorAll('button')) {
+      button.hidden = !button.textContent.toLocaleLowerCase().includes(query);
+      if (!button.hidden) matches += 1;
+    }
+    inspectEmpty.hidden = matches !== 0;
   });
-  sourceClose.addEventListener('click', closeSources);
   addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !sourcePanel.hidden) {
+    if (event.key === 'Escape' && !inspector.hidden) {
       event.preventDefault();
-      closeSources();
+      closeInspector();
     }
   });
   frame.addEventListener('load', () => {
@@ -351,19 +423,17 @@ function interactiveReader() {
       return;
     if (event.data.type === 'architecture-interactive:navigate') navigate(event.data.page);
     if (
-      event.data.type === 'architecture-interactive:sources' &&
+      event.data.type === 'architecture-interactive:inspect' &&
       event.data.page === active &&
       typeof event.data.subject === 'string' &&
       /^[a-z][a-z0-9-]{0,79}$/.test(event.data.subject)
     ) {
-      const selected = page();
-      if (!showMeaning(event.data.subject))
-        showSources(
-          selected.subjectSources[event.data.subject] ?? selected.sourceIds,
-          typeof event.data.label === 'string' && event.data.label.trim()
-            ? event.data.label
-            : event.data.subject,
-        );
+      showInspector(
+        event.data.subject,
+        typeof event.data.label === 'string' && event.data.label.length <= 160
+          ? event.data.label
+          : undefined,
+      );
     }
   });
   addEventListener('hashchange', render);
@@ -371,12 +441,9 @@ function interactiveReader() {
     navigate,
     active: () => active,
     pageIds: () => data.order.slice(),
-    sourceIds: () => activeSourceIds.slice(),
-    openSources: () => showSources(page().sourceIds, page().label),
-    closeSources,
     frame: () => frame.contentWindow,
-    openMeaning: () => showMeaning(),
-    closeMeaning: closeSources,
+    openInspect: (graphicId) => showInspector(graphicId),
+    closeInspect: closeInspector,
   };
   try {
     if (!location.hash) setLocation(data.overview, true);
@@ -397,8 +464,57 @@ function shell(input, data) {
     .join('\n');
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>${escapeHtml(input.title)} — Interactive architecture</title><style>
-:root{color-scheme:light;--paper:#f3f0e8;--panel:#faf8f2;--ink:#26362f;--muted:#636e67;--rule:#c8c7bb;--accent:#456a59;--warm:#9b7145}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}body{display:grid;grid-template-rows:auto minmax(0,1fr)}header{display:grid;grid-template-columns:minmax(13rem,1fr) minmax(0,4fr) auto;align-items:center;gap:1rem;padding:.72rem 1rem;border-bottom:1px solid var(--rule);background:color-mix(in srgb,var(--panel) 94%,transparent)}.identity{min-width:0}.identity strong{display:block;font:600 clamp(.82rem,1.2vw,1rem)/1.25 system-ui,sans-serif;letter-spacing:.01em}.identity small,#interactive-page-label{color:var(--muted);font-size:.68rem}.chapters{display:flex;min-width:0;gap:.34rem;overflow-x:auto;scrollbar-width:thin;padding:.1rem}.chapters button,#interactive-sources,#interactive-meaning,#interactive-source-close,#interactive-source-list button{border:1px solid transparent;background:transparent;color:var(--muted);font:600 .69rem/1.2 inherit;cursor:pointer}.chapters button{white-space:nowrap;padding:.42rem .58rem;border-radius:.35rem}.chapters button:hover,.chapters button:focus-visible,.chapters button[aria-current="page"]{border-color:var(--rule);background:var(--panel);color:var(--ink);outline:none}.actions{display:flex;align-items:center;gap:.65rem}#interactive-sources,#interactive-meaning{padding:.5rem .7rem;border-color:var(--rule);border-radius:.35rem;color:var(--accent)}#interactive-sources:focus-visible,#interactive-meaning:focus-visible,#interactive-source-close:focus-visible,#interactive-source-list button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}main{position:relative;min-height:0}iframe{display:block;width:100%;height:100%;border:0;background:var(--paper)}#interactive-error{margin:2rem;padding:1rem;border-left:3px solid #8b443c;background:var(--panel)}[hidden]{display:none!important}aside{position:fixed;z-index:10;inset:4.2rem 1rem 1rem auto;width:min(34rem,calc(100vw - 2rem));display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:.8rem;padding:1rem;border:1px solid var(--rule);border-radius:.55rem;background:rgba(250,248,242,.98);box-shadow:0 1.2rem 3.4rem rgba(38,54,47,.18)}aside>*{min-width:0}aside>section{display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0;min-height:0;overflow:hidden}.source-head{display:flex;justify-content:space-between;align-items:start;gap:1rem}.source-head strong{display:block;font:600 1rem/1.25 system-ui,sans-serif}.source-head small,#interactive-source-meta{display:block;color:var(--muted);font-size:.66rem;margin-top:.25rem}#interactive-source-close{font-size:1.2rem;color:var(--ink)}#interactive-source-list{display:flex;gap:.35rem;overflow-x:auto;padding:.1rem}#interactive-source-list button{display:grid;gap:.16rem;min-width:10rem;text-align:left;padding:.48rem .58rem;border-color:var(--rule);border-radius:.35rem}#interactive-source-list button strong{color:var(--ink);font-size:.68rem}#interactive-source-list button small{color:var(--muted);font-size:.58rem;white-space:normal}#interactive-source-list button[aria-current="true"]{border-color:var(--accent);background:#edf1ea}pre{margin:0;width:100%;max-width:100%;height:100%;min-width:0;min-height:0;overflow:auto;padding:.85rem;border:1px solid var(--rule);border-radius:.4rem;background:#ebe8df;color:#2c3932;font:500 .68rem/1.55 inherit;white-space:pre;tab-size:2}aside[data-mode="meaning"]{grid-template-rows:auto minmax(0,1fr)}#interactive-facts{min-height:0;overflow:auto;display:grid;align-content:start;gap:1rem}#interactive-facts article{padding:.8rem;border:1px solid var(--rule);border-radius:.4rem;background:var(--panel)}#interactive-facts h3{margin:0 0 .7rem;font:600 .84rem/1.35 system-ui,sans-serif}#interactive-facts dl{display:grid;grid-template-columns:minmax(7rem,.7fr) minmax(0,1.3fr);gap:.4rem .8rem;margin:0}#interactive-facts dt{font-size:.65rem;color:var(--muted)}#interactive-facts dd{margin:0;font-size:.68rem;line-height:1.45;overflow-wrap:anywhere}@media(max-width:900px){header{grid-template-columns:1fr auto}.chapters{grid-column:1/-1;grid-row:2}.identity small{display:none}aside{inset:7.8rem .5rem .5rem;width:calc(100vw - 1rem)}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
-</style></head><body><header><div class="identity"><strong>${escapeHtml(input.title)}</strong><small id="interactive-page-label"></small></div><nav class="chapters" aria-label="Interactive chapters">${navigation}</nav><div class="actions"><button id="interactive-meaning" type="button" aria-expanded="false" aria-controls="interactive-source-panel">Selected meaning</button><button id="interactive-sources" type="button" aria-expanded="false" aria-controls="interactive-source-panel">Source references</button></div></header><main><p id="interactive-error" hidden></p><iframe id="interactive-frame" title="${escapeHtml(input.title)} interactive architecture" sandbox="allow-scripts allow-downloads"></iframe></main><aside id="interactive-source-panel" hidden role="dialog" aria-labelledby="interactive-source-title"><div class="source-head"><span><strong id="interactive-source-title">Source references</strong><small id="interactive-source-context"></small></span><button id="interactive-source-close" type="button" aria-label="Close source inspection">×</button></div><div id="interactive-source-list"></div><section id="interactive-source-section"><small id="interactive-source-meta"></small><pre id="interactive-source-code" tabindex="0"></pre></section><div id="interactive-facts" hidden></div></aside><noscript>This interactive architecture requires JavaScript. Pages and source references are embedded; source bytes are not.</noscript><script id="architecture-interactive-data" type="application/json">${scriptJson(data)}</script><script>(${interactiveReader.toString()})();</script></body></html>\n`;
+:root { color-scheme: light; --paper: #f3f0e8; --panel: #faf8f2; --ink: #26362f; --muted: #58675e; --rule: #c8c7bb; --accent: #456a59; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--paper); color: var(--ink); font-family: system-ui, -apple-system, sans-serif; }
+body { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+header { display: grid; grid-template-columns: minmax(13rem, 1fr) minmax(0, 4fr) auto; align-items: center; gap: 1rem; padding: .72rem 1rem; border-bottom: 1px solid var(--rule); background: color-mix(in srgb, var(--panel) 94%, transparent); }
+.identity { min-width: 0; }
+.identity strong { display: block; font: 600 clamp(.82rem, 1.2vw, 1rem)/1.25 system-ui, sans-serif; letter-spacing: .01em; }
+.identity small, #interactive-page-label { color: var(--muted); font-size: .68rem; }
+.chapters { display: flex; min-width: 0; gap: .34rem; overflow-x: auto; scrollbar-width: thin; padding: .1rem; }
+.chapters button, #interactive-inspect, #interactive-inspect-back, #interactive-inspect-index button { border: 1px solid transparent; background: transparent; color: var(--muted); font: 600 .74rem/1.3 system-ui, sans-serif; cursor: pointer; }
+.chapters button { white-space: nowrap; padding: .42rem .58rem; border-radius: .35rem; }
+.chapters button:hover, .chapters button[aria-current="page"] { border-color: var(--rule); background: var(--panel); color: var(--ink); }
+.actions { display: flex; align-items: center; }
+#interactive-inspect, #interactive-inspect-back { padding: .5rem .75rem; border-color: var(--rule); border-radius: .35rem; color: var(--accent); background: var(--panel); }
+button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+main { position: relative; min-height: 0; }
+iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--paper); }
+main[data-reading="inspect"] iframe { visibility: hidden; pointer-events: none; }
+#interactive-error { margin: 2rem; padding: 1rem; border-left: 3px solid #8b443c; background: var(--panel); }
+[hidden] { display: none !important; }
+#interactive-inspector { position: absolute; inset: 0; z-index: 2; overflow: auto; padding: clamp(1.25rem, 2.7vw, 2.6rem); background: var(--paper); }
+.inspect-shell { max-width: 1320px; margin: 0 auto; }
+.inspect-head { display: flex; align-items: start; justify-content: space-between; gap: 2rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--rule); }
+.inspect-head p { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+.inspect-head h1 { margin: .22rem 0 .35rem; font: 600 clamp(1.4rem, 2.3vw, 2.1rem)/1.18 system-ui, sans-serif; letter-spacing: -.02em; }
+.inspect-head .inspect-eyebrow { color: var(--accent); font: 600 .68rem/1.2 system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+#interactive-inspect-back { white-space: nowrap; }
+.inspect-layout { display: grid; grid-template-columns: minmax(15rem, 20rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: start; padding-top: 1.5rem; }
+.inspect-navigation, .inspect-reading { min-width: 0; }
+.inspect-navigation label { display: block; margin: 0 0 .55rem; color: var(--muted); font-size: .72rem; font-weight: 600; }
+#interactive-inspect-search { display: block; width: 100%; min-height: 2.4rem; margin-bottom: .8rem; padding: .45rem .65rem; border: 1px solid var(--rule); border-radius: .35rem; background: var(--panel); color: var(--ink); font: .82rem/1.35 system-ui, sans-serif; }
+#interactive-inspect-index { display: grid; gap: .3rem; max-height: calc(100vh - 17rem); overflow: auto; padding: .1rem .2rem .1rem .1rem; }
+#interactive-inspect-index button { display: grid; gap: .18rem; width: 100%; padding: .7rem .75rem; border-color: var(--rule); border-radius: .35rem; text-align: left; background: var(--panel); }
+#interactive-inspect-index button:hover, #interactive-inspect-index button[aria-current="true"] { border-color: var(--accent); background: #ebf0e9; color: var(--ink); }
+#interactive-inspect-index strong { font-size: .78rem; font-weight: 600; line-height: 1.4; }
+#interactive-inspect-index small { color: var(--muted); font-size: .67rem; }
+#interactive-inspect-empty { margin: .7rem 0 0; color: var(--muted); font-size: .78rem; }
+#interactive-inspect-content { display: grid; align-content: start; gap: .55rem; }
+.inspect-intro { margin: 0 0 .55rem; max-width: 65ch; color: var(--muted); font-size: .86rem; line-height: 1.55; }
+#interactive-inspect-content details, #interactive-inspect-basis details { min-width: 0; border: 1px solid var(--rule); border-radius: .4rem; background: var(--panel); }
+#interactive-inspect-content summary, #interactive-inspect-basis summary { padding: .75rem .9rem; color: var(--ink); font-size: .82rem; font-weight: 600; line-height: 1.4; cursor: pointer; }
+#interactive-inspect-content details[open] summary, #interactive-inspect-basis details[open] summary { border-bottom: 1px solid var(--rule); }
+#interactive-inspect-content dl, #interactive-inspect-basis dl { display: grid; grid-template-columns: minmax(9rem, .7fr) minmax(0, 1.3fr); gap: .5rem 1rem; margin: 0; padding: .85rem .9rem 1rem; }
+#interactive-inspect-content dt, #interactive-inspect-basis dt { color: var(--muted); font-size: .72rem; line-height: 1.45; }
+#interactive-inspect-content dd, #interactive-inspect-basis dd { min-width: 0; margin: 0; overflow-wrap: anywhere; font-size: .78rem; line-height: 1.45; }
+#interactive-inspect-basis { margin: 0 0 1.2rem; }
+#interactive-inspect-basis p { margin: 0; padding: .75rem .9rem 0; color: var(--muted); font-size: .76rem; line-height: 1.5; }
+#interactive-inspect-basis dl + dl { border-top: 1px solid var(--rule); }
+@media (max-width: 900px) { header { grid-template-columns: 1fr auto; } .chapters { grid-column: 1 / -1; grid-row: 2; } .identity small { display: none; } .inspect-layout { grid-template-columns: minmax(0, 1fr); } #interactive-inspect-index { grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); max-height: none; overflow: visible; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
+</style></head><body><header><div class="identity"><strong>${escapeHtml(input.title)}</strong><small id="interactive-page-label"></small></div><nav class="chapters" aria-label="Interactive chapters">${navigation}</nav><div class="actions"><button id="interactive-inspect" type="button" aria-expanded="false" aria-controls="interactive-inspector">Inspect</button></div></header><main id="interactive-main"><p id="interactive-error" hidden></p><iframe id="interactive-frame" title="${escapeHtml(input.title)} interactive architecture" sandbox="allow-scripts allow-downloads"></iframe><section id="interactive-inspector" hidden aria-labelledby="interactive-inspect-title"><div class="inspect-shell"><div class="inspect-head"><div><p class="inspect-eyebrow">Selected meaning</p><h1 id="interactive-inspect-title">Inspect this diagram</h1><p id="interactive-inspect-context"></p></div><button id="interactive-inspect-back" type="button">Back to diagram</button></div><div class="inspect-layout"><div class="inspect-navigation"><label for="interactive-inspect-search">Find a component or relationship</label><input id="interactive-inspect-search" type="search" autocomplete="off"><nav id="interactive-inspect-index" aria-label="Diagram subjects"></nav><p id="interactive-inspect-empty" hidden>No matching subject.</p></div><div class="inspect-reading"><div id="interactive-inspect-basis"></div><div id="interactive-inspect-content"></div></div></div></div></section></main><noscript>This interactive architecture requires JavaScript for navigation and inspection; source files are not embedded.</noscript><script id="architecture-interactive-data" type="application/json">${scriptJson(data)}</script><script>(${interactiveReader.toString()})();</script></body></html>\n`;
 }
 
 function composeDocument(input) {

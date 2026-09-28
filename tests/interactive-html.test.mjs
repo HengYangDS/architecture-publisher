@@ -96,11 +96,13 @@ test('one interactive HTML contract binds exact pages and source metadata withou
     assert.deepEqual(selected.subjectSources, page.subjectSources);
   }
   assert.match(text, /data-interactive-page="overview"/u);
-  assert.match(text, /id="interactive-sources"/u);
+  assert.match(text, /id="interactive-inspect"/u);
+  assert.match(text, /id="interactive-inspector"/u);
+  assert.doesNotMatch(text, /id="interactive-sources"|id="interactive-meaning"/u);
+  assert.doesNotMatch(text, /id="interactive-source-code"|Source bytes are not embedded\./u);
   assert.match(text, /<link rel="icon" href="data:,">/u);
   assert.match(text, /window\.__architectureInteractive/u);
   assert.match(text, /sandbox="allow-scripts allow-downloads"/u);
-  assert.match(text, /Source bytes are not embedded/u);
   assert.doesNotMatch(text, /(?:Atlas|atlas|allow-same-origin)/u);
 });
 

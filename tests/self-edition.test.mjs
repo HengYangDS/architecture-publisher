@@ -1123,17 +1123,96 @@ test('the installed self Edition compiles both media after its author package is
         await frame.waitForSelector('svg', { timeout: 8_000 });
         assert.equal((await frame.locator('svg[role="group"]').count()) > 0, true, id);
       }
-      await page.getByRole('button', { name: 'Selected meaning' }).click();
-      assert.match(await page.locator('#interactive-facts').innerText(), /Claim plane/u);
-      await page.keyboard.press('Escape');
+      await page.getByRole('button', { name: 'Overview', exact: true }).click();
+      const inspect = page.getByRole('button', { name: 'Inspect', exact: true });
+      await inspect.focus();
+      await page.keyboard.press('Enter');
+      const inspector = page.locator('#interactive-inspector');
+      assert.equal(await inspector.isVisible(), true);
       assert.equal(
-        await page.getByRole('button', { name: 'Selected meaning' }).getAttribute('aria-expanded'),
-        'false',
+        await inspector.evaluate(() => {
+          const basis = globalThis.document.getElementById('interactive-inspect-basis');
+          const records = globalThis.document.getElementById('interactive-inspect-content');
+          return Boolean(
+            basis.compareDocumentPosition(records) & globalThis.Node.DOCUMENT_POSITION_FOLLOWING,
+          );
+        }),
+        true,
       );
-      await page.getByRole('button', { name: 'Source references' }).click();
+      assert.equal(
+        await inspector.evaluate((element) => element.scrollWidth <= element.clientWidth),
+        true,
+      );
+      assert.equal(await page.locator('#interactive-frame').getAttribute('aria-hidden'), 'true');
+      assert.equal(
+        await page
+          .locator('#interactive-frame')
+          .evaluate((frame) => globalThis.getComputedStyle(frame).visibility),
+        'hidden',
+      );
+      const index = page.locator('#interactive-inspect-index button');
+      assert.equal(
+        await index.count(),
+        new Set(data.pages.overview.facts.map(({ graphicId }) => graphicId)).size,
+      );
+      const firstGraphicId = await index.first().getAttribute('data-graphic-id');
+      assert.equal(
+        await page.locator('#interactive-inspect-content details').count(),
+        data.pages.overview.facts.filter((fact) => fact.graphicId === firstGraphicId).length,
+      );
+      assert.equal(await page.locator('[data-fact-reference]').count(), 0);
+      assert.equal(await index.first().getAttribute('aria-current'), 'true');
+      await page.locator('#interactive-inspect-search').fill('Claim Model');
+      const visibleIndex = page.locator('#interactive-inspect-index button:visible');
+      assert.equal((await visibleIndex.count()) > 0, true);
+      assert.equal((await visibleIndex.count()) < (await index.count()), true);
+      await page.locator('#interactive-inspect-search').fill('no matching architecture subject');
+      assert.equal(await visibleIndex.count(), 0);
+      assert.equal(await page.locator('#interactive-inspect-empty').isVisible(), true);
+      await page.locator('#interactive-inspect-search').fill('');
+      assert.equal(await page.locator('#interactive-inspect-empty').isVisible(), false);
+      assert.deepEqual(await violations(page), []);
+      let reachableFacts = 0;
+      for (let item = 0; item < (await index.count()); item += 1) {
+        const selected = index.nth(item);
+        const graphicId = await selected.getAttribute('data-graphic-id');
+        await selected.click();
+        const found = await page.locator('#interactive-inspect-content details').count();
+        assert.equal(
+          found,
+          data.pages.overview.facts.filter((fact) => fact.graphicId === graphicId).length,
+          graphicId,
+        );
+        reachableFacts += found;
+      }
+      assert.equal(reachableFacts, data.pages.overview.facts.length);
+      await page.locator('#interactive-inspect-basis summary').click();
       assert.match(
-        await page.locator('#interactive-source-code').innerText(),
-        /Source bytes are not embedded/u,
+        await page.locator('#interactive-inspect-basis').innerText(),
+        /architecture-publisher\/self/u,
+      );
+      await page.keyboard.press('Escape');
+      assert.equal(await inspector.isVisible(), false);
+      assert.equal(await page.locator('#interactive-frame').getAttribute('aria-hidden'), null);
+      assert.equal(await inspect.getAttribute('aria-expanded'), 'false');
+      assert.equal(
+        await inspect.evaluate((element) => globalThis.document.activeElement === element),
+        true,
+      );
+      await inspect.click();
+      await page.getByRole('button', { name: 'Back to diagram' }).click();
+      assert.equal(await inspector.isVisible(), false);
+      const overviewFrame = page.frames().find((item) => item.parentFrame() === page.mainFrame());
+      await overviewFrame.locator('[data-node-id="source"][tabindex="0"]').first().focus();
+      await page.keyboard.press('i');
+      assert.equal(await inspector.isVisible(), true);
+      await page.keyboard.press('Escape');
+      assert.equal(await inspector.isVisible(), false);
+      assert.equal(
+        await overviewFrame.evaluate(() =>
+          globalThis.document.activeElement?.getAttribute('data-node-id'),
+        ),
+        'source',
       );
       assert.deepEqual(errors, []);
       assert.equal(
