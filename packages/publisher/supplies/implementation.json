@@ -778,8 +778,8 @@
     "interactive-neutral": [
       {
         "path": "renderers/cytoscape/edition.mjs",
-        "bytes": 25082,
-        "sha256": "cacb1c7278d5b2a26e6b1f24fae4b718d81afa727d131af971c193f71f45eeac"
+        "bytes": 25113,
+        "sha256": "c587d253660e3de8504d38c04cce181388591dc08f89253e23986bda47bd4d94"
       },
       {
         "path": "renderers/cytoscape/model.mjs",

@@ -39,6 +39,11 @@ test('one exact Build Request yields location-independent sibling media and a co
   assert.match(svg.toString('utf8'), /Alpha/u);
   assert.doesNotMatch(svg.toString('utf8'), /fixture\/model|fixture\/views/u);
   assert.match(html.toString('utf8'), /What is connected\?/u);
+  assert.equal(
+    html.includes(Buffer.from('<link rel="icon" href="data:,">')),
+    true,
+    'successor HTML must not request an implicit favicon',
+  );
   assert.doesNotMatch(html.toString('utf8'), /fixture\/model|fixture\/views/u);
   const contents = new Map([
     ['static/architecture.svg', svg],
