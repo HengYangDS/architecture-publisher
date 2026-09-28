@@ -1008,6 +1008,103 @@ test('claim condition and plane changes alter both visible media without changin
   assert.match(built[2].html, /<dd>observed<\/dd>/u);
 });
 
+test('intended and implemented disagreement remains two attributed visible claims', async (t) => {
+  const model = claimModel();
+  model.claims.implemented.validity = 'refuted';
+  const selected = await fixture(t, { model });
+  selected.project.questions[0].text = 'How do intended and implemented calls differ?';
+  selected.project.scope.selections.push({
+    id: 'implemented-claim',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'claim:implemented',
+    questions: ['condition'],
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  assert.deepEqual(
+    meaning.native.selections.map(({ target }) => target.id),
+    ['intended', 'implemented'],
+  );
+  for (const scene of [
+    composeStaticEditionScene(meaning, null),
+    composeInteractiveEditionScene(meaning).pages[0],
+  ]) {
+    assert.equal(scene.claimCards.length, 2);
+    assert.deepEqual(
+      scene.sourceAssertionCarriers.map(({ claimRefs }) => claimRefs[0].reference),
+      ['intended', 'implemented'],
+    );
+  }
+
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  for (const phrase of [
+    'Claim plane: intended',
+    'Claim plane: implemented',
+    'Claimant-declared validity: affirmed',
+    'Claimant-declared validity: refuted',
+  ])
+    assert(svg.includes(phrase), `static claim omits ${phrase}`);
+  for (const value of ['intended', 'implemented', 'affirmed', 'refuted'])
+    assert.match(html, new RegExp(`<dd>${value}<\\/dd>`, 'u'));
+});
+
+test('two source claimants can disagree without merging equal native claim IDs', async (t) => {
+  const selected = await fixture(t);
+  const otherNamespace = 'fixture/other-claims';
+  const otherModel = claimModel();
+  otherModel.owner = 'example:other-system';
+  otherModel.claims.intended.validity = 'refuted';
+  const otherBytes = Buffer.from(JSON.stringify(otherModel) + '\n');
+  await fs.writeFile(path.join(selected.root, 'sources/other-model.json'), otherBytes);
+
+  const request = JSON.parse(await fs.readFile(selected.requestPath, 'utf8'));
+  request.sources.push({
+    id: 'other-model',
+    namespace: otherNamespace,
+    format: modelFormat,
+    claimant: 'other-maintainer',
+    revision: { kind: 'content', algorithm: 'sha256' },
+    input: { kind: 'pin', path: 'sources/other-model.json', sha256: sha(otherBytes) },
+  });
+  const requestBytes = Buffer.from(JSON.stringify(request) + '\n');
+  await fs.writeFile(selected.requestPath, requestBytes);
+  selected.project.scope.sourceNamespaces.push(otherNamespace);
+  selected.project.scope.selections.push({
+    id: 'other-source-claim',
+    namespace: otherNamespace,
+    kind: 'reference',
+    reference: 'claim:intended',
+    questions: ['condition'],
+  });
+  selected.project.questions[0].text = 'How do the two claimants differ?';
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, sha(requestBytes), output);
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  for (const claimant of ['fixture-maintainer', 'other-maintainer']) {
+    assert(svg.includes(`Selected claimant: ${claimant}`));
+    assert.match(html, new RegExp(`<dd>${claimant}<\\/dd>`, 'u'));
+  }
+  for (const validity of ['affirmed', 'refuted']) {
+    assert(svg.includes(`Claimant-declared validity: ${validity}`));
+    assert.match(html, new RegExp(`<dd>${validity}<\\/dd>`, 'u'));
+  }
+});
+
 test('ungrouped Claim Model entity and relation selections fail closed', async (t) => {
   for (const reference of ['entity:client', 'relation:request']) {
     const selected = await fixture(t, { reference });

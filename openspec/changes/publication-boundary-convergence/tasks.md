@@ -348,6 +348,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       supplies, selections, and source-qualified references. Relation locator
       bounds are checked before converting one-based positions, preventing an
       overflowed decimal from rounding into an apparently safe zero-based index.
+      Two public-build counterexamples now retain intended-versus-implemented
+      disagreement and equal native claim IDs from distinct source claimants
+      as separate, attributed claims in both emitted media. This establishes
+      structural and rendered-text preservation, not source truth, human
+      adequacy, explicit lineage, or full conflict presentation.
 - [ ] 4.3 Extend `packages/publisher/src/semantics/change.mjs` and
       `packages/publisher/src/edition/evolution.mjs`;
       `tests/native-evolution.test.mjs` must detect
