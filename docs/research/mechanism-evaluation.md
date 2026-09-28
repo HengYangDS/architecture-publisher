@@ -89,8 +89,10 @@ runtime, and a general constraint solver. The present bottleneck is required
 media work, not semantic dependency traversal. No consumer exhibited a
 persistence failure, irreducible query, or unsatisfiable finite composition.
 Reopen a decision only with a named failing consumer case and a benchmark that
-demonstrates lower total ownership cost. Exact observations and report digests
-are bound in `conformance/fixtures/first-party-contract-matrix.json`.
+demonstrates lower total ownership cost. The fixed 0.2/alpha.1 observations and
+report digests are retained in
+`conformance/evidence/first-party-contract-matrix.json`; they are historical
+evidence, not current cross-product acceptance.
 
 ## Mechanism-wiring audit rule
 

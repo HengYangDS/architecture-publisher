@@ -29,9 +29,9 @@ function gitBlob(revision, file) {
   return result.stdout;
 }
 
-test('the first-party matrix binds all consumers to one exact generic package', async (t) => {
+test('the historical first-party matrix replays fixed source and adopter observations', async (t) => {
   const matrix = await json(
-    path.join(root, 'conformance/fixtures/first-party-contract-matrix.json'),
+    path.join(root, 'conformance/evidence/first-party-contract-matrix.json'),
   );
   assert.equal(matrix.schema, 'architecture.publisher-first-party-contract-matrix/v4');
   assert.equal(matrix.publisher.package.name, 'architecture-publisher');
