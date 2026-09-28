@@ -177,8 +177,8 @@ Provider manifests, packages, and declared Provider inputs are checked before
 either executable runs. Process supervision does not sandbox a Provider, and
 concurrent mutation or undeclared reads remain explicit limits.
 The historical `architecture.semantic-compare-input/v2` selects exact
-before/after Claim Models, Edition sets, and explicit correspondences. The pure
-compiler returns separate obligations for:
+before/after Claim Models, Edition sets, and explicit correspondences. The
+impact compiler returns separate obligations for:
 
 - rebuild;
 - semantic verification;
@@ -187,9 +187,15 @@ compiler returns separate obligations for:
 - acceptance;
 - publication or withdrawal.
 
-It performs none of those effects. Unknown or unrepresented meaning broadens
-work. Rename, split, and merge evidence preserves lineage but never transfers
-approval.
+It performs none of those obligations, although a separately selected
+executable Provider runs during input preparation. In v3,
+`delta.execution.providerPackages` distinguishes added, removed, and changed
+verified Provider package contents from source and native meaning changes. A
+package-only change renews all selected-question semantic verification and
+acceptance/publication planning without itself requiring a media redraw or
+human visual review. It does not prove hermetic Provider execution. Unknown or
+unrepresented meaning broadens work. Rename, split, and merge evidence
+preserves lineage but never transfers approval.
 
 ### Rendering
 

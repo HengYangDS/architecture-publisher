@@ -417,9 +417,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       pass. `npm run check` passes with 97.95% statements/lines, 95.05%
       branches, and 99.53% functions; strict OpenSpec validates 17/17 and
       publint passes. This is source-Lane evidence, not a frozen package,
-      exact-HEAD proof, hosted CI, or Provider sandbox. Open: full-model
-      dependency precision, package-only change evidence, final installed
-      platform parity, and Task 7.5 release acceptance.
+      exact-HEAD proof, hosted CI, or Provider sandbox. A further RED/GREEN
+      now distinguishes checked executable Provider package-content changes
+      from an unchanged source lock and native meaning. It reports exact
+      before/after package identities under `delta.execution`, renews all
+      selected-question semantic verification and acceptance/publication
+      obligations, but creates no media redraw or human visual review from
+      package bytes alone. Relocation with unchanged package bytes remains a
+      no-op; malformed or duplicate execution evidence fails. The packed,
+      offline-installed public CLI reproduces the package-only classification
+      after relocation. The local full check passes 1,266 tests, eight declared
+      skips and zero failures, with 97.97/95.04/99.53/97.97% statements,
+      branches, functions and lines. Exact-HEAD proof, hosted CI, full-model
+      dependency precision, final installed-platform parity and Task 7.5
+      release acceptance remain open.
 
 ## 5. Editorial composition and independent media
 

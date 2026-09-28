@@ -984,6 +984,82 @@ test('native evolution selects executable Providers independently on both sides'
   assert.deepEqual(JSON.parse(cli.stdout), result);
 });
 
+test('a Provider package-only change renews semantic verification without redrawing media', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  const prior = await executableModelProvider(before);
+  const next = await executableModelProvider(after);
+  const priorPackage = JSON.parse(
+    await fs.readFile(path.join(before.root, 'provider/provider.json'), 'utf8'),
+  ).delivery.package.contentSha256;
+  const nextPackage = JSON.parse(
+    await fs.readFile(path.join(after.root, 'provider/provider.json'), 'utf8'),
+  ).delivery.package.contentSha256;
+  assert.notEqual(priorPackage, nextPackage);
+  const selected = await comparisonPlan(t, before, after);
+  const result = await compareEvolutionInput(selected.file, selected.digest, {
+    before: [{ id: 'model-provider', manifestSha256: prior.manifestSha256 }],
+    after: [{ id: 'model-provider', manifestSha256: next.manifestSha256 }],
+  });
+  assert.equal(result.delta.native.hasChanges, false);
+  assert.deepEqual(result.delta.execution.providerPackages, {
+    added: [],
+    removed: [],
+    changed: [{ id: 'model-provider', beforeSha256: priorPackage, afterSha256: nextPackage }],
+  });
+  assert.deepEqual(result.editions.changed, ['selected-atlas']);
+  assert.deepEqual(
+    result.obligations.rebuild.map(({ target }) => target),
+    ['publication-bundle'],
+  );
+  assert.deepEqual(result.obligations.mediumVerification, []);
+  assert.deepEqual(result.obligations.humanReview, []);
+  assert.deepEqual(result.obligations.semanticVerification[0].questions, ['shape']);
+  assert.deepEqual(
+    result.obligations.acceptance.map(({ action }) => action),
+    ['reaccept'],
+  );
+  assert.deepEqual(
+    result.obligations.publication.map(({ action }) => action),
+    ['replace'],
+  );
+});
+
+test('a relocated unchanged executable Provider package creates no evolution obligation', async (t) => {
+  const fixture = await selectedNativeEdition(t);
+  const provider = await executableModelProvider(fixture);
+  const selected = await comparisonPlan(t, fixture, fixture);
+  const choice = [{ id: 'model-provider', manifestSha256: provider.manifestSha256 }];
+  const result = await compareEvolutionInput(selected.file, selected.digest, {
+    before: choice,
+    after: choice,
+  });
+  assert.deepEqual(result.delta.execution.providerPackages, {
+    added: [],
+    removed: [],
+    changed: [],
+  });
+  assert.deepEqual(result.editions.changed, []);
+  assert(Object.values(result.obligations).every((items) => items.length === 0));
+});
+
+test('package-only evolution refuses malformed or ambiguous execution evidence', async (t) => {
+  const fixture = await selectedNativeEdition(t);
+  const side = await snapshot(fixture);
+  for (const before of [
+    [{ id: 'model-provider', sha256: 'not-a-digest' }],
+    [
+      { id: 'model-provider', sha256: sha('first') },
+      { id: 'model-provider', sha256: sha('second') },
+    ],
+  ]) {
+    assert.throws(
+      () => compileNativeEditionEvolution({ before: side, after: side }, { before, after: [] }),
+      { code: 'native_evolution_execution_invalid' },
+    );
+  }
+});
+
 test('native evolution validates both executable selections before either Provider runs', async (t) => {
   const before = await selectedNativeEdition(t);
   const after = await selectedNativeEdition(t);

@@ -7,6 +7,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import {
+  executableModelProvider,
   moveModelToProvider,
   selectedNativeEdition,
   sha,
@@ -121,6 +122,7 @@ test('offline installed evolution compares relocated native inputs and rejects c
     expectedStatus = 0,
     relativePlan = 'inputs/comparison.json',
     selectedDigest = digest,
+    extraArgs = [],
   ) =>
     JSON.parse(
       child(
@@ -132,6 +134,7 @@ test('offline installed evolution compares relocated native inputs and rejects c
           path.join(directory, relativePlan),
           '--sha256',
           selectedDigest,
+          ...extraArgs,
         ],
         directory,
         nodeEnvironment,
@@ -148,6 +151,54 @@ test('offline installed evolution compares relocated native inputs and rejects c
   const relocated = path.join(work, 'relocated');
   await fs.rename(consumer, relocated);
   assert.deepEqual(run(relocated), first);
+
+  const executable = [];
+  for (const side of ['before', 'after']) {
+    const root = path.join(relocated, `inputs/executable-${side}`);
+    await fs.cp(path.join(relocated, 'inputs/before'), root, { recursive: true });
+    const fixture = {
+      ...before,
+      root,
+      file: path.join(root, 'build-request.json'),
+      request: structuredClone(before.request),
+    };
+    const selected = await executableModelProvider(fixture);
+    executable.push({ fixture, selected });
+  }
+  const [executableBefore, executableAfter] = executable;
+  const executionPlan = {
+    schema: 'architecture.semantic-compare-input/v3',
+    before: {
+      request: {
+        path: 'executable-before/build-request.json',
+        sha256: executableBefore.fixture.digest,
+      },
+    },
+    after: {
+      request: {
+        path: 'executable-after/build-request.json',
+        sha256: executableAfter.fixture.digest,
+      },
+    },
+  };
+  const executionPlanBytes = Buffer.from(JSON.stringify(executionPlan) + '\n');
+  await fs.writeFile(path.join(relocated, 'inputs/execution-comparison.json'), executionPlanBytes);
+  const execution = run(relocated, 0, 'inputs/execution-comparison.json', sha(executionPlanBytes), [
+    '--execute-before-providers',
+    `model-provider@${executableBefore.selected.manifestSha256}`,
+    '--execute-after-providers',
+    `model-provider@${executableAfter.selected.manifestSha256}`,
+  ]);
+  assert.equal(execution.delta.native.hasChanges, false);
+  assert.deepEqual(execution.delta.execution.providerPackages.added, []);
+  assert.deepEqual(execution.delta.execution.providerPackages.removed, []);
+  assert.deepEqual(
+    execution.delta.execution.providerPackages.changed.map(({ id }) => id),
+    ['model-provider'],
+  );
+  assert.deepEqual(execution.obligations.mediumVerification, []);
+  assert.deepEqual(execution.obligations.humanReview, []);
+  assert.deepEqual(execution.obligations.semanticVerification[0].questions, ['shape']);
 
   const providerRoot = path.join(relocated, 'inputs/after-provider');
   await fs.cp(path.join(relocated, 'inputs/after'), providerRoot, { recursive: true });

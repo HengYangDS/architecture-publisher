@@ -1,5 +1,6 @@
 import { canonical, exact, record } from '../semantics/document.mjs';
 import { compileClaimModelDelta, compileNativeSelectionDelta } from '../semantics/change.mjs';
+import { isDigest } from '../source/manifest.mjs';
 import { inspectEditionForEvolution, normalizedEdition } from './contract.mjs';
 
 const obligationKeys = Object.freeze([
@@ -638,6 +639,43 @@ function nativeEvolutionSide(value) {
   return value;
 }
 
+function packageSide(rows) {
+  if (!Array.isArray(rows) || rows.length > 256)
+    evolutionError('native_evolution_execution_invalid');
+  const packages = new Map();
+  for (const row of rows) {
+    if (
+      !exact(row, ['id', 'sha256']) ||
+      typeof row.id !== 'string' ||
+      !row.id ||
+      !isDigest(row.sha256) ||
+      packages.has(row.id)
+    )
+      evolutionError('native_evolution_execution_invalid');
+    packages.set(row.id, row.sha256);
+  }
+  return packages;
+}
+
+function providerPackageChanges(value) {
+  if (!exact(value, ['before', 'after'])) evolutionError('native_evolution_execution_invalid');
+  const before = packageSide(value.before);
+  const after = packageSide(value.after);
+  const changes = /** @type {{
+    added: {id: string, sha256: string}[],
+    removed: {id: string, sha256: string}[],
+    changed: {id: string, beforeSha256: string, afterSha256: string}[]
+  }} */ ({ added: [], removed: [], changed: [] });
+  for (const id of sorted([...before.keys(), ...after.keys()])) {
+    const prior = before.get(id);
+    const next = after.get(id);
+    if (!prior) changes.added.push({ id, sha256: next });
+    else if (!next) changes.removed.push({ id, sha256: prior });
+    else if (prior !== next) changes.changed.push({ id, beforeSha256: prior, afterSha256: next });
+  }
+  return changes;
+}
+
 function nativeReasons(delta, before, after, authoredChanged, mediaChanges) {
   const reasons = [];
   for (const kind of ['added', 'removed', 'changed'])
@@ -680,7 +718,10 @@ function globalEditorial(meaning) {
 }
 
 /** Plan obligations from already compiled native meaning; this function executes no effect. */
-export function compileNativeEditionEvolution(input) {
+export function compileNativeEditionEvolution(
+  input,
+  executionPackages = { before: [], after: [] },
+) {
   if (!exact(input, ['before', 'after'])) evolutionError('native_evolution_input_invalid');
   const before = nativeEvolutionSide(input.before);
   const after = nativeEvolutionSide(input.after);
@@ -692,6 +733,8 @@ export function compileNativeEditionEvolution(input) {
     { lock: before.lock, native: before.meaning.native },
     { lock: after.lock, native: after.meaning.native },
   );
+  const providerPackages = providerPackageChanges(executionPackages);
+  const packageChanged = Object.values(providerPackages).some((items) => items.length > 0);
   const globalEditorialChanged = different(
     globalEditorial(before.meaning),
     globalEditorial(after.meaning),
@@ -728,6 +771,7 @@ export function compileNativeEditionEvolution(input) {
   const editionBytesChanged = before.meaning.edition.sha256 !== after.meaning.edition.sha256;
   const changed =
     delta.hasChanges ||
+    packageChanged ||
     authoredChanged ||
     lockChanged ||
     mediaChanges.added.length > 0 ||
@@ -831,20 +875,26 @@ export function compileNativeEditionEvolution(input) {
     }
     for (const mediumQuestions of questionsByMedium.values())
       for (const question of mediumQuestions) questionIds.add(question);
-    const questions = broad
-      ? sorted(
-          [...before.meaning.questions, ...after.meaning.questions].map(
-            ({ id: questionId }) => questionId,
-          ),
-        )
-      : sorted([...questionIds]);
-    const reasons = nativeReasons(delta, before, after, authoredChanged, mediaChanges);
+    const questions =
+      broad || packageChanged
+        ? sorted(
+            [...before.meaning.questions, ...after.meaning.questions].map(
+              ({ id: questionId }) => questionId,
+            ),
+          )
+        : sorted([...questionIds]);
+    const reasons = sorted([
+      ...nativeReasons(delta, before, after, authoredChanged, mediaChanges),
+      ...providerPackages.added.map(({ id: provider }) => `provider-package-added:${provider}`),
+      ...providerPackages.removed.map(({ id: provider }) => `provider-package-removed:${provider}`),
+      ...providerPackages.changed.map(({ id: provider }) => `provider-package-changed:${provider}`),
+    ]);
     affected.push({
       edition: id,
       questions,
       media,
       withdrawn,
-      scope: broad ? 'complete' : 'targeted',
+      scope: broad || packageChanged ? 'complete' : 'targeted',
       reasons,
     });
     obligations.rebuild.push({ edition: id, target: 'publication-bundle', scene: null, reasons });
@@ -905,6 +955,7 @@ export function compileNativeEditionEvolution(input) {
     },
     delta: {
       native: delta,
+      execution: { providerPackages },
       editorialChanged: authoredChanged,
       editionBytesChanged,
       media: mediaChanges,

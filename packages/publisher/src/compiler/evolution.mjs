@@ -49,6 +49,20 @@ async function selectedNativeSide(planPath, value, executionChoice) {
   }
 }
 
+function selectedProviderPackages(materialized) {
+  if (!Array.isArray(materialized.invocations)) semanticError('semantic_execution_invalid');
+  return materialized.invocations.flatMap((invocation) => {
+    if (invocation.delivery === 'declarative') return [];
+    if (
+      invocation.delivery !== 'executable' ||
+      !text(invocation.selection) ||
+      !isDigest(invocation.packageContentSha256)
+    )
+      semanticError('semantic_execution_invalid');
+    return [{ id: invocation.selection, sha256: invocation.packageContentSha256 }];
+  });
+}
+
 /** Route one selected evolution plan through the existing Claim Model or native owner. */
 export async function compareEvolutionInput(
   file,
@@ -73,14 +87,20 @@ export async function compareEvolutionInput(
   const after = await selectedNativeSide(planPath, plan.after, executionChoice.after);
   const materializedBefore = await materializePreparedBuildRequestInput(before);
   const materializedAfter = await materializePreparedBuildRequestInput(after);
-  return compileNativeEditionEvolution({
-    before: {
-      lock: materializedBefore.lock,
-      meaning: await compileEditionMeaning(materializedBefore),
+  return compileNativeEditionEvolution(
+    {
+      before: {
+        lock: materializedBefore.lock,
+        meaning: await compileEditionMeaning(materializedBefore),
+      },
+      after: {
+        lock: materializedAfter.lock,
+        meaning: await compileEditionMeaning(materializedAfter),
+      },
     },
-    after: {
-      lock: materializedAfter.lock,
-      meaning: await compileEditionMeaning(materializedAfter),
+    {
+      before: selectedProviderPackages(materializedBefore),
+      after: selectedProviderPackages(materializedAfter),
     },
-  });
+  );
 }
