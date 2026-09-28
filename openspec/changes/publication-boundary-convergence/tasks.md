@@ -935,8 +935,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       failures, but failed the Linux branch gate at 94.99%. A portable,
       tool-independent CoreText request preflight now covers its input contract
       on Linux without attempting macOS-only measurement. Focused macOS/Linux
-      tests and the macOS full check pass; hosted repair verification remains
-      required before the unchanged 95% gate is claimed.
+      tests and the macOS full check pass. At signed repair `4392e03`, hosted
+      Pipeline `8545` passed 1,249 tests with 17 skips and 95.12% Linux branch
+      coverage without changing the four 95% gates. This is pre-freeze source
+      readiness, not package or release acceptance.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%
