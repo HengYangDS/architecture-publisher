@@ -12,8 +12,8 @@ import {
   selectedStaticNativeViews,
 } from '../scene/static/grouped-selection.mjs';
 import { composeStaticEditionScene } from '../scene/static/edition.mjs';
-import { auditEmittedEdges } from '../scene/static/emitted-path.mjs';
-import { auditCanvasEnvelope, auditScene } from '../scene/static/audit.mjs';
+import { assertAuthoredCanvasScene } from '../scene/static/audit.mjs';
+import { auditEmittedEdges } from '../qualification/static/emitted-path.mjs';
 import { importLikeC4Layout } from '../semantics/native-likec4.mjs';
 import { canonical } from '../semantics/document.mjs';
 import { readPublisherInstalledPackage } from '../runtime.mjs';
@@ -48,26 +48,6 @@ const checkedSupply = (supply, method) => ({
   basis: 'checked-declared',
   method,
 });
-const authoredCanvasGeometry = Object.freeze({
-  minimumFont: 10,
-  ownerClearance: 8,
-  textClearance: 5,
-  textToTextClearance: 5,
-  endpointTolerance: 1,
-  minimumTerminal: 14,
-  widthGrowth: 0,
-  heightGrowth: 0,
-});
-const authoredCanvasContainment = Object.freeze({
-  hard_gates: {
-    geometry_each_scale: {
-      canvas_clearance_source_units_min: 0,
-      font_width_growth_fraction: 0,
-      font_height_growth_fraction: 0,
-    },
-  },
-});
-
 async function destination(output) {
   const target = path.resolve(output);
   const parent = path.dirname(target);
@@ -139,18 +119,12 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
   if (authoredCanvas) {
     const authored = composeAuthoredStaticCanvas(meaning);
     scene = authored.scene;
-    const geometry = auditScene(scene, authoredCanvasGeometry);
-    const canvas = auditCanvasEnvelope(scene, authoredCanvasContainment);
-    if (geometry.failures.length || canvas.failures.length)
-      fail(
-        'authored_canvas_geometry_invalid',
-        `authored_canvas_geometry_invalid:${[...geometry.failures, ...canvas.failures][0].code}`,
-      );
+    const { emittedContract } = assertAuthoredCanvasScene(scene);
     await verifyAuthoredCanvasTextBoxes(scene, fontSupply);
     const rasterWidth = meaning.editorial.presentation.static.width;
     if (!Number.isSafeInteger(rasterWidth)) fail('authored_canvas_width_required');
     const svg = renderAuthoredCanvasSvg(scene);
-    const emitted = auditEmittedEdges(svg.toString('utf8'), scene, authoredCanvasGeometry);
+    const emitted = auditEmittedEdges(svg.toString('utf8'), scene, emittedContract);
     if (emitted.failures.length)
       fail('authored_canvas_emitted_geometry_invalid', emitted.failures[0].code);
     rendered = {

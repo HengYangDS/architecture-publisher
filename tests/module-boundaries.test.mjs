@@ -173,6 +173,29 @@ test('only qualified publication admission may read Candidate and qualification 
   }
 });
 
+test('the build coordinator may invoke only the emitted-artifact predicate', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  const caller = 'packages/publisher/src/compiler/successor.mjs';
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      caller,
+      "import '../qualification/static/emitted-path.mjs';",
+      paths,
+      packageExports,
+    ),
+    [],
+  );
+  assert(
+    inspectModuleBoundaries(
+      caller,
+      "import '../qualification/policy.mjs';",
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('forbidden dependency')),
+  );
+});
+
 test('development tools use declared package owners and dependencies', async () => {
   const { paths, modules } = await inventory([...runtimeRoots, 'tools']);
   const packageExports = await declaredPackageExports();

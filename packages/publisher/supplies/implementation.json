@@ -623,24 +623,24 @@
         "sha256": "c5ecbf11691b314f07efa6123119fa1002af70c0d21f62afb8eef3a7186a4956"
       },
       {
+        "path": "src/qualification/static/emitted-path.mjs",
+        "bytes": 4394,
+        "sha256": "1be4d219c10cba5d929ab56b46f0da86f4c91fa9a82adc14157b71b07a39f308"
+      },
+      {
         "path": "src/scene/claim-relations.mjs",
         "bytes": 3534,
         "sha256": "52109bdf5355b4324f0fe172bfeb26754c1267ba430764bbcacb1d1a920376eb"
       },
       {
         "path": "src/scene/static/audit.mjs",
-        "bytes": 12399,
-        "sha256": "017a619ecf5ea0a8120068cf441aa45b949818e01692eed4ce984cc15a79a3f1"
+        "bytes": 13453,
+        "sha256": "4dade4bd8a90dad25f6e008f2544e3741c10949131fc6451a8f08aef75f100f7"
       },
       {
         "path": "src/scene/static/authored-canvas.mjs",
         "bytes": 8602,
         "sha256": "9bcb4efaf3db0beacd364a5161561994568cd247eabd33b316e8410acebe83e0"
-      },
-      {
-        "path": "src/scene/static/emitted-path.mjs",
-        "bytes": 4394,
-        "sha256": "1be4d219c10cba5d929ab56b46f0da86f4c91fa9a82adc14157b71b07a39f308"
       },
       {
         "path": "src/semantics/document.mjs",

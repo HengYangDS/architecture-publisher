@@ -19,6 +19,9 @@ may contain incompatible changes.
 - Moved Build Request joining to private compiler input coordination and
   removed its low-level Provider export. The public `archpub edition build`
   operation remains the complete consumer path.
+- Moved authored Scene pre-render geometry rules to the Scene owner and emitted
+  SVG-path inspection to Qualification. The compiler coordinates both without
+  defining either predicate.
 
 ### Removed
 

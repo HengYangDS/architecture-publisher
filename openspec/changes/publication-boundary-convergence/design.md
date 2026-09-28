@@ -1182,16 +1182,17 @@ public export are deleted, not re-exported.
    Source Bundle semantics.
 2. **Build input, not Provider policy.** Direct source and Edition selections
    join Provider results at one private compiler input boundary. `provider/`
-   retains its versioned
-   selection, validation, and bounded execution. Ordinary consumers invoke one
+   retains its versioned selection, validation, and bounded execution. Ordinary consumers invoke one
    complete Candidate build. Prove direct, declarative, executable, and mixed
    selections reach the same downstream lock without inventing a Provider for
    direct input.
-3. **Scene validity, not coordinator policy.** `compiler/successor.mjs`
-   currently declares authored-canvas geometry floors and assembles low-level
-   audits. Static Scene shall own pre-render validity and its one selected
-   policy; qualification shall own the emitted-path observation over rendered
-   bytes. The compiler invokes these owners but defines neither predicate.
+3. **Scene validity, not coordinator policy.** The compiler coordinates
+   authored-canvas construction and low-level audits. Static Scene owns
+   pre-render validity and its one selected policy; Qualification owns the
+   emitted-path observation over rendered bytes. The compiler invokes these
+   owners but defines neither predicate.
+   Its single fail-closed emitted-path call is build preflight, not a
+   Qualification Set, verifier independence, or Candidate acceptance.
    Invalid Scenes and invalid emitted paths fail at their respective boundaries.
    A pure owner move preserves Scene, carrier, and artifact bytes, but renews
    implementation-supply, medium, Candidate, and qualification identities as

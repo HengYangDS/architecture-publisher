@@ -74,6 +74,10 @@ test('terminal paths make product ownership explicit', async () => {
     code: 'ENOENT',
   });
   await assert.rejects(fs.stat(path.join(root, 'packages/publisher/assets')), { code: 'ENOENT' });
+  await fs.access(path.join(publisher, 'src/qualification/static/emitted-path.mjs'));
+  await assert.rejects(fs.stat(path.join(publisher, 'src/scene/static/emitted-path.mjs')), {
+    code: 'ENOENT',
+  });
   for (const owner of ['archify', 'fonts', 'resvg'])
     await fs.access(path.join(publisher, 'renderers', owner, 'supply'));
 });

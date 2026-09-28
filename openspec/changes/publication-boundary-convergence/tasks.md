@@ -944,10 +944,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       semantic boundary. The Build Request join now lives in private
       `compiler/build-input.mjs`; its Provider export and former file are gone.
       ETHOS and AIGW source integrations do not consume the removed symbol.
-      Focused direct/mixed and offline-installed checks pass, as do static,
-      package, and the full 1,275-pass/3-skip suite with 97.96/95.02/99.54/97.96%
-      statement/branch/function/line coverage. The verified-file-envelope,
-      Scene/qualification boundary, and complete public-consumer audit remain.
+      The authored Scene now owns its pre-render geometry policy;
+      Qualification owns emitted SVG-path observation, and the former Scene
+      file is removed. Focused direct/mixed, offline-installed, and Scene
+      checks pass, as do static, package, and the full 1,277-pass/3-skip suite
+      with 97.96/95.02/99.54/97.96% statement/branch/function/line coverage.
+      The verified-file-envelope, remaining public-helper consumers, and
+      relocated source-owner adoption remain open.
 - [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,

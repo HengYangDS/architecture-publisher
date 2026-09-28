@@ -97,6 +97,7 @@ const owners = [
       'packages/publisher/src/scene/',
       'packages/publisher/src/runtime.mjs',
       'packages/publisher/src/rendering/interactive-html.mjs',
+      'packages/publisher/src/qualification/static/emitted-path.mjs',
       'packages/publisher/renderers/',
     ],
   ],

@@ -77,6 +77,24 @@ test('measured scene and source canvas admit distinct geometric predicates', () 
   assert.match(canvas.scope, /Not a browser/);
 });
 
+test('authored Scene owns one pre-render geometry policy and rejects invalid text', async () => {
+  const { assertAuthoredCanvasScene } =
+    await import('../packages/publisher/src/scene/static/audit.mjs');
+  assert.equal(typeof assertAuthoredCanvasScene, 'function');
+  const selected = scene();
+  selected.nodes[0].box.width = 40;
+  selected.nodes[0].box.height = 40;
+  selected.nodes[0].paintBox.width = 40;
+  selected.nodes[0].paintBox.height = 40;
+  selected.texts[0].box = { x: 20, y: 20, width: 10, height: 10 };
+  selected.edges[0].points[0].x = 50;
+  assert.deepEqual(assertAuthoredCanvasScene(selected).geometry.failures, []);
+  selected.texts[0].fontSize = 4;
+  assert.throws(() => assertAuthoredCanvasScene(selected), {
+    code: 'authored_canvas_geometry_invalid',
+  });
+});
+
 test('scene audit reports visible meaning, readable text and connection defects', () => {
   const cases = [
     ['small font', (v) => (v.texts[0].fontSize = 4), 'font-too-small'],

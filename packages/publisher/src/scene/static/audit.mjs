@@ -1,7 +1,41 @@
+import { fail } from '../../source/manifest.mjs';
+
 /** Analytic screen-space checks over the same measured scene used by the renderer.
  * Text boxes must be measured glyph bounds, not character-count estimates.
  * Hidden metadata is traceability only and never a visible semantic witness.
  */
+
+const authoredCanvasGeometry = Object.freeze({
+  minimumFont: 10,
+  ownerClearance: 8,
+  textClearance: 5,
+  textToTextClearance: 5,
+  endpointTolerance: 1,
+  minimumTerminal: 14,
+  widthGrowth: 0,
+  heightGrowth: 0,
+});
+const authoredCanvasContainment = Object.freeze({
+  hard_gates: {
+    geometry_each_scale: {
+      canvas_clearance_source_units_min: 0,
+      font_width_growth_fraction: 0,
+      font_height_growth_fraction: 0,
+    },
+  },
+});
+
+/** The authored Scene, not its build coordinator, owns pre-render validity. */
+export function assertAuthoredCanvasScene(scene) {
+  const geometry = auditScene(scene, authoredCanvasGeometry);
+  const canvas = auditCanvasEnvelope(scene, authoredCanvasContainment);
+  if (geometry.failures.length || canvas.failures.length)
+    fail(
+      'authored_canvas_geometry_invalid',
+      `authored_canvas_geometry_invalid:${[...geometry.failures, ...canvas.failures][0].code}`,
+    );
+  return { geometry, canvas, emittedContract: authoredCanvasGeometry };
+}
 
 const right = (b) => b.x + b.width,
   bottom = (b) => b.y + b.height;
