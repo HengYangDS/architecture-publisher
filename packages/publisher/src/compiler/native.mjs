@@ -9,6 +9,46 @@ import { fail, isDigest } from '../source/manifest.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
+function importSelectedClaimModel(source, content, sourceClass) {
+  try {
+    return importClaimModel(source, content, sourceClass);
+  } catch (error) {
+    const field =
+      error?.code === 'semantic_claim_condition_invalid'
+        ? 'condition'
+        : error?.code === 'semantic_claim_scope_invalid'
+          ? 'scope'
+          : null;
+    if (field && typeof error.detail === 'string' && error.detail)
+      error.diagnostics = [
+        {
+          code: error.code,
+          severity: 'error',
+          message: `Selected Claim Model assertion has an invalid ${field}.`,
+          predicate: `claim-${field}-valid`,
+          subject: {
+            kind: 'claim-model-assertion',
+            sourceClass,
+            namespace: source.namespace,
+            sourceSha256: source.sha256,
+            claimId: error.detail,
+            ...(sourceClass === 'derived' && source.adapter ? { adapter: source.adapter } : {}),
+          },
+          responsibility: {
+            role: sourceClass === 'native' ? 'source-claimant' : 'projection-claimant',
+            declaredOwner:
+              typeof source.claimant === 'string' && source.claimant.trim()
+                ? source.claimant
+                : null,
+          },
+          evidence: {},
+          supportedFixes: [],
+        },
+      ];
+    throw error;
+  }
+}
+
 /** Compile only the Edition's selected native meaning, not a Candidate or approval. */
 export async function compileEditionNativeSelections(input) {
   const lock = input?.lock;
@@ -98,13 +138,13 @@ export async function compileEditionNativeSelections(input) {
     if (claimFormat(source.format))
       claimModels.set(
         source.namespace,
-        importClaimModel(source, input.readSource(source.namespace), 'native'),
+        importSelectedClaimModel(source, input.readSource(source.namespace), 'native'),
       );
   for (const projection of addressedProjections) {
     if (typeof input.readDerived !== 'function') fail('edition_native_input_invalid');
     claimModels.set(
       projection.namespace,
-      importClaimModel(projection, input.readDerived(projection), 'derived'),
+      importSelectedClaimModel(projection, input.readDerived(projection), 'derived'),
     );
   }
 

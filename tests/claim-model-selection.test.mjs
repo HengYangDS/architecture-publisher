@@ -485,6 +485,134 @@ test('public Edition build returns a local, non-authorizing missing-reference di
   await assert.rejects(fs.stat(output), { code: 'ENOENT' });
 });
 
+test('public Edition build attributes an unanswered authored view to its editor', async (t) => {
+  const selected = await fixture(t);
+  selected.project.presentation.static.views.push({ id: 'detail', questions: ['condition'] });
+  selected.project.omissions.push({
+    medium: 'static',
+    view: 'overview',
+    coveredIn: 'detail',
+    selection: 'selected-claim',
+    question: 'condition',
+    disposition: 'covered-elsewhere',
+    reason: 'The detail view carries the source assertion.',
+  });
+  const editionPath = path.join(selected.root, 'edition/project.json');
+  await fs.writeFile(editionPath, JSON.stringify(selected.project) + '\n');
+  const nativePath = path.join(selected.root, 'sources/model.json');
+  const nativeBefore = sha(await fs.readFile(nativePath));
+  const output = path.join(selected.root, 'candidate');
+  const result = spawnSync(
+    process.execPath,
+    [
+      fileURLToPath(new URL('../packages/publisher/src/cli/main.mjs', import.meta.url)),
+      'edition',
+      'build',
+      selected.requestPath,
+      '--sha256',
+      selected.requestSha256,
+      '--output',
+      output,
+    ],
+    { cwd: selected.root, encoding: 'utf8', timeout: 30_000 },
+  );
+  assert.equal(result.status, 1, result.stderr);
+  const response = JSON.parse(result.stdout);
+  assert.equal(response.error.code, 'materialized_view_question_unanswered');
+  assert.deepEqual(
+    response.error.diagnostics?.map(({ subject, responsibility, predicate }) => ({
+      subject,
+      responsibility,
+      predicate,
+    })),
+    [
+      {
+        subject: {
+          kind: 'edition-view-question',
+          editionId: selected.project.id,
+          editionSha256: sha(await fs.readFile(editionPath)),
+          medium: 'static',
+          viewId: 'overview',
+          questionId: 'condition',
+          omissions: [
+            {
+              selection: 'selected-claim',
+              disposition: 'covered-elsewhere',
+              coveredIn: 'detail',
+            },
+          ],
+        },
+        responsibility: { role: 'edition-editor', declaredOwner: selected.project.editor },
+        predicate: 'view-question-answered',
+      },
+    ],
+  );
+  assert.equal(JSON.stringify(response).includes(selected.root), false);
+  assert.equal(sha(await fs.readFile(nativePath)), nativeBefore);
+  await assert.rejects(fs.stat(output), { code: 'ENOENT' });
+});
+
+test('invalid native and derived claim applicability retains the selected claimant boundary', async (t) => {
+  for (const field of ['condition', 'scope']) {
+    for (const delivery of ['native', 'derived']) {
+      const model = claimModel();
+      model.claims.intended[field] = null;
+      const selected = await fixture(t, { delivery, model });
+      const input = await materializeBuildRequestInput(
+        selected.requestPath,
+        selected.requestSha256,
+      );
+      const source = delivery === 'native' ? input.lock.sources[0] : input.lock.derived[0];
+      const finding = {
+        code: `semantic_claim_${field}_invalid`,
+        severity: 'error',
+        message: `Selected Claim Model assertion has an invalid ${field}.`,
+        predicate: `claim-${field}-valid`,
+        subject: {
+          kind: 'claim-model-assertion',
+          sourceClass: delivery,
+          namespace: source.namespace,
+          sourceSha256: source.sha256,
+          claimId: 'intended',
+          ...(delivery === 'derived' ? { adapter: source.adapter } : {}),
+        },
+        responsibility: {
+          role: delivery === 'native' ? 'source-claimant' : 'projection-claimant',
+          declaredOwner: source.claimant,
+        },
+        evidence: {},
+        supportedFixes: [],
+      };
+      await assert.rejects(compileEditionMeaning(input), (error) => {
+        assert.equal(error.code, finding.code);
+        assert.deepEqual(error.diagnostics, [finding]);
+        return true;
+      });
+
+      const output = path.join(selected.root, 'candidate');
+      const result = spawnSync(
+        process.execPath,
+        [
+          fileURLToPath(new URL('../packages/publisher/src/cli/main.mjs', import.meta.url)),
+          'edition',
+          'build',
+          selected.requestPath,
+          '--sha256',
+          selected.requestSha256,
+          '--output',
+          output,
+        ],
+        { cwd: selected.root, encoding: 'utf8', timeout: 30_000 },
+      );
+      assert.equal(result.status, 1, result.stderr);
+      const response = JSON.parse(result.stdout);
+      assert.deepEqual(response.error.diagnostics, [finding]);
+      assert.equal(JSON.stringify(response).includes(selected.root), false);
+      await assert.rejects(fs.stat(output), { code: 'ENOENT' });
+    }
+  }
+});
+
 test('entity and relation selections retain typed identity and exact model origin', async (t) => {
   const entity = await fixture(t, { reference: 'entity:client' });
   const relation = await fixture(t, { reference: 'relation:request' });

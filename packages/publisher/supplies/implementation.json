@@ -4,13 +4,13 @@
     "semantic-claim": [
       {
         "path": "src/compiler/meaning.mjs",
-        "bytes": 4921,
-        "sha256": "1a0a6e02cb3e488ece4f4156cf5242e0c2d785a533da3cfbb91789fc99d072e9"
+        "bytes": 4942,
+        "sha256": "e03bb8aa221ae99fca40152a892f6c32f38ca24c031cf324b11f66f04c24b4d1"
       },
       {
         "path": "src/compiler/native.mjs",
-        "bytes": 6672,
-        "sha256": "0f2aca8d824802eda577c7a7b270a1b400b7398dda5eb7028b81cde14a15912b"
+        "bytes": 8022,
+        "sha256": "88f85d68fed3e28406efb33b3879efd4d157d56c597b41f4a5ba321215da9455"
       },
       {
         "path": "src/edition/authoring.mjs",
@@ -34,8 +34,8 @@
       },
       {
         "path": "src/edition/selection.mjs",
-        "bytes": 7916,
-        "sha256": "c89066d511973cf45e83a564864df6d5cd0c2a92974e98a841f343f14c9be006"
+        "bytes": 9293,
+        "sha256": "af09f2af36bda72c1ac1e36faf72d307a8ae55806b671defba498d598d4c4579"
       },
       {
         "path": "src/runtime/process-tree.mjs",
@@ -44,8 +44,8 @@
       },
       {
         "path": "src/semantics/document.mjs",
-        "bytes": 15802,
-        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+        "bytes": 15837,
+        "sha256": "c463cb5af858d4c1e363a816b86bbfb0a8f4ee9983f10aa45a0c236e40396f5e"
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
@@ -101,13 +101,13 @@
     "semantic-likec4": [
       {
         "path": "src/compiler/meaning.mjs",
-        "bytes": 4921,
-        "sha256": "1a0a6e02cb3e488ece4f4156cf5242e0c2d785a533da3cfbb91789fc99d072e9"
+        "bytes": 4942,
+        "sha256": "e03bb8aa221ae99fca40152a892f6c32f38ca24c031cf324b11f66f04c24b4d1"
       },
       {
         "path": "src/compiler/native.mjs",
-        "bytes": 6672,
-        "sha256": "0f2aca8d824802eda577c7a7b270a1b400b7398dda5eb7028b81cde14a15912b"
+        "bytes": 8022,
+        "sha256": "88f85d68fed3e28406efb33b3879efd4d157d56c597b41f4a5ba321215da9455"
       },
       {
         "path": "src/edition/authoring.mjs",
@@ -131,8 +131,8 @@
       },
       {
         "path": "src/edition/selection.mjs",
-        "bytes": 7916,
-        "sha256": "c89066d511973cf45e83a564864df6d5cd0c2a92974e98a841f343f14c9be006"
+        "bytes": 9293,
+        "sha256": "af09f2af36bda72c1ac1e36faf72d307a8ae55806b671defba498d598d4c4579"
       },
       {
         "path": "src/runtime/process-tree.mjs",
@@ -141,8 +141,8 @@
       },
       {
         "path": "src/semantics/document.mjs",
-        "bytes": 15802,
-        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+        "bytes": 15837,
+        "sha256": "c463cb5af858d4c1e363a816b86bbfb0a8f4ee9983f10aa45a0c236e40396f5e"
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
@@ -273,8 +273,8 @@
       },
       {
         "path": "src/semantics/document.mjs",
-        "bytes": 15802,
-        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+        "bytes": 15837,
+        "sha256": "c463cb5af858d4c1e363a816b86bbfb0a8f4ee9983f10aa45a0c236e40396f5e"
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
@@ -395,8 +395,8 @@
       },
       {
         "path": "src/semantics/document.mjs",
-        "bytes": 15802,
-        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+        "bytes": 15837,
+        "sha256": "c463cb5af858d4c1e363a816b86bbfb0a8f4ee9983f10aa45a0c236e40396f5e"
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
@@ -507,8 +507,8 @@
       },
       {
         "path": "src/semantics/document.mjs",
-        "bytes": 15802,
-        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+        "bytes": 15837,
+        "sha256": "c463cb5af858d4c1e363a816b86bbfb0a8f4ee9983f10aa45a0c236e40396f5e"
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
@@ -644,8 +644,8 @@
       },
       {
         "path": "src/semantics/document.mjs",
-        "bytes": 15802,
-        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+        "bytes": 15837,
+        "sha256": "c463cb5af858d4c1e363a816b86bbfb0a8f4ee9983f10aa45a0c236e40396f5e"
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
@@ -741,8 +741,8 @@
       },
       {
         "path": "src/semantics/document.mjs",
-        "bytes": 15802,
-        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+        "bytes": 15837,
+        "sha256": "c463cb5af858d4c1e363a816b86bbfb0a8f4ee9983f10aa45a0c236e40396f5e"
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
@@ -823,8 +823,8 @@
       },
       {
         "path": "src/semantics/document.mjs",
-        "bytes": 15802,
-        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+        "bytes": 15837,
+        "sha256": "c463cb5af858d4c1e363a816b86bbfb0a8f4ee9983f10aa45a0c236e40396f5e"
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
@@ -895,8 +895,8 @@
       },
       {
         "path": "src/semantics/document.mjs",
-        "bytes": 15802,
-        "sha256": "50e7763cdcd92ca5d22c26f5b0e4fac574f367f2d98dffe00647e47803eaac04"
+        "bytes": 15837,
+        "sha256": "c463cb5af858d4c1e363a816b86bbfb0a8f4ee9983f10aa45a0c236e40396f5e"
       },
       {
         "path": "src/semantics/native-claim-model.mjs",

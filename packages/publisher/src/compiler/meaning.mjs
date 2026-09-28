@@ -91,7 +91,7 @@ export async function compileEditionMeaning(input) {
     }
     return { ...assertion, semanticStatus: 'editor-attributed-unverified' };
   });
-  const mediaObligations = deriveEditionQuestionObligations(project, media);
+  const mediaObligations = deriveEditionQuestionObligations(project, media, lock.edition.sha256);
   checkViewGroups(project, mediaObligations, native);
   const editorialIds = new Set(
     assertions.filter(({ kind }) => kind === 'editorial').map(({ id }) => id),

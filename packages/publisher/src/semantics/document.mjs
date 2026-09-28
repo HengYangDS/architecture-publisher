@@ -41,6 +41,7 @@ const PREDICATE_FIELDS = Object.freeze(['valueKind', 'cardinality', 'values', 'p
 export const semanticError = (code, detail = '') => {
   throw Object.assign(new Error(code + (detail ? ': ' + detail : '')), {
     code,
+    ...(detail ? { detail } : {}),
   });
 };
 export const record = (value) =>

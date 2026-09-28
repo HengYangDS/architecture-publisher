@@ -202,9 +202,35 @@ test('covered-elsewhere removes a source obligation only from its declared view'
   ]);
 
   editionProject.editorialAssertions.pop();
-  assert.throws(() => assemble(editionProject), {
-    code: 'materialized_view_question_unanswered',
-  });
+  assert.throws(
+    () => assemble(editionProject),
+    (error) => {
+      assert.equal(error.code, 'materialized_view_question_unanswered');
+      assert.deepEqual(error.diagnostics, [
+        {
+          code: error.code,
+          severity: 'error',
+          message: 'Edition view question has no visible assertion or explicit limit.',
+          predicate: 'view-question-answered',
+          subject: {
+            kind: 'edition-view-question',
+            editionId: editionProject.id,
+            editionSha256: sha(Buffer.from(JSON.stringify(editionProject) + '\n')),
+            medium: 'interactive',
+            viewId: 'overview',
+            questionId: 'shape',
+            omissions: [
+              { selection: 'system', disposition: 'covered-elsewhere', coveredIn: 'detail' },
+            ],
+          },
+          responsibility: { role: 'edition-editor', declaredOwner: editionProject.editor },
+          evidence: {},
+          supportedFixes: [],
+        },
+      ]);
+      return true;
+    },
+  );
 });
 
 test('a question offered only in an unrequested medium cannot satisfy selection', () => {

@@ -1,5 +1,5 @@
 import { parseStrictJson } from '../source/json.mjs';
-import { fail, LIMITS } from '../source/manifest.mjs';
+import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
 import { sealMaterializedInputLock } from '../source/materialize.mjs';
 import { deepFreeze } from '../semantics/document.mjs';
 import { deriveEditionAssertions, validateEditionProject } from './authoring.mjs';
@@ -12,8 +12,40 @@ function mediaQuestions(project, medium) {
   return [...new Set(project.presentation[medium].views.flatMap(({ questions }) => questions))];
 }
 
+function unansweredViewQuestion(project, editionSha256, medium, view, question, omissions, code) {
+  const diagnostics = isDigest(editionSha256)
+    ? [
+        {
+          code,
+          severity: 'error',
+          message: 'Edition view question has no visible assertion or explicit limit.',
+          predicate: 'view-question-answered',
+          subject: {
+            kind: 'edition-view-question',
+            editionId: project.id,
+            editionSha256,
+            medium,
+            viewId: view.id,
+            questionId: question,
+            omissions: omissions
+              .filter((item) => item.question === question)
+              .map(({ selection, disposition, coveredIn }) => ({
+                selection,
+                disposition,
+                ...(coveredIn ? { coveredIn } : {}),
+              })),
+          },
+          responsibility: { role: 'edition-editor', declaredOwner: project.editor },
+          evidence: {},
+          supportedFixes: [],
+        },
+      ]
+    : null;
+  throw Object.assign(new Error(code), { code, ...(diagnostics ? { diagnostics } : {}) });
+}
+
 /** Derive finite view/question obligations from the sole authored Edition project. */
-export function deriveEditionQuestionObligations(project, media) {
+export function deriveEditionQuestionObligations(project, media, editionSha256 = null) {
   const assertions = deriveEditionAssertions(project);
   const assertionsFor = (question) =>
     assertions.filter(({ questions }) => questions.includes(question));
@@ -57,7 +89,13 @@ export function deriveEditionQuestionObligations(project, media) {
                 .map(({ id }) => id);
               const limited = limitsByQuestion[question].length > 0;
               if (!assertionIds.length && !limited)
-                fail(
+                unansweredViewQuestion(
+                  project,
+                  editionSha256,
+                  medium,
+                  view,
+                  question,
+                  omissions,
                   candidates.length
                     ? 'materialized_view_question_unanswered'
                     : 'materialized_question_unanswered',
@@ -171,7 +209,11 @@ export function assembleEditionSelection({
   );
   if (project.questions.some(({ id }) => !selectedQuestions.has(id)))
     fail('materialized_selected_media_incomplete');
-  const obligations = deriveEditionQuestionObligations(project, request.media);
+  const obligations = deriveEditionQuestionObligations(
+    project,
+    request.media,
+    sealed.lock.edition.sha256,
+  );
 
   const sourceNamespaceById = new Map(request.sources.map(({ id, namespace }) => [id, namespace]));
   const readEvidence = Object.freeze({

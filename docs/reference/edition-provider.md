@@ -55,6 +55,18 @@ not blame its author.
 Publisher neither dispatches the diagnostic nor edits the selected source;
 the invoker decides whether to hand it to a responsible party.
 
+An invalid selected Claim Model condition or scope identifies its exact claim,
+source revision, and declared native or derived claimant. A derived finding
+names the adapter identity without inferring who owns its code. An unanswered
+view question instead identifies the exact Edition, medium, view, omission, and
+editor. These local errors do not produce a Candidate or write back to a source.
+
+Equal selected locks or passing Provider conformance do not retire an incumbent.
+The incumbent owner must separately approve an exact consumer-parity result or
+reviewed semantic successor under its own policy. Publisher preserves historical
+receipts as evidence; neither those receipts nor this input protocol become a
+second live source authority.
+
 ## Shared role boundaries
 
 | Field                | Meaning                                                        |

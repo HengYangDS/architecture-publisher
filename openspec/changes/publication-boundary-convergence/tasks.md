@@ -257,7 +257,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       equal selected locks and semantic digests do not authorize Candidate
       equivalence: direct/declarative fixture media match, while executable
       dependency limits change the scene identities disclosed in its Candidate.
-- [ ] 3.4 Exercise local, non-authorizing diagnostics at the successor v2
+- [x] 3.4 Exercise local, non-authorizing diagnostics at the successor v2
       selected-input and Edition boundaries. Any returned finding binds its
       exact selected subject, predicate, responsible role, and declared owner
       or explicitly unresolved ownership. Distinguish source assertion,
@@ -269,18 +269,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       semantic successor, explicit incumbent-owner approval, and preserved
       historical receipts. Keep `tests/edition-provider-conformance.test.mjs`
       on the historical v1 profile; do not add a feedback store, registry,
-      command plane, or source-governance adapter. Partial: a digest-matching
-      v2 manifest that fails structural validation returns a local exact-subject,
-      protocol-role diagnostic through the existing CLI error; changed manifest
-      bytes remain unassigned rather than blaming the provider author. A missing
-      selected Claim Model ID now yields a local Edition-editor diagnostic
-      bound to the exact Edition, selection, namespace, reference, and selected
-      source SHA;
-      the public CLI returns it without creating a Candidate or inferring a
-      source owner. The Chrome-enabled full check passed 1227 tests, skipped 2
-      input-dependent tests, and reached 95.05% branch coverage; the skips do
-      not qualify external inputs. Other source, editorial, adapter, and
-      retirement findings remain open.
+      command plane, or source-governance adapter. Public v2 tests now bind
+      protocol, native-claimant, derived-projection, and Edition-editor findings
+      to exact selected subjects and return them without a Candidate or source
+      mutation. Passing materialization preserves an incumbent and grants no
+      retirement authority; source-owned retirement remains Task 8.1/8.2.
+      `npm run check` passed 1,262/1,265 tests with three declared skips,
+      95.06% branch coverage, and 17/17 strict OpenSpec validation. Exact-HEAD
+      proof and hosted CI refresh follow the signed commit, not this checkbox.
 
 ## 4. Native semantics and conservative change
 

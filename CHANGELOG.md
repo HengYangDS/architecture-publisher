@@ -12,6 +12,8 @@ may contain incompatible changes.
 
 ### Added
 
+- Added exact-subject, non-authorizing diagnostics for invalid selected Claim
+  Model applicability and unanswered Edition view questions.
 - Added one versioned Build Request and Edition Project path for direct,
   declarative-Provider, and executable-Provider input selection through the
   existing `archpub edition build` command. Selected bytes, source claimants,

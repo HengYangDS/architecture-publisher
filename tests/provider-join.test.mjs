@@ -262,6 +262,25 @@ test('direct and two declarative Providers join one selected-input lock', async 
   assert.notDeepEqual(second.invocations, first.invocations);
 });
 
+test('passing v2 selection preserves an incumbent and grants no retirement authority', async (t) => {
+  const f = await fixture(t);
+  const incumbent = path.join(f.root, 'providers/incumbent.json');
+  await fs.writeFile(incumbent, '{"incumbent":true}\n');
+  const { requestPath, digest } = await f.save();
+  const protectedPaths = [
+    incumbent,
+    path.join(f.providers.alpha.directory, 'provider.json'),
+    path.join(f.providers.alpha.directory, 'native.json'),
+  ];
+  const before = await Promise.all(protectedPaths.map((file) => fs.readFile(file)));
+  const selected = await materializeBuildRequestInput(requestPath, digest);
+  assert.equal(selected.invocations.length, 2);
+  for (const field of ['retirement', 'acceptance', 'publication', 'authorization'])
+    assert.equal(Object.hasOwn(selected, field), false, field);
+  for (const [index, file] of protectedPaths.entries())
+    assert.deepEqual(await fs.readFile(file), before[index], file);
+});
+
 test('direct and Provider native delivery with the same meaning share lock identity', async (t) => {
   const f = await fixture(t);
   f.request.providers = [];
