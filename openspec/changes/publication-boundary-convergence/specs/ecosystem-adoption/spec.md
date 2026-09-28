@@ -14,10 +14,20 @@ in generic-kernel product branches.
 
 #### Scenario: A generic kernel module is evaluated for product-specific logic
 
-- **WHEN** behavior names ETHOS, AIGW, or Architecture Publisher presentation
-  semantics
+- **WHEN** kernel or renderer behavior names ETHOS, AIGW, or Architecture
+  Publisher presentation semantics
 - **THEN** the behavior is rejected from the generic owner unless it implements
   an explicitly shared public invariant demonstrated by all required consumers
+
+#### Scenario: An independent editor invokes the installed product
+
+- **WHEN** an editor selects exact source and Edition inputs outside the
+  Publisher checkout
+- **THEN** one public Build Request operation can produce a complete Candidate
+  without the editor sequencing Provider materialization, semantic compilation,
+  Scene composition, rendering, and Candidate sealing as separate required calls
+- **AND** independently callable authoring, qualification, and publication
+  operations remain public only for distinct consumer responsibilities
 
 #### Scenario: First-party consumers use different delivery modes
 

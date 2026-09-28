@@ -399,6 +399,19 @@ test('provider and generic kernels reject forbidden dependency directions and ad
       ).some(({ reason }) => reason.includes('adopter identity')),
       name,
     );
+  for (const file of [
+    'packages/publisher/renderers/svg/canvas.mjs',
+    'packages/publisher/renderers/archify/index.mjs',
+  ])
+    assert(
+      inspectModuleBoundaries(
+        file,
+        "export const selectedEdition = edition.id === 'ethos';",
+        paths,
+        packageExports,
+      ).some(({ reason }) => reason.includes('adopter identity')),
+      file,
+    );
   assert.deepEqual(
     inspectModuleBoundaries(
       'packages/publisher/src/provider/invalid.mjs',

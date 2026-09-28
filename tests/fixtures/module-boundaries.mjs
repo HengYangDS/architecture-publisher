@@ -318,7 +318,8 @@ export function inspectModuleBoundaries(
   function visit(node) {
     if (!node || typeof node !== 'object') return;
     if (
-      file.startsWith('packages/publisher/src/') &&
+      (file.startsWith('packages/publisher/src/') ||
+        (file.startsWith('packages/publisher/renderers/') && !file.includes('/supply/'))) &&
       adopterPattern.test(node.type === 'Identifier' ? node.name : (literal(node) ?? ''))
     )
       issue(node, 'generic source names adopter identity');

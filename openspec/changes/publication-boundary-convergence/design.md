@@ -2,11 +2,12 @@
 
 ## Status and evidence boundary
 
-The design and revised specifications accepted on 2026-09-24 remain approved.
-The module-depth amendment below is proposed and awaits operator review; it
-does not amend an active specification or authorize implementation. The same
-Change's `tasks.md` alone records implementation progress. Design or
-specification approval is not product acceptance or release evidence.
+The design and revised specifications accepted on 2026-09-24 remain the
+baseline. On 2026-09-29 the operator delegated the module-depth decision to
+this Work Lane. The amendment below is selected after an independent read-only
+architecture review and a source/consumer audit. Its scenarios are recorded in
+this Change's specification delta; `tasks.md` alone records implementation
+progress. A selected design is not implemented, accepted, or released behavior.
 
 ### Program context (non-normative)
 
@@ -1137,7 +1138,7 @@ The concrete subtraction order is:
    AIGW acceptance path exist. Neither source migration grants Publisher
    domain authority.
 
-### Module depth and physical ownership (proposed)
+### Module depth and physical ownership
 
 Keep one deployable generic Publisher package and the separately owned
 self-Edition package. A package boundary represents an independently versioned
@@ -1158,6 +1159,52 @@ Trace their real consumers before deciding whether a complete selected-input
 operation belongs to an existing owner or needs one private, narrowly named
 owner. Do not create a generic helper package, export a step merely because
 another module imports it, or repeat an existing versioned schema validator.
+
+The current audit identifies five concrete corrections. These are owner
+changes, not a prescribed directory tree; keep names when responsibility is
+already correct. A move closes only when the former implementation and obsolete
+public export are deleted, not re-exported.
+
+1. **Verified files, not Source Bundle meaning.** `source/files.mjs` and
+   `source/manifest.mjs` currently mix envelope integrity with Source Bundle
+   identity; renderer supplies import this broad owner. A private
+   verified-file-envelope owner shall handle portable members, bounded regular
+   reads, exact bytes, and closed-envelope checks. `source/` retains Source
+   Bundle identity and complete read, pack, and write operations. A public
+   envelope operation requires a demonstrated independent authoring consumer.
+   Prove exact-byte and fail-closed parity for Source Bundles, backend supplies,
+   and installed direct/Provider journeys; then forbid renderer imports of
+   Source Bundle semantics.
+2. **Build input, not Provider policy.** `provider/build-request.mjs` joins
+   direct source and Edition selections to Provider results. Build-input
+   coordination shall own that one join; `provider/` retains its versioned
+   selection, validation, and bounded execution. Ordinary consumers invoke one
+   complete Candidate build. Prove direct, declarative, executable, and mixed
+   selections reach the same downstream lock without inventing a Provider for
+   direct input.
+3. **Scene validity, not coordinator policy.** `compiler/successor.mjs`
+   currently declares authored-canvas geometry floors and assembles low-level
+   audits. Static Scene shall own pre-render validity and its one selected
+   policy; qualification shall own the emitted-path observation over rendered
+   bytes. The compiler invokes these owners but defines neither predicate.
+   Invalid Scenes and invalid emitted paths fail at their respective boundaries.
+   A pure owner move preserves Scene, carrier, and artifact bytes, but renews
+   implementation-supply, medium, Candidate, and qualification identities as
+   applicable; prior acceptance never transfers to those new subjects.
+4. **Typography, not an SVG-branded authoring helper.** `createMetricReader`
+   validates renderer-neutral recorded measurements used by the self-Edition.
+   Scene typography shall own that data contract; retain a public reader only
+   if an Edition editor needs it. Concrete measurement and SVG emission stay
+   with rendering. Prove relocated self-use composes the same selected Scene
+   without importing a renderer-branded helper for authoring meaning.
+5. **Consumer operations, not exported internals.** `compiler/index.mjs`
+   exposes an explicitly internal compilation seam; several subpaths expose
+   generic validators and file primitives. Keep complete build, distinct
+   authoring/interpretation, qualification, and publication operations only
+   where named consumers need them. Keep one CLI plane and no forwarding
+   compatibility layer. A symbol-by-symbol inventory and relocated installed
+   journeys must justify retained exports and prove removed ones unused or
+   replaced.
 
 The public Build Request operation is intentionally deep: it coordinates
 selected inputs, checked meaning, Edition obligations, independent Scenes,
@@ -1190,10 +1237,23 @@ conformance journeys, immutable historical evidence, product specifications,
 and generated outputs in their distinct roles, with `tasks.md` as the sole
 progress ledger and package scripts as the repository check entrypoint.
 
+The repository-level owners remain deliberately few: `packages/publisher/`
+ships the generic product; `editions/self/` is a separately installed first
+consumer; `tests/` checks source behavior and boundaries; `conformance/` owns
+portable installed journeys and selected evidence; `examples/` shows admitted
+inputs; `tools/` maintains build and supply inputs; `docs/` explains the product
+and its own mechanism decisions; `openspec/` owns formal change intent; and
+`skills/` offers optional operator guidance, never runtime authority. Keep
+generated Candidates outside tracked source, and keep source products' mutable
+Editions and SDD/governance research with their designated owners. Do not move
+these roots merely to make the tree look symmetric: a physical change must
+remove an ownership or consumer defect and pass the same installed contract.
+
 Before any physical migration, inventory every public consumer, dynamic
 loader, resource path, and generated projection. Acceptance requires zero
-forbidden import directions or adopter-specific branches in the generic
-package, complete first-party type-check scope, the unchanged four 95%
+forbidden import directions or adopter-specific branches in all first-party
+generic source and renderers (vendored supplies are not first-party product
+logic), complete first-party type-check scope, the unchanged four 95%
 coverage floors, exact offline installed use for self and an independent
 Edition, and a change-impact probe: replacing an implementation behind an
 unchanged declared renderer capability must not require a source-owner edit,
@@ -1203,6 +1263,9 @@ construct instead requires an explicit contract decision. Tests must exercise
 complete public operations, not only internal helper counts. At each owner's
 accepted replacement transition, delete its incumbent implementation and
 stale references; retain rollback evidence, not parallel runtime authority.
+The static adopter-name detector is a necessary tripwire, not a proof that
+unnamed domain assumptions are absent; independent-Edition and change-impact
+counterexamples carry that semantic burden.
 
 ## Change, qualification, acceptance, and custody
 
