@@ -5,7 +5,10 @@ import { assembleEditionSelection } from '../edition/selection.mjs';
 import { exact } from '../semantics/document.mjs';
 import { fail, isDigest } from '../source/manifest.mjs';
 import { materializeSelectedDeclarativeFiles } from './declarative-selection.mjs';
-import { materializeSelectedExecutableInputs } from './executable-selection.mjs';
+import {
+  materializePreparedExecutableInputs,
+  prepareSelectedExecutableInputs,
+} from './executable-selection.mjs';
 import { readSelectedProviderManifest } from './manifest.mjs';
 
 function selectedExecutionChoice(choice) {
@@ -26,19 +29,11 @@ function selectedExecutionChoice(choice) {
   return selected;
 }
 
-/** Materialize one Build Request across direct, declarative, and executable inputs. */
-export async function materializeBuildRequestInput(requestPath, expectedSha256, executionChoice) {
+/** Pin every selected input before an executable Provider may run. */
+export async function prepareBuildRequestInput(requestPath, expectedSha256, executionChoice) {
   const offered = selectedExecutionChoice(executionChoice);
   const { file, root, request } = await readBuildRequestSelection(requestPath, expectedSha256);
   const direct = await readDirectSelectedInputs({ file, root, request });
-  /** @type {{content: Buffer, resources: {ref: string, content: Buffer}[], expected: {id: string, editor: string} | null} | null} */
-  let edition = direct.edition;
-  const sources = [...direct.sources];
-  const derived = [];
-  const observations = [...direct.observations];
-  const limits = [...direct.limits];
-  const invocations = [];
-
   const providers = [];
   for (const selection of request.providers) {
     const manifestPath = path.resolve(root, ...selection.manifest.split('/'));
@@ -81,6 +76,7 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256, 
       fail('materialized_provider_execution_choice_mismatch');
   }
 
+  const prepared = [];
   for (const { selection, selectedManifest } of providers) {
     let provider;
     if (selectedManifest.manifest.delivery.kind === 'declarative') {
@@ -91,12 +87,39 @@ export async function materializeBuildRequestInput(requestPath, expectedSha256, 
       if (!Object.hasOwn(selection, 'packageRoot'))
         fail('materialized_provider_package_root_required');
       const packageRoot = path.resolve(root, ...selection.packageRoot.split('/'));
-      provider = await materializeSelectedExecutableInputs(
+      provider = await prepareSelectedExecutableInputs(
         selectedManifest,
         selection.sha256,
         packageRoot,
       );
     }
+    prepared.push({ selection, selectedManifest, provider });
+  }
+  return { request, direct, providers: prepared };
+}
+
+/** Materialize one Build Request across direct, declarative, and executable inputs. */
+export async function materializeBuildRequestInput(requestPath, expectedSha256, executionChoice) {
+  return materializePreparedBuildRequestInput(
+    await prepareBuildRequestInput(requestPath, expectedSha256, executionChoice),
+  );
+}
+
+/** Reuse prepared inputs; no new source selection is admitted here. */
+export async function materializePreparedBuildRequestInput({ request, direct, providers }) {
+  /** @type {{content: Buffer, resources: {ref: string, content: Buffer}[], expected: {id: string, editor: string} | null} | null} */
+  let edition = direct.edition;
+  const sources = [...direct.sources];
+  const derived = [];
+  const observations = [...direct.observations];
+  const limits = [...direct.limits];
+  const invocations = [];
+
+  for (const { selection, selectedManifest, provider: prepared } of providers) {
+    const provider =
+      selectedManifest.manifest.delivery.kind === 'declarative'
+        ? prepared
+        : await materializePreparedExecutableInputs(prepared);
     const selected = provider.selected;
     const invocation = provider.invocation;
     const inputMethod =

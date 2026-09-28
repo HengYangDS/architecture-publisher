@@ -53,7 +53,14 @@ export async function readExecutableSelectedInputs(file, expectedSha256, package
 }
 
 /** Reuse one verified manifest while preserving package and reply checks. */
-export async function materializeSelectedExecutableInputs(
+async function materializeSelectedExecutableInputs(selectedManifest, expectedSha256, packageRoot) {
+  return materializePreparedExecutableInputs(
+    await prepareSelectedExecutableInputs(selectedManifest, expectedSha256, packageRoot),
+  );
+}
+
+/** Check the selected package and input bytes without running Provider code. */
+export async function prepareSelectedExecutableInputs(
   { manifest, root },
   expectedSha256,
   packageRoot,
@@ -93,6 +100,12 @@ export async function materializeSelectedExecutableInputs(
   for (const binding of manifest.delivery.editionResourceInputs)
     selectedContents.set(`edition-resource:${binding.ref}`, inputContents.get(binding.input));
 
+  return { manifest, expectedSha256, packageSelection, request, selectedContents };
+}
+
+/** Execute only after all selected comparison sides have passed preparation. */
+export async function materializePreparedExecutableInputs(prepared) {
+  const { manifest, expectedSha256, packageSelection, request, selectedContents } = prepared;
   const temporaryRoot = await fs.realpath(os.tmpdir());
   const scratch = await fs.mkdtemp(
     path.join(temporaryRoot, `architecture-provider-${process.pid}-`),

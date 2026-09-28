@@ -94,6 +94,10 @@ archpub publish apply <plan.json> <authorization.json>
 archpub publish recover <plan.json> <authorization.json>
 ```
 
+For native comparisons that select executable Providers, the same evolution
+command additionally requires independent `--execute-before-providers` and
+`--execute-after-providers` choices with exact `id@manifest-sha256` pairs.
+
 The `--output` form is required for a successor Build Request; historical v1
 plans retain their own output field. Every path and digest is caller-selected.
 One Build Request may combine direct inputs and optional selected Edition

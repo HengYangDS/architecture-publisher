@@ -164,12 +164,18 @@ The result is `status: built` with `qualification: not-performed` and
 ### Evolution
 
 ```sh
-archpub evolution plan <request.json> --sha256 <request-digest>
+archpub evolution plan <request.json> --sha256 <request-digest> \
+  [--execute-before-providers <id@manifest-digest,...>] \
+  [--execute-after-providers <id@manifest-digest,...>]
 ```
 
 For native successor inputs, `architecture.semantic-compare-input/v3` selects
-exact before/after Build Requests. Direct and declarative Provider selections
-are admitted; executable Provider comparison currently fails before execution.
+exact before/after Build Requests. Each executable Provider requires an
+independent caller-supplied selection on its own side; the comparison plan
+cannot authorize execution. Both sides' selected requests, direct inputs,
+Provider manifests, packages, and declared Provider inputs are checked before
+either executable runs. Process supervision does not sandbox a Provider, and
+concurrent mutation or undeclared reads remain explicit limits.
 The historical `architecture.semantic-compare-input/v2` selects exact
 before/after Claim Models, Edition sets, and explicit correspondences. The pure
 compiler returns separate obligations for:

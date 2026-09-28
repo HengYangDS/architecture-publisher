@@ -2,9 +2,10 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { compileNativeEditionEvolution } from '../edition/evolution.mjs';
 import { compareEditionInput } from '../edition/input.mjs';
-import { readBuildRequestSelection } from '../edition/materialize.mjs';
-import { materializeBuildRequestInput } from '../provider/build-request.mjs';
-import { readSelectedProviderManifest } from '../provider/manifest.mjs';
+import {
+  materializePreparedBuildRequestInput,
+  prepareBuildRequestInput,
+} from '../provider/build-request.mjs';
 import { exact, semanticError, text } from '../semantics/document.mjs';
 import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
 import { parseStrictJson } from '../source/json.mjs';
@@ -21,7 +22,7 @@ async function selectedPlan(file, digest) {
   return parseStrictJson(bytes, 'semantic_plan_json_invalid', 'semantic_plan_json_duplicate_key');
 }
 
-async function selectedNativeSide(planPath, value) {
+async function selectedNativeSide(planPath, value, executionChoice) {
   const selected = value?.request;
   if (
     !exact(value, ['request']) ||
@@ -36,26 +37,50 @@ async function selectedNativeSide(planPath, value) {
     semanticError('semantic_plan_invalid');
   }
   const requestPath = path.resolve(path.dirname(planPath), ...selected.path.split('/'));
-  const { request, root } = await readBuildRequestSelection(requestPath, selected.sha256);
-  for (const selection of request.providers) {
-    const manifestPath = path.resolve(root, ...selection.manifest.split('/'));
-    const { manifest } = await readSelectedProviderManifest(manifestPath, selection.sha256);
-    if (manifest.delivery.kind !== 'declarative')
+  try {
+    return await prepareBuildRequestInput(requestPath, selected.sha256, executionChoice);
+  } catch (error) {
+    if (
+      error?.code === 'materialized_provider_execution_choice_invalid' ||
+      error?.code === 'materialized_provider_execution_choice_mismatch'
+    )
       semanticError('semantic_native_provider_comparison_unadmitted');
+    throw error;
   }
-  const materialized = await materializeBuildRequestInput(requestPath, selected.sha256);
-  return { lock: materialized.lock, meaning: await compileEditionMeaning(materialized) };
 }
 
 /** Route one selected evolution plan through the existing Claim Model or native owner. */
-export async function compareEvolutionInput(file, digest) {
+export async function compareEvolutionInput(
+  file,
+  digest,
+  executionChoice = { before: [], after: [] },
+) {
   const planPath = path.resolve(file);
   const plan = await selectedPlan(planPath, digest);
-  if (plan.schema !== 'architecture.semantic-compare-input/v3')
+  if (
+    !exact(executionChoice, ['before', 'after']) ||
+    !Array.isArray(executionChoice.before) ||
+    !Array.isArray(executionChoice.after)
+  )
+    semanticError('semantic_native_provider_comparison_unadmitted');
+  if (plan.schema !== 'architecture.semantic-compare-input/v3') {
+    if (executionChoice.before.length || executionChoice.after.length)
+      semanticError('semantic_native_provider_comparison_unadmitted');
     return compareEditionInput(planPath, digest);
+  }
   if (!exact(plan, ['schema', 'before', 'after'])) semanticError('semantic_plan_invalid');
+  const before = await selectedNativeSide(planPath, plan.before, executionChoice.before);
+  const after = await selectedNativeSide(planPath, plan.after, executionChoice.after);
+  const materializedBefore = await materializePreparedBuildRequestInput(before);
+  const materializedAfter = await materializePreparedBuildRequestInput(after);
   return compileNativeEditionEvolution({
-    before: await selectedNativeSide(planPath, plan.before),
-    after: await selectedNativeSide(planPath, plan.after),
+    before: {
+      lock: materializedBefore.lock,
+      meaning: await compileEditionMeaning(materializedBefore),
+    },
+    after: {
+      lock: materializedAfter.lock,
+      meaning: await compileEditionMeaning(materializedAfter),
+    },
   });
 }

@@ -387,9 +387,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       projection, supply, output, and dependency-closure changes without
       inventing approval. The 44 focused tests and static/spec checks pass;
       isolated `semantics/change.mjs` branch coverage is 178/185 (96.21%),
-      not the global gate in Task 7.5. Open: explicit executable
-      comparison, full-model dependency precision, package-only change evidence,
-      final installed-platform parity, and coverage.
+      not the global gate in Task 7.5. The successor comparison now accepts
+      caller-owned, exact executable Provider choices separately for before and
+      after; the comparison plan cannot grant them. Both sides' selected
+      requests, direct/declarative bytes, Provider manifests, executable
+      packages, and declared inputs are prepared before either Provider runs.
+      RED/GREEN rejects an absent after-side choice and a changed after-side
+      input without executing the before-side Provider; a public CLI test
+      compares two selected executable sides. The affected 85 focused tests
+      pass. `npm run check` passes with 97.95% statements/lines, 95.05%
+      branches, and 99.53% functions; strict OpenSpec validates 17/17 and
+      publint passes. This is source-Lane evidence, not a frozen package,
+      exact-HEAD proof, hosted CI, or Provider sandbox. Open: full-model
+      dependency precision, package-only change evidence, final installed
+      platform parity, and Task 7.5 release acceptance.
 
 ## 5. Editorial composition and independent media
 

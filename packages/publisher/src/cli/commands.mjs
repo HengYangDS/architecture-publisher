@@ -6,6 +6,11 @@ const editionBuildSelection = Object.freeze([
   ...digestSelection,
   { name: '--output', kind: 'optional-option' },
 ]);
+const evolutionSelection = Object.freeze([
+  ...digestSelection,
+  { name: '--execute-before-providers', kind: 'optional-option' },
+  { name: '--execute-after-providers', kind: 'optional-option' },
+]);
 const qualificationSelection = Object.freeze([
   ...digestSelection,
   { name: '--execute-providers', kind: 'optional-option' },
@@ -13,13 +18,13 @@ const qualificationSelection = Object.freeze([
   { name: '--policy-sha256', kind: 'optional-option' },
 ]);
 
-function executionChoice(value) {
+function executionChoice(value, command = 'qualify') {
   if (value === undefined) return [];
   const selected = new Map();
   for (const entry of value.split(',')) {
     const match = /^([a-z][a-z0-9-]{0,79})@([a-f0-9]{64})$/u.exec(entry);
     if (!match || selected.has(match[1]))
-      throw usageError('qualify', 'Invalid --execute-providers selection');
+      throw usageError(command, 'Invalid executable Provider selection');
     selected.set(match[1], match[2]);
   }
   return [...selected].map(([id, manifestSha256]) => ({ id, manifestSha256 }));
@@ -74,11 +79,19 @@ export const commandCatalog = Object.freeze([
   command(
     ['evolution', 'plan'],
     'Compute conservative obligations from exact before and after inputs.',
-    'archpub evolution plan <request.json> --sha256 <digest>',
-    digestSelection,
-    async ({ file, '--sha256': digest }) => {
+    'archpub evolution plan <request.json> --sha256 <digest> [--execute-before-providers <id@digest,...>] [--execute-after-providers <id@digest,...>]',
+    evolutionSelection,
+    async ({
+      file,
+      '--sha256': digest,
+      '--execute-before-providers': beforeProviders,
+      '--execute-after-providers': afterProviders,
+    }) => {
       const { compareEvolutionInput } = await import('../compiler/evolution.mjs');
-      return compareEvolutionInput(file, digest);
+      return compareEvolutionInput(file, digest, {
+        before: executionChoice(beforeProviders, 'evolution'),
+        after: executionChoice(afterProviders, 'evolution'),
+      });
     },
   ),
   command(

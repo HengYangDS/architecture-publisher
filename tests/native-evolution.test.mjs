@@ -12,6 +12,7 @@ import { materializeBuildRequestInput } from '../packages/publisher/src/provider
 import { compileNativeSelectionDelta } from '../packages/publisher/src/semantics/change.mjs';
 import { canonical } from '../packages/publisher/src/source/json.mjs';
 import {
+  executableModelProvider,
   moveModelToProvider,
   selectedNativeEdition,
   sha,
@@ -941,4 +942,70 @@ test('native evolution does not execute a Provider from a comparison plan withou
   await assert.rejects(compareEvolutionInput(selected.file, selected.digest), {
     code: 'semantic_native_provider_comparison_unadmitted',
   });
+});
+
+test('native evolution selects executable Providers independently on both sides', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  const prior = await executableModelProvider(before);
+  const next = await executableModelProvider(after);
+  const selected = await comparisonPlan(t, before, after);
+  const choice = {
+    before: [{ id: 'model-provider', manifestSha256: prior.manifestSha256 }],
+    after: [{ id: 'model-provider', manifestSha256: next.manifestSha256 }],
+  };
+  const result = await compareEvolutionInput(selected.file, selected.digest, choice);
+  assert.equal(result.schema, 'architecture.semantic-change/v3');
+  assert.deepEqual(result.delta.native.sourceBytes, { added: [], removed: [], changed: [] });
+  assert.equal((await fs.readFile(prior.executionMarker, 'utf8')) !== '', true);
+  assert.equal((await fs.readFile(next.executionMarker, 'utf8')) !== '', true);
+  const cli = spawnSync(
+    process.execPath,
+    [
+      fileURLToPath(new URL('../packages/publisher/src/cli/main.mjs', import.meta.url)),
+      'evolution',
+      'plan',
+      selected.file,
+      '--sha256',
+      selected.digest,
+      '--execute-before-providers',
+      `model-provider@${prior.manifestSha256}`,
+      '--execute-after-providers',
+      `model-provider@${next.manifestSha256}`,
+    ],
+    {
+      cwd: selected.root,
+      env: { HOME: selected.root, PATH: '', LANG: 'C.UTF-8' },
+      encoding: 'utf8',
+      timeout: 20_000,
+    },
+  );
+  assert.equal(cli.status, 0, cli.stdout + cli.stderr);
+  assert.deepEqual(JSON.parse(cli.stdout), result);
+});
+
+test('native evolution validates both executable selections before either Provider runs', async (t) => {
+  const before = await selectedNativeEdition(t);
+  const after = await selectedNativeEdition(t);
+  const prior = await executableModelProvider(before);
+  const next = await executableModelProvider(after);
+  const selected = await comparisonPlan(t, before, after);
+  const beforeChoice = [{ id: 'model-provider', manifestSha256: prior.manifestSha256 }];
+  await assert.rejects(
+    compareEvolutionInput(selected.file, selected.digest, { before: beforeChoice, after: [] }),
+    { code: 'semantic_native_provider_comparison_unadmitted' },
+  );
+  await assert.rejects(fs.access(prior.executionMarker), { code: 'ENOENT' });
+  await assert.rejects(fs.access(next.executionMarker), { code: 'ENOENT' });
+
+  await fs.writeFile(path.join(selected.root, 'after/provider/model.c4'), 'changed after pin\n');
+  await assert.rejects(
+    compareEvolutionInput(selected.file, selected.digest, {
+      before: beforeChoice,
+      after: [{ id: 'model-provider', manifestSha256: next.manifestSha256 }],
+    }),
+    { code: 'edition_provider_v2_input_size_mismatch' },
+  );
+  await assert.rejects(fs.access(prior.executionMarker), { code: 'ENOENT' });
+  await assert.rejects(fs.access(next.executionMarker), { code: 'ENOENT' });
 });

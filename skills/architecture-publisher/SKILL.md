@@ -20,8 +20,11 @@ not own intent, workflow state, authorization, or generated artifacts.
 2. To assess evolution, run
    `archpub evolution plan <request.json> --sha256 <request-sha256>` over exact
    before/after native Build Requests (`architecture.semantic-compare-input/v3`)
-   or historical Claim Models and Edition sets (v2). Executable Provider
-   comparison is not yet admitted. Treat `rebuild`,
+   or historical Claim Models and Edition sets (v2). For v3, select executable
+   Providers separately with `--execute-before-providers` and
+   `--execute-after-providers`, each listing exact `id@manifest-sha256` pairs.
+   This is a caller-owned code-execution choice, not plan-file authority or a
+   sandbox. Treat `rebuild`,
    `semanticVerification`, `mediumVerification`, `humanReview`, `acceptance`,
    and `publication` as independent obligations. The command performs none of
    them, and unknown or unrepresented meaning requires conservative handling.
