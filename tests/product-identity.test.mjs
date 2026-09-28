@@ -234,8 +234,9 @@ test('product documentation has one semantic owner and a concise entry point', a
   assert.doesNotMatch(selfOperations, /\brenders\b/iu);
   assert.match(operations, /architecture\.edition\/v1/);
   assert.match(operations, /editionSha256/);
-  assert.match(operations, /0\.3 work-lane CLI surface/i);
-  assert.match(operations, /not a claim of released/i);
+  assert.match(operations, /describes the 0\.3 CLI surface/i);
+  assert.match(operations, /development checkout is not a\s+release/i);
+  assert.match(operations, /Publisher release is not adopter acceptance/i);
   assert.doesNotMatch(operations, /current 0\.2 public surface/i);
   assert.match(operations, /root `package\.json` is the sole release-version authority/i);
   assert.match(operations, /Changelog[\s\S]*is not evidence that a tag/i);

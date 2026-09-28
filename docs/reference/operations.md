@@ -2,9 +2,10 @@
 
 # Architecture Publisher operational reference
 
-This document describes the 0.3 work-lane CLI surface, not a claim of released
-or adopter-accepted bytes. Historical release facts are isolated at the end.
-The OpenSpec task ledger owns implementation status; this reference does not.
+This document describes the 0.3 CLI surface. A development checkout is not a
+release, and a Publisher release is not adopter acceptance. Exact release facts
+are named separately below. The OpenSpec task ledger owns implementation status;
+this reference does not.
 
 ## Release identity
 
@@ -26,6 +27,22 @@ agree.
 Before pushing a new tag, create it locally and run the full repository gate
 with that exact tag present. Compare its tagger calendar date with the dated
 Changelog section; a passing untagged branch pipeline is not this check.
+
+### Released selected-input baseline
+
+The signed `v0.3.0-alpha.4` tag selects commit
+`5ad344a2938e3f381d2b49e0ffba223b6d84c8bf`. On 2026-09-28, the primary
+GitLab Release's 11 linked assets were fetched back and checked against their
+SHA-256 manifest. The core archive's SHA-256 is
+`2e0d23233e5a200d20c148983844911cfb58ebde1d94b5f01d55d540b551b716`.
+Its offline-installed Core reproduced the independent-editor Candidate's exact
+bytes. The Release binds separately reviewed static and interactive self-media;
+neither review transfers to changed bytes or to an adopter Edition.
+
+Use the [alpha.4 Release](../../-/releases/v0.3.0-alpha.4), its manifest and
+checksum file for exact asset selection. This is primary-forge readback, not
+independent off-host recovery. ETHOS and AIGW still own their own source facts,
+Edition selection, acceptance, custody and publication.
 
 ## Authority and state model
 
@@ -261,9 +278,9 @@ Edition, validates record identities and uniqueness, and computes the
 non-compensating conjunction of `PASS`, `FAIL`, and `UNKNOWN`. It does not run a
 verifier, turn self-declaration into evidence, grant authorization, or publish.
 
-The unreleased successor v2 uses the same command with exact Build Request,
-Candidate container, and Qualification Set selectors. An invoker may separately
-select an exact policy:
+The selected-input v2, first released in `v0.3.0-alpha.4`, uses the same
+command with exact Build Request, Candidate container, and Qualification Set
+selectors. An invoker may separately select an exact policy:
 
 ```sh
 archpub qualify verify <request.json> --sha256 <digest> --policy <policy.json> --policy-sha256 <digest>

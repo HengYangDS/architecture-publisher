@@ -92,6 +92,28 @@ test('current guidance names only the public 0.3 command and package boundaries'
     assert.equal(source.includes(current), true, current);
 });
 
+test('released v2 guidance does not describe the published contract as unreleased', async () => {
+  const files = [
+    'docs/product-contract.md',
+    'docs/edition-contract.md',
+    'docs/reference/edition-provider.md',
+    'docs/reference/operations.md',
+    'docs/migration/aigw-edition-provider.md',
+    'docs/migration/edition-provider-ethos.md',
+  ];
+  for (const file of files) {
+    const guidance = await fs.readFile(path.join(root, file), 'utf8');
+    assert.doesNotMatch(guidance, /\bunreleased (?:selected-input|successor)\b/iu, file);
+    assert.doesNotMatch(guidance, /Provider v2 \(unreleased\)/iu, file);
+    assert.doesNotMatch(guidance, /successor is implemented in a Publisher work lane/iu, file);
+  }
+  const provider = await fs.readFile(path.join(root, 'docs/reference/edition-provider.md'), 'utf8');
+  const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');
+  assert.ok(provider.includes('v0.3.0-alpha.4'));
+  assert.ok(operations.includes('Released selected-input baseline'));
+  assert.ok(operations.includes('v0.3.0-alpha.4'));
+});
+
 test('GitLab CI only projects repository-native gates', async () => {
   const ci = await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8');
   assert.match(

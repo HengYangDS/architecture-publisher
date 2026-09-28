@@ -949,9 +949,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       package-pin prerequisite from v2 semantic or flagship parity. The README
       identifies the linked Edition v1 contract as historical. The operational
       reference now assigns paired-media compilation to the generic Core, not
-      the self-Edition; successor output is not called an Atlas. Final
-      released-package identities, installed adopter paths, and release
-      guidance still require reconciliation; this task remains open.
+      the self-Edition; successor output is not called an Atlas. The signed
+      alpha.4 package identity and primary-forge readback are now documented;
+      current v2 guidance no longer calls the released contract unreleased.
+      ETHOS and AIGW installed adoption, acceptance, and their source-owned
+      handoff paths remain unverified here, so this task remains open.
 - [ ] 7.4 Promote the reviewed role-based deltas into active specs before release
       freeze; the later official archive must add no new normative behavior.
       Prove historical v1 input meanings, a zero-source-change independent

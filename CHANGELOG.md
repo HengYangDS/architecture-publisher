@@ -8,11 +8,11 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
-### Fixed
+### Changed
 
-- Qualified Edition file plans, journals, and receipts retain `static` and
-  `interactive` media keys; the raw file-integrity pair retains `native` and
-  `atlas` without sharing media slots.
+- Reconciled current Provider v2 and source-adopter migration guidance with the
+  signed `v0.3.0-alpha.4` release, without treating Publisher release as source
+  acceptance or independent off-host recovery.
 
 ## [0.3.0-alpha.4] - 2026-09-28
 
@@ -62,6 +62,9 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Qualified Edition file plans, journals, and receipts retain `static` and
+  `interactive` media keys; the raw file-integrity pair retains `native` and
+  `atlas` without sharing media slots.
 - Kept source-selected text-to-geometry clearance distinct from text-to-text
   spacing. Historical scene audits retain their overlap-only text-pair rule;
   successor authored canvases still enforce an explicit five-unit floor.

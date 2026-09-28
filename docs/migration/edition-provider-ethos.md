@@ -1,7 +1,7 @@
 ---
 subject: ethos:edition-provider-migration
 role: handoff
-state: incumbent-observed-successor-provisional
+state: released-core-source-adoption-unverified
 relations:
   uses: ../reference/edition-provider.md
 ---
@@ -11,10 +11,9 @@ relations:
 This packet separates the observed ETHOS v1 integration from a conditional
 successor migration. It is an input to ETHOS's own single writer, Change, and
 Work Lane. It does not authorize edits to ETHOS, acceptance of new artwork, or
-publication. The linked Provider reference describes the released v1 protocol;
-the successor is implemented in a Publisher work lane but is not a selected
-ETHOS release. Publisher implementation or release does not authorize ETHOS
-migration.
+publication. Publisher `v0.3.0-alpha.4` is a released selected-input baseline,
+not a selected ETHOS release. Publisher implementation or release does not
+authorize ETHOS migration.
 
 ## Observed incumbent
 
@@ -152,9 +151,10 @@ advertised as fully implemented behavior.
    sources, Provider reply, Claim Model v2 and Edition v1, selected authoring,
    scenes, static/interactive artifacts, qualifications, acceptance, and
    rollback identities. Establish the actual current external-consumer set.
-2. Wait for the Publisher successor's reviewed specification, implementation,
-   installed package, and release. Do not build against an adjacent source
-   checkout or an unapproved protocol draft.
+2. Select a reviewed and released Publisher package by exact archive digest;
+   `v0.3.0-alpha.4` is the first v2 baseline. Verify installed conformance and
+   the source-owned dependency pin. Do not build against an adjacent source
+   checkout or treat the Publisher release as ETHOS acceptance.
 3. Select ETHOS's source claimant, Edition editor, accepter and custodian in
    the versioned Build Request. Use one exact executable Provider entry point
    only where native facts require adaptation; preserve derived-from links and

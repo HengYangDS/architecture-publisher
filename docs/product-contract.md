@@ -88,7 +88,7 @@ projection, but cannot make it source-endorsed or validated merely by returning
 it. Both modes converge before semantic compilation. Providers do not compose
 scenes, qualify artifacts, authorize effects, or own publication.
 
-In the unreleased successor Edition Project, a source selection's question
+In the selected-input Edition Project, a source selection's question
 list is the sole authored source-assertion record; its assertion ID is derived
 from the selection ID. A questionless selection can support an attributed
 editorial assertion but has no source-visible obligation of its own. Ordered

@@ -8,10 +8,10 @@ relations:
 
 # Edition Provider
 
-This page separates the unreleased selected-input Provider v2 contract from the
-historical Provider v1 transport. The successor admits native inputs without
-requiring a tracked duplicate Claim Model; implementation in a work lane is not
-a claim that a release or adopter migration exists.
+This page separates the selected-input Provider v2 contract, first released in
+`v0.3.0-alpha.4`, from historical Provider v1 transport. V2 admits native
+inputs without requiring a tracked duplicate Claim Model. The Publisher release
+does not establish any adopter's source acceptance or migration.
 
 An **Edition Provider** is a narrow boundary that transports exact source or
 editor-owned inputs to Architecture Publisher. It is not a second compiler,
@@ -32,7 +32,7 @@ selected source facts + authored Edition
 The only generic build command remains `archpub edition build`. There is no
 Provider subcommand or ambient provider discovery.
 
-## Selected-input Provider v2 (unreleased)
+## Selected-input Provider v2
 
 One `architecture.build-request/v1` may select direct native inputs and multiple
 `architecture.edition-provider/v2` manifests, provided each selected namespace

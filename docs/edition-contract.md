@@ -9,9 +9,10 @@ relations:
 # Architecture Edition v1 contract
 
 This page describes the historical Edition v1 input, which selects one exact
-Claim Model. The unreleased successor in the active OpenSpec Change also admits
-native sources without a tracked duplicate Claim Model. Its design does not
-retroactively change valid v1 Editions or establish a released capability.
+Claim Model. The selected-input successor first released in
+`v0.3.0-alpha.4` also admits native sources without a tracked duplicate Claim
+Model. It does not retroactively change valid v1 Editions or establish an
+adopter's acceptance.
 
 An Edition is the smallest complete public unit of Architecture Publisher. It is
 not a theme, diagram file, renderer preset, or copy of the source model. It is a

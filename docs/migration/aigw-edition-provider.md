@@ -1,7 +1,7 @@
 ---
 subject: aigw:edition-provider-migration
 role: handoff
-state: v1-location-observed-successor-provisional
+state: released-core-source-adoption-unverified
 relations:
   uses: ../reference/edition-provider.md
 ---
@@ -9,9 +9,9 @@ relations:
 # AIGW Edition Provider boundary
 
 This packet separates an observed AIGW v1 adoption from a proposed successor
-migration. It is not AIGW authorization, acceptance, or publication. As of
-2026-09-27, the successor is implemented in a Publisher work lane with
-provisional installed conformance, not a selected AIGW release or migration.
+migration. It is not AIGW authorization, acceptance, or publication. Publisher
+`v0.3.0-alpha.4` is a released selected-input baseline; the provisional AIGW
+probes below do not establish AIGW's selection, acceptance, or release.
 Publisher implementation or release does not authorize AIGW migration; no AIGW
 source change is authorized by this packet.
 
@@ -81,7 +81,7 @@ selected byte consistency, not implemented behavior or a final publication.
 variables; no tracked invocation of that file was found in the current AIGW
 quality graph. Its successor journey must be executed and admitted by AIGW,
 not inferred from Publisher conformance. This map is not per-file deletion
-authorization or proof that the unreleased successor can replace v1.
+authorization or proof that the released successor can replace v1 for AIGW.
 
 ## Reviewed successor boundary
 
@@ -111,9 +111,10 @@ cannot be asserted by relabeling the Client Projection.
    Claim Model, Edition, package archive, source-member hashes, and resulting
    Candidate and media identities. Record the existing v1 acceptance and
    publication state rather than inferring it from this packet.
-2. Wait for the Publisher successor's **reviewed specification**, implementation,
-   installed conformance, release, and exact artifact identities. Do not migrate
-   against an unapproved design or a neighboring Publisher checkout.
+2. Select one reviewed and released Publisher package by its exact archive
+   digest; `v0.3.0-alpha.4` is the first such v2 baseline. Verify its installed
+   conformance and exact artifact identities. Do not migrate against a neighboring
+   Publisher checkout or infer AIGW acceptance from the Publisher release.
 3. Choose AIGW's exact source claimant, Edition editor, accepter, custodian,
    revision kind, and selected native inputs. Keep historical v1 bytes intact;
    introduce a versioned successor selection rather than reinterpreting v1.
