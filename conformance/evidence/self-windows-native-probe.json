@@ -1,0 +1,50 @@
+{
+  "schema": "architecture.research-installed-probe/v1",
+  "workload": "architecture-publisher-self-native-windows",
+  "status": "provisional-pass-not-released",
+  "observedAt": "2026-09-28T22:39:39+00:00",
+  "publisher": {
+    "sourceCommit": "e900ec66c721118a1a49f9d60a984ad2f5a4d4e9",
+    "coreArchiveSha256": "f74e1c3e8711a164fdd2cf23282938280b5f913b3545143dc6f6c0e603be6f13",
+    "selfEditionArchiveSha256": "36be3e1db20ae15ca54623779b32dcab9edfe3ed875e93c8f9853eb9cda23909",
+    "candidateSha256": "4237efaac452a459dce0cdafe39d85720ec87ce55240e9ff36764903cb6fe122",
+    "buildRequestSha256": "e8194244901b4d26f34afe51eca4d806f395d8c4abe089fdbacc39a90a29461f"
+  },
+  "platform": {
+    "guest": "CI Windows ARM64",
+    "node": "v26.9.0",
+    "vmIsolationRestored": true,
+    "guestScratchRemoved": true,
+    "postflightOwnedNodeProcesses": 0,
+    "guestExecutionPolicyOverride": "process-only Bypass for the selected build script",
+    "persistentExecutionPolicyChange": false
+  },
+  "candidateMembersSha256": {
+    "interactive/architecture.html": "d4c563469de2b9bdb7576b8cffcc5a65068b19806916cc4fa19f177457c5e545",
+    "static/architecture.png": "debb45799fae57fda50ca874f7d54d2189fa317e5346ae872544d1114281bf5a",
+    "input-lock.json": "f0d18fab383d58dee58927b2555025e2d5218be4668755b21e18cad54d19023d",
+    "manifest.json": "57e47247aa2d55d9f127cc95aa2f4045effa2bbc766b39ee6f84826e7ec3f3c7",
+    "static/architecture.svg": "8af49f6a1c90c40f659560e7847f9163657ec001a9a106dac55d05c5f4d41185",
+    "candidate.json": "a597bd1b469d766d9959532ab4f76b9e0c92c7fb13acda326128b8b3a34bbc91"
+  },
+  "evidenceSha256": {
+    "guestResult": "9fecff2be24206fb537dc905fcb884c65dca6631b5930ca40da24c7581e69568",
+    "hostBundle": "53c6b6e2cf28e6634fe694927543a30ffca1c4496160324af0949ae857887481",
+    "guestScript": "2798554261c0f5139294b1fd865d2036bf8df9f81ee9e2ce0fe84e5e4c59d65d",
+    "transferLog": "c71a731243000f0efa0c6383cdc1e332c0baba4a6621924809540cdbbb20d478",
+    "transportLog": "3c29959ef17902680778e16597cbedc4f442547fe749a9206037b6dd8220cacc",
+    "postflightLog": "f570610aff19dc182636acd7506beafe4bf39d0f97b91e6bad6766cf68bc35e6"
+  },
+  "method": [
+    "A private, SHA-256-checked bundle transferred the exact alpha.5 package pair and selected inputs to the native Windows ARM64 guest.",
+    "The guest installed both tarballs with a private empty npm cache, offline mode, scripts disabled, and an unreachable registry.",
+    "The installed public CLI built the selected request with empty PATH; six Candidate member digests were compared with the selected macOS Candidate.",
+    "The guest result was read back by a bounded loopback upload. A separate read-only guest postflight found no owned scratch, Node process, or process-level execution-policy override; the host then restored and checked VM isolation."
+  ],
+  "limits": [
+    "This is a local native Windows ARM64 replay, not off-host disaster recovery or a protected release.",
+    "Package and Candidate digests are provisional alpha.5 identities; source-owner adoption and human visual acceptance are separate.",
+    "Raw transport and postflight logs remain in ignored local test work; this signed record attributes the observation but does not independently authenticate the guest.",
+    "The process-only PowerShell execution-policy override is confined to the selected test invocation; it does not establish a general policy for user scripts."
+  ]
+}

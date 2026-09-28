@@ -920,6 +920,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       Candidate identity for three selected implementation file sets; a changed
       source pin failed before output. The exact comparison and limits are in
       `conformance/evidence/di-effect-selected-implementation-renewal.json`.
+      At signed Publisher `e900ec66`, the provisional alpha.5 self package pair
+      rebuilt the same six Candidate members from an offline-installed public
+      CLI on local Windows ARM64 Node 26.9. Exact archives, output, cleanup,
+      and limits are in `conformance/evidence/self-windows-native-probe.json`;
+      this is not a protected release or off-host recovery.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
