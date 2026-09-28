@@ -2,10 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 async function api() {
-  const entry = new URL('../packages/publisher/renderers/svg/metrics.mjs', import.meta.url);
+  const entry = new URL(
+    '../packages/publisher/src/scene/typography/recorded-metrics.mjs',
+    import.meta.url,
+  );
+  const displaced = new URL('../packages/publisher/renderers/svg/metrics.mjs', import.meta.url);
   const { access } = await import('node:fs/promises');
-  await assert.doesNotReject(access(entry), 'recorded measurement reader exists');
-  return (await import(entry)).createMetricReader;
+  await assert.doesNotReject(access(entry), 'recorded measurement reader has a Scene owner');
+  await assert.rejects(access(displaced), { code: 'ENOENT' });
+  return (await import(entry)).createRecordedMetricReader;
 }
 const sample = () => ({
   schema: 'architecture.text-metrics/v1',

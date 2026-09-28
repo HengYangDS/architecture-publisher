@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { validateEdition } from 'architecture-publisher/edition';
-import { createMetricReader } from 'architecture-publisher/renderers/svg';
+import { createRecordedMetricReader } from 'architecture-publisher/scene';
 import { canonical, deepFreeze, validateClaimModel } from 'architecture-publisher/semantics';
 import { parseStrictJson } from 'architecture-publisher/source';
 import { architecturePublisherInteractiveScenes } from './interactive-scenes.mjs';
@@ -119,7 +119,7 @@ export function refinementFromSelfEdition(sourceModel, authoredEdition, metricBy
   });
   const scene = compileArchitecturePublisherStaticScene(
     composition,
-    createMetricReader(metrics).measure,
+    createRecordedMetricReader(metrics).measure,
   );
   const pages = edition.narrative.map((id) => {
     const authored = edition.scenes.interactive[id];

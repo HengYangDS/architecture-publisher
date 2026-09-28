@@ -934,7 +934,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       2026-09-29: the reviewed module-depth corrections identify remaining mixed
       owners and public helper exports. The explicitly internal
       `compileEditionCandidate` public export was removed with package-boundary
-      RED/GREEN evidence. Close with an exact export/consumer
+      RED/GREEN evidence. The recorded-metric reader moved from the SVG renderer
+      to Scene typography with its former public export deleted. Close with an exact export/consumer
       inventory, owner-correct replacements, deleted incumbents, full first-party
       type-check scope, and relocated installed journeys. The renderer adopter
       tripwire now has a RED/GREEN regression, but that alone does not close the

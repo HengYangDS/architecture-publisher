@@ -13,6 +13,9 @@ may contain incompatible changes.
 - Reconciled current Provider v2 and source-adopter migration guidance with the
   signed `v0.3.0-alpha.4` release, without treating Publisher release as source
   acceptance or independent off-host recovery.
+- Moved the recorded typography reader from the SVG renderer surface to the
+  Scene authoring surface as `createRecordedMetricReader`. Existing signed
+  releases retain their original API and bytes.
 
 ## [0.3.0-alpha.4] - 2026-09-28
 

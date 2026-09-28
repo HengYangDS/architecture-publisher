@@ -1,10 +1,10 @@
-import { fail, hasExactFields as fields } from '../../src/source/manifest.mjs';
+import { fail, hasExactFields as fields } from '../../source/manifest.mjs';
 
 const finite = (n) => Number.isFinite(n) && Math.abs(n) <= 1e7;
 const invalid = () => fail('measurement_invalid');
 
 /** Recorded measurement data is not an executable measurer or fresh evidence. */
-export function createMetricReader(input) {
+export function createRecordedMetricReader(input) {
   if (
     !fields(input, ['schema', 'provenance', 'records']) ||
     input.schema !== 'architecture.text-metrics/v1' ||
