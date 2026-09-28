@@ -167,17 +167,14 @@ export async function planQualifiedFilePublication(value, base) {
   const evidence = selectedEvidence(candidate, lock, set, policy, report);
   const expected = new Set(['candidate.json', 'input-lock.json']);
   const payload = [];
-  for (const [medium, slot] of [
-    ['static', 'native'],
-    ['interactive', 'atlas'],
-  ])
+  for (const medium of ['static', 'interactive'])
     for (const artifact of candidate.media[medium].artifacts) {
       expected.add(artifact.path);
       const member = members.get(artifact.path);
       if (!member || member.bytes !== artifact.bytes || member.sha256 !== artifact.sha256)
         fail('qualified_candidate_artifact_mismatch');
       payload.push({
-        medium: slot,
+        medium,
         path: path.posix.basename(artifact.path),
         source: path.join(root, ...artifact.path.split('/')),
         bytes: member.bytes,
@@ -220,8 +217,8 @@ export async function planQualifiedFilePublication(value, base) {
   const options = {
     sourceRoots: [root],
     destinations: {
-      native: selectedTargetPath(base, value.options.destinations.static),
-      atlas: selectedTargetPath(base, value.options.destinations.interactive),
+      static: selectedTargetPath(base, value.options.destinations.static),
+      interactive: selectedTargetPath(base, value.options.destinations.interactive),
     },
     recoveryRoot: selectedTargetPath(base, value.options.recoveryRoot),
   };
@@ -237,7 +234,7 @@ export async function planQualifiedFilePublication(value, base) {
     options,
     source,
     payload,
-    entries: { native: value.entries.static, atlas: value.entries.interactive },
+    entries: { static: value.entries.static, interactive: value.entries.interactive },
     dependencies,
     ...(value.replacement ? { replacement: value.replacement } : {}),
   });

@@ -34,6 +34,13 @@ accepter adoption, custodian, and separate effect authorization to the plan.
 - **AND** an explicit local custody target may be outside the request directory
   without allowing it to overlap selected source files
 
+#### Scenario: Qualified media retain their meaning through local effects
+
+- **WHEN** a qualified Edition request selects static and interactive destinations
+- **THEN** its plan, journal, and receipt use `static` and `interactive` media keys
+- **AND** the raw file-integrity pair retains its `native` and `atlas` input meaning
+- **AND** neither admission path accepts the other path's media keys
+
 #### Scenario: Adoption and local effect authorization are separate
 
 - **WHEN** `architecture.qualified-file-authorization/v1` binds a plan

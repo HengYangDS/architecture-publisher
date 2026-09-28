@@ -5,6 +5,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/index.mjs';
+import { planPairFiles } from '../packages/publisher/src/publication/files.mjs';
 import { filePublication } from '../packages/publisher/src/publication/input.mjs';
 import { verifyQualificationInput } from '../packages/publisher/src/qualification/index.mjs';
 import { canonical } from '../packages/publisher/src/semantics/document.mjs';
@@ -161,8 +162,16 @@ test('one qualified plan requires external acceptance and separate local authori
   assert.equal(planned.plan.source.roles.custodian, f.request.roles.custodian);
   assert.deepEqual(
     new Set(planned.plan.payload.map(({ medium, path: name }) => `${medium}:${name}`)),
-    new Set(['native:architecture.svg', 'native:architecture.png', 'atlas:architecture.html']),
+    new Set([
+      'static:architecture.svg',
+      'static:architecture.png',
+      'interactive:architecture.html',
+    ]),
   );
+  assert.deepEqual(Object.keys(planned.plan.options.destinations).sort(), [
+    'interactive',
+    'static',
+  ]);
 
   const plan = await f.write('publication-plan.json', planned.plan);
   const authorization = authorizationFor(f, planned.plan);
@@ -178,9 +187,20 @@ test('one qualified plan requires external acceptance and separate local authori
   const installed = await filePublication('apply', plan.file, approved.file);
   assert.equal(installed.status, 'INSTALLED');
   assert.equal(installed.semanticAcceptance, 'externally-declared');
+  assert.deepEqual(Object.keys(installed.destinations).sort(), ['interactive', 'static']);
+  assert.deepEqual(Object.keys(installed.recovery).sort(), ['interactive', 'static']);
   const receipt = JSON.parse(
     await fs.readFile(path.join(f.selected.root, 'delivery/static/delivery-manifest.json')),
   );
+  const interactiveReceipt = JSON.parse(
+    await fs.readFile(path.join(f.selected.root, 'delivery/interactive/delivery-manifest.json')),
+  );
+  const journal = JSON.parse(
+    await fs.readFile(path.join(path.dirname(installed.recovery.static), 'operation.json')),
+  );
+  assert.equal(receipt.medium, 'static');
+  assert.equal(interactiveReceipt.medium, 'interactive');
+  assert.deepEqual(Object.keys(journal.destinations).sort(), ['interactive', 'static']);
   assert.equal(receipt.source.roles.accepter, f.policy.accepter);
   assert.equal(receipt.authorization.effect.authorizer, f.request.roles.effectAuthorizer);
 
@@ -192,6 +212,35 @@ test('one qualified plan requires external acceptance and separate local authori
   assert.equal(recovered.status, 'ALREADY_INSTALLED');
   await fs.access(path.join(f.selected.root, 'delivery/static/architecture.svg'));
   await fs.access(path.join(f.selected.root, 'delivery/interactive/architecture.html'));
+});
+
+test('qualified and raw plans cannot exchange media slot names', async (t) => {
+  const f = await fixture(t);
+  const request = await f.write('publication-request.json', f.request);
+  const plan = (await filePublication('plan', request.file)).plan;
+  const qualifiedWithRawSlots = structuredClone(plan);
+  qualifiedWithRawSlots.options.destinations = {
+    native: plan.options.destinations.static,
+    atlas: plan.options.destinations.interactive,
+  };
+  qualifiedWithRawSlots.payload = plan.payload.map((item) => ({
+    ...item,
+    medium: item.medium === 'static' ? 'native' : 'atlas',
+  }));
+  qualifiedWithRawSlots.entries = {
+    native: plan.entries.static,
+    atlas: plan.entries.interactive,
+  };
+  await assert.rejects(
+    planPairFiles(qualifiedWithRawSlots),
+    /Publication media do not match source/,
+  );
+
+  const rawWithQualifiedSlots = { ...plan, source: { schema: 'fixture.raw-source/v1' } };
+  await assert.rejects(
+    planPairFiles(rawWithQualifiedSlots),
+    /Publication media do not match source/,
+  );
 });
 
 test('a forged policy-complete report cannot make an empty Qualification Set publishable', async (t) => {
@@ -465,8 +514,11 @@ test('a local custodian can select explicit absolute delivery and recovery targe
   request.options.recoveryRoot = path.join(f.selected.root, 'recovery');
   const selected = await f.write('absolute-targets.json', request);
   const planned = await filePublication('plan', selected.file);
-  assert.equal(planned.plan.options.destinations.native, request.options.destinations.static);
-  assert.equal(planned.plan.options.destinations.atlas, request.options.destinations.interactive);
+  assert.equal(planned.plan.options.destinations.static, request.options.destinations.static);
+  assert.equal(
+    planned.plan.options.destinations.interactive,
+    request.options.destinations.interactive,
+  );
   assert.equal(planned.plan.options.recoveryRoot, request.options.recoveryRoot);
   request.options.destinations.static = path.join(f.selected.root, 'candidate');
   const overlapping = await f.write('overlapping-target.json', request);

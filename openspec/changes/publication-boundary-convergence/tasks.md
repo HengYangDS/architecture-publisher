@@ -790,6 +790,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       replays exact installed bytes. Existing raw-file behavior remains covered.
       A post-plan missing, linked, or non-directory destination parent now fails
       before writer-lock preparation without creating recovery state.
+      The shared file-effect owner now keeps `static`/`interactive` in a
+      qualified plan, journal, and receipt while preserving the raw pair's
+      `native`/`atlas` input meanings; cross-borrowed slots fail closed.
       The receipt attributes but cannot authenticate actors or grant release
       authority; trusted evidence, final human acceptance, and the 95% global
       gate remain with Tasks 6.1 and 7.5–7.6, not this local-effect mechanism.

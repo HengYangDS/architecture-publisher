@@ -8,6 +8,12 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
+### Fixed
+
+- Qualified Edition file plans, journals, and receipts retain `static` and
+  `interactive` media keys; the raw file-integrity pair retains `native` and
+  `atlas` without sharing media slots.
+
 ## [0.3.0-alpha.4] - 2026-09-28
 
 ### Added

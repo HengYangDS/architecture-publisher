@@ -4,6 +4,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { PUBLICATION_MEDIA } from '../packages/publisher/src/publication/files.mjs';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -163,10 +164,7 @@ test('the published pair-files v2 protocol retains native and atlas media keys',
       ),
     )
   ).join('\n');
+  assert.deepEqual(PUBLICATION_MEDIA, ['native', 'atlas']);
   assert.doesNotMatch(source, /\.ethos-pair-/i);
-  assert.match(source, /['"]native['"]/);
-  assert.match(source, /['"]atlas['"]/);
-  assert.match(source, /destinations\.native\b/);
-  assert.doesNotMatch(source, /destinations\.(?:static|interactive)\b/);
   assert.match(source, /\.architecture-publication-writer/);
 });

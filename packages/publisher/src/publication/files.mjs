@@ -12,6 +12,19 @@ const inside = (a, b) => a === b || b.startsWith(a + path.sep);
 const overlap = (a, b) => inside(a, b) || inside(b, a);
 const metadata = ['index.html', 'README.md', 'delivery-manifest.json', 'SHA256SUMS'];
 export const PUBLICATION_MEDIA = Object.freeze(['native', 'atlas']);
+const EDITION_MEDIA = Object.freeze(['static', 'interactive']);
+function selectedMedia(options) {
+  const destinations = options?.destinations;
+  if (hasExactFields(destinations, PUBLICATION_MEDIA)) return PUBLICATION_MEDIA;
+  if (hasExactFields(destinations, EDITION_MEDIA)) return EDITION_MEDIA;
+  if (hasExactFields(destinations, ['native']) || hasExactFields(destinations, ['atlas']))
+    return PUBLICATION_MEDIA;
+  throw Error('Explicit publication media pair required');
+}
+function requireSourceMedia(source, media) {
+  const expected = source?.schema === QUALIFIED_SOURCE ? EDITION_MEDIA : PUBLICATION_MEDIA;
+  if (media !== expected) throw Error('Publication media do not match source');
+}
 const exists = (p) =>
   fs.lstat(p).then(
     () => true,
@@ -77,6 +90,7 @@ async function inventory(root) {
   return { exists: true, entries };
 }
 function validateOptions(o) {
+  const media = selectedMedia(o);
   if (
     !o ||
     !Array.isArray(o.sourceRoots) ||
@@ -91,11 +105,11 @@ function validateOptions(o) {
     throw Error('Duplicate source roots');
   if (!path.isAbsolute(o.recoveryRoot ?? ''))
     throw Error('Explicit absolute recoveryRoot required');
-  for (const name of PUBLICATION_MEDIA)
+  for (const name of media)
     if (!path.isAbsolute(o.destinations?.[name] ?? ''))
       throw Error('Explicit absolute destination required');
-  const a = path.resolve(o.destinations.native),
-    b = path.resolve(o.destinations.atlas),
+  const a = path.resolve(o.destinations[media[0]]),
+    b = path.resolve(o.destinations[media[1]]),
     r = path.resolve(o.recoveryRoot);
   if (overlap(a, b) || overlap(a, r) || overlap(b, r))
     throw Error('Destinations and recovery must be distinct and non-overlapping');
@@ -115,6 +129,7 @@ function validateOptions(o) {
         .startsWith('.architecture-publication-')
     )
       throw Error('Destination uses reserved pair control namespace');
+  return media;
 }
 async function canonicalOptions(options) {
   async function physical(file) {
@@ -130,7 +145,7 @@ async function canonicalOptions(options) {
   const o = structuredClone(options);
   o.sourceRoots = await Promise.all(o.sourceRoots.map(physical));
   o.recoveryRoot = await physical(o.recoveryRoot);
-  for (const key of PUBLICATION_MEDIA) o.destinations[key] = await physical(o.destinations[key]);
+  for (const key of selectedMedia(o)) o.destinations[key] = await physical(o.destinations[key]);
   validateOptions(o);
   return o;
 }
@@ -193,14 +208,15 @@ export async function planPairFiles(input, replayPrestates) {
     !Array.isArray(input.dependencies)
   )
     throw Error('Explicit file installation inputs required');
-  validateOptions(input.options);
+  const media = validateOptions(input.options);
+  requireSourceMedia(input.source, media);
   const options = await canonicalOptions(input.options),
     payload = [],
     dependencies = new Map(),
     names = new Map();
   if (Object.hasOwn(input, 'replacement')) validateReplacement(input.replacement, options);
   const entries = structuredClone(input.entries);
-  for (const medium of PUBLICATION_MEDIA) {
+  for (const medium of media) {
     if (
       !entries?.[medium] ||
       !hasExactFields(entries[medium], ['README.md', 'index.html']) ||
@@ -257,7 +273,7 @@ export async function planPairFiles(input, replayPrestates) {
     dependencies.set(dep.file, dep.sha256);
   }
   const prestates = {};
-  for (const medium of PUBLICATION_MEDIA) {
+  for (const medium of media) {
     const before = replayPrestates?.[medium] ?? (await inventory(options.destinations[medium]));
     prestates[medium] = structuredClone(before);
     if (input.replacement) verifyPriorPreimages(input.replacement, medium, before);
@@ -450,7 +466,7 @@ function verifyPlanAcceptance(plan, acceptance) {
   equal(sha(encode(body)), digest, 'Plan digest mismatch');
   if (plan.schema !== 'architecture.pair-files/v2')
     throw Error('Unsupported file installation plan');
-  validateOptions(plan.options);
+  requireSourceMedia(plan.source, validateOptions(plan.options));
   if (plan.source?.schema === QUALIFIED_SOURCE) {
     const source = plan.source;
     if (
@@ -515,7 +531,7 @@ function verifyPlanAcceptance(plan, acceptance) {
 async function withPairWriter(plan, acceptance, recover, action) {
   const digest = verifyPlanAcceptance(plan, acceptance),
     o = plan.options;
-  const parent = path.dirname(o.destinations.native);
+  const parent = path.dirname(o.destinations[selectedMedia(o)[0]]);
   let parentStat;
   try {
     parentStat = await fs.lstat(parent);
@@ -691,7 +707,7 @@ async function rollbackPair(plan, acceptance, journal, op, { rename, writeJourna
   const states = [];
   // Inspect every target before the first recovery effect. Never move an unknown
   // or modified directory merely because an old journal says we installed it.
-  for (const medium of [...PUBLICATION_MEDIA].reverse()) {
+  for (const medium of [...selectedMedia(plan.options)].reverse()) {
     const target = plan.options.destinations[medium],
       prior = path.join(op, 'prior-' + medium),
       failed = path.join(op, 'failed-' + medium);
@@ -775,7 +791,7 @@ async function rollbackPair(plan, acceptance, journal, op, { rename, writeJourna
     }
     equal(sameInventory(await inventory(s.target), s.before), true, 'Rollback prestate mismatch');
   }
-  for (const m of PUBLICATION_MEDIA)
+  for (const m of selectedMedia(plan.options))
     equal(
       sameInventory(await inventory(plan.options.destinations[m]), plan.prestates[m]),
       true,
@@ -808,7 +824,7 @@ async function recoverLockedPair(
   const op = path.join(o.recoveryRoot, digest.slice(0, 20));
   await noLinks(op);
   if (!(await exists(op))) {
-    for (const medium of PUBLICATION_MEDIA)
+    for (const medium of selectedMedia(o))
       equal(
         sameInventory(await inventory(o.destinations[medium]), plan.prestates[medium]),
         true,
@@ -839,7 +855,7 @@ async function recoverLockedPair(
   if (recorded === null) {
     // Before the first durable journal, no destination switch is permitted.
     // Certify only the unchanged prestate; retain incomplete staging for inspection.
-    for (const medium of PUBLICATION_MEDIA) {
+    for (const medium of selectedMedia(o)) {
       equal(
         sameInventory(await inventory(o.destinations[medium]), plan.prestates[medium]),
         true,
@@ -878,11 +894,11 @@ async function recoverLockedPair(
     'Recovery journal destination mismatch',
   );
   if (journal.status === 'INSTALLED') {
-    for (const m of PUBLICATION_MEDIA) await verifyInstalled(plan, m, acceptance);
+    for (const m of selectedMedia(o)) await verifyInstalled(plan, m, acceptance);
     return { status: 'ALREADY_INSTALLED', planSha256: digest };
   }
   if (journal.status === 'ROLLED_BACK') {
-    for (const m of PUBLICATION_MEDIA)
+    for (const m of selectedMedia(o))
       equal(
         sameInventory(await inventory(o.destinations[m]), plan.prestates[m]),
         true,
@@ -917,7 +933,7 @@ async function publishLockedPair(
     equal(sha(await fs.readFile(d.file)), d.sha256, 'Source/evidence changed: ' + d.file);
   }
   const already = await Promise.all(
-    PUBLICATION_MEDIA.map(async (m) => {
+    selectedMedia(o).map(async (m) => {
       const p = path.join(o.destinations[m], 'delivery-manifest.json');
       await noLinks(p);
       if (!(await exists(p))) return false;
@@ -952,10 +968,10 @@ async function publishLockedPair(
       JSON.stringify(operation.destinations) !== JSON.stringify(o.destinations)
     )
       throw Error('Recorded operation does not confirm delivery');
-    for (const m of PUBLICATION_MEDIA) await verifyInstalled(plan, m, acceptance);
+    for (const m of selectedMedia(o)) await verifyInstalled(plan, m, acceptance);
     return { status: 'ALREADY_INSTALLED', planSha256: digest };
   }
-  for (const m of PUBLICATION_MEDIA)
+  for (const m of selectedMedia(o))
     equal(
       JSON.stringify(await inventory(o.destinations[m])),
       JSON.stringify(plan.prestates[m]),
@@ -965,7 +981,7 @@ async function publishLockedPair(
   // controlled plan from the same exact source/evidence and current prestates.
   const currentPlan = await planPairFiles(planInput(plan));
   equal(currentPlan.sha256, digest, 'Canonical plan changed; re-plan and review');
-  const parent = path.dirname(o.destinations.native);
+  const parent = path.dirname(o.destinations[selectedMedia(o)[0]]);
   await noLinks(parent);
   await noLinks(o.recoveryRoot);
   if (!(await exists(parent))) throw Error('Destination parent must exist');
@@ -982,7 +998,7 @@ async function publishLockedPair(
     path.join(o.recoveryRoot, '.prepare-' + digest.slice(0, 20) + '-'),
   );
   const stage = await fs.mkdtemp(path.join(parent, '.architecture-publication-stage-')),
-    recovery = Object.fromEntries(PUBLICATION_MEDIA.map((m) => [m, path.join(op, 'prior-' + m)])),
+    recovery = Object.fromEntries(selectedMedia(o).map((m) => [m, path.join(op, 'prior-' + m)])),
     installed = [],
     saved = [];
   const journal = {
@@ -1022,7 +1038,7 @@ async function publishLockedPair(
     );
   }
   try {
-    for (const medium of PUBLICATION_MEDIA) {
+    for (const medium of selectedMedia(o)) {
       const target = o.destinations[medium],
         out = path.join(stage, medium),
         before = plan.prestates[medium];
@@ -1098,7 +1114,7 @@ async function publishLockedPair(
     }
     for (const d of plan.dependencies)
       equal(sha(await fs.readFile(d.file)), d.sha256, 'Source changed before install');
-    for (const m of PUBLICATION_MEDIA)
+    for (const m of selectedMedia(o))
       equal(
         JSON.stringify(await inventory(o.destinations[m])),
         JSON.stringify(plan.prestates[m]),
@@ -1106,7 +1122,7 @@ async function publishLockedPair(
       );
     journal.status = 'INSTALLING';
     await record();
-    for (const medium of PUBLICATION_MEDIA) {
+    for (const medium of selectedMedia(o)) {
       equal(
         JSON.stringify(await inventory(o.destinations[medium])),
         JSON.stringify(plan.prestates[medium]),

@@ -321,7 +321,10 @@ locations and rejects overlap with selected sources. The plan derives its three
 artifact payloads and source roles from
 the selected Candidate and input lock; callers cannot supply arbitrary payload
 rows in this mode. Both forms produce a dry plan without changing a delivery
-target.
+target. The qualified plan, journal, and receipt retain `static` and
+`interactive` media keys; `native` and `atlas` remain confined to the raw
+file-integrity pair, including prior inputs. Both forms use the same local
+file-effect owner.
 
 After a source product or operator supplies an exact authorization bound to the
 plan digest:
