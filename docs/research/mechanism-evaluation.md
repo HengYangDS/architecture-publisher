@@ -60,8 +60,6 @@ Primary source locations:
 | Domain                       | Observed mechanism                                                                                                                                                                      | Decision                                                                   | Concrete consumer and boundary                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Intent and specification     | OpenSpec 1.13.1 prevents normalized duplicate requirements, validates malformed task markers and hardens archive/sync ordering. Spec Kit supplies constitution and template discipline. | **Adopt current carrier; borrow editorial discipline.**                    | OpenSpec remains the repository's explicit change-intent carrier. Constitution-style invariants may improve authored guidance, but Spec Kit's workflow must not become another lifecycle owner.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Resumable agent work         | COMET implements checkpoint journals, trajectory recovery, native next actions, pending operations, immutable snapshots and evaluation scaffolds.                                       | **Adopt concepts; reject runtime import.**                                 | ETHOS can strengthen immutable Skill-input snapshots, pending-effect/outcome binding, resumable next action, child readiness and rubric-based evaluation. Do not import `.comet` run state, trajectories or a parallel command plane.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Context compilation          | SpecD compiles relevant specifications and lifecycle instructions and records workspace-aware dependencies.                                                                             | **Adopt bounded relevance metadata.**                                      | A future intent compiler may select relevant accepted intent and disclose omitted/lossy context. Selection remains a reproducible projection, never authority over the source documents.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Code semantics               | SpecD implements multi-language symbols, dependency/impact queries, stale latches and a SQLite graph store. CodeQL separates syntax, control flow, data flow and taint semantics.       | **Adopt typed relation and freshness boundaries; reject graph authority.** | Source-bound architecture inputs must name relation kind, evidence revision, analysis boundary, freshness and loss. A graph may be rebuilt as observation; it cannot replace accepted product intent. Do not add SQLite until a real consumer needs persisted queries.                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | Incremental computation      | Salsa tracks query inputs and invalidates dependent derived results by revision and durability.                                                                                         | **Defer.**                                                                 | Two adopters do not yet show that selective recomputation would repay a new runtime and cache-coherency contract. Current complete bounded compilation remains simpler and auditable.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Semantic validation          | SHACL validates typed graph shapes independently of a particular storage engine.                                                                                                        | **Defer.**                                                                 | The current finite JSON semantic vocabulary already fails closed. Reconsider shape languages only when third-party extensions require an open vocabulary that cannot remain a closed schema.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
@@ -252,40 +250,6 @@ The static work remains text-dense, interactive graph labels are small and
 per-claim anchors remain long; no final reader-quality, source-owner or human
 acceptance was granted. All owned temporary Candidates, browser sessions and
 servers were removed.
-
-## Consequences for ETHOS
-
-ETHOS is best treated as the hard trust skeleton for an agentic-native
-repository, not as an SDD front end, Skill runtime or semantic database. Its
-terminal chain should remain:
-
-```text
-problem or research
--> open interpretation
--> accepted intent
--> typed, source-bound semantics
--> commitment plus fresh facts
--> capability selection
--> owned lanes and worktrees
--> proof
--> CAS-controlled effect
--> post-effect observation
--> attestation
--> real-use outcome
--> feedback to accepted intent
-```
-
-Greenfield scaffolding and brownfield adoption are both first-class. Lanes may
-cooperate on separate concerns, compete on the same concern, or explore without
-landing; all candidates may be dropped. Skills supply methods but no authority.
-Code and semantic graphs supply observations but no intent. OpenSpec and Git are
-the current concrete carriers because their contracts fit ETHOS; they are not
-claimed to be losslessly replaceable by arbitrary SDD and VCS systems.
-
-The architecture publisher remains downstream. It turns explicitly selected
-facts and meaning into human-readable static and interactive projections, then
-binds observation and file effects. It must not absorb ETHOS governance, infer
-product intent from code, or promote a rendering result into acceptance.
 
 ## Revisit triggers
 
