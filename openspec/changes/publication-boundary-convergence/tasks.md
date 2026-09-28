@@ -254,8 +254,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       scratch. The affected 41 conformance and installed tests pass, as do 100
       Linux Node 26.9 coverage-mode repetitions of the stderr cases. The local
       full check passes 1,263 tests with eight declared skips, no failures, and
-      97.96/95.07/99.53/97.96% statements/branches/functions/lines. Hosted CI
-      for this repair and final released-package evidence remain open.
+      97.96/95.07/99.53/97.96% statements/branches/functions/lines. Pipeline
+      `8556` on signed `e6be1af` passed 1,254 tests, 17 declared skips, zero
+      failures, and Linux coverage 97.28/95.11/99.19/97.28% in the same order.
+      Two affected files then ran from a SHA-256-checked archive of that exact
+      commit on native Windows ARM64: 43 pass, seven platform-inapplicable
+      skips, zero fail; both guest log hashes matched host readback. The guest
+      scratch was removed, VM isolation restored to its original value, and
+      the VM remained running. The provisional receipt is
+      `build/test-work/windows-native-e6be1af/probe-receipt.json`. Final frozen-
+      package and full-platform release qualification remain open.
 - [x] 3.3 Prove identical selected-input lock identity and distinct invocation
       receipts across direct, declarative, executable, and mixed selections in
       `tests/provider-join.test.mjs`, the sole successor cross-mode fixture.
