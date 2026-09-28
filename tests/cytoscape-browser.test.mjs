@@ -229,6 +229,25 @@ test(
       false,
     );
     const initialGeometry = await graphGeometry();
+    const focusButton = page.locator('#page-0 [data-focus-node]').last();
+    const requestedNode = await focusButton.getAttribute('data-focus-node');
+    await focusButton.focus();
+    await page.keyboard.press('Enter');
+    const focused = await page.evaluate(() => {
+      const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
+      const node = graph.nodes(':selected').first();
+      const point = node.renderedPosition();
+      return {
+        id: node.id(),
+        offset: Math.hypot(point.x - graph.width() / 2, point.y - graph.height() / 2),
+      };
+    });
+    assert.equal(focused.id, requestedNode);
+    assert(
+      focused.offset <= 2,
+      `first source focus missed graph center: ${JSON.stringify(focused)}`,
+    );
+    await page.getByRole('button', { name: 'Fit graph' }).click();
     assert.equal((await page.locator('#page-0 canvas').count()) > 0, true);
     assert.equal(await page.locator('#page-1').isHidden(), true);
     assert.equal(await page.getByRole('button', { name: 'Alpha & one component' }).count(), 1);

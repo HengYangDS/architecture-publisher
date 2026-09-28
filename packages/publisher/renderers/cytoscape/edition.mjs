@@ -148,8 +148,8 @@ document.querySelectorAll('[data-focus-node], [data-focus-relation]').forEach(bu
     graph.$(':selected').unselect();
     const selected = graph.getElementById(id);
     selected.select();
-    graph.center(selected);
     graph.zoom(1.35);
+    graph.center(selected);
   });
 });
 document.querySelectorAll('[data-fit]').forEach(button => {

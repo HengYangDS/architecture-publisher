@@ -779,7 +779,7 @@
       {
         "path": "renderers/cytoscape/edition.mjs",
         "bytes": 25113,
-        "sha256": "c587d253660e3de8504d38c04cce181388591dc08f89253e23986bda47bd4d94"
+        "sha256": "0253b8b4b32c09d1080e4fb5c6bce0b245f1f0138d7a6558a9f0deadd61107a5"
       },
       {
         "path": "renderers/cytoscape/model.mjs",
