@@ -881,6 +881,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       `conformance/evidence/aigw-grouped-static-probe.json`; the source checkout
       remained available, and this is not final released-package or owner
       acceptance.
+      The current untagged `alpha.4` Core archive also builds the independent-
+      editor example after offline installation outside the checkout. Moving
+      the installed consumer preserves all six Candidate members byte-for-byte
+      without changing the selected inputs or source fixture; see
+      `conformance/evidence/independent-editor-installed-probe.json`. This is
+      provisional generic installed-use evidence, not human review or release.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
