@@ -1041,6 +1041,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       digest. A changed selected input returns to Task 7.5; a progress-only
       commit refreshes exact-HEAD governance separately. Do not rewrite
       historical tags or assert off-host recovery without the operator DR decision.
+      Alpha.4 exposed a release-consumer gap: three selected upload assets
+      rehash through the authenticated API, but `glab release download`
+      1.119.0 fails with 404, unlike an alpha.3 package-API link. A successor
+      release must prove a supported CLI download path and exact byte readback;
+      do not rewrite alpha.4 links to conceal this result.
 
 ## 8. Source handoff and closeout
 

@@ -44,6 +44,13 @@ checksum file for exact asset selection. This is primary-forge readback, not
 independent off-host recovery. ETHOS and AIGW still own their own source facts,
 Edition selection, acceptance, custody and publication.
 
+At the 2026-09-28 readback, selected alpha.4 project-upload bytes remained
+available through GitLab's authenticated uploads API. On this workstation,
+`glab release download` 1.119.0 returned 404 for a linked web-upload URL;
+its zero-byte failed output did not establish asset loss. Machine consumers
+must use a verified authenticated route and compare SHA-256. The normal CLI
+download route is not yet accepted for this release.
+
 ## Authority and state model
 
 Architecture Publisher consumes selected values. It does not discover a

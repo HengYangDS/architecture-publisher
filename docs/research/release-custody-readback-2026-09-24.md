@@ -200,3 +200,31 @@ Time Machine could not mount its destination and listed no local snapshots;
 that observation does not prove that no independent backup exists. The repair
 bar above remains unchanged: original bytes plus independent identity evidence
 before any no-overwrite restoration and exact remote readback.
+
+## Alpha.4 release-consumer counterexample (2026-09-28 14:01 UTC)
+
+On private project 1323, release `v0.3.0-alpha.4` names 11 project-upload
+links. Authenticated GitLab uploads-API GET returned the exact approved HTML
+(`8e50a4e546fc20fc021f788d4ba0f98c32e9d4bffbd3a94c509d1a17eecc7f4e`,
+3,024,996 bytes), PNG
+(`debb45799fae57fda50ca874f7d54d2189fa317e5346ae872544d1114281bf5a`,
+455,932 bytes), and the 999-byte `human-review.json` recording separate
+exact-byte approvals. This proves those selected upload bytes existed at
+readback, not that every consumer link works.
+
+With `GLAB_NO_PROMPT=1`, closed stdin, and a 25-second owned-process deadline,
+`glab release download v0.3.0-alpha.4 --asset-name human-review.json`
+returned 404 and left a zero-byte file; the exact scratch file was removed.
+The same installed `glab` 1.119.0 downloaded the 2,052-byte alpha.3
+`human-review.json` through its package-API release link. The alpha.4 link
+`url` is a web-upload path; the alpha.3 link is an API package path.
+[glab 1.119.0 source](https://gitlab.com/gitlab-org/cli/-/raw/v1.119.0/internal/commands/release/download/download.go)
+shows that release download requests each link's `url` with its GitLab API
+client when host and scheme match. GitLab documents a separate authenticated
+[uploads API](https://docs.gitlab.com/api/project_markdown_uploads/) and
+[Release-link URL contract](https://docs.gitlab.com/api/releases/links/).
+The evidence locates the failure at link/consumer authentication, not missing
+asset bytes; it does not prove browser-session behavior or a universal GitLab
+bug. Do not mutate the signed release or its linked bytes. Future release
+admission must exercise a normal supported CLI consumer path and exact digest
+readback before calling linked assets usable.
