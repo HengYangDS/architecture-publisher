@@ -216,6 +216,42 @@ test('selected member reads reject links, directories and declared-size overflow
   await assert.rejects(regularBytes(link, 1024), { code: 'bundle_symlink_forbidden' });
 });
 
+test('manifest root changing after ancestor inspection fails closed', async (t) => {
+  for (const kind of ['symlink', 'file']) {
+    const f = await fixture(t);
+    const nativeLstat = fs.lstat;
+    let rootReads = 0;
+    fs.lstat = async (file, ...args) => {
+      const stat = await nativeLstat(file, ...args);
+      if (file !== f.root || ++rootReads !== 2) return stat;
+      return {
+        isSymbolicLink: () => kind === 'symlink',
+        isDirectory: () => kind !== 'file',
+      };
+    };
+    try {
+      await assert.rejects(readSourceBundle(f.file, f.digest), {
+        code: kind === 'symlink' ? 'bundle_symlink_forbidden' : 'bundle_type_unsupported',
+      });
+    } finally {
+      fs.lstat = nativeLstat;
+    }
+    assert.equal(rootReads, 2);
+  }
+});
+
+test('undeclared case-alias member cannot borrow a selected bundle', async (t) => {
+  const f = await fixture(t);
+  await fs.writeFile(path.join(f.root, 'input/MODEL.JSON'), f.bytes);
+  if ((await fs.readdir(path.join(f.root, 'input'))).length < 2) {
+    t.skip('the filesystem folds case-alias names');
+    return;
+  }
+  await assert.rejects(readSourceBundle(f.file, f.digest), {
+    code: 'member_path_duplicate',
+  });
+});
+
 test('selected member reads reject changed handles, short reads and trailing bytes', async (t) => {
   const f = await fixture(t);
   const member = path.join(f.root, 'input/model.json');

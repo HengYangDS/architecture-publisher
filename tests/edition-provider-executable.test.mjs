@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -421,6 +422,40 @@ test('selected Provider package cannot contain ambient dependencies or linked me
   await assert.rejects(materializeExecutableProvider(linked), {
     code: 'edition_provider_package_content_invalid',
   });
+});
+
+test('Provider package identity includes nested regular files and their changed bytes', async (t) => {
+  const root = await copyFixture(t);
+  const packageRoot = path.join(root, 'package');
+  const first = await editionProviderPackageDigest(packageRoot);
+  const nested = path.join(packageRoot, 'lib/helper.mjs');
+  await fs.mkdir(path.dirname(nested));
+  await fs.writeFile(nested, 'export const value = 1;\n');
+  const added = await editionProviderPackageDigest(packageRoot);
+  assert.notEqual(added, first);
+  await fs.writeFile(nested, 'export const value = 2;\n');
+  assert.notEqual(await editionProviderPackageDigest(packageRoot), added);
+});
+
+test('Provider package refuses a non-regular socket member', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('Windows named pipes are not filesystem package members');
+    return;
+  }
+  const root = await copyFixture(t);
+  const socketPath = path.join(root, 'package/provider.sock');
+  const server = net.createServer();
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(socketPath, resolve);
+  });
+  try {
+    await assert.rejects(editionProviderPackageDigest(path.join(root, 'package')), {
+      code: 'edition_provider_package_content_invalid',
+    });
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
 });
 
 for (const [scenario, code, options] of [
