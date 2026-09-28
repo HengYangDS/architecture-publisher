@@ -704,6 +704,16 @@ complete Candidate.
 - **THEN** no complete static Candidate is emitted
 - **AND** Publisher does not silently drop or shrink that view to force a pass
 
+#### Scenario: Text clearance dimensions remain distinct
+
+- **WHEN** a source-selected quality rule specifies clearance between text and
+  non-owner geometry but does not specify a text-to-text gap
+- **THEN** the scene audit applies that distance only to the selected geometry
+  predicate and still rejects actual glyph overlap
+- **AND** it does not infer the same numeric distance for text pairs
+- **AND** a successor authored canvas retains its separately selected
+  text-to-text clearance floor
+
 ### Requirement: Historical Edition and Provider contracts remain truthful
 
 Previously valid Edition v1 and Provider v1 inputs SHALL retain their selected

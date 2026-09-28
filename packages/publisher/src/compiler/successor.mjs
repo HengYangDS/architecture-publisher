@@ -52,6 +52,7 @@ const authoredCanvasGeometry = Object.freeze({
   minimumFont: 10,
   ownerClearance: 8,
   textClearance: 5,
+  textToTextClearance: 5,
   endpointTolerance: 1,
   minimumTerminal: 14,
   widthGrowth: 0,

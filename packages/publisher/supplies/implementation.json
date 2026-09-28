@@ -629,8 +629,8 @@
       },
       {
         "path": "src/scene/static/audit.mjs",
-        "bytes": 12210,
-        "sha256": "2debc126c1a0026420db4d342f76099cbefe216e70223b39d6ece05130634320"
+        "bytes": 12399,
+        "sha256": "017a619ecf5ea0a8120068cf441aa45b949818e01692eed4ce984cc15a79a3f1"
       },
       {
         "path": "src/scene/static/authored-canvas.mjs",

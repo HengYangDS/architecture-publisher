@@ -48,6 +48,9 @@ export function auditScene(scene, contract) {
   const failures = [];
   const add = (code, id, other) => failures.push({ code, id, ...(other ? { other } : {}) });
   const scale = scene.referenceWidth / scene.width;
+  const textToTextClearance = contract.textToTextClearance ?? 0;
+  if (!Number.isFinite(textToTextClearance) || textToTextClearance < 0)
+    throw new Error('invalid text-to-text clearance');
   if (
     ![scene.width, scene.height, scene.referenceWidth, scale].every(
       (n) => Number.isFinite(n) && n > 0,
@@ -125,7 +128,7 @@ export function auditScene(scene, contract) {
   for (let i = 0; i < texts.length; i++)
     for (let j = i + 1; j < texts.length; j++)
       if (overlaps(texts[i].box, texts[j].box)) add('text-overlap', texts[i].id, texts[j].id);
-      else if (overlaps(expand(texts[i].box, contract.textClearance), texts[j].box))
+      else if (overlaps(expand(texts[i].box, textToTextClearance), texts[j].box))
         add('text-clearance', texts[i].id, texts[j].id);
   for (let i = 0; i < nodes.length; i++)
     for (let j = i + 1; j < nodes.length; j++)

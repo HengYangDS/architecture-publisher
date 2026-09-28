@@ -871,6 +871,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       explicit-input tests passed offline. The source pin was not changed,
       and v2 migration and flagship acceptance remain open. Exact identities
       and limits are in `conformance/evidence/ethos-provider-compatibility-probe.json`.
+      A real accepted-media regression exposed the Core's conflation of
+      text-to-geometry clearance with text-pair spacing. The repaired
+      provisional Core restores the historical source contract; an explicit
+      five-unit text-pair probe still finds 65 ETHOS source-owned near pairs.
+      See `conformance/evidence/ethos-real-media-clearance-probe.json`.
       The refreshed self probe at signed Publisher `79c1be9` binds the untagged
       alpha.4 Core and self-Edition archives, 23 relocated selected sources,
       and six exact Candidate members. Linux arm64 Node 26.9 and 24.19 emit the

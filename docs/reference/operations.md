@@ -151,6 +151,11 @@ text inside its owning node, 5 units of clearance between text and other text
 or painted marks, and a 14-unit terminal route. These are technical lower
 bounds, not an art direction or human visual approval; the editor must still
 judge hierarchy, density, and balanced use of space on the exact rendered PNG.
+The reusable scene audit keeps text-to-non-owner geometry clearance
+(`textClearance`) separate from optional text-to-text spacing
+(`textToTextClearance`). An omitted text-pair value preserves the historical
+overlap-only rule; it does not borrow a source contract's geometry distance.
+The successor authored canvas explicitly selects the five-unit floor for both.
 
 Historical v1 plans retain their selected output field and original meaning.
 They select a Source Bundle, Claim Model member, and exact

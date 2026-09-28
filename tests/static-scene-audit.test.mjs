@@ -124,7 +124,7 @@ test('scene audit reports visible meaning, readable text and connection defects'
   }
 });
 
-test('scene audit rejects text that clears glyph ink but not the required spacing', () => {
+test('scene audit separates text-to-geometry clearance from text-to-text spacing', () => {
   const selected = scene();
   selected.texts.push({
     ...selected.texts[0],
@@ -133,12 +133,41 @@ test('scene audit rejects text that clears glyph ink but not the required spacin
     box: { x: 20, y: 15, width: 4, height: 5 },
   });
   assert.deepEqual(auditScene(selected, contract).failures, []);
+  assert.equal(
+    auditScene(selected, { ...contract, textClearance: 12 }).failures.some(
+      ({ code, id, other }) =>
+        code === 'text-clearance' && id === 'label' && other === 'near-label',
+    ),
+    false,
+  );
   assert(
-    auditScene(selected, { ...contract, textClearance: 5 }).failures.some(
+    auditScene(selected, { ...contract, textToTextClearance: 5 }).failures.some(
       ({ code, id, other }) =>
         code === 'text-clearance' && id === 'label' && other === 'near-label',
     ),
   );
+  const nearPaint = scene();
+  nearPaint.texts.push({
+    ...nearPaint.texts[0],
+    id: 'near-paint',
+    owner: null,
+    semanticIds: [],
+    box: { x: 64, y: 15, width: 4, height: 5 },
+  });
+  assert(
+    auditScene(nearPaint, { ...contract, textClearance: 5 }).failures.some(
+      ({ code, id, other }) =>
+        code === 'text-nonowner-collision' && id === 'near-paint' && other === 'right',
+    ),
+  );
+});
+
+test('scene audit rejects invalid text-to-text spacing without weakening other checks', () => {
+  for (const value of [-1, NaN, Infinity])
+    assert.throws(
+      () => auditScene(scene(), { ...contract, textToTextClearance: value }),
+      /invalid text-to-text clearance/,
+    );
 });
 
 test('scene audit rejects invalid extents and duplicate node identities', () => {

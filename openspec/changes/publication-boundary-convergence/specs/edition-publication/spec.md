@@ -66,6 +66,16 @@ a complete Candidate. Graph-only layout success is insufficient.
 - **THEN** no complete static Candidate is emitted
 - **AND** Publisher does not silently drop or shrink that view to force a pass
 
+#### Scenario: Text clearance dimensions remain distinct
+
+- **WHEN** a source-selected quality rule specifies clearance between text and
+  non-owner geometry but does not specify a text-to-text gap
+- **THEN** the scene audit applies that distance only to the selected geometry
+  predicate and still rejects actual glyph overlap
+- **AND** it does not infer the same numeric distance for text pairs
+- **AND** a successor authored canvas retains its separately selected
+  text-to-text clearance floor
+
 #### Scenario: Editorial groups interleave in causal placement
 
 - **WHEN** a source-authorized static view assigns each selected node to one
