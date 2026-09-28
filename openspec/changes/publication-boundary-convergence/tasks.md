@@ -238,8 +238,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       Provider static/interactive Candidate 1/1. All runs select the same
       Publisher package source tree; exact archive and read-back log digests
       are in `conformance/evidence/windows-provider-installed-probe.json`.
-      Complete dependency observation, the full Windows counterexample matrix,
-      hosted CI, and final frozen-release qualification remain unproved.
+      At signed `4a91a79`, six Provider and process-tree test files ran from
+      one SHA-256-checked source archive on native Windows ARM64: 54 pass, nine
+      platform-inapplicable skips, zero fail. Every guest log hash matched its
+      host readback; guest scratch was removed and VM isolation restored.
+      The provisional receipt is `build/test-work/windows-native-4a91a79/probe-receipt.json`.
+      Pipeline `8550` passed on the same source. Complete dependency observation,
+      final frozen-package Windows qualification, and release acceptance remain open.
 - [x] 3.3 Prove identical selected-input lock identity and distinct invocation
       receipts across direct, declarative, executable, and mixed selections in
       `tests/provider-join.test.mjs`, the sole successor cross-mode fixture.
