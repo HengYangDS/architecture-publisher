@@ -906,7 +906,7 @@ export function compileNativeEditionEvolution(
       else {
         obligations.rebuild.push({
           edition: id,
-          target: 'interactive-atlas',
+          target: 'interactive-document',
           scene: null,
           reasons,
         });

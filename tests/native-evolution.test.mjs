@@ -543,7 +543,7 @@ test('native Edition evolution separates rebuild, verification, review, acceptan
   });
   assert.deepEqual(
     result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle', 'static', 'interactive-atlas', 'interactive'],
+    ['publication-bundle', 'static', 'interactive-document', 'interactive'],
   );
   assert.equal(result.obligations.semanticVerification.length, 1);
   assert.equal(result.obligations.mediumVerification.length, 2);
@@ -700,7 +700,7 @@ test('adding one selected medium builds only that medium and requires fresh revi
   });
   assert.deepEqual(
     result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle', 'interactive-atlas', 'interactive'],
+    ['publication-bundle', 'interactive-document', 'interactive'],
   );
   assert.deepEqual(
     result.obligations.mediumVerification.map(({ medium }) => medium),
@@ -726,7 +726,7 @@ test('removing an interactive page withdraws it without repainting an unchanged 
   ]);
   assert.deepEqual(
     result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle', 'interactive-atlas'],
+    ['publication-bundle', 'interactive-document'],
   );
   assert.deepEqual(
     result.obligations.mediumVerification.map(({ medium }) => medium),
@@ -840,7 +840,7 @@ test('parser supply-only replacement renews media and acceptance without inventi
   assert.equal(result.delta.native.supplyChanged, true);
   assert.deepEqual(
     result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle', 'static', 'interactive-atlas', 'interactive'],
+    ['publication-bundle', 'static', 'interactive-document', 'interactive'],
   );
   assert.deepEqual(
     result.obligations.mediumVerification.map(({ medium }) => medium),
