@@ -156,9 +156,10 @@ async function runDescendantCase(
   t,
   scenario,
   expectedError = null,
-  { replyBytes, expectReclaimed = true } = {},
+  { replyBytes, expectReclaimed = true, preparePackage } = {},
 ) {
   const root = await copyFixture(t);
+  if (preparePackage) await preparePackage(root);
   const markerPath = path.join(root, 'descendant.pid');
   const sentinel = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
     stdio: 'ignore',
@@ -244,6 +245,24 @@ for (const [scenario, code, replyBytes] of [
     await runDescendantCase(t, scenario, code, { replyBytes });
   });
 }
+
+test('a delayed Worker stderr write cannot be lost behind its reply', async (t) => {
+  await runDescendantCase(t, 'descendant-stderr', 'edition_provider_stderr_invalid', {
+    preparePackage: async (root) => {
+      const file = path.join(root, 'package/provider.mjs');
+      const source = await fs.readFile(file, 'utf8');
+      const write = "process.stderr.write('unexpected provider diagnostic');";
+      assert.equal(source.includes(write), true);
+      await fs.writeFile(
+        file,
+        source.replace(
+          write,
+          "process.stderr.cork(); process.stderr.write('delayed provider diagnostic'); setTimeout(() => process.stderr.uncork(), 25);",
+        ),
+      );
+    },
+  });
+});
 
 test('abrupt worker loss never produces a passing Provider result', async (t) => {
   await runDescendantCase(

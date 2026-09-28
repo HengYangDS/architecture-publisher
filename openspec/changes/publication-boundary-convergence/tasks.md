@@ -245,6 +245,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       The provisional receipt is `build/test-work/windows-native-4a91a79/probe-receipt.json`.
       Pipeline `8550` passed on the same source. Complete dependency observation,
       final frozen-package Windows qualification, and release acceptance remain open.
+      Pipeline `8551` on signed `153b0d0` exposed one Linux failure: a Worker
+      posted its reply before its asynchronous stderr reached the supervising
+      process, so a Provider diagnostic could be missed. A controlled delayed
+      stderr test failed before repair and passes after the Worker waits for
+      exit and stderr-stream end before replying. The canonical Provider fixture
+      remains byte-identical; the adversarial package is created only in test
+      scratch. The affected 41 conformance and installed tests pass, as do 100
+      Linux Node 26.9 coverage-mode repetitions of the stderr cases. The local
+      full check passes 1,263 tests with eight declared skips, no failures, and
+      97.96/95.07/99.53/97.96% statements/branches/functions/lines. Hosted CI
+      for this repair and final released-package evidence remain open.
 - [x] 3.3 Prove identical selected-input lock identity and distinct invocation
       receipts across direct, declarative, executable, and mixed selections in
       `tests/provider-join.test.mjs`, the sole successor cross-mode fixture.
