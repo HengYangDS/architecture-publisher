@@ -97,6 +97,7 @@ test('one interactive HTML contract binds exact pages and source metadata withou
   }
   assert.match(text, /data-interactive-page="overview"/u);
   assert.match(text, /id="interactive-sources"/u);
+  assert.match(text, /<link rel="icon" href="data:,">/u);
   assert.match(text, /window\.__architectureInteractive/u);
   assert.match(text, /sandbox="allow-scripts allow-downloads"/u);
   assert.match(text, /Source bytes are not embedded/u);

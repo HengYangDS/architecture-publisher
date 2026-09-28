@@ -54,6 +54,8 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Standalone interactive HTML now declares an inline empty favicon so a local
+  reader does not make an implicit `/favicon.ico` request.
 - Authored static canvases now reject near-contact text as well as strict glyph
   overlap. The compiler applies a technical font, owner-inset, text-to-paint,
   and terminal-route floor; passing it does not imply visual acceptance.
