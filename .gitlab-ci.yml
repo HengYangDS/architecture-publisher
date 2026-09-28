@@ -9,7 +9,7 @@ stages:
 verify:
   stage: verify
   tags:
-    - ci-linux-arm64-docker
+    - ci-linux-arm64-container
   interruptible: true
   script:
     - node --version
