@@ -925,6 +925,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       CLI on local Windows ARM64 Node 26.9. Exact archives, output, cleanup,
       and limits are in `conformance/evidence/self-windows-native-probe.json`;
       this is not a protected release or off-host recovery.
+      At `f177006`, a fresh Core repack matched the selected alpha.5 archive
+      byte-for-byte. Its installed public CLI rebuilt the independent-editor
+      example after consumer/input relocation with all six Candidate members
+      unchanged; a changed pin failed without a Candidate. One desktop Chrome
+      page had no external request, console warning, or horizontal overflow.
+      See `conformance/evidence/independent-editor-successor-probe.json` for
+      exact bytes and limits; this is not source-owner or human acceptance.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
