@@ -1,0 +1,63 @@
+{
+  "after": {
+    "candidateFileSha256": {
+      "candidate.json": "38e635c536523ef8d69189dbee181691cb235b76d2645cd1750b13164fd0539c",
+      "input-lock.json": "e3611bf4502025d9222b26bcc2105bf65dcceeacd5cc645511e625a555824142",
+      "interactive/architecture.html": "ec2a4f2fd7337fa2e179f7d212b929ae22c143cca9086d5ac5f0827504ed44ba",
+      "manifest.json": "cd77befba2c2a370485f92075122b5ceae43cf4bce6d0e73c07e69539546c0d5",
+      "static/architecture.png": "a74437ad6a05dfbdbdb656e3ddc7725175acc53c74557660cfbd85a05ba36cd2",
+      "static/architecture.svg": "de6e44a13eaa4b480549a610f4e2fe7e0864285e0249d010bb9ccb75b35c2382"
+    },
+    "candidateSha256": "1cd63fb244474345fdbda076ac4bcd202ed101b7f5a5d208e594cf394bce66ac",
+    "packageArchiveSha256": "e2460f0037831a1b0966f53d1f1842d74bd2ca7f939d6ceea08d0421c4909b01",
+    "publisherSourceCommit": "d30bc433f13198186d58eae605041fafd7faa9c3"
+  },
+  "before": {
+    "candidateFileSha256": {
+      "candidate.json": "ef87683e34915019d1e48b68e0f8f5c26b55d3e23fa5b75c1c0132985269dc9a",
+      "input-lock.json": "e3611bf4502025d9222b26bcc2105bf65dcceeacd5cc645511e625a555824142",
+      "interactive/architecture.html": "ec2a4f2fd7337fa2e179f7d212b929ae22c143cca9086d5ac5f0827504ed44ba",
+      "manifest.json": "38a31de5f94b7d904ca671a4e4bdb9cffdf85bfcd8f886f88957e6d2bc9e3b62",
+      "static/architecture.png": "a74437ad6a05dfbdbdb656e3ddc7725175acc53c74557660cfbd85a05ba36cd2",
+      "static/architecture.svg": "de6e44a13eaa4b480549a610f4e2fe7e0864285e0249d010bb9ccb75b35c2382"
+    },
+    "candidateSha256": "6641df8a1917daa468ef50a8477556a363d96fb942c47f01ddad1ab9af012519",
+    "packageArchiveSha256": "9b452647197298a7b05cd9dfaa9f7c02e260ce5c42e57838db9c5331295407c1",
+    "publisherSourceCommit": "f7c47c5951c5039994d7302f5cff98fac391b242"
+  },
+  "limits": [
+    "The matching browser observation applies to exact HTML bytes, not to the new Candidate identity or human acceptance.",
+    "The Edition is researcher-authored; di-effect source-owner endorsement is not inferred.",
+    "The after package is an untagged work-lane build on macOS Node 26.10, not a frozen released package or cross-platform acceptance.",
+    "Selected package file-set digest change is evidence of declared implementation identity, not proof of complete runtime read closure."
+  ],
+  "observations": {
+    "candidateIdentityChanged": true,
+    "changedPinnedSourceRejectedBeforeOutput": true,
+    "offlineInstalledConsumerRelocatedWithSixCandidateMembersByteIdentical": true,
+    "priorBrowserObservation": {
+      "htmlSha256": "ec2a4f2fd7337fa2e179f7d212b929ae22c143cca9086d5ac5f0827504ed44ba",
+      "receiptSha256": "ec4190a614fbd6ca85534b842f26a3e806a28b14a3fa2102e641e6d3a6934e87"
+    },
+    "selectedImplementationSupplyIdsChanged": [
+      "publisher-interactive-media-file-set",
+      "publisher-semantic-file-set",
+      "publisher-static-media-file-set"
+    ],
+    "selectedInputLockByteIdentical": true,
+    "selectedStaticAndInteractiveMediaByteIdentical": true
+  },
+  "observedAt": "2026-09-28T10:22:45+00:00",
+  "schema": "architecture.research-installed-probe/v1",
+  "selectedInputSha256": {
+    "edition/project.json": "1cc6dcc0e49940e8c874250cd409fa8e43fa298724e599f54c123f6b369d8366",
+    "request.json": "bcf9101a9237c7eb9364111468d2cf5800d8b35642009f23903ff2b62e16e5f8",
+    "sources/di_effect_core_layers.c4": "45d81011acbf12ad35ce2daef4b27773d66b9fa73f3aac084f252c29aa9bfbcd",
+    "sources/di_effect_packages.c4": "683df86d00ed3467a21942c00f79f2252871b8159a5957e1c196fd90eb3886a3",
+    "sources/di_effect_runtime_path.c4": "b601586c58810816b5489a95be0e4e5830c6e6b5237bc179d1c88a0ef194ef5e",
+    "sources/editorial_layers.c4": "cbc3856853778ce3322ceed88324c1b7d3964f1cdb6a4c51b5537902a71c563c"
+  },
+  "sourceClaimRevision": "8a168b6b9c6933c30ab2ea25e60cac8a54212566",
+  "status": "provisional-not-released",
+  "workload": "di-effect-researcher-editorial-sidecar"
+}

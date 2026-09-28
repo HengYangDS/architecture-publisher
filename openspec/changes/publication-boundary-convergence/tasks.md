@@ -898,6 +898,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       without changing the selected inputs or source fixture; see
       `conformance/evidence/independent-editor-installed-probe.json`. This is
       provisional generic installed-use evidence, not human review or release.
+      At `d30bc43`, the pinned di-effect sidecar rebuilt from the offline
+      installed and relocated Core with identical media bytes but a renewed
+      Candidate identity for three selected implementation file sets; a changed
+      source pin failed before output. The exact comparison and limits are in
+      `conformance/evidence/di-effect-selected-implementation-renewal.json`.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
