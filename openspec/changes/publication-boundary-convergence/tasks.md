@@ -664,7 +664,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       package and strict OpenSpec checks pass; the branch coverage
       deficit remains the Task 7.5 gate.
       Visible semantic coverage, human visual review, qualification binding,
-      full platform evidence, and release remain open.
+      full platform evidence, and release remain open. AIGW's exact installed
+      Client Projection exposed an additional generic viewport defect: a dense
+      graph fits to roughly six-pixel node text and resize can erase the
+      reader's focus. Repair the single complete interactive graph, not a
+      substitute narrow representation; verify compact initial readability,
+      source-list/direct focus, resize, explicit Fit, offline behavior, and
+      browser accessibility against the new spec scenario. The generic reader
+      now preserves one graph and reader-controlled camera; a 375px dense
+      fixture opens at readable scale, with first source-list focus, direct
+      focus, manual background action, resize, and Fit checked in real Chrome.
+      Three browser tests passed twice with axe and no external requests.
+      AIGW's exact installed media acceptance and successor release remain open.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually

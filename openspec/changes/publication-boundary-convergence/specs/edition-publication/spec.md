@@ -96,6 +96,40 @@ a complete Candidate. Graph-only layout success is insufficient.
 
 ## ADDED Requirements
 
+### Requirement: Interactive graph viewport preserves readable navigation
+
+The standalone interactive medium SHALL retain one complete selected graph and
+its keyboard-readable source lists at every viewport width. If fitting that
+graph on a compact viewport would reduce primary node labels below 12 CSS
+pixels, the initial camera MAY focus a source-order relation and its endpoints
+at a readable scale; this is a viewport choice, not a new Edition view or a
+source assertion. The reader SHALL be able to inspect the whole graph with an
+explicit Fit action. Responsive observation SHALL NOT overwrite an explicit
+source-list focus, direct graph interaction, or explicit Fit on a same-layout
+resize.
+
+#### Scenario: A dense graph opens on a compact viewport
+
+- **WHEN** the complete selected graph would need primary node text below 12
+  CSS pixels to fit the available width
+- **THEN** its initial viewport shows a readable source-order relation or node
+  while every selected graph element remains present and navigable
+- **AND** the complete source lists and an explicit Fit action remain available
+  without replacing the graph with a narrower representation
+
+#### Scenario: A reader chooses a graph focus
+
+- **WHEN** a reader focuses an exact source-list item or directly interacts
+  with the graph and the container is then resized within the same layout
+- **THEN** responsive observation preserves the reader's selection and camera
+  rather than silently returning to a full-graph fit or a previous automatic focus
+
+#### Scenario: A reader explicitly requests the whole graph
+
+- **WHEN** the reader invokes Fit after automatic or manual focus
+- **THEN** the complete graph is fitted, any highlighted focus is cleared, and
+  a later resize does not reapply the initial automatic focus
+
 ### Requirement: Installed package identity is separate execution evidence
 
 Successor build and replay SHALL report the current installed Publisher package's

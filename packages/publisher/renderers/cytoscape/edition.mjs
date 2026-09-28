@@ -30,6 +30,7 @@ const sections = [...document.querySelectorAll('.edition-page')];
 const tabs = [...document.querySelectorAll('[data-page-index]')];
 const graphs = new Map();
 const observers = new Map();
+const viewports = new Map();
 function graphDirection() {
   return window.matchMedia('(max-width: 559px)').matches ? 'downward' : 'rightward';
 }
@@ -49,15 +50,52 @@ function placeGraph(graph, container, page, direction) {
   }).run();
   container.dataset.layout = direction;
 }
-function syncGraph(graph, container, page) {
+function frameFirstRelation(graph, page) {
+  const relation = page.relations[0];
+  const first = graph.getElementById(relation?.source || page.nodes[0]?.id);
+  if (first.empty()) return false;
+  const focus = relation ? first.union(graph.getElementById(relation.target)) : first;
+  first.select();
+  graph.zoom(1);
+  graph.center(focus);
+  const firstTop = first.renderedPosition().y - first.renderedHeight() / 2;
+  graph.panBy({ x: 0, y: Math.max(56, graph.height() * 0.12) - firstTop });
+  return true;
+}
+function syncGraph(graph, container, page, index) {
+  const viewport = viewports.get(index);
   const direction = graphDirection();
   graph.resize();
   if (container.dataset.layout !== direction) {
     graph.zoom(1);
     graph.pan({ x: 0, y: 0 });
     placeGraph(graph, container, page, direction);
+    if (viewport.mode === 'manual') viewport.mode = 'fit';
+  }
+  if (viewport.mode === 'manual') return;
+  if (viewport.mode === 'focus') {
+    const focused = graph.getElementById(viewport.id);
+    if (focused.nonempty()) {
+      graph.zoom(viewport.zoom);
+      graph.center(focused);
+      return;
+    }
+    viewport.mode = 'fit';
+  }
+  if (viewport.mode === 'auto') {
+    if (frameFirstRelation(graph, page)) return;
+    viewport.mode = 'fit';
   }
   fitGraph(graph);
+  if (viewport.mode === 'initial') {
+    const primaryFontSize = Number.parseFloat(graph.nodes().first().style('font-size'));
+    viewport.mode =
+      direction === 'downward' &&
+      graph.zoom() * primaryFontSize < 12 &&
+      frameFirstRelation(graph, page)
+        ? 'auto'
+        : 'fit';
+  }
 }
 function graphFor(index) {
   if (graphs.has(index)) return graphs.get(index);
@@ -120,8 +158,29 @@ function graphFor(index) {
     },
   });
   graphs.set(index, graph);
+  viewports.set(index, { mode: 'initial' });
   container.dataset.layout = direction;
-  const observer = new ResizeObserver(() => syncGraph(graph, container, page));
+  const readerGesture = () => {
+    const viewport = viewports.get(index);
+    if (viewport.mode === 'auto') graph.$(':selected').unselect();
+    viewport.mode = 'manual';
+  };
+  container.addEventListener('pointerdown', readerGesture);
+  container.addEventListener('wheel', readerGesture, { passive: true });
+  graph.on('tap', event => {
+    const viewport = viewports.get(index);
+    if (event.target === graph) {
+      graph.$(':selected').unselect();
+      viewport.mode = 'manual';
+    } else {
+      graph.$(':selected').unselect();
+      event.target.select();
+      viewport.mode = 'focus';
+      viewport.id = event.target.id();
+      viewport.zoom = graph.zoom();
+    }
+  });
+  const observer = new ResizeObserver(() => syncGraph(graph, container, page, index));
   observer.observe(container);
   observers.set(index, observer);
   container.dataset.rendered = 'true';
@@ -135,7 +194,7 @@ function show(index) {
   });
   requestAnimationFrame(() => {
     const graph = graphFor(index);
-    if (graph) syncGraph(graph, document.getElementById('graph-' + index), pages[index]);
+    if (graph) syncGraph(graph, document.getElementById('graph-' + index), pages[index], index);
   });
 }
 tabs.forEach((tab, index) => tab.addEventListener('click', () => show(index)));
@@ -145,6 +204,10 @@ document.querySelectorAll('[data-focus-node], [data-focus-relation]').forEach(bu
     const graph = graphFor(index);
     if (!graph) return;
     const id = button.dataset.focusNode || button.dataset.focusRelation;
+    const viewport = viewports.get(index);
+    viewport.mode = 'focus';
+    viewport.id = id;
+    viewport.zoom = 1.35;
     graph.$(':selected').unselect();
     const selected = graph.getElementById(id);
     selected.select();
@@ -154,8 +217,13 @@ document.querySelectorAll('[data-focus-node], [data-focus-relation]').forEach(bu
 });
 document.querySelectorAll('[data-fit]').forEach(button => {
   button.addEventListener('click', () => {
-    const graph = graphFor(Number(button.dataset.fit));
-    if (graph) fitGraph(graph);
+    const index = Number(button.dataset.fit);
+    const graph = graphFor(index);
+    if (graph) {
+      viewports.get(index).mode = 'fit';
+      graph.$(':selected').unselect();
+      fitGraph(graph);
+    }
   });
 });
 document.fonts.ready.then(() => show(0));
@@ -257,7 +325,7 @@ function pageHtml(page, index, methodLimits) {
   const gridStyle =
     graphNaturalWidth === null ? '' : ` style="--graph-natural-width:${graphNaturalWidth}px"`;
   const stage = page.nodes.length
-    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Edge numbers match the source relations below. Pan and zoom in the graph; the lists provide keyboard-accessible reading and focus.</p>`
+    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Pan and zoom the complete graph; Fit graph restores the overview. Edge numbers match the keyboard-accessible source lists below.</p>`
     : page.claims?.length
       ? claimStage
       : editorialStage;

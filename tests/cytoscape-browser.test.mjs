@@ -218,7 +218,13 @@ test(
         const registry = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg');
         const graph = registry.cy;
         const bounds = graph.elements().boundingBox();
-        return { zoom: graph.zoom(), width: bounds.w, height: bounds.h };
+        const selected = graph.$(':selected').first();
+        return {
+          zoom: graph.zoom(),
+          width: bounds.w,
+          height: bounds.h,
+          selected: selected.nonempty() ? selected.id() : null,
+        };
       });
     await assertAccessible('overview');
     assert.equal(await page.locator('#graph-0').getAttribute('data-layout'), 'rightward');
@@ -265,7 +271,9 @@ test(
     );
     await page.getByRole('button', { name: 'What is connected?' }).click();
     assert.equal(await page.locator('#page-0').isVisible(), true);
-    await page.getByRole('button', { name: 'Alpha & one component' }).click();
+    const selectedNode = page.getByRole('button', { name: 'Alpha & one component' });
+    const selectedId = await selectedNode.getAttribute('data-focus-node');
+    await selectedNode.click();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.evaluate(
       () =>
@@ -274,6 +282,7 @@ test(
         ),
     );
     assert.equal(await page.locator('#graph-0').getAttribute('data-layout'), 'downward');
+    assert.equal((await graphGeometry()).selected, selectedId);
     await assertAccessible('narrow overview');
     assert.equal(
       await page.evaluate(
@@ -289,7 +298,10 @@ test(
         ),
     );
     assert.equal(await page.locator('#graph-0').getAttribute('data-layout'), 'rightward');
+    assert.equal((await graphGeometry()).selected, selectedId);
+    await page.getByRole('button', { name: 'Fit graph' }).click();
     const restoredGeometry = await graphGeometry();
+    assert.equal(restoredGeometry.selected, null);
     for (const measure of ['zoom', 'width', 'height'])
       assert(
         Math.abs(restoredGeometry[measure] - initialGeometry[measure]) <=
@@ -531,5 +543,160 @@ test(
     }));
     assert(narrow.scrollWidth <= narrow.viewport, JSON.stringify(narrow));
     assert.deepEqual(await violations(), []);
+  },
+);
+
+test(
+  'one dense graph opens readably and keeps the reader-selected viewport',
+  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 45_000 },
+  async (t) => {
+    const scene = interactiveEditionScene();
+    const overview = scene.pages[0];
+    for (let index = 0; index < 14; index += 1) {
+      const previous = overview.nodes.at(-1);
+      const node = { ...overview.nodes[1], id: `step-${index}`, label: `Step ${index}` };
+      const relation = {
+        ...overview.relations[0],
+        id: `step-relation-${index}`,
+        from: { namespace: previous.namespace, id: previous.id },
+        to: { namespace: node.namespace, id: node.id },
+      };
+      overview.nodes.push(node);
+      overview.relations.push(relation);
+      overview.sourceAssertionCarriers[0].nodeRefs.push({ namespace: node.namespace, id: node.id });
+      overview.sourceAssertionCarriers[0].relationRefs.push({
+        namespace: relation.origin.namespace,
+        reference: relation.id,
+        sha256: relation.origin.sha256,
+      });
+    }
+    const html = await renderInteractiveEditionHtml(scene);
+    const browser = await chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 15_000,
+    });
+    t.after(() => browser.close());
+    const page = await browser.newPage({ viewport: { width: 375, height: 844 } });
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error') errors.push(message.text());
+    });
+    page.on('request', (request) => {
+      if (/^https?:/u.test(request.url())) errors.push(`external-request:${request.url()}`);
+    });
+    await page.setContent(html.bytes.toString('utf8'), { waitUntil: 'load' });
+    await page.waitForSelector('#graph-0[data-rendered="true"]');
+    await page.evaluate(() => globalThis.document.fonts.ready);
+    const frame = async () =>
+      page.evaluate(
+        () =>
+          new Promise((resolve) =>
+            globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(resolve)),
+          ),
+      );
+    const view = () =>
+      page.evaluate(() => {
+        const container = globalThis.document.getElementById('graph-0');
+        const graph = Reflect.get(container, '_cyreg').cy;
+        const selected = graph.$(':selected').first();
+        const firstRelation = JSON.parse(
+          globalThis.document.getElementById('edition-data').textContent,
+        )[0].relations[0];
+        const visible = (id) => {
+          const point = graph.getElementById(id).renderedPosition();
+          return (
+            point.x >= 0 && point.x <= graph.width() && point.y >= 0 && point.y <= graph.height()
+          );
+        };
+        return {
+          layout: container.dataset.layout,
+          zoom: graph.zoom(),
+          textPx: Number.parseFloat(graph.nodes()[0].style('font-size')) * graph.zoom(),
+          selected: selected.nonempty() ? selected.id() : null,
+          focusOffset: selected.nonempty()
+            ? Math.hypot(
+                selected.renderedPosition().x - graph.width() / 2,
+                selected.renderedPosition().y - graph.height() / 2,
+              )
+            : null,
+          firstSource: firstRelation.source,
+          firstTarget: firstRelation.target,
+          firstEndpointsVisible: visible(firstRelation.source) && visible(firstRelation.target),
+          nodes: graph.nodes().length,
+          relations: graph.edges().length,
+          scrollWidth: globalThis.document.documentElement.scrollWidth,
+          viewport: globalThis.innerWidth,
+        };
+      });
+    await frame();
+    const initial = await view();
+    assert.deepEqual([initial.nodes, initial.relations], [16, 15]);
+    assert.equal(initial.layout, 'downward');
+    assert(initial.textPx >= 12, JSON.stringify(initial));
+    assert.equal(initial.selected, initial.firstSource);
+    assert(initial.firstEndpointsVisible, JSON.stringify(initial));
+    assert(initial.scrollWidth <= initial.viewport, JSON.stringify(initial));
+
+    const lastNode = page.locator('#page-0 [data-focus-node]').last();
+    const requested = await lastNode.getAttribute('data-focus-node');
+    await lastNode.click();
+    await frame();
+    const firstListFocus = await view();
+    assert.equal(firstListFocus.selected, requested);
+    assert(firstListFocus.zoom >= 1, JSON.stringify(firstListFocus));
+    assert(firstListFocus.focusOffset <= 12, JSON.stringify(firstListFocus));
+    await page.setViewportSize({ width: 390, height: 844 });
+    await frame();
+    const resizedListFocus = await view();
+    assert.equal(resizedListFocus.selected, requested);
+    assert(resizedListFocus.focusOffset <= 12, JSON.stringify(resizedListFocus));
+
+    await page.locator('#graph-0').scrollIntoViewIfNeeded();
+    const target = await page.evaluate((id) => {
+      const container = globalThis.document.getElementById('graph-0');
+      const graph = Reflect.get(container, '_cyreg').cy;
+      const position = graph.getElementById(id).renderedPosition();
+      const box = container.getBoundingClientRect();
+      return { x: box.x + position.x, y: box.y + position.y };
+    }, requested);
+    await page.mouse.click(target.x, target.y);
+    await page.setViewportSize({ width: 375, height: 844 });
+    await frame();
+    const direct = await view();
+    assert.equal(direct.selected, requested);
+    assert(direct.textPx >= 12, JSON.stringify(direct));
+    assert(direct.focusOffset <= 12, JSON.stringify(direct));
+
+    await page.evaluate(() => {
+      const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
+      graph.emit('tap');
+    });
+    await frame();
+    const manual = await view();
+    assert.equal(manual.selected, null);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await frame();
+    const resizedManual = await view();
+    assert.equal(resizedManual.selected, null);
+    assert(Math.abs(resizedManual.zoom - manual.zoom) < 0.01, JSON.stringify(resizedManual));
+
+    await page.getByRole('button', { name: 'Fit graph' }).click();
+    await page.setViewportSize({ width: 375, height: 844 });
+    await frame();
+    const fitted = await view();
+    assert.equal(fitted.selected, null);
+    assert(fitted.zoom < 0.75, JSON.stringify(fitted));
+    await page.addScriptTag({ content: axe.source });
+    const violations = await page.evaluate(async () => {
+      const result = await globalThis.axe.run(globalThis.document, {
+        runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+      });
+      return result.violations.map(({ id }) => id);
+    });
+    assert.deepEqual(violations, []);
+    assert.deepEqual(errors, []);
   },
 );
