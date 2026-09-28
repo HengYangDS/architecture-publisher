@@ -1,7 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { fail, LIMITS, portableKey, validateManifest } from './manifest.mjs';
+import { LIMITS, portableKey } from '../file-input/contract.mjs';
+import { fail } from '../protocol/values.mjs';
+import { validateManifest } from './manifest.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 

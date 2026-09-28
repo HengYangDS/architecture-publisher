@@ -1,4 +1,4 @@
-import { hasExactFields } from '../source/manifest.mjs';
+import { hasExactFields } from '../protocol/values.mjs';
 
 export const QUALIFIED_SOURCE = 'architecture.qualified-edition-source/v1';
 

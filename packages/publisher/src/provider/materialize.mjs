@@ -4,7 +4,7 @@ import { materializeDeclarativeProvider } from './declarative.mjs';
 import { materializeExecutableProvider } from './executable.mjs';
 import { readEditionProviderInput } from './input.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
-import { fail } from '../source/manifest.mjs';
+import { fail } from '../protocol/values.mjs';
 
 /** Keep temporary executable values alive only for the selected compiler callback. */
 export async function withMaterializedEditionProvider(selection, callback) {

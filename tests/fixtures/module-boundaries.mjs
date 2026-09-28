@@ -3,6 +3,11 @@ import { isBuiltin } from 'node:module';
 import { parse } from 'acorn';
 
 const owners = [
+  ['packages/publisher/src/protocol/', ['packages/publisher/src/protocol/']],
+  [
+    'packages/publisher/src/file-input/',
+    ['packages/publisher/src/file-input/', 'packages/publisher/src/protocol/'],
+  ],
   [
     'packages/publisher/src/qualification/process-boundary.mjs',
     [
@@ -44,6 +49,7 @@ const owners = [
     [
       'packages/publisher/src/compiler/index.mjs',
       'packages/publisher/src/edition/index.mjs',
+      'packages/publisher/src/file-input/index.mjs',
       'packages/publisher/src/provider/index.mjs',
       'packages/publisher/src/publication/index.mjs',
       'packages/publisher/src/qualification/index.mjs',
@@ -277,6 +283,24 @@ export function inspectModuleBoundaries(
       return issue(node, `missing dependency: ${target}`);
     if (selectedProviderModules.has(file) && historicalProviderModules.has(target))
       issue(node, `historical Provider dependency: ${target}`);
+    const protocolTarget = target.startsWith('packages/publisher/src/protocol/');
+    const fileInputTarget = target.startsWith('packages/publisher/src/file-input/');
+    if (protocolTarget || fileInputTarget) {
+      if (file.startsWith('packages/publisher/src/protocol/') && fileInputTarget)
+        issue(node, `forbidden dependency: ${target}`);
+      return;
+    }
+    if (
+      file.startsWith('packages/publisher/renderers/') &&
+      target.startsWith('packages/publisher/src/source/') &&
+      !(
+        (file === 'packages/publisher/renderers/resvg/index.mjs' &&
+          target === 'packages/publisher/src/source/bundle.mjs') ||
+        (file === 'packages/publisher/renderers/svg/coretext.mjs' &&
+          target === 'packages/publisher/src/source/write.mjs')
+      )
+    )
+      return issue(node, `forbidden dependency: ${target}`);
     if (!allowed.some((prefix) => target.startsWith(prefix)))
       issue(node, `forbidden dependency: ${target}`);
   }

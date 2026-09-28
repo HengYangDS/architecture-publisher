@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { deepFreeze } from '../semantics/document.mjs';
-import { fail, hasExactFields, isDigest, portableKey, portablePath } from '../source/manifest.mjs';
+import { fail, hasExactFields, isDigest } from '../protocol/values.mjs';
+import { portableKey, portablePath } from '../file-input/contract.mjs';
 import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');

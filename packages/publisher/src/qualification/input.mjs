@@ -1,9 +1,10 @@
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { exact } from '../semantics/document.mjs';
-import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { parseStrictJson } from '../source/json.mjs';
-import { isDigest, portablePath } from '../source/manifest.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
+import { parseStrictJson } from '../protocol/json.mjs';
+import { isDigest } from '../protocol/values.mjs';
+import { portablePath } from '../file-input/contract.mjs';
 import { admitQualificationSet, qualificationSetDigest } from './contract.mjs';
 import { invokeQualificationWorker } from './process-boundary.mjs';
 import { replaySelectedCandidate } from './replay.mjs';

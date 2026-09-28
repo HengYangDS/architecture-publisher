@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
 import { exact, text, semanticError } from '../semantics/document.mjs';
 import { compileEditionEvolution } from './evolution.mjs';
 

@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { canonical } from '../source/json.mjs';
-import { fail } from '../source/manifest.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
+import { canonical } from '../protocol/json.mjs';
+import { fail } from '../protocol/values.mjs';
 import { IMPLEMENTATION_MANIFEST_SHA256 } from './implementation-identity.mjs';
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');

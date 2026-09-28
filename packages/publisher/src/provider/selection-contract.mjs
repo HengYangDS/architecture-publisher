@@ -1,13 +1,7 @@
 import { EDITION_AUTHORING_FILE_BYTES } from '../edition/authoring.mjs';
 import { deepFreeze, jsonValue } from '../semantics/document.mjs';
-import {
-  fail,
-  hasExactFields as exact,
-  isDigest,
-  LIMITS,
-  portableKey,
-  portablePath,
-} from '../source/manifest.mjs';
+import { fail, hasExactFields as exact, isDigest } from '../protocol/values.mjs';
+import { LIMITS, portableKey, portablePath } from '../file-input/contract.mjs';
 import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
 
 const INVALID = 'edition_provider_v2_invalid';

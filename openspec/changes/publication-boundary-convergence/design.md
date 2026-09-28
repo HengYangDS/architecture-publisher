@@ -1158,28 +1158,29 @@ admitted by default.
 
 The selected-byte envelope is a transport and integrity concern, not Source
 Bundle authority. Source Bundle validation owns source identity and selected
-members; generic digest, path, exact-field, and bounded-read helpers do not
-acquire source semantics because they currently reside under `source/`.
-Trace their real consumers before deciding whether a complete selected-input
-operation belongs to an existing owner or needs one private, narrowly named
-owner. Do not create a generic helper package, export a step merely because
-another module imports it, or repeat an existing versioned schema validator.
+members. Private `protocol/` owns strict wire values and JSON decoding;
+`file-input/` owns bounded regular reads and closed file envelopes. The
+separately installed self-Edition requires only two public byte operations:
+`readBoundedFile` and `parseStrictJson`. AIGW uses the public `source pack` and
+`edition build` commands instead. ETHOS remains pinned to its historical
+package until its own adapter migration. This named consumer justifies the
+small `file-input` subpath; it does not justify exposing generic validators,
+file-envelope internals, or another command plane.
 
 The current audit identifies five concrete corrections. These are owner
 changes, not a prescribed directory tree; keep names when responsibility is
 already correct. A move closes only when the former implementation and obsolete
 public export are deleted, not re-exported.
 
-1. **Verified files, not Source Bundle meaning.** `source/files.mjs` and
-   `source/manifest.mjs` currently mix envelope integrity with Source Bundle
-   identity; renderer supplies import this broad owner. A private
-   verified-file-envelope owner shall handle portable members, bounded regular
-   reads, exact bytes, and closed-envelope checks. `source/` retains Source
-   Bundle identity and complete read, pack, and write operations. A public
-   envelope operation requires a demonstrated independent authoring consumer.
-   Prove exact-byte and fail-closed parity for Source Bundles, backend supplies,
-   and installed direct/Provider journeys; then forbid renderer imports of
-   Source Bundle semantics.
+1. **Verified files, not Source Bundle meaning.** `file-input/` handles portable
+   members, bounded regular reads, and closed-envelope checks; `source/` owns
+   Source Bundle identity and complete read, pack, verify, and write operations.
+   The former generic Source exports have no successor aliases. Prove exact-byte
+   and fail-closed parity for Source Bundles, backend supplies, and installed
+   direct/Provider journeys. Renderer imports of generic Source helpers are
+   forbidden; the remaining raster input and CoreText output uses of actual
+   Source Bundles require their own consumer-level handoff before forbidding
+   renderer-to-Source dependencies entirely.
 2. **Build input, not Provider policy.** Direct source and Edition selections
    join Provider results at one private compiler input boundary. `provider/`
    retains its versioned selection, validation, and bounded execution. Ordinary consumers invoke one

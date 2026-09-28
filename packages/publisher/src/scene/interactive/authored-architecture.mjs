@@ -1,5 +1,5 @@
 import { canonical, deepFreeze } from '../../semantics/document.mjs';
-import { fail } from '../../source/manifest.mjs';
+import { fail } from '../../protocol/values.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { linkClaimModelSources } from '../claim-relations.mjs';
 import { validateInteractiveArchitectureScene } from './architecture.mjs';

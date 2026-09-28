@@ -1,4 +1,4 @@
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 import { layoutStaticGraph } from './layout.mjs';
 
 function checkedInput(input) {

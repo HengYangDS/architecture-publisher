@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { exact } from '../packages/publisher/src/semantics/document.mjs';
-import { hasExactFields } from '../packages/publisher/src/source/manifest.mjs';
+import { hasExactFields } from '../packages/publisher/src/protocol/values.mjs';
 
 test('exact fields compare keys rather than delimiter-joined spellings', () => {
   assert.equal(exact({ alpha: 1, beta: 2 }, ['alpha', 'beta']), true);

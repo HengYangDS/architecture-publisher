@@ -8,6 +8,7 @@
   },
   "exports": {
     ".": "./src/index.mjs",
+    "./file-input": "./src/file-input/index.mjs",
     "./source": "./src/source/index.mjs",
     "./semantics": "./src/semantics/index.mjs",
     "./edition": "./src/edition/index.mjs",

@@ -1,5 +1,5 @@
 import { canonical, deepFreeze, record, text } from '../../semantics/document.mjs';
-import { fail, hasExactFields, isDigest } from '../../source/manifest.mjs';
+import { fail, hasExactFields, isDigest } from '../../protocol/values.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { claimRelationQualifiers, linkClaimModelSources } from '../claim-relations.mjs';
 

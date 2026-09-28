@@ -24,7 +24,20 @@ test('workspace separates the generic product from concrete Editions', async () 
   assert.equal(product.name, 'architecture-publisher');
   assert.deepEqual(product.bin, { archpub: 'src/cli/main.mjs' });
   assert.equal(product.exports['.'], './src/index.mjs');
+  assert.equal(product.exports['./file-input'], './src/file-input/index.mjs');
   assert.equal(product.exports['./provider'], './src/provider/index.mjs');
+  const fileInputApi = await import(
+    pathToFileURL(path.join(publisher, 'src/file-input/index.mjs'))
+  );
+  assert.deepEqual(Object.keys(fileInputApi).sort(), ['parseStrictJson', 'readBoundedFile']);
+  const sourceApi = await import(pathToFileURL(path.join(publisher, 'src/source/index.mjs')));
+  assert.deepEqual(Object.keys(sourceApi).sort(), [
+    'packSourceFiles',
+    'readSourceBundle',
+    'validateManifest',
+    'verifySourceInput',
+    'writeSourceBundle',
+  ]);
   const providerApi = await import(pathToFileURL(path.join(publisher, 'src/provider/index.mjs')));
   for (const name of [
     'materializeDeclarativeProvider',
@@ -48,6 +61,7 @@ test('workspace separates the generic product from concrete Editions', async () 
   assert.deepEqual(Object.keys(publicApi).sort(), [
     'compiler',
     'edition',
+    'fileInput',
     'provider',
     'publication',
     'qualification',

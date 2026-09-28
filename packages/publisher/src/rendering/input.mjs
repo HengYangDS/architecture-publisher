@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
 
 function inputError(code) {
   throw Object.assign(new Error(code), { code });

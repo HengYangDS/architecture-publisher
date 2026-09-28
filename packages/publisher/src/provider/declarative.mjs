@@ -4,8 +4,9 @@ import { editionDigest, validateEdition } from '../edition/contract.mjs';
 import { readPublisherIdentity } from '../runtime.mjs';
 import { claimModelDigest, deepFreeze, validateClaimModel } from '../semantics/document.mjs';
 import { readSourceBundle } from '../source/bundle.mjs';
-import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { fail, hasExactFields as exact, isDigest, LIMITS } from '../source/manifest.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
+import { fail, hasExactFields as exact, isDigest } from '../protocol/values.mjs';
+import { LIMITS } from '../file-input/contract.mjs';
 import { validateProviderMaterialization } from './protocol.mjs';
 import { readEditionProviderInput, resolveProviderPath } from './input.mjs';
 

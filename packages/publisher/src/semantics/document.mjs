@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { canonical } from '../source/json.mjs';
-import { hasExactFields } from '../source/manifest.mjs';
+import { canonical } from '../protocol/json.mjs';
+import { hasExactFields } from '../protocol/values.mjs';
 
 export { canonical };
 

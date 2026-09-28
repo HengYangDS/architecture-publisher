@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { parseStrictJson } from '../packages/publisher/src/source/json.mjs';
+import { parseStrictJson } from '../packages/publisher/src/protocol/json.mjs';
 
 const invalid = 'test_json_invalid';
 const duplicate = 'test_json_duplicate_key';

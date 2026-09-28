@@ -1,5 +1,6 @@
-import { parseStrictJson } from '../source/json.mjs';
-import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
+import { parseStrictJson } from '../protocol/json.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
+import { LIMITS } from '../file-input/contract.mjs';
 import { sealMaterializedInputLock } from '../source/materialize.mjs';
 import { deepFreeze } from '../semantics/document.mjs';
 import { deriveEditionAssertions, validateEditionProject } from './authoring.mjs';

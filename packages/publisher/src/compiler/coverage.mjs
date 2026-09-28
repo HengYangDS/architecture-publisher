@@ -1,5 +1,5 @@
-import { canonical } from '../source/json.mjs';
-import { fail } from '../source/manifest.mjs';
+import { canonical } from '../protocol/json.mjs';
+import { fail } from '../protocol/values.mjs';
 import { claimCard } from '../scene/claim-card.mjs';
 import { linkClaimModelSources } from '../scene/claim-relations.mjs';
 

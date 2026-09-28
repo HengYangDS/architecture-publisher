@@ -1,4 +1,4 @@
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 import { composeStaticArchitectureScene } from '../../src/scene/static/architecture.mjs';
 
 const palette = Object.freeze({

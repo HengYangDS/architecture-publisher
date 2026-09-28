@@ -2,7 +2,8 @@ import { createHash } from 'node:crypto';
 import { deepFreeze, jsonValue, record, text } from './document.mjs';
 import { executeLikeC4Layout, executeLikeC4Native } from './native-execution.mjs';
 import { readLikeC4ParserSupply } from './supply.mjs';
-import { fail, hasExactFields, isDigest, LIMITS } from '../source/manifest.mjs';
+import { fail, hasExactFields, isDigest } from '../protocol/values.mjs';
+import { LIMITS } from '../file-input/contract.mjs';
 
 const sha = (value) => createHash('sha256').update(value).digest('hex');
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);

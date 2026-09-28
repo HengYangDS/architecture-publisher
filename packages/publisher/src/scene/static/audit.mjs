@@ -1,4 +1,4 @@
-import { fail } from '../../source/manifest.mjs';
+import { fail } from '../../protocol/values.mjs';
 
 /** Analytic screen-space checks over the same measured scene used by the renderer.
  * Text boxes must be measured glyph bounds, not character-count estimates.

@@ -3,9 +3,10 @@ import { createHash } from 'node:crypto';
 import { constants } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { noSymlinkAncestors, regularBytes } from './files.mjs';
-import { canonical } from './json.mjs';
-import { fail, hasExactFields, isDigest, LIMITS, portableKey, portablePath } from './manifest.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
+import { canonical } from '../protocol/json.mjs';
+import { fail, hasExactFields, isDigest } from '../protocol/values.mjs';
+import { LIMITS, portableKey, portablePath } from '../file-input/contract.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const inside = (root, selected) => {

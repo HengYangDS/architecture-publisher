@@ -1,12 +1,8 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {
-  noSymlinkAncestors,
-  parseStrictJson,
-  regularBytes,
-  writeSourceBundle,
-} from 'architecture-publisher/source';
+import { parseStrictJson, readBoundedFile } from 'architecture-publisher/file-input';
+import { writeSourceBundle } from 'architecture-publisher/source';
 import { claimModelDigest, validateClaimModel } from 'architecture-publisher/semantics';
 import { editionDigest, validateEdition } from 'architecture-publisher/edition';
 import { architecturePublisherClaimModel } from './model.mjs';
@@ -365,8 +361,7 @@ export async function prepareArchitecturePublisherEdition(input) {
       !digest(source.sha256)
     )
       fail('self_source_invalid');
-    await noSymlinkAncestors(source.path);
-    const bytes = await regularBytes(source.path, 32 * 1024 * 1024);
+    const bytes = await readBoundedFile(source.path, 32 * 1024 * 1024);
     if (sha256(bytes) !== source.sha256) fail('self_source_digest_mismatch');
     const locator = `sources/${id}.source`;
     selected[id] = { sha256: source.sha256, locator, authority };
@@ -435,8 +430,7 @@ export async function prepareArchitecturePublisherEdition(input) {
 
 export async function prepareArchitecturePublisherEditionInput(file) {
   const selected = path.resolve(file);
-  await noSymlinkAncestors(selected);
-  const bytes = await regularBytes(selected, 1024 * 1024);
+  const bytes = await readBoundedFile(selected, 1024 * 1024);
   const input = parseStrictJson(bytes, 'self_input_invalid', 'self_input_json_duplicate_key');
   const base = path.dirname(selected);
   if (typeof input.output !== 'string' || !input.output) fail('self_output_path_invalid');

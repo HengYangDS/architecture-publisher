@@ -1,4 +1,4 @@
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 import {
   SOURCE_REPORTED_TOPOLOGY_NOTE,
   UNLINKED_RELATION_NOTE,

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFileEnvelope } from '../source/files.mjs';
-import { fail } from '../source/manifest.mjs';
+import { readFileEnvelope } from '../file-input/read.mjs';
+import { fail } from '../protocol/values.mjs';
 
 const SUPPLY_SHA256 = '410edfd9498df6d4e186d3c7abd0441563d6ef052c68aa243f9e7c3e4ab6c615';
 const supplyRoot = fileURLToPath(new URL('../../supplies/likec4/', import.meta.url));

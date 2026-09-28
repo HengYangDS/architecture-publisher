@@ -4,7 +4,7 @@ import { builtinModules } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build, version as esbuildVersion } from 'esbuild';
-import { noSymlinkAncestors } from '../../packages/publisher/src/source/files.mjs';
+import { noSymlinkAncestors } from '../../packages/publisher/src/file-input/read.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');

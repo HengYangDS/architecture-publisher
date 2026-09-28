@@ -9,8 +9,9 @@ import {
 import { assessSubmittedQualificationPolicy } from '../qualification/policy.mjs';
 import { canonical } from '../semantics/document.mjs';
 import { readSourceBundle } from '../source/bundle.mjs';
-import { parseStrictJson } from '../source/json.mjs';
-import { hasExactFields, isDigest, portablePath } from '../source/manifest.mjs';
+import { parseStrictJson } from '../protocol/json.mjs';
+import { hasExactFields, isDigest } from '../protocol/values.mjs';
+import { portablePath } from '../file-input/contract.mjs';
 import { QUALIFIED_SOURCE } from './contract.mjs';
 import { noLinks, planPairFiles } from './files.mjs';
 

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { LIMITS } from '../packages/publisher/src/source/manifest.mjs';
+import { LIMITS } from '../packages/publisher/src/file-input/contract.mjs';
 import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
 
 const source = Object.freeze({ id: 'source-write-fixture', revision: 'selected' });

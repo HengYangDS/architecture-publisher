@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { parseStrictJson } from '../source/json.mjs';
-import { fail, isDigest, LIMITS, portableKey, portablePath } from '../source/manifest.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
+import { parseStrictJson } from '../protocol/json.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
+import { LIMITS, portableKey, portablePath } from '../file-input/contract.mjs';
 import { readSelectedInput } from '../source/materialize.mjs';
 import {
   EDITION_AUTHORING_FILE_BYTES,

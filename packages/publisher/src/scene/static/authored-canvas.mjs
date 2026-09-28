@@ -1,5 +1,5 @@
 import { deepFreeze } from '../../semantics/document.mjs';
-import { fail } from '../../source/manifest.mjs';
+import { fail } from '../../protocol/values.mjs';
 import { linkClaimModelSources } from '../claim-relations.mjs';
 
 function reference(value) {

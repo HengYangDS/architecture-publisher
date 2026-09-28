@@ -17,7 +17,7 @@ import { auditEmittedEdges } from '../qualification/static/emitted-path.mjs';
 import { importLikeC4Layout } from '../semantics/native-likec4.mjs';
 import { canonical } from '../semantics/document.mjs';
 import { readPublisherInstalledPackage } from '../runtime.mjs';
-import { fail } from '../source/manifest.mjs';
+import { fail } from '../protocol/values.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
 import { renderInteractiveEditionHtml } from '../../renderers/cytoscape/index.mjs';
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';

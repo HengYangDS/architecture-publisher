@@ -18,12 +18,8 @@ import {
   text,
   validateClaimModel,
 } from '../semantics/document.mjs';
-import {
-  hasExactFields,
-  isDigest,
-  portablePath,
-  validateFileMembers,
-} from '../source/manifest.mjs';
+import { hasExactFields, isDigest } from '../protocol/values.mjs';
+import { portablePath, validateFileMembers } from '../file-input/contract.mjs';
 
 const CANDIDATE_FIELDS = Object.freeze([
   'schema',

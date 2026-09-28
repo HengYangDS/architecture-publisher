@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { EDITION_AUTHORING_FILE_BYTES } from '../edition/authoring.mjs';
-import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { fail, LIMITS } from '../source/manifest.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
+import { fail } from '../protocol/values.mjs';
+import { LIMITS } from '../file-input/contract.mjs';
 import { normalizeSelectedContributions, readSelectedProviderManifest } from './manifest.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');

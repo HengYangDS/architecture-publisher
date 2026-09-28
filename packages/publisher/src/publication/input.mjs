@@ -1,7 +1,7 @@
 // Public file-operation input adaptation; effects remain owned by files.mjs.
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { parseStrictJson } from '../source/json.mjs';
+import { parseStrictJson } from '../protocol/json.mjs';
 import {
   noLinks,
   PUBLICATION_MEDIA,

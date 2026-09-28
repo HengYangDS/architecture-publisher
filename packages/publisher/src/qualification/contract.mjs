@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { canonical, deepFreeze, exact, jsonValue, text } from '../semantics/document.mjs';
-import { isDigest } from '../source/manifest.mjs';
+import { isDigest } from '../protocol/values.mjs';
 import { QUALIFICATION_KINDS, isHumanReviewScope } from '../edition/contract.mjs';
 import {
   editionCandidateDigest,

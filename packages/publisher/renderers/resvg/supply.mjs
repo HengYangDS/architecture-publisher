@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 
 const RASTER_SUPPLY_SHA256 = 'fec4a20fc58f510c83fe24d5045ab52d08ea1a82daba57f8391672bce63ba6aa';
 const root = fileURLToPath(new URL('./supply/', import.meta.url));

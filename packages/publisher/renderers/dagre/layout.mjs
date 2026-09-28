@@ -1,5 +1,5 @@
 import { createContext, Script } from 'node:vm';
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 import { loadDagreSupply } from './supply.mjs';
 
 const nodeSize = { width: 170, height: 64 };

@@ -1,4 +1,4 @@
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 
 const escape = (value) =>
   String(value)

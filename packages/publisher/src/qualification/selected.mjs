@@ -4,7 +4,7 @@ import {
   validateSelectedEditionCandidate,
 } from '../compiler/candidate.mjs';
 import { canonical, deepFreeze, exact, jsonValue, text } from '../semantics/document.mjs';
-import { fail, isDigest } from '../source/manifest.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
 
 const VERDICTS = new Set(['PASS', 'FAIL', 'UNKNOWN']);
 const sha = (value) =>

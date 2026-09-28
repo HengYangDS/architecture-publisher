@@ -949,8 +949,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       file is removed. Focused direct/mixed, offline-installed, and Scene
       checks pass, as do static, package, and the full 1,277-pass/3-skip suite
       with 97.96/95.02/99.54/97.96% statement/branch/function/line coverage.
-      The verified-file-envelope, remaining public-helper consumers, and
-      relocated source-owner adoption remain open.
+      The file-envelope split now places protocol values and bounded reads
+      below Source Bundle identity. The old generic Source exports are removed;
+      the independently installed self-Edition uses the two-operation public
+      `file-input` contract. Source and installed-use regressions, static and
+      package checks, and the full coverage gate pass on this work-tree slice
+      (98.00/95.02/99.65/98.00% statements/branches/functions/lines).
+      Raster input and CoreText output still consume actual Source Bundles;
+      their consumer-level handoff and final installed migration acceptance
+      keep Task 7.2 open.
 - [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,

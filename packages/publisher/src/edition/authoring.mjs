@@ -1,5 +1,6 @@
 import { deepFreeze, jsonValue } from '../semantics/document.mjs';
-import { fail, portablePath } from '../source/manifest.mjs';
+import { fail } from '../protocol/values.mjs';
+import { portablePath } from '../file-input/contract.mjs';
 import { buildRequestValid, editionProjectValid } from './generated/validators.mjs';
 
 export {

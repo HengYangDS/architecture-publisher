@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { canonical, jsonValue } from '../semantics/document.mjs';
-import { fail } from '../source/manifest.mjs';
+import { fail } from '../protocol/values.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 

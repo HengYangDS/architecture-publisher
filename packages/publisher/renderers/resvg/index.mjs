@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { readSourceBundle } from '../../src/source/bundle.mjs';
-import { fail, hasExactFields as fields, portablePath } from '../../src/source/manifest.mjs';
+import { fail, hasExactFields as fields } from '../../src/protocol/values.mjs';
+import { portablePath } from '../../src/file-input/contract.mjs';
 import { verifyRasterSupply } from './supply.mjs';
 import { RASTER_LIMITS as limits } from './limits.mjs';
 

@@ -4,7 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { fail, hasExactFields, isDigest, portablePath } from '../../src/source/manifest.mjs';
+import { fail, hasExactFields, isDigest } from '../../src/protocol/values.mjs';
+import { portablePath } from '../../src/file-input/contract.mjs';
 import { embedFonts } from './fonts.mjs';
 import { adaptArchitectureScene } from './architecture.mjs';
 

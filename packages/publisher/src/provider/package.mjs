@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { fail, LIMITS, portablePath } from '../source/manifest.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
+import { fail } from '../protocol/values.mjs';
+import { LIMITS, portablePath } from '../file-input/contract.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const JSON_BYTES = 16 * 1024 * 1024;

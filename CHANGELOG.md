@@ -22,6 +22,9 @@ may contain incompatible changes.
 - Moved authored Scene pre-render geometry rules to the Scene owner and emitted
   SVG-path inspection to Qualification. The compiler coordinates both without
   defining either predicate.
+- Separated bounded file input and strict protocol values from Source Bundle
+  meaning. Independent editors receive two file-input operations; the Source
+  subpath no longer exports generic file and validator primitives.
 
 ### Removed
 

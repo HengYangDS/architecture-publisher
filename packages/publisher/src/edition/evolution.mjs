@@ -1,6 +1,6 @@
 import { canonical, exact, record } from '../semantics/document.mjs';
 import { compileClaimModelDelta, compileNativeSelectionDelta } from '../semantics/change.mjs';
-import { isDigest } from '../source/manifest.mjs';
+import { isDigest } from '../protocol/values.mjs';
 import { inspectEditionForEvolution, normalizedEdition } from './contract.mjs';
 
 const obligationKeys = Object.freeze([

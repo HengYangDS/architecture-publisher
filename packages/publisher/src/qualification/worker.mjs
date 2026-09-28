@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { takeCoverage } from 'node:v8';
-import { hasExactFields } from '../source/manifest.mjs';
+import { hasExactFields } from '../protocol/values.mjs';
 import { verifyQualificationInsideWorker } from './input.mjs';
 import { withQualificationOwnership } from './process-boundary.mjs';
 import { replaySelectedCandidate } from './replay.mjs';

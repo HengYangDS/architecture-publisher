@@ -3,8 +3,8 @@ import { deriveEditionAssertions, validateEditionProject } from '../edition/auth
 import { parseSelectedSceneRefinement } from '../edition/refinement.mjs';
 import { deriveEditionQuestionObligations } from '../edition/selection.mjs';
 import { deepFreeze } from '../semantics/document.mjs';
-import { parseStrictJson } from '../source/json.mjs';
-import { fail } from '../source/manifest.mjs';
+import { parseStrictJson } from '../protocol/json.mjs';
+import { fail } from '../protocol/values.mjs';
 import { compileEditionNativeSelections } from './native.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');

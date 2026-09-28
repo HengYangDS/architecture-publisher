@@ -3,7 +3,7 @@ import { readBuildRequestSelection, readDirectSelectedInputs } from '../edition/
 import { deriveSourceRevision } from '../edition/revision.mjs';
 import { assembleEditionSelection } from '../edition/selection.mjs';
 import { exact } from '../semantics/document.mjs';
-import { fail, isDigest } from '../source/manifest.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
 import { materializeSelectedDeclarativeFiles } from '../provider/declarative-selection.mjs';
 import {
   materializePreparedExecutableInputs,

@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { validateManifest } from '../packages/publisher/src/source/manifest.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { verifySourceInput } from '../packages/publisher/src/source/input.mjs';
-import { readFileEnvelope, regularBytes } from '../packages/publisher/src/source/files.mjs';
+import { readFileEnvelope, regularBytes } from '../packages/publisher/src/file-input/read.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const evidence = new URL('../build/test-work/', import.meta.url);

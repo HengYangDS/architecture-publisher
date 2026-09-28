@@ -1,4 +1,4 @@
-import { fail } from './manifest.mjs';
+import { fail } from './values.mjs';
 
 /** Canonical JSON preserves array order; callers normalize only declared sets. */
 export function canonical(value) {

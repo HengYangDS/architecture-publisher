@@ -1,11 +1,6 @@
 import { createHash } from 'node:crypto';
-import {
-  fail,
-  hasExactFields as exact,
-  isDigest,
-  LIMITS,
-  portablePath,
-} from '../source/manifest.mjs';
+import { fail, hasExactFields as exact, isDigest } from '../protocol/values.mjs';
+import { LIMITS, portablePath } from '../file-input/contract.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);

@@ -396,6 +396,7 @@ release, independent verification, or off-host retention.
 The core exports narrow owners:
 
 ```text
+architecture-publisher/file-input
 architecture-publisher/source
 architecture-publisher/semantics
 architecture-publisher/edition
@@ -410,6 +411,12 @@ architecture-publisher/renderers/fonts
 architecture-publisher/renderers/resvg
 architecture-publisher/renderers/svg
 ```
+
+`file-input` exposes `readBoundedFile` and `parseStrictJson` for independent
+editors. The reader rejects observed symlinks, nonregular files, byte-limit
+violations, and changes detected during the read; it does not certify a digest,
+atomic ancestor confinement, source meaning, or acceptance. The `source`
+subpath exposes complete Source Bundle operations, not those generic helpers.
 
 The font-supply export owns verified font and license bytes shared by sibling
 renderers. Archify consumes that capability but does not own or re-export it.

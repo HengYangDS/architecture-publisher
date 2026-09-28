@@ -1,6 +1,7 @@
 import { exact, jsonValue, record, text } from './document.mjs';
 import { relationReference, resolveLikeC4Selection } from './native-selection.mjs';
-import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
+import { LIMITS } from '../file-input/contract.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);

@@ -25,7 +25,7 @@ import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/ind
 import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
 import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/cytoscape/edition.mjs';
 import { verifySelectedCandidateReplay } from '../packages/publisher/src/qualification/index.mjs';
-import { canonical } from '../packages/publisher/src/source/json.mjs';
+import { canonical } from '../packages/publisher/src/protocol/json.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/static/grouped-selection.mjs';
 import { claimCard } from '../packages/publisher/src/scene/claim-card.mjs';

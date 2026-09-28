@@ -1,4 +1,4 @@
-import { fail, hasExactFields as fields } from '../../source/manifest.mjs';
+import { fail, hasExactFields as fields } from '../../protocol/values.mjs';
 
 const finite = (n) => Number.isFinite(n) && Math.abs(n) <= 1e7;
 const invalid = () => fail('measurement_invalid');

@@ -1,6 +1,6 @@
 import { canonical, record } from '../semantics/document.mjs';
 import { claimDependsOnSelectedRelation } from '../semantics/native-claim-model.mjs';
-import { fail } from '../source/manifest.mjs';
+import { fail } from '../protocol/values.mjs';
 
 export const SOURCE_REPORTED_TOPOLOGY_NOTE =
   'Source-reported topology; provenance unverified; typed claim status not selected.';

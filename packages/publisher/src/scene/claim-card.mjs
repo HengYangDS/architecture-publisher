@@ -1,5 +1,5 @@
 import { canonical, deepFreeze, record, text } from '../semantics/document.mjs';
-import { fail, isDigest } from '../source/manifest.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
 
 const scalar = (value) => (typeof value === 'string' ? value : canonical(value));
 const dimensions = (value) =>

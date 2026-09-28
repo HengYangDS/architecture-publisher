@@ -127,6 +127,11 @@ Editions cannot change claims; scenes cannot change meaning; renderers cannot
 add product claims; qualification cannot manufacture human acceptance; and
 publication cannot infer intent.
 
+Bounded file input and strict protocol decoding establish only checked bytes
+and shape. Source Bundle identity and source claims remain separate, and an
+independent editor can use those byte operations without becoming a source
+authority.
+
 Only reading contexts declared by the Edition editor enter acceptance. A
 browser resize or exploratory screenshot does not create another Edition,
 device target, or approval obligation.

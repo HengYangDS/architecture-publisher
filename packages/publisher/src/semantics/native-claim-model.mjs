@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { deepFreeze, normalizedClaimModel, record, text } from './document.mjs';
-import { parseStrictJson } from '../source/json.mjs';
-import { fail, isDigest } from '../source/manifest.mjs';
+import { parseStrictJson } from '../protocol/json.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const format = 'architecture.claim-model/v2';

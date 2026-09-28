@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { fail, hasExactFields as exact } from '../source/manifest.mjs';
+import { fail, hasExactFields as exact } from '../protocol/values.mjs';
 import {
   PROCESS_CLEANUP_MS,
   resolveWindowsTaskkill as resolveOwnedWindowsTaskkill,

@@ -1,5 +1,5 @@
 import { validateManifest } from './manifest.mjs';
-import { readFileEnvelope } from './files.mjs';
+import { readFileEnvelope } from '../file-input/read.mjs';
 
 /** Source schema and meaning stay separate from the shared file envelope. */
 export async function readSourceBundle(manifestPath, expectedSha256, strictManifestJson = false) {

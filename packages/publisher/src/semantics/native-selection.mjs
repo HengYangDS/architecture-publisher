@@ -1,4 +1,4 @@
-import { fail } from '../source/manifest.mjs';
+import { fail } from '../protocol/values.mjs';
 import { deepFreeze, record, text } from './document.mjs';
 
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);

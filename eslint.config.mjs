@@ -54,7 +54,10 @@ export default [
     },
   },
   {
-    files: ['packages/publisher/src/source/manifest.mjs', 'tests/fixtures/module-boundaries.mjs'],
+    files: [
+      'packages/publisher/src/file-input/contract.mjs',
+      'tests/fixtures/module-boundaries.mjs',
+    ],
     rules: {
       'no-control-regex': 'off',
     },

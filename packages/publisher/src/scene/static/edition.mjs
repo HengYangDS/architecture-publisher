@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { canonical, deepFreeze } from '../../semantics/document.mjs';
-import { fail } from '../../source/manifest.mjs';
+import { fail } from '../../protocol/values.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { claimRelationLabel, linkClaimModelSources } from '../claim-relations.mjs';
 import { selectedStaticNativeViews } from './grouped-selection.mjs';

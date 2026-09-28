@@ -1,7 +1,7 @@
 import { sceneRefinementValid } from './generated/validators.mjs';
 import { deepFreeze } from '../semantics/document.mjs';
-import { parseStrictJson } from '../source/json.mjs';
-import { fail, isDigest } from '../source/manifest.mjs';
+import { parseStrictJson } from '../protocol/json.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
 
 /** Admit only bounded presentation data, never pre-rendered media or assertions. */
 export function parseSelectedSceneRefinement(bytes, media, sha256) {

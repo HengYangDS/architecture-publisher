@@ -3,7 +3,7 @@ import { constants } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { fail, hasExactFields as fields } from '../../src/source/manifest.mjs';
+import { fail, hasExactFields as fields } from '../../src/protocol/values.mjs';
 import { writeSourceBundle } from '../../src/source/write.mjs';
 import { createRecordedMetricReader } from '../../src/scene/typography/recorded-metrics.mjs';
 import { fileIdentity } from './files.mjs';

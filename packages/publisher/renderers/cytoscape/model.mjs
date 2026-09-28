@@ -1,5 +1,5 @@
-import { fail, hasExactFields } from '../../src/source/manifest.mjs';
-import { canonical, parseStrictJson } from '../../src/source/json.mjs';
+import { fail, hasExactFields } from '../../src/protocol/values.mjs';
+import { canonical, parseStrictJson } from '../../src/protocol/json.mjs';
 
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);

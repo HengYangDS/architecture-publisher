@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { isDigest } from '../source/manifest.mjs';
+import { isDigest } from '../protocol/values.mjs';
 import {
   canonical,
   claimModelDigest,

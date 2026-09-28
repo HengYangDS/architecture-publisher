@@ -4,7 +4,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROCESS_CLEANUP_MS, runOwnedProcess } from '../runtime/process-tree.mjs';
-import { fail, isDigest, LIMITS } from '../source/manifest.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
+import { LIMITS } from '../file-input/contract.mjs';
 import { deepFreeze, exact, jsonValue, record, text } from './document.mjs';
 import { validateLikeC4LayoutReply } from './native-layout.mjs';
 

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { validateEdition } from 'architecture-publisher/edition';
 import { createRecordedMetricReader } from 'architecture-publisher/scene';
 import { canonical, deepFreeze, validateClaimModel } from 'architecture-publisher/semantics';
-import { parseStrictJson } from 'architecture-publisher/source';
+import { parseStrictJson } from 'architecture-publisher/file-input';
 import { architecturePublisherInteractiveScenes } from './interactive-scenes.mjs';
 import { composeArchitecturePublisherInteractiveScene } from './interactive-scene.mjs';
 import { SELF_NAMESPACE } from './project.mjs';

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFileEnvelope } from '../../src/source/files.mjs';
-import { fail, hasExactFields } from '../../src/source/manifest.mjs';
+import { readFileEnvelope } from '../../src/file-input/read.mjs';
+import { fail, hasExactFields } from '../../src/protocol/values.mjs';
 
 const root = fileURLToPath(new URL('./supply/', import.meta.url));
 const manifestSha256 = '28a1a53ac46f760ccdf04ad98dfdf4d01af081ba49d9611fc1793bb9902714a2';

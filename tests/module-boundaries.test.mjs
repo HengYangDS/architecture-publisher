@@ -84,12 +84,51 @@ test('core owners cannot import concrete extensions', async () => {
   const { paths } = await inventory(runtimeRoots);
   const packageExports = await declaredPackageExports();
   const problems = inspectModuleBoundaries(
-    'packages/publisher/src/source/files.mjs',
+    'packages/publisher/src/file-input/read.mjs',
     "import '@architecture-publisher/self-edition/edition';",
     paths,
     packageExports,
   );
   assert(problems.some(({ reason }) => reason.includes('forbidden dependency')));
+});
+
+test('protocol and file input stay below Source Bundle and renderer semantics', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      'packages/publisher/src/file-input/read.mjs',
+      "import '../protocol/values.mjs';",
+      paths,
+      packageExports,
+    ),
+    [],
+  );
+  assert(
+    inspectModuleBoundaries(
+      'packages/publisher/src/protocol/values.mjs',
+      "import '../file-input/contract.mjs';",
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('forbidden dependency')),
+  );
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      'packages/publisher/renderers/dagre/layout.mjs',
+      "import '../../src/file-input/contract.mjs';",
+      paths,
+      packageExports,
+    ),
+    [],
+  );
+  assert(
+    inspectModuleBoundaries(
+      'packages/publisher/renderers/dagre/layout.mjs',
+      "import '../../src/source/manifest.mjs';",
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('forbidden dependency')),
+  );
 });
 
 test('extensions depend inward through public package exports', async () => {
@@ -327,7 +366,7 @@ test('syntax failures and computed dependencies fail closed', async () => {
   const packageExports = await declaredPackageExports();
   assert.match(
     inspectModuleBoundaries(
-      'packages/publisher/src/source/files.mjs',
+      'packages/publisher/src/file-input/read.mjs',
       'export {',
       paths,
       packageExports,
@@ -336,7 +375,7 @@ test('syntax failures and computed dependencies fail closed', async () => {
   );
   assert(
     inspectModuleBoundaries(
-      'packages/publisher/src/source/files.mjs',
+      'packages/publisher/src/file-input/read.mjs',
       'await import(selected);',
       paths,
       packageExports,

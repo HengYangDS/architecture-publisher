@@ -2,15 +2,9 @@ import fs from 'node:fs/promises';
 import { constants } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import {
-  fail,
-  isDigest,
-  LIMITS,
-  portableKey,
-  portablePath,
-  validateFileMembers,
-} from './manifest.mjs';
-import { parseStrictJson } from './json.mjs';
+import { LIMITS, portableKey, portablePath, validateFileMembers } from './contract.mjs';
+import { parseStrictJson } from '../protocol/json.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 export async function noSymlinkAncestors(file) {
@@ -55,6 +49,15 @@ export async function regularBytes(file, maximum) {
   } finally {
     await handle.close();
   }
+}
+
+/** A bounded regular-file read, without a digest or source-truth claim. */
+export async function readBoundedFile(file, maximum) {
+  if (typeof file !== 'string' || !file) fail('file_path_required');
+  if (!Number.isSafeInteger(maximum) || maximum < 0 || maximum > LIMITS.memberBytes)
+    fail('file_size_limit_invalid');
+  await noSymlinkAncestors(file);
+  return regularBytes(file, maximum);
 }
 async function inventory(root) {
   const files = [];

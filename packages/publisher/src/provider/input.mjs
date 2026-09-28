@@ -1,7 +1,8 @@
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { fail, isDigest, LIMITS, portablePath } from '../source/manifest.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
+import { LIMITS, portablePath } from '../file-input/contract.mjs';
 import { validateEditionProvider } from './contract.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');

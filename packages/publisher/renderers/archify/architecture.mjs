@@ -1,4 +1,4 @@
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 import { validateInteractiveArchitectureScene } from '../../src/scene/interactive/architecture.mjs';
 
 const componentTypes = new Set([

@@ -1,4 +1,4 @@
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 import { parse as parseFont } from './supply/opentype/opentype.mjs';
 import { verifyRasterSupply } from './supply.mjs';
 

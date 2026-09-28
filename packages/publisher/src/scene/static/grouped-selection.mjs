@@ -1,5 +1,5 @@
 import { canonical, deepFreeze } from '../../semantics/document.mjs';
-import { fail } from '../../source/manifest.mjs';
+import { fail } from '../../protocol/values.mjs';
 import { composeGroupedGeometry } from './architecture.mjs';
 
 const address = ({ namespace, id }) => JSON.stringify([namespace, id]);

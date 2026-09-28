@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 
 const root = fileURLToPath(new URL('./supply/', import.meta.url));
 const digest = 'fdf4df13d28e4161b937162bbe31ef05be3c4db88d82f490fa1305a6e353d08a';

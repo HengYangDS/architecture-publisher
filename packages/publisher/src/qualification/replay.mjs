@@ -8,8 +8,8 @@ import {
 import { compileEditionCandidateInput } from '../compiler/edition.mjs';
 import { exact } from '../semantics/document.mjs';
 import { readSourceBundle } from '../source/bundle.mjs';
-import { parseStrictJson } from '../source/json.mjs';
-import { isDigest } from '../source/manifest.mjs';
+import { parseStrictJson } from '../protocol/json.mjs';
+import { isDigest } from '../protocol/values.mjs';
 import { invokeQualificationWorker } from './process-boundary.mjs';
 
 function fail(code) {

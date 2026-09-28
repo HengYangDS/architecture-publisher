@@ -1,5 +1,5 @@
 import { canonical, deepFreeze, exact, jsonValue, text } from '../semantics/document.mjs';
-import { fail, isDigest } from '../source/manifest.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
 import {
   selectedEditionCandidateDigest,
   validateSelectedEditionCandidate,

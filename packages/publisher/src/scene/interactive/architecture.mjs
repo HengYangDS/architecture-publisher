@@ -1,4 +1,4 @@
-import { fail, hasExactFields as exact } from '../../source/manifest.mjs';
+import { fail, hasExactFields as exact } from '../../protocol/values.mjs';
 
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const identifier = (value) => typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);

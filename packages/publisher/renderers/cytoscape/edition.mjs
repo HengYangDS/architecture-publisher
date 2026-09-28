@@ -1,5 +1,5 @@
 import { loadBundledFonts } from '../fonts/index.mjs';
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
 import {
   SOURCE_REPORTED_TOPOLOGY_NOTE,

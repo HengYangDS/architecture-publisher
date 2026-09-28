@@ -7,8 +7,9 @@ import { compileEditionEvolution } from '../edition/evolution.mjs';
 import { readPublisherIdentity } from '../runtime.mjs';
 import { claimModelDigest, deepFreeze, validateClaimModel } from '../semantics/document.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
-import { noSymlinkAncestors, regularBytes } from '../source/files.mjs';
-import { fail, hasExactFields as exact, LIMITS, portableKey } from '../source/manifest.mjs';
+import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
+import { fail, hasExactFields as exact } from '../protocol/values.mjs';
+import { LIMITS, portableKey } from '../file-input/contract.mjs';
 import { readEditionProviderInput, resolveProviderPath } from './input.mjs';
 import { editionProviderPackageDigest, selectProviderPackage } from './package.mjs';
 import {

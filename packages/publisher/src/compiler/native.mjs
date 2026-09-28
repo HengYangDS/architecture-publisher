@@ -4,8 +4,8 @@ import { importLikeC4Native } from '../semantics/native-likec4.mjs';
 import { resolveLikeC4Selection } from '../semantics/native-selection.mjs';
 import { importClaimModel, resolveClaimModelSelection } from '../semantics/native-claim-model.mjs';
 import { deepFreeze } from '../semantics/document.mjs';
-import { canonical, parseStrictJson } from '../source/json.mjs';
-import { fail, isDigest } from '../source/manifest.mjs';
+import { canonical, parseStrictJson } from '../protocol/json.mjs';
+import { fail, isDigest } from '../protocol/values.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 

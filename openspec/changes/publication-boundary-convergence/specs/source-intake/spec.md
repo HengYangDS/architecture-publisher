@@ -1,5 +1,23 @@
 # Spec Delta
 
+## ADDED Requirements
+
+### Requirement: Independent file input does not grant source authority
+
+Publisher SHALL expose bounded regular-file reading and strict UTF-8 JSON
+decoding to independent editors under `file-input`. The reader SHALL reject
+observed symlinks, nonregular files, byte-limit violations and mutation
+detected across its read. The decoder SHALL reject repeated object keys.
+Neither operation claims source truth, digest verification, atomic ancestor
+confinement or acceptance.
+
+#### Scenario: An editor selects a local input
+
+- **WHEN** an editor reads a regular selected file within its declared limit
+- **THEN** Publisher returns the observed bytes without source endorsement
+- **AND** a symlink, nonregular file, oversized file or duplicate JSON key
+  fails before that input is accepted for authoring
+
 ## MODIFIED Requirements
 
 ### Requirement: Compiler closure does not inherit declared dependencies

@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fail } from '../source/manifest.mjs';
+import { fail } from '../protocol/values.mjs';
 
 export const PROCESS_CLEANUP_MS = 5_000;
 const gatedWorker = fileURLToPath(new URL('./gated-worker.mjs', import.meta.url));

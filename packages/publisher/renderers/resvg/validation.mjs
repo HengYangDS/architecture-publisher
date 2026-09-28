@@ -1,6 +1,6 @@
 import sax from './supply/sax/sax.cjs';
 import { parse as parseFont } from './supply/opentype/opentype.mjs';
-import { fail } from '../../src/source/manifest.mjs';
+import { fail } from '../../src/protocol/values.mjs';
 import { RASTER_LIMITS } from './limits.mjs';
 import { isSvgAttribute, validateSvgValues } from './values.mjs';
 

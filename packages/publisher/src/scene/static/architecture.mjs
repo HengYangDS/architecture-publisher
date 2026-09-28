@@ -1,4 +1,4 @@
-import { fail } from '../../source/manifest.mjs';
+import { fail } from '../../protocol/values.mjs';
 
 const sides = new Set(['top', 'right', 'bottom', 'left']);
 const routes = new Set(['straight', 'orthogonal-h', 'orthogonal-v']);

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { hasExactFields } from '../source/manifest.mjs';
+import { hasExactFields } from '../protocol/values.mjs';
 import { buildLikeC4Layout } from './native-layout.mjs';
 import { importLikeC4NativeWithParser } from './native-likec4.mjs';
 
