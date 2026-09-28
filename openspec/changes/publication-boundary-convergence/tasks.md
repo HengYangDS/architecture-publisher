@@ -931,6 +931,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       failed, and branch coverage was 95.03% without changing the threshold.
       This is hosted source readiness, not package freeze, final-byte review,
       protected-ref publication, or release acceptance.
+      At `fc45078`, Pipeline `8538` passed 1,248 tests with 17 skips and no test
+      failures, but failed the Linux branch gate at 94.99%. A portable,
+      tool-independent CoreText request preflight now covers its input contract
+      on Linux without attempting macOS-only measurement. Focused macOS/Linux
+      tests and the macOS full check pass; hosted repair verification remains
+      required before the unchanged 95% gate is claimed.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

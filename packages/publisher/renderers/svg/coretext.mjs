@@ -12,9 +12,8 @@ const sha = (b) => createHash('sha256').update(b).digest('hex');
 const encode = (v) => Buffer.from(JSON.stringify(v, null, 2) + '\n');
 const absolute = (p) => typeof p === 'string' && path.isAbsolute(p);
 
-/** Explicit opt-in macOS measurement. This is not an SDK or OS sandbox. */
-export async function measureCoreText(plan) {
-  if (process.platform !== 'darwin') fail('coretext_platform_unsupported');
+/** Validate the selected request without reading host tools or requiring macOS. */
+export function validateCoreTextPlan(plan) {
   if (
     !fields(plan, ['compiler', 'sdk', 'fonts', 'requests', 'output']) ||
     !fields(plan.compiler, ['path', 'sha256']) ||
@@ -70,6 +69,13 @@ export async function measureCoreText(plan) {
     textBytes += Buffer.byteLength(r.text);
   }
   if (textBytes > 4 * 1024 * 1024) fail('coretext_plan_invalid');
+  return requests;
+}
+
+/** Explicit opt-in macOS measurement. This is not an SDK or OS sandbox. */
+export async function measureCoreText(plan) {
+  if (process.platform !== 'darwin') fail('coretext_platform_unsupported');
+  const requests = validateCoreTextPlan(plan);
   const compiler = await fileIdentity(
     plan.compiler.path,
     plan.compiler.sha256,

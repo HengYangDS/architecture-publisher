@@ -62,6 +62,55 @@ test('CoreText adapter refuses implicit selection and unsupported hosts', async 
     code: process.platform === 'darwin' ? 'coretext_plan_invalid' : 'coretext_platform_unsupported',
   });
 });
+
+test('CoreText request preflight is portable and does not read selected host tools', async () => {
+  const entry = new URL('../packages/publisher/renderers/svg/coretext.mjs', import.meta.url);
+  const { validateCoreTextPlan } = await import(entry);
+  assert.equal(typeof validateCoreTextPlan, 'function');
+  const unavailable = path.resolve('not-selected');
+  const base = {
+    compiler: { path: unavailable, sha256: '0'.repeat(64) },
+    sdk: { path: unavailable, settingsSha256: '0'.repeat(64) },
+    fonts: [
+      {
+        id: 'regular',
+        path: unavailable,
+        sha256: '0'.repeat(64),
+        postscript: 'Selected-Regular',
+        cascade: [],
+      },
+    ],
+    requests: [{ text: 'Selected label', size: 12, font: 'regular' }],
+    output: path.join(unavailable, 'output'),
+  };
+  const requests = validateCoreTextPlan(base);
+  assert.deepEqual(requests, base.requests);
+  assert.notEqual(requests, base.requests);
+  for (const [name, mutate] of [
+    ['unknown plan field', (plan) => (plan.extra = true)],
+    ['duplicate font ID', (plan) => plan.fonts.push(structuredClone(plan.fonts[0]))],
+    ['self cascade', (plan) => (plan.fonts[0].cascade = ['regular'])],
+    ['duplicate cascade', (plan) => (plan.fonts[0].cascade = ['missing', 'missing'])],
+    ['unknown request font', (plan) => (plan.requests[0].font = 'missing')],
+    ['duplicate request', (plan) => plan.requests.push(structuredClone(plan.requests[0]))],
+    ['empty text', (plan) => (plan.requests[0].text = '  ')],
+    ['invalid size', (plan) => (plan.requests[0].size = 0)],
+    [
+      'aggregate text budget',
+      (plan) =>
+        (plan.requests = Array.from({ length: 211 }, (_, i) => ({
+          text: 'x'.repeat(19990) + String(i).padStart(5, '0'),
+          size: 12,
+          font: 'regular',
+        }))),
+    ],
+  ]) {
+    const plan = structuredClone(base);
+    mutate(plan);
+    assert.throws(() => validateCoreTextPlan(plan), { code: 'coretext_plan_invalid' }, name);
+  }
+});
+
 test(
   'CoreText rejects malformed request records before reading selected tools',
   { skip: process.platform !== 'darwin' },

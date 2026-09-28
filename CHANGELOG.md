@@ -56,6 +56,8 @@ may contain incompatible changes.
 
 ### Fixed
 
+- CoreText request preflight can be exercised without macOS host tools;
+  unsupported hosts still reject actual measurement.
 - The first source-list jump now centers its selected graph element after zooming from a fitted overview.
 - Standalone interactive HTML now declares an inline empty favicon so a local
   reader does not make an implicit `/favicon.ico` request.
