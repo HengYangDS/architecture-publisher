@@ -228,3 +228,29 @@ asset bytes; it does not prove browser-session behavior or a universal GitLab
 bug. Do not mutate the signed release or its linked bytes. Future release
 admission must exercise a normal supported CLI consumer path and exact digest
 readback before calling linked assets usable.
+
+## Package storage attribution and successor choice (2026-09-28 15:51 UTC)
+
+The authenticated GitLab API reported `packages_size: 878531229` bytes and
+`storage_size: 910134766` bytes for project 1323. Ten Generic Package versions
+were listed. Three historical recovery or qualification archives account for
+825355600 package bytes (93.95%): 208257504 bytes in package 199,
+327534676 in package 201, and 289563420 in package 205. Their names are
+linked from the corresponding `v0.1.0-alpha.1`, `alpha.3`, and `alpha.5`
+Releases. Package deletion would therefore change historical reader links;
+these observations do not authorize deletion or prove replacement custody.
+Independent off-host recovery remains undecided.
+
+At this observation, all ten alpha.3 Release links used same-host Generic
+Package API URLs, while all eleven alpha.4 links used web-upload URLs. The
+installed `glab` 1.119.0 source selects its authenticated client when an asset
+URL has the configured GitLab scheme and host. GitLab's
+[Release links API](https://docs.gitlab.com/api/releases/links/) permits an
+HTTP(S) URL, and its [Markdown uploads API](https://docs.gitlab.com/api/project_markdown_uploads/)
+provides an authenticated upload endpoint. An API-upload Release link might
+avoid Package storage, but its `glab release download` behavior has not been
+tested on this instance. The next successor therefore selects the already
+observed Generic Package route, uploads each selected asset once without a
+duplicate project upload, and makes exact CLI download plus SHA-256 readback
+an acceptance condition. This does not remediate the historical 825355600-byte
+custody question and does not claim that the next release has occurred.

@@ -51,6 +51,18 @@ its zero-byte failed output did not establish asset loss. Machine consumers
 must use a verified authenticated route and compare SHA-256. The normal CLI
 download route is not yet accepted for this release.
 
+For the next release, select one Forge storage copy per asset in the GitLab
+Generic Package Registry and point each Release link at its same-host package
+API URL. The alpha.3 review asset demonstrated this route with the installed
+`glab` CLI; that precedent does not approve a later asset. Do not also upload
+the same asset as a Markdown project upload. After creating the exact Release
+links, download every selected asset through `glab release download` with
+noninteractive authentication, a bounded process deadline, and an isolated
+destination; compare each result with the released SHA-256 manifest. API-only
+readback, a valid link record, or one successful asset cannot substitute for
+the complete consumer check. A failure stops release acceptance without an
+automatic second storage route or a claim that existing bytes were lost.
+
 ## Authority and state model
 
 Architecture Publisher consumes selected values. It does not discover a
