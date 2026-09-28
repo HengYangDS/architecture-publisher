@@ -25,7 +25,12 @@ function text(value, code) {
     Buffer.byteLength(value, 'utf8') > 2048 ||
     [...value].some((character) => {
       const point = character.codePointAt(0);
-      return point <= 0x1f || point === 0x7f || (point >= 0xd800 && point <= 0xdfff);
+      return (
+        point === undefined ||
+        point <= 0x1f ||
+        point === 0x7f ||
+        (point >= 0xd800 && point <= 0xdfff)
+      );
     })
   )
     fail(code);

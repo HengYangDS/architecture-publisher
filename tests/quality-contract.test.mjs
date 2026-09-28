@@ -72,6 +72,38 @@ test('coverage roots include all tracked first-party package runtime modules', (
   }
 });
 
+test('the existing type-check project includes every Provider runtime module', async () => {
+  const selected = new Set(
+    execFileSync(
+      process.execPath,
+      [
+        path.join(root, 'node_modules/typescript/bin/tsc'),
+        '--project',
+        'jsconfig.json',
+        '--listFilesOnly',
+      ],
+      { cwd: root, encoding: 'utf8', timeout: 30_000 },
+    )
+      .trim()
+      .split('\n')
+      .map((file) => path.resolve(file.trim())),
+  );
+  const providers = execFileSync('git', ['ls-files', '--', 'packages/publisher/src/provider'], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+    .trim()
+    .split('\n')
+    .filter((file) => file.endsWith('.mjs'));
+  assert(providers.length > 0);
+  for (const file of providers) assert(selected.has(path.join(root, file)), file);
+
+  // TypeScript resolves this declaration; Knip resolves its config name to the runtime package.
+  assert(selected.has(path.join(root, 'node_modules/@types/punycode/index.d.ts')));
+  const knip = JSON.parse(await fs.readFile(path.join(root, 'knip.json')));
+  assert.deepEqual(knip.ignoreDependencies, ['@types/punycode']);
+});
+
 test('first-party code filenames describe responsibilities, not protocol generations', () => {
   const versionSuffix = /(?:^|[-_.])v\d+(?=[-_.]|$)/iu;
   const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' })

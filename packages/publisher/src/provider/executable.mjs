@@ -97,6 +97,7 @@ async function materializedValues(reply, manifest, scratch) {
   if (selectedEditionDigest !== manifest.expected.editionDigest)
     fail('edition_provider_edition_identity_mismatch');
   const editionSha256 = sha(editionBytes);
+  /** @type {string | null} */
   let evolutionSha256 = null;
   if (evolutionBytes !== null) {
     compileEditionEvolution(json(evolutionBytes, 'edition_provider_evolution_json_invalid'));

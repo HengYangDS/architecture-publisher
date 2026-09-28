@@ -96,8 +96,11 @@ export async function materializeDeclarativeProvider(selection) {
     'edition_provider_edition_identity_mismatch',
   );
 
+  /** @type {string | null} */
   let evolution = null;
+  /** @type {string | null} */
   let evolutionSha256 = null;
+  /** @type {Buffer | null} */
   let evolutionBytes = null;
   if (manifest.delivery.evolution !== null) {
     evolution = resolveProviderPath(

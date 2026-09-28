@@ -1,6 +1,8 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "treatConfigHintsAsErrors": true,
+  "ignoreDependencies": ["@types/punycode"],
+  "typescript": { "config": "jsconfig.json" },
   "workspaces": {
     ".": {
       "entry": [

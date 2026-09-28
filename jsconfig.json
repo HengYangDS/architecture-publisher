@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2024",
-    "types": ["node"]
+    "types": ["node", "punycode"]
   },
   "typeAcquisition": {
     "enable": false
@@ -21,6 +21,7 @@
     "packages/publisher/src/runtime/**/*.mjs",
     "packages/publisher/src/semantics/**/*.mjs",
     "packages/publisher/src/edition/**/*.mjs",
+    "packages/publisher/src/provider/**/*.mjs",
     "packages/publisher/src/scene/**/*.mjs",
     "packages/publisher/src/compiler/candidate.mjs",
     "packages/publisher/src/qualification/contract.mjs",

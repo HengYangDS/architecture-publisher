@@ -41,23 +41,30 @@ export async function prepareBuildRequestInput(requestPath, expectedSha256, exec
     try {
       selectedManifest = await readSelectedProviderManifest(manifestPath, selection.sha256);
     } catch (error) {
-      if (error?.code === 'edition_provider_v2_invalid') {
-        error.diagnostics = [
-          {
-            code: error.code,
-            severity: 'error',
-            message: 'Selected Provider manifest violates the v2 contract.',
-            predicate: 'provider-manifest-schema',
-            subject: {
-              kind: 'provider-manifest',
-              selectionId: selection.id,
-              sha256: selection.sha256,
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        error.code === 'edition_provider_v2_invalid'
+      ) {
+        Object.assign(error, {
+          diagnostics: [
+            {
+              code: 'edition_provider_v2_invalid',
+              severity: 'error',
+              message: 'Selected Provider manifest violates the v2 contract.',
+              predicate: 'provider-manifest-schema',
+              subject: {
+                kind: 'provider-manifest',
+                selectionId: selection.id,
+                sha256: selection.sha256,
+              },
+              responsibility: { role: 'provider-author', declaredOwner: null },
+              evidence: {},
+              supportedFixes: [],
             },
-            responsibility: { role: 'provider-author', declaredOwner: null },
-            evidence: {},
-            supportedFixes: [],
-          },
-        ];
+          ],
+        });
       }
       throw error;
     }
