@@ -2,8 +2,10 @@
 
 ## Status and evidence boundary
 
-This design and its revised specifications were approved on 2026-09-24. The
-same Change's `tasks.md` alone records implementation progress. Design or
+The design and revised specifications accepted on 2026-09-24 remain approved.
+The module-depth amendment below is proposed and awaits operator review; it
+does not amend an active specification or authorize implementation. The same
+Change's `tasks.md` alone records implementation progress. Design or
 specification approval is not product acceptance or release evidence.
 
 ### Program context (non-normative)
@@ -1134,6 +1136,73 @@ The concrete subtraction order is:
    self-materialization engine only after a truthful native source and complete
    AIGW acceptance path exist. Neither source migration grants Publisher
    domain authority.
+
+### Module depth and physical ownership (proposed)
+
+Keep one deployable generic Publisher package and the separately owned
+self-Edition package. A package boundary represents an independently versioned
+consumer contract, not a topic or a line-count threshold. Reject both a
+cosmetic `.config`/directory reshuffle and a package per processing stage:
+neither makes the public build operation deeper or removes adopter knowledge.
+Within the generic package, physical placement follows the owner of each
+product value and its primary reason to change. A mixed module must be
+absorbed, precisely renamed, split on a real independent invariant, or
+deleted; no `core`, `common`, `shared`, `utils`, or forwarding replacement is
+admitted by default.
+
+The selected-byte envelope is a transport and integrity concern, not Source
+Bundle authority. Source Bundle validation owns source identity and selected
+members; generic digest, path, exact-field, and bounded-read helpers do not
+acquire source semantics because they currently reside under `source/`.
+Trace their real consumers before deciding whether a complete selected-input
+operation belongs to an existing owner or needs one private, narrowly named
+owner. Do not create a generic helper package, export a step merely because
+another module imports it, or repeat an existing versioned schema validator.
+
+The public Build Request operation is intentionally deep: it coordinates
+selected inputs, checked meaning, Edition obligations, independent Scenes,
+renderers, and Candidate identity so adopters need not sequence those steps.
+Its dependency fan-out or file length is not a split criterion. Meaning,
+editorial decisions, Scene validity, medium rendering, qualification, and
+publication each retain their own predicates and effects; the build
+coordinator may call them but may not become their second rule owner. Likewise,
+an HTML composer that owns one complete medium operation need not move solely
+because its directory name or size differs from a backend adapter.
+
+Public subpaths and symbols require a named consumer-level obligation. Review
+each incumbent adopter call chain: can the owner change parsing, layout,
+renderer, or storage internals without changing that caller; does one public
+operation return the necessary result, limits, and continuation; and is the
+caller still assembling an internal algorithm from exported primitives? The
+terminal ETHOS adapter supplies source-owned meaning and Edition choices, not
+generic renderer, browser, qualification, or publication mechanics. AIGW uses
+the same versioned input contract without sharing ETHOS-specific code. Remove
+displaced public primitives and paths in the SemVer successor after installed
+consumer parity, not through open-ended aliases or re-export facades. Signed
+historical packages preserve historical replay without burdening the new
+runtime.
+
+Native package manifests, lockfiles, and discovery entrypoints stay where
+their consumers require them. A `.config/` owner is justified only for a
+distinct repository policy that tools can select without a copied root rule;
+its existence is not an acceptance predicate. Keep source tests, installed
+conformance journeys, immutable historical evidence, product specifications,
+and generated outputs in their distinct roles, with `tasks.md` as the sole
+progress ledger and package scripts as the repository check entrypoint.
+
+Before any physical migration, inventory every public consumer, dynamic
+loader, resource path, and generated projection. Acceptance requires zero
+forbidden import directions or adopter-specific branches in the generic
+package, complete first-party type-check scope, the unchanged four 95%
+coverage floors, exact offline installed use for self and an independent
+Edition, and a change-impact probe: replacing an implementation behind an
+unchanged declared renderer capability must not require a source-owner edit,
+while a source-meaning change within an admitted format must not require a
+generic product branch. A changed visual capability or unsupported source
+construct instead requires an explicit contract decision. Tests must exercise
+complete public operations, not only internal helper counts. At each owner's
+accepted replacement transition, delete its incumbent implementation and
+stale references; retain rollback evidence, not parallel runtime authority.
 
 ## Change, qualification, acceptance, and custody
 
