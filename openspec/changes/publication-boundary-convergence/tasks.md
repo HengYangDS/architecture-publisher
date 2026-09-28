@@ -428,7 +428,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       offline-installed public CLI reproduces the package-only classification
       after relocation. The local full check passes 1,266 tests, eight declared
       skips and zero failures, with 97.97/95.04/99.53/97.97% statements,
-      branches, functions and lines. Exact-HEAD proof, hosted CI, full-model
+      branches, functions and lines. Signed `2439d7e` passed exact-HEAD ETHOS
+      proof under Attestation
+      `a63501a728ef15f4bf39e31eb7a0917576217963513bef94d02508d0e4602288`;
+      Pipeline `8557` passed on the same source with 1,257 tests, 17 declared
+      skips, zero failures and Linux
+      coverage 97.29/95.07/99.19/97.29% in that order. Local `candidate/dev`
+      and the sole remote proposal now select that commit. These are source
+      readiness, not final frozen-package or adopter acceptance. Full-model
       dependency precision, final installed-platform parity and Task 7.5
       release acceptance remain open.
 
