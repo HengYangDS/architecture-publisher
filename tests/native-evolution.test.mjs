@@ -5,7 +5,10 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { compileEditionMeaning } from '../packages/publisher/src/compiler/index.mjs';
+import {
+  compileEditionCandidateInput,
+  compileEditionMeaning,
+} from '../packages/publisher/src/compiler/index.mjs';
 import { compileNativeEditionEvolution } from '../packages/publisher/src/edition/evolution.mjs';
 import { compareEvolutionInput } from '../packages/publisher/src/compiler/evolution.mjs';
 import { materializeBuildRequestInput } from '../packages/publisher/src/provider/index.mjs';
@@ -543,7 +546,7 @@ test('native Edition evolution separates rebuild, verification, review, acceptan
   });
   assert.deepEqual(
     result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle', 'static', 'interactive-document', 'interactive'],
+    ['edition-candidate', 'static', 'interactive-document', 'interactive'],
   );
   assert.equal(result.obligations.semanticVerification.length, 1);
   assert.equal(result.obligations.mediumVerification.length, 2);
@@ -663,7 +666,7 @@ test('Edition JSON whitespace changes exact bytes without inventing a media redr
   assert.equal(result.delta.editorialChanged, false);
   assert.deepEqual(
     result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle'],
+    ['edition-candidate'],
   );
   assert.deepEqual(result.obligations.mediumVerification, []);
   assert.deepEqual(result.obligations.humanReview, []);
@@ -681,7 +684,7 @@ test('removing one selected medium withdraws it without redrawing the retained m
   assert.deepEqual(result.editions.affected[0].withdrawn, [{ medium: 'interactive', scene: null }]);
   assert.deepEqual(
     result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle'],
+    ['edition-candidate'],
   );
   assert.deepEqual(result.obligations.mediumVerification, []);
   assert.deepEqual(result.obligations.humanReview, []);
@@ -700,7 +703,7 @@ test('adding one selected medium builds only that medium and requires fresh revi
   });
   assert.deepEqual(
     result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle', 'interactive-document', 'interactive'],
+    ['edition-candidate', 'interactive-document', 'interactive'],
   );
   assert.deepEqual(
     result.obligations.mediumVerification.map(({ medium }) => medium),
@@ -726,7 +729,7 @@ test('removing an interactive page withdraws it without repainting an unchanged 
   ]);
   assert.deepEqual(
     result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle', 'interactive-document'],
+    ['edition-candidate', 'interactive-document'],
   );
   assert.deepEqual(
     result.obligations.mediumVerification.map(({ medium }) => medium),
@@ -840,7 +843,7 @@ test('parser supply-only replacement renews media and acceptance without inventi
   assert.equal(result.delta.native.supplyChanged, true);
   assert.deepEqual(
     result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle', 'static', 'interactive-document', 'interactive'],
+    ['edition-candidate', 'static', 'interactive-document', 'interactive'],
   );
   assert.deepEqual(
     result.obligations.mediumVerification.map(({ medium }) => medium),
@@ -1007,11 +1010,21 @@ test('a Provider package-only change renews semantic verification without redraw
     removed: [],
     changed: [{ id: 'model-provider', beforeSha256: priorPackage, afterSha256: nextPackage }],
   });
-  assert.deepEqual(result.editions.changed, ['selected-atlas']);
-  assert.deepEqual(
-    result.obligations.rebuild.map(({ target }) => target),
-    ['publication-bundle'],
+  const priorCandidate = await compileEditionCandidateInput(
+    before.file,
+    before.digest,
+    path.join(before.root, 'candidate'),
   );
+  const nextCandidate = await compileEditionCandidateInput(
+    after.file,
+    after.digest,
+    path.join(after.root, 'candidate'),
+  );
+  assert.equal(priorCandidate.lockSha256, nextCandidate.lockSha256);
+  assert.equal(priorCandidate.candidateSha256, nextCandidate.candidateSha256);
+  assert.equal(priorCandidate.manifestSha256, nextCandidate.manifestSha256);
+  assert.deepEqual(result.editions.changed, ['selected-atlas']);
+  assert.deepEqual(result.obligations.rebuild, []);
   assert.deepEqual(result.obligations.mediumVerification, []);
   assert.deepEqual(result.obligations.humanReview, []);
   assert.deepEqual(result.obligations.semanticVerification[0].questions, ['shape']);

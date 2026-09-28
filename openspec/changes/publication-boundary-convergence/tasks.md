@@ -438,11 +438,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       readiness, not final frozen-package or adopter acceptance. Full-model
       dependency precision, final installed-platform parity and Task 7.5
       release acceptance remain open.
-      The unreleased v3 rebuild target now names its single HTML output
-      `interactive-document`; historical v1 `interactive-atlas` is unchanged.
-      The 65 related evolution tests and full `npm run check` pass, including
-      all four unchanged 95% coverage gates. This does not close final package
-      or adopter acceptance.
+      The unreleased v3 now names changed Candidate inputs as
+      `edition-candidate` and its single HTML output as
+      `interactive-document`. A Provider package-only replacement with
+      byte-identical selected lock, Candidate, and media requires no rebuild;
+      semantic verification, acceptance, and publication still renew.
+      Historical v1 target names are unchanged. The 78 related tests and full
+      `npm run check` pass, including all four unchanged 95% coverage gates.
+      Final package and adopter acceptance remain open.
 
 ## 5. Editorial composition and independent media
 

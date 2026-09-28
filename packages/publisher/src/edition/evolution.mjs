@@ -769,14 +769,14 @@ export function compileNativeEditionEvolution(
   const lockChanged =
     before.meaning.native.subjectLockSha256 !== after.meaning.native.subjectLockSha256;
   const editionBytesChanged = before.meaning.edition.sha256 !== after.meaning.edition.sha256;
-  const changed =
+  const candidateChanged =
     delta.hasChanges ||
-    packageChanged ||
     authoredChanged ||
     lockChanged ||
     mediaChanges.added.length > 0 ||
     mediaChanges.removed.length > 0 ||
     mediaChanges.changed.length > 0;
+  const changed = candidateChanged || packageChanged;
   const id = after.meaning.edition.id;
   const obligations = /** @type {Record<string, Array<Record<string, any>>>} */ (
     Object.fromEntries(obligationKeys.map((key) => [key, []]))
@@ -897,7 +897,8 @@ export function compileNativeEditionEvolution(
       scope: broad || packageChanged ? 'complete' : 'targeted',
       reasons,
     });
-    obligations.rebuild.push({ edition: id, target: 'publication-bundle', scene: null, reasons });
+    if (candidateChanged)
+      obligations.rebuild.push({ edition: id, target: 'edition-candidate', scene: null, reasons });
     for (const medium of selectedMedia) {
       const views = media[medium];
       if (!affectedMedia.has(medium)) continue;
