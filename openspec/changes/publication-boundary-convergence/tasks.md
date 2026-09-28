@@ -866,6 +866,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       alpha.1 control installed. The dated contrast and limits are in
       `conformance/evidence/ethos-install-pin-probe.json`. This is a source-owned
       dependency selection gap, not evidence of v2 semantics or flagship parity.
+      An isolated copy of that same frozen ETHOS integration selected the
+      provisional alpha.4 Core; three existing installed v1 Provider and
+      explicit-input tests passed offline. The source pin was not changed,
+      and v2 migration and flagship acceptance remain open. Exact identities
+      and limits are in `conformance/evidence/ethos-provider-compatibility-probe.json`.
       The refreshed self probe at signed Publisher `79c1be9` binds the untagged
       alpha.4 Core and self-Edition archives, 23 relocated selected sources,
       and six exact Candidate members. Linux arm64 Node 26.9 and 24.19 emit the

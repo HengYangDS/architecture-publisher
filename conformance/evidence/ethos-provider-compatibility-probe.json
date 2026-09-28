@@ -1,0 +1,48 @@
+{
+  "ethos": {
+    "acceptedCoreDependency": "0.3.0-alpha.1",
+    "integrationTreeOid": "31677a318f0f9a072caed7c6b7bb318c71d034d1",
+    "integrationVersion": "0.3.0-alpha.0",
+    "scratchArchiveSha256": "7fcff66627e6269804404110ce65d86f3f3564240817796a4aebe0bcf4691ab4",
+    "scratchCoreDependency": "0.3.0-alpha.4",
+    "sourceCommit": "ff1cc69d2f8468c3ec0111881db6f1d261f9ee09"
+  },
+  "limits": [
+    "Only a scratch copy of ETHOS package metadata was changed; ETHOS source and accepted package pin remain untouched.",
+    "This tests historical v1 Provider installed use against a provisional alpha.4 Core, not successor v2 migration, flagship media parity, rollback, or ETHOS acceptance.",
+    "Offline npm install and synthetic fixture execution do not prove the full native ETHOS source journey."
+  ],
+  "observations": {
+    "explicitProjectionInputInstalledJourney": true,
+    "historicalV1ProviderMaterializationAndRelocation": true,
+    "offlineInstallWithUnreachableRegistry": true,
+    "sourceOwnedIntegrationTreeUnchanged": true
+  },
+  "observedAt": "2026-09-28T10:38:52+00:00",
+  "publisher": {
+    "coreArchiveSha256": "e2460f0037831a1b0966f53d1f1842d74bd2ca7f939d6ceea08d0421c4909b01",
+    "coreVersion": "0.3.0-alpha.4",
+    "sourceCommit": "d30bc433f13198186d58eae605041fafd7faa9c3"
+  },
+  "schema": "architecture.research-installed-probe/v1",
+  "tests": [
+    {
+      "failed": 0,
+      "file": "tests/architecture/architecture-publisher-provider.test.mjs",
+      "passed": 2,
+      "reportedTests": 2,
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "069e032c9926b82a5249bd012c5e51695ec51289f83cd6ed5784f59da44ce98c"
+    },
+    {
+      "failed": 0,
+      "file": "tests/architecture/architecture-publisher-installed.test.mjs",
+      "passed": 1,
+      "reportedTests": 1,
+      "selectedName": "independently packed integration consumes explicit projection input offline",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSha256": "b79eedd4a9c27b6911cd29e6b0287fd4921f587d0f2aea7835f3ca1b0b12cf6e"
+    }
+  ],
+  "workload": "ethos-frozen-v1-provider-scratch-pin-compatibility"
+}
