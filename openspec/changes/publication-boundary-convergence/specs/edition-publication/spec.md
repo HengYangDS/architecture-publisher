@@ -101,15 +101,24 @@ a complete Candidate. Graph-only layout success is insufficient.
 Interactive composition SHALL reject declared external scripts, frames,
 stylesheets, images, media, and CSS resource URLs before a complete Candidate.
 Supported inline data assets and SVG same-document resource fragments remain
-admissible.
+admissible. The standalone shell SHALL apply a restrictive browser Content
+Security Policy that denies network resource loads and connections while
+admitting selected inline, data, and blob assets.
 This structural check does not prove that executable page code cannot request
-network resources; exact-browser qualification remains separate.
+network resources or that blocked assets leave a complete work; exact-browser
+qualification remains separate.
 
 #### Scenario: A selected page declares an external image
 
 - **WHEN** a selected interactive page contains an external image or CSS URL
 - **THEN** composition fails before a complete Candidate is emitted
 - **AND** the reader is not given an apparently standalone work with a missing asset
+
+#### Scenario: Page code attempts an undeclared connection
+
+- **WHEN** executable page code attempts a network connection in the reader
+- **THEN** the browser policy blocks the connection
+- **AND** a browser error or incomplete rendering cannot be counted as qualification
 
 ### Requirement: Interactive inspection preserves selected meaning
 

@@ -37,6 +37,15 @@ may contain incompatible changes.
   exact-byte comparison against the previous work-lane HEAD. The old direct
   backend function names are removed from this unreleased successor surface.
 
+### Fixed
+
+- Standalone interactive composition rejects declared external page assets,
+  including URL-bearing resource attributes and CSS imports or URLs, before
+  emitting a Candidate; unsupported CSS image sets also fail. A restrictive
+  browser Content Security Policy blocks undeclared network effects; browser
+  observation still checks blocked assets, incomplete rendering, and
+  executable behavior.
+
 ### Removed
 
 - The unselected alternate interactive layout and its automatic

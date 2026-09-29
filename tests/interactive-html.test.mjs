@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import http from 'node:http';
+import path from 'node:path';
 import test from 'node:test';
+import { chromium } from 'playwright-core';
 import { composeInteractiveHtml } from '../packages/publisher/src/rendering/index.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -101,6 +104,16 @@ test('one interactive HTML contract binds exact pages and source metadata withou
   assert.doesNotMatch(text, /id="interactive-sources"|id="interactive-meaning"/u);
   assert.doesNotMatch(text, /id="interactive-source-code"|Source bytes are not embedded\./u);
   assert.match(text, /<link rel="icon" href="data:,">/u);
+  const policy = text.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/u)?.[1];
+  assert(policy, 'standalone reader declares a restrictive content policy');
+  for (const directive of [
+    "default-src 'none'",
+    "connect-src 'none'",
+    'font-src data:',
+    'img-src data: blob:',
+  ])
+    assert(policy.includes(directive), directive);
+  assert.doesNotMatch(policy, /unsafe-eval|https?:/u);
   assert.match(text, /window\.__architectureInteractive/u);
   assert.match(text, /sandbox="allow-scripts allow-downloads"/u);
   assert.doesNotMatch(text, /(?:Atlas|atlas|allow-same-origin)/u);
@@ -181,18 +194,26 @@ test('interactive HTML rejects page resources that would leave the standalone wo
     ['single-quoted image', "<img src='https://example.invalid/pixel'>"],
     ['unquoted image', '<img src=//example.invalid/pixel>'],
     ['document image', '<img src="#diagram">'],
+    ['image input', '<input type="image" src="https://example.invalid/pixel">'],
+    ['legacy background', '<body background="https://example.invalid/pixel"></body>'],
     ['encoded image URL', '<img src="&#104;ttps://example.invalid/pixel">'],
     ['SVG image', '<svg><image href="//example.invalid/pixel"></image></svg>'],
+    ['single-quoted SVG image', "<svg><image href='https://example.invalid/pixel'></image></svg>"],
     ['SVG use', '<svg><use xlink:href="https://example.invalid/icon"></use></svg>'],
     ['responsive image', '<img srcset="https://example.invalid/pixel 2x">'],
     ['embedded document', '<iframe srcdoc="<p>Nested</p>"></iframe>'],
     ['object', '<object data="https://example.invalid/document"></object>'],
+    ['unquoted object', '<object data=//example.invalid/document></object>'],
     ['refresh', '<meta http-equiv="refresh" content="0;url=https://example.invalid/">'],
     ['base URL', '<base href="https://example.invalid/">'],
     ['CSS URL', '<style>body{background:url(https://example.invalid/pixel)}</style>'],
     ['quoted CSS URL', '<style>body{background:url("https://example.invalid/pixel")}</style>'],
     ['incomplete CSS URL', '<style>body{background:url(https://example.invalid/pixel}</style>'],
     ['CSS import', '<style>@import "https://example.invalid/style.css";</style>'],
+    [
+      'CSS image set',
+      '<style>body{background-image:image-set("https://example.invalid/pixel" 1x)}</style>',
+    ],
     ['inline CSS URL', '<div style="background:url(/pixel)"></div>'],
   ]) {
     const input = fixture();
@@ -212,6 +233,56 @@ test('interactive HTML rejects page resources that would leave the standalone wo
   inline.pages[0].sha256 = sha256(inline.pages[0].content);
   assert.doesNotThrow(() => composeInteractiveHtml(inline));
 });
+
+test(
+  'standalone reader policy blocks dynamic page connections',
+  { skip: !path.isAbsolute(process.env.ARCHPUB_BROWSER_EXECUTABLE ?? '') },
+  async () => {
+    let requests = 0;
+    let protectedHtml;
+    let unprotectedHtml;
+    const server = http.createServer((request, response) => {
+      if (request.url === '/pixel') {
+        requests += 1;
+        response.writeHead(204).end();
+        return;
+      }
+      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      response.end(request.url === '/unprotected' ? unprotectedHtml : protectedHtml);
+    });
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    let browser;
+    try {
+      const origin = `http://127.0.0.1:${server.address().port}`;
+      const input = fixture();
+      input.pages[0].content = html(
+        'Overview',
+        `<script>fetch('${origin}/pixel').catch(() => {});</script>`,
+      );
+      input.pages[0].sha256 = sha256(input.pages[0].content);
+      protectedHtml = composeInteractiveHtml(input).toString('utf8');
+      unprotectedHtml = protectedHtml.replace(
+        /<meta http-equiv="Content-Security-Policy" content="[^"]+">/u,
+        '',
+      );
+      browser = await chromium.launch({
+        executablePath: process.env.ARCHPUB_BROWSER_EXECUTABLE,
+        headless: true,
+        chromiumSandbox: true,
+      });
+      const page = await browser.newPage();
+      await page.goto(`${origin}/protected`, { waitUntil: 'load' });
+      await page.frameLocator('#interactive-frame').locator('svg').waitFor();
+      assert.equal(requests, 0);
+      await page.goto(`${origin}/unprotected`, { waitUntil: 'load' });
+      await page.frameLocator('#interactive-frame').locator('svg').waitFor();
+      assert.equal(requests > 0, true, 'control without policy makes the request');
+    } finally {
+      await browser?.close();
+      await new Promise((resolve) => server.close(resolve));
+    }
+  },
+);
 
 test('interactive HTML neutralizes script-data termination without embedding source bytes', () => {
   const input = fixture();

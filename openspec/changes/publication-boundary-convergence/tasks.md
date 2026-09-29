@@ -672,11 +672,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       `Inspect` reading state now indexes selected subjects and records, labels
       source identity without a false code link, and returns keyboard focus;
       final exact-byte review remains Task 7.5.
-      A page-level counterexample showed that the interactive compositor
-      accepted external image and CSS resource declarations despite the
-      standalone promise. Focused RED/GREEN now rejects declared external
-      assets before Candidate emission while retaining inline data assets;
-      browser network observation remains a separate qualification.
+      Page-level counterexamples showed that the compositor accepted external
+      resource attributes, including image inputs and legacy backgrounds, and
+      CSS image sets. Focused RED/GREEN rejects these declarations before
+      Candidate emission while retaining supported inline data assets. The
+      standalone shell adds a restrictive Content Security Policy as a browser
+      backstop; blocked resource errors and rendered completeness remain
+      separate browser qualifications.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually

@@ -126,18 +126,23 @@ function rejectDeclaredExternalResources(html) {
   )
     fail('interactive_html_external_dependency');
 
-  for (const match of html.matchAll(
-    /<(?:img|image|feimage|use|source|audio|video|track|object|embed)\b[^>]*>/gi,
-  )) {
-    const fragmentAllowed = /^<(?:use|feimage)\b/i.test(match[0]);
+  for (const match of html.matchAll(/<[a-z][^>]*>/gi)) {
     for (const attribute of match[0].matchAll(
-      /\s(src|srcset|href|xlink:href|poster|data)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
+      /\s(src|srcset|poster|background)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
     )) {
       const value = (attribute[2] ?? attribute[3] ?? attribute[4]).trim();
-      if (
-        attribute[1].toLowerCase() === 'srcset' ||
-        !(/^data:/i.test(value) || (fragmentAllowed && value.startsWith('#')))
-      )
+      if (attribute[1].toLowerCase() === 'srcset' || !/^data:/i.test(value))
+        fail('interactive_html_external_dependency');
+    }
+  }
+
+  for (const match of html.matchAll(/<(?:image|feimage|use|object)\b[^>]*>/gi)) {
+    const fragmentAllowed = /^<(?:use|feimage)\b/i.test(match[0]);
+    for (const attribute of match[0].matchAll(
+      /\s(href|xlink:href|data)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
+    )) {
+      const value = (attribute[2] ?? attribute[3] ?? attribute[4]).trim();
+      if (!(/^data:/i.test(value) || (fragmentAllowed && value.startsWith('#'))))
         fail('interactive_html_external_dependency');
     }
   }
@@ -150,7 +155,8 @@ function rejectDeclaredExternalResources(html) {
   ];
   for (const style of styles) {
     const css = style.replace(/\/\*[\s\S]*?\*\//g, '');
-    if (/@import\b/i.test(css)) fail('interactive_html_external_dependency');
+    if (/@import\b|(?:-webkit-)?image-set\s*\(/i.test(css))
+      fail('interactive_html_external_dependency');
     const withoutUrls = css.replace(
       /\burl\s*\(\s*(?:"([^"]*)"|'([^']*)'|([^)]*))\s*\)/gi,
       (all, double, single, bare) => {
@@ -502,6 +508,20 @@ function interactiveReader() {
 }
 
 function shell(input, data) {
+  const contentPolicy = [
+    "default-src 'none'",
+    "script-src 'unsafe-inline'",
+    "style-src 'unsafe-inline'",
+    'font-src data:',
+    'img-src data: blob:',
+    'media-src data: blob:',
+    "connect-src 'none'",
+    "frame-src 'none'",
+    "object-src 'none'",
+    'worker-src blob:',
+    "base-uri 'none'",
+    "form-action 'none'",
+  ].join('; ');
   const navigation = input.pages
     .map(
       (page) =>
@@ -509,7 +529,7 @@ function shell(input, data) {
     )
     .join('\n');
   return `<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>${escapeHtml(input.title)} — Interactive architecture</title><style>
+<html lang="en"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="${contentPolicy}"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>${escapeHtml(input.title)} — Interactive architecture</title><style>
 :root { color-scheme: light; --paper: #f3f0e8; --panel: #faf8f2; --ink: #26362f; --muted: #58675e; --rule: #c8c7bb; --accent: #456a59; }
 * { box-sizing: border-box; }
 html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--paper); color: var(--ink); font-family: system-ui, -apple-system, sans-serif; }
