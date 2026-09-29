@@ -252,7 +252,8 @@ test(
       true,
     );
     const selectionStatus = page.locator('#page-0 [role="status"]');
-    const nodeAnnouncement = `Selected in diagram: ${(await focusButton.textContent()).replace(/\s+/gu, ' ').trim()}`;
+    const nodeAnnouncement = 'Selected in diagram: 12 Client 9 component';
+    assert.equal(await focusButton.getAttribute('aria-label'), '12 Client 9 component');
     assert.equal(await selectionStatus.innerText(), nodeAnnouncement);
     const focused = await page.evaluate(() => {
       const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
@@ -273,7 +274,8 @@ test(
     await page.keyboard.press('Enter');
     assert.equal(await focusButton.getAttribute('aria-pressed'), 'false');
     assert.equal(await relationButton.getAttribute('aria-pressed'), 'true');
-    const relationAnnouncement = `Selected in diagram: ${(await relationButton.textContent()).replace(/\s+/gu, ' ').trim()}`;
+    const relationAnnouncement = 'Selected in diagram: Alpha & one → Beta · calls';
+    assert.equal(await relationButton.getAttribute('aria-label'), 'Alpha & one → Beta · calls');
     assert.notEqual(relationAnnouncement, nodeAnnouncement);
     assert.equal(await selectionStatus.innerText(), relationAnnouncement);
     await page.getByRole('button', { name: 'Fit graph' }).click();

@@ -52,7 +52,7 @@ function reflectSelection(index, graph) {
     if (active) control = button;
   });
   section.querySelector('[data-focus-status]').textContent = control
-    ? 'Selected in diagram: ' + control.textContent.replace(/\s+/g, ' ').trim()
+    ? 'Selected in diagram: ' + control.getAttribute('aria-label')
     : id
       ? 'Selected in diagram: ' + selected.data('label')
       : 'Diagram selection cleared.';
@@ -185,8 +185,11 @@ function pageHtml(page, index, methodLimits) {
     )
     .join('');
   const nodeById = new Map(page.nodes.map((node, at) => [node.id, { node, at }]));
-  const nodeItem = ({ node, at }) =>
-    `<li><button type="button" data-focus-node="${node.id}" aria-pressed="false"><span class="ordinal">${String(at + 1).padStart(2, '0')}</span><span>${escape(node.label)}</span>${node.kind ? `<small>${escape(node.kind)}</small>` : ''}</button></li>`;
+  const nodeItem = ({ node, at }) => {
+    const ordinal = String(at + 1).padStart(2, '0');
+    const name = [ordinal, node.label, node.kind].filter(Boolean).join(' ');
+    return `<li><button type="button" data-focus-node="${node.id}" aria-label="${escape(name)}" aria-pressed="false"><span class="ordinal">${ordinal}</span><span>${escape(node.label)}</span>${node.kind ? `<small>${escape(node.kind)}</small>` : ''}</button></li>`;
+  };
   const nodeItems = page.groups?.length
     ? page.groups
         .map(
@@ -202,7 +205,9 @@ function pageHtml(page, index, methodLimits) {
       const sourceQualifiers = relation.sourceQualifiers?.length
         ? `<dl class="relation-qualifiers">${relation.sourceQualifiers.map(({ name, value }) => `<dt>${escape(name || '""')}</dt><dd>${escape(value)}</dd>`).join('')}</dl>`
         : '';
-      return `<li><button type="button" data-focus-relation="${relation.id}" aria-pressed="false">${mixed ? `<span class="ordinal">${String(at + 1).padStart(2, '0')}</span>` : ''}${escape(words)}</button>${sourceQualifiers}</li>`;
+      const ordinal = mixed ? String(at + 1).padStart(2, '0') : null;
+      const name = ordinal ? `${ordinal} ${words}` : words;
+      return `<li><button type="button" data-focus-relation="${relation.id}" aria-label="${escape(name)}" aria-pressed="false">${ordinal ? `<span class="ordinal">${ordinal}</span>` : ''}${escape(words)}</button>${sourceQualifiers}</li>`;
     })
     .join('');
   const qualifierNote = page.relations.some((relation) => relation.sourceQualifiers?.length)
