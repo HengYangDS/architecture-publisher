@@ -773,7 +773,7 @@ third-party or generated supply rather than moving owned code outside coverage.
 
 ## 6. Qualification and bounded publication
 
-- [ ] 6.1 Bind the Candidate to the exact input lock, Edition, scenes, media,
+- [x] 6.1 Bind the Candidate to the exact input lock, Edition, scenes, media,
       and renderer supply. In `tests/qualification-set.test.mjs`, rederive
       obligations from those inputs and reject forged/copied subject authority;
       records identify verifier, method, scope, result, and limits. Geometry,
@@ -802,10 +802,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       current global coverage gate. The Candidate bundle now carries canonical
       `input-lock.json` bytes for later claimant/editor attribution without a
       Provider rerun; this does not authenticate a claimant or admit evidence.
-      Still open: final renderer/toolchain closure, predicate-specific trusted
-      evidence and adopter acceptance, native Windows containment, exact final
-      Candidate review, and the unchanged 95% coverage gate. Task 6.1 is not
-      complete.
+      At the signed alpha.5 release, final renderer/toolchain closure, native
+      Windows containment, exact self-media review, and all four unchanged 95%
+      coverage gates were verified under Tasks 7.5–7.6. The generic v2 result
+      intentionally remains `records-bound` and `admitted: false`: verifier
+      authentication and adopter acceptance belong to their named owners, not
+      to this binding mechanism. This closes Publisher-owned qualification
+      input and policy-fit behavior, not universal certification.
 - [x] 6.2 Keep `packages/publisher/src/publication/` an optional local filesystem
       effect. In
       `tests/publication-contract.test.mjs` and
@@ -834,7 +837,7 @@ third-party or generated supply rather than moving owned code outside coverage.
 
 ## 7. Installed acceptance and release
 
-- [ ] 7.1 Use a provisional exact package archive, not source-adjacent imports,
+- [x] 7.1 Use a provisional exact package archive, not source-adjacent imports,
       to test generic replacement parity on frozen self and independent-editor
       inputs. Probe frozen ETHOS, whole AIGW, Client Projection, and di-effect
       inputs and attribute each result to the product or source owner. For
@@ -970,7 +973,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       exposes removed low-level helper imports. Its source-owned migration
       remains Task 8.2, not a Core v1 protocol replay failure. These exact
       frozen AIGW media and di-effect sidecar have no owner acceptance in
-      this evidence.
+      this evidence. This closes Publisher-owned installed parity and external
+      counterexample probing; it does not close any adopter's migration.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
@@ -1031,7 +1035,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       and Linux. These are local candidate checks, not Windows, hosted CI,
       source-product adoption, or release acceptance; those obligations
       remain in Tasks 7.5–8.2.
-- [ ] 7.3 Update `docs/product-contract.md`, `README.md`,
+- [x] 7.3 Update `docs/product-contract.md`, `README.md`,
       `docs/reference/operations.md`, `skills/architecture-publisher/SKILL.md`,
       examples, and migration handoffs for the actual successor command, schemas,
       limits, and
@@ -1052,9 +1056,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       the self-Edition; successor output is not called an Atlas. The signed
       alpha.4 package identity and primary-forge readback are now documented;
       current v2 guidance no longer calls the released contract unreleased.
-      ETHOS and AIGW installed adoption, acceptance, and their source-owned
-      handoff paths remain unverified here, so this task remains open.
-- [ ] 7.4 Promote the reviewed role-based deltas into active specs before release
+      The operational reference now owns current Publisher release selection;
+      migration handoffs name historical probes without selecting adopter
+      acceptance. `tests/ecosystem-projections.test.mjs` and
+      `tests/product-identity.test.mjs` pass at the accepted alpha.5 successor.
+      ETHOS and AIGW installed adoption and acceptance remain their own tasks,
+      not a reason to keep Publisher documentation incomplete.
+- [x] 7.4 Promote the reviewed role-based deltas into active specs before release
       freeze; the later official archive must add no new normative behavior.
       Prove historical v1 input meanings, a zero-source-change independent
       Edition, optional co-located routes, multi-source endorsement separation,
@@ -1068,8 +1076,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       issues. Focused contract tests pass 41/41. A standalone independent-editor
       CLI example builds both media after relocation without changing selected
       input files or the source fixture. This proves the generic zero-write
-      route, not ETHOS/AIGW adoption, endorsement, or retirement; the task
-      remains open.
+      route, not ETHOS/AIGW adoption, endorsement, or retirement. The spec
+      promotion and validation task is complete; source-owner effects remain
+      separate. A fresh isolated `openspec archive --skip-specs` rehearsal on
+      2026-09-29 left all 16 base-spec files byte-identical.
 - [x] 7.5 Select the SemVer successor and update package manifests, lockfile,
       and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
       behavior tests until the complete owned scope reaches at least 95% in
