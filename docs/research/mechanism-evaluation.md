@@ -32,10 +32,15 @@ The evaluation therefore asks five questions:
 | ETHOS                  | `75d997cadcb306077f77ad710080363a9f65c69f`                                   |                 117,362 | Repository authority, owned lanes, proof, controlled effects and attestation              |
 | Architecture Publisher | `2009af0e0398403d610873e2286823873b4c8097` baseline                          |                  81,041 | Source-bound semantics, composition, rendering, observation and recoverable publication   |
 
-The COMET, OpenSpec and Spec Kit repositories had later default-branch commits
-when checked, but their latest stable releases remained `0.4.1`, `v1.13.1` and
-`v1.0.8`. SpecD published no GitHub release, so the observed commit and package
-versions are named explicitly.
+The table is an evaluated baseline, not a latest-release claim. A read-only
+GitHub check on 2026-09-29 found newer stable releases of
+[COMET `0.4.3`](https://github.com/rpamis/comet/releases/tag/0.4.3),
+[OpenSpec `v1.13.2`](https://github.com/Fission-AI/OpenSpec/releases/tag/v1.13.2),
+and [Spec Kit `v1.0.12`](https://github.com/github/spec-kit/releases/tag/v1.0.12).
+SpecD still had no GitHub Release; its observed default-branch commit was
+[`ddd990c`](https://github.com/specd-sdd/SpecD/commit/ddd990c7054bc25b95f2d4659a2d78866fc6d8a0).
+The newer releases and commit have not received the source-level comparison
+below. Release notes are leads for reevaluation, not proof of implementation.
 
 Primary source locations:
 
