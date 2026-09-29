@@ -844,10 +844,10 @@ arrays already supply that order.
 Medium-local `presentation.intent` is an optional editorial note, not a required
 layout control. When authored, it remains selected Edition meaning and a change
 renews the affected medium's review; omitting it does not invent a default intent.
-Retain the authored summary. Editorial attribution and unverified status must
-be visible in both public media, not merely survive in the Scene object. This
-changes only the unreleased Edition Project, not valid historical Edition v1
-bytes or meaning.
+Retain the authored summary. Editorial attribution and the absence of source
+endorsement evidence within the diagram must be visible in both public media,
+not merely survive in the Scene object. This changes only the unreleased Edition
+Project, not valid historical Edition v1 bytes or meaning.
 Do not add a compact-form compatibility facade or a generated editable
 assertion file.
 

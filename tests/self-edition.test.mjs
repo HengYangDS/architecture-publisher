@@ -378,19 +378,43 @@ test('self Project gives the static map structural scope and interactive pages e
   const { auditScene, auditEmittedEdges } =
     await import('../packages/publisher/src/qualification/index.mjs');
   const { renderAuthoredCanvasSvg } = await import('../packages/publisher/renderers/svg/index.mjs');
-  const svg = renderAuthoredCanvasSvg(scene).toString('utf8');
+  const { loadBundledFonts } = await import('../packages/publisher/renderers/fonts/index.mjs');
+  const { createBundledTextMeasurer } =
+    await import('../packages/publisher/renderers/resvg/measurement.mjs');
+  const measurer = await createBundledTextMeasurer(await loadBundledFonts());
+  assert.throws(() => renderAuthoredCanvasSvg(scene), {
+    code: 'authored_canvas_editor_invalid',
+  });
+  assert.throws(() => renderAuthoredCanvasSvg(scene, project.editor), {
+    code: 'authored_canvas_measurer_required',
+  });
+  assert.throws(() => renderAuthoredCanvasSvg(scene, 'A'.repeat(500), measurer), {
+    code: 'authored_canvas_framing_unrepresentable',
+  });
+  const svg = renderAuthoredCanvasSvg(scene, project.editor, measurer).toString('utf8');
   assert.match(
     svg,
     /role="img" aria-labelledby="canvas-title" aria-describedby="canvas-description"/u,
   );
-  assert(svg.includes(`<desc id="canvas-description">${scene.description}</desc>`));
-  assert.match(
-    renderAuthoredCanvasSvg({ ...scene, description: 'A & B <C>' }).toString('utf8'),
-    /<desc id="canvas-description">A &amp; B &lt;C&gt;<\/desc>/u,
+  assert(
+    svg.includes(
+      `<desc id="canvas-description">${scene.description} Editorial framing by architecture-publisher:self-edition · source endorsement not evidenced here</desc>`,
+    ),
   );
-  assert.throws(() => renderAuthoredCanvasSvg({ ...scene, description: '' }), {
-    code: 'authored_canvas_description_invalid',
-  });
+  assert.match(
+    renderAuthoredCanvasSvg(
+      { ...scene, description: 'A & B <C>' },
+      project.editor,
+      measurer,
+    ).toString('utf8'),
+    /<desc id="canvas-description">A &amp; B &lt;C&gt; Editorial framing by architecture-publisher:self-edition · source endorsement not evidenced here<\/desc>/u,
+  );
+  assert.throws(
+    () => renderAuthoredCanvasSvg({ ...scene, description: '' }, project.editor, measurer),
+    {
+      code: 'authored_canvas_description_invalid',
+    },
+  );
   const malformed = structuredClone(refinement);
   malformed.media.static.scene.description = '';
   const { sceneRefinementValid } =
@@ -399,9 +423,11 @@ test('self Project gives the static map structural scope and interactive pages e
   const withoutDescription = structuredClone(scene);
   delete withoutDescription.description;
   assert(
-    renderAuthoredCanvasSvg(withoutDescription)
+    renderAuthoredCanvasSvg(withoutDescription, project.editor, measurer)
       .toString('utf8')
-      .includes(`<desc id="canvas-description">${scene.subtitle}</desc>`),
+      .includes(
+        `<desc id="canvas-description">${scene.subtitle} Editorial framing by architecture-publisher:self-edition · source endorsement not evidenced here</desc>`,
+      ),
   );
   const auditPolicy = {
     minimumFont: 10,
@@ -454,7 +480,16 @@ test('self Project gives the static map structural scope and interactive pages e
   );
   const png = await fs.readFile(path.join(candidateRoot, 'static/architecture.png'));
   assert.equal(png.readUInt32BE(16), 6000);
+  const staticSvg = await fs.readFile(path.join(candidateRoot, 'static/architecture.svg'), 'utf8');
+  assert.match(
+    staticSvg,
+    /<text[^>]+data-role="editorial-framing"[^>]*>Editorial framing by architecture-publisher:self-edition · source endorsement not evidenced here<\/text>/u,
+  );
   const html = await fs.readFile(path.join(candidateRoot, 'interactive/architecture.html'));
+  assert.match(
+    html.toString('utf8'),
+    /<p class="editorial-framing">Editorial framing by architecture-publisher:self-edition · source endorsement not evidenced here<\/p>/u,
+  );
   assert.equal(html.includes(modelBytes), false);
   const atlasMatch = html
     .toString('utf8')

@@ -213,6 +213,11 @@ requires a duplicate editable Claim Model when admitted native inputs suffice.
 Publisher may keep compact immutable fixtures and receipts, but not a second
 mutable implementation after an adopter accepts its canonical Edition.
 
+A successor Edition's title and summary are the editor's words, not source
+assertions. Both media identify that editor and state that the diagram itself
+does not evidence source endorsement. The exact Candidate still needs its own
+review and acceptance.
+
 New authoring selects one versioned Build Request with direct inputs and optional
 `architecture.edition-provider/v2` manifests. Each Provider transports exact
 native, derived, or Edition bytes declaratively or through one selected

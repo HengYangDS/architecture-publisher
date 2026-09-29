@@ -111,4 +111,5 @@ export async function verifyAuthoredCanvasTextBoxes(scene, supply) {
         `authored_canvas_text_metrics_invalid:${label.id}`,
       );
   }
+  return measurer;
 }

@@ -502,6 +502,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       unselected, or duplicate unordered pair before layout. This is a finite
       visual-composition constraint, not a claim that the editor supplied all
       source-owned prohibitions; Task 5.1 remains open for that boundary.
+      Free titles and summaries now receive visible editor attribution and a
+      source-endorsement evidence limit in both successor media, including
+      neutral and authored paths. An independent-editor counterexample builds
+      official-sounding prose without granting it source authority. This does
+      not validate arbitrary natural-language claims or replace human review.
 - [ ] 5.2 Deliver an explainable neutral source-to-media composition without
       duplicate editable facts, authored pixels, or a second layout engine.
       Exact selected references, reader questions, group membership, typed

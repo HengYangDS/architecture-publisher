@@ -1,4 +1,5 @@
 import { fail } from '../../src/protocol/values.mjs';
+import { editorialFraming } from '../../src/scene/framing.mjs';
 
 const escape = (value) =>
   String(value)
@@ -10,9 +11,28 @@ const pathData = (points) =>
   points.map(({ x, y }, index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' ');
 
 /** Paint one already source-checked authored canvas without source bytes or code execution. */
-export function renderAuthoredCanvasSvg(scene) {
+export function renderAuthoredCanvasSvg(scene, editor, measurer) {
   if (scene?.schema !== 'architecture.authored-static-scene/v1')
     fail('authored_canvas_scene_invalid');
+  if (typeof editor !== 'string' || !editor.trim() || editor.trim() !== editor)
+    fail('authored_canvas_editor_invalid');
+  if (typeof measurer?.box !== 'function') fail('authored_canvas_measurer_required');
+  const framing = editorialFraming(editor);
+  const framingBox = measurer.box({
+    text: framing,
+    fontSize: 11,
+    weight: '400',
+    anchor: 'start',
+    x: 64,
+    baseline: -16,
+  });
+  if (
+    framingBox.x < 56 ||
+    framingBox.x + framingBox.width > scene.width - 64 ||
+    framingBox.y < -36 ||
+    framingBox.y + framingBox.height > -8
+  )
+    fail('authored_canvas_framing_unrepresentable');
   const description = scene.description ?? scene.subtitle;
   if (typeof description !== 'string' || !description.trim() || description.trim() !== description)
     fail('authored_canvas_description_invalid');
@@ -23,10 +43,12 @@ export function renderAuthoredCanvasSvg(scene) {
     return value;
   };
   const lines = [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${scene.width}" height="${scene.height}" viewBox="0 0 ${scene.width} ${scene.height}" role="img" aria-labelledby="canvas-title" aria-describedby="canvas-description" font-family="JetBrains Mono">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${scene.width}" height="${scene.height + 42}" viewBox="0 -42 ${scene.width} ${scene.height + 42}" role="img" aria-labelledby="canvas-title" aria-describedby="canvas-description" font-family="JetBrains Mono">`,
     `<title id="canvas-title">${escape(scene.title)}</title>`,
-    `<desc id="canvas-description">${escape(description)}</desc>`,
-    `<rect width="${scene.width}" height="${scene.height}" fill="${tone('paper')}"/>`,
+    `<desc id="canvas-description">${escape(description)} ${escape(framing)}</desc>`,
+    `<rect y="-42" width="${scene.width}" height="${scene.height + 42}" fill="${tone('paper')}"/>`,
+    `<text data-role="editorial-framing" x="64" y="-16" font-size="11" font-weight="400" fill="${tone('ink')}" opacity="0.7">${escape(framing)}</text>`,
+    `<line x1="64" y1="-1" x2="${scene.width - 64}" y2="-1" stroke="${tone('ink')}" stroke-width="0.6" opacity="0.4"/>`,
   ];
   for (const rule of scene.decorations)
     lines.push(

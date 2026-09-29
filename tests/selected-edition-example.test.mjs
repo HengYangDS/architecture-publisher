@@ -34,6 +34,8 @@ test('an independent Edition builds after relocation without writing selected so
     const projectFile = path.join(root, 'edition/project.json');
     const project = JSON.parse(await fs.readFile(projectFile, 'utf8'));
     project.editor = 'independent-editor';
+    project.title = 'Example maintainers officially endorse this Edition';
+    project.narrative.summary = 'An official source-approved architecture.';
     await fs.writeFile(projectFile, JSON.stringify(project, null, 2) + '\n');
     const inputBefore = await inputSnapshot(root);
     const request = path.join(root, 'build-request.json');
@@ -74,6 +76,20 @@ test('an independent Edition builds after relocation without writing selected so
     assert.deepEqual(
       lock.sources.map(({ claimant }) => claimant),
       ['example-maintainer', 'example-maintainer'],
+    );
+    const staticSvg = bundle.members
+      .find(({ path: member }) => member === 'static/architecture.svg')
+      .content.toString('utf8');
+    const interactiveHtml = bundle.members
+      .find(({ path: member }) => member === 'interactive/architecture.html')
+      .content.toString('utf8');
+    assert.match(
+      staticSvg,
+      /<text[^>]*>Editorial framing by independent-editor · source endorsement not evidenced here<\/text>/u,
+    );
+    assert.match(
+      interactiveHtml,
+      /<[^>]+class="editorial-framing"[^>]*>Editorial framing by independent-editor · source endorsement not evidenced here<\//u,
     );
     assert.deepEqual(await inputSnapshot(root), inputBefore);
     results.push(result.manifestSha256);

@@ -45,6 +45,26 @@ test('joint composition lays independent views side by side and factors common l
   assert.equal((svg.match(/METHOD LIMITS/gu) ?? []).length, 1);
   assert.equal((svg.match(/<svg\b/gu) ?? []).length, 1);
   assert.equal((svg.match(/data-static-view=/gu) ?? []).length, 2);
+  assert.match(
+    svg,
+    /<text[^>]*>Editorial framing by fixture-editor · source endorsement not evidenced here<\/text>/u,
+  );
+});
+
+test('one figure cannot silently mix editorial owners across views', () => {
+  const first = view('first', 0);
+  const second = view('second', 1);
+  second.scene.edition.editor = 'another-editor';
+  assert.throws(
+    () =>
+      composeStaticFigureSvg({
+        title: 'Joint figure',
+        summary: 'One source-bound reading.',
+        rasterWidth: 1800,
+        views: [first, second],
+      }),
+    { code: 'static_figure_editor_ambiguous' },
+  );
 });
 
 test('a sole neutral view uses the same complete figure grammar', () => {

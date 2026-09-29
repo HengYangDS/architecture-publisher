@@ -38,6 +38,22 @@ label.
 - **WHEN** authored wording, grouping, or decoration contradicts a bound claim
 - **THEN** compilation fails before either medium is accepted
 
+### Requirement: Free editorial framing is visibly attributed
+
+A successor Edition build SHALL visibly identify the editor of free title and
+summary text in every selected public medium, and state that the medium itself
+does not evidence source endorsement. Build success SHALL NOT establish source
+endorsement of that wording.
+
+#### Scenario: An independent editor writes an official-sounding heading
+
+- **WHEN** an editor distinct from the selected source claimant writes a title
+  or summary that suggests official source endorsement
+- **THEN** the static SVG/PNG and interactive HTML visibly identify the editor
+  and state that source endorsement is not evidenced by the diagram
+- **AND** the Candidate remains unqualified until the applicable semantic and
+  human review, without treating the heading as a source-backed assertion
+
 ### Requirement: Generic inputs are explicit and repository-independent
 
 The successor Build Request SHALL be a versioned, schema-validated JSON

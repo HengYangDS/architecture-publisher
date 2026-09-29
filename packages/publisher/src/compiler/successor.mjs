@@ -4,6 +4,7 @@ import path from 'node:path';
 import { materializeBuildRequestInput } from './build-input.mjs';
 import { composeInteractiveHtml } from '../rendering/interactive-html.mjs';
 import { composeAuthoredInteractiveArchitecture } from '../scene/interactive/authored-architecture.mjs';
+import { editorialFraming } from '../scene/framing.mjs';
 import { composeInteractiveEditionScene } from '../scene/interactive/edition.mjs';
 import { composeAuthoredStaticCanvas } from '../scene/static/authored-canvas.mjs';
 import {
@@ -120,10 +121,10 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
     const authored = composeAuthoredStaticCanvas(meaning);
     scene = authored.scene;
     const { emittedContract } = assertAuthoredCanvasScene(scene);
-    await verifyAuthoredCanvasTextBoxes(scene, fontSupply);
+    const measurer = await verifyAuthoredCanvasTextBoxes(scene, fontSupply);
     const rasterWidth = meaning.editorial.presentation.static.width;
     if (!Number.isSafeInteger(rasterWidth)) fail('authored_canvas_width_required');
-    const svg = renderAuthoredCanvasSvg(scene);
+    const svg = renderAuthoredCanvasSvg(scene, meaning.edition.editor, measurer);
     const emitted = auditEmittedEdges(svg.toString('utf8'), scene, emittedContract);
     if (emitted.failures.length)
       fail('authored_canvas_emitted_geometry_invalid', emitted.failures[0].code);
@@ -299,8 +300,9 @@ async function authoredInteractiveMedium(selected, meaning, scratch) {
     });
   }
   const bytes = composeInteractiveHtml({
-    schema: 'architecture.interactive-html-composition/v1',
+    schema: 'architecture.interactive-html-composition/v2',
     title: meaning.editorial.title,
+    framing: editorialFraming(meaning.edition.editor),
     build: {
       lockSha256: selected.lockSha256,
       editionSha256: selected.lock.edition.sha256,

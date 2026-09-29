@@ -1,5 +1,6 @@
 import { loadBundledFonts } from '../fonts/index.mjs';
 import { fail } from '../../src/protocol/values.mjs';
+import { editorialFraming } from '../../src/scene/framing.mjs';
 import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
 import {
   SOURCE_REPORTED_TOPOLOGY_NOTE,
@@ -319,7 +320,7 @@ function css(fonts) {
   :root{color-scheme:light;font-family:'JetBrains Mono',monospace;color:#21332a;background:#f5f3ed}
   *{box-sizing:border-box}body{margin:0}button{font:inherit;color:inherit;cursor:pointer}button:focus-visible{outline:2px solid #214f3c;outline-offset:3px}
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-  .shell{max-width:1720px;margin:auto;padding:32px 44px 44px}.masthead{border-bottom:1px solid #c4ccc2;padding-bottom:16px}.masthead h1{font-size:clamp(28px,3vw,43px);line-height:1.15;margin:0}.masthead p{font-size:15px;color:#53645a;max-width:72ch;margin:8px 0 0}
+  .shell{max-width:1720px;margin:auto;padding:32px 44px 44px}.masthead{border-bottom:1px solid #c4ccc2;padding-bottom:16px}.masthead h1{font-size:clamp(28px,3vw,43px);line-height:1.15;margin:0}.masthead p{font-size:15px;color:#53645a;max-width:72ch;margin:8px 0 0}.masthead .editorial-framing{display:block;margin-top:9px;color:#526158;font-size:11px;line-height:1.45;overflow-wrap:anywhere}
   .navigation{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.navigation button{border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:10px 18px;font-size:12px;text-align:left;max-width:35ch}.navigation button[aria-current=page]{background:#214f3c;color:#fffefa;border-color:#214f3c}
   .edition-page[hidden]{display:none}.page-heading{display:flex;align-items:baseline;gap:18px;margin:10px 0 14px}.page-heading h2{font-size:clamp(20px,2vw,28px);line-height:1.3;margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
   .source-note{font-size:11px;line-height:1.45;color:#526158;margin:0 0 12px;padding-left:12px;border-left:2px solid #b3c4b6}
@@ -345,6 +346,7 @@ export async function renderInteractiveEditionHtml(scene) {
     scene.completeness !== 'unqualified-scene' ||
     !text(scene.title) ||
     !text(scene.summary) ||
+    !text(scene.edition?.editor) ||
     scene.visualPolicy?.profile !== 'neutral' ||
     (scene.visualPolicy.override !== undefined && scene.visualPolicy.override !== null) ||
     !Array.isArray(scene.pages) ||
@@ -375,7 +377,7 @@ export async function renderInteractiveEditionHtml(scene) {
     ...(publicPage.nodes.length ? { geometry: geometry.layouts[index] } : {}),
   }));
   const vendor = supply?.script.toString('utf8').replace(/<\/script/giu, '<\\/script') ?? '';
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'"><link rel="icon" href="data:,"><title>${escape(scene.title)}</title><style>${css(selectedFonts)}</style></head><body><div class="shell"><header class="masthead"><h1>${escape(scene.title)}</h1><p>${escape(scene.summary)}</p></header><nav class="navigation" aria-label="Reading pages">${pages.map((page, index) => `<button type="button" data-page-index="${index}" aria-controls="page-${index}" aria-label="${escape(`${page.navigationLabel} — ${page.title}`)}">${escape(page.navigationLabel)}</button>`).join('')}</nav><main>${pages.map((page, index) => pageHtml(page, index, scene.limits)).join('')}</main><details class="licenses"><summary>Open-source licenses</summary><pre>${supply ? escape(supply.license.toString('utf8')) + '\n' : ''}${geometry ? escape(geometry.license.toString('utf8')) + '\n' : ''}${escape(fontSupply.license.bytes.toString('utf8'))}</pre></details></div>${vendor ? `<script>${vendor}</script>` : ''}<script type="application/json" id="edition-data">${scriptJson(pages)}</script><script>${viewerScript}</script></body></html>\n`;
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'"><link rel="icon" href="data:,"><title>${escape(scene.title)}</title><style>${css(selectedFonts)}</style></head><body><div class="shell"><header class="masthead"><h1>${escape(scene.title)}</h1><p>${escape(scene.summary)}</p><small class="editorial-framing">${escape(editorialFraming(scene.edition.editor))}</small></header><nav class="navigation" aria-label="Reading pages">${pages.map((page, index) => `<button type="button" data-page-index="${index}" aria-controls="page-${index}" aria-label="${escape(`${page.navigationLabel} — ${page.title}`)}">${escape(page.navigationLabel)}</button>`).join('')}</nav><main>${pages.map((page, index) => pageHtml(page, index, scene.limits)).join('')}</main><details class="licenses"><summary>Open-source licenses</summary><pre>${supply ? escape(supply.license.toString('utf8')) + '\n' : ''}${geometry ? escape(geometry.license.toString('utf8')) + '\n' : ''}${escape(fontSupply.license.bytes.toString('utf8'))}</pre></details></div>${vendor ? `<script>${vendor}</script>` : ''}<script type="application/json" id="edition-data">${scriptJson(pages)}</script><script>${viewerScript}</script></body></html>\n`;
   const bytes = Buffer.from(html);
   if (bytes.length > 32 * 1024 * 1024) fail('render_interactive_output_limit');
   return {

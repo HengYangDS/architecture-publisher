@@ -508,6 +508,11 @@ function interactiveReader() {
 }
 
 function shell(input, data) {
+  const attributed = input.schema === 'architecture.interactive-html-composition/v2';
+  const framing = attributed ? `<p class="editorial-framing">${escapeHtml(input.framing)}</p>` : '';
+  const framingStyle = attributed
+    ? '.editorial-framing { grid-column: 1 / -1; margin: -.2rem 0 0; color: var(--muted); font-size: .68rem; line-height: 1.4; overflow-wrap: anywhere; }'
+    : '';
   const contentPolicy = [
     "default-src 'none'",
     "script-src 'unsafe-inline'",
@@ -537,7 +542,7 @@ body { display: grid; grid-template-rows: auto minmax(0, 1fr); }
 header { display: grid; grid-template-columns: minmax(13rem, 1fr) minmax(0, 4fr) auto; align-items: center; gap: 1rem; padding: .72rem 1rem; border-bottom: 1px solid var(--rule); background: color-mix(in srgb, var(--panel) 94%, transparent); }
 .identity { min-width: 0; }
 .identity strong { display: block; font: 600 clamp(.82rem, 1.2vw, 1rem)/1.25 system-ui, sans-serif; letter-spacing: .01em; }
-.identity small, #interactive-page-label { color: var(--muted); font-size: .68rem; }
+.identity small, #interactive-page-label { color: var(--muted); font-size: .68rem; }${framingStyle}
 .chapters { display: flex; min-width: 0; gap: .34rem; overflow-x: auto; scrollbar-width: thin; padding: .1rem; }
 .chapters button, #interactive-inspect, #interactive-inspect-back, #interactive-inspect-index button { border: 1px solid transparent; background: transparent; color: var(--muted); font: 600 .74rem/1.3 system-ui, sans-serif; cursor: pointer; }
 .chapters button { white-space: nowrap; padding: .42rem .58rem; border-radius: .35rem; }
@@ -580,13 +585,24 @@ main[data-reading="inspect"] iframe { visibility: hidden; pointer-events: none; 
 #interactive-inspect-basis dl + dl { border-top: 1px solid var(--rule); }
 @media (max-width: 900px) { header { grid-template-columns: 1fr auto; } .chapters { grid-column: 1 / -1; grid-row: 2; } .identity small { display: none; } .inspect-layout { grid-template-columns: minmax(0, 1fr); } #interactive-inspect-index { grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); max-height: none; overflow: visible; } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
-</style></head><body><header><div class="identity"><strong>${escapeHtml(input.title)}</strong><small id="interactive-page-label"></small></div><nav class="chapters" aria-label="Interactive chapters">${navigation}</nav><div class="actions"><button id="interactive-inspect" type="button" aria-expanded="false" aria-controls="interactive-inspector">Inspect</button></div></header><main id="interactive-main"><p id="interactive-error" hidden></p><iframe id="interactive-frame" title="${escapeHtml(input.title)} interactive architecture" sandbox="allow-scripts allow-downloads"></iframe><section id="interactive-inspector" hidden aria-labelledby="interactive-inspect-title"><div class="inspect-shell"><div class="inspect-head"><div><p class="inspect-eyebrow">Selected meaning</p><h1 id="interactive-inspect-title">Inspect this diagram</h1><p id="interactive-inspect-context"></p></div><button id="interactive-inspect-back" type="button">Back to diagram</button></div><div class="inspect-layout"><div class="inspect-navigation"><label for="interactive-inspect-search">Find a component or relationship</label><input id="interactive-inspect-search" type="search" autocomplete="off"><nav id="interactive-inspect-index" aria-label="Diagram subjects"></nav><p id="interactive-inspect-empty" hidden>No matching subject.</p></div><div class="inspect-reading"><div id="interactive-inspect-basis"></div><div id="interactive-inspect-content"></div></div></div></div></section></main><noscript>This interactive architecture requires JavaScript for navigation and inspection; source files are not embedded.</noscript><script id="architecture-interactive-data" type="application/json">${scriptJson(data)}</script><script>(${interactiveReader.toString()})();</script></body></html>\n`;
+</style></head><body><header><div class="identity"><strong>${escapeHtml(input.title)}</strong><small id="interactive-page-label"></small></div><nav class="chapters" aria-label="Interactive chapters">${navigation}</nav><div class="actions"><button id="interactive-inspect" type="button" aria-expanded="false" aria-controls="interactive-inspector">Inspect</button></div>${framing}</header><main id="interactive-main"><p id="interactive-error" hidden></p><iframe id="interactive-frame" title="${escapeHtml(input.title)} interactive architecture" sandbox="allow-scripts allow-downloads"></iframe><section id="interactive-inspector" hidden aria-labelledby="interactive-inspect-title"><div class="inspect-shell"><div class="inspect-head"><div><p class="inspect-eyebrow">Selected meaning</p><h1 id="interactive-inspect-title">Inspect this diagram</h1><p id="interactive-inspect-context"></p></div><button id="interactive-inspect-back" type="button">Back to diagram</button></div><div class="inspect-layout"><div class="inspect-navigation"><label for="interactive-inspect-search">Find a component or relationship</label><input id="interactive-inspect-search" type="search" autocomplete="off"><nav id="interactive-inspect-index" aria-label="Diagram subjects"></nav><p id="interactive-inspect-empty" hidden>No matching subject.</p></div><div class="inspect-reading"><div id="interactive-inspect-basis"></div><div id="interactive-inspect-content"></div></div></div></div></section></main><noscript>This interactive architecture requires JavaScript for navigation and inspection; source files are not embedded.</noscript><script id="architecture-interactive-data" type="application/json">${scriptJson(data)}</script><script>(${interactiveReader.toString()})();</script></body></html>\n`;
 }
 
 function composeDocument(input) {
+  const attributed = input?.schema === 'architecture.interactive-html-composition/v2';
   if (
-    !exact(input, ['schema', 'title', 'build', 'overview', 'pages', 'sources', 'state']) ||
-    input.schema !== 'architecture.interactive-html-composition/v1' ||
+    !exact(input, [
+      'schema',
+      'title',
+      'build',
+      'overview',
+      'pages',
+      'sources',
+      'state',
+      ...(attributed ? ['framing'] : []),
+    ]) ||
+    (input.schema !== 'architecture.interactive-html-composition/v1' && !attributed) ||
+    (attributed && !text(input.framing)) ||
     !exact(input.build, ['lockSha256', 'editionSha256', 'semanticDigest']) ||
     !Object.values(input.build).every(isDigest) ||
     !text(input.title) ||

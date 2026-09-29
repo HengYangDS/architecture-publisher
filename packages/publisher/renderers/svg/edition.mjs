@@ -1,4 +1,5 @@
 import { fail } from '../../src/protocol/values.mjs';
+import { editorialFraming } from '../../src/scene/framing.mjs';
 import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
 import {
   SOURCE_RELATION_QUALIFIER_CONTEXT,
@@ -335,6 +336,7 @@ function validateStaticScene(scene) {
   if (
     scene?.schema !== 'architecture.edition-static-scene/v1' ||
     scene.completeness !== 'unqualified-scene' ||
+    !text(scene.edition?.editor) ||
     scene.visualPolicy?.profile !== 'neutral' ||
     (scene.visualPolicy.override !== undefined && scene.visualPolicy.override !== null) ||
     !Array.isArray(scene.nodes) ||
@@ -502,9 +504,11 @@ export function composeStaticEditionSvg(scene, options = {}) {
   const width = notesX + notesWidth + 60;
   if (width > 12_000) fail('static_edition_geometry_invalid');
   const header = [];
+  const framing = editorialFraming(scene.edition.editor);
   let y = 76;
   y = textLines(header, scene.title, 60, y, width - 120, 34, '#21332a', 600, 3) + 8;
-  y = textLines(header, scene.summary, 60, y, width - 120, 15, '#53645a', 400, 6) + 34;
+  y = textLines(header, scene.summary, 60, y, width - 120, 15, '#53645a', 400, 6) + 9;
+  y = textLines(header, framing, 60, y, width - 120, 12, '#66736b', 400, 6) + 25;
   const graphTop = y;
   const graph = [];
   const labels = new Map(scene.nodes.map((node) => [key(node), node.label]));
@@ -973,7 +977,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
   const lines = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="edition-title edition-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">`,
     `<title id="edition-title">${escape(scene.title)}</title>`,
-    `<desc id="edition-description">${escape(scene.summary)}</desc>`,
+    `<desc id="edition-description">${escape(scene.summary)} ${escape(framing)}</desc>`,
     `<rect width="${width}" height="${height}" fill="#f5f3ed"/>`,
     ...bodyPrelude,
     ...header,

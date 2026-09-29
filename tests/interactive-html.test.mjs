@@ -119,6 +119,22 @@ test('one interactive HTML contract binds exact pages and source metadata withou
   assert.doesNotMatch(text, /(?:Atlas|atlas|allow-same-origin)/u);
 });
 
+test('attributed composition marks its editorial heading without changing v1 input behavior', () => {
+  const legacy = composeInteractiveHtml(fixture()).toString('utf8');
+  assert(!legacy.includes('class="editorial-framing"'));
+
+  const selected = fixture();
+  selected.schema = 'architecture.interactive-html-composition/v2';
+  selected.framing =
+    'Editorial framing by Research & Review <Team> · source endorsement not evidenced here';
+  const attributed = composeInteractiveHtml(selected).toString('utf8');
+  assert.match(
+    attributed,
+    /<p class="editorial-framing">Editorial framing by Research &amp; Review &lt;Team&gt; · source endorsement not evidenced here<\/p>/u,
+  );
+  assert.equal(embedded(Buffer.from(attributed)).data.schema, 'architecture.interactive-html/v1');
+});
+
 test('interactive HTML rejects changed pages, ambiguous navigation, external dependencies, and forged state', () => {
   for (const [name, mutate, code] of [
     [

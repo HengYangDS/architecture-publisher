@@ -1,4 +1,5 @@
 import { fail } from '../../src/protocol/values.mjs';
+import { editorialFraming } from '../../src/scene/framing.mjs';
 import {
   SOURCE_REPORTED_TOPOLOGY_NOTE,
   UNLINKED_RELATION_NOTE,
@@ -291,6 +292,14 @@ function panel(view, width, options = {}) {
 /** Compose scene parts on one canvas; a completed page is not a panel primitive. */
 export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
   const selected = checkedViews(views);
+  const editor = selected[0].scene.edition?.editor;
+  if (
+    typeof editor !== 'string' ||
+    !editor.trim() ||
+    selected.some(({ scene }) => scene.edition?.editor !== editor)
+  )
+    fail('static_figure_editor_ambiguous');
+  const framing = editorialFraming(editor);
   if (!Number.isSafeInteger(rasterWidth) || rasterWidth < 320 || rasterWidth > maximum)
     fail('static_figure_width_invalid');
   const available = Math.min(sourceWidthLimit, rasterWidth) - 2 * margin;
@@ -356,7 +365,9 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
   let headerY = margin + 31;
   headerY = wrapped(content, title, margin, headerY, width - 2 * margin, 32, '#21332a', 600, 2) + 4;
   headerY =
-    wrapped(content, summary, margin, headerY, width - 2 * margin, 15, '#53645a', 400, 5) + 20;
+    wrapped(content, summary, margin, headerY, width - 2 * margin, 15, '#53645a', 400, 5) + 4;
+  headerY =
+    wrapped(content, framing, margin, headerY, width - 2 * margin, 12, '#66736b', 400, 5) + 16;
   content.push(
     `<line x1="${margin}" y1="${number(headerY)}" x2="${number(width - margin)}" y2="${number(headerY)}" stroke="#c4ccc2" stroke-width="1"/>`,
   );
@@ -426,7 +437,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
   const svg = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="static-figure-title static-figure-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">`,
     `<title id="static-figure-title">${escape(title)}</title>`,
-    `<desc id="static-figure-description">${escape(summary)}</desc>`,
+    `<desc id="static-figure-description">${escape(summary)} ${escape(framing)}</desc>`,
     `<rect width="${width}" height="${height}" fill="#f5f3ed"/>`,
     `<defs>${defs.join('')}</defs>`,
     ...content,
