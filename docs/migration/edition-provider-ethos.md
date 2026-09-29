@@ -11,9 +11,10 @@ relations:
 This packet separates the observed ETHOS v1 integration from a conditional
 successor migration. It is an input to ETHOS's own single writer, Change, and
 Work Lane. It does not authorize edits to ETHOS, acceptance of new artwork, or
-publication. Publisher `v0.3.0-alpha.4` is a released selected-input baseline,
-not a selected ETHOS release. Publisher implementation or release does not
-authorize ETHOS migration.
+publication. The [operational release reference](../reference/operations.md)
+names Publisher's current verified release; `v0.3.0-alpha.4` was the first
+historical v2 baseline, not a selected ETHOS release. Publisher implementation
+or release does not authorize ETHOS migration.
 
 ## Observed incumbent
 
@@ -151,10 +152,11 @@ advertised as fully implemented behavior.
    sources, Provider reply, Claim Model v2 and Edition v1, selected authoring,
    scenes, static/interactive artifacts, qualifications, acceptance, and
    rollback identities. Establish the actual current external-consumer set.
-2. Select a reviewed and released Publisher package by exact archive digest;
-   `v0.3.0-alpha.4` is the first v2 baseline. Verify installed conformance and
-   the source-owned dependency pin. Do not build against an adjacent source
-   checkout or treat the Publisher release as ETHOS acceptance.
+2. Select a reviewed Publisher release from the operational reference by its
+   exact archive digest. Verify installed conformance and the source-owned
+   dependency pin. Do not silently use the historical alpha.4 baseline, build
+   against an adjacent source checkout, or treat a Publisher release as ETHOS
+   acceptance.
 3. Select ETHOS's source claimant, Edition editor, accepter and custodian in
    the versioned Build Request. Use one exact executable Provider entry point
    only where native facts require adaptation; preserve derived-from links and
@@ -187,7 +189,7 @@ At ETHOS dev `ff1cc69d2` on 2026-09-27, the source-owned integration package
 still pins Publisher `0.3.0-alpha.1` and returns Provider v1 values. The
 isolated offline comparison in
 `conformance/evidence/ethos-install-pin-probe.json` shows that it installs with
-the signed alpha.1 archive but not with the current work-lane archive labeled
+the signed alpha.1 archive but not with the then-selected work-lane archive labeled
 alpha.3. This isolates an exact package dependency prerequisite, not a v2
 semantic, media, flagship, or source-owner acceptance result. The ETHOS owner
 must select and requalify the eventual released Publisher bytes independently.

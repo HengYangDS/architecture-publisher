@@ -70,7 +70,7 @@ tags and release bytes remain immutable predecessor evidence.
 
 The first selected-input v2 release is `v0.3.0-alpha.4`. Its exact package and
 media identities, primary-forge readback, and limits are recorded in the
-[operational reference](docs/reference/operations.md#released-selected-input-baseline).
+[operational reference](docs/reference/operations.md).
 That Publisher release is not ETHOS or AIGW acceptance.
 
 ## Install and inspect

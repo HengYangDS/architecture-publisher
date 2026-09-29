@@ -43,7 +43,8 @@
     "client": "glab release download",
     "clientVersion": "1.119.0",
     "selectedLinkedAssets": 10,
-    "matchingLinkedAssets": 10,
+    "linkedAssetsMatchingLocalSelectedBytes": 10,
+    "payloadAssetsMatchingChecksumEntries": 9,
     "generatedSourceArchivesNotLinkedAssets": 4,
     "checksumFileSha256": "e34cf462a3eebe60c436790debe2c07e5886cdb621dc4cc514af45d920447c2a",
     "manifestSha256": "30fe5fbc9e445c4921fbaa18b701d0cb77c83e87414b4af8c19fe87cf1a78f11",
@@ -110,6 +111,7 @@
     "The selected frozen AIGW static media and the incumbent ETHOS integration are not accepted as alpha.5 adopters.",
     "The current GitLab API and Release URLs use the observed HTTP endpoint; this record neither claims TLS nor forbids a separately verified HTTPS asset route.",
     "The documented pre-tag-push local full-gate order was missed. Exact-source full gates and tag-context hosted CI passed before Release assets were created; tag and historical assets were not rewritten.",
+    "SHA256SUMS lists the other nine selected payload assets, not itself; its separate digest is recorded in this receipt. The signed Git tag does not authenticate Release asset bytes.",
     "Four GitLab-generated source archives downloaded by glab are not among the ten selected Release links or the Generic Package file set."
   ]
 }

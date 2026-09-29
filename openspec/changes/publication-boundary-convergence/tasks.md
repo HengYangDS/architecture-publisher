@@ -853,9 +853,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       Installed Chrome at two widths found no console/network/overflow or
       axe A/AA defect; this does not establish di-effect owner or human
       acceptance, other workload parity, publication, or recovery. The same
-      frozen di-effect sidecar now also builds from the untagged alpha.4 Core
+      frozen di-effect sidecar also built from the untagged alpha.4 Core
       archive made at signed Publisher `79c1be9`: an offline install, repeat,
-      and relocated installed run produce the same six Candidate members.
+      and relocated installed run produced the same six Candidate members.
       Changing a pinned source returns `materialized_pin_mismatch` without
       output. Exact identities and limits are in
       `conformance/evidence/di-effect-successor-installed-probe.json`. The
@@ -871,7 +871,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       labels despite clean axe results. See
       `conformance/evidence/aigw-client-installed-probe.json`.
       That earlier Client-only probe is not the whole AIGW product or AIGW
-      acceptance. The current exact archive from signed Publisher `0e391e7`
+      acceptance. The archive selected at signed Publisher `0e391e7`
       rebuilt AIGW `bd3c09d5` Client Projection and whole-product Editions
       byte-identically through direct, offline-installed, and relocated public
       CLI use; its SHA-256 is
@@ -929,9 +929,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       `conformance/evidence/aigw-grouped-static-probe.json`; the source checkout
       remained available, and this is not final released-package or owner
       acceptance.
-      The current untagged `alpha.4` Core archive also builds the independent-
-      editor example after offline installation outside the checkout. Moving
-      the installed consumer preserves all six Candidate members byte-for-byte
+      The untagged `alpha.4` Core archive from that trial also built the
+      independent-editor example after offline installation outside the checkout.
+      Moving the installed consumer preserved all six Candidate members byte-for-byte
       without changing the selected inputs or source fixture; see
       `conformance/evidence/independent-editor-installed-probe.json`. This is
       provisional generic installed-use evidence, not human review or release.
@@ -1099,13 +1099,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       Task 7.3, final installed workloads, exact-byte visual and human review,
       protected refs, hosted CI, and remote readback remain open. Do not weaken
       coverage or substitute this provisional result for Task 7.6.
-      The work Lane now selects untagged `0.3.0-alpha.4` across workspace,
+      At that checkpoint, the Work Lane selected untagged `0.3.0-alpha.4` across workspace,
       Core, self-Edition, and lockfile. A focused RED/GREEN rejects changed
       development HEAD bytes reusing the signed `v0.3.0-alpha.3` version; the
-      historical tag is unchanged. This assigns a unique provisional package
+      historical tag was unchanged. This assigned a unique provisional package
       identity for cross-product migration trials, not frozen or released
       `alpha.4` bytes. Final release notes, package identities, and acceptance
-      remain open in this task.
+      remained open at that checkpoint.
       A later authored-canvas counterexample showed that strict glyph
       intersection was insufficient: two labels could pass with inadequate
       spacing. Focused RED/GREEN now enforces text clearance in the public
@@ -1193,12 +1193,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       1.119.0 fails with 404, unlike an alpha.3 package-API link. A successor
       release must prove a supported CLI download path and exact byte readback;
       do not rewrite alpha.4 links to conceal this result.
-      The signed `v0.3.0-alpha.5` tag, protected `main`, and accepted `dev`
-      resolve to `67ade23f`; their exact-source local gates and hosted CI pass.
+      At the 2026-09-29 release readback, the signed `v0.3.0-alpha.5` tag,
+      protected `main`, and accepted `dev` resolved to `67ade23f`; their
+      exact-source local gates and hosted CI passed.
       Tag Pipeline 8717 reports 1,278 passing tests, 24 declared skips, and
       95.09% Linux branch coverage. The ten selected assets occupy one Generic
       Package version and are downloadable through `glab release download`;
-      every downloaded byte matches `SHA256SUMS`. Downloaded Core and self-Edition
+      nine payload assets match `SHA256SUMS`, while the checksum file matches
+      its separately recorded selected digest. Downloaded Core and self-Edition
       archives offline-install and reproduce the independent-editor six-member
       Candidate byte-for-byte. The user approved the exact 6000px PNG and all
       eight pages of HTML at SHA-256 `debb4579...` and `44dab0ba...`.

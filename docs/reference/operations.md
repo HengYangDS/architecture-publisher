@@ -46,7 +46,8 @@ Changelog section; a passing untagged branch pipeline is not this check.
 
 ### Current private release: alpha.5
 
-The signed `v0.3.0-alpha.5` tag, protected `main`, and accepted `dev` select
+At the 2026-09-29 release readback, the signed `v0.3.0-alpha.5` tag,
+protected `main`, and accepted `dev` selected
 `67ade23f20414dc76a3ca2f65d398396c525a05d`. The [alpha.5
 Release](../../-/releases/v0.3.0-alpha.5) links ten selected assets from one
 GitLab Generic Package version, not a second project-upload copy. Its Core
@@ -56,9 +57,11 @@ The reviewed 6000px PNG and standalone HTML have SHA-256 `debb4579...` and
 `44dab0ba...` respectively; use the full digests in the Release manifest.
 
 At the 2026-09-29 readback, `glab release download` 1.119.0 fetched all ten
-linked assets through the supported package-API route. Every linked byte
-matched `SHA256SUMS`; four additional GitLab-generated source archives are not
-part of that selected asset set. A fresh offline install of the downloaded
+linked assets through the supported package-API route. Nine payload assets
+matched `SHA256SUMS`; the checksum file itself matched the selected local bytes
+and its separate digest in the readback receipt. A signed Git tag does not sign
+Release assets. Four additional GitLab-generated source archives are not part
+of the selected asset set. A fresh offline install of the downloaded
 Core and self-Edition rebuilt the independent-editor six-member Candidate
 byte-for-byte. The exact receipt is
 [`release-alpha5-readback.json`](../../conformance/evidence/release-alpha5-readback.json).
@@ -100,10 +103,11 @@ precedent does not approve a later asset. Do not also upload
 the same asset as a Markdown project upload. After creating the exact Release
 links, download every selected asset through `glab release download` with
 noninteractive authentication, a bounded process deadline, and an isolated
-destination; compare each result with the released SHA-256 manifest. API-only
-readback, a valid link record, or one successful asset cannot substitute for
-the complete consumer check. A failure stops release acceptance without an
-automatic second storage route or a claim that existing bytes were lost.
+destination. Compare every payload with `SHA256SUMS` and compare that checksum
+file with its separately selected digest. API-only readback, a valid link
+record, or one successful asset cannot substitute for the complete consumer
+check. A failure stops release acceptance without an automatic second storage
+route or a claim that existing bytes were lost.
 
 ## Authority and state model
 

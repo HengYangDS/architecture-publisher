@@ -215,7 +215,7 @@ features, and an installed source lock is not a qualified publication.
 
 A read-only authoring probe against AIGW `04f593a4` retained its four reader
 questions, five static groups, twelve entities, eleven relations and eleven
-claims. The current unreleased Project validator accepted 22 selected
+claims. The inspected Work Lane's Project validator accepted 22 selected
 references whose question links derive 22 source assertions; no second
 source-assertion record was authored. This establishes an input-cost reduction
 only. Relation and claim IDs were selected separately, while each question's

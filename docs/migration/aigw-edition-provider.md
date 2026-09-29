@@ -9,9 +9,11 @@ relations:
 # AIGW Edition Provider boundary
 
 This packet separates an observed AIGW v1 adoption from a proposed successor
-migration. It is not AIGW authorization, acceptance, or publication. Publisher
-`v0.3.0-alpha.4` is a released selected-input baseline; the provisional AIGW
-probes below do not establish AIGW's selection, acceptance, or release.
+migration. It is not AIGW authorization, acceptance, or publication. The
+[operational release reference](../reference/operations.md) names Publisher's
+current verified release; `v0.3.0-alpha.4` was the first historical v2
+baseline, not an automatic AIGW selection. The provisional AIGW probes below
+do not establish AIGW's selection, acceptance, or release.
 Publisher implementation or release does not authorize AIGW migration; no AIGW
 source change is authorized by this packet.
 
@@ -111,10 +113,11 @@ cannot be asserted by relabeling the Client Projection.
    Claim Model, Edition, package archive, source-member hashes, and resulting
    Candidate and media identities. Record the existing v1 acceptance and
    publication state rather than inferring it from this packet.
-2. Select one reviewed and released Publisher package by its exact archive
-   digest; `v0.3.0-alpha.4` is the first such v2 baseline. Verify its installed
-   conformance and exact artifact identities. Do not migrate against a neighboring
-   Publisher checkout or infer AIGW acceptance from the Publisher release.
+2. Select one reviewed Publisher release from the operational reference by its
+   exact archive digest. Verify its installed conformance and exact artifact
+   identities. Do not silently use the historical alpha.4 baseline, migrate
+   against a neighboring Publisher checkout, or infer AIGW acceptance from a
+   Publisher release.
 3. Choose AIGW's exact source claimant, Edition editor, accepter, custodian,
    revision kind, and selected native inputs. Keep historical v1 bytes intact;
    introduce a versioned successor selection rather than reinterpreting v1.
