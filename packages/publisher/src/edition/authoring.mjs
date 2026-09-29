@@ -47,6 +47,34 @@ function requireIds(values, selected, code) {
   if (values.some((value) => !selected.has(value))) invalid(code, 'unselected reference');
 }
 
+function validateViewGrouping(view, namespaces, code) {
+  if (view.groups === undefined) {
+    if (view.forbiddenGroupPairs !== undefined) invalid(code, 'forbidden pair without groups');
+    return;
+  }
+  uniqueIds(view.groups, code);
+  const grouped = new Set();
+  for (const group of view.groups)
+    for (const element of group.elements) {
+      requireIds([element.namespace], namespaces, code);
+      const address = JSON.stringify([element.namespace, element.id]);
+      if (grouped.has(address)) invalid(code, 'duplicate grouped element');
+      grouped.add(address);
+    }
+  if (view.forbiddenGroupPairs === undefined) return;
+  const pairs = new Set();
+  for (const pair of view.forbiddenGroupPairs) {
+    const members = pair.members.map(({ namespace, id }) => {
+      requireIds([namespace], namespaces, code);
+      return JSON.stringify([namespace, id]);
+    });
+    if (members[0] === members[1]) invalid(code, 'forbidden pair repeats member');
+    const key = JSON.stringify(members.sort());
+    if (pairs.has(key)) invalid(code, 'duplicate forbidden group pair');
+    pairs.add(key);
+  }
+}
+
 /** Derive the sole immutable assertion inventory from authored selections and editorial claims. */
 export function deriveEditionAssertions(project) {
   return deepFreeze([
@@ -142,16 +170,7 @@ export function validateEditionProject(value) {
     for (const view of views) {
       requireIds(view.questions, questions, code);
       for (const question of view.questions) presented.add(question);
-      if (view.groups === undefined) continue;
-      uniqueIds(view.groups, code);
-      const grouped = new Set();
-      for (const group of view.groups)
-        for (const element of group.elements) {
-          requireIds([element.namespace], namespaces, code);
-          const address = JSON.stringify([element.namespace, element.id]);
-          if (grouped.has(address)) invalid(code, 'duplicate grouped element');
-          grouped.add(address);
-        }
+      validateViewGrouping(view, namespaces, code);
     }
   }
   if (value.questions.some(({ id }) => !presented.has(id)))

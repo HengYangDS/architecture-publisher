@@ -497,6 +497,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       Candidate now explicitly retains the unverified authored-text limit;
       this does not certify or reject arbitrary prose and does not close the
       source-owned aggregation or human semantic-acceptance obligations.
+      Ordered views now accept editor-declared forbidden group pairs. Exact
+      selected membership admits separated pairs and rejects a same-group,
+      unselected, or duplicate unordered pair before layout. This is a finite
+      visual-composition constraint, not a claim that the editor supplied all
+      source-owned prohibitions; Task 5.1 remains open for that boundary.
 - [ ] 5.2 Deliver an explainable neutral source-to-media composition without
       duplicate editable facts, authored pixels, or a second layout engine.
       Exact selected references, reader questions, group membership, typed

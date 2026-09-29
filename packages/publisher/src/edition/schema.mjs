@@ -113,6 +113,7 @@ const editorialAssertion = closed(['id', 'statement', 'proponent', 'basis', 'que
   basis: { type: 'array', minItems: 1, uniqueItems: true, items: identifier },
   questions: questionIds,
 });
+const entityAddress = closed(['namespace', 'id'], { namespace: text, id: text });
 const view = closed(['id', 'questions'], {
   id: identifier,
   questions: questionIds,
@@ -127,8 +128,16 @@ const view = closed(['id', 'questions'], {
         type: 'array',
         minItems: 1,
         maxItems: 4096,
-        items: closed(['namespace', 'id'], { namespace: text, id: text }),
+        items: entityAddress,
       },
+    }),
+  },
+  forbiddenGroupPairs: {
+    type: 'array',
+    maxItems: 4096,
+    items: closed(['members', 'reason'], {
+      members: { type: 'array', minItems: 2, maxItems: 2, items: entityAddress },
+      reason: text,
     }),
   },
 });

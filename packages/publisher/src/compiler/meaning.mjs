@@ -28,6 +28,16 @@ function checkViewGroups(project, media, native) {
       const grouped = new Set(groups.flatMap(({ elements }) => elements.map(address)));
       if (selected.size !== grouped.size || [...selected].some((element) => !grouped.has(element)))
         fail('edition_group_membership_mismatch');
+      const groupByElement = new Map(
+        groups.flatMap(({ id, elements }) => elements.map((element) => [address(element), id])),
+      );
+      for (const pair of project.presentation[medium].views[index].forbiddenGroupPairs ?? []) {
+        const [left, right] = pair.members.map(address);
+        if (!selected.has(left) || !selected.has(right))
+          fail('edition_forbidden_group_pair_unbound');
+        if (groupByElement.get(left) === groupByElement.get(right))
+          fail('edition_forbidden_group_pair');
+      }
     }
   }
 }

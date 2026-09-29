@@ -1633,6 +1633,51 @@ test('a grouped entity may carry a scalar claim without inventing a source relat
   assert.doesNotMatch(svg, /SOURCE RELATIONS<\/text>/u);
 });
 
+test('a view refuses an editor-declared forbidden group pair without inventing source truth', async (t) => {
+  const selected = await groupedMixedFixture(t, { media: ['static'] });
+  const view = selected.project.presentation.static.views[0];
+  const separatedGroups = structuredClone(view.groups);
+  view.forbiddenGroupPairs = [
+    {
+      members: [
+        { namespace: modelNamespace, id: 'client' },
+        { namespace: modelNamespace, id: 'server' },
+      ],
+      reason: 'The selected client and server must remain separate stages.',
+    },
+  ];
+  const compile = async () => {
+    await fs.writeFile(
+      path.join(selected.root, 'edition/project.json'),
+      JSON.stringify(selected.project) + '\n',
+    );
+    return compileEditionMeaning(
+      await materializeBuildRequestInput(selected.requestPath, selected.requestSha256),
+    );
+  };
+  await compile();
+
+  view.groups = [
+    {
+      id: 'merged',
+      label: 'One stage',
+      elements: view.forbiddenGroupPairs[0].members,
+    },
+  ];
+  await assert.rejects(compile(), { code: 'edition_forbidden_group_pair' });
+
+  view.groups = separatedGroups;
+  view.forbiddenGroupPairs[0].members[1].id = 'unselected';
+  await assert.rejects(compile(), { code: 'edition_forbidden_group_pair_unbound' });
+
+  view.forbiddenGroupPairs[0].members[1].id = 'server';
+  view.forbiddenGroupPairs.push({
+    ...structuredClone(view.forbiddenGroupPairs[0]),
+    members: [...view.forbiddenGroupPairs[0].members].reverse(),
+  });
+  await assert.rejects(compile(), { code: 'edition_project_invalid' });
+});
+
 test('one authored canvas binds two views and selected relation endpoints without duplicate selections', async (t) => {
   const selected = await groupedMixedFixture(t, { media: ['static'] });
   selected.project.presentation.static.width = 1200;

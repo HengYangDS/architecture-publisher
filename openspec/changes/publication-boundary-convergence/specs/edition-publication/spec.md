@@ -39,6 +39,14 @@ a complete Candidate. Graph-only layout success is insufficient.
   each view's own assertion-to-graphic carriers and limits
 - **AND** no edge or endorsement is inferred merely from the shared entity
 
+#### Scenario: A view forbids two selected members in one visual group
+
+- **WHEN** its Edition declares a reasoned forbidden pair of source-qualified
+  members and an authored group contains both
+- **THEN** Publisher rejects that medium before layout
+- **AND** an unselected or duplicate unordered pair fails rather than being
+  treated as source authority or silently ignored
+
 #### Scenario: One authored static canvas covers ordered views
 
 - **WHEN** an editor selects one data-only authored static scene for two or

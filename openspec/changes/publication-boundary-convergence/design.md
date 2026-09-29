@@ -724,6 +724,15 @@ a question with neither a retained assertion nor a disclosed limit. This
 projection is a compilation obligation over authored choices, not proof that
 the source claim is true or the rendered carrier is readable.
 
+A view may additionally declare unordered `forbiddenGroupPairs` between two
+source-qualified elements in its selected question. The pair and its reason
+belong to the Edition editor; Publisher rejects duplicate, unselected, or
+same-group pairs before layout. Existing `groups` remain the finite allowed
+visual partition. Neither field proves that the editor is the source owner or
+that all source-specific prohibitions were declared. Source-owned policy and
+free wording still require their own qualification; Publisher does not add a
+domain-specific aggregation vocabulary or infer a universal claim from a box.
+
 ### Static views form one jointly composed figure
 
 At Publisher `3bd5645`, the Edition schema accepts ordered static views, but
