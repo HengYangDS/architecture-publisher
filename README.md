@@ -11,23 +11,31 @@ Publication performs bounded, recoverable effects.
 ## Product chain
 
 ```text
-selected source evidence + checked interpretation + authored Edition
-     (direct inputs or optional Edition Provider transport)
-                                  |
-                         archpub edition build
+     Source evidence + checked interpretation + authored Edition
+             (direct input or selected Edition Provider)
                                   |
                                   v
-          Edition Candidate
-          /               \
-  static scene        interactive scenes
-       |                     |
-  SVG / PNG          standalone HTML
-          \               /
-           Qualification Set
-                  |
-           Publication Plan
-                  |
-       publication and recovery receipts
+                        archpub edition build
+                                  |
+                                  v
+                          Edition Candidate
+                                  |
+            +---------------------+---------------------+
+            |                                           |
+      Static scene                             Interactive scenes
+            |                                           |
+        SVG / PNG                                Standalone HTML
+            |                                           |
+            +---------------------+---------------------+
+                                  |
+                                  v
+                          Qualification Set
+                                  |
+                                  v
+                          Publication Plan
+                                  |
+                                  v
+                  publication and recovery receipts
 ```
 
 Each arrow is a contract boundary. A later layer may project an earlier value;
