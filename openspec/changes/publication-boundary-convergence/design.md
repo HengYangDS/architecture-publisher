@@ -190,6 +190,59 @@ versioned authoring contract. Publisher-generated locks, seals, Candidate
 identities, and qualification reports are derived records, not fields that a
 source author must refresh by hand.
 
+### Authoring and replay decision gate (2026-09-30; review pending)
+
+Provider v2 is a valid exact exchange format, but its selected member size and
+digest, separate `delivery.files` path, and Build Request manifest digest make
+mutable authoring expensive. The AIGW Lane at signed `01776f2` has a 38-line
+Client Provider and a 20-line same-repository request; its Product request
+already uses direct selection. A scoped consumer search found no independent
+external editor of that Client Provider. This is not evidence that AIGW has
+approved retiring it: its current Change still requires a declarative
+Provider. This section proposes a decision test, not a new accepted protocol.
+
+A read-only control transformed the Client request in memory into an existing
+v1 direct locator request and called both materializers on the same selected
+bytes. Both produced lock SHA-256
+`6f9a9d7a8d85267728b2db7f5fb13ded749f3293d67b66c94dc589dbc5631f17`.
+A selected model-byte edit needs zero direct-request edits but requires
+rechecking v2's member size and digest, then refreshing the request's Provider
+manifest digest. Equal locks
+prove selected-input equivalence only, not source endorsement or future custody.
+
+| Candidate                           | Strongest use                                             | Cost or limit                                                                          |
+| ----------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Direct locator                      | One editor selects source and Edition in one repository.  | No reusable source-issued handoff; AIGW migration requires its owner's spec decision.  |
+| Generated exact v2 Provider         | A source owner issues an immutable selected-byte handoff. | Useful only if an existing preparation or release flow absorbs generation and custody. |
+| Locator Provider v3 plus Request v2 | Independent editors reuse a source-issued declaration.    | Adds two public versions; it does not itself preserve bytes or confer endorsement.     |
+
+For the observed single-repository Client, prefer the existing direct route.
+Before changing AIGW, compare the three candidates on a selected-member edit,
+an editorial-only change, and an isolated cross-owner handoff. Measure author
+edits, commands, versioned interfaces, offline replay, and custody work. V3
+needs a named external consumer and demonstrated total-cost gain; do not hide
+v2 refresh in a second live generator. AIGW alone must revise its current
+Provider obligation if it selects direct delivery. Publisher shall not edit
+that source-owned decision.
+
+Four identities stay separate: request bytes, Provider manifest bytes, selected
+input bytes, and source endorsement. A request or manifest digest pins only
+that descriptor; a mutable locator may still select new member bytes. The
+Candidate records selected hashes but does not store authoring bytes. Later
+qualification of an old Candidate requires retained exact request, Provider,
+Edition, and source bytes or checked immutable VCS objects under a named
+custodian, as well as the selected replay supply; otherwise replay must fail
+and no new acceptance may be inferred. A source-code change that
+leaves an authored Claim Model unchanged does not renew the lock or prove that
+model still describes implementation correctly.
+
+A future executable authoring route must decide its exact selected
+`id@manifestSha256` set before executing code. Such a new rule applies only
+to its new request version; historical v1 CLI calls retain their meaning.
+Changing this trust boundary, relaxing an authoring pin, or adding v3 requires
+its own reviewed spec delta and RED/GREEN, installed, replay, and hostile-path
+counterexamples. No new schema or command is admitted by this decision gate.
+
 The authored Build Request selects:
 
 - one or more locally available source selectors, each with a source namespace,
