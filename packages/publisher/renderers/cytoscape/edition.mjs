@@ -170,6 +170,14 @@ function graphHeight(layout) {
   return Math.min(660, Math.max(220, Math.ceil(layout.bounds.height + 64)));
 }
 
+function repeatedKind(label, kind) {
+  if (!kind) return false;
+  const normalized = (value) => value.replace(/\s+/gu, ' ').trim().toLowerCase();
+  const name = normalized(label);
+  const suffix = normalized(kind);
+  return name === suffix || name.endsWith(` ${suffix}`);
+}
+
 function pageHtml(page, index, methodLimits) {
   const nodes = new Map(page.nodes.map((node) => [node.id, node.label]));
   const mixed = Boolean(page.nodes.length && page.claims?.length);
@@ -187,8 +195,9 @@ function pageHtml(page, index, methodLimits) {
   const nodeById = new Map(page.nodes.map((node, at) => [node.id, { node, at }]));
   const nodeItem = ({ node, at }) => {
     const ordinal = String(at + 1).padStart(2, '0');
-    const name = [ordinal, node.label, node.kind].filter(Boolean).join(' ');
-    return `<li><button type="button" data-focus-node="${node.id}" aria-label="${escape(name)}" aria-pressed="false"><span class="ordinal">${ordinal}</span><span>${escape(node.label)}</span>${node.kind ? `<small>${escape(node.kind)}</small>` : ''}</button></li>`;
+    const kind = repeatedKind(node.label, node.kind) ? null : node.kind;
+    const name = [ordinal, node.label, kind].filter(Boolean).join(' ');
+    return `<li><button type="button" data-focus-node="${node.id}" aria-label="${escape(name)}" aria-pressed="false"><span class="ordinal">${ordinal}</span><span>${escape(node.label)}</span>${kind ? `<small>${escape(kind)}</small>` : ''}</button></li>`;
   };
   const nodeItems = page.groups?.length
     ? page.groups

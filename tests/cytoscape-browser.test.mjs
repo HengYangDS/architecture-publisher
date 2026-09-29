@@ -18,6 +18,12 @@ test(
   async (t) => {
     const scene = interactiveEditionScene();
     const compactCandidate = await renderInteractiveEditionHtml(interactiveEditionScene());
+    const dedupScene = interactiveEditionScene();
+    dedupScene.pages[0].nodes[0].label = 'Precontract';
+    dedupScene.pages[0].nodes[0].kind = 'contract';
+    dedupScene.pages[0].nodes[1].label = 'Client registry';
+    dedupScene.pages[0].nodes[1].kind = 'registry';
+    const dedupCandidate = await renderInteractiveEditionHtml(dedupScene);
     const overview = scene.pages[0];
     for (let index = 0; index < 10; index += 1) {
       const id = 'client-' + index;
@@ -137,6 +143,7 @@ test(
           '/branching.html',
           '/grouped.html',
           '/compact.html',
+          '/dedup.html',
         ].includes(request.url)
       ) {
         response.writeHead(404);
@@ -158,7 +165,9 @@ test(
                 ? groupedCandidate.bytes
                 : request.url === '/compact.html'
                   ? compactCandidate.bytes
-                  : candidate.bytes,
+                  : request.url === '/dedup.html'
+                    ? dedupCandidate.bytes
+                    : candidate.bytes,
       );
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -432,6 +441,23 @@ test(
     assert(compact.scrollWidth <= compact.viewport, JSON.stringify(compact));
     await page.addScriptTag({ content: axe.source });
     await assertAccessible('compact reading page');
+    assert.deepEqual(errors, []);
+
+    await page.goto(`${origin}/dedup.html`, { waitUntil: 'load', timeout: 15_000 });
+    await page.waitForSelector('#graph-0[data-rendered="true"]', { timeout: 8_000 });
+    assert.equal(
+      await page.locator('#page-0 [data-focus-node]').first().getAttribute('aria-label'),
+      '01 Precontract contract',
+    );
+    const registry = page.locator('#page-0 [data-focus-node]').last();
+    assert.equal(await registry.getAttribute('aria-label'), '02 Client registry');
+    assert.equal(await registry.locator('small').count(), 0);
+    await registry.focus();
+    await page.keyboard.press('Enter');
+    assert.equal(
+      await page.locator('#page-0 [role="status"]').innerText(),
+      'Selected in diagram: 02 Client registry',
+    );
     assert.deepEqual(errors, []);
   },
 );
