@@ -8,6 +8,14 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- Kept dated ETHOS and AIGW handoffs as historical conformance fixtures, not
+  live authorities for the self-Edition. Its successor adopter relations now
+  describe targets requiring source-owner acceptance; removed the obsolete
+  `0.2-pending` publication condition. The changed packages use a new
+  `0.3.0-alpha.6` identity without altering the signed alpha.5 release.
+
 ## [0.3.0-alpha.5] - 2026-09-29
 
 ### Changed

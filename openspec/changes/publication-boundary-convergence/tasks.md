@@ -778,6 +778,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       `humanAcceptanceOfCandidateLimitsClaimed: false` and no generic v2
       Qualification Set. The self Candidate's unresolved coverage and limits
       still need source-owned semantic judgment before this task can close.
+      The unreleased alpha.6 successor removes dated ETHOS/AIGW handoff fixtures
+      from live self-model source selection, marks successor adopter roles and
+      service relations as intended until each owner accepts them, and removes
+      the obsolete `0.2-pending` condition. Focused RED/GREEN, static/spec and
+      package checks, and the full coverage gate pass (97.73% lines/statements,
+      99.54% functions, 95.03% branches). This corrects claim authority, not
+      the self Candidate's visible-coverage limit or alpha.6 media acceptance.
 
 ## 6. Qualification and bounded publication
 

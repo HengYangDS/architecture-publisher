@@ -121,9 +121,9 @@ editions/self/
                              source-owned flagship self-Edition
 conformance/journeys/self-host/          bounded structural self-use
 conformance/fixtures/ethos-source-owned-handoff.json
-                             immutable ETHOS adoption evidence
+                             dated ETHOS handoff fixture, not current adoption proof
 conformance/fixtures/aigw-source-owned-handoff.json
-                             immutable AIGW adoption evidence
+                             dated AIGW handoff fixture, not current adoption proof
 ```
 
 The terminal product repository keeps the generic package, renderer supply,

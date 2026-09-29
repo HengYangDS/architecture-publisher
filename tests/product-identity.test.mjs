@@ -295,20 +295,18 @@ test('adopter authority does not require source-repository co-location', async (
   assert.match(operations, /First-party co-location is optional/u);
 });
 
-test('the released self Edition depends only on durable source authorities', async () => {
+test('the current self Edition does not treat dated adopter handoffs as live authority', async () => {
   const selfSources = await Promise.all(
     [
       'editions/self/src/edition/model.mjs',
       'editions/self/src/edition/prepare.mjs',
       'editions/self/src/edition/project.mjs',
       'editions/self/src/edition/refinement.mjs',
-      'tests/self-edition.test.mjs',
-      'tests/self-evolution.test.mjs',
     ].map((file) => fs.readFile(path.join(root, file), 'utf8')),
   );
   const current = selfSources.join('\n');
   assert.doesNotMatch(current, /active-design/u);
   assert.doesNotMatch(current, /openspec\/changes\/architecture-publisher-0-2/u);
-  assert.match(current, /ethos-source-owned-handoff/u);
-  assert.match(current, /aigw-source-owned-handoff/u);
+  assert.doesNotMatch(current, /ethos-source-owned-handoff/u);
+  assert.doesNotMatch(current, /aigw-source-owned-handoff/u);
 });

@@ -20,8 +20,6 @@ const exact = (value, fields) =>
 const sourceAuthorities = Object.freeze({
   'product-contract': 'Canonical product meaning and authority boundary',
   'edition-contract': 'Canonical Edition authorship and coverage boundary',
-  'ethos-source-owned-handoff': 'Immutable ETHOS source-ownership and adoption evidence',
-  'aigw-source-owned-handoff': 'Immutable AIGW source-ownership and adoption evidence',
   'core-package': 'Installed generic product identity and public package surface',
   'self-prepare-owner': 'Explicit self-Edition source selection and preparation',
   'self-model-owner': 'First-party product self-model authorship',

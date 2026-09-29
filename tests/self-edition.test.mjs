@@ -23,8 +23,6 @@ const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
 const selectedSources = Object.freeze({
   'product-contract': 'docs/product-contract.md',
   'edition-contract': 'docs/edition-contract.md',
-  'ethos-source-owned-handoff': 'conformance/fixtures/ethos-source-owned-handoff.json',
-  'aigw-source-owned-handoff': 'conformance/fixtures/aigw-source-owned-handoff.json',
   'core-package': 'packages/publisher/package.json',
   'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
   'self-model-owner': 'editions/self/src/edition/model.mjs',
@@ -192,22 +190,25 @@ test('the first-party self Edition covers the complete product chain and authori
   );
   const role = (id) => model.claims['role-' + id],
     flow = (id) => model.claims['flow-' + id];
-  const externallyObserved = Object.entries(model.claims).filter(([, claim]) =>
-    ['observed', 'published'].includes(claim.plane),
-  );
-  assert(
-    externallyObserved.every(([, claim]) =>
-      claim.provenance.some((source) =>
-        ['ethos-source-owned-handoff', 'aigw-source-owned-handoff'].includes(source),
-      ),
-    ),
-    'only explicit source-owned handoff evidence may support observed adopter claims',
-  );
-  assert.equal(
-    externallyObserved.some(([, claim]) => claim.plane === 'published'),
-    false,
-    'local handoff evidence is not remote publication evidence',
-  );
+  for (const id of ['ethos-consumer', 'aigw-consumer']) {
+    assert.deepEqual(
+      [role(id).plane, role(id).maturity, role(id).provenance],
+      ['intended', 'target', ['product-contract']],
+      'historical adopter handoffs cannot prove current successor adoption',
+    );
+  }
+  for (const id of ['publication-serves-ethos', 'publication-serves-aigw']) {
+    assert.deepEqual(
+      [flow(id).plane, flow(id).maturity, flow(id).provenance],
+      ['intended', 'target', ['product-contract']],
+      'the target service relation must not inherit an old adopter observation',
+    );
+  }
+  assert.deepEqual(flow('publication-serves-self').condition, {
+    acceptance: 'exact-candidate-required',
+  });
+  assert.equal(model.sources['ethos-source-owned-handoff'], undefined);
+  assert.equal(model.sources['aigw-source-owned-handoff'], undefined);
   assert.deepEqual(
     [role('static-artifact').plane, role('static-artifact').maturity],
     ['intended', 'target'],
@@ -227,11 +228,6 @@ test('the first-party self Edition covers the complete product chain and authori
   );
   assert.equal(role('runtime-observation').plane, 'intended');
   assert.equal(role('publisher-core').plane, 'implemented');
-  assert.deepEqual(
-    [role('ethos-consumer').plane, role('aigw-consumer').plane],
-    ['observed', 'observed'],
-    'source-owned handoff records support adopter observations without claiming publication',
-  );
   assert.equal(
     model.sources['installed-test-owner']?.authority,
     'Installed-use test implementation; not an execution observation',
