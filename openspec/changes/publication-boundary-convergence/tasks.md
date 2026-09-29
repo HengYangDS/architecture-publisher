@@ -751,8 +751,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       browser accessibility, and final-byte human visual acceptance. The
       signed baseline `8742c49` and
       `conformance/evidence/self-migration-baseline.json` record the old/new
-      comparison; Tasks 7.5–7.6 and the alpha.5 Release record later exact-byte
-      acceptance without transferring it to the unreleased successor. Current
+      comparison; the alpha.5 Release records later exact-byte acceptance
+      without transferring it to the unreleased successor. Current
       work in this Lane removes the redundant self-generated v1 Edition and
       plan, authors one direct Project with distinct static structural and
       interactive Claim scope, and removes a false static-Claim limitation.
@@ -1071,144 +1071,40 @@ third-party or generated supply rather than moving owned code outside coverage.
       promotion and validation task is complete; source-owner effects remain
       separate. A fresh isolated `openspec archive --skip-specs` rehearsal on
       2026-09-29 left all 16 base-spec files byte-identical.
-- [x] 7.5 Select the SemVer successor and update package manifests, lockfile,
-      and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
-      behavior tests until the complete owned scope reaches at least 95% in
-      statements, lines, branches, and functions; require `npm run check` to
-      pass without relaxing inclusion or thresholds. Only then freeze final
-      product inputs. From that frozen source, repack the exact installed
-      product and rebuild Publisher-owned self and independent-editor Candidates
-      plus the Task 7.1 external conformance workloads; rerun their applicable
-      offline/relocation/recovery checks. Inspect every Publisher-owned final
-      static overview and HTML page in a real browser; exercise geometry,
-      keyboard, accessibility, reduced motion, and no-network behavior. Obtain
-      separate human judgments on Publisher-owned final static and interactive
-      bytes for faithfulness, readability, hierarchy, density, and visual
-      quality. A generic compiler defect exposed by an external workload blocks
-      Publisher release. ETHOS and AIGW retain their own art, acceptance, and
-      publication; neither becomes Publisher proof or a prerequisite for its
-      release. Do not reuse provisional Candidate identities or review after
-      any selected input changes.
-      Historical provisional test and coverage snapshots do not qualify the
-      frozen final inputs. Rerun all four unchanged 95% coverage gates and the
-      full checks on those exact inputs; no release admission is inferred.
-      At signed source `2528794`, `npm run check` passes with 97.94% statements
-      and lines, 95.01% branches (8,629/9,082), and 99.63% functions. Strict
-      OpenSpec validation has no diagnostics, and the three exact-HEAD ETHOS
-      proof gates pass under attestation `a37ffc84`. Local CAS advanced
-      `candidate/dev` to that source. This is pre-freeze, not release evidence:
-      Task 7.3, final installed workloads, exact-byte visual and human review,
-      protected refs, hosted CI, and remote readback remain open. Do not weaken
-      coverage or substitute this provisional result for Task 7.6.
-      At that checkpoint, the Work Lane selected untagged `0.3.0-alpha.4` across workspace,
-      Core, self-Edition, and lockfile. A focused RED/GREEN rejects changed
-      development HEAD bytes reusing the signed `v0.3.0-alpha.3` version; the
-      historical tag was unchanged. This assigned a unique provisional package
-      identity for cross-product migration trials, not frozen or released
-      `alpha.4` bytes. Final release notes, package identities, and acceptance
-      remained open at that checkpoint.
-      A later authored-canvas counterexample showed that strict glyph
-      intersection was insufficient: two labels could pass with inadequate
-      spacing. Focused RED/GREEN now enforces text clearance in the public
-      compiler, and the self-Edition moved one label to satisfy its existing
-      conservative geometry check. `npm run check` passes with 97.95% lines and
-      statements, 95.05% branches, and 99.53% functions. These are still
-      pre-freeze inputs; rebuild, exact-media review, and release
-      admission remain open.
-      Later signed test commits `0d24921` and `201c0e5` cover changed source
-      roots, portable member aliases, nested Provider package identity, and
-      non-regular package members. At `201c0e5`, exact-HEAD ETHOS proof passed
-      three gates under Attestation `9076a19b`; local `candidate/dev` and the
-      sole remote proposal ref match that commit. GitLab Pipeline `8521` passed
-      at the same SHA: 1,245 tests passed, 17 were explicitly skipped, none
-      failed, and branch coverage was 95.03% without changing the threshold.
-      This is hosted source readiness, not package freeze, final-byte review,
-      protected-ref publication, or release acceptance.
-      At `fc45078`, Pipeline `8538` passed 1,248 tests with 17 skips and no test
-      failures, but failed the Linux branch gate at 94.99%. A portable,
-      tool-independent CoreText request preflight now covers its input contract
-      on Linux without attempting macOS-only measurement. Focused macOS/Linux
-      tests and the macOS full check pass. At signed repair `4392e03`, hosted
-      Pipeline `8545` passed 1,249 tests with 17 skips and 95.12% Linux branch
-      coverage without changing the four 95% gates. This is pre-freeze source
-      readiness, not package or release acceptance.
-      The prior alpha.5 self HTML visual approval was superseded by the
-      reported source-inspection defect; the unchanged static PNG approval does
-      not transfer to a revised HTML. Fresh final-byte review is required.
-      The supply-chain slice now selects official Archify 3.0.1 by its release
-      ZIP digest, Node 26.10.0 by OCI digest, and current direct npm packages;
-      it retains Node 22 runtime support. Local source coverage passes all
-      four 95% gates (branch 95.03%), targeted Chrome checks pass, and an
-      offline-installed Core renders on Linux Node 22.23.3. These are
-      pre-freeze results: changed interactive bytes require fresh exact-byte
-      review and hosted CI. The earlier eight development-tree `npm audit`
-      advisories traced to Chevrotain's exact `lodash-es` 4.17.21 pin. Official
-      4.18.1 fixes the named issues; one npm override now selects it, and the
-      locked LikeC4 parser supply has been regenerated. The generated parser's
-      executable lines are unchanged; focused source, installed, and native
-      layout tests pass, while `npm audit` reports zero current npm-tree
-      advisories. This is a bounded disposition of those named findings, not
-      a universal security attestation. Final exact-byte release checks remain.
-      At the same signed SHA, GitLab Pipeline 8703 and job 45613 passed:
-      1,278 tests passed, 24 platform-declared skips, zero failures, and
-      96.9/95.1/98.85/96.9% statement/branch/function/line coverage. The
-      exact self static PNG remains at SHA-256 `debb4579`, matching the earlier
-      user-approved bytes; the HTML at SHA-256 `44dab0ba` received explicit
-      eight-page user approval. These media judgments do not transfer to a
-      changed byte or admit the Candidate, qualification, or publication.
-      A progress-evidence-only signed commit `573403a` retained both Core and
-      self-Edition archive bytes exactly; its ETHOS proof passed three gates
-      under Attestation `478d2ed1`, and hosted Pipeline 8709 passed 1,278
-      tests with 24 declared skips and 95.09% Linux branch coverage. The
-      dated alpha.5 Changelog section is release preparation, not a tag or
-      published asset. Final exact-commit qualification, required reader
-      review, protected-ref publication, and release-byte readback remain open.
-      The final frozen Core and self-Edition archives remain byte-identical
-      at signed `1e4746f`. `npm run check` passes 1,293 tests with nine
-      declared skips and 97.73/95.03/99.54/97.73% statement/branch/function/
-      line coverage; exact-HEAD ETHOS proof passes three gates, and Pipeline
-      8710 passes 1,278 tests with 24 platform skips and 95.09% Linux branch
-      coverage. A fresh isolated offline install reproduces self, independent
-      editor, both frozen AIGW chapters, and the di-effect sidecar. The exact
-      user-approved self HTML passes eight Chrome 154 pages at 1280×720 with
-      reduced motion, zero external requests, page errors, or axe A/AA
-      findings; Inspect returns keyboard focus. Native Windows replays the
-      exact package and source-bound Provider tests, with scratch and isolation
-      restored. The independent example is a conformance fixture, not
-      published reader artwork. The service-worker-blocked browser probe's
-      sandbox error is disclosed, not hidden. This completes the Publisher-
-      owned pre-release quality gate; protected refs, release assets, remote
-      readback, and source-owner adoption remain separate work.
-- [x] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
-      validation, installed conformance,
-      and exact-HEAD governance proof. Each coverage dimension must meet 95%
-      without excluding changed production owners. Land the exact accepted
-      commit and require hosted CI
-      success for that identity before release publication. Publish only the
-      admitted protected ref and exact assets, then read back owned links by
-      digest. A changed selected input returns to Task 7.5; a progress-only
-      commit refreshes exact-HEAD governance separately. Do not rewrite
-      historical tags or assert off-host recovery without the operator DR decision.
-      Alpha.4 exposed a release-consumer gap: three selected upload assets
-      rehash through the authenticated API, but `glab release download`
-      1.119.0 fails with 404, unlike an alpha.3 package-API link. A successor
-      release must prove a supported CLI download path and exact byte readback;
-      do not rewrite alpha.4 links to conceal this result.
-      At the 2026-09-29 release readback, the signed `v0.3.0-alpha.5` tag,
-      protected `main`, and accepted `dev` resolved to `67ade23f`; their
-      exact-source local gates and hosted CI passed.
-      Tag Pipeline 8717 reports 1,278 passing tests, 24 declared skips, and
-      95.09% Linux branch coverage. The ten selected assets occupy one Generic
-      Package version and are downloadable through `glab release download`;
-      nine payload assets match `SHA256SUMS`, while the checksum file matches
-      its separately recorded selected digest. Downloaded Core and self-Edition
-      archives offline-install and reproduce the independent-editor six-member
-      Candidate byte-for-byte. The user approved the exact 6000px PNG and all
-      eight pages of HTML at SHA-256 `debb4579...` and `44dab0ba...`.
-      `conformance/evidence/release-alpha5-readback.json` records full identities,
-      limits, and the pre-tag-push local-gate sequencing deviation. This closes
-      Publisher release readback only, not source-owner adoption, generic
-      Qualification Set admission, or off-host recovery.
+- [ ] 7.5 Freeze the current `0.3.0-alpha.6` successor only after Task 5.5
+      judges the exact self static and interactive media and its disclosed
+      limits. Keep the root, Core, self-Edition, dependency projection,
+      lockfile, and `CHANGELOG.md` on one SemVer identity. On the selected
+      signed source, run `npm run check` with statements, lines, branches,
+      and functions each at least 95% across the full owned runtime scope;
+      do not relax exclusions or warnings. Pack and install the exact Core
+      and self-Edition offline, then reproduce self, the independent editor,
+      and the Task 7.1 external conformance fixtures through public contracts
+      after relocation and without adjacent checkouts. Check selected supplies,
+      recovery, independent media, painted static output, all interactive
+      pages, keyboard, accessibility, reduced motion, and no-network behavior.
+      A generic Publisher defect exposed by an external fixture blocks this
+      freeze; ETHOS and AIGW still own their own Edition art, acceptance,
+      release, and retirement. Any changed selected input or artifact renews
+      applicable checks and exact-byte human review. The signed `4035dac`
+      candidate has local proof and hosted Pipeline `8797`, but its media are
+      not yet human-accepted or a frozen release package.
+
+- [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
+      proof, installed conformance, hosted CI success, the designated release
+      decision, and a local full gate with the exact annotated tag present
+      before pushing that tag. Advance only admitted protected refs; publish
+      one selected GitLab Generic Package copy per asset and link the release
+      to those bytes. Download every selected asset through the supported
+      noninteractive `glab release download` route, verify all payloads against
+      `SHA256SUMS`, verify the checksum file's separately selected digest, and
+      replay the downloaded packages offline. Preserve signed historical
+      releases byte-for-byte. Report source-owner adoption, Candidate policy
+      qualification, and independent off-host recovery separately; none follows
+      from Publisher release readback. `v0.3.0-alpha.5` was previously released
+      at `67ade23`; its exact historical result and sequencing deviation live
+      in `conformance/evidence/release-alpha5-readback.json`, not in this
+      current-task status.
 
 ## 8. Source handoff and closeout
 
