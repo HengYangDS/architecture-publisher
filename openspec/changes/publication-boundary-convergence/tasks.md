@@ -1178,7 +1178,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       sandbox error is disclosed, not hidden. This completes the Publisher-
       owned pre-release quality gate; protected refs, release assets, remote
       readback, and source-owner adoption remain separate work.
-- [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
+- [x] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%
       without excluding changed production owners. Land the exact accepted
@@ -1193,6 +1193,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       1.119.0 fails with 404, unlike an alpha.3 package-API link. A successor
       release must prove a supported CLI download path and exact byte readback;
       do not rewrite alpha.4 links to conceal this result.
+      The signed `v0.3.0-alpha.5` tag, protected `main`, and accepted `dev`
+      resolve to `67ade23f`; their exact-source local gates and hosted CI pass.
+      Tag Pipeline 8717 reports 1,278 passing tests, 24 declared skips, and
+      95.09% Linux branch coverage. The ten selected assets occupy one Generic
+      Package version and are downloadable through `glab release download`;
+      every downloaded byte matches `SHA256SUMS`. Downloaded Core and self-Edition
+      archives offline-install and reproduce the independent-editor six-member
+      Candidate byte-for-byte. The user approved the exact 6000px PNG and all
+      eight pages of HTML at SHA-256 `debb4579...` and `44dab0ba...`.
+      `conformance/evidence/release-alpha5-readback.json` records full identities,
+      limits, and the pre-tag-push local-gate sequencing deviation. This closes
+      Publisher release readback only, not source-owner adoption, generic
+      Qualification Set admission, or off-host recovery.
 
 ## 8. Source handoff and closeout
 

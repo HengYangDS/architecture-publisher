@@ -1,0 +1,115 @@
+{
+  "schema": "architecture.publisher-release-readback/v1",
+  "observedAt": "2026-09-29T05:56:33.078156+00:00",
+  "release": "v0.3.0-alpha.5",
+  "releaseUrl": "http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.5",
+  "sourceCommit": "67ade23f20414dc76a3ca2f65d398396c525a05d",
+  "tag": {
+    "object": "3a224de349b049b8392b0f8c0174ad81f2f3fe5b",
+    "target": "67ade23f20414dc76a3ca2f65d398396c525a05d",
+    "signatureVerifiedLocally": true,
+    "taggerDate": "2026-09-29"
+  },
+  "protectedRefs": {
+    "main": "67ade23f20414dc76a3ca2f65d398396c525a05d",
+    "dev": "67ade23f20414dc76a3ca2f65d398396c525a05d"
+  },
+  "hostedCi": {
+    "dev": {
+      "pipelineId": 8713,
+      "status": "success"
+    },
+    "main": {
+      "pipelineId": 8716,
+      "status": "success"
+    },
+    "tag": {
+      "pipelineId": 8717,
+      "status": "success"
+    }
+  },
+  "proofAttestationId": "5fb3d702e45f003ab5cbeeac368ea9482d2eddcdc56ecd35402e1fbda845a370",
+  "storage": {
+    "projectId": 1323,
+    "kind": "GitLab Generic Package Registry",
+    "packageId": 230,
+    "name": "architecture-publisher-release",
+    "version": "v0.3.0-alpha.5",
+    "selectedFileCount": 10,
+    "selectedBytes": 7027505,
+    "otherProjectUploadsForThisRelease": 0
+  },
+  "consumerReadback": {
+    "client": "glab release download",
+    "clientVersion": "1.119.0",
+    "selectedLinkedAssets": 10,
+    "matchingLinkedAssets": 10,
+    "generatedSourceArchivesNotLinkedAssets": 4,
+    "checksumFileSha256": "e34cf462a3eebe60c436790debe2c07e5886cdb621dc4cc514af45d920447c2a",
+    "manifestSha256": "30fe5fbc9e445c4921fbaa18b701d0cb77c83e87414b4af8c19fe87cf1a78f11",
+    "downloadedCoreOfflineInstall": "pass",
+    "downloadedSelfEditionOfflineInstall": "pass",
+    "independentEditorCandidateSha256": "146ce1aae7123eda94c6898d3e461d2b971ca5a0b9db47de9091a81b4c45d921",
+    "candidateMembersByteIdentical": 6
+  },
+  "assets": [
+    {
+      "name": "SHA256SUMS",
+      "bytes": 855,
+      "sha256": "e34cf462a3eebe60c436790debe2c07e5886cdb621dc4cc514af45d920447c2a"
+    },
+    {
+      "name": "architecture-publisher-0.3.0-alpha.5.tgz",
+      "bytes": 4207550,
+      "sha256": "4ce1793efecb32a8f9bbabcf5a2761ab1b587eda2ddf27ef73122b767df5d7cd"
+    },
+    {
+      "name": "architecture-publisher-6000.png",
+      "bytes": 455932,
+      "sha256": "debb45799fae57fda50ca874f7d54d2189fa317e5346ae872544d1114281bf5a"
+    },
+    {
+      "name": "architecture-publisher-self-edition-0.3.0-alpha.5.tgz",
+      "bytes": 29022,
+      "sha256": "36be3e1db20ae15ca54623779b32dcab9edfe3ed875e93c8f9853eb9cda23909"
+    },
+    {
+      "name": "architecture-publisher.html",
+      "bytes": 1545241,
+      "sha256": "44dab0ba58eecd49df7c6ece71dfeedd32ae8cf63a1e4ec3f6e205bc1e0e9621"
+    },
+    {
+      "name": "architecture-publisher.svg",
+      "bytes": 764740,
+      "sha256": "8af49f6a1c90c40f659560e7847f9163657ec001a9a106dac55d05c5f4d41185"
+    },
+    {
+      "name": "browser-evidence.json",
+      "bytes": 1914,
+      "sha256": "a2c694c55a187e84ccccaadbd94b419cf36ed5557f277789b19995033629f319"
+    },
+    {
+      "name": "conformance.json",
+      "bytes": 14766,
+      "sha256": "01ea26865b0819640e10a2e85129e3842de38b353642e35e729876be7f2c3181"
+    },
+    {
+      "name": "human-review.json",
+      "bytes": 1285,
+      "sha256": "962a3e4aa26c6729e7b613f8db792f1df2c1538dd9e75e9fbbbd213430b8c80a"
+    },
+    {
+      "name": "release-manifest.json",
+      "bytes": 6200,
+      "sha256": "30fe5fbc9e445c4921fbaa18b701d0cb77c83e87414b4af8c19fe87cf1a78f11"
+    }
+  ],
+  "limits": [
+    "These checks establish primary-forge reachability and exact byte identity at the observation time, not future retention or independent off-host disaster recovery.",
+    "The generic Candidate v2 Qualification Set remains unadmitted; the release contains source-owned machine and exact-byte human media evidence, not universal semantic certification.",
+    "The selected frozen AIGW static media and the incumbent ETHOS integration are not accepted as alpha.5 adopters.",
+    "The current GitLab API and Release URLs use the observed HTTP endpoint; this record neither claims TLS nor forbids a separately verified HTTPS asset route.",
+    "The documented pre-tag-push local full-gate order was missed. Exact-source full gates and tag-context hosted CI passed before Release assets were created; tag and historical assets were not rewritten.",
+    "Four GitLab-generated source archives downloaded by glab are not among the ten selected Release links or the Generic Package file set."
+  ]
+}

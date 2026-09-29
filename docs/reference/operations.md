@@ -44,7 +44,33 @@ Before pushing a new tag, create it locally and run the full repository gate
 with that exact tag present. Compare its tagger calendar date with the dated
 Changelog section; a passing untagged branch pipeline is not this check.
 
-### Released selected-input baseline
+### Current private release: alpha.5
+
+The signed `v0.3.0-alpha.5` tag, protected `main`, and accepted `dev` select
+`67ade23f20414dc76a3ca2f65d398396c525a05d`. The [alpha.5
+Release](../../-/releases/v0.3.0-alpha.5) links ten selected assets from one
+GitLab Generic Package version, not a second project-upload copy. Its Core
+archive has SHA-256
+`4ce1793efecb32a8f9bbabcf5a2761ab1b587eda2ddf27ef73122b767df5d7cd`.
+The reviewed 6000px PNG and standalone HTML have SHA-256 `debb4579...` and
+`44dab0ba...` respectively; use the full digests in the Release manifest.
+
+At the 2026-09-29 readback, `glab release download` 1.119.0 fetched all ten
+linked assets through the supported package-API route. Every linked byte
+matched `SHA256SUMS`; four additional GitLab-generated source archives are not
+part of that selected asset set. A fresh offline install of the downloaded
+Core and self-Edition rebuilt the independent-editor six-member Candidate
+byte-for-byte. The exact receipt is
+[`release-alpha5-readback.json`](../../conformance/evidence/release-alpha5-readback.json).
+This establishes primary-forge custody at readback time, not off-host recovery,
+ETHOS or AIGW adoption, or generic Candidate v2 qualification.
+
+The required local tag-context full gate was run after, not before, the tag
+push. The tag's hosted CI and the post-push local gate passed before Release
+assets were created. This sequencing deviation is recorded, not treated as a
+precedent or concealed by rewriting the tag.
+
+### Historical selected-input baseline: alpha.4
 
 The signed `v0.3.0-alpha.4` tag selects commit
 `5ad344a2938e3f381d2b49e0ffba223b6d84c8bf`. On 2026-09-28, the primary
@@ -67,10 +93,10 @@ its zero-byte failed output did not establish asset loss. Machine consumers
 must use a verified authenticated route and compare SHA-256. The normal CLI
 download route is not yet accepted for this release.
 
-For the next release, select one Forge storage copy per asset in the GitLab
+For subsequent releases, select one Forge storage copy per asset in the GitLab
 Generic Package Registry and point each Release link at its same-host package
-API URL. The alpha.3 review asset demonstrated this route with the installed
-`glab` CLI; that precedent does not approve a later asset. Do not also upload
+API URL. Alpha.5 demonstrated this route with the installed `glab` CLI; that
+precedent does not approve a later asset. Do not also upload
 the same asset as a Markdown project upload. After creating the exact Release
 links, download every selected asset through `glab release download` with
 noninteractive authentication, a bounded process deadline, and an isolated
