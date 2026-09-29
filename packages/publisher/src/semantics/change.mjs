@@ -202,6 +202,58 @@ const relationValues = (members) =>
     )
     .sort();
 
+function validClaimDependencyBindings(selection) {
+  if (selection.format !== 'architecture.claim-model/v2') return true;
+  if (selection.target?.kind !== 'claim') return !Object.hasOwn(selection, 'dependencyBindings');
+  if (!Array.isArray(selection.members?.claims) || !selection.members.claims.every(record))
+    return false;
+  const claim = selection.members.claims.find(
+    (member) => record(member) && member.id === selection.target.id,
+  );
+  if (
+    !claim ||
+    !Array.isArray(claim.dependsOn) ||
+    !claim.dependsOn.every(
+      (reference) =>
+        exact(reference, ['section', 'id']) &&
+        ['entities', 'relations', 'sources'].includes(reference.section) &&
+        text(reference.id),
+    ) ||
+    !Array.isArray(selection.dependencyBindings)
+  )
+    return false;
+  const expected = claim.dependsOn.map(referenceKey).sort();
+  if (new Set(expected).size !== expected.length) return false;
+  const bindings = selection.dependencyBindings;
+  if (
+    bindings.length !== expected.length ||
+    !bindings.every(
+      (binding) =>
+        exact(binding, ['section', 'id', 'sha256']) &&
+        text(binding.section) &&
+        text(binding.id) &&
+        /^[0-9a-f]{64}$/u.test(binding.sha256),
+    )
+  )
+    return false;
+  const received = bindings.map(referenceKey).sort();
+  return canonical(received) === canonical(expected);
+}
+
+const claimSelectionCorrespondence = (selection) =>
+  canonical([
+    selection.sourceClass,
+    selection.sourceOwner,
+    selection.source.namespace,
+    selection.source.claimant,
+    selection.source.format,
+    selection.source.adapter ?? null,
+    selection.source.method ?? null,
+    selection.source.derivedFrom ?? null,
+    selection.target.id,
+    selection.target.identityScope,
+  ]);
+
 function nativeSide(value) {
   if (
     !record(value) ||
@@ -251,6 +303,7 @@ function nativeSide(value) {
       !Array.isArray(selection.members.elements) ||
       !Array.isArray(selection.members.relations) ||
       !Array.isArray(selection.limits) ||
+      !validClaimDependencyBindings(selection) ||
       !selectedSource ||
       selectedSource.sha256 !== selection.source.sha256 ||
       selections.has(selection.selectionId)
@@ -294,6 +347,30 @@ function claimModelSelectionChanges(prior, next, selectionId, add, unknown) {
         { kind: 'predicate', namespace, id: predicateId },
         changedFieldNames(prior.predicate, next.predicate),
       );
+  }
+  if (
+    prior.target.kind === 'claim' &&
+    next.target.kind === 'claim' &&
+    claimSelectionCorrespondence(prior) === claimSelectionCorrespondence(next)
+  ) {
+    const previous = new Map(
+      prior.dependencyBindings.map((binding) => [referenceKey(binding), binding.sha256]),
+    );
+    for (const binding of next.dependencyBindings)
+      if (
+        previous.has(referenceKey(binding)) &&
+        previous.get(referenceKey(binding)) !== binding.sha256
+      )
+        add(
+          selectionId,
+          {
+            kind: 'claim-dependency',
+            namespace,
+            id: next.target.id,
+            reference: { section: binding.section, id: binding.id },
+          },
+          ['target-value'],
+        );
   }
   const memberSections =
     /** @type {Array<['elements' | 'relations' | 'claims', string, string[]]>} */ ([

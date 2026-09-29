@@ -69,8 +69,8 @@
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
-        "bytes": 6207,
-        "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
+        "bytes": 6560,
+        "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
       },
       {
         "path": "src/semantics/native-execution.mjs",
@@ -171,8 +171,8 @@
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
-        "bytes": 6207,
-        "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
+        "bytes": 6560,
+        "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
       },
       {
         "path": "src/semantics/native-execution.mjs",
@@ -303,8 +303,8 @@
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
-        "bytes": 6207,
-        "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
+        "bytes": 6560,
+        "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
       }
     ],
     "static-grouped": [
@@ -425,8 +425,8 @@
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
-        "bytes": 6207,
-        "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
+        "bytes": 6560,
+        "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
       }
     ],
     "static-likec4": [
@@ -537,8 +537,8 @@
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
-        "bytes": 6207,
-        "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
+        "bytes": 6560,
+        "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
       },
       {
         "path": "src/semantics/native-execution.mjs",
@@ -664,8 +664,8 @@
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
-        "bytes": 6207,
-        "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
+        "bytes": 6560,
+        "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
       }
     ],
     "static-figure": [
@@ -751,8 +751,8 @@
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
-        "bytes": 6207,
-        "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
+        "bytes": 6560,
+        "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
       }
     ],
     "interactive-neutral": [
@@ -833,8 +833,8 @@
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
-        "bytes": 6207,
-        "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
+        "bytes": 6560,
+        "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
       }
     ],
     "interactive-authored": [
@@ -895,8 +895,8 @@
       },
       {
         "path": "src/semantics/native-claim-model.mjs",
-        "bytes": 6207,
-        "sha256": "05812e00b87ae85a199a981ce5fbfd3ab2d51b88de07194052c761e971bb65f0"
+        "bytes": 6560,
+        "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
       }
     ]
   }

@@ -385,7 +385,8 @@ third-party or generated supply rather than moving owned code outside coverage.
       adequacy, explicit lineage, or full conflict presentation.
 - [ ] 4.3 Extend `packages/publisher/src/semantics/change.mjs` and
       `packages/publisher/src/edition/evolution.mjs`;
-      `tests/native-evolution.test.mjs` must detect
+      `tests/native-evolution.test.mjs` and
+      `tests/claim-model-selection.test.mjs` must detect
       changed qualifiers without cardinality change, selector membership, indirect
       claim dependencies, unknown read sets, and packaging-only changes. Report
       rebuild, semantic, media, human, acceptance, and publication obligations
@@ -441,9 +442,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       skips, zero failures and Linux
       coverage 97.29/95.07/99.19/97.29% in that order. Local `candidate/dev`
       and the sole remote proposal now select that commit. These are source
-      readiness, not final frozen-package or adopter acceptance. Full-model
-      dependency precision, final installed-platform parity and Task 7.5
-      release acceptance remain open.
+      readiness, not final frozen-package or adopter acceptance. At that
+      checkpoint, full-model dependency precision, installed-platform parity,
+      and Task 7.5 release acceptance were open.
       The unreleased v3 now names changed Candidate inputs as
       `edition-candidate` and its single HTML output as
       `interactive-document`. A Provider package-only replacement with
@@ -452,6 +453,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       Historical v1 target names are unchanged. The 78 related tests and full
       `npm run check` pass, including all four unchanged 95% coverage gates.
       Final package and adopter acceptance remain open.
+      Current Claim Model selections bind declared dependency values from the
+      exact normalized model. A changed relation reaches its dependent claim
+      even if not selected separately, without implicating an unrelated claim;
+      malformed bindings fail and changed ownership cannot borrow exact
+      correspondence. Focused RED/GREEN and the local full gate pass:
+      1,308/1,311 tests, three skips, zero failures, 95.12% branch coverage.
+      Native read-set limits, installed-package parity, and adopter acceptance
+      remain open; older exact-byte human media approval does not transfer.
 
 ## 5. Editorial composition and independent media
 

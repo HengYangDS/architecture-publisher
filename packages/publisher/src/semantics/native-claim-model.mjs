@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { deepFreeze, normalizedClaimModel, record, text } from './document.mjs';
+import { canonical, deepFreeze, normalizedClaimModel, record, text } from './document.mjs';
 import { parseStrictJson } from '../protocol/json.mjs';
 import { fail, isDigest } from '../protocol/values.mjs';
 
@@ -90,6 +90,14 @@ export function resolveClaimModelSelection(imported, selection) {
         ]
       : [];
   const claims = kind === 'claim' ? [{ id, ...structuredClone(item), origin }] : [];
+  const dependencyBindings =
+    kind === 'claim'
+      ? item.dependsOn.map(({ section, id: dependencyId }) => ({
+          section,
+          id: dependencyId,
+          sha256: sha(Buffer.from(canonical(imported.model[section][dependencyId]))),
+        }))
+      : null;
   const predicate =
     kind === 'claim' ? structuredClone(imported.model.vocabulary.predicates[item.predicate]) : null;
   const sourceIds = new Set([
@@ -111,6 +119,7 @@ export function resolveClaimModelSelection(imported, selection) {
     source: structuredClone(imported.source),
     target: { kind, id, identityScope: 'claim-model-id', origin: structuredClone(origin) },
     members: { elements, relations, claims },
+    ...(dependencyBindings === null ? {} : { dependencyBindings }),
     ...(predicate === null ? {} : { predicate }),
     provenanceSources,
     limits: [

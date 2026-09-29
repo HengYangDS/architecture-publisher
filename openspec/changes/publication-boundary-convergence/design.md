@@ -596,6 +596,17 @@ express fails or becomes an explicit reader-question limit. This lets AIGW and
 ETHOS use the same public compiler without an editable LikeC4 copy or a false
 claim that derived ETHOS facts are unchanged native bytes.
 
+A selected Claim Model claim also carries a disposable digest for each of its
+declared `dependsOn` targets, computed from the same normalized, exact selected
+model. Comparison uses those bindings to expose a changed dependency as impact
+on the claim selection even when the referenced relation is not itself selected
+for a view, but only while the selected claim's source owner, claimant, format,
+adapter lineage, and source-defined identity retain correspondence. It
+distinguishes dependency impact from a change to the claim's authored fields
+and does not endorse the source assertion. Missing, duplicate, or malformed
+bindings fail comparison input validation; changed ownership remains unknown
+rather than borrowing a precise dependency match.
+
 Input admission alone does not establish that route. Common-compiler support
 requires conservative evolution and independent usable media for native and
 source-derived Claim Model entities, relations, and claims, including their

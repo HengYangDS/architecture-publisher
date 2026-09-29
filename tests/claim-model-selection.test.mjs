@@ -762,6 +762,141 @@ test('entity and relation qualifier changes retain typed subjects', async (t) =>
   }
 });
 
+test('a selected relation change reaches only claims with a declared dependency', async (t) => {
+  const before = await groupedMixedFixture(t);
+  const changedModel = claimModel();
+  changedModel.relations.request.qualifiers.policy = 'review';
+  const after = await groupedMixedFixture(t, { model: changedModel });
+  for (const selected of [before, after]) {
+    selected.project.scope.selections.push({
+      id: 'unrelated-claim',
+      namespace: modelNamespace,
+      kind: 'reference',
+      reference: 'claim:observed',
+      questions: ['condition'],
+    });
+    await fs.writeFile(
+      path.join(selected.root, 'edition/project.json'),
+      JSON.stringify(selected.project) + '\n',
+    );
+  }
+  const prior = await evolutionSide(before);
+  const next = await evolutionSide(after);
+  const delta = compileNativeSelectionDelta(
+    { lock: prior.lock, native: prior.meaning.native },
+    { lock: next.lock, native: next.meaning.native },
+  );
+  assert(
+    delta.supported.some(
+      ({ selectionId, subject, fields }) =>
+        selectionId === 'selected-claim' &&
+        subject.kind === 'claim-dependency' &&
+        subject.id === 'intended' &&
+        subject.reference?.section === 'relations' &&
+        subject.reference.id === 'request' &&
+        fields.includes('target-value'),
+    ),
+  );
+  assert(
+    !delta.supported.some(
+      ({ selectionId, subject }) =>
+        selectionId === 'unrelated-claim' && subject.kind === 'claim-dependency',
+    ),
+  );
+});
+
+test('an unselected relation change still reaches its selected dependent claim', async (t) => {
+  const before = await fixture(t);
+  const changedModel = claimModel();
+  changedModel.relations.request.qualifiers.policy = 'review';
+  const after = await fixture(t, { model: changedModel });
+  const prior = await evolutionSide(before);
+  const next = await evolutionSide(after);
+  const delta = compileNativeSelectionDelta(
+    { lock: prior.lock, native: prior.meaning.native },
+    { lock: next.lock, native: next.meaning.native },
+  );
+  assert(
+    delta.supported.some(
+      ({ selectionId, subject, fields }) =>
+        selectionId === 'selected-claim' &&
+        subject.kind === 'claim-dependency' &&
+        subject.reference?.section === 'relations' &&
+        subject.reference.id === 'request' &&
+        fields.includes('target-value'),
+    ),
+  );
+  const impact = compileNativeEditionEvolution({ before: prior, after: next });
+  assert(impact.editions.affected[0].reasons.includes('native-selection-changed:selected-claim'));
+  assert.deepEqual(impact.editions.affected[0].media, {
+    static: ['overview'],
+    interactive: ['overview'],
+  });
+});
+
+test('a changed source owner cannot borrow exact claim-dependency correspondence', async (t) => {
+  const before = await fixture(t);
+  const changedModel = claimModel();
+  changedModel.relations.request.qualifiers.policy = 'review';
+  const after = await fixture(t, { model: changedModel });
+  const prior = await evolutionSide(before);
+  const next = await evolutionSide(after);
+  const changedNative = structuredClone(next.meaning.native);
+  changedNative.selections[0].sourceOwner = 'other-model-owner';
+  changedNative.semanticDigest = sha(Buffer.from(canonical(changedNative.selections)));
+  const delta = compileNativeSelectionDelta(
+    { lock: prior.lock, native: prior.meaning.native },
+    { lock: next.lock, native: changedNative },
+  );
+  assert(delta.unknown.some(({ reason }) => reason === 'claim-model-sourceOwner-changed'));
+  assert(!delta.supported.some(({ subject }) => subject.kind === 'claim-dependency'));
+});
+
+test('native comparison refuses malformed claim dependency bindings', async (t) => {
+  const selected = await fixture(t);
+  const side = await evolutionSide(selected);
+  const before = { lock: side.lock, native: side.meaning.native };
+  const cases = [
+    ['missing', (selection) => delete selection.dependencyBindings],
+    ['empty', (selection) => (selection.dependencyBindings = [])],
+    [
+      'duplicate',
+      (selection) => selection.dependencyBindings.push(selection.dependencyBindings[0]),
+    ],
+    ['invalid digest', (selection) => (selection.dependencyBindings[0].sha256 = 'not-a-digest')],
+    ['invalid claim collection', (selection) => (selection.members.claims = {})],
+    ['null claim member', (selection) => (selection.members.claims = [null])],
+    ['null extra claim member', (selection) => selection.members.claims.push(null)],
+    ['invalid dependency', (selection) => (selection.members.claims[0].dependsOn = [null])],
+    [
+      'unadmitted dependency section',
+      (selection) => {
+        selection.members.claims[0].dependsOn[0].section = 'foreign';
+        selection.dependencyBindings[0].section = 'foreign';
+      },
+    ],
+    [
+      'duplicate declared dependency',
+      (selection) => {
+        selection.members.claims[0].dependsOn.push(selection.members.claims[0].dependsOn[0]);
+        selection.dependencyBindings.push(selection.dependencyBindings[0]);
+      },
+    ],
+  ];
+  for (const [name, mutate] of cases) {
+    const after = structuredClone(before);
+    mutate(after.native.selections[0]);
+    after.native.semanticDigest = sha(Buffer.from(canonical(after.native.selections)));
+    assert.throws(
+      () => compileNativeSelectionDelta(before, after),
+      {
+        code: 'native_evolution_input_invalid',
+      },
+      name,
+    );
+  }
+});
+
 test('a derived Claim Model change retains attribution without pretending to be native', async (t) => {
   const before = await fixture(t, { delivery: 'derived' });
   const changedModel = claimModel();
