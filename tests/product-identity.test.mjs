@@ -12,11 +12,17 @@ const runGit = (...args) => {
   return result.stdout.trim();
 };
 
-test('a development HEAD does not reuse a signed release version for changed bytes', async () => {
+test('a signed release version is not reused for changed package inputs', async () => {
   const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
   const tag = `v${workspace.version}`;
   if (!runGit('tag', '--list', tag)) return;
-  assert.equal(runGit('rev-parse', 'HEAD'), runGit('rev-parse', `${tag}^{}`));
+  const packagePaths = ['packages/publisher', 'editions/self'];
+  const tracked = spawnSync('git', ['diff', '--quiet', tag, '--', ...packagePaths], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  assert.equal(tracked.status, 0, tracked.stderr || 'released package inputs changed');
+  assert.equal(runGit('ls-files', '--others', '--exclude-standard', '--', ...packagePaths), '');
 });
 
 test('alpha.7 migration baseline preserves exact local and remote identities', async () => {

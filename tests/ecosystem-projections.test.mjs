@@ -110,7 +110,8 @@ test('released v2 guidance does not describe the published contract as unrelease
   const provider = await fs.readFile(path.join(root, 'docs/reference/edition-provider.md'), 'utf8');
   const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');
   assert.ok(provider.includes('v0.3.0-alpha.4'));
-  assert.ok(operations.includes('Released selected-input baseline'));
+  assert.ok(operations.includes('release-alpha5-readback.json'));
+  assert.ok(operations.includes('v0.3.0-alpha.5'));
   assert.ok(operations.includes('v0.3.0-alpha.4'));
 });
 
