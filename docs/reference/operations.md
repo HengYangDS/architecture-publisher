@@ -19,6 +19,15 @@ Forge release, hosted pipeline, or installation exists. Those projections are
 verified independently. Published bytes are immutable; any change requires a
 new version.
 
+The development and CI projections pin Node.js 26.10.0; the Core runtime
+contract remains `node >=22`. Node.js 22 is in Maintenance LTS through
+2027-04-30 and is still declared by the ETHOS source-owned integration. Its
+support is a runtime compatibility promise, not a requirement to develop with
+Node.js 22. The pinned `npm@11.19.1` is the version bundled by official Node.js
+26.10.0. Moving to independently released npm 12 would require an explicit
+bootstrap and separate toolchain qualification; changing only `packageManager`
+would misstate the CI toolchain.
+
 Release tags belong to the protected `v*` family. Publication binds a signed,
 annotated `v<version>` tag directly to the selected release commit; the tag name,
 workspace version, package versions, and first dated Changelog section must
@@ -425,8 +434,13 @@ explicit measurement inputs, not Source Bundle authority. The compiler passes
 its already-selected SVG and font bytes directly to Resvg; it does not create
 a temporary Source Bundle merely to call the backend.
 
-The font-supply export owns verified font and license bytes shared by sibling
-renderers. Archify consumes that capability but does not own or re-export it.
+The font-supply export owns verified font and license bytes used by the static
+and Cytoscape media paths. The selected Archify 3.0.1 runtime embeds its own
+licensed, self-contained font bytes in its pinned template; its interactive
+path does not claim the separate `font-supply` identity. The adapter records
+the original input digest, binds Archify's required `meta.output` only to a
+private candidate file, and publishes solely to the caller's explicit output
+path. The native update check is disabled for offline rendering.
 
 The first-party self-Edition exports:
 

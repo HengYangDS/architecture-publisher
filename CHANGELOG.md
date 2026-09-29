@@ -10,6 +10,15 @@ may contain incompatible changes.
 
 ### Changed
 
+- Updated the pinned development image to Node.js 26.10.0 and the direct
+  `@types/node` and Prettier dependencies to their latest stable releases.
+  The Core package still supports Node.js 22 at runtime.
+- Updated the selected offline Archify renderer from 2.16.0 to 3.0.1. The
+  adapter binds Archify's required `meta.output` to a private candidate slot
+  while preserving the caller's input digest and explicit destination. It
+  disables Archify's update check during rendering and uses the release's
+  self-contained, licensed font bytes instead of injecting a second font set.
+  Interactive artifact bytes change and require new exact-byte acceptance.
 - Replaced the interactive reader's dead-end source-code placeholder and
   page-wide fact dump with one reversible `Inspect` state. It indexes visible
   subjects, preserves every selected record, distinguishes source identity from
@@ -48,6 +57,8 @@ may contain incompatible changes.
 
 ### Removed
 
+- The redundant Archify-specific font injector; the verified shared font
+  supply remains in use by the other media renderers.
 - The unselected alternate interactive layout and its automatic
   camera behavior. The standalone reader keeps one complete graph, source
   lists, pan, zoom, and explicit Fit.

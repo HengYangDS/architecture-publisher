@@ -355,20 +355,20 @@ output, not a standalone interactive HTML atlas. **Decision:** retain D2 and
 its qualified layouts as static backend candidates; do not treat direct D2
 output as the Edition or let tooltip metadata manufacture visible coverage.
 
-## Shipped Archify capability versus Publisher use (2026-09-24)
+## Archify capability versus Publisher use (2026-09-24 baseline)
 
-The packed, hash-checked Archify supply is version `2.16.0` at source
-`c826e6c3a7abad19c0f3cd1ca57207d54b1ad8de` in
-`packages/publisher/renderers/archify/supply/supply.json`. Its shipped
-architecture schema and runtime implement optional guided views, finite trace
+At this baseline, the packed, hash-checked Archify supply was version `2.16.0` at
+source `c826e6c3a7abad19c0f3cd1ca57207d54b1ad8de`; the manifest at
+`packages/publisher/renderers/archify/supply/supply.json` now selects a later
+version. The baseline architecture schema and runtime implemented optional guided views, finite trace
 motion, cards, a grid layout, source references, repository links, themes, and
 visual presets. This is a concrete renderer capability inventory, not a claim
 that each feature improves every Edition.
 
-The current backend-neutral `architecture.interactive-scene/v1` already fixes
-node positions and sizes. Its generic compiler lays groups into rows with
+The then-current backend-neutral `architecture.interactive-scene/v1` already fixed
+node positions and sizes. Its generic compiler laid groups into rows with
 fixed 170-pixel cells, 70-pixel gaps, and 210-pixel group spacing. The Archify
-adapter forwards nodes, regions, and routes, but fixes `locale=en`,
+adapter forwarded nodes, regions, and routes, but fixed `locale=en`,
 `quality_profile=showcase`, `visual_preset=editorial`, and a hidden legend. It
 does not select native views, cards, grid layout, or trace motion. The public
 native renderer explicitly rejects `repository` and node `sources` fields in
@@ -379,9 +379,9 @@ offline input. These facts are visible in
 Publisher-owned constraints and unused native facilities, not an Archify
 failure.
 
-The native facilities also have real limits. The shipped schema caps guided
-views at five, node source references at three, accepts only a GitHub URL and
-40-hex revision for its repository link, and offers only `grid` as its
+The native facilities also had real limits. The baseline schema capped guided
+views at five and node source references at three, accepted only a GitHub URL and
+40-hex revision for its repository link, and offered only `grid` as its
 architecture layout mode. Those cannot represent ETHOS's complete 13-page
 Atlas, arbitrary multi-source/content-derived revision evidence, or a
 flagship composition merely by toggling options. Animation is a finite reader
@@ -397,6 +397,30 @@ Archify. Compare its native grid and interaction with LikeC4/D2 and the
 current Publisher composer on the same reader questions before replacing a
 layout owner. Use the richer feature only when it removes actual adopter work
 without weakening source binding, independent media, or flagship quality.
+
+## Archify 3.0.1 supplier boundary (2026-09-29)
+
+The selected upstream [v3.0.1 release](https://github.com/tt-a1i/archify/releases/tag/v3.0.1)
+is commit `2ab3cae7ac2c2a55d7386ca789d03c4fcd31816c`; its canonical ZIP
+SHA-256 is `b0b23bd28db314f04ca8ab9620fe20f8c1ac6474a3546bd8fe4679508aa1b7f5`.
+The Publisher supply selects the offline `deliver` CLI closure and notices,
+not the Archify Skill or gallery assets. The upstream CLI statically imports
+preview and browser-support modules, so those bytes are present even though
+Publisher invokes only `deliver` and disables the update check. Archify 3 removes
+guided/story views and ordinary share-card exports; its v1 diagram schemas
+remain accepted. The former guided-view cap is therefore not a current product
+capability claim.
+
+The v3 schema requires portable `meta.output`. A direct native probe rejected
+the earlier Publisher input without that field and passed all nine showcase
+checks with it. Publisher's adapter now sets that renderer-only field to its
+private candidate slot, keeps the original input digest and the caller's
+destination separate, and checks the native specification digest. It disables
+Archify's update check in the controlled renderer process. Upstream v3 embeds
+licensed WOFF2 font subsets; the redundant Publisher-specific font injection
+was removed, while other media still use Publisher's verified font supply.
+Changing the renderer changes interactive bytes, so source tests do not
+transfer earlier browser or human acceptance to the new Candidate.
 
 ## Self-use does not yet prove a generic authoring baseline (2026-09-24)
 
@@ -1049,15 +1073,15 @@ reader-question coverage, independently composed static and interactive media,
 exact offline input/output identity, or a named acceptance boundary. It may
 still remain the best native source or medium-specific backend.
 
-At 11:04 UTC, read-only GitHub Release API responses reported stable
+At 11:04 UTC on 2026-09-24, read-only GitHub Release API responses reported stable
 [LikeC4 v1.59.4](https://github.com/likec4/likec4/releases/tag/v1.59.4)
 (MIT), [D2 v0.9.0](https://github.com/d2lang/d2/releases/tag/v0.9.0)
 (MPL-2.0), and
 [Structurizr v2026.09.19](https://github.com/structurizr/structurizr/releases/tag/v2026.09.19)
 (Apache-2.0). The first two match the installed local CLIs; Structurizr was
-inspected at source level, not installed or run. The selected offline Archify
-supply is 2.16.0 (MIT), resvg is 0.48.1 (Apache-2.0 OR MIT), and the installed
-browser test library is Playwright Core 1.63.0. License observations identify
+inspected at source level, not installed or run. At that probe the selected
+offline Archify supply was 2.16.0 (MIT), resvg was 0.48.1 (Apache-2.0 OR MIT), and the installed
+browser test library was Playwright Core 1.63.0. License observations identify
 reuse constraints; they are not a legal clearance.
 
 ### Direct tool routes
@@ -1086,7 +1110,7 @@ reuse constraints; they are not a legal clearance.
   standalone, independently composed dual-medium requirement. Native C4
   ingestion remains a candidate. Installation, conversion, aesthetics,
   accessibility and upgrade effort were not measured.
-- **Archify:** The pinned 2.16.0 supply and current adapter passed focused
+- **Archify:** The then-pinned 2.16.0 supply and adapter passed focused
   renderer tests, but Archify is an interactive renderer, not a source,
   editor or acceptance owner. Its native five-view cap and GitHub-only
   repository link cannot directly express ETHOS's thirteen-page,

@@ -118,7 +118,7 @@ test('GitLab CI only projects repository-native gates', async () => {
   const ci = await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8');
   assert.match(
     ci,
-    /node:26\.9\.0-bookworm@sha256:347d9d5391493c2fc3f0d161b75a9cab64a9805064b1b01b099f8ee97f98ed47/,
+    /node:26\.10\.0-bookworm@sha256:2aaae6d91f99fee84cfc92da9b52c22a185752d247746052bbc3f961e44478c6/,
   );
   assert.match(ci, /npm --version/);
   assert.match(ci, /git --version/);

@@ -9,7 +9,22 @@ import * as renderer from '../packages/publisher/renderers/archify/index.mjs';
 import * as fontSupply from '../packages/publisher/renderers/fonts/index.mjs';
 import { serviceTopology } from './fixtures/diagrams.mjs';
 const sha = (b) => createHash('sha256').update(b).digest('hex');
-test('editions reuse the verified bundled font bytes without a second loader', async () => {
+
+test('the bundled interactive backend is the selected stable Archify release', async () => {
+  const root = fileURLToPath(
+    new URL('../packages/publisher/renderers/archify/supply/', import.meta.url),
+  );
+  const manifest = JSON.parse(await fs.readFile(path.join(root, 'supply.json'), 'utf8'));
+  assert.equal(manifest.version, '3.0.1');
+  assert.equal(manifest.sourceCommit, '2ab3cae7ac2c2a55d7386ca789d03c4fcd31816c');
+  assert.equal(
+    manifest.archiveSha256,
+    'b0b23bd28db314f04ca8ab9620fe20f8c1ac6474a3546bd8fe4679508aa1b7f5',
+  );
+  assert(manifest.files.some(({ path }) => path === 'THIRD_PARTY_NOTICES.md'));
+  assert(manifest.files.some(({ path }) => path === 'assets/JetBrainsMono-OFL.txt'));
+});
+test('static and Cytoscape editions reuse the verified bundled font bytes', async () => {
   assert.equal(typeof fontSupply.loadBundledFonts, 'function');
   const selected = await fontSupply.loadBundledFonts();
   assert.deepEqual(
@@ -116,7 +131,7 @@ test('renders explicit non-ETHOS data through nine native showcase checks', asyn
   assert.equal(r.nativeValidation.warnings, 0);
   assert.deepEqual(
     r.supplies.map(({ id }) => id),
-    ['archify', 'runtime', 'font-supply'],
+    ['archify', 'runtime'],
   );
   assert(r.supplies.every(({ sha256 }) => /^[a-f0-9]{64}$/.test(sha256)));
   assert.equal(r.browserAcceptance, 'not-performed');
@@ -124,6 +139,18 @@ test('renders explicit non-ETHOS data through nine native showcase checks', asyn
   assert.match(bytes.toString(), /Order service/);
   assert.match(bytes.toString(), /<svg/);
   assert.equal(/<svg\b[^>]*role="group"/u.test(bytes.toString()), true);
+  assert.deepEqual((await fs.readdir(f.root)).sort(), ['diagram.html', 'diagram.json']);
+});
+
+test('the private Archify output carrier never changes the caller input or destination', async (t) => {
+  const diagram = serviceTopology();
+  diagram.meta.output = 'author-selected.html';
+  const f = await setup(t, diagram);
+  const original = await fs.readFile(f.input);
+  const result = await renderDiagram(f.plan);
+  assert.equal(result.inputSha256, sha(original));
+  assert.deepEqual(await fs.readFile(f.input), original);
+  assert.equal(result.output, f.plan.output);
   assert.deepEqual((await fs.readdir(f.root)).sort(), ['diagram.html', 'diagram.json']);
 });
 test('semantic architecture keeps interactive SVG children accessible', async (t) => {
@@ -250,9 +277,10 @@ test('delivered HTML embeds fonts and export fallback instead of reading CDN or 
   await renderDiagram(f.plan);
   const html = await fs.readFile(f.plan.output, 'utf8');
   assert(!/<link\b[^>]*href=["']https?:/i.test(html));
-  assert.equal((html.match(/data:font\/ttf;base64,/g) || []).length, 4);
+  assert.equal((html.match(/data:font\/woff2;base64,/g) || []).length, 6);
   assert.match(html, /SIL OPEN FONT LICENSE/);
-  assert.match(html, /getElementById\('architecture-font-supply'\)\.textContent/);
+  assert.match(html, /<style id="archify-fonts">/);
+  assert.doesNotMatch(html, /id="architecture-font-supply"/);
   assert(!html.includes("src: local('JetBrains Mono')"));
 });
 test('renders a distinct branching and retrying lifecycle, not renamed service nodes', async (t) => {
@@ -282,7 +310,12 @@ test('native geometry rejection cannot be replaced by successful schema validati
   await assert.rejects(
     renderDiagram(f.plan),
     (e) =>
-      e.code === 'render_native_rejected' && e.diagnostics.some((d) => /overlap/i.test(d.message)),
+      e.code === 'render_native_rejected' &&
+      e.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === 'layout/constraint' &&
+          /Components "client" and "orders" are less than 8px apart/u.test(diagnostic.message),
+      ),
   );
   await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
 });
@@ -382,6 +415,27 @@ test('native renderer rejects malformed selection before loading supply or writi
     ),
     { code: 'render_output_parent_invalid' },
   );
+  assert.deepEqual(await fs.readdir(f.root), ['diagram.json']);
+});
+
+test('private output normalization cannot exceed the admitted input bound', async (t) => {
+  const f = await setup(t);
+  const diagram = serviceTopology();
+  const limit = 4 * 1024 * 1024;
+  diagram.meta.title += 'x'.repeat(limit - Buffer.byteLength(JSON.stringify(diagram)));
+  const inputBytes = Buffer.from(JSON.stringify(diagram));
+  assert.equal(inputBytes.length, limit);
+  let adapted = false;
+  await assert.rejects(
+    renderer.renderNativeDiagram(
+      { type: 'architecture', inputBytes, output: f.plan.output },
+      async () => {
+        adapted = true;
+      },
+    ),
+    { code: 'render_input_type_invalid' },
+  );
+  assert.equal(adapted, false);
   assert.deepEqual(await fs.readdir(f.root), ['diagram.json']);
 });
 
@@ -516,11 +570,15 @@ test('untrusted native replies cannot mint a rendered artifact', async (t) => {
     [
       'false artifact digest',
       (f) => {
+        const nativeInput = Buffer.from(
+          JSON.stringify({ ...f.diagram, meta: { ...f.diagram.meta, output: 'candidate.html' } }) +
+            '\n',
+        );
         const receipt = {
           ok: true,
           command: 'deliver',
           type: f.plan.type,
-          specification: { sha256: sha(f.bytes) },
+          specification: { sha256: sha(nativeInput), bytes: nativeInput.length },
           validation: {
             checkCount: 9,
             checksPassed: 9,
@@ -528,6 +586,7 @@ test('untrusted native replies cannot mint a rendered artifact', async (t) => {
             errors: 0,
             warnings: 0,
           },
+          update: { status: 'unavailable', reason: 'disabled' },
           artifact: { sha256: '0'.repeat(64), bytes: 13 },
         };
         return `import fs from 'node:fs'; fs.writeFileSync(process.argv[5], '<html></html>'); process.stdout.write(${JSON.stringify(JSON.stringify(receipt))});`;
@@ -590,7 +649,22 @@ test('adapted runtime inventory refuses non-regular members', async (t) => {
     });
 });
 
-test('font adaptation refuses a missing accessibility seam', async (t) => {
+test('template validation refuses a missing embedded font seam', async (t) => {
+  const f = await setup(t);
+  const original = fs.readFile.bind(fs);
+  t.mock.method(fs, 'readFile', async (file, ...rest) => {
+    const result = await original(file, ...rest);
+    return typeof file === 'string' &&
+      file.includes('.architecture-render-') &&
+      file.endsWith(path.join('assets', 'template.html'))
+      ? result.replace('<style id="archify-fonts">', '<style id="missing-fonts">')
+      : result;
+  });
+  await assert.rejects(renderDiagram(f.plan), { code: 'render_font_seam_invalid' });
+  await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
+});
+
+test('accessibility adaptation refuses a missing native seam', async (t) => {
   const f = await setup(t);
   const original = fs.readFile.bind(fs);
   t.mock.method(fs, 'readFile', async (file, ...rest) => {

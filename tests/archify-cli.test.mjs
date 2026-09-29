@@ -87,13 +87,6 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
     assert.equal(example.status, 0, example.stdout + example.stderr);
     assert.equal(JSON.parse(example.stdout).nativeValidation.checksPassed, 9);
   }
-  const font = path.join(pkg, 'renderers/fonts/supply/JetBrainsMono-Regular.ttf'),
-    originalFont = await fs.readFile(font);
-  await fs.appendFile(font, 'tamper');
-  const missingFont = invoke([...args.slice(0, -1), path.join(out, 'invalid-font.html')]);
-  assert.equal(missingFont.status, 1);
-  assert.equal(JSON.parse(missingFont.stdout).error.code, 'render_font_supply_invalid');
-  await fs.writeFile(font, originalFont);
   const bad = serviceTopology();
   bad.components[0].type = 'unsupported';
   const badBytes = Buffer.from(JSON.stringify(bad));

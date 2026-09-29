@@ -6,12 +6,12 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fail, hasExactFields, isDigest } from '../../src/protocol/values.mjs';
 import { portablePath } from '../../src/file-input/contract.mjs';
-import { embedFonts } from './fonts.mjs';
 import { adaptArchitectureScene } from './architecture.mjs';
 
 const supplyRoot = fileURLToPath(new URL('./supply/', import.meta.url));
-const supplyDigest = '091c49f7b7c95fd8a022705f743cb6b0701fefc4abb1cad588b09a91e4a36484';
+const supplyDigest = '93cfa952940ae568f59c5080ce5a675497b4b984607b2975933e3d0b06acd466';
 const types = new Set(['architecture', 'workflow', 'sequence', 'dataflow', 'lifecycle']);
+const maxDiagramBytes = 4 * 1024 * 1024;
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 async function bytes(file, maximum, code) {
   let stat;
@@ -94,6 +94,25 @@ async function accessibleDiagramRuntime(native) {
   await fs.writeFile(file, content.replace(original, 'return `role="group" lang='));
 }
 
+async function adaptOfflineTemplate(native, notice, semantic) {
+  const file = path.join(native, 'assets/template.html');
+  const original = await fs.readFile(file, 'utf8');
+  if (
+    !original.includes('<style id="archify-fonts">') ||
+    (original.match(/data:font\/woff2;base64,/gu) ?? []).length !== 6 ||
+    !original.includes('SIL OPEN FONT LICENSE') ||
+    original.includes('src: local(')
+  )
+    fail('render_font_seam_invalid');
+  const template = semantic ? semanticPublicationTemplate(original) : original;
+  await accessibleDiagramRuntime(native);
+  await fs.writeFile(
+    file,
+    template.replace('</head>', '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>'),
+  );
+  return { supplies: [] };
+}
+
 function offlineInput(value) {
   if (!value || typeof value !== 'object') return;
   for (const [key, child] of Object.entries(value)) {
@@ -125,20 +144,11 @@ export async function renderDiagram(plan) {
     !path.isAbsolute(plan.output)
   )
     fail('render_path_required');
-  const input = await bytes(plan.input, 4 * 1024 * 1024, 'render_input_type_invalid');
+  const input = await bytes(plan.input, maxDiagramBytes, 'render_input_type_invalid');
   if (sha(input) !== plan.inputSha256) fail('render_input_digest_mismatch');
   return renderNativeDiagram(
     { type: plan.type, inputBytes: input, output: plan.output },
-    async (native, notice) => {
-      const file = path.join(native, 'assets/template.html'),
-        embedded = await embedFonts(await fs.readFile(file, 'utf8'));
-      await accessibleDiagramRuntime(native);
-      await fs.writeFile(
-        file,
-        embedded.html.replace('</head>', '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>'),
-      );
-      return { supplies: [embedded.supply] };
-    },
+    (native, notice) => adaptOfflineTemplate(native, notice, false),
   );
 }
 
@@ -170,17 +180,7 @@ function semanticPublicationTemplate(template) {
 async function renderSemanticDiagram(plan) {
   if (!plan || !types.has(plan.type)) fail('render_type_unsupported');
   if (!Buffer.isBuffer(plan.inputBytes)) fail('render_input_type_invalid');
-  return renderNativeDiagram(plan, async (native, notice) => {
-    const file = path.join(native, 'assets/template.html'),
-      embedded = await embedFonts(await fs.readFile(file, 'utf8')),
-      template = semanticPublicationTemplate(embedded.html);
-    await accessibleDiagramRuntime(native);
-    await fs.writeFile(
-      file,
-      template.replace('</head>', '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>'),
-    );
-    return { supplies: [embedded.supply] };
-  });
+  return renderNativeDiagram(plan, (native, notice) => adaptOfflineTemplate(native, notice, true));
 }
 
 /** Render one backend-neutral architecture scene through the Archify adapter. */
@@ -198,7 +198,7 @@ export async function renderArchitectureScene(plan) {
 /** Internal code-owned edition seam. Never selected by input data or plugin paths. */
 export async function renderNativeDiagram(plan, adaptRuntime) {
   if (!plan || !types.has(plan.type)) fail('render_type_unsupported');
-  if (!Buffer.isBuffer(plan.inputBytes) || plan.inputBytes.length > 4 * 1024 * 1024)
+  if (!Buffer.isBuffer(plan.inputBytes) || plan.inputBytes.length > maxDiagramBytes)
     fail('render_input_type_invalid');
   if (typeof plan.output !== 'string' || !path.isAbsolute(plan.output))
     fail('render_path_required');
@@ -214,6 +214,13 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
   if (diagram?.diagram_type !== plan.type) fail('render_type_mismatch');
   if (diagram?.meta?.quality_profile !== 'showcase') fail('render_showcase_required');
   offlineInput(diagram);
+  // The public output path owns publication. Archify's required meta.output is
+  // only the private candidate slot; the caller's original bytes retain identity.
+  const nativeInput = Buffer.from(
+      JSON.stringify({ ...diagram, meta: { ...diagram.meta, output: 'candidate.html' } }) + '\n',
+    ),
+    nativeInputSha256 = sha(nativeInput);
+  if (nativeInput.length > maxDiagramBytes) fail('render_input_type_invalid');
   const parent = path.dirname(plan.output);
   let stat;
   let resolvedParent;
@@ -266,7 +273,7 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
       fail('render_adaptation_receipt_invalid');
     const selected = path.join(scratch, 'input.json'),
       candidate = path.join(scratch, 'candidate.html');
-    await fs.writeFile(selected, input, { flag: 'wx' });
+    await fs.writeFile(selected, nativeInput, { flag: 'wx' });
     const execution = spawnSync(
       process.execPath,
       [
@@ -288,6 +295,7 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
           TMP: scratch,
           TEMP: scratch,
           LANG: 'C.UTF-8',
+          ARCHIFY_UPDATE_CHECK_DISABLED: '1',
         },
         encoding: 'utf8',
         timeout: 30000,
@@ -312,12 +320,15 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
     if (
       receipt.command !== 'deliver' ||
       receipt.type !== plan.type ||
-      receipt.specification?.sha256 !== inputSha256 ||
+      receipt.specification?.sha256 !== nativeInputSha256 ||
+      receipt.specification?.bytes !== nativeInput.length ||
       checks?.checkCount !== 9 ||
       checks.checksPassed !== 9 ||
       checks.compositionProfile !== 'showcase' ||
       checks.errors !== 0 ||
-      checks.warnings !== 0
+      checks.warnings !== 0 ||
+      receipt.update?.status !== 'unavailable' ||
+      receipt.update.reason !== 'disabled'
     )
       fail('render_receipt_invalid');
     const rendered = await bytes(candidate, 32 * 1024 * 1024, 'render_artifact_invalid');

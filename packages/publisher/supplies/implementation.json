@@ -814,19 +814,9 @@
         "sha256": "5835fd90193499faab00f0bd159bdcb0fa558288a67e3fd65e4e6029cde6b258"
       },
       {
-        "path": "renderers/archify/fonts.mjs",
-        "bytes": 1618,
-        "sha256": "a3efcaf7002ec3883e27b94e99e5e3793357be28a974d3ad9e71c93c76974c18"
-      },
-      {
         "path": "renderers/archify/index.mjs",
-        "bytes": 12692,
-        "sha256": "b0cc8d573b245c53bfa9bb2379c42a534269f4c0fc01b1171c2ae3eeb3faaf28"
-      },
-      {
-        "path": "renderers/fonts/index.mjs",
-        "bytes": 1248,
-        "sha256": "d84b7916cf233dbab37c79d3f6b173dfc3b8f5493947434f2c52af1bf583de96"
+        "bytes": 13324,
+        "sha256": "2fdb21ac22919cf9f31d956f16e9afe05223708dbb1fdb2182ef3ddce67d3e89"
       },
       {
         "path": "src/file-input/contract.mjs",

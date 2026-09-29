@@ -156,7 +156,6 @@ const owners = [
     'packages/publisher/renderers/archify/',
     [
       'packages/publisher/renderers/archify/',
-      'packages/publisher/renderers/fonts/',
       'packages/publisher/src/scene/',
       'packages/publisher/src/source/',
       'packages/publisher/renderers/archify/supply/',

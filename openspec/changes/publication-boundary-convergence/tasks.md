@@ -1102,6 +1102,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       The prior alpha.5 self HTML visual approval was superseded by the
       reported source-inspection defect; the unchanged static PNG approval does
       not transfer to a revised HTML. Fresh final-byte review is required.
+      The supply-chain slice now selects official Archify 3.0.1 by its release
+      ZIP digest, Node 26.10.0 by OCI digest, and current direct npm packages;
+      it retains Node 22 runtime support. Local source coverage passes all
+      four 95% gates (branch 95.03%), targeted Chrome checks pass, and an
+      offline-installed Core renders on Linux Node 22.23.3. These are
+      pre-freeze results: changed interactive bytes require fresh exact-byte
+      review and hosted CI. `npm audit` still reports eight development-tree
+      advisories through LikeC4, including one high `lodash-es` advisory with
+      no upstream fix; the selected parser bundle needs a bounded reachability
+      disposition before release rather than an inferred clean bill of health.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%
