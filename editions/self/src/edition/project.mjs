@@ -1,48 +1,59 @@
-import { validateEdition, validateEditionProject } from 'architecture-publisher/edition';
+import { validateEditionProject } from 'architecture-publisher/edition';
 import { validateClaimModel } from 'architecture-publisher/semantics';
+import { architecturePublisherInteractiveScenes } from './interactive-scenes.mjs';
+import { composeArchitecturePublisherFlagship } from './static/composition.mjs';
 
 export const SELF_NAMESPACE = 'architecture-publisher/self';
 
-/** Derive successor authoring from the existing self-owned reader and claim choices. */
-export function projectFromSelfEdition(sourceModel, authoredEdition) {
+const groupsFor = (composition) =>
+  composition.groups.map(({ id, label, entities }) => ({
+    id,
+    label,
+    elements: entities.map((id) => ({ namespace: SELF_NAMESPACE, id })),
+  }));
+
+const QUESTION_TEXT = Object.freeze({
+  'system-map': 'What is the source-to-publication causal structure and its renewal path?',
+  overview:
+    'How does explicit system meaning become a trustworthy, renewable Architecture Edition?',
+  semantics: 'How are source truth, provenance, uncertainty, and claims preserved?',
+  edition: 'How does an Edition align a reader, questions, coverage, and expression?',
+  composition: 'How do static and interactive media remain independently composed?',
+  qualification: 'How are exact artifacts judged without compensating away a failed predicate?',
+  'publication-recovery': 'How are publication effects authorized, replaced, and recovered?',
+  adoption:
+    'How do self-use, ETHOS, and AIGW exercise one generic product without sharing authority?',
+  evolution:
+    'How does semantic change create conservative rebuild and requalification obligations?',
+});
+
+/** Author the current self Edition directly through the public Project contract. */
+export function projectFromSelfModel(sourceModel) {
   const model = validateClaimModel(sourceModel);
-  const edition = validateEdition(model, authoredEdition);
-  const questionIds = [...edition.narrative];
+  const interactive = architecturePublisherInteractiveScenes();
+  const composition = composeArchitecturePublisherFlagship();
+  const interactiveIds = Object.keys(interactive);
+  const questionIds = ['system-map', ...interactiveIds];
   const questionsFor = (claimId) =>
-    questionIds.filter((id) => edition.questions[id].claims.includes(claimId));
+    interactiveIds.filter((id) => interactive[id].claims.includes(claimId));
   const selection = (kind, id, claimId) => ({
     id: `${kind}-${id}`,
     namespace: SELF_NAMESPACE,
     kind: 'reference',
     reference: `${kind}:${id}`,
-    questions: questionsFor(claimId),
+    questions: [...(kind === 'claim' ? [] : ['system-map']), ...questionsFor(claimId)],
   });
-  const groupsFor = (composition) =>
-    composition.groups.map(({ id, label, entities }) => ({
-      id,
-      label,
-      elements: entities.map((id) => ({ namespace: SELF_NAMESPACE, id })),
-    }));
-  const staticWidths = new Set(
-    edition.qualification.human
-      .filter(({ scope }) => scope.medium === 'static' && scope.kind === 'physical')
-      .map(({ scope }) => scope.width),
-  );
-  if (staticWidths.size !== 1)
-    throw Object.assign(new Error('self_project_static_width_ambiguous'), {
-      code: 'self_project_static_width_ambiguous',
+  if (questionIds.some((id) => !Object.hasOwn(QUESTION_TEXT, id)))
+    throw Object.assign(new Error('self_project_question_missing'), {
+      code: 'self_project_question_missing',
     });
   return validateEditionProject({
     schema: 'architecture.edition-project/v1',
-    id: edition.id,
-    editor: edition.owner,
-    title: edition.title,
-    audiences: Object.entries(edition.audiences).map(([id, { label }]) => ({ id, label })),
-    questions: questionIds.map((id) => ({
-      id,
-      audience: edition.questions[id].audience,
-      text: edition.questions[id].prompt,
-    })),
+    id: 'architecture-publisher-self',
+    editor: model.owner,
+    title: 'Architecture Publisher',
+    audiences: [{ id: 'steward', label: 'System stewards and architecture readers' }],
+    questions: questionIds.map((id) => ({ id, audience: 'steward', text: QUESTION_TEXT[id] })),
     scope: {
       sourceNamespaces: [SELF_NAMESPACE],
       selections: [
@@ -50,31 +61,37 @@ export function projectFromSelfEdition(sourceModel, authoredEdition) {
         ...Object.keys(model.relations).map((id) => selection('relation', id, `flow-${id}`)),
         ...Object.keys(model.claims).map((id) => selection('claim', id, id)),
       ],
-      limits: [{ question: 'overview', reason: edition.scope }],
+      limits: [
+        {
+          question: 'system-map',
+          reason:
+            'Structural target overview only; exact Claim conditions, scope, and maturity are carried by the interactive Edition.',
+        },
+      ],
     },
     omissions: [],
-    narrative: { summary: edition.scenes.static.label },
+    narrative: { summary: composition.subtitle },
     presentation: {
       static: {
         views: [
           {
-            id: 'overview',
-            questions: ['overview'],
-            groups: groupsFor(edition.scenes.static.composition),
+            id: 'system-map',
+            questions: ['system-map'],
+            groups: groupsFor(composition.editionComposition),
           },
         ],
-        intent: edition.questions.overview.prompt,
-        width: [...staticWidths][0],
+        intent: QUESTION_TEXT['system-map'],
+        width: 6000,
       },
       interactive: {
-        views: questionIds.map((id) => ({
+        views: interactiveIds.map((id) => ({
           id,
           questions: [id],
-          groups: groupsFor(edition.scenes.interactive[id].composition),
+          groups: groupsFor(interactive[id].composition),
         })),
-        intent: edition.questions.overview.prompt,
+        intent: QUESTION_TEXT.overview,
       },
     },
-    visualPolicy: { profile: 'neutral' },
+    visualPolicy: { profile: 'neutral', override: 'refinement.json' },
   });
 }

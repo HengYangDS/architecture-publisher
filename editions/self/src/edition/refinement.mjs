@@ -1,12 +1,11 @@
 import { createHash } from 'node:crypto';
-import { validateEdition } from 'architecture-publisher/edition';
+import { validateEditionProject } from 'architecture-publisher/edition';
 import { createRecordedMetricReader } from 'architecture-publisher/scene';
 import { canonical, deepFreeze, validateClaimModel } from 'architecture-publisher/semantics';
 import { parseStrictJson } from 'architecture-publisher/file-input';
 import { architecturePublisherInteractiveScenes } from './interactive-scenes.mjs';
 import { composeArchitecturePublisherInteractiveScene } from './interactive-scene.mjs';
-import { SELF_NAMESPACE } from './project.mjs';
-import { architecturePublisherStaticScene, staticAuthoringDigest } from './static-scene.mjs';
+import { projectFromSelfModel, SELF_NAMESPACE } from './project.mjs';
 import { composeArchitecturePublisherFlagship } from './static/composition.mjs';
 import { compileArchitecturePublisherStaticScene } from './static/scene.mjs';
 
@@ -22,11 +21,14 @@ function qualified(reference) {
   return JSON.stringify([SELF_NAMESPACE, match[1], match[2]]);
 }
 
-function qualifyStaticScene(scene, edition, model) {
+function qualifyStaticScene(scene, groupDefinitions, model) {
   const { coverage: _computedCoverage, ...selected } = scene;
   const strokeTones = { flow: 'line', trust: 'accent', renewal: 'proof', feedback: 'ghost' };
   const groups = new Map(
-    edition.scenes.static.composition.groups.map(({ id, entities }) => [id, new Set(entities)]),
+    groupDefinitions.map(({ id, elements }) => [
+      id,
+      new Set(elements.map(({ id: member }) => member)),
+    ]),
   );
   return {
     ...selected,
@@ -83,29 +85,24 @@ function qualifyInteractiveScene(scene) {
   };
 }
 
-/** Prepare selected art as data; the public compiler still decides source coverage. */
-export function refinementFromSelfEdition(sourceModel, authoredEdition, metricBytes) {
-  const model = validateClaimModel(sourceModel);
-  const edition = validateEdition(model, authoredEdition);
+function buildRefinement(
+  model,
+  metricBytes,
+  groupDefinitions,
+  pageDefinitions,
+  title,
+  composition,
+) {
   if (
     !Buffer.isBuffer(metricBytes) ||
     sha(metricBytes) !== model.sources['self-static-metrics']?.sha256
   )
     fail('self_refinement_metric_mismatch');
-  if (
-    canonical(edition.scenes.static) !==
-      canonical(architecturePublisherStaticScene(staticAuthoringDigest(model.sources))) ||
-    canonical(edition.scenes.interactive) !== canonical(architecturePublisherInteractiveScenes())
-  )
-    fail('self_refinement_authorship_mismatch');
   const metrics = parseStrictJson(
     metricBytes,
     'self_refinement_metric_invalid',
     'self_refinement_metric_json_duplicate_key',
   );
-  const composition = composeArchitecturePublisherFlagship();
-  if (canonical(edition.scenes.static.composition) !== canonical(composition.editionComposition))
-    fail('self_refinement_authorship_mismatch');
   composition.labels.push({
     id: 'target-caveat',
     text: 'Target architecture · not a current-state claim',
@@ -121,19 +118,22 @@ export function refinementFromSelfEdition(sourceModel, authoredEdition, metricBy
     composition,
     createRecordedMetricReader(metrics).measure,
   );
-  const pages = edition.narrative.map((id) => {
-    const authored = edition.scenes.interactive[id];
+  const pages = pageDefinitions.map(({ id, label, purpose, composition: viewComposition }) => {
     return {
       id,
-      label: authored.label,
-      purpose: authored.purpose,
+      label,
+      purpose,
       scene: qualifyInteractiveScene(
-        composeArchitecturePublisherInteractiveScene(model, edition, {
-          id,
-          label: authored.label,
-          purpose: authored.purpose,
-          ...authored.composition,
-        }),
+        composeArchitecturePublisherInteractiveScene(
+          model,
+          { title },
+          {
+            id,
+            label,
+            purpose,
+            ...viewComposition,
+          },
+        ),
       ),
     };
   });
@@ -142,9 +142,26 @@ export function refinementFromSelfEdition(sourceModel, authoredEdition, metricBy
     media: {
       static: {
         kind: 'authored-canvas',
-        scene: qualifyStaticScene(scene, edition, model),
+        scene: qualifyStaticScene(scene, groupDefinitions, model),
       },
       interactive: { kind: 'authored-architecture', pages },
     },
   });
+}
+
+/** Prepare the current art from the sole authored Edition Project. */
+export function refinementFromSelfProject(sourceModel, authoredProject, metricBytes) {
+  const model = validateClaimModel(sourceModel);
+  const project = validateEditionProject(authoredProject);
+  if (canonical(project) !== canonical(projectFromSelfModel(model)))
+    fail('self_refinement_authorship_mismatch');
+  const interactive = architecturePublisherInteractiveScenes();
+  return buildRefinement(
+    model,
+    metricBytes,
+    project.presentation.static.views[0].groups,
+    project.presentation.interactive.views.map(({ id }) => ({ id, ...interactive[id] })),
+    project.title,
+    composeArchitecturePublisherFlagship(),
+  );
 }

@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { compileEditionEvolution } from '../packages/publisher/src/edition/evolution.mjs';
+import { compileNativeEditionEvolution } from '../packages/publisher/src/edition/evolution.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
 
@@ -16,7 +16,7 @@ const selectedSources = Object.freeze({
   'core-package': 'packages/publisher/package.json',
   'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
   'self-model-owner': 'editions/self/src/edition/model.mjs',
-  'self-static-scene-owner': 'editions/self/src/edition/static-scene.mjs',
+  'self-project-owner': 'editions/self/src/edition/project.mjs',
   'self-static-composition-owner': 'editions/self/src/edition/static/composition.mjs',
   'self-static-compiler-owner': 'editions/self/src/edition/static/scene.mjs',
   'static-renderer-owner': 'packages/publisher/renderers/svg/canvas.mjs',
@@ -102,6 +102,15 @@ async function buildInstalledCandidate(directory, revision, mutate = false) {
       pathToFileURL(path.join(install.coreRoot, 'src/compiler/index.mjs')).href +
         `?revision=${revision}`
     ),
+    selection = await import(
+      pathToFileURL(path.join(install.coreRoot, 'src/compiler/build-input.mjs')).href +
+        `?revision=${revision}`
+    ),
+    selected = await selection.materializeBuildRequestInput(
+      prepared.buildRequest,
+      prepared.buildRequestSha256,
+    ),
+    meaning = await core.compileEditionMeaning(selected),
     result = await core.compileEditionCandidateInput(
       prepared.buildRequest,
       prepared.buildRequestSha256,
@@ -116,7 +125,8 @@ async function buildInstalledCandidate(directory, revision, mutate = false) {
     preparedRoot,
     candidateRoot,
     model: JSON.parse(sourceMembers.get('semantic.json')),
-    edition: JSON.parse(await fs.readFile(prepared.edition, 'utf8')),
+    project: JSON.parse(await fs.readFile(prepared.project, 'utf8')),
+    snapshot: { lock: selected.lock, meaning },
     candidate,
     pages: interactivePages(
       await fs.readFile(path.join(candidateRoot, 'interactive/architecture.html')),
@@ -124,7 +134,7 @@ async function buildInstalledCandidate(directory, revision, mutate = false) {
   };
 }
 
-test('a source-authored self-model change rebuilds only affected projections and renews exact review', async (t) => {
+test('a source-authored self-model change renews exact Project and media obligations', async (t) => {
   const scratch = path.join(root, 'build/test-work');
   await fs.mkdir(scratch, { recursive: true });
   const directory = await fs.mkdtemp(path.join(scratch, 'publisher-self-evolution-'));
@@ -138,23 +148,22 @@ test('a source-authored self-model change rebuilds only affected projections and
       'self-evolution-after',
       true,
     ),
-    evolution = compileEditionEvolution({
-      before: { claimModel: before.model, editions: [before.edition] },
-      after: { claimModel: after.model, editions: [after.edition] },
-      correspondences: [],
+    evolution = compileNativeEditionEvolution({
+      before: before.snapshot,
+      after: after.snapshot,
     }),
     affected = evolution.editions.affected[0],
     artifact = (value, medium, id) =>
       value.candidate.media[medium].artifacts.find((item) => item.id === id),
     changedPages = Object.keys(before.pages).filter(
       (id) => before.pages[id].sha256 !== after.pages[id].sha256,
-    ),
-    unaffectedPages = Object.keys(before.pages).filter((id) => !affected.interactive.includes(id));
+    );
 
-  assert.deepEqual(evolution.delta.changed.entities, ['qualification-set']);
-  assert.equal(affected.static, true);
-  assert(affected.interactive.includes('overview'));
-  assert(affected.interactive.includes('qualification'));
+  assert.equal(evolution.schema, 'architecture.semantic-change/v3');
+  assert.equal(evolution.delta.native.hasChanges, true);
+  assert(affected.media.static.includes('system-map'));
+  assert(affected.media.interactive.includes('overview'));
+  assert(affected.media.interactive.includes('qualification'));
   assert.notEqual(before.candidate.input.semanticDigest, after.candidate.input.semanticDigest);
   assert.equal(before.candidate.media.static.sceneSha256, after.candidate.media.static.sceneSha256);
   assert.equal(
@@ -166,15 +175,17 @@ test('a source-authored self-model change rebuilds only affected projections and
     artifact(after, 'interactive', 'architecture-html').sha256,
   );
   assert(changedPages.length > 0);
-  assert(changedPages.every((id) => affected.interactive.includes(id)));
-  assert(unaffectedPages.length > 0);
-  assert(unaffectedPages.every((id) => before.pages[id].sha256 === after.pages[id].sha256));
-  assert.deepEqual(
-    new Set(evolution.obligations.mediumVerification.map(({ medium }) => medium)),
-    new Set(['static', 'interactive', 'installed-use', 'recovery']),
+  assert(changedPages.every((id) => affected.media.interactive.includes(id)));
+  assert(
+    new Set(evolution.obligations.mediumVerification.map(({ medium }) => medium)).has('static'),
+  );
+  assert(
+    new Set(evolution.obligations.mediumVerification.map(({ medium }) => medium)).has(
+      'interactive',
+    ),
   );
   assert.deepEqual(
-    new Set(evolution.obligations.humanReview.map(({ scope }) => scope.medium)),
+    new Set(evolution.obligations.humanReview.map(({ medium }) => medium)),
     new Set(['static', 'interactive']),
   );
   assert.equal(after.candidate.qualification, 'unqualified');

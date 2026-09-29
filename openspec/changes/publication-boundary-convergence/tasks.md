@@ -748,56 +748,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       Edition Project, data-only refinement, and dual-medium compiler as other
       adopters. Preserve its source-owned meaning and flagship art direction;
       prove selected-meaning coverage, installed relocation, independent media,
-      browser accessibility, and final-byte human visual acceptance. The signed
-      pre-retirement commit `8742c49` and
-      `conformance/evidence/self-migration-baseline.json` preserve exact old and
-      public-build comparison hashes, not semantic or visual equivalence.
-      Current: the self-only Candidate, Atlas, static flagship, and SVG builders
-      and their displaced tests are deleted; current self claims now name the
-      generic authored SVG renderer and interactive compositor. The installed
-      self package authors portable inputs; packed Core builds both media after
-      that package is removed. Its earlier eight-page Chrome and axe journey
-      and self evolution test pass. The current self-Edition file passes 14
-      runnable tests with one declared browser skip, including installed
-      relocation and rejection of ambiguous selected input, core-package, and
-      typography JSON before output. Static, package, and strict OpenSpec
-      checks pass. The Core's old live Atlas composer has been
-      replaced by the single interactive HTML contract under Task 7.2.
-      The static evolution fork now connects affected views separately to
-      rebuild/verification and review/acceptance/publication; the unsupported
-      rebuild-to-review edge, orphan label, and compensating scope brace are
-      absent. Exact relation bindings, analytic geometry, emitted SVG paths,
-      installed dual-media build, eight-page Chrome/axe, and provisional 6000px
-      PNG inspection pass. The 1280×720 installed-browser regression now checks
-      that all eight pages keep visible text and nodes inside the stage; it does
-      not certify typography or editorial quality. This is not final-byte human
-      approval.
-      At signed Publisher `78b65f9`, a fresh offline-installed self preview
-      has the same static SVG and 6000px PNG bytes as the earlier visually
-      approved `79c1be9` trial. Its HTML differs only in bound source/lock
-      identities; all eight 1440×1000 Chrome screenshots are byte-identical to
-      that trial. The new HTML SHA-256 is
-      `39ca287a813282c4aa8f2b30f05ca2152112ea47179fd39cf082f447e18b71a8`.
-      All eight pages pass Chrome/axe with no console error, external request,
-      horizontal overflow, or WCAG A/AA finding. Evidence is under
-      `build/review/self-alpha4-current-78b65f9/`. These are provisional
-      bytes: the changed HTML still needs exact-byte human review, and the
-      final Candidate needs semantic, installed and release acceptance.
-      Tasks 7.5–7.6 supersede this provisional checkpoint with the exact
-      alpha.5 self source, relocated offline package, independent 6000px and
-      eight-page media, browser/axe evidence, byte-bound user visual review,
-      and release readback. The release owner's accepted scope is the private
-      Core and exact reader media; its manifest explicitly records
-      `humanAcceptanceOfCandidateLimitsClaimed: false` and no generic v2
-      Qualification Set. The self Candidate's unresolved coverage and limits
-      still need source-owned semantic judgment before this task can close.
-      The unreleased alpha.6 successor removes dated ETHOS/AIGW handoff fixtures
-      from live self-model source selection, marks successor adopter roles and
-      service relations as intended until each owner accepts them, and removes
-      the obsolete `0.2-pending` condition. Focused RED/GREEN, static/spec and
-      package checks, and the full coverage gate pass (97.73% lines/statements,
-      99.54% functions, 95.03% branches). This corrects claim authority, not
-      the self Candidate's visible-coverage limit or alpha.6 media acceptance.
+      browser accessibility, and final-byte human visual acceptance. The
+      signed baseline `8742c49` and
+      `conformance/evidence/self-migration-baseline.json` record the old/new
+      comparison; Tasks 7.5–7.6 and the alpha.5 Release record later exact-byte
+      acceptance without transferring it to the unreleased successor. Current
+      work in this Lane removes the redundant self-generated v1 Edition and
+      plan, authors one direct Project with distinct static structural and
+      interactive Claim scope, and removes a false static-Claim limitation.
+      This task remains open until the new exact Candidate, installed journey,
+      browser/accessibility checks, semantic judgment, and human review pass.
 
 ## 6. Qualification and bounded publication
 

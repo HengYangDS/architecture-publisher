@@ -634,8 +634,8 @@
       },
       {
         "path": "src/scene/static/authored-canvas.mjs",
-        "bytes": 8602,
-        "sha256": "ccbc0c67c336c704be75d1a06e174832ef2f258d54d63fed9583b43f437fad1b"
+        "bytes": 8676,
+        "sha256": "22bdd103868c8ad39a711882164705012697ac7eae2cfd6efd935e8205973624"
       },
       {
         "path": "src/semantics/document.mjs",

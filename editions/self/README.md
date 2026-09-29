@@ -2,7 +2,7 @@
 
 This source-owned package authors the first-party Architecture Publisher
 Edition. It accepts explicit, digest-bound product sources and emits the
-standard Source Bundle, Claim Model, Edition, and build request consumed by the
+standard Source Bundle, Claim Model, Edition Project, and Build Request consumed by the
 generic `architecture-publisher` package.
 
 Preparation returns the exact `buildRequest` path and `buildRequestSha256`.

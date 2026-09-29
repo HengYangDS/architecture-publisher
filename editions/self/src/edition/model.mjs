@@ -445,7 +445,7 @@ export const SELF_RELATIONS = Object.freeze({
     'informs',
     'claim-model',
     'edition',
-    'self-prepare-owner',
+    'self-project-owner',
     fact('implemented', 'implemented', { authorityTransfer: 'none' }),
   ),
   'uncertainty-broadens-edition': relation(
@@ -459,7 +459,7 @@ export const SELF_RELATIONS = Object.freeze({
     'authors',
     'edition',
     'static-scene',
-    'self-static-scene-owner',
+    'self-project-owner',
     fact('implemented', 'implemented', { medium: 'static' }),
   ),
   'edition-authors-interactive': relation(

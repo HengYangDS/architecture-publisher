@@ -958,11 +958,14 @@ acceptance before release. Keep one public build path and one active
 interactive-artifact contract; history remains recoverable from its immutable
 release, not from a second current implementation.
 
-Static and interactive scenes compile independently from the same selected
-semantic obligations. A static overview may use carefully chosen aggregates
-and visible relational text; interactive pages may reveal mechanisms and
-source traces without downgrading their own complete reader questions. Each
-medium has separate geometry, accessibility, artifact identity, quality
+Static and interactive scenes compile independently from the same materialized
+source and Edition Project, but each medium retains its own selected questions,
+assertions, and limits. The self Edition's structural static overview selects
+entities and relations without claiming to paint every Claim fact; its eight
+interactive views select those Claim facts. A static overview may use carefully
+chosen aggregates and visible relational text; interactive pages may reveal
+mechanisms and source traces without downgrading their own reader questions.
+Each medium has separate geometry, accessibility, artifact identity, quality
 observations, and applicable human review. Raw imported files and private
 source bytes are not embedded in public HTML by default. The editor and
 custodian choose disclosure; Publisher checks the declared output inventory

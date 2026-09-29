@@ -487,11 +487,16 @@ The first-party self-Edition exports:
 @architecture-publisher/self-edition/runtime
 ```
 
-Its public Edition surface prepares explicit source-bound inputs, including its
-editorial selection and visual refinement. The generic Core builds both media
-through one public Build Request and returns an unqualified Candidate. That
-Candidate remains unpublished until distinct qualification, acceptance, and
-publication decisions are bound to its exact bytes.
+Its public Edition surface prepares explicit source-bound inputs: a Claim
+Model, one Edition Project, a data-only visual refinement, and a Build Request.
+It does not emit a second editable `architecture.edition/v1` or a self-only
+publication plan. The generic Core builds both media through that Build
+Request and returns an unqualified Candidate. The self Project selects a
+structural static overview and eight interactive mechanism questions. Its
+static view does not select the Claim facts carried by the interactive views;
+the diagram's structural carriers therefore do not assert complete static
+Claim coverage. Qualification, acceptance, and publication remain separate
+decisions bound to exact Candidate bytes.
 
 The current source-owned ETHOS integration package exports:
 
@@ -556,14 +561,14 @@ bytes are verified through supply-chain and behavior tests.
 The JavaScript coverage gate selects all tracked runtime `.mjs` under
 `packages/publisher/src/`, first-party
 `packages/publisher/renderers/`, and `editions/self/src/`, including
-`index.mjs` entrypoints. This revision selects 58 handwritten Publisher
-modules, 17 first-party renderer modules, and 13 self-Edition modules. The
-explicit exclusions are the 28 tracked third-party/generated renderer supply
-modules and one generated authoring validator module. The latter is reproduced
-from the versioned JSON Schemas by
+`index.mjs` entrypoints. The selected module inventory is derived by the
+coverage command and policed by `tests/quality-contract.test.mjs`; this prose
+does not duplicate a revision-specific count. The only exclusions are the
+third-party/generated renderer supply and generated authoring validators. The
+validator module is reproduced from the versioned JSON Schemas by
 `tools/generate-authoring-validators.mjs --check` and carries the generator's
-MIT notice; the schemas and handwritten
-cross-reference validation remain covered. The installed product has no
+MIT notice; the schemas and handwritten cross-reference validation remain
+covered. The installed product has no
 runtime npm dependencies. `tests/quality-contract.test.mjs` rejects a tracked
 first-party package module moved outside the selected roots. This is a
 JavaScript coverage claim, not coverage of the separately compiled CoreText

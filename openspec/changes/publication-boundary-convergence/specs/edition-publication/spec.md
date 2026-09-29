@@ -51,6 +51,15 @@ a complete Candidate. Graph-only layout success is insufficient.
   repaired by dropping a view, forging a cross-view relation, or reusing an
   unrelated graphic carrier
 
+#### Scenario: A structural overview does not inherit sibling Claim coverage
+
+- **WHEN** a static view selects source entities and relations but no Claim
+  facts, while interactive views select the source Claim facts
+- **THEN** the static figure binds and renders its selected structural
+  assertions without claiming to paint the unselected Claim facts
+- **AND** interactive Claim coverage cannot be transferred to the static
+  figure or treated as a shared approval
+
 #### Scenario: A selected relation supplies its endpoint members
 
 - **WHEN** an authored static canvas selects a source relation without separate

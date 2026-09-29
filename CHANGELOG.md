@@ -10,6 +10,11 @@ may contain incompatible changes.
 
 ### Changed
 
+- The first-party self Edition now authors one Edition Project directly. Its
+  static overview selects structural assertions, while the eight interactive
+  views select the exact Claim facts. Preparation no longer emits an editable
+  legacy Edition or a self-only publication plan; signed historical releases
+  retain their original files and meanings.
 - Kept dated ETHOS and AIGW handoffs as historical conformance fixtures, not
   live authorities for the self-Edition. Its successor adopter relations now
   describe targets requiring source-owner acceptance; removed the obsolete

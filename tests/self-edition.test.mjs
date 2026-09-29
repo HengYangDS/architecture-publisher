@@ -11,7 +11,7 @@ import axe from 'axe-core';
 import { chromium } from 'playwright-core';
 import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
-import { validateEdition } from '../packages/publisher/src/edition/contract.mjs';
+import { validateEditionProject } from '../packages/publisher/src/edition/authoring.mjs';
 import { validateClaimModel } from '../packages/publisher/src/semantics/document.mjs';
 import { SELF_ENTITY_IDS } from '../editions/self/src/edition/model.mjs';
 
@@ -26,7 +26,7 @@ const selectedSources = Object.freeze({
   'core-package': 'packages/publisher/package.json',
   'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
   'self-model-owner': 'editions/self/src/edition/model.mjs',
-  'self-static-scene-owner': 'editions/self/src/edition/static-scene.mjs',
+  'self-project-owner': 'editions/self/src/edition/project.mjs',
   'self-static-composition-owner': 'editions/self/src/edition/static/composition.mjs',
   'self-static-compiler-owner': 'editions/self/src/edition/static/scene.mjs',
   'static-renderer-owner': 'packages/publisher/renderers/svg/canvas.mjs',
@@ -58,6 +58,32 @@ async function request(output, sourceRoot = root) {
   };
 }
 
+test('self preparation selects one direct Project instead of a legacy Edition authority', async (t) => {
+  const scratch = path.join(root, 'build/test-work');
+  await fs.mkdir(scratch, { recursive: true });
+  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-project-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const output = path.join(parent, 'prepared');
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
+  const prepared = await prepareArchitecturePublisherEdition(await request(output));
+  assert.equal(prepared.project, path.join(output, 'build-input/edition/project.json'));
+  assert.equal(prepared.projectSha256, sha256(await fs.readFile(prepared.project)));
+  assert.equal(prepared.edition, undefined);
+  assert.equal(prepared.plan, undefined);
+  await assert.rejects(fs.stat(path.join(output, 'edition.json')), { code: 'ENOENT' });
+  await assert.rejects(fs.stat(path.join(output, 'plan.json')), { code: 'ENOENT' });
+  const project = JSON.parse(await fs.readFile(prepared.project, 'utf8'));
+  assert.deepEqual(project.presentation.static.views[0].questions, ['system-map']);
+  assert.equal(
+    project.scope.selections.filter(
+      ({ reference, questions }) =>
+        reference.startsWith('claim:') && questions.includes('system-map'),
+    ).length,
+    0,
+  );
+});
+
 function directedPath(relations, from, to) {
   const pending = [[from, []]],
     seen = new Set();
@@ -84,16 +110,19 @@ test('the first-party self Edition covers the complete product chain and authori
   const bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256),
     members = new Map(bundle.members.map((member) => [member.path, member.content])),
     model = validateClaimModel(JSON.parse(members.get('semantic.json'))),
-    edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8')));
+    project = validateEditionProject(JSON.parse(await fs.readFile(prepared.project, 'utf8')));
 
   const installedVersion = JSON.parse(
     await fs.readFile(path.join(root, 'packages/publisher/package.json'), 'utf8'),
   ).version;
-  assert.equal(edition.product.version, installedVersion);
-  assert.equal(edition.id, 'architecture-publisher-self');
-  assert.equal(edition.class, 'flagship');
-  assert.deepEqual(Object.keys(edition.omissions), []);
-  assert.deepEqual([...edition.requiredClaims].sort(), Object.keys(model.claims).sort());
+  assert.equal(prepared.selectedCoreVersion, installedVersion);
+  assert.equal(project.id, 'architecture-publisher-self');
+  assert.equal(project.editor, model.owner);
+  assert.deepEqual(project.omissions, []);
+  assert.equal(
+    project.scope.selections.filter(({ reference }) => reference.startsWith('claim:')).length,
+    Object.keys(model.claims).length,
+  );
   for (const id of [
     'accepted-intent',
     'implementation',
@@ -233,62 +262,35 @@ test('the first-party self Edition covers the complete product chain and authori
     'Installed-use test implementation; not an execution observation',
   );
   assert.equal(model.sources['installed-evidence'], undefined);
-  assert.deepEqual(edition.narrative, [
-    'overview',
-    'semantics',
-    'edition',
-    'composition',
-    'qualification',
-    'publication-recovery',
-    'adoption',
-    'evolution',
-  ]);
-  assert.notDeepEqual(
-    edition.scenes.static.composition,
-    edition.scenes.interactive.overview.composition,
-  );
   assert.deepEqual(
-    edition.qualification.human.map(({ predicate, scope }) => [
-      predicate,
-      scope.medium,
-      scope.artifact,
-      scope.kind,
-      scope.width,
-      scope.height,
-    ]),
+    project.presentation.interactive.views.map(({ id }) => id),
     [
-      ['faithful', 'static', 'flagship-png', 'physical', 6000, 3375],
-      ['faithful', 'interactive', 'architecture-html', 'viewport', 1440, 1000],
-      ['intelligible', 'static', 'flagship-png', 'physical', 6000, 3375],
-      ['intelligible', 'interactive', 'architecture-html', 'viewport', 1440, 1000],
-      ['restrained', 'static', 'flagship-png', 'physical', 6000, 3375],
-      ['restrained', 'interactive', 'architecture-html', 'viewport', 1440, 1000],
+      'overview',
+      'semantics',
+      'edition',
+      'composition',
+      'qualification',
+      'publication-recovery',
+      'adoption',
+      'evolution',
     ],
   );
+  assert.equal(project.presentation.static.width, 6000);
+  assert.equal(project.presentation.static.views[0].id, 'system-map');
+  assert.notDeepEqual(
+    project.presentation.static.views[0].groups,
+    project.presentation.interactive.views[0].groups,
+  );
+  assert.equal(project.visualPolicy.override, 'refinement.json');
   assert.equal(model.context.selfUse, true);
   assert.equal(model.context.independentAdopterEvidence, false);
   assert.equal(prepared.adoptionRole, 'self-hosted');
   assert.equal(prepared.humanAcceptance, 'not-performed');
 });
 
-test('self successor authoring derives every selected claim and reader question from one owner', async (t) => {
+test('self Project gives the static map structural scope and interactive pages exact claims', async (t) => {
   const self = await import('../editions/self/src/edition/index.mjs');
-  assert.equal(typeof self.projectFromSelfEdition, 'function');
-  assert.equal(typeof self.refinementFromSelfEdition, 'function');
-  const { materializeBuildRequestInput } =
-    await import('../packages/publisher/src/compiler/build-input.mjs');
-  const { compileEditionMeaning } = await import('../packages/publisher/src/compiler/meaning.mjs');
-  const { composeSelectedStaticRefinementLayout } =
-    await import('../packages/publisher/src/scene/static/grouped-selection.mjs');
-  assert.equal(typeof composeSelectedStaticRefinementLayout, 'function');
-  const { composeInteractiveEditionScene, composeStaticEditionScene } =
-    await import('../packages/publisher/src/scene/index.mjs');
-  const { composeStaticEditionSvg } = await import('../packages/publisher/renderers/svg/index.mjs');
-  const { renderInteractiveEditionHtml } =
-    await import('../packages/publisher/renderers/cytoscape/index.mjs');
-  const { validateVisibleSelection } =
-    await import('../packages/publisher/src/compiler/coverage.mjs');
-  const parent = await fs.mkdtemp(path.join(root, 'build/test-work/self-successor-'));
+  const parent = await fs.mkdtemp(path.join(root, 'build/test-work/self-project-'));
   t.after(() => fs.rm(parent, { recursive: true, force: true }));
   const prepared = await self.prepareArchitecturePublisherEdition(
     await request(path.join(parent, 'prepared')),
@@ -296,118 +298,90 @@ test('self successor authoring derives every selected claim and reader question 
   const bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256);
   const modelBytes = bundle.members.find(({ path: name }) => name === 'semantic.json').content;
   const model = validateClaimModel(JSON.parse(modelBytes));
-  const edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8')));
-  const project = self.projectFromSelfEdition(model, edition);
+  const project = validateEditionProject(JSON.parse(await fs.readFile(prepared.project, 'utf8')));
+  assert.deepEqual(project, self.projectFromSelfModel(model));
+  assert.deepEqual(
+    project.presentation.static.views.map(({ id }) => id),
+    ['system-map'],
+  );
+  assert.deepEqual(
+    project.presentation.interactive.views.map(({ id }) => id),
+    [
+      'overview',
+      'semantics',
+      'edition',
+      'composition',
+      'qualification',
+      'publication-recovery',
+      'adoption',
+      'evolution',
+    ],
+  );
+  const { deriveEditionQuestionObligations } =
+    await import('../packages/publisher/src/edition/selection.mjs');
+  const obligations = deriveEditionQuestionObligations(project, ['static', 'interactive']);
+  assert.equal(obligations.static.assertionIds.length, 89);
+  assert.equal(obligations.static.assertionIds.filter((id) => id.startsWith('claim-')).length, 0);
+  assert.equal(
+    obligations.interactive.assertionIds.filter((id) => id.startsWith('claim-')).length,
+    Object.keys(model.claims).length,
+  );
   const metrics = bundle.members.find(
     ({ path: name }) => name === model.sources['self-static-metrics'].locator,
   ).content;
-  const authoredRefinement = self.refinementFromSelfEdition(model, edition, metrics);
-  assert.equal(authoredRefinement.schema, 'architecture.scene-refinement/v1');
-  assert.equal(authoredRefinement.media.static.kind, 'authored-canvas');
-  assert.equal(
-    authoredRefinement.media.static.scene.schema,
-    'architecture.authored-static-scene/v1',
-  );
-  assert.equal(authoredRefinement.media.static.scene.requiredSemanticIds.length, 89);
-  assert.deepEqual(JSON.parse(authoredRefinement.media.static.scene.requiredSemanticIds[0]), [
-    'architecture-publisher/self',
-    'entity',
-    'accepted-intent',
-  ]);
-  assert.equal(Object.hasOwn(authoredRefinement.media.static.scene, 'coverage'), false);
-  assert.equal(
-    authoredRefinement.media.static.scene.nodes[0].semanticIds.length,
-    edition.scenes.static.composition.groups[0].entities.length,
-  );
-  const evolution = authoredRefinement.media.static.scene;
-  const qualifiedRelation = (id) => JSON.stringify(['architecture-publisher/self', 'relation', id]);
-  const trustBranch = evolution.edges.find(({ id }) => id === 'evolution-4');
-  assert.equal(trustBranch?.source, 'affected-views');
-  assert.equal(trustBranch.target, 'review-publication');
-  assert.deepEqual(trustBranch.semanticIds, [
-    qualifiedRelation('affected-views-require-human-review'),
-    qualifiedRelation('affected-views-require-acceptance'),
-    qualifiedRelation('affected-views-require-publication'),
-  ]);
+  const refinement = self.refinementFromSelfProject(model, project, metrics);
+  assert.equal(refinement.schema, 'architecture.scene-refinement/v1');
+  assert.equal(refinement.media.static.kind, 'authored-canvas');
+  assert.equal(refinement.media.static.scene.requiredSemanticIds.length, 89);
   assert.deepEqual(
-    evolution.texts.find(({ id }) => id === 'rebuild-verification-line-1')?.semanticIds,
-    [
-      qualifiedRelation('rebuild-renews-static'),
-      qualifiedRelation('rebuild-renews-interactive'),
-      qualifiedRelation('semantic-verification-renews-claims'),
-      qualifiedRelation('medium-verification-renews-qualification'),
-    ],
+    refinement.media.interactive.pages.map(({ id }) => id),
+    project.presentation.interactive.views.map(({ id }) => id),
   );
-  assert.deepEqual(
-    evolution.texts.find(({ id }) => id === 'review-publication-line-1')?.semanticIds,
-    [
-      qualifiedRelation('affected-views-require-human-review'),
-      qualifiedRelation('affected-views-require-acceptance'),
-      qualifiedRelation('affected-views-require-publication'),
-      qualifiedRelation('human-review-obligation-renews-review'),
-      qualifiedRelation('acceptance-obligation-renews-acceptance'),
-      qualifiedRelation('publication-obligation-renews-publication'),
-    ],
-  );
-  assert.equal(
-    evolution.texts.some(({ id }) => id === 'evolution-4-label'),
-    false,
-  );
-  assert.equal(
-    evolution.decorations.some(({ id }) => id === 'renewal-scope'),
-    false,
-  );
-  assert.equal(
-    authoredRefinement.media.static.scene.texts.some(
+  const scene = refinement.media.static.scene;
+  assert.match(scene.description, /^Target flow:/u);
+  assert(
+    scene.texts.some(
       ({ id, text }) => id === 'target-caveat' && text.includes('Target architecture'),
     ),
-    true,
   );
-  assert.equal(authoredRefinement.media.interactive.kind, 'authored-architecture');
-  assert.deepEqual(
-    authoredRefinement.media.interactive.pages.map(({ id }) => id),
-    edition.narrative,
-  );
-  assert.equal(authoredRefinement.media.interactive.pages[0].scene.nodes.length < 38, true);
-  assert.deepEqual(
-    JSON.parse(authoredRefinement.media.interactive.pages[0].scene.nodes[0].semanticIds[0]),
-    ['architecture-publisher/self', 'entity', 'accepted-intent'],
-  );
-  assert.doesNotMatch(JSON.stringify(authoredRefinement), /<svg|<html/iu);
+  const relation = (id) => JSON.stringify(['architecture-publisher/self', 'relation', id]);
+  const renewal = scene.edges.find(({ id }) => id === 'evolution-4');
+  assert.equal(renewal?.source, 'affected-views');
+  assert.equal(renewal.target, 'review-publication');
+  assert.deepEqual(renewal.semanticIds, [
+    relation('affected-views-require-human-review'),
+    relation('affected-views-require-acceptance'),
+    relation('affected-views-require-publication'),
+  ]);
   const { auditScene, auditEmittedEdges } =
     await import('../packages/publisher/src/qualification/index.mjs');
   const { renderAuthoredCanvasSvg } = await import('../packages/publisher/renderers/svg/index.mjs');
-  const authoredCanvas = authoredRefinement.media.static.scene;
-  assert.match(authoredCanvas.description, /^Target flow:/u);
-  assert.notEqual(authoredCanvas.description, authoredCanvas.subtitle);
-  const describedSvg = renderAuthoredCanvasSvg(authoredCanvas).toString('utf8');
+  const svg = renderAuthoredCanvasSvg(scene).toString('utf8');
   assert.match(
-    describedSvg,
+    svg,
     /role="img" aria-labelledby="canvas-title" aria-describedby="canvas-description"/u,
   );
-  assert(
-    describedSvg.includes(`<desc id="canvas-description">${authoredCanvas.description}</desc>`),
-  );
+  assert(svg.includes(`<desc id="canvas-description">${scene.description}</desc>`));
   assert.match(
-    renderAuthoredCanvasSvg({ ...authoredCanvas, description: 'A & B <C>' }).toString('utf8'),
+    renderAuthoredCanvasSvg({ ...scene, description: 'A & B <C>' }).toString('utf8'),
     /<desc id="canvas-description">A &amp; B &lt;C&gt;<\/desc>/u,
   );
-  assert.throws(() => renderAuthoredCanvasSvg({ ...authoredCanvas, description: '' }), {
+  assert.throws(() => renderAuthoredCanvasSvg({ ...scene, description: '' }), {
     code: 'authored_canvas_description_invalid',
   });
-  const malformedRefinement = structuredClone(authoredRefinement);
-  malformedRefinement.media.static.scene.description = '';
+  const malformed = structuredClone(refinement);
+  malformed.media.static.scene.description = '';
   const { sceneRefinementValid } =
     await import('../packages/publisher/src/edition/generated/validators.mjs');
-  assert.equal(sceneRefinementValid(malformedRefinement), false);
-  const withoutDescription = structuredClone(authoredCanvas);
+  assert.equal(sceneRefinementValid(malformed), false);
+  const withoutDescription = structuredClone(scene);
   delete withoutDescription.description;
   assert(
     renderAuthoredCanvasSvg(withoutDescription)
       .toString('utf8')
-      .includes(`<desc id="canvas-description">${authoredCanvas.subtitle}</desc>`),
+      .includes(`<desc id="canvas-description">${scene.subtitle}</desc>`),
   );
-  const geometry = auditScene(authoredCanvas, {
+  const auditPolicy = {
     minimumFont: 10,
     ownerClearance: 8,
     textClearance: 5,
@@ -416,225 +390,66 @@ test('self successor authoring derives every selected claim and reader question 
     minimumTerminal: 14,
     widthGrowth: 0.04,
     heightGrowth: 0.04,
-  });
-  assert.deepEqual(geometry.failures, []);
-  const emitted = auditEmittedEdges(
-    renderAuthoredCanvasSvg(authoredCanvas).toString('utf8'),
-    authoredCanvas,
-    {
-      endpointTolerance: 1,
-      minimumTerminal: 14,
-    },
-  );
-  assert.deepEqual(emitted.failures, []);
-  const tamperedMetrics = Buffer.from(metrics);
-  tamperedMetrics[0] ^= 1;
-  assert.throws(() => self.refinementFromSelfEdition(model, edition, tamperedMetrics), {
+  };
+  assert.deepEqual(auditScene(scene, auditPolicy).failures, []);
+  assert.deepEqual(auditEmittedEdges(svg, scene, auditPolicy).failures, []);
+  const changedMetrics = Buffer.from(metrics);
+  changedMetrics[0] ^= 1;
+  assert.throws(() => self.refinementFromSelfProject(model, project, changedMetrics), {
     code: 'self_refinement_metric_mismatch',
   });
-  assert.equal(project.schema, 'architecture.edition-project/v1');
-  assert.equal(
-    project.scope.selections.filter(({ reference }) => reference.startsWith('claim:')).length,
-    89,
+  const { materializeBuildRequestInput } =
+    await import('../packages/publisher/src/compiler/build-input.mjs');
+  const { compileEditionMeaning } = await import('../packages/publisher/src/compiler/meaning.mjs');
+  const selected = await materializeBuildRequestInput(
+    prepared.buildRequest,
+    prepared.buildRequestSha256,
   );
-  assert.deepEqual(
-    project.questions.map(({ id }) => id),
-    edition.narrative,
-  );
-  assert.deepEqual(
-    project.presentation.interactive.views.map(({ id }) => id),
-    edition.narrative,
-  );
-  assert.equal(
-    project.presentation.static.views[0].groups.length,
-    edition.scenes.static.composition.groups.length,
-  );
-
-  const sourceRoot = path.join(parent, 'successor');
-  await fs.mkdir(path.join(sourceRoot, 'source'), { recursive: true });
-  await fs.mkdir(path.join(sourceRoot, 'edition'));
-  await fs.writeFile(path.join(sourceRoot, 'source/model.json'), modelBytes);
-  await fs.writeFile(path.join(sourceRoot, 'edition/project.json'), encode(project));
-  const buildRequest = {
-    schema: 'architecture.build-request/v1',
-    edition: { kind: 'direct', root: 'edition', manifest: 'project.json' },
-    sources: [
-      {
-        id: 'self-model',
-        namespace: 'architecture-publisher/self',
-        format: { id: 'architecture.claim-model', version: '2' },
-        claimant: model.owner,
-        revision: { kind: 'content', algorithm: 'sha256' },
-        input: { kind: 'pin', path: 'source/model.json', sha256: sha256(modelBytes) },
-      },
-    ],
-    providers: [],
-    media: ['static', 'interactive'],
-    toolchain: { profile: 'portable' },
-  };
-  const requestBytes = encode(buildRequest);
-  const requestPath = path.join(sourceRoot, 'build-request.json');
-  await fs.writeFile(requestPath, requestBytes);
-  const selected = await materializeBuildRequestInput(requestPath, sha256(requestBytes));
   const meaning = await compileEditionMeaning(selected);
-  assert.equal(meaning.media.static.views.length, 1);
-  assert.equal(meaning.media.interactive.views.length, 8);
-  for (const [index, view] of meaning.media.interactive.views.entries()) {
-    const original = edition.scenes.interactive[view.id];
-    const expected = original.claims.map((id) => `claim-${id}`);
-    assert.deepEqual(
-      view.assertionIds.filter((id) => id.startsWith('claim-')).sort(),
-      expected.sort(),
-      `claim obligations drifted in ${edition.narrative[index]}`,
-    );
-  }
-  const nodes = [];
-  const groups = [];
-  const nodePositions = new Map();
-  for (const [at, group] of edition.scenes.static.composition.groups.entries()) {
-    const x = (at % 4) * 650;
-    const y = Math.floor(at / 4) * 900;
-    groups.push({ id: group.id, x, y, width: 500, height: 800 });
-    for (const [position, id] of group.entities.entries()) {
-      const node = {
-        namespace: 'architecture-publisher/self',
-        id,
-        x: x + 35,
-        y: y + 50 + position * 110,
-        width: 260,
-        height: 96,
-      };
-      nodes.push(node);
-      nodePositions.set(id, node);
-    }
-  }
-  const edges = Object.entries(model.relations).map(([reference, relation]) => {
-    const from = nodePositions.get(relation.subject);
-    const to = nodePositions.get(relation.object);
-    return {
-      from: { namespace: from.namespace, id: from.id },
-      to: { namespace: to.namespace, id: to.id },
-      relations: [{ namespace: 'architecture-publisher/self', reference }],
-      points: [
-        [from.x + from.width, from.y + from.height / 2],
-        [to.x, to.y + to.height / 2],
-      ],
-    };
-  });
-  const refinement = { media: { static: { view: 'overview', nodes, edges, groups } } };
-  const staticScene = composeStaticEditionScene(
-    meaning,
-    composeSelectedStaticRefinementLayout(meaning, refinement),
-  );
-  assert.equal(staticScene.nodes.length, 38);
-  assert.equal(staticScene.edges.flatMap(({ relations }) => relations).length, 51);
-  assert.equal(staticScene.claimCards.length, 89);
-  const interactiveScene = composeInteractiveEditionScene(meaning);
-  assert.equal(interactiveScene.pages.length, 8);
   assert.deepEqual(
-    interactiveScene.pages.map(({ claimCards }) => claimCards.length),
-    edition.narrative.map((id) => edition.scenes.interactive[id].claims.length),
+    meaning.media.static.views.map(({ id }) => id),
+    ['system-map'],
   );
-  const staticRendered = composeStaticEditionSvg(staticScene);
-  assert.doesNotThrow(() =>
-    validateVisibleSelection(meaning, 'static', staticScene, staticRendered.carriers),
+  assert.equal(
+    meaning.media.static.views[0].assertionIds.filter((id) => id.startsWith('claim-')).length,
+    0,
   );
-  const interactiveRendered = await renderInteractiveEditionHtml(interactiveScene);
-  assert.doesNotThrow(() =>
-    validateVisibleSelection(
-      meaning,
-      'interactive',
-      interactiveScene,
-      interactiveRendered.carriers,
-    ),
-  );
-  const selectedProject = structuredClone(project);
-  selectedProject.visualPolicy.override = 'refinement.json';
-  await fs.writeFile(path.join(sourceRoot, 'edition/project.json'), encode(selectedProject));
-  const resourceBytes = encode(authoredRefinement);
-  await fs.writeFile(path.join(sourceRoot, 'edition/refinement.json'), resourceBytes);
-  const selectedWithRefinement = await materializeBuildRequestInput(
-    requestPath,
-    sha256(requestBytes),
-  );
-  const refinedMeaning = await compileEditionMeaning(selectedWithRefinement);
-  assert.equal(refinedMeaning.refinement.sha256, sha256(resourceBytes));
-  assert.deepEqual(Object.keys(refinedMeaning.refinement.media), ['static', 'interactive']);
-  const { composeAuthoredInteractiveArchitecture } =
-    await import('../packages/publisher/src/scene/interactive/authored-architecture.mjs');
-  const omitted = structuredClone(refinedMeaning);
-  omitted.refinement.media.interactive.pages[0].scene.nodes[0].semanticIds.pop();
-  assert.throws(() => composeAuthoredInteractiveArchitecture(omitted), {
-    code: 'authored_interactive_semantic_mismatch',
-  });
-  const forged = structuredClone(refinedMeaning);
-  forged.refinement.media.interactive.pages[0].scene.edges[0].semanticIds[0] =
-    '["architecture-publisher/self","relation","not-selected"]';
-  assert.throws(() => composeAuthoredInteractiveArchitecture(forged), {
-    code: 'authored_interactive_semantic_mismatch',
-  });
-
   const { compileEditionCandidateInput } =
     await import('../packages/publisher/src/compiler/index.mjs');
-  const pairedRoot = path.join(parent, 'public-pair');
-  const paired = await compileEditionCandidateInput(requestPath, sha256(requestBytes), pairedRoot);
-  assert.deepEqual(paired.media.sort(), ['interactive', 'static']);
-  const interactiveBytes = await fs.readFile(
-    path.join(pairedRoot, 'interactive/architecture.html'),
+  const candidateRoot = path.join(parent, 'candidate');
+  const built = await compileEditionCandidateInput(
+    prepared.buildRequest,
+    prepared.buildRequestSha256,
+    candidateRoot,
   );
-  const atlasMatch = interactiveBytes
+  assert.deepEqual(built.media.sort(), ['interactive', 'static']);
+  const candidate = JSON.parse(
+    await fs.readFile(path.join(candidateRoot, 'candidate.json'), 'utf8'),
+  );
+  assert.equal(
+    candidate.limits.includes('authored-canvas-claim-facts-not-exhaustively-painted'),
+    false,
+  );
+  const png = await fs.readFile(path.join(candidateRoot, 'static/architecture.png'));
+  assert.equal(png.readUInt32BE(16), 6000);
+  const html = await fs.readFile(path.join(candidateRoot, 'interactive/architecture.html'));
+  assert.equal(html.includes(modelBytes), false);
+  const atlasMatch = html
     .toString('utf8')
     .match(
       /<script id="architecture-interactive-data" type="application\/json">([\s\S]*?)<\/script>/u,
     );
-  assert(atlasMatch, 'the public build emits authored interactive HTML');
+  assert(atlasMatch);
   const atlas = JSON.parse(atlasMatch[1]);
-  assert.equal(atlas.schema, 'architecture.interactive-html/v1');
-  assert.deepEqual(atlas.order, edition.narrative);
+  assert.deepEqual(
+    atlas.order,
+    project.presentation.interactive.views.map(({ id }) => id),
+  );
   assert(Object.values(atlas.pages).every(({ sourceIds }) => sourceIds.length > 0));
-  assert(Object.values(atlas.pages).every(({ facts }) => facts.length > 0));
-  assert(
-    atlas.pages.overview.facts.some(({ facts }) =>
-      facts.some(({ label }) => label === 'Declared evidence authority'),
-    ),
-  );
   assert(Object.values(atlas.sources).every((source) => !Object.hasOwn(source, 'base64')));
-  assert.equal(
-    interactiveBytes.includes(modelBytes),
-    false,
-    'private source bytes stay outside HTML',
-  );
-
-  const staticProject = structuredClone(selectedProject);
-  staticProject.id = 'architecture-publisher-self-static-probe';
-  staticProject.questions = staticProject.questions.filter(({ id }) => id === 'overview');
-  staticProject.scope.selections = staticProject.scope.selections.map((selection) => ({
-    ...selection,
-    questions: ['overview'],
-  }));
-  staticProject.presentation.interactive.views = [{ id: 'overview', questions: ['overview'] }];
-  await fs.writeFile(path.join(sourceRoot, 'edition/project.json'), encode(staticProject));
-  const staticRequestBytes = encode({ ...buildRequest, media: ['static'] });
-  await fs.writeFile(requestPath, staticRequestBytes);
-  await fs.writeFile(
-    path.join(sourceRoot, 'edition/refinement.json'),
-    encode({
-      schema: authoredRefinement.schema,
-      media: { static: authoredRefinement.media.static },
-    }),
-  );
-  const candidateRoot = path.join(parent, 'public-static');
-  const built = await compileEditionCandidateInput(
-    requestPath,
-    sha256(staticRequestBytes),
-    candidateRoot,
-  );
-  assert.equal(built.status, 'built');
-  const png = await fs.readFile(path.join(candidateRoot, 'static/architecture.png'));
-  assert.equal(png.readUInt32BE(16), 6000);
 });
 
-test('self Edition product version follows the selected core package bytes', async (t) => {
+test('self preparation reports the selected core package version without a duplicate Edition', async (t) => {
   const { prepareArchitecturePublisherEdition } =
     await import('../editions/self/src/edition/prepare.mjs');
   const scratch = path.join(root, 'build/test-work');
@@ -651,8 +466,8 @@ test('self Edition product version follows the selected core package bytes', asy
   const input = await request(path.join(parent, 'prepared'));
   input.sources['core-package'] = { path: selectedPath, sha256: sha256(bytes) };
   const prepared = await prepareArchitecturePublisherEdition(input);
-  const edition = JSON.parse(await fs.readFile(prepared.edition, 'utf8'));
-  assert.equal(edition.product.version, '0.3.0-alpha.99');
+  assert.equal(prepared.selectedCoreVersion, '0.3.0-alpha.99');
+  assert.equal(prepared.edition, undefined);
 });
 
 test('self-authored interactive pages refuse missing or extra semantic carriers', async (t) => {
@@ -671,9 +486,12 @@ test('self-authored interactive pages refuse missing or extra semantic carriers'
   const model = validateClaimModel(
     JSON.parse(bundle.members.find(({ path: name }) => name === 'semantic.json').content),
   );
-  const edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8')));
+  const project = validateEditionProject(JSON.parse(await fs.readFile(prepared.project, 'utf8')));
+  const { architecturePublisherInteractiveScenes } =
+    await import('../editions/self/src/edition/interactive-scenes.mjs');
+  const catalog = architecturePublisherInteractiveScenes();
   const viewFor = (id) => {
-    const authored = edition.scenes.interactive[id];
+    const authored = catalog[id];
     return {
       id,
       label: authored.label,
@@ -682,39 +500,39 @@ test('self-authored interactive pages refuse missing or extra semantic carriers'
     };
   };
   const overview = viewFor('overview');
-  const composed = composeArchitecturePublisherInteractiveScene(model, edition, overview);
+  const composed = composeArchitecturePublisherInteractiveScene(model, project, overview);
   assert(composed.nodes.length > 0);
 
   assert.throws(
     () =>
-      composeArchitecturePublisherInteractiveScene(model, edition, { ...overview, id: 'other' }),
+      composeArchitecturePublisherInteractiveScene(model, project, { ...overview, id: 'other' }),
     { code: 'self_interactive_layout_missing' },
   );
   const missingGroup = structuredClone(overview);
   missingGroup.groups.pop();
-  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, edition, missingGroup), {
+  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, project, missingGroup), {
     code: 'self_interactive_group_missing',
   });
   const missingRelation = structuredClone(overview);
   const selectedRelation = composed.edges[0].semanticIds[0].slice('relation:'.length);
   missingRelation.relations = missingRelation.relations.filter(({ id }) => id !== selectedRelation);
   assert.throws(
-    () => composeArchitecturePublisherInteractiveScene(model, edition, missingRelation),
+    () => composeArchitecturePublisherInteractiveScene(model, project, missingRelation),
     { code: 'self_interactive_relation_invalid' },
   );
   const extraGroup = structuredClone(overview);
   extraGroup.groups.push({ id: 'not-authored', label: 'Not selected', entities: [] });
-  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, edition, extraGroup), {
+  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, project, extraGroup), {
     code: 'self_interactive_group_coverage_invalid',
   });
   const unrepresented = structuredClone(overview);
   unrepresented.relations.push({ id: selectedRelation });
-  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, edition, unrepresented), {
+  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, project, unrepresented), {
     code: 'self_interactive_relation_coverage_invalid',
   });
   const semantics = viewFor('semantics');
   semantics.groups = semantics.groups.filter(({ id }) => id !== 'sources');
-  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, edition, semantics), {
+  assert.throws(() => composeArchitecturePublisherInteractiveScene(model, project, semantics), {
     code: 'self_interactive_edge_endpoint_missing',
   });
 });
@@ -864,23 +682,12 @@ test('self Edition input rejects duplicate output authority before effects', asy
   await assert.rejects(fs.access(output), { code: 'ENOENT' });
 });
 
-test('the evolution view carries semantic delta and distinct renewal obligations', async (t) => {
-  const { prepareArchitecturePublisherEdition } =
-    await import('../editions/self/src/edition/prepare.mjs');
-  const scratch = path.join(root, 'build/test-work');
-  await fs.mkdir(scratch, { recursive: true });
-  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-evolution-'));
-  t.after(() => fs.rm(parent, { recursive: true, force: true }));
-  const prepared = await prepareArchitecturePublisherEdition(
-      await request(path.join(parent, 'prepared')),
-    ),
-    bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256),
-    members = new Map(bundle.members.map((member) => [member.path, member.content])),
-    model = validateClaimModel(JSON.parse(members.get('semantic.json'))),
-    edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8'))),
-    evolution = edition.scenes.interactive.evolution,
-    entities = new Set(evolution.composition.groups.flatMap((group) => group.entities)),
-    relations = new Set(evolution.composition.relations.map((relation) => relation.id));
+test('the evolution view carries semantic delta and distinct renewal obligations', async () => {
+  const { architecturePublisherInteractiveScenes } =
+    await import('../editions/self/src/edition/interactive-scenes.mjs');
+  const evolution = architecturePublisherInteractiveScenes().evolution;
+  const entities = new Set(evolution.composition.groups.flatMap((group) => group.entities));
+  const relations = new Set(evolution.composition.relations.map((relation) => relation.id));
   for (const id of [
     'evolution-inputs',
     'semantic-delta',
@@ -906,22 +713,11 @@ test('the evolution view carries semantic delta and distinct renewal obligations
     assert(relations.has(id), `evolution view missing ${id}`);
 });
 
-test('the semantics view connects uncertainty and claims to Edition authorship', async (t) => {
-  const { prepareArchitecturePublisherEdition } =
-    await import('../editions/self/src/edition/prepare.mjs');
-  const scratch = path.join(root, 'build/test-work');
-  await fs.mkdir(scratch, { recursive: true });
-  const parent = await fs.mkdtemp(path.join(scratch, 'publisher-self-semantics-'));
-  t.after(() => fs.rm(parent, { recursive: true, force: true }));
-  const prepared = await prepareArchitecturePublisherEdition(
-      await request(path.join(parent, 'prepared')),
-    ),
-    bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256),
-    members = new Map(bundle.members.map((member) => [member.path, member.content])),
-    model = validateClaimModel(JSON.parse(members.get('semantic.json'))),
-    edition = validateEdition(model, JSON.parse(await fs.readFile(prepared.edition, 'utf8'))),
-    semantics = edition.scenes.interactive.semantics,
-    relations = new Set(semantics.composition.relations.map((relation) => relation.id));
+test('the semantics view connects uncertainty and claims to Edition authorship', async () => {
+  const { architecturePublisherInteractiveScenes } =
+    await import('../editions/self/src/edition/interactive-scenes.mjs');
+  const semantics = architecturePublisherInteractiveScenes().semantics;
+  const relations = new Set(semantics.composition.relations.map((relation) => relation.id));
   assert(relations.has('claims-inform-edition'));
   assert(relations.has('uncertainty-broadens-edition'));
 });
@@ -1338,7 +1134,10 @@ test('the self-publication entry canonicalizes an absent output below a filesyst
   const prepared = await prepareArchitecturePublisherEdition(
     await request(path.join(alias, 'prepared')),
   );
-  assert.equal(path.dirname(prepared.edition), path.join(physical, 'prepared'));
+  assert.equal(
+    prepared.project,
+    path.join(physical, 'prepared', 'build-input', 'edition', 'project.json'),
+  );
   assert.equal(path.dirname(prepared.sourceManifest), path.join(physical, 'prepared', 'source'));
 });
 

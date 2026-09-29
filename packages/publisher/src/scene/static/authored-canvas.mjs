@@ -224,6 +224,8 @@ export function composeAuthoredStaticCanvas(meaning) {
       textGraphics: [...textGraphics],
       edgeRelations: [...edgeRelations],
     },
-    limits: ['authored-canvas-claim-facts-not-exhaustively-painted'],
+    limits: carriers.some(({ source }) => source.kind === 'claim')
+      ? ['authored-canvas-claim-facts-not-exhaustively-painted']
+      : [],
   });
 }
