@@ -772,6 +772,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       Bundle remains separate provenance evidence.
       This task remains open until the new exact Candidate, installed journey,
       browser/accessibility checks, semantic judgment, and human review pass.
+      On 2026-09-30 the requester visually accepted the exact signed `cc47d3e`
+      self Candidate's static PNG
+      (`85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712`)
+      and standalone interactive HTML
+      (`481582f6dd05d322b5a41122f393d117e7886570569212ba8616a521256498ea`)
+      for fidelity, clarity, and elegance, including the editorial-ownership
+      header. This is exact-media human visual review only; it is not source
+      endorsement, Candidate qualification, or release approval. Reconcile
+      the remaining installed, semantic, and accessibility evidence against
+      these bytes before closing 5.5.
 
 ## 6. Qualification and bounded publication
 
