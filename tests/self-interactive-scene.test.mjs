@@ -118,6 +118,7 @@ test('self overview is a complete visual system map, not an atomic box dump', ()
     delivery = byId.get('delivery'),
     assurance = byId.get('assurance'),
     meaningEvolution = scene.edges.find(({ id }) => id === 'meaning-evolution');
+  assert.equal(byId.get('authorship').detail, 'reader questions · Build Request');
   assert(evolution.position.y > meaning.position.y);
   assert(evolution.position.y < adoption.position.y);
   assert(evolution.position.x > adoption.position.x);
@@ -166,6 +167,11 @@ test('mechanism pages expose their causal boundaries instead of collapsing them'
       },
       { id, ...view.composition, label: view.label },
     );
+    if (id === 'edition')
+      assert.equal(
+        scene.nodes.find(({ id: nodeId }) => nodeId === 'build').detail,
+        'model · Project · media',
+      );
     assert.deepEqual(
       scene.nodes.map(({ id: nodeId }) => nodeId),
       nodeIds,
