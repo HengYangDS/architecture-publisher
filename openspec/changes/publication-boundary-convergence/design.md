@@ -928,6 +928,14 @@ Publisher derives only exact relation members, rejects contradictory source
 identity, and still requires every authored node, relation and visible label
 to bind selected meaning.
 
+That binding establishes attribution, not equivalence between free authored
+wording and a source proposition. Every authored static canvas therefore
+exposes a Candidate limit for unverified text meaning. Qualification must make
+an exact-artifact semantic judgment under the selected owner's policy; a
+geometry pass, total ID mapping, or unchanged source digest cannot discharge
+that limit. This is not a natural-language truth checker and does not give
+Publisher authority over source-specific predicates.
+
 First reuse the existing static scene audit, SVG/raster primitives, and
 Archify/Atlas renderer boundaries. Generalize only a mechanism exercised by
 both the self-Edition and one unrelated Edition; do not add a renderer plugin

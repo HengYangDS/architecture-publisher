@@ -492,6 +492,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       editorial evidence on a claim-only HTML page. Source truth, free authored
       prose equivalence, source-owned allowed/forbidden aggregate rules, reader
       adequacy, and Task 7.5 installed/human acceptance remain open.
+      A further counterexample changes a source-bound authored static label to
+      an unsupported universal statement without changing its source IDs. The
+      Candidate now explicitly retains the unverified authored-text limit;
+      this does not certify or reject arbitrary prose and does not close the
+      source-owned aggregation or human semantic-acceptance obligations.
 - [ ] 5.2 Deliver an explainable neutral source-to-media composition without
       duplicate editable facts, authored pixels, or a second layout engine.
       Exact selected references, reader questions, group membership, typed

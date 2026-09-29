@@ -1738,10 +1738,40 @@ test('one authored canvas binds two views and selected relation endpoints withou
   await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
   const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
   assert(candidate.limits.includes('authored-canvas-claim-facts-not-exhaustively-painted'));
+  assert(candidate.limits.includes('authored-canvas-text-meaning-unverified'));
   assert.equal(
     (await fs.readFile(path.join(output, 'static/architecture.png'))).readUInt32BE(16),
     1200,
   );
+
+  const overstated = structuredClone(resource);
+  overstated.media.static.scene.texts[0] = label(
+    'client-label',
+    'All approve',
+    100,
+    150,
+    semantic('entity', 'client'),
+  );
+  await fs.writeFile(resourcePath, JSON.stringify(overstated) + '\n');
+  try {
+    const overstatedOutput = path.join(selected.root, 'overstated-candidate');
+    await compileEditionCandidateInput(
+      selected.requestPath,
+      selected.requestSha256,
+      overstatedOutput,
+    );
+    const overstatedCandidate = JSON.parse(
+      await fs.readFile(path.join(overstatedOutput, 'candidate.json')),
+    );
+    assert.equal(overstatedCandidate.qualification, 'unqualified');
+    assert(overstatedCandidate.limits.includes('authored-canvas-text-meaning-unverified'));
+    assert.match(
+      await fs.readFile(path.join(overstatedOutput, 'static/architecture.svg'), 'utf8'),
+      /All approve/u,
+    );
+  } finally {
+    await fs.writeFile(resourcePath, JSON.stringify(resource) + '\n');
+  }
 
   const collided = structuredClone(resource);
   collided.media.static.scene.texts[1].box = {

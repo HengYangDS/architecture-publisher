@@ -51,6 +51,14 @@ a complete Candidate. Graph-only layout success is insufficient.
   repaired by dropping a view, forging a cross-view relation, or reusing an
   unrelated graphic carrier
 
+#### Scenario: Authored static wording retains source identity
+
+- **WHEN** an authored canvas changes visible wording while retaining the same
+  source-qualified graphic bindings
+- **THEN** the Candidate declares authored text meaning unverified
+- **AND** exact membership and geometry checks do not certify the wording as a
+  source assertion or turn the unqualified Candidate into accepted media
+
 #### Scenario: A structural overview does not inherit sibling Claim coverage
 
 - **WHEN** a static view selects source entities and relations but no Claim
