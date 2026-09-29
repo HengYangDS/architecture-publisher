@@ -484,11 +484,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       and package checks pass. A packed, offline-installed public consumer
       reproduced the same Edition meaning after relocation and rejected changed
       pinned bytes under an empty user environment; this is installed semantic
-      preparation, not installed Candidate acceptance. The full run passes 831
-      tests, skips 2, but global branch coverage remains 92.93% against 95%. No
-      Candidate, visible carrier, or acceptance is claimed. Native view
-      membership qualification, aggregation, contradictions, and reader
-      adequacy remain open.
+      preparation, not installed Candidate acceptance. The public build now
+      emits source-bound sibling media. A focused member-flow counterexample
+      keeps source-affirmed `some-member` and source-refuted `all-member`
+      distinct, while a stronger editorial proposition remains visibly
+      unverified in both media. Its RED/GREEN exposed and repaired missing
+      editorial evidence on a claim-only HTML page. Source truth, free authored
+      prose equivalence, source-owned allowed/forbidden aggregate rules, reader
+      adequacy, and Task 7.5 installed/human acceptance remain open.
 - [ ] 5.2 Deliver an explainable neutral source-to-media composition without
       duplicate editable facts, authored pixels, or a second layout engine.
       Exact selected references, reader questions, group membership, typed

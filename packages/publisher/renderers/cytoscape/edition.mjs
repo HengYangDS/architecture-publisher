@@ -291,7 +291,7 @@ function pageHtml(page, index, methodLimits) {
     ),
     evidenceSection(
       'Editorial assertions',
-      editorial && page.nodes.length ? `<ul>${editorial}</ul>` : '',
+      editorial && (page.nodes.length || page.claims?.length) ? `<ul>${editorial}</ul>` : '',
       'editorial',
     ),
     evidenceSection(

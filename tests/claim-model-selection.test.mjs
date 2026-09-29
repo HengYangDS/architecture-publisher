@@ -943,6 +943,89 @@ test('a typed claim builds independent media with visible qualifiers and no fake
   assert.doesNotMatch(html, /fixture\/claims|contract\.md/u);
 });
 
+test('member-flow quantifiers keep source and editorial authority distinct', async (t) => {
+  const model = claimModel();
+  model.vocabulary.predicates.memberFlow = {
+    valueKind: 'scalar',
+    cardinality: 'single',
+    values: ['some-member', 'all-member'],
+    provenance: ['contract'],
+  };
+  const some = {
+    ...structuredClone(model.claims.observed),
+    predicate: 'memberFlow',
+    plane: 'intended',
+    condition: {},
+    scope: { group: 'client', target: 'server' },
+    maturity: 'target',
+    value: 'some-member',
+  };
+  model.claims.memberFlowSome = some;
+  model.claims.memberFlowForbidden = {
+    ...structuredClone(some),
+    value: 'all-member',
+    validity: 'refuted',
+  };
+  const selected = await fixture(t, { model, reference: 'claim:memberFlowSome' });
+  selected.project.questions[0].text = 'Which member-flow quantifier is source-declared?';
+  selected.project.scope.selections.push({
+    id: 'selected-forbidden',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'claim:memberFlowForbidden',
+    questions: ['condition'],
+  });
+  selected.project.editorialAssertions = [
+    {
+      id: 'proposed-all',
+      statement: 'All members approve.',
+      proponent: 'fixture-editor',
+      basis: ['selected-claim'],
+      questions: ['condition'],
+    },
+  ];
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  assert.equal(candidate.qualification, 'unqualified');
+  assert(candidate.limits.includes('claim-model-provenance-unverified'));
+  const painted = [...svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/gu)]
+    .map((match) => match[1])
+    .join(' ');
+  const claimStage = html.match(/<div class="claim-stage">([\s\S]*?)<\/div>/u)?.[1] ?? '';
+  for (const text of ['some-member', 'all-member', 'refuted']) {
+    assert(painted.includes(text), `static source claim omitted ${text}`);
+    assert(claimStage.includes(`<dd>${text}</dd>`), `interactive source claim omitted ${text}`);
+  }
+  const editorialStart = svg.indexOf('EDITORIAL ASSERTIONS');
+  assert(editorialStart >= 0);
+  const editorialSvg = svg.slice(editorialStart);
+  for (const text of ['All members approve.', 'Editorial judgment', 'fixture-editor', 'unverified'])
+    assert(editorialSvg.includes(text), `static editorial attribution omits ${text}`);
+  assert.match(
+    html,
+    /<li><p>All members approve\.<\/p><small>Editorial judgment · fixture-editor · unverified<\/small><\/li>/u,
+  );
+
+  const contradicted = structuredClone(model);
+  contradicted.claims.memberFlowForbidden.validity = 'affirmed';
+  const invalid = await fixture(t, { model: contradicted, reference: 'claim:memberFlowSome' });
+  await assert.rejects(
+    compileEditionCandidateInput(
+      invalid.requestPath,
+      invalid.requestSha256,
+      path.join(invalid.root, 'invalid-candidate'),
+    ),
+    { code: 'semantic_contradiction' },
+  );
+});
+
 test('claim Scenes use typed cards rather than graph nodes or arrows', async (t) => {
   const selected = await fixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
