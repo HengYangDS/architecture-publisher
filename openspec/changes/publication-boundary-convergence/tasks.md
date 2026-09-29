@@ -731,7 +731,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       qualify generic multi-view composition or final art. An isolated AIGW
       16-entity/14-relation overview remains an unadopted trial; source-owner
       and human visual acceptance remain open.
-- [x] 5.5 Keep the first-party self Edition on the same public Build Request,
+- [ ] 5.5 Keep the first-party self Edition on the same public Build Request,
       Edition Project, data-only refinement, and dual-medium compiler as other
       adopters. Preserve its source-owned meaning and flagship art direction;
       prove selected-meaning coverage, installed relocation, independent media,
@@ -772,9 +772,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       final Candidate needs semantic, installed and release acceptance.
       Tasks 7.5–7.6 supersede this provisional checkpoint with the exact
       alpha.5 self source, relocated offline package, independent 6000px and
-      eight-page media, browser/axe evidence, byte-bound user review, and
-      release readback. This closes self-Edition acceptance only; the generic
-      v2 Qualification Set and adopter media remain separately unadmitted.
+      eight-page media, browser/axe evidence, byte-bound user visual review,
+      and release readback. The release owner's accepted scope is the private
+      Core and exact reader media; its manifest explicitly records
+      `humanAcceptanceOfCandidateLimitsClaimed: false` and no generic v2
+      Qualification Set. The self Candidate's unresolved coverage and limits
+      still need source-owned semantic judgment before this task can close.
 
 ## 6. Qualification and bounded publication
 
