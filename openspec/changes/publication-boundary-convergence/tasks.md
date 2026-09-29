@@ -755,7 +755,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       qualify generic multi-view composition or final art. An isolated AIGW
       16-entity/14-relation overview remains an unadopted trial; source-owner
       and human visual acceptance remain open.
-- [ ] 5.5 Keep the first-party self Edition on the same public Build Request,
+- [x] 5.5 Keep the first-party self Edition on the same public Build Request,
       Edition Project, data-only refinement, and dual-medium compiler as other
       adopters. Preserve its source-owned meaning and flagship art direction;
       prove selected-meaning coverage, installed relocation, independent media,
@@ -770,8 +770,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       The current self-model correction also removes its stale Edition v1
       attribution and phantom Source Bundle-to-Build selection; the generated
       Bundle remains separate provenance evidence.
-      This task remains open until the new exact Candidate, installed journey,
-      browser/accessibility checks, semantic judgment, and human review pass.
+      The exact self Candidate, installed journey, selected-meaning checks,
+      browser/accessibility observations, and human review now close this
+      first-party Edition task for the selected media bytes.
       On 2026-09-30 the requester visually accepted the exact signed `cc47d3e`
       self Candidate's static PNG
       (`85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712`)
@@ -779,9 +780,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       (`481582f6dd05d322b5a41122f393d117e7886570569212ba8616a521256498ea`)
       for fidelity, clarity, and elegance, including the editorial-ownership
       header. This is exact-media human visual review only; it is not source
-      endorsement, Candidate qualification, or release approval. Reconcile
-      the remaining installed, semantic, and accessibility evidence against
-      these bytes before closing 5.5.
+      endorsement, Candidate qualification, or release approval.
+      A current read-only selection from signed `455ed47` reproduced the
+      approved input lock. The public CLI rebuilt all six Candidate members
+      byte-for-byte, including both approved media. Fresh self-Edition tests
+      passed 18/18 with offline package installation, relocated inputs,
+      independent static/interactive compilation, and keyboard inspection;
+      the generic offline dual-medium package-relocation test passed 1/1.
+      Headless Chrome checked the exact approved HTML at 1600x1000: all eight
+      embedded pages and outer shells had no axe WCAG A/AA violations, page
+      errors, external requests, or horizontal overflow. These checks do not
+      turn the Candidate into a qualified publication or prove source-owner
+      endorsement; Task 7.5 still owns frozen-package qualification.
 
 ## 6. Qualification and bounded publication
 
