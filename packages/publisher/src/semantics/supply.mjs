@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { readFileEnvelope } from '../file-input/read.mjs';
 import { fail } from '../protocol/values.mjs';
 
-const SUPPLY_SHA256 = '410edfd9498df6d4e186d3c7abd0441563d6ef052c68aa243f9e7c3e4ab6c615';
+const SUPPLY_SHA256 = 'eef5eaecf551db619c6a96bc5b87e3e7353e70f9ab08fd9f32f88972e5c3d2b5';
 const supplyRoot = fileURLToPath(new URL('../../supplies/likec4/', import.meta.url));
 const supplyError = 'native_likec4_supply_invalid';
 

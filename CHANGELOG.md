@@ -48,6 +48,10 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Overrode Chevrotain's exact vulnerable `lodash-es` transitive pin with the
+  patched 4.18.1 release and regenerated the selected LikeC4 parser supply and
+  notices from the lockfile. The selected parser's executable code is unchanged;
+  its provenance comment and supply identity are renewed.
 - Standalone interactive composition rejects declared external page assets,
   including URL-bearing resource attributes and CSS imports or URLs, before
   emitting a Candidate; unsupported CSS image sets also fail. A restrictive

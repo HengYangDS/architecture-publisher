@@ -1108,10 +1108,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       four 95% gates (branch 95.03%), targeted Chrome checks pass, and an
       offline-installed Core renders on Linux Node 22.23.3. These are
       pre-freeze results: changed interactive bytes require fresh exact-byte
-      review and hosted CI. `npm audit` still reports eight development-tree
-      advisories through LikeC4, including one high `lodash-es` advisory with
-      no upstream fix; the selected parser bundle needs a bounded reachability
-      disposition before release rather than an inferred clean bill of health.
+      review and hosted CI. The earlier eight development-tree `npm audit`
+      advisories traced to Chevrotain's exact `lodash-es` 4.17.21 pin. Official
+      4.18.1 fixes the named issues; one npm override now selects it, and the
+      locked LikeC4 parser supply has been regenerated. The generated parser's
+      executable lines are unchanged; focused source, installed, and native
+      layout tests pass, while `npm audit` reports zero current npm-tree
+      advisories. This is a bounded disposition of those named findings, not
+      a universal security attestation. Final exact-byte release checks remain.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

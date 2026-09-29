@@ -95,7 +95,7 @@
       {
         "path": "src/semantics/supply.mjs",
         "bytes": 1740,
-        "sha256": "485923d983a7980163ef29cce280cac945d395e0852782513feccfb172e65a69"
+        "sha256": "5547e38f6924f5701df4df7b686fc0c1ccab53864795a36aa939a47b59013b09"
       },
       {
         "path": "src/source/materialize.mjs",
@@ -202,7 +202,7 @@
       {
         "path": "src/semantics/supply.mjs",
         "bytes": 1740,
-        "sha256": "485923d983a7980163ef29cce280cac945d395e0852782513feccfb172e65a69"
+        "sha256": "5547e38f6924f5701df4df7b686fc0c1ccab53864795a36aa939a47b59013b09"
       },
       {
         "path": "src/source/materialize.mjs",
@@ -553,7 +553,7 @@
       {
         "path": "src/semantics/supply.mjs",
         "bytes": 1740,
-        "sha256": "485923d983a7980163ef29cce280cac945d395e0852782513feccfb172e65a69"
+        "sha256": "5547e38f6924f5701df4df7b686fc0c1ccab53864795a36aa939a47b59013b09"
       }
     ],
     "static-authored": [

@@ -335,9 +335,9 @@
     {
       "lockPath": "node_modules/lodash-es",
       "name": "lodash-es",
-      "version": "4.17.21",
+      "version": "4.18.1",
       "license": "MIT",
-      "integrity": "sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==",
+      "integrity": "sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==",
       "noticeSha256": "2314aa0e2bae2fcbc099b29c8815e26688cef6c2cf76226927a3f24f091f7114"
     },
     {
@@ -536,13 +536,13 @@
   "files": [
     {
       "path": "parser.mjs",
-      "bytes": 5182823,
-      "sha256": "44d22b467b523e894b8e97f56b33c7f2051fd68077c2edc56cef3497d4c6258f"
+      "bytes": 5182851,
+      "sha256": "3d8a0face07f336fa8af58855b7bb32a9579ed79df6acabdaa65a4e123ef801e"
     },
     {
       "path": "THIRD-PARTY-NOTICES.txt",
-      "bytes": 136250,
-      "sha256": "5eaa4d2b47a5875615506f93d103f9c67a7dc2819d7a5719cd595856ee4e24c4"
+      "bytes": 136249,
+      "sha256": "43524f8448fc25cc8f460f1593102817b76216d376f8848416da6767e4806be0"
     }
   ]
 }

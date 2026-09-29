@@ -53,6 +53,16 @@ test('one fail-closed quality entry point covers the repository contract', async
     assert((await fs.stat(path.join(root, file))).isFile(), file);
 });
 
+test('the selected LikeC4 parser supply uses the patched lodash-es release', async () => {
+  const lock = JSON.parse(await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'));
+  const supply = JSON.parse(
+    await fs.readFile(path.join(root, 'packages/publisher/supplies/likec4/supply.json'), 'utf8'),
+  );
+  const selected = lock.packages['node_modules/lodash-es'];
+  assert.equal(selected?.version, '4.18.1');
+  assert.equal(supply.packages.find(({ name }) => name === 'lodash-es')?.version, selected.version);
+});
+
 test('coverage roots include all tracked first-party package runtime modules', () => {
   const tracked = execFileSync('git', ['ls-files', '--', 'packages/publisher', 'editions/self'], {
     cwd: root,

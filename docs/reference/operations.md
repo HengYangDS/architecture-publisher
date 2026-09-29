@@ -28,6 +28,13 @@ Node.js 22. The pinned `npm@11.19.1` is the version bundled by official Node.js
 bootstrap and separate toolchain qualification; changing only `packageManager`
 would misstate the CI toolchain.
 
+The LikeC4 parser supply is rebuilt from the npm lockfile. Chevrotain 11.0.3
+declares the older `lodash-es` version exactly, so the workspace uses one npm
+`overrides` entry to select patched `lodash-es` 4.18.1 until upstream removes
+that constraint. `tools/supply/likec4.mjs --check` and the installed parser
+checks bind the selected bytes; an npm audit result covers the resolved npm
+tree, not every possible security property of generated code.
+
 Release tags belong to the protected `v*` family. Publication binds a signed,
 annotated `v<version>` tag directly to the selected release commit; the tag name,
 workspace version, package versions, and first dated Changelog section must

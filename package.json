@@ -46,6 +46,9 @@
     "publint": "0.3.24",
     "typescript": "7.0.2"
   },
+  "overrides": {
+    "lodash-es": "4.18.1"
+  },
   "packageManager": "npm@11.19.1",
   "engines": {
     "node": ">=22"
