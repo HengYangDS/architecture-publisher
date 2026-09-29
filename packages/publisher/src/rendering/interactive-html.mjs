@@ -116,10 +116,56 @@ function validatePage(page, ids, paths, sources) {
   return nodes;
 }
 
+// Reject declared asset loads; executable page code still needs browser qualification.
+function rejectDeclaredExternalResources(html) {
+  if (
+    /<(?:iframe|frame|portal|base)\b/i.test(html) ||
+    /<script\b[^>]*\bsrc\s*=/i.test(html) ||
+    /<link\b[^>]*\bhref\s*=/i.test(html) ||
+    /<meta\b[^>]*\bhttp-equiv\s*=\s*["']?refresh\b/i.test(html)
+  )
+    fail('interactive_html_external_dependency');
+
+  for (const match of html.matchAll(
+    /<(?:img|image|feimage|use|source|audio|video|track|object|embed)\b[^>]*>/gi,
+  )) {
+    const fragmentAllowed = /^<(?:use|feimage)\b/i.test(match[0]);
+    for (const attribute of match[0].matchAll(
+      /\s(src|srcset|href|xlink:href|poster|data)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
+    )) {
+      const value = (attribute[2] ?? attribute[3] ?? attribute[4]).trim();
+      if (
+        attribute[1].toLowerCase() === 'srcset' ||
+        !(/^data:/i.test(value) || (fragmentAllowed && value.startsWith('#')))
+      )
+        fail('interactive_html_external_dependency');
+    }
+  }
+
+  const styles = [
+    ...[...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((match) => match[1]),
+    ...[...html.matchAll(/\sstyle\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)].map(
+      (match) => match[1] ?? match[2] ?? match[3],
+    ),
+  ];
+  for (const style of styles) {
+    const css = style.replace(/\/\*[\s\S]*?\*\//g, '');
+    if (/@import\b/i.test(css)) fail('interactive_html_external_dependency');
+    const withoutUrls = css.replace(
+      /\burl\s*\(\s*(?:"([^"]*)"|'([^']*)'|([^)]*))\s*\)/gi,
+      (all, double, single, bare) => {
+        if (!/^(?:data:|#)/i.test((double ?? single ?? bare).trim()))
+          fail('interactive_html_external_dependency');
+        return '';
+      },
+    );
+    if (/\burl\s*\(/i.test(withoutUrls)) fail('interactive_html_external_dependency');
+  }
+}
+
 function pagePieces(bytes, shared, blocks) {
   const html = pageHtml(bytes);
-  if (/<(?:script|iframe)\b[^>]*\bsrc\s*=/i.test(html) || /<link\b[^>]*\bhref\s*=/i.test(html))
-    fail('interactive_html_external_dependency');
+  rejectDeclaredExternalResources(html);
   const pieces = [];
   let cursor = 0;
   const expression = /<(?:style|script)\b[^>]*>[\s\S]*?<\/(?:style|script)>/gi;

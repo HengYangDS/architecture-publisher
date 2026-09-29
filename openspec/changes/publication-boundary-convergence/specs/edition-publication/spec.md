@@ -96,6 +96,21 @@ a complete Candidate. Graph-only layout success is insufficient.
 
 ## ADDED Requirements
 
+### Requirement: Standalone pages declare no external assets
+
+Interactive composition SHALL reject declared external scripts, frames,
+stylesheets, images, media, and CSS resource URLs before a complete Candidate.
+Supported inline data assets and SVG same-document resource fragments remain
+admissible.
+This structural check does not prove that executable page code cannot request
+network resources; exact-browser qualification remains separate.
+
+#### Scenario: A selected page declares an external image
+
+- **WHEN** a selected interactive page contains an external image or CSS URL
+- **THEN** composition fails before a complete Candidate is emitted
+- **AND** the reader is not given an apparently standalone work with a missing asset
+
 ### Requirement: Interactive inspection preserves selected meaning
 
 Standalone interactive media SHALL provide a reversible reading state for

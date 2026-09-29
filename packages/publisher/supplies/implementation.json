@@ -845,8 +845,8 @@
       },
       {
         "path": "src/rendering/interactive-html.mjs",
-        "bytes": 32074,
-        "sha256": "9039bace5489b5ec45d2fc3c3970c203c4ba70d21c33e83df4246a3a96cbbdc0"
+        "bytes": 33821,
+        "sha256": "29eaab68b9273f721acab7b8a21a8686ac8a349bef88956edfa56b7dd7643c0c"
       },
       {
         "path": "src/scene/claim-card.mjs",

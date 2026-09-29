@@ -175,6 +175,44 @@ test('interactive HTML rejects changed pages, ambiguous navigation, external dep
   });
 });
 
+test('interactive HTML rejects page resources that would leave the standalone work', () => {
+  for (const [name, markup] of [
+    ['image', '<img src="https://example.invalid/pixel">'],
+    ['single-quoted image', "<img src='https://example.invalid/pixel'>"],
+    ['unquoted image', '<img src=//example.invalid/pixel>'],
+    ['document image', '<img src="#diagram">'],
+    ['encoded image URL', '<img src="&#104;ttps://example.invalid/pixel">'],
+    ['SVG image', '<svg><image href="//example.invalid/pixel"></image></svg>'],
+    ['SVG use', '<svg><use xlink:href="https://example.invalid/icon"></use></svg>'],
+    ['responsive image', '<img srcset="https://example.invalid/pixel 2x">'],
+    ['embedded document', '<iframe srcdoc="<p>Nested</p>"></iframe>'],
+    ['object', '<object data="https://example.invalid/document"></object>'],
+    ['refresh', '<meta http-equiv="refresh" content="0;url=https://example.invalid/">'],
+    ['base URL', '<base href="https://example.invalid/">'],
+    ['CSS URL', '<style>body{background:url(https://example.invalid/pixel)}</style>'],
+    ['quoted CSS URL', '<style>body{background:url("https://example.invalid/pixel")}</style>'],
+    ['incomplete CSS URL', '<style>body{background:url(https://example.invalid/pixel}</style>'],
+    ['CSS import', '<style>@import "https://example.invalid/style.css";</style>'],
+    ['inline CSS URL', '<div style="background:url(/pixel)"></div>'],
+  ]) {
+    const input = fixture();
+    input.pages[0].content = html('Overview', markup);
+    input.pages[0].sha256 = sha256(input.pages[0].content);
+    assert.throws(
+      () => composeInteractiveHtml(input),
+      { code: 'interactive_html_external_dependency' },
+      name,
+    );
+  }
+  const inline = fixture();
+  inline.pages[0].content = html(
+    'Overview',
+    '<img src="data:image/png;base64,AA=="><svg><use href="#icon"></use></svg><p>License: https://example.invalid/license</p>',
+  );
+  inline.pages[0].sha256 = sha256(inline.pages[0].content);
+  assert.doesNotThrow(() => composeInteractiveHtml(inline));
+});
+
 test('interactive HTML neutralizes script-data termination without embedding source bytes', () => {
   const input = fixture();
   input.pages[0].content = Buffer.concat([
