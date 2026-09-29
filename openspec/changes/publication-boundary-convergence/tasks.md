@@ -209,7 +209,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       unchanged 95% coverage gate remain release blockers. Exact race evidence
       and alternatives belong to `docs/research/mechanism-evaluation.md`, not a
       copied progress history here.
-- [ ] 3.2 Reuse the bounded process-tree supervisor for one exact selected
+- [x] 3.2 Reuse the bounded process-tree supervisor for one exact selected
       executable entry. `tests/edition-provider-executable.test.mjs` and
       `tests/edition-provider-installed.test.mjs` cover complete package-content
       digest, sanitized configuration, size/path limits, relocation, offline use,
@@ -264,6 +264,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       the VM remained running. The provisional receipt is
       `build/test-work/windows-native-e6be1af/probe-receipt.json`. Final frozen-
       package and full-platform release qualification remain open.
+      Final source `1e4746f` ran five Provider and owned-process test files
+      on native Windows ARM64: 71 cases, 64 pass, seven platform-inapplicable
+      skips, zero fail. All five guest log digests matched host readback. A
+      separate offline install of the exact Core archive rebuilt the self
+      Candidate with six byte-identical members; 19 Provider/runtime members
+      in that archive match the signed source tested on Windows. Both guest
+      scratch roots from the source tests are independently absent, no owned
+      Node process remains, and VM isolation is restored. The installed
+      Provider tests repacked the
+      same source rather than executing from the selected archive; no
+      original-builder provenance or hermetic preparation is inferred. Exact
+      identities and limits are in
+      `conformance/evidence/successor-supply-installed-probe.json`.
 - [x] 3.3 Prove identical selected-input lock identity and distinct invocation
       receipts across direct, declarative, executable, and mixed selections in
       `tests/provider-join.test.mjs`, the sole successor cross-mode fixture.
@@ -949,6 +962,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       media, and limits are in
       `conformance/evidence/successor-supply-installed-probe.json`. This is
       not adopter acceptance, final qualification, or protected release.
+      At signed `1e4746f`, one fresh offline-installed Core and self-Edition
+      pair reproduced all five frozen six-member Candidates with empty PATH
+      during builds. Installed native evolution, v1 replay, and qualified
+      local recovery tests pass in the full gate. The frozen ETHOS integration
+      snapshot selected Core alpha.1; forcing that snapshot onto alpha.5
+      exposes removed low-level helper imports. Its source-owned migration
+      remains Task 8.2, not a Core v1 protocol replay failure. These exact
+      frozen AIGW media and di-effect sidecar have no owner acceptance in
+      this evidence.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
@@ -1048,7 +1070,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       input files or the source fixture. This proves the generic zero-write
       route, not ETHOS/AIGW adoption, endorsement, or retirement; the task
       remains open.
-- [ ] 7.5 Select the SemVer successor and update package manifests, lockfile,
+- [x] 7.5 Select the SemVer successor and update package manifests, lockfile,
       and `CHANGELOG.md`. After Task 7.2 removes displaced runtime code, add
       behavior tests until the complete owned scope reaches at least 95% in
       statements, lines, branches, and functions; require `npm run check` to
@@ -1140,6 +1162,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       dated alpha.5 Changelog section is release preparation, not a tag or
       published asset. Final exact-commit qualification, required reader
       review, protected-ref publication, and release-byte readback remain open.
+      The final frozen Core and self-Edition archives remain byte-identical
+      at signed `1e4746f`. `npm run check` passes 1,293 tests with nine
+      declared skips and 97.73/95.03/99.54/97.73% statement/branch/function/
+      line coverage; exact-HEAD ETHOS proof passes three gates, and Pipeline
+      8710 passes 1,278 tests with 24 platform skips and 95.09% Linux branch
+      coverage. A fresh isolated offline install reproduces self, independent
+      editor, both frozen AIGW chapters, and the di-effect sidecar. The exact
+      user-approved self HTML passes eight Chrome 154 pages at 1280×720 with
+      reduced motion, zero external requests, page errors, or axe A/AA
+      findings; Inspect returns keyboard focus. Native Windows replays the
+      exact package and source-bound Provider tests, with scratch and isolation
+      restored. The independent example is a conformance fixture, not
+      published reader artwork. The service-worker-blocked browser probe's
+      sandbox error is disclosed, not hidden. This completes the Publisher-
+      owned pre-release quality gate; protected refs, release assets, remote
+      readback, and source-owner adoption remain separate work.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

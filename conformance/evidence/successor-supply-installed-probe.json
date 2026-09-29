@@ -171,5 +171,159 @@
         "lines": 96.9
       }
     }
+  },
+  "releaseCandidateVerification": {
+    "status": "local-and-proposal-readiness-not-release",
+    "sourceCommit": "1e4746fc4b1a6048f60851da4902bb79126bb5cb",
+    "packageArchiveSha256": "4ce1793efecb32a8f9bbabcf5a2761ab1b587eda2ddf27ef73122b767df5d7cd",
+    "selfEditionArchiveSha256": "36be3e1db20ae15ca54623779b32dcab9edfe3ed875e93c8f9853eb9cda23909",
+    "packageBytesUnchangedFromReviewedMediaBuild": true,
+    "freshOfflineInstalledWorkloads": [
+      {
+        "id": "self",
+        "candidateSha256": "8a41e1ac3cf857305c2d31696dbc8fcbdecb2a73f6fb0aa64de03af9f096afde",
+        "memberCount": 6,
+        "result": "byte-identical-to-preexisting-frozen-candidate"
+      },
+      {
+        "id": "independent",
+        "candidateSha256": "146ce1aae7123eda94c6898d3e461d2b971ca5a0b9db47de9091a81b4c45d921",
+        "memberCount": 6,
+        "result": "byte-identical-to-preexisting-frozen-candidate"
+      },
+      {
+        "id": "aigw-product",
+        "candidateSha256": "cf7a7d3f3addc27ee78e587de5d492db27512c760fe296ff4476cc542e5bc1ff",
+        "memberCount": 6,
+        "result": "byte-identical-to-preexisting-frozen-candidate"
+      },
+      {
+        "id": "aigw-client-projection",
+        "candidateSha256": "4be484d164b0d9248646c7dd4e16e9d53c262dd48ce97a6602e23884aba8d121",
+        "memberCount": 6,
+        "result": "byte-identical-to-preexisting-frozen-candidate"
+      },
+      {
+        "id": "di-effect",
+        "candidateSha256": "66f5ed036a2ff98c1bceed0b1fb15c8fe63fa71f464e28d3be4f505859b85c3e",
+        "memberCount": 6,
+        "result": "byte-identical-to-preexisting-frozen-candidate"
+      }
+    ],
+    "macCheck": {
+      "command": "npm run check",
+      "tests": 1302,
+      "passed": 1293,
+      "skipped": 9,
+      "failed": 0,
+      "coveragePercent": {
+        "statements": 97.73,
+        "branches": 95.03,
+        "functions": 99.54,
+        "lines": 97.73
+      }
+    },
+    "proofAttestationId": "0fac6c076296a3638aaae074d2c5f6456c3cf3ef9d9f93ef4df6c9cdca04fac2",
+    "hostedCi": {
+      "pipelineId": 8710,
+      "jobId": 45622,
+      "status": "success",
+      "tests": 1302,
+      "passed": 1278,
+      "skipped": 24,
+      "failed": 0,
+      "coveragePercent": {
+        "statements": 96.9,
+        "branches": 95.09,
+        "functions": 98.85,
+        "lines": 96.9
+      }
+    },
+    "exactHtmlBrowser": {
+      "artifactSha256": "44dab0ba58eecd49df7c6ece71dfeedd32ae8cf63a1e4ec3f6e205bc1e0e9621",
+      "chrome": "154.0.8037.58",
+      "pageCount": 8,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "reducedMotion": "reduce",
+      "axeViolations": 0,
+      "pageErrors": 0,
+      "externalRequests": 0,
+      "inspectKeyboardFocusReturn": "pass",
+      "limit": "Service-worker-blocked Playwright context produces a sandboxed Navigator.serviceWorker page error; this acceptance runs with the browser default and blocks external requests explicitly."
+    },
+    "nativeWindows": {
+      "os": "Windows 11 ARM64",
+      "node": "v26.9.0",
+      "coreArchiveSha256": "4ce1793efecb32a8f9bbabcf5a2761ab1b587eda2ddf27ef73122b767df5d7cd",
+      "bundleSha256": "8d99a3f7134f64729822d074d74b216aa4d9a5aa3a3a12d04a36427bd5bc2380",
+      "buildScriptSha256": "1b352a7dbbe80a938f2bc3ea68d9860d0808d45111c686f7cf1afebc405723fc",
+      "resultSha256": "476978b9b2ca66684e830d5f2111115a8987ef05bb0b9ed5435ea46701e2c705",
+      "candidateMembersByteIdentical": true,
+      "guestScratchRemoved": true,
+      "ownedNodeProcesses": 0,
+      "isolationRestored": true,
+      "transportCorrection": "The first two long encoded commands were rejected at guest-session creation; read-only checks proved no scratch or owned Node process. A comparable 7512-character no-op failed while short controls passed. The final run transferred digest-checked script bytes and invoked a short command."
+    },
+    "limits": [
+      "The frozen ETHOS integration snapshot selected Core alpha.1; forcing that snapshot onto alpha.5 exposes removed generic helper imports and requires source-side migration. This is not a Core v1 protocol replay failure or a verified claim about its current live pin.",
+      "The selected frozen AIGW Product and Client Projection Editions build byte-identically, but those exact static compositions were previously rejected by the reader and are not accepted or published by Publisher.",
+      "The di-effect Edition is researcher-authored and has no di-effect source-owner acceptance.",
+      "Product source, self-media review, proof, hosted CI, and native platform conformance are separate from protected-ref release and remote asset readback."
+    ],
+    "nativeWindowsProvider": {
+      "sourceCommit": "1e4746fc4b1a6048f60851da4902bb79126bb5cb",
+      "checkedSourceArchiveSha256": "044adada85dc83697bacfd203e8a28d0d696f77c21300a0f60019a35e0474f55",
+      "providerRuntimeMembersByteIdenticalToFinalCoreArchive": 19,
+      "nativeTests": {
+        "provider-worker-lifetime": {
+          "tests": 16,
+          "pass": 10,
+          "fail": 0,
+          "skipped": 6
+        },
+        "edition-provider-executable": {
+          "tests": 34,
+          "pass": 33,
+          "fail": 0,
+          "skipped": 1
+        },
+        "owned-process": {
+          "tests": 18,
+          "pass": 18,
+          "fail": 0,
+          "skipped": 0
+        },
+        "provider-installed-selection": {
+          "tests": 1,
+          "pass": 1,
+          "fail": 0,
+          "skipped": 0
+        },
+        "edition-provider-installed": {
+          "tests": 2,
+          "pass": 2,
+          "fail": 0,
+          "skipped": 0
+        }
+      },
+      "guestLogSha256": {
+        "provider-worker-lifetime": "02ec2a81f80eb22caaeafc471799dbcbb759f06930cbe78c3807031e8f4574c3",
+        "edition-provider-executable": "344932d8c7c2a0b9a708b11727f0e81bf6c594bdd6350569dd57e868f6599582",
+        "owned-process": "64bb0ebde82b6a439257d327da970e308fddfb15e5b8590bc5916e9bfe21cd10",
+        "provider-installed-selection": "0631fd49d3fc3e29d09d4f769d4f2b559585a5d083bb227c9eb2e0f60114998d",
+        "edition-provider-installed": "e90fbfdd1bf34488b6af67561b2db1ba77187a89dbbce3ad5905ad5ae72a5184"
+      },
+      "totalTests": 71,
+      "totalPassed": 64,
+      "totalSkipped": 7,
+      "totalFailed": 0,
+      "guestScratchRemovedByIndependentReadback": true,
+      "ownedNodeProcessesAfter": 0,
+      "vmIsolationRestored": true,
+      "limit": "These source-archive tests exercise the exact Provider and runtime files in the final Core archive; the separate native installed self-Candidate replay proves package installation, not an executable Provider build from that same installed copy."
+    }
   }
 }
