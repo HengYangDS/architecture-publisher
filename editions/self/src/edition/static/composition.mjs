@@ -740,6 +740,13 @@ export function composeArchitecturePublisherFlagship() {
     schema: 'architecture.publisher-static-composition/v1',
     title: 'Architecture Publisher',
     subtitle: 'Source-bound meaning becomes an exact, reviewable Edition',
+    description: [
+      'Target flow: source-owned intent, implementation, and receipt-bound observation enter a selected Source Bundle; a Claim Model preserves typed meaning and uncertainty.',
+      'An Edition authors independent static and interactive scenes through the generic compiler, and both artifacts bind one exact Candidate.',
+      'Distinct qualification, acceptance, and effect authorization precede recoverable publication; independent off-host recovery remains unproved.',
+      'ETHOS and AIGW are target source-owned adopters, each requiring separate acceptance; findings return to source owners.',
+      'The lower evolution path compares before and after meaning and creates separate rebuild, verification, human-review, acceptance, and publication-renewal obligations.',
+    ].join(' '),
     width: 1600,
     height: 900,
     spine: PIPELINE.map(({ id }) => id),

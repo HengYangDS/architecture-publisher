@@ -32,6 +32,7 @@ export function compileArchitecturePublisherStaticScene(composition, measure) {
     schema: 'architecture.publisher-static-scene/v1',
     title: composition.title,
     subtitle: composition.subtitle,
+    description: composition.description,
     width: composition.width,
     height: composition.height,
     referenceWidth: composition.width,

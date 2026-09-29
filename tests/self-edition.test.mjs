@@ -378,6 +378,35 @@ test('self successor authoring derives every selected claim and reader question 
     await import('../packages/publisher/src/qualification/index.mjs');
   const { renderAuthoredCanvasSvg } = await import('../packages/publisher/renderers/svg/index.mjs');
   const authoredCanvas = authoredRefinement.media.static.scene;
+  assert.match(authoredCanvas.description, /^Target flow:/u);
+  assert.notEqual(authoredCanvas.description, authoredCanvas.subtitle);
+  const describedSvg = renderAuthoredCanvasSvg(authoredCanvas).toString('utf8');
+  assert.match(
+    describedSvg,
+    /role="img" aria-labelledby="canvas-title" aria-describedby="canvas-description"/u,
+  );
+  assert(
+    describedSvg.includes(`<desc id="canvas-description">${authoredCanvas.description}</desc>`),
+  );
+  assert.match(
+    renderAuthoredCanvasSvg({ ...authoredCanvas, description: 'A & B <C>' }).toString('utf8'),
+    /<desc id="canvas-description">A &amp; B &lt;C&gt;<\/desc>/u,
+  );
+  assert.throws(() => renderAuthoredCanvasSvg({ ...authoredCanvas, description: '' }), {
+    code: 'authored_canvas_description_invalid',
+  });
+  const malformedRefinement = structuredClone(authoredRefinement);
+  malformedRefinement.media.static.scene.description = '';
+  const { sceneRefinementValid } =
+    await import('../packages/publisher/src/edition/generated/validators.mjs');
+  assert.equal(sceneRefinementValid(malformedRefinement), false);
+  const withoutDescription = structuredClone(authoredCanvas);
+  delete withoutDescription.description;
+  assert(
+    renderAuthoredCanvasSvg(withoutDescription)
+      .toString('utf8')
+      .includes(`<desc id="canvas-description">${authoredCanvas.subtitle}</desc>`),
+  );
   const geometry = auditScene(authoredCanvas, {
     minimumFont: 10,
     ownerClearance: 8,

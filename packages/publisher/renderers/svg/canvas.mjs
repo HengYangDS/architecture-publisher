@@ -13,6 +13,9 @@ const pathData = (points) =>
 export function renderAuthoredCanvasSvg(scene) {
   if (scene?.schema !== 'architecture.authored-static-scene/v1')
     fail('authored_canvas_scene_invalid');
+  const description = scene.description ?? scene.subtitle;
+  if (typeof description !== 'string' || !description.trim() || description.trim() !== description)
+    fail('authored_canvas_description_invalid');
   const tone = (name) => {
     const value = scene.paint?.[name];
     if (typeof value !== 'string' || !/^#[0-9a-fA-F]{6}$/u.test(value))
@@ -20,9 +23,9 @@ export function renderAuthoredCanvasSvg(scene) {
     return value;
   };
   const lines = [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${scene.width}" height="${scene.height}" viewBox="0 0 ${scene.width} ${scene.height}" role="img" aria-labelledby="canvas-title canvas-description" font-family="JetBrains Mono">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${scene.width}" height="${scene.height}" viewBox="0 0 ${scene.width} ${scene.height}" role="img" aria-labelledby="canvas-title" aria-describedby="canvas-description" font-family="JetBrains Mono">`,
     `<title id="canvas-title">${escape(scene.title)}</title>`,
-    `<desc id="canvas-description">${escape(scene.subtitle)}</desc>`,
+    `<desc id="canvas-description">${escape(description)}</desc>`,
     `<rect width="${scene.width}" height="${scene.height}" fill="${tone('paper')}"/>`,
   ];
   for (const rule of scene.decorations)

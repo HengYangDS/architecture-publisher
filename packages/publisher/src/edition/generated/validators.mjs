@@ -2068,6 +2068,12 @@ const ref0 = function validate(data) {
       if (data.media.static.scene.subtitle.length > 2048 && stringLength(data.media.static.scene.subtitle) > 2048) return false
       if (data.media.static.scene.subtitle.length < 1 || stringLength(data.media.static.scene.subtitle) < 1) return false
       if (!pattern1.test(data.media.static.scene.subtitle)) return false
+      if ("description" in data.media.static.scene && hasOwn(data.media.static.scene, "description")) {
+        if (!(typeof data.media.static.scene.description === "string")) return false
+        if (data.media.static.scene.description.length > 2048 && stringLength(data.media.static.scene.description) > 2048) return false
+        if (data.media.static.scene.description.length < 1 || stringLength(data.media.static.scene.description) < 1) return false
+        if (!pattern1.test(data.media.static.scene.description)) return false
+      }
       if (!(typeof data.media.static.scene.width === "number")) return false
       if (!(320 <= data.media.static.scene.width)) return false
       if (!(12000 >= data.media.static.scene.width)) return false
@@ -2410,7 +2416,7 @@ const ref0 = function validate(data) {
       }
       if (!unique(data.media.static.scene.requiredSemanticIds)) return false
       for (const key20 of Object.keys(data.media.static.scene)) {
-        if (key20 !== "schema" && key20 !== "title" && key20 !== "subtitle" && key20 !== "width" && key20 !== "height" && key20 !== "referenceWidth" && key20 !== "spine" && key20 !== "paint" && key20 !== "nodes" && key20 !== "texts" && key20 !== "edges" && key20 !== "decorations" && key20 !== "requiredSemanticIds") return false
+        if (key20 !== "schema" && key20 !== "title" && key20 !== "subtitle" && key20 !== "description" && key20 !== "width" && key20 !== "height" && key20 !== "referenceWidth" && key20 !== "spine" && key20 !== "paint" && key20 !== "nodes" && key20 !== "texts" && key20 !== "edges" && key20 !== "decorations" && key20 !== "requiredSemanticIds") return false
       }
       for (const key21 of Object.keys(data.media.static)) {
         if (key21 !== "kind" && key21 !== "scene") return false

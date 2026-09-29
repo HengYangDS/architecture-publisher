@@ -307,6 +307,7 @@ const canvasScene = closed(
     schema: { const: 'architecture.authored-static-scene/v1' },
     title: text,
     subtitle: text,
+    description: text,
     width: { type: 'number', minimum: 320, maximum: 12000 },
     height: { type: 'number', minimum: 320, maximum: 12000 },
     referenceWidth: { type: 'number', minimum: 320, maximum: 12000 },

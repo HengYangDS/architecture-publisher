@@ -19,6 +19,10 @@ may contain incompatible changes.
   or relation through `aria-pressed` and a per-page `role=status` live region
   without moving keyboard focus. This does not qualify a source Edition's
   static text alternative or prove a particular screen reader's behavior.
+- Authored static Scenes may select a description distinct from the visible
+  subtitle. SVG exposes name and description separately; the self-Edition now
+  authors a target-flow alternative. Missing adopter-specific descriptions
+  remain an accessibility acceptance limit, not inferred Publisher content.
 
 ## [0.3.0-alpha.5] - 2026-09-29
 

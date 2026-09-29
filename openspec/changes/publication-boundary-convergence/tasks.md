@@ -699,6 +699,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       Real-Chrome RED/GREEN keyboard and axe tests pass; actual screen-reader
       behavior and the authored static SVG text alternative remain separate
       accessibility obligations.
+      The static SVG carrier now accepts an editor-authored description apart
+      from its visible subtitle and exposes it via `aria-describedby`. The
+      self-Edition authors a target-flow description; without a selected
+      description the subtitle remains only a renderable fallback, not proof
+      that a complex adopter Edition is accessible. AIGW-owned text and exact
+      reader acceptance remain outside Publisher's source authority.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually

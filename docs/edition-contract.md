@@ -154,6 +154,12 @@ An Edition lists non-substitutable predicates. At minimum a flagship requires:
 Every qualification binds exact subjects, verifier identity, observations,
 verdict, and limitations. A changed artifact needs fresh applicable evidence.
 One medium's human decision never satisfies another medium's obligation.
+An authored static SVG may carry an editor-authored `description` distinct from
+its visible subtitle. The SVG title is its accessible name; the selected
+description is exposed separately. Without one, the subtitle remains the only
+text alternative, which does not by itself qualify a complex architecture
+figure. The Edition editor owns whether the alternative conveys its causal
+relationships and limits; the renderer cannot infer that meaning from geometry.
 Static painted-output qualification also checks the delivered raster for
 per-element paint, stray paint, minimum canvas fill, and bounded center offset;
 analytic scene geometry or a valid SVG alone cannot substitute for it.
