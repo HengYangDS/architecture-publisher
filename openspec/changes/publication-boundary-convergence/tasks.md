@@ -1133,6 +1133,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       user-approved bytes; the HTML at SHA-256 `44dab0ba` received explicit
       eight-page user approval. These media judgments do not transfer to a
       changed byte or admit the Candidate, qualification, or publication.
+      A progress-evidence-only signed commit `573403a` retained both Core and
+      self-Edition archive bytes exactly; its ETHOS proof passed three gates
+      under Attestation `478d2ed1`, and hosted Pipeline 8709 passed 1,278
+      tests with 24 declared skips and 95.09% Linux branch coverage. The
+      dated alpha.5 Changelog section is release preparation, not a tag or
+      published asset. Final exact-commit qualification, required reader
+      review, protected-ref publication, and release-byte readback remain open.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%

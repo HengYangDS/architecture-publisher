@@ -148,5 +148,28 @@
       "result": "user-reported-pass",
       "qualification": "not-inferred"
     }
-  ]
+  ],
+  "laterExactHeadVerification": {
+    "sourceCommit": "573403a57861407f1181be16a1f3b395c4b31bfe",
+    "change": "progress-evidence-only",
+    "coreArchiveSha256": "4ce1793efecb32a8f9bbabcf5a2761ab1b587eda2ddf27ef73122b767df5d7cd",
+    "selfEditionArchiveSha256": "36be3e1db20ae15ca54623779b32dcab9edfe3ed875e93c8f9853eb9cda23909",
+    "repack": "both-archives-byte-identical-to-observed-source-package",
+    "proofAttestationId": "478d2ed1cbedb6d4aa1c3b3dec0766c743e1477da481124febaf1e8de185cb7d",
+    "hostedCi": {
+      "pipelineId": 8709,
+      "jobId": 45621,
+      "status": "success",
+      "tests": 1302,
+      "passed": 1278,
+      "skipped": 24,
+      "failed": 0,
+      "coveragePercent": {
+        "statements": 96.9,
+        "branches": 95.09,
+        "functions": 98.85,
+        "lines": 96.9
+      }
+    }
+  }
 }

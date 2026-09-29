@@ -8,6 +8,8 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.3.0-alpha.5] - 2026-09-29
+
 ### Changed
 
 - Updated the pinned development image to Node.js 26.10.0 and the direct
@@ -330,7 +332,8 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
-[Unreleased]: ../../compare/v0.3.0-alpha.4...main
+[Unreleased]: ../../compare/v0.3.0-alpha.5...main
+[0.3.0-alpha.5]: ../../compare/v0.3.0-alpha.4...v0.3.0-alpha.5
 [0.3.0-alpha.4]: ../../compare/v0.3.0-alpha.3...v0.3.0-alpha.4
 [0.3.0-alpha.3]: ../../compare/v0.3.0-alpha.2...v0.3.0-alpha.3
 [0.3.0-alpha.2]: ../../compare/v0.3.0-alpha.1...v0.3.0-alpha.2
