@@ -692,6 +692,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       standalone shell adds a restrictive Content Security Policy as a browser
       backstop; blocked resource errors and rendered completeness remain
       separate browser qualifications.
+      A current AIGW reader counterexample exposed neutral source controls
+      that selected an `aria-hidden` graph element without exposing its state.
+      The alpha.6 successor projects graph selection through `aria-pressed` and
+      one per-page `role=status` region while retaining keyboard focus.
+      Real-Chrome RED/GREEN keyboard and axe tests pass; actual screen-reader
+      behavior and the authored static SVG text alternative remain separate
+      accessibility obligations.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually

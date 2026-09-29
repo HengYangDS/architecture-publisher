@@ -41,6 +41,22 @@ function syncGraph(graph) {
   graph.resize();
   fitGraph(graph);
 }
+function reflectSelection(index, graph) {
+  const section = sections[index];
+  const selected = graph.$(':selected').first();
+  const id = selected.length ? selected.id() : null;
+  let control = null;
+  section.querySelectorAll('[data-focus-node], [data-focus-relation]').forEach(button => {
+    const active = (button.dataset.focusNode || button.dataset.focusRelation) === id;
+    button.setAttribute('aria-pressed', String(active));
+    if (active) control = button;
+  });
+  section.querySelector('[data-focus-status]').textContent = control
+    ? 'Selected in diagram: ' + control.textContent.replace(/\s+/g, ' ').trim()
+    : id
+      ? 'Selected in diagram: ' + selected.data('label')
+      : 'Diagram selection cleared.';
+}
 function graphFor(index) {
   if (graphs.has(index)) return graphs.get(index);
   const page = pages[index];
@@ -62,6 +78,7 @@ function graphFor(index) {
   ];
   const graph = cytoscape({
     container, elements,
+    selectionType: 'single',
     style: [
       { selector: 'node', style: {
         shape: 'round-rectangle', width: 170, height: 64,
@@ -101,6 +118,7 @@ function graphFor(index) {
     },
   });
   graphs.set(index, graph);
+  graph.on('select unselect', 'node, edge', () => reflectSelection(index, graph));
   const observer = new ResizeObserver(() => syncGraph(graph));
   observer.observe(container);
   observers.set(index, observer);
@@ -121,7 +139,8 @@ function show(index) {
 tabs.forEach((tab, index) => tab.addEventListener('click', () => show(index)));
 document.querySelectorAll('[data-focus-node], [data-focus-relation]').forEach(button => {
   button.addEventListener('click', () => {
-    const index = Number(button.closest('.edition-page').dataset.page);
+    const section = button.closest('.edition-page');
+    const index = Number(section.dataset.page);
     const graph = graphFor(index);
     if (!graph) return;
     const id = button.dataset.focusNode || button.dataset.focusRelation;
@@ -167,7 +186,7 @@ function pageHtml(page, index, methodLimits) {
     .join('');
   const nodeById = new Map(page.nodes.map((node, at) => [node.id, { node, at }]));
   const nodeItem = ({ node, at }) =>
-    `<li><button type="button" data-focus-node="${node.id}"><span class="ordinal">${String(at + 1).padStart(2, '0')}</span><span>${escape(node.label)}</span>${node.kind ? `<small>${escape(node.kind)}</small>` : ''}</button></li>`;
+    `<li><button type="button" data-focus-node="${node.id}" aria-pressed="false"><span class="ordinal">${String(at + 1).padStart(2, '0')}</span><span>${escape(node.label)}</span>${node.kind ? `<small>${escape(node.kind)}</small>` : ''}</button></li>`;
   const nodeItems = page.groups?.length
     ? page.groups
         .map(
@@ -183,7 +202,7 @@ function pageHtml(page, index, methodLimits) {
       const sourceQualifiers = relation.sourceQualifiers?.length
         ? `<dl class="relation-qualifiers">${relation.sourceQualifiers.map(({ name, value }) => `<dt>${escape(name || '""')}</dt><dd>${escape(value)}</dd>`).join('')}</dl>`
         : '';
-      return `<li><button type="button" data-focus-relation="${relation.id}">${mixed ? `<span class="ordinal">${String(at + 1).padStart(2, '0')}</span>` : ''}${escape(words)}</button>${sourceQualifiers}</li>`;
+      return `<li><button type="button" data-focus-relation="${relation.id}" aria-pressed="false">${mixed ? `<span class="ordinal">${String(at + 1).padStart(2, '0')}</span>` : ''}${escape(words)}</button>${sourceQualifiers}</li>`;
     })
     .join('');
   const qualifierNote = page.relations.some((relation) => relation.sourceQualifiers?.length)
@@ -235,7 +254,7 @@ function pageHtml(page, index, methodLimits) {
   const gridStyle =
     graphNaturalWidth === null ? '' : ` style="--graph-natural-width:${graphNaturalWidth}px"`;
   const stage = page.nodes.length
-    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Edge numbers match the source relations below. Pan and zoom in the graph; the lists provide keyboard-accessible reading and focus.</p>`
+    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Edge numbers match the source relations below. Pan and zoom in the graph; the lists provide keyboard-accessible reading and focus.</p><p class="sr-only" role="status" aria-atomic="true" data-focus-status></p>`
     : page.claims?.length
       ? claimStage
       : editorialStage;
@@ -285,6 +304,7 @@ function css(fonts) {
   return `${faces}
   :root{color-scheme:light;font-family:'JetBrains Mono',monospace;color:#21332a;background:#f5f3ed}
   *{box-sizing:border-box}body{margin:0}button{font:inherit;color:inherit;cursor:pointer}button:focus-visible{outline:2px solid #214f3c;outline-offset:3px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   .shell{max-width:1720px;margin:auto;padding:32px 44px 44px}.masthead{border-bottom:1px solid #c4ccc2;padding-bottom:16px}.masthead h1{font-size:clamp(28px,3vw,43px);line-height:1.15;margin:0}.masthead p{font-size:15px;color:#53645a;max-width:72ch;margin:8px 0 0}
   .navigation{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.navigation button{border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:10px 18px;font-size:12px;text-align:left;max-width:35ch}.navigation button[aria-current=page]{background:#214f3c;color:#fffefa;border-color:#214f3c}
   .edition-page[hidden]{display:none}.page-heading{display:flex;align-items:baseline;gap:18px;margin:10px 0 14px}.page-heading h2{font-size:clamp(20px,2vw,28px);line-height:1.3;margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
@@ -294,6 +314,7 @@ function css(fonts) {
   .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}
   .claim-context{border-bottom:1px solid #d3dbd1;margin-bottom:18px}.claim-context dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 18px;margin:14px 0 20px}.claim-context dt{font-size:10px;color:#526158}.claim-context dd{font-size:12px;line-height:1.45;margin:4px 0 0;overflow-wrap:anywhere}
   .notes{border-left:1px solid #d3dbd1;padding:0 0 0 28px;min-width:0}.notes .evidence-section+.evidence-section{margin-top:22px}.notes h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 9px}.notes ul{list-style:none;margin:0;padding:0}.notes li{font-size:13px;line-height:1.55;overflow-wrap:anywhere}.notes li+li{margin-top:9px}.notes p{margin:0}.notes small{display:block;font-size:10px;color:#4c5a50;margin-top:3px}.notes button{display:flex;gap:11px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:2px 0;line-height:1.5;font-size:13px}.notes button:hover{text-decoration:underline}.notes button small{margin-left:auto}.ordinal{font-size:10px;color:#4c5a50}.limits{border-left:2px solid #b3c4b6;padding-left:10px!important;margin-top:7px!important;color:#526158}
+  .notes button[aria-pressed=true]{background:#e7eee6;border-radius:4px}
   .node-group h4{font-size:12px;line-height:1.4;margin:0 0 7px;color:#314638}.node-group+.node-group{margin-top:16px!important}.node-group ul{padding-left:11px!important;border-left:1px solid #b3c4b6}.node-group ul li+li{margin-top:5px}
   .page-grid--graph .notes{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1fr) minmax(0,1.6fr);gap:24px;border-left:0;border-top:1px solid #d3dbd1;padding:20px 0 0}.page-grid--graph .notes .evidence-section+.evidence-section{margin-top:0}.page-grid--graph .evidence-methods{grid-column:1/-1;border-top:1px solid #d3dbd1;padding-top:12px}.page-grid--graph .method-limits{display:flex;flex-wrap:wrap;gap:6px 20px}.page-grid--graph .method-limits li{margin:0}
   .page-grid--paired .reading-boundary{grid-column:2;grid-row:1;min-width:0;border-left:1px solid #d3dbd1;padding:14px 0 0 24px}.reading-boundary h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 12px}.reading-boundary ul{list-style:none;margin:0;padding:0}.reading-boundary li{font-size:14px;line-height:1.55}.reading-boundary li+li{margin-top:10px}.reading-boundary .limits{padding-left:12px!important}.reading-boundary .source-note{margin-top:16px}.page-grid--paired .notes{grid-row:2;grid-template-columns:minmax(0,1fr) minmax(0,1.55fr)}

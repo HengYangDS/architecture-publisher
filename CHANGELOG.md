@@ -15,6 +15,10 @@ may contain incompatible changes.
   describe targets requiring source-owner acceptance; removed the obsolete
   `0.2-pending` publication condition. The changed packages use a new
   `0.3.0-alpha.6` identity without altering the signed alpha.5 release.
+- Neutral interactive source controls now project the diagram's selected node
+  or relation through `aria-pressed` and a per-page `role=status` live region
+  without moving keyboard focus. This does not qualify a source Edition's
+  static text alternative or prove a particular screen reader's behavior.
 
 ## [0.3.0-alpha.5] - 2026-09-29
 

@@ -225,10 +225,35 @@ test(
       false,
     );
     const initialGeometry = await graphGeometry();
+    const graphSelectedButton = page.locator('#page-0 [data-focus-node]').first();
+    const graphSelectedId = await graphSelectedButton.getAttribute('data-focus-node');
+    await page.evaluate((id) => {
+      const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
+      graph.getElementById(id).select();
+    }, graphSelectedId);
+    assert.equal(await graphSelectedButton.getAttribute('aria-pressed'), 'true');
+    await page.evaluate((id) => {
+      const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
+      graph.getElementById(id).unselect();
+    }, graphSelectedId);
+    assert.equal(await graphSelectedButton.getAttribute('aria-pressed'), 'false');
+    assert.equal(
+      await page.locator('#page-0 [role="status"]').innerText(),
+      'Diagram selection cleared.',
+    );
     const focusButton = page.locator('#page-0 [data-focus-node]').last();
     const requestedNode = await focusButton.getAttribute('data-focus-node');
+    assert.equal(await focusButton.getAttribute('aria-pressed'), 'false');
     await focusButton.focus();
     await page.keyboard.press('Enter');
+    assert.equal(await focusButton.getAttribute('aria-pressed'), 'true');
+    assert.equal(
+      await focusButton.evaluate((element) => element === globalThis.document.activeElement),
+      true,
+    );
+    const selectionStatus = page.locator('#page-0 [role="status"]');
+    const nodeAnnouncement = `Selected in diagram: ${(await focusButton.textContent()).replace(/\s+/gu, ' ').trim()}`;
+    assert.equal(await selectionStatus.innerText(), nodeAnnouncement);
     const focused = await page.evaluate(() => {
       const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
       const node = graph.nodes(':selected').first();
@@ -243,6 +268,14 @@ test(
       focused.offset <= 2,
       `first source focus missed graph center: ${JSON.stringify(focused)}`,
     );
+    const relationButton = page.locator('#page-0 [data-focus-relation]').first();
+    await relationButton.focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await focusButton.getAttribute('aria-pressed'), 'false');
+    assert.equal(await relationButton.getAttribute('aria-pressed'), 'true');
+    const relationAnnouncement = `Selected in diagram: ${(await relationButton.textContent()).replace(/\s+/gu, ' ').trim()}`;
+    assert.notEqual(relationAnnouncement, nodeAnnouncement);
+    assert.equal(await selectionStatus.innerText(), relationAnnouncement);
     await page.getByRole('button', { name: 'Fit graph' }).click();
     assert.equal((await page.locator('#page-0 canvas').count()) > 0, true);
     assert.equal(await page.locator('#page-1').isHidden(), true);
