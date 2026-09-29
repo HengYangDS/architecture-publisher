@@ -600,16 +600,16 @@ credential, destination, or encryption key is selected by this document.
 
 The operator must record these choices before implementation:
 
-| Decision | Required selection | Rejection condition |
-| --- | --- | --- |
-| Recovery tier | Reader-only access, or complete rebuild and local effect recovery | A reader copy is called a complete product backup. |
-| Failure domain | Destination, account, region, and access path independent of the primary Forge and this workstation | Loss of the Forge or workstation also removes the only copy or its key. |
-| Custody | Named custodian, restore authorizer, successor owner, and withdrawal procedure | A producer can silently change retention or authorize its own restore. |
-| Retention | Version scope, minimum duration, expiry, immutable or deletion policy, and capacity ceiling | Historical signed releases are rewritten or kept without a bounded policy. |
-| Confidentiality | Encryption format, key owner, independent key recovery, and allowed source-byte classification | Reader media and private rebuild inputs are treated as the same disclosure class. |
-| Access | Exact read/write identities, least-privilege noninteractive credential, expiry, rotation, and revocation | An ambient workstation login, broad token, or recurring prompt is required. |
-| Recovery target | Clean-host platform/runtime, restore deadline, and maximum accepted data loss | Success depends on this host's paths, cache, or adjacent checkout. |
-| Proof | Named restore verifier, test cadence, evidence retention, and pass/fail owner | The upload operator's assertion substitutes for a clean-host restore. |
+| Decision        | Required selection                                                                                       | Rejection condition                                                               |
+| --------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Recovery tier   | Reader-only access, or complete rebuild and local effect recovery                                        | A reader copy is called a complete product backup.                                |
+| Failure domain  | Destination, account, region, and access path independent of the primary Forge and this workstation      | Loss of the Forge or workstation also removes the only copy or its key.           |
+| Custody         | Named custodian, restore authorizer, successor owner, and withdrawal procedure                           | A producer can silently change retention or authorize its own restore.            |
+| Retention       | Version scope, minimum duration, expiry, immutable or deletion policy, and capacity ceiling              | Historical signed releases are rewritten or kept without a bounded policy.        |
+| Confidentiality | Encryption format, key owner, independent key recovery, and allowed source-byte classification           | Reader media and private rebuild inputs are treated as the same disclosure class. |
+| Access          | Exact read/write identities, least-privilege noninteractive credential, expiry, rotation, and revocation | An ambient workstation login, broad token, or recurring prompt is required.       |
+| Recovery target | Clean-host platform/runtime, restore deadline, and maximum accepted data loss                            | Success depends on this host's paths, cache, or adjacent checkout.                |
+| Proof           | Named restore verifier, test cadence, evidence retention, and pass/fail owner                            | The upload operator's assertion substitutes for a clean-host restore.             |
 
 The selected tier fixes the inventory. Reader-only recovery requires the exact
 standalone HTML and static media, manifest with SHA-256 per member, release
