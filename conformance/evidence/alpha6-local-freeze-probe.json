@@ -5,7 +5,10 @@
   "packageVersion": "0.3.0-alpha.6",
   "fullGate": {
     "command": "npm run check",
-    "logSha256": "9156710baf2ea16820a85525ac3b3d62b509ce3cd7b877b90cd51a8a2a1aa466",
+    "environment": {
+      "ARCHPUB_BROWSER_EXECUTABLE": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    },
+    "logSha256": "574f789fc1dd445280ceb8e28b00b5fda7b05fa04f5c015cd4d5c060aeda0762",
     "tests": 1307,
     "passed": 1304,
     "skipped": 3,
@@ -138,9 +141,38 @@
       "horizontalOverflow": 0
     }
   },
+  "linuxContainerChecks": {
+    "method": "On linux/arm64, offline-install the same two package archives into a relocated consumer; invoke the installed public CLI for each of the five selected requests; compare the Candidate identity and every one of its six member hashes with this receipt's macOS baseline. These checks establish container conformance, not a native Linux host, hosted CI, source-owner acceptance, or release.",
+    "workloadsPerImage": 5,
+    "membersPerWorkload": 6,
+    "images": [
+      {
+        "node": "v22.23.3",
+        "image": "node@sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c",
+        "status": "passed",
+        "membersMatched": 30,
+        "installWarnings": 0
+      },
+      {
+        "node": "v24.19.0",
+        "image": "node@sha256:a9f5f7c91a432850b2a8a7797adf5eadb6c733ceed61167806cee7ea7fbc29df",
+        "status": "passed",
+        "membersMatched": 30,
+        "installWarnings": 0
+      },
+      {
+        "node": "v26.9.0",
+        "image": "node@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6",
+        "status": "passed",
+        "membersMatched": 30,
+        "installWarnings": 0
+      }
+    ],
+    "totalMembersMatched": 90
+  },
   "method": "Pack signed source; offline-install the exact Core and self-Edition archives outside the checkout; stage only selected inputs; build five workloads through the installed public CLI with empty HOME and PATH; copy installed consumer and inputs, rebuild, and compare all six Candidate members per workload.",
   "limits": [
-    "Candidate qualification, publication authorization, protected release, hosted CI, native Windows/Linux, and off-host recovery are not established here.",
+    "Candidate qualification, publication authorization, protected release, hosted CI, native Windows or Linux hosts, and off-host recovery are not established here. Linux ARM64 container conformance is recorded separately.",
     "AIGW and di-effect builds are generic conformance only; their source facts, art, acceptance, and release remain their owners.",
     "Candidate bundles bind hashes but do not retain selected authoring bytes; later replay requires exact retained inputs or checked immutable VCS objects.",
     "The nonblank raster and axe checks do not establish source truth, complete accessibility, or human visual approval of external Editions."

@@ -1130,9 +1130,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       no axe A/AA violations, page errors, external requests, or horizontal
       overflow. Decoded static PNGs are nonblank, not thereby aesthetically
       accepted. The exact packages, members, methods, and limits are in
-      `conformance/evidence/alpha6-local-freeze-probe.json`. This remains local
-      provisional evidence; Tasks 2.4, 4.1–4.3, and 5.1–5.4 retain open
-      acceptance boundaries. No Candidate qualification or release follows.
+      `conformance/evidence/alpha6-local-freeze-probe.json`. The same two
+      packages then passed offline installed-use checks in Linux ARM64 Node
+      22.23.3, 24.19.0, and 26.9.0 containers: each matched all 30 Candidate
+      member hashes across the same five workloads with no install warning.
+      This remains local provisional evidence, not a native Linux host or
+      hosted-CI result; Tasks 2.4, 4.1–4.3, and 5.1–5.4 retain open acceptance
+      boundaries. No Candidate qualification or release follows.
 
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release
