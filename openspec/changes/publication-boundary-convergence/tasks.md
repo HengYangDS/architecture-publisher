@@ -939,6 +939,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       page had no external request, console warning, or horizontal overflow.
       See `conformance/evidence/independent-editor-successor-probe.json` for
       exact bytes and limits; this is not source-owner or human acceptance.
+      At signed Publisher `1f59246`, the patched alpha.5 Core archive built
+      five frozen workloads through the previously offline-installed public
+      CLI: self, independent editor, AIGW Product, AIGW Client Projection,
+      and a researcher-authored di-effect sidecar. Each six-member Candidate
+      from the four non-self workloads matches a direct build byte-for-byte;
+      self and the independent editor match after selected-input relocation.
+      Exact requests, package,
+      media, and limits are in
+      `conformance/evidence/successor-supply-installed-probe.json`. This is
+      not adopter acceptance, final qualification, or protected release.
 - [x] 7.2 After provisional replacement parity, inventory and delete displaced Publisher-owned
       custom engines, redundant exports, dependencies, fixtures, and tests; keep
       only mechanisms with a distinct failing mature alternative. Verify
@@ -1116,6 +1126,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       layout tests pass, while `npm audit` reports zero current npm-tree
       advisories. This is a bounded disposition of those named findings, not
       a universal security attestation. Final exact-byte release checks remain.
+      At the same signed SHA, GitLab Pipeline 8703 and job 45613 passed:
+      1,278 tests passed, 24 platform-declared skips, zero failures, and
+      96.9/95.1/98.85/96.9% statement/branch/function/line coverage. The
+      exact self static PNG remains at SHA-256 `debb4579`, matching the earlier
+      user-approved bytes; the HTML at SHA-256 `44dab0ba` received explicit
+      eight-page user approval. These media judgments do not transfer to a
+      changed byte or admit the Candidate, qualification, or publication.
 - [ ] 7.6 On the frozen Task 7.5 inputs, run `npm run check`, strict OpenSpec
       validation, installed conformance,
       and exact-HEAD governance proof. Each coverage dimension must meet 95%
