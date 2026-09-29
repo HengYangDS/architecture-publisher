@@ -189,26 +189,19 @@ third-party or generated supply rather than moving owned code outside coverage.
 
 ## 3. Provider convergence
 
-- [ ] 3.1 Extend `packages/publisher/src/provider/` with
+- [x] 3.1 Extend `packages/publisher/src/provider/` with
       `architecture.edition-provider/v2` and the existing build route so direct,
-      declarative, and executable selections yield one closed
-      native/authored/derived input envelope before compilation.
-      `tests/edition-provider-contract.test.mjs` rejects ambiguous mode/root,
-      missing ancestry, unselected bytes, and later-stage authority claims;
-      multi-source claimants remain distinct. Partial: the v2 contract, strict
-      selected-byte readers, one manifest verification per join, shared lock
-      sealer, executable supervision, Edition resource binding, and globally
-      distinct native/derived namespaces are implemented. Provider-local IDs
-      and invocation receipts do not alter selected semantic identity. The
-      module-boundary gate excludes a second command plane and version-suffixed
-      implementation filenames. Historical v1 inputs retain their meaning
-      until Task 7.2 proves replacement parity. Open: the reproduced
-      concurrent-ancestor-mutation race leaves path confinement unproved; it
-      remains an explicit limit, not a hidden native-reader prerequisite.
-      Complete dependency closure, installed successor conformance, and the
-      unchanged 95% coverage gate remain release blockers. Exact race evidence
-      and alternatives belong to `docs/research/mechanism-evaluation.md`, not a
-      copied progress history here.
+      declarative, and executable selections yield one checked
+      native/authored/derived input envelope before compilation. The exact
+      contract rejects ambiguous delivery, missing ancestry, unselected bytes,
+      later-stage claims, and duplicate cross-Provider identities; invocation
+      metadata does not change selected meaning. The packed offline executable
+      journey, historical v1 replay, common conformance, and module boundaries
+      pass (41 focused tests on `5d56b0b`; full Mac/Chrome gate and hosted
+      Pipeline 8810 also pass). The materializer reports unobserved Provider
+      dependencies and the concurrent pathname-mutation limit explicitly; it
+      claims neither path confinement nor a sandbox. Final frozen-package
+      qualification and source-owner adoption remain Tasks 7.5 and 8.1–8.2.
 - [x] 3.2 Reuse the bounded process-tree supervisor for one exact selected
       executable entry. `tests/edition-provider-executable.test.mjs` and
       `tests/edition-provider-installed.test.mjs` cover complete package-content
