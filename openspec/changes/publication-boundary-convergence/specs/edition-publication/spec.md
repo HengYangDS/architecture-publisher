@@ -22,14 +22,13 @@ stay outside Candidate identity. Reader obligations and limits remain visible.
 
 ### Requirement: Static views compose one faithful figure
 
-When static media is selected, its ordered views SHALL produce one standalone
-SVG and one PNG through a complete-page composition. Each view SHALL retain
-its own questions, assertions, limits, and graphic-carrier bindings. The
-figure SHALL distinguish views without inventing cross-view relations or
-transferring a claim or acceptance between them. All visible text, structural
-marks, annotation and decoration SHALL fit together: clipping, obscuring
-overlap, insufficient clearance, or missing visible carriers SHALL fail before
-a complete Candidate. Graph-only layout success is insufficient.
+Selected static views SHALL yield one complete-page SVG and PNG. Each view
+retains its questions, assertions, limits, and graphic-carrier bindings. The
+figure SHALL separate views without inventing cross-view relations or
+transferring claims or acceptance. Text, structural marks, annotation, and
+decoration SHALL fit without clipping, occlusion, overlap, or inadequate
+clearance. Missing carriers fail before Candidate; graph-only layout success
+is insufficient.
 
 #### Scenario: Two static views answer distinct questions
 
@@ -140,14 +139,12 @@ endorsement of that wording.
 ### Requirement: Standalone pages declare no external assets
 
 Interactive composition SHALL reject declared external scripts, frames,
-stylesheets, images, media, and CSS resource URLs before a complete Candidate.
-Supported inline data assets and SVG same-document resource fragments remain
-admissible. The standalone shell SHALL apply a restrictive browser Content
-Security Policy that denies network resource loads and connections while
-admitting selected inline, data, and blob assets.
-This structural check does not prove that executable page code cannot request
-network resources or that blocked assets leave a complete work; exact-browser
-qualification remains separate.
+stylesheets, images, media, and CSS URLs before Candidate. Supported inline
+data assets and same-document SVG fragments remain allowed. The standalone
+Content Security Policy SHALL block network loads and connections while
+allowing selected inline, data, and blob assets. Neither check proves code
+cannot attempt blocked requests or that blocking preserves a complete work;
+exact-browser qualification remains separate.
 
 #### Scenario: A selected page declares an external image
 

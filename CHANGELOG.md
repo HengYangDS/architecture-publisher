@@ -35,6 +35,15 @@ may contain incompatible changes.
   subtitle. SVG exposes name and description separately; the self-Edition now
   authors a target-flow alternative. Missing adopter-specific descriptions
   remain an accessibility acceptance limit, not inferred Publisher content.
+- An Edition view may declare reasoned source-qualified member pairs that must
+  not appear in one visual group. The compiler rejects a conflicting group
+  before layout instead of presenting a misleading aggregation.
+- An authored static canvas now records visible free wording as unverified even
+  when its source-to-graphic bindings pass; exact geometry is not a judgment
+  about the wording's meaning.
+- Static and interactive media now visibly attribute free title and summary
+  text to the Edition editor and state that source endorsement is not evidenced
+  by the diagram. The wording still requires semantic and human review.
 
 ## [0.3.0-alpha.5] - 2026-09-29
 

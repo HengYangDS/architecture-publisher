@@ -1092,16 +1092,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       physical-placement assertion in `tests/product-identity.test.mjs`; align
       README, Edition guidance, and operations without imposing a source-product
       CI gate. Validate all 16 specs with no issues, including advisory INFO.
-      The four affected base specs are now promoted. An isolated official
-      archive rehearsal leaves all 16 base specs byte-identical and validates
-      16/16 with `issues: []`; the open Change and base validate 17/17 with no
-      issues. Focused contract tests pass 41/41. A standalone independent-editor
-      CLI example builds both media after relocation without changing selected
-      input files or the source fixture. This proves the generic zero-write
-      route, not ETHOS/AIGW adoption, endorsement, or retirement. The spec
-      promotion and validation task is complete; source-owner effects remain
-      separate. A fresh isolated `openspec archive --skip-specs` rehearsal on
-      2026-09-29 left all 16 base-spec files byte-identical.
+      The earlier `--skip-specs` archive rehearsal proved only that updates
+      were skipped; it did not prove normative closure. A 2026-09-30 ordinary
+      archive rehearsal exposed four still-changing base specs and one stale
+      removed-requirement warning. The exact merged deltas were promoted to
+      their base owners, the already-satisfied removal directive was deleted,
+      and two long requirements were compressed without dropping their
+      scenarios. A second ordinary archive changed zero of 16 base spec files
+      and emitted no warning. Strict base and active-Change validation passed
+      16/16 and 17/17 respectively without INFO. The 41 focused contract
+      tests and standalone relocated independent-editor build remain the
+      separate behavior evidence; none establishes adopter acceptance.
 - [ ] 7.5 Freeze the current `0.3.0-alpha.6` successor only after Task 5.5
       judges the exact self static and interactive media and its disclosed
       limits. Keep the root, Core, self-Edition, dependency projection,
@@ -1117,9 +1118,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       A generic Publisher defect exposed by an external fixture blocks this
       freeze; ETHOS and AIGW still own their own Edition art, acceptance,
       release, and retirement. Any changed selected input or artifact renews
-      applicable checks and exact-byte human review. The signed `4035dac`
-      candidate has local proof and hosted Pipeline `8797`, but its media are
-      not yet human-accepted or a frozen release package.
+      applicable checks and exact-byte human review. At signed `d4e4e3e`,
+      the complete local gate passed 1,304/1,307 tests with three declared
+      skips, zero failures, and 97.74/95.11/99.54/97.74% statement/branch/
+      function/line coverage. Two exact alpha.6 archives were offline-
+      installed outside the checkout. Self, independent editor, AIGW Client,
+      AIGW Product, and the di-effect research fixture rebuilt all six
+      Candidate members byte-identically after package and input relocation;
+      self media also match the requester's exact reviewed bytes. Chrome
+      exercised all 20 selected reading pages at 1600x1000 with reduced motion,
+      no axe A/AA violations, page errors, external requests, or horizontal
+      overflow. Decoded static PNGs are nonblank, not thereby aesthetically
+      accepted. The exact packages, members, methods, and limits are in
+      `conformance/evidence/alpha6-local-freeze-probe.json`. This remains local
+      provisional evidence; Tasks 2.4, 4.1–4.3, and 5.1–5.4 retain open
+      acceptance boundaries. No Candidate qualification or release follows.
 
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release

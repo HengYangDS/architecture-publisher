@@ -1,0 +1,240 @@
+{
+  "schema": "architecture.research-installed-probe/v1",
+  "status": "local-provisional-not-qualified-or-released",
+  "publisherSourceCommit": "d4e4e3e9bbb8cef827f58e9961876c89a7acdab1",
+  "packageVersion": "0.3.0-alpha.6",
+  "fullGate": {
+    "command": "npm run check",
+    "logSha256": "9156710baf2ea16820a85525ac3b3d62b509ce3cd7b877b90cd51a8a2a1aa466",
+    "tests": 1307,
+    "passed": 1304,
+    "skipped": 3,
+    "failed": 0,
+    "coveragePercent": {
+      "statements": 97.74,
+      "branches": 95.11,
+      "functions": 99.54,
+      "lines": 97.74
+    },
+    "staticSpecPackageChecks": "passed"
+  },
+  "packages": [
+    {
+      "name": "architecture-publisher",
+      "version": "0.3.0-alpha.6",
+      "file": "architecture-publisher-0.3.0-alpha.6.tgz",
+      "bytes": 4210765,
+      "sha256": "1677bb7fcff4f23f6b24f6ef51be1e7afd193a2e40385e732f6413293ce95836",
+      "unpackedBytes": 15118320,
+      "fileCount": 218
+    },
+    {
+      "name": "@architecture-publisher/self-edition",
+      "version": "0.3.0-alpha.6",
+      "file": "architecture-publisher-self-edition-0.3.0-alpha.6.tgz",
+      "bytes": 27475,
+      "sha256": "7faa87f08a2795768e488ffafd4f787a2aea408145809578dab5844836ace595",
+      "unpackedBytes": 138839,
+      "fileCount": 13
+    }
+  ],
+  "sourceSelections": {
+    "aigwWorkLaneCommit": "01776f2fd83735cc5288548f48acea00912938ba",
+    "diEffect": "frozen researcher-authored fixture; not source-owner acceptance"
+  },
+  "workloads": [
+    {
+      "id": "self",
+      "requestSha256": "12cc0b222e273394a4e9e6c82d0b3833f3a38780d4c864128b73d4e6a56f3bed",
+      "candidateSha256": "e261d08f945f0bf3d78946866b343791c4abdb3dc82c9005f5610e443e029d41",
+      "memberSha256": {
+        "candidate.json": "e2f3171eaef3827ea8221a72e2e2c19ab8acb1600c3625983fc5bdc22d0ba276",
+        "input-lock.json": "597c9c7e693a47dad81aa290cac6d26cb9fd8a88a1a6c959bf84987b33b797bc",
+        "manifest.json": "6eb72cd83fd99efe304ff91d6a4717bd9f15c4dfe64eeeb682514446ab16dfc2",
+        "static/architecture.svg": "c4fd8454986c7bc184e12db1c22dfb7dd05bc89fcc3b8b3639fa78bed2151c38",
+        "static/architecture.png": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712",
+        "interactive/architecture.html": "481582f6dd05d322b5a41122f393d117e7886570569212ba8616a521256498ea"
+      },
+      "relocatedByteIdentical": true,
+      "authority": "first-party"
+    },
+    {
+      "id": "independent",
+      "requestSha256": "90e464387b2d562b193141bd9d388b1d7d46bd54561eb0847d92d6404e472b68",
+      "candidateSha256": "d603eefd79e8255c4b68eb6f5419abb2b704dd7f9fdd686fe5f5817cdcc66f32",
+      "memberSha256": {
+        "candidate.json": "cbc3f3f5534c628eb112d74151bc41911fbf9f3b282347d95069e336a56a5f8c",
+        "input-lock.json": "c150b39afe829169d730c2cb83f890e0a1c0ad61cc72563749521e00e3a712f1",
+        "manifest.json": "83b0655eae2928ef8d6d5eed0362dbd8b6c0eef703dff2438b7f9ffee9912451",
+        "static/architecture.svg": "d63da0611833993415fdacc86ed1d32f14b615ce0619943060a0da25f79c105b",
+        "static/architecture.png": "7047bc9f964fa72ade6446cef4d5f4b558e2caa32ecd2854af98ae4b56168336",
+        "interactive/architecture.html": "ecd96f3822e98ff63e64224627aecf5ed25fbdec84a3c5a9ed122a843b2f0104"
+      },
+      "relocatedByteIdentical": true,
+      "authority": "independent-example"
+    },
+    {
+      "id": "aigw-client",
+      "requestSha256": "79fafbd8d61f9d9c5e7c1023ce0d2d171d5d2293e201fb562edf16131d6bd725",
+      "candidateSha256": "715f4fbcc82540c65ca3ec00c49af9074e3de5f37db5d4dc7b2fe260836c7b2a",
+      "memberSha256": {
+        "candidate.json": "a0b771ce4a072e2fca9bf0cadb3ca139b71f65b107d3c4d562647002c87aca36",
+        "input-lock.json": "6f9a9d7a8d85267728b2db7f5fb13ded749f3293d67b66c94dc589dbc5631f17",
+        "manifest.json": "45ebbb794f62d2699901794ffcdad06648007a24b8846ac770d3a4241339ed50",
+        "static/architecture.svg": "bfbb140d041a0ad5ee5c827acc3868a92d75caf53d7c34d9a04270f16ee85292",
+        "static/architecture.png": "10df5d6b2b6351ec91c4d3653337b2b544029641e552d2b9e2d4826fb46ccfb6",
+        "interactive/architecture.html": "3828cad58c44d87fa8822cbf2256150bfeb971c35c457f2c5391a4a7b7888d0f"
+      },
+      "relocatedByteIdentical": true,
+      "authority": "external-conformance-only"
+    },
+    {
+      "id": "aigw-product",
+      "requestSha256": "7de3bc8d2c8e6918f2da4ad29c9fcae8f61fdbca3d3f5305fb984022083efceb",
+      "candidateSha256": "b4a4a6aad33a19b054dde4cde6feb4c7bab64eea07553439cbee2a174a5b02b7",
+      "memberSha256": {
+        "candidate.json": "25833f49afd9b3a7f0f68a288f39dd2c88511aea6649de7a447c55ca534847e4",
+        "input-lock.json": "56725e1eae3994cdaf9b2d0d75231907ddf2c17923d9df456d0e6c2d761a5024",
+        "manifest.json": "445dabf67521af903d229f6954b24897add93dccc6ec8b6749c77fe3994eecd6",
+        "static/architecture.svg": "f2c9d32a602be06c16a83c417fcc3dfc5c07e47667c6a6a2809c618e170f3e88",
+        "static/architecture.png": "a2226bf4ad0d6efb25c8e9164473647d6d5fe659136b44bef71e0cdbd0f73021",
+        "interactive/architecture.html": "7dfd42abe13703724e2b8b2b8d6e27dfec710431330fbfe8e6cb3a2596f843dc"
+      },
+      "relocatedByteIdentical": true,
+      "authority": "external-conformance-only"
+    },
+    {
+      "id": "di-effect",
+      "requestSha256": "bcf9101a9237c7eb9364111468d2cf5800d8b35642009f23903ff2b62e16e5f8",
+      "candidateSha256": "75ad53e837236d694dda050d33e016d88b649bec37465fcd32535e6fa8477322",
+      "memberSha256": {
+        "candidate.json": "811ab92e101adb49c5a50f39aedfa5adce461c3f7d5f7b25977da3dba0a61a8a",
+        "input-lock.json": "e3611bf4502025d9222b26bcc2105bf65dcceeacd5cc645511e625a555824142",
+        "manifest.json": "c1961e29729d5835a44251e01f48a0be85f3b9a02e540e834a8853cacd73a0b2",
+        "static/architecture.svg": "03556d3bb2ce394bd4c99c56a761d5af137d434bf753fc0bb0b1314142109742",
+        "static/architecture.png": "dcb6b2895fe48509388023bfd171a4021929db8716028d43ad20093b8639216b",
+        "interactive/architecture.html": "49802c0c4ef3dd70e5dea7237ee273c63208745efba7e1558e004e6efe8bb0d6"
+      },
+      "relocatedByteIdentical": true,
+      "authority": "external-conformance-only"
+    }
+  ],
+  "selfMediaReview": {
+    "reviewer": "task requester",
+    "result": "fidelity, clarity, and elegance accepted for exact bytes",
+    "artifactSha256": {
+      "static/architecture.png": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712",
+      "interactive/architecture.html": "481582f6dd05d322b5a41122f393d117e7886570569212ba8616a521256498ea"
+    },
+    "exactInstalledBuildMatch": true,
+    "chrome": {
+      "medium": "standalone interactive HTML",
+      "viewport": "1600x1000",
+      "pages": 8,
+      "reducedMotion": "reduce",
+      "outerAndEmbeddedAxeAAViolations": 0,
+      "pageErrors": 0,
+      "externalRequests": 0,
+      "horizontalOverflow": 0
+    }
+  },
+  "method": "Pack signed source; offline-install the exact Core and self-Edition archives outside the checkout; stage only selected inputs; build five workloads through the installed public CLI with empty HOME and PATH; copy installed consumer and inputs, rebuild, and compare all six Candidate members per workload.",
+  "limits": [
+    "Candidate qualification, publication authorization, protected release, hosted CI, native Windows/Linux, and off-host recovery are not established here.",
+    "AIGW and di-effect builds are generic conformance only; their source facts, art, acceptance, and release remain their owners.",
+    "Candidate bundles bind hashes but do not retain selected authoring bytes; later replay requires exact retained inputs or checked immutable VCS objects.",
+    "The nonblank raster and axe checks do not establish source truth, complete accessibility, or human visual approval of external Editions."
+  ],
+  "mediaChecks": {
+    "static": {
+      "method": "Decode PNG; sample 256x144 RGB pixels for nonblank paint, not visual adequacy.",
+      "results": [
+        {
+          "id": "self",
+          "width": 6000,
+          "height": 3533,
+          "sampleDistinctColors": 821,
+          "sampleChannelStddev": 12.84
+        },
+        {
+          "id": "independent",
+          "width": 1800,
+          "height": 1263,
+          "sampleDistinctColors": 699,
+          "sampleChannelStddev": 13.04
+        },
+        {
+          "id": "aigw-client",
+          "width": 3600,
+          "height": 1854,
+          "sampleDistinctColors": 780,
+          "sampleChannelStddev": 13.96
+        },
+        {
+          "id": "aigw-product",
+          "width": 3600,
+          "height": 2593,
+          "sampleDistinctColors": 1004,
+          "sampleChannelStddev": 18.71
+        },
+        {
+          "id": "di-effect",
+          "width": 1800,
+          "height": 2598,
+          "sampleDistinctColors": 707,
+          "sampleChannelStddev": 10.96
+        }
+      ]
+    },
+    "browser": {
+      "method": "Headless Chrome at 1600x1000 with reduced motion; self shell and eight embedded frames, plus every navigation page of each neutral HTML document.",
+      "results": [
+        {
+          "id": "self",
+          "artifactSha256": "481582f6dd05d322b5a41122f393d117e7886570569212ba8616a521256498ea",
+          "readingPages": 8,
+          "axeWcagAandAaViolations": 0,
+          "pageErrors": 0,
+          "externalRequests": 0,
+          "horizontalOverflow": false
+        },
+        {
+          "id": "independent",
+          "artifactSha256": "ecd96f3822e98ff63e64224627aecf5ed25fbdec84a3c5a9ed122a843b2f0104",
+          "readingPages": 1,
+          "axeWcagAandAaViolations": 0,
+          "pageErrors": 0,
+          "externalRequests": 0,
+          "horizontalOverflow": false
+        },
+        {
+          "id": "aigw-client",
+          "artifactSha256": "3828cad58c44d87fa8822cbf2256150bfeb971c35c457f2c5391a4a7b7888d0f",
+          "readingPages": 4,
+          "axeWcagAandAaViolations": 0,
+          "pageErrors": 0,
+          "externalRequests": 0,
+          "horizontalOverflow": false
+        },
+        {
+          "id": "aigw-product",
+          "artifactSha256": "7dfd42abe13703724e2b8b2b8d6e27dfec710431330fbfe8e6cb3a2596f843dc",
+          "readingPages": 6,
+          "axeWcagAandAaViolations": 0,
+          "pageErrors": 0,
+          "externalRequests": 0,
+          "horizontalOverflow": false
+        },
+        {
+          "id": "di-effect",
+          "artifactSha256": "49802c0c4ef3dd70e5dea7237ee273c63208745efba7e1558e004e6efe8bb0d6",
+          "readingPages": 1,
+          "axeWcagAandAaViolations": 0,
+          "pageErrors": 0,
+          "externalRequests": 0,
+          "horizontalOverflow": false
+        }
+      ]
+    }
+  }
+}

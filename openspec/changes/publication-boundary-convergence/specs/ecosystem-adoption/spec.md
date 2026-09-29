@@ -86,19 +86,6 @@ retains its own acceptance, release, and custody decisions.
 - **THEN** affected reader views and media are rebuilt and requalified
 - **AND** unrelated ETHOS and self Editions remain unchanged
 
-## REMOVED Requirements
-
-### Requirement: Live Editions are source-owned
-
-**Reason:** Mandatory physical co-location conflates source authority with
-Provider transport and Edition editing; the already-admitted independent-editor
-contract cannot satisfy it without unwanted source-repository changes.
-
-**Migration:** Use the named-owner placement rule below. Existing in-repository
-adopter integrations remain live only by their product owners' choice until an
-exact, accepted replacement satisfies the selected consumer journeys. Retain
-historical receipts under selected custody.
-
 ## ADDED Requirements
 
 ### Requirement: Adopter placement follows named authority

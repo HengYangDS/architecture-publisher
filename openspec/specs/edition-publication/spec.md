@@ -727,13 +727,13 @@ second authored list.
 
 ### Requirement: Static views compose one faithful figure
 
-When static media is selected, its ordered views SHALL produce one standalone
-SVG and one PNG. Each view SHALL retain its own questions, assertions, limits,
-and graphic-carrier bindings.
-The figure SHALL distinguish the views without inventing cross-view relations
-or transferring a claim or acceptance between them. Clipping, obscuring
-text/node/panel overlap, or missing visible carriers SHALL fail before a
-complete Candidate.
+Selected static views SHALL yield one complete-page SVG and PNG. Each view
+retains its questions, assertions, limits, and graphic-carrier bindings. The
+figure SHALL separate views without inventing cross-view relations or
+transferring claims or acceptance. Text, structural marks, annotation, and
+decoration SHALL fit without clipping, occlusion, overlap, or inadequate
+clearance. Missing carriers fail before Candidate; graph-only layout success
+is insufficient.
 
 #### Scenario: Two static views answer distinct questions
 
@@ -742,6 +742,51 @@ complete Candidate.
 - **THEN** one static SVG and PNG visibly distinguish both views and retain
   each view's own assertion-to-graphic carriers and limits
 - **AND** no edge or endorsement is inferred merely from the shared entity
+
+#### Scenario: A view forbids two selected members in one visual group
+
+- **WHEN** its Edition declares a reasoned forbidden pair of source-qualified
+  members and an authored group contains both
+- **THEN** Publisher rejects that medium before layout
+- **AND** an unselected or duplicate unordered pair fails rather than being
+  treated as source authority or silently ignored
+
+#### Scenario: One authored static canvas covers ordered views
+
+- **WHEN** an editor selects one data-only authored static scene for two or
+  more ordered static views
+- **THEN** Publisher binds the complete scene to the union of their selected
+  source assertions and retains each view's own assertion attribution
+- **AND** the scene is rendered through the ordinary static SVG and PNG path,
+  not accepted as pre-rendered media
+- **AND** absent, duplicated, or extra source meaning fails rather than being
+  repaired by dropping a view, forging a cross-view relation, or reusing an
+  unrelated graphic carrier
+
+#### Scenario: Authored static wording retains source identity
+
+- **WHEN** an authored canvas changes visible wording while retaining the same
+  source-qualified graphic bindings
+- **THEN** the Candidate declares authored text meaning unverified
+- **AND** exact membership and geometry checks do not certify the wording as a
+  source assertion or turn the unqualified Candidate into accepted media
+
+#### Scenario: A structural overview does not inherit sibling Claim coverage
+
+- **WHEN** a static view selects source entities and relations but no Claim
+  facts, while interactive views select the source Claim facts
+- **THEN** the static figure binds and renders its selected structural
+  assertions without claiming to paint the unselected Claim facts
+- **AND** interactive Claim coverage cannot be transferred to the static
+  figure or treated as a shared approval
+
+#### Scenario: A selected relation supplies its endpoint members
+
+- **WHEN** an authored static canvas selects a source relation without separate
+  entity selections for its exact endpoints
+- **THEN** Publisher admits those source-bound endpoint members as visible
+  nodes without requiring duplicate Edition selections
+- **AND** an unrelated or source-inconsistent entity still fails
 
 #### Scenario: One static view cannot be represented
 
@@ -759,6 +804,24 @@ complete Candidate.
 - **AND** it does not infer the same numeric distance for text pairs
 - **AND** a successor authored canvas retains its separately selected
   text-to-text clearance floor
+
+#### Scenario: Editorial groups interleave in causal placement
+
+- **WHEN** a source-authorized static view assigns each selected node to one
+  editorial group but a compact causal layout interleaves those groups
+- **THEN** Publisher preserves every group label and exact member list in a
+  reading key outside the causal graph
+- **AND** it does not paint a floating group heading or enclosure that could
+  imply a different membership or invent a source relation
+- **AND** missing, duplicate, or visually ambiguous members fail with a named
+  diagnostic rather than being omitted or silently reassigned
+
+#### Scenario: Compactness conflicts with legibility
+
+- **WHEN** two layouts carry the same selected assertions and one reduces
+  empty area only by shrinking text or increasing collisions or crossings
+- **THEN** Publisher does not choose that layout solely for its smaller canvas
+- **AND** human review of visual hierarchy and unused space remains required
 
 ### Requirement: Historical Edition and Provider contracts remain truthful
 
@@ -868,3 +931,25 @@ designated accepter's publication policy decides what else to require.
   Candidate, Qualification Set, and Policy without a package-tree field
 - **AND** the separate replay result retains current package evidence without
   claiming the original builder or authenticating the installed package
+
+### Requirement: Standalone pages declare no external assets
+
+Interactive composition SHALL reject declared external scripts, frames,
+stylesheets, images, media, and CSS URLs before Candidate. Supported inline
+data assets and same-document SVG fragments remain allowed. The standalone
+Content Security Policy SHALL block network loads and connections while
+allowing selected inline, data, and blob assets. Neither check proves code
+cannot attempt blocked requests or that blocking preserves a complete work;
+exact-browser qualification remains separate.
+
+#### Scenario: A selected page declares an external image
+
+- **WHEN** a selected interactive page contains an external image or CSS URL
+- **THEN** composition fails before a complete Candidate is emitted
+- **AND** the reader is not given an apparently standalone work with a missing asset
+
+#### Scenario: Page code attempts an undeclared connection
+
+- **WHEN** executable page code attempts a network connection in the reader
+- **THEN** the browser policy blocks the connection
+- **AND** a browser error or incomplete rendering cannot be counted as qualification
