@@ -1146,3 +1146,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       durable evidence, active, foreign, and disposable state. Off-host DR remains
       excluded until destination, custody, retention, encryption, bounded
       credential, and clean-host restore acceptance are selected.
+      The decision-ready tier, inventory, operator-choice, and clean-host
+      acceptance contract is recorded once in `docs/reference/operations.md`;
+      no destination, credential, backup effect, or off-host proof is selected.
