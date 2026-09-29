@@ -489,8 +489,10 @@ The first-party self-Edition exports:
 
 Its public Edition surface prepares explicit source-bound inputs: a Claim
 Model, one Edition Project, a data-only visual refinement, and a Build Request.
-It does not emit a second editable `architecture.edition/v1` or a self-only
-publication plan. The generic Core builds both media through that Build
+Its separate generated Source Bundle supports provenance audit; it is not
+selected again by the direct Build Request. The package does not emit a second
+editable `architecture.edition/v1` or a self-only publication plan. The
+generic Core builds both media through that Build
 Request and returns an unqualified Candidate. The self Project selects a
 structural static overview and eight interactive mechanism questions. Its
 static view does not select the Claim facts carried by the interactive views;

@@ -12,7 +12,6 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const selectedSources = Object.freeze({
   'product-contract': 'docs/product-contract.md',
-  'edition-contract': 'docs/edition-contract.md',
   'core-package': 'packages/publisher/package.json',
   'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
   'self-model-owner': 'editions/self/src/edition/model.mjs',

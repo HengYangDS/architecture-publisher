@@ -22,7 +22,6 @@ const encode = (value) => Buffer.from(JSON.stringify(value, null, 2) + '\n');
 
 const selectedSources = Object.freeze({
   'product-contract': 'docs/product-contract.md',
-  'edition-contract': 'docs/edition-contract.md',
   'core-package': 'packages/publisher/package.json',
   'self-prepare-owner': 'editions/self/src/edition/prepare.mjs',
   'self-model-owner': 'editions/self/src/edition/model.mjs',
@@ -82,6 +81,26 @@ test('self preparation selects one direct Project instead of a legacy Edition au
     ).length,
     0,
   );
+  const bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256);
+  const model = validateClaimModel(
+    JSON.parse(bundle.members.find(({ path: name }) => name === 'semantic.json').content),
+  );
+  assert.equal(model.entities.edition.label, 'Edition Project');
+  assert.deepEqual(model.entities.edition.provenance, ['self-project-owner']);
+  assert.equal(model.claims['role-edition'].condition.schema, 'architecture.edition-project/v1');
+  assert.deepEqual(model.claims['role-build-request'].condition, {
+    schema: 'architecture.build-request/v1',
+    selection: 'direct-model-and-project',
+    output: 'caller-selected',
+  });
+  assert.equal(Object.hasOwn(model.relations, 'bundle-selects-build'), false);
+  assert.equal(model.claims['flow-claims-select-build'].condition.member, 'model.json');
+  assert.equal(model.claims['flow-edition-selects-build'].condition.identity, 'project-bytes');
+  assert.equal(
+    model.claims['role-evolution-inputs'].condition.schema,
+    'architecture.semantic-compare-input/v3',
+  );
+  assert.equal(Object.hasOwn(model.sources, 'edition-contract'), false);
 });
 
 function directedPath(relations, from, to) {
@@ -320,7 +339,8 @@ test('self Project gives the static map structural scope and interactive pages e
   const { deriveEditionQuestionObligations } =
     await import('../packages/publisher/src/edition/selection.mjs');
   const obligations = deriveEditionQuestionObligations(project, ['static', 'interactive']);
-  assert.equal(obligations.static.assertionIds.length, 89);
+  const structuralCount = Object.keys(model.entities).length + Object.keys(model.relations).length;
+  assert.equal(obligations.static.assertionIds.length, structuralCount);
   assert.equal(obligations.static.assertionIds.filter((id) => id.startsWith('claim-')).length, 0);
   assert.equal(
     obligations.interactive.assertionIds.filter((id) => id.startsWith('claim-')).length,
@@ -332,13 +352,15 @@ test('self Project gives the static map structural scope and interactive pages e
   const refinement = self.refinementFromSelfProject(model, project, metrics);
   assert.equal(refinement.schema, 'architecture.scene-refinement/v1');
   assert.equal(refinement.media.static.kind, 'authored-canvas');
-  assert.equal(refinement.media.static.scene.requiredSemanticIds.length, 89);
+  assert.equal(refinement.media.static.scene.requiredSemanticIds.length, structuralCount);
   assert.deepEqual(
     refinement.media.interactive.pages.map(({ id }) => id),
     project.presentation.interactive.views.map(({ id }) => id),
   );
   const scene = refinement.media.static.scene;
   assert.match(scene.description, /^Target flow:/u);
+  assert(scene.texts.some(({ text }) => text === 'Edition Project'));
+  assert.doesNotMatch(scene.description, /selected Source Bundle/u);
   assert(
     scene.texts.some(
       ({ id, text }) => id === 'target-caveat' && text.includes('Target architecture'),

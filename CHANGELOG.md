@@ -15,6 +15,9 @@ may contain incompatible changes.
   views select the exact Claim facts. Preparation no longer emits an editable
   legacy Edition or a self-only publication plan; signed historical releases
   retain their original files and meanings.
+- Corrected the current self-model's authoring schema and direct Build Request
+  selection. The generated Source Bundle remains audit evidence, not a second
+  selected build input; a formerly asserted Bundle-to-Build edge is removed.
 - Kept dated ETHOS and AIGW handoffs as historical conformance fixtures, not
   live authorities for the self-Edition. Its successor adopter relations now
   describe targets requiring source-owner acceptance; removed the obsolete

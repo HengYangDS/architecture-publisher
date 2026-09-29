@@ -872,9 +872,9 @@ an override of a qualified baseline, not the price of entry.
 
 ### Selected scene refinement for flagship Editions
 
-The self-Edition makes the override boundary concrete. Its current source model
-has 38 entities, 51 relations, and 89 derived claims across eight reader
-questions. Its source-owned static composition and interactive scene code
+The self-Edition makes the override boundary concrete. At design admission, its
+source model had 38 entities, 51 relations, and 89 derived claims across eight
+reader questions. Its source-owned static composition and interactive scene code
 author aggregations, routing, and hierarchy; Publisher already supplies font
 measurement, rasterization, Archify/Atlas rendering, and quality checks. The
 legacy self builders pass their own tests, but at design admission the successor
@@ -970,6 +970,10 @@ observations, and applicable human review. Raw imported files and private
 source bytes are not embedded in public HTML by default. The editor and
 custodian choose disclosure; Publisher checks the declared output inventory
 and performs no ambient source publication.
+
+Self preparation also emits a generated Source Bundle for separate provenance
+audit. Its direct Build Request selects the model and Project bytes, not that
+Bundle; the Bundle does not become a second compiler input or endorsement.
 
 For a selected authored LikeC4 structural view, the admitted parser supply may
 also compute layout through its WASM backend. A distinct, bounded Worker

@@ -96,7 +96,7 @@ const DETAILS = Object.freeze({
   intake: 'loss-aware adapter · Source Bundle',
   'semantic-contract': 'claims · provenance · unknowns',
   audience: 'reader questions · coverage',
-  authorship: 'Edition · Build Request · compiler',
+  authorship: 'Edition Project · Build Request · compiler',
   scenes: 'static and interactive stay independent',
   rendering: 'replaceable rendering capabilities',
   artifacts: 'SVG · PNG · standalone HTML',
@@ -107,7 +107,7 @@ const DETAILS = Object.freeze({
   effects: 'publication · recovery · explicit limit',
   consumers: 'independent source-owned adopters',
   return: 'feedback through native lifecycle',
-  inputs: 'Claim Model + Edition pairs',
+  inputs: 'paired Build Requests',
   delta: 'meaning · lineage · uncertainty',
   impact: 'affected Editions and scenes',
   rebuild: 'candidate and medium rebuild',
@@ -120,7 +120,7 @@ const DETAILS = Object.freeze({
 const OVERVIEW_CLUSTERS = Object.freeze([
   ['source', 'Source truth', ['source-field', 'intake']],
   ['meaning', 'Claim Model', ['semantic-contract']],
-  ['authorship', 'Edition authorship', ['authorship']],
+  ['authorship', 'Edition Project', ['authorship']],
   ['media', 'Independent media', ['scenes', 'rendering', 'candidate']],
   ['assurance', 'Trust gates', ['qualification', 'authorization']],
   ['delivery', 'Publication', ['effects']],
@@ -130,20 +130,6 @@ const OVERVIEW_CLUSTERS = Object.freeze([
 
 const OVERVIEW_RELATIONS = Object.freeze([
   ['source-meaning', 'source', 'meaning', 'binds', ['bundle-binds-claims']],
-  [
-    'source-authorship',
-    'source',
-    'authorship',
-    'selects build',
-    ['bundle-selects-build'],
-    {
-      fromSide: 'top',
-      toSide: 'top',
-      route: 'auto',
-      waypoints: [point(150, 44), point(680, 44)],
-      labelPlacement: { at: [420, 30] },
-    },
-  ],
   [
     'meaning-authorship',
     'meaning',

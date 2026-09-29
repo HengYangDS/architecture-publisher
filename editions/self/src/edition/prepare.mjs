@@ -16,7 +16,6 @@ const exact = (value, fields) =>
   record(value) && Object.keys(value).sort().join('\n') === [...fields].sort().join('\n');
 const sourceAuthorities = Object.freeze({
   'product-contract': 'Canonical product meaning and authority boundary',
-  'edition-contract': 'Canonical Edition authorship and coverage boundary',
   'core-package': 'Installed generic product identity and public package surface',
   'self-prepare-owner': 'Explicit self-Edition source selection and preparation',
   'self-model-owner': 'First-party product self-model authorship',

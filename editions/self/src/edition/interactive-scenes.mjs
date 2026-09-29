@@ -67,10 +67,10 @@ const mechanisms = Object.freeze({
     ],
   },
   edition: {
-    label: 'Audience-specific Edition contract',
+    label: 'Audience-specific Edition Project',
     groups: [
       ['meaning', 'Meaning', ['claim-model', 'uncertainty']],
-      ['reader', 'Edition authorship', ['edition']],
+      ['reader', 'Edition Project', ['edition']],
       ['build', 'Build Request', ['build-request']],
       ['compiler', 'Generic compiler', ['publisher-core']],
       ['static-scene', 'Static scene', ['static-scene']],

@@ -756,6 +756,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       work in this Lane removes the redundant self-generated v1 Edition and
       plan, authors one direct Project with distinct static structural and
       interactive Claim scope, and removes a false static-Claim limitation.
+      The current self-model correction also removes its stale Edition v1
+      attribution and phantom Source Bundle-to-Build selection; the generated
+      Bundle remains separate provenance evidence.
       This task remains open until the new exact Candidate, installed journey,
       browser/accessibility checks, semantic judgment, and human review pass.
 

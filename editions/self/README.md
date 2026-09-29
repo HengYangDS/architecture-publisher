@@ -1,9 +1,10 @@
 # Architecture Publisher Self Edition
 
 This source-owned package authors the first-party Architecture Publisher
-Edition. It accepts explicit, digest-bound product sources and emits the
-standard Source Bundle, Claim Model, Edition Project, and Build Request consumed by the
-generic `architecture-publisher` package.
+Edition. It accepts explicit, digest-bound product sources and prepares a Claim
+Model, Edition Project, refinement, and Build Request for the generic
+`architecture-publisher` package. It also emits a Source Bundle for a separate
+provenance audit; the direct Build Request selects model bytes, not that Bundle.
 
 Preparation returns the exact `buildRequest` path and `buildRequestSha256`.
 The portable `build-input/` directory contains the selected model, Edition
