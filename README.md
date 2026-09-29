@@ -1,12 +1,36 @@
 # Architecture Publisher
 
-Architecture Publisher compiles explicit, source-bound system meaning into
-truthful, audience-specific Architecture Editions.
+Architecture Publisher turns **selected source material and an editor's reading
+plan** into a static architecture figure, a standalone interactive document, or
+both. The source project is responsible for its facts; the editor decides what
+to explain; Publisher builds and checks what was selected and shown. It does not
+discover a system's architecture by scanning a repository, judge whether its
+source is true, or approve publication on anyone's behalf.
 
-It is not an architecture inference engine, drawing editor, SDD authority, or
-ETHOS subsystem. Source systems own truth. Editions own communication. Scenes
-own composition. Renderers produce bytes. Qualification records exact judgments.
-Publication performs bounded, recoverable effects.
+## One concrete build
+
+The [small service-topology example](examples/selected-edition/) starts with two
+LikeC4 files, `model.c4` and `views.c4`. A maintainer wants to answer: “What
+connects the two components?”
+
+1. The editor gives that question the ID `flow`, selects the source view
+   `view:overview`, and asks for it in both the static and interactive works.
+   These choices live in [`edition/project.json`](examples/selected-edition/edition/project.json).
+2. [`build-request.json`](examples/selected-edition/build-request.json) names the
+   selected source files, their SHA-256 hashes, that Edition Project, and the
+   two requested media. The command `archpub edition build` reads those exact
+   inputs and writes a new output folder (a Candidate).
+3. The Candidate contains a static SVG/PNG, an independent standalone HTML,
+   and JSON records of the selected input and emitted files. It has **not**
+   thereby been accepted or published.
+
+The question's English text is **not an executable query**. Publisher checks
+that `flow` is linked to selected source content or an explicit limit, and that
+the required content has a visible place in each requested medium. It cannot
+prove that the selected content truly answers the English question; the source
+owner and editor must judge that. JSON carries the selections and records, not
+every source file or every internal compilation step. A person, a script, or an
+agent may prepare the inputs; no agent is required to run the compiler.
 
 ## Product chain
 

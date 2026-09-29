@@ -96,6 +96,13 @@ medium views own page order, and each view owns its question order. This
 authoring subtraction does not alter historical Edition v1 contracts or merge
 source truth with editorial judgment.
 
+The editor's `questions[].text` is a reader-facing prompt, not an executable
+query. Publisher checks finite ID links from each selected question to source
+assertions or explicit limits and to visible medium carriers. These checks do
+not establish that a natural-language question is substantively answered, that
+the source assertion is true, or that its presentation is adequate. Those
+judgments remain with the named source owner, editor, and accepter.
+
 The initial successor authoring contract accepts exact references, not a
 query or transformation field without an implemented consumer. Such fields
 fail validation rather than promising a Candidate that cannot be built.
