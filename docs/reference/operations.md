@@ -44,7 +44,28 @@ Before pushing a new tag, create it locally and run the full repository gate
 with that exact tag present. Compare its tagger calendar date with the dated
 Changelog section; a passing untagged branch pipeline is not this check.
 
-### Last verified private release (2026-09-29): alpha.5
+### Last verified asset release (2026-10-01): alpha.6
+
+The [alpha.6 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.6)
+selects signed source `04a0511ece552efd8cbda64a6eae94cb2f5e05db` and one
+Generic Package version with eleven payloads totaling 8.11 MiB. The exact
+6000px PNG and eight-view standalone HTML passed requester review.
+
+The signed annotated tag was created locally and the exact tag-context full
+gate passed **before** tag push. Source CI 9061 passed Linux/macOS. Every
+selected asset was independently downloaded and hashed, including the
+separately bound `SHA256SUMS`; downloaded packages rebuilt five workloads and
+thirty Candidate files after relocation with empty PATH.
+
+The full current [readback receipt](../../conformance/evidence/release-alpha6-readback.json)
+is the evidence owner. The tag-context hosted pipeline is still independently
+observed there; asset reachability must not be presented as its success.
+Generic policy verification binds nineteen submitted records and reports
+`admitted: false`; explicit owner acceptance, source endorsement and delivery
+effects are separate. No ETHOS/AIGW adoption, final native Windows or
+independent off-host recovery is implied.
+
+### Historical reader release (2026-09-29): alpha.5
 
 At the 2026-09-29 release readback, the signed `v0.3.0-alpha.5` tag,
 protected `main`, and accepted `dev` selected

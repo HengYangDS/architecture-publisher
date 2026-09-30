@@ -948,45 +948,23 @@ third-party or generated supply rather than moving owned code outside coverage.
       16/16 and 17/17 respectively without INFO. The 41 focused contract
       tests and standalone relocated independent-editor build remain the
       separate behavior evidence; none establishes adopter acceptance.
-- [ ] 7.5 Freeze one `0.3.0-alpha.6` successor after Tasks 5.2 and 5.5 judge
-      the final media and their disclosed limits. Keep root, Core, self Edition,
-      dependency projection, lockfile and `CHANGELOG.md` on one SemVer identity.
-      On the selected signed source, require `npm run check` with statement,
-      branch, function and line coverage each >=95% across all owned runtime;
-      no warning, exclusion or quality relaxation. Offline-install the exact
-      Core/self archives and reproduce self, independent editor and compatible
-      external fixtures through public contracts after package/input relocation,
-      with no adjacent checkout or ambient PATH dependency. Check selected
-      supplies, recovery, independent media, actual paint, all desktop pages,
-      keyboard, accessibility, reduced motion and no-network behavior.
-      Current `b9ea164` evidence: local 1408/1411 pass, three declared skips,
-      zero failures and 97.79/95.20/99.58/97.79% coverage; Linux job 46629 and
-      macOS review job 46630 in CI 9053 pass every 95% floor. CI omits the
-      explicit browser/external-input journeys; actual local browser, paint
-      and relocated 30-member replay evidence is separately recorded.
-      Core archive SHA-256 is
-      `45e76a6373686c3214754622a6a9ac6638cfaa4c45d849bb7819778c2da6a8f9`;
-      self archive SHA-256 is
-      `7faa87f08a2795768e488ffafd4f787a2aea408145809578dab5844836ace595`.
-      See the neutral-reading receipt. This is not yet a frozen, qualified or
-      released identity. Any changed selected input renews its applicable gates;
-      evidence-only updates refresh exact-HEAD governance separately, without
-      pretending that unchanged build inputs need a new product identity.
-      A generic defect on compatible input blocks freeze; ETHOS/AIGW own their
-      Edition art, migration, acceptance, release and retirement independently.
-      Final preparation: direct exact self and neutral HTML review is accepted.
-      Role-only protection is verified against the immutable runtime; its
-      RED/GREEN remains recorded. The conflicting prepared-version URL
-      assertion was removed without weakening absolute URL, SemVer, tag/date
-      or exact-tag checks; all 22 sibling tests pass. The final working-tree
-      `npm run check` passed 1408/1411, three declared skips, zero failures or
-      warnings, and 97.79/95.20/99.58/97.79% coverage. Exact approved self
-      HTML was independently opened across all eight desktop pages with zero
-      axe findings, overflow or network requests; keyboard Inspect/Escape and
-      focus return passed. Package/media inputs remain unchanged. The signed
-      release-source proof, hosted CI and exact local tag-context gate remain
-      required. See `finalReleasePreparation` in the sole neutral-reading
-      receipt; no interrupted gate is accepted.
+- [x] 7.5 Freeze one `0.3.0-alpha.6` successor after final exact-media review,
+      role-only protection and Changelog sibling closure. Signed `04a0511`
+      passed exact-HEAD ETHOS proof and source CI 9061; local full and
+      pre-push tag-context gates passed 1408/1411, three declared skips,
+      zero failures/warnings, and 97.79/95.20/99.58/97.79% coverage.
+      Exact offline Core/self archives rebuilt five relocated workloads and
+      all 30 Candidate members with empty PATH. Current selected supplies,
+      recovery, independent media, native paint, eight self desktop pages,
+      keyboard/axe/no-network and direct exact human approval are bound in
+      `conformance/evidence/release-alpha6-readback.json` and the neutral-reading
+      receipt. The final qualification policy has 19 implementation-bound,
+      attributed records; generic `submittedVerdict: PASS` remains
+      `admitted: false`, not authenticated source truth. Explicit self
+      target-design acceptance preserves Candidate limits. Native Windows,
+      source-owned AIGW/ETHOS adoption and off-host recovery are not implied.
+      Evidence-only closeout commits renew exact-HEAD governance without
+      changing the frozen signed release or unchanged package/media bytes.
 
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release
@@ -1003,6 +981,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       at `67ade23`; its exact historical result and sequencing deviation live
       in `conformance/evidence/release-alpha5-readback.json`, not in this
       current-task status.
+      Current release and eleven single-copy Generic Package payloads exist;
+      all were downloaded and SHA-256 checked, including the separate checksum
+      digest. The downloaded packages rebuilt all 30 relocated members.
+      Documents received the exact 6000px PNG and single HTML. Source CI 9061
+      passed; protected tag CI 9067 is queued behind same-source main jobs and
+      remains observed separately. Do not close this task before its final
+      hosted readback.
 
 ## 8. Source handoff and closeout
 
