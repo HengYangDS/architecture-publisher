@@ -108,66 +108,26 @@ third-party or generated supply rather than moving owned code outside coverage.
       24/24; static and package checks passed. This slice's full check passed 694
       tests, skipped 2, and failed only the branch coverage gate at 92.91%; no
       integration or publication is admitted.
-- [ ] 2.4 Bind selected source, Edition, resource, and upstream adapter identity
-      in the input lock; bind checked parser, backend, font, renderer, and
-      Publisher implementation supplies in the Candidate after consumption.
-      `tests/input-closure.test.mjs` distinguishes observed, checked-declared,
-      merely declared, unresolved, and ambient dependencies. Do not equate a
-      Provider declaration with hermetic preparation. Ruling: this task cannot
-      truthfully close before the native adapter, qualified toolchain, and
-      selected renderers exist in Tasks 4.1 and 5.2–5.4. The current partial
-      slice binds the explicit Edition visual-policy override as materializer-
-      observed bytes, including relocation and missing/symlink rejection. Its
-      logical resource reference and digest are in the semantic lock;
-      a lock-bound read-evidence record names the actual file-read method.
-      `selected-roots-only`, the concurrent path-mutation limit, and named
-      dependency limits remain outside that identity. Do not promote a
-      toolchain profile slug or Provider declaration into observed backend or
-      hermetic evidence. A native capability-bound reader is deferred absent a
-      named hostile-mutator consumer and acceptance predicate; it is not a
-      prerequisite for this task. The focused 20/20 tests, static and package
-      checks passed; the full check passed 697 tests, skipped 2, and failed only
-      branch coverage at 92.93%. Resume complete closure at its actual consumers,
-      then close this task before Candidate qualification and protected publication.
-      The later reviewed slice corrected the lock/Candidate stage boundary and
-      added a generated, selected media-stage Publisher file-set identity with
-      an installed manifest pin and byte checks. README and unselected-medium
-      changes do not alter that identity; selected-file drift or a missing
-      manifest member fails. The next slice also binds an independent semantic
-      compiler file set and typed evidence basis/method for selected supplies.
-      The complete installed package tree is build/replay execution evidence,
-      not Candidate identity or original-builder attestation. The v2
-      qualification report excludes it: publication admission must rederive
-      exact report fields without trusting a self-reported package claim.
-      Relocation, package-only change, and during-build drift counterexamples
-      are covered.
-      A packed offline-installed package test compares the npm member
-      inventory with the current package tree and verifies identity after
-      relocation.
-      Keep this task open until the native adapter and media tasks complete
-      their acceptance; archive selection and builder provenance belong to
-      the designated accepter's publication policy.
-      A public-build regression now checks actual direct and Provider input
-      read methods against Candidate `checked-declared` parser/media supplies,
-      preserves the executable Provider's unobserved-dependency and
-      non-sandbox limits, and proves that an unselected ambient file cannot
-      enter the selected lock by proximity. A changed selected Provider input
-      fails before a Candidate. The existing derived-Claim test separately
-      retains declared but unverified adapter code as a limit. These tests do
-      not prove Provider hermeticity or original-builder provenance. The full
-      local check passed 1,310/1,313 tests with three declared skips, zero
-      failures, and 95.11% branch coverage; Task 2.4 remains open for the
-      selected media acceptance boundaries in Tasks 5.2–5.4.
-      A further RED/GREEN now requires a separate exact invoker choice for
-      every successor executable Provider on the public build and materializer
-      paths. Omitted, extra, and substituted choices leave the execution marker
-      absent; direct and declarative journeys remain choice-free. The packed
-      CLI passes after relocation, historical v1 replay remains green, and the
-      existing command gained only an exact option, not a new command plane.
-      The Chrome-enabled full check passed 1,310/1,313 tests with three
-      declared skips, zero failures, and 95.11% branch coverage. This closes
-      the code-execution admission gap, not Task 2.4's remaining selected-media
-      and upstream hermeticity limits.
+- [x] 2.4 Bind selected source, Edition, resources and upstream adapter identity
+      in the generated input lock. Bind checked parser, backend, font, renderer
+      and Publisher implementation supplies in each Candidate after consumption.
+      Keep observed reads, checked-declared supplies, declared-only, unresolved
+      and ambient inputs distinct; no Provider declaration proves hermeticity.
+      Ruling: actual native and independent-media consumers now exist and are
+      checked. Input binding no longer depends on Task 5.2's reader/form
+      acceptance or Task 5.5's human judgment; those cannot strengthen a read
+      observation and remain separate prerequisites for final publication.
+      At signed source `b9ea164`, 44 input, native-parser, implementation and
+      static-supply regressions passed without skips. A current audit verified
+      all five selected request/lock identities, read methods, resource pins,
+      checked supplies and 30 offline-installed Candidate members. Selected
+      drift fails; ambient neighboring content and package-only changes cannot
+      masquerade as selected source. The same source passed Linux/macOS CI 9053.
+      See `conformance/evidence/neutral-reading-composition-probe.json`.
+      Retain selected-inputs/roots-only, native-dependency, concurrent path-mutation,
+      unchecked authored meaning, unobserved Provider dependencies and original-
+      builder provenance limits. Complete packages remain execution evidence,
+      not Candidate input or independent builder attestation.
 - [x] 2.5 Replay exact Source Bundle v1, Claim Model v2, Edition v1,
       Provider v1, Candidate v1, and Qualification Set v1 meanings in source
       tests and a packed, offline-installed work-lane package. The frozen hash
@@ -526,461 +486,33 @@ third-party or generated supply rather than moving owned code outside coverage.
       adequacy, and visual acceptance remain explicit external obligations
       under Tasks 7.5, 8.1, and 8.2, never implied by this checkbox.
 - [ ] 5.2 Deliver an explainable neutral source-to-media composition without
-      duplicate editable facts, authored pixels, or a second layout engine.
-      Exact selected references, reader questions, group membership, typed
-      qualifiers, source identity and visible limits must survive both media;
-      infeasible composition fails instead of silently narrowing meaning.
-      Current execution order: finish complete desktop argument composition
-      on the single pinned ELK, strict normalized geometry, exact SVG, and
-      viewport-only path; retain source attribution and inspection; reconcile
-      form and long-route counterexamples before final exact-media acceptance.
-      The earlier node-only Dagre/Cytoscape ruling below is superseded by the
-      demonstrated route-owner defect, not accepted terminal quality.
-      The current painted-layer observer clears both SVG and CSS camera
-      transforms, asserts exact capture bounds, and rejects invisible frames,
-      routes, arrows, glyphs, and truncated relation wording with differential
-      paint witnesses. Complete masks still require zero contact and two-pixel
-      clearance; the deliberate collision control remains. The focused browser
-      and static-form sibling gate passed 32 tests without skips or warnings.
-      See `docs/research/mechanism-evaluation.md` for the reproduced observer
-      defects and acceptance limits. Diagnostic masks are not reader Candidates;
-      the reader's rejection of that test image does not revoke prior exact-media
-      approval or establish new-media acceptance. This task remains open.
-      A subsequent exact five-workload desktop replay exposed stale page
-      callbacks fitting hidden SVG cameras. The queued-tab RED/GREEN now ignores
-      a superseded hidden page before fitting, preserves a live restored camera,
-      and passes five focused browser, painted-ownership, and installed-supply
-      tests. Rebuild final package/browser identities after this repair; a
-      preceding green CI identity does not qualify changed runtime bytes.
-      The repaired runtime then passed all 20 desktop reading pages across self,
-      independent editor, AIGW Product/Client, and di-effect with zero page errors,
-      external requests, SVG text clipping, horizontal overflow, or Axe A/AA
-      findings. Its exact offline archives reproduced all 30 Candidate members
-      after package/input relocation. The frozen local full gate passed 1,398
-      tests, zero failures, three declared skips, and
-      97.78/95.19/99.57/97.78% statement/branch/function/line coverage. Independent
-      removal of the visibility guard reproduced the original inverse error.
-      Native CI and final visual acceptance remain separate current-byte gates.
-      The exact Effects counterexample was reproduced on unchanged source
-      selections: the fixed 1120 by 596 score favored a 667 by 671 vertical
-      figure over a readable desktop alternative. The compositor now orders
-      validated candidates by readable type, intrinsic height, then complete
-      route length; native wrapping keeps one applicability region near the
-      figure, with source status before every graph. Exact shared context uses
-      unambiguous scalar tokens instead of lossy display-string equivalence.
-      The same owner preserves distinct conditions, scopes, values, and
-      claimants in both media and Inspect. Focused RED/GREEN also repairs the
-      missing selected-view/question editorial need on infeasible text.
-      Evidence is held in `build/test-work/effects-composition-20261001/`.
-      The frozen source passed 1,404 tests with zero failures, three declared
-      skips, and 97.79/95.19/99.58/97.79% statement/branch/function/line coverage;
-      static, package, and strict OpenSpec checks passed without warnings.
-      Twenty exact AIGW desktop observations at 1600 and 1920 had no clipping,
-      horizontal overflow, page errors, external requests, or Axe A/AA findings.
-      Effects paints 1512 by 311 at 1600, with both compensation restrictions
-      visible before y=995. Five offline installed workloads match all 30
-      direct Candidate members with an empty consumer PATH. These are local
-      implementation and copied-input observations, not renewed human review,
-      source-owner endorsement, native CI for this repair, or Task 5.2 closure.
-      Partial: the public build compiles selected LikeC4 and Claim Model inputs
-      into sibling media. The grouped compositor carries source-bound relations,
-      relation-dependent and scalar claims, claimant-declared validity, and
-      private graphic bindings. Focused tests reject lost or forged carriers;
-      browser regression restores graph geometry after viewport round trips.
-      A RED/GREEN now prevents a source claim from shrinking an unchanged graph.
-      Ruling: on exact AIGW source at `bd3c09d5`, the old interactive
-      breadth-first route painted Boundary at 3.78 CSS pixels and Client
-      Projection Overview at 8.46 CSS pixels at 1280×720. Compact spacing alone
-      caused node overlap, so the Work Lane now computes neutral geometry from
-      exact selected public page data with pinned Dagre 3.1.1; Cytoscape owns
-      interaction only. The provisional edge ordinals lead to adjacent
-      source-relation text, but the reader later rejected this ledger-dependent
-      composition; it is not the terminal visual grammar. CSS reserves each
-      page's geometry-bounded height before graph startup. Verified UMD bytes
-      run in a bounded Node VM as a loader, not a
-      security sandbox. This replaces the prior special-chain layout without
-      changing source meaning
-      or static geometry; if cross-workload qualification reverses the choice,
-      only the renderer geometry and affected media review must change.
-      A generic 7-node/6-relation browser test failed at 3.78px before the
-      repair and passes above 12px without node overlap; cycle and parallel-edge
-      geometry remains stable. The current AIGW
-      source-adjacent whole-product pages paint at 14.34–16px and its Client
-      Projection pages at 16px at 1280×720, with zero node-body overlaps or
-      horizontal overflow; both static SVGs remain byte-identical. The packed
-      offline installed renderer relocates and rejects altered Dagre or
-      Cytoscape bytes. The grouped interactive slice now carries only its own
-      Edition-authored partition through Scene, neutral geometry, visible
-      compound nodes, and private graphic bindings. The final coverage join
-      rejects lost, relabeled, or forged grouping. A public dual-medium
-      counterexample now builds one static overview beside a separately selected
-      interactive chapter with grouped and upstream static geometry. The sole
-      context view still works; competing or unattributed source views still
-      fail rather than being chosen silently. The 72 runnable focused tests,
-      static/spec/package checks, and the earlier Chrome regression pass.
-      Task 7.5 owns the still-failing global 95% branch gate. AIGW has not
-      authored interactive groups; static groups are not inferred.
-      The selected data-only refinement now names every requested medium and
-      permits an explicit neutral sibling without silent fallback. An authored
-      Scene now binds only its own medium decision, not a sibling's data. A
-      measured mixed-static compositor selects the shorter feasible claim
-      placement without collapsing a dense two-column card. The exact locally
-      packed source at signed `e97e87c` (archive SHA-256
-      `f6281e2ff40fcca7b2be4e1a05af6f22a028075dbc4a0615038cd8485e5222bd`)
-      rebuilt both copied AIGW-derived trials after offline installation and
-      relocation: all six Candidate members matched direct public CLI bytes.
-      On unchanged AIGW-derived trial inputs, the horizontal 3600px static
-      image shortened from 1704 to 1292px and the two-row alternative from 2178
-      to 2065px; source locks and interactive HTML remained byte-identical.
-      Focused counterexamples
-      preserve the old short-note layout and reject an infeasible candidate
-      without losing a valid one. This is a mechanism probe, not AIGW source
-      adoption or qualification. These trials reduce blank canvas, but reader
-      text and overall art direction remain below flagship quality; AIGW
-      editorial approval and final media review remain open.
-      Publisher self, ETHOS and di-effect successor media, selected-media
-      coverage, source/editor acceptance, final visual review, and predicate
-      qualification remain open.
-      Partial: ordered static views now compile into one source-bound figure
-      from graph, relation, claim and limit parts, with separate carrier maps
-      and common method notes factored once. A same-row route-through-node and
-      group-heading/edge collision were reproduced and repaired. A subsequent
-      visual review found four edge-segment contacts missed by the earlier
-      text-only browser audit; that audit was not a whole-page collision
-      verdict. The neutral grouped owner now separates inter-group corridors,
-      rejects infeasible edge crossings, and retains room for on-graph labels.
-      Fill-only groups, content-dependent geometry, and per-gap spacing reduce
-      empty frames without widening unrelated gaps. On unchanged AIGW external
-      trial input (`bfb1b6c6`), the direct Candidate at
-      `build/review/aigw-two-view-trial/candidate-claim-ledger` has a
-      3600×2357 PNG, down from 3600×2513; its SVG has zero edge-segment
-      contacts versus four, preserves 64 visible text items, and has no
-      measured text collision in Chrome 154. The interactive medium now flows
-      unequal claim details in source order rather than stretching shorter
-      cards to the longest card's height. Chrome 154 checked all six trial
-      pages: no horizontal overflow, external request, script error or
-      WCAG 2.1 A/AA violation. Direct and offline installed Candidates match
-      all six members byte-for-byte. The full check passes 1217 tests with
-      7 skips and 95.05% branch coverage; evidence is
-      `build/review/aigw-two-view-trial/full-check-claim-ledger.log`,
-      `claim-ledger-browser.json`, and `visual-audit-repair.json` for the
-      byte-identical static media. This is not AIGW adoption, human approval
-      or full qualification.
-      Remaining: extend the measured Scene audit to the complete neutral page,
-      rank feasible whole-page candidates and review visual mass/readability
-      on the final selected media before Task 7.5 freeze.
-      On the same locked AIGW two-view input, generic source relation verbs now
-      sit beside their edges; only qualifier-bearing relations retain notes.
-      Intrinsic group widths prevent a one-member group from inheriting an
-      unrelated wide frame. The exact Candidate at
-      `build/review/aigw-two-view-trial/candidate-intrinsic-current` replays;
-      its 3600×2174 PNG retains the prior input-lock and interactive HTML bytes.
-      Chrome 154 measured 62 SVG text elements, no text overlap and no sampled
-      path/text contact within four SVG units; evidence is
-      `build/review/aigw-two-view-trial/intrinsic-browser-audit.json`. This is
-      not whole-page aesthetic acceptance. The full check passed 1232 tests,
-      skipped 2 input-dependent tests, and reached 95.07% branch coverage.
-      The separate `candidate-authored-overview` still fails human visual
-      review; do not transplant its pixels into AIGW. Product-owned whole-page
-      composition and final-media review remain open.
-      Current neutral-static slice: the signed AIGW source `bdb77d55` adds a
-      source-backed control-to-transaction relation. Publisher's compact Dagre
-      placement now uses an exact-member reading key instead of floating group
-      headings that visually reassigned members. Public CLI trials for Product
-      and Client Projection are under
-      `build/review/aigw-static-group-key-provisional-20260928/`, bound to request
-      SHA-256 `ee7cf3c9` and `79fafbd8` respectively. Chrome 154 measured 67
-      SVG text elements per figure, zero text overlaps, sampled path/text
-      contacts, or text overflow at 1280 CSS pixels. Full tests pass 1,250
-      with seven skips; branch coverage is 95.03%, and static/strict OpenSpec
-      checks pass. The exact Product and Client HTML pass a ten-page Chrome
-      structural/axe check at 1280×800 with no page errors, external requests,
-      horizontal overflow, or WCAG A/AA findings; the provisional receipt is
-      `build/review/aigw-static-group-key-provisional-20260928/interactive-browser-audit.json`.
-      These observations are not final human visual approval or AIGW acceptance;
-      Task 5.2 remains open. The reader subsequently rejected both AIGW static
-      compositions, not only Product: the Product PNG at SHA-256
-      `28e77aa47b610705a7e9843ecd04064559503f87a77e2c4630f5a08fda129a6a`
-      and Client Projection PNG at SHA-256
-      `965f5a81ca2974edafbf1fcd8f7f22da4b9f39e952a1238f0edd7597644db9d8`
-      (built from AIGW `b1f4d212`) both have reported overlap, excessive blank
-      area, and weak whole-page composition. Passing sampled collision checks
-      does not override this visual failure. Rework the shared neutral figure
-      composition and source-owned static art direction as distinct
-      responsibilities. The neutral width and side-rail probes did not solve
-      whole-page hierarchy; use the selected whole-medium authored scene
-      contract where neutral geometry cannot meet the reader question. Do not
-      accept or publish either AIGW static Candidate or treat the current AIGW
-      Edition as visually accepted. Publisher's public build now accepts one
-      data-only authored static canvas across ordered views, retains per-view
-      assertion attribution, and derives exact selected relation endpoints without
-      duplicate entity selections. The unrelated Claim Model public-build and
-      negative-boundary test pass; `npm run check` passed 1,250 tests with seven
-      skips and 95.05% branch coverage (all four dimensions above 95%). This
-      is a generic contract and does not change the rejected AIGW media or
-      substitute for AIGW-authored static art and exact-byte visual acceptance.
-      A current read-only adoption audit at AIGW `01776f2` measured 1,289
-      Product and 1,252 Client Projection static-refinement JSON lines for
-      twelve nodes and eleven relations each. This is not a code-quality score,
-      but it blocks a claim that the generic baseline has removed pixel-level
-      authoring cost. Close this task only with a new source-bound neutral
-      whole-page candidate for both reading questions that passes actual
-      legibility, hierarchy, balance and complete-carrier review without
-      authored coordinates. An infeasible trial must fail by name and leave
-      this task open, not borrow acceptance from a source-owned flagship
-      refinement. Measure the manual edit burden after one source relation
-      change. Do not trade exact source qualifiers or disclosed limits for
-      apparent compactness, and do not add
-      a second geometry engine without a demonstrated irreducible failure.
-      A 2026-09-30 source-preserving, no-refinement trial from AIGW `01776f2`
-      built Product and Client Projection neutral Candidates through the public
-      command; their static figures remain reader-unaccepted. Splitting the
-      Product questions into separate scratch Editions did not cure the page
-      problem: the Delivery-only figure grew to 3600 by 3678. The reader-
-      surface boundary now retains exact method limits in each Candidate while
-      removing raw method codes from the static art. Input locks and interactive
-      HTML remain byte-identical; Client height fell from 3061 to 2913 pixels,
-      Product remains 2639 pixels tall. The source full gate passed 1311 tests,
-      skipped three declared cases, failed none, and met the four 95% coverage
-      floors (branch 95.01%). Whole-page hierarchy and redundant reading/
-      relation inventories still fail reader acceptance; neither these builds
-      nor output plurality closes 5.2.
-      A controlled AIGW Client source edit synchronized one relation qualifier
-      and its linked Claim scope. Direct-locator and declarative-Provider public
-      builds yielded equal selected locks and media before and after the edit.
-      Direct needed no Build Request edit; exact Provider needed member size,
-      member digest, and selected manifest digest refresh, and stale input was
-      rejected. An editorial-only change touched only the Edition under both
-      routes. This measures authoring churn, not AIGW route approval, visual
-      quality, or independent cross-owner custody.
-      At signed `c1f6b28`, the flat-structure slice removed the authored-group
-      prerequisite for Claim Model entity/relation views without changing the
-      claim-only path.
-      A source-preserving copy of AIGW `01776f2` built both no-group/no-refinement
-      Candidates through the public CLI; their PNG SHA-256 values are
-      `21c49096f345413ed7a5ef69d72b9396056dd0bfd2d4d92ea3bb4906afd5ead1`
-      (Client) and
-      `51b51b24cecde6230d821acc0f7d032ee6f90f32c48d2a8776b0d482dbe57e93`
-      (Product). This proves the input no longer needs dummy groups, not that
-      either whole-page composition is visually accepted. The focused set
-      passed 98 tests with one declared skip; the full test run passed 1,312
-      tests with three declared skips and reached 97.72/95.01/99.54/97.72%
-      statement/branch/function/line coverage.
-      The exact task remains open pending reader-quality acceptance.
-      The next raw entity/relation single-view trial reused the existing
-      complete figure grammar. A public rebuild from unchanged copied AIGW
-      input changed Client static PNG to
-      `3d955b2b2d2030673fb976350bb25fa6741263426d4b1d6136994e1e4c540338`;
-      Product static and both interactive HTML bytes stayed identical. Agent
-      inspection found clearer question-to-graph hierarchy. The full source
-      gate passed 1,312 tests with three declared skips and 95.02% branch
-      coverage, but neither AIGW source acceptance nor human visual acceptance
-      is established.
-      A later neutral visual counterexample exposed inconsistent box widths and
-      half-row node placement. The static adapter now measures one box per view,
-      prefers regular-row Dagre geometry, and retries balanced geometry only
-      when a caption cannot clear the regular routes. The current source gate
-      passes all checks at 97.73/95.03/99.54/97.73% statement/branch/function/
-      line coverage. Copied AIGW inputs produced new Client and Product static
-      trials at `build/test-work/aigw-neutral-attributed-228a2b1/candidate/`
-      under `client-projection-aligned` and `product-aligned`. On 2026-09-30 the
-      requester accepted their exact PNG SHA-256 values
-      `561367255c9e06f54d7a882a3a95caba241b93ac195e1f73bd805868b822fbbe`
-      and `351d7ac38d12a37740372f708df92761dd635413c200c326982f4d71fc072bfe`
-      as Publisher neutral visual baselines for fidelity, clarity and elegance.
-      This grants no AIGW source, Edition, interactive-media or publication
-      acceptance; the broader task remains open.
-      The same reader rejected both interactive HTML works for excessive
-      blank space, stacked text and weak visual meaning. The 2026-09-30
-      measured probe found that none of 46 AIGW relation labels fits the
-      provisional 50px rank gap at the selected font and clearance. A
-      one-record Inspect/paired-rail experiment reduced raw dumps but still
-      failed the reader's aesthetic and diagram-first test; its exact patch
-      remains in ignored local trial evidence, and the Lane source was reset
-      before the replacement design. This was a graph-level diagnosis, not a
-      whole-page design decision. Do not transfer static approval to
-      interactive media.
-      A fresh Chrome comparison on the selected AIGW Client input found one
-      painted predicate collision (`r-6`/`r-8`) at 1600 by 1000 and zoom 1,
-      although measured Dagre label boxes were mutually clear. A disposable
-      SVG route projection removed that local collision, while Product
-      Boundary remained an unbalanced 413 by 813 vertical figure. The ignored
-      screenshots are under `build/test-work/diagram-first-iteration/`;
-      `client-overview.png` and `svg-client.png` have SHA-256 values
-      `35750f835591b2e32f93ad8bac04c8799648f6f58cbce639022f85495c7d1396`
-      and `77d244db64b559decc4f3e26271343eb79ad597d823a8e8b3be09cb5a20595f4`.
-      The subsequent adapter-only implementation remained a text-light but
-      visually weak and form-mismatched page; the reader rejected it. Its
-      exact recoverable diff is preserved only as ignored local experiment
-      `build/test-work/diagram-first-iteration/adapter-only-abandoned.patch`
-      (SHA-256
-      `7cf13a8ae14f70b84299d163d1ead2a37f39d248ce83cdf23fe071bdaddeb5f9`).
-      Applying it was reverse-checked before the owned changes were removed;
-      the worktree returned clean at signed `69a302c`. This supersedes the
-      prior renderer-replacement ruling: neither bare SVG nor another graph
-      adapter solves a question asked in the wrong visual form.
-      A read-only, same-input tool trial found D2 0.9.0 Dagre/ELK/TALA
-      produced long-strip Product Boundary graphs (4080x468, 3920x388,
-      3008x574 output pixels). Direct ELKjs 0.12.0 `MULTI_EDGE` wrapping
-      proposed a 920x401 graph, but its long return routes are not a
-      whole-page or semantic acceptance. The current decision is to select
-      and validate the Edition's question-matched visual argument before
-      choosing graph layout, composition, or interaction supply. Benchmark
-      mature form/layout candidates on complete Product Boundary, Client
-      Overview, self-use, and an independent adopter before committing a
-      new runtime dependency. Derive each comparator's question selection
-      from the materialized Edition meaning, or mechanically prove exact
-      selected IDs, qualifiers, limits, and source hashes; reject extra or
-      missing question assertions before visual comparison. The corrected
-      ECharts boundary probe in `docs/research/mechanism-evaluation.md`
-      records an initial selection-mismatch counterexample. Add a negative
-      responsibility-form case whose relation graph has no supported role
-      bindings: it must report the missing question/roles, not emit a final
-      diagram. A positive case must bind each role and handoff to selected
-      source or attributed editorial meaning, preserve conditions and limits,
-      and pass complete-page review without treating editor assertions as
-      source endorsement. Tasks 5.2 and 5.4 remain open.
-      A first schema-bound `architecture.visual-form/v1` slice now binds a
-      one-question responsibility form to existing view groups and selected
-      assertions without duplicating membership. Pre-layout counterexamples
-      reject bare structural authority, omitted or unrelated bases, duplicate
-      roles, unsupported members, and reversed or unrelated handoffs with
-      question/role diagnostics. One independent review exposed authored-path
-      bypasses; the shared public build gate now rejects selected forms before
-      any renderer dispatch, and both authored override paths have public
-      no-Candidate regressions. The re-review found no new concrete defect.
-      The 18 focused form cases and Chrome-enabled full check passed
-      1,333/1,336 tests with three declared skips and
-      97.72/95.01/99.54/97.72% statement/branch/function/line coverage.
-      This is semantic preflight only: no positive visual Candidate, AIGW
-      acceptance, or Task 5.2 closure.
-      A positive interactive renderer now separates responsibility domains,
-      within-domain source relations, attributed handoff, and cross-domain
-      relations without reclassifying a source edge as ownership. The same
-      read-only AIGW seven-entity/six-relation/one-Claim trial preserves all
-      selected carriers; desktop Chrome at 1280 and 1600 CSS pixels found no
-      horizontal overflow or mini-route text overlap. The trial remains
-      unqualified and unapproved by AIGW; its visual hierarchy is not yet
-      flagship acceptance. Static responsibility composition and cross-workload
-      qualification remain open, so Task 5.2 stays unchecked.
-      The signed `ab71fe6` Core archive was installed offline and its public
-      CLI rebuilt the exact six-member trial Candidate after the consumer and
-      three selected inputs moved outside the checkout. The bounded identities
-      and limits are in `conformance/evidence/responsibility-form-installed-probe.json`;
-      this is local conformance, not AIGW acceptance or release qualification.
-      On the same AIGW static Edition, rotating the pinned Dagre graph to TB
-      reduced individual widths but produced portrait panels and large unused
-      work area; bypassing the figure's one-column fallback did not cure the
-      imbalance. The bounded counterexample is in
-      `docs/research/mechanism-evaluation.md`. Do not auto-rotate or silently
-      omit source meaning: test a separately selected static visual argument.
-      A separate one-question static `boundary` Edition preflight on the same
-      pinned AIGW Model and Build Request now compiles six source relations,
-      one Claim, five editorial assertions, four roles, one handoff and its
-      explicit limit. At that checkpoint the public build stopped at
-      `edition_visual_form_renderer_unavailable` with no Candidate; its exact
-      transformation and hashes are in `docs/research/mechanism-evaluation.md`.
-      This isolated the missing static Scene/renderer rather than approving
-      AIGW's editorial substitution or Task 5.2.
-      The Work Lane now has a separate static responsibility Scene and SVG/PNG
-      renderer behind the same public build, with exact source entity,
-      relation and Claim carriers plus distinct visible role, handoff,
-      qualifier and limit treatments. Source, renderer and
-      visible-coverage regressions reject unsupported or forged forms; a
-      four-role AIGW-derived trial builds without using interactive geometry.
-      The exact provisional media hashes, bounded grammar and background
-      Chrome text/route clearance observation, plus byte-identical locally
-      packed offline-installed replay, are in
-      `docs/research/mechanism-evaluation.md`. This is neither source-owner
-      acceptance nor final composition, released-package replay or Task 5.2
-      closure.
-      After the role-order correction, the complete local `npm run check` on
-      these implementation bytes passed 1,350/1,359 tests with nine declared
-      skips and zero failures; statement, branch, function and line coverage
-      were 97.69/95.00/99.56/97.69%. A later public rebuild of the retained
-      broad-title AIGW trial matched all six previous Candidate members, but
-      did not rerun the narrower responsibility-title trial. Pixel-tool
-      research identifies painted-layer and approved-baseline comparisons as
-      still needed; it does not admit a new service or grant visual acceptance.
-      Exact frozen-package and human review remain separate Task 7.5 gates.
-      A new copied-input, unapproved four-role AIGW trial selects only the
-      `boundary` question for static while retaining six interactive chapters.
-      Its source Model and Build Request bytes remain pinned; the narrowed
-      Edition and media have fresh identities recorded in the mechanism study.
-      Chrome found no static text collision or text/stroke contact within a
-      2px square dilation. The local provisional Core rebuilt all six current
-      Candidate members byte-for-byte after offline installation and external
-      input relocation with empty HOME/PATH. This establishes neither AIGW
-      editorial acceptance nor a flagship visual work; Task 5.2 stays open.
-      The previous four-section HTML remains a frozen counterexample: at
-      1600×1000 its separated role, relation, and handoff sections extended to
-      y≈1267. This Lane now composes those selected meanings as one connected,
-      question-led interactive map, separate from the static Scene. Focused
-      Chrome tests check node-edge attachment, role and handoff alignment,
-      painted text clearance, WCAG AA contrast, and page-local SVG IDs. The
-      then-selected full local gate passed 1,375/1,378 tests with three declared
-      skips and 97.71/95.03/99.56/97.71% statement/branch/function/line
-      coverage. This proves the selected implementation and synthetic visual
-      cases, not source-owner approval or flagship acceptance. At signed
-      `4c5e0dc`, the unchanged copied AIGW input rebuilt a new Candidate:
-      static PNG bytes were unchanged and interactive HTML changed. At
-      1600×1000, the Boundary figure and limit fit in the first screen; all
-      12 endpoints of six relations lie within 6.13 CSS px of their nodes,
-      with zero painted text/path contact within two pixels. Six pages had no
-      observed external request, page error, horizontal overflow, or Axe WCAG
-      A/AA violation. The other five chapters remain graph-plus-ledger works
-      from 1,203 to 2,105 CSS px high; the Selection counterexample is tracked
-      in `docs/research/mechanism-evaluation.md`. This is an unapproved
-      copied-input trial, not installed replay, AIGW acceptance, or Task 5.2
-      closure.
-      Current follow-up: neutral graph relations now carry exact measured
-      wording; compact source Claims retain visible applicability and full
-      records move to Inspect with unique primary graphic IDs. The focused
-      reader/compiler/installed-neutral suite passed 96/96; the complete local
-      gate passed 1,380/1,383 with three declared skips, no failures, and
-      97.72/95.05/99.56/97.72% statement/branch/function/line coverage.
-      Current docs and two rendered dependency diagrams distinguish Project
-      authoring, historical input, build, acceptance, and local effects;
-      41 active Markdown carriers have no missing local link or checked anchor.
-      Stable pixel-comparator controls and the six-page copied-input readback
-      are recorded in the mechanism study, not treated as source acceptance.
-      Full painted graph-label clearance, question-level cues, flagship review,
-      exact installed multi-workload freeze, and adopter acceptance remain open.
-      A same-supply counterexample found that height-only ordering selected
-      a 920px wrap detour to save 89px height in Client Overview. Two RED
-      layout tests now require readable native composition without that
-      detour and admit a wider bounded wrap. The existing owner compares
-      height plus mean extra route distance; the painter still preserves
-      every selected point. The four-candidate 64-page worker-boundary RED
-      test also passes. All 44 focused geometry, browser, paint, and sibling
-      tests pass without warnings or skips. The Product Boundary editorial
-      form still requires AIGW source/editor acceptance; no inferred ownership
-      or accepted adopter source was changed. The full local gate then passed
-      1,407/1,410 tests with three declared skips, no failures or warnings, and
-      97.79/95.19/99.58/97.79% statement/branch/function/line coverage. Exact
-      offline Core/self installation and relocated input replay matched all
-      30 Candidate members. Twenty desktop page observations and all ten
-      actual AIGW paint checks passed. The exact comparison, member hashes,
-      reviewed scope, and failed independent-review limitation are in
-      `conformance/evidence/neutral-reading-composition-probe.json`. Current
-      source-owner form acceptance, final visual review, hosted/native freeze,
-      and protected release remain unproved; this task is not closed.
-      An independent whole-work follow-up found the remaining empty qualifier
-      track: a spanning heading kept an unused auto-fit column. The focused
-      Chrome RED observed 935px available versus 453.5px article width. Moving
-      only the heading outside the article grid makes Product Boundary use
-      its full 742/802px track at 1600/1920, with 103px reading height at both
-      widths instead of 103/145px. Exact meaning, graph geometry, all static
-      bytes and the entire self Candidate remain unchanged. The real browser
-      regression, 28 focused siblings, twenty desktop observations, ten full
-      paint checks and relocated five-workload package replay pass. Evidence
-      remains scoped to composition, not source endorsement or final aesthetics.
-      The full local gate on the repaired bytes passed 1,408/1,411 tests with
-      three declared skips, zero failures, no warnings and
-      97.79/95.20/99.58/97.79% statement/branch/function/line coverage. The
-      independent whole-work follow-up confirmed the empty track resolved
-      without another actionable sibling defect. Exact source/native freeze
-      and the source-owner responsibility decision remain separate boundaries.
+      duplicate editable facts, authored pixels or a second layout engine.
+      Preserve exact selected references, reader questions, group membership,
+      typed qualifiers, conditions, source identity and visible limits in both
+      media. An infeasible or unsupported selected form must fail with the
+      exact view/question rather than silently narrow meaning or invent roles.
+      Keep one pinned ELK route owner for neutral interactive geometry and
+      viewport-only navigation. Static composition stays independent. A native
+      topology cannot become responsibility authority; explicit source/editor
+      role and handoff bases are required for that selected form.
+      Current mechanical evidence at signed `b9ea164`: complete glyph/frame/
+      route/arrow paint witnesses for ten AIGW graphs have zero contact and
+      two-pixel clearance; twenty desktop observations at 1600/1920 have no
+      errors, network requests, overflow or Axe A/AA findings. The heading-track
+      RED/GREEN and 28 sibling tests preserve all meaning, geometry and static
+      bytes. Five relocated installed builds match all 30 Candidate members.
+      Local and Linux/macOS gates pass with every coverage dimension >=95%.
+      See `conformance/evidence/neutral-reading-composition-probe.json` and
+      `docs/research/mechanism-evaluation.md` for exact identities, counterexamples,
+      superseded tool choices and observation limits; earlier task history is
+      preserved in signed `b9ea164`, not copied into current progress.
+      Remaining: complete reader/form and final aesthetic acceptance on the
+      frozen generic/self work and neutral external HTML. AIGW's responsibility
+      question still needs its source/editor's disposition under Task 8.1; the
+      unapproved role trial is not adopted truth. A generic defect on compatible
+      selected input blocks freeze; another product's release approval does not.
+      Geometry, source endorsement, prose adequacy and final aesthetics remain
+      separate predicates. No mobile, narrow-screen or manual pixel fallback.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -1081,43 +613,23 @@ third-party or generated supply rather than moving owned code outside coverage.
       Reader-level composition and AIGW editorial form/long-route concerns
       remain Task 5.2; final frozen packages and renewed self HTML review
       remain Task 7.5; source-owner acceptance remains Tasks 8.1–8.2.
-- [x] 5.5 Keep the first-party self Edition on the same public Build Request,
-      Edition Project, data-only refinement, and dual-medium compiler as other
+- [ ] 5.5 Keep the first-party self Edition on the same public Build Request,
+      Edition Project, data-only refinement and dual-medium compiler as other
       adopters. Preserve its source-owned meaning and flagship art direction;
       prove selected-meaning coverage, installed relocation, independent media,
-      browser accessibility, and final-byte human visual acceptance. The
-      signed baseline `8742c49` and
-      `conformance/evidence/self-migration-baseline.json` record the old/new
-      comparison; the alpha.5 Release records later exact-byte acceptance
-      without transferring it to the unreleased successor. Current
-      work in this Lane removes the redundant self-generated v1 Edition and
-      plan, authors one direct Project with distinct static structural and
-      interactive Claim scope, and removes a false static-Claim limitation.
-      The current self-model correction also removes its stale Edition v1
-      attribution and phantom Source Bundle-to-Build selection; the generated
-      Bundle remains separate provenance evidence.
-      The exact self Candidate, installed journey, selected-meaning checks,
-      browser/accessibility observations, and human review now close this
-      first-party Edition task for the selected media bytes.
-      On 2026-09-30 the requester visually accepted the exact signed `cc47d3e`
-      self Candidate's static PNG
-      (`85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712`)
-      and standalone interactive HTML
-      (`481582f6dd05d322b5a41122f393d117e7886570569212ba8616a521256498ea`)
-      for fidelity, clarity, and elegance, including the editorial-ownership
-      header. This is exact-media human visual review only; it is not source
-      endorsement, Candidate qualification, or release approval.
-      A current read-only selection from signed `455ed47` reproduced the
-      approved input lock. The public CLI rebuilt all six Candidate members
-      byte-for-byte, including both approved media. Fresh self-Edition tests
-      passed 18/18 with offline package installation, relocated inputs,
-      independent static/interactive compilation, and keyboard inspection;
-      the generic offline dual-medium package-relocation test passed 1/1.
-      Headless Chrome checked the exact approved HTML at 1600x1000: all eight
-      embedded pages and outer shells had no axe WCAG A/AA violations, page
-      errors, external requests, or horizontal overflow. These checks do not
-      turn the Candidate into a qualified publication or prove source-owner
-      endorsement; Task 7.5 still owns frozen-package qualification.
+      browser accessibility and final-byte human visual acceptance.
+      Ruling: reopen exact-media acceptance. The approved historical PNG still
+      matches SHA-256 `85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712`;
+      approved HTML `481582f6dd05d322b5a41122f393d117e7886570569212ba8616a521256498ea`
+      does not match current HTML
+      `eb8e4a5cd76ac52a3dc8a50e6bb93417c8f20da5a59b0e1a16b81ec920d579c6`.
+      Identical screenshots, unchanged selected meaning and the latest
+      independent layout review do not transfer an exact-byte human decision.
+      Current package, browser/Inspect, accessibility and all six self-member
+      checks remain evidence. Await the final selected-media judgment without
+      blocking independent work or asking after every intermediate rebuild.
+      Historical approvals remain in `conformance/evidence/alpha6-local-freeze-probe.json`;
+      current identities and limits are in the neutral-reading receipt.
 
 ## 6. Qualification and bounded publication
 
@@ -1436,91 +948,32 @@ third-party or generated supply rather than moving owned code outside coverage.
       16/16 and 17/17 respectively without INFO. The 41 focused contract
       tests and standalone relocated independent-editor build remain the
       separate behavior evidence; none establishes adopter acceptance.
-- [ ] 7.5 Freeze the current `0.3.0-alpha.6` successor only after Task 5.5
-      judges the exact self static and interactive media and its disclosed
-      limits. Keep the root, Core, self-Edition, dependency projection,
-      lockfile, and `CHANGELOG.md` on one SemVer identity. On the selected
-      signed source, run `npm run check` with statements, lines, branches,
-      and functions each at least 95% across the full owned runtime scope;
-      do not relax exclusions or warnings. Pack and install the exact Core
-      and self-Edition offline, then reproduce self, the independent editor,
-      and the Task 7.1 external conformance fixtures through public contracts
-      after relocation and without adjacent checkouts. Check selected supplies,
-      recovery, independent media, painted static output, all interactive
-      pages, keyboard, accessibility, reduced motion, and no-network behavior.
-      A generic Publisher defect exposed by an external fixture blocks this
-      freeze; ETHOS and AIGW still own their own Edition art, acceptance,
-      release, and retirement. Any changed selected input or artifact renews
-      applicable checks and exact-byte human review. At signed `d4e4e3e`,
-      the complete local gate passed 1,304/1,307 tests with three declared
-      skips, zero failures, and 97.74/95.11/99.54/97.74% statement/branch/
-      function/line coverage. Two exact alpha.6 archives were offline-
-      installed outside the checkout. Self, independent editor, AIGW Client,
-      AIGW Product, and the di-effect research fixture rebuilt all six
-      Candidate members byte-identically after package and input relocation;
-      self media also match the requester's exact reviewed bytes. Chrome
-      exercised all 20 selected reading pages at 1600x1000 with reduced motion,
-      no axe A/AA violations, page errors, external requests, or horizontal
-      overflow. Decoded static PNGs are nonblank, not thereby aesthetically
-      accepted. The exact packages, members, methods, and limits are in
-      `conformance/evidence/alpha6-local-freeze-probe.json`. The same two
-      packages then passed offline installed-use checks in Linux ARM64 Node
-      22.23.3, 24.19.0, and 26.9.0 containers: each matched all 30 Candidate
-      member hashes across the same five workloads with no install warning.
-      This remains local provisional evidence, not a native Linux host or
-      hosted-CI result; Tasks 2.4, 4.1–4.3, and 5.1–5.4 retain open acceptance
-      boundaries. No Candidate qualification or release follows.
-      At signed `5b06b1a`, a public self build from 20 selected source files
-      retained the exact approved static PNG SHA-256
-      `85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712`.
-      The standalone HTML changed to SHA-256
-      `680353b29a1e54384ed699ea88b4413bba80e11c5c380723262e91c7f873489c`;
-      headless Chrome at 1600×1000 and reduced motion produced byte-identical
-      screenshots to the approved predecessor for all eight pages and no page
-      errors. This does not transfer exact-byte human acceptance or prove an
-      installed, hosted or released candidate. Retain one exact-media review
-      at the final freeze rather than asking after every intermediate change.
-      From signed `a0b2c2b`, the pinned npm 11.19.1 packed both alpha.6
-      workspaces; their exact archives were installed offline. The installed
-      consumer and selected inputs were relocated outside the checkout, then
-      rebuilt self, AIGW Client, AIGW Product, independent editor and di-effect
-      through the public CLI with an empty PATH. All 30 Candidate members
-      matched the current source-built bytes. Headless Chrome checked all 20
-      pages with reduced motion: no axe WCAG A/AA violation, page error,
-      external request or horizontal overflow. Current PNGs decode as
-      nonblank. The task-owned provisional receipts are
-      `build/test-work/alpha6-post-layout-current/installed-replay.json`
-      (SHA-256 `2a5d510204e2723ca3342420994ac199192a2606005cb4466f2576076d91bdfc`)
-      and `build/test-work/alpha6-post-layout-current/browser-replay.json`
-      (SHA-256 `19cd5b77b08d4d6789e929456e951c9b59d5a031c242ab89dddc157e0958d6f0`).
-      External source acceptance, final exact-media human review, native-host
-      and hosted CI, qualification and release remain unproved.
-      The current CI now invokes the same repository gate on Linux ARM64 and
-      native macOS ARM64. GitLab ref protection selects protected versus
-      review macOS Runners without enumerating branch names. A job-local
-      `umask 022` reproduces historical npm TAR member permissions. In the
-      exact accepted-base canary `01f2393`, hosted pipeline 8999 passed both
-      Linux and macOS jobs, including native CoreText tests; this is a dated
-      prerequisite probe, not qualification of this Lane. Current CI lint
-      dry-runs for dev, main and the active proposal pass without warnings and
-      select the intended Runners. Execute the current signed source jobs
-      before freeze and protected publication.
-      The current single-owner geometry and paint-observer slice passed a
-      frozen local gate with 1,397/1,400 tests, three declared skips, no failures
-      or warnings, and 97.78/95.19/99.57/97.78% statement/branch/function/line
-      coverage. All 745 recorded repository inputs remained unchanged during
-      that run. Static checks, 17 strict OpenSpec subjects, package validation,
-      and the independent bounded observer review passed separately. This
-      local evidence does not transfer historical media approval, establish
-      current hosted/native CI, or admit release and source-owner migration.
-
-      Hosted pipeline 9046 at signed `d64592d` passed Linux job 46606 and
-      native macOS job 46619, each with all four coverage floors above 95%.
-      The first macOS job failed one negative CoreText test at compilation;
-      the same-source focused test and one bounded native retry passed. Retain
-      both results without relaxing limits. That signed-source result does not
-      qualify the subsequent heading-track repair or imply frozen release.
-
+- [ ] 7.5 Freeze one `0.3.0-alpha.6` successor after Tasks 5.2 and 5.5 judge
+      the final media and their disclosed limits. Keep root, Core, self Edition,
+      dependency projection, lockfile and `CHANGELOG.md` on one SemVer identity.
+      On the selected signed source, require `npm run check` with statement,
+      branch, function and line coverage each >=95% across all owned runtime;
+      no warning, exclusion or quality relaxation. Offline-install the exact
+      Core/self archives and reproduce self, independent editor and compatible
+      external fixtures through public contracts after package/input relocation,
+      with no adjacent checkout or ambient PATH dependency. Check selected
+      supplies, recovery, independent media, actual paint, all desktop pages,
+      keyboard, accessibility, reduced motion and no-network behavior.
+      Current `b9ea164` evidence: local 1408/1411 pass, three declared skips,
+      zero failures and 97.79/95.20/99.58/97.79% coverage; Linux job 46629 and
+      macOS review job 46630 in CI 9053 pass every 95% floor. CI omits the
+      explicit browser/external-input journeys; actual local browser, paint
+      and relocated 30-member replay evidence is separately recorded.
+      Core archive SHA-256 is
+      `45e76a6373686c3214754622a6a9ac6638cfaa4c45d849bb7819778c2da6a8f9`;
+      self archive SHA-256 is
+      `7faa87f08a2795768e488ffafd4f787a2aea408145809578dab5844836ace595`.
+      See the neutral-reading receipt. This is not yet a frozen, qualified or
+      released identity. Any changed selected input renews its applicable gates;
+      evidence-only updates refresh exact-HEAD governance separately, without
+      pretending that unchanged build inputs need a new product identity.
+      A generic defect on compatible input blocks freeze; ETHOS/AIGW own their
+      Edition art, migration, acceptance, release and retirement independently.
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release
       decision, and a local full gate with the exact annotated tag present

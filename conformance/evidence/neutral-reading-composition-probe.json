@@ -629,5 +629,109 @@
         "sha256": "4baf9593224f9f4e8eb84864ef850f34430f8a97a8cd8a201bf2412961ebb652"
       }
     }
+  },
+  "currentSignedSourceChecks": {
+    "status": "current signed-source mechanical checks passed; final media acceptance and release remain open",
+    "sourceCommit": "b9ea16446a301bec9d176ff0c800d93ead897d75",
+    "pipeline": {
+      "id": 9053,
+      "url": "http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/pipelines/9053",
+      "jobs": [
+        {
+          "id": 46630,
+          "name": "verify:macos:review",
+          "status": "success"
+        },
+        {
+          "id": 46629,
+          "name": "verify",
+          "status": "success"
+        }
+      ],
+      "linux": {
+        "passed": 1379,
+        "total": 1411,
+        "declaredSkipped": 32,
+        "failed": 0,
+        "coverage": {
+          "statements": 97.04,
+          "branches": 95.21,
+          "functions": 98.95,
+          "lines": 97.04
+        }
+      },
+      "macos": {
+        "passed": 1394,
+        "total": 1411,
+        "declaredSkipped": 17,
+        "failed": 0,
+        "coverage": {
+          "statements": 97.79,
+          "branches": 95.15,
+          "functions": 99.58,
+          "lines": 97.79
+        }
+      },
+      "limits": [
+        "browser checks require explicit local executable and were skipped in hosted CI",
+        "Linux skips CoreText-only cases; source-owned external/rehearsal inputs are not provided by CI",
+        "actual local browser/paint and installed replay remain separate evidence"
+      ]
+    },
+    "inputBinding": {
+      "status": "completed selected-input and consumed-supply contract; not hermeticity",
+      "workloads": 5,
+      "members": 30,
+      "focusedPassed": 44,
+      "focusedFailed": 0,
+      "focusedSkipped": 0
+    },
+    "humanReview": {
+      "staticPng": "unchanged exact historical accepted bytes",
+      "interactiveHtml": "eb8e4a5cd76ac52a3dc8a50e6bb93417c8f20da5a59b0e1a16b81ec920d579c6",
+      "status": "current exact HTML review pending; historical approval inapplicable",
+      "taskReopened": "5.5"
+    },
+    "evidence": [
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/native-ci-result.json",
+        "bytes": 1754,
+        "sha256": "189e2d7f30526318e48ac0a2fb25144625a2dc86ad2c99b17675705b24e82774"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/native-46629.log",
+        "bytes": 210126,
+        "sha256": "f5e9f2bc8ec340e99e2b05d1042633c5a862fcf44abd1123f07d7a48a1cc0cc4"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/native-46630.log",
+        "bytes": 208607,
+        "sha256": "395630c73b0800c2848d327ed950d908199f293e1581d2f013f0905c1caf8c88"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/input-consumption-gate.json",
+        "bytes": 851,
+        "sha256": "6ec8e410ce55065c984a724b71bc26baadecd1a34a15a9b87141c4515b7bc7ae"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/input-consumption-gate.log",
+        "bytes": 4049,
+        "sha256": "6d3522cbae07b4430fa8652359dbdfe3a7db8b98c017362742d5699e62fe4948"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/current-input-binding-audit.json",
+        "bytes": 25988,
+        "sha256": "ffb76cdfee350a1103fa4938f0bb059193477e15e8d0ade0aa8ac25962a7ef41"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/housekeeping.json",
+        "bytes": 2623,
+        "sha256": "17e258f93dfcadc1ff574daf0ede4ec035383c9fb24b6f78c147537cf9fcb5a4"
+      }
+    ],
+    "limits": [
+      "source/editor responsibility and neutral-reader aesthetic judgments remain open",
+      "no Candidate qualification, protected transition, release or adopter acceptance claimed"
+    ]
   }
 }
