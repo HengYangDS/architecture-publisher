@@ -224,6 +224,43 @@ test('the same geometry owner wraps a long causal chain into a complete balanced
   assert.deepEqual(input, original);
 });
 
+test('readable desktop branching does not become a tall strip to fit an artificial slide', async () => {
+  const { layoutInteractivePages, measure } = await selected();
+  const input = {
+    nodes: [
+      'Admitted adapters',
+      'AIGW',
+      'Native client',
+      'AIGW executable copy',
+      'Native projection',
+      'Guarded transaction',
+    ].map((label, index) => ({ id: `n-${index}`, label })),
+    relations: [
+      ['n-1', 'n-0', 'dispatches'],
+      ['n-1', 'n-5', 'commits-through'],
+      ['n-4', 'n-2', 'configures'],
+      ['n-0', 'n-4', 'applies'],
+      ['n-5', 'n-3', 'guards'],
+      ['n-5', 'n-4', 'guards'],
+    ].map(([source, target, graphLabel], index) => ({
+      id: `r-${index}`,
+      source,
+      target,
+      graphLabel,
+    })),
+  };
+  const original = structuredClone(input);
+  const geometry = (await layoutInteractivePages([input], measure)).layouts[0];
+  assert(
+    geometry.bounds.width > geometry.bounds.height * 2,
+    'a complete readable branching figure must use the available desktop width',
+  );
+  assert(geometry.bounds.height < 400, 'qualifiers must not inherit an unnecessary tall figure');
+  assert.equal(geometry.nodes.length, 6);
+  assert.equal(geometry.relations.length, 6);
+  assert.deepEqual(input, original);
+});
+
 test('a bidirectional topology is not silently classified as an acyclic wrapping candidate', async () => {
   const { layoutInteractivePages, measure } = await selected();
   const input = {

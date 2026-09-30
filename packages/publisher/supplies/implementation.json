@@ -268,8 +268,8 @@
       },
       {
         "path": "src/scene/claim-card.mjs",
-        "bytes": 4931,
-        "sha256": "f2a8eb8c2a0c6f23e3b93c8dc87a3f4b43b07ec3d8d880862da9c8cb3c409261"
+        "bytes": 5038,
+        "sha256": "e97011612dade0039e5b9c5b71af06fc944fee4160726c06782a3c0bd4eb6feb"
       },
       {
         "path": "src/scene/claim-relations.mjs",
@@ -390,8 +390,8 @@
       },
       {
         "path": "src/scene/claim-card.mjs",
-        "bytes": 4931,
-        "sha256": "f2a8eb8c2a0c6f23e3b93c8dc87a3f4b43b07ec3d8d880862da9c8cb3c409261"
+        "bytes": 5038,
+        "sha256": "e97011612dade0039e5b9c5b71af06fc944fee4160726c06782a3c0bd4eb6feb"
       },
       {
         "path": "src/scene/claim-relations.mjs",
@@ -487,8 +487,8 @@
       },
       {
         "path": "src/scene/claim-card.mjs",
-        "bytes": 4931,
-        "sha256": "f2a8eb8c2a0c6f23e3b93c8dc87a3f4b43b07ec3d8d880862da9c8cb3c409261"
+        "bytes": 5038,
+        "sha256": "e97011612dade0039e5b9c5b71af06fc944fee4160726c06782a3c0bd4eb6feb"
       },
       {
         "path": "src/scene/claim-relations.mjs",
@@ -584,8 +584,8 @@
       },
       {
         "path": "src/scene/claim-card.mjs",
-        "bytes": 4931,
-        "sha256": "f2a8eb8c2a0c6f23e3b93c8dc87a3f4b43b07ec3d8d880862da9c8cb3c409261"
+        "bytes": 5038,
+        "sha256": "e97011612dade0039e5b9c5b71af06fc944fee4160726c06782a3c0bd4eb6feb"
       },
       {
         "path": "src/scene/claim-relations.mjs",
@@ -696,8 +696,8 @@
       },
       {
         "path": "src/scene/claim-card.mjs",
-        "bytes": 4931,
-        "sha256": "f2a8eb8c2a0c6f23e3b93c8dc87a3f4b43b07ec3d8d880862da9c8cb3c409261"
+        "bytes": 5038,
+        "sha256": "e97011612dade0039e5b9c5b71af06fc944fee4160726c06782a3c0bd4eb6feb"
       },
       {
         "path": "src/scene/claim-relations.mjs",
@@ -930,8 +930,8 @@
       },
       {
         "path": "src/scene/claim-card.mjs",
-        "bytes": 4931,
-        "sha256": "f2a8eb8c2a0c6f23e3b93c8dc87a3f4b43b07ec3d8d880862da9c8cb3c409261"
+        "bytes": 5038,
+        "sha256": "e97011612dade0039e5b9c5b71af06fc944fee4160726c06782a3c0bd4eb6feb"
       },
       {
         "path": "src/scene/claim-relations.mjs",
@@ -962,8 +962,8 @@
       },
       {
         "path": "renderers/elk/layout.mjs",
-        "bytes": 9345,
-        "sha256": "4d4f3cd12f6ae7184b1dd1384ef45bd2c1549e3c21bbd4a45a068f1287f167f3"
+        "bytes": 11421,
+        "sha256": "2e8d002474d1c2176af73d1347ab5668250c79a8c9143188618f577369cad118"
       },
       {
         "path": "renderers/elk/normalize.mjs",
@@ -992,13 +992,13 @@
       },
       {
         "path": "renderers/interactive/claim-work.mjs",
-        "bytes": 2909,
-        "sha256": "6071cabc8601877c1d6ff3bfed25077b7bdba5c61e477e61aaa5964587ac1f5d"
+        "bytes": 4044,
+        "sha256": "565e05d22ce6c5328f38dc40a15b944a8d20828162443d4091b75edda93a484b"
       },
       {
         "path": "renderers/interactive/edition.mjs",
-        "bytes": 25542,
-        "sha256": "73d9b266ccf8741064ff3519fd585f83c39a53be97842ba05d4e243779b8cc2b"
+        "bytes": 25759,
+        "sha256": "b993eaa1aac5fe78fccb9804d521545275e0d161a23fabd0d77ed7f7962acba5"
       },
       {
         "path": "renderers/interactive/graph-svg.mjs",
@@ -1067,8 +1067,8 @@
       },
       {
         "path": "src/scene/claim-card.mjs",
-        "bytes": 4931,
-        "sha256": "f2a8eb8c2a0c6f23e3b93c8dc87a3f4b43b07ec3d8d880862da9c8cb3c409261"
+        "bytes": 5038,
+        "sha256": "e97011612dade0039e5b9c5b71af06fc944fee4160726c06782a3c0bd4eb6feb"
       },
       {
         "path": "src/scene/claim-relations.mjs",
@@ -1092,8 +1092,8 @@
       },
       {
         "path": "src/scene/marks.mjs",
-        "bytes": 370,
-        "sha256": "96c74e108072871270a084e7f91a42ce83fdccdba567ef15f6a1e56f45630b8c"
+        "bytes": 536,
+        "sha256": "ca91b7c47d335a93d19efbd1332e456e864325cbe8fdc0f0b7ec59cf8adae37e"
       },
       {
         "path": "src/semantics/document.mjs",
@@ -1139,8 +1139,8 @@
       },
       {
         "path": "src/scene/claim-card.mjs",
-        "bytes": 4931,
-        "sha256": "f2a8eb8c2a0c6f23e3b93c8dc87a3f4b43b07ec3d8d880862da9c8cb3c409261"
+        "bytes": 5038,
+        "sha256": "e97011612dade0039e5b9c5b71af06fc944fee4160726c06782a3c0bd4eb6feb"
       },
       {
         "path": "src/scene/claim-relations.mjs",

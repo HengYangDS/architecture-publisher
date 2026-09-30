@@ -1,11 +1,16 @@
 import { canonical, deepFreeze, record, text } from '../semantics/document.mjs';
 import { fail, isDigest } from '../protocol/values.mjs';
 
-const scalar = (value) => (typeof value === 'string' ? value : canonical(value));
+const token = (value) =>
+  typeof value === 'string' &&
+  /^[a-zA-Z_][a-zA-Z0-9_.-]*$/u.test(value) &&
+  !['true', 'false', 'null'].includes(value)
+    ? value
+    : canonical(value);
 const dimensions = (value) =>
   Object.keys(value)
     .sort()
-    .map((name) => `${name}: ${scalar(value[name])}`)
+    .map((name) => `${token(name)}: ${token(value[name])}`)
     .join(' · ') || 'none declared';
 const entity = (value) =>
   [
@@ -106,7 +111,7 @@ export function claimCard(selection) {
       },
       {
         label: object === null ? 'Value' : 'Object',
-        value: object ? entity(object) : scalar(claim.value),
+        value: object ? entity(object) : token(claim.value),
       },
       { label: 'Condition', value: dimensions(claim.condition) },
       { label: 'Scope', value: dimensions(claim.scope) },

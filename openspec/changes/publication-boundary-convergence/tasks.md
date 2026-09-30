@@ -530,12 +530,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       Exact selected references, reader questions, group membership, typed
       qualifiers, source identity and visible limits must survive both media;
       infeasible composition fails instead of silently narrowing meaning.
-      Current execution order: reproduce cycle/parallel routing failure;
-      replace the neutral interactive path with pinned ELK, strict normalized
-      geometry, exact SVG, and viewport-only interaction; preserve compact
-      source attribution and existing inspection; retire the unreleased
-      Cytoscape path and interactive Dagre consumer; replay grouped, self-loop,
-      malformed-worker, timeout, installed, and actual desktop paint checks.
+      Current execution order: finish complete desktop argument composition
+      on the single pinned ELK, strict normalized geometry, exact SVG, and
+      viewport-only path; retain source attribution and inspection; reconcile
+      form and long-route counterexamples before final exact-media acceptance.
       The earlier node-only Dagre/Cytoscape ruling below is superseded by the
       demonstrated route-owner defect, not accepted terminal quality.
       The current painted-layer observer clears both SVG and CSS camera
@@ -563,6 +561,27 @@ third-party or generated supply rather than moving owned code outside coverage.
       97.78/95.19/99.57/97.78% statement/branch/function/line coverage. Independent
       removal of the visibility guard reproduced the original inverse error.
       Native CI and final visual acceptance remain separate current-byte gates.
+      The exact Effects counterexample was reproduced on unchanged source
+      selections: the fixed 1120 by 596 score favored a 667 by 671 vertical
+      figure over a readable desktop alternative. The compositor now orders
+      validated candidates by readable type, intrinsic height, then complete
+      route length; native wrapping keeps one applicability region near the
+      figure, with source status before every graph. Exact shared context uses
+      unambiguous scalar tokens instead of lossy display-string equivalence.
+      The same owner preserves distinct conditions, scopes, values, and
+      claimants in both media and Inspect. Focused RED/GREEN also repairs the
+      missing selected-view/question editorial need on infeasible text.
+      Evidence is held in `build/test-work/effects-composition-20261001/`.
+      The frozen source passed 1,404 tests with zero failures, three declared
+      skips, and 97.79/95.19/99.58/97.79% statement/branch/function/line coverage;
+      static, package, and strict OpenSpec checks passed without warnings.
+      Twenty exact AIGW desktop observations at 1600 and 1920 had no clipping,
+      horizontal overflow, page errors, external requests, or Axe A/AA findings.
+      Effects paints 1512 by 311 at 1600, with both compensation restrictions
+      visible before y=995. Five offline installed workloads match all 30
+      direct Candidate members with an empty consumer PATH. These are local
+      implementation and copied-input observations, not renewed human review,
+      source-owner endorsement, native CI for this repair, or Task 5.2 closure.
       Partial: the public build compiles selected LikeC4 and Claim Model inputs
       into sibling media. The grouped compositor carries source-bound relations,
       relation-dependent and scalar claims, claimant-declared validity, and

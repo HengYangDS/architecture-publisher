@@ -139,6 +139,11 @@ test('a source claim preserves the unchanged graph reading width', async () => {
     detail.indexOf('<section class="linked-claims"') >
       detail.indexOf('<div class="page-grid page-grid--graph"'),
   );
+  scene.pages[0].limitsByQuestion.shape = [];
+  const withoutLimits = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
+  const primary = withoutLimits.split('<section class="edition-page" id="page-1"')[0];
+  assert(!primary.includes('class="reading-unit"'), 'empty applicability must not reserve a rail');
+  assert(!primary.includes('class="reading-boundary"'), 'an empty scope heading has no meaning');
 });
 
 test('required editorial meaning remains in the primary graph reading state', async () => {
@@ -160,6 +165,49 @@ test('required editorial meaning remains in the primary graph reading state', as
     .split('<details class="source-inspection">')[0];
   assert(primary.includes('These selected claims do not establish current runtime behavior.'));
   assert(primary.includes('Editorial judgment · comparison-editor · unverified'));
+});
+
+test('selected qualifiers and limits stay in one contiguous diagram reading region', async () => {
+  const { renderInteractiveEditionHtml } =
+    await import('../packages/publisher/renderers/interactive/index.mjs');
+  const scene = interactiveEditionScene();
+  scene.pages[0].relations[0].sourceQualifiers = [
+    { name: 'compensation', value: '"created-by-operation-only"' },
+  ];
+  const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
+  const reading = html
+    .split('<section class="edition-page" id="page-1"')[0]
+    .split('<details class="source-inspection">')[0];
+  const start = reading.indexOf('<div class="page-grid');
+  const end = reading.indexOf('<section class="claim-work');
+  assert(reading.includes('class="reading-unit"'), 'the graph must have a complete reading region');
+  assert(reading.indexOf('class="relation-work"') > start);
+  assert(end === -1 || reading.indexOf('class="relation-work"') < end);
+  assert(reading.includes('created-by-operation-only'));
+  assert(reading.includes('Runtime was not observed.'));
+  assert(!reading.includes('Reading page 1'), 'page numbering is not the reader question');
+});
+
+test('infeasible selected text returns its exact view and question with an editorial need', async () => {
+  const { renderInteractiveEditionHtml } =
+    await import('../packages/publisher/renderers/interactive/index.mjs');
+  for (const id of ['overview', 'another-overview']) {
+    const scene = interactiveEditionScene();
+    scene.pages[0].id = id;
+    scene.pages[0].nodes[0].label = 'x'.repeat(200);
+    await assert.rejects(renderInteractiveEditionHtml(scene), (error) => {
+      assert.equal(error.code, 'render_interactive_text_infeasible');
+      assert(error.hint?.includes('caption'), 'a bounded source-bound caption need is required');
+      assert.deepEqual(error.diagnostics, [
+        {
+          view: id,
+          questions: ['What is connected?'],
+          need: 'source-bound-caption-or-regrouping',
+        },
+      ]);
+      return true;
+    });
+  }
 });
 
 test('malformed or excessive Scenes fail before loading renderer supply', async () => {

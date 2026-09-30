@@ -79,6 +79,38 @@ test('typed subject-object roles do not inherit reverse topology meaning', () =>
   assert.throws(() => claimWorkHtml(page), { code: 'render_interactive_claim_anchor_invalid' });
 });
 
+test('exact shared claim context is displayed once without merging distinct applicability', () => {
+  const page = {
+    nodes: [],
+    relations: [],
+    claims: ['only when enabled', 'only when created'].map((condition, index) => ({
+      graphicId: `c-${index}`,
+      facts: [
+        { label: 'Subject', value: index ? 'Executable copy' : 'Native projection' },
+        { label: 'Predicate', value: 'guards' },
+        { label: 'Claim plane', value: 'implemented' },
+        { label: 'Selected claimant', value: 'maintainer' },
+        { label: 'Claimant-declared validity', value: 'affirmed' },
+        { label: 'Condition', value: condition },
+        { label: 'Scope', value: index ? 'created artifact' : 'enabled client' },
+      ],
+    })),
+  };
+  const original = structuredClone(page);
+  const html = claimWorkHtml(page);
+  assert.equal(html.match(/<dd>maintainer<\/dd>/gu)?.length, 1);
+  assert.equal(html.match(/<dd>affirmed<\/dd>/gu)?.length, 1);
+  for (const value of [
+    'only when enabled',
+    'only when created',
+    'created artifact',
+    'enabled client',
+  ])
+    assert(html.includes(value));
+  for (const id of ['c-0', 'c-1']) assert.equal(html.split(`data-graphic-id="${id}"`).length, 2);
+  assert.deepEqual(page, original);
+});
+
 test('conflicting source claims remain attributed in the default reading state', () => {
   const page = {
     nodes: [],

@@ -560,6 +560,88 @@ test(
 );
 
 test(
+  'exact qualifiers stay near a compact tall graph without shrinking or detached evidence',
+  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 20_000 },
+  async (t) => {
+    const scene = interactiveEditionScene();
+    const selected = scene.pages[0];
+    const node = selected.nodes[0];
+    const relation = selected.relations[0];
+    selected.nodes = [
+      'Operator',
+      'Plan',
+      'Native projection',
+      'Native client',
+      'Observation',
+      'Recovery',
+    ].map((label, index) => ({ ...node, id: `source-${index}`, label }));
+    selected.relations = Array.from({ length: 5 }, (_, index) => ({
+      ...relation,
+      id: `source-relation-${index}`,
+      from: { namespace: 'private/model', id: `source-${index}` },
+      to: { namespace: 'private/model', id: `source-${index + 1}` },
+      label: index ? 'configures' : 'guards',
+      direction: index ? 'forward' : 'bidirectional',
+    }));
+    selected.relations[0].sourceQualifiers = [
+      { name: 'compensation', value: '"unchanged-postimage-only"' },
+    ];
+    selected.claimCards = [];
+    selected.sourceAssertionCarriers[0].nodeRefs = selected.nodes.map(({ namespace, id }) => ({
+      namespace,
+      id,
+    }));
+    selected.sourceAssertionCarriers[0].relationRefs = selected.relations.map(({ id }) => ({
+      namespace: 'private/model',
+      reference: id,
+      sha256: 'a'.repeat(64),
+    }));
+    const candidate = await renderInteractiveEditionHtml(scene);
+    const browser = await chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 10_000,
+    });
+    t.after(() => browser.close());
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.setContent(candidate.bytes.toString('utf8'));
+    await page.waitForSelector('#graph-0[data-rendered=true]', { timeout: 8_000 });
+    await page.evaluate(() => globalThis.document.fonts.ready);
+    const metrics = await page.evaluate(() => {
+      const chapter = globalThis.document.querySelector('#page-0');
+      const stage = chapter.querySelector('.stage').getBoundingClientRect();
+      const qualifier = chapter.querySelector('.relation-work').getBoundingClientRect();
+      const text = chapter.querySelector('.relation-work dd');
+      return {
+        qualifierLeft: qualifier.left,
+        qualifierBottom: qualifier.bottom,
+        stageRight: stage.right,
+        fontSize: Number.parseFloat(globalThis.getComputedStyle(text).fontSize),
+        viewport: globalThis.innerHeight,
+        overflow: globalThis.document.documentElement.scrollWidth > globalThis.innerWidth,
+      };
+    });
+    assert(metrics.qualifierLeft >= metrics.stageRight + 20, JSON.stringify(metrics));
+    assert(metrics.qualifierBottom < metrics.viewport, JSON.stringify(metrics));
+    assert(metrics.fontSize >= 14, JSON.stringify(metrics));
+    assert.equal(metrics.overflow, false);
+    const sourceBoundary = await page.evaluate(() => {
+      const source = globalThis.document.querySelector('#page-0 .source-note');
+      const graph = globalThis.document.querySelector('#graph-0');
+      return {
+        sourceBottom: source?.getBoundingClientRect().bottom,
+        graphTop: graph.getBoundingClientRect().top,
+      };
+    });
+    assert(sourceBoundary.sourceBottom <= sourceBoundary.graphTop, JSON.stringify(sourceBoundary));
+    assert.deepEqual(errors, []);
+  },
+);
+
+test(
   'unequal source claims read in order without stretched empty cards',
   { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 20_000 },
   async (t) => {
@@ -607,19 +689,46 @@ test(
       timeout: 15_000,
     });
     t.after(() => browser.close());
-    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     await page.setContent(html.bytes.toString('utf8'), { waitUntil: 'load' });
     await page.evaluate(() => globalThis.document.fonts.ready);
+    const reading = await page.evaluate(() => {
+      const work = globalThis.document.querySelector('#page-0 .claim-work');
+      const area = work.getBoundingClientRect();
+      const cards = [...work.querySelectorAll('.claim-work-item')].map((card) =>
+        card.getBoundingClientRect(),
+      );
+      return {
+        count: cards.length,
+        left: area.left,
+        right: area.right,
+        cardRight: Math.max(...cards.map(({ right }) => right)),
+        painted: cards.every(({ width, height }) => width > 200 && height > 10),
+      };
+    });
+    assert.equal(reading.count, 3);
+    assert.equal(reading.painted, true, JSON.stringify(reading));
+    assert(reading.right - reading.cardRight < 2, JSON.stringify(reading));
+    await page.locator('#page-0 .source-inspection > summary').click();
     const measured = () =>
       page.evaluate(() =>
         [...globalThis.document.querySelectorAll('#page-0 .claim-card')].map((card) => {
           const box = card.getBoundingClientRect();
           const facts = card.querySelector('.claim-facts').getBoundingClientRect();
-          return { top: box.top, bottom: box.bottom, blank: box.bottom - facts.bottom };
+          return {
+            top: box.top,
+            bottom: box.bottom,
+            height: box.height,
+            blank: box.bottom - facts.bottom,
+          };
         }),
       );
     const desktop = await measured();
     assert.equal(desktop.length, 3);
+    assert(
+      desktop.every(({ height }) => height > 10),
+      JSON.stringify(desktop),
+    );
     assert(
       desktop.every(({ blank }) => blank < 30),
       JSON.stringify(desktop),

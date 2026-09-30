@@ -372,6 +372,41 @@ caption or cue may invent, silently abbreviate, or transfer source authority.
 - **AND** navigation and inspection preserve each chapter's own identity,
   question, selected meaning, and keyboard focus
 
+#### Scenario: Desktop width admits a shorter complete figure
+
+- **WHEN** validated layout candidates preserve the same selected meaning
+  and a horizontal candidate keeps labels readable at the declared desktop
+  width while using less intrinsic height
+- **THEN** composition does not prefer a tall isolated figure solely because
+  it fits a fixed slide-height rectangle better
+- **AND** actual browser paint verifies readable labels, complete routes,
+  and the unchanged selection before visual acceptance
+
+#### Scenario: Exact applicability belongs to the reading region
+
+- **WHEN** a graph has selected relation qualifiers or reader limits
+- **THEN** native intrinsic layout places them alongside the complete figure
+  when sufficient reading width exists, otherwise directly below it
+- **AND** their exact subjects, predicates, exceptions, and attribution stay
+  visible without a page-wide source inventory or a narrow-device variant
+
+#### Scenario: Selected claims share exact context
+
+- **WHEN** every selected Claim contains an identical context fact
+- **THEN** one visible shared context may carry that fact without repeating it
+- **AND** every distinct condition, scope, claimant, validity, value, and
+  semantic anchor remains with its own Claim and complete Inspect record
+
+#### Scenario: Display spelling could conflate typed applicability
+
+- **WHEN** two selected scalar types or dimension values would have the same
+  unquoted display spelling
+- **THEN** unambiguous tokens distinguish their names and values in both
+  visible media and Inspect before exact shared context is factored; only
+  nonreserved identifiers omit quotes, with other strings using canonical JSON
+- **AND** a string containing dimension punctuation cannot become equivalent
+  to another Claim's conjunction
+
 ### Requirement: Neutral interactive geometry has one exact layout owner
 
 Neutral interactive graphs SHALL use one pinned layout implementation for node,

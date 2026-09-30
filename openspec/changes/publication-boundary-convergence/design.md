@@ -1126,6 +1126,64 @@ that a candidate which only passes one graph example cannot pass the product.
 
 The next design slice shall compare complete, source-bound page candidates
 for the same selected questions before committing another rendering supply.
+
+### Compose the desktop reading work, not a fixed slide
+
+The exact Effects comparison at `874a9d5` preserved all six nodes, six
+relations, selected Claims, and source qualifiers. At 1600 by 1000, the
+horizontal candidate painted a 1512 by 311 figure with a 0.991 camera scale;
+the vertical candidate painted 667 by 671 and pushed its compensation
+qualifiers below the initial viewport. ELK wrapping increased total route
+length from 1242 to 3118 geometry units. These are unpublished controlled
+comparisons, not AIGW endorsement or renewed acceptance.
+
+The existing 1120 by 596 fit score optimized an artificial rectangle rather
+than the declared desktop reading width. Replace that scalar with ordered,
+non-compensating choices: retain readable selected labels first, then prefer
+the shorter intrinsic figure, then the shorter complete routes. The shared
+paint contract owns the desktop benchmark, shell dimensions, minimum label
+size, and figure inset. This chooses among already validated ELK outputs;
+it adds neither a packing solver nor post-layout node or route adjustment.
+The browser may resize the viewport but may not choose new source meaning
+or geometry. Width-driven camera scaling is independently observed in the
+actual desktop browser, not assumed from an analytic score.
+
+Each graph and its required applicability form one reading region. Native
+CSS intrinsic wrapping puts exact limits and source qualifiers alongside
+a compact figure when sufficient reading width remains, otherwise directly
+below it. Figure height does not decide whether meaningful neighboring
+space is available. No narrow-device layout or alternate graph is introduced.
+The chapter uses its existing navigation label as the heading and preserves
+the full reader question as its deck, without a diagnostic page number.
+The short exact topology/provenance status remains before the figure even
+when the longer applicability region wraps below a tall graph. A wrapped
+region must not defer that verification boundary until after the reader
+has interpreted the topology.
+
+Question limits and compensation qualifiers remain visible in the default
+reading state with exact subject and predicate labels. Complete records
+stay in Inspect. The existing exact common-context factor may remove only
+facts identical in every selected Claim, displaying that shared context
+once; distinct conditions, scopes, claimants, validity, scalar values, and
+semantic anchors remain per Claim. A shared fact is not a new affirmation
+or verification. This closure does not infer responsibility roles or claim
+to cure every long-route or editorial-form defect.
+Display equality is not sufficient semantic equality: unquoted boolean and
+string values, or a string containing a dimension separator, can collide.
+The shared Claim projection therefore uses unambiguous tokens for dimension
+names and values and scalar Claim values before any factoring: a plain
+nonreserved identifier reads without quotes; other strings use canonical
+JSON spelling, distinct from booleans, numbers, and null.
+This single owner serves both media and Inspect, rather than adding an
+alternate identity map. Source facts do not change, but new rendered bytes
+require new exact-media evidence wherever the visible spelling changes.
+
+Acceptance separately checks selected meaning, intrinsic composition,
+actual paint, and source authority. The same input must produce readable
+complete figures at the declared 1600px desktop and a wider desktop;
+compact figures may pair, while wide figures wrap without shrinking a
+side explanation into an unreadable rail. No area-fill percentage or
+combined aesthetic score can compensate for missing meaning or collisions.
 Each comparator consumes the public build's exact materialized per-question
 selection and input lock, or proves equivalent assertion IDs, conditions,
 limits, and source hashes mechanically. A tool may change form and geometry;

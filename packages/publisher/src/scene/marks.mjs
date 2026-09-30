@@ -11,4 +11,11 @@ export const interactiveGraphMarks = Object.freeze({
   arrowHalfWidth: 4,
   textClearance: 5,
   textOwnerClearance: 8,
+  desktopReadingWidth: 1600,
+  shellMaximumWidth: 1720,
+  shellInset: 44,
+  graphInset: 32,
+  readingGap: 24,
+  readingRailMinimumWidth: 360,
+  minimumLabelSize: 12,
 });

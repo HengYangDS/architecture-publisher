@@ -2780,7 +2780,28 @@ test('typed claim dimensions use stable code-point order instead of host collati
   const condition = claimCard(meaning.native.selections[0]).facts.find(
     ({ label }) => label === 'Condition',
   );
-  assert.equal(condition.value, 'z: tail · ä: accent');
+  assert.equal(condition.value, 'z: tail · "ä": accent');
+});
+
+test('typed claim dimensions cannot collide across scalar types or display separators', async (t) => {
+  const selected = await fixture(t);
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const source = meaning.native.selections[0];
+  const projected = (condition) => {
+    const changed = structuredClone(source);
+    changed.members.claims[0].condition = condition;
+    return claimCard(changed).facts.find(({ label }) => label === 'Condition').value;
+  };
+  assert.notEqual(projected({ enabled: true }), projected({ enabled: 'true' }));
+  assert.notEqual(projected({ a: '1 · b: 2' }), projected({ a: '1', b: '2' }));
+  assert.notEqual(projected({ 'a: 1 · b': '2' }), projected({ a: '1', b: '2' }));
+  assert.notEqual(projected({ count: 1 }), projected({ count: '1' }));
+  assert.notEqual(projected({ value: null }), projected({ value: 'null' }));
+  assert.equal(projected({ mode: 'selected' }), 'mode: selected');
+  assert.equal(projected({ enabled: 'true' }), 'enabled: "true"');
+  assert.notEqual(projected({ value: '' }), projected({}));
+  assert.notEqual(projected({ value: ' selected' }), projected({ value: 'selected' }));
 });
 
 test('static claim card order is stable across host collation settings', async (t) => {

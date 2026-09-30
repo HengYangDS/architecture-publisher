@@ -38,7 +38,7 @@ function evidenceSection(title, content, kind) {
 }
 
 function graphHeight(layout) {
-  return Math.max(220, Math.ceil(layout.bounds.height + 64));
+  return Math.max(220, Math.ceil(layout.bounds.height + marks.graphInset * 2));
 }
 
 function repeatedKind(label, kind) {
@@ -120,7 +120,9 @@ function pageHtml(page, index, methodLimits) {
   const graphStyle = page.nodes.length
     ? ` style="--graph-height:${graphHeight(page.geometry)}px"`
     : '';
-  const graphNaturalWidth = page.nodes.length ? Math.ceil(page.geometry.bounds.width + 64) : null;
+  const graphNaturalWidth = page.nodes.length
+    ? Math.ceil(page.geometry.bounds.width + marks.graphInset * 2)
+    : null;
   const boundaryQuestionItems = page.questions
     .map(({ text: question, limits }) => {
       const distinctQuestion = question === page.title ? '' : `<p>${escape(question)}</p>`;
@@ -132,9 +134,12 @@ function pageHtml(page, index, methodLimits) {
     .join('');
   const pairedGraph =
     graphNaturalWidth !== null &&
-    graphNaturalWidth <= 640 &&
-    page.geometry.bounds.height <= 300 &&
-    Boolean(boundaryQuestionItems || sourceStatus);
+    Boolean(
+      boundaryQuestionItems ||
+      sourceStatus ||
+      editorial ||
+      page.relations.some((relation) => relation.sourceQualifiers?.length),
+    );
   const gridClass = page.nodes.length
     ? ` page-grid--graph${pairedGraph ? ' page-grid--paired' : ''}`
     : '';
@@ -145,9 +150,10 @@ function pageHtml(page, index, methodLimits) {
     : page.claims?.length
       ? claimStage
       : editorialStage;
-  const readingBoundary = pairedGraph
-    ? `<aside class="reading-boundary" aria-label="Reading boundary"><h3>Reading boundary</h3>${boundaryQuestionItems ? `<ul>${boundaryQuestionItems}</ul>` : ''}${sourceStatus}</aside>`
-    : '';
+  const readingBoundary =
+    pairedGraph && boundaryQuestionItems
+      ? `<aside class="reading-boundary" aria-label="Reading boundary"><h3>Reading boundary</h3><ul>${boundaryQuestionItems}</ul></aside>`
+      : '';
   const evidence = [
     pairedGraph
       ? ''
@@ -189,10 +195,14 @@ function pageHtml(page, index, methodLimits) {
     page.nodes.length && editorial
       ? `<section class="editorial-reading" aria-label="Selected editorial judgments"><ul>${editorial}</ul></section>`
       : '';
+  const readingUnit =
+    page.nodes.length && (readingBoundary || qualifierWork || editorialWork)
+      ? `<aside class="reading-unit" aria-label="Diagram applicability">${readingBoundary}${qualifierWork}${editorialWork}</aside>`
+      : '';
   return `<section class="edition-page" id="page-${index}" data-page="${index}" aria-labelledby="page-title-${index}">
-    <header class="page-heading"><p class="eyebrow">Reading page ${index + 1}</p><h2 id="page-title-${index}">${escape(page.title)}</h2></header>
-    <div class="page-grid${gridClass}"${gridStyle}><div class="stage">${page.nodes.length && !pairedGraph ? sourceStatus : ''}${stage}</div>
-    ${readingBoundary}${page.nodes.length ? '' : sourceInspection}</div>${qualifierWork}${claimWork}${editorialWork}${page.nodes.length ? sourceInspection : ''}</section>`;
+    <header class="page-heading"><h2 id="page-title-${index}">${escape(page.navigationLabel)}</h2><p>${escape(page.title)}</p></header>
+    ${page.nodes.length ? sourceStatus : ''}<div class="page-grid${gridClass}"${gridStyle}><div class="stage">${stage}</div>
+    ${page.nodes.length ? readingUnit : sourceInspection}</div>${claimWork}${page.nodes.length ? sourceInspection : ''}</section>`;
 }
 
 function css(fonts) {
@@ -206,11 +216,11 @@ function css(fonts) {
   :root{color-scheme:light;font-family:'JetBrains Mono',monospace;color:#21332a;background:#f5f3ed}
   *{box-sizing:border-box}body{margin:0}button{font:inherit;color:inherit;cursor:pointer}button:focus-visible{outline:2px solid #214f3c;outline-offset:3px}
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-  .shell{max-width:1720px;margin:auto;padding:32px 44px 44px}.masthead{border-bottom:1px solid #c4ccc2;padding-bottom:16px}.masthead h1{font-size:clamp(28px,3vw,43px);line-height:1.15;margin:0}.masthead p{font-size:15px;color:#53645a;max-width:72ch;margin:8px 0 0}.masthead .editorial-framing{display:block;margin-top:9px;color:#526158;font-size:11px;line-height:1.45;overflow-wrap:anywhere}
+  .shell{max-width:${marks.shellMaximumWidth}px;margin:auto;padding:32px ${marks.shellInset}px ${marks.shellInset}px}.masthead{border-bottom:1px solid #c4ccc2;padding-bottom:16px}.masthead h1{font-size:clamp(28px,3vw,43px);line-height:1.15;margin:0}.masthead p{font-size:15px;color:#53645a;max-width:72ch;margin:8px 0 0}.masthead .editorial-framing{display:block;margin-top:9px;color:#526158;font-size:11px;line-height:1.45;overflow-wrap:anywhere}
   .navigation{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.navigation button{border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:10px 18px;font-size:12px;text-align:left;max-width:35ch}.navigation button[aria-current=page]{background:#214f3c;color:#fffefa;border-color:#214f3c}
-  .edition-page[hidden]{display:none}.page-heading{display:flex;align-items:baseline;gap:18px;margin:10px 0 14px}.page-heading h2{font-size:clamp(20px,2vw,28px);line-height:1.3;margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
+  .edition-page[hidden]{display:none}.page-heading{display:grid;grid-template-columns:minmax(150px,.18fr) minmax(0,1fr);align-items:baseline;gap:24px;margin:22px 0 20px}.page-heading h2{font-size:28px;line-height:1.3;margin:0}.page-heading>p{font-size:18px;line-height:1.5;margin:0;max-width:92ch;overflow-wrap:anywhere}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
   .source-note{font-size:11px;line-height:1.45;color:#526158;margin:0 0 12px;padding-left:12px;border-left:2px solid #b3c4b6}
-  .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.page-grid--graph{grid-template-columns:minmax(0,1fr)}.page-grid--graph .stage{grid-column:1/-1;width:100%;max-width:var(--graph-natural-width);margin-inline:auto}.page-grid--paired{grid-template-columns:minmax(0,var(--graph-natural-width)) minmax(0,1fr);gap:24px;align-items:start}.page-grid--paired .stage{grid-column:1;grid-row:1;margin:0}.stage{position:relative;min-width:0}.graph-wrap{position:relative}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:var(--graph-height,220px);overflow:hidden}.graph-svg{display:block;width:100%;height:100%;font-family:'JetBrains Mono';color:#21332a}.graph-group>rect{fill:#e7eee6;fill-opacity:.24;stroke:#879b89;stroke-width:${marks.groupStroke}}.graph-node>rect{fill:#fffefa;stroke:#84978a;stroke-width:${marks.nodeStroke}}.graph-label{fill:#21332a;pointer-events:none}.graph-label--relation{fill:#27352e}.graph-route{fill:none;stroke:#60786a;stroke-width:${marks.routeStroke}}.graph-hit{fill:none;stroke:transparent;stroke-width:${marks.hitStroke};pointer-events:stroke}.graph-svg marker path{fill:#60786a}.graph-node,.graph-relation{cursor:pointer}.graph-node.is-selected>rect{stroke:#214f3c;stroke-width:${marks.selectedNodeStroke}}.graph-relation.is-selected>.graph-route{stroke:#214f3c;stroke-width:${marks.selectedRouteStroke}}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-controls{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:12px}.graph-instruction{font-size:11px;color:#4c5a50;margin:0;max-width:72ch}.fit{flex-shrink:0;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
+  .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.page-grid--graph{grid-template-columns:minmax(0,1fr)}.page-grid--graph .stage{grid-column:1/-1;width:100%;max-width:var(--graph-natural-width);margin-inline:auto}.page-grid--paired{display:flex;flex-wrap:wrap;gap:${marks.readingGap}px;align-items:flex-start}.page-grid--paired .stage{flex:0 1 var(--graph-natural-width);max-width:100%;margin:0}.reading-unit{flex:1 0 ${marks.readingRailMinimumWidth}px;min-width:0;max-width:100%;display:flex;flex-wrap:wrap;gap:20px 28px;border-top:1px solid #c4ccc2;padding-top:16px}.reading-unit>section{flex:1 0 ${marks.readingRailMinimumWidth}px;max-width:100%;min-width:0}.reading-unit .reading-boundary{flex:1 0 ${marks.readingRailMinimumWidth}px;min-width:0;max-width:100%}.stage{position:relative;min-width:0}.graph-wrap{position:relative}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:var(--graph-height,220px);overflow:hidden}.graph-svg{display:block;width:100%;height:100%;font-family:'JetBrains Mono';color:#21332a}.graph-group>rect{fill:#e7eee6;fill-opacity:.24;stroke:#879b89;stroke-width:${marks.groupStroke}}.graph-node>rect{fill:#fffefa;stroke:#84978a;stroke-width:${marks.nodeStroke}}.graph-label{fill:#21332a;pointer-events:none}.graph-label--relation{fill:#27352e}.graph-route{fill:none;stroke:#60786a;stroke-width:${marks.routeStroke}}.graph-hit{fill:none;stroke:transparent;stroke-width:${marks.hitStroke};pointer-events:stroke}.graph-svg marker path{fill:#60786a}.graph-node,.graph-relation{cursor:pointer}.graph-node.is-selected>rect{stroke:#214f3c;stroke-width:${marks.selectedNodeStroke}}.graph-relation.is-selected>.graph-route{stroke:#214f3c;stroke-width:${marks.selectedRouteStroke}}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-controls{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:12px}.graph-instruction{font-size:11px;color:#4c5a50;margin:0;max-width:72ch}.fit{flex-shrink:0;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
   .claim-stage{display:block}.claim-card{border-top:1px solid #c4ccc2;padding:20px 0}.claim-card:last-child{border-bottom:1px solid #c4ccc2}.claim-facts{display:grid;grid-template-columns:minmax(120px,180px) minmax(0,1fr);gap:9px 16px;margin:0}.claim-facts dt{font-size:11px;color:#526158}.claim-facts dd{font-size:13px;line-height:1.45;margin:0;overflow-wrap:anywhere}
   .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}
   .claim-context{border-bottom:1px solid #d3dbd1;margin-bottom:18px}.claim-context dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 18px;margin:14px 0 20px}.claim-context dt{font-size:10px;color:#526158}.claim-context dd{font-size:12px;line-height:1.45;margin:4px 0 0;overflow-wrap:anywhere}
@@ -218,16 +228,15 @@ function css(fonts) {
   .notes button[aria-pressed=true]{background:#e7eee6;border-radius:4px}
   .node-group h4{font-size:12px;line-height:1.4;margin:0 0 7px;color:#314638}.node-group+.node-group{margin-top:16px!important}.node-group ul{padding-left:11px!important;border-left:1px solid #b3c4b6}.node-group ul li+li{margin-top:5px}
   .page-grid--graph .notes{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1fr) minmax(0,1.6fr);gap:24px;border-left:0;border-top:1px solid #d3dbd1;padding:20px 0 0}.page-grid--graph .notes .evidence-section+.evidence-section{margin-top:0}.page-grid--graph .evidence-methods{grid-column:1/-1;border-top:1px solid #d3dbd1;padding-top:12px}.page-grid--graph .method-limits{display:flex;flex-wrap:wrap;gap:6px 20px}.page-grid--graph .method-limits li{margin:0}
-  .page-grid--paired .reading-boundary{grid-column:2;grid-row:1;min-width:0;border-left:1px solid #d3dbd1;padding:14px 0 0 24px}.reading-boundary h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 12px}.reading-boundary ul{list-style:none;margin:0;padding:0}.reading-boundary li{font-size:14px;line-height:1.55}.reading-boundary li+li{margin-top:10px}.reading-boundary .limits{padding-left:12px!important}.reading-boundary .source-note{margin-top:16px}.page-grid--paired .notes{grid-row:2;grid-template-columns:minmax(0,1fr) minmax(0,1.55fr)}
+  .reading-boundary h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#4c5a50;margin:0 0 12px}.reading-boundary ul{list-style:none;margin:0;padding:0}.reading-boundary li{font-size:14px;line-height:1.55;overflow-wrap:anywhere}.reading-boundary li p{margin:0}.reading-boundary li+li{margin-top:10px}.reading-boundary .limits{padding-left:12px!important}.reading-boundary .source-note{margin:14px 0 0;font-size:12px}.page-grid--paired .notes{grid-template-columns:minmax(0,1fr) minmax(0,1.55fr)}
   .relation-qualifier-note{font-size:11px;color:#526158;margin:0 0 9px!important}.relation-qualifiers{display:grid;grid-template-columns:minmax(76px,.7fr) minmax(0,1.3fr);gap:4px 10px;margin:5px 0 0 12px;padding-left:10px;border-left:2px solid #b3c4b6}.relation-qualifiers dt{font-size:11px;color:#526158}.relation-qualifiers dd{font-size:12px;margin:0;overflow-wrap:anywhere}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
   ${responsibilityCss}
   ${claimWorkCss}
   .editorial-reading{border-top:1px solid #c4ccc2;margin-top:20px;padding-top:14px}.editorial-reading ul{list-style:none;margin:0;padding:0;display:grid;gap:14px 28px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}.editorial-reading li{min-width:0}.editorial-reading p{font-size:14px;line-height:1.5;margin:0;overflow-wrap:anywhere}.editorial-reading small{display:block;font-size:11px;color:#526158;margin-top:5px}
-  .relation-work{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px 28px;border-top:1px solid #c4ccc2;margin-top:20px;padding-top:14px}.relation-work>h3{grid-column:1/-1;font-size:11px;color:#526158;margin:0}.relation-work h4{font-size:12px;line-height:1.45;margin:0 0 7px;overflow-wrap:anywhere}.relation-work .relation-qualifiers{margin:0}
+  .relation-work{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:18px 28px;align-items:start}.relation-work>h3{grid-column:1/-1;font-size:12px;color:#526158;font-weight:400;margin:0}.relation-work h4{font-size:14px;line-height:1.5;margin:0 0 10px;overflow-wrap:anywhere}.relation-work .relation-qualifiers{margin:0}.relation-work .relation-qualifiers dt{font-size:12px;line-height:1.5}.relation-work .relation-qualifiers dd{font-size:14px;line-height:1.5}.reading-unit .editorial-reading{margin:0;border-top:0;padding:0}
   .source-inspection{margin-top:20px;border-top:1px solid #c4ccc2;padding-top:14px}.source-inspection>summary{font-size:12px;color:#314638;cursor:pointer}.source-inspection .notes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr);gap:22px 28px;border-left:0;padding:20px 0 0}.source-inspection .evidence-methods{grid-column:1/-1}.source-inspection .notes .evidence-section+.evidence-section{margin-top:0}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}
-  @media(max-width:1390px){.page-grid--paired{grid-template-columns:minmax(0,1fr)}.page-grid--paired .stage{grid-column:1;grid-row:1;margin-inline:auto}.page-grid--paired .reading-boundary{grid-column:1;grid-row:2;border-left:0;border-top:1px solid #d3dbd1;padding:18px 0 0}.page-grid--paired .notes{grid-column:1;grid-row:3}}
-  @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:minmax(0,1fr)}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.page-grid--graph .notes,.page-grid--paired .notes{grid-template-columns:minmax(0,1fr);gap:22px}.page-grid--graph .evidence-methods,.page-grid--paired .evidence-methods{grid-column:auto}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}`;
+`;
 }
 
 /** Compile one unqualified standalone reading work from an independent Scene. */
@@ -263,7 +272,10 @@ export async function renderInteractiveEditionHtml(scene) {
   const measure = hasGraph ? await createBundledTextMeasurer(fontSupply) : null;
   const geometry = hasGraph
     ? await layoutInteractivePages(
-        graphIndexes.map((index) => projected[index].publicPage),
+        graphIndexes.map((index) => ({
+          ...projected[index].publicPage,
+          id: scene.pages[index].id,
+        })),
         measure,
       )
     : null;

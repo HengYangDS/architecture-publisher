@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fail } from '../../src/protocol/values.mjs';
+import { interactiveGraphMarks as marks } from '../../src/scene/marks.mjs';
 import { PROCESS_CLEANUP_MS, runOwnedProcess } from '../../src/runtime/process-tree.mjs';
 import { loadElkSupply } from './supply.mjs';
 import { measuredLabel } from './text.mjs';
@@ -11,6 +12,25 @@ import { decodeInteractiveLayoutReply, normalizeInteractiveGeometry } from './no
 const worker = fileURLToPath(new URL('./worker.mjs', import.meta.url));
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const invalid = () => fail('render_interactive_layout_invalid');
+
+function editorialFailure(error, page) {
+  if (
+    !['render_interactive_text_infeasible', 'render_interactive_layout_infeasible'].includes(
+      error.code,
+    )
+  )
+    return error;
+  return Object.assign(error, {
+    hint: 'Regroup the selected view or provide a source-bound caption; do not omit or abbreviate required meaning.',
+    diagnostics: [
+      {
+        view: page.id ?? null,
+        questions: (page.questions ?? []).map(({ text }) => text),
+        need: 'source-bound-caption-or-regrouping',
+      },
+    ],
+  });
+}
 
 function preparePage(page, measure) {
   if (
@@ -195,7 +215,13 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
     !path.isAbsolute(temporaryDirectory)
   )
     fail('render_interactive_layout_execution_limit_invalid');
-  const prepared = pages.map((page) => preparePage(page, measure));
+  const prepared = pages.map((page) => {
+    try {
+      return preparePage(page, measure);
+    } catch (error) {
+      throw editorialFailure(error, page);
+    }
+  });
   const supply = await loadElkSupply();
   const indexes = [];
   const graphs = prepared.flatMap((page) => {
@@ -239,11 +265,40 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
         }
       }
       offset = end;
-      if (!candidates.length) throw lastFailure;
-      const fit = ({ bounds }) => Math.min(1, 1120 / bounds.width, 596 / bounds.height);
-      return candidates.reduce((best, candidate) =>
-        fit(candidate) > fit(best) ? candidate : best,
-      );
+      if (!candidates.length) throw editorialFailure(lastFailure, pages[index]);
+      const readingWidth =
+        Math.min(marks.desktopReadingWidth, marks.shellMaximumWidth) - marks.shellInset * 2;
+      const assessment = (candidate) => {
+        const scale = Math.min(1, readingWidth / (candidate.bounds.width + marks.graphInset * 2));
+        const labels = [
+          ...candidate.nodes,
+          ...candidate.groups,
+          ...candidate.relations.filter(({ label }) => label),
+        ].map(({ label }) => label);
+        const readable = labels.every(({ fontSize }) => fontSize * scale >= marks.minimumLabelSize);
+        const routeLength = candidate.relations.reduce(
+          (total, { points }) =>
+            total +
+            points
+              .slice(1)
+              .reduce(
+                (length, point, at) =>
+                  length + Math.abs(point.x - points[at].x) + Math.abs(point.y - points[at].y),
+                0,
+              ),
+          0,
+        );
+        return { readable, scale, height: candidate.bounds.height, routeLength };
+      };
+      return candidates.reduce((best, candidate) => {
+        const prior = assessment(best);
+        const next = assessment(candidate);
+        if (prior.readable !== next.readable) return next.readable ? candidate : best;
+        if (!next.readable && next.scale !== prior.scale)
+          return next.scale > prior.scale ? candidate : best;
+        if (next.height !== prior.height) return next.height < prior.height ? candidate : best;
+        return next.routeLength < prior.routeLength ? candidate : best;
+      });
     });
     return { layouts, supplySha256: supply.manifestSha256, license: supply.license };
   } finally {
