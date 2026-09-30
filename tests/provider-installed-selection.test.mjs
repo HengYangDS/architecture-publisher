@@ -250,7 +250,9 @@ export function materializeEditionProvider(request) {
   const requestPath = path.join(work, 'build-request.json');
   await fs.writeFile(requestPath, requestBytes);
   const script = `import { materializeBuildRequestInput } from './node_modules/architecture-publisher/src/compiler/build-input.mjs';
-const result = await materializeBuildRequestInput(process.argv[1], process.argv[2]);
+const result = await materializeBuildRequestInput(process.argv[1], process.argv[2], [
+  { id: 'selected-provider', manifestSha256: process.argv[3] },
+]);
 process.stdout.write(JSON.stringify({
   lockSha256: result.lockSha256,
   source: result.readSource('org.example/service').toString('utf8'),
@@ -271,7 +273,7 @@ process.stdout.write(JSON.stringify({
   const first = JSON.parse(
     run(
       process.execPath,
-      ['--input-type=module', '-e', script, requestPath, selectedDigest],
+      ['--input-type=module', '-e', script, requestPath, selectedDigest, sha(manifestBytes)],
       consumer,
       childEnv,
     ),
@@ -285,7 +287,7 @@ process.stdout.write(JSON.stringify({
   const adjacent = JSON.parse(
     run(
       process.execPath,
-      ['--input-type=module', '-e', script, requestPath, selectedDigest],
+      ['--input-type=module', '-e', script, requestPath, selectedDigest, sha(manifestBytes)],
       consumer,
       childEnv,
     ),
@@ -310,6 +312,7 @@ process.stdout.write(JSON.stringify({
         script,
         path.join(relocatedRoot, 'build-request.json'),
         selectedDigest,
+        sha(manifestBytes),
       ],
       path.join(relocatedRoot, 'consumer'),
       {

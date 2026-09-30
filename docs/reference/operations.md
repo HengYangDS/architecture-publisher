@@ -203,6 +203,12 @@ Candidate directory:
 archpub edition build <request.json> --sha256 <request-digest> --output <candidate-directory>
 ```
 
+If and only if the successor request selects executable Providers, the
+invoker separately adds `--execute-providers <id@manifest-sha256,...>` for
+the exact selected set. Omission, an extra ID, or a changed digest fails
+before executing Provider code. This option is not required for direct or
+declarative inputs and does not grant source truth or publication authority.
+
 The Build Request selects direct native source bytes and optional exact
 `architecture.edition-provider/v2` manifests, one authored
 `architecture.edition-project/v1`, requested media, and a toolchain profile.

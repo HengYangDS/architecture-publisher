@@ -222,6 +222,9 @@ New authoring selects one versioned Build Request with direct inputs and optiona
 `architecture.edition-provider/v2` manifests. Each Provider transports exact
 native, derived, or Edition bytes declaratively or through one selected
 executable package; multiple Providers may contribute distinct namespaces.
+An executable Provider runs only when the invoker separately selects its exact
+ID and manifest digest for that build; authored input cannot self-authorize
+code execution. Direct and declarative inputs need no such choice.
 Historical Provider v1 remains accepted for replay of exact prior inputs; it is
 not the new-authoring contract. Both versions enter through `archpub edition build`;
 there is no Provider command tree, registry, or ambient discovery. Ordinary

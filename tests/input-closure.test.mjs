@@ -140,7 +140,23 @@ test('unselected local content cannot silently count as dependency closure', asy
 test('public build distinguishes checked inputs and supplies from unobserved Provider dependencies', async (t) => {
   const f = await selectedNativeEdition(t, { media: ['static'], width: 800 });
   const provider = await executableModelProvider(f);
-  const materialized = await materializeBuildRequestInput(f.file, f.digest);
+  const chosen = [{ id: 'model-provider', manifestSha256: provider.manifestSha256 }];
+  for (const choice of [
+    undefined,
+    [],
+    [{ ...chosen[0], manifestSha256: sha('other') }],
+    [...chosen, { id: 'extra-provider', manifestSha256: sha('other') }],
+  ]) {
+    await assert.rejects(materializeBuildRequestInput(f.file, f.digest, choice), {
+      code: 'materialized_provider_execution_choice_mismatch',
+    });
+  }
+  await assert.rejects(
+    compileEditionCandidateInput(f.file, f.digest, path.join(f.root, 'candidate-omitted')),
+    { code: 'materialized_provider_execution_choice_mismatch' },
+  );
+  await assert.rejects(fs.access(provider.executionMarker), { code: 'ENOENT' });
+  const materialized = await materializeBuildRequestInput(f.file, f.digest, chosen);
   assert.deepEqual(
     materialized.readEvidence.items.map(({ kind, key, method }) => [kind, key, method]),
     [
@@ -155,7 +171,7 @@ test('public build distinguishes checked inputs and supplies from unobserved Pro
   assert(materialized.limits.includes('provider-execution-not-sandboxed'));
 
   const firstOutput = path.join(f.root, 'candidate-first');
-  const built = await compileEditionCandidateInput(f.file, f.digest, firstOutput);
+  const built = await compileEditionCandidateInput(f.file, f.digest, firstOutput, chosen);
   const candidate = JSON.parse(await fs.readFile(path.join(firstOutput, 'candidate.json')));
   assert.equal(candidate.input.lockSha256, materialized.lockSha256);
   assert.equal(candidate.input.closure, 'selected-inputs-only');
@@ -172,7 +188,7 @@ test('public build distinguishes checked inputs and supplies from unobserved Pro
 
   await fs.writeFile(path.join(f.root, 'unselected-ambient.txt'), 'not a selected input\n');
   const secondOutput = path.join(f.root, 'candidate-second');
-  const repeated = await compileEditionCandidateInput(f.file, f.digest, secondOutput);
+  const repeated = await compileEditionCandidateInput(f.file, f.digest, secondOutput, chosen);
   assert.equal(repeated.lockSha256, built.lockSha256);
   assert.equal(repeated.candidateSha256, built.candidateSha256);
   assert.equal(
@@ -182,7 +198,7 @@ test('public build distinguishes checked inputs and supplies from unobserved Pro
 
   await fs.writeFile(path.join(f.root, 'provider/model.c4'), 'changed selected input\n');
   await assert.rejects(
-    compileEditionCandidateInput(f.file, f.digest, path.join(f.root, 'candidate-rejected')),
+    compileEditionCandidateInput(f.file, f.digest, path.join(f.root, 'candidate-rejected'), chosen),
     { code: 'edition_provider_v2_input_size_mismatch' },
   );
 });

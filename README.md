@@ -120,7 +120,7 @@ The current generic journeys are:
 ```sh
 archpub source pack <request.json> --sha256 <digest>
 archpub source verify <manifest.json> --sha256 <digest>
-archpub edition build <request.json> --sha256 <digest> --output <candidate-directory>
+archpub edition build <request.json> --sha256 <digest> --output <candidate-directory> [--execute-providers <id@manifest-sha256,...>]
 archpub evolution plan <request.json> --sha256 <digest>
 archpub render interactive <type> <input.json> --sha256 <digest> --output <artifact.html>
 archpub render raster <request.json>
@@ -138,8 +138,10 @@ command additionally requires independent `--execute-before-providers` and
 The `--output` form is required for a successor Build Request; historical v1
 plans retain their own output field. Every path and digest is caller-selected.
 One Build Request may combine direct inputs and optional selected Edition
-Providers before the same compiler. Selecting an executable Provider is a
-code-execution trust decision, not sandboxed interpretation.
+Providers before the same compiler. An executable Provider additionally
+requires the invoker's exact `--execute-providers` choice; the request cannot
+grant itself permission to run code. This is a code-execution trust decision,
+not sandboxed interpretation.
 Installed operation is designed to be offline and independent of Git, ETHOS,
 adjacent checkouts, personal credentials, and ambient repository discovery.
 

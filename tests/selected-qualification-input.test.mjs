@@ -16,12 +16,13 @@ import {
 
 const cli = fileURLToPath(new URL('../packages/publisher/src/cli/main.mjs', import.meta.url));
 
-async function selectedInput(t, supplied = null) {
+async function selectedInput(t, supplied = null, executionChoice) {
   const selected = supplied ?? (await selectedNativeEdition(t, { width: 1800 }));
   const built = await compileEditionCandidateInput(
     selected.file,
     selected.digest,
     path.join(selected.root, 'candidate'),
+    executionChoice,
   );
   const set = {
     schema: 'architecture.qualification-set/v2',
@@ -177,7 +178,7 @@ test('submitted PASS records can fit the selected policy without becoming accept
 test('changed selected policy bytes fail before executable Provider code starts', async (t) => {
   const selected = await selectedNativeEdition(t, { width: 1800 });
   const { executionMarker, manifestSha256 } = await executableModelProvider(selected);
-  const fixture = await selectedInput(t, selected);
+  const fixture = await selectedInput(t, selected, [{ id: 'model-provider', manifestSha256 }]);
   const policy = await selectedPolicy(fixture);
   await fs.rm(executionMarker);
   await assert.rejects(
@@ -306,7 +307,9 @@ test('invalid Qualification Set bytes fail before any Candidate replay', async (
 test('v2 qualification executes only an explicitly chosen exact Provider', async (t) => {
   const selected = await selectedNativeEdition(t, { width: 1800 });
   const { executionMarker, manifestSha256 } = await executableModelProvider(selected);
-  const { built, inputBytes, inputPath } = await selectedInput(t, selected);
+  const { built, inputBytes, inputPath } = await selectedInput(t, selected, [
+    { id: 'model-provider', manifestSha256 },
+  ]);
   await fs.rm(executionMarker);
   await assert.rejects(verifyQualificationInput(inputPath, sha(inputBytes)), {
     code: 'materialized_provider_execution_choice_mismatch',

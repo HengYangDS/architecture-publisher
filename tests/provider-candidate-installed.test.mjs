@@ -81,6 +81,32 @@ test('offline installed Core builds a full dual-media Candidate from an installe
   const home = path.join(selected.root, 'empty-home');
   await fs.mkdir(home);
   const output = path.join(selected.root, 'candidate');
+  const isolatedEnv = {
+    HOME: home,
+    PATH: home,
+    LANG: 'C.UTF-8',
+    ...(process.platform === 'win32' ? { SystemRoot: process.env.SystemRoot } : {}),
+  };
+  const omitted = spawnSync(
+    process.execPath,
+    [
+      path.join(coreRoot, 'src/cli/main.mjs'),
+      'edition',
+      'build',
+      selected.file,
+      '--sha256',
+      selected.digest,
+      '--output',
+      output,
+    ],
+    { cwd: consumer, env: isolatedEnv, input: '', encoding: 'utf8', timeout: 90_000 },
+  );
+  assert.equal(omitted.status, 1, omitted.stdout + omitted.stderr);
+  assert.equal(
+    JSON.parse(omitted.stdout).error.code,
+    'materialized_provider_execution_choice_mismatch',
+  );
+  await assert.rejects(fs.access(executionMarker), { code: 'ENOENT' });
   const built = JSON.parse(
     run(
       process.execPath,
@@ -93,14 +119,11 @@ test('offline installed Core builds a full dual-media Candidate from an installe
         selected.digest,
         '--output',
         output,
+        '--execute-providers',
+        `model-provider@${selected.request.providers[0].sha256}`,
       ],
       consumer,
-      {
-        HOME: home,
-        PATH: home,
-        LANG: 'C.UTF-8',
-        ...(process.platform === 'win32' ? { SystemRoot: process.env.SystemRoot } : {}),
-      },
+      isolatedEnv,
     ),
   );
   assert.equal(built.status, 'built');

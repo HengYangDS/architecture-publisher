@@ -45,6 +45,11 @@ converge on one materialized-input lock before semantic compilation. An equal
 lock does not transfer Candidate identity, qualification, or approval across
 delivery modes. The successor build requires an explicit `--output` directory
 and produces an unqualified `architecture.edition-candidate/v2` bundle.
+For an executable Provider, the invoker must additionally pass
+`--execute-providers <id@manifest-sha256,...>` with exactly the selected
+executable set. Omitting, changing, or adding an ID fails before Provider code
+runs. The Build Request and manifest do not grant their own execution consent;
+declarative and direct delivery need no such option.
 
 When an exact selected v2 Provider manifest parses but fails structural
 validation, the existing CLI error includes a local diagnostic bound to the

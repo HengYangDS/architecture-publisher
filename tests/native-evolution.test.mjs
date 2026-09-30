@@ -1034,11 +1034,13 @@ test('a Provider package-only change renews semantic verification without redraw
     before.file,
     before.digest,
     path.join(before.root, 'candidate'),
+    [{ id: 'model-provider', manifestSha256: prior.manifestSha256 }],
   );
   const nextCandidate = await compileEditionCandidateInput(
     after.file,
     after.digest,
     path.join(after.root, 'candidate'),
+    [{ id: 'model-provider', manifestSha256: next.manifestSha256 }],
   );
   assert.equal(priorCandidate.lockSha256, nextCandidate.lockSha256);
   assert.equal(priorCandidate.candidateSha256, nextCandidate.candidateSha256);

@@ -108,7 +108,9 @@ export async function materializeEditionProvider() {
   );
   const output = path.join(fixture.root, 'candidate');
   await assert.rejects(
-    relocated.compileEditionCandidateInput(fixture.file, fixture.digest, output),
+    relocated.compileEditionCandidateInput(fixture.file, fixture.digest, output, [
+      { id: 'model-provider', manifestSha256: fixture.request.providers[0].sha256 },
+    ]),
     {
       code: 'publisher_installed_package_changed_during_build',
     },
@@ -340,6 +342,7 @@ test('replay executes Provider code only with a separate exact invocation choice
     fixture.file,
     fixture.digest,
     path.join(fixture.root, 'candidate'),
+    [{ id: 'model-provider', manifestSha256 }],
   );
   await fs.rm(executionMarker);
   const selected = {

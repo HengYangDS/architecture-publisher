@@ -12,7 +12,7 @@ import {
 import { readSelectedProviderManifest } from '../provider/manifest.mjs';
 
 function selectedExecutionChoice(choice) {
-  if (choice === undefined) return null;
+  if (choice === undefined) return new Map();
   if (!Array.isArray(choice)) fail('materialized_provider_execution_choice_invalid');
   const selected = new Map();
   for (const item of choice) {
@@ -70,18 +70,16 @@ export async function prepareBuildRequestInput(requestPath, expectedSha256, exec
     }
     providers.push({ selection, selectedManifest });
   }
-  if (offered !== null) {
-    const executable = providers.filter(
-      ({ selectedManifest }) => selectedManifest.manifest.delivery.kind === 'executable',
-    );
-    const required = new Map(executable.map(({ selection }) => [selection.id, selection.sha256]));
-    if (
-      required.size !== executable.length ||
-      offered.size !== required.size ||
-      [...offered].some(([id, digest]) => required.get(id) !== digest)
-    )
-      fail('materialized_provider_execution_choice_mismatch');
-  }
+  const executable = providers.filter(
+    ({ selectedManifest }) => selectedManifest.manifest.delivery.kind === 'executable',
+  );
+  const required = new Map(executable.map(({ selection }) => [selection.id, selection.sha256]));
+  if (
+    required.size !== executable.length ||
+    offered.size !== required.size ||
+    [...offered].some(([id, digest]) => required.get(id) !== digest)
+  )
+    fail('materialized_provider_execution_choice_mismatch');
 
   const prepared = [];
   for (const { selection, selectedManifest } of providers) {

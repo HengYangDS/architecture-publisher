@@ -18,11 +18,12 @@ test('delivery modes preserve locked meaning while Candidate media disclose dist
   const executable = await selectedNativeEdition(t, { width: 1800 });
   const { executionMarker } = await executableModelProvider(executable);
 
-  const build = async (selected) => {
+  const build = async (selected, executionChoice) => {
     const result = await compileEditionCandidateInput(
       selected.file,
       selected.digest,
       path.join(selected.root, 'candidate'),
+      executionChoice,
     );
     const bundle = await readSourceBundle(result.manifestPath, result.manifestSha256);
     return {
@@ -39,7 +40,9 @@ test('delivery modes preserve locked meaning while Candidate media disclose dist
   };
   const selectedDirect = await build(direct);
   const selectedDeclarative = await build(declarative);
-  const selectedExecutable = await build(executable);
+  const selectedExecutable = await build(executable, [
+    { id: 'model-provider', manifestSha256: executable.request.providers[0].sha256 },
+  ]);
   for (const alternate of [selectedDeclarative, selectedExecutable]) {
     assert.equal(alternate.lockSha256, selectedDirect.lockSha256);
     assert.equal(alternate.members['input-lock.json'], selectedDirect.members['input-lock.json']);

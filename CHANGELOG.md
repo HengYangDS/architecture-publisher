@@ -10,6 +10,10 @@ may contain incompatible changes.
 
 ### Changed
 
+- Successor builds no longer execute a Provider solely because its manifest is
+  named by an input file. Executable materialization now requires the invoker's
+  separate exact `--execute-providers` selection; direct and declarative builds
+  need no such option. Historical released v1 input behavior is unchanged.
 - The first-party self Edition now authors one Edition Project directly. Its
   static overview selects structural assertions, while the eight interactive
   views select the exact Claim facts. Preparation no longer emits an editable

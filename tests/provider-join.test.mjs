@@ -229,6 +229,13 @@ async function prepareExecutableAlpha(f) {
   return alpha;
 }
 
+async function materializeExecutableAlpha(f) {
+  const { requestPath, digest } = await f.save();
+  return materializeBuildRequestInput(requestPath, digest, [
+    { id: 'alpha-selection', manifestSha256: f.request.providers[0].sha256 },
+  ]);
+}
+
 test('direct and two declarative Providers join one selected-input lock', async (t) => {
   const f = await fixture(t);
   const first = await f.materialize();
@@ -524,7 +531,7 @@ test('mixed declarative and executable Providers share one selected-input identi
   const f = await fixture(t);
   const declarative = await f.materialize();
   const alpha = await prepareExecutableAlpha(f);
-  const mixed = await f.materialize();
+  const mixed = await materializeExecutableAlpha(f);
   assert.equal(mixed.lockSha256, declarative.lockSha256);
   assert.notDeepEqual(mixed.invocations, declarative.invocations);
   assert.deepEqual(mixed.readSource('org.example/alpha'), alpha.native);
@@ -562,7 +569,7 @@ test('mixed declarative and executable Providers share one selected-input identi
   });
   alpha.manifest.delivery.editionInput = 'authored-edition';
   f.request.edition = { kind: 'provider', provider: 'alpha-selection' };
-  const executableEdition = await f.materialize();
+  const executableEdition = await materializeExecutableAlpha(f);
   assert.equal(executableEdition.lockSha256, declarative.lockSha256);
   assert.notDeepEqual(executableEdition.invocations, declarative.invocations);
   assert.equal(
@@ -616,7 +623,7 @@ test('direct, declarative, and executable Edition resources share exact identity
   );
   alpha.manifest.delivery.editionInput = 'authored-edition';
   alpha.manifest.delivery.editionResourceInputs = [{ ref: 'palette.json', input: 'palette' }];
-  const executable = await f.materialize();
+  const executable = await materializeExecutableAlpha(f);
   assert.equal(executable.lockSha256, direct.lockSha256);
   assert.notDeepEqual(executable.invocations, direct.invocations);
   assert.notDeepEqual(executable.invocations, declarative.invocations);
@@ -633,6 +640,6 @@ test('direct, declarative, and executable Edition resources share exact identity
   const paletteInput = alpha.manifest.delivery.inputs.find(({ id }) => id === 'palette');
   paletteInput.bytes = changed.length;
   paletteInput.sha256 = sha(changed);
-  const different = await f.materialize();
+  const different = await materializeExecutableAlpha(f);
   assert.notEqual(different.lockSha256, executable.lockSha256);
 });

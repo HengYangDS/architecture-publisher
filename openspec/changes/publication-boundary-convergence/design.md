@@ -190,6 +190,16 @@ versioned authoring contract. Publisher-generated locks, seals, Candidate
 identities, and qualification reports are derived records, not fields that a
 source author must refresh by hand.
 
+Creation and assurance are different loops over one Edition, not two sources
+of truth. During creation, an editor changes native sources and one authored
+reading plan, builds fresh unqualified Candidates, and inspects the results.
+At the acceptance boundary, the invoker selects exact bytes and a custodian
+retains what later replay needs. Exact transport records protect replay but
+must not become extra editable source facts or routine hash-maintenance work.
+Direct selection is the default for co-located source and editor input;
+Provider delivery is justified by a real cross-owner handoff or executable
+preparation need, not by repository identity.
+
 ### Authoring and replay decision gate (2026-09-30; review pending)
 
 Provider v2 is a valid exact exchange format, but its selected member size and
@@ -236,12 +246,15 @@ and no new acceptance may be inferred. A source-code change that
 leaves an authored Claim Model unchanged does not renew the lock or prove that
 model still describes implementation correctly.
 
-A future executable authoring route must decide its exact selected
-`id@manifestSha256` set before executing code. Such a new rule applies only
-to its new request version; historical v1 CLI calls retain their meaning.
-Changing this trust boundary, relaxing an authoring pin, or adding v3 requires
-its own reviewed spec delta and RED/GREEN, installed, replay, and hostile-path
-counterexamples. No new schema or command is admitted by this decision gate.
+The unreleased successor Build Request must not authorize execution merely
+by naming an executable Provider. Before any such code runs, the invoker
+separately selects the exact `id@manifestSha256` set through the existing
+build command and public materialization interface. Omission, substitution,
+or extra selection fails before execution; direct and declarative input need
+no execution choice. This narrows the current successor boundary without a
+new schema or command plane. Historical released v1 input semantics remain
+unchanged. Relaxing an authoring pin or adding a future Provider v3 still
+requires its own reviewed contract and hostile-path counterexamples.
 
 The authored Build Request selects:
 

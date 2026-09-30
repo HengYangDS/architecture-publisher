@@ -158,6 +158,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       local check passed 1,310/1,313 tests with three declared skips, zero
       failures, and 95.11% branch coverage; Task 2.4 remains open for the
       selected media acceptance boundaries in Tasks 5.2–5.4.
+      A further RED/GREEN now requires a separate exact invoker choice for
+      every successor executable Provider on the public build and materializer
+      paths. Omitted, extra, and substituted choices leave the execution marker
+      absent; direct and declarative journeys remain choice-free. The packed
+      CLI passes after relocation, historical v1 replay remains green, and the
+      existing command gained only an exact option, not a new command plane.
+      The Chrome-enabled full check passed 1,310/1,313 tests with three
+      declared skips, zero failures, and 95.11% branch coverage. This closes
+      the code-execution admission gap, not Task 2.4's remaining selected-media
+      and upstream hermeticity limits.
 - [x] 2.5 Replay exact Source Bundle v1, Claim Model v2, Edition v1,
       Provider v1, Candidate v1, and Qualification Set v1 meanings in source
       tests and a packed, offline-installed work-lane package. The frozen hash
