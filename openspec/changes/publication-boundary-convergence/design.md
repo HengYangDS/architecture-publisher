@@ -1030,6 +1030,20 @@ untyped arrow semantics. This is an editorial projection of one selected
 meaning, not a new model, file authority, command plane, or source-repository
 renderer. A form without sufficient source support fails before geometry.
 
+For a responsibility/handoff form, the editor must bind each visible zone,
+membership, and handoff to selected source assertions or separately attributed
+editorial assertions with an explicit basis. The compiler can check those
+finite references, their conditions and limits; it cannot infer ownership
+from a node's position, entity type, free summary, or traffic direction.
+An accepted native decision may supply the needed facts through a declared
+adapter, but a renderer must not silently promote prose into typed source
+claims. If the chosen form lacks those bindings, return a named editorial
+input gap before layout, identifying the question and unsupported visual
+roles. The editor may then supply the missing attributed meaning, narrow the
+question, or choose a different form; Publisher must not make that decision
+by moving boxes or hiding edges. This is a generic form precondition, not an
+AIGW-specific ontology or a new source repository obligation.
+
 The AIGW Product Boundary question is a candidate for a responsibility and
 handoff form rather than a single seven-node causal chain; Client Projection
 Overview remains a candidate for a directed relationship form. These are

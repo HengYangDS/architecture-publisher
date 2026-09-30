@@ -781,8 +781,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       selected IDs, qualifiers, limits, and source hashes; reject extra or
       missing question assertions before visual comparison. The corrected
       ECharts boundary probe in `docs/research/mechanism-evaluation.md`
-      records an initial selection-mismatch counterexample. Tasks 5.2 and
-      5.4 remain open.
+      records an initial selection-mismatch counterexample. Add a negative
+      responsibility-form case whose relation graph has no supported role
+      bindings: it must report the missing question/roles, not emit a final
+      diagram. A positive case must bind each role and handoff to selected
+      source or attributed editorial meaning, preserve conditions and limits,
+      and pass complete-page review without treating editor assertions as
+      source endorsement. Tasks 5.2 and 5.4 remain open.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
