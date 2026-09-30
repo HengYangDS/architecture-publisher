@@ -226,3 +226,20 @@ test('provider guidance preserves one command plane and explicit ownership bound
     /cop(?:y|ied) (?:the )?(?:OpenSpec )?(?:tasks\.md|progress ledger)/iu,
   );
 });
+
+test('off-host recovery decisions have one canonical reference owner', async () => {
+  const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');
+  const contract = await fs.readFile(
+    path.join(root, 'docs/reference/disaster-recovery-decision-contract.md'),
+    'utf8',
+  );
+
+  assert.match(
+    operations,
+    /\[off-host recovery decision contract\]\(disaster-recovery-decision-contract\.md\)/iu,
+  );
+  assert.doesNotMatch(operations, /^\| Recovery tier\s*\|/mu);
+  assert.match(contract, /^\| Recovery tier\s*\|/mu);
+  assert.match(contract, /reader-only recovery/iu);
+  assert.match(contract, /complete recovery/iu);
+});

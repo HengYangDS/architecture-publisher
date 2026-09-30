@@ -32,6 +32,7 @@ authorized installation operation; it is not an off-host backup.
 
 | Decision                       | Required operator value                                                                                         | Admission question                                                                                                         |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Recovery tier                  | Reader-only media access, or complete product rebuild and local-effect recovery                                 | Does the protected set and rehearsal prove only the selected tier, without calling a reader copy a complete backup?        |
 | Failure domain and destination | Named store, location, account/control-plane independence and correlated-failure assumptions                    | Does loss or compromise of the workstation **and** primary forge leave the selected bytes and restore authority available? |
 | Custodian                      | Named accountable owner, backup operator, restore operator and deletion authority                               | Who can prove custody, authorize restore and retire old copies?                                                            |
 | Recovery objectives            | Maximum accepted data loss, restore time and required point-in-time consistency                                 | Which exact source and release state must be recovered, and by when?                                                       |
@@ -50,7 +51,14 @@ surfaces; none alone proves independent recovery.
 
 ## Required protected set
 
-The selected Publisher inventory must enumerate, rather than infer:
+The selected tier fixes the inventory. Reader-only recovery requires exact
+standalone HTML and static media, a release identity, member sizes and SHA-256
+hashes, applicable human-acceptance evidence and independent verification
+anchors. It establishes access to accepted reader artifacts, not source
+reconstitution, package installation or local-effect recovery.
+
+Complete recovery includes that reader set and must additionally enumerate,
+rather than infer:
 
 1. Publisher's complete required Git object closure, selected protected refs,
    signed annotated tags and exact repository metadata needed to reconstruct
@@ -64,7 +72,8 @@ The selected Publisher inventory must enumerate, rather than infer:
    receipts not reconstructible from the Git/release inventory.
 4. Public verification keys, trust policy and non-secret credential identity,
    scope and revocation metadata. Private signing and decryption material has
-   its own authoritative custody decision and is never copied into a manifest.
+   its own authoritative custody decision and is never bundled with the
+   artifact archive or copied into its manifest.
 5. Explicit exclusions: reproducible caches, temporary worktrees, build
    scratch, unaccepted candidates, foreign/unknown state and adopter-owned
    source or release data not under Publisher custody.
@@ -75,6 +84,8 @@ selected state. It must detect a partially captured or internally inconsistent
 set before that set is promoted as restorable. Issues, merge requests, CI logs
 and other forge metadata are included only if the operator selects and
 inventory-binds them; Git objects alone do not reconstruct those services.
+The manifest distinguishes source bytes, reader media, evidence and restore
+instructions rather than flattening them into one public download.
 
 Secrets stay in their authoritative stores. Inventory and logs contain only
 non-secret metadata, never token values, private keys or secret hashes.
@@ -99,14 +110,21 @@ overwrites a live accepted repository as its first action, and proves:
 
 1. Encrypted material is fetched and decrypted with the selected bounded
    credential and key route, independently of the lost host and primary forge.
-2. Manifest hashes, signed objects/tags, object types, refs, release records,
-   asset bytes and package content identities agree at one declared recovery
-   point; an incomplete or tampered snapshot fails before promotion.
-3. The Publisher repository, package, self-Edition and Publisher-custodied
-   releases can be reconstructed without an adjacent checkout. Selected public
-   installed journeys run offline from the restored supply closure.
+2. Manifest member sizes and SHA-256 hashes, release records and selected asset
+   bytes agree at one declared recovery point; missing, altered, extra or
+   expired members fail before promotion. For complete recovery, signed objects
+   and tags, object types, refs and package identities also agree with
+   independent trust anchors; the backup's own assertions cannot be their sole
+   verification authority.
+3. Both reader media open independently and retain the applicable acceptance
+   evidence. For complete recovery, the Publisher repository, package,
+   self-Edition and Publisher-custodied releases can be reconstructed without
+   an adjacent checkout. Exact packages install offline; one selected Edition
+   rebuilds to the recorded Candidate and media digests; local publication
+   recovery is rehearsed in an isolated destination containing foreign files.
 4. The restored state meets the selected recovery-point and recovery-time
-   objectives. The receipt names the source point, actual elapsed time,
+   objectives. The receipt names the source point, oldest recoverable accepted
+   revision, actual elapsed time, preserved foreign content, credential scope,
    omitted/excluded material and any unresolved limitation.
 5. Source-product acceptance and release authority remain with their declared
    owners. A restored Candidate or receipt does not mint new acceptance.
@@ -120,3 +138,8 @@ cutover. Successful local backup, forge push, package upload, CI run or file
 existence is not a substitute for this clean-host restore proof. Until the
 operator has selected the missing values **and** the exact rehearsal passes,
 independent off-host recovery remains `unproved`.
+
+An invalid hash, unavailable key, implicit network fetch, host-specific path
+or missing selected source input fails the applicable recovery tier. Retain the
+exact report and repeat the rehearsal after a change to the package, backup
+format, trust anchor, destination or credential policy.

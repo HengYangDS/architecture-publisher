@@ -651,62 +651,12 @@ PNG  5f4ea104b95112d84635881600d2c75ae3eae65a45b4b61a4fe5936df3ee3cda
 
 The signed alpha.7 tag and all earlier release bytes remain unchanged. No
 predecessor repository archive is required in the successor registry.
-Independent off-host disaster recovery remains unproved and excluded until an
-operator selects destination, custody, and credentials.
 
-## Off-host recovery decision contract
+## Off-host recovery
 
-This is a decision and acceptance contract, not an enabled backup job. The
-selected custodian owns the backup location, retention, withdrawal, and restore
-authorization; Publisher owns only the bytes it produces. A GitLab Release or
-another copy on this workstation is not an independent failure domain. No
-credential, destination, or encryption key is selected by this document.
-
-The operator must record these choices before implementation:
-
-| Decision        | Required selection                                                                                       | Rejection condition                                                               |
-| --------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| Recovery tier   | Reader-only access, or complete rebuild and local effect recovery                                        | A reader copy is called a complete product backup.                                |
-| Failure domain  | Destination, account, region, and access path independent of the primary Forge and this workstation      | Loss of the Forge or workstation also removes the only copy or its key.           |
-| Custody         | Named custodian, restore authorizer, successor owner, and withdrawal procedure                           | A producer can silently change retention or authorize its own restore.            |
-| Retention       | Version scope, minimum duration, expiry, immutable or deletion policy, and capacity ceiling              | Historical signed releases are rewritten or kept without a bounded policy.        |
-| Confidentiality | Encryption format, key owner, independent key recovery, and allowed source-byte classification           | Reader media and private rebuild inputs are treated as the same disclosure class. |
-| Access          | Exact read/write identities, least-privilege noninteractive credential, expiry, rotation, and revocation | An ambient workstation login, broad token, or recurring prompt is required.       |
-| Recovery target | Clean-host platform/runtime, restore deadline, and maximum accepted data loss                            | Success depends on this host's paths, cache, or adjacent checkout.                |
-| Proof           | Named restore verifier, test cadence, evidence retention, and pass/fail owner                            | The upload operator's assertion substitutes for a clean-host restore.             |
-
-The selected tier fixes the inventory. Reader-only recovery requires the exact
-standalone HTML and static media, manifest with SHA-256 per member, release
-identity, and the applicable human-acceptance record. Complete recovery also
-requires the signed source revision and verification anchors, exact package
-archives and supplies, selected Edition and source inputs needed to rebuild,
-qualification and publication receipts, and a procedure to reinstall and
-recover local file effects. Secrets and private signing keys are never bundled;
-their independently governed recovery is a prerequisite, not an inferred
-property of the artifact archive. The manifest must distinguish source bytes,
-reader media, evidence, and restore instructions rather than flatten them into
-one public download.
-
-Acceptance is a bounded **clean-host restore** using only the selected backup
-and separately held verification or decryption material, with the primary
-Forge and original workstation unavailable. The verifier must:
-
-1. Inventory every selected member and compare size and SHA-256 with the
-   frozen manifest; reject a missing, extra, altered, or expired member.
-2. Verify the selected signed source/tag and package identities against the
-   recorded trust anchors, without accepting the backup's own assertions as
-   their sole authority.
-3. Open both reader media independently. For the complete tier, install the
-   exact packages offline, rebuild one selected Edition from restored inputs,
-   compare Candidate and media digests, and rehearse local publication recovery
-   in an isolated destination containing foreign files.
-4. Record elapsed restore time, the oldest recoverable accepted revision,
-   preserved foreign content, credential scope, and every unproved limit.
-
-An invalid hash, unavailable key, implicit network fetch, host-specific path,
-or missing source input fails complete recovery. A successful upload, API
-readback, local file recovery, or historical release link alone does not pass
-this test. The custodian must retain the exact restore report and schedule a
-new test after changes to the package, backup format, trust anchor, selected
-destination, or credential policy. Until the choices and clean-host test exist,
-the status remains **not implemented / not independently proved**.
+Independent off-host recovery remains unproved. The
+[off-host recovery decision contract](disaster-recovery-decision-contract.md)
+is the sole owner of tier selection, protected inventory, custody, retention,
+credential boundaries, and clean-host acceptance. This operational reference
+adds no alternate backup or restore policy. A local file recovery or Forge
+release does not satisfy that contract.

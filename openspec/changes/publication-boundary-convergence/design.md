@@ -1542,9 +1542,10 @@ adopter's artifact retention. Publisher's own off-host DR remains a separate
 operator decision requiring destination, custody, retention, encryption,
 credential, and clean-host restore acceptance; this Change supplies the
 contract, not an unapproved implementation. The single decision checklist,
-backup inventory, and pass/fail restore protocol live in
-`docs/reference/operations.md` under “Off-host recovery decision contract”;
-this design does not create a second custody authority.
+protected inventory, and pass/fail restore protocol live in
+`docs/reference/disaster-recovery-decision-contract.md`;
+`docs/reference/operations.md` links to it without creating a second custody
+authority.
 
 ## Contract counterexamples and migration order
 
