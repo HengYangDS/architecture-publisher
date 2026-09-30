@@ -147,6 +147,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       Keep this task open until the native adapter and media tasks complete
       their acceptance; archive selection and builder provenance belong to
       the designated accepter's publication policy.
+      A public-build regression now checks actual direct and Provider input
+      read methods against Candidate `checked-declared` parser/media supplies,
+      preserves the executable Provider's unobserved-dependency and
+      non-sandbox limits, and proves that an unselected ambient file cannot
+      enter the selected lock by proximity. A changed selected Provider input
+      fails before a Candidate. The existing derived-Claim test separately
+      retains declared but unverified adapter code as a limit. These tests do
+      not prove Provider hermeticity or original-builder provenance. The full
+      local check passed 1,310/1,313 tests with three declared skips, zero
+      failures, and 95.11% branch coverage; Task 2.4 remains open for the
+      selected media acceptance boundaries in Tasks 5.2–5.4.
 - [x] 2.5 Replay exact Source Bundle v1, Claim Model v2, Edition v1,
       Provider v1, Candidate v1, and Qualification Set v1 meanings in source
       tests and a packed, offline-installed work-lane package. The frozen hash

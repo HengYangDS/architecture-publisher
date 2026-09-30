@@ -5,6 +5,11 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { materializeBuildRequestInput } from '../packages/publisher/src/compiler/build-input.mjs';
+import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/edition.mjs';
+import {
+  executableModelProvider,
+  selectedNativeEdition,
+} from './fixtures/selected-native-edition.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -130,4 +135,54 @@ test('unselected local content cannot silently count as dependency closure', asy
   assert.equal(later.lockSha256, first.lockSha256);
   assert.equal(later.closure, 'selected-roots-only');
   assert(later.limits.includes('native-dependency-closure-unchecked'));
+});
+
+test('public build distinguishes checked inputs and supplies from unobserved Provider dependencies', async (t) => {
+  const f = await selectedNativeEdition(t, { media: ['static'], width: 800 });
+  const provider = await executableModelProvider(f);
+  const materialized = await materializeBuildRequestInput(f.file, f.digest);
+  assert.deepEqual(
+    materialized.readEvidence.items.map(({ kind, key, method }) => [kind, key, method]),
+    [
+      ['edition', f.project.id, 'filesystem-read-sha256/v1'],
+      ['native', 'fixture/views', 'filesystem-read-sha256/v1'],
+      ['native', 'fixture/model', 'provider-input-sha256/v2'],
+    ],
+  );
+  assert.equal(materialized.lock.toolchain.profile, 'portable');
+  assert.equal(materialized.closure, 'selected-inputs-only');
+  assert(materialized.limits.includes('provider-dependencies-unobserved'));
+  assert(materialized.limits.includes('provider-execution-not-sandboxed'));
+
+  const firstOutput = path.join(f.root, 'candidate-first');
+  const built = await compileEditionCandidateInput(f.file, f.digest, firstOutput);
+  const candidate = JSON.parse(await fs.readFile(path.join(firstOutput, 'candidate.json')));
+  assert.equal(candidate.input.lockSha256, materialized.lockSha256);
+  assert.equal(candidate.input.closure, 'selected-inputs-only');
+  assert(candidate.limits.includes('provider-dependencies-unobserved'));
+  assert(candidate.limits.includes('provider-execution-not-sandboxed'));
+  assert(candidate.limits.includes('native-dependency-closure-unchecked'));
+  assert(candidate.input.semanticSupplies.length > 0);
+  assert(candidate.media.static.supplies.length > 0);
+  for (const supply of [...candidate.input.semanticSupplies, ...candidate.media.static.supplies]) {
+    assert.equal(supply.basis, 'checked-declared');
+    assert.notEqual(supply.id, 'portable');
+  }
+  assert.match(await fs.readFile(provider.executionMarker, 'utf8'), /^\d+$/u);
+
+  await fs.writeFile(path.join(f.root, 'unselected-ambient.txt'), 'not a selected input\n');
+  const secondOutput = path.join(f.root, 'candidate-second');
+  const repeated = await compileEditionCandidateInput(f.file, f.digest, secondOutput);
+  assert.equal(repeated.lockSha256, built.lockSha256);
+  assert.equal(repeated.candidateSha256, built.candidateSha256);
+  assert.equal(
+    JSON.parse(await fs.readFile(path.join(secondOutput, 'candidate.json'))).input.closure,
+    'selected-inputs-only',
+  );
+
+  await fs.writeFile(path.join(f.root, 'provider/model.c4'), 'changed selected input\n');
+  await assert.rejects(
+    compileEditionCandidateInput(f.file, f.digest, path.join(f.root, 'candidate-rejected')),
+    { code: 'edition_provider_v2_input_size_mismatch' },
+  );
 });
