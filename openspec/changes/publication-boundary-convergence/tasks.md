@@ -485,7 +485,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       and 95.11% branch coverage. Source-owner aggregate rules, actual answer
       adequacy, and visual acceptance remain explicit external obligations
       under Tasks 7.5, 8.1, and 8.2, never implied by this checkbox.
-- [ ] 5.2 Deliver an explainable neutral source-to-media composition without
+- [x] 5.2 Deliver an explainable neutral source-to-media composition without
       duplicate editable facts, authored pixels or a second layout engine.
       Preserve exact selected references, reader questions, group membership,
       typed qualifiers, conditions, source identity and visible limits in both
@@ -506,13 +506,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       `docs/research/mechanism-evaluation.md` for exact identities, counterexamples,
       superseded tool choices and observation limits; earlier task history is
       preserved in signed `b9ea164`, not copied into current progress.
-      Remaining: complete reader/form and final aesthetic acceptance on the
-      frozen generic/self work and neutral external HTML. AIGW's responsibility
-      question still needs its source/editor's disposition under Task 8.1; the
-      unapproved role trial is not adopted truth. A generic defect on compatible
-      selected input blocks freeze; another product's release approval does not.
-      Geometry, source endorsement, prose adequacy and final aesthetics remain
-      separate predicates. No mobile, narrow-screen or manual pixel fallback.
+      On 2026-10-01 the requester accepted both exact AIGW HTML works as
+      neutral visual baselines and the current self media for faithfulness,
+      intelligibility and restraint. This closes the generic reader/form
+      contract within its explicit scope. AIGW's responsibility question and
+      unapproved role trial remain source/editor decisions under Task 8.1,
+      not adopted truth or a prerequisite for generic Publisher release.
+      Human decisions are bound in the same receipt. Independent code/paint
+      review and visual approval cannot certify source truth or arbitrary prose.
+      No mobile, narrow-screen, random pixel fallback or extra layout owner.
+
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -613,23 +616,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       Reader-level composition and AIGW editorial form/long-route concerns
       remain Task 5.2; final frozen packages and renewed self HTML review
       remain Task 7.5; source-owner acceptance remains Tasks 8.1–8.2.
-- [ ] 5.5 Keep the first-party self Edition on the same public Build Request,
+- [x] 5.5 Keep the first-party self Edition on the same public Build Request,
       Edition Project, data-only refinement and dual-medium compiler as other
       adopters. Preserve its source-owned meaning and flagship art direction;
-      prove selected-meaning coverage, installed relocation, independent media,
-      browser accessibility and final-byte human visual acceptance.
-      Ruling: reopen exact-media acceptance. The approved historical PNG still
-      matches SHA-256 `85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712`;
-      approved HTML `481582f6dd05d322b5a41122f393d117e7886570569212ba8616a521256498ea`
-      does not match current HTML
-      `eb8e4a5cd76ac52a3dc8a50e6bb93417c8f20da5a59b0e1a16b81ec920d579c6`.
-      Identical screenshots, unchanged selected meaning and the latest
-      independent layout review do not transfer an exact-byte human decision.
-      Current package, browser/Inspect, accessibility and all six self-member
-      checks remain evidence. Await the final selected-media judgment without
-      blocking independent work or asking after every intermediate rebuild.
-      Historical approvals remain in `conformance/evidence/alpha6-local-freeze-probe.json`;
-      current identities and limits are in the neutral-reading receipt.
+      selected-meaning coverage, installed relocation, independent media,
+      browser/accessibility and current exact-byte human review pass.
+      On 2026-10-01 the requester accepted the current static PNG
+      `85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712`
+      and standalone eight-page HTML
+      `eb8e4a5cd76ac52a3dc8a50e6bb93417c8f20da5a59b0e1a16b81ec920d579c6`
+      for faithfulness, intelligibility and restraint. This new decision,
+      not predecessor approval or screenshot equivalence, closes the previously
+      reopened media gate. See the neutral-reading receipt. Source endorsement,
+      Candidate policy admission, protected publication and release remain
+      separate under Tasks 7.5–7.6; future changed bytes renew applicable review.
 
 ## 6. Qualification and bounded publication
 
@@ -974,6 +974,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       pretending that unchanged build inputs need a new product identity.
       A generic defect on compatible input blocks freeze; ETHOS/AIGW own their
       Edition art, migration, acceptance, release and retirement independently.
+      Final preparation: direct exact self and neutral HTML review is accepted.
+      Role-only protection is verified against the immutable runtime; its
+      RED/GREEN remains recorded. The conflicting prepared-version URL
+      assertion was removed without weakening absolute URL, SemVer, tag/date
+      or exact-tag checks; all 22 sibling tests pass. The final working-tree
+      `npm run check` passed 1408/1411, three declared skips, zero failures or
+      warnings, and 97.79/95.20/99.58/97.79% coverage. Exact approved self
+      HTML was independently opened across all eight desktop pages with zero
+      axe findings, overflow or network requests; keyboard Inspect/Escape and
+      focus return passed. Package/media inputs remain unchanged. The signed
+      release-source proof, hosted CI and exact local tag-context gate remain
+      required. See `finalReleasePreparation` in the sole neutral-reading
+      receipt; no interrupted gate is accepted.
+
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release
       decision, and a local full gate with the exact annotated tag present

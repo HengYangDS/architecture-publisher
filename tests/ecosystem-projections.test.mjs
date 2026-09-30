@@ -16,6 +16,11 @@ test('current package identity and predecessor release are explicit', async () =
 
   const releaseToml = await fs.readFile(path.join(root, '.ethos/release.toml'), 'utf8');
   assert.match(releaseToml, /^tags = \["v\*"\]$/mu);
+  assert.doesNotMatch(
+    releaseToml,
+    /^\s*branches\s*=/mu,
+    'Protected branch membership belongs to workspace branch roles, not a parallel release list.',
+  );
   assert.doesNotMatch(releaseToml, /tags = \[[^\]]*v[0-9]/u);
   assert.match(releaseToml, /^local_verification_command = "npm run check"$/mu);
   assert.match(releaseToml, /^capabilities = \["repository", "ci_cd", "publication"\]$/mu);

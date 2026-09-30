@@ -8,6 +8,8 @@ may contain incompatible changes.
 
 ## Unreleased
 
+## [0.3.0-alpha.6] - 2026-10-01
+
 ### Added
 
 - Native macOS ARM64 CI runs the existing repository gate, including CoreText
@@ -428,6 +430,7 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.3.0-alpha.6]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.6
 [0.3.0-alpha.5]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.5
 [0.3.0-alpha.4]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.4
 [0.3.0-alpha.3]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.3

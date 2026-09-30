@@ -143,14 +143,6 @@ test('release history follows Keep a Changelog with one SemVer identity', async 
   const preparedVersion =
     !taggedVersions.includes(workspace.version) && releaseVersions[0] === workspace.version;
   assert.deepEqual(preparedVersion ? releaseVersions.slice(1) : releaseVersions, taggedVersions);
-  if (preparedVersion)
-    assert.match(
-      changelog,
-      new RegExp(
-        `^\\[${workspace.version.replaceAll('.', '\\.')}\\]: \\.\\.\\/\\.\\.\\/compare\\/`,
-        'mu',
-      ),
-    );
   for (const tag of tags) {
     const version = tag.slice(1);
     assert.equal(

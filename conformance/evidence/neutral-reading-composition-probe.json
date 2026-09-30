@@ -232,11 +232,18 @@
     }
   ],
   "review": {
-    "selfMediaHumanReview": "PNG historical accepted; current self HTML exact-byte review still required",
-    "sourceOwnerAcceptance": "not-established",
-    "independentCodeReview": "not-obtained",
-    "failure": "two bounded subagent attempts failed with encrypted function output decryption error before returning any findings; retries stopped and owning chat notified",
-    "primaryReview": "exact owner diff, worker boundary, unchanged static siblings, typed source obligations and current actual browser/paint/installed checks"
+    "historicalScope": "mechanical candidate before current exact human reply; failed reviewer invocation history retained",
+    "selfMediaHumanReview": "superseded by currentSignedSourceChecks.humanReview: exact PNG and HTML accepted by direct requester reply",
+    "sourceOwnerAcceptance": "not-established; AIGW neutral visual baseline is not semantic acceptance",
+    "independentCodeReview": "whole-work final read-only review at existing reviewer; current source/evidence patch and scope inspected",
+    "failedInvocationHistory": "two bounded subagent attempts failed with encrypted function output decryption error before returning any findings; retries stopped and owning chat notified",
+    "primaryReview": "exact owner diff, worker boundary, unchanged static siblings, typed source obligations and current actual browser/paint/installed checks",
+    "followup": {
+      "reviewer": "/root/whole_work_visual_review",
+      "result": "P3 conflicting present-tense aggregate review found; corrected at this sole receipt owner",
+      "scope": "role-only protected refs, legitimate Changelog-test subtraction, exact media/CI/proof hashes and no premature release claim",
+      "limits": "read-only review, not rerun proof, source truth, release or adopter acceptance"
+    }
   },
   "limits": [
     "AIGW input is still copied editorial trial, not source approval or published adopter material",
@@ -631,7 +638,7 @@
     }
   },
   "currentSignedSourceChecks": {
-    "status": "current signed-source mechanical checks passed; final media acceptance and release remain open",
+    "status": "current mechanical and exact human/media checks passed; final release-source gate and publication remain open",
     "sourceCommit": "b9ea16446a301bec9d176ff0c800d93ead897d75",
     "pipeline": {
       "id": 9053,
@@ -687,10 +694,94 @@
       "focusedSkipped": 0
     },
     "humanReview": {
-      "staticPng": "unchanged exact historical accepted bytes",
-      "interactiveHtml": "eb8e4a5cd76ac52a3dc8a50e6bb93417c8f20da5a59b0e1a16b81ec920d579c6",
-      "status": "current exact HTML review pending; historical approval inapplicable",
-      "taskReopened": "5.5"
+      "status": "direct exact-media user acceptance received",
+      "attribution": "direct user reply in current Codex thread; not a cryptographic human signature",
+      "decisionSource": {
+        "thread": "01a02017-5246-7d30-b47b-c717b7ec674f",
+        "questionCall": "call_c2dVLsB91BBLtUQiw8amXxoq",
+        "answers": {
+          "self": "两份均通过",
+          "neutralAigw": "两份均可作为中性基线"
+        }
+      },
+      "self": {
+        "id": "self",
+        "candidate": "current/self/candidate.json",
+        "edition": "current/self/input-lock.json",
+        "artifacts": [
+          {
+            "path": "current/self/static/architecture.png",
+            "sha256": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712",
+            "rubric": ["faithful", "intelligible", "restrained"],
+            "verdict": "PASS",
+            "scope": "human exact-media visual acceptance",
+            "bytes": 478249,
+            "absolutePath": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/qualifier-reading-convergence-20261001/current/self/static/architecture.png"
+          },
+          {
+            "path": "current/self/interactive/architecture.html",
+            "sha256": "eb8e4a5cd76ac52a3dc8a50e6bb93417c8f20da5a59b0e1a16b81ec920d579c6",
+            "rubric": ["faithful", "intelligible", "restrained"],
+            "verdict": "PASS",
+            "scope": "human exact-media visual acceptance; eight desktop pages",
+            "bytes": 1542831,
+            "absolutePath": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/qualifier-reading-convergence-20261001/current/self/interactive/architecture.html"
+          }
+        ],
+        "candidateFileSha256": "56a42b8742920d0d086c09910c37c16923346fb3a80de2c11b062f36f9302abf",
+        "editionSha256": "de932e642b45c858e949a89ebeb4ec8192d24cf53179252920001f949f7d5e40",
+        "inputLockSha256": "45a1fdffcad3074f19d0247cf701739be3a6974454fc0470b41af40cc0fb593f"
+      },
+      "externalNeutralBaseline": [
+        {
+          "id": "aigw-product",
+          "candidate": "current/aigw-product/candidate.json",
+          "edition": "current/aigw-product/input-lock.json",
+          "artifacts": [
+            {
+              "path": "current/aigw-product/interactive/architecture.html",
+              "sha256": "6e37342554748ec3e80351bc137cc8f94219ecf068518356ea43760614300d94",
+              "rubric": ["composition", "readability"],
+              "verdict": "PASS",
+              "scope": "Publisher neutral visual baseline only; six desktop pages",
+              "bytes": 916962,
+              "absolutePath": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/qualifier-reading-convergence-20261001/current/aigw-product/interactive/architecture.html"
+            }
+          ],
+          "candidateFileSha256": "d95241650d99fe40da5467fe6a9e8fe39c676fe196fde1eac01ca17f514f0a79",
+          "editionSha256": "6ed7aaa0f660bf7c62a7c0ced665c6ab422632eb63c317a98ce209a645813a84",
+          "inputLockSha256": "32a59690c5823c69d5f4f31e714dc4072f387e963f08773b870ae425480f4e67"
+        },
+        {
+          "id": "aigw-client",
+          "candidate": "current/aigw-client/candidate.json",
+          "edition": "current/aigw-client/input-lock.json",
+          "artifacts": [
+            {
+              "path": "current/aigw-client/interactive/architecture.html",
+              "sha256": "47f74b6e3d8fe7e6a3e62fa39cdf60a3b319e60cba28b92b4002f738fadd81f8",
+              "rubric": ["composition", "readability"],
+              "verdict": "PASS",
+              "scope": "Publisher neutral visual baseline only; four desktop pages",
+              "bytes": 898154,
+              "absolutePath": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/qualifier-reading-convergence-20261001/current/aigw-client/interactive/architecture.html"
+            }
+          ],
+          "candidateFileSha256": "5bba9763fc44f9b331209878eaa8e5d87000a34263bc95e48b2cba748a01a6ba",
+          "editionSha256": "77405541f9494114a7dd59c0055a0070ab7c9121eb890d3efb78aea5ea5d502b",
+          "inputLockSha256": "cb82df82cbf0a0025cb10c106904856580e034cdd7c6bc3ed349a833f5a7791d"
+        }
+      ],
+      "limits": [
+        "self visual acceptance does not certify implementation/source truth or authorize release automatically",
+        "AIGW decisions are neutral composition/readability baselines, not source/editor semantic endorsement or AIGW publication",
+        "future changed artifact bytes require renewed applicable review"
+      ],
+      "evidence": {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/human-review.json",
+        "bytes": 4838,
+        "sha256": "6ed738402af0415b5cf7af2f04b162e4d072eb2ce744a8adddb3b425702d9085"
+      }
     },
     "evidence": [
       {
@@ -727,11 +818,140 @@
         "path": "build/test-work/qualifier-reading-convergence-20261001/housekeeping.json",
         "bytes": 2623,
         "sha256": "17e258f93dfcadc1ff574daf0ede4ec035383c9fb24b6f78c147537cf9fcb5a4"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/human-review.json",
+        "bytes": 4838,
+        "sha256": "6ed738402af0415b5cf7af2f04b162e4d072eb2ce744a8adddb3b425702d9085"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/exact-head-proof.json",
+        "bytes": 681534,
+        "sha256": "93bfbeeffdcca9f5ff31a65efdfbc38df43f229a5dc69e214a84afab843924f4"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/evidence-native-ci-result.json",
+        "bytes": 1754,
+        "sha256": "bca431845fcc84662eb36823e9e0c583a45f6b73cd4119ba423d221082567606"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/evidence-native-46636.log",
+        "bytes": 210145,
+        "sha256": "5cccd8870f2400b6e15ff347a9afd7d20661cb75cd89be282e4699f031cc954d"
+      },
+      {
+        "path": "build/test-work/qualifier-reading-convergence-20261001/evidence-native-46637.log",
+        "bytes": 208574,
+        "sha256": "44bdc8bde37e58bb29060da3f8150785d7a7bdaa2281e31c89ac4a080493adce"
       }
     ],
     "limits": [
-      "source/editor responsibility and neutral-reader aesthetic judgments remain open",
-      "no Candidate qualification, protected transition, release or adopter acceptance claimed"
-    ]
+      "AIGW source/editor semantic responsibility is not established by neutral visual acceptance",
+      "final release-source proof, tagged gate, protected transition and release readback still required",
+      "no adopter migration, source truth or off-host recovery effect claimed"
+    ],
+    "exactHeadProof": {
+      "head": "31b1b20e127eac391e0ae903ca975d6a3e89a977",
+      "attestationId": "946c16e761afd6f75c49ddf9e265c073adb2985939c72e1f4ed994650a652d2a",
+      "verdict": "pass",
+      "scope": "repository with selected current browser executable",
+      "limits": ["mechanical proof only; source and release authority remain distinct"]
+    },
+    "evidenceOnlyCI": {
+      "pipelineId": 9055,
+      "head": "31b1b20e127eac391e0ae903ca975d6a3e89a977",
+      "status": "success",
+      "jobs": [
+        {
+          "id": 46637,
+          "name": "verify:macos:review",
+          "status": "success"
+        },
+        {
+          "id": 46636,
+          "name": "verify",
+          "status": "success"
+        }
+      ],
+      "limits": [
+        "not the later final-release commit",
+        "omitted browser/external inputs remain covered separately by exact local evidence"
+      ]
+    },
+    "finalReleasePreparation": {
+      "status": "final working-tree quality and exact approved self desktop checks passed; signed-source/tag/Forge gates remain open",
+      "releaseVersion": "0.3.0-alpha.6",
+      "roleOnlyProtection": {
+        "owner": ".ethos/workspace.toml branch_roles",
+        "removedParallelList": ".ethos/release.toml protected_refs.branches",
+        "nativeRuntime": "405782c3c2ad8870a55c44acc8d4dba7a5c078e1cccebd949743ec10ea6ec9f4",
+        "red": {
+          "path": "build/test-work/qualifier-reading-convergence-20261001/branch-policy-red.log",
+          "bytes": 1358,
+          "sha256": "4832bd98e10ec23376ad9ee2b9f244d48c574d68406ac51ac1f20ccf74313245"
+        },
+        "green": {
+          "path": "build/test-work/qualifier-reading-convergence-20261001/branch-policy-green.log",
+          "bytes": 193,
+          "sha256": "54d4104eef0d0e4c7d2507773cc2b028616ea8f02c6e310e2f9465e38f3213e2"
+        },
+        "effectiveProtectedBranches": ["main", "dev"]
+      },
+      "changelogSibling": {
+        "correction": "remove only mutually exclusive prepared-version relative URL assertion; retain absolute URLs, SemVer, tag sequence, tag date and exact selected-tag HEAD checks",
+        "green": {
+          "path": "build/test-work/qualifier-reading-convergence-20261001/final-owner-siblings-green.log",
+          "bytes": 2027,
+          "sha256": "150af2759c7dca4e21bb97643e463dce27201821b72d1bfedee00ec2efa3926c"
+        }
+      },
+      "fullGate": {
+        "path": "build/review/release-alpha6/final-accepted-full-gate.json",
+        "bytes": 1465,
+        "sha256": "6f3d94b669ad932781d7e277fc73bc7eef25997682254f289944208c6b05453d",
+        "counts": {
+          "tests": 1411,
+          "pass": 1408,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 3,
+          "duration_ms": 263121.193292
+        },
+        "coverage": {
+          "statements": 97.79,
+          "branches": 95.2,
+          "functions": 99.58,
+          "lines": 97.79
+        },
+        "warnings": []
+      },
+      "selfExactDesktop": {
+        "path": "build/review/release-alpha6/approved-self-browser.json",
+        "bytes": 3824,
+        "sha256": "a29d8cd7654b6c903fb00fc66c1565a7cea606e27c6aff8b64eaddd3ee132d24",
+        "htmlSha256": "eb8e4a5cd76ac52a3dc8a50e6bb93417c8f20da5a59b0e1a16b81ec920d579c6",
+        "pages": 8,
+        "axeFindings": 0,
+        "externalRequests": 0,
+        "pageErrors": 0,
+        "allTextFits": true,
+        "keyboard": {
+          "inspectEnter": "passed",
+          "escape": "passed",
+          "focusReturn": "passed"
+        }
+      },
+      "selectedInputsAndAssets": {
+        "path": "build/review/release-alpha6/freeze.json",
+        "bytes": 5646,
+        "sha256": "ce3f925abdf59770d11eeeb691945667fa56149a98aba9a97741163f3922d250"
+      },
+      "limits": [
+        "working-tree gate is not the later signed-source or tagged full gate",
+        "exact HTML acceptance applies to these unchanged bytes only",
+        "AIGW approvals remain neutral composition/readability only; no source or publication endorsement",
+        "Candidate policy evidence remains attributed, not authenticated or automatically admitted"
+      ]
+    }
   }
 }
