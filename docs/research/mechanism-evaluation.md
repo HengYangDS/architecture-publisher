@@ -1947,3 +1947,36 @@ reader question and any explicit omissions; Publisher then composes that
 selected meaning in a suitable medium-specific form. A static responsibility
 candidate must retain its own visible carriers and limits without borrowing
 the interactive layout or silently dropping one of the two current stories.
+
+### One-question static responsibility preflight (2026-09-30)
+
+An isolated, unapproved editorial probe kept the selected AIGW Product Model
+SHA-256 `c61dd0f0d6253d8f80280e5803e5fd4ff620d17b54404d045295770a242655db`
+and Build Request SHA-256
+`9bdac392652950382f163154786f89b83f8a2f9e7bfecc71aadcf4d58b15d756`.
+Starting from the copied Edition SHA-256
+`0efc54a56e4c36e5351b34da2863494ff39ea6fafe22054325d0fc2a6054e9f0`,
+the editor-side transformation selected its existing interactive `boundary`
+view as the sole static view and removed the now-unpresented `control-summary`
+and `delivery-summary` questions, only their selection links, and their
+limits. The other six interactive views and all source bytes remained
+unchanged. The resulting Edition has semantic SHA-256
+`a470a087879eb9fd3386c58a1c1a9923b78e2bad080b47479c424d317d9d27e2`.
+
+The existing materializer and `compileEditionMeaning` accepted that static
+view with exactly six source relations, one source Claim, five attributed
+editorial assertions, four responsibility roles, one handoff, and the
+`boundary` scope limit. The public `archpub edition build` then stopped at
+`edition_visual_form_renderer_unavailable` without emitting a Candidate.
+The first attempt used macOS's symlinked `/tmp` spelling and was correctly
+rejected by the existing symlink-ancestor rule; the same three input files
+passed semantic compilation at their canonical `/private/tmp` path. This is
+not a product-path defect.
+
+**Boundary:** the selected meaning is sufficient for a static responsibility
+form, but no static form composer or visible medium exists yet. The next
+positive test must carry this question, all selected relations and the Claim,
+editor-attributed role and handoff bases, and the limit through an independent
+static Scene and SVG/PNG. It may not borrow the interactive Scene, infer
+ownership from traffic, or claim AIGW editorial acceptance. The trial's
+unchanged broad title also needs editor review before a reader-facing work.

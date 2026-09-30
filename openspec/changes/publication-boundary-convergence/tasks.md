@@ -822,6 +822,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       imbalance. The bounded counterexample is in
       `docs/research/mechanism-evaluation.md`. Do not auto-rotate or silently
       omit source meaning: test a separately selected static visual argument.
+      A separate one-question static `boundary` Edition preflight on the same
+      pinned AIGW Model and Build Request now compiles six source relations,
+      one Claim, five editorial assertions, four roles, one handoff and its
+      explicit limit. The public build stops at
+      `edition_visual_form_renderer_unavailable` with no Candidate; its exact
+      transformation and hashes are in `docs/research/mechanism-evaluation.md`.
+      This isolates the missing static Scene/renderer rather than approving
+      AIGW's editorial substitution or Task 5.2.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
