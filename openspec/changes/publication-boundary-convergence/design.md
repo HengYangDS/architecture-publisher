@@ -996,46 +996,97 @@ repair the diagram. The fixed one-chapter-per-viewport presentation also
 turns naturally short mechanisms into empty pages. These are rejected
 compositions, not accepted neutral baselines.
 
-For the successor, each interactive chapter is an intrinsically sized visual
-unit in one continuous reading work. Navigation reaches chapters without
-forcing them into equal-height slides. Its default view must carry the
-selected relationship meaning in the graphic itself: measured source labels
-on routed edges and source-bound typed Claim cues attached to their exact
-subject or relation. The diagram may use an editor-selected, source-bound
-short caption, but Publisher never silently rewrites a predicate, drops a
-condition, or promotes an editorial caption to source truth. Full qualifiers,
-claim fields, source identity where disclosure is admitted, and method limits
-remain available through focused inspection of one selected record, not as a
-page-wide default ledger or a second semantic authority.
+For the successor, each interactive chapter is an intrinsically sized,
+complete visual argument in one continuous reading work. Navigation reaches
+chapters without forcing them into equal-height slides. The default view
+carries its selected meaning in the chosen form, not in a numbered prose
+transcript: a source relationship may be a labeled route, an ownership cell,
+or an ordered transition, depending on what the reader is being asked to
+understand. Source-bound typed Claim qualifications remain attached to their
+exact subject or relationship. Publisher never silently rewrites a predicate,
+drops a condition, infers ownership from a line, or promotes an editorial
+caption to source truth. Complete records and method limits remain available
+through focused inspection, not as the default diagram substitute.
 
-First reuse the existing selected font measurer and Dagre supply to reserve
-actual edge-label and Claim-cue boxes before layout; inspect the resulting
-routes, caption positions, node boxes, and page clearance together. A local
-probe with Dagre edge-label dimensions showed that all 46 trial labels gain
-nominal clearance, but Product Boundary grows to about 1779 pixels wide
-without wrapping. This is **not** acceptance: Cytoscape may route the edges
-differently from Dagre, and a width that forces illegible zoom still fails.
-Test bounded line wrapping, alternative orientation, and the same emitted-
-geometry audit on the exact selected cases. If Cytoscape cannot paint the
-audited routes and labels faithfully, replace its graph adapter with an
-independently composed, measured SVG; do not retain two live diagram engines.
-The browser comparison has now met that replacement condition. A 1600 by 1000
-Chrome reading of the selected AIGW Client Projection input, with exact source
-captions and measured Dagre edge boxes, painted `r-6`
-(`supplies-credentials`) over `r-8` (`dispatches`) at zoom 1. The collision
-is in Cytoscape's emitted positions, not in Dagre's reserved label boxes:
-the latter have no label-label or label-node overlap on the same selected
-Client and Product pages. A disposable SVG projection of those exact Dagre
-points and boxes removed that local collision, but Product Boundary then
-measured about 413 by 813 and left most of a desktop page unused. SVG is the
-selected graph projection, not a whole-page acceptance claim. The successor
-shall replace Cytoscape rather than ship both adapters, audit the emitted
-SVG, and reject or editorially regroup a chapter whose complete figure
-cannot meet page balance and reading size together.
-If neither complete composition is feasible at the declared desktop reading
-size, return a named editorial regrouping/caption need rather than printing
-an ordinal-key transcript. Static and interactive remain sibling media with
-independent coordinates and acceptance.
+### Select the visual argument before its layout engine
+
+Here a **visual argument** is an operational contract: one reader question,
+the exact selected assertions needed to answer it, the dominant relation
+the reader must perceive, a suitable graphic form, explicit limits, and the
+reader task used to check comprehension. A **form** defines what visual
+marks mean; a **layout** places those marks; a **renderer** paints them; a
+**page composition** gives the complete argument readable hierarchy and
+space. A theme, line router, or HTML viewer cannot repair a wrong form.
+
+The failed neutral trial exposed a higher-level mistake than edge spacing:
+Publisher forced distinct reader questions into the same node-link grammar.
+An ownership question is not automatically a traffic-flow question. The
+Edition editor, not Publisher or a layout library, owns the question,
+selected assertions, explicit omissions, dominant relationship to express,
+and a source-bound form choice. Structural composition, responsibility and
+handoff, temporal mechanism, and claim/evidence status are distinct visual
+arguments; they may coexist on a page but cannot be collapsed into one
+untyped arrow semantics. This is an editorial projection of one selected
+meaning, not a new model, file authority, command plane, or source-repository
+renderer. A form without sufficient source support fails before geometry.
+
+The AIGW Product Boundary question is a candidate for a responsibility and
+handoff form rather than a single seven-node causal chain; Client Projection
+Overview remains a candidate for a directed relationship form. These are
+editorial hypotheses requiring source-owner review, not claims that AIGW has
+already approved new ownership facts. The same principle underlies
+[C4's different diagram stories](https://c4model.com/diagrams),
+[Structurizr's static, dynamic, and deployment views](https://docs.structurizr.com/dsl/language),
+and [LikeC4's model projections](https://likec4.dev/dsl/views/): one model
+does not imply one visual form.
+
+Changing the renderer alone was falsified. Chrome painted the AIGW Client
+labels `r-6` and `r-8` over each other even after Dagre reserved their text
+boxes. A disposable SVG projection of Dagre's exact route removed that local
+collision, but rotated Product Boundary into a 413 by 813 strip with most of
+the desktop page empty. On the same seven-node, six-relation selection, local
+D2 0.9.0 Dagre, ELK, and TALA outputs were respectively 4080 by 468, 3920
+by 388, and 3008 by 574 pixels; dimensions are not normalized quality scores,
+but each retained a long-strip reading. Direct ELKjs 0.12.0 with documented
+`MULTI_EDGE` wrapping generated 920 by 401, while requiring long return
+routes whose readability still needs review; `SINGLE_EDGE` failed on this
+specific input. [ELK Layered](https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-layered.html)
+supports labels, ports, compounds, and routing, and its
+[wrapping option](https://eclipse.dev/elk/reference/options/org-eclipse-elk-layered-wrapping-strategy.html)
+can supply better graph candidates. It is still only geometry, as the
+[elkjs project states](https://github.com/kieler/elkjs). D2 supplies a useful
+[grid and nested composition grammar](https://d2lang.com/tour/grid-diagrams/),
+but its engine-specific routing cannot authorize source meaning or the whole
+page. [React Flow delegates layout](https://reactflow.dev/learn/layouting/layouting)
+to other libraries; [Sprotty](https://github.com/eclipse-sprotty/sprotty)
+offers SVG interaction and ELK integration, not editorial form selection.
+Existing Archify remains a form-specific renderer/viewer candidate, not a
+universal meaning or page authority. None is selected merely by reputation.
+
+Test the form decision against real counterexamples, not a pleasing demo:
+
+| Selected workload | Dominant reader task | Candidate form; falsifier |
+| --- | --- | --- |
+| AIGW Product Boundary | Distinguish control-plane, native-client, and external-traffic responsibility | Source-reviewed responsibility and handoff view; fail if traffic direction is mistaken for ownership. |
+| AIGW Client Projection Overview | Trace source-reported configuration and coordination to admitted clients | Directed relationship view; fail on unreadable predicates, collisions, or invented implementation status. |
+| ETHOS Work Lanes | Distinguish cooperation, competition, experimental drop, and CAS integration | Decision/lifecycle view; fail if every Lane appears to integrate or a dropped Lane reaches CAS. |
+| Publisher self-use and di-effect | Explain publication authority and native system structure, respectively | Existing authored/LikeC4 views where selected; fail if a new generic form duplicates native facts or weakens the published reading. |
+
+These are benchmark hypotheses, not adopter-approved Editions. Their value is
+that a candidate which only passes one graph example cannot pass the product.
+
+The next design slice shall compare complete, source-bound page candidates
+for the same selected questions before committing another rendering supply.
+Reuse native views and mature form/layout engines where they meet the exact
+contract; let browser-native layout compose intrinsically sized figures and
+necessary reading boundaries. The compiler owns a bounded candidate search
+and two non-compensating decisions: (1) does the visual form truthfully answer
+the question with every selected assertion represented or limited; (2) do
+the actual painted page and interaction pass text, collision, balance,
+accessibility, and exact-byte human review? If either fails, return an
+editorial form/regrouping need rather than disguising it with a prose ledger,
+manual pixel nudges, or a second active rendering authority. Static and
+interactive remain sibling media with independent composition and acceptance.
 
 Visual qualification measures rendered glyphs and marks, not just CSS boxes:
 zero unintended overlap, containment and arrow attachment, readable minimum

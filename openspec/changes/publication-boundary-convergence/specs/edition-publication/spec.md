@@ -259,16 +259,46 @@ exact-browser qualification remains separate.
 - **THEN** the browser policy blocks the connection
 - **AND** a browser error or incomplete rendering cannot be counted as qualification
 
-### Requirement: Interactive chapters carry meaning in the diagram
+### Requirement: Edition selects a question-matched visual form
+
+For each promised reader question, the Edition SHALL identify the dominant
+relationship it asks the reader to understand and select a source-bound
+visual form for each medium. The form SHALL project selected assertions and
+explicit limits without becoming a second source model or requiring authored
+pixel positions. Publisher SHALL validate representability before layout. It
+SHALL NOT infer ownership, temporal order, or evidentiary status merely from
+node order, edge direction, labels, or a renderer's default layout.
+An explicitly typed native view may supply the form without a duplicate
+Edition field; an ambiguous generic selection requires an editor's choice.
+
+#### Scenario: Ownership question is not a traffic flow
+
+- **WHEN** an Edition asks which actor owns a responsibility or handoff
+- **THEN** its visual form distinguishes authority and boundary from traffic
+  direction using selected source-backed assertions
+- **AND** a generic left-to-right relation chain is not accepted solely
+  because every selected entity and edge appears somewhere in it
+
+#### Scenario: Form or layout cannot answer the question
+
+- **WHEN** the selected form cannot express a required assertion, or every
+  complete painted candidate fails readable whole-page composition
+- **THEN** Publisher reports the affected question and a bounded editorial
+  form, grouping, or source-bound caption need before Candidate completion
+- **AND** it does not substitute a prose inventory, a different source claim,
+  or an unreviewed renderer-specific fallback
+
+### Requirement: Interactive chapters carry meaning in the chosen form
 
 The neutral interactive medium SHALL compose intrinsically sized, navigable
 chapters in one continuous reading work. It SHALL not use a fixed slide height
 or a default page-wide source ledger to compensate for unreadable graphic
-relations. Selected relation captions and question-relevant typed Claim cues
-SHALL be bound to their exact visible subjects, measured with the selected
-font, and placed with node, route, and page clearance. Full selected records
-SHALL remain reachable through focused inspection. No caption or cue may
-invent, silently abbreviate, or transfer source authority.
+relations. Selected relationship captions and question-relevant typed Claim
+cues SHALL be bound to their exact visible subjects in the chosen form,
+measured with the selected font, and placed with whole-page clearance. Routed
+forms SHALL additionally clear nodes, other routes, and arrowheads. Full
+selected records SHALL remain reachable through focused inspection. No
+caption or cue may invent, silently abbreviate, or transfer source authority.
 
 #### Scenario: A selected relation has a readable source label
 
@@ -288,7 +318,7 @@ invent, silently abbreviate, or transfer source authority.
 - **AND** focused inspection exposes the complete selected record without
   making the cue a new editable Claim
 
-#### Scenario: The complete diagram is infeasible
+#### Scenario: The complete visual argument is infeasible
 
 - **WHEN** measured labels and cues cannot fit without illegible scaling,
   collisions, omission, or a false source assertion

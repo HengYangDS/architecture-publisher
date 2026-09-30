@@ -745,9 +745,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       one-record Inspect/paired-rail experiment reduced raw dumps but still
       failed the reader's aesthetic and diagram-first test; its exact patch
       remains in ignored local trial evidence, and the Lane source was reset
-      before the replacement design. Next: reserve measured relation/Claim
-      cues in the graph, verify emitted geometry, and compose intrinsic-height
-      chapters. Do not transfer static approval to interactive media.
+      before the replacement design. This was a graph-level diagnosis, not a
+      whole-page design decision. Do not transfer static approval to
+      interactive media.
       A fresh Chrome comparison on the selected AIGW Client input found one
       painted predicate collision (`r-6`/`r-8`) at 1600 by 1000 and zoom 1,
       although measured Dagre label boxes were mutually clear. A disposable
@@ -757,12 +757,26 @@ third-party or generated supply rather than moving owned code outside coverage.
       `client-overview.png` and `svg-client.png` have SHA-256 values
       `35750f835591b2e32f93ad8bac04c8799648f6f58cbce639022f85495c7d1396`
       and `77d244db64b559decc4f3e26271343eb79ad597d823a8e8b3be09cb5a20595f4`.
-      Ruling: replace Cytoscape as the interactive graph projection, keep
-      Dagre as the one selected coordinate owner, and make page-balance failure
-      explicit rather than filling whitespace with default prose. In-progress
-      source changes reserve measured captions and prototype audited native
-      SVG, but are not yet wired into the public compiler, qualified, or
-      accepted as complete media. Tasks 5.2 and 5.4 remain open.
+      The subsequent adapter-only implementation remained a text-light but
+      visually weak and form-mismatched page; the reader rejected it. Its
+      exact recoverable diff is preserved only as ignored local experiment
+      `build/test-work/diagram-first-iteration/adapter-only-abandoned.patch`
+      (SHA-256
+      `7cf13a8ae14f70b84299d163d1ead2a37f39d248ce83cdf23fe071bdaddeb5f9`).
+      Applying it was reverse-checked before the owned changes were removed;
+      the worktree returned clean at signed `69a302c`. This supersedes the
+      prior renderer-replacement ruling: neither bare SVG nor another graph
+      adapter solves a question asked in the wrong visual form.
+      A read-only, same-input tool trial found D2 0.9.0 Dagre/ELK/TALA
+      produced long-strip Product Boundary graphs (4080x468, 3920x388,
+      3008x574 output pixels). Direct ELKjs 0.12.0 `MULTI_EDGE` wrapping
+      proposed a 920x401 graph, but its long return routes are not a
+      whole-page or semantic acceptance. The current decision is to select
+      and validate the Edition's question-matched visual argument before
+      choosing graph layout, composition, or interaction supply. Benchmark
+      mature form/layout candidates on complete Product Boundary, Client
+      Overview, self-use, and an independent adopter before committing a
+      new runtime dependency. Tasks 5.2 and 5.4 remain open.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
