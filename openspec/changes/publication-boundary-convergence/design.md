@@ -865,6 +865,37 @@ Whitespace is not forbidden: a less spacious candidate wins only when it
 preserves the same meaning and readability without adding a worse collision,
 crossing or reading-order break. No score alone proves aesthetic acceptance.
 
+The 2026-09-30 source-preserving AIGW trial at Publisher `c71e395` removed only
+the two static refinement selections in copied input from AIGW `01776f2`.
+The public build emitted a 3600 by 2639 Product figure and a 3600 by 3061
+Client Projection figure. Both still devote substantial page space to a
+reading-group list, relation ledger, declared limits, and raw method limits;
+successful compilation does not establish reader acceptance. A controlled
+single-view split made the Delivery figure 3600 by 3678, so output plurality
+alone is not a demonstrated remedy and does not authorize a new static-artifact
+contract. Keep the one-figure requirement until a same-source comparison proves
+a different publication unit has better semantic, reader, and maintenance cost.
+
+The immediate product correction is to separate reader obligations from method
+evidence at the existing owner. Edition-declared question limits and any source
+status needed to prevent stronger interpretation stay visible in the static
+figure. Compiler method, dependency-closure, and replay limitations remain
+bound to the Candidate and inspectable evidence, but are not printed as a raw
+diagnostic ledger on the figure. A method limitation that makes a selected
+question unanswerable must fail before Candidate emission; it cannot be hidden
+in metadata. Removing the ledger is only a boundary repair, not proof of
+balanced composition or permission to close Task 5.2. Do not replace it with
+another decorative sidecar or use an authored coordinate canvas to claim the
+neutral path is reader-ready.
+
+The boundary repair rebuilt both no-refinement AIGW Candidates from the same
+selected inputs. Their input locks and interactive HTML remain byte-identical;
+the static SVG/PNG no longer prints method identifiers, while each Candidate
+retains all five exact method limitations. Product stayed 3600 by 2639 and
+Client Projection shortened from 3600 by 3061 to 3600 by 2913. Visual review
+still finds weak whole-page hierarchy and repeated reading/relation inventories.
+This is a verified semantic-surface improvement, not Task 5.2 acceptance.
+
 The one-view path is the same constrained case, not a separate rendering
 standard. A graph layout supply may propose node/edge coordinates, but it may
 not authorize group meaning, text or page geometry. The AIGW Dagre experiment at

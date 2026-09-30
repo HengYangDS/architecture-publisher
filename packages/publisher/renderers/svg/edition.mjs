@@ -687,14 +687,6 @@ export function composeStaticEditionSvg(scene, options = {}) {
     .flat()
     .map(({ reason }) => ({ text: reason }));
   y = namedSection(notes, 'DECLARED LIMITS', scopeLimits, notesX, y, notesWidth);
-  y = namedSection(
-    notes,
-    'METHOD LIMITS',
-    scene.limits.map((text) => ({ text })),
-    notesX,
-    y,
-    notesWidth,
-  );
   const structureHeight = Math.max(300, (bounds?.height ?? 0) + 120);
   const notesHeight = y - graphTop + 32;
   const claimCards = scene.claimCards ?? [];

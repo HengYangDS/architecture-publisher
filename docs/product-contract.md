@@ -165,6 +165,15 @@ receipts explain what the bytes mean, where they came from, which checks passed,
 which limits remain, and which effect occurred. Installation, hosted
 availability, and release are separate claims.
 
+Reader media explain selected architecture; they are not build-diagnostic
+reports. A static figure shows the Edition's reader-question limits and the
+source-status qualification needed to prevent a stronger interpretation.
+Method, dependency-closure, and replay limitations remain exact in the
+Candidate and its inspection evidence, rather than being printed as raw codes
+on the figure. Moving a method limitation out of the figure never makes it
+pass: if unsupported source meaning prevents a promised answer, compilation
+must reject that answer before Candidate emission.
+
 ## Product identity
 
 The product is **Architecture Publisher**. The package is

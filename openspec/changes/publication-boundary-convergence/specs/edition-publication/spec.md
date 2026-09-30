@@ -72,8 +72,9 @@ stay outside Candidate identity. Reader obligations and limits remain visible.
 ### Requirement: Static views compose one faithful figure
 
 Selected static views SHALL yield one complete-page SVG and PNG. Each view
-retains its questions, assertions, limits, and graphic-carrier bindings. The
-figure SHALL separate views without inventing cross-view relations or
+retains its questions, assertions, reader-question limits, source-status
+qualifiers, and graphic-carrier bindings. The figure SHALL separate views
+without inventing cross-view relations or
 transferring claims or acceptance. Text, structural marks, annotation, and
 decoration SHALL fit without clipping, occlusion, overlap, or inadequate
 clearance. Missing carriers fail before Candidate; graph-only layout success
@@ -86,6 +87,22 @@ is insufficient.
 - **THEN** one static SVG and PNG visibly distinguish both views and retain
   each view's own assertion-to-graphic carriers and limits
 - **AND** no edge or endorsement is inferred merely from the shared entity
+
+#### Scenario: Method evidence does not become figure copy
+
+- **WHEN** an Edition's selected source and compiler have method or
+  dependency-closure limitations that do not alter a promised reader answer
+- **THEN** the static SVG and PNG retain reader-question limits and source
+  status without printing raw method-limit identifiers as a diagnostic ledger
+- **AND** the Candidate retains the exact limitations for inspection and
+  qualification, without implying that their absence from the art clears them
+
+#### Scenario: An unsupported construct affects the answer
+
+- **WHEN** a selected reader question depends on source meaning that its
+  admitted interpreter cannot preserve
+- **THEN** compilation fails before Candidate rather than suppressing the
+  limitation in the figure and claiming complete coverage
 
 #### Scenario: A view forbids two selected members in one visual group
 

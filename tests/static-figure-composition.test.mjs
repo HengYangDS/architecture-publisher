@@ -28,7 +28,7 @@ function view(id, index, options = {}) {
   return { id, scene, rendered };
 }
 
-test('joint composition lays independent views side by side and factors common limits', () => {
+test('joint composition lays independent views side by side without a method ledger', () => {
   const first = view('first', 0);
   const second = view('second', 1);
   const result = composeStaticFigureSvg({
@@ -41,8 +41,7 @@ test('joint composition lays independent views side by side and factors common l
   assert.equal(result.placements.length, 2);
   assert.equal(result.placements[0].y, result.placements[1].y);
   assert(result.placements[0].x < result.placements[1].x);
-  assert.equal((svg.match(/source-not-observed/gu) ?? []).length, 1);
-  assert.equal((svg.match(/METHOD LIMITS/gu) ?? []).length, 1);
+  assert.doesNotMatch(svg, /source-not-observed|METHOD LIMITS/u);
   assert.equal((svg.match(/<svg\b/gu) ?? []).length, 1);
   assert.equal((svg.match(/data-static-view=/gu) ?? []).length, 2);
   assert.match(
@@ -79,7 +78,25 @@ test('a sole neutral view uses the same complete figure grammar', () => {
   assert.equal(result.placements.length, 1);
   assert(svg.includes('data-static-view="sole"'));
   assert(svg.includes('How does sole connect?'));
-  assert(svg.includes('METHOD LIMITS'));
+  assert(!svg.includes('METHOD LIMITS'));
+});
+
+test('a static figure keeps reader scope and source status without printing method codes', () => {
+  const selected = view('scope', 0, {
+    relationOnly: true,
+    limits: ['dependency-closure-unchecked'],
+    scopeLimits: [{ kind: 'scope', reason: 'Runtime behavior is outside this reading.' }],
+  });
+  const svg = composeStaticFigureSvg({
+    title: 'Selected structure',
+    summary: 'One source-bound reading.',
+    rasterWidth: 1800,
+    views: [selected],
+  }).bytes.toString('utf8');
+
+  assert.match(svg, /Runtime behavior is outside this reading\./u);
+  assert.match(svg, /Source-reported topology/u);
+  assert.doesNotMatch(svg, /METHOD LIMITS|dependency-closure-unchecked/u);
 });
 
 test('a complete figure states exact reading-group membership outside the causal graph', () => {
@@ -101,7 +118,7 @@ test('a complete figure states exact reading-group membership outside the causal
   assert.equal((svg.match(/READING GROUPS/gu) ?? []).length, 1);
 });
 
-test('reading groups occupy balanced columns instead of a left-only list', () => {
+test('reading groups use the available page width instead of a left-only list', () => {
   const selected = view('grouped', 0);
   selected.rendered.parts.bounds = { x: 0, y: 0, width: 1800, height: 80 };
   selected.rendered.parts.groups = [
@@ -123,42 +140,8 @@ test('reading groups occupy balanced columns instead of a left-only list', () =>
 
   assert(positions[0][0] < positions[1][0]);
   assert.equal(positions[0][1], positions[1][1]);
-  assert.equal(positions[0][0], positions[2][0]);
-  assert(positions[2][1] > positions[0][1]);
-});
-
-test('shared qualifications use the open side of a compact stacked view', () => {
-  const first = view('first', 0);
-  const second = view('second', 1, {
-    limits: [
-      'source-one-not-verified',
-      'source-two-not-verified',
-      'source-three-not-verified',
-      'source-four-not-verified',
-    ],
-  });
-  first.scene.limits = [...second.scene.limits];
-  first.rendered.parts.bounds = { x: 0, y: 0, width: 1100, height: 240 };
-  second.rendered.parts.bounds = { x: 0, y: 0, width: 600, height: 240 };
-  const result = composeStaticFigureSvg({
-    title: 'Open sidecar',
-    summary: 'Both views keep their source-qualified structure.',
-    rasterWidth: 1800,
-    views: [first, second],
-  });
-
-  const svg = result.bytes.toString('utf8');
-  const sidecarX = Number(
-    svg.match(/data-common-sidecar="true" transform="translate\(([\d.]+) /u)?.[1],
-  );
-  const localGraphX = Number(
-    svg.match(/data-static-view="second"[\s\S]*?<g transform="translate\(([\d.]+) /u)?.[1],
-  );
-  assert(Number.isFinite(sidecarX));
-  assert(localGraphX > 0);
-  const gap = sidecarX - (result.placements[1].x + localGraphX + 600);
-  assert(gap >= 20 && gap <= 200, `shared notes need a readable, bounded gutter: ${gap}`);
-  assert.equal((svg.match(/source-one-not-verified/gu) ?? []).length, 1);
+  assert(positions[1][0] < positions[2][0]);
+  assert.equal(positions[0][1], positions[2][1]);
 });
 
 test('relation columns preserve source order in a top-to-bottom reading path', () => {
@@ -343,7 +326,7 @@ test('a severely unbalanced pair falls back to a single reading column', () => {
   assert.equal(result.placements[0].x, result.placements[1].x);
 });
 
-test('view-specific method limits remain attributed rather than becoming global', () => {
+test('view-specific method limits do not become figure copy', () => {
   const first = view('first', 0, { limits: ['first-only'] });
   const second = view('second', 1, { limits: ['second-only'] });
   const svg = composeStaticFigureSvg({
@@ -352,11 +335,10 @@ test('view-specific method limits remain attributed rather than becoming global'
     rasterWidth: 1800,
     views: [first, second],
   }).bytes.toString('utf8');
-  assert(svg.includes('first: first-only'));
-  assert(svg.includes('second: second-only'));
+  assert.doesNotMatch(svg, /first-only|second-only|METHOD LIMITS/u);
 });
 
-test('a repeated source limit does not create false view attribution', () => {
+test('a repeated method limit does not create figure copy', () => {
   const first = view('first', 0, { limits: ['shared', 'shared'] });
   const second = view('second', 1, { limits: ['shared'] });
   const svg = composeStaticFigureSvg({
@@ -365,8 +347,7 @@ test('a repeated source limit does not create false view attribution', () => {
     rasterWidth: 1800,
     views: [first, second],
   }).bytes.toString('utf8');
-  assert.equal((svg.match(/>shared<\/text>/gu) ?? []).length, 1);
-  assert(!svg.includes('first, first'));
+  assert.doesNotMatch(svg, />shared<\/text>|METHOD LIMITS/u);
 });
 
 test('one source-status explanation serves two relation-only views', () => {

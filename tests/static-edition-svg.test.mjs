@@ -24,10 +24,17 @@ test('a neutral static SVG shows the selected structure and authored limits', ()
   assert.match(content, /calls/u);
   assert.match(content, /What is connected\?/u);
   assert.match(content, /Runtime was not observed\./u);
-  assert.match(content, /domain-metadata-opaque/u);
+  assert.doesNotMatch(content, /domain-metadata-opaque/u);
   assert.match(content, /data-graphic-id="n-0"/u);
   assert.match(content, /data-graphic-id="r-0"/u);
   assert.doesNotMatch(content, /backend|archify|privateNote/u);
+});
+
+test('a standalone static SVG keeps reader limits but not compiler method codes', () => {
+  const content = svg.composeStaticEditionSvg(staticEditionScene()).bytes.toString('utf8');
+
+  assert.match(content, /Runtime was not observed\./u);
+  assert.doesNotMatch(content, /METHOD LIMITS|domain-metadata-opaque/u);
 });
 
 test('group membership remains visible without painting a frame through a relation', () => {
@@ -424,7 +431,10 @@ test('long text wraps without truncating source language or hiding editorial sco
     proponent: 'fixture-editor',
     semanticStatus: 'editor-attributed-unverified',
   });
-  input.limits.push('view-membership-upstream-computed-unqualified');
+  input.limitsByQuestion.shape.push({
+    kind: 'scope',
+    reason: 'view-membership-upstream-computed-unqualified',
+  });
   const result = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
   assert.match(result, /Alpha service/u);
   assert.match(result, /one/u);
@@ -443,9 +453,9 @@ test('two label lines cannot collide with a kind label inside a short node', () 
   });
 });
 
-test('unspaced source labels wrap without changing characters or inventing relation qualifiers', () => {
+test('unspaced reader limits wrap without changing characters or inventing relation qualifiers', () => {
   const input = staticEditionScene();
-  input.limits.push('x'.repeat(100));
+  input.limitsByQuestion.shape.push({ kind: 'scope', reason: 'x'.repeat(100) });
   input.edges[0].relations[0].label = null;
   input.edges[0].relations[0].kind = null;
   const result = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
@@ -475,8 +485,12 @@ test('missing or excessive text and an overlong poster fail rather than truncate
       'static_edition_text_unrepresentable',
     ],
     [
-      'too many method notes',
-      (input) => (input.limits = Array.from({ length: 600 }, (_, index) => `limit ${index}`)),
+      'too many reader limits',
+      (input) =>
+        (input.limitsByQuestion.shape = Array.from({ length: 600 }, (_, index) => ({
+          kind: 'scope',
+          reason: `limit ${index}`,
+        }))),
       'static_edition_geometry_invalid',
     ],
   ];
@@ -685,7 +699,10 @@ test('mixed-plate subject links require one claim anchor and the same source ide
 
 test('mixed neutral composition flows graph and claims beside longer reader notes', () => {
   const input = linkedMixedScene();
-  input.limits = Array.from({ length: 15 }, (_, index) => `method-${index}`);
+  input.limitsByQuestion[input.questionIds[0]] = Array.from({ length: 15 }, (_, index) => ({
+    kind: 'scope',
+    reason: `reader-${index}`,
+  }));
   const output = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
   const at = (label) => {
     const match = new RegExp(`<text x="([\\d.]+)" y="([\\d.]+)"[^>]*>${label}<\\/text>`, 'u').exec(
@@ -695,7 +712,7 @@ test('mixed neutral composition flows graph and claims beside longer reader note
     return { x: Number(match[1]), y: Number(match[2]) };
   };
   const claims = at('SOURCE CLAIMS');
-  const lastNote = at('method-14');
+  const lastNote = at('reader-14');
   const notes = at('READER QUESTIONS');
   const transform = /<g transform="translate\(([\d.-]+) ([\d.-]+)\)">/u.exec(output);
   assert(transform);
@@ -710,7 +727,10 @@ test('mixed neutral composition flows graph and claims beside longer reader note
 
 test('an infeasible side candidate cannot discard a readable full-width claim', () => {
   const input = linkedMixedScene();
-  input.limits = Array.from({ length: 15 }, (_, index) => `method-${index}`);
+  input.limitsByQuestion[input.questionIds[0]] = Array.from({ length: 15 }, (_, index) => ({
+    kind: 'scope',
+    reason: `reader-${index}`,
+  }));
   input.claimCards[0].facts = [{ label: 'Description', value: 'x'.repeat(700) }];
   const output = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
   assert.match(output, /SOURCE CLAIMS/u);

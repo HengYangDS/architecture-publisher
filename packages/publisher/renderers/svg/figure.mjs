@@ -178,12 +178,10 @@ function sourceStatus(scene) {
 
 function sharedNotes(views, width) {
   const status = new Map();
-  const methods = new Map();
   const add = (map, text, id) => map.set(text, new Set([...(map.get(text) ?? []), id]));
   for (const { id, scene } of views) {
     const note = sourceStatus(scene);
     if (note) add(status, note, id);
-    for (const limit of scene.limits) add(methods, limit, id);
   }
   const attributed = (entries) =>
     [...entries].map(([text, ids]) => ({
@@ -192,7 +190,6 @@ function sharedNotes(views, width) {
   const output = [];
   let y = 0;
   y = section(output, 'SOURCE STATUS', attributed(status), width, y);
-  y = section(output, 'METHOD LIMITS', attributed(methods), width, y);
   return { markup: output.join('\n'), height: y };
 }
 

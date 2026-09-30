@@ -678,6 +678,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       change. Do not trade exact source qualifiers or disclosed limits for
       apparent compactness, and do not add
       a second geometry engine without a demonstrated irreducible failure.
+      A 2026-09-30 source-preserving, no-refinement trial from AIGW `01776f2`
+      built Product and Client Projection neutral Candidates through the public
+      command; their static figures remain reader-unaccepted. Splitting the
+      Product questions into separate scratch Editions did not cure the page
+      problem: the Delivery-only figure grew to 3600 by 3678. The reader-
+      surface boundary now retains exact method limits in each Candidate while
+      removing raw method codes from the static art. Input locks and interactive
+      HTML remain byte-identical; Client height fell from 3061 to 2913 pixels,
+      Product remains 2639 pixels tall. The source full gate passed 1311 tests,
+      skipped three declared cases, failed none, and met the four 95% coverage
+      floors (branch 95.01%). Whole-page hierarchy and redundant reading/
+      relation inventories still fail reader acceptance; neither these builds
+      nor output plurality closes 5.2.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

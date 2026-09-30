@@ -48,6 +48,10 @@ may contain incompatible changes.
 - Static and interactive media now visibly attribute free title and summary
   text to the Edition editor and state that source endorsement is not evidenced
   by the diagram. The wording still requires semantic and human review.
+- Neutral static SVG/PNG retains reader-question limits and source status but no
+  longer prints compiler method-limit codes as figure copy. Each exact method
+  limitation remains in the Candidate and interactive disclosure; neither
+  medium gains acceptance from this presentation change.
 
 ## [0.3.0-alpha.5] - 2026-09-29
 

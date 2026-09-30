@@ -2852,7 +2852,9 @@ test('two static views become one figure without merging their source assertions
   );
   assert.equal((svg.match(/<svg\b/gu) ?? []).length, 1);
   assert.equal((svg.match(/data-static-view=/gu) ?? []).length, 2);
-  assert.equal((svg.match(/METHOD LIMITS/gu) ?? []).length, 1);
+  assert.equal((svg.match(/METHOD LIMITS/gu) ?? []).length, 0);
+  assert(candidate.limits.includes('claim-model-provenance-unverified'));
+  assert.doesNotMatch(svg, /claim-model-provenance-unverified/u);
   assert.equal((svg.match(/READER QUESTIONS/gu) ?? []).length, 0);
   assert.match(svg, /data-graphic-id="static-view-0-r-0"/u);
   assert.match(svg, /data-graphic-id="static-view-1-r-0"/u);
