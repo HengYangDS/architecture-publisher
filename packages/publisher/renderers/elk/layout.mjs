@@ -114,7 +114,7 @@ function preparePage(page, measure) {
   return { nodes, groups, relations };
 }
 
-function elkGraph(prepared, direction, wrapped = false) {
+function elkGraph(prepared, direction, wrapAspect = null) {
   const label = (id, plan) => ({
     id: `${id}-label`,
     text: plan.lines.join('\n'),
@@ -156,8 +156,8 @@ function elkGraph(prepared, direction, wrapped = false) {
       'elk.layered.spacing.edgeEdgeBetweenLayers': '16',
       'elk.layered.spacing.nodeNodeBetweenLayers': '20',
       'elk.layered.nodePlacement.favorStraightEdges': 'false',
-      ...(wrapped
-        ? { 'elk.layered.wrapping.strategy': 'MULTI_EDGE', 'elk.aspectRatio': '1.8' }
+      ...(wrapAspect !== null
+        ? { 'elk.layered.wrapping.strategy': 'MULTI_EDGE', 'elk.aspectRatio': String(wrapAspect) }
         : {}),
       'elk.edgeLabels.inline': 'false',
       'elk.layered.edgeLabels.sideSelection': 'ALWAYS_DOWN',
@@ -226,7 +226,8 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
   const indexes = [];
   const graphs = prepared.flatMap((page) => {
     const candidates = [elkGraph(page, 'RIGHT'), elkGraph(page, 'DOWN')];
-    if (wrappingEligible(page)) candidates.push(elkGraph(page, 'RIGHT', true));
+    if (wrappingEligible(page))
+      candidates.push(elkGraph(page, 'RIGHT', 1.8), elkGraph(page, 'RIGHT', 3.2));
     indexes.push(candidates.length);
     return candidates;
   });
@@ -276,19 +277,24 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           ...candidate.relations.filter(({ label }) => label),
         ].map(({ label }) => label);
         const readable = labels.every(({ fontSize }) => fontSize * scale >= marks.minimumLabelSize);
-        const routeLength = candidate.relations.reduce(
-          (total, { points }) =>
-            total +
-            points
-              .slice(1)
-              .reduce(
-                (length, point, at) =>
-                  length + Math.abs(point.x - points[at].x) + Math.abs(point.y - points[at].y),
-                0,
-              ),
-          0,
-        );
-        return { readable, scale, height: candidate.bounds.height, routeLength };
+        let routeLength = 0;
+        let detour = 0;
+        for (const { points } of candidate.relations) {
+          const length = points
+            .slice(1)
+            .reduce(
+              (sum, point, at) =>
+                sum + Math.abs(point.x - points[at].x) + Math.abs(point.y - points[at].y),
+              0,
+            );
+          const first = points[0];
+          const last = points.at(-1);
+          routeLength += length;
+          detour += length - Math.abs(last.x - first.x) - Math.abs(last.y - first.y);
+        }
+        const readingCost =
+          candidate.bounds.height + detour / Math.max(1, candidate.relations.length);
+        return { readable, scale, readingCost, routeLength };
       };
       return candidates.reduce((best, candidate) => {
         const prior = assessment(best);
@@ -296,7 +302,8 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
         if (prior.readable !== next.readable) return next.readable ? candidate : best;
         if (!next.readable && next.scale !== prior.scale)
           return next.scale > prior.scale ? candidate : best;
-        if (next.height !== prior.height) return next.height < prior.height ? candidate : best;
+        if (next.readingCost !== prior.readingCost)
+          return next.readingCost < prior.readingCost ? candidate : best;
         return next.routeLength < prior.routeLength ? candidate : best;
       });
     });

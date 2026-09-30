@@ -62,7 +62,7 @@ test('invalid worker input, deadline, or supply cannot borrow an ambient install
     JSON.stringify({ schema: 'architecture.interactive-layout-request/v1', graphs: [] }),
     JSON.stringify({
       schema: 'architecture.interactive-layout-request/v1',
-      graphs: Array(193).fill({}),
+      graphs: Array(257).fill({}),
     }),
     JSON.stringify({
       schema: 'architecture.interactive-layout-request/v1',
@@ -95,5 +95,45 @@ test('invalid worker input, deadline, or supply cannot borrow an ambient install
     assert.equal(result.status, 1);
     assert.equal(result.stdout, '');
     assert.equal(result.stderr, '');
+  }
+});
+
+test('the worker admits the complete four-candidate budget for every selected page', async (t) => {
+  const scratch = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-layout-page-budget-'),
+  );
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  await fs.writeFile(
+    path.join(scratch, 'elk.cjs'),
+    'module.exports = class { async layout(graph) { return { id: graph.id }; } };\n',
+  );
+  const worker = fileURLToPath(
+    new URL('../packages/publisher/renderers/elk/worker.mjs', import.meta.url),
+  );
+  for (const count of [256, 257]) {
+    const result = spawnSync(process.execPath, [worker, '1000'], {
+      cwd: scratch,
+      env: workerEnvironment(scratch, process.env.SystemRoot ?? null),
+      input: JSON.stringify({
+        schema: 'architecture.interactive-layout-request/v1',
+        graphs: Array.from({ length: count }, (_, index) => ({ id: `selected-${index}` })),
+      }),
+      encoding: 'utf8',
+      timeout: 3_000,
+      maxBuffer: 1024 * 1024,
+    });
+    assert.equal(result.stderr, '');
+    const reply = JSON.parse(result.stdout.trim());
+    if (count === 256) {
+      assert.equal(result.status, 0);
+      assert.equal(reply.status, 'ok');
+      assert.deepEqual(
+        reply.layouts.map(({ id }) => id),
+        Array.from({ length: count }, (_, index) => `selected-${index}`),
+      );
+    } else {
+      assert.equal(result.status, 1);
+      assert.equal(reply.code, 'render_interactive_layout_execution_failed');
+    }
   }
 });

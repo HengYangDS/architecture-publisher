@@ -382,6 +382,17 @@ caption or cue may invent, silently abbreviate, or transfer source authority.
 - **AND** actual browser paint verifies readable labels, complete routes,
   and the unchanged selection before visual acceptance
 
+#### Scenario: A wrapping cut saves height but introduces a long detour
+
+- **WHEN** valid candidates have readable labels and a wrapping cut reduces
+  height while adding avoidable route distance
+- **THEN** the single layout owner compares intrinsic height plus mean route
+  detour before total route length, not height alone
+- **AND** detour is the complete orthogonal route length beyond its terminal
+  Manhattan distance; no emitted point or selected relation is adjusted
+- **AND** at most four native candidates per selected page remain within the
+  existing execution, output, and page-count bounds
+
 #### Scenario: Exact applicability belongs to the reading region
 
 - **WHEN** a graph has selected relation qualifiers or reader limits

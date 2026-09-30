@@ -962,8 +962,8 @@
       },
       {
         "path": "renderers/elk/layout.mjs",
-        "bytes": 11421,
-        "sha256": "2e8d002474d1c2176af73d1347ab5668250c79a8c9143188618f577369cad118"
+        "bytes": 11780,
+        "sha256": "e484eb8250e8eba383fce7dd162263590466d3c5f91ed296fbbd89abeb768ea5"
       },
       {
         "path": "renderers/elk/normalize.mjs",
@@ -983,7 +983,7 @@
       {
         "path": "renderers/elk/worker.mjs",
         "bytes": 1203,
-        "sha256": "ef1aea239a36997aa95d4accd30819fe6c967c58f78c8bf7d978b55d94cc354e"
+        "sha256": "6e45be6c3160a4cabee92518a2b79c6549fc5314275965d9df74e5a46b342073"
       },
       {
         "path": "renderers/fonts/index.mjs",

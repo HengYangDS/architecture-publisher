@@ -11,7 +11,7 @@ try {
     request?.schema !== 'architecture.interactive-layout-request/v1' ||
     !Array.isArray(request.graphs) ||
     !request.graphs.length ||
-    request.graphs.length > 192
+    request.graphs.length > 256
   )
     throw new Error('invalid request');
   const privateLayoutUrl = pathToFileURL(path.join(process.cwd(), 'elk.cjs')).href;

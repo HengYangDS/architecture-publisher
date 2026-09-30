@@ -1,0 +1,250 @@
+{
+  "schema": "architecture.research-installed-probe/v1",
+  "status": "current-source-qualified-locally-not-released",
+  "publisherBaseCommit": "2e37b95a610ea1d94993f1f8827be52d96a24611",
+  "publisherVersion": "0.3.0-alpha.6",
+  "date": "2026-10-01",
+  "mechanism": {
+    "owner": "packages/publisher/renderers/elk/layout.mjs",
+    "nativeSupply": "elkjs 0.12.0",
+    "candidateCountPerPage": 4,
+    "maximumPages": 64,
+    "maximumWorkerGraphs": 256,
+    "legibility": "unchanged primary hard preference",
+    "readingCost": "intrinsic height + mean(route length minus terminal Manhattan distance); total route length tie-break",
+    "implementationManifestSha256": "52e1c3d42fc3b0f9d148e2de58e4e617765b74dab91e7182f25f11ad44cd43b3"
+  },
+  "comparison": {
+    "boundaryBefore": {
+      "width": 931,
+      "height": 500.5,
+      "detour": 1511.666666
+    },
+    "boundaryCurrent": {
+      "width": 1226,
+      "height": 333,
+      "detour": 370
+    },
+    "clientOverviewBefore": {
+      "width": 1154,
+      "height": 686,
+      "detour": 920
+    },
+    "clientOverviewCurrent": {
+      "width": 930,
+      "height": 775,
+      "detour": 0
+    },
+    "effectsGeometryUnchanged": true,
+    "sourceMeaningAndAllStaticMediaUnchanged": true
+  },
+  "localGate": {
+    "passed": 1407,
+    "total": 1410,
+    "declaredSkipped": 3,
+    "failed": 0,
+    "coverage": {
+      "statements": 97.79,
+      "branches": 95.19,
+      "functions": 99.58,
+      "lines": 97.79
+    },
+    "strictOpenSpecPassed": 17,
+    "warnings": 0,
+    "focusedPassed": 44
+  },
+  "browser": {
+    "observations": 20,
+    "viewports": [1600, 1920],
+    "errors": 0,
+    "externalRequests": 0,
+    "horizontalOverflow": 0,
+    "axeAAFindings": 0,
+    "completePixelGraphs": 10,
+    "textMarkContactPixels": 0,
+    "twoPixelContactPixels": 0
+  },
+  "installed": {
+    "status": "passed current five-workload offline installed parity",
+    "memberCount": 30,
+    "allBytesMatchDirect": true,
+    "archives": [
+      {
+        "name": "core",
+        "bytes": 4583969,
+        "sha256": "a13f306735f4800d40975475ec04420aaaf7ddfb041b407b558c5612ecc3276d"
+      },
+      {
+        "name": "self",
+        "bytes": 27475,
+        "sha256": "7faa87f08a2795768e488ffafd4f787a2aea408145809578dab5844836ace595"
+      }
+    ],
+    "temporaryInstallationRemoved": true
+  },
+  "media": [
+    {
+      "id": "self",
+      "members": [
+        {
+          "path": "candidate.json",
+          "bytes": 90839,
+          "sha256": "56a42b8742920d0d086c09910c37c16923346fb3a80de2c11b062f36f9302abf"
+        },
+        {
+          "path": "interactive/architecture.html",
+          "bytes": 1542831,
+          "sha256": "eb8e4a5cd76ac52a3dc8a50e6bb93417c8f20da5a59b0e1a16b81ec920d579c6"
+        },
+        {
+          "path": "static/architecture.png",
+          "bytes": 478249,
+          "sha256": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712"
+        }
+      ]
+    },
+    {
+      "id": "aigw-product",
+      "members": [
+        {
+          "path": "candidate.json",
+          "bytes": 19749,
+          "sha256": "c5b9c0d6997e028eabcfcd68b2c3858031c145cbdc8e790954cd4e0dfc12b558"
+        },
+        {
+          "path": "interactive/architecture.html",
+          "bytes": 916857,
+          "sha256": "0ad693b28902ac853faee91972680abdaa029d647393665551718a088a855e5e"
+        },
+        {
+          "path": "static/architecture.png",
+          "bytes": 254188,
+          "sha256": "24c992c4c1eb24677eeec0d09e04fe45057494ae72b31af8fbca70eebe930ec9"
+        }
+      ]
+    },
+    {
+      "id": "aigw-client",
+      "members": [
+        {
+          "path": "candidate.json",
+          "bytes": 14320,
+          "sha256": "8b6ed2061334ccf1f92f3b58828d428e3a1592cf37266eda1ee953ccabcf02af"
+        },
+        {
+          "path": "interactive/architecture.html",
+          "bytes": 898012,
+          "sha256": "1540ad6809a6b7d488751d8f671b999c208ad7ac0a4d3a92e79b5cb3c3fbed8f"
+        },
+        {
+          "path": "static/architecture.png",
+          "bytes": 288972,
+          "sha256": "3b60fc1c2572eb0325dda963c24df6fe7021dd7e3c96627e6d9edfa4b1088296"
+        }
+      ]
+    },
+    {
+      "id": "independent",
+      "members": [
+        {
+          "path": "candidate.json",
+          "bytes": 5683,
+          "sha256": "c7bae52db12d1ab26ada55d4f3c2c39004be06507594734249cb08b351f6398a"
+        },
+        {
+          "path": "interactive/architecture.html",
+          "bytes": 808388,
+          "sha256": "645db16ff4b744ccaf86d80153b74c2dacb916843b4b76c9fd871c94c69c7e6b"
+        },
+        {
+          "path": "static/architecture.png",
+          "bytes": 49398,
+          "sha256": "d2e260d061ad30496ac78f21c6bdd5648b7fc1fca44f3b8c724e1232551fa95b"
+        }
+      ]
+    },
+    {
+      "id": "di-effect",
+      "members": [
+        {
+          "path": "candidate.json",
+          "bytes": 5804,
+          "sha256": "7a44e55b1ba39f0d3e9657d62008395e95aa037ffc245a015ac6e03301fe5d75"
+        },
+        {
+          "path": "interactive/architecture.html",
+          "bytes": 813380,
+          "sha256": "a9fd96efcc5592991e8693a1e5529c89999671ba4ce03c70032b63b0ba2abb5b"
+        },
+        {
+          "path": "static/architecture.png",
+          "bytes": 104473,
+          "sha256": "d6a0e4bc71f881331a5874ee48befd4d37e60dc24ec2ded85c83f18fe6c35f0e"
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "path": "build/test-work/neutral-reading-convergence-20261001/elk-comparison.json",
+      "sha256": "e78b22059fe9bd71dc306267a9eae6f91aefb8d869607575423266d2264a7d21",
+      "bytes": 49719
+    },
+    {
+      "path": "build/test-work/neutral-reading-convergence-20261001/browser-observation.json",
+      "sha256": "29dc85c6e154fe49b4b43418260503f6571356f45ab6f4ff586556b45b439244",
+      "bytes": 40294
+    },
+    {
+      "path": "build/test-work/neutral-reading-convergence-20261001/current-paint-observation.json",
+      "sha256": "90fd65d3d81a62c210db6c168ce2aaffab16da87e4479234fb5c40bdbdea2f8f",
+      "bytes": 3789
+    },
+    {
+      "path": "build/test-work/neutral-reading-convergence-20261001/installed-replay.json",
+      "sha256": "d9d0ee2532cee7110e6ec352000fc8237cc7d89b4219116065d79df22250120b",
+      "bytes": 50397
+    },
+    {
+      "path": "build/test-work/neutral-reading-convergence-20261001/reading-cost-red.log",
+      "sha256": "d62f353945d722420acb9ee5f45501516a1ad2736ee3536299418cbdf9d15fb7",
+      "bytes": 1749
+    },
+    {
+      "path": "build/test-work/neutral-reading-convergence-20261001/worker-budget-red.log",
+      "sha256": "b26acdefbbc39321ee76d09e70bdf55c0d9073546e30982435a3de85fba048b4",
+      "bytes": 907
+    },
+    {
+      "path": "build/test-work/neutral-reading-convergence-20261001/reading-green.log",
+      "sha256": "4bbf65548670a0f3078da4b25ac45313a375e6aef8da585195967d871253931a",
+      "bytes": 420
+    },
+    {
+      "path": "build/test-work/neutral-reading-convergence-20261001/geometry-sibling-gate.log",
+      "sha256": "350f420d88baaf1d7ece9176d69ca89f3de49a5ad14cb77c5361703610df078a",
+      "bytes": 4353
+    },
+    {
+      "path": "build/test-work/neutral-reading-convergence-20261001/full-gate.log",
+      "sha256": "2ec72d20ec085722acba3eb0e31f2170e162b22bfae6042b87efb515898a5199",
+      "bytes": 149852
+    }
+  ],
+  "review": {
+    "selfMediaHumanReview": "PNG historical accepted; current self HTML exact-byte review still required",
+    "sourceOwnerAcceptance": "not-established",
+    "independentCodeReview": "not-obtained",
+    "failure": "two bounded subagent attempts failed with encrypted function output decryption error before returning any findings; retries stopped and owning chat notified",
+    "primaryReview": "exact owner diff, worker boundary, unchanged static siblings, typed source obligations and current actual browser/paint/installed checks"
+  },
+  "limits": [
+    "AIGW input is still copied editorial trial, not source approval or published adopter material",
+    "Boundary responsibility form requires explicit source/editor bases; layout must not infer ownership",
+    "Client Overview is now a connected top-down form, not a claim of final aesthetic perfection",
+    "new selected input identity requires renewed applicable acceptance; this heuristic is not a universal aesthetic theorem",
+    "local frozen source gates are not current hosted native CI or protected release",
+    "selected checked file sets are not execution traces or hermetic input closure",
+    "off-host DR remains excluded"
+  ]
+}

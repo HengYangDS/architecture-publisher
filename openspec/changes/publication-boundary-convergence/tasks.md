@@ -946,6 +946,25 @@ third-party or generated supply rather than moving owned code outside coverage.
       are recorded in the mechanism study, not treated as source acceptance.
       Full painted graph-label clearance, question-level cues, flagship review,
       exact installed multi-workload freeze, and adopter acceptance remain open.
+      A same-supply counterexample found that height-only ordering selected
+      a 920px wrap detour to save 89px height in Client Overview. Two RED
+      layout tests now require readable native composition without that
+      detour and admit a wider bounded wrap. The existing owner compares
+      height plus mean extra route distance; the painter still preserves
+      every selected point. The four-candidate 64-page worker-boundary RED
+      test also passes. All 44 focused geometry, browser, paint, and sibling
+      tests pass without warnings or skips. The Product Boundary editorial
+      form still requires AIGW source/editor acceptance; no inferred ownership
+      or accepted adopter source was changed. The full local gate then passed
+      1,407/1,410 tests with three declared skips, no failures or warnings, and
+      97.79/95.19/99.58/97.79% statement/branch/function/line coverage. Exact
+      offline Core/self installation and relocated input replay matched all
+      30 Candidate members. Twenty desktop page observations and all ten
+      actual AIGW paint checks passed. The exact comparison, member hashes,
+      reviewed scope, and failed independent-review limitation are in
+      `conformance/evidence/neutral-reading-composition-probe.json`. Current
+      source-owner form acceptance, final visual review, hosted/native freeze,
+      and protected release remain unproved; this task is not closed.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

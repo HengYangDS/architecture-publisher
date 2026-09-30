@@ -1139,14 +1139,25 @@ comparisons, not AIGW endorsement or renewed acceptance.
 
 The existing 1120 by 596 fit score optimized an artificial rectangle rather
 than the declared desktop reading width. Replace that scalar with ordered,
-non-compensating choices: retain readable selected labels first, then prefer
-the shorter intrinsic figure, then the shorter complete routes. The shared
+non-compensating choices: retain readable selected labels first, then compare
+intrinsic height plus mean route detour, then the shorter complete routes. The shared
 paint contract owns the desktop benchmark, shell dimensions, minimum label
 size, and figure inset. This chooses among already validated ELK outputs;
 it adds neither a packing solver nor post-layout node or route adjustment.
 The browser may resize the viewport but may not choose new source meaning
 or geometry. Width-driven camera scaling is independently observed in the
 actual desktop browser, not assumed from an analytic score.
+
+The native candidate set is bounded to RIGHT, DOWN, and at most two
+MULTI_EDGE wrapping variants with aspect targets 1.8 and 3.2 for eligible
+acyclic ungrouped graphs. Readable candidates compare intrinsic height plus
+mean route detour, then total route length. Detour is complete orthogonal
+route length minus endpoint Manhattan distance: a long return around the
+page must not win solely by saving a small amount of height. Both quantities
+use the same selected-coordinate units. This is a composition heuristic, not
+a semantic or aesthetic score. At most four candidates for each of 64 pages
+share the existing worker deadline, byte bounds, and strict geometry audit;
+unsupported glyphs, dropped relations, and intersections still fail first.
 
 Each graph and its required applicability form one reading region. Native
 CSS intrinsic wrapping puts exact limits and source qualifiers alongside

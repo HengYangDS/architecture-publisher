@@ -281,6 +281,100 @@ test('a bidirectional topology is not silently classified as an acyclic wrapping
   );
 });
 
+test('reading composition does not exchange a small height saving for a page-wide wrap detour', async () => {
+  const { layoutInteractivePages, measure } = await selected();
+  const labels = [
+    'Adapter contract',
+    'Claude Code',
+    'Claude Desktop',
+    'CLI',
+    'Codex',
+    'Configuration',
+    'Credential store',
+    'Native discovery',
+    'Hermes',
+    'Client registry',
+    'Synchronizer',
+  ];
+  const input = {
+    nodes: labels.map((label, index) => ({ id: `n-${index}`, label })),
+    relations: [
+      ['n-3', 'n-10', 'delegates'],
+      ['n-5', 'n-10', 'configures'],
+      ['n-0', 'n-4', 'realized-by'],
+      ['n-0', 'n-8', 'realized-by'],
+      ['n-0', 'n-1', 'realized-by'],
+      ['n-0', 'n-2', 'realized-by'],
+      ['n-6', 'n-0', 'supplies-credentials'],
+      ['n-7', 'n-10', 'reports-to'],
+      ['n-9', 'n-0', 'dispatches'],
+      ['n-10', 'n-9', 'delegates'],
+    ].map(([source, target, graphLabel], index) => ({
+      id: `r-${index}`,
+      source,
+      target,
+      graphLabel,
+    })),
+  };
+  const before = structuredClone(input);
+  const graph = (await layoutInteractivePages([input], measure)).layouts[0];
+  const detour = graph.relations.reduce((total, relation) => {
+    const length = relation.points.slice(1).reduce((sum, point, index) => {
+      const previous = relation.points[index];
+      return sum + Math.abs(point.x - previous.x) + Math.abs(point.y - previous.y);
+    }, 0);
+    const first = relation.points[0];
+    const last = relation.points.at(-1);
+    return total + length - Math.abs(last.x - first.x) - Math.abs(last.y - first.y);
+  }, 0);
+  assert(detour < 1, 'a selected complete route must not wrap across the page to save 89px height');
+  assert(graph.bounds.height <= 800);
+  assert.equal(graph.nodes.length, labels.length);
+  assert.equal(graph.relations.length, input.relations.length);
+  assert.deepEqual(input, before);
+});
+
+test('the same layout owner admits a wider native wrap without shortening selected words', async () => {
+  const { layoutInteractivePages, measure } = await selected();
+  const input = {
+    nodes: [
+      'Admitted adapters',
+      'AIGW',
+      'Native client',
+      'Configuration',
+      'Selected endpoint',
+      'Operator',
+      'Native projection',
+    ].map((label, index) => ({ id: `n-${index}`, label })),
+    relations: [
+      ['n-1', 'n-0', 'dispatches'],
+      ['n-1', 'n-3', 'maintains'],
+      ['n-2', 'n-4', 'sends-requests-to'],
+      ['n-5', 'n-1', 'invokes'],
+      ['n-6', 'n-2', 'configures'],
+      ['n-0', 'n-6', 'applies'],
+    ].map(([source, target, graphLabel], index) => ({
+      id: `r-${index}`,
+      source,
+      target,
+      graphLabel,
+    })),
+  };
+  const graph = (await layoutInteractivePages([input], measure)).layouts[0];
+  assert(
+    graph.bounds.height < 400,
+    'one 3.2-aspect native wrap keeps the full short argument shallow',
+  );
+  const scale = Math.min(1, 1512 / (graph.bounds.width + 64));
+  for (const relation of graph.relations) {
+    assert.equal(
+      relation.label.lines.join(' '),
+      input.relations.find(({ id }) => id === relation.id).graphLabel,
+    );
+    assert(relation.label.fontSize * scale >= 12);
+  }
+});
+
 test('resource, graph identity, group partition, and text bounds reject invalid requests', async () => {
   const { layoutInteractivePages, measure } = await selected();
   for (const options of [
