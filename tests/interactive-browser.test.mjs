@@ -642,6 +642,63 @@ test(
 );
 
 test(
+  'one qualifier article fills its available reading track without an empty heading column',
+  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 20_000 },
+  async (t) => {
+    const scene = interactiveEditionScene();
+    scene.pages[0].limitsByQuestion = { shape: [] };
+    scene.pages[0].relations[0].sourceQualifiers = [
+      {
+        name: 'condition',
+        value: '"retain the selected native state unless this operation created it"',
+      },
+    ];
+    const candidate = await renderInteractiveEditionHtml(scene);
+    const browser = await chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 10_000,
+    });
+    t.after(() => browser.close());
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    await page.setContent(candidate.bytes.toString('utf8'));
+    await page.waitForSelector('#graph-0[data-rendered=true]', { timeout: 8_000 });
+    await page.evaluate(() => globalThis.document.fonts.ready);
+    let previousHeight = Infinity;
+    for (const width of [1600, 1920]) {
+      await page.setViewportSize({ width, height: 1000 });
+      const metrics = await page.evaluate(() => {
+        const work = globalThis.document.querySelector('#page-0 .relation-work');
+        const article = work.querySelector('article');
+        const heading = work.querySelector('h3').getBoundingClientRect();
+        const area = work.getBoundingClientRect();
+        const item = article.getBoundingClientRect();
+        return {
+          sectionWidth: area.width,
+          sectionHeight: area.height,
+          articleWidth: item.width,
+          headingBottom: heading.bottom,
+          articleTop: item.top,
+          value: article.querySelector('dd').textContent,
+          overflow: globalThis.document.documentElement.scrollWidth > globalThis.innerWidth,
+        };
+      });
+      assert(metrics.sectionWidth > 750, JSON.stringify(metrics));
+      assert(Math.abs(metrics.articleWidth - metrics.sectionWidth) <= 1, JSON.stringify(metrics));
+      assert(metrics.sectionHeight <= previousHeight, JSON.stringify(metrics));
+      assert(metrics.articleTop >= metrics.headingBottom + 16, JSON.stringify(metrics));
+      assert.equal(
+        metrics.value,
+        '"retain the selected native state unless this operation created it"',
+      );
+      assert.equal(metrics.overflow, false);
+      previousHeight = metrics.sectionHeight;
+    }
+  },
+);
+
+test(
   'unequal source claims read in order without stretched empty cards',
   { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 20_000 },
   async (t) => {

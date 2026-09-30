@@ -45,8 +45,14 @@ GitHub check on 2026-09-29 found newer stable releases of
 and [Spec Kit `v1.0.12`](https://github.com/github/spec-kit/releases/tag/v1.0.12).
 SpecD still had no GitHub Release; its observed default-branch commit was
 [`ddd990c`](https://github.com/specd-sdd/SpecD/commit/ddd990c7054bc25b95f2d4659a2d78866fc6d8a0).
-The newer releases and commit have not received the source-level comparison
-below. Release notes are leads for reevaluation, not proof of implementation.
+The comparison below remains historical. A 2026-10-01 source/test refresh
+inspected COMET 0.4.3, OpenSpec v1.13.2 and SpecD `a66b1ef`; the existing ETHOS
+knowledge owner independently verified its received packet hashes. The
+[transfer receipt](../../conformance/evidence/research-owner-intake.json) names
+exact revisions, citations, scope and limits. No upstream suite was executed.
+Unique general SDD findings remain here only until canonical topic absorption
+is verified; Publisher must not discard their sole semantic source or claim
+the received packet as its own research authority.
 
 Primary source locations:
 

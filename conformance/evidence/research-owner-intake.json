@@ -1,0 +1,47 @@
+{
+  "schema": "architecture.research-owner-intake/v1",
+  "status": "source-hash-verified-receipt-not-substantive-topic-absorption",
+  "date": "2026-10-01",
+  "publisherSourceCommit": "d64592ddb30bbf9aaa3aab57c7206354e64fff20",
+  "owner": {
+    "thread": "01a00063-d09e-7a71-a52e-a663800a7a0f",
+    "task": "proof-throughput:12.6",
+    "topicPaths": [
+      "docs/research/modern-engineering-foundations.md",
+      "docs/research/foundations/semantics.md",
+      "docs/research/foundations/verification.md",
+      "docs/research/foundations/effects.md",
+      "docs/research/foundations/interfaces.md"
+    ]
+  },
+  "currentPacket": [
+    {
+      "path": "build/test-work/sdd-owner-transfer-20261001/research-handoff.md",
+      "sha256": "31410274af8ea01a7f22fc51674c2ba541093357fdce452c8b964b258f43b85e"
+    },
+    {
+      "path": "build/test-work/sdd-owner-transfer-20261001/source-evidence.tar.gz",
+      "sha256": "46aebcd513a021e750278140482cdda2fdfc38fa34456eded5da977e2e740a5f"
+    },
+    {
+      "path": "build/test-work/sdd-owner-transfer-20261001/source-manifest.json",
+      "sha256": "965fb8e586d3500bdc0e8cd1e29edb55f25f215a99abf63c927ca7604f192161"
+    }
+  ],
+  "receiverReceipt": {
+    "path": "/Users/yheng/projects/ethos-worktrees/20260930-semantic-observation/build/evidence/quality/validation-results/research-owner-intake.json",
+    "sha256": "602a9ee30a8bc15abb822918b88b101558da4efc7bba5f8c39d109db66eac579",
+    "bytes": 2523
+  },
+  "upstreamRevisions": {
+    "comet": "8360d91d3770999cd727db2a2a08b12112a5a7c7",
+    "openspec": "db2309783547a14e150dbcbfc19120e4028446c3",
+    "specd": "a66b1ef3d5e0b42f65c31f46a839504cfb64e373"
+  },
+  "limits": [
+    "upstream source/test inspection; no upstream suite or benchmark execution",
+    "compare responses for COMET and SpecD limited to 300 files",
+    "unique broader studies remain retained until canonical topic absorption",
+    "no Publisher runtime import, parallel knowledge authority, source acceptance or off-host DR effect"
+  ]
+}

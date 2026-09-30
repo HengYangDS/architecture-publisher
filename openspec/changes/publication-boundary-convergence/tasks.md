@@ -965,6 +965,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       `conformance/evidence/neutral-reading-composition-probe.json`. Current
       source-owner form acceptance, final visual review, hosted/native freeze,
       and protected release remain unproved; this task is not closed.
+      An independent whole-work follow-up found the remaining empty qualifier
+      track: a spanning heading kept an unused auto-fit column. The focused
+      Chrome RED observed 935px available versus 453.5px article width. Moving
+      only the heading outside the article grid makes Product Boundary use
+      its full 742/802px track at 1600/1920, with 103px reading height at both
+      widths instead of 103/145px. Exact meaning, graph geometry, all static
+      bytes and the entire self Candidate remain unchanged. The real browser
+      regression, 28 focused siblings, twenty desktop observations, ten full
+      paint checks and relocated five-workload package replay pass. Evidence
+      remains scoped to composition, not source endorsement or final aesthetics.
+      The full local gate on the repaired bytes passed 1,408/1,411 tests with
+      three declared skips, zero failures, no warnings and
+      97.79/95.20/99.58/97.79% statement/branch/function/line coverage. The
+      independent whole-work follow-up confirmed the empty track resolved
+      without another actionable sibling defect. Exact source/native freeze
+      and the source-owner responsibility decision remain separate boundaries.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -1498,6 +1514,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       local evidence does not transfer historical media approval, establish
       current hosted/native CI, or admit release and source-owner migration.
 
+      Hosted pipeline 9046 at signed `d64592d` passed Linux job 46606 and
+      native macOS job 46619, each with all four coverage floors above 95%.
+      The first macOS job failed one negative CoreText test at compilation;
+      the same-source focused test and one bounded native retry passed. Retain
+      both results without relaxing limits. That signed-source result does not
+      qualify the subsequent heading-track repair or imply frozen release.
+
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release
       decision, and a local full gate with the exact annotated tag present
@@ -1537,9 +1560,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       owner with source citations and adopt/reject/defer boundaries. Keep only
       Publisher-relevant publication mechanism decisions here; verify receipt,
       not presumed adoption or an editable duplicate authority.
-      A source-bound, non-authorizing handoff was sent to the named ETHOS task
-      on 2026-09-30, with the Publisher research snapshot and DR contract;
-      ETHOS-owned intake and any source revision remain unverified.
+      The existing ETHOS proof-throughput Task 12.6 independently verified
+      the signed Lane study and DR contract, then all three exact refresh
+      packet hashes on 2026-10-01. Its topic owners and source boundaries are
+      in `conformance/evidence/research-owner-intake.json`. Receipt is proven;
+      substantive topic absorption and retiring general research here remain
+      open. Preserve unique broader findings until that migration is verified;
+      no upstream suite, source acceptance or off-host DR effect is claimed.
 - [ ] 8.4 After release readback, use `openspec archive --skip-specs` only after
       verifying that the active base specs already carry
       its exact normative delta; the archive must not change released behavior.

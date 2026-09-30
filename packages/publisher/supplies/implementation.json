@@ -997,8 +997,8 @@
       },
       {
         "path": "renderers/interactive/edition.mjs",
-        "bytes": 25759,
-        "sha256": "b993eaa1aac5fe78fccb9804d521545275e0d161a23fabd0d77ed7f7962acba5"
+        "bytes": 25790,
+        "sha256": "fef5c38c6c6e36f076813c3063e9b1dc31c90a84a4f79d5cc99d6f0bb796d735"
       },
       {
         "path": "renderers/interactive/graph-svg.mjs",
