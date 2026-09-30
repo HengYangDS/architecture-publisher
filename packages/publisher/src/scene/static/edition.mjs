@@ -25,6 +25,10 @@ function addBound(map, identity, value) {
   map.set(identity, value);
 }
 
+function assertVisualFormRenderable(view) {
+  if (view.form !== undefined) fail('edition_visual_form_renderer_unavailable');
+}
+
 function visibleBounds(nodes, edges, groups = []) {
   if (!nodes.length && !edges.length && !groups.length) return null;
   let minX = Infinity;
@@ -132,6 +136,7 @@ export function composeStaticEditionScene(meaning, layout) {
       meaning.refinement?.media?.static === undefined)
   )
     fail('static_scene_visual_policy_unadmitted');
+  assertVisualFormRenderable(meaning.editorial.presentation.static.views[0]);
   const claimModelMode = meaning.native.selections.some(
     ({ format }) => format === 'architecture.claim-model/v2',
   );

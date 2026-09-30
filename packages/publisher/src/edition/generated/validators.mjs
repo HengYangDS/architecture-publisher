@@ -1342,6 +1342,150 @@ const ref0 = function validate(data) {
         validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/static/views/"+t+"/questions" }]
         return false
       }
+      if ("form" in data.presentation.static.views[t] && hasOwn(data.presentation.static.views[t], "form")) {
+        if (!(typeof data.presentation.static.views[t].form === "object" && data.presentation.static.views[t].form && !Array.isArray(data.presentation.static.views[t].form))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/type", instanceLocation: "#/presentation/static/views/"+t+"/form" }]
+          return false
+        }
+        if (!("schema" in data.presentation.static.views[t].form && hasOwn(data.presentation.static.views[t].form, "schema"))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/required", instanceLocation: "#/presentation/static/views/"+t+"/form/schema" }]
+          return false
+        }
+        if (!("kind" in data.presentation.static.views[t].form && hasOwn(data.presentation.static.views[t].form, "kind"))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/required", instanceLocation: "#/presentation/static/views/"+t+"/form/kind" }]
+          return false
+        }
+        if (!("roles" in data.presentation.static.views[t].form && hasOwn(data.presentation.static.views[t].form, "roles"))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/required", instanceLocation: "#/presentation/static/views/"+t+"/form/roles" }]
+          return false
+        }
+        if (!("handoffs" in data.presentation.static.views[t].form && hasOwn(data.presentation.static.views[t].form, "handoffs"))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/required", instanceLocation: "#/presentation/static/views/"+t+"/form/handoffs" }]
+          return false
+        }
+        if (!(data.presentation.static.views[t].form.schema === "architecture.visual-form/v1")) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/schema/const", instanceLocation: "#/presentation/static/views/"+t+"/form/schema" }]
+          return false
+        }
+        if (!(data.presentation.static.views[t].form.kind === "responsibility")) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/kind/const", instanceLocation: "#/presentation/static/views/"+t+"/form/kind" }]
+          return false
+        }
+        if (!(Array.isArray(data.presentation.static.views[t].form.roles))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/type", instanceLocation: "#/presentation/static/views/"+t+"/form/roles" }]
+          return false
+        }
+        if (data.presentation.static.views[t].form.roles.length > 256) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/maxItems", instanceLocation: "#/presentation/static/views/"+t+"/form/roles" }]
+          return false
+        }
+        if (data.presentation.static.views[t].form.roles.length < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/minItems", instanceLocation: "#/presentation/static/views/"+t+"/form/roles" }]
+          return false
+        }
+        for (let v = 0; v < data.presentation.static.views[t].form.roles.length; v++) {
+          if (v in data.presentation.static.views[t].form.roles && hasOwn(data.presentation.static.views[t].form.roles, v)) {
+            if (!(typeof data.presentation.static.views[t].form.roles[v] === "object" && data.presentation.static.views[t].form.roles[v] && !Array.isArray(data.presentation.static.views[t].form.roles[v]))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/items/type", instanceLocation: "#/presentation/static/views/"+t+"form/roles/"+v }]
+              return false
+            }
+            if (!("group" in data.presentation.static.views[t].form.roles[v] && hasOwn(data.presentation.static.views[t].form.roles[v], "group"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/items/required", instanceLocation: "#/presentation/static/views/"+t+"form/roles/"+v+"/group" }]
+              return false
+            }
+            if (!("basis" in data.presentation.static.views[t].form.roles[v] && hasOwn(data.presentation.static.views[t].form.roles[v], "basis"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/items/required", instanceLocation: "#/presentation/static/views/"+t+"form/roles/"+v+"/basis" }]
+              return false
+            }
+            if (!(typeof data.presentation.static.views[t].form.roles[v].group === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/items/properties/group/type", instanceLocation: "#/presentation/static/views/"+t+"form/roles/"+v+"/group" }]
+              return false
+            }
+            if (!(pattern0.test(data.presentation.static.views[t].form.roles[v].group))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/items/properties/group/pattern", instanceLocation: "#/presentation/static/views/"+t+"form/roles/"+v+"/group" }]
+              return false
+            }
+            if (!(typeof data.presentation.static.views[t].form.roles[v].basis === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/items/properties/basis/type", instanceLocation: "#/presentation/static/views/"+t+"form/roles/"+v+"/basis" }]
+              return false
+            }
+            if (!(pattern0.test(data.presentation.static.views[t].form.roles[v].basis))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/items/properties/basis/pattern", instanceLocation: "#/presentation/static/views/"+t+"form/roles/"+v+"/basis" }]
+              return false
+            }
+            for (const key9 of Object.keys(data.presentation.static.views[t].form.roles[v])) {
+              if (key9 !== "group" && key9 !== "basis") {
+                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/roles/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"form/roles/"+v+"/"+pointerPart(key9) }]
+                return false
+              }
+            }
+          }
+        }
+        if (!(Array.isArray(data.presentation.static.views[t].form.handoffs))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/type", instanceLocation: "#/presentation/static/views/"+t+"/form/handoffs" }]
+          return false
+        }
+        if (data.presentation.static.views[t].form.handoffs.length > 4096) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/maxItems", instanceLocation: "#/presentation/static/views/"+t+"/form/handoffs" }]
+          return false
+        }
+        for (let x = 0; x < data.presentation.static.views[t].form.handoffs.length; x++) {
+          if (x in data.presentation.static.views[t].form.handoffs && hasOwn(data.presentation.static.views[t].form.handoffs, x)) {
+            if (!(typeof data.presentation.static.views[t].form.handoffs[x] === "object" && data.presentation.static.views[t].form.handoffs[x] && !Array.isArray(data.presentation.static.views[t].form.handoffs[x]))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/type", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x }]
+              return false
+            }
+            if (!("from" in data.presentation.static.views[t].form.handoffs[x] && hasOwn(data.presentation.static.views[t].form.handoffs[x], "from"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/required", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x+"/from" }]
+              return false
+            }
+            if (!("to" in data.presentation.static.views[t].form.handoffs[x] && hasOwn(data.presentation.static.views[t].form.handoffs[x], "to"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/required", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x+"/to" }]
+              return false
+            }
+            if (!("basis" in data.presentation.static.views[t].form.handoffs[x] && hasOwn(data.presentation.static.views[t].form.handoffs[x], "basis"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/required", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x+"/basis" }]
+              return false
+            }
+            if (!(typeof data.presentation.static.views[t].form.handoffs[x].from === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/properties/from/type", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x+"/from" }]
+              return false
+            }
+            if (!(pattern0.test(data.presentation.static.views[t].form.handoffs[x].from))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/properties/from/pattern", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x+"/from" }]
+              return false
+            }
+            if (!(typeof data.presentation.static.views[t].form.handoffs[x].to === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/properties/to/type", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x+"/to" }]
+              return false
+            }
+            if (!(pattern0.test(data.presentation.static.views[t].form.handoffs[x].to))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/properties/to/pattern", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x+"/to" }]
+              return false
+            }
+            if (!(typeof data.presentation.static.views[t].form.handoffs[x].basis === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/properties/basis/type", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x+"/basis" }]
+              return false
+            }
+            if (!(pattern0.test(data.presentation.static.views[t].form.handoffs[x].basis))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/properties/basis/pattern", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x+"/basis" }]
+              return false
+            }
+            for (const key10 of Object.keys(data.presentation.static.views[t].form.handoffs[x])) {
+              if (key10 !== "from" && key10 !== "to" && key10 !== "basis") {
+                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/properties/handoffs/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"form/handoffs/"+x+"/"+pointerPart(key10) }]
+                return false
+              }
+            }
+          }
+        }
+        for (const key11 of Object.keys(data.presentation.static.views[t].form)) {
+          if (key11 !== "schema" && key11 !== "kind" && key11 !== "roles" && key11 !== "handoffs") {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/form/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"form/"+pointerPart(key11) }]
+            return false
+          }
+        }
+      }
       if ("groups" in data.presentation.static.views[t] && hasOwn(data.presentation.static.views[t], "groups")) {
         if (!(Array.isArray(data.presentation.static.views[t].groups))) {
           validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/type", instanceLocation: "#/presentation/static/views/"+t+"/groups" }]
@@ -1355,117 +1499,117 @@ const ref0 = function validate(data) {
           validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/minItems", instanceLocation: "#/presentation/static/views/"+t+"/groups" }]
           return false
         }
-        for (let v = 0; v < data.presentation.static.views[t].groups.length; v++) {
-          if (v in data.presentation.static.views[t].groups && hasOwn(data.presentation.static.views[t].groups, v)) {
-            if (!(typeof data.presentation.static.views[t].groups[v] === "object" && data.presentation.static.views[t].groups[v] && !Array.isArray(data.presentation.static.views[t].groups[v]))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v }]
+        for (let y = 0; y < data.presentation.static.views[t].groups.length; y++) {
+          if (y in data.presentation.static.views[t].groups && hasOwn(data.presentation.static.views[t].groups, y)) {
+            if (!(typeof data.presentation.static.views[t].groups[y] === "object" && data.presentation.static.views[t].groups[y] && !Array.isArray(data.presentation.static.views[t].groups[y]))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y }]
               return false
             }
-            if (!("id" in data.presentation.static.views[t].groups[v] && hasOwn(data.presentation.static.views[t].groups[v], "id"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/id" }]
+            if (!("id" in data.presentation.static.views[t].groups[y] && hasOwn(data.presentation.static.views[t].groups[y], "id"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/id" }]
               return false
             }
-            if (!("label" in data.presentation.static.views[t].groups[v] && hasOwn(data.presentation.static.views[t].groups[v], "label"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/label" }]
+            if (!("label" in data.presentation.static.views[t].groups[y] && hasOwn(data.presentation.static.views[t].groups[y], "label"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/label" }]
               return false
             }
-            if (!("elements" in data.presentation.static.views[t].groups[v] && hasOwn(data.presentation.static.views[t].groups[v], "elements"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/elements" }]
+            if (!("elements" in data.presentation.static.views[t].groups[y] && hasOwn(data.presentation.static.views[t].groups[y], "elements"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/elements" }]
               return false
             }
-            if (!(typeof data.presentation.static.views[t].groups[v].id === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/id" }]
+            if (!(typeof data.presentation.static.views[t].groups[y].id === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/id" }]
               return false
             }
-            if (!(pattern0.test(data.presentation.static.views[t].groups[v].id))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/id" }]
+            if (!(pattern0.test(data.presentation.static.views[t].groups[y].id))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/id" }]
               return false
             }
-            if (!(typeof data.presentation.static.views[t].groups[v].label === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/label" }]
+            if (!(typeof data.presentation.static.views[t].groups[y].label === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/label" }]
               return false
             }
-            if (data.presentation.static.views[t].groups[v].label.length > 2048 && stringLength(data.presentation.static.views[t].groups[v].label) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/maxLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/label" }]
+            if (data.presentation.static.views[t].groups[y].label.length > 2048 && stringLength(data.presentation.static.views[t].groups[y].label) > 2048) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/maxLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/label" }]
               return false
             }
-            if (data.presentation.static.views[t].groups[v].label.length < 1 || stringLength(data.presentation.static.views[t].groups[v].label) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/minLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/label" }]
+            if (data.presentation.static.views[t].groups[y].label.length < 1 || stringLength(data.presentation.static.views[t].groups[y].label) < 1) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/minLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/label" }]
               return false
             }
-            if (!(pattern1.test(data.presentation.static.views[t].groups[v].label))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/label" }]
+            if (!(pattern1.test(data.presentation.static.views[t].groups[y].label))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/label/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/label" }]
               return false
             }
-            if (!(Array.isArray(data.presentation.static.views[t].groups[v].elements))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/elements" }]
+            if (!(Array.isArray(data.presentation.static.views[t].groups[y].elements))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/elements" }]
               return false
             }
-            if (data.presentation.static.views[t].groups[v].elements.length > 4096) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/maxItems", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/elements" }]
+            if (data.presentation.static.views[t].groups[y].elements.length > 4096) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/maxItems", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/elements" }]
               return false
             }
-            if (data.presentation.static.views[t].groups[v].elements.length < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/minItems", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/elements" }]
+            if (data.presentation.static.views[t].groups[y].elements.length < 1) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/minItems", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/elements" }]
               return false
             }
-            for (let x = 0; x < data.presentation.static.views[t].groups[v].elements.length; x++) {
-              if (x in data.presentation.static.views[t].groups[v].elements && hasOwn(data.presentation.static.views[t].groups[v].elements, x)) {
-                if (!(typeof data.presentation.static.views[t].groups[v].elements[x] === "object" && data.presentation.static.views[t].groups[v].elements[x] && !Array.isArray(data.presentation.static.views[t].groups[v].elements[x]))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x }]
+            for (let z = 0; z < data.presentation.static.views[t].groups[y].elements.length; z++) {
+              if (z in data.presentation.static.views[t].groups[y].elements && hasOwn(data.presentation.static.views[t].groups[y].elements, z)) {
+                if (!(typeof data.presentation.static.views[t].groups[y].elements[z] === "object" && data.presentation.static.views[t].groups[y].elements[z] && !Array.isArray(data.presentation.static.views[t].groups[y].elements[z]))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z }]
                   return false
                 }
-                if (!("namespace" in data.presentation.static.views[t].groups[v].elements[x] && hasOwn(data.presentation.static.views[t].groups[v].elements[x], "namespace"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/namespace" }]
+                if (!("namespace" in data.presentation.static.views[t].groups[y].elements[z] && hasOwn(data.presentation.static.views[t].groups[y].elements[z], "namespace"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/namespace" }]
                   return false
                 }
-                if (!("id" in data.presentation.static.views[t].groups[v].elements[x] && hasOwn(data.presentation.static.views[t].groups[v].elements[x], "id"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/id" }]
+                if (!("id" in data.presentation.static.views[t].groups[y].elements[z] && hasOwn(data.presentation.static.views[t].groups[y].elements[z], "id"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/id" }]
                   return false
                 }
-                if (!(typeof data.presentation.static.views[t].groups[v].elements[x].namespace === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/namespace" }]
+                if (!(typeof data.presentation.static.views[t].groups[y].elements[z].namespace === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/namespace" }]
                   return false
                 }
-                if (data.presentation.static.views[t].groups[v].elements[x].namespace.length > 2048 && stringLength(data.presentation.static.views[t].groups[v].elements[x].namespace) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/maxLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/namespace" }]
+                if (data.presentation.static.views[t].groups[y].elements[z].namespace.length > 2048 && stringLength(data.presentation.static.views[t].groups[y].elements[z].namespace) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/maxLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/namespace" }]
                   return false
                 }
-                if (data.presentation.static.views[t].groups[v].elements[x].namespace.length < 1 || stringLength(data.presentation.static.views[t].groups[v].elements[x].namespace) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/minLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/namespace" }]
+                if (data.presentation.static.views[t].groups[y].elements[z].namespace.length < 1 || stringLength(data.presentation.static.views[t].groups[y].elements[z].namespace) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/minLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/namespace" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.static.views[t].groups[v].elements[x].namespace))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/namespace" }]
+                if (!(pattern1.test(data.presentation.static.views[t].groups[y].elements[z].namespace))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/namespace" }]
                   return false
                 }
-                if (!(typeof data.presentation.static.views[t].groups[v].elements[x].id === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/id" }]
+                if (!(typeof data.presentation.static.views[t].groups[y].elements[z].id === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/id" }]
                   return false
                 }
-                if (data.presentation.static.views[t].groups[v].elements[x].id.length > 2048 && stringLength(data.presentation.static.views[t].groups[v].elements[x].id) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/maxLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/id" }]
+                if (data.presentation.static.views[t].groups[y].elements[z].id.length > 2048 && stringLength(data.presentation.static.views[t].groups[y].elements[z].id) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/maxLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/id" }]
                   return false
                 }
-                if (data.presentation.static.views[t].groups[v].elements[x].id.length < 1 || stringLength(data.presentation.static.views[t].groups[v].elements[x].id) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/minLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/id" }]
+                if (data.presentation.static.views[t].groups[y].elements[z].id.length < 1 || stringLength(data.presentation.static.views[t].groups[y].elements[z].id) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/minLength", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/id" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.static.views[t].groups[v].elements[x].id))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/id" }]
+                if (!(pattern1.test(data.presentation.static.views[t].groups[y].elements[z].id))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/id" }]
                   return false
                 }
-                for (const key9 of Object.keys(data.presentation.static.views[t].groups[v].elements[x])) {
-                  if (key9 !== "namespace" && key9 !== "id") {
-                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"elements/"+x+"/"+pointerPart(key9) }]
+                for (const key12 of Object.keys(data.presentation.static.views[t].groups[y].elements[z])) {
+                  if (key12 !== "namespace" && key12 !== "id") {
+                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/properties/elements/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"elements/"+z+"/"+pointerPart(key12) }]
                     return false
                   }
                 }
               }
             }
-            for (const key10 of Object.keys(data.presentation.static.views[t].groups[v])) {
-              if (key10 !== "id" && key10 !== "label" && key10 !== "elements") {
-                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"groups/"+v+"/"+pointerPart(key10) }]
+            for (const key13 of Object.keys(data.presentation.static.views[t].groups[y])) {
+              if (key13 !== "id" && key13 !== "label" && key13 !== "elements") {
+                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/groups/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"groups/"+y+"/"+pointerPart(key13) }]
                 return false
               }
             }
@@ -1481,114 +1625,114 @@ const ref0 = function validate(data) {
           validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/maxItems", instanceLocation: "#/presentation/static/views/"+t+"/forbiddenGroupPairs" }]
           return false
         }
-        for (let y = 0; y < data.presentation.static.views[t].forbiddenGroupPairs.length; y++) {
-          if (y in data.presentation.static.views[t].forbiddenGroupPairs && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs, y)) {
-            if (!(typeof data.presentation.static.views[t].forbiddenGroupPairs[y] === "object" && data.presentation.static.views[t].forbiddenGroupPairs[y] && !Array.isArray(data.presentation.static.views[t].forbiddenGroupPairs[y]))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y }]
+        for (let ii = 0; ii < data.presentation.static.views[t].forbiddenGroupPairs.length; ii++) {
+          if (ii in data.presentation.static.views[t].forbiddenGroupPairs && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs, ii)) {
+            if (!(typeof data.presentation.static.views[t].forbiddenGroupPairs[ii] === "object" && data.presentation.static.views[t].forbiddenGroupPairs[ii] && !Array.isArray(data.presentation.static.views[t].forbiddenGroupPairs[ii]))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii }]
               return false
             }
-            if (!("members" in data.presentation.static.views[t].forbiddenGroupPairs[y] && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs[y], "members"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/required", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"/members" }]
+            if (!("members" in data.presentation.static.views[t].forbiddenGroupPairs[ii] && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs[ii], "members"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/required", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"/members" }]
               return false
             }
-            if (!("reason" in data.presentation.static.views[t].forbiddenGroupPairs[y] && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs[y], "reason"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/required", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"/reason" }]
+            if (!("reason" in data.presentation.static.views[t].forbiddenGroupPairs[ii] && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs[ii], "reason"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/required", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"/reason" }]
               return false
             }
-            if (!(Array.isArray(data.presentation.static.views[t].forbiddenGroupPairs[y].members))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"/members" }]
+            if (!(Array.isArray(data.presentation.static.views[t].forbiddenGroupPairs[ii].members))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"/members" }]
               return false
             }
-            if (data.presentation.static.views[t].forbiddenGroupPairs[y].members.length > 2) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/maxItems", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"/members" }]
+            if (data.presentation.static.views[t].forbiddenGroupPairs[ii].members.length > 2) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/maxItems", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"/members" }]
               return false
             }
-            if (data.presentation.static.views[t].forbiddenGroupPairs[y].members.length < 2) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/minItems", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"/members" }]
+            if (data.presentation.static.views[t].forbiddenGroupPairs[ii].members.length < 2) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/minItems", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"/members" }]
               return false
             }
-            for (let z = 0; z < data.presentation.static.views[t].forbiddenGroupPairs[y].members.length; z++) {
-              if (z in data.presentation.static.views[t].forbiddenGroupPairs[y].members && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs[y].members, z)) {
-                if (!(typeof data.presentation.static.views[t].forbiddenGroupPairs[y].members[z] === "object" && data.presentation.static.views[t].forbiddenGroupPairs[y].members[z] && !Array.isArray(data.presentation.static.views[t].forbiddenGroupPairs[y].members[z]))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z }]
+            for (let jj = 0; jj < data.presentation.static.views[t].forbiddenGroupPairs[ii].members.length; jj++) {
+              if (jj in data.presentation.static.views[t].forbiddenGroupPairs[ii].members && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs[ii].members, jj)) {
+                if (!(typeof data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj] === "object" && data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj] && !Array.isArray(data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj]))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj }]
                   return false
                 }
-                if (!("namespace" in data.presentation.static.views[t].forbiddenGroupPairs[y].members[z] && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs[y].members[z], "namespace"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/required", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/namespace" }]
+                if (!("namespace" in data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj] && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj], "namespace"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/required", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/namespace" }]
                   return false
                 }
-                if (!("id" in data.presentation.static.views[t].forbiddenGroupPairs[y].members[z] && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs[y].members[z], "id"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/required", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/id" }]
+                if (!("id" in data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj] && hasOwn(data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj], "id"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/required", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/id" }]
                   return false
                 }
-                if (!(typeof data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].namespace === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/namespace" }]
+                if (!(typeof data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].namespace === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/namespace" }]
                   return false
                 }
-                if (data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].namespace.length > 2048 && stringLength(data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].namespace) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/maxLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/namespace" }]
+                if (data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].namespace.length > 2048 && stringLength(data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].namespace) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/maxLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/namespace" }]
                   return false
                 }
-                if (data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].namespace.length < 1 || stringLength(data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].namespace) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/minLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/namespace" }]
+                if (data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].namespace.length < 1 || stringLength(data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].namespace) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/minLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/namespace" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].namespace))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/pattern", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/namespace" }]
+                if (!(pattern1.test(data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].namespace))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/pattern", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/namespace" }]
                   return false
                 }
-                if (!(typeof data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].id === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/id" }]
+                if (!(typeof data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].id === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/id" }]
                   return false
                 }
-                if (data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].id.length > 2048 && stringLength(data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].id) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/maxLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/id" }]
+                if (data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].id.length > 2048 && stringLength(data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].id) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/maxLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/id" }]
                   return false
                 }
-                if (data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].id.length < 1 || stringLength(data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].id) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/minLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/id" }]
+                if (data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].id.length < 1 || stringLength(data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].id) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/minLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/id" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.static.views[t].forbiddenGroupPairs[y].members[z].id))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/id" }]
+                if (!(pattern1.test(data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj].id))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/pattern", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/id" }]
                   return false
                 }
-                for (const key11 of Object.keys(data.presentation.static.views[t].forbiddenGroupPairs[y].members[z])) {
-                  if (key11 !== "namespace" && key11 !== "id") {
-                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"members/"+z+"/"+pointerPart(key11) }]
+                for (const key14 of Object.keys(data.presentation.static.views[t].forbiddenGroupPairs[ii].members[jj])) {
+                  if (key14 !== "namespace" && key14 !== "id") {
+                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"members/"+jj+"/"+pointerPart(key14) }]
                     return false
                   }
                 }
               }
             }
-            if (!(typeof data.presentation.static.views[t].forbiddenGroupPairs[y].reason === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"/reason" }]
+            if (!(typeof data.presentation.static.views[t].forbiddenGroupPairs[ii].reason === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/type", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"/reason" }]
               return false
             }
-            if (data.presentation.static.views[t].forbiddenGroupPairs[y].reason.length > 2048 && stringLength(data.presentation.static.views[t].forbiddenGroupPairs[y].reason) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/maxLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"/reason" }]
+            if (data.presentation.static.views[t].forbiddenGroupPairs[ii].reason.length > 2048 && stringLength(data.presentation.static.views[t].forbiddenGroupPairs[ii].reason) > 2048) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/maxLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"/reason" }]
               return false
             }
-            if (data.presentation.static.views[t].forbiddenGroupPairs[y].reason.length < 1 || stringLength(data.presentation.static.views[t].forbiddenGroupPairs[y].reason) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/minLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"/reason" }]
+            if (data.presentation.static.views[t].forbiddenGroupPairs[ii].reason.length < 1 || stringLength(data.presentation.static.views[t].forbiddenGroupPairs[ii].reason) < 1) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/minLength", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"/reason" }]
               return false
             }
-            if (!(pattern1.test(data.presentation.static.views[t].forbiddenGroupPairs[y].reason))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/pattern", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"/reason" }]
+            if (!(pattern1.test(data.presentation.static.views[t].forbiddenGroupPairs[ii].reason))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/pattern", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"/reason" }]
               return false
             }
-            for (const key12 of Object.keys(data.presentation.static.views[t].forbiddenGroupPairs[y])) {
-              if (key12 !== "members" && key12 !== "reason") {
-                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+y+"/"+pointerPart(key12) }]
+            for (const key15 of Object.keys(data.presentation.static.views[t].forbiddenGroupPairs[ii])) {
+              if (key15 !== "members" && key15 !== "reason") {
+                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/properties/forbiddenGroupPairs/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"forbiddenGroupPairs/"+ii+"/"+pointerPart(key15) }]
                 return false
               }
             }
           }
         }
       }
-      for (const key13 of Object.keys(data.presentation.static.views[t])) {
-        if (key13 !== "id" && key13 !== "questions" && key13 !== "groups" && key13 !== "forbiddenGroupPairs") {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"/"+pointerPart(key13) }]
+      for (const key16 of Object.keys(data.presentation.static.views[t])) {
+        if (key16 !== "id" && key16 !== "questions" && key16 !== "form" && key16 !== "groups" && key16 !== "forbiddenGroupPairs") {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/properties/views/items/additionalProperties", instanceLocation: "#/presentation/static/views/"+t+"/"+pointerPart(key16) }]
           return false
         }
       }
@@ -1626,9 +1770,9 @@ const ref0 = function validate(data) {
       return false
     }
   }
-  for (const key14 of Object.keys(data.presentation.static)) {
-    if (key14 !== "views" && key14 !== "intent" && key14 !== "width") {
-      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/additionalProperties", instanceLocation: "#/presentation/static/"+pointerPart(key14) }]
+  for (const key17 of Object.keys(data.presentation.static)) {
+    if (key17 !== "views" && key17 !== "intent" && key17 !== "width") {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/static/additionalProperties", instanceLocation: "#/presentation/static/"+pointerPart(key17) }]
       return false
     }
   }
@@ -1652,299 +1796,443 @@ const ref0 = function validate(data) {
     validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/minItems", instanceLocation: "#/presentation/interactive/views" }]
     return false
   }
-  for (let ii = 0; ii < data.presentation.interactive.views.length; ii++) {
-    if (ii in data.presentation.interactive.views && hasOwn(data.presentation.interactive.views, ii)) {
-      if (!(typeof data.presentation.interactive.views[ii] === "object" && data.presentation.interactive.views[ii] && !Array.isArray(data.presentation.interactive.views[ii]))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/type", instanceLocation: "#/presentation/interactive/views/"+ii }]
+  for (let kk = 0; kk < data.presentation.interactive.views.length; kk++) {
+    if (kk in data.presentation.interactive.views && hasOwn(data.presentation.interactive.views, kk)) {
+      if (!(typeof data.presentation.interactive.views[kk] === "object" && data.presentation.interactive.views[kk] && !Array.isArray(data.presentation.interactive.views[kk]))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/type", instanceLocation: "#/presentation/interactive/views/"+kk }]
         return false
       }
-      if (!("id" in data.presentation.interactive.views[ii] && hasOwn(data.presentation.interactive.views[ii], "id"))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"/id" }]
+      if (!("id" in data.presentation.interactive.views[kk] && hasOwn(data.presentation.interactive.views[kk], "id"))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"/id" }]
         return false
       }
-      if (!("questions" in data.presentation.interactive.views[ii] && hasOwn(data.presentation.interactive.views[ii], "questions"))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"/questions" }]
+      if (!("questions" in data.presentation.interactive.views[kk] && hasOwn(data.presentation.interactive.views[kk], "questions"))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"/questions" }]
         return false
       }
-      if (!(typeof data.presentation.interactive.views[ii].id === "string")) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+ii+"/id" }]
+      if (!(typeof data.presentation.interactive.views[kk].id === "string")) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+kk+"/id" }]
         return false
       }
-      if (!(pattern0.test(data.presentation.interactive.views[ii].id))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+ii+"/id" }]
+      if (!(pattern0.test(data.presentation.interactive.views[kk].id))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"/id" }]
         return false
       }
-      if (!(Array.isArray(data.presentation.interactive.views[ii].questions))) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/type", instanceLocation: "#/presentation/interactive/views/"+ii+"/questions" }]
+      if (!(Array.isArray(data.presentation.interactive.views[kk].questions))) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/type", instanceLocation: "#/presentation/interactive/views/"+kk+"/questions" }]
         return false
       }
-      if (data.presentation.interactive.views[ii].questions.length < 1) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/minItems", instanceLocation: "#/presentation/interactive/views/"+ii+"/questions" }]
+      if (data.presentation.interactive.views[kk].questions.length < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/minItems", instanceLocation: "#/presentation/interactive/views/"+kk+"/questions" }]
         return false
       }
-      for (let jj = 0; jj < data.presentation.interactive.views[ii].questions.length; jj++) {
-        if (jj in data.presentation.interactive.views[ii].questions && hasOwn(data.presentation.interactive.views[ii].questions, jj)) {
-          if (!(typeof data.presentation.interactive.views[ii].questions[jj] === "string")) {
-            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/type", instanceLocation: "#/presentation/interactive/views/"+ii+"questions/"+jj }]
+      for (let ll = 0; ll < data.presentation.interactive.views[kk].questions.length; ll++) {
+        if (ll in data.presentation.interactive.views[kk].questions && hasOwn(data.presentation.interactive.views[kk].questions, ll)) {
+          if (!(typeof data.presentation.interactive.views[kk].questions[ll] === "string")) {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/type", instanceLocation: "#/presentation/interactive/views/"+kk+"questions/"+ll }]
             return false
           }
-          if (!(pattern0.test(data.presentation.interactive.views[ii].questions[jj]))) {
-            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/pattern", instanceLocation: "#/presentation/interactive/views/"+ii+"questions/"+jj }]
+          if (!(pattern0.test(data.presentation.interactive.views[kk].questions[ll]))) {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/items/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"questions/"+ll }]
             return false
           }
         }
       }
-      if (!unique(data.presentation.interactive.views[ii].questions)) {
-        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/interactive/views/"+ii+"/questions" }]
+      if (!unique(data.presentation.interactive.views[kk].questions)) {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/questions/uniqueItems", instanceLocation: "#/presentation/interactive/views/"+kk+"/questions" }]
         return false
       }
-      if ("groups" in data.presentation.interactive.views[ii] && hasOwn(data.presentation.interactive.views[ii], "groups")) {
-        if (!(Array.isArray(data.presentation.interactive.views[ii].groups))) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/type", instanceLocation: "#/presentation/interactive/views/"+ii+"/groups" }]
+      if ("form" in data.presentation.interactive.views[kk] && hasOwn(data.presentation.interactive.views[kk], "form")) {
+        if (!(typeof data.presentation.interactive.views[kk].form === "object" && data.presentation.interactive.views[kk].form && !Array.isArray(data.presentation.interactive.views[kk].form))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/type", instanceLocation: "#/presentation/interactive/views/"+kk+"/form" }]
           return false
         }
-        if (data.presentation.interactive.views[ii].groups.length > 256) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/maxItems", instanceLocation: "#/presentation/interactive/views/"+ii+"/groups" }]
+        if (!("schema" in data.presentation.interactive.views[kk].form && hasOwn(data.presentation.interactive.views[kk].form, "schema"))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/required", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/schema" }]
           return false
         }
-        if (data.presentation.interactive.views[ii].groups.length < 1) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/minItems", instanceLocation: "#/presentation/interactive/views/"+ii+"/groups" }]
+        if (!("kind" in data.presentation.interactive.views[kk].form && hasOwn(data.presentation.interactive.views[kk].form, "kind"))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/required", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/kind" }]
           return false
         }
-        for (let kk = 0; kk < data.presentation.interactive.views[ii].groups.length; kk++) {
-          if (kk in data.presentation.interactive.views[ii].groups && hasOwn(data.presentation.interactive.views[ii].groups, kk)) {
-            if (!(typeof data.presentation.interactive.views[ii].groups[kk] === "object" && data.presentation.interactive.views[ii].groups[kk] && !Array.isArray(data.presentation.interactive.views[ii].groups[kk]))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/type", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk }]
+        if (!("roles" in data.presentation.interactive.views[kk].form && hasOwn(data.presentation.interactive.views[kk].form, "roles"))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/required", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/roles" }]
+          return false
+        }
+        if (!("handoffs" in data.presentation.interactive.views[kk].form && hasOwn(data.presentation.interactive.views[kk].form, "handoffs"))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/required", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/handoffs" }]
+          return false
+        }
+        if (!(data.presentation.interactive.views[kk].form.schema === "architecture.visual-form/v1")) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/schema/const", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/schema" }]
+          return false
+        }
+        if (!(data.presentation.interactive.views[kk].form.kind === "responsibility")) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/kind/const", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/kind" }]
+          return false
+        }
+        if (!(Array.isArray(data.presentation.interactive.views[kk].form.roles))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/type", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/roles" }]
+          return false
+        }
+        if (data.presentation.interactive.views[kk].form.roles.length > 256) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/maxItems", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/roles" }]
+          return false
+        }
+        if (data.presentation.interactive.views[kk].form.roles.length < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/minItems", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/roles" }]
+          return false
+        }
+        for (let mm = 0; mm < data.presentation.interactive.views[kk].form.roles.length; mm++) {
+          if (mm in data.presentation.interactive.views[kk].form.roles && hasOwn(data.presentation.interactive.views[kk].form.roles, mm)) {
+            if (!(typeof data.presentation.interactive.views[kk].form.roles[mm] === "object" && data.presentation.interactive.views[kk].form.roles[mm] && !Array.isArray(data.presentation.interactive.views[kk].form.roles[mm]))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/items/type", instanceLocation: "#/presentation/interactive/views/"+kk+"form/roles/"+mm }]
               return false
             }
-            if (!("id" in data.presentation.interactive.views[ii].groups[kk] && hasOwn(data.presentation.interactive.views[ii].groups[kk], "id"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/id" }]
+            if (!("group" in data.presentation.interactive.views[kk].form.roles[mm] && hasOwn(data.presentation.interactive.views[kk].form.roles[mm], "group"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"form/roles/"+mm+"/group" }]
               return false
             }
-            if (!("label" in data.presentation.interactive.views[ii].groups[kk] && hasOwn(data.presentation.interactive.views[ii].groups[kk], "label"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/label" }]
+            if (!("basis" in data.presentation.interactive.views[kk].form.roles[mm] && hasOwn(data.presentation.interactive.views[kk].form.roles[mm], "basis"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"form/roles/"+mm+"/basis" }]
               return false
             }
-            if (!("elements" in data.presentation.interactive.views[ii].groups[kk] && hasOwn(data.presentation.interactive.views[ii].groups[kk], "elements"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/elements" }]
+            if (!(typeof data.presentation.interactive.views[kk].form.roles[mm].group === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/items/properties/group/type", instanceLocation: "#/presentation/interactive/views/"+kk+"form/roles/"+mm+"/group" }]
               return false
             }
-            if (!(typeof data.presentation.interactive.views[ii].groups[kk].id === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/id" }]
+            if (!(pattern0.test(data.presentation.interactive.views[kk].form.roles[mm].group))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/items/properties/group/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"form/roles/"+mm+"/group" }]
               return false
             }
-            if (!(pattern0.test(data.presentation.interactive.views[ii].groups[kk].id))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/id" }]
+            if (!(typeof data.presentation.interactive.views[kk].form.roles[mm].basis === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/items/properties/basis/type", instanceLocation: "#/presentation/interactive/views/"+kk+"form/roles/"+mm+"/basis" }]
               return false
             }
-            if (!(typeof data.presentation.interactive.views[ii].groups[kk].label === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/type", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/label" }]
+            if (!(pattern0.test(data.presentation.interactive.views[kk].form.roles[mm].basis))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/items/properties/basis/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"form/roles/"+mm+"/basis" }]
               return false
             }
-            if (data.presentation.interactive.views[ii].groups[kk].label.length > 2048 && stringLength(data.presentation.interactive.views[ii].groups[kk].label) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/maxLength", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/label" }]
+            for (const key18 of Object.keys(data.presentation.interactive.views[kk].form.roles[mm])) {
+              if (key18 !== "group" && key18 !== "basis") {
+                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/roles/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+kk+"form/roles/"+mm+"/"+pointerPart(key18) }]
+                return false
+              }
+            }
+          }
+        }
+        if (!(Array.isArray(data.presentation.interactive.views[kk].form.handoffs))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/type", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/handoffs" }]
+          return false
+        }
+        if (data.presentation.interactive.views[kk].form.handoffs.length > 4096) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/maxItems", instanceLocation: "#/presentation/interactive/views/"+kk+"/form/handoffs" }]
+          return false
+        }
+        for (let nn = 0; nn < data.presentation.interactive.views[kk].form.handoffs.length; nn++) {
+          if (nn in data.presentation.interactive.views[kk].form.handoffs && hasOwn(data.presentation.interactive.views[kk].form.handoffs, nn)) {
+            if (!(typeof data.presentation.interactive.views[kk].form.handoffs[nn] === "object" && data.presentation.interactive.views[kk].form.handoffs[nn] && !Array.isArray(data.presentation.interactive.views[kk].form.handoffs[nn]))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/type", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn }]
               return false
             }
-            if (data.presentation.interactive.views[ii].groups[kk].label.length < 1 || stringLength(data.presentation.interactive.views[ii].groups[kk].label) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/minLength", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/label" }]
+            if (!("from" in data.presentation.interactive.views[kk].form.handoffs[nn] && hasOwn(data.presentation.interactive.views[kk].form.handoffs[nn], "from"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn+"/from" }]
               return false
             }
-            if (!(pattern1.test(data.presentation.interactive.views[ii].groups[kk].label))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/pattern", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/label" }]
+            if (!("to" in data.presentation.interactive.views[kk].form.handoffs[nn] && hasOwn(data.presentation.interactive.views[kk].form.handoffs[nn], "to"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn+"/to" }]
               return false
             }
-            if (!(Array.isArray(data.presentation.interactive.views[ii].groups[kk].elements))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/type", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/elements" }]
+            if (!("basis" in data.presentation.interactive.views[kk].form.handoffs[nn] && hasOwn(data.presentation.interactive.views[kk].form.handoffs[nn], "basis"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn+"/basis" }]
               return false
             }
-            if (data.presentation.interactive.views[ii].groups[kk].elements.length > 4096) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/maxItems", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/elements" }]
+            if (!(typeof data.presentation.interactive.views[kk].form.handoffs[nn].from === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/properties/from/type", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn+"/from" }]
               return false
             }
-            if (data.presentation.interactive.views[ii].groups[kk].elements.length < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/minItems", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/elements" }]
+            if (!(pattern0.test(data.presentation.interactive.views[kk].form.handoffs[nn].from))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/properties/from/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn+"/from" }]
               return false
             }
-            for (let ll = 0; ll < data.presentation.interactive.views[ii].groups[kk].elements.length; ll++) {
-              if (ll in data.presentation.interactive.views[ii].groups[kk].elements && hasOwn(data.presentation.interactive.views[ii].groups[kk].elements, ll)) {
-                if (!(typeof data.presentation.interactive.views[ii].groups[kk].elements[ll] === "object" && data.presentation.interactive.views[ii].groups[kk].elements[ll] && !Array.isArray(data.presentation.interactive.views[ii].groups[kk].elements[ll]))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/type", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll }]
+            if (!(typeof data.presentation.interactive.views[kk].form.handoffs[nn].to === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/properties/to/type", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn+"/to" }]
+              return false
+            }
+            if (!(pattern0.test(data.presentation.interactive.views[kk].form.handoffs[nn].to))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/properties/to/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn+"/to" }]
+              return false
+            }
+            if (!(typeof data.presentation.interactive.views[kk].form.handoffs[nn].basis === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/properties/basis/type", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn+"/basis" }]
+              return false
+            }
+            if (!(pattern0.test(data.presentation.interactive.views[kk].form.handoffs[nn].basis))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/properties/basis/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn+"/basis" }]
+              return false
+            }
+            for (const key19 of Object.keys(data.presentation.interactive.views[kk].form.handoffs[nn])) {
+              if (key19 !== "from" && key19 !== "to" && key19 !== "basis") {
+                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/properties/handoffs/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+kk+"form/handoffs/"+nn+"/"+pointerPart(key19) }]
+                return false
+              }
+            }
+          }
+        }
+        for (const key20 of Object.keys(data.presentation.interactive.views[kk].form)) {
+          if (key20 !== "schema" && key20 !== "kind" && key20 !== "roles" && key20 !== "handoffs") {
+            validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/form/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+kk+"form/"+pointerPart(key20) }]
+            return false
+          }
+        }
+      }
+      if ("groups" in data.presentation.interactive.views[kk] && hasOwn(data.presentation.interactive.views[kk], "groups")) {
+        if (!(Array.isArray(data.presentation.interactive.views[kk].groups))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/type", instanceLocation: "#/presentation/interactive/views/"+kk+"/groups" }]
+          return false
+        }
+        if (data.presentation.interactive.views[kk].groups.length > 256) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/maxItems", instanceLocation: "#/presentation/interactive/views/"+kk+"/groups" }]
+          return false
+        }
+        if (data.presentation.interactive.views[kk].groups.length < 1) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/minItems", instanceLocation: "#/presentation/interactive/views/"+kk+"/groups" }]
+          return false
+        }
+        for (let oo = 0; oo < data.presentation.interactive.views[kk].groups.length; oo++) {
+          if (oo in data.presentation.interactive.views[kk].groups && hasOwn(data.presentation.interactive.views[kk].groups, oo)) {
+            if (!(typeof data.presentation.interactive.views[kk].groups[oo] === "object" && data.presentation.interactive.views[kk].groups[oo] && !Array.isArray(data.presentation.interactive.views[kk].groups[oo]))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/type", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo }]
+              return false
+            }
+            if (!("id" in data.presentation.interactive.views[kk].groups[oo] && hasOwn(data.presentation.interactive.views[kk].groups[oo], "id"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/id" }]
+              return false
+            }
+            if (!("label" in data.presentation.interactive.views[kk].groups[oo] && hasOwn(data.presentation.interactive.views[kk].groups[oo], "label"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/label" }]
+              return false
+            }
+            if (!("elements" in data.presentation.interactive.views[kk].groups[oo] && hasOwn(data.presentation.interactive.views[kk].groups[oo], "elements"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/elements" }]
+              return false
+            }
+            if (!(typeof data.presentation.interactive.views[kk].groups[oo].id === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/id" }]
+              return false
+            }
+            if (!(pattern0.test(data.presentation.interactive.views[kk].groups[oo].id))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/id" }]
+              return false
+            }
+            if (!(typeof data.presentation.interactive.views[kk].groups[oo].label === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/type", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/label" }]
+              return false
+            }
+            if (data.presentation.interactive.views[kk].groups[oo].label.length > 2048 && stringLength(data.presentation.interactive.views[kk].groups[oo].label) > 2048) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/maxLength", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/label" }]
+              return false
+            }
+            if (data.presentation.interactive.views[kk].groups[oo].label.length < 1 || stringLength(data.presentation.interactive.views[kk].groups[oo].label) < 1) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/minLength", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/label" }]
+              return false
+            }
+            if (!(pattern1.test(data.presentation.interactive.views[kk].groups[oo].label))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/label/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/label" }]
+              return false
+            }
+            if (!(Array.isArray(data.presentation.interactive.views[kk].groups[oo].elements))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/type", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/elements" }]
+              return false
+            }
+            if (data.presentation.interactive.views[kk].groups[oo].elements.length > 4096) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/maxItems", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/elements" }]
+              return false
+            }
+            if (data.presentation.interactive.views[kk].groups[oo].elements.length < 1) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/minItems", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/elements" }]
+              return false
+            }
+            for (let pp = 0; pp < data.presentation.interactive.views[kk].groups[oo].elements.length; pp++) {
+              if (pp in data.presentation.interactive.views[kk].groups[oo].elements && hasOwn(data.presentation.interactive.views[kk].groups[oo].elements, pp)) {
+                if (!(typeof data.presentation.interactive.views[kk].groups[oo].elements[pp] === "object" && data.presentation.interactive.views[kk].groups[oo].elements[pp] && !Array.isArray(data.presentation.interactive.views[kk].groups[oo].elements[pp]))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/type", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp }]
                   return false
                 }
-                if (!("namespace" in data.presentation.interactive.views[ii].groups[kk].elements[ll] && hasOwn(data.presentation.interactive.views[ii].groups[kk].elements[ll], "namespace"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/namespace" }]
+                if (!("namespace" in data.presentation.interactive.views[kk].groups[oo].elements[pp] && hasOwn(data.presentation.interactive.views[kk].groups[oo].elements[pp], "namespace"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/namespace" }]
                   return false
                 }
-                if (!("id" in data.presentation.interactive.views[ii].groups[kk].elements[ll] && hasOwn(data.presentation.interactive.views[ii].groups[kk].elements[ll], "id"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/id" }]
+                if (!("id" in data.presentation.interactive.views[kk].groups[oo].elements[pp] && hasOwn(data.presentation.interactive.views[kk].groups[oo].elements[pp], "id"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/id" }]
                   return false
                 }
-                if (!(typeof data.presentation.interactive.views[ii].groups[kk].elements[ll].namespace === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/type", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/namespace" }]
+                if (!(typeof data.presentation.interactive.views[kk].groups[oo].elements[pp].namespace === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/type", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/namespace" }]
                   return false
                 }
-                if (data.presentation.interactive.views[ii].groups[kk].elements[ll].namespace.length > 2048 && stringLength(data.presentation.interactive.views[ii].groups[kk].elements[ll].namespace) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/maxLength", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/namespace" }]
+                if (data.presentation.interactive.views[kk].groups[oo].elements[pp].namespace.length > 2048 && stringLength(data.presentation.interactive.views[kk].groups[oo].elements[pp].namespace) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/maxLength", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/namespace" }]
                   return false
                 }
-                if (data.presentation.interactive.views[ii].groups[kk].elements[ll].namespace.length < 1 || stringLength(data.presentation.interactive.views[ii].groups[kk].elements[ll].namespace) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/minLength", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/namespace" }]
+                if (data.presentation.interactive.views[kk].groups[oo].elements[pp].namespace.length < 1 || stringLength(data.presentation.interactive.views[kk].groups[oo].elements[pp].namespace) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/minLength", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/namespace" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.interactive.views[ii].groups[kk].elements[ll].namespace))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/pattern", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/namespace" }]
+                if (!(pattern1.test(data.presentation.interactive.views[kk].groups[oo].elements[pp].namespace))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/namespace/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/namespace" }]
                   return false
                 }
-                if (!(typeof data.presentation.interactive.views[ii].groups[kk].elements[ll].id === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/id" }]
+                if (!(typeof data.presentation.interactive.views[kk].groups[oo].elements[pp].id === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/id" }]
                   return false
                 }
-                if (data.presentation.interactive.views[ii].groups[kk].elements[ll].id.length > 2048 && stringLength(data.presentation.interactive.views[ii].groups[kk].elements[ll].id) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/maxLength", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/id" }]
+                if (data.presentation.interactive.views[kk].groups[oo].elements[pp].id.length > 2048 && stringLength(data.presentation.interactive.views[kk].groups[oo].elements[pp].id) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/maxLength", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/id" }]
                   return false
                 }
-                if (data.presentation.interactive.views[ii].groups[kk].elements[ll].id.length < 1 || stringLength(data.presentation.interactive.views[ii].groups[kk].elements[ll].id) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/minLength", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/id" }]
+                if (data.presentation.interactive.views[kk].groups[oo].elements[pp].id.length < 1 || stringLength(data.presentation.interactive.views[kk].groups[oo].elements[pp].id) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/minLength", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/id" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.interactive.views[ii].groups[kk].elements[ll].id))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/id" }]
+                if (!(pattern1.test(data.presentation.interactive.views[kk].groups[oo].elements[pp].id))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/id" }]
                   return false
                 }
-                for (const key15 of Object.keys(data.presentation.interactive.views[ii].groups[kk].elements[ll])) {
-                  if (key15 !== "namespace" && key15 !== "id") {
-                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"elements/"+ll+"/"+pointerPart(key15) }]
+                for (const key21 of Object.keys(data.presentation.interactive.views[kk].groups[oo].elements[pp])) {
+                  if (key21 !== "namespace" && key21 !== "id") {
+                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/properties/elements/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"elements/"+pp+"/"+pointerPart(key21) }]
                     return false
                   }
                 }
               }
             }
-            for (const key16 of Object.keys(data.presentation.interactive.views[ii].groups[kk])) {
-              if (key16 !== "id" && key16 !== "label" && key16 !== "elements") {
-                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+ii+"groups/"+kk+"/"+pointerPart(key16) }]
+            for (const key22 of Object.keys(data.presentation.interactive.views[kk].groups[oo])) {
+              if (key22 !== "id" && key22 !== "label" && key22 !== "elements") {
+                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/groups/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+kk+"groups/"+oo+"/"+pointerPart(key22) }]
                 return false
               }
             }
           }
         }
       }
-      if ("forbiddenGroupPairs" in data.presentation.interactive.views[ii] && hasOwn(data.presentation.interactive.views[ii], "forbiddenGroupPairs")) {
-        if (!(Array.isArray(data.presentation.interactive.views[ii].forbiddenGroupPairs))) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/type", instanceLocation: "#/presentation/interactive/views/"+ii+"/forbiddenGroupPairs" }]
+      if ("forbiddenGroupPairs" in data.presentation.interactive.views[kk] && hasOwn(data.presentation.interactive.views[kk], "forbiddenGroupPairs")) {
+        if (!(Array.isArray(data.presentation.interactive.views[kk].forbiddenGroupPairs))) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/type", instanceLocation: "#/presentation/interactive/views/"+kk+"/forbiddenGroupPairs" }]
           return false
         }
-        if (data.presentation.interactive.views[ii].forbiddenGroupPairs.length > 4096) {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/maxItems", instanceLocation: "#/presentation/interactive/views/"+ii+"/forbiddenGroupPairs" }]
+        if (data.presentation.interactive.views[kk].forbiddenGroupPairs.length > 4096) {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/maxItems", instanceLocation: "#/presentation/interactive/views/"+kk+"/forbiddenGroupPairs" }]
           return false
         }
-        for (let mm = 0; mm < data.presentation.interactive.views[ii].forbiddenGroupPairs.length; mm++) {
-          if (mm in data.presentation.interactive.views[ii].forbiddenGroupPairs && hasOwn(data.presentation.interactive.views[ii].forbiddenGroupPairs, mm)) {
-            if (!(typeof data.presentation.interactive.views[ii].forbiddenGroupPairs[mm] === "object" && data.presentation.interactive.views[ii].forbiddenGroupPairs[mm] && !Array.isArray(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm]))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/type", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm }]
+        for (let qq = 0; qq < data.presentation.interactive.views[kk].forbiddenGroupPairs.length; qq++) {
+          if (qq in data.presentation.interactive.views[kk].forbiddenGroupPairs && hasOwn(data.presentation.interactive.views[kk].forbiddenGroupPairs, qq)) {
+            if (!(typeof data.presentation.interactive.views[kk].forbiddenGroupPairs[qq] === "object" && data.presentation.interactive.views[kk].forbiddenGroupPairs[qq] && !Array.isArray(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq]))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/type", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq }]
               return false
             }
-            if (!("members" in data.presentation.interactive.views[ii].forbiddenGroupPairs[mm] && hasOwn(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm], "members"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"/members" }]
+            if (!("members" in data.presentation.interactive.views[kk].forbiddenGroupPairs[qq] && hasOwn(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq], "members"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"/members" }]
               return false
             }
-            if (!("reason" in data.presentation.interactive.views[ii].forbiddenGroupPairs[mm] && hasOwn(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm], "reason"))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"/reason" }]
+            if (!("reason" in data.presentation.interactive.views[kk].forbiddenGroupPairs[qq] && hasOwn(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq], "reason"))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"/reason" }]
               return false
             }
-            if (!(Array.isArray(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/type", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"/members" }]
+            if (!(Array.isArray(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/type", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"/members" }]
               return false
             }
-            if (data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members.length > 2) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/maxItems", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"/members" }]
+            if (data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members.length > 2) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/maxItems", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"/members" }]
               return false
             }
-            if (data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members.length < 2) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/minItems", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"/members" }]
+            if (data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members.length < 2) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/minItems", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"/members" }]
               return false
             }
-            for (let nn = 0; nn < data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members.length; nn++) {
-              if (nn in data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members && hasOwn(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members, nn)) {
-                if (!(typeof data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn] === "object" && data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn] && !Array.isArray(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn]))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/type", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn }]
+            for (let rr = 0; rr < data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members.length; rr++) {
+              if (rr in data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members && hasOwn(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members, rr)) {
+                if (!(typeof data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr] === "object" && data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr] && !Array.isArray(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr]))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/type", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr }]
                   return false
                 }
-                if (!("namespace" in data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn] && hasOwn(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn], "namespace"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/namespace" }]
+                if (!("namespace" in data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr] && hasOwn(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr], "namespace"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/namespace" }]
                   return false
                 }
-                if (!("id" in data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn] && hasOwn(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn], "id"))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/required", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/id" }]
+                if (!("id" in data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr] && hasOwn(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr], "id"))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/required", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/id" }]
                   return false
                 }
-                if (!(typeof data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].namespace === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/type", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/namespace" }]
+                if (!(typeof data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].namespace === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/type", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/namespace" }]
                   return false
                 }
-                if (data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].namespace.length > 2048 && stringLength(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].namespace) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/maxLength", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/namespace" }]
+                if (data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].namespace.length > 2048 && stringLength(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].namespace) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/maxLength", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/namespace" }]
                   return false
                 }
-                if (data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].namespace.length < 1 || stringLength(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].namespace) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/minLength", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/namespace" }]
+                if (data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].namespace.length < 1 || stringLength(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].namespace) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/minLength", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/namespace" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].namespace))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/pattern", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/namespace" }]
+                if (!(pattern1.test(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].namespace))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/namespace/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/namespace" }]
                   return false
                 }
-                if (!(typeof data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].id === "string")) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/id" }]
+                if (!(typeof data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].id === "string")) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/type", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/id" }]
                   return false
                 }
-                if (data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].id.length > 2048 && stringLength(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].id) > 2048) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/maxLength", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/id" }]
+                if (data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].id.length > 2048 && stringLength(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].id) > 2048) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/maxLength", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/id" }]
                   return false
                 }
-                if (data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].id.length < 1 || stringLength(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].id) < 1) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/minLength", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/id" }]
+                if (data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].id.length < 1 || stringLength(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].id) < 1) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/minLength", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/id" }]
                   return false
                 }
-                if (!(pattern1.test(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn].id))) {
-                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/id" }]
+                if (!(pattern1.test(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr].id))) {
+                  validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/properties/id/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/id" }]
                   return false
                 }
-                for (const key17 of Object.keys(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].members[nn])) {
-                  if (key17 !== "namespace" && key17 !== "id") {
-                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"members/"+nn+"/"+pointerPart(key17) }]
+                for (const key23 of Object.keys(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].members[rr])) {
+                  if (key23 !== "namespace" && key23 !== "id") {
+                    validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/members/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"members/"+rr+"/"+pointerPart(key23) }]
                     return false
                   }
                 }
               }
             }
-            if (!(typeof data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].reason === "string")) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/type", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"/reason" }]
+            if (!(typeof data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].reason === "string")) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/type", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"/reason" }]
               return false
             }
-            if (data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].reason.length > 2048 && stringLength(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].reason) > 2048) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/maxLength", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"/reason" }]
+            if (data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].reason.length > 2048 && stringLength(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].reason) > 2048) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/maxLength", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"/reason" }]
               return false
             }
-            if (data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].reason.length < 1 || stringLength(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].reason) < 1) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/minLength", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"/reason" }]
+            if (data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].reason.length < 1 || stringLength(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].reason) < 1) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/minLength", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"/reason" }]
               return false
             }
-            if (!(pattern1.test(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm].reason))) {
-              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/pattern", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"/reason" }]
+            if (!(pattern1.test(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq].reason))) {
+              validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/properties/reason/pattern", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"/reason" }]
               return false
             }
-            for (const key18 of Object.keys(data.presentation.interactive.views[ii].forbiddenGroupPairs[mm])) {
-              if (key18 !== "members" && key18 !== "reason") {
-                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+ii+"forbiddenGroupPairs/"+mm+"/"+pointerPart(key18) }]
+            for (const key24 of Object.keys(data.presentation.interactive.views[kk].forbiddenGroupPairs[qq])) {
+              if (key24 !== "members" && key24 !== "reason") {
+                validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/properties/forbiddenGroupPairs/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+kk+"forbiddenGroupPairs/"+qq+"/"+pointerPart(key24) }]
                 return false
               }
             }
           }
         }
       }
-      for (const key19 of Object.keys(data.presentation.interactive.views[ii])) {
-        if (key19 !== "id" && key19 !== "questions" && key19 !== "groups" && key19 !== "forbiddenGroupPairs") {
-          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+ii+"/"+pointerPart(key19) }]
+      for (const key25 of Object.keys(data.presentation.interactive.views[kk])) {
+        if (key25 !== "id" && key25 !== "questions" && key25 !== "form" && key25 !== "groups" && key25 !== "forbiddenGroupPairs") {
+          validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/views/items/additionalProperties", instanceLocation: "#/presentation/interactive/views/"+kk+"/"+pointerPart(key25) }]
           return false
         }
       }
@@ -1968,15 +2256,15 @@ const ref0 = function validate(data) {
       return false
     }
   }
-  for (const key20 of Object.keys(data.presentation.interactive)) {
-    if (key20 !== "views" && key20 !== "intent") {
-      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/additionalProperties", instanceLocation: "#/presentation/interactive/"+pointerPart(key20) }]
+  for (const key26 of Object.keys(data.presentation.interactive)) {
+    if (key26 !== "views" && key26 !== "intent") {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/additionalProperties", instanceLocation: "#/presentation/interactive/"+pointerPart(key26) }]
       return false
     }
   }
-  for (const key21 of Object.keys(data.presentation)) {
-    if (key21 !== "static" && key21 !== "interactive") {
-      validate.errors = [{ keywordLocation: "#/properties/presentation/additionalProperties", instanceLocation: "#/presentation/"+pointerPart(key21) }]
+  for (const key27 of Object.keys(data.presentation)) {
+    if (key27 !== "static" && key27 !== "interactive") {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/additionalProperties", instanceLocation: "#/presentation/"+pointerPart(key27) }]
       return false
     }
   }
@@ -2015,15 +2303,15 @@ const ref0 = function validate(data) {
       }
     }
   }
-  for (const key22 of Object.keys(data.visualPolicy)) {
-    if (key22 !== "profile" && key22 !== "override") {
-      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/additionalProperties", instanceLocation: "#/visualPolicy/"+pointerPart(key22) }]
+  for (const key28 of Object.keys(data.visualPolicy)) {
+    if (key28 !== "profile" && key28 !== "override") {
+      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/additionalProperties", instanceLocation: "#/visualPolicy/"+pointerPart(key28) }]
       return false
     }
   }
-  for (const key23 of Object.keys(data)) {
-    if (key23 !== "schema" && key23 !== "id" && key23 !== "editor" && key23 !== "title" && key23 !== "audiences" && key23 !== "questions" && key23 !== "scope" && key23 !== "editorialAssertions" && key23 !== "omissions" && key23 !== "narrative" && key23 !== "presentation" && key23 !== "visualPolicy") {
-      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key23) }]
+  for (const key29 of Object.keys(data)) {
+    if (key29 !== "schema" && key29 !== "id" && key29 !== "editor" && key29 !== "title" && key29 !== "audiences" && key29 !== "questions" && key29 !== "scope" && key29 !== "editorialAssertions" && key29 !== "omissions" && key29 !== "narrative" && key29 !== "presentation" && key29 !== "visualPolicy") {
+      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key29) }]
       return false
     }
   }

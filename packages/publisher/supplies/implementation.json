@@ -4,8 +4,8 @@
     "semantic-claim": [
       {
         "path": "src/compiler/meaning.mjs",
-        "bytes": 5478,
-        "sha256": "6de652a517a90ec596ce365c8e161fbd0d25484f6da508f2fed32b8f90984e7c"
+        "bytes": 11076,
+        "sha256": "48517dc4f37922601e7d21bc0cfcb2843d53dafce875fe867026b774df6ac5a9"
       },
       {
         "path": "src/compiler/native.mjs",
@@ -14,13 +14,13 @@
       },
       {
         "path": "src/edition/authoring.mjs",
-        "bytes": 8665,
-        "sha256": "59e0174e39561c8e350c2bcbbb93e87bbd2c77461f960fd99672fa2909e51197"
+        "bytes": 11851,
+        "sha256": "a0fa0c3bab6036f013bc52c935503edd44a46a467a2ec5389238d0f5906e55c2"
       },
       {
         "path": "src/edition/generated/validators.mjs",
-        "bytes": 233453,
-        "sha256": "ee2d65b5c23d46d22fafe51e666e7d9e5995f660b523eef5922eea620bdf2169"
+        "bytes": 261501,
+        "sha256": "c8260cbe356a10f36bf8e3604d83588b540dd68c8e6e13fedea557e6948cdee8"
       },
       {
         "path": "src/edition/refinement.mjs",
@@ -29,8 +29,8 @@
       },
       {
         "path": "src/edition/schema.mjs",
-        "bytes": 15842,
-        "sha256": "25bde00f72cfe39cb2223162c0b5838d77bad5d7006cba97a8b96cbbe99490de"
+        "bytes": 16374,
+        "sha256": "ebf4c62a9631325d4f34b17f565cdadcd93134f5621ee04433db515b0d19924c"
       },
       {
         "path": "src/edition/selection.mjs",
@@ -106,8 +106,8 @@
     "semantic-likec4": [
       {
         "path": "src/compiler/meaning.mjs",
-        "bytes": 5478,
-        "sha256": "6de652a517a90ec596ce365c8e161fbd0d25484f6da508f2fed32b8f90984e7c"
+        "bytes": 11076,
+        "sha256": "48517dc4f37922601e7d21bc0cfcb2843d53dafce875fe867026b774df6ac5a9"
       },
       {
         "path": "src/compiler/native.mjs",
@@ -116,13 +116,13 @@
       },
       {
         "path": "src/edition/authoring.mjs",
-        "bytes": 8665,
-        "sha256": "59e0174e39561c8e350c2bcbbb93e87bbd2c77461f960fd99672fa2909e51197"
+        "bytes": 11851,
+        "sha256": "a0fa0c3bab6036f013bc52c935503edd44a46a467a2ec5389238d0f5906e55c2"
       },
       {
         "path": "src/edition/generated/validators.mjs",
-        "bytes": 233453,
-        "sha256": "ee2d65b5c23d46d22fafe51e666e7d9e5995f660b523eef5922eea620bdf2169"
+        "bytes": 261501,
+        "sha256": "c8260cbe356a10f36bf8e3604d83588b540dd68c8e6e13fedea557e6948cdee8"
       },
       {
         "path": "src/edition/refinement.mjs",
@@ -131,8 +131,8 @@
       },
       {
         "path": "src/edition/schema.mjs",
-        "bytes": 15842,
-        "sha256": "25bde00f72cfe39cb2223162c0b5838d77bad5d7006cba97a8b96cbbe99490de"
+        "bytes": 16374,
+        "sha256": "ebf4c62a9631325d4f34b17f565cdadcd93134f5621ee04433db515b0d19924c"
       },
       {
         "path": "src/edition/selection.mjs",
@@ -288,8 +288,8 @@
       },
       {
         "path": "src/scene/static/edition.mjs",
-        "bytes": 15119,
-        "sha256": "bfc9af407b816da5b6d11a365b889d041fcf45f4ae58607257c19f08420391c2"
+        "bytes": 15325,
+        "sha256": "7c0187180aa9adacaf1fb9581ed7df992f87c63f36245568892d87c72ddcaf8d"
       },
       {
         "path": "src/scene/static/selection.mjs",
@@ -410,8 +410,8 @@
       },
       {
         "path": "src/scene/static/edition.mjs",
-        "bytes": 15119,
-        "sha256": "bfc9af407b816da5b6d11a365b889d041fcf45f4ae58607257c19f08420391c2"
+        "bytes": 15325,
+        "sha256": "7c0187180aa9adacaf1fb9581ed7df992f87c63f36245568892d87c72ddcaf8d"
       },
       {
         "path": "src/scene/static/selection.mjs",
@@ -507,8 +507,8 @@
       },
       {
         "path": "src/scene/static/edition.mjs",
-        "bytes": 15119,
-        "sha256": "bfc9af407b816da5b6d11a365b889d041fcf45f4ae58607257c19f08420391c2"
+        "bytes": 15325,
+        "sha256": "7c0187180aa9adacaf1fb9581ed7df992f87c63f36245568892d87c72ddcaf8d"
       },
       {
         "path": "src/scene/static/selection.mjs",
@@ -619,8 +619,8 @@
       },
       {
         "path": "src/scene/static/edition.mjs",
-        "bytes": 15119,
-        "sha256": "bfc9af407b816da5b6d11a365b889d041fcf45f4ae58607257c19f08420391c2"
+        "bytes": 15325,
+        "sha256": "7c0187180aa9adacaf1fb9581ed7df992f87c63f36245568892d87c72ddcaf8d"
       },
       {
         "path": "src/scene/static/selection.mjs",
@@ -920,8 +920,8 @@
       },
       {
         "path": "src/scene/interactive/edition.mjs",
-        "bytes": 9554,
-        "sha256": "3a52613758c5b61762dcfe09d15e0ca146d7da2f9f445a99f74a0b4c704bc211"
+        "bytes": 9670,
+        "sha256": "c7c6cd181be0a945e57d15afeb7306080c04129992a865e6e0a6197e42ce9252"
       },
       {
         "path": "src/semantics/document.mjs",

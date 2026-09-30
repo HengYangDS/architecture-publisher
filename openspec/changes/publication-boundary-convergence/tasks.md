@@ -788,6 +788,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       source or attributed editorial meaning, preserve conditions and limits,
       and pass complete-page review without treating editor assertions as
       source endorsement. Tasks 5.2 and 5.4 remain open.
+      A first schema-bound `architecture.visual-form/v1` slice now binds a
+      one-question responsibility form to existing view groups and selected
+      assertions without duplicating membership. Pre-layout counterexamples
+      reject bare structural authority, omitted or unrelated bases, duplicate
+      roles, unsupported members, and reversed or unrelated handoffs with
+      question/role diagnostics. One independent review exposed authored-path
+      bypasses; the shared public build gate now rejects selected forms before
+      any renderer dispatch, and both authored override paths have public
+      no-Candidate regressions. The re-review found no new concrete defect.
+      The 18 focused form cases and Chrome-enabled full check passed
+      1,333/1,336 tests with three declared skips and
+      97.72/95.01/99.54/97.72% statement/branch/function/line coverage.
+      This is semantic preflight only: no positive visual Candidate, AIGW
+      acceptance, or Task 5.2 closure.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

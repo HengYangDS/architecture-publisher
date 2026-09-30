@@ -114,9 +114,29 @@ const editorialAssertion = closed(['id', 'statement', 'proponent', 'basis', 'que
   questions: questionIds,
 });
 const entityAddress = closed(['namespace', 'id'], { namespace: text, id: text });
+const responsibilityForm = closed(['schema', 'kind', 'roles', 'handoffs'], {
+  schema: { const: 'architecture.visual-form/v1' },
+  kind: { const: 'responsibility' },
+  roles: {
+    type: 'array',
+    minItems: 1,
+    maxItems: 256,
+    items: closed(['group', 'basis'], { group: identifier, basis: identifier }),
+  },
+  handoffs: {
+    type: 'array',
+    maxItems: 4096,
+    items: closed(['from', 'to', 'basis'], {
+      from: identifier,
+      to: identifier,
+      basis: identifier,
+    }),
+  },
+});
 const view = closed(['id', 'questions'], {
   id: identifier,
   questions: questionIds,
+  form: responsibilityForm,
   groups: {
     type: 'array',
     minItems: 1,

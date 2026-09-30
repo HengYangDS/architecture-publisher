@@ -244,6 +244,8 @@ export function composeInteractiveEditionScene(meaning) {
         authoredViews.some((view, index) => view?.id !== views[index].id)))
   )
     fail('interactive_scene_identity_ambiguous');
+  if (authoredViews?.some((view) => view.form !== undefined))
+    fail('edition_visual_form_renderer_unavailable');
   return deepFreeze({
     schema: 'architecture.edition-interactive-scene/v1',
     completeness: 'unqualified-scene',

@@ -75,6 +75,107 @@ function validateViewGrouping(view, namespaces, code) {
   }
 }
 
+function formInvalid(project, medium, view, subject, detail) {
+  const code = 'edition_visual_form_authoring_invalid';
+  throw Object.assign(new Error(`${code}: ${detail}`), {
+    code,
+    diagnostics: [
+      {
+        code,
+        severity: 'error',
+        message: detail,
+        predicate: 'visual-form-authoring-valid',
+        subject: {
+          ...subject,
+          editionId: project.id,
+          medium,
+          viewId: view.id,
+          ...(view.questions.length === 1
+            ? { questionId: view.questions[0] }
+            : { questionIds: view.questions }),
+        },
+        responsibility: { role: 'edition-editor', declaredOwner: project.editor },
+        evidence: {},
+        supportedFixes: [],
+      },
+    ],
+  });
+}
+
+function validateViewForm(project, medium, view, assertions) {
+  if (view.form === undefined) return;
+  if (view.groups === undefined || view.questions.length !== 1)
+    formInvalid(
+      project,
+      medium,
+      view,
+      { kind: 'edition-visual-form-view' },
+      'Responsibility form requires one grouped question.',
+    );
+  const question = view.questions[0];
+  const groups = new Set(view.groups.map(({ id }) => id));
+  const roles = new Set();
+  const roleSubject = ({ group, basis }) => ({
+    kind: 'edition-visual-form-role',
+    groupId: group,
+    basisAssertionId: basis,
+  });
+  for (const role of view.form.roles) {
+    if (!groups.has(role.group) || roles.has(role.group))
+      formInvalid(
+        project,
+        medium,
+        view,
+        roleSubject(role),
+        'Responsibility role must bind one declared group exactly once.',
+      );
+    roles.add(role.group);
+  }
+  for (const group of groups)
+    if (!roles.has(group))
+      formInvalid(
+        project,
+        medium,
+        view,
+        roleSubject({ group, basis: null }),
+        'Responsibility group has no role binding.',
+      );
+  const selectedBasis = (id, subject) => {
+    const assertion = assertions.get(id);
+    if (!assertion || !assertion.questions.includes(question))
+      formInvalid(
+        project,
+        medium,
+        view,
+        subject,
+        'Responsibility basis must address the view question.',
+      );
+  };
+  for (const role of view.form.roles) selectedBasis(role.basis, roleSubject(role));
+  const handoffs = new Set();
+  for (const handoff of view.form.handoffs) {
+    const subject = {
+      kind: 'edition-visual-form-handoff',
+      fromGroup: handoff.from,
+      toGroup: handoff.to,
+      basisAssertionId: handoff.basis,
+    };
+    if (!roles.has(handoff.from) || !roles.has(handoff.to) || handoff.from === handoff.to)
+      formInvalid(
+        project,
+        medium,
+        view,
+        subject,
+        'Responsibility handoff must connect distinct bound groups.',
+      );
+    selectedBasis(handoff.basis, subject);
+    const key = JSON.stringify([handoff.from, handoff.to, handoff.basis]);
+    if (handoffs.has(key))
+      formInvalid(project, medium, view, subject, 'Duplicate responsibility handoff.');
+    handoffs.add(key);
+  }
+}
+
 /** Derive the sole immutable assertion inventory from authored selections and editorial claims. */
 export function deriveEditionAssertions(project) {
   return deepFreeze([
@@ -132,6 +233,7 @@ export function validateEditionProject(value) {
   uniqueIds(value.scope.selections, code);
   const derivedAssertions = deriveEditionAssertions(value);
   uniqueIds(derivedAssertions, code);
+  const assertionById = new Map(derivedAssertions.map((item) => [item.id, item]));
   const audiences = selectedIds(value.audiences);
   const questions = selectedIds(value.questions);
   const selections = selectedIds(value.scope.selections);
@@ -171,6 +273,7 @@ export function validateEditionProject(value) {
       requireIds(view.questions, questions, code);
       for (const question of view.questions) presented.add(question);
       validateViewGrouping(view, namespaces, code);
+      validateViewForm(value, medium, view, assertionById);
     }
   }
   if (value.questions.some(({ id }) => !presented.has(id)))

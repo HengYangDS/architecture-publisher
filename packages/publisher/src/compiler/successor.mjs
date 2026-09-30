@@ -49,6 +49,13 @@ const checkedSupply = (supply, method) => ({
   basis: 'checked-declared',
   method,
 });
+
+function assertSelectedFormsRenderable(meaning, media) {
+  for (const medium of media)
+    if (meaning.editorial.presentation[medium].views.some((view) => view.form !== undefined))
+      fail('edition_visual_form_renderer_unavailable');
+}
+
 async function destination(output) {
   const target = path.resolve(output);
   const parent = path.dirname(target);
@@ -375,6 +382,7 @@ export async function compileSelectedEditionCandidateInput(
   const selected = await materializeBuildRequestInput(requestPath, digest, executionChoice);
   if (selected.lock.toolchain.profile !== 'portable') fail('edition_toolchain_profile_unadmitted');
   const meaning = await compileEditionMeaning(selected);
+  assertSelectedFormsRenderable(meaning, selected.lock.media);
   const semanticProfile = selected.lock.sources.some(({ format }) => format.id === 'likec4/dsl')
     ? 'semantic-likec4'
     : 'semantic-claim';

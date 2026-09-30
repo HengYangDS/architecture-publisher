@@ -197,6 +197,36 @@ async function groupedMixedFixture(
   return { ...selected, requestSha256: sha(requestBytes) };
 }
 
+async function assertAuthoredFormCannotDisappear(selected, medium) {
+  const view = selected.project.presentation[medium].views[0];
+  assert.equal(view.groups.length, 2);
+  view.form = {
+    schema: 'architecture.visual-form/v1',
+    kind: 'responsibility',
+    roles: view.groups.map(({ id }) => ({ group: id, basis: 'selected-claim' })),
+    handoffs: [
+      {
+        from: view.groups[0].id,
+        to: view.groups[1].id,
+        basis: 'selected-claim',
+      },
+    ],
+  };
+  const projectPath = path.join(selected.root, 'edition/project.json');
+  await fs.writeFile(projectPath, JSON.stringify(selected.project) + '\n');
+  const output = path.join(selected.root, `form-authored-${medium}`);
+  try {
+    await assert.rejects(
+      compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output),
+      { code: 'edition_visual_form_renderer_unavailable' },
+    );
+    await assert.rejects(fs.access(output), { code: 'ENOENT' });
+  } finally {
+    delete view.form;
+    await fs.writeFile(projectPath, JSON.stringify(selected.project) + '\n');
+  }
+}
+
 async function mixedScalarFixture(t) {
   const model = claimModel();
   model.claims['other-status'] = {
@@ -1688,6 +1718,7 @@ test('an unrelated Claim Model builds source-checked interactive HTML', async (t
   );
   assert(!Object.hasOwn(atlas.sources['selected-1'], 'base64'));
   assert(!html.includes(JSON.stringify(selected.model)));
+  await assertAuthoredFormCannotDisappear(selected, 'interactive');
 
   const meaning = await compileEditionMeaning(
     await materializeBuildRequestInput(selected.requestPath, selected.requestSha256),
@@ -2041,6 +2072,7 @@ test('one authored canvas binds two views and selected relation endpoints withou
     (await fs.readFile(path.join(output, 'static/architecture.png'))).readUInt32BE(16),
     1200,
   );
+  await assertAuthoredFormCannotDisappear(selected, 'static');
 
   const overstated = structuredClone(resource);
   overstated.media.static.scene.texts[0] = label(
