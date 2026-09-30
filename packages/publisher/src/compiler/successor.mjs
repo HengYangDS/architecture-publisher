@@ -21,7 +21,7 @@ import { canonical } from '../semantics/document.mjs';
 import { readPublisherInstalledPackage } from '../runtime.mjs';
 import { fail } from '../protocol/values.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
-import { renderInteractiveEditionHtml } from '../../renderers/cytoscape/index.mjs';
+import { renderInteractiveEditionHtml } from '../../renderers/interactive/index.mjs';
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
 import { composeDagreStaticGeometry } from '../../renderers/dagre/static.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';

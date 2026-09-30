@@ -479,7 +479,7 @@ its already-selected SVG and font bytes directly to Resvg; it does not create
 a temporary Source Bundle merely to call the backend.
 
 The font-supply export owns verified font and license bytes used by the static
-and Cytoscape media paths. The selected Archify 3.0.1 runtime embeds its own
+and neutral interactive media paths. The selected Archify 3.0.1 runtime embeds its own
 licensed, self-contained font bytes in its pinned template; its interactive
 path does not claim the separate `font-supply` identity. The adapter records
 the original input digest, binds Archify's required `meta.output` only to a
@@ -557,9 +557,13 @@ record there does not remove a selected meaning or qualify its truth.
 This compositor reuses the existing bundled OpenType measurer, currently owned
 by `renderers/resvg/measurement.mjs`; it does not run the raster worker to build
 HTML. The selected measurement implementation is recorded separately from font
-bytes. Dagre receives that explicit measurer and owns geometry; Cytoscape owns
-browser interaction and painting. Neither the offset calculation nor a passing
-DOM check proves that every painted label clears every route.
+bytes. Pinned ELK receives that explicit measurer and owns complete geometry;
+the SVG painter preserves its routes, labels, and node bounds. A pinned camera
+supplier owns viewport interaction only. Shared paint dimensions bind audits
+to emitted strokes and arrowheads; browser glyph checks remain separate.
+Flat groups retain exact membership and containment. Long acyclic graphs may
+use the same ELK owner's finite wrapping candidate, never an edited fallback.
+Static Dagre geometry and authored Archify geometry remain independent.
 
 The current output contracts cover SVG/PNG and standalone HTML. PDF reports and
 PowerPoint stories remain [evaluated design options](../research/mechanism-evaluation.md#architecture-explanation-across-media-2026-09-30),

@@ -453,6 +453,22 @@ test('gated worker admits only the registered selected worker import', async () 
   );
 });
 
+test('layout worker admits only its exact private verified geometry supply', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  const file = 'packages/publisher/renderers/elk/worker.mjs';
+  assert.deepEqual(
+    inspectModuleBoundaries(file, 'await import(privateLayoutUrl);', paths, packageExports),
+    [],
+  );
+  for (const other of ['otherLayoutUrl', 'selectedEntrypointUrl', 'privateParserUrl'])
+    assert(
+      inspectModuleBoundaries(file, `await import(${other});`, paths, packageExports).some(
+        ({ reason }) => reason.includes('computed dependency'),
+      ),
+    );
+});
+
 test('provider and generic kernels reject forbidden dependency directions and adopter names', async () => {
   const { paths } = await inventory(runtimeRoots);
   const packageExports = await declaredPackageExports();

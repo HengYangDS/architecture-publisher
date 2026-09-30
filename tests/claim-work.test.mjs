@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { claimWorkHtml } from '../packages/publisher/renderers/cytoscape/claim-work.mjs';
+import { claimWorkHtml } from '../packages/publisher/renderers/interactive/claim-work.mjs';
 
 test('claim reading work keeps meaning and applicability visible with exact graph anchors', () => {
   const page = {
@@ -60,7 +60,7 @@ test('scalar claim reading preserves values without requiring a relation or repo
   assert.equal(claimWorkHtml({ nodes: [] }), '');
 });
 
-test('a linked claim derives exact endpoints and bidirectional spelling or fails on a missing anchor', () => {
+test('typed subject-object roles do not inherit reverse topology meaning', () => {
   const page = {
     nodes: [
       { id: 'n-0', label: 'Client' },
@@ -71,9 +71,37 @@ test('a linked claim derives exact endpoints and bidirectional spelling or fails
       { graphicId: 'c-0', relationOrdinal: 1, facts: [{ label: 'Predicate', value: 'connects' }] },
     ],
   };
-  assert.match(claimWorkHtml(page), /Client ↔ Route/u);
+  assert.match(claimWorkHtml(page), /Client → Route/u);
+  assert.doesNotMatch(claimWorkHtml(page), /↔/u);
   page.claims[0].facts.push({ label: 'Value', value: 'selected' });
   assert.match(claimWorkHtml(page), /connects · selected/u);
   page.claims[0].relationOrdinal = 2;
   assert.throws(() => claimWorkHtml(page), { code: 'render_interactive_claim_anchor_invalid' });
+});
+
+test('conflicting source claims remain attributed in the default reading state', () => {
+  const page = {
+    nodes: [],
+    relations: [],
+    claims: ['maintainer-a', 'projection-b'].map((claimant, index) => ({
+      graphicId: `c-${index}`,
+      facts: [
+        { label: 'Subject', value: 'Client' },
+        { label: 'Object', value: 'Route' },
+        { label: 'Predicate', value: 'selects-route' },
+        { label: 'Claimant-declared validity', value: index ? 'refuted' : 'affirmed' },
+        { label: index ? 'Projection claimant' : 'Selected claimant', value: claimant },
+      ],
+    })),
+  };
+  const html = claimWorkHtml(page);
+  for (const value of [
+    'Selected claimant',
+    'maintainer-a',
+    'Projection claimant',
+    'projection-b',
+    'refuted',
+    'affirmed',
+  ])
+    assert(html.includes(value));
 });

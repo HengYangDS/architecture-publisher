@@ -4,7 +4,7 @@ import path from 'node:path';
 import test from 'node:test';
 import axe from 'axe-core';
 import { chromium } from 'playwright-core';
-import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/cytoscape/index.mjs';
+import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/interactive/index.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
 
 const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
@@ -44,7 +44,7 @@ test(
     }
     const candidate = await renderInteractiveEditionHtml(scene);
     const hostileScene = interactiveEditionScene();
-    hostileScene.pages[0].nodes[0].label = '<img src=x onerror="window.__archpub_injected=true">';
+    hostileScene.pages[0].nodes[0].label = '<img src=x onerror=x>';
     const hostileCandidate = await renderInteractiveEditionHtml(hostileScene);
     const chainScene = interactiveEditionScene();
     const chain = chainScene.pages[0];
@@ -220,11 +220,14 @@ test(
       assert.deepEqual(violations, [], `${label} accessibility violations`);
     };
     const graphGeometry = () =>
-      page.evaluate(() => {
-        const registry = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg');
-        const graph = registry.cy;
-        const bounds = graph.elements().boundingBox();
-        return { zoom: graph.zoom(), width: bounds.w, height: bounds.h };
+      page.evaluate(async () => {
+        await new Promise((resolve) =>
+          globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(resolve)),
+        );
+        const viewport = globalThis.document.querySelector('#graph-0 .graph-viewport');
+        const bounds = viewport.getBBox();
+        const transform = viewport.getCTM();
+        return { zoom: transform.a, width: bounds.width, height: bounds.height };
       });
     await assertAccessible('overview');
     assert.equal(
@@ -234,17 +237,24 @@ test(
       false,
     );
     const initialGeometry = await graphGeometry();
+    await page.evaluate(() => {
+      globalThis.dispatchEvent(new globalThis.PageTransitionEvent('pagehide', { persisted: true }));
+      globalThis.dispatchEvent(new globalThis.PageTransitionEvent('pageshow', { persisted: true }));
+    });
+    await page.locator('#graph-0').hover();
+    await page.mouse.wheel(0, -100);
+    const cachedGeometry = await graphGeometry();
+    assert(
+      cachedGeometry.zoom > initialGeometry.zoom,
+      'a cached page must retain its live viewport camera',
+    );
+    await page.getByRole('button', { name: 'Fit graph' }).click();
+    await graphGeometry();
     const graphSelectedButton = page.locator('#page-0 [data-focus-node]').first();
     const graphSelectedId = await graphSelectedButton.getAttribute('data-focus-node');
-    await page.evaluate((id) => {
-      const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
-      graph.getElementById(id).select();
-    }, graphSelectedId);
+    await page.locator('#graph-0 [data-select-id="' + graphSelectedId + '"] rect').click();
     assert.equal(await graphSelectedButton.getAttribute('aria-pressed'), 'true');
-    await page.evaluate((id) => {
-      const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
-      graph.getElementById(id).unselect();
-    }, graphSelectedId);
+    await page.locator('#graph-0 [data-select-id="' + graphSelectedId + '"] rect').click();
     assert.equal(await graphSelectedButton.getAttribute('aria-pressed'), 'false');
     assert.equal(
       await page.locator('#page-0 [role="status"]').innerText(),
@@ -265,13 +275,20 @@ test(
     const nodeAnnouncement = 'Selected in diagram: 12 Client 9 component';
     assert.equal(await focusButton.getAttribute('aria-label'), '12 Client 9 component');
     assert.equal(await selectionStatus.innerText(), nodeAnnouncement);
+    await page.waitForFunction(
+      () => globalThis.document.querySelector('#graph-0 .graph-node.is-selected') !== null,
+    );
+    await page.waitForTimeout(50);
     const focused = await page.evaluate(() => {
-      const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
-      const node = graph.nodes(':selected').first();
-      const point = node.renderedPosition();
+      const selected = globalThis.document.querySelector('#graph-0 .graph-node.is-selected');
+      const node = selected.getBoundingClientRect();
+      const graph = globalThis.document.getElementById('graph-0').getBoundingClientRect();
       return {
-        id: node.id(),
-        offset: Math.hypot(point.x - graph.width() / 2, point.y - graph.height() / 2),
+        id: selected.dataset.selectId,
+        offset: Math.hypot(
+          node.x + node.width / 2 - graph.x - graph.width / 2,
+          node.y + node.height / 2 - graph.y - graph.height / 2,
+        ),
       };
     });
     assert.equal(focused.id, requestedNode);
@@ -289,7 +306,8 @@ test(
     assert.notEqual(relationAnnouncement, nodeAnnouncement);
     assert.equal(await selectionStatus.innerText(), relationAnnouncement);
     await page.getByRole('button', { name: 'Fit graph' }).click();
-    assert.equal((await page.locator('#page-0 canvas').count()) > 0, true);
+    assert.equal(await page.locator('#page-0 .graph-svg').count(), 1);
+    assert.equal(await page.locator('#page-0 canvas').count(), 0);
     assert.equal(await page.locator('#page-1').isHidden(), true);
     assert.equal(await page.getByRole('button', { name: 'Alpha & one component' }).count(), 1);
     await page.getByRole('button', { name: 'What remains uncertain?' }).click();
@@ -326,18 +344,11 @@ test(
     const graphReading = () =>
       page.evaluate(() => {
         const container = globalThis.document.getElementById('graph-0');
-        const graph = Reflect.get(container, '_cyreg').cy;
-        const boxes = graph.nodes().map((node) => {
-          const position = node.renderedPosition();
-          const halfWidth = node.renderedWidth() / 2;
-          const halfHeight = node.renderedHeight() / 2;
-          return {
-            left: position.x - halfWidth,
-            right: position.x + halfWidth,
-            top: position.y - halfHeight,
-            bottom: position.y + halfHeight,
-          };
-        });
+        const svg = container.querySelector('.graph-svg');
+        const viewport = container.querySelector('.graph-viewport');
+        const nodes = [...viewport.querySelectorAll('.graph-node')];
+        const relations = [...viewport.querySelectorAll('.graph-relation')];
+        const boxes = nodes.map((node) => node.getBoundingClientRect());
         const overlap = boxes.some((left, index) =>
           boxes
             .slice(index + 1)
@@ -347,21 +358,42 @@ test(
                 Math.min(left.bottom, right.bottom) > Math.max(left.top, right.top),
             ),
         );
+        const scale = Math.hypot(viewport.getScreenCTM().a, viewport.getScreenCTM().b);
+        const edgeLabels = relations.map((edge) => ({
+          id: edge.dataset.selectId,
+          label: [...edge.querySelectorAll('.graph-label--relation')]
+            .map((text) => text.textContent)
+            .join(' '),
+          paint: [...edge.querySelectorAll('.graph-label--relation')].map((text) =>
+            text.getBoundingClientRect().toJSON(),
+          ),
+        }));
+        const selected = JSON.parse(
+          globalThis.document.getElementById('edition-data').textContent,
+        )[0];
+        let exactPaths = true;
+        for (const relation of selected.geometry.relations) {
+          const expected = relation.points
+            .map(({ x, y }, index) => (index ? 'L' : 'M') + x + ' ' + y)
+            .join(' ');
+          if (
+            viewport
+              .querySelector('[data-select-id="' + relation.id + '"] .graph-route')
+              .getAttribute('d') !== expected
+          )
+            exactPaths = false;
+        }
         return {
           pattern: container.className,
-          nodeCount: graph.nodes().length,
-          relationCount: graph.edges().length,
-          effectiveFontSize: Number.parseFloat(graph.nodes()[0].style('font-size')) * graph.zoom(),
-          effectiveEdgeFontSize:
-            Number.parseFloat(graph.edges()[0].style('font-size')) * graph.zoom(),
+          nodeCount: nodes.length,
+          relationCount: relations.length,
+          effectiveFontSize:
+            Number.parseFloat(nodes[0].querySelector('text').getAttribute('font-size')) * scale,
+          effectiveEdgeFontSize: 13 * scale,
           overlap,
-          edgeLabels: graph.edges().map((edge) => ({
-            id: edge.id(),
-            label: edge.data('graphLabel'),
-            offsetX: Number.parseFloat(edge.style('text-margin-x')),
-            offsetY: Number.parseFloat(edge.style('text-margin-y')),
-            height: edge._private.rstyle.labelHeight,
-          })),
+          edgeLabels,
+          exactPaths,
+          hasCanvas: svg.querySelector('canvas') !== null,
         };
       });
     await page.setViewportSize({ width: 1280, height: 720 });
@@ -391,24 +423,31 @@ test(
       desktopBranch.effectiveEdgeFontSize >= 11,
       `branching relation references are too small: ${JSON.stringify(desktopBranch)}`,
     );
-    for (const label of desktopBranch.edgeLabels)
-      if (label.label)
-        assert(
-          Math.abs(label.offsetX) >= 8 || Math.abs(label.offsetY) >= label.height / 2 + 6,
-          `relation label clearance is insufficient: ${JSON.stringify(label)}`,
-        );
+    assert.equal(desktopBranch.exactPaths, true);
+    assert.equal(desktopBranch.hasCanvas, false);
+    assert(
+      desktopBranch.edgeLabels.every((label) =>
+        label.paint.every((box) => box.width > 0 && box.height > 0),
+      ),
+    );
     assert.deepEqual(errors, []);
 
     await page.goto(`${origin}/grouped.html`, { waitUntil: 'load', timeout: 15_000 });
     await page.waitForSelector('#graph-0[data-rendered="true"]', { timeout: 8_000 });
     const visualGroups = await page.evaluate(() => {
-      const graph = Reflect.get(globalThis.document.getElementById('graph-0'), '_cyreg').cy;
-      return graph.nodes('[group]').map((group) => ({
-        label: group.data('label'),
-        members: group.children().map((node) => node.id()),
-        bounds: group.boundingBox({ includeLabels: true }),
-        font: Number.parseFloat(group.style('font-size')) * graph.zoom(),
-      }));
+      const viewport = globalThis.document.querySelector('#graph-0 .graph-viewport');
+      const page = JSON.parse(globalThis.document.getElementById('edition-data').textContent)[0];
+      const transform = viewport.getScreenCTM();
+      return [...viewport.querySelectorAll('.graph-group')].map((group) => {
+        const rect = group.querySelector('rect').getBoundingClientRect();
+        const selected = page.groups.find((item) => item.id === group.dataset.graphicId);
+        return {
+          label: selected.label,
+          members: selected.nodeIds,
+          bounds: { x1: rect.left, x2: rect.right, y1: rect.top, y2: rect.bottom },
+          font: 16 * transform.a,
+        };
+      });
     });
     assert.deepEqual(
       visualGroups.map(({ label, members }) => [label, members.length]),

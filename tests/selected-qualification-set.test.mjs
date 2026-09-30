@@ -485,3 +485,87 @@ test('a policy cannot select another Candidate or omit a promised question', asy
   assert.deepEqual(mismatch.missingRequirements, [0]);
   assert.deepEqual(mismatch.unselectedRecords, ['question.static']);
 });
+
+test('malformed policy and predicate requirements fail before any admission claim', async (t) => {
+  const { candidate, replay } = await selectedCandidate(t);
+  const records = [questionRecord(candidate, 'static'), questionRecord(candidate, 'interactive')];
+  const policy = policyFor(candidate, replay, records);
+  const assess = (value) =>
+    assessSelectedQualificationPolicy(candidate, replay, selectedSet(replay, records), value);
+  for (const invalid of [null, false, { ...policy, extra: NaN }, { ...policy, extra: 1n }])
+    assert.throws(() => assess(invalid), { code: 'selected_qualification_policy_invalid' });
+  for (const mutate of [
+    (value) => {
+      value.schema = 'unselected/v1';
+    },
+    (value) => {
+      value.id = '';
+    },
+    (value) => {
+      value.accepter = ' ';
+    },
+    (value) => {
+      value.candidateSha256 = 'not-a-digest';
+    },
+    (value) => {
+      value.acceptedCandidateLimits = null;
+    },
+    (value) => {
+      value.acceptedCandidateLimits = ['duplicate', 'duplicate'];
+    },
+    (value) => {
+      value.requirements = null;
+    },
+    (value) => {
+      value.requirements = [];
+    },
+    (value) => {
+      value.requirements = Array(4097).fill(value.requirements[0]);
+    },
+    (value) => {
+      value.extra = value;
+    },
+  ]) {
+    const invalid = structuredClone(policy);
+    mutate(invalid);
+    assert.throws(() => assess(invalid), { code: 'selected_qualification_policy_invalid' });
+  }
+  for (const mutate of [
+    (value) => {
+      value.requirements[0] = null;
+    },
+    (value) => {
+      value.requirements[0].predicate = ' ';
+    },
+    (value) => {
+      value.requirements[0].method = '';
+    },
+    (value) => {
+      value.requirements[0].allowedLimitations = null;
+    },
+    (value) => {
+      value.requirements[0].allowedLimitations = [' ', 'valid'];
+    },
+    (value) => {
+      value.requirements[0].allowedLimitations = ['duplicate', 'duplicate'];
+    },
+    (value) => {
+      value.requirements[0].verifier = null;
+    },
+    (value) => {
+      value.requirements[0].verifier.kind = 'imaginary';
+    },
+    (value) => {
+      value.requirements[0].verifier.id = '';
+    },
+    (value) => {
+      value.requirements[0].verifier.implementationSha256 = 'not-a-digest';
+    },
+  ]) {
+    const invalid = structuredClone(policy);
+    mutate(invalid);
+    assert.throws(() => assess(invalid), {
+      code: 'selected_qualification_policy_requirement_invalid',
+    });
+  }
+});

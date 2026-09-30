@@ -97,8 +97,8 @@ authoring subtraction does not alter historical Edition v1 contracts or merge
 source truth with editorial judgment.
 
 Editorial visual groups are optional. A selected Claim Model structure without
-groups uses the same bounded, selected Dagre geometry supply as grouped
-structure, but gains no invented group or membership claim. A declared group
+groups uses its medium's selected geometry owner, but gains no invented group
+or membership claim. A declared group
 remains exact editor-owned meaning; the compiler never silently creates one to
 make its layout implementation convenient. Infeasible flat or grouped
 composition fails without losing selected entities, relations, or qualifiers.

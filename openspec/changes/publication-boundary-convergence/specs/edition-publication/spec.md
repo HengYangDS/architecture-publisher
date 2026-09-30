@@ -372,6 +372,35 @@ caption or cue may invent, silently abbreviate, or transfer source authority.
 - **AND** navigation and inspection preserve each chapter's own identity,
   question, selected meaning, and keyboard focus
 
+### Requirement: Neutral interactive geometry has one exact layout owner
+
+Neutral interactive graphs SHALL use one pinned layout implementation for node,
+flat-group, label, and complete route geometry. The SVG painter SHALL preserve
+those coordinates. Viewport interaction SHALL neither re-route nor re-label.
+Missing or invalid geometry SHALL fail before Candidate success. Verified
+layout supply SHALL execute in the existing bounded owned-worker scope.
+
+#### Scenario: Parallel relations and a return cycle coexist
+
+- **WHEN** two selected relations share endpoints and another returns upstream
+- **THEN** each retains its own complete route and source identity
+- **AND** actual paths, arrowheads, and measured labels clear unrelated nodes
+- **AND** a browser interaction cannot replace the selected route
+
+#### Scenario: A route crosses a flat-group boundary
+
+- **WHEN** the layout returns cross-group, intra-group, or self-loop sections
+- **THEN** section and label coordinates are normalized from the named container
+- **AND** every terminal attaches to its selected leaf-node boundary
+- **AND** missing sections or ambiguous containers fail without a fallback line
+
+#### Scenario: Layout supply stalls or returns malformed output
+
+- **WHEN** the selected worker exceeds a declared time or output bound
+- **THEN** the existing supervisor reclaims its owned process scope
+- **AND** the operation fails without emitting an apparently successful Candidate
+- **AND** prior artifacts, source meaning, and static geometry remain unchanged
+
 ### Requirement: Interactive inspection preserves selected meaning
 
 Standalone interactive media SHALL provide a reversible reading state for

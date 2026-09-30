@@ -6,7 +6,14 @@ const escape = (value) =>
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;');
-const visibleFields = ['Condition', 'Scope', 'Claimed maturity', 'Claimant-declared validity'];
+const visibleFields = [
+  'Condition',
+  'Scope',
+  'Claimed maturity',
+  'Claimant-declared validity',
+  'Selected claimant',
+  'Projection claimant',
+];
 
 /** Compose selected claim meaning and applicability beside its graph subject. */
 export function claimWorkHtml(page) {
@@ -20,9 +27,7 @@ export function claimWorkHtml(page) {
         fail('render_interactive_claim_anchor_invalid');
       const subject = facts.get('Subject') ?? (relation ? nodes.get(relation.source) : null);
       const object = facts.get('Object') ?? (relation ? nodes.get(relation.target) : null);
-      const title = subject
-        ? `${subject}${object ? ` ${relation?.direction === 'bidirectional' ? '↔' : '→'} ${object}` : ''}`
-        : 'Selected source Claim';
+      const title = subject ? `${subject}${object ? ` → ${object}` : ''}` : 'Selected source Claim';
       const value = facts.get('Value');
       return `<article class="claim-work-item" data-graphic-id="${escape(claim.graphicId)}"><header><span class="claim-plane">Claim plane · ${escape(facts.get('Claim plane') ?? 'not reported')}</span><h4>${escape(title)}</h4></header>${facts.has('Predicate') ? `<p class="claim-predicate">${escape(facts.get('Predicate'))}${value === undefined ? '' : ` · ${escape(value)}`}</p>` : value === undefined ? '' : `<p class="claim-predicate">${escape(value)}</p>`}<dl>${visibleFields
         .filter((label) => facts.has(label))

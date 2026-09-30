@@ -7,9 +7,12 @@ import {
   SOURCE_REPORTED_TOPOLOGY_NOTE,
   UNLINKED_RELATION_NOTE,
 } from '../../src/scene/claim-relations.mjs';
-import { layoutInteractivePages } from '../dagre/layout.mjs';
+import { layoutInteractivePages } from '../elk/layout.mjs';
 import { projectInteractivePage } from './model.mjs';
-import { loadCytoscapeSupply } from './supply.mjs';
+import { loadInteractiveSupply } from './supply.mjs';
+import { renderGraphSvg } from './graph-svg.mjs';
+import { viewerScript } from './viewport.mjs';
+import { interactiveGraphMarks as marks } from '../../src/scene/marks.mjs';
 import { responsibilityCss, responsibilityPageHtml } from './responsibility.mjs';
 import { claimWorkCss, claimWorkHtml } from './claim-work.mjs';
 
@@ -27,150 +30,6 @@ const scriptJson = (value) =>
     .replaceAll('&', '\\u0026')
     .replaceAll('\u2028', '\\u2028')
     .replaceAll('\u2029', '\\u2029');
-
-const viewerScript = String.raw`
-const pages = JSON.parse(document.getElementById('edition-data').textContent);
-const sections = [...document.querySelectorAll('.edition-page')];
-const tabs = [...document.querySelectorAll('[data-page-index]')];
-const graphs = new Map();
-const observers = new Map();
-function fitGraph(graph) {
-  graph.fit(undefined, 24);
-  if (graph.zoom() > 1) {
-    graph.zoom(1);
-    graph.center();
-  }
-}
-function syncGraph(graph) {
-  graph.resize();
-  fitGraph(graph);
-}
-function reflectSelection(index, graph) {
-  const section = sections[index];
-  const selected = graph.$(':selected').first();
-  const id = selected.length ? selected.id() : null;
-  let control = null;
-  section.querySelectorAll('[data-focus-node], [data-focus-relation]').forEach(button => {
-    const active = (button.dataset.focusNode || button.dataset.focusRelation) === id;
-    button.setAttribute('aria-pressed', String(active));
-    if (active) control = button;
-  });
-  section.querySelector('[data-focus-status]').textContent = control
-    ? 'Selected in diagram: ' + control.getAttribute('aria-label')
-    : id
-      ? 'Selected in diagram: ' + selected.data('label')
-      : 'Diagram selection cleared.';
-}
-function graphFor(index) {
-  if (graphs.has(index)) return graphs.get(index);
-  const page = pages[index];
-  if (page.form || !page.nodes.length) return null;
-  const container = document.getElementById('graph-' + index);
-  const selected = page.geometry;
-  const parentByNode = new Map((page.groups || []).flatMap(group =>
-    group.nodeIds.map(id => [id, group.id])
-  ));
-  const elements = [
-    ...(page.groups || []).map(group => ({ data: {
-      id: group.id, label: group.label, group: 'reading',
-    } })),
-    ...page.nodes.map(node => ({ data: {
-      id: node.id, label: node.label,
-      ...(parentByNode.has(node.id) ? { parent: parentByNode.get(node.id) } : {}),
-    } })),
-    ...page.relations.map(relation => ({ data: {
-      ...relation,
-      graphLabel: selected.relationLabels[relation.id]?.lines.join('\n') || '',
-      labelOffsetX: selected.relationLabels[relation.id]?.offsetX || 0,
-      labelOffsetY: selected.relationLabels[relation.id]?.offsetY || 0,
-    } })),
-  ];
-  const graph = cytoscape({
-    container, elements,
-    selectionType: 'single',
-    style: [
-      { selector: 'node', style: {
-        shape: 'round-rectangle', width: 170, height: 64,
-        'background-color': '#fffefa', 'border-width': 2,
-        'border-color': '#84978a', label: 'data(label)',
-        'font-family': 'JetBrains Mono', 'font-size': 16,
-        'font-weight': 600, color: '#21332a',
-        'text-valign': 'center', 'text-halign': 'center',
-        'text-wrap': 'wrap', 'text-max-width': 146,
-      } },
-      { selector: 'node[group]', style: {
-        'background-color': '#e7eee6', 'background-opacity': 0.24,
-        'border-color': '#879b89', 'border-width': 1,
-        'border-style': 'dashed', 'padding': 18,
-        'font-family': 'JetBrains Mono', 'font-size': 16,
-        'font-weight': 600, color: '#314638',
-        'text-valign': 'top', 'text-halign': 'center',
-        'text-wrap': 'wrap', 'text-max-width': 210,
-        'compound-sizing-wrt-labels': 'include',
-      } },
-      { selector: 'edge', style: {
-        width: 2.5, 'line-color': '#60786a',
-        'target-arrow-shape': 'triangle', 'target-arrow-color': '#60786a',
-        'curve-style': 'bezier', label: 'data(graphLabel)',
-        'font-family': 'JetBrains Mono', 'font-size': 13,
-        'text-wrap': 'wrap', 'text-max-width': 220,
-        'text-justification': 'center', 'line-height': 1.4,
-        'text-margin-x': 'data(labelOffsetX)', 'text-margin-y': 'data(labelOffsetY)',
-        color: '#27352e', 'text-background-color': '#fffefa',
-        'text-background-opacity': 1, 'text-background-padding': 2,
-      } },
-      { selector: 'edge[direction = "bidirectional"]', style: {
-        'source-arrow-shape': 'triangle', 'source-arrow-color': '#60786a',
-      } },
-      { selector: ':selected', style: { 'border-color': '#214f3c', 'line-color': '#214f3c' } },
-    ],
-    layout: {
-      name: 'preset', fit: false, animate: false,
-      positions: node => selected.positions[node.id()],
-    },
-  });
-  graphs.set(index, graph);
-  graph.on('select unselect', 'node, edge', () => reflectSelection(index, graph));
-  const observer = new ResizeObserver(() => syncGraph(graph));
-  observer.observe(container);
-  observers.set(index, observer);
-  container.dataset.rendered = 'true';
-  return graph;
-}
-function show(index) {
-  sections.forEach((section, at) => { section.hidden = at !== index; });
-  tabs.forEach((tab, at) => {
-    if (at === index) tab.setAttribute('aria-current', 'page');
-    else tab.removeAttribute('aria-current');
-  });
-  requestAnimationFrame(() => {
-    const graph = graphFor(index);
-    if (graph) syncGraph(graph);
-  });
-}
-tabs.forEach((tab, index) => tab.addEventListener('click', () => show(index)));
-document.querySelectorAll('[data-focus-node], [data-focus-relation]').forEach(button => {
-  button.addEventListener('click', () => {
-    const section = button.closest('.edition-page');
-    const index = Number(section.dataset.page);
-    const graph = graphFor(index);
-    if (!graph) return;
-    const id = button.dataset.focusNode || button.dataset.focusRelation;
-    graph.$(':selected').unselect();
-    const selected = graph.getElementById(id);
-    selected.select();
-    graph.zoom(1.35);
-    graph.center(selected);
-  });
-});
-document.querySelectorAll('[data-fit]').forEach(button => {
-  button.addEventListener('click', () => {
-    const graph = graphFor(Number(button.dataset.fit));
-    if (graph) fitGraph(graph);
-  });
-});
-document.fonts.ready.then(() => show(0));
-`;
 
 function evidenceSection(title, content, kind) {
   return content
@@ -273,7 +132,8 @@ function pageHtml(page, index, methodLimits) {
     .join('');
   const pairedGraph =
     graphNaturalWidth !== null &&
-    graphNaturalWidth <= 960 &&
+    graphNaturalWidth <= 640 &&
+    page.geometry.bounds.height <= 300 &&
     Boolean(boundaryQuestionItems || sourceStatus);
   const gridClass = page.nodes.length
     ? ` page-grid--graph${pairedGraph ? ' page-grid--paired' : ''}`
@@ -281,7 +141,7 @@ function pageHtml(page, index, methodLimits) {
   const gridStyle =
     graphNaturalWidth === null ? '' : ` style="--graph-natural-width:${graphNaturalWidth}px"`;
   const stage = page.nodes.length
-    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Pan and zoom to explore. Inspect provides complete source records and keyboard focus.</p><p class="sr-only" role="status" aria-atomic="true" data-focus-status></p>`
+    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}>${renderGraphSvg(page, index)}</div></div><div class="graph-controls"><p class="graph-instruction">Pan and zoom to explore. Inspect provides complete source records and keyboard focus.</p><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="sr-only" role="status" aria-atomic="true" data-focus-status></p>`
     : page.claims?.length
       ? claimStage
       : editorialStage;
@@ -325,10 +185,14 @@ function pageHtml(page, index, methodLimits) {
   const sourceInspection = page.nodes.length
     ? `<details class="source-inspection"><summary>Inspect source and method</summary><aside class="notes" aria-label="Page evidence">${evidence}</aside>${mixed ? `<section class="linked-claims" aria-label="Complete source claims"><h3>Complete source claims</h3>${claimStage}</section>` : ''}</details>`
     : `<aside class="notes" aria-label="Page evidence">${sourceStatus}${evidence}</aside>`;
+  const editorialWork =
+    page.nodes.length && editorial
+      ? `<section class="editorial-reading" aria-label="Selected editorial judgments"><ul>${editorial}</ul></section>`
+      : '';
   return `<section class="edition-page" id="page-${index}" data-page="${index}" aria-labelledby="page-title-${index}">
     <header class="page-heading"><p class="eyebrow">Reading page ${index + 1}</p><h2 id="page-title-${index}">${escape(page.title)}</h2></header>
     <div class="page-grid${gridClass}"${gridStyle}><div class="stage">${page.nodes.length && !pairedGraph ? sourceStatus : ''}${stage}</div>
-    ${readingBoundary}${page.nodes.length ? '' : sourceInspection}</div>${qualifierWork}${claimWork}${page.nodes.length ? sourceInspection : ''}</section>`;
+    ${readingBoundary}${page.nodes.length ? '' : sourceInspection}</div>${qualifierWork}${claimWork}${editorialWork}${page.nodes.length ? sourceInspection : ''}</section>`;
 }
 
 function css(fonts) {
@@ -346,7 +210,7 @@ function css(fonts) {
   .navigation{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.navigation button{border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:10px 18px;font-size:12px;text-align:left;max-width:35ch}.navigation button[aria-current=page]{background:#214f3c;color:#fffefa;border-color:#214f3c}
   .edition-page[hidden]{display:none}.page-heading{display:flex;align-items:baseline;gap:18px;margin:10px 0 14px}.page-heading h2{font-size:clamp(20px,2vw,28px);line-height:1.3;margin:0}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
   .source-note{font-size:11px;line-height:1.45;color:#526158;margin:0 0 12px;padding-left:12px;border-left:2px solid #b3c4b6}
-  .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.page-grid--graph{grid-template-columns:minmax(0,1fr)}.page-grid--graph .stage{grid-column:1/-1;width:100%;max-width:var(--graph-natural-width);margin-inline:auto}.page-grid--paired{grid-template-columns:minmax(0,var(--graph-natural-width)) minmax(0,1fr);gap:24px;align-items:start}.page-grid--paired .stage{grid-column:1;grid-row:1;margin:0}.stage{position:relative;min-width:0}.graph-wrap{position:relative}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:var(--graph-height,220px)}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-instruction{font-size:11px;color:#4c5a50;margin:10px 0 0}.fit{position:absolute;right:16px;top:16px;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
+  .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.page-grid--graph{grid-template-columns:minmax(0,1fr)}.page-grid--graph .stage{grid-column:1/-1;width:100%;max-width:var(--graph-natural-width);margin-inline:auto}.page-grid--paired{grid-template-columns:minmax(0,var(--graph-natural-width)) minmax(0,1fr);gap:24px;align-items:start}.page-grid--paired .stage{grid-column:1;grid-row:1;margin:0}.stage{position:relative;min-width:0}.graph-wrap{position:relative}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:var(--graph-height,220px);overflow:hidden}.graph-svg{display:block;width:100%;height:100%;font-family:'JetBrains Mono';color:#21332a}.graph-group>rect{fill:#e7eee6;fill-opacity:.24;stroke:#879b89;stroke-width:${marks.groupStroke}}.graph-node>rect{fill:#fffefa;stroke:#84978a;stroke-width:${marks.nodeStroke}}.graph-label{fill:#21332a;pointer-events:none}.graph-label--relation{fill:#27352e}.graph-route{fill:none;stroke:#60786a;stroke-width:${marks.routeStroke}}.graph-hit{fill:none;stroke:transparent;stroke-width:${marks.hitStroke};pointer-events:stroke}.graph-svg marker path{fill:#60786a}.graph-node,.graph-relation{cursor:pointer}.graph-node.is-selected>rect{stroke:#214f3c;stroke-width:${marks.selectedNodeStroke}}.graph-relation.is-selected>.graph-route{stroke:#214f3c;stroke-width:${marks.selectedRouteStroke}}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-controls{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:12px}.graph-instruction{font-size:11px;color:#4c5a50;margin:0;max-width:72ch}.fit{flex-shrink:0;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
   .claim-stage{display:block}.claim-card{border-top:1px solid #c4ccc2;padding:20px 0}.claim-card:last-child{border-bottom:1px solid #c4ccc2}.claim-facts{display:grid;grid-template-columns:minmax(120px,180px) minmax(0,1fr);gap:9px 16px;margin:0}.claim-facts dt{font-size:11px;color:#526158}.claim-facts dd{font-size:13px;line-height:1.45;margin:0;overflow-wrap:anywhere}
   .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}
   .claim-context{border-bottom:1px solid #d3dbd1;margin-bottom:18px}.claim-context dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 18px;margin:14px 0 20px}.claim-context dt{font-size:10px;color:#526158}.claim-context dd{font-size:12px;line-height:1.45;margin:4px 0 0;overflow-wrap:anywhere}
@@ -358,6 +222,7 @@ function css(fonts) {
   .relation-qualifier-note{font-size:11px;color:#526158;margin:0 0 9px!important}.relation-qualifiers{display:grid;grid-template-columns:minmax(76px,.7fr) minmax(0,1.3fr);gap:4px 10px;margin:5px 0 0 12px;padding-left:10px;border-left:2px solid #b3c4b6}.relation-qualifiers dt{font-size:11px;color:#526158}.relation-qualifiers dd{font-size:12px;margin:0;overflow-wrap:anywhere}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
   ${responsibilityCss}
   ${claimWorkCss}
+  .editorial-reading{border-top:1px solid #c4ccc2;margin-top:20px;padding-top:14px}.editorial-reading ul{list-style:none;margin:0;padding:0;display:grid;gap:14px 28px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}.editorial-reading li{min-width:0}.editorial-reading p{font-size:14px;line-height:1.5;margin:0;overflow-wrap:anywhere}.editorial-reading small{display:block;font-size:11px;color:#526158;margin-top:5px}
   .relation-work{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px 28px;border-top:1px solid #c4ccc2;margin-top:20px;padding-top:14px}.relation-work>h3{grid-column:1/-1;font-size:11px;color:#526158;margin:0}.relation-work h4{font-size:12px;line-height:1.45;margin:0 0 7px;overflow-wrap:anywhere}.relation-work .relation-qualifiers{margin:0}
   .source-inspection{margin-top:20px;border-top:1px solid #c4ccc2;padding-top:14px}.source-inspection>summary{font-size:12px;color:#314638;cursor:pointer}.source-inspection .notes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr);gap:22px 28px;border-left:0;padding:20px 0 0}.source-inspection .evidence-methods{grid-column:1/-1}.source-inspection .notes .evidence-section+.evidence-section{margin-top:0}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}
@@ -393,7 +258,7 @@ export async function renderInteractiveEditionHtml(scene) {
     publicPage.form || !publicPage.nodes.length ? [] : [index],
   );
   const hasGraph = graphIndexes.length > 0;
-  const supply = hasGraph ? await loadCytoscapeSupply() : null;
+  const supply = hasGraph ? await loadInteractiveSupply() : null;
   const fontSupply = await loadBundledFonts();
   const measure = hasGraph ? await createBundledTextMeasurer(fontSupply) : null;
   const geometry = hasGraph
@@ -418,8 +283,8 @@ export async function renderInteractiveEditionHtml(scene) {
     completeness: 'unqualified-medium',
     bytes,
     supplies: [
-      ...(supply ? [{ id: 'cytoscape', sha256: supply.manifestSha256 }] : []),
-      ...(geometry ? [{ id: 'dagre-layout', sha256: geometry.supplySha256 }] : []),
+      ...(supply ? [{ id: 'svg-pan-zoom', sha256: supply.manifestSha256 }] : []),
+      ...(geometry ? [{ id: 'elk-layout', sha256: geometry.supplySha256 }] : []),
       ...(measure ? [measure.supply] : []),
       { id: 'font-supply', sha256: fontSupply.sha256 },
     ],

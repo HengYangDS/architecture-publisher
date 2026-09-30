@@ -74,7 +74,7 @@ test('offline installed neutral HTML survives relocation and rejects changed sup
     path.join(consumer, 'run.mjs'),
     `import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
-import { renderInteractiveEditionHtml } from 'architecture-publisher/renderers/cytoscape';
+import { renderInteractiveEditionHtml } from 'architecture-publisher/renderers/interactive';
 try {
   const scene = JSON.parse(await fs.readFile(new URL('./scene.json', import.meta.url)));
   const selected = await renderInteractiveEditionHtml(scene);
@@ -117,34 +117,34 @@ try {
   assert(first.bytes > 400_000);
   assert.deepEqual(
     first.supplies.map(({ id }) => id),
-    ['cytoscape', 'dagre-layout', 'font-measurement', 'font-supply'],
+    ['svg-pan-zoom', 'elk-layout', 'font-measurement', 'font-supply'],
   );
   assert.deepEqual(first.pages, ['overview', 'limit']);
   const relocated = path.join(work, 'relocated');
   await fs.cp(consumer, relocated, { recursive: true });
   await fs.rm(consumer, { recursive: true, force: true });
   assert.deepEqual(run(relocated), first);
-  const dagrePath = path.join(
+  const elkPath = path.join(
     relocated,
-    'node_modules/architecture-publisher/renderers/dagre/supply/dagre.min.js',
+    'node_modules/architecture-publisher/renderers/elk/supply/elk.cjs',
   );
-  const dagreBytes = await fs.readFile(dagrePath);
-  await fs.appendFile(dagrePath, 'changed');
+  const elkBytes = await fs.readFile(elkPath);
+  await fs.appendFile(elkPath, 'changed');
   assert.deepEqual(run(relocated, 1), {
     status: 'error',
-    code: 'render_dagre_supply_invalid',
+    code: 'render_elk_supply_invalid',
   });
-  await fs.writeFile(dagrePath, dagreBytes);
+  await fs.writeFile(elkPath, elkBytes);
   assert.deepEqual(run(relocated), first);
   await fs.appendFile(
     path.join(
       relocated,
-      'node_modules/architecture-publisher/renderers/cytoscape/supply/cytoscape.min.js',
+      'node_modules/architecture-publisher/renderers/interactive/supply/svg-pan-zoom.min.js',
     ),
     'changed',
   );
   assert.deepEqual(run(relocated, 1), {
     status: 'error',
-    code: 'render_cytoscape_supply_invalid',
+    code: 'render_interactive_supply_invalid',
   });
 });

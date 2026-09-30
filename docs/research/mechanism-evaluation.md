@@ -1621,9 +1621,9 @@ cards remain prose-dense. A short navigation label
 mechanically derived from an authored view ID has not yet earned generic
 editorial approval. These are reader-quality counterexamples.
 
-The current Cytoscape renderer remains the sole product owner; the measured
-Dagre, ELK, and Graphviz probes remain alternatives pending cross-workload
-comparison and installed reader acceptance.
+At this dated checkpoint Cytoscape remained the product renderer. That ruling
+is superseded by the [single-owner geometry investigation](#single-owner-neutral-geometry-and-paint-observation-2026-10-01).
+The recorded Candidate and reader observations remain historical evidence.
 
 ### Reader-scoped LikeC4 sidecar and Publisher Candidate (2026-09-26)
 
@@ -2316,3 +2316,50 @@ composition preserves selected Subject/Object wording and applicability, but
 the whole-work visual form and nearby qualification cues still require review.
 No flagship approval, AIGW source acceptance, successor release, or final
 installed multi-workload freeze follows; Tasks 5.2, 5.4, and 7.5 stay open.
+
+### Single-owner neutral geometry and paint observation (2026-10-01)
+
+The neutral interactive path had two geometry owners: Dagre selected routes
+while Cytoscape independently painted different routes. Node-only layout and
+zero-contact observations could not establish that the selected relations were
+preserved. The current unreleased replacement uses pinned
+[ELKjs 0.12.0](https://github.com/kieler/elkjs/tree/0.12.0) for complete geometry,
+strict container-relative normalization, exact SVG painting, and
+[svg-pan-zoom 3.6.2](https://github.com/bumbu/svg-pan-zoom/tree/3.6.2) for the
+camera only. The existing owned-process supervisor executes verified private
+layout bytes; no new supervisor, persistent graph, or runtime checkout is added.
+
+ELK compares a finite set of RIGHT, DOWN, and eligible causal-chain wrapping
+candidates. Invalid routes fail rather than gain hand-authored corrections.
+Normalization, shared paint dimensions, and graph audits preserve exact group
+membership, ports, source direction, glyph bounds, complete arrow envelopes,
+and parallel, cycle, and self-loop identities. Bidirectional topology excludes
+acyclic wrapping. Static geometry and authored Archify remain independent.
+Verified offline relocation and focused browser checks are prerequisites,
+not release or source-owner acceptance.
+
+The browser paint observer itself then failed. Copying camera-mutated SVG and
+removing only its `transform` attribute left a CSS transform active; the extracted
+layers clipped and shifted. The repaired observer removes both transforms,
+captures the complete normalized bounds at device scale one, and asserts an
+identity screen transform with unclipped text. Independent counterexamples then
+showed that zero contact alone could pass when production routes, arrows, or
+relation words were absent. These are observer defects, not evidence that an
+invisible diagram is safe.
+
+The existing test now checks exact expected text lines and glyph paint;
+differential witnesses suppress only each selected glyph, frame, route shaft,
+or arrow. Neighboring paint cannot satisfy that ownership test. The complete
+text and mark masks still require zero contact and two-pixel clearance.
+Transparent glyph, route, marker, and frame controls, a truncated word, and a
+deliberate line through text verify rejection. One shared pixel decoder serves
+both static and interactive tests; no image-library dependency is needed.
+This establishes bounded fixture paint presence, not outline equivalence,
+opaque-layer occlusion, arbitrary-Edition safety, whole-page balance, or beauty.
+
+**Decision:** keep exact geometry and camera ownership separate, and treat
+paint presence, semantic coverage, clearance, and visual judgment as different
+predicates. Do not show diagnostic masks as reader Candidates or transfer their
+result to prior approved works. Tasks 5.2 and 5.4 remain open for final visual
+composition; Task 7.5 owns frozen global coverage, installed/native replay, and
+exact-media review. No successor release follows from these focused repairs.

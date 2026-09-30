@@ -530,6 +530,24 @@ third-party or generated supply rather than moving owned code outside coverage.
       Exact selected references, reader questions, group membership, typed
       qualifiers, source identity and visible limits must survive both media;
       infeasible composition fails instead of silently narrowing meaning.
+      Current execution order: reproduce cycle/parallel routing failure;
+      replace the neutral interactive path with pinned ELK, strict normalized
+      geometry, exact SVG, and viewport-only interaction; preserve compact
+      source attribution and existing inspection; retire the unreleased
+      Cytoscape path and interactive Dagre consumer; replay grouped, self-loop,
+      malformed-worker, timeout, installed, and actual desktop paint checks.
+      The earlier node-only Dagre/Cytoscape ruling below is superseded by the
+      demonstrated route-owner defect, not accepted terminal quality.
+      The current painted-layer observer clears both SVG and CSS camera
+      transforms, asserts exact capture bounds, and rejects invisible frames,
+      routes, arrows, glyphs, and truncated relation wording with differential
+      paint witnesses. Complete masks still require zero contact and two-pixel
+      clearance; the deliberate collision control remains. The focused browser
+      and static-form sibling gate passed 32 tests without skips or warnings.
+      See `docs/research/mechanism-evaluation.md` for the reproduced observer
+      defects and acceptance limits. Diagnostic masks are not reader Candidates;
+      the reader's rejection of that test image does not revoke prior exact-media
+      approval or establish new-media acceptance. This task remains open.
       Partial: the public build compiles selected LikeC4 and Claim Model inputs
       into sibling media. The grouped compositor carries source-bound relations,
       relation-dependent and scalar claims, claimant-declared validity, and
@@ -1454,6 +1472,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       dry-runs for dev, main and the active proposal pass without warnings and
       select the intended Runners. Execute the current signed source jobs
       before freeze and protected publication.
+      The current single-owner geometry and paint-observer slice passed a
+      frozen local gate with 1,397/1,400 tests, three declared skips, no failures
+      or warnings, and 97.78/95.19/99.57/97.78% statement/branch/function/line
+      coverage. All 745 recorded repository inputs remained unchanged during
+      that run. Static checks, 17 strict OpenSpec subjects, package validation,
+      and the independent bounded observer review passed separately. This
+      local evidence does not transfer historical media approval, establish
+      current hosted/native CI, or admit release and source-owner migration.
 
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release

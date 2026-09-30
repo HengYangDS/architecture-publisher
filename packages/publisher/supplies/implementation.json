@@ -310,8 +310,8 @@
     "static-structural": [
       {
         "path": "renderers/dagre/layout.mjs",
-        "bytes": 11196,
-        "sha256": "9bcf98a336af14a4fad458779a41523723c7e8580a87bab097a76ccfcd6d0ec7"
+        "bytes": 4021,
+        "sha256": "04cff25af0a663ce46eff6c229d5bb98da06254d61e0ce17db2fbc37e7024350"
       },
       {
         "path": "renderers/dagre/static.mjs",
@@ -842,9 +842,14 @@
         "sha256": "2c16af734c0190149f1c3d8eda25505d539f151c75cc327770db5d78c8ef0f8c"
       },
       {
+        "path": "src/scene/geometry.mjs",
+        "bytes": 1629,
+        "sha256": "450900a759dc9a555e06ea4fca1998bd711d6d6852b1639f32b641445b21c909"
+      },
+      {
         "path": "src/scene/static/audit.mjs",
-        "bytes": 13453,
-        "sha256": "ff90de18f8dd9c35a743ca1e162d0308698103dc00be5d8253985af09c55655c"
+        "bytes": 12478,
+        "sha256": "99c307c44c849d13d8206175fc33aa2bc7e290f6644eb195b197dbea9b3ea95c"
       },
       {
         "path": "src/scene/static/authored-canvas.mjs",
@@ -951,49 +956,79 @@
     ],
     "interactive-neutral": [
       {
-        "path": "renderers/cytoscape/claim-work.mjs",
-        "bytes": 2921,
-        "sha256": "e7b78d30450ca2ca945492f0dcd99a51a8dea40122e5e45fbdc25cb26ed232de"
+        "path": "renderers/elk/audit.mjs",
+        "bytes": 5923,
+        "sha256": "90e9eedec4ff35750c50dadde054f96c14afdfd469ff65233e2f05b17135dcec"
       },
       {
-        "path": "renderers/cytoscape/edition.mjs",
-        "bytes": 29469,
-        "sha256": "d7305ca76ec5b9a0a5f9a597177b59c7674616dd8a166f3c10eb977ffdf9a549"
+        "path": "renderers/elk/layout.mjs",
+        "bytes": 9345,
+        "sha256": "4d4f3cd12f6ae7184b1dd1384ef45bd2c1549e3c21bbd4a45a068f1287f167f3"
       },
       {
-        "path": "renderers/cytoscape/model.mjs",
-        "bytes": 17712,
-        "sha256": "c8fa051a1c2347ba1f3e354328c43261dee7b164d4aeee20caa77dc96893db93"
+        "path": "renderers/elk/normalize.mjs",
+        "bytes": 7222,
+        "sha256": "6e6bbc67c056bf10b970abcd8fb642f01c28ed8800e31e4ccee0a444a524cd54"
       },
       {
-        "path": "renderers/cytoscape/responsibility-map.mjs",
-        "bytes": 14596,
-        "sha256": "9fc99750ec1492fd2224089f7aaa21b63ab20574af775dcd63c6bd198dfd00c0"
+        "path": "renderers/elk/supply.mjs",
+        "bytes": 1869,
+        "sha256": "0018ac6a230a928de50dae2dd6f322317a42061cad675b67977e457f0e800ee6"
       },
       {
-        "path": "renderers/cytoscape/responsibility.mjs",
-        "bytes": 5450,
-        "sha256": "c991b6dfa2cc762acf35bc78716b57cb271d6214b48e825cd637a17f12053ca2"
+        "path": "renderers/elk/text.mjs",
+        "bytes": 2812,
+        "sha256": "2a7ea098626ab27347a112e7aae290592bd9bd2dddf32aa99439c3897491a573"
       },
       {
-        "path": "renderers/cytoscape/supply.mjs",
-        "bytes": 1855,
-        "sha256": "7dd89b5d61351b215c4ffd11a4e9802d9a323c8db9485a1db7bbf9f8e2953aa4"
-      },
-      {
-        "path": "renderers/dagre/layout.mjs",
-        "bytes": 11196,
-        "sha256": "9bcf98a336af14a4fad458779a41523723c7e8580a87bab097a76ccfcd6d0ec7"
-      },
-      {
-        "path": "renderers/dagre/supply.mjs",
-        "bytes": 2389,
-        "sha256": "1c22d78e30b60373eb59ec5e479c83969db835bef6e1ea6aa2a77a768e580da2"
+        "path": "renderers/elk/worker.mjs",
+        "bytes": 1203,
+        "sha256": "ef1aea239a36997aa95d4accd30819fe6c967c58f78c8bf7d978b55d94cc354e"
       },
       {
         "path": "renderers/fonts/index.mjs",
         "bytes": 1248,
         "sha256": "d84b7916cf233dbab37c79d3f6b173dfc3b8f5493947434f2c52af1bf583de96"
+      },
+      {
+        "path": "renderers/interactive/claim-work.mjs",
+        "bytes": 2909,
+        "sha256": "6071cabc8601877c1d6ff3bfed25077b7bdba5c61e477e61aaa5964587ac1f5d"
+      },
+      {
+        "path": "renderers/interactive/edition.mjs",
+        "bytes": 25542,
+        "sha256": "73d9b266ccf8741064ff3519fd585f83c39a53be97842ba05d4e243779b8cc2b"
+      },
+      {
+        "path": "renderers/interactive/graph-svg.mjs",
+        "bytes": 2934,
+        "sha256": "1c8e1a2f3e8cdedd4819dd4f75932a8a3606ab9cd4013077666407a43cb2e738"
+      },
+      {
+        "path": "renderers/interactive/model.mjs",
+        "bytes": 17712,
+        "sha256": "c8fa051a1c2347ba1f3e354328c43261dee7b164d4aeee20caa77dc96893db93"
+      },
+      {
+        "path": "renderers/interactive/responsibility-map.mjs",
+        "bytes": 14596,
+        "sha256": "9fc99750ec1492fd2224089f7aaa21b63ab20574af775dcd63c6bd198dfd00c0"
+      },
+      {
+        "path": "renderers/interactive/responsibility.mjs",
+        "bytes": 5450,
+        "sha256": "c991b6dfa2cc762acf35bc78716b57cb271d6214b48e825cd637a17f12053ca2"
+      },
+      {
+        "path": "renderers/interactive/supply.mjs",
+        "bytes": 1920,
+        "sha256": "30b71986b4cbae66ecf58ab102240808123c15c93b5210a7dc853f533db3cc03"
+      },
+      {
+        "path": "renderers/interactive/viewport.mjs",
+        "bytes": 4509,
+        "sha256": "adfe9cca2030039e3f72040b2515828f837219fd575fbb343cc4989a6837e974"
       },
       {
         "path": "renderers/resvg/measurement.mjs",
@@ -1026,6 +1061,11 @@
         "sha256": "ef93b9d825dde577c54c6b74ef075485a9a0daba3a7765f3b8d333d90d9104cc"
       },
       {
+        "path": "src/runtime/process-tree.mjs",
+        "bytes": 12660,
+        "sha256": "a793d582dc720c45be8ea83da0b5927ea94c6744cab84299830020d752635d28"
+      },
+      {
         "path": "src/scene/claim-card.mjs",
         "bytes": 4931,
         "sha256": "f2a8eb8c2a0c6f23e3b93c8dc87a3f4b43b07ec3d8d880862da9c8cb3c409261"
@@ -1041,9 +1081,19 @@
         "sha256": "2c16af734c0190149f1c3d8eda25505d539f151c75cc327770db5d78c8ef0f8c"
       },
       {
+        "path": "src/scene/geometry.mjs",
+        "bytes": 1629,
+        "sha256": "450900a759dc9a555e06ea4fca1998bd711d6d6852b1639f32b641445b21c909"
+      },
+      {
         "path": "src/scene/interactive/edition.mjs",
         "bytes": 9713,
         "sha256": "7d47b62246a0383e8e0460c017ad6c3421d79f6f2a76c376c9d70083a069176a"
+      },
+      {
+        "path": "src/scene/marks.mjs",
+        "bytes": 370,
+        "sha256": "96c74e108072871270a084e7f91a42ce83fdccdba567ef15f6a1e56f45630b8c"
       },
       {
         "path": "src/semantics/document.mjs",

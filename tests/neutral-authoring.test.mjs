@@ -21,7 +21,7 @@ import {
   selectedStaticNativeViews,
 } from '../packages/publisher/src/scene/static/selection.mjs';
 import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/index.mjs';
-import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/cytoscape/index.mjs';
+import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/interactive/index.mjs';
 import {
   importClaimModel,
   resolveClaimModelSelection,

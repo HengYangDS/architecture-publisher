@@ -6,17 +6,18 @@ import { pathToFileURL } from 'node:url';
 import test from 'node:test';
 import axe from 'axe-core';
 import { chromium } from 'playwright-core';
+import { paintedContactCounts } from './fixtures/painted-contact.mjs';
 import { materializeBuildRequestInput } from '../packages/publisher/src/compiler/build-input.mjs';
 import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/edition.mjs';
 import { compileEditionMeaning } from '../packages/publisher/src/compiler/meaning.mjs';
 import { validateVisibleSelection } from '../packages/publisher/src/compiler/coverage.mjs';
 import { composeInteractiveEditionScene } from '../packages/publisher/src/scene/interactive/edition.mjs';
 import { composeStaticResponsibilityScene } from '../packages/publisher/src/scene/static/responsibility.mjs';
-import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
+import { projectInteractivePage } from '../packages/publisher/renderers/interactive/model.mjs';
 import {
   responsibilityMapCss,
   responsibilityMapHtml,
-} from '../packages/publisher/renderers/cytoscape/responsibility-map.mjs';
+} from '../packages/publisher/renderers/interactive/responsibility-map.mjs';
 import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
 import { composeStaticResponsibilitySvg } from '../packages/publisher/renderers/svg/responsibility.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
@@ -47,58 +48,6 @@ async function contrastAgainstPaper(page, selector, property) {
       return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
     },
     { selector, property },
-  );
-}
-
-async function paintedContactCounts(page, textPng, marksPng) {
-  return page.evaluate(
-    async ([textBase64, marksBase64]) => {
-      const pixels = async (base64) => {
-        const image = new globalThis.Image();
-        image.src = `data:image/png;base64,${base64}`;
-        await image.decode();
-        const canvas = globalThis.document.createElement('canvas');
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-        const context = canvas.getContext('2d');
-        context.drawImage(image, 0, 0);
-        return {
-          width: canvas.width,
-          height: canvas.height,
-          data: context.getImageData(0, 0, canvas.width, canvas.height).data,
-        };
-      };
-      const text = await pixels(textBase64);
-      const marks = await pixels(marksBase64);
-      if (text.width !== marks.width || text.height !== marks.height)
-        throw Error('painted_mask_dimensions_mismatch');
-      let contact = 0;
-      let withinTwoPixels = 0;
-      for (let y = 0; y < text.height; y++)
-        for (let x = 0; x < text.width; x++) {
-          if (text.data[(y * text.width + x) * 4 + 3] <= 16) continue;
-          if (marks.data[(y * marks.width + x) * 4 + 3] > 16) contact++;
-          let near = false;
-          for (let dy = -2; dy <= 2 && !near; dy++)
-            for (let dx = -2; dx <= 2; dx++) {
-              const xx = x + dx;
-              const yy = y + dy;
-              if (
-                xx >= 0 &&
-                yy >= 0 &&
-                xx < marks.width &&
-                yy < marks.height &&
-                marks.data[(yy * marks.width + xx) * 4 + 3] > 16
-              ) {
-                near = true;
-                break;
-              }
-            }
-          if (near) withinTwoPixels++;
-        }
-      return { contact, withinTwoPixels };
-    },
-    [textPng.toString('base64'), marksPng.toString('base64')],
   );
 }
 

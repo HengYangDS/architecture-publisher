@@ -1,0 +1,14 @@
+/** One paint contract shared by neutral graph emission and geometric acceptance. */
+export const interactiveGraphMarks = Object.freeze({
+  nodeStroke: 2,
+  selectedNodeStroke: 3,
+  groupStroke: 1,
+  groupCorner: 10,
+  routeStroke: 2.5,
+  selectedRouteStroke: 3.5,
+  hitStroke: 14,
+  arrowLength: 9,
+  arrowHalfWidth: 4,
+  textClearance: 5,
+  textOwnerClearance: 8,
+});

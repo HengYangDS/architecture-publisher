@@ -63,7 +63,8 @@ const profiles = {
   'static-figure': [...baseStatic, 'packages/publisher/renderers/svg/figure.mjs'],
   'interactive-neutral': [
     'packages/publisher/src/scene/interactive/edition.mjs',
-    'packages/publisher/renderers/cytoscape/edition.mjs',
+    'packages/publisher/renderers/interactive/edition.mjs',
+    'packages/publisher/renderers/elk/worker.mjs',
   ],
   'interactive-authored': [
     'packages/publisher/src/scene/interactive/authored-architecture.mjs',

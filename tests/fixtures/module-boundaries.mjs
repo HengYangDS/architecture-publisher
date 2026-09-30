@@ -162,10 +162,10 @@ const owners = [
     ],
   ],
   [
-    'packages/publisher/renderers/cytoscape/',
+    'packages/publisher/renderers/interactive/',
     [
-      'packages/publisher/renderers/cytoscape/',
-      'packages/publisher/renderers/dagre/layout.mjs',
+      'packages/publisher/renderers/interactive/',
+      'packages/publisher/renderers/elk/',
       'packages/publisher/renderers/fonts/',
       'packages/publisher/renderers/resvg/measurement.mjs',
       'packages/publisher/src/scene/',
@@ -175,6 +175,16 @@ const owners = [
   [
     'packages/publisher/renderers/dagre/',
     ['packages/publisher/renderers/dagre/', 'packages/publisher/src/source/'],
+  ],
+  [
+    'packages/publisher/renderers/elk/',
+    [
+      'packages/publisher/renderers/elk/',
+      'packages/publisher/src/source/',
+      'packages/publisher/src/scene/geometry.mjs',
+      'packages/publisher/src/scene/marks.mjs',
+      'packages/publisher/src/runtime/process-tree.mjs',
+    ],
   ],
   [
     'packages/publisher/renderers/fonts/',
@@ -373,6 +383,12 @@ export function inspectModuleBoundaries(
         file === 'packages/publisher/src/semantics/native-worker.mjs' &&
         node.source.type === 'Identifier' &&
         node.source.name === 'privateParserUrl'
+      )
+        return;
+      if (
+        file === 'packages/publisher/renderers/elk/worker.mjs' &&
+        node.source.type === 'Identifier' &&
+        node.source.name === 'privateLayoutUrl'
       )
         return;
       reference(node, node.source);

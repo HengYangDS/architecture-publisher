@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { responsibilityMapHtml } from '../packages/publisher/renderers/cytoscape/responsibility-map.mjs';
-import { responsibilityPageHtml } from '../packages/publisher/renderers/cytoscape/responsibility.mjs';
+import { responsibilityMapHtml } from '../packages/publisher/renderers/interactive/responsibility-map.mjs';
+import { responsibilityPageHtml } from '../packages/publisher/renderers/interactive/responsibility.mjs';
 
 const editorial = (statement) => ({ kind: 'editorial', statement, proponent: 'editor' });
 

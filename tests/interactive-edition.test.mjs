@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
+import { projectInteractivePage } from '../packages/publisher/renderers/interactive/model.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
 
 test('a neutral standalone HTML keeps every page complete without source-byte disclosure', async () => {
-  const renderer = await import('../packages/publisher/renderers/cytoscape/index.mjs').catch(
+  const renderer = await import('../packages/publisher/renderers/interactive/index.mjs').catch(
     () => null,
   );
   assert.equal(typeof renderer?.renderInteractiveEditionHtml, 'function');
@@ -14,7 +14,7 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.equal(result.completeness, 'unqualified-medium');
   assert.deepEqual(
     result.supplies.map(({ id }) => id),
-    ['cytoscape', 'dagre-layout', 'font-measurement', 'font-supply'],
+    ['svg-pan-zoom', 'elk-layout', 'font-measurement', 'font-supply'],
   );
   assert.match(html, /<!doctype html>/iu);
   assert.match(html, /Selected architecture/u);
@@ -41,7 +41,8 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.doesNotMatch(html, /Edge numbers match/u);
   const firstPage = html.split('<section class="edition-page" id="page-1"')[0];
   assert.doesNotMatch(firstPage, /class="evidence-section evidence-questions"/u);
-  assert.match(html, /Cytoscape Consortium/u);
+  assert.match(html, /Eclipse Public License/u);
+  assert.match(html, /Redistribution and use in source and binary forms/u);
   assert.doesNotMatch(
     html,
     /private\/model|secret-alpha|secret-beta|relation:4:2|backend|external/u,
@@ -55,18 +56,18 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
 
 test('a short path uses the same selected geometry owner rather than a special chain layout', async () => {
   const { renderInteractiveEditionHtml } =
-    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+    await import('../packages/publisher/renderers/interactive/index.mjs');
   const scene = interactiveEditionScene();
   scene.pages[0].relations[0].label = null;
   scene.pages[0].relations[0].kind = null;
   const result = await renderInteractiveEditionHtml(scene);
   assert(!result.bytes.toString('utf8').includes('graph--chain'));
-  assert(result.supplies.some(({ id }) => id === 'dagre-layout'));
+  assert(result.supplies.some(({ id }) => id === 'elk-layout'));
 });
 
 test('authored interactive groups become visible reading sections with bound graphic members', async () => {
   const { renderInteractiveEditionHtml } =
-    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+    await import('../packages/publisher/renderers/interactive/index.mjs');
   const scene = interactiveEditionScene();
   scene.pages[0].groups = [
     {
@@ -96,7 +97,7 @@ test('authored interactive groups become visible reading sections with bound gra
 
 test('a source claim preserves the unchanged graph reading width', async () => {
   const { renderInteractiveEditionHtml } =
-    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+    await import('../packages/publisher/renderers/interactive/index.mjs');
   const scene = interactiveEditionScene();
   const revision = 'a'.repeat(64);
   const claim = { namespace: 'private/model', id: 'claim-one', sha256: revision };
@@ -140,9 +141,30 @@ test('a source claim preserves the unchanged graph reading width', async () => {
   );
 });
 
+test('required editorial meaning remains in the primary graph reading state', async () => {
+  const { renderInteractiveEditionHtml } =
+    await import('../packages/publisher/renderers/interactive/index.mjs');
+  const scene = interactiveEditionScene();
+  scene.pages[0].editorialAssertions.push({
+    id: 'editorial-reading-boundary',
+    kind: 'editorial',
+    statement: 'These selected claims do not establish current runtime behavior.',
+    proponent: 'comparison-editor',
+    basis: ['overview'],
+    questions: ['shape'],
+    semanticStatus: 'editor-attributed-unverified',
+  });
+  const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
+  const primary = html
+    .split('<section class="edition-page" id="page-1"')[0]
+    .split('<details class="source-inspection">')[0];
+  assert(primary.includes('These selected claims do not establish current runtime behavior.'));
+  assert(primary.includes('Editorial judgment · comparison-editor · unverified'));
+});
+
 test('malformed or excessive Scenes fail before loading renderer supply', async () => {
   const { renderInteractiveEditionHtml } =
-    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+    await import('../packages/publisher/renderers/interactive/index.mjs');
   const cases = [
     ['null scene', () => null, 'render_interactive_scene_invalid'],
     [
@@ -219,16 +241,16 @@ test('malformed or excessive Scenes fail before loading renderer supply', async 
 
 test('HTML escaping preserves authored text without executable or raw source disclosure', async () => {
   const { renderInteractiveEditionHtml } =
-    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+    await import('../packages/publisher/renderers/interactive/index.mjs');
   const scene = interactiveEditionScene();
-  scene.pages[0].nodes[0].label = '</script><script>globalThis.injection=1</script>';
+  scene.pages[0].nodes[0].label = '</script><script>x';
   scene.pages[0].relations[0].direction = 'bidirectional';
   scene.pages[0].relations[0].label = null;
   scene.pages[0].relations[0].kind = 'peer';
   scene.pages[0].editorialAssertions.push(scene.pages[1].editorialAssertions[0]);
   scene.limits = [];
   const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
-  assert.match(html, /&lt;\/script&gt;&lt;script&gt;globalThis\.injection=1/u);
+  assert.match(html, /&lt;\/script&gt;&lt;script&gt;x/u);
   assert.match(html, /\\u003c\/script\\u003e/u);
   assert.doesNotMatch(html, /<script>globalThis\.injection=1<\/script>/u);
   assert.match(html, /↔ Beta · peer/u);
@@ -238,7 +260,7 @@ test('HTML escaping preserves authored text without executable or raw source dis
 
 test('an unlabeled source relation stays structural without an invented kind', async () => {
   const { renderInteractiveEditionHtml } =
-    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+    await import('../packages/publisher/renderers/interactive/index.mjs');
   const scene = interactiveEditionScene();
   scene.pages[0].nodes[0].kind = null;
   scene.pages[0].relations[0].label = null;
@@ -250,7 +272,7 @@ test('an unlabeled source relation stays structural without an invented kind', a
 
 test('diagram labels retain the selected relation meaning directly', async () => {
   const { renderInteractiveEditionHtml } =
-    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+    await import('../packages/publisher/renderers/interactive/index.mjs');
   const scene = interactiveEditionScene();
   scene.pages[0].relations[0].label =
     'Source relation qualifiers (unverified): state: desired client bindings';
@@ -264,7 +286,7 @@ test('diagram labels retain the selected relation meaning directly', async () =>
   assert.equal(relation.graphLabel, relation.label);
 
   const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
-  assert.match(html, /label: 'data\(graphLabel\)'/u);
+  assert.match(html, /class="graph-label graph-label--relation"/u);
   assert.match(
     html,
     /Alpha &amp; one → Beta · Source relation qualifiers \(unverified\): state: desired client bindings · configures/u,
@@ -282,7 +304,7 @@ test('a short authored relation is readable in the diagram', () => {
 
 test('a long relation retains its full meaning in the graph and inspection', async () => {
   const { renderInteractiveEditionHtml } =
-    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+    await import('../packages/publisher/renderers/interactive/index.mjs');
   const scene = interactiveEditionScene();
   scene.pages[0].relations[0].label = 'synchronizes all selected native client registrations';
   scene.pages[0].relations[0].kind = null;
@@ -298,7 +320,7 @@ test('a long relation retains its full meaning in the graph and inspection', asy
 
 test('source-reported qualifier fields are visible and HTML-escaped beside their relation', async () => {
   const { renderInteractiveEditionHtml } =
-    await import('../packages/publisher/renderers/cytoscape/index.mjs');
+    await import('../packages/publisher/renderers/interactive/index.mjs');
   const scene = interactiveEditionScene();
   scene.pages[0].relations[0].sourceQualifiers = [
     { name: 'scope', value: '"<script>globalThis.injection=1</script>"' },

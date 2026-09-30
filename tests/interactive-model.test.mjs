@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
+import { projectInteractivePage } from '../packages/publisher/renderers/interactive/model.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
 
 function pageWithClaim(anchor) {

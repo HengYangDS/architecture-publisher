@@ -63,20 +63,30 @@ test(
     const desktopLayout = await page.evaluate(() => {
       const container = globalThis.document.querySelector('#graph-0');
       const graph = container.getBoundingClientRect();
-      const cy = Reflect.get(container, '_cyreg').cy;
-      const painted = cy.elements().renderedBoundingBox();
+      const viewport = container.querySelector('.graph-viewport');
+      const painted = viewport.getBoundingClientRect();
+      const transform = viewport.getScreenCTM();
       const boundary = globalThis.document
         .querySelector('#page-0 .reading-boundary')
         ?.getBoundingClientRect();
       const notes = globalThis.document.querySelector('#page-0 .notes').getBoundingClientRect();
       return {
         graphWidth: graph.width,
-        paintedWidth: painted.w,
-        zoom: cy.zoom(),
+        paintedWidth: painted.width,
+        zoom: transform.a,
         authoredBounds: JSON.parse(
           globalThis.document.getElementById('edition-data').textContent,
         )[0].geometry.bounds,
-        nodePositions: cy.nodes().map((node) => ({ id: node.id(), position: node.position() })),
+        nodePositions: [...viewport.querySelectorAll('.graph-node')].map((node) => {
+          const rect = node.querySelector('rect');
+          return {
+            id: node.dataset.selectId,
+            position: {
+              x: Number(rect.getAttribute('x')) + Number(rect.getAttribute('width')) / 2,
+              y: Number(rect.getAttribute('y')) + Number(rect.getAttribute('height')) / 2,
+            },
+          };
+        }),
         graphBottom: graph.bottom,
         boundaryLeft: boundary?.left ?? null,
         graphRight: graph.right,
@@ -95,10 +105,11 @@ test(
       await page.locator('.navigation button').first().getAttribute('aria-label'),
       'Overview — What is connected?',
     );
-    assert.equal(await page.locator('#page-0 .graph-wrap .fit').count(), 1);
+    assert.equal(await page.locator('#page-0 .graph-controls .fit').count(), 1);
     assert.equal(await page.locator('[data-focus-node]').filter({ hasText: 'Alpha' }).count(), 1);
     assert.equal(await page.locator('[data-focus-node]').filter({ hasText: 'Beta' }).count(), 1);
-    assert.equal((await page.locator('#graph-0 canvas').count()) > 0, true);
+    assert.equal(await page.locator('#graph-0 .graph-svg').count(), 1);
+    assert.equal(await page.locator('#graph-0 canvas').count(), 0);
     await page.addScriptTag({ content: axe.source });
     const accessible = async () =>
       page.evaluate(async () => {

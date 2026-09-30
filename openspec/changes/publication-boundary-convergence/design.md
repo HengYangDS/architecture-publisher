@@ -1153,6 +1153,60 @@ bytes still judges balance and elegance. Data-only Edition art direction may
 improve a feasible neutral figure, but neither the source repository nor a
 per-adopter renderer must carry hand-positioned Publisher pixels.
 
+### Exact neutral graph geometry and painting
+
+The 2026-10-01 public-renderer counterexample combined two parallel relations
+with a return cycle. Dagre computed separate points and label anchors, but
+Cytoscape received only leaf positions and re-routed the return through the
+middle node. Its own self-loop and compound rules override even a segment
+adapter's manual endpoints. Measured boxes and offset assertions therefore
+cannot qualify the actual paint. An independently inspected segment probe
+preserved Dagre's points but still exposed labels touched by sloping paths.
+
+Replace, rather than layer over, that neutral graph path. One pinned ELK
+Layered implementation owns interactive leaf/group rectangles, orthogonal
+route sections, ports, and measured label positions. A strict adapter accepts
+only the already-admitted flat group partitions, retains distinct parallel
+and self-loop relation IDs, and normalizes complete numeric output; ELK's
+private bookkeeping fields are never public values. The direct SVG painter
+emits those coordinates without re-routing, post-layout nudges, synthetic
+topology nodes, smoothing, or copying static coordinates. A pinned
+`svg-pan-zoom` supplier owns only the viewport transform. Inspect, selection,
+focus buttons, live-region status, and the generic compiler remain existing
+product responsibilities. There is no hidden Cytoscape overlay or geometry
+fallback, new CLI, backend selector, or per-adopter implementation.
+
+Use existing owned-process supervision for exact verified ELK bytes in a
+disposable worker with bounded input, output, heap, execution, and cleanup.
+Verified supply identifies code, not a filesystem/network sandbox. Measure
+leaf, group, and relation text using the selected bundled font before layout.
+Audit all returned routes against nodes, measured labels and arrow envelopes;
+actual SVG paint and desktop browser operation remain separate evidence.
+Any missing route, ambiguous container, unsupported geometry, infeasible
+caption, or invalid extent fails before Candidate success. The same ELK
+owner compares two directions and, only for ungrouped acyclic graphs with at
+least six leaves, one `MULTI_EDGE` wrapping candidate. The fixed objective is
+desktop readable fit; it is not a hand-routed fallback. Geometry canonicalizes
+all coordinates uniformly to one millionth of a source unit, correcting
+observed floating-point orthogonal noise without shifting an individual path.
+One paint-dimension record binds stroke, arrow, and glyph-clearance audits to
+the emitter. Leaf shapes remain rectangular so calculated ports touch the
+actual paint, including high-degree parallel relations. Cached page restores
+retain camera instances; terminal page disposal destroys owned instances.
+
+Local orthogonal trials on the selected cycle/parallel graph and ten AIGW
+layouts had no tested strict-interior node/label/route intersections. They
+do not establish group/self-loop handling, stroke/arrow/glyph paint, installed
+portability, or visual acceptance. Those counterexamples gate replacement.
+Retire the unreleased `renderers/cytoscape` library export after auditing
+consumers; the successor has one precise `renderers/interactive` export and
+no compatibility facade. Signed historical releases retain their bytes.
+
+Keep compact Claims source-attributed in the default reading state and render
+required editorial judgments with their named proponent and unverified status.
+A Claim's subject/object predicate never borrows reverse topology direction.
+These are semantic-fidelity repairs, not extra editorial facts or acceptance.
+
 ### One authored source-selection record
 
 An in-memory, source-adjacent translation of AIGW's four questions, five

@@ -29,7 +29,7 @@ test('generated implementation profiles select owned code without package or sib
   }
   assert(
     manifest.profiles['static-claim'].every(
-      ({ path: file }) => !file.startsWith('renderers/cytoscape/'),
+      ({ path: file }) => !file.startsWith('renderers/interactive/'),
     ),
   );
   assert(
@@ -79,7 +79,7 @@ test('a static figure binds the union of selected media code as one supply', asy
     ),
   );
   assert(paths.has('renderers/svg/figure.mjs'));
-  assert(!paths.has('renderers/cytoscape/edition.mjs'));
+  assert(!paths.has('renderers/interactive/edition.mjs'));
   await assert.rejects(readImplementationSupply(['static-structural', 'interactive-neutral']), {
     code: 'publisher_implementation_profile_invalid',
   });
@@ -109,7 +109,7 @@ test('selected installed code drifts fail, while README and unselected media do 
   const before = await checked('static-claim');
   await fs.appendFile(path.join(copy, 'README.md'), '\nUnrelated package note.\n');
   assert.deepEqual(await checked('static-claim'), before);
-  await fs.appendFile(path.join(copy, 'renderers/cytoscape/edition.mjs'), '\n// drift\n');
+  await fs.appendFile(path.join(copy, 'renderers/interactive/edition.mjs'), '\n// drift\n');
   assert.deepEqual(await checked('static-claim'), before);
   await assert.rejects(checked('interactive-neutral'), {
     code: 'publisher_implementation_supply_invalid',

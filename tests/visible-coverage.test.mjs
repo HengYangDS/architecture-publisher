@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/cytoscape/edition.mjs';
+import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/interactive/edition.mjs';
 import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/edition.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
 import { staticEditionScene } from './fixtures/static-edition-scene.mjs';

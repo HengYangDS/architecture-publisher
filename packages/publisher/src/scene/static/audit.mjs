@@ -1,4 +1,13 @@
 import { fail } from '../../protocol/values.mjs';
+import {
+  boxRight as right,
+  boxBottom as bottom,
+  expandBox as expand,
+  boxesOverlap as overlaps,
+  pointDistance as distance,
+  boundaryDistance,
+  segmentHitsBox,
+} from '../geometry.mjs';
 
 /** Analytic screen-space checks over the same measured scene used by the renderer.
  * Text boxes must be measured glyph bounds, not character-count estimates.
@@ -37,47 +46,6 @@ export function assertAuthoredCanvasScene(scene) {
   return { geometry, canvas, emittedContract: authoredCanvasGeometry };
 }
 
-const right = (b) => b.x + b.width,
-  bottom = (b) => b.y + b.height;
-const expand = (b, p) => ({
-  x: b.x - p,
-  y: b.y - p,
-  width: b.width + 2 * p,
-  height: b.height + 2 * p,
-});
-const overlaps = (a, b) =>
-  Math.min(right(a), right(b)) > Math.max(a.x, b.x) &&
-  Math.min(bottom(a), bottom(b)) > Math.max(a.y, b.y);
-const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
-const boundaryDistance = (p, b) =>
-  Math.min(
-    Math.hypot(p.x - b.x, Math.max(b.y - p.y, 0, p.y - bottom(b))),
-    Math.hypot(p.x - right(b), Math.max(b.y - p.y, 0, p.y - bottom(b))),
-    Math.hypot(p.y - b.y, Math.max(b.x - p.x, 0, p.x - right(b))),
-    Math.hypot(p.y - bottom(b), Math.max(b.x - p.x, 0, p.x - right(b))),
-  );
-function segmentHitsBox(a, b, box) {
-  let lo = 0,
-    hi = 1;
-  const dx = b.x - a.x,
-    dy = b.y - a.y;
-  for (const [p, q] of [
-    [-dx, a.x - box.x],
-    [dx, right(box) - a.x],
-    [-dy, a.y - box.y],
-    [dy, bottom(box) - a.y],
-  ]) {
-    if (p === 0) {
-      if (q < 0) return false;
-      continue;
-    }
-    const t = q / p;
-    if (p < 0) lo = Math.max(lo, t);
-    else hi = Math.min(hi, t);
-    if (lo > hi) return false;
-  }
-  return true;
-}
 export function auditScene(scene, contract) {
   const failures = [];
   const add = (code, id, other) => failures.push({ code, id, ...(other ? { other } : {}) });

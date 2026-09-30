@@ -22,8 +22,8 @@ import {
 } from '../packages/publisher/src/scene/index.mjs';
 import { validateVisibleSelection } from '../packages/publisher/src/compiler/coverage.mjs';
 import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/index.mjs';
-import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
-import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/cytoscape/edition.mjs';
+import { projectInteractivePage } from '../packages/publisher/renderers/interactive/model.mjs';
+import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/interactive/edition.mjs';
 import { verifySelectedCandidateReplay } from '../packages/publisher/src/qualification/index.mjs';
 import { canonical } from '../packages/publisher/src/protocol/json.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';

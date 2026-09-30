@@ -30,6 +30,12 @@ may contain incompatible changes.
   directly on their routes. Compact source Claims retain visible applicability;
   full records move to Inspect without duplicating primary graphic identities.
   The existing font measurer is reused and its selected supply is recorded.
+- Replaced the unreleased neutral interactive Cytoscape path with pinned ELK
+  geometry, exact SVG painting, and viewport-only pan/zoom. Parallel relations,
+  cycles, self-loops, group containment, full arrow bounds, and cached-page
+  restoration have explicit regressions. Eligible long causal graphs can use
+  ELK wrapping; static geometry remains independent. The unreleased library
+  export is now `renderers/interactive`, with no compatibility facade.
 
 - Interactive responsibility pages now present roles, selected source nodes
   and relations, editorial handoffs, and linked Claims in one bounded visual
