@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import test from 'node:test';
+import { chromium } from 'playwright-core';
 import { materializeBuildRequestInput } from '../packages/publisher/src/compiler/build-input.mjs';
 import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/edition.mjs';
 import { compileEditionMeaning } from '../packages/publisher/src/compiler/meaning.mjs';
@@ -13,6 +15,60 @@ import { projectInteractivePage } from '../packages/publisher/renderers/cytoscap
 import { composeStaticResponsibilitySvg } from '../packages/publisher/renderers/svg/responsibility.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
+
+const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
+
+async function paintedContactCounts(page, textPng, marksPng) {
+  return page.evaluate(
+    async ([textBase64, marksBase64]) => {
+      const pixels = async (base64) => {
+        const image = new globalThis.Image();
+        image.src = `data:image/png;base64,${base64}`;
+        await image.decode();
+        const canvas = globalThis.document.createElement('canvas');
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0);
+        return {
+          width: canvas.width,
+          height: canvas.height,
+          data: context.getImageData(0, 0, canvas.width, canvas.height).data,
+        };
+      };
+      const text = await pixels(textBase64);
+      const marks = await pixels(marksBase64);
+      if (text.width !== marks.width || text.height !== marks.height)
+        throw Error('painted_mask_dimensions_mismatch');
+      let contact = 0;
+      let withinTwoPixels = 0;
+      for (let y = 0; y < text.height; y++)
+        for (let x = 0; x < text.width; x++) {
+          if (text.data[(y * text.width + x) * 4 + 3] <= 16) continue;
+          if (marks.data[(y * marks.width + x) * 4 + 3] > 16) contact++;
+          let near = false;
+          for (let dy = -2; dy <= 2 && !near; dy++)
+            for (let dx = -2; dx <= 2; dx++) {
+              const xx = x + dx;
+              const yy = y + dy;
+              if (
+                xx >= 0 &&
+                yy >= 0 &&
+                xx < marks.width &&
+                yy < marks.height &&
+                marks.data[(yy * marks.width + xx) * 4 + 3] > 16
+              ) {
+                near = true;
+                break;
+              }
+            }
+          if (near) withinTwoPixels++;
+        }
+      return { contact, withinTwoPixels };
+    },
+    [textPng.toString('base64'), marksPng.toString('base64')],
+  );
+}
 
 async function responsibilityFixture(t, medium = 'interactive') {
   const selected = await selectedNativeEdition(t, { media: [medium], width: 800 });
@@ -208,6 +264,72 @@ test('a static responsibility form paints its own source-bound visual argument',
       member,
     );
 });
+
+test(
+  'painted responsibility text clears paths and a controlled collision is detected',
+  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 35_000 },
+  async (t) => {
+    const { selected } = await responsibilityFixture(t, 'static');
+    const output = path.join(selected.root, 'painted-responsibility-candidate');
+    await compileEditionCandidateInput(selected.file, selected.digest, output);
+    const browser = await chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 15_000,
+    });
+    t.after(() => browser.close());
+    const page = await browser.newPage({
+      viewport: { width: 1600, height: 1600 },
+      deviceScaleFactor: 1,
+      reducedMotion: 'reduce',
+    });
+    await page.goto(pathToFileURL(path.join(output, 'static/architecture.svg')).href, {
+      waitUntil: 'load',
+      timeout: 15_000,
+    });
+    await page.evaluate(() => globalThis.document.fonts.ready);
+    const size = await page.evaluate(() => {
+      const box = globalThis.document.documentElement.viewBox.baseVal;
+      return { width: Math.ceil(box.width), height: Math.ceil(box.height) };
+    });
+    await page.setViewportSize(size);
+    await page.evaluate(() => {
+      const style = globalThis.document.createElementNS('http://www.w3.org/2000/svg', 'style');
+      style.id = 'mask-mode';
+      globalThis.document.documentElement.append(style);
+      style.textContent =
+        'rect,path,line,polyline,polygon,circle,ellipse,image {visibility:hidden !important}';
+    });
+    const text = await page.screenshot({ omitBackground: true });
+    await page.evaluate(() => {
+      globalThis.document.getElementById('mask-mode').textContent =
+        'rect,text,image {visibility:hidden !important}';
+    });
+    const marks = await page.screenshot({ omitBackground: true });
+    const analysis = await browser.newPage();
+    assert.deepEqual(await paintedContactCounts(analysis, text, marks), {
+      contact: 0,
+      withinTwoPixels: 0,
+    });
+    await page.evaluate(() => {
+      const svg = globalThis.document.documentElement;
+      const box = svg.querySelector('text').getBBox();
+      const line = globalThis.document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', String(box.x));
+      line.setAttribute('x2', String(box.x + box.width));
+      line.setAttribute('y1', String(box.y + box.height / 2));
+      line.setAttribute('y2', String(box.y + box.height / 2));
+      line.setAttribute('stroke', '#24362e');
+      line.setAttribute('stroke-width', '3');
+      svg.append(line);
+    });
+    const controlled = await page.screenshot({ omitBackground: true });
+    const detected = await paintedContactCounts(analysis, text, controlled);
+    assert(detected.contact > 0);
+    assert(detected.withinTwoPixels >= detected.contact);
+  },
+);
 
 test('static responsibility coverage rejects a substituted role basis or group carrier', async (t) => {
   const { selected } = await responsibilityFixture(t, 'static');

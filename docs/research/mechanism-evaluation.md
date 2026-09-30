@@ -1851,6 +1851,14 @@ were removed. This positive control demonstrates a viable detector for one
 actual painted collision; it does not qualify the separate responsibility
 form, other outputs, semantic coverage, or aesthetic balance.
 
+A tracked Chrome regression now builds a two-role static responsibility form
+from the existing native-input fixture, captures its emitted SVG's transparent
+text and stroke/rule layers at device scale one, and requires zero contact
+within a 2px square dilation. The same test adds a line through the title and requires
+the detector to reject that controlled defect. This proves the test observes
+one real rendered form, not that every admitted Edition is paint-safe or
+that AIGW's unapproved editorial form has been accepted.
+
 ### Comparative admission, not a preselected stack
 
 Freeze source assertions and reader questions for AIGW Product Boundary,

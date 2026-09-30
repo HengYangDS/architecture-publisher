@@ -968,6 +968,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       qualify generic multi-view composition or final art. An isolated AIGW
       16-entity/14-relation overview remains an unadopted trial; source-owner
       and human visual acceptance remain open.
+      A tracked Chrome test now captures actual text and stroke/rule pixels
+      from a generated two-role static responsibility form. It finds no
+      contact within a 2px square dilation and detects a test-only line through the
+      title. The current Chrome-enabled full check passed 1,357/1,360 tests
+      with three declared skips and zero failures; statement, branch,
+      function and line coverage were 97.69/95.01/99.56/97.69%. This is a
+      focused paint observation, not an arbitrary-Edition pixel gate,
+      approved baseline, adopter acceptance, or Task 5.4 closure.
 - [x] 5.5 Keep the first-party self Edition on the same public Build Request,
       Edition Project, data-only refinement, and dual-medium compiler as other
       adopters. Preserve its source-owned meaning and flagship art direction;
