@@ -1001,6 +1001,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       source snapshot or an assumed single native format is not an admission.
       Migration must select a truthful AIGW-owned architecture source or
       attributed projection path, not merely relocate copied snapshots.
+      Exact alpha.6 Core/manifest/checksum identities and both unchanged neutral
+      HTML approvals were delivered after a read-only source/Provider/Edition
+      refresh. Role readback identifies that existing task as an independent
+      verifier, not the source writer; its established authorized forwarding
+      route was requested. The single-writer handoff, receiver byte verification
+      and source-owned adoption remain unestablished. Current selection pins
+      alpha.1. The existing release readback owns these dated input facts.
 - [x] 8.2 Send ETHOS's single writer a retained-versus-displaced integration
       map and exact executable journey. Preserve ETHOS-native claims, Lane
       cooperation/competition/experiment/all-drop meaning, repository-quality
@@ -1026,7 +1033,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       the signed Lane study and DR contract, then all three exact refresh
       packet hashes on 2026-10-01. Its topic owners and source boundaries are
       in `conformance/evidence/research-owner-intake.json`. Receipt is proven;
-      substantive topic absorption and retiring general research here remain
+      the expanded receiver receipt now also binds all four exact adjacent
+      Spec Kit/BMAD/GSD packet members. Its current bytes were independently
+      read back and preserved at an immutable local snapshot. Five-topic source
+      additions remain a proposed transplant, not adopted or silently applied.
+      Substantive topic absorption and retiring general research here remain
       open. Preserve unique broader findings until that migration is verified;
       no upstream suite, source acceptance or off-host DR effect is claimed.
 - [ ] 8.4 After release readback, use `openspec archive --skip-specs` only after
@@ -1040,3 +1051,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       acceptance contract is recorded once in
       `docs/reference/disaster-recovery-decision-contract.md`;
       no destination, credential, backup effect, or off-host proof is selected.
+      Official OpenSpec pre-write validation found four long requirement INFO
+      diagnostics in the merged base projection. The authoring and verification
+      boundary was semantically separated; all original 46 scenario identities
+      remain, and one explicit non-authorizing acceptance scenario was added.
+      The official locked merge applied five additions and two modifications
+      across two base specs; reapplication has zero operations or warnings.
+      Strict validation now reports seventeen valid items and zero issues.
+      Normative convergence is not source adoption, archive or Lane retirement.

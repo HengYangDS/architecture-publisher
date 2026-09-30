@@ -4,20 +4,12 @@
 
 ### Requirement: Edition is a complete authored contract
 
-One editor-owned Edition Project SHALL select audience, reader questions,
-source addresses and references, question-scoped required assertions, explicit
-limits and omissions, attributed editorial assertions, narrative, and separate
-static and interactive presentation obligations. The Build Request, not the
-Edition Project, selects source revisions and requested media. A source
-assertion selected for a promised view/question SHALL be represented there or
-classified by an allowed omission; unselected source facts need not be
-enumerated as omissions. Publisher SHALL reject mechanically established
-identity, typed-meaning, and declared grouping contradictions. It SHALL NOT
-claim to decide whether arbitrary editorial wording is semantically equivalent
-to, or contradicted by, the source. The selected public media SHALL attribute
-such wording to the editor and disclose its unverified status. Candidate build
-alone remains unqualified until the applicable semantic and human acceptance
-decision.
+One editor-owned Edition Project SHALL select audience, questions, source
+addresses and references, question-scoped assertions, limits and omissions,
+attributed editorial assertions, narrative, and separate static and interactive
+obligations. The Build Request, not the Project, selects source revisions and
+requested media. Each selected assertion SHALL appear in its promised view or
+have an allowed omission; unselected facts need not be enumerated.
 
 #### Scenario: An editorial assertion is added
 
@@ -71,14 +63,13 @@ stay outside Candidate identity. Reader obligations and limits remain visible.
 
 ### Requirement: Static views compose one faithful figure
 
-Selected static views SHALL yield one complete-page SVG and PNG. Each view
-retains its questions, assertions, reader-question limits, source-status
-qualifiers, and graphic-carrier bindings. The figure SHALL separate views
-without inventing cross-view relations or
-transferring claims or acceptance. Text, structural marks, annotation, and
-decoration SHALL fit without clipping, occlusion, overlap, or inadequate
-clearance. Missing carriers fail before Candidate; graph-only layout success
-is insufficient.
+Selected static views SHALL yield one complete-page SVG and PNG, each retaining
+questions, assertions, reader-question limits, source-status qualifiers and
+graphic-carrier bindings. Views SHALL remain distinct without inventing
+cross-view relations or transferring claims or acceptance. Text, structural
+marks, annotation and decoration SHALL fit without clipping, occlusion, overlap
+or inadequate clearance. Missing carriers fail before Candidate; graph-only
+layout success is insufficient.
 
 #### Scenario: Two static views answer distinct questions
 
@@ -259,17 +250,33 @@ exact-browser qualification remains separate.
 - **THEN** the browser policy blocks the connection
 - **AND** a browser error or incomplete rendering cannot be counted as qualification
 
+### Requirement: Compilation distinguishes mechanical and editorial judgment
+
+Publisher SHALL reject mechanically established identity, typed-meaning and
+declared-grouping contradictions. It SHALL NOT judge arbitrary editorial
+wording's semantic equivalence or contradiction with the source. Selected
+media SHALL attribute that wording to the editor and mark it unverified.
+Candidate build alone SHALL remain unqualified until applicable semantic and
+human acceptance. These checks do not authenticate the editor or confer source
+endorsement.
+
+#### Scenario: A valid build lacks an editorial acceptance decision
+
+- **WHEN** exact inputs pass identity, typed-meaning and declared-group checks
+  but the selected wording has no applicable semantic or human acceptance
+- **THEN** build remains unqualified and attributes the wording to its editor
+- **AND** mechanical success neither certifies that wording nor grants source
+  endorsement or publication authority
+
 ### Requirement: Edition selects a question-matched visual form
 
-For each promised reader question, the Edition SHALL identify the dominant
-relationship it asks the reader to understand and select a source-bound
-visual form for each medium. The form SHALL project selected assertions and
-explicit limits without becoming a second source model or requiring authored
-pixel positions. Publisher SHALL validate representability before layout. It
-SHALL NOT infer ownership, temporal order, or evidentiary status merely from
-node order, edge direction, labels, or a renderer's default layout.
-An explicitly typed native view may supply the form without a duplicate
-Edition field; an ambiguous generic selection requires an editor's choice.
+Each reader question SHALL select its dominant relationship and source-bound
+form per medium. The form SHALL preserve selected assertions and limits without
+a second source model or authored pixel positions. Publisher SHALL validate
+representability before layout, not infer ownership, time order or evidence
+from node order, edge direction, labels or layout defaults. Explicitly typed
+native views may supply the form; ambiguous generic selections require an
+editor's choice.
 
 #### Scenario: Ownership question is not a traffic flow
 
@@ -327,15 +334,12 @@ Edition field; an ambiguous generic selection requires an editor's choice.
 
 ### Requirement: Interactive chapters carry meaning in the chosen form
 
-The neutral interactive medium SHALL compose intrinsically sized, navigable
-chapters in one continuous reading work. It SHALL not use a fixed slide height
-or a default page-wide source ledger to compensate for unreadable graphic
-relations. Selected relationship captions and question-relevant typed Claim
-cues SHALL be bound to their exact visible subjects in the chosen form,
-measured with the selected font, and placed with whole-page clearance. Routed
-forms SHALL additionally clear nodes, other routes, and arrowheads. Full
-selected records SHALL remain reachable through focused inspection. No
-caption or cue may invent, silently abbreviate, or transfer source authority.
+Neutral HTML SHALL compose intrinsic, navigable chapters in continuous flow,
+not fixed-height slides or a default page-wide source ledger. Relation captions
+and question-relevant typed Claim cues SHALL bind exact visible subjects, use
+selected-font metrics and clear the page. Routes SHALL clear nodes, routes and
+arrowheads. Focused inspection SHALL expose full selected records. Captions and
+cues SHALL NOT invent, silently abbreviate or transfer source authority.
 
 #### Scenario: A selected relation has a readable source label
 

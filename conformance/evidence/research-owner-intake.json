@@ -30,8 +30,15 @@
   ],
   "receiverReceipt": {
     "path": "/Users/yheng/projects/ethos-worktrees/20260930-semantic-observation/build/evidence/quality/validation-results/research-owner-intake.json",
-    "sha256": "602a9ee30a8bc15abb822918b88b101558da4efc7bba5f8c39d109db66eac579",
-    "bytes": 2523
+    "sha256": "65f576d5ec85783c430841428d7ce2c1c432a9be1a3b3b4cfc66f72d081789c4",
+    "bytes": 4062,
+    "observedAt": "2026-09-30T22:58:35.730Z",
+    "snapshot": {
+      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/research-owner-receipt.json",
+      "sha256": "65f576d5ec85783c430841428d7ce2c1c432a9be1a3b3b4cfc66f72d081789c4",
+      "bytes": 4062
+    },
+    "scope": "exact dated receiver readback; includes adjacent packet; mutable path changes require a new observation, not inferred absorption"
   },
   "upstreamRevisions": {
     "comet": "8360d91d3770999cd727db2a2a08b12112a5a7c7",
@@ -43,5 +50,52 @@
     "compare responses for COMET and SpecD limited to 300 files",
     "unique broader studies remain retained until canonical topic absorption",
     "no Publisher runtime import, parallel knowledge authority, source acceptance or off-host DR effect"
-  ]
+  ],
+  "adjacentPacket": {
+    "scope": "Receipt only: 20 selected Spec Kit/BMAD/GSD files and scoped mechanical probes; no upstream installer or full workload run",
+    "members": [
+      {
+        "path": "build/test-work/sdd-owner-transfer-20261001/adjacent-research-handoff.md",
+        "sha256": "dff5c5703f8ff8169fe67041550b14919c14f9c28ee5659eec334dc0fcd0cea5",
+        "bytes": 13319
+      },
+      {
+        "path": "build/test-work/sdd-owner-transfer-20261001/adjacent-source-manifest.json",
+        "sha256": "db81bc84934f76722d5e0c1b19e87a407f9fad29e411ba15090412a0ea5b7c4e",
+        "bytes": 181143
+      },
+      {
+        "path": "build/test-work/sdd-owner-transfer-20261001/adjacent-verification.json",
+        "sha256": "ac9af9c8762866d6630f371a0e2d13a926e454cd9ceb1bd2ce3e33822805daa7",
+        "bytes": 4716
+      },
+      {
+        "path": "build/test-work/sdd-owner-transfer-20261001/adjacent-source-evidence.tar.gz",
+        "sha256": "3c034777555206b0edcb25555e5862476605f7281bb32aa53f4a5de6da660a24",
+        "bytes": 328745
+      }
+    ],
+    "status": "received_not_substantively_absorbed",
+    "custody": "Retain original unique packet until current topic owners absorb it and recovery is proven"
+  },
+  "proposedTopicTransplant": {
+    "patch": {
+      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/research-topic-transfer/general-research-transplant.patch",
+      "sha256": "39e5e93c7e9193ad556e505c9891c818f7c3253c84fe0f76741bcb512512867c"
+    },
+    "manifest": {
+      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/research-topic-transfer/manifest.json",
+      "sha256": "5f57bf75816972df60ebf88de64e7ff15cd615f1eb3ee303cf5a7c1fb398f1fb"
+    },
+    "baseHead": "d87240487c586973c50a445e8fac98b649bf0ac3",
+    "status": "source owner must adopt, adapt or reject at existing topics; not applied",
+    "topics": [
+      "docs/research/foundations/adoption.md",
+      "docs/research/foundations/semantics.md",
+      "docs/research/foundations/effects.md",
+      "docs/research/foundations/verification.md",
+      "docs/research/foundations/interfaces.md"
+    ],
+    "owner": "proof-throughput:12.6"
+  }
 }

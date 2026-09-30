@@ -437,3 +437,33 @@ rather than be read from an ambient Provider directory or omitted from identity.
   editorial resource that the Provider envelope does not bind by exact bytes
 - **THEN** the join rejects the Edition before compilation
 - **AND** it neither reads the resource ambiently nor omits it from identity
+
+### Requirement: Successor executable materialization requires an invoker choice
+
+An executable Provider named by a successor Build Request SHALL NOT run until
+the invoker separately selects the exact Provider ID and manifest digest for
+that invocation. The request and Provider manifest cannot authorize their own
+code execution. Missing, extra, or changed choices SHALL fail before Provider
+code runs. Direct and declarative inputs SHALL work with an empty choice.
+This requirement does not reinterpret historical released v1 input semantics.
+
+#### Scenario: A selected manifest cannot execute itself
+
+- **WHEN** a successor Build Request names an executable Provider but the
+  invoker supplies no separate exact execution choice
+- **THEN** build and materialization fail before Provider code runs
+- **AND** a fresh Candidate is not emitted
+
+#### Scenario: The invoker selects the exact executable set
+
+- **WHEN** the invoker supplies every selected executable Provider as one
+  exact `id@manifestSha256` pair, with no missing or extra pair
+- **THEN** the existing bounded Provider path may execute
+- **AND** the choice grants no source truth, filesystem sandbox, Candidate
+  qualification, or publication authority
+
+#### Scenario: Declarative materialization remains inert
+
+- **WHEN** a request selects only direct or declarative inputs and the invoker
+  supplies no executable choice
+- **THEN** the ordinary build succeeds without executing adopter code

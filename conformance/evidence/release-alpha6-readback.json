@@ -272,7 +272,8 @@
   "sourceOwnerHandoff": {
     "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/source-owner-handoff.json",
     "bytes": 5508,
-    "sha256": "2da466a62ea693e21424bf1ea4aaf681197141431f69b6e9712b1730a858e931"
+    "sha256": "2da466a62ea693e21424bf1ea4aaf681197141431f69b6e9712b1730a858e931",
+    "role": "historical exact handoff snapshot; latest refreshed source boundaries are in sourceOwnerMigration"
   },
   "ethosReceipt": {
     "status": "independently verified exact local Core/manifest/checksum hashes by source owner",
@@ -329,10 +330,45 @@
       "evidence": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/ethos-public-import-migration-audit.json"
     },
     "aigw": {
-      "status": "handoff delivered; source/editor acceptance and migration not established"
+      "sourceCommit": "55f211644824d155867ed2a0dd613fa6d24014a3",
+      "observedAt": "2026-09-30T22:58:35.741Z",
+      "status": "exact successor handoff delivered to existing independent AIGW verification task; actual single-writer handoff and adoption not established",
+      "inputs": [
+        {
+          "path": "architecture/edition-provider/provider.json",
+          "bytes": 1581,
+          "sha256": "34b68a446aebcce28abcd21510e958682ce31dc487257e8d9194e9eacdb26cb9"
+        },
+        {
+          "path": "architecture/edition-provider/edition.json",
+          "bytes": 15767,
+          "sha256": "7c2be954ead5a33601d06130abb25f96904afb4a1c14a341b9ca77eecb09bb27"
+        },
+        {
+          "path": "architecture/edition-provider/selection.json",
+          "bytes": 3088,
+          "sha256": "5a93c2c202a1b63334a4a307d10cf1906b960e92db8201bb54466285404f49ad"
+        }
+      ],
+      "delivery": {
+        "thread": "01a0ccfc-04ad-7cf1-a1d8-45073ab262b3",
+        "transport": "native Codex task message",
+        "messageAccepted": true,
+        "receiverHashVerification": "not-established",
+        "recipientRole": "existing independent macOS/Linux verification task, not inferred source writer",
+        "actualWriterHandoff": "not-established; established authorized route requested, no direct message to a newly inferred task"
+      },
+      "selectedPublisherVersion": "0.3.0-alpha.1",
+      "roleLimits": [
+        "existing architecture/edition-provider directory is not relocated again",
+        "content-derived subject revision is not Git",
+        "neutral six-page Product and four-page Client readability approvals do not grant source endorsement",
+        "source-owned migrated input, installed semantics/media, rollback, acceptance and release remain open"
+      ]
     },
     "research": {
-      "status": "exact packet receipt verified; five-topic transplant proposed and dry-run valid, not adopted"
+      "status": "exact packet receipt verified; five-topic transplant proposed and dry-run valid, not adopted",
+      "evidenceOwner": "conformance/evidence/research-owner-intake.json"
     }
   }
 }

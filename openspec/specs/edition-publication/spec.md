@@ -11,32 +11,44 @@ source, editor, verifier, accepter, and custodian authorities remain distinct.
 
 ### Requirement: Edition is a complete authored contract
 
-One editor-owned Edition project SHALL select audience, reader questions,
-source namespaces and revisions, scope, required assertions, explicit limits
-and omissions, attributed editorial assertions, narrative, and separate static
-and interactive presentation obligations. An Edition SHALL NOT silently alter
-source facts or claim source endorsement from a source path or maintainer
-label.
+One editor-owned Edition Project SHALL select audience, questions, source
+addresses and references, question-scoped assertions, limits and omissions,
+attributed editorial assertions, narrative, and separate static and interactive
+obligations. The Build Request, not the Project, selects source revisions and
+requested media. Each selected assertion SHALL appear in its promised view or
+have an allowed omission; unselected facts need not be enumerated.
 
 #### Scenario: An editorial assertion is added
 
 - **WHEN** an Edition states a cross-source relationship or conclusion not
   asserted by either source
-- **THEN** it names the editor as proponent and identifies its source basis
-- **AND** it does not present the new assertion as source-approved fact
+- **THEN** it names the editor as proponent and identifies its selected basis
+- **AND** it does not appear as source-approved fact
 
 #### Scenario: An Edition omits a source claim
 
-- **WHEN** a claim is absent from a view
-- **THEN** the omission is admitted only when the Edition policy classifies it
-  as outside that view's question, represented visibly by another declared
-  view, or an explicit limit on the promised answer
-- **AND** an unclassified omission fails coverage validation
+- **WHEN** a selected source assertion is absent from a view promising its
+  reader question
+- **THEN** its omission must be classified as covered in another answering
+  view of the same medium or as an explicit limit on that answer
+- **AND** unrelated, unselected source facts do not create exhaustive-graph
+  obligations
 
 #### Scenario: An Edition changes source meaning
 
-- **WHEN** authored wording, grouping, or decoration contradicts a bound claim
-- **THEN** compilation fails before either medium is accepted
+- **WHEN** selected source identity or typed Claim Model rules establish an
+  incompatible fact, or an authored group violates its declared forbidden pair
+- **THEN** compilation rejects that exact contradiction before Candidate
+- **AND** a later renderer cannot waive it by painting the same IDs
+
+#### Scenario: Free wording seems to contradict a bound source claim
+
+- **WHEN** an editor writes a stronger unsupported statement while retaining
+  the exact source references
+- **THEN** each selected public medium visibly attributes the wording to the
+  editor and marks it unverified
+- **AND** build success does not certify the wording, source endorsement, or
+  human acceptance
 
 ### Requirement: Free editorial framing is visibly attributed
 
@@ -727,13 +739,13 @@ second authored list.
 
 ### Requirement: Static views compose one faithful figure
 
-Selected static views SHALL yield one complete-page SVG and PNG. Each view
-retains its questions, assertions, limits, and graphic-carrier bindings. The
-figure SHALL separate views without inventing cross-view relations or
-transferring claims or acceptance. Text, structural marks, annotation, and
-decoration SHALL fit without clipping, occlusion, overlap, or inadequate
-clearance. Missing carriers fail before Candidate; graph-only layout success
-is insufficient.
+Selected static views SHALL yield one complete-page SVG and PNG, each retaining
+questions, assertions, reader-question limits, source-status qualifiers and
+graphic-carrier bindings. Views SHALL remain distinct without inventing
+cross-view relations or transferring claims or acceptance. Text, structural
+marks, annotation and decoration SHALL fit without clipping, occlusion, overlap
+or inadequate clearance. Missing carriers fail before Candidate; graph-only
+layout success is insufficient.
 
 #### Scenario: Two static views answer distinct questions
 
@@ -742,6 +754,57 @@ is insufficient.
 - **THEN** one static SVG and PNG visibly distinguish both views and retain
   each view's own assertion-to-graphic carriers and limits
 - **AND** no edge or endorsement is inferred merely from the shared entity
+
+#### Scenario: Claim Model structure has no authored groups
+
+- **WHEN** a static view selects Claim Model entities or relations and the
+  editor declares no visual groups
+- **THEN** Publisher uses its selected bounded structural geometry to render
+  every required entity, relation, direction, and qualifier without inventing
+  group membership or printing a reading-group key
+- **AND** unsupported or infeasible geometry fails before Candidate rather
+  than requiring a dummy authored group or dropping a source assertion
+
+#### Scenario: One neutral raw-structure view retains the complete figure grammar
+
+- **WHEN** exactly one unrefined static view selects source entities or
+  relations without selecting Claim cards for that view
+- **THEN** its question leads one complete figure containing its exact graph,
+  relation explanation, source status, and declared limits
+- **AND** absence of authored groups does not switch to a separate side-rail
+  composition or imply that an unreviewed result is visually accepted
+- **AND** a selected upstream authored view without editorial groups retains
+  its source-view composition instead of being mistaken for raw structure
+
+#### Scenario: Neutral peer nodes have unequal label lengths
+
+- **WHEN** the selected Dagre adapter composes source nodes with different
+  label lengths in one structural view
+- **THEN** it measures one sufficient node width for that view, rounds the
+  box to its 32-unit grid, and gives every peer the same width and height
+- **AND** same-rank left edges align while relations and captions are routed
+  against the resulting boxes, not the former varying widths
+- **AND** a regular-row Dagre candidate is preferred when every caption clears
+  every route; a caption-clearance failure may select the balanced Dagre
+  candidate, with its own routes and captions recomputed
+- **AND** if neither candidate clears its captions, composition fails rather
+  than shrinking text or moving nodes after layout without updating edges
+
+#### Scenario: Method evidence does not become figure copy
+
+- **WHEN** an Edition's selected source and compiler have method or
+  dependency-closure limitations that do not alter a promised reader answer
+- **THEN** the static SVG and PNG retain reader-question limits and source
+  status without printing raw method-limit identifiers as a diagnostic ledger
+- **AND** the Candidate retains the exact limitations for inspection and
+  qualification, without implying that their absence from the art clears them
+
+#### Scenario: An unsupported construct affects the answer
+
+- **WHEN** a selected reader question depends on source meaning that its
+  admitted interpreter cannot preserve
+- **THEN** compilation fails before Candidate rather than suppressing the
+  limitation in the figure and claiming complete coverage
 
 #### Scenario: A view forbids two selected members in one visual group
 
@@ -953,3 +1016,204 @@ exact-browser qualification remains separate.
 - **WHEN** executable page code attempts a network connection in the reader
 - **THEN** the browser policy blocks the connection
 - **AND** a browser error or incomplete rendering cannot be counted as qualification
+
+### Requirement: Compilation distinguishes mechanical and editorial judgment
+
+Publisher SHALL reject mechanically established identity, typed-meaning and
+declared-grouping contradictions. It SHALL NOT judge arbitrary editorial
+wording's semantic equivalence or contradiction with the source. Selected
+media SHALL attribute that wording to the editor and mark it unverified.
+Candidate build alone SHALL remain unqualified until applicable semantic and
+human acceptance. These checks do not authenticate the editor or confer source
+endorsement.
+
+#### Scenario: A valid build lacks an editorial acceptance decision
+
+- **WHEN** exact inputs pass identity, typed-meaning and declared-group checks
+  but the selected wording has no applicable semantic or human acceptance
+- **THEN** build remains unqualified and attributes the wording to its editor
+- **AND** mechanical success neither certifies that wording nor grants source
+  endorsement or publication authority
+
+### Requirement: Edition selects a question-matched visual form
+
+Each reader question SHALL select its dominant relationship and source-bound
+form per medium. The form SHALL preserve selected assertions and limits without
+a second source model or authored pixel positions. Publisher SHALL validate
+representability before layout, not infer ownership, time order or evidence
+from node order, edge direction, labels or layout defaults. Explicitly typed
+native views may supply the form; ambiguous generic selections require an
+editor's choice.
+
+#### Scenario: Ownership question is not a traffic flow
+
+- **WHEN** an Edition asks which actor owns a responsibility or handoff
+- **THEN** its visual form distinguishes authority and boundary from traffic
+  direction using selected source-backed assertions
+- **AND** a generic left-to-right relation chain is not accepted solely
+  because every selected entity and edge appears somewhere in it
+
+#### Scenario: A responsibility role lacks its attributed basis
+
+- **WHEN** a selected responsibility/handoff form assigns a visible zone,
+  membership, or handoff without a same-question selected source assertion or
+  separately attributed editorial assertion naming its basis
+- **THEN** Publisher reports the affected question and unsupported role before
+  layout, without a complete Candidate
+- **AND** it does not derive ownership from entity type, box position, line
+  direction, or a free narrative summary
+
+#### Scenario: A relation is not an ownership claim
+
+- **WHEN** an Edition binds a responsibility role or handoff directly to a
+  selected entity, relation, or structural view rather than a typed Claim or
+  editor-attributed assertion with selected source basis
+- **THEN** Publisher reports the affected view question and unsupported role
+  before layout, even if all referenced source endpoints are present
+- **AND** it does not silently reinterpret a traffic route as an authority
+  handoff
+
+#### Scenario: Every responsibility role has an attributed basis
+
+- **WHEN** the selected form binds each visible role and handoff to exact
+  same-question assertions and discloses applicable conditions and limits
+- **THEN** Publisher preserves source versus editorial attribution while
+  composing the form without requiring authored pixel positions
+- **AND** finite reference validation does not claim that free editorial
+  wording is source-endorsed or substantively correct
+
+#### Scenario: Group storage order differs from responsibility reading order
+
+- **WHEN** an Editor changes only the order of the view's group records while
+  retaining each group's members and the responsibility form's role order
+- **THEN** the form's ordered role references, not group-record position,
+  determine the visible reading order
+- **AND** the selected group membership and assertion carriers remain exact
+
+#### Scenario: Form or layout cannot answer the question
+
+- **WHEN** the selected form cannot express a required assertion, or every
+  complete painted candidate fails readable whole-page composition
+- **THEN** Publisher reports the affected question and a bounded editorial
+  form, grouping, or source-bound caption need before Candidate completion
+- **AND** it does not substitute a prose inventory, a different source claim,
+  or an unreviewed renderer-specific fallback
+
+### Requirement: Interactive chapters carry meaning in the chosen form
+
+Neutral HTML SHALL compose intrinsic, navigable chapters in continuous flow,
+not fixed-height slides or a default page-wide source ledger. Relation captions
+and question-relevant typed Claim cues SHALL bind exact visible subjects, use
+selected-font metrics and clear the page. Routes SHALL clear nodes, routes and
+arrowheads. Focused inspection SHALL expose full selected records. Captions and
+cues SHALL NOT invent, silently abbreviate or transfer source authority.
+
+#### Scenario: A selected relation has a readable source label
+
+- **WHEN** the source label fits a feasible routed graph at the declared
+  desktop reading size
+- **THEN** the reader can identify that relation in the graphic without
+  consulting a numbered prose ledger
+- **AND** the emitted label clears nodes, other labels, arrowheads, and the
+  page boundary after the actual graph renderer has painted it
+
+#### Scenario: A selected Claim qualifies a diagram relation
+
+- **WHEN** the Edition selects a typed Claim whose answer depends on its
+  plane, condition, scope, or validity
+- **THEN** a source-bound visual cue near its exact relation or subject
+  distinguishes the necessary qualification in the default reading state
+- **AND** focused inspection exposes the complete selected record without
+  making the cue a new editable Claim
+
+#### Scenario: The complete visual argument is infeasible
+
+- **WHEN** measured labels and cues cannot fit without illegible scaling,
+  collisions, omission, or a false source assertion
+- **THEN** composition fails with the selected view and a bounded editorial
+  regrouping or caption need
+- **AND** an ordinal-only graph plus default relation transcript is not
+  emitted as an apparently complete architecture diagram
+
+#### Scenario: A short chapter precedes another chapter
+
+- **WHEN** one selected mechanism needs less than a viewport of height
+- **THEN** the next complete chapter follows in document flow rather than
+  leaving an otherwise empty fixed-height slide
+- **AND** navigation and inspection preserve each chapter's own identity,
+  question, selected meaning, and keyboard focus
+
+#### Scenario: Desktop width admits a shorter complete figure
+
+- **WHEN** validated layout candidates preserve the same selected meaning
+  and a horizontal candidate keeps labels readable at the declared desktop
+  width while using less intrinsic height
+- **THEN** composition does not prefer a tall isolated figure solely because
+  it fits a fixed slide-height rectangle better
+- **AND** actual browser paint verifies readable labels, complete routes,
+  and the unchanged selection before visual acceptance
+
+#### Scenario: A wrapping cut saves height but introduces a long detour
+
+- **WHEN** valid candidates have readable labels and a wrapping cut reduces
+  height while adding avoidable route distance
+- **THEN** the single layout owner compares intrinsic height plus mean route
+  detour before total route length, not height alone
+- **AND** detour is the complete orthogonal route length beyond its terminal
+  Manhattan distance; no emitted point or selected relation is adjusted
+- **AND** at most four native candidates per selected page remain within the
+  existing execution, output, and page-count bounds
+
+#### Scenario: Exact applicability belongs to the reading region
+
+- **WHEN** a graph has selected relation qualifiers or reader limits
+- **THEN** native intrinsic layout places them alongside the complete figure
+  when sufficient reading width exists, otherwise directly below it
+- **AND** their exact subjects, predicates, exceptions, and attribution stay
+  visible without a page-wide source inventory or a narrow-device variant
+
+#### Scenario: Selected claims share exact context
+
+- **WHEN** every selected Claim contains an identical context fact
+- **THEN** one visible shared context may carry that fact without repeating it
+- **AND** every distinct condition, scope, claimant, validity, value, and
+  semantic anchor remains with its own Claim and complete Inspect record
+
+#### Scenario: Display spelling could conflate typed applicability
+
+- **WHEN** two selected scalar types or dimension values would have the same
+  unquoted display spelling
+- **THEN** unambiguous tokens distinguish their names and values in both
+  visible media and Inspect before exact shared context is factored; only
+  nonreserved identifiers omit quotes, with other strings using canonical JSON
+- **AND** a string containing dimension punctuation cannot become equivalent
+  to another Claim's conjunction
+
+### Requirement: Neutral interactive geometry has one exact layout owner
+
+Neutral interactive graphs SHALL use one pinned layout implementation for node,
+flat-group, label, and complete route geometry. The SVG painter SHALL preserve
+those coordinates. Viewport interaction SHALL neither re-route nor re-label.
+Missing or invalid geometry SHALL fail before Candidate success. Verified
+layout supply SHALL execute in the existing bounded owned-worker scope.
+
+#### Scenario: Parallel relations and a return cycle coexist
+
+- **WHEN** two selected relations share endpoints and another returns upstream
+- **THEN** each retains its own complete route and source identity
+- **AND** actual paths, arrowheads, and measured labels clear unrelated nodes
+- **AND** a browser interaction cannot replace the selected route
+
+#### Scenario: A route crosses a flat-group boundary
+
+- **WHEN** the layout returns cross-group, intra-group, or self-loop sections
+- **THEN** section and label coordinates are normalized from the named container
+- **AND** every terminal attaches to its selected leaf-node boundary
+- **AND** missing sections or ambiguous containers fail without a fallback line
+
+#### Scenario: Layout supply stalls or returns malformed output
+
+- **WHEN** the selected worker exceeds a declared time or output bound
+- **THEN** the existing supervisor reclaims its owned process scope
+- **AND** the operation fails without emitting an apparently successful Candidate
+- **AND** prior artifacts, source meaning, and static geometry remain unchanged
