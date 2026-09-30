@@ -1024,64 +1024,28 @@ third-party or generated supply rather than moving owned code outside coverage.
       Actual visible adequacy remains Task 5.4; neutral AIGW composition
       remains Task 5.2; exact frozen-package, adopter and human acceptance
       remain Tasks 7.5–8.2. This checkbox grants none of those outcomes.
-- [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
-      plane/condition, hidden-only IDs or metadata, incomplete interactive
-      overviews, backend badges, and non-disclosed private inputs. Bind actually
-      consumed authoring bytes, selected visual policy, renderer, font supply,
-      dimensions, and final artifacts independently per medium. Infeasible layout
-      returns for editorial regrouping rather than silently dropping meaning.
-      Partial: static SVG exposes only opaque graphic IDs. Its private carrier
-      map now binds each source-qualified node/relation and assertion to visible
-      graphic IDs; the Candidate binds that map separately from interactive.
-      Renderer-level RED/GREEN rejects hidden-only questions and limits in both
-      media and unclaimed static graphics; static relation notes preserve
-      bidirectional meaning. A compiler-level join now checks each selected
-      assertion against its declared reader question, its Scene carrier, and
-      renderer-private graphic binding for both media. RED/GREEN tests reject
-      invented or swapped assertions, partial graphic binding, omitted editorial
-      assertions, and a carrier map assigned to the wrong page; a covered-elsewhere
-      view with an explicit limit remains valid. Independent review found no
-      confirmed public-path defect or duplicated omission authority. This is a
-      structural visibility check, not independent semantic qualification.
-      A packed, offline, relocated mixed-model test keeps an unselected entity
-      label and unselected claim value out of Candidate, SVG and HTML bytes;
-      this is a selected-canary check, not general disclosure proof.
-      On editorial-only pages, each visible limit now stays with its reader
-      question instead of being flattened into an unattributed stage list.
-      Mixed scalar counterexamples reject a missing subject link, a forged
-      subject dependency, and claim-card structures that would otherwise raise
-      an untyped exception. Compiler coverage reuses the one source-link
-      derivation rather than maintaining a rival relation rule. New adversarial
-      joins reject ambiguous question and graphic identities, borrowed claim
-      cards, missing claim links, and invented relation-only claim links. The
-      two focused files pass 62 tests with one declared browser skip; isolated
-      `compiler/coverage.mjs` branch coverage is 192/198 (96.96%), not a global
-      gate. The public authored-canvas build now rejects measured text/edge
-      collisions, forged glyph boxes, and emitted path drift using the selected
-      bundled fonts. A Chrome-enabled full check passes 1226 tests with 2 skips;
-      all four coverage gates pass, including 95.07% branches. This does not
-      qualify generic multi-view composition or final art. An isolated AIGW
-      16-entity/14-relation overview remains an unadopted trial; source-owner
-      and human visual acceptance remain open.
-      A tracked Chrome test now captures actual text and stroke/rule pixels
-      from a generated two-role static responsibility form. It finds no
-      contact within a 2px square dilation and detects a test-only line through the
-      title. The current Chrome-enabled full check passed 1,357/1,360 tests
-      with three declared skips and zero failures; statement, branch,
-      function and line coverage were 97.69/95.01/99.56/97.69%. This is a
-      focused paint observation, not an arbitrary-Edition pixel gate,
-      approved baseline, adopter acceptance, or Task 5.4 closure.
-      The four-role trial exposed a real interactive `color-contrast` failure:
-      source-relation metadata was 4.17:1 against its paper, below WCAG AA.
-      A generic two-role Chrome/axe regression failed on the same renderer
-      class before its single owning CSS tone changed. It now passes; all six
-      exact changed AIGW trial pages have zero observed WCAG 2.1 A/AA axe
-      violations, horizontal overflow, or page errors. Static media remained
-      byte-identical; interactive bytes and Candidate identity changed, so
-      prior human or release approval cannot transfer.
-      The Chrome-enabled pre-commit full check passed 1,358/1,361 tests with
-      three declared skips and zero failures; statements, branches, functions,
-      and lines were 97.69/95.01/99.56/97.69%. This does not close Task 5.4.
+- [x] 5.4 Bind each selected source assertion, reader question, Scene carrier,
+      and emitted graphic independently in both media. Native regressions
+      reject endpoint/plane/condition substitutions, borrowed or hidden-only
+      carriers, missing question limits, unselected data, and unsafe private
+      input disclosure. Infeasible composition returns the exact view and
+      question for editor-owned regrouping.
+      Closure is finite mechanical coverage within Publisher's authority,
+      not arbitrary prose adequacy, source endorsement, or aesthetic approval.
+      On signed `a0aeeac`, an actual-consumer rederivation matched five input
+      locks, independent Scene/carrier digests, and the exact neutral HTML;
+      Chrome checked all 20 selected pages and every self Inspect record.
+      AIGW qualifiers, Claim applicability, source status, and limits remain
+      visible. All 30 offline-installed Candidate members were hash-rechecked.
+      The existing painted-layer observer witnessed every selected glyph,
+      frame, route, and arrow in all ten AIGW graphs with zero contact, including
+      a two-pixel dilation. The focused coverage/input/supply gate passed
+      37/37 without warnings or skips. Exact identities, methods, native
+      coverage, observer failure, and limits are in
+      `conformance/evidence/actual-media-coverage-probe.json`.
+      Reader-level composition and AIGW editorial form/long-route concerns
+      remain Task 5.2; final frozen packages and renewed self HTML review
+      remain Task 7.5; source-owner acceptance remains Tasks 8.1–8.2.
 - [x] 5.5 Keep the first-party self Edition on the same public Build Request,
       Edition Project, data-only refinement, and dual-medium compiler as other
       adopters. Preserve its source-owned meaning and flagship art direction;
