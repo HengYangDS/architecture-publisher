@@ -23,6 +23,7 @@ verify:
 .verify-macos:
   stage: verify
   image: null
+  resource_group: native-macos-verification
   interruptible: true
   script:
     - umask 022

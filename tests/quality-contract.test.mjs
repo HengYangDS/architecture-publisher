@@ -3,8 +3,31 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
+import { parse } from 'yaml';
 
 const root = path.resolve(import.meta.dirname, '..');
+
+test('native macOS verification shares one project resource without merging trust roles', async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
+  const native = pipeline['.verify-macos'];
+  assert.equal(typeof native.resource_group, 'string');
+  assert(native.resource_group.trim());
+  assert.equal(pipeline.verify.resource_group, undefined);
+  const review = pipeline['verify:macos:review'];
+  const protectedJob = pipeline['verify:macos:protected'];
+  for (const job of [review, protectedJob]) {
+    assert.equal(job.extends, '.verify-macos');
+    assert.equal(job.resource_group, undefined);
+    assert.equal(job.script, undefined);
+  }
+  assert.deepEqual(review.tags, ['ci-macos-arm64-review']);
+  assert.deepEqual(protectedJob.tags, ['ci-macos-arm64-shell']);
+  assert.deepEqual(review.rules, [
+    { if: '$CI_PIPELINE_SOURCE == "merge_request_event"' },
+    { if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH' },
+  ]);
+  assert.deepEqual(protectedJob.rules, [{ if: '$CI_COMMIT_REF_PROTECTED == "true"' }]);
+});
 
 test('one fail-closed quality entry point covers the repository contract', async () => {
   const manifest = JSON.parse(await fs.readFile(path.join(root, 'package.json')));

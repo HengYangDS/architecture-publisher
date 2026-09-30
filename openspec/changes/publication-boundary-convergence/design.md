@@ -1903,3 +1903,37 @@ This design is accepted only when the counterexamples demonstrate that the
 recommended workbench is both more useful than direct framework use and less
 costly than asking adopters to hand-build the same Edition twice. Otherwise
 reduce the product boundary rather than weaken the evidence or quality bar.
+
+### Native macOS verification uses one project resource
+
+Exact documentation source `509527c` passed the full local gate and main
+pipeline 9073. Its concurrent dev pipeline 9072 failed one CoreText compile
+with empty diagnostics after approximately 124 seconds; the same test in the
+already-created main job passed in approximately 27 seconds. The immutable
+failure and the independent main success remain separate observations.
+A bounded guest sample recorded zero idle CPU while the review and protected
+Publisher jobs overlapped, without memory or swap pressure. This supports a
+contention hypothesis, not a proven historical compiler-stall root cause.
+
+Each explicit CoreText invocation already has a private HOME, temporary tree
+and module cache. Preserve that isolation, compiler identity, 120-second
+compile deadline, 30-second execution deadline and every native rejection
+case. Do not add a mutable shared compiled-helper cache, increase timeouts,
+retry a failed job until green, or implement a host-level lock.
+
+Use GitLab's native `resource_group` at the shared `.verify-macos` owner to
+admit at most one Publisher macOS verification job across its review and
+protected registrations. The key is project-local; it does not constrain AIGW,
+ETHOS, other projects or Linux jobs, and it does not equate resource scheduling
+with credential or trust isolation. Preserve the existing distinct Runner
+tags and protected-ref selectors. Keep the default native process mode; no
+additional scheduler API or command is introduced.
+
+The existing quality-contract test parses the actual YAML through the locked
+mature YAML library and verifies the inherited shared group, distinct tags,
+untagged absence, selectors and Linux independence. Exact local gates and a
+fresh hosted pipeline qualify the changed CI carrier. The prior source and
+all alpha.6 package/media bytes remain immutable; this CI-only change does
+not require an unnecessary product release. Root cause remains unproved if
+only serialized native work succeeds. Compiler-result diagnostics and process
+tree supervision are separate potential product changes, not this repair.

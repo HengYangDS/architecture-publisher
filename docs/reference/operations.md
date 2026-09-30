@@ -614,9 +614,14 @@ bytes are verified through supply-chain and behavior tests.
 
 Hosted CI runs this same command on Linux ARM64 and native macOS ARM64. GitLab's
 protected-ref flag selects the protected macOS Runner; merge requests and
-unprotected branches select the separate review Runner. Native macOS executes
-the CoreText Swift paths that skip on other platforms. Browser and external
-input tests still require their explicit selectors.
+unprotected branches select the separate review Runner. Both inherit one
+project-local GitLab resource group, so Publisher's macOS verification jobs do
+not compete with each other for native compiler resources. Their Runner and
+trust identities stay separate; Linux and other projects are not serialized.
+This scheduling constraint is not a sandbox or a proof that every historical
+compiler stall had the same cause. Native macOS executes the CoreText Swift
+paths that skip on other platforms. Browser and external input tests still
+require their explicit selectors.
 
 Each CI job sets `umask 022` before checkout-derived package reproduction.
 Historical `contentTarSha256` identifies the complete uncompressed TAR stream,

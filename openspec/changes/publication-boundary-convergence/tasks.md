@@ -1059,3 +1059,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       across two base specs; reapplication has zero operations or warnings.
       Strict validation now reports seventeen valid items and zero issues.
       Normative convergence is not source adoption, archive or Lane retirement.
+
+- [ ] 8.4.1 Remove demonstrated same-project native macOS job overlap using
+      GitLab's existing resource-group carrier. Add a failing actual-YAML
+      contract test, preserve review/protected trust selectors and Linux
+      independence, then run pinned local quality and exact hosted checks.
+      Keep original failures, accepted alpha.6 bytes and all source-owned
+      adoption obligations. No host service, credential or time-limit change.
