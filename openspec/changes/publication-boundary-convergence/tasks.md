@@ -860,6 +860,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       Candidate members byte-for-byte after offline installation and external
       input relocation with empty HOME/PATH. This establishes neither AIGW
       editorial acceptance nor a flagship visual work; Task 5.2 stays open.
+      The repaired trial HTML still fails the complete-diagram reading test:
+      at 1600×1000 its role, internal-relation, handoff and cross-relation
+      sections extend separately to y≈1267; the exact full-page screenshot
+      and hashes are in the mechanism study. Replace the fragmented visual
+      inventories with one connected, question-led interactive form before
+      another local styling pass. Preserve source/editor attribution and
+      static/interactive independence; browser and Axe passes do not close
+      this reader-quality gap.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

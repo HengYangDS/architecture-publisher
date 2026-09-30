@@ -2175,3 +2175,34 @@ reproduced all six Candidate members after its consumer and three selected
 inputs moved outside the checkout with empty HOME/PATH. This was a dirty-
 worktree package trial, not a signed release, source-owner acceptance,
 independent predicate qualification, or final visual review.
+
+### Responsibility page remains a fragmented argument (2026-09-30)
+
+The repaired trial HTML above (SHA-256
+`5ab3e6f611a1725d4201cfc4e8d841bcf32cfcc8cf26adc608bedede459d48e8`)
+was reopened in headless Chrome at a declared 1600×1000 desktop viewport,
+device scale 1 and reduced motion. It issued no external request or page error.
+The exact [full-page screenshot](evidence/aigw-responsibility-first-screen-counterexample.png)
+is 1600×1455 pixels, SHA-256
+`a022b959cb47da5504e7ba0442a0fcb1bec79abd9b3eebf61ce8058b361e964e`.
+
+The page separates one selected question into four vertical sections: role
+columns end at y≈588, within-role relations at y≈705, the editorial handoff at
+y≈884, and cross-role source relations at y≈1267. The last relations and their
+Claim are below the 1000-pixel first screen. Role chips, relation tracks and
+the handoff do not form one connected visual map; repeated source labels make
+the page read like inventories of the same facts. This is a whole-page form
+failure, not a contrast, clipping, runtime or local edge-routing defect. The
+previous Axe/overflow and static painted-clearance passes remain true only
+within their scopes and cannot qualify this presentation.
+
+The next interactive candidate must place selected responsibility roles,
+source relations and the distinctly editorial handoff in one question-led
+visual plane, with actual endpoint attachment and a complete first-screen
+overview at the declared desktop review context. Source qualifiers, the
+linked Claim and reader limit must remain attributable and readable; Inspect
+may expose audit detail but cannot replace the primary diagram. Compare its
+painted geometry, reading cost and visual balance on the same exact source and
+Edition, then on self and an independent workload before replacing the
+current renderer. This counterexample does not approve the copied AIGW
+Edition or prescribe a new layout library.
