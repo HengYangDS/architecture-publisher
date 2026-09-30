@@ -279,6 +279,25 @@ Edition field; an ambiguous generic selection requires an editor's choice.
 - **AND** a generic left-to-right relation chain is not accepted solely
   because every selected entity and edge appears somewhere in it
 
+#### Scenario: A responsibility role lacks its attributed basis
+
+- **WHEN** a selected responsibility/handoff form assigns a visible zone,
+  membership, or handoff without a same-question selected source assertion or
+  separately attributed editorial assertion naming its basis
+- **THEN** Publisher reports the affected question and unsupported role before
+  layout, without a complete Candidate
+- **AND** it does not derive ownership from entity type, box position, line
+  direction, or a free narrative summary
+
+#### Scenario: Every responsibility role has an attributed basis
+
+- **WHEN** the selected form binds each visible role and handoff to exact
+  same-question assertions and discloses applicable conditions and limits
+- **THEN** Publisher preserves source versus editorial attribution while
+  composing the form without requiring authored pixel positions
+- **AND** finite reference validation does not claim that free editorial
+  wording is source-endorsed or substantively correct
+
 #### Scenario: Form or layout cannot answer the question
 
 - **WHEN** the selected form cannot express a required assertion, or every
