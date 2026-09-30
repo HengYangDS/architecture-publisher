@@ -1830,12 +1830,26 @@ cost. Occupancy, visual center, and empty-region measures may diagnose
 composition but cannot be optimized into a substitute for editorial judgment.
 For future PPTX and PDF, inspect native text and page structure and render
 each page or slide under a pinned font/toolchain before image comparison; a
-flattened preview cannot prove an editable deck or a readable report.
+flattened preview cannot prove an editable deck or a readable report. The
+installed Poppler `pdftotext -bbox` and `pdftoppm`, plus LibreOffice's
+headless PDF conversion, support a local trial but do not prove PowerPoint
+fidelity.
 
 **Decision:** retain the existing Playwright and static-audit owners. Trial
 Pixelmatch or ODiff, and painted-layer masks, against known counterexamples
 before adding a dependency or service. Keep machine rejection of measurable
 defects, human review of exact media, and source-owner acceptance separate.
+
+A read-only smoke probe used the retained broad AIGW SVG SHA-256
+`1b2ebd0f04e6673e3ae807d65f6c414234f7de5c6e550e2bb335fe670e2ba30b`.
+Chrome and the installed Playwright 1.63.0 rendered its text and stroke/rule
+layers separately at device scale one. At alpha greater than 16, the painted
+layers had zero intersecting pixels and zero text pixels within a two-pixel
+dilation of the marks. A test-only three-pixel line across the title yielded
+833 intersecting pixels and 1,958 within two pixels. The temporary captures
+were removed. This positive control demonstrates a viable detector for one
+actual painted collision; it does not qualify the separate responsibility
+form, other outputs, semantic coverage, or aesthetic balance.
 
 ### Comparative admission, not a preselected stack
 
