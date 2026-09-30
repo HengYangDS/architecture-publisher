@@ -665,6 +665,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       skips and 95.05% branch coverage (all four dimensions above 95%). This
       is a generic contract and does not change the rejected AIGW media or
       substitute for AIGW-authored static art and exact-byte visual acceptance.
+      A current read-only adoption audit at AIGW `01776f2` measured 1,289
+      Product and 1,252 Client Projection static-refinement JSON lines for
+      twelve nodes and eleven relations each. This is not a code-quality score,
+      but it blocks a claim that the generic baseline has removed pixel-level
+      authoring cost. Close this task only with a new source-bound neutral
+      whole-page candidate for both reading questions that passes actual
+      legibility, hierarchy, balance and complete-carrier review without
+      authored coordinates. An infeasible trial must fail by name and leave
+      this task open, not borrow acceptance from a source-owned flagship
+      refinement. Measure the manual edit burden after one source relation
+      change. Do not trade exact source qualifiers or disclosed limits for
+      apparent compactness, and do not add
+      a second geometry engine without a demonstrated irreducible failure.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

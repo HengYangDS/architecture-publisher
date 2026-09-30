@@ -971,6 +971,28 @@ Generic defaults must earn reader quality; they are not a license for uniform
 boxes, excessive blank space, or hidden-only coverage. Manual art direction is
 an override of a qualified baseline, not the price of entry.
 
+The AIGW source-owned work at signed `01776f2` is a falsifying adoption probe:
+its Product and Client Projection static refinements are 1,289 and 1,252 JSON
+lines for twelve nodes and eleven relations each. Line count alone does not
+judge their quality, and a flagship may deliberately author every coordinate.
+But a generic product cannot count that authored effort as evidence that its
+neutral composition is easy or reader-ready. The rejected neutral AIGW static
+figures likewise cannot be rehabilitated by collision-free geometry alone.
+Before calling the baseline general, rebuild both AIGW reading questions
+without source-authored coordinates and compare manual decisions and edits
+after one source relation changes. If no candidate meets legibility and
+whole-page hierarchy, return a named need for editorial refinement rather
+than quietly promoting a structural layout to a finished publication.
+
+The overview's causal answer must dominate its evidence apparatus. Group
+membership, source qualifiers and uncertainty remain truthful and available,
+but raw machine-limit slugs and repeated node inventories must not become the
+main reading experience. Keep exact codes in the Candidate and inspectable
+evidence; any reader-facing compression needs an explicit, non-lossy mapping
+and a visual review, not hidden facts or a second semantic authority. Reuse
+the existing graph geometry and font/raster owners before admitting another
+layout supply; test the whole composed page, not only its graph rectangle.
+
 ### Selected scene refinement for flagship Editions
 
 The self-Edition makes the override boundary concrete. At design admission, its
