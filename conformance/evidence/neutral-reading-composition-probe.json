@@ -638,7 +638,7 @@
     }
   },
   "currentSignedSourceChecks": {
-    "status": "current mechanical and exact human/media checks passed; final release-source gate and publication remain open",
+    "status": "dated source/mechanical/human observations; current release outcome is owned by release-alpha6-readback.json",
     "sourceCommit": "b9ea16446a301bec9d176ff0c800d93ead897d75",
     "pipeline": {
       "id": 9053,
@@ -879,7 +879,7 @@
       ]
     },
     "finalReleasePreparation": {
-      "status": "final working-tree quality and exact approved self desktop checks passed; signed-source/tag/Forge gates remain open",
+      "status": "historical final working-tree preparation; later signed-source/tag/Forge outcome is in currentReleaseReference",
       "releaseVersion": "0.3.0-alpha.6",
       "roleOnlyProtection": {
         "owner": ".ethos/workspace.toml branch_roles",
@@ -952,6 +952,10 @@
         "AIGW approvals remain neutral composition/readability only; no source or publication endorsement",
         "Candidate policy evidence remains attributed, not authenticated or automatically admitted"
       ]
+    },
+    "currentReleaseReference": {
+      "path": "conformance/evidence/release-alpha6-readback.json",
+      "role": "sole current release readback; no inherited source-adoption acceptance"
     }
   }
 }

@@ -1,11 +1,11 @@
 {
   "schema": "architecture.release-readback/v1",
-  "observedAt": "2026-09-30T22:10:38.160Z",
+  "observedAt": "2026-09-30T22:38:43.110Z",
   "release": "v0.3.0-alpha.6",
   "releaseUrl": "http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.6",
   "sourceCommit": "04a0511ece552efd8cbda64a6eae94cb2f5e05db",
   "sourceTree": "812091672454ef658d839c61acf0d9cc3c53a9ea",
-  "status": "release-assets-and-installed-replay-verified; final tag pipeline pending",
+  "status": "released exact assets, installed replay and hosted tag CI verified",
   "tag": {
     "object": "574c9c37d698b4832363841dd49d9ac8841f99b1",
     "target": "04a0511ece552efd8cbda64a6eae94cb2f5e05db",
@@ -85,9 +85,65 @@
     ]
   },
   "hostedTagCI": {
-    "pipeline": 9067,
-    "status": "pending/watched",
-    "limits": ["source pipeline passed, tag pipeline must be observed separately"]
+    "pipelineId": 9067,
+    "expectedSha": "04a0511ece552efd8cbda64a6eae94cb2f5e05db",
+    "status": "success",
+    "jobs": [
+      {
+        "id": 46678,
+        "name": "verify:macos:protected",
+        "status": "success",
+        "coverage": null,
+        "summary": [
+          "2026-09-30T22:31:57.763391Z 01O ℹ tests 23",
+          "2026-09-30T22:31:57.763395Z 01O ℹ pass 23",
+          "2026-09-30T22:31:57.763395Z 01O ℹ fail 0",
+          "2026-09-30T22:31:57.763395Z 01O ℹ skipped 0",
+          "2026-09-30T22:32:04.837864Z 01O Totals: 17 passed, 0 failed (17 items)",
+          "2026-09-30T22:37:49.432590Z 01O ℹ tests 1411",
+          "2026-09-30T22:37:49.432591Z 01O ℹ pass 1394",
+          "2026-09-30T22:37:49.432592Z 01O ℹ fail 0",
+          "2026-09-30T22:37:49.432601Z 01O ℹ skipped 17",
+          "2026-09-30T22:37:51.126845Z 01O All files                              |   97.79 |    95.15 |   99.58 |   97.79 |                   "
+        ]
+      },
+      {
+        "id": 46671,
+        "name": "verify",
+        "status": "success",
+        "coverage": null,
+        "summary": [
+          "2026-09-30T22:09:36.048870Z 01O ℹ tests 23",
+          "2026-09-30T22:09:36.048877Z 01O ℹ pass 23",
+          "2026-09-30T22:09:36.048877Z 01O ℹ fail 0",
+          "2026-09-30T22:09:36.048878Z 01O ℹ skipped 0",
+          "2026-09-30T22:09:37.861152Z 01O Totals: 17 passed, 0 failed (17 items)",
+          "2026-09-30T22:14:09.701099Z 01O ℹ tests 1411",
+          "2026-09-30T22:14:09.701099Z 01O ℹ pass 1379",
+          "2026-09-30T22:14:09.701099Z 01O ℹ fail 0",
+          "2026-09-30T22:14:09.701099Z 01O ℹ skipped 32",
+          "2026-09-30T22:14:11.371566Z 01O All files                              |   97.04 |    95.21 |   98.95 |   97.04 |                   "
+        ]
+      }
+    ],
+    "originalFailure": {
+      "job": 46672,
+      "test": "CoreText emits identical metric bytes for identical selected inputs",
+      "code": "coretext_compile_failed",
+      "diagnostics": "empty",
+      "errorRootCause": "original exact stall not fully observed; isolated same-source compile passed twice around 15s, one failed-job retry passed without changes",
+      "notWaived": true
+    },
+    "oneRetry": {
+      "job": 46678,
+      "sourceChanged": false,
+      "testsChanged": false,
+      "timeLimitChanged": false,
+      "coverageRelaxed": false
+    },
+    "limits": [
+      "hosted omitted explicit local Chrome/external-input journeys remain separate exact local evidence"
+    ]
   },
   "proofAttestationId": "27d09201062558d2c03f6526f6fef33511b830e280ae8f63199603a0e7b252a6",
   "storage": {
@@ -243,6 +299,16 @@
       "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/documents-delivery.json",
       "bytes": 1036,
       "sha256": "723d0b19239ea7d501c3281737fa252328b6a6cfd307e72160e38672679eb156"
+    },
+    {
+      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/tag-ci-retry/evidence-native-ci-result.json",
+      "bytes": 1757,
+      "sha256": "4a8719e38116b90d2435e97f6eb2af95c313afdb1ae8dfbbe497fbde76c63439"
+    },
+    {
+      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/tag-coretext-failure-diagnosis.json",
+      "bytes": 1739,
+      "sha256": "73621eb30e400d75f9d890afc4a648315b11a4faacb62e11945f1645e1e71d9a"
     }
   ],
   "limits": [
@@ -251,7 +317,22 @@
     "Generic qualification binds 19 attributed records to an exact invoker-selected policy, reports submitted PASS and admitted false; the distinct release decision is not verifier authentication.",
     "Declared Candidate provenance/closure/source-coverage limits remain; no universal domain implementation truth is claimed.",
     "AIGW/ETHOS migration, source semantic endorsement and release remain their owners and open in the full goal.",
-    "Final native Windows not selected; hosted tag pipeline still awaiting explicit observation.",
+    "Final native Windows not selected; tag CI passed after the retained one-time native compiler failure.",
     "Historical release metadata/link identities and signed local tags preserved; old payloads not re-downloaded in this preservation audit."
-  ]
+  ],
+  "sourceOwnerMigration": {
+    "ethos": {
+      "sourceCommit": "d87240487c586973c50a445e8fac98b649bf0ac3",
+      "status": "pin-only upgrade disproven; source-owned migration pending",
+      "namedImportMismatches": 32,
+      "scope": "72 static named imports versus exact public export inventory; no runtime generality claim",
+      "evidence": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/ethos-public-import-migration-audit.json"
+    },
+    "aigw": {
+      "status": "handoff delivered; source/editor acceptance and migration not established"
+    },
+    "research": {
+      "status": "exact packet receipt verified; five-topic transplant proposed and dry-run valid, not adopted"
+    }
+  }
 }

@@ -58,8 +58,10 @@ separately bound `SHA256SUMS`; downloaded packages rebuilt five workloads and
 thirty Candidate files after relocation with empty PATH.
 
 The full current [readback receipt](../../conformance/evidence/release-alpha6-readback.json)
-is the evidence owner. The tag-context hosted pipeline is still independently
-observed there; asset reachability must not be presented as its success.
+is the evidence owner. Tag-context pipeline 9067 passed both native gates.
+Its original macOS job failed one CoreText compiler invocation; an isolated
+same-source native test and one exact failed-job retry passed without quality,
+timeout or source changes. The original failure is retained, not erased.
 Generic policy verification binds nineteen submitted records and reports
 `admitted: false`; explicit owner acceptance, source endorsement and delivery
 effects are separate. No ETHOS/AIGW adoption, final native Windows or

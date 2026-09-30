@@ -966,7 +966,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       Evidence-only closeout commits renew exact-HEAD governance without
       changing the frozen signed release or unchanged package/media bytes.
 
-- [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
+- [x] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release
       decision, and a local full gate with the exact annotated tag present
       before pushing that tag. Advance only admitted protected refs; publish
@@ -985,9 +985,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       all were downloaded and SHA-256 checked, including the separate checksum
       digest. The downloaded packages rebuilt all 30 relocated members.
       Documents received the exact 6000px PNG and single HTML. Source CI 9061
-      passed; protected tag CI 9067 is queued behind same-source main jobs and
-      remains observed separately. Do not close this task before its final
-      hosted readback.
+      and protected tag CI 9067 passed every coverage floor. Original macOS
+      job 46672 failed one native CoreText compiler invocation; the selected
+      same-source native test passed, then one exact failed-job retry 46678
+      passed without source, timeout, test or coverage changes. The failure
+      and its incomplete historical root cause remain in the readback receipt.
 
 ## 8. Source handoff and closeout
 
@@ -999,14 +1001,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       source snapshot or an assumed single native format is not an admission.
       Migration must select a truthful AIGW-owned architecture source or
       attributed projection path, not merely relocate copied snapshots.
-- [ ] 8.2 Send ETHOS's single writer a retained-versus-displaced integration
+- [x] 8.2 Send ETHOS's single writer a retained-versus-displaced integration
       map and exact executable journey. Preserve ETHOS-native claims, Lane
       cooperation/competition/experiment/all-drop meaning, repository-quality
       SSOT, governance, independent-verification predicates, and flagship art
       direction; ETHOS separately admits semantic/media/rollback acceptance.
       A preliminary non-authorizing exact package-pin counterexample was sent
       to the ETHOS owner task on 2026-09-27; the final released-package journey
-      and source-owned acceptance handoff remain open.
+      handoff is now delivered with downloaded release hashes. The pin-only
+      migration test failed on retired private imports; a finite AST audit
+      found 32 named-import/public-export mismatches. Both failures are
+      retained and sent to the existing ETHOS owner, not masked by restoring
+      compatibility exports. The source owner independently verified the
+      exact downloaded Core archive, release manifest and checksum, and
+      acknowledged existing Tasks 9.9.4/12.6. This closes handoff only;
+      source-owned successor implementation, installed semantics/art/rollback
+      and acceptance remain goal obligations at ETHOS, not Publisher proof.
 - [ ] 8.3 Hand the completed SDD/DR, COMET, SpecD, semantic-graph, intent,
       and independent-verification research to the existing ETHOS knowledge
       owner with source citations and adopt/reject/defer boundaries. Keep only
