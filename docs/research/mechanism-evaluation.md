@@ -1886,3 +1886,29 @@ disposable probes, not committed artifacts.
 form fits. An extension listed by a CLI is not evidence of a multi-page
 report or native editable deck. PDF and PPTX require distinct work-level
 composition and qualification rather than automatic export of one SVG.
+
+### Penrose constraint-programming boundary (2026-09-30)
+
+The stable [Penrose 3.3.1 source](https://github.com/penrose/penrose/tree/v3.3.1)
+implements the valuable Domain/Substance/Style separation and geometric
+constraints/objectives. Its closest bundled architecture example has a
+[5-line Domain](https://github.com/penrose/penrose/blob/v3.3.1/packages/examples/src/box-arrow-diagram/box-arrow.domain),
+[149-line Style](https://github.com/penrose/penrose/blob/v3.3.1/packages/examples/src/box-arrow-diagram/box-arrow.style),
+and 78-line computer-architecture Substance. The Style fixes a 1000×1000
+canvas and draws component text and arrows, but does not visibly label typed
+relationships or supply responsibility zones. Its 154-line directed-
+multigraph Style likewise positions node labels and arrows rather than the
+long source predicates this Publisher workload must retain. Reusing either
+without a new domain-specific Style would lose selected AIGW meaning.
+
+The published [`@penrose/roger` 3.3.1 CLI](https://github.com/penrose/penrose/tree/v3.3.1/packages/roger)
+generates SVG from a trio and depends on native `canvas`; the web editor's
+PNG/PDF export is a different path, not proof that Roger produces a portable
+report or deck. Native dependency portability and optimization behavior on
+the full AIGW/ETHOS workloads were **not executed** here. The source-level
+stop condition is narrower: Penrose is not a thin, ready-made replacement
+for the current labeled responsibility/handoff figure or whole-work media
+compiler. Borrow typed content-versus-style separation and hard/soft
+constraint thinking. Revisit Penrose as a build-time figure tool only after
+a repeated, source-bound visual grammar justifies authoring and maintaining
+one shared Style and passes the complete installed/offline workload.
