@@ -1037,13 +1037,13 @@ endorsement.
 
 ### Requirement: Edition selects a question-matched visual form
 
-Each reader question SHALL select its dominant relationship and source-bound
-form per medium. The form SHALL preserve selected assertions and limits without
-a second source model or authored pixel positions. Publisher SHALL validate
-representability before layout, not infer ownership, time order or evidence
-from node order, edge direction, labels or layout defaults. Explicitly typed
-native views may supply the form; ambiguous generic selections require an
-editor's choice.
+The Edition SHALL select each reader question's dominant relationship and a
+source-bound form per medium. The form SHALL preserve selected assertions and
+limits without a second source model or authored pixel positions. Publisher
+SHALL validate representability before layout. It SHALL NOT infer ownership,
+temporal order or evidentiary status from node order, edge direction, labels or
+layout. Typed native views may supply the form; ambiguous generic selections
+require an editor's choice.
 
 #### Scenario: Ownership question is not a traffic flow
 
