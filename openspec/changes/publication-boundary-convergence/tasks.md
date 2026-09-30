@@ -1140,6 +1140,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       This remains local provisional evidence, not a native Linux host or
       hosted-CI result; Tasks 2.4, 4.1–4.3, and 5.1–5.4 retain open acceptance
       boundaries. No Candidate qualification or release follows.
+      A fresh public build at signed `15a3763` retained the approved input lock
+      and static PNG hash. Its standalone HTML differs from the approved bytes
+      only in one embedded `semanticDigest`: new SHA-256
+      `72d5fdb071615fa6b408b1528dab0979b712efde1d163e6e599eebd5f5a9f2ea`
+      versus approved
+      `481582f6dd05d322b5a41122f393d117e7886570569212ba8616a521256498ea`.
+      This is byte comparison, not transferred human acceptance; retain one
+      fresh exact-media review at the final freeze rather than asking after
+      every intermediate implementation change.
 
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release
