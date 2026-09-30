@@ -1849,3 +1849,40 @@ candidate for a source that actually supplies a matrix or staged topology;
 it is **not selected** as AIGW Product Boundary's principal form. Test a
 responsibility/handoff argument whose ownership assertions are explicitly
 source- or editor-qualified, then compare the full page and cross-media work.
+
+### D2 groups, grid, and direct document exports on AIGW (2026-09-30)
+
+The same signed AIGW source and exact Edition `boundary` selection were used
+for a D2 0.9.0 probe. Its [39-line grouped source](evidence/aigw-d2-boundary-grid.d2)
+has SHA-256 `7692a036fac1bf88c66c3f35934acf84b223b177ad22db93c0c90d0b1b9ed49b`.
+Five containers distinguish Operator, AIGW control, a neutral projection
+handoff, Native client, and External traffic; these groupings are provisional
+editorial choices, not additional source ownership facts. All six selected
+relation types are carried. [D2's grid documentation](https://d2lang.com/tour/grid-diagrams/)
+explicitly distinguishes grid placement from edge routing.
+
+TALA without the grid produced a 2012×487 SVG strip. Adding a three-column,
+two-row grid produced the [1079×867 SVG](evidence/aigw-d2-boundary-grid.svg)
+at SHA-256 `d05cff49289c71f3ef28cbce0d4a68b6ad7579d25930b3df72e4b3a9338b34aa`.
+It uses the canvas more evenly, but its column-major cell order separates
+causal neighbors, an `invokes` route crosses the AIGW group title, and blank
+group interiors remain prominent. The figure does not carry the selected
+Claim's maturity and traffic-owner limit. Neither variant passes the full
+question, painted-page, or art-direction gates. This is not an AIGW-approved
+Edition or a Publisher Candidate.
+
+The installed D2 CLI advertises PDF and PPTX output; both compiled from this
+same grid source. The exact PDF was one 1079×867-point page, untagged, with a
+full-page 2158×1734 raster image and no extractable text in `pdftotext`.
+The PPTX was one 16:9 slide containing one picture, zero native text and zero
+native shape objects. Its picture preserves the diagram's narrower ratio and
+leaves large side margins; the embedded labels are not editable. An isolated
+LibreOffice rendering showed the same imbalance. Its Fontconfig cache-dir
+warning did not change the OOXML evidence, but that conversion is not a
+release-quality portability or accessibility acceptance. PDF and PPTX were
+disposable probes, not committed artifacts.
+
+**Disposition:** D2 remains a useful optional static diagram source when its
+form fits. An extension listed by a CLI is not evidence of a multi-page
+report or native editable deck. PDF and PPTX require distinct work-level
+composition and qualification rather than automatic export of one SVG.

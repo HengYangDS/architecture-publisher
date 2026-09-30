@@ -1,0 +1,39 @@
+# Trial only; AIGW model SHA-256 c61dd0f0d6253d8f80280e5803e5fd4ff620d17b54404d045295770a242655db
+# Edition product/boundary: 6 relations, 1 claim; decision SHA-256 b44f9903067cb9c7b21bf7128c928b0dd30520de62f4d3bb69b8bb929be3b7fb
+direction: right
+grid-columns: 3
+grid-rows: 2
+grid-gap: 50
+operator_zone: "Operator" {
+  style.fill: "#F1F5F0"
+  style.stroke: "#A7B9AD"
+  operator: "Operator"
+}
+control: "AIGW control plane" {
+  style.fill: "#F1F5F0"
+  style.stroke: "#A7B9AD"
+  aigw: "AIGW"
+  configuration: "Configuration"
+}
+handoff: "Projection handoff" {
+  style.fill: "#F1F5F0"
+  style.stroke: "#A7B9AD"
+  adapter_registry: "Admitted adapters"
+  native_projection: "Native projection"
+}
+client_zone: "Native client" {
+  style.fill: "#F1F5F0"
+  style.stroke: "#A7B9AD"
+  client: "Native client"
+}
+external: "External traffic" {
+  style.fill: "#F1F5F0"
+  style.stroke: "#A7B9AD"
+  external_endpoint: "Selected endpoint"
+}
+operator_zone.operator -> control.aigw: "invokes"
+control.aigw -> control.configuration: "maintains"
+control.aigw -> handoff.adapter_registry: "dispatches"
+handoff.adapter_registry -> handoff.native_projection: "applies"
+handoff.native_projection -> client_zone.client: "configures"
+client_zone.client -> external.external_endpoint: "sends-requests-to"
