@@ -383,7 +383,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       as separate, attributed claims in both emitted media. This establishes
       structural and rendered-text preservation, not source truth, human
       adequacy, explicit lineage, or full conflict presentation.
-- [ ] 4.3 Extend `packages/publisher/src/semantics/change.mjs` and
+- [x] 4.3 Extend `packages/publisher/src/semantics/change.mjs` and
       `packages/publisher/src/edition/evolution.mjs`;
       `tests/native-evolution.test.mjs` and
       `tests/claim-model-selection.test.mjs` must detect
@@ -391,7 +391,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       claim dependencies, unknown read sets, and packaging-only changes. Report
       rebuild, semantic, media, human, acceptance, and publication obligations
       separately; do not transfer old approval automatically.
-      Partial: the existing `archpub evolution plan` route preserves Claim Model
+      Earlier partial slice: the existing `archpub evolution plan` route preserves Claim Model
       v2 comparison and accepts exact native Build Request pairs. Change facts
       separate source bytes, attribution, selected meaning, supply, and unknowns;
       Edition impact separates six non-authorizing obligation classes. Ruling:
@@ -460,9 +460,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       correspondence. Focused RED/GREEN and the local full gate pass:
       1,309/1,312 tests, three skips, zero failures, 95.12% branch coverage.
       The offline packed public CLI reproduces the dependency impact after
-      relocation under an empty HOME and PATH. Native read-set limits,
-      cross-platform installed parity, and adopter acceptance remain open;
-      older exact-byte human media approval does not transfer.
+      relocation under an empty HOME and PATH. Task 4.3 closes change planning,
+      not native read closure (2.4/4.1), frozen cross-platform parity (7.5),
+      or adopter acceptance (8.1/8.2); older exact-byte human media approval
+      does not transfer.
 
 ## 5. Editorial composition and independent media
 

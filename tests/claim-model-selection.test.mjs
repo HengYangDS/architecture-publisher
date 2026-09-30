@@ -806,33 +806,44 @@ test('a selected relation change reaches only claims with a declared dependency'
   );
 });
 
-test('an unselected relation change still reaches its selected dependent claim', async (t) => {
-  const before = await fixture(t);
-  const changedModel = claimModel();
-  changedModel.relations.request.qualifiers.policy = 'review';
-  const after = await fixture(t, { model: changedModel });
-  const prior = await evolutionSide(before);
-  const next = await evolutionSide(after);
-  const delta = compileNativeSelectionDelta(
-    { lock: prior.lock, native: prior.meaning.native },
-    { lock: next.lock, native: next.meaning.native },
-  );
-  assert(
-    delta.supported.some(
-      ({ selectionId, subject, fields }) =>
-        selectionId === 'selected-claim' &&
-        subject.kind === 'claim-dependency' &&
-        subject.reference?.section === 'relations' &&
-        subject.reference.id === 'request' &&
-        fields.includes('target-value'),
-    ),
-  );
-  const impact = compileNativeEditionEvolution({ before: prior, after: next });
-  assert(impact.editions.affected[0].reasons.includes('native-selection-changed:selected-claim'));
-  assert.deepEqual(impact.editions.affected[0].media, {
-    static: ['overview'],
-    interactive: ['overview'],
-  });
+test('native and derived unselected relation changes reach dependent claims', async (t) => {
+  for (const delivery of ['native', 'derived']) {
+    const before = await fixture(t, { delivery });
+    const changedModel = claimModel();
+    changedModel.relations.request.qualifiers.policy = 'review';
+    const after = await fixture(t, { delivery, model: changedModel });
+    const prior = await evolutionSide(before);
+    const next = await evolutionSide(after);
+    const delta = compileNativeSelectionDelta(
+      { lock: prior.lock, native: prior.meaning.native },
+      { lock: next.lock, native: next.meaning.native },
+    );
+    assert(
+      delta.supported.some(
+        ({ selectionId, subject, fields }) =>
+          selectionId === 'selected-claim' &&
+          subject.kind === 'claim-dependency' &&
+          subject.reference?.section === 'relations' &&
+          subject.reference.id === 'request' &&
+          fields.includes('target-value'),
+      ),
+      delivery,
+    );
+    assert.equal(
+      delta.unknown.some(({ reason }) => reason === 'derived-projection-bytes-changed'),
+      delivery === 'derived',
+      delivery,
+    );
+    const impact = compileNativeEditionEvolution({ before: prior, after: next });
+    assert(
+      impact.editions.affected[0].reasons.includes('native-selection-changed:selected-claim'),
+      delivery,
+    );
+    assert.deepEqual(impact.editions.affected[0].media, {
+      static: ['overview'],
+      interactive: ['overview'],
+    });
+  }
 });
 
 test('offline installed evolution preserves claim dependency impact after relocation', async (t) => {
