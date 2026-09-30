@@ -738,6 +738,21 @@ Ambiguous rename, split, merge, duplicate relation, or moved-source matching
 requires explicit editor lineage and applicable review. Rehashing after a
 source edit does not make an old claim current.
 
+The current successor does not admit a positive LikeC4 relation-lineage
+witness. Its exact `relation-lineage-unproved` result is the reported matching
+state for a moved or ambiguous source locator, not a probabilistic score or a
+claim that equal endpoints establish correspondence. That state renews semantic
+verification, each selected medium's review, acceptance, and publication. At the
+2026-09-30 local selected revisions, AIGW `01776f2` selects Claim Model v2 for
+Client and Product, ETHOS `3c8e67c` projects Claim Model v2, and di-effect
+`8a168b6` has three LikeC4 files but no tracked Publisher Edition or lineage
+witness. None supplies a demonstrated need to avoid full review after a
+LikeC4 relation move. A future positive contract needs exact before/after
+source digests and locators, source/editor attribution, unique bounded mapping,
+and an explicit rule that correspondence transfers neither meaning nor prior
+approval. Admit it in a new input version only against an adopter's named
+acceptance case; do not append an unverified mapping to the current plan.
+
 Multi-source identity is `(source namespace, native reference, revision)`, not
 label equality. Cross-source joining, comparison, or synthesized relations are
 explicit editorial/domain assertions with named proponents. A composition

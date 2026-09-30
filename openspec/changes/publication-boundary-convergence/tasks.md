@@ -330,7 +330,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       coverage with 5.1–5.4; current Linux/Windows acceptance with 7.5–7.6.
       Upstream-computed membership is explicitly unqualified; complete LikeC4
       include semantics are not claimed, and free-form Edition queries fail.
-- [ ] 4.2 Prove native identity and disagreement without inferred meaning in
+- [x] 4.2 Prove native identity and disagreement without inferred meaning in
       `tests/native-identity.test.mjs`, `tests/native-evolution.test.mjs`,
       `tests/semantic-compilation.test.mjs`, and
       `tests/claim-model-selection.test.mjs`. Current tests distinguish equal
@@ -346,11 +346,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       reviews, acceptance, and publication rather than inheriting approval.
       Bare relations or graphic carriers cannot prove transitive, universal,
       causal, or authority claims.
-      Still open: no admitted positive source/editor lineage witness for the
-      successor comparison, so it cannot claim precise moved-relation
-      correspondence; full reader-quality and PNG visibility belong to 5.4.
-      Do not add a public lineage protocol without a source-backed adopter need
-      and exact evidence contract.
+      The successor intentionally admits no positive LikeC4 relation-lineage
+      witness: its explicit `unproved` state and complete renewal satisfy the
+      current fail-closed correspondence boundary, not precise moved-relation
+      matching. The observed AIGW and ETHOS inputs use Claim Model v2; the
+      di-effect LikeC4 source has no Publisher Edition or lineage witness.
+      A positive public protocol requires an adopter's exact evidence case and
+      a new version. Full reader-quality and PNG visibility remain with 5.4.
 - [x] 4.3 Extend `packages/publisher/src/semantics/change.mjs` and
       `packages/publisher/src/edition/evolution.mjs`;
       `tests/native-evolution.test.mjs` and
