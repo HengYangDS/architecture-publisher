@@ -1245,6 +1245,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       errors. This does not transfer exact-byte human acceptance or prove an
       installed, hosted or released candidate. Retain one exact-media review
       at the final freeze rather than asking after every intermediate change.
+      From signed `a0b2c2b`, the pinned npm 11.19.1 packed both alpha.6
+      workspaces; their exact archives were installed offline. The installed
+      consumer and selected inputs were relocated outside the checkout, then
+      rebuilt self, AIGW Client, AIGW Product, independent editor and di-effect
+      through the public CLI with an empty PATH. All 30 Candidate members
+      matched the current source-built bytes. Headless Chrome checked all 20
+      pages with reduced motion: no axe WCAG A/AA violation, page error,
+      external request or horizontal overflow. Current PNGs decode as
+      nonblank. The task-owned provisional receipts are
+      `build/test-work/alpha6-post-layout-current/installed-replay.json`
+      (SHA-256 `2a5d510204e2723ca3342420994ac199192a2606005cb4466f2576076d91bdfc`)
+      and `build/test-work/alpha6-post-layout-current/browser-replay.json`
+      (SHA-256 `19cd5b77b08d4d6789e929456e951c9b59d5a031c242ab89dddc157e0958d6f0`).
+      External source acceptance, final exact-media human review, native-host
+      and hosted CI, qualification and release remain unproved.
 
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release
