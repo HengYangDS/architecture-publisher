@@ -1740,3 +1740,72 @@ passing axe scan, or exact-byte replay. This is a Publisher composition and
 qualification gap, not permission to change AIGW's source meaning or release
 decision. The full-product AIGW Edition remains an independent, uncompleted
 workload.
+
+## Architecture explanation across media (2026-09-30)
+
+This is a source-backed design-space survey, not a selected dependency stack
+or four-workload acceptance. The graph-engine comparison was too narrow:
+the product must explain architecture across a complete reading work, not
+merely place nodes on one page. [Munzner's nested model](https://www.cs.ubc.ca/labs/imager/tr/2009/NestedModel/)
+separates the domain problem, data/task abstraction, visual encoding and
+interaction, and implementation algorithm. An upstream error cascades
+downward. Better edge routing cannot repair ownership encoded as traffic.
+
+A **visual argument** answers a declared reader question with source-bound
+assertions and explicit limits. Its form defines what marks and relations
+mean. A **work** orders arguments for an audience. A **carrier** is a delivered
+file. These are not synonyms: PDF may be a slide handout or a reference
+report, while HTML may be an interactive explanation or slide deck. The
+current `static`/`interactive` request enumerates interaction modes and
+produces SVG/PNG or HTML; it does not implement PPTX or PDF. A single canvas
+or layout is not a required universal intermediate representation.
+
+### Verified supplier boundaries
+
+| Candidate | Implemented capability in primary documentation | Bounded role and unresolved test |
+| --- | --- | --- |
+| [Apache ECharts](https://echarts.apache.org/en/feature.html) | Graph, tree, Sankey, heatmap, custom series, matrix coordinates, Canvas/SVG, interaction, and [server-side SVG](https://echarts.apache.org/handbook/en/how-to/cross-platform/server/). Its [graph layouts](https://echarts.apache.org/en/llms-documents/option-parts/option.series-graph.md) are `none`, `circular`, and `force`. | Trial for responsibility matrices, hierarchies, and genuinely quantitative views. Do not encode a qualitative handoff as a weighted flow or expect layered graph layout from the graph series. |
+| [XMind](https://xmind.com/user-guide/markdown-to-mind-map) | Markdown import, [Pitch Mode](https://xmind.com/user-guide/pitch-mode-new), and [SVG/PDF/PowerPoint export](https://xmind.com/user-guide/export-new); the macOS app is installed locally. | Trial for editor-side concept maps. These documents do not prove a reproducible headless API, typed authority/causality/provenance, or editable PPTX quality. |
+| [Vega-Lite](https://vega.github.io/vega-lite/) and [Draco](https://github.com/cmudig/draco2) | Declarative data-to-mark encoding and constraint-based visualization recommendation/validation. | Borrow hard semantic versus soft visual constraint separation. Their existing rules target data charts, not repository authority or Lane effects. |
+| [Penrose](https://penrose.cs.cmu.edu/docs/ref) | Domain, Substance, and Style programs with declared geometric constraints and objectives. | Trial for repeatable non-graph forms. Test real labels, deterministic export, runtime, and editorial control; formal constraint satisfaction alone does not prove whole-page quality. |
+| [yFiles](https://docs.yworks.com/yfiles-html/dguide/layout/hierarchical_layout.html), [G6](https://g6.antv.antgroup.com/en/manual/whats-new/feature), [ELK](https://eclipse.dev/elk/) | Graph grouping, ports, interactions, and layout, with different export and license boundaries. [G6 image export](https://g6.antv.antgroup.com/en/api/export-image) may omit plugin content outside its canvas; ELK computes geometry but does not render. | Compare exact long-label, grouped, cyclic workloads. yFiles requires commercial-license evaluation. None selects the work's argument or whole-page composition. |
+| [X6](https://x6.antv.antgroup.com/en/tutorial/basic/graph), [GLSP](https://eclipse.dev/glsp/), [tldraw](https://tldraw.dev/) | Graph, diagram, or infinite-canvas editing foundations. | Admit an editor only for a demonstrated source-editor need; Publisher must not create a second fact editor just to get rendering. |
+| [Slidev](https://sli.dev/guide/exporting), [Marp CLI](https://github.com/marp-team/marp-cli) | HTML/PDF/PPTX deck export. Slidev documents editable PPTX reconstruction, but SVG/Canvas and other unsupported elements remain images or force per-slide fallback. Marp's editable PPTX is experimental and trades fidelity. | Compare full slide stories, fonts, notes, diagram fidelity, real editability, and opened files. Image-based PPTX is valid only when declared non-editable. |
+| [PptxGenJS](https://github.com/gitbrent/PptxGenJS) | Native PowerPoint text, shapes, images, tables, charts, and masters; 4.0.1 is bundled locally. | Candidate for a medium-native editable deck. It does not select reader questions or automatically design flagship slides. |
+| [Quarto](https://quarto.org/docs/presentations/), [Typst](https://quarto.org/docs/output-formats/typst.html), [Paged.js](https://pagedjs.org/) | Multi-page narrative, format-specific content, presentation routes, and print/PDF composition. Quarto, Typst, and LibreOffice are installed locally. | Compare reference-report PDF and presentation PDF separately. Printing an HTML page is not automatically a readable report. |
+
+Homebrew Obscura 0.2.3 can fetch and evaluate pages, but the installed build
+lacks the `render` feature: a local `--screenshot` probe failed explicitly.
+Two differently sized and positioned CSS elements both returned `100x20`
+geometry. Its CLI-reported `0.1.0` differs from the Homebrew package version.
+Treat this installation as a DOM/content reader, not pixel, screenshot, or
+PDF acceptance. The controlled probe left no output file; Chrome/Playwright
+remains the visual-observation candidate.
+
+### Comparative admission, not a preselected stack
+
+Freeze source assertions and reader questions for AIGW Product Boundary,
+AIGW Client Projection, ETHOS Work Lanes, Publisher self-use, and native
+di-effect. Include ownership-versus-flow, long predicates, cycles,
+competing/dropped Lanes, and one source revision. Compare question-matched
+forms, not only two layouts of the same graph. The complete work needs a
+meaningful overview and sufficient chapters for responsibility, mechanism,
+and evidence; no one-page or equal-height-slide limit applies.
+
+Compare four independently qualified carriers: static SVG/PNG overview,
+standalone interactive HTML, native or explicitly non-editable PPTX story,
+and multi-page PDF report. Source locks and attributed assertions remain
+shared; chapter order, graphic form, density, navigation, and layout may
+differ. Each carrier declares its audience, questions, visible coverage,
+omissions, provenance route, and limitations. A slide-handout PDF does not
+substitute for a promised report. Do not mechanically append `pdf` and
+`pptx` to an interaction-mode enum.
+
+Reject invented or hidden meaning, unanswered promised questions, actual
+pixel overlap/clipping, broken offline use, and missing required navigation
+or accessibility. Among survivors, compare reader comprehension, visual
+hierarchy and balance, authoring decisions, repair after a source delta,
+packaged bytes, licensing, upgrade burden, and exit cost. Geometry metrics
+reject defects; exact-byte human review judges final works. A mature supply
+that passes with lower total ownership cost should displace corresponding
+custom code. No universal winner has yet passed this comparison.
