@@ -1230,15 +1230,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       This remains local provisional evidence, not a native Linux host or
       hosted-CI result; Tasks 2.4, 4.1–4.3, and 5.1–5.4 retain open acceptance
       boundaries. No Candidate qualification or release follows.
-      A fresh public build at signed `15a3763` retained the approved input lock
-      and static PNG hash. Its standalone HTML differs from the approved bytes
-      only in one embedded `semanticDigest`: new SHA-256
-      `72d5fdb071615fa6b408b1528dab0979b712efde1d163e6e599eebd5f5a9f2ea`
-      versus approved
-      `481582f6dd05d322b5a41122f393d117e7886570569212ba8616a521256498ea`.
-      This is byte comparison, not transferred human acceptance; retain one
-      fresh exact-media review at the final freeze rather than asking after
-      every intermediate implementation change.
+      At signed `5b06b1a`, a public self build from 20 selected source files
+      retained the exact approved static PNG SHA-256
+      `85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712`.
+      The standalone HTML changed to SHA-256
+      `680353b29a1e54384ed699ea88b4413bba80e11c5c380723262e91c7f873489c`;
+      headless Chrome at 1600×1000 and reduced motion produced byte-identical
+      screenshots to the approved predecessor for all eight pages and no page
+      errors. This does not transfer exact-byte human acceptance or prove an
+      installed, hosted or released candidate. Retain one exact-media review
+      at the final freeze rather than asking after every intermediate change.
 
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release
@@ -1279,6 +1280,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       owner with source citations and adopt/reject/defer boundaries. Keep only
       Publisher-relevant publication mechanism decisions here; verify receipt,
       not presumed adoption or an editable duplicate authority.
+      A source-bound, non-authorizing handoff was sent to the named ETHOS task
+      on 2026-09-30, with the Publisher research snapshot and DR contract;
+      ETHOS-owned intake and any source revision remain unverified.
 - [ ] 8.4 After release readback, use `openspec archive --skip-specs` only after
       verifying that the active base specs already carry
       its exact normative delta; the archive must not change released behavior.
