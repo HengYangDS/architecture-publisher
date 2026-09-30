@@ -869,10 +869,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       current full local gate passed 1,375/1,378 tests with three declared
       skips and 97.71/95.03/99.56/97.71% statement/branch/function/line
       coverage. This proves the selected implementation and synthetic visual
-      cases, not a rebuilt exact AIGW Candidate, source-owner approval, or
-      flagship acceptance. Rebuild the copied AIGW input from frozen bytes,
-      inspect every selected page, and retain Task 5.2 open until the reader
-      quality and cross-workload obligations actually pass.
+      cases, not source-owner approval or flagship acceptance. At signed
+      `4c5e0dc`, the unchanged copied AIGW input rebuilt a new Candidate:
+      static PNG bytes were unchanged and interactive HTML changed. At
+      1600×1000, the Boundary figure and limit fit in the first screen; all
+      12 endpoints of six relations lie within 6.13 CSS px of their nodes,
+      with zero painted text/path contact within two pixels. Six pages had no
+      observed external request, page error, horizontal overflow, or Axe WCAG
+      A/AA violation. The other five chapters remain graph-plus-ledger works
+      from 1,203 to 2,105 CSS px high; the Selection counterexample is tracked
+      in `docs/research/mechanism-evaluation.md`. This is an unapproved
+      copied-input trial, not installed replay, AIGW acceptance, or Task 5.2
+      closure.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

@@ -2206,3 +2206,43 @@ painted geometry, reading cost and visual balance on the same exact source and
 Edition, then on self and an independent workload before replacing the
 current renderer. This counterexample does not approve the copied AIGW
 Edition or prescribe a new layout library.
+
+### Single-map follow-up, not whole-Edition acceptance (2026-09-30)
+
+At signed Publisher `4c5e0dcd6f04ef8887135ae88b4c606be5970c28`, the same
+copied, unapproved AIGW Model
+(`c61dd0f0d6253d8f80280e5803e5fd4ff620d17b54404d045295770a242655db`),
+Edition (`faf156d9f9192b58b170f7c89527c642184f2e45a20ec4bbcdae734d98edbc5b`),
+and Build Request (`9bdac392652950382f163154786f89b83f8a2f9e7bfecc71aadcf4d58b15d756`)
+produced a new Candidate manifest SHA-256
+`c69deceb0d8b8938baccb39a16c7581cf6cd6b857519379a76744d1511770f8a`.
+The static PNG remained byte-identical at SHA-256
+`337436c2e686d7660bbc9ef91b5b5f416077bf56a32bed35478e6ca56fbd3570`; the independently
+composed HTML is SHA-256
+`165278ccd74cdb77700e9e638376be7f804e3d4e81d79090610dd988de871041`.
+These are local Work Lane bytes, not an AIGW release.
+
+The [Boundary first screen](evidence/aigw-responsibility-map-first-screen.png)
+at 1600×1000 (SHA-256 `3c4abbaed80ad72f0145b5ac0954f34e431660951877bdb577340aa18664f790`)
+now puts the four editor-attributed roles, one distinctly editorial handoff,
+six selected source relations, and the linked Claim in one figure. Its figure
+ends at y=945 and its reading limit at y=986; only the closed Inspect control
+extends below the first screen. All 12 endpoints of the six selected source
+relations lie within 6.13 CSS px of their visible nodes. A browser mask of
+the SVG's 13 painted text elements and
+paths found zero contact within two pixels at its 1480×316 native viewBox.
+All six pages had no observed external request, page error, horizontal overflow,
+or Axe WCAG A/AA violation at that desktop context. These checks do not judge
+the truth of AIGW's editorial role assignments or the visual adequacy of the
+whole Edition.
+
+The [Selection full page](evidence/aigw-selection-ledger-counterexample.png)
+(SHA-256 `ad8d857a0e7df228e0022f5662b093acd24c3f34ee55fad6bdaa53107fa255a2`)
+shows why the broader result is still not accepted: a small numbered graph is
+followed by source-node, source-relation, method-limit, and Claim ledgers. Its
+chapter extends to y=2363; the other non-Boundary chapters end at y=1722,
+2033, 1461, and 1538. They answer different questions and cannot be repaired
+by shrinking one graph or hiding records. Their selected meaning needs
+question-specific, source-bound visual forms and complete-page review. No
+offline installed replay or exact-byte AIGW acceptance was performed for this
+Candidate; Tasks 5.2, 5.4, and 7.5 remain open.
