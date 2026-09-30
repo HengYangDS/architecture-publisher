@@ -1077,6 +1077,13 @@ that a candidate which only passes one graph example cannot pass the product.
 
 The next design slice shall compare complete, source-bound page candidates
 for the same selected questions before committing another rendering supply.
+Each comparator consumes the public build's exact materialized per-question
+selection and input lock, or proves equivalent assertion IDs, conditions,
+limits, and source hashes mechanically. A tool may change form and geometry;
+it may not handpick a convenient subset, import extra relations from the
+source model, or transfer an effects-only claim into a boundary question.
+An intended scope change belongs to the source editor's Edition, not a
+comparator-local exception.
 Reuse native views and mature form/layout engines where they meet the exact
 contract; let browser-native layout compose intrinsically sized figures and
 necessary reading boundaries. The compiler owns a bounded candidate search

@@ -776,7 +776,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       choosing graph layout, composition, or interaction supply. Benchmark
       mature form/layout candidates on complete Product Boundary, Client
       Overview, self-use, and an independent adopter before committing a
-      new runtime dependency. Tasks 5.2 and 5.4 remain open.
+      new runtime dependency. Derive each comparator's question selection
+      from the materialized Edition meaning, or mechanically prove exact
+      selected IDs, qualifiers, limits, and source hashes; reject extra or
+      missing question assertions before visual comparison. The corrected
+      ECharts boundary probe in `docs/research/mechanism-evaluation.md`
+      records an initial selection-mismatch counterexample. Tasks 5.2 and
+      5.4 remain open.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
