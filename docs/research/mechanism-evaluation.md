@@ -5,6 +5,12 @@ observed on 2026-09-20. Versioned source and executable behavior, not product
 claims, are the evidence basis. Line counts are mechanical counts of tracked
 code-like files; they measure surface area, not quality or semantic density.
 
+Linked figures are dated experiment evidence, not current accepted
+publications. The [product contract](../product-contract.md) owns the current
+authority diagram; the [operational reference](../reference/operations.md)
+identifies released artifact bytes. Do not replace a historical counterexample
+image with a newer Candidate under the same evidence label.
+
 ## Decision invariants
 
 The product compiles selected source bytes and explicit product meaning into
@@ -2132,7 +2138,7 @@ earlier retained `candidate-ab71fe6` bytes individually. This input is
 this check cannot renew that trial's browser observation or editorial
 acceptance.
 
-### Current copied-input responsibility trial (2026-09-30)
+### Copied-input responsibility trial (2026-09-30)
 
 From the same AIGW source snapshot `01776f2f`, a copied, unapproved editorial
 trial kept Product Model SHA-256
@@ -2145,7 +2151,7 @@ selects only the existing `boundary` question for static, retains six
 interactive chapters, and narrows the title and summary. These are trial
 editorial choices, not AIGW endorsement.
 
-The current static SVG SHA-256 is
+The trial static SVG SHA-256 is
 `e3813cab88c36cd39352fa24ff00dfd7cf1b4dbc8d2a1e2709f63948a02240e8`;
 its 3600-pixel PNG SHA-256 is
 `337436c2e686d7660bbc9ef91b5b5f416077bf56a32bed35478e6ca56fbd3570`.

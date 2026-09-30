@@ -44,7 +44,7 @@ Before pushing a new tag, create it locally and run the full repository gate
 with that exact tag present. Compare its tagger calendar date with the dated
 Changelog section; a passing untagged branch pipeline is not this check.
 
-### Current private release: alpha.5
+### Last verified private release (2026-09-29): alpha.5
 
 At the 2026-09-29 release readback, the signed `v0.3.0-alpha.5` tag,
 protected `main`, and accepted `dev` selected
@@ -557,7 +557,6 @@ Use the repository-pinned Node/npm line and lockfile:
 ```sh
 npm ci --ignore-scripts --no-audit --no-fund
 npm run check
-npm test
 ```
 
 `npm run check` is the repository's fail-closed quality entry. It composes
@@ -583,20 +582,19 @@ first-party package module moved outside the selected roots. This is a
 JavaScript coverage claim, not coverage of the separately compiled CoreText
 Swift helper or a substitute for native platform acceptance.
 
-`npm test` includes ordinary offline source, semantic, Edition, scene, rendering,
-package, installed-use, publication, replacement, and recovery behavior. Tests
-that require explicitly selected historical or browser evidence skip when their
-selectors are absent; a skip is not a pass for that qualification.
+The `npm run check` coverage step executes ordinary offline source, semantic,
+Edition, scene, rendering, package, installed-use, publication, replacement,
+and recovery behavior. Cases requiring an external source root, historical
+delivery, or browser executable skip when not explicitly selected. A skip is
+not qualification evidence.
 
-Current opt-in selectors include:
-
-| Selector                                | Scope                                                    |
-| --------------------------------------- | -------------------------------------------------------- |
-| `ETHOS_ATLAS_PLAN`                      | Exact current atlas and browser-obligation selection     |
-| `ETHOS_QUALIFIED_PAIR_PLAN`             | Exact current qualified paired publication               |
-| `ETHOS_PAIR_PLAN`                       | Frozen historical paired-publication generation          |
-| `ETHOS_REVIEW_PLAN`                     | Historical review-continuity generation                  |
-| `PAIR_PRIOR_NATIVE`, `PAIR_PRIOR_ATLAS` | Explicit copied prior deliveries for migration rehearsal |
+Set `ARCHPUB_BROWSER_EXECUTABLE` to an absolute installed Chrome executable
+before `npm run check` to execute its browser tests. The source-owned AIGW
+conformance test separately requires absolute `AIGW_EDITION_ROOT` and
+`AIGW_SOURCE_ROOT` selections. The historical paired-file migration rehearsal
+requires both absolute `PAIR_PRIOR_NATIVE` and `PAIR_PRIOR_ATLAS` paths; it
+copies those deliveries into temporary test state before effects. None of
+these selectors grants source acceptance or a release decision.
 
 Never edit immutable release plans or substitute a similarly named newer
 generation. Evidence is applicable only to its exact bytes and declared scope.

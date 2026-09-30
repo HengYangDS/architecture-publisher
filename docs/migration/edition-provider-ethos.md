@@ -56,11 +56,11 @@ responsibilities before deleting files:
   obligations; the incumbent implementation files need not survive unchanged.
   The Atlas catalog names 13 pages as an ETHOS Edition property, not a
   Publisher-wide cardinality; neither it nor the selected view profile authors
-  per-page reader questions. Current `evolution.mjs` instead generates
+  per-page reader questions. `evolution.mjs` instead generates
   default prompts from page labels. The named Edition editor must explicitly
   confirm or revise those defaults for the successor, not infer endorsement
   from labels alone. This does not invalidate the historical v1 Edition.
-- `src/provider.mjs` currently derives a Claim Model, creates an Edition, and
+- `src/provider.mjs` derives a Claim Model, creates an Edition, and
   uses Publisher Source Bundle writing. `src/adapter/import.mjs` runs the
   selected native Git/Python exporter and also packages its output;
   `src/adapter/input.mjs` adds path selection. Retain only
@@ -89,9 +89,9 @@ Keep the selected copy and constraints; replace generic template/interaction
 mechanics at Publisher's renderer boundary only after exact media parity.
 Do not transplant those mixed modules wholesale into either product.
 
-Current tracked ETHOS consumers of the four package exports are its
-architecture tests and integration README; an external-consumer absence claim
-is unproved. `tests/architecture/support/publisher.mjs` imports `adapter`,
+At that revision, ETHOS's architecture tests and integration README consume the
+four package exports; an external-consumer absence claim is unproved.
+`tests/architecture/support/publisher.mjs` imports `adapter`,
 `edition`, and `runtime`, while Provider tests import `provider`. These tests
 must migrate with any public-surface retirement. The map is a responsibility
 inventory, not a removal plan or proof that Publisher can already replace the
@@ -193,3 +193,9 @@ the signed alpha.1 archive but not with the then-selected work-lane archive labe
 alpha.3. This isolates an exact package dependency prerequisite, not a v2
 semantic, media, flagship, or source-owner acceptance result. The ETHOS owner
 must select and requalify the eventual released Publisher bytes independently.
+
+At a read-only check of local ETHOS `dev` commit
+`ebe828d31aacca56f82b9a1dabc77e829989c328` on 2026-09-30, the
+source-owned integration still exports the four recorded subpaths and pins
+Publisher `0.3.0-alpha.1`. This spot-check does not evaluate ETHOS's separate
+active Work Lane, semantic parity, visual acceptance, or remote publication.

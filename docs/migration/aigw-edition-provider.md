@@ -34,9 +34,9 @@ Publisher-canonical semantic JSON after removing `context.revision`; it is not
 a Git commit. `materialize.mjs` selects live source files, rewrites derived
 revision and digest fields, packs a Source Bundle, validates an Edition, runs
 both direct and Provider builds, then replaces tracked files one by one, with
-exception-triggered rollback. This establishes the current physical location
-and v1 input mechanism,
-not the successor contract's acceptance, media quality, or hosted availability.
+exception-triggered rollback. This establishes the physical location and v1
+input mechanism at that revision, not the successor contract's acceptance,
+media quality, or hosted availability.
 
 ### Read-only responsibility map
 
@@ -67,7 +67,7 @@ which responsibilities AIGW must maintain, not move the directory again:
   `evolution.json`. The successor must let AIGW select its toolchain, native
   inputs, and editorial intent while Publisher derives and checks the locks,
   seals, comparison projection, and Candidate identities.
-- `materialize.mjs` currently verifies and installs a selected Publisher
+- `materialize.mjs` verifies and installs a selected Publisher
   archive, selects live source paths, computes the content revision, invokes
   `source pack` and both direct/Provider `edition build`, then uses per-file
   atomic replacement with exception-triggered rollback. This is not an atomic
@@ -80,7 +80,7 @@ which responsibilities AIGW must maintain, not move the directory again:
 `test/source.test.mjs` is wired into AIGW's native quality graph and proves
 selected byte consistency, not implemented behavior or a final publication.
 `test/installed.test.mjs` requires exact package inputs through environment
-variables; no tracked invocation of that file was found in the current AIGW
+variables; no tracked invocation of that file was found in the observed AIGW
 quality graph. Its successor journey must be executed and admitted by AIGW,
 not inferred from Publisher conformance. This map is not per-file deletion
 authorization or proof that the released successor can replace v1 for AIGW.
@@ -146,3 +146,10 @@ at Publisher `0e391e7` and AIGW `bd3c09d5` are recorded in
 bytes are not final released inputs, AIGW acceptance, a source-delta update, or
 publication recovery. This packet has not executed AIGW's source-owned
 successor migration.
+
+At a read-only check of local AIGW `dev` commit
+`2aa58eeaee5e56e78922368bc08f0c7ea67d9eff` on 2026-09-30, the
+source-owned Provider remains v1 and `selection.json` still selects Publisher
+`0.3.0-alpha.1`. That checkout was 29 commits ahead of `origin/dev`; this
+spot-check is neither remote readback nor a verdict on AIGW's separate active
+Work Lanes.

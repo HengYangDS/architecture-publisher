@@ -993,6 +993,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       violations, horizontal overflow, or page errors. Static media remained
       byte-identical; interactive bytes and Candidate identity changed, so
       prior human or release approval cannot transfer.
+      The Chrome-enabled pre-commit full check passed 1,358/1,361 tests with
+      three declared skips and zero failures; statements, branches, functions,
+      and lines were 97.69/95.01/99.56/97.69%. This does not close Task 5.4.
 - [x] 5.5 Keep the first-party self Edition on the same public Build Request,
       Edition Project, data-only refinement, and dual-medium compiler as other
       adopters. Preserve its source-owned meaning and flagship art direction;
@@ -1322,6 +1325,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       `tests/product-identity.test.mjs` pass at the accepted alpha.5 successor.
       ETHOS and AIGW installed adoption and acceptance remain their own tasks,
       not a reason to keep Publisher documentation incomplete.
+      A 2026-09-30 documentation drift audit removed four unimplemented ETHOS
+      test selectors from the operational reference, named the actual browser
+      and external-input selectors, dated local adopter snapshots, and replaced
+      the misleading linear processing arrow with one two-authority,
+      two-medium diagram. The diagram was rendered and inspected; current
+      Markdown formatting and lint checks passed. Historical evidence images
+      and archived Changes remain dated records, not mutable current guidance.
 - [x] 7.4 Promote the reviewed role-based deltas into active specs before release
       freeze; the later official archive must add no new normative behavior.
       Prove historical v1 input meanings, a zero-source-change independent

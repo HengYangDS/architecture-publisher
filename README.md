@@ -52,7 +52,7 @@ as separately authored files. The Provider is a transport choice, not another
 compiler or approval path.
 
 - [Product contract](docs/product-contract.md) defines the canonical product
-  meaning and authority boundaries.
+  meaning, authority boundaries, and their diagram.
 - [Edition contract](docs/edition-contract.md) records the historical v1
   audience, coverage, scene, and qualification contract; successor authoring is
   selected through the versioned Build Request and Edition Project.
@@ -83,21 +83,24 @@ The local checkout and GitLab project are the same history-preserving repository
 object under the canonical `architecture-publisher` identity. Signed alpha.7
 tags and release bytes remain immutable predecessor evidence.
 
-The most recent locally verified release is `v0.3.0-alpha.5`; the current
-`0.3.0-alpha.6` Work Lane is not a release. Exact released package and media
-identities, primary-forge readback, and limits are recorded in the
-[operational reference](docs/reference/operations.md). A Publisher release
-does not establish ETHOS or AIGW acceptance.
+The [operational reference](docs/reference/operations.md) records the last
+verified release, exact package and media identities, primary-forge readback,
+and limits. A checkout's package version is not release evidence; the active
+Change's task ledger owns implementation status. A Publisher release does not
+establish ETHOS or AIGW acceptance.
 
 ## Install and inspect
 
 ```sh
 npm ci --ignore-scripts --no-audit --no-fund
 npm run check
-npm test
 npm pack --ignore-scripts --workspace architecture-publisher
 node packages/publisher/src/cli/main.mjs --help
 ```
+
+`npm run check` already includes the test and coverage suite. Browser tests
+require `ARCHPUB_BROWSER_EXECUTABLE` set to an absolute path to an installed
+Chrome executable; without it they report skips rather than browser evidence.
 
 The current generic journeys are:
 
