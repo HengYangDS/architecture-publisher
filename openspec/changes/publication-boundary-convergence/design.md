@@ -853,6 +853,15 @@ Candidate. This removes an accidental authoring prerequisite without adding a
 second backend or treating geometry as source meaning. A flat Candidate is a
 technical baseline, not a human-approved visual work.
 
+One neutral view selecting raw entities or relations uses the same
+question-led, complete-figure composition as multiple static views. An
+upstream authored view without editorial groups retains its own selected
+layout rather than being treated as raw structure; selected static refinements
+and claim-only cards also retain their distinct composition. This respects
+semantic authorship, avoids a sparse high-resolution figure exceeding the
+raster budget, and renews only affected static medium and Candidate identities.
+It does not transfer visual acceptance.
+
 ### Static views form one jointly composed figure
 
 At Publisher `3bd5645`, the Edition schema accepts ordered static views, but

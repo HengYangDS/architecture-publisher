@@ -1440,14 +1440,15 @@ test('ungrouped Claim Model entities and relations render without invented membe
     const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
     const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
 
-    assert.match(svg, /data-graphic-id="n-0"/u);
+    assert.match(svg, /data-graphic-id="static-view-0-n-0"/u);
+    assert.match(svg, /data-static-view="overview"/u);
     assert.doesNotMatch(svg, /READING GROUPS/u);
     assert.equal(candidate.media.static.artifacts.length, 2);
     if (reference.startsWith('relation:')) {
-      assert.match(svg, /data-graphic-id="r-0"/u);
+      assert.match(svg, /data-graphic-id="static-view-0-r-0"/u);
       assert.match(svg, /phase: selected/u);
     } else {
-      assert.doesNotMatch(svg, /data-graphic-id="r-0"/u);
+      assert.doesNotMatch(svg, /data-graphic-id="static-view-0-r-0"/u);
     }
   }
 });

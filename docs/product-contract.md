@@ -102,6 +102,9 @@ structure, but gains no invented group or membership claim. A declared group
 remains exact editor-owned meaning; the compiler never silently creates one to
 make its layout implementation convenient. Infeasible flat or grouped
 composition fails without losing selected entities, relations, or qualifiers.
+One neutral raw entity/relation view uses the same question-led complete figure
+as multiple views. A selected upstream authored view without editorial groups
+retains its distinct source-view composition.
 
 The editor's `questions[].text` is a reader-facing prompt, not an executable
 query. Publisher checks finite ID links from each selected question to source

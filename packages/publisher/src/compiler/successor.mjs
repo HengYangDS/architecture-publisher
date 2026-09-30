@@ -148,21 +148,25 @@ async function staticMedium(selected, meaning, scratch) {
   const views = meaning.media.static.views;
   if (!Array.isArray(views) || !views.length) fail('static_figure_views_invalid');
   const firstViewAssertions = new Set(views[0].assertionIds);
-  const claimSelections = new Set(
-    meaning.native.selections
-      .filter(({ target }) => target.kind === 'claim')
-      .map(({ selectionId }) => selectionId),
+  const targetKinds = new Map(
+    meaning.native.selections.map(({ selectionId, target }) => [selectionId, target.kind]),
   );
-  const firstViewHasClaims = meaning.assertions.some(
-    ({ id, kind, selection }) =>
-      kind === 'source' && firstViewAssertions.has(id) && claimSelections.has(selection),
+  const firstViewTargets = meaning.assertions
+    .filter(({ id, kind }) => kind === 'source' && firstViewAssertions.has(id))
+    .map(({ selection }) => targetKinds.get(selection));
+  const firstViewHasClaims = firstViewTargets.includes('claim');
+  const firstViewHasRawStructure = firstViewTargets.some((kind) =>
+    ['entity', 'relation'].includes(kind),
   );
   const wholeAuthoredCanvas = meaning.refinement?.media?.static?.kind === 'authored-canvas';
+  const neutralStatic =
+    !meaning.refinement?.media?.static || meaning.refinement.media.static.kind === 'neutral';
   const useFigure =
     (!wholeAuthoredCanvas && views.length > 1) ||
     (!firstViewHasClaims &&
-      meaning.editorial.presentation.static.views[0].groups !== undefined &&
-      (!meaning.refinement?.media?.static || meaning.refinement.media.static.kind === 'neutral'));
+      neutralStatic &&
+      (firstViewHasRawStructure ||
+        meaning.editorial.presentation.static.views[0].groups !== undefined));
   if (
     views.length > 1 &&
     meaning.refinement?.media?.static !== undefined &&

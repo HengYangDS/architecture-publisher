@@ -55,6 +55,10 @@ may contain incompatible changes.
 - Claim Model entity and relation views may omit editorial visual groups. The
   selected Dagre supply renders their flat structure without inventing group
   membership; claim-only views retain their separate claim-card composition.
+- A sole neutral raw entity/relation view now uses the same question-led figure
+  composition as multiple views, rather than placing its question and source
+  notes in a separate side rail. An upstream authored view retains its own
+  selected layout. This changes affected static media bytes.
 
 ## [0.3.0-alpha.5] - 2026-09-29
 

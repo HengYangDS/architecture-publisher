@@ -98,6 +98,17 @@ is insufficient.
 - **AND** unsupported or infeasible geometry fails before Candidate rather
   than requiring a dummy authored group or dropping a source assertion
 
+#### Scenario: One neutral raw-structure view retains the complete figure grammar
+
+- **WHEN** exactly one unrefined static view selects source entities or
+  relations without selecting Claim cards for that view
+- **THEN** its question leads one complete figure containing its exact graph,
+  relation explanation, source status, and declared limits
+- **AND** absence of authored groups does not switch to a separate side-rail
+  composition or imply that an unreviewed result is visually accepted
+- **AND** a selected upstream authored view without editorial groups retains
+  its source-view composition instead of being mistaken for raw structure
+
 #### Scenario: Method evidence does not become figure copy
 
 - **WHEN** an Edition's selected source and compiler have method or
