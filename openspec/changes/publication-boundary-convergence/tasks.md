@@ -860,14 +860,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       Candidate members byte-for-byte after offline installation and external
       input relocation with empty HOME/PATH. This establishes neither AIGW
       editorial acceptance nor a flagship visual work; Task 5.2 stays open.
-      The repaired trial HTML still fails the complete-diagram reading test:
-      at 1600×1000 its role, internal-relation, handoff and cross-relation
-      sections extend separately to y≈1267; the exact full-page screenshot
-      and hashes are in the mechanism study. Replace the fragmented visual
-      inventories with one connected, question-led interactive form before
-      another local styling pass. Preserve source/editor attribution and
-      static/interactive independence; browser and Axe passes do not close
-      this reader-quality gap.
+      The previous four-section HTML remains a frozen counterexample: at
+      1600×1000 its separated role, relation, and handoff sections extended to
+      y≈1267. This Lane now composes those selected meanings as one connected,
+      question-led interactive map, separate from the static Scene. Focused
+      Chrome tests check node-edge attachment, role and handoff alignment,
+      painted text clearance, WCAG AA contrast, and page-local SVG IDs. The
+      current full local gate passed 1,375/1,378 tests with three declared
+      skips and 97.71/95.03/99.56/97.71% statement/branch/function/line
+      coverage. This proves the selected implementation and synthetic visual
+      cases, not a rebuilt exact AIGW Candidate, source-owner approval, or
+      flagship acceptance. Rebuild the copied AIGW input from frozen bytes,
+      inspect every selected page, and retain Task 5.2 open until the reader
+      quality and cross-workload obligations actually pass.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

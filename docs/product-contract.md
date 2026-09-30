@@ -76,7 +76,7 @@ separately authored files:
    omissions, narrative, visual grammar, independent scenes, and qualification
    obligations.
 4. **Build Request** — selected source and Edition meaning, optional Providers,
-   requested media, and toolchain. The successor build invocation selects its
+   requested media, and toolchain. The selected-input build invocation selects its
    Candidate output directory separately; historical v1 plans retain their
    original output-field meaning.
 
@@ -104,11 +104,10 @@ make its layout implementation convenient. Infeasible flat or grouped
 composition fails without losing selected entities, relations, or qualifiers.
 One neutral raw entity/relation view uses the same question-led complete figure
 as multiple views. A selected upstream authored view without editorial groups
-retains its distinct source-view composition.
-Neutral Dagre nodes use a shared measured box size per structural view. The
-adapter first tries regular-row placement; if a relation caption cannot clear
-its routes, it retries balanced placement. Both are replaceable geometry, not
-source grouping, and both must preserve caption clearance.
+retains its distinct source-view composition. A neutral layout may try
+alternative coordinates but must preserve selected meaning, caption clearance,
+and declared grouping. Its current geometry strategy belongs to the active
+design and tests, not this product contract.
 
 The editor's `questions[].text` is a reader-facing prompt, not an executable
 query. Publisher checks finite ID links from each selected question to source
@@ -117,7 +116,7 @@ not establish that a natural-language question is substantively answered, that
 the source assertion is true, or that its presentation is adequate. Those
 judgments remain with the named source owner, editor, and accepter.
 
-The initial successor authoring contract accepts exact references, not a
+The selected-input authoring contract accepts exact references, not a
 query or transformation field without an implemented consumer. Such fields
 fail validation rather than promising a Candidate that cannot be built.
 Editorial assertions preserve their proponent and basis without becoming
@@ -132,34 +131,45 @@ values is also valid.
 
 ## Processing
 
+The selected inputs meet in one Build Request. Direct reads and selected
+Providers converge on a checked input lock before semantic selection and
+medium-specific composition. Neither medium is made from the other.
+
 ```mermaid
-%%{init: {"theme": "neutral", "themeVariables": {"fontSize": "16px"}, "flowchart": {"nodeSpacing": 32, "rankSpacing": 46}}}%%
+%%{init: {"theme": "neutral", "themeVariables": {"fontSize": "16px"}, "flowchart": {"nodeSpacing": 28, "rankSpacing": 40}}}%%
 flowchart LR
-    source["Source owner<br/>facts"] --> selection["Build Request<br/>exact selection"]
-    editor["Edition editor<br/>reading plan"] --> selection
-    selection --> publisher["Publisher<br/>validate + compose"]
-    publisher --> static["Static<br/>SVG + PNG"]
-    publisher --> interactive["Interactive<br/>HTML"]
-    static --> candidate["Candidate<br/>exact bytes"]
+    source["Source facts"] --> request["Build Request"]
+    editor["Editor plan"] --> request
+    request --> lock["Checked input lock"]
+    lock --> compose["Validate + compose"]
+    compose --> static["SVG + PNG"]
+    compose --> interactive["Standalone HTML"]
+    static --> candidate["Candidate"]
     interactive --> candidate
-    candidate --> qualification["Qualification<br/>predicates"]
-    candidate --> acceptance["Acceptance<br/>exact artifact"]
-    qualification --> plan["Publication Plan"]
-    candidate --> plan
-    plan --> effect["Recoverable<br/>local effect"]
-    acceptance --> effect
-    authorizer["Effect authorizer"] --> effect
 ```
 
-The diagram shows the qualified Edition route and authority boundaries, not
-CLI order. Its two inputs meet by exact selection; its two media do not derive
-from each other. Direct and Provider inputs converge on one checked lock inside
-Publisher. Qualification, acceptance, and effect authorization remain
-independent. The raw paired-file route has narrower integrity-only
-obligations. Adapters cannot grant source authority; Editions cannot change
-claims; scenes cannot change meaning; renderers cannot add product claims;
-qualification cannot manufacture acceptance; and publication cannot infer
-intent.
+The qualified Edition route then binds the exact Candidate and applicable
+predicate records into a Publication Plan. The named accepter and local effect
+authorizer make separate decisions against that plan; neither decision is
+inferred from build or qualification success.
+
+```mermaid
+%%{init: {"theme": "neutral", "themeVariables": {"fontSize": "16px"}, "flowchart": {"nodeSpacing": 28, "rankSpacing": 40}}}%%
+flowchart LR
+    candidate["Candidate"] --> qualification["Qualification records"]
+    candidate --> plan
+    qualification --> plan["Publication Plan"]
+    plan --> acceptance["Named acceptance"]
+    plan --> authorization["Effect authorization"]
+    acceptance --> effect["Local effect + receipt"]
+    authorization --> effect
+```
+
+These diagrams show value and decision dependencies, not CLI invocation order.
+The raw paired-file route has narrower integrity-only obligations. Adapters
+cannot grant source authority; Editions cannot change claims; scenes cannot
+change meaning; renderers cannot add product claims; qualification cannot
+manufacture acceptance; and publication cannot infer intent.
 
 Bounded file input and strict protocol decoding establish only checked bytes
 and shape. Source Bundle identity and source claims remain separate, and an
@@ -249,7 +259,7 @@ requires a duplicate editable Claim Model when admitted native inputs suffice.
 Publisher may keep compact immutable fixtures and receipts, but not a second
 mutable implementation after an adopter accepts its canonical Edition.
 
-A successor Edition's title and summary are the editor's words, not source
+A selected-input Edition's title and summary are the editor's words, not source
 assertions. Both media identify that editor and state that the diagram itself
 does not evidence source endorsement. The exact Candidate still needs its own
 review and acceptance.
@@ -474,7 +484,7 @@ Candidate preparation binds explicit authored text sites and complete-value
 source identities. Checked preimages prevent stale edits, and a complete page
 permutation preserves the declared interactive views while allowing explicit
 reading order. The refresh example uses this same contract. Unsupported
-topology requires a future bounded composition change, not guessed identity
+topology requires an explicit bounded composition change, not guessed identity
 substitution. A source-manifest change rebinds the Edition, invalidates
 acceptance and publication, and requires fresh semantic plus installed-use
 verification. It does not by itself imply that

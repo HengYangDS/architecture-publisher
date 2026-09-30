@@ -11,7 +11,7 @@ title-only changes.
 
 ## Selected Edition build
 
-`selected-edition/` is a complete source-bound successor Build Request with two
+`selected-edition/` is a complete selected-input Build Request with two
 LikeC4 inputs and one authored Edition Project. From the repository root after
 installing the workspace dependencies, use a fresh output directory:
 

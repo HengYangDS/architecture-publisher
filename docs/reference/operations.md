@@ -49,7 +49,7 @@ Changelog section; a passing untagged branch pipeline is not this check.
 At the 2026-09-29 release readback, the signed `v0.3.0-alpha.5` tag,
 protected `main`, and accepted `dev` selected
 `67ade23f20414dc76a3ca2f65d398396c525a05d`. The [alpha.5
-Release](../../-/releases/v0.3.0-alpha.5) links ten selected assets from one
+Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.5) links ten selected assets from one
 GitLab Generic Package version, not a second project-upload copy. Its Core
 archive has SHA-256
 `4ce1793efecb32a8f9bbabcf5a2761ab1b587eda2ddf27ef73122b767df5d7cd`.
@@ -84,7 +84,7 @@ Its offline-installed Core reproduced the independent-editor Candidate's exact
 bytes. The Release binds separately reviewed static and interactive self-media;
 neither review transfers to changed bytes or to an adopter Edition.
 
-Use the [alpha.4 Release](../../-/releases/v0.3.0-alpha.4), its manifest and
+Use the [alpha.4 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.4), its manifest and
 checksum file for exact asset selection. This is primary-forge readback, not
 independent off-host recovery. ETHOS and AIGW still own their own source facts,
 Edition selection, acceptance, custody and publication.

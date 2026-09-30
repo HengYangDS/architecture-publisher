@@ -38,7 +38,7 @@ one exact package and entry point, supervises its process tree, and records
 unobserved dependencies as limits; supervision is not a sandbox. Both modes
 converge on one materialized-input lock before semantic compilation. An equal
 lock does not transfer Candidate identity, qualification, or approval across
-delivery modes. The successor build requires an explicit `--output` directory
+delivery modes. The selected-input build requires an explicit `--output` directory
 and produces an unqualified `architecture.edition-candidate/v2` bundle.
 For an executable Provider, the invoker must additionally pass
 `--execute-providers <id@manifest-sha256,...>` with exactly the selected

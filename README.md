@@ -52,10 +52,10 @@ as separately authored files. The Provider is a transport choice, not another
 compiler or approval path.
 
 - [Product contract](docs/product-contract.md) defines the canonical product
-  meaning, authority boundaries, and their diagram.
+  meaning, authority boundaries, and the build and local-delivery diagrams.
 - [Edition contract](docs/edition-contract.md) records the historical v1
-  audience, coverage, scene, and qualification contract; successor authoring is
-  selected through the versioned Build Request and Edition Project.
+  audience, coverage, scene, and qualification contract. Selected-input
+  authoring uses the versioned Build Request and Edition Project.
 - [Edition Provider reference](docs/reference/edition-provider.md) defines the
   optional owner-attributed materialization boundary.
 - [Changelog](CHANGELOG.md) records notable released changes and compatibility
@@ -102,7 +102,7 @@ node packages/publisher/src/cli/main.mjs --help
 require `ARCHPUB_BROWSER_EXECUTABLE` set to an absolute path to an installed
 Chrome executable; without it they report skips rather than browser evidence.
 
-The current generic journeys are:
+The public CLI routes in this checkout are:
 
 ```sh
 archpub source pack <request.json> --sha256 <digest>
@@ -122,7 +122,7 @@ For native comparisons that select executable Providers, the same evolution
 command additionally requires independent `--execute-before-providers` and
 `--execute-after-providers` choices with exact `id@manifest-sha256` pairs.
 
-The `--output` form is required for a successor Build Request; historical v1
+The `--output` form is required for a selected-input Build Request; historical v1
 plans retain their own output field. Every path and digest is caller-selected.
 One Build Request may combine direct inputs and optional selected Edition
 Providers before the same compiler. An executable Provider additionally
@@ -144,7 +144,7 @@ The current checkout separates product ownership from adopter evidence:
 | `conformance/fixtures/ethos-source-owned-handoff.json` | Dated ETHOS handoff fixture, not current adoption proof |
 | `conformance/fixtures/aigw-source-owned-handoff.json`  | Dated AIGW handoff fixture, not current adoption proof  |
 
-The terminal product repository keeps the generic package, renderer supply,
+This repository keeps the generic package, renderer supply,
 its self-Edition, and compact conformance fixtures. ETHOS and AIGW retain
 authority over their own source assertions and acceptance. Edition placement
 follows the designated editor: the editor may work independently, or a source

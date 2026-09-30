@@ -13,11 +13,42 @@ import { validateVisibleSelection } from '../packages/publisher/src/compiler/cov
 import { composeInteractiveEditionScene } from '../packages/publisher/src/scene/interactive/edition.mjs';
 import { composeStaticResponsibilityScene } from '../packages/publisher/src/scene/static/responsibility.mjs';
 import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
+import {
+  responsibilityMapCss,
+  responsibilityMapHtml,
+} from '../packages/publisher/renderers/cytoscape/responsibility-map.mjs';
+import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
 import { composeStaticResponsibilitySvg } from '../packages/publisher/renderers/svg/responsibility.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
 
 const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
+
+async function contrastAgainstPaper(page, selector, property) {
+  return page.evaluate(
+    ({ selector, property }) => {
+      const label = globalThis.document.querySelector(selector);
+      const paper = globalThis.document.querySelector('.form-map');
+      if (!label || !paper) return 0;
+      const channels = (value) => {
+        const numbers = value.match(/[\d.]+/gu)?.map(Number) ?? [];
+        return numbers.length >= 3 ? numbers.slice(0, 3) : [];
+      };
+      const luminance = (value) => {
+        const rgb = channels(value).map((channel) => {
+          const normalized = channel / 255;
+          return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+        });
+        return rgb.length === 3 ? rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722 : -1;
+      };
+      const foreground = luminance(globalThis.getComputedStyle(label)[property]);
+      const background = luminance(globalThis.getComputedStyle(paper).backgroundColor);
+      if (foreground < 0 || background < 0) return 0;
+      return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+    },
+    { selector, property },
+  );
+}
 
 async function paintedContactCounts(page, textPng, marksPng) {
   return page.evaluate(
@@ -186,7 +217,85 @@ test('a selected responsibility form builds an independent interactive role work
 });
 
 test(
-  'interactive responsibility relation labels retain WCAG AA contrast',
+  'interactive responsibility paths attach to their visible source nodes',
+  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 35_000 },
+  async (t) => {
+    const { selected } = await responsibilityFixture(t);
+    const output = path.join(selected.root, 'attached-responsibility-candidate');
+    await compileEditionCandidateInput(selected.file, selected.digest, output);
+    const browser = await chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 15_000,
+    });
+    t.after(() => browser.close());
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    await page.goto(pathToFileURL(path.join(output, 'interactive/architecture.html')).href, {
+      waitUntil: 'load',
+      timeout: 15_000,
+    });
+    await page.evaluate(() => globalThis.document.fonts.ready);
+    const result = await page.evaluate(() => {
+      const figure = globalThis.document.querySelector('figure.form-map');
+      if (!figure) return { figure: false };
+      const path = figure.querySelector('[data-graphic-id="r-0"] path');
+      if (!path) return { figure: true, path: false };
+      const svg = path.ownerSVGElement;
+      const matrix = svg.getScreenCTM();
+      const point = (at) => {
+        const value = path.getPointAtLength(at);
+        return new globalThis.DOMPoint(value.x, value.y).matrixTransform(matrix);
+      };
+      const near = (at, id) => {
+        const box = figure.querySelector(`[data-graphic-id="${id}"] rect`).getBoundingClientRect();
+        const p = point(at);
+        const x = Math.max(box.left, Math.min(p.x, box.right));
+        const y = Math.max(box.top, Math.min(p.y, box.bottom));
+        return Math.hypot(p.x - x, p.y - y);
+      };
+      const firstRole = figure.querySelector('.form-map-role');
+      const firstNode = figure.querySelector('[data-graphic-id="n-0"] rect');
+      const roleBox = firstRole.getBoundingClientRect();
+      const nodeBox = firstNode.getBoundingClientRect();
+      const handoff = figure.querySelector('[data-form-handoff]');
+      const [fromGroup, toGroup] = handoff.dataset.formHandoff.split(':');
+      const stemGap = (selector, groupId) => {
+        const stem = handoff.querySelector(selector);
+        if (!stem) return Number.POSITIVE_INFINITY;
+        const role = figure.querySelector(`[data-graphic-id="${groupId}"]`).getBoundingClientRect();
+        const stemPoint = stem.getPointAtLength(0);
+        const stemScreen = new globalThis.DOMPoint(stemPoint.x, stemPoint.y).matrixTransform(
+          stem.ownerSVGElement.getScreenCTM(),
+        );
+        return Math.hypot(stemScreen.x - (role.left + role.width / 2), stemScreen.y - role.bottom);
+      };
+      return {
+        figure: true,
+        path: true,
+        sourceGap: near(0, 'n-0'),
+        targetGap: near(path.getTotalLength(), 'n-1'),
+        roleCenterGap: Math.abs(
+          roleBox.left + roleBox.width / 2 - (nodeBox.left + nodeBox.width / 2),
+        ),
+        handoffSourceGap: stemGap('[data-handoff-source-stem]', fromGroup),
+        handoffTargetGap: stemGap('[data-handoff-target-stem]', toGroup),
+        bottom: figure.getBoundingClientRect().bottom,
+      };
+    });
+    assert.equal(result.figure, true);
+    assert.equal(result.path, true);
+    assert(result.sourceGap <= 12, `source gap ${result.sourceGap}`);
+    assert(result.targetGap <= 12, `target gap ${result.targetGap}`);
+    assert(result.roleCenterGap <= 1, `role center gap ${result.roleCenterGap}`);
+    assert(result.handoffSourceGap <= 1, `handoff source gap ${result.handoffSourceGap}`);
+    assert(result.handoffTargetGap <= 1, `handoff target gap ${result.handoffTargetGap}`);
+    assert(result.bottom <= 1000, `map bottom ${result.bottom}`);
+  },
+);
+
+test(
+  'interactive responsibility labels retain WCAG AA contrast without inventing a source predicate',
   { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 35_000 },
   async (t) => {
     const { selected } = await responsibilityFixture(t);
@@ -207,8 +316,11 @@ test(
       waitUntil: 'load',
       timeout: 15_000,
     });
-    await page.locator('.form-relation-head span').first().waitFor({ state: 'visible' });
+    await page.locator('.form-map').waitFor({ state: 'visible' });
     await page.evaluate(() => globalThis.document.fonts.ready);
+    assert.equal(await page.locator('.form-map-graph [data-graphic-id^="r-"] text').count(), 0);
+    const roleContrast = await contrastAgainstPaper(page, '.form-map-role h3', 'color');
+    assert(roleContrast >= 4.5, `role-label contrast ${roleContrast.toFixed(2)}:1`);
     await page.addScriptTag({ content: axe.source });
     const violations = await page.evaluate(async () => {
       const result = await globalThis.axe.run(globalThis.document, {
@@ -220,6 +332,45 @@ test(
       }));
     });
     assert.deepEqual(violations, []);
+
+    const labeled = responsibilityMapHtml(
+      {
+        form: {
+          roles: [
+            {
+              groupId: 'g-0',
+              basis: { kind: 'editorial', statement: 'First role.', proponent: 'editor' },
+            },
+            {
+              groupId: 'g-1',
+              basis: { kind: 'editorial', statement: 'Second role.', proponent: 'editor' },
+            },
+          ],
+          handoffs: [],
+        },
+        groups: [
+          { id: 'g-0', label: 'First role', nodeIds: ['n-0'] },
+          { id: 'g-1', label: 'Second role', nodeIds: ['n-1'] },
+        ],
+        nodes: [
+          { id: 'n-0', label: 'Alpha' },
+          { id: 'n-1', label: 'Beta' },
+        ],
+        relations: [
+          { id: 'r-0', source: 'n-0', target: 'n-1', label: 'configures', direction: 'directed' },
+        ],
+        claims: [],
+        questions: [{ text: 'How is Beta configured?' }],
+      },
+      0,
+    );
+    await page.setContent(`<style>${responsibilityMapCss}</style>${labeled}`);
+    const relationContrast = await contrastAgainstPaper(
+      page,
+      '.form-map-graph [data-graphic-id="r-0"] text',
+      'fill',
+    );
+    assert(relationContrast >= 4.5, `relation-label contrast ${relationContrast.toFixed(2)}:1`);
   },
 );
 
@@ -367,6 +518,97 @@ test(
     const detected = await paintedContactCounts(analysis, text, controlled);
     assert(detected.contact > 0);
     assert(detected.withinTwoPixels >= detected.contact);
+  },
+);
+
+test(
+  'branching interactive responsibility labels clear painted source routes',
+  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 35_000 },
+  async (t) => {
+    const editorial = (statement) => ({ kind: 'editorial', statement, proponent: 'editor' });
+    const page = {
+      navigationLabel: 'Boundary',
+      questions: [{ text: 'Which roles govern the selected flow?', limits: [] }],
+      form: {
+        roles: [
+          { groupId: 'g-0', basis: editorial('The requester starts the flow.') },
+          { groupId: 'g-1', basis: editorial('The core governs configuration.') },
+          { groupId: 'g-2', basis: editorial('The client owns runtime traffic.') },
+          { groupId: 'g-3', basis: editorial('The endpoint receives traffic.') },
+        ],
+        handoffs: [
+          { fromGroup: 'g-1', toGroup: 'g-2', basis: editorial('Control passes to the client.') },
+        ],
+      },
+      groups: [
+        { id: 'g-0', label: 'Requester', nodeIds: ['n-0'] },
+        { id: 'g-1', label: 'Core', nodeIds: ['n-1', 'n-2', 'n-3', 'n-4'] },
+        { id: 'g-2', label: 'Client', nodeIds: ['n-5'] },
+        { id: 'g-3', label: 'Endpoint', nodeIds: ['n-6'] },
+      ],
+      nodes: [
+        'Requester',
+        'Core',
+        'Configuration',
+        'Adapter',
+        'Projection',
+        'Client',
+        'Endpoint',
+      ].map((label, index) => ({ id: `n-${index}`, label })),
+      relations: [
+        ['n-0', 'n-1', 'invokes'],
+        ['n-1', 'n-2', 'maintains'],
+        ['n-1', 'n-3', 'dispatches'],
+        ['n-3', 'n-4', 'applies'],
+        ['n-4', 'n-5', 'configures'],
+        ['n-5', 'n-6', 'sends-requests-to'],
+      ].map(([source, target, label], index) => ({
+        id: `r-${index}`,
+        source,
+        target,
+        label,
+        direction: 'forward',
+      })),
+      claims: [],
+    };
+    const markup = responsibilityMapHtml(page, 0);
+    const svg = markup.match(/<svg class="form-map-graph"[\s\S]*?<\/svg>/u)?.[0];
+    assert.ok(svg);
+    const fonts = await loadBundledFonts();
+    const faces = fonts.fonts
+      .filter(({ weight }) => [400, 600].includes(weight))
+      .map(
+        ({ weight, bytes }) =>
+          `@font-face{font-family:'JetBrains Mono';font-weight:${weight};src:url(data:font/ttf;base64,${bytes.toString('base64')}) format('truetype')}`,
+      )
+      .join('');
+    const browser = await chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 15_000,
+    });
+    t.after(() => browser.close());
+    const pageView = await browser.newPage({ viewport: { width: 1480, height: 330 } });
+    await pageView.setContent(
+      `<html><head><style>${faces}body{margin:0;background:transparent;font-family:'JetBrains Mono'}</style></head><body>${svg}</body></html>`,
+    );
+    await pageView.evaluate(() => globalThis.document.fonts.ready);
+    const figure = pageView.locator('svg');
+    await pageView.addStyleTag({
+      content: 'svg rect,svg path,svg line{visibility:hidden!important}',
+    });
+    const text = await figure.screenshot({ omitBackground: true });
+    await pageView.addStyleTag({
+      content:
+        'svg text,svg rect{visibility:hidden!important}svg path,svg line{visibility:visible!important}',
+    });
+    const marks = await figure.screenshot({ omitBackground: true });
+    const analysis = await browser.newPage();
+    assert.deepEqual(await paintedContactCounts(analysis, text, marks), {
+      contact: 0,
+      withinTwoPixels: 0,
+    });
   },
 );
 

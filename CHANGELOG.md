@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [Semantic Versioning]. Versions below `1.0.0` remain pre-release contracts and
 may contain incompatible changes.
 
-## [Unreleased]
+## Unreleased
 
 ### Added
 
@@ -17,6 +17,15 @@ may contain incompatible changes.
 
 ### Changed
 
+- Interactive responsibility pages now present roles, selected source nodes
+  and relations, editorial handoffs, and linked Claims in one bounded visual
+  map. A selected predicate keeps its spelling; an unlabeled source relation
+  gains no invented predicate caption. Page-local SVG identifiers keep titles,
+  descriptions, and arrow markers distinct across pages.
+- Current product documentation separates Candidate construction from
+  qualification, named acceptance, and local effect authorization; historical
+  release references use absolute Forge tag URLs rather than invalid local
+  filesystem-relative paths.
 - Interactive responsibility pages now use a higher-contrast source-relation
   metadata tone. A source-preserving four-role trial exposed a WCAG AA failure
   in the former tone; the corrected neutral renderer changes interactive
@@ -399,19 +408,18 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
-[Unreleased]: ../../compare/v0.3.0-alpha.5...main
-[0.3.0-alpha.5]: ../../compare/v0.3.0-alpha.4...v0.3.0-alpha.5
-[0.3.0-alpha.4]: ../../compare/v0.3.0-alpha.3...v0.3.0-alpha.4
-[0.3.0-alpha.3]: ../../compare/v0.3.0-alpha.2...v0.3.0-alpha.3
-[0.3.0-alpha.2]: ../../compare/v0.3.0-alpha.1...v0.3.0-alpha.2
-[0.3.0-alpha.1]: ../../compare/v0.3.0-alpha.0...v0.3.0-alpha.1
-[0.3.0-alpha.0]: ../../compare/v0.2.0-alpha.0...v0.3.0-alpha.0
-[0.2.0-alpha.0]: ../../compare/v0.1.0-alpha.7...v0.2.0-alpha.0
-[0.1.0-alpha.7]: ../../compare/v0.1.0-alpha.6...v0.1.0-alpha.7
-[0.1.0-alpha.6]: ../../compare/v0.1.0-alpha.5...v0.1.0-alpha.6
-[0.1.0-alpha.5]: ../../compare/v0.1.0-alpha.4...v0.1.0-alpha.5
-[0.1.0-alpha.4]: ../../compare/v0.1.0-alpha.3...v0.1.0-alpha.4
-[0.1.0-alpha.3]: ../../compare/v0.1.0-alpha.2...v0.1.0-alpha.3
-[0.1.0-alpha.2]: ../../compare/v0.1.0-alpha.1...v0.1.0-alpha.2
-[0.1.0-alpha.1]: ../../compare/v0.1.0-alpha.0...v0.1.0-alpha.1
-[0.1.0-alpha.0]: ../../tree/v0.1.0-alpha.0
+[0.3.0-alpha.5]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.5
+[0.3.0-alpha.4]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.4
+[0.3.0-alpha.3]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.3
+[0.3.0-alpha.2]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.2
+[0.3.0-alpha.1]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.1
+[0.3.0-alpha.0]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.0
+[0.2.0-alpha.0]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.2.0-alpha.0
+[0.1.0-alpha.7]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.7
+[0.1.0-alpha.6]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.6
+[0.1.0-alpha.5]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.5
+[0.1.0-alpha.4]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.4
+[0.1.0-alpha.3]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.3
+[0.1.0-alpha.2]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.2
+[0.1.0-alpha.1]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.1
+[0.1.0-alpha.0]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.0

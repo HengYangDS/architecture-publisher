@@ -115,12 +115,13 @@ test('release history follows Keep a Changelog with one SemVer identity', async 
   assert.match(workspace.version, semanticVersion);
   assert.match(changelog, /^# Changelog$/mu);
   assert.match(changelog, /Keep a Changelog.*Semantic Versioning/su);
-  assert.match(changelog, /^## \[Unreleased\]$/mu);
+  assert.match(changelog, /^## Unreleased$/mu);
   assert.match(changelog, /^### Added$/mu);
   assert.match(changelog, /^### Changed$/mu);
   assert.match(changelog, /^### Fixed$/mu);
   assert.match(changelog, /^### Security$/mu);
-  assert.match(changelog, /^\[Unreleased\]: \.\.\/\.\.\/compare\//mu);
+  assert.doesNotMatch(changelog, /^\[Unreleased\]:/mu);
+  assert.doesNotMatch(changelog, /^\[[^\]]+\]: \.\.\//mu);
 
   const releases = new Map(
     [...changelog.matchAll(/^## \[([^\]]+)\] - ([0-9]{4}-[0-9]{2}-[0-9]{2})$/gmu)].map(
@@ -132,6 +133,10 @@ test('release history follows Keep a Changelog with one SemVer identity', async 
   for (const [version, date] of releases) {
     assert.match(version, semanticVersion);
     assert.equal(new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10), date);
+    assert.match(
+      changelog,
+      new RegExp(`^\\[${version.replaceAll('.', '\\.')}\\]: https?://\\S+$`, 'mu'),
+    );
   }
   const tags = runGit('tag', '--list', 'v*', '--sort=-version:refname').split('\n').filter(Boolean);
   const taggedVersions = tags.map((tag) => tag.slice(1));
