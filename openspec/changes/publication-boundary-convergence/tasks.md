@@ -1431,6 +1431,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       (SHA-256 `19cd5b77b08d4d6789e929456e951c9b59d5a031c242ab89dddc157e0958d6f0`).
       External source acceptance, final exact-media human review, native-host
       and hosted CI, qualification and release remain unproved.
+      The current CI now invokes the same repository gate on Linux ARM64 and
+      native macOS ARM64. GitLab ref protection selects protected versus
+      review macOS Runners without enumerating branch names. A job-local
+      `umask 022` reproduces historical npm TAR member permissions. In the
+      exact accepted-base canary `01f2393`, hosted pipeline 8999 passed both
+      Linux and macOS jobs, including native CoreText tests; this is a dated
+      prerequisite probe, not qualification of this Lane. Current CI lint
+      dry-runs for dev, main and the active proposal pass without warnings and
+      select the intended Runners. Execute the current signed source jobs
+      before freeze and protected publication.
 
 - [ ] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release

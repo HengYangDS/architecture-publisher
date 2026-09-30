@@ -566,6 +566,19 @@ coverage, and packed-package validation. Vendored Archify, font, and raster
 supply remain outside first-party rewrite and dead-code ownership; their pinned
 bytes are verified through supply-chain and behavior tests.
 
+Hosted CI runs this same command on Linux ARM64 and native macOS ARM64. GitLab's
+protected-ref flag selects the protected macOS Runner; merge requests and
+unprotected branches select the separate review Runner. Native macOS executes
+the CoreText Swift paths that skip on other platforms. Browser and external
+input tests still require their explicit selectors.
+
+Each CI job sets `umask 022` before checkout-derived package reproduction.
+Historical `contentTarSha256` identifies the complete uncompressed TAR stream,
+including member modes; it is independent of gzip encoding, not of TAR metadata.
+The job-local mask reproduces those recorded package modes inside the Runner's
+private home. Runner service permissions and historical digests remain separate
+from that artifact-build setting.
+
 The JavaScript coverage gate selects all tracked runtime `.mjs` under
 `packages/publisher/src/`, first-party
 `packages/publisher/renderers/`, and `editions/self/src/`, including

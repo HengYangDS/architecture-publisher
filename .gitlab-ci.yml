@@ -12,9 +12,39 @@ verify:
     - ci-linux-arm64-container
   interruptible: true
   script:
+    - umask 022
     - node --version
     - npm --version
     - git --version
     - python3 --version
     - npm ci --ignore-scripts --no-audit --no-fund
     - npm run check
+
+.verify-macos:
+  stage: verify
+  image: null
+  interruptible: true
+  script:
+    - umask 022
+    - test "$(uname -sm)" = "Darwin arm64"
+    - node --version
+    - npm --version
+    - git --version
+    - swift --version
+    - npm ci --ignore-scripts --no-audit --no-fund
+    - npm run check
+
+verify:macos:review:
+  extends: .verify-macos
+  tags:
+    - ci-macos-arm64-review
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH'
+
+verify:macos:protected:
+  extends: .verify-macos
+  tags:
+    - ci-macos-arm64-shell
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'

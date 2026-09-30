@@ -10,6 +10,10 @@ may contain incompatible changes.
 
 ### Added
 
+- Native macOS ARM64 CI runs the existing repository gate, including CoreText
+  tests, with separate review and protected Runners selected by GitLab ref
+  protection. CI jobs use a reproducible artifact permission mask for historical
+  npm-package replay.
 - A finite static responsibility form composes editor-attributed roles and
   handoffs with exact source relations, linked Claims, qualifiers, and limits
   through its own SVG/PNG Scene. Unsupported forms fail before Candidate output;
