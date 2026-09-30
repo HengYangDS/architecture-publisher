@@ -1782,6 +1782,61 @@ Treat this installation as a DOM/content reader, not pixel, screenshot, or
 PDF acceptance. The controlled probe left no output file; Chrome/Playwright
 remains the visual-observation candidate.
 
+### Pixel acceptance is not visual judgment (2026-09-30)
+
+A pixel comparison answers whether a render changed against an approved
+baseline; it cannot prove that the baseline was truthful, readable, or
+beautiful. The current Publisher already uses pinned `playwright-core` for
+browser capture and checks, `axe-core` for accessibility, and static Scene
+audits for measured glyph, path, arrow, and clearance geometry. It records
+screenshot digests but has no approved pixel-regression baseline for the
+unreleased successor. The browser's text-box checks do not prove that every
+painted glyph clears every stroked path.
+
+- [Playwright visual comparisons](https://playwright.dev/docs/test-snapshots)
+  stabilize and compare screenshots with Pixelmatch, but require baselines
+  captured under the same browser, OS, fonts, and rendering settings. The
+  repository currently installs `playwright-core`, not the Playwright Test
+  runner; introducing another test runner needs a measured benefit.
+- [Pixelmatch](https://github.com/mapbox/pixelmatch) is a small JavaScript
+  image comparator with perceptual color thresholds and anti-alias handling.
+  It supplies no browser capture, semantic coverage, or review authority.
+  [ODiff](https://github.com/dmtrKovalenko/odiff) adds fast native comparison,
+  ignore regions, and cross-format inputs; its native supply and relocation
+  cost need a real workload comparison before adoption.
+- [Argos](https://argos-ci.com/docs/learn/platform-fundamentals/build-modes)
+  provides Git-history-selected baselines and review decisions, and its
+  [source](https://github.com/argos-ci/argos) is open. The hosted review and
+  artifact-custody boundary is additional state, not a substitute for the
+  product's own exact-byte qualification. [BackstopJS](https://github.com/garris/BackstopJS)
+  bundles capture, comparison, and reports but overlaps the existing
+  Playwright harness. Neither is admitted by feature count alone.
+- [Applitools Eyes](https://applitools.com/docs/eyes) advertises Visual AI and
+  cross-browser checks. Its vendor claims are not a local implementation
+  trial, and an opaque perceptual verdict cannot replace exact semantic or
+  pixel evidence. The installed [ImageMagick compare](https://imagemagick.org/compare/)
+  can inspect raster differences without a new service, but remains a
+  baseline comparator rather than an aesthetic or meaning verifier.
+
+The next discriminating trial must use an approved exact artifact and a
+known bad edit from self, AIGW, ETHOS, and an independent source. Freeze the
+source/Edition, renderer, fonts, browser, desktop viewport, device scale,
+motion state, and page state. First test semantic carrier coverage and
+vector/DOM geometry; then compare actual painted text and non-owning marks
+with separately rendered layer masks, including stroke width and required
+clearance. Compare whole-page raster changes only to the approved baseline.
+Record missed defects, false positives, speed, platform supply, and review
+cost. Occupancy, visual center, and empty-region measures may diagnose
+composition but cannot be optimized into a substitute for editorial judgment.
+For future PPTX and PDF, inspect native text and page structure and render
+each page or slide under a pinned font/toolchain before image comparison; a
+flattened preview cannot prove an editable deck or a readable report.
+
+**Decision:** retain the existing Playwright and static-audit owners. Trial
+Pixelmatch or ODiff, and painted-layer masks, against known counterexamples
+before adding a dependency or service. Keep machine rejection of measurable
+defects, human review of exact media, and source-owner acceptance separate.
+
 ### Comparative admission, not a preselected stack
 
 Freeze source assertions and reader questions for AIGW Product Boundary,
@@ -1973,10 +2028,84 @@ rejected by the existing symlink-ancestor rule; the same three input files
 passed semantic compilation at their canonical `/private/tmp` path. This is
 not a product-path defect.
 
-**Boundary:** the selected meaning is sufficient for a static responsibility
-form, but no static form composer or visible medium exists yet. The next
-positive test must carry this question, all selected relations and the Claim,
+**At this preflight checkpoint**, the selected meaning was sufficient for a
+static responsibility form, but its composer was not yet available. The next
+positive test had to carry this question, all selected relations and the Claim,
 editor-attributed role and handoff bases, and the limit through an independent
-static Scene and SVG/PNG. It may not borrow the interactive Scene, infer
+static Scene and SVG/PNG. It could not borrow the interactive Scene, infer
 ownership from traffic, or claim AIGW editorial acceptance. The trial's
-unchanged broad title also needs editor review before a reader-facing work.
+unchanged broad title still needed editor review before a reader-facing work.
+
+### Independent static responsibility composition (2026-09-30)
+
+The following unapproved editorial trial is a dated checkpoint, not the
+current AIGW selection or a transferable media approval.
+
+The successor Work Lane now routes a one-view neutral responsibility form
+through its own static Scene and SVG/PNG renderer. It paints source relations
+as endpoint-bound arrows, groups source entities into editor-bound roles,
+keeps a directional editorial handoff visually distinct, shows selected Claim
+facts with their linked relation, and labels unlinked relations as unverified
+source topology. The form's role order owns reading order; group records own
+membership, not a competing position. The public build still fails before a
+Candidate for a form it cannot represent. The finite graph grammar currently
+admits at most six roles, four members per role, three internal ranks, two
+nodes per rank, and one cross-role relation from each role to its next role
+in editorial order. These are declared representability limits, not
+properties inferred from AIGW.
+
+On the same pinned Product Model and Build Request above, a separate
+unapproved editorial trial retained only the static `boundary` question and
+changed the broad title to `AIGW — Responsibility boundary`. Its Edition
+SHA-256 is `c0a7fdda02720e2597764f51961f6cbd1e96ec58ef1f24539de912fbcea6752`.
+The public build produced an unqualified Candidate with static SVG SHA-256
+`5b7da0f66522658523e0bd730474fecd7acd895aa77d463248450c5d71936259`
+and 3600-pixel PNG SHA-256
+`98379e5a12d4004c773fde49719cea3662d197db05e77454d138eb0a66303bf9`.
+That checkpoint's source-built Candidate identity was
+`4e7a36cb6946f0b376bd872520d220c73b671b58fa08c9593d16d0bcdc69f98b`;
+its static media were byte-identical to the browser-inspected bytes below.
+Its selected static scope has six source relations, one source Claim, five
+attributed editorial assertions, and the boundary limit. A background Chrome
+inspection of that exact SVG measured 73 text elements, zero text/text
+intersections, zero sampled text/path-or-rule intersections at 3-unit path
+steps with 2-unit text clearance, and zero text outside its 1588×1318
+viewBox. Two independent output directories matched the five manifest-listed
+files and `manifest.json` byte-for-byte. The local test server's missing
+favicon produced one console error; that is not evidence of an SVG runtime
+error or a no-error browser verdict.
+
+At that checkpoint, the provisional Core archive SHA-256
+`bdb32a8d47ce40e7c32811f9f26762fe5f0b82610013a898d75c900aac14afcb`
+was installed offline. Its consumer and the three selected input files were
+outside the checkout. From the installed consumer directory, the public CLI
+ran with an empty user home and `PATH`, and reproduced all five manifest-listed
+Candidate files plus `manifest.json` byte-for-byte. This is local installed
+conformance, not a released-package or adopter acceptance result.
+
+That checkpoint proved a reproducible, semantically selected static
+**candidate**, not
+AIGW acceptance, a final visual work, independent predicate qualification,
+released-package replay, or Publisher release. Its remaining visual
+hierarchy, typography and Claim presentation need exact-artifact reader
+review and comparison against the other selected workloads before Task 5.2
+can close.
+
+A fresh public build of the retained request SHA-256
+`9bdac392652950382f163154786f89b83f8a2f9e7bfecc71aadcf4d58b15d756`
+and broad-title Edition SHA-256
+`0efc54a56e4c36e5351b34da2863494ff39ea6fafe22054325d0fc2a6054e9f0`
+produced Candidate
+SHA-256 `970849007aae913a5ad64ccf72891ca83e94a26647364b1d660addcc33831b85`.
+Its static SVG SHA-256 was
+`1b2ebd0f04e6673e3ae807d65f6c414234f7de5c6e550e2bb335fe670e2ba30b`,
+PNG SHA-256 was
+`24c992c4c1eb24677eeec0d09e04fe45057494ae72b31af8fbca70eebe930ec9`,
+and interactive HTML SHA-256 was
+`1841271eb2fdb7f0a887de1ba04e10dad922b4bf30065c13920560ee2e9b0f0d`.
+These three media, the input lock, Candidate record, and manifest matched the
+earlier retained `candidate-ab71fe6` bytes individually. This input is
+**not** the responsibility-title trial with Edition SHA-256
+`c0a7fdda02720e2597764f51961f6cbd1e96ec58ef1f24539de912fbcea6752`;
+this check cannot renew that trial's browser observation or editorial
+acceptance.

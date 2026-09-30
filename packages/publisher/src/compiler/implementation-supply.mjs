@@ -13,6 +13,7 @@ const profileNames = [
   'semantic-likec4',
   'static-claim',
   'static-structural',
+  'static-responsibility',
   'static-refinement',
   'static-likec4',
   'static-authored',

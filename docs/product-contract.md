@@ -260,11 +260,12 @@ authority.
 
 ## Construction discipline
 
-The implementation follows the causal dependency direction:
-
-```text
-source -> semantics -> edition -> scene -> renderer -> qualification -> publication
-```
+The implementation has two independently authored inputs: selected source
+meaning and the Edition's reading choices. They meet at Scene composition;
+renderers consume Scenes, qualification inspects exact emitted artifacts, and
+publication requires a separate authorized effect. Source interpretation
+cannot author the Edition; the Edition cannot change source meaning. Neither
+supplies acceptance or authorization.
 
 Adapters point inward to public contracts. Editions depend on public contracts
 and selected renderers. Generic modules never import a concrete Edition.

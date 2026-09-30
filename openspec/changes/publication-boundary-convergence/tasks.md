@@ -825,11 +825,32 @@ third-party or generated supply rather than moving owned code outside coverage.
       A separate one-question static `boundary` Edition preflight on the same
       pinned AIGW Model and Build Request now compiles six source relations,
       one Claim, five editorial assertions, four roles, one handoff and its
-      explicit limit. The public build stops at
+      explicit limit. At that checkpoint the public build stopped at
       `edition_visual_form_renderer_unavailable` with no Candidate; its exact
       transformation and hashes are in `docs/research/mechanism-evaluation.md`.
-      This isolates the missing static Scene/renderer rather than approving
+      This isolated the missing static Scene/renderer rather than approving
       AIGW's editorial substitution or Task 5.2.
+      The Work Lane now has a separate static responsibility Scene and SVG/PNG
+      renderer behind the same public build, with exact source entity,
+      relation and Claim carriers plus distinct visible role, handoff,
+      qualifier and limit treatments. Source, renderer and
+      visible-coverage regressions reject unsupported or forged forms; a
+      four-role AIGW-derived trial builds without using interactive geometry.
+      The exact provisional media hashes, bounded grammar and background
+      Chrome text/route clearance observation, plus byte-identical locally
+      packed offline-installed replay, are in
+      `docs/research/mechanism-evaluation.md`. This is neither source-owner
+      acceptance nor final composition, released-package replay or Task 5.2
+      closure.
+      After the role-order correction, the complete local `npm run check` on
+      these implementation bytes passed 1,350/1,359 tests with nine declared
+      skips and zero failures; statement, branch, function and line coverage
+      were 97.69/95.00/99.56/97.69%. A later public rebuild of the retained
+      broad-title AIGW trial matched all six previous Candidate members, but
+      did not rerun the narrower responsibility-title trial. Pixel-tool
+      research identifies painted-layer and approved-baseline comparisons as
+      still needed; it does not admit a new service or grant visual acceptance.
+      Exact frozen-package and human review remain separate Task 7.5 gates.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

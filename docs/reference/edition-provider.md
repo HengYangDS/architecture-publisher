@@ -17,17 +17,12 @@ An **Edition Provider** is a narrow boundary that transports exact source or
 editor-owned inputs to Architecture Publisher. It is not a second compiler,
 registry, workflow engine, or authority.
 
-```text
-selected source facts + authored Edition
-                |
-  direct files or optional Provider(s)
-                |
-          exact Build Request
-                |
-       archpub edition build
-                |
-         Edition Candidate
-```
+| Step        | Owner and effect                                                                               |
+| ----------- | ---------------------------------------------------------------------------------------------- |
+| Author      | The source owner supplies facts; the editor supplies the Edition.                              |
+| Select      | One Build Request names exact direct inputs or optional Provider manifests.                    |
+| Materialize | Publisher reads direct bytes or selected Provider outputs into one checked input lock.         |
+| Build       | The same `archpub edition build` compiles independent media and emits an unaccepted Candidate. |
 
 The only generic build command remains `archpub edition build`. There is no
 Provider subcommand or ambient provider discovery.

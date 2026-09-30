@@ -8,6 +8,13 @@ may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- A finite static responsibility form composes editor-attributed roles and
+  handoffs with exact source relations, linked Claims, qualifiers, and limits
+  through its own SVG/PNG Scene. Unsupported forms fail before Candidate output;
+  traffic is not reinterpreted as authority or source endorsement.
+
 ### Changed
 
 - Successor builds no longer execute a Provider solely because its manifest is

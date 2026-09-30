@@ -308,6 +308,14 @@ Edition field; an ambiguous generic selection requires an editor's choice.
 - **AND** finite reference validation does not claim that free editorial
   wording is source-endorsed or substantively correct
 
+#### Scenario: Group storage order differs from responsibility reading order
+
+- **WHEN** an Editor changes only the order of the view's group records while
+  retaining each group's members and the responsibility form's role order
+- **THEN** the form's ordered role references, not group-record position,
+  determine the visible reading order
+- **AND** the selected group membership and assertion carriers remain exact
+
 #### Scenario: Form or layout cannot answer the question
 
 - **WHEN** the selected form cannot express a required assertion, or every

@@ -32,38 +32,21 @@ owner and editor must judge that. JSON carries the selections and records, not
 every source file or every internal compilation step. A person, a script, or an
 agent may prepare the inputs; no agent is required to run the compiler.
 
-## Product chain
+## From source to publication
 
-```text
-     Source evidence + checked interpretation + authored Edition
-             (direct input or selected Edition Provider)
-                                  |
-                                  v
-                        archpub edition build
-                                  |
-                                  v
-                          Edition Candidate
-                                  |
-            +---------------------+---------------------+
-            |                                           |
-      Static scene                             Interactive scenes
-            |                                           |
-        SVG / PNG                                Standalone HTML
-            |                                           |
-            +---------------------+---------------------+
-                                  |
-                                  v
-                          Qualification Set
-                                  |
-                                  v
-                          Publication Plan
-                                  |
-                                  v
-                  publication and recovery receipts
-```
+| Boundary                                                         | Output                                   |
+| ---------------------------------------------------------------- | ---------------------------------------- |
+| Source facts and authored Edition, selected by one Build Request | Exact input selection                    |
+| Direct reading or optional Provider materialization              | Checked input lock and dependency limits |
+| Independent static and interactive composition                   | SVG/PNG and standalone HTML              |
+| Candidate sealing                                                | Media and provenance, not approval       |
+| External predicate evidence and policy assessment                | Qualification records, not authorization |
+| Source/editor acceptance                                         | Decision distinct from qualification     |
+| Custodian-authorized local effect                                | Publication or recovery receipt          |
 
-Each arrow is a contract boundary. A later layer may project an earlier value;
-it cannot reinterpret it or grant authority to it.
+The source owner retains fact authority; the editor retains reading choices.
+Executing a Provider needs separate invoker consent. Each boundary may project
+an earlier value but cannot reinterpret it or grant the next decision.
 Native inputs do not require a tracked duplicate Claim Model or a Source Bundle
 as separately authored files. The Provider is a transport choice, not another
 compiler or approval path.
@@ -100,10 +83,11 @@ The local checkout and GitLab project are the same history-preserving repository
 object under the canonical `architecture-publisher` identity. Signed alpha.7
 tags and release bytes remain immutable predecessor evidence.
 
-The first selected-input v2 release is `v0.3.0-alpha.4`. Its exact package and
-media identities, primary-forge readback, and limits are recorded in the
-[operational reference](docs/reference/operations.md).
-That Publisher release is not ETHOS or AIGW acceptance.
+The most recent locally verified release is `v0.3.0-alpha.5`; the current
+`0.3.0-alpha.6` Work Lane is not a release. Exact released package and media
+identities, primary-forge readback, and limits are recorded in the
+[operational reference](docs/reference/operations.md). A Publisher release
+does not establish ETHOS or AIGW acceptance.
 
 ## Install and inspect
 
@@ -149,16 +133,13 @@ adjacent checkouts, personal credentials, and ambient repository discovery.
 
 The current checkout separates product ownership from adopter evidence:
 
-```text
-packages/publisher/          generic product package
-editions/self/
-                             source-owned flagship self-Edition
-conformance/journeys/self-host/          bounded structural self-use
-conformance/fixtures/ethos-source-owned-handoff.json
-                             dated ETHOS handoff fixture, not current adoption proof
-conformance/fixtures/aigw-source-owned-handoff.json
-                             dated AIGW handoff fixture, not current adoption proof
-```
+| Path                                                   | Responsibility                                          |
+| ------------------------------------------------------ | ------------------------------------------------------- |
+| `packages/publisher/`                                  | Generic product package                                 |
+| `editions/self/`                                       | Source-owned flagship self-Edition                      |
+| `conformance/journeys/self-host/`                      | Bounded structural self-use                             |
+| `conformance/fixtures/ethos-source-owned-handoff.json` | Dated ETHOS handoff fixture, not current adoption proof |
+| `conformance/fixtures/aigw-source-owned-handoff.json`  | Dated AIGW handoff fixture, not current adoption proof  |
 
 The terminal product repository keeps the generic package, renderer supply,
 its self-Edition, and compact conformance fixtures. ETHOS and AIGW retain

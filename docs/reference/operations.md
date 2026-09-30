@@ -115,12 +115,13 @@ Architecture Publisher consumes selected values. It does not discover a
 repository, infer intent from code, execute an SDD lifecycle, or synthesize
 acceptance.
 
-```text
-selected source bytes -> checked native or Claim Model meaning
-                      -> authored Edition -> Edition Candidate
-                      -> Qualification Set -> Publication Plan
-                      -> effect and recovery receipts
-```
+The Build Request selects two independent inputs: source-owned facts and an
+editor-authored Edition. Direct reads or selected Providers materialize those
+bytes into one checked input lock. Publisher validates source-bound meaning,
+resolves Edition coverage, composes separate media, and emits an unaccepted
+Candidate. External predicate evidence and policy assessment remain distinct
+from source/editor acceptance. An explicitly authorized local Publication
+Plan may then produce effect and recovery receipts.
 
 A successful command reports only its named operation. In particular:
 

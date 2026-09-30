@@ -150,6 +150,61 @@ function validateInteractiveGroups(meaning, view, index, page, map, nodeGraphics
   if (memberIds.size !== map.nodes.length) mismatch();
 }
 
+function validateStaticResponsibility(meaning, view, index, page, map, nodeGraphics, graphicIds) {
+  const authored = meaning.editorial?.presentation?.static?.views?.[index];
+  if (
+    authored === undefined &&
+    page.schema !== 'architecture.edition-static-responsibility-scene/v1' &&
+    page.visualForm === undefined &&
+    map.groups === undefined
+  )
+    return;
+  if (authored?.id !== view.id) mismatch();
+  if (authored.form === undefined) {
+    if (page.visualForm !== undefined || map.groups !== undefined) mismatch();
+    return;
+  }
+  if (
+    page.schema !== 'architecture.edition-static-responsibility-scene/v1' ||
+    !same(page.visualForm, authored.form) ||
+    !same(page.groups, authored.groups) ||
+    !Array.isArray(map.groups) ||
+    !Array.isArray(authored.form.roles) ||
+    map.groups.length !== authored.groups.length ||
+    authored.form.roles.length !== authored.groups.length
+  )
+    mismatch();
+  const groups = new Map(authored.groups.map((group) => [group.id, group]));
+  const order = authored.form.roles.map(({ group }) => group);
+  if (
+    groups.size !== authored.groups.length ||
+    new Set(order).size !== groups.size ||
+    order.some((id) => !groups.has(id))
+  )
+    mismatch();
+  const groupGraphics = new Set();
+  const seenMembers = new Set();
+  for (const [at, id] of order.entries()) {
+    const group = groups.get(id);
+    const carrier = map.groups[at];
+    const nodeIds = group.elements.map((member) => nodeGraphics.get(nodeKey(member)));
+    if (
+      typeof carrier?.graphicId !== 'string' ||
+      !carrier.graphicId ||
+      graphicIds.has(carrier.graphicId) ||
+      groupGraphics.has(carrier.graphicId) ||
+      carrier.editorialId !== group.id ||
+      carrier.label !== group.label ||
+      !same(carrier.nodeIds, nodeIds) ||
+      nodeIds.some((id) => !id || seenMembers.has(id))
+    )
+      mismatch();
+    groupGraphics.add(carrier.graphicId);
+    for (const id of nodeIds) seenMembers.add(id);
+  }
+  if (seenMembers.size !== map.nodes.length) mismatch();
+}
+
 /** Check the selected view-to-carrier join before building an unqualified Candidate. */
 export function validateVisibleSelection(meaning, medium, scene, carriers) {
   const views = meaning?.media?.[medium]?.views;
@@ -304,6 +359,7 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     );
     if (medium === 'interactive')
       validateInteractiveGroups(meaning, view, index, page, map, nodeGraphics, graphicIds);
+    else validateStaticResponsibility(meaning, view, index, page, map, nodeGraphics, graphicIds);
     if (
       nodeGraphics.size !== map.nodes.length ||
       relationGraphics.size !== map.relations.length ||

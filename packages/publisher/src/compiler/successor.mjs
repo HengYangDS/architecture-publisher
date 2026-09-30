@@ -13,6 +13,7 @@ import {
   selectedStaticNativeViews,
 } from '../scene/static/selection.mjs';
 import { composeStaticEditionScene } from '../scene/static/edition.mjs';
+import { composeStaticResponsibilityScene } from '../scene/static/responsibility.mjs';
 import { assertAuthoredCanvasScene } from '../scene/static/audit.mjs';
 import { auditEmittedEdges } from '../qualification/static/emitted-path.mjs';
 import { importLikeC4Layout } from '../semantics/native-likec4.mjs';
@@ -28,6 +29,7 @@ import { verifyAuthoredCanvasTextBoxes } from '../../renderers/resvg/measurement
 import {
   composeStaticEditionSvg,
   composeStaticFigureSvg,
+  composeStaticResponsibilitySvg,
   renderAuthoredCanvasSvg,
 } from '../../renderers/svg/index.mjs';
 import { selectedEditionCandidateDigest, validateSelectedEditionCandidate } from './candidate.mjs';
@@ -58,6 +60,12 @@ function assertSelectedFormsRenderable(meaning, media) {
     if (!selected) continue;
     const refinement = meaning.refinement?.media?.[medium];
     if (medium === 'interactive' && (!refinement || refinement.kind === 'neutral')) continue;
+    if (
+      medium === 'static' &&
+      meaning.editorial.presentation.static.views.length === 1 &&
+      (!refinement || refinement.kind === 'neutral')
+    )
+      continue;
     fail('edition_visual_form_renderer_unavailable');
   }
 }
@@ -104,6 +112,16 @@ function staticViewMeaning(meaning, index) {
 async function staticView(selected, meaning, fontSupply, options = {}) {
   const staticRefinement = meaning.refinement?.media?.static;
   const authoredCanvas = staticRefinement?.kind === 'authored-canvas';
+  if (meaning.editorial.presentation.static.views[0].form !== undefined) {
+    const scene = composeStaticResponsibilityScene(meaning);
+    const rendered = composeStaticResponsibilitySvg(scene);
+    return {
+      scene: rendered.scene,
+      rendered,
+      limits: [],
+      implementationProfile: 'static-responsibility',
+    };
+  }
   const claimMode = meaning.native.selections.some(
     ({ format }) => format === 'architecture.claim-model/v2',
   );
@@ -176,7 +194,8 @@ async function staticMedium(selected, meaning, scratch) {
     !meaning.refinement?.media?.static || meaning.refinement.media.static.kind === 'neutral';
   const useFigure =
     (!wholeAuthoredCanvas && views.length > 1) ||
-    (!firstViewHasClaims &&
+    (meaning.editorial.presentation.static.views[0].form === undefined &&
+      !firstViewHasClaims &&
       neutralStatic &&
       (firstViewHasRawStructure ||
         meaning.editorial.presentation.static.views[0].groups !== undefined));

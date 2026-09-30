@@ -34,6 +34,11 @@ const profiles = {
     'packages/publisher/renderers/dagre/supply.mjs',
     'packages/publisher/renderers/svg/edition.mjs',
   ],
+  'static-responsibility': [
+    ...baseStatic,
+    'packages/publisher/src/scene/static/responsibility.mjs',
+    'packages/publisher/renderers/svg/responsibility.mjs',
+  ],
   'static-refinement': [
     ...baseStatic,
     'packages/publisher/src/scene/static/edition.mjs',
