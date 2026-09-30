@@ -729,8 +729,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       passes all checks at 97.73/95.03/99.54/97.73% statement/branch/function/
       line coverage. Copied AIGW inputs produced new Client and Product static
       trials at `build/test-work/aigw-neutral-attributed-228a2b1/candidate/`
-      under `client-projection-aligned` and `product-aligned`;
-      these remain Publisher evaluation, not AIGW acceptance or publication.
+      under `client-projection-aligned` and `product-aligned`. On 2026-09-30 the
+      requester accepted their exact PNG SHA-256 values
+      `561367255c9e06f54d7a882a3a95caba241b93ac195e1f73bd805868b822fbbe`
+      and `351d7ac38d12a37740372f708df92761dd635413c200c326982f4d71fc072bfe`
+      as Publisher neutral visual baselines for fidelity, clarity and elegance.
+      This grants no AIGW source, Edition, interactive-media or publication
+      acceptance; the broader task remains open.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
