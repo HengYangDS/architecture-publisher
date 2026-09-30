@@ -458,9 +458,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       even if not selected separately, without implicating an unrelated claim;
       malformed bindings fail and changed ownership cannot borrow exact
       correspondence. Focused RED/GREEN and the local full gate pass:
-      1,308/1,311 tests, three skips, zero failures, 95.12% branch coverage.
-      Native read-set limits, installed-package parity, and adopter acceptance
-      remain open; older exact-byte human media approval does not transfer.
+      1,309/1,312 tests, three skips, zero failures, 95.12% branch coverage.
+      The offline packed public CLI reproduces the dependency impact after
+      relocation under an empty HOME and PATH. Native read-set limits,
+      cross-platform installed parity, and adopter acceptance remain open;
+      older exact-byte human media approval does not transfer.
 
 ## 5. Editorial composition and independent media
 

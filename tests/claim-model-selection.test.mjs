@@ -27,6 +27,7 @@ import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/cy
 import { verifySelectedCandidateReplay } from '../packages/publisher/src/qualification/index.mjs';
 import { canonical } from '../packages/publisher/src/protocol/json.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
+import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
 import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/static/grouped-selection.mjs';
 import { claimCard } from '../packages/publisher/src/scene/claim-card.mjs';
 import { composeAuthoredInteractiveArchitecture } from '../packages/publisher/src/scene/interactive/authored-architecture.mjs';
@@ -832,6 +833,92 @@ test('an unselected relation change still reaches its selected dependent claim',
     static: ['overview'],
     interactive: ['overview'],
   });
+});
+
+test('offline installed evolution preserves claim dependency impact after relocation', async (t) => {
+  const before = await fixture(t);
+  const changedModel = claimModel();
+  changedModel.relations.request.qualifiers.policy = 'review';
+  const after = await fixture(t, { model: changedModel });
+  const work = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-claim-install-'),
+  );
+  t.after(() => fs.rm(work, { recursive: true, force: true }));
+  const { consumer, core } = await installCoreAndSelf(
+    fileURLToPath(new URL('../', import.meta.url)),
+    work,
+  );
+  assert.equal(core.name, 'architecture-publisher');
+  await fs.mkdir(path.join(consumer, 'inputs'));
+  await fs.cp(before.root, path.join(consumer, 'inputs/before'), { recursive: true });
+  await fs.cp(after.root, path.join(consumer, 'inputs/after'), { recursive: true });
+  const comparison = {
+    schema: 'architecture.semantic-compare-input/v3',
+    before: { request: { path: 'before/build-request.json', sha256: before.requestSha256 } },
+    after: { request: { path: 'after/build-request.json', sha256: after.requestSha256 } },
+  };
+  const comparisonBytes = Buffer.from(JSON.stringify(comparison) + '\n');
+  await fs.writeFile(path.join(consumer, 'inputs/comparison.json'), comparisonBytes);
+  const home = path.join(work, 'empty-home');
+  await fs.mkdir(home);
+  const environment = {
+    HOME: home,
+    PATH: '',
+    NODE_PATH: '',
+    NODE_OPTIONS: '',
+    LANG: 'C.UTF-8',
+    ...(process.platform === 'win32' && process.env.SystemRoot
+      ? { SystemRoot: process.env.SystemRoot }
+      : {}),
+  };
+  const compare = async (directory) => {
+    const manifest = JSON.parse(
+      await fs.readFile(
+        path.join(directory, 'node_modules/architecture-publisher/package.json'),
+        'utf8',
+      ),
+    );
+    const result = spawnSync(
+      process.execPath,
+      [
+        path.join(directory, 'node_modules/architecture-publisher', manifest.bin.archpub),
+        'evolution',
+        'plan',
+        path.join(directory, 'inputs/comparison.json'),
+        '--sha256',
+        sha(comparisonBytes),
+      ],
+      {
+        cwd: directory,
+        env: environment,
+        input: '',
+        encoding: 'utf8',
+        timeout: 60_000,
+        maxBuffer: 4 * 1024 * 1024,
+        windowsHide: true,
+      },
+    );
+    assert.equal(result.error, undefined, result.error?.message);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    return JSON.parse(result.stdout);
+  };
+  const first = await compare(consumer);
+  assert(
+    first.delta.native.supported.some(
+      ({ selectionId, subject, fields }) =>
+        selectionId === 'selected-claim' &&
+        subject.kind === 'claim-dependency' &&
+        subject.reference?.section === 'relations' &&
+        subject.reference.id === 'request' &&
+        fields.includes('target-value'),
+    ),
+  );
+  assert.deepEqual(first.editions.affected[0].questions, ['condition']);
+  for (const localPath of [work, before.root, after.root])
+    assert.equal(JSON.stringify(first).includes(localPath), false);
+  const relocated = path.join(work, 'relocated');
+  await fs.rename(consumer, relocated);
+  assert.deepEqual(await compare(relocated), first);
 });
 
 test('a changed source owner cannot borrow exact claim-dependency correspondence', async (t) => {
