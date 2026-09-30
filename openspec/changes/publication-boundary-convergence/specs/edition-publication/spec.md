@@ -2,6 +2,55 @@
 
 ## MODIFIED Requirements
 
+### Requirement: Edition is a complete authored contract
+
+One editor-owned Edition Project SHALL select audience, reader questions,
+source addresses and references, question-scoped required assertions, explicit
+limits and omissions, attributed editorial assertions, narrative, and separate
+static and interactive presentation obligations. The Build Request, not the
+Edition Project, selects source revisions and requested media. A source
+assertion selected for a promised view/question SHALL be represented there or
+classified by an allowed omission; unselected source facts need not be
+enumerated as omissions. Publisher SHALL reject mechanically established
+identity, typed-meaning, and declared grouping contradictions. It SHALL NOT
+claim to decide whether arbitrary editorial wording is semantically equivalent
+to, or contradicted by, the source. The selected public media SHALL attribute
+such wording to the editor and disclose its unverified status. Candidate build
+alone remains unqualified until the applicable semantic and human acceptance
+decision.
+
+#### Scenario: An editorial assertion is added
+
+- **WHEN** an Edition states a cross-source relationship or conclusion not
+  asserted by either source
+- **THEN** it names the editor as proponent and identifies its selected basis
+- **AND** it does not appear as source-approved fact
+
+#### Scenario: An Edition omits a source claim
+
+- **WHEN** a selected source assertion is absent from a view promising its
+  reader question
+- **THEN** its omission must be classified as covered in another answering
+  view of the same medium or as an explicit limit on that answer
+- **AND** unrelated, unselected source facts do not create exhaustive-graph
+  obligations
+
+#### Scenario: An Edition changes source meaning
+
+- **WHEN** selected source identity or typed Claim Model rules establish an
+  incompatible fact, or an authored group violates its declared forbidden pair
+- **THEN** compilation rejects that exact contradiction before Candidate
+- **AND** a later renderer cannot waive it by painting the same IDs
+
+#### Scenario: Free wording seems to contradict a bound source claim
+
+- **WHEN** an editor writes a stronger unsupported statement while retaining
+  the exact source references
+- **THEN** each selected public medium visibly attributes the wording to the
+  editor and marks it unverified
+- **AND** build success does not certify the wording, source endorsement, or
+  human acceptance
+
 ### Requirement: Successor Candidate manifest binds selected supplies
 
 Candidate v2 SHALL bind input lock, Edition, semantic digest, selected checked

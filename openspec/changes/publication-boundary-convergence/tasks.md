@@ -458,15 +458,18 @@ third-party or generated supply rather than moving owned code outside coverage.
 
 ## 5. Editorial composition and independent media
 
-- [ ] 5.1 Materialize finite required assertions for each reader question and
+- [x] 5.1 Materialize finite required assertions for each reader question and
       medium before layout. Join the Build Request and Edition Project: a
       promised question or required assertion present only in an unrequested
       medium cannot count as selected-media coverage.
       `tests/edition-selection.test.mjs` covers explicit
       exclusions, limits, editorial propositions, allowed/forbidden aggregates,
-      `some-member` versus `all-member`, and conflict views. Unclassified omission
-      or source-contradictory wording fails; complete means complete for the
-      declared question, not an exhaustive raw graph.
+      `some-member` versus `all-member`, and conflict views. An unclassified
+      selected-source omission or mechanically established typed contradiction
+      fails; free editorial wording remains attributed and unverified. Finite
+      coverage means every selected assertion for the declared question is
+      represented or limited, not that arbitrary prose answers the question
+      or that the raw graph was exhaustively copied.
       Partial: ordered, medium-local views are the sole authored question
       inventory; omissions must resolve to a declared source view and, for
       covered-elsewhere, a non-omitting same-medium target asking that question.
@@ -510,6 +513,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       neutral and authored paths. An independent-editor counterexample builds
       official-sounding prose without granting it source authority. This does
       not validate arbitrary natural-language claims or replace human review.
+      Closure ruling: the product-owned finite selection and attribution
+      contract is complete, not source truth or reader acceptance. The active
+      Edition specification now distinguishes mechanically checkable identity,
+      typed-claim and declared-group contradictions from free wording that the
+      compiler cannot understand. The latter stays visibly editor-attributed
+      and unqualified rather than causing a fictitious compile-time verdict.
+      A current focused run of Edition selection, meaning, Claim Model, and
+      visible-coverage tests passed 96/96 with no skips; the preceding
+      Chrome-enabled full gate passed 1,310/1,313 with three declared skips
+      and 95.11% branch coverage. Source-owner aggregate rules, actual answer
+      adequacy, and visual acceptance remain explicit external obligations
+      under Tasks 7.5, 8.1, and 8.2, never implied by this checkbox.
 - [ ] 5.2 Deliver an explainable neutral source-to-media composition without
       duplicate editable facts, authored pixels, or a second layout engine.
       Exact selected references, reader questions, group membership, typed
