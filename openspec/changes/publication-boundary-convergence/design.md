@@ -1044,6 +1044,28 @@ question, or choose a different form; Publisher must not make that decision
 by moving boxes or hiding edges. This is a generic form precondition, not an
 AIGW-specific ontology or a new source repository obligation.
 
+The first concrete form contract is view-local and additive to the Edition
+Project, not a new source model. An optional `view.form` identifies
+`schema: architecture.visual-form/v1` and `kind: responsibility`. Its `roles`
+contain `{ group, basis }` references to the view's existing groups rather
+than repeating their members; each group has exactly one role binding to a
+same-question selected assertion. Its `handoffs` contain
+`{ from, to, basis }` references to two bound groups and a same-question
+selected assertion; a handoff is never inferred from a relation crossing a
+group boundary. A selected typed Claim can be an attributed basis, but the
+Edition editor still owns its interpretation as a responsibility. A bare
+entity, relation, or structural view needs an editor-attributed assertion
+whose basis names selected source references. The finite validator checks
+the references, view-local coverage, and endpoint membership; subsequent
+carrier validation must retain selected conditions and limits. Neither check
+certifies the truth of a source Claim, the editor's interpretation, or free
+editorial wording. The form is initially admitted only on a one-question
+view, so its obligation cannot be borrowed
+from another question or hidden in a prose inventory. A renderer that cannot
+paint the selected form must fail before Candidate completion, not silently
+fall back to the structural graph. This adds no repository command, authored
+coordinates, duplicate group membership, or source-owner responsibility.
+
 The AIGW Product Boundary question is a candidate for a responsibility and
 handoff form rather than a single seven-node causal chain; Client Projection
 Overview remains a candidate for a directed relationship form. These are

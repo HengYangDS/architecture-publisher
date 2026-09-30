@@ -289,6 +289,16 @@ Edition field; an ambiguous generic selection requires an editor's choice.
 - **AND** it does not derive ownership from entity type, box position, line
   direction, or a free narrative summary
 
+#### Scenario: A relation is not an ownership claim
+
+- **WHEN** an Edition binds a responsibility role or handoff directly to a
+  selected entity, relation, or structural view rather than a typed Claim or
+  editor-attributed assertion with selected source basis
+- **THEN** Publisher reports the affected view question and unsupported role
+  before layout, even if all referenced source endpoints are present
+- **AND** it does not silently reinterpret a traffic route as an authority
+  handoff
+
 #### Scenario: Every responsibility role has an attributed basis
 
 - **WHEN** the selected form binds each visible role and handoff to exact
