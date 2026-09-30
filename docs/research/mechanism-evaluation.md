@@ -2131,3 +2131,41 @@ earlier retained `candidate-ab71fe6` bytes individually. This input is
 `c0a7fdda02720e2597764f51961f6cbd1e96ec58ef1f24539de912fbcea6752`;
 this check cannot renew that trial's browser observation or editorial
 acceptance.
+
+### Current copied-input responsibility trial (2026-09-30)
+
+From the same AIGW source snapshot `01776f2f`, a copied, unapproved editorial
+trial kept Product Model SHA-256
+`c61dd0f0d6253d8f80280e5803e5fd4ff620d17b54404d045295770a242655db`
+and Build Request SHA-256
+`9bdac392652950382f163154786f89b83f8a2f9e7bfecc71aadcf4d58b15d756`.
+Its new Edition SHA-256
+`faf156d9f9192b58b170f7c89527c642184f2e45a20ec4bbcdae734d98edbc5b`
+selects only the existing `boundary` question for static, retains six
+interactive chapters, and narrows the title and summary. These are trial
+editorial choices, not AIGW endorsement.
+
+The current static SVG SHA-256 is
+`e3813cab88c36cd39352fa24ff00dfd7cf1b4dbc8d2a1e2709f63948a02240e8`;
+its 3600-pixel PNG SHA-256 is
+`337436c2e686d7660bbc9ef91b5b5f416077bf56a32bed35478e6ca56fbd3570`.
+Chrome measured 73 text elements in the 1588×1318 SVG viewBox, zero text-box
+intersections, and zero painted text/stroke contact within a 2px square
+dilation. This is a bounded geometry observation, not an aesthetic verdict.
+
+The first trial HTML exposed three instances of one generic Axe
+`color-contrast` failure: `.form-relation-head span` painted `#6b786d`
+against `#f5f3ed` at 4.17:1. A source-independent two-role test reproduced
+the failure before the responsible neutral CSS tone changed to `#526158`.
+The static files stayed byte-identical. The repaired interactive HTML SHA-256
+is `5ab3e6f611a1725d4201cfc4e8d841bcf32cfcc8cf26adc608bedede459d48e8`;
+its six Chrome reading pages showed no observed WCAG 2.1 A/AA Axe violation,
+horizontal overflow, or page error at 1600×1000 and reduced motion. The
+Candidate SHA-256 is
+`cf15d6a5a1742bb1fe3b7259e151b0d780cd4e37ad42818bad052fae8c604e6d`.
+An offline-installed provisional Core archive SHA-256
+`c43f8c2c026cb7e93d79e983e45b3487cc5c1125b41ccd624d4bed6a136296a4`
+reproduced all six Candidate members after its consumer and three selected
+inputs moved outside the checkout with empty HOME/PATH. This was a dirty-
+worktree package trial, not a signed release, source-owner acceptance,
+independent predicate qualification, or final visual review.

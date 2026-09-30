@@ -963,7 +963,7 @@
       {
         "path": "renderers/cytoscape/responsibility.mjs",
         "bytes": 14833,
-        "sha256": "a218812d9f20cdd5e37e41d7ae781a0d024e27ec67367e66323c01392c5ffd3c"
+        "sha256": "902d91934c140e364a6cd41a695853cc040ef9fd0baa6893bc3b2700a348e7ca"
       },
       {
         "path": "renderers/cytoscape/supply.mjs",

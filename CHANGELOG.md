@@ -17,6 +17,10 @@ may contain incompatible changes.
 
 ### Changed
 
+- Interactive responsibility pages now use a higher-contrast source-relation
+  metadata tone. A source-preserving four-role trial exposed a WCAG AA failure
+  in the former tone; the corrected neutral renderer changes interactive
+  bytes only and does not transfer prior media approval.
 - Successor builds no longer execute a Provider solely because its manifest is
   named by an input file. Executable materialization now requires the invoker's
   separate exact `--execute-providers` selection; direct and declarative builds

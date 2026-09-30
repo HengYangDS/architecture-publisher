@@ -851,6 +851,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       research identifies painted-layer and approved-baseline comparisons as
       still needed; it does not admit a new service or grant visual acceptance.
       Exact frozen-package and human review remain separate Task 7.5 gates.
+      A new copied-input, unapproved four-role AIGW trial selects only the
+      `boundary` question for static while retaining six interactive chapters.
+      Its source Model and Build Request bytes remain pinned; the narrowed
+      Edition and media have fresh identities recorded in the mechanism study.
+      Chrome found no static text collision or text/stroke contact within a
+      2px square dilation. The local provisional Core rebuilt all six current
+      Candidate members byte-for-byte after offline installation and external
+      input relocation with empty HOME/PATH. This establishes neither AIGW
+      editorial acceptance nor a flagship visual work; Task 5.2 stays open.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -976,6 +985,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       function and line coverage were 97.69/95.01/99.56/97.69%. This is a
       focused paint observation, not an arbitrary-Edition pixel gate,
       approved baseline, adopter acceptance, or Task 5.4 closure.
+      The four-role trial exposed a real interactive `color-contrast` failure:
+      source-relation metadata was 4.17:1 against its paper, below WCAG AA.
+      A generic two-role Chrome/axe regression failed on the same renderer
+      class before its single owning CSS tone changed. It now passes; all six
+      exact changed AIGW trial pages have zero observed WCAG 2.1 A/AA axe
+      violations, horizontal overflow, or page errors. Static media remained
+      byte-identical; interactive bytes and Candidate identity changed, so
+      prior human or release approval cannot transfer.
 - [x] 5.5 Keep the first-party self Edition on the same public Build Request,
       Edition Project, data-only refinement, and dual-medium compiler as other
       adopters. Preserve its source-owned meaning and flagship art direction;

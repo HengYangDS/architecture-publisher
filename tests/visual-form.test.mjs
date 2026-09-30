@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import test from 'node:test';
+import axe from 'axe-core';
 import { chromium } from 'playwright-core';
 import { materializeBuildRequestInput } from '../packages/publisher/src/compiler/build-input.mjs';
 import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/edition.mjs';
@@ -183,6 +184,44 @@ test('a selected responsibility form builds an independent interactive role work
   assert.equal(candidate.qualification, 'unqualified');
   assert.deepEqual(Object.keys(candidate.media), ['interactive']);
 });
+
+test(
+  'interactive responsibility relation labels retain WCAG AA contrast',
+  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 35_000 },
+  async (t) => {
+    const { selected } = await responsibilityFixture(t);
+    const output = path.join(selected.root, 'accessible-responsibility-candidate');
+    await compileEditionCandidateInput(selected.file, selected.digest, output);
+    const browser = await chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 15_000,
+    });
+    t.after(() => browser.close());
+    const page = await browser.newPage({
+      viewport: { width: 1600, height: 1000 },
+      reducedMotion: 'reduce',
+    });
+    await page.goto(pathToFileURL(path.join(output, 'interactive/architecture.html')).href, {
+      waitUntil: 'load',
+      timeout: 15_000,
+    });
+    await page.locator('.form-relation-head span').first().waitFor({ state: 'visible' });
+    await page.evaluate(() => globalThis.document.fonts.ready);
+    await page.addScriptTag({ content: axe.source });
+    const violations = await page.evaluate(async () => {
+      const result = await globalThis.axe.run(globalThis.document, {
+        runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+      });
+      return result.violations.map(({ id, nodes }) => ({
+        id,
+        targets: nodes.map(({ target }) => target),
+      }));
+    });
+    assert.deepEqual(violations, []);
+  },
+);
 
 test('interactive projection retains only bound responsibility roles and handoffs', async (t) => {
   const { selected } = await responsibilityFixture(t);
