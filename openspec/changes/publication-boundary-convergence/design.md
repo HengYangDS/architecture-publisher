@@ -862,6 +862,19 @@ semantic authorship, avoids a sparse high-resolution figure exceeding the
 raster budget, and renews only affected static medium and Candidate identities.
 It does not transfer visual acceptance.
 
+The selected neutral Dagre adapter derives one node-box width from the
+longest selected label in a view, rounds it to a 32-unit typographic grid,
+and uses one 96-unit height. A 256-unit minimum covers ordinary two-line
+labels. Peers in the same rank therefore share a left edge. The adapter first
+requests Dagre's down-right alignment with a 32-unit node separation to put
+the causal spine and branches on regular rows where feasible. It checks every
+caption against every route; only a caption-clearance failure retries the
+pre-existing balanced Dagre alignment and separation. The selected candidate
+recomputes all routes from its own boxes. No post-layout nudges, invented
+semantic groups, per-label font shrinking, or silent truncation are admitted.
+If both candidates cannot clear captions, composition fails. This is geometry
+policy, not a source claim or an authored pixel override.
+
 ### Static views form one jointly composed figure
 
 At Publisher `3bd5645`, the Edition schema accepts ordered static views, but

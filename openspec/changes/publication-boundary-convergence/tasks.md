@@ -722,6 +722,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       gate passed 1,312 tests with three declared skips and 95.02% branch
       coverage, but neither AIGW source acceptance nor human visual acceptance
       is established.
+      A later neutral visual counterexample exposed inconsistent box widths and
+      half-row node placement. The static adapter now measures one box per view,
+      prefers regular-row Dagre geometry, and retries balanced geometry only
+      when a caption cannot clear the regular routes. The current source gate
+      passes all checks at 97.73/95.03/99.54/97.73% statement/branch/function/
+      line coverage. Copied AIGW inputs produced new Client and Product static
+      trials at `build/test-work/aigw-neutral-attributed-228a2b1/candidate/`
+      under `client-projection-aligned` and `product-aligned`;
+      these remain Publisher evaluation, not AIGW acceptance or publication.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

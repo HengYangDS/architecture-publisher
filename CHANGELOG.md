@@ -59,6 +59,10 @@ may contain incompatible changes.
   composition as multiple views, rather than placing its question and source
   notes in a separate side rail. An upstream authored view retains its own
   selected layout. This changes affected static media bytes.
+- Neutral structural nodes now share one measured, 32-unit-grid box size per
+  view. Dagre prefers regular-row alignment and falls back to balanced placement
+  only when a relation caption cannot clear the regular routes. Longer labels
+  still require sufficient space rather than smaller text.
 
 ## [0.3.0-alpha.5] - 2026-09-29
 

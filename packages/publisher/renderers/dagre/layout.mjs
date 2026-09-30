@@ -155,9 +155,10 @@ async function selectedRuntime() {
 }
 
 /** Use the already pinned Dagre supply for source-neutral flat static coordinates. */
-export async function layoutStaticGraph(input) {
+export async function layoutStaticGraph(input, { alignment = 'balanced' } = {}) {
   if (
     !input ||
+    !['balanced', 'regular'].includes(alignment) ||
     !Array.isArray(input.nodes) ||
     !input.nodes.length ||
     input.nodes.length > 512 ||
@@ -195,8 +196,9 @@ export async function layoutStaticGraph(input) {
   const graph = new runtime.dagre.graphlib.Graph({ multigraph: true });
   graph.setGraph({
     rankdir: 'LR',
+    ...(alignment === 'regular' ? { align: 'DR' } : {}),
     ranksep: 70,
-    nodesep: 34,
+    nodesep: alignment === 'regular' ? 32 : 34,
     edgesep: 16,
     marginx: 20,
     marginy: 20,

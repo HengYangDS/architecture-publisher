@@ -105,6 +105,10 @@ composition fails without losing selected entities, relations, or qualifiers.
 One neutral raw entity/relation view uses the same question-led complete figure
 as multiple views. A selected upstream authored view without editorial groups
 retains its distinct source-view composition.
+Neutral Dagre nodes use a shared measured box size per structural view. The
+adapter first tries regular-row placement; if a relation caption cannot clear
+its routes, it retries balanced placement. Both are replaceable geometry, not
+source grouping, and both must preserve caption clearance.
 
 The editor's `questions[].text` is a reader-facing prompt, not an executable
 query. Publisher checks finite ID links from each selected question to source

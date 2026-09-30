@@ -47,6 +47,86 @@ test('flat structural geometry preserves selected members without inventing a gr
   );
 });
 
+test('peer node boxes use one measured size and align on their shared rank', async () => {
+  const input = {
+    nodes: [
+      { id: 'cli', label: 'CLI' },
+      { id: 'configuration', label: 'Configuration' },
+      { id: 'discovery', label: 'Native discovery' },
+      { id: 'synchronizer', label: 'Synchronizer' },
+    ],
+    groups: [],
+    relations: ['cli', 'configuration', 'discovery'].map((from) => ({
+      id: `to-${from}`,
+      from,
+      to: 'synchronizer',
+      text: '',
+    })),
+  };
+  const result = await composeDagreStaticGeometry(input);
+  const boxes = [...result.layout.nodes.values()];
+  assert.equal(new Set(boxes.map(({ w }) => w)).size, 1);
+  assert.equal(new Set(boxes.map(({ h }) => h)).size, 1);
+  assert.equal(boxes[0].w % 32, 0);
+  assert.equal(boxes[0].h % 32, 0);
+  assert.equal(result.layout.nodes.get('cli').x, result.layout.nodes.get('configuration').x);
+  assert.equal(result.layout.nodes.get('cli').x, result.layout.nodes.get('discovery').x);
+
+  const longLabel = 'Native discovery across distributed hosts';
+  const widened = await composeDagreStaticGeometry({
+    ...input,
+    nodes: input.nodes.map((node) =>
+      node.id === 'discovery' ? { ...node, label: longLabel } : node,
+    ),
+  });
+  const widenedWidths = [...widened.layout.nodes.values()].map(({ w }) => w);
+  assert.equal(new Set(widenedWidths).size, 1);
+  assert(widenedWidths[0] > boxes[0].w);
+  assert(widenedWidths[0] >= [...longLabel].length * 9.76 + 32);
+});
+
+test('branching structural geometry follows a shared row grid instead of half rows', async () => {
+  const ids = [
+    'input-a',
+    'input-b',
+    'input-c',
+    'authority',
+    'coordinator',
+    'registry',
+    'contract',
+    'guard',
+    'sink-a',
+    'sink-b',
+    'sink-c',
+    'sink-d',
+  ];
+  const links = [
+    ['input-a', 'coordinator'],
+    ['input-b', 'coordinator'],
+    ['input-c', 'coordinator'],
+    ['coordinator', 'registry'],
+    ['registry', 'contract'],
+    ['authority', 'contract'],
+    ['contract', 'guard'],
+    ...['sink-a', 'sink-b', 'sink-c', 'sink-d'].map((sink) => ['contract', sink]),
+  ];
+  const result = await composeDagreStaticGeometry({
+    nodes: ids.map((id) => ({ id, label: id })),
+    groups: [],
+    relations: links.map(([from, to], index) => ({
+      id: `edge-${index}`,
+      from,
+      to,
+      text: 'relation',
+    })),
+  });
+  const rows = [...result.layout.nodes.values()].map(({ y }) => y);
+  const first = Math.min(...rows);
+  for (const y of rows) assert.equal((y - first) % 128, 0);
+  assert.equal(result.layout.nodes.get('coordinator').y, result.layout.nodes.get('registry').y);
+  assert.equal(result.layout.nodes.get('registry').y, result.layout.nodes.get('contract').y);
+});
+
 test('source labels remain data and cannot create extra graphic members', async () => {
   const input = chain();
   input.nodes[0].label = 'Intent"; forged -> client; //';

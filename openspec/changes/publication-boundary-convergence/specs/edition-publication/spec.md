@@ -109,6 +109,20 @@ is insufficient.
 - **AND** a selected upstream authored view without editorial groups retains
   its source-view composition instead of being mistaken for raw structure
 
+#### Scenario: Neutral peer nodes have unequal label lengths
+
+- **WHEN** the selected Dagre adapter composes source nodes with different
+  label lengths in one structural view
+- **THEN** it measures one sufficient node width for that view, rounds the
+  box to its 32-unit grid, and gives every peer the same width and height
+- **AND** same-rank left edges align while relations and captions are routed
+  against the resulting boxes, not the former varying widths
+- **AND** a regular-row Dagre candidate is preferred when every caption clears
+  every route; a caption-clearance failure may select the balanced Dagre
+  candidate, with its own routes and captions recomputed
+- **AND** if neither candidate clears its captions, composition fails rather
+  than shrinking text or moving nodes after layout without updating edges
+
 #### Scenario: Method evidence does not become figure copy
 
 - **WHEN** an Edition's selected source and compiler have method or

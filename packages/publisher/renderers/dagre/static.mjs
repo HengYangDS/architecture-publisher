@@ -151,24 +151,30 @@ function placeRelationLabels(routes, nodes) {
   });
 }
 
-/** The existing pinned Dagre supply proposes coordinates, never source meaning. */
-export async function composeDagreStaticGeometry(value) {
-  const input = checkedInput(value);
-  const opaque = new Map(input.nodes.map(({ id }, index) => [id, `n${index}`]));
-  const selected = await layoutStaticGraph({
-    nodes: input.nodes.map((node, index) => ({
-      id: `n${index}`,
-      width: Math.max(150, Math.ceil([...node.label].length * 9.76 + 32)),
-      height: 92,
-    })),
-    relations: input.relations.map((relation, index) => ({
-      id: `e${index}`,
-      source: opaque.get(relation.from),
-      target: opaque.get(relation.to),
-      width: relation.text ? Math.ceil([...relation.text].length * 14 * 0.61 + 18) : 0,
-      height: relation.text ? 26 : 0,
-    })),
-  });
+async function composeWithAlignment(input, opaque, alignment) {
+  const grid = 32;
+  const nodeWidth =
+    grid *
+    Math.ceil(
+      Math.max(8 * grid, ...input.nodes.map(({ label }) => [...label].length * 9.76 + grid)) / grid,
+    );
+  const selected = await layoutStaticGraph(
+    {
+      nodes: input.nodes.map((node, index) => ({
+        id: `n${index}`,
+        width: nodeWidth,
+        height: 3 * grid,
+      })),
+      relations: input.relations.map((relation, index) => ({
+        id: `e${index}`,
+        source: opaque.get(relation.from),
+        target: opaque.get(relation.to),
+        width: relation.text ? Math.ceil([...relation.text].length * 14 * 0.61 + 18) : 0,
+        height: relation.text ? 26 : 0,
+      })),
+    },
+    { alignment },
+  );
   const placedNodes = new Map(selected.nodes.map((node) => [node.id, node]));
   const nodes = new Map(
     input.nodes.map((node, index) => {
@@ -230,4 +236,16 @@ export async function composeDagreStaticGeometry(value) {
     routes: labeledRoutes,
     supplySha256: selected.supplySha256,
   };
+}
+
+/** The pinned Dagre supply proposes replaceable coordinates, never source meaning. */
+export async function composeDagreStaticGeometry(value) {
+  const input = checkedInput(value);
+  const opaque = new Map(input.nodes.map(({ id }, index) => [id, `n${index}`]));
+  try {
+    return await composeWithAlignment(input, opaque, 'regular');
+  } catch (error) {
+    if (error?.code !== 'static_dagre_relation_caption_infeasible') throw error;
+  }
+  return composeWithAlignment(input, opaque, 'balanced');
 }
