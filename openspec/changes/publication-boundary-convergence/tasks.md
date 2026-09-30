@@ -665,7 +665,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       skips and 95.05% branch coverage (all four dimensions above 95%). This
       is a generic contract and does not change the rejected AIGW media or
       substitute for AIGW-authored static art and exact-byte visual acceptance.
-- [ ] 5.3 Compile static SVG/selected-width PNG and standalone interactive
+- [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
       artifact identity, and review. A 6000px ETHOS choice is honored without an
@@ -734,6 +734,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       description the subtitle remains only a renderable fallback, not proof
       that a complex adopter Edition is accessible. AIGW-owned text and exact
       reader acceptance remain outside Publisher's source authority.
+      Closure ruling: the dual-medium compiler and standalone artifact
+      contract are complete within Publisher's authority. A current focused
+      run passed 22/22 contract, installed, independent-editor, HTML and
+      static-browser tests; a separate real-Chrome dual-medium/Cytoscape run
+      passed 3/3 without skips. The last full runtime gate passed 1,310/1,313
+      with three declared skips and all coverage dimensions above 95%.
+      Actual visible adequacy remains Task 5.4; neutral AIGW composition
+      remains Task 5.2; exact frozen-package, adopter and human acceptance
+      remain Tasks 7.5–8.2. This checkbox grants none of those outcomes.
 - [ ] 5.4 `tests/visible-coverage.test.mjs` rejects missing endpoints, changed
       plane/condition, hidden-only IDs or metadata, incomplete interactive
       overviews, backend badges, and non-disclosed private inputs. Bind actually
