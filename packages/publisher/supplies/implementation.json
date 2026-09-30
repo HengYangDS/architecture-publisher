@@ -855,13 +855,18 @@
     "interactive-neutral": [
       {
         "path": "renderers/cytoscape/edition.mjs",
-        "bytes": 26225,
-        "sha256": "292b61254e14ac74c50bc8fb3ad602bf64143252bc245c81224fc15562ab0808"
+        "bytes": 26631,
+        "sha256": "578c23bb26634c8ae9507690d5d374271d98f80221b1c586aa4d96a8c3566af2"
       },
       {
         "path": "renderers/cytoscape/model.mjs",
-        "bytes": 14700,
-        "sha256": "8c491a733d9cbd05c76810fc8425c4303e00b1cd99e27c02a7e93bd344dc3f1b"
+        "bytes": 17739,
+        "sha256": "0740426fa38b81131e9c1510a65d7f0bb2c0d8192b88bace3cda5f42f52542a1"
+      },
+      {
+        "path": "renderers/cytoscape/responsibility.mjs",
+        "bytes": 14833,
+        "sha256": "a218812d9f20cdd5e37e41d7ae781a0d024e27ec67367e66323c01392c5ffd3c"
       },
       {
         "path": "renderers/cytoscape/supply.mjs",
@@ -920,8 +925,8 @@
       },
       {
         "path": "src/scene/interactive/edition.mjs",
-        "bytes": 9670,
-        "sha256": "c7c6cd181be0a945e57d15afeb7306080c04129992a865e6e0a6197e42ce9252"
+        "bytes": 9713,
+        "sha256": "7d47b62246a0383e8e0460c017ad6c3421d79f6f2a76c376c9d70083a069176a"
       },
       {
         "path": "src/semantics/document.mjs",

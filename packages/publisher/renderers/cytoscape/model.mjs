@@ -83,6 +83,74 @@ function linkedClaimAnchors(page, relations, claims) {
   return { ordinals, subjects };
 }
 
+function publicResponsibilityForm(page, privateGroups, claimGraphics, publicClaims) {
+  const form = page.visualForm;
+  if (form === undefined) return null;
+  if (
+    !hasExactFields(form, ['schema', 'kind', 'roles', 'handoffs']) ||
+    form.schema !== 'architecture.visual-form/v1' ||
+    form.kind !== 'responsibility' ||
+    !Array.isArray(form.roles) ||
+    !Array.isArray(form.handoffs) ||
+    !Array.isArray(privateGroups) ||
+    form.roles.length !== privateGroups.length
+  )
+    fail('render_responsibility_form_invalid');
+  const groups = new Map(privateGroups.map((group) => [group.editorialId, group]));
+  const editorial = new Map(page.editorialAssertions.map((item) => [item.id, item]));
+  const source = new Map(page.sourceAssertionCarriers.map((item) => [item.assertionId, item]));
+  const claimFacts = new Map(publicClaims.map((item) => [item.graphicId, item.facts]));
+  const basis = (id) => {
+    const authored = editorial.get(id);
+    if (authored) {
+      if (
+        authored.kind !== 'editorial' ||
+        authored.semanticStatus !== 'editor-attributed-unverified' ||
+        !text(authored.statement) ||
+        !text(authored.proponent)
+      )
+        fail('render_responsibility_form_invalid');
+      return {
+        kind: 'editorial',
+        statement: authored.statement,
+        proponent: authored.proponent,
+      };
+    }
+    const carrier = source.get(id);
+    const claimRef =
+      carrier?.kind === 'claim' && carrier.claimRefs?.length === 1 ? carrier.claimRefs[0] : null;
+    const graphicId = claimRef ? claimGraphics.get(claimKey(claimRef)) : null;
+    const facts = claimFacts.get(graphicId);
+    if (!graphicId || !facts) fail('render_responsibility_form_invalid');
+    return {
+      kind: 'source-claim',
+      claimGraphicId: graphicId,
+      conditions: facts
+        .filter(({ label }) => ['Condition', 'Scope'].includes(label))
+        .map(({ label, value }) => ({ label, value })),
+    };
+  };
+  const seen = new Set();
+  const roles = form.roles.map((item) => {
+    if (!hasExactFields(item, ['group', 'basis']) || seen.has(item.group))
+      fail('render_responsibility_form_invalid');
+    const group = groups.get(item.group);
+    if (!group) fail('render_responsibility_form_invalid');
+    seen.add(item.group);
+    return { groupId: group.graphicId, basis: basis(item.basis) };
+  });
+  const handoffs = form.handoffs.map((item) => {
+    if (!hasExactFields(item, ['from', 'to', 'basis']) || item.from === item.to)
+      fail('render_responsibility_form_invalid');
+    const from = groups.get(item.from);
+    const to = groups.get(item.to);
+    if (!from || !to) fail('render_responsibility_form_invalid');
+    return { fromGroup: from.graphicId, toGroup: to.graphicId, basis: basis(item.basis) };
+  });
+  if (seen.size !== groups.size) fail('render_responsibility_form_invalid');
+  return { schema: form.schema, kind: form.kind, roles, handoffs };
+}
+
 /** Reduce one selected page to public reading data without raw source identity. */
 export function projectInteractivePage(page, index) {
   if (
@@ -329,6 +397,8 @@ export function projectInteractivePage(page, index) {
   )
     fail('render_interactive_carrier_unclaimed');
 
+  const form = publicResponsibilityForm(page, privateGroups, claims, publicClaims);
+
   return {
     publicPage: {
       id: `page-${index}`,
@@ -337,6 +407,7 @@ export function projectInteractivePage(page, index) {
       questions: publicQuestions,
       nodes: publicNodes,
       ...(publicGroups === undefined ? {} : { groups: publicGroups }),
+      ...(form === null ? {} : { form }),
       relations: publicRelations,
       ...(page.claimCards === undefined ? {} : { claims: visibleClaims }),
       editorialAssertions: publicEditorial,

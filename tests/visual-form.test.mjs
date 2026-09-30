@@ -6,7 +6,9 @@ import test from 'node:test';
 import { materializeBuildRequestInput } from '../packages/publisher/src/compiler/build-input.mjs';
 import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/edition.mjs';
 import { compileEditionMeaning } from '../packages/publisher/src/compiler/meaning.mjs';
+import { composeInteractiveEditionScene } from '../packages/publisher/src/scene/interactive/edition.mjs';
 import { composeStaticEditionScene } from '../packages/publisher/src/scene/static/edition.mjs';
+import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
 
@@ -106,13 +108,58 @@ test('a bare structural view cannot become responsibility authority', async (t) 
   );
 });
 
-test('a selected responsibility form cannot silently render as a structural graph', async (t) => {
+test('a selected responsibility form builds an independent interactive role work', async (t) => {
   const { selected } = await responsibilityFixture(t);
-  const output = path.join(selected.root, 'unrendered-candidate');
-  await assert.rejects(compileEditionCandidateInput(selected.file, selected.digest, output), {
-    code: 'edition_visual_form_renderer_unavailable',
-  });
-  await assert.rejects(fs.access(output), { code: 'ENOENT' });
+  const output = path.join(selected.root, 'responsibility-candidate');
+  const result = await compileEditionCandidateInput(selected.file, selected.digest, output);
+  assert.equal(result.status, 'built');
+  const html = await fs.readFile(path.join(output, 'interactive/architecture.html'), 'utf8');
+  assert.match(html, /class="responsibility-work"/u);
+  assert.match(html, /First responsibility/u);
+  assert.match(html, /Second responsibility/u);
+  assert.match(html, /The first component hands control to the second/u);
+  assert.match(html, /Alpha/u);
+  assert.match(html, /Beta/u);
+  assert.doesNotMatch(html, /id="graph-0"/u);
+  const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json'), 'utf8'));
+  assert.equal(candidate.qualification, 'unqualified');
+  assert.deepEqual(Object.keys(candidate.media), ['interactive']);
+});
+
+test('interactive projection retains only bound responsibility roles and handoffs', async (t) => {
+  const { selected } = await responsibilityFixture(t);
+  const meaning = await compileEditionMeaning(
+    await materializeBuildRequestInput(selected.file, selected.digest),
+  );
+  const page = composeInteractiveEditionScene(meaning).pages[0];
+  const projected = projectInteractivePage(page, 0).publicPage;
+  assert.equal(projected.form.roles.length, 2);
+  assert.equal(projected.form.handoffs.length, 1);
+  assert.equal(projected.form.roles[0].basis.kind, 'editorial');
+  assert.equal(projected.form.handoffs[0].basis.kind, 'editorial');
+
+  for (const [name, mutate] of [
+    ['schema substitution', (copy) => (copy.visualForm.schema = 'other-form/v1')],
+    ['missing role', (copy) => copy.visualForm.roles.pop()],
+    ['missing groups', (copy) => delete copy.groups],
+    ['duplicate group', (copy) => (copy.visualForm.roles[1].group = 'first-role')],
+    ['unknown group', (copy) => (copy.visualForm.roles[1].group = 'unknown-role')],
+    ['unknown basis', (copy) => (copy.visualForm.roles[0].basis = 'unknown-basis')],
+    ['non-Claim source basis', (copy) => (copy.visualForm.roles[0].basis = 'overview')],
+    ['same-group handoff', (copy) => (copy.visualForm.handoffs[0].to = 'first-role')],
+    ['unknown handoff group', (copy) => (copy.visualForm.handoffs[0].to = 'unknown-role')],
+    ['unknown handoff basis', (copy) => (copy.visualForm.handoffs[0].basis = 'unknown-basis')],
+  ]) {
+    const copy = structuredClone(page);
+    mutate(copy);
+    assert.throws(
+      () => projectInteractivePage(copy, 0),
+      {
+        code: 'render_responsibility_form_invalid',
+      },
+      name,
+    );
+  }
 });
 
 test('a static responsibility form cannot silently borrow the structural renderer', async (t) => {
@@ -349,6 +396,27 @@ test('a typed source Claim can remain an attributed responsibility basis', async
           reference: 'claim:intended',
           questions: ['shape'],
         },
+        {
+          id: 'selected-client',
+          namespace: 'fixture/claims',
+          kind: 'reference',
+          reference: 'entity:client',
+          questions: ['shape'],
+        },
+        {
+          id: 'selected-server',
+          namespace: 'fixture/claims',
+          kind: 'reference',
+          reference: 'entity:server',
+          questions: ['shape'],
+        },
+        {
+          id: 'selected-relation',
+          namespace: 'fixture/claims',
+          kind: 'reference',
+          reference: 'relation:request',
+          questions: ['shape'],
+        },
       ],
       limits: [],
     },
@@ -404,4 +472,9 @@ test('a typed source Claim can remain an attributed responsibility basis', async
   const meaning = await compileEditionMeaning(await materializeBuildRequestInput(file, sha(bytes)));
   assert.equal(meaning.native.selections[0].members.claims[0].condition.authorization, 'granted');
   assert.equal(meaning.assertions[0].semanticStatus, 'attributed-source-unproved');
+  const page = composeInteractiveEditionScene(meaning).pages[0];
+  const projected = projectInteractivePage(page, 0).publicPage;
+  assert.equal(projected.form.roles[0].basis.kind, 'source-claim');
+  assert.equal(projected.form.handoffs[0].basis.kind, 'source-claim');
+  assert.equal(projected.form.roles[0].basis.claimGraphicId, projected.claims[0].graphicId);
 });

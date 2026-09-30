@@ -9,6 +9,7 @@ import {
 import { layoutInteractivePages } from '../dagre/layout.mjs';
 import { projectInteractivePage } from './model.mjs';
 import { loadCytoscapeSupply } from './supply.mjs';
+import { responsibilityCss, responsibilityPageHtml } from './responsibility.mjs';
 
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const escape = (value) =>
@@ -61,7 +62,7 @@ function reflectSelection(index, graph) {
 function graphFor(index) {
   if (graphs.has(index)) return graphs.get(index);
   const page = pages[index];
-  if (!page.nodes.length) return null;
+  if (page.form || !page.nodes.length) return null;
   const container = document.getElementById('graph-' + index);
   const selected = page.geometry;
   const parentByNode = new Map((page.groups || []).flatMap(group =>
@@ -180,6 +181,7 @@ function repeatedKind(label, kind) {
 }
 
 function pageHtml(page, index, methodLimits) {
+  if (page.form) return responsibilityPageHtml(page, index, methodLimits);
   const nodes = new Map(page.nodes.map((node) => [node.id, node.label]));
   const mixed = Boolean(page.nodes.length && page.claims?.length);
   const relationOnly =
@@ -334,6 +336,7 @@ function css(fonts) {
   .page-grid--graph .notes{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1fr) minmax(0,1.6fr);gap:24px;border-left:0;border-top:1px solid #d3dbd1;padding:20px 0 0}.page-grid--graph .notes .evidence-section+.evidence-section{margin-top:0}.page-grid--graph .evidence-methods{grid-column:1/-1;border-top:1px solid #d3dbd1;padding-top:12px}.page-grid--graph .method-limits{display:flex;flex-wrap:wrap;gap:6px 20px}.page-grid--graph .method-limits li{margin:0}
   .page-grid--paired .reading-boundary{grid-column:2;grid-row:1;min-width:0;border-left:1px solid #d3dbd1;padding:14px 0 0 24px}.reading-boundary h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 12px}.reading-boundary ul{list-style:none;margin:0;padding:0}.reading-boundary li{font-size:14px;line-height:1.55}.reading-boundary li+li{margin-top:10px}.reading-boundary .limits{padding-left:12px!important}.reading-boundary .source-note{margin-top:16px}.page-grid--paired .notes{grid-row:2;grid-template-columns:minmax(0,1fr) minmax(0,1.55fr)}
   .relation-qualifier-note{font-size:11px;color:#526158;margin:0 0 9px!important}.relation-qualifiers{display:grid;grid-template-columns:minmax(76px,.7fr) minmax(0,1.3fr);gap:4px 10px;margin:5px 0 0 12px;padding-left:10px;border-left:2px solid #b3c4b6}.relation-qualifiers dt{font-size:11px;color:#526158}.relation-qualifiers dd{font-size:12px;margin:0;overflow-wrap:anywhere}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
+  ${responsibilityCss}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}
   @media(max-width:1390px){.page-grid--paired{grid-template-columns:minmax(0,1fr)}.page-grid--paired .stage{grid-column:1;grid-row:1;margin-inline:auto}.page-grid--paired .reading-boundary{grid-column:1;grid-row:2;border-left:0;border-top:1px solid #d3dbd1;padding:18px 0 0}.page-grid--paired .notes{grid-column:1;grid-row:3}}
   @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:minmax(0,1fr)}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.page-grid--graph .notes,.page-grid--paired .notes{grid-template-columns:minmax(0,1fr);gap:22px}.page-grid--graph .evidence-methods,.page-grid--paired .evidence-methods{grid-column:auto}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}`;
@@ -363,18 +366,22 @@ export async function renderInteractiveEditionHtml(scene) {
     fail('render_interactive_complexity_exceeded');
 
   const projected = scene.pages.map(projectInteractivePage);
-  const hasGraph = projected.some(({ publicPage }) => publicPage.nodes.length > 0);
+  const graphIndexes = projected.flatMap(({ publicPage }, index) =>
+    publicPage.form || !publicPage.nodes.length ? [] : [index],
+  );
+  const hasGraph = graphIndexes.length > 0;
   const supply = hasGraph ? await loadCytoscapeSupply() : null;
   const geometry = hasGraph
-    ? await layoutInteractivePages(projected.map(({ publicPage }) => publicPage))
+    ? await layoutInteractivePages(graphIndexes.map((index) => projected[index].publicPage))
     : null;
   const fontSupply = await loadBundledFonts();
   const selectedFonts = fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
   if (selectedFonts.length !== 2 || !fontSupply.license?.bytes)
     fail('render_interactive_font_supply_invalid');
+  const geometryByIndex = new Map(graphIndexes.map((index, at) => [index, geometry.layouts[at]]));
   const pages = projected.map(({ publicPage }, index) => ({
     ...publicPage,
-    ...(publicPage.nodes.length ? { geometry: geometry.layouts[index] } : {}),
+    ...(geometryByIndex.has(index) ? { geometry: geometryByIndex.get(index) } : {}),
   }));
   const vendor = supply?.script.toString('utf8').replace(/<\/script/giu, '<\\/script') ?? '';
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'"><link rel="icon" href="data:,"><title>${escape(scene.title)}</title><style>${css(selectedFonts)}</style></head><body><div class="shell"><header class="masthead"><h1>${escape(scene.title)}</h1><p>${escape(scene.summary)}</p><small class="editorial-framing">${escape(editorialFraming(scene.edition.editor))}</small></header><nav class="navigation" aria-label="Reading pages">${pages.map((page, index) => `<button type="button" data-page-index="${index}" aria-controls="page-${index}" aria-label="${escape(`${page.navigationLabel} — ${page.title}`)}">${escape(page.navigationLabel)}</button>`).join('')}</nav><main>${pages.map((page, index) => pageHtml(page, index, scene.limits)).join('')}</main><details class="licenses"><summary>Open-source licenses</summary><pre>${supply ? escape(supply.license.toString('utf8')) + '\n' : ''}${geometry ? escape(geometry.license.toString('utf8')) + '\n' : ''}${escape(fontSupply.license.bytes.toString('utf8'))}</pre></details></div>${vendor ? `<script>${vendor}</script>` : ''}<script type="application/json" id="edition-data">${scriptJson(pages)}</script><script>${viewerScript}</script></body></html>\n`;

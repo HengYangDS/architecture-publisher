@@ -802,6 +802,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       97.72/95.01/99.54/97.72% statement/branch/function/line coverage.
       This is semantic preflight only: no positive visual Candidate, AIGW
       acceptance, or Task 5.2 closure.
+      A positive interactive renderer now separates responsibility domains,
+      within-domain source relations, attributed handoff, and cross-domain
+      relations without reclassifying a source edge as ownership. The same
+      read-only AIGW seven-entity/six-relation/one-Claim trial preserves all
+      selected carriers; desktop Chrome at 1280 and 1600 CSS pixels found no
+      horizontal overflow or mini-route text overlap. The trial remains
+      unqualified and unapproved by AIGW; its visual hierarchy is not yet
+      flagship acceptance. Static responsibility composition and cross-workload
+      qualification remain open, so Task 5.2 stays unchecked.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

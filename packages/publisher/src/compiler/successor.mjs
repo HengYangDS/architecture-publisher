@@ -51,9 +51,15 @@ const checkedSupply = (supply, method) => ({
 });
 
 function assertSelectedFormsRenderable(meaning, media) {
-  for (const medium of media)
-    if (meaning.editorial.presentation[medium].views.some((view) => view.form !== undefined))
-      fail('edition_visual_form_renderer_unavailable');
+  for (const medium of media) {
+    const selected = meaning.editorial.presentation[medium].views.some(
+      (view) => view.form !== undefined,
+    );
+    if (!selected) continue;
+    const refinement = meaning.refinement?.media?.[medium];
+    if (medium === 'interactive' && (!refinement || refinement.kind === 'neutral')) continue;
+    fail('edition_visual_form_renderer_unavailable');
+  }
 }
 
 async function destination(output) {

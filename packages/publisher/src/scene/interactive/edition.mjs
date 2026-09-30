@@ -93,7 +93,15 @@ function selectedGroups(authored, nodes) {
   return { groups: structuredClone(authored) };
 }
 
-function composePage(view, selections, assertions, questions, claimMode, authoredGroups) {
+function composePage(
+  view,
+  selections,
+  assertions,
+  questions,
+  claimMode,
+  authoredGroups,
+  authoredForm,
+) {
   const nodes = new Map();
   const relations = new Map();
   const claims = new Map();
@@ -188,6 +196,7 @@ function composePage(view, selections, assertions, questions, claimMode, authore
       .sort(([left], [right]) => compare(left, right))
       .map(([, value]) => value),
     ...selectedGroups(authoredGroups, nodes),
+    ...(authoredForm === undefined ? {} : { visualForm: structuredClone(authoredForm) }),
     ...(claimMode
       ? {
           claimCards: [...claims.entries()]
@@ -244,8 +253,6 @@ export function composeInteractiveEditionScene(meaning) {
         authoredViews.some((view, index) => view?.id !== views[index].id)))
   )
     fail('interactive_scene_identity_ambiguous');
-  if (authoredViews?.some((view) => view.form !== undefined))
-    fail('edition_visual_form_renderer_unavailable');
   return deepFreeze({
     schema: 'architecture.edition-interactive-scene/v1',
     completeness: 'unqualified-scene',
@@ -264,6 +271,7 @@ export function composeInteractiveEditionScene(meaning) {
         questions,
         claimMode,
         authoredViews?.[index]?.groups,
+        authoredViews?.[index]?.form,
       ),
     ),
     limits: meaning.limits,
