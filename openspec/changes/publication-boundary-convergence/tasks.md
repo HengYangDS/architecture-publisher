@@ -548,6 +548,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       defects and acceptance limits. Diagnostic masks are not reader Candidates;
       the reader's rejection of that test image does not revoke prior exact-media
       approval or establish new-media acceptance. This task remains open.
+      A subsequent exact five-workload desktop replay exposed stale page
+      callbacks fitting hidden SVG cameras. The queued-tab RED/GREEN now ignores
+      a superseded hidden page before fitting, preserves a live restored camera,
+      and passes five focused browser, painted-ownership, and installed-supply
+      tests. Rebuild final package/browser identities after this repair; a
+      preceding green CI identity does not qualify changed runtime bytes.
+      The repaired runtime then passed all 20 desktop reading pages across self,
+      independent editor, AIGW Product/Client, and di-effect with zero page errors,
+      external requests, SVG text clipping, horizontal overflow, or Axe A/AA
+      findings. Its exact offline archives reproduced all 30 Candidate members
+      after package/input relocation. The frozen local full gate passed 1,398
+      tests, zero failures, three declared skips, and
+      97.78/95.19/99.57/97.78% statement/branch/function/line coverage. Independent
+      removal of the visibility guard reproduced the original inverse error.
+      Native CI and final visual acceptance remain separate current-byte gates.
       Partial: the public build compiles selected LikeC4 and Claim Model inputs
       into sibling media. The grouped compositor carries source-bound relations,
       relation-dependent and scalar claims, claimant-declared validity, and

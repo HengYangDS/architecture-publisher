@@ -1027,8 +1027,8 @@
       },
       {
         "path": "renderers/interactive/viewport.mjs",
-        "bytes": 4509,
-        "sha256": "adfe9cca2030039e3f72040b2515828f837219fd575fbb343cc4989a6837e974"
+        "bytes": 4549,
+        "sha256": "22a677bb0d71bdf78a1efa2b9a421f4db1718034c22ba077882543e6f385d7e5"
       },
       {
         "path": "renderers/resvg/measurement.mjs",

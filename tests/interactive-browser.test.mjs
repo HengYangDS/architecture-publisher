@@ -10,6 +10,49 @@ import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mj
 const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
 
 test(
+  'superseded page callbacks do not fit a hidden viewport camera',
+  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 20_000 },
+  async (t) => {
+    const candidate = await renderInteractiveEditionHtml(interactiveEditionScene());
+    const browser = await chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 10_000,
+    });
+    t.after(() => browser.close());
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.setContent(candidate.bytes.toString('utf8'));
+    await page.waitForSelector('#graph-0[data-rendered=true]', { timeout: 8_000 });
+    await page.evaluate(async () => {
+      const tabs = [...globalThis.document.querySelectorAll('[data-page-index]')];
+      tabs[0].click();
+      tabs[0].click();
+      tabs[1].click();
+      await new Promise((resolve) =>
+        globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(resolve)),
+      );
+    });
+    assert.deepEqual(errors, [], 'hidden SVG cameras must not receive a zero-size fit');
+    await page.locator('[data-page-index="0"]').click();
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(resolve)),
+        ),
+    );
+    const camera = await page.locator('#graph-0 .graph-viewport').evaluate((element) => {
+      const matrix = element.getCTM();
+      return { scale: matrix.a, determinant: matrix.a * matrix.d - matrix.b * matrix.c };
+    });
+    assert(camera.scale > 0 && camera.determinant > 0);
+    assert.deepEqual(errors, []);
+  },
+);
+
+test(
   'the exact neutral HTML reads every page offline with independent graph behavior',
   {
     skip: !path.isAbsolute(browserExecutable ?? ''),

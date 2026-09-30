@@ -83,6 +83,7 @@ function show(index) {
     else tab.removeAttribute('aria-current');
   });
   requestAnimationFrame(() => {
+    if (sections[index].hidden) return;
     const graph = graphFor(index);
     if (graph) fitGraph(graph);
   });

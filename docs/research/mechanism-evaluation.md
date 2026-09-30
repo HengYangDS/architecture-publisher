@@ -2363,3 +2363,23 @@ predicates. Do not show diagnostic masks as reader Candidates or transfer their
 result to prior approved works. Tasks 5.2 and 5.4 remain open for final visual
 composition; Task 7.5 owns frozen global coverage, installed/native replay, and
 exact-media review. No successor release follows from these focused repairs.
+
+The next five-workload installed replay preserved all 30 Candidate member
+hashes after package/input relocation outside the checkout. Exact local and
+hosted Linux/macOS gates passed with all four coverage dimensions above 95%;
+hosted jobs declared their platform/browser skips. Complete desktop replay
+then exposed a separate camera lifecycle defect: rapid chapter changes left
+animation callbacks fitting hidden, zero-size SVGs. A queued-tab regression
+reproduced the `SVGMatrix` inverse error. The owner now ignores a callback whose
+page is hidden; it does not suppress the exception or change scene geometry.
+Its focused browser, paint, and installed-supply regressions passed. Prior
+package/CI identities do not qualify this newer repair.
+
+Two execution-boundary mistakes were distinguished from product failures. An
+empty npm consumer nested in a workspace selected the ancestor manifest; its
+exact two-dependency source mutation was restored byte-for-byte before a
+successful retry with an explicit independent manifest and prefix. Playwright's
+`serviceWorkers: block` injected an unavailable service-worker getter into an
+opaque sandboxed frame; a causal control removed that harness option while
+retaining the iframe sandbox and blocking all external network routes. Neither
+workaround widens runtime permissions or authorizes a source change.
