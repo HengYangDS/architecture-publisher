@@ -840,6 +840,19 @@ that all source-specific prohibitions were declared. Source-owned policy and
 free wording still require their own qualification; Publisher does not add a
 domain-specific aggregation vocabulary or infer a universal claim from a box.
 
+The existing Claim Model static path requires authored `groups` merely to
+reach the selected Dagre geometry owner. That is an implementation demand, not
+a reader or source fact. For entity and relation selections with no groups,
+compile a flat structural scene from the same exact selected members through
+that pinned geometry supply. Do not infer a group from source kinds, graph
+ranks, repository location, or an all-members placeholder; emit no reading-
+group key. Explicit groups continue through the existing membership checks.
+Both paths must preserve selected relation direction, qualifier text, typed
+Claim dependencies, and graphic carriers; an infeasible layout fails before
+Candidate. This removes an accidental authoring prerequisite without adding a
+second backend or treating geometry as source meaning. A flat Candidate is a
+technical baseline, not a human-approved visual work.
+
 ### Static views form one jointly composed figure
 
 At Publisher `3bd5645`, the Edition schema accepts ordered static views, but

@@ -25,13 +25,19 @@ const profiles = {
     'packages/publisher/src/scene/static/edition.mjs',
     'packages/publisher/renderers/svg/edition.mjs',
   ],
-  'static-grouped': [
+  'static-structural': [
     ...baseStatic,
     'packages/publisher/src/scene/static/edition.mjs',
-    'packages/publisher/src/scene/static/grouped-selection.mjs',
+    'packages/publisher/src/scene/static/selection.mjs',
     'packages/publisher/renderers/dagre/static.mjs',
     'packages/publisher/renderers/dagre/layout.mjs',
     'packages/publisher/renderers/dagre/supply.mjs',
+    'packages/publisher/renderers/svg/edition.mjs',
+  ],
+  'static-refinement': [
+    ...baseStatic,
+    'packages/publisher/src/scene/static/edition.mjs',
+    'packages/publisher/src/scene/static/selection.mjs',
     'packages/publisher/renderers/svg/edition.mjs',
   ],
   'static-likec4': [

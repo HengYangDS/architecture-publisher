@@ -699,6 +699,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       rejected. An editorial-only change touched only the Edition under both
       routes. This measures authoring churn, not AIGW route approval, visual
       quality, or independent cross-owner custody.
+      Current flat-structure slice removes the authored-group prerequisite for
+      Claim Model entity/relation views without changing the claim-only path.
+      A source-preserving copy of AIGW `01776f2` built both no-group/no-refinement
+      Candidates through the public CLI; their PNG SHA-256 values are
+      `21c49096f345413ed7a5ef69d72b9396056dd0bfd2d4d92ea3bb4906afd5ead1`
+      (Client) and
+      `51b51b24cecde6230d821acc0f7d032ee6f90f32c48d2a8776b0d482dbe57e93`
+      (Product). This proves the input no longer needs dummy groups, not that
+      either whole-page composition is visually accepted. The focused set
+      passed 98 tests with one declared skip; the full test run passed 1,312
+      tests with three declared skips and reached 97.72/95.01/99.54/97.72%
+      statement/branch/function/line coverage.
+      The exact task remains open pending reader-quality acceptance.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

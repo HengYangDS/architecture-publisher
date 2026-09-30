@@ -44,6 +44,11 @@ test('generated implementation profiles select owned code without package or sib
   );
   assert(Array.isArray(manifest.profiles['semantic-likec4']));
   assert(Array.isArray(manifest.profiles['semantic-claim']));
+  assert(Array.isArray(manifest.profiles['static-structural']));
+  const structural = manifest.profiles['static-structural'].map(({ path: file }) => file);
+  const refinement = manifest.profiles['static-refinement'].map(({ path: file }) => file);
+  assert(structural.includes('renderers/dagre/static.mjs'));
+  assert(!refinement.some((file) => file.startsWith('renderers/dagre/')));
   assert(
     manifest.profiles['semantic-likec4'].some(
       ({ path: file }) => file === 'src/semantics/native-worker.mjs',
@@ -64,18 +69,18 @@ test('a static figure binds the union of selected media code as one supply', asy
   const manifest = JSON.parse(
     await fs.readFile(path.join(product, 'supplies/implementation.json'), 'utf8'),
   );
-  const selected = await readImplementationSupply(['static-grouped', 'static-figure']);
+  const selected = await readImplementationSupply(['static-structural', 'static-figure']);
   assert.equal(selected.id, 'publisher-static-media-file-set');
   assert.match(selected.sha256, /^[a-f0-9]{64}$/u);
-  assert.notEqual(selected.sha256, (await readImplementationSupply('static-grouped')).sha256);
+  assert.notEqual(selected.sha256, (await readImplementationSupply('static-structural')).sha256);
   const paths = new Set(
-    ['static-grouped', 'static-figure'].flatMap((name) =>
+    ['static-structural', 'static-figure'].flatMap((name) =>
       manifest.profiles[name].map(({ path: file }) => file),
     ),
   );
   assert(paths.has('renderers/svg/figure.mjs'));
   assert(!paths.has('renderers/cytoscape/edition.mjs'));
-  await assert.rejects(readImplementationSupply(['static-grouped', 'interactive-neutral']), {
+  await assert.rejects(readImplementationSupply(['static-structural', 'interactive-neutral']), {
     code: 'publisher_implementation_profile_invalid',
   });
 });

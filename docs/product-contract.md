@@ -96,6 +96,13 @@ medium views own page order, and each view owns its question order. This
 authoring subtraction does not alter historical Edition v1 contracts or merge
 source truth with editorial judgment.
 
+Editorial visual groups are optional. A selected Claim Model structure without
+groups uses the same bounded, selected Dagre geometry supply as grouped
+structure, but gains no invented group or membership claim. A declared group
+remains exact editor-owned meaning; the compiler never silently creates one to
+make its layout implementation convenient. Infeasible flat or grouped
+composition fails without losing selected entities, relations, or qualifiers.
+
 The editor's `questions[].text` is a reader-facing prompt, not an executable
 query. Publisher checks finite ID links from each selected question to source
 assertions or explicit limits and to visible medium carriers. These checks do

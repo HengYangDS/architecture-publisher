@@ -88,6 +88,16 @@ is insufficient.
   each view's own assertion-to-graphic carriers and limits
 - **AND** no edge or endorsement is inferred merely from the shared entity
 
+#### Scenario: Claim Model structure has no authored groups
+
+- **WHEN** a static view selects Claim Model entities or relations and the
+  editor declares no visual groups
+- **THEN** Publisher uses its selected bounded structural geometry to render
+  every required entity, relation, direction, and qualifier without inventing
+  group membership or printing a reading-group key
+- **AND** unsupported or infeasible geometry fails before Candidate rather
+  than requiring a dummy authored group or dropping a source assertion
+
 #### Scenario: Method evidence does not become figure copy
 
 - **WHEN** an Edition's selected source and compiler have method or

@@ -288,13 +288,13 @@
       },
       {
         "path": "src/scene/static/edition.mjs",
-        "bytes": 15146,
-        "sha256": "c98cc59620676c33c24a35aaa5438117858e923807da80a19066cc3f77058845"
+        "bytes": 15119,
+        "sha256": "bfc9af407b816da5b6d11a365b889d041fcf45f4ae58607257c19f08420391c2"
       },
       {
-        "path": "src/scene/static/grouped-selection.mjs",
-        "bytes": 10597,
-        "sha256": "50007d84b67aa5159cc73de57b4bf71a5dd7a9176d00dca09e04422e5c08d2b0"
+        "path": "src/scene/static/selection.mjs",
+        "bytes": 10936,
+        "sha256": "66c78540d0b239ddc2699e4b32a6381c4662cc5d7773ae05350d13fcbc16f215"
       },
       {
         "path": "src/semantics/document.mjs",
@@ -307,7 +307,7 @@
         "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
       }
     ],
-    "static-grouped": [
+    "static-structural": [
       {
         "path": "renderers/dagre/layout.mjs",
         "bytes": 8873,
@@ -315,8 +315,8 @@
       },
       {
         "path": "renderers/dagre/static.mjs",
-        "bytes": 8146,
-        "sha256": "826004d98cca3b833e19ddc204a6d30991675c2643ed1e29c5e8729b416ae01e"
+        "bytes": 8199,
+        "sha256": "2feee798643ff0bb9a24692e71f26147b5456dd0cabb8a705fc6b44edf90a0ed"
       },
       {
         "path": "renderers/dagre/supply.mjs",
@@ -410,13 +410,110 @@
       },
       {
         "path": "src/scene/static/edition.mjs",
-        "bytes": 15146,
-        "sha256": "c98cc59620676c33c24a35aaa5438117858e923807da80a19066cc3f77058845"
+        "bytes": 15119,
+        "sha256": "bfc9af407b816da5b6d11a365b889d041fcf45f4ae58607257c19f08420391c2"
       },
       {
-        "path": "src/scene/static/grouped-selection.mjs",
-        "bytes": 10597,
-        "sha256": "50007d84b67aa5159cc73de57b4bf71a5dd7a9176d00dca09e04422e5c08d2b0"
+        "path": "src/scene/static/selection.mjs",
+        "bytes": 10936,
+        "sha256": "66c78540d0b239ddc2699e4b32a6381c4662cc5d7773ae05350d13fcbc16f215"
+      },
+      {
+        "path": "src/semantics/document.mjs",
+        "bytes": 15839,
+        "sha256": "a8afce6b331d8cb0372fcba01c4039a642689570e3f473b4dd2a8b4673c78797"
+      },
+      {
+        "path": "src/semantics/native-claim-model.mjs",
+        "bytes": 6560,
+        "sha256": "770c08538d94f0b007a0efa04aff8810555a24d3971b6b43104f0c365535a350"
+      }
+    ],
+    "static-refinement": [
+      {
+        "path": "renderers/fonts/index.mjs",
+        "bytes": 1248,
+        "sha256": "d84b7916cf233dbab37c79d3f6b173dfc3b8f5493947434f2c52af1bf583de96"
+      },
+      {
+        "path": "renderers/resvg/index.mjs",
+        "bytes": 6143,
+        "sha256": "601872dfdfcebb0ff58ba0df3ca504405d1de71dd190c8fcd3fc56282d765073"
+      },
+      {
+        "path": "renderers/resvg/limits.mjs",
+        "bytes": 527,
+        "sha256": "d067d4d4dc3733d0dd83f4ebf25348b98d91e694bd0b8b150496f3552727a839"
+      },
+      {
+        "path": "renderers/resvg/supply.mjs",
+        "bytes": 1923,
+        "sha256": "736686a3e7af9808d0a68b333d3cea696860cff26d037ba292537e2d0c756516"
+      },
+      {
+        "path": "renderers/resvg/validation.mjs",
+        "bytes": 10716,
+        "sha256": "0d561d83d64e5b7070c2fcf9113817f0df10b12b06aa19519c82ecffee66681c"
+      },
+      {
+        "path": "renderers/resvg/values.mjs",
+        "bytes": 11444,
+        "sha256": "1ac0c58bd92317b19e5b0be1e4ea00ca531824f932a64481a75f697efcfc50a8"
+      },
+      {
+        "path": "renderers/resvg/worker.mjs",
+        "bytes": 1373,
+        "sha256": "d81522ee631ea6c109b3633ddc8ad6ba056867816ebebaaadf8d25a399dd4adb"
+      },
+      {
+        "path": "renderers/svg/edition.mjs",
+        "bytes": 37867,
+        "sha256": "41a4ad6accaa278f18fe906ef1a98af966102801281636e79e5ee5d232e9d0e4"
+      },
+      {
+        "path": "src/compiler/media.mjs",
+        "bytes": 1412,
+        "sha256": "223d6d73de68a1847fb12fa3b403f116b31a073e8c634a144b724a548b0bfcaa"
+      },
+      {
+        "path": "src/protocol/json.mjs",
+        "bytes": 1961,
+        "sha256": "e86000aa3b3072bf59c8619a1938188e1fe90d4c613e88ec3bce42c214ba9f78"
+      },
+      {
+        "path": "src/protocol/values.mjs",
+        "bytes": 705,
+        "sha256": "ef93b9d825dde577c54c6b74ef075485a9a0daba3a7765f3b8d333d90d9104cc"
+      },
+      {
+        "path": "src/scene/claim-card.mjs",
+        "bytes": 4931,
+        "sha256": "f2a8eb8c2a0c6f23e3b93c8dc87a3f4b43b07ec3d8d880862da9c8cb3c409261"
+      },
+      {
+        "path": "src/scene/claim-relations.mjs",
+        "bytes": 3534,
+        "sha256": "943d620e0eeb98ec22fe7d2afa059831b3cb08295acc6828630412bfb758107c"
+      },
+      {
+        "path": "src/scene/framing.mjs",
+        "bytes": 197,
+        "sha256": "2c16af734c0190149f1c3d8eda25505d539f151c75cc327770db5d78c8ef0f8c"
+      },
+      {
+        "path": "src/scene/static/architecture.mjs",
+        "bytes": 16520,
+        "sha256": "81f11a1130299146c04d2253c81cf41621e7c6dd7693cb748a32cd566ceb4e97"
+      },
+      {
+        "path": "src/scene/static/edition.mjs",
+        "bytes": 15119,
+        "sha256": "bfc9af407b816da5b6d11a365b889d041fcf45f4ae58607257c19f08420391c2"
+      },
+      {
+        "path": "src/scene/static/selection.mjs",
+        "bytes": 10936,
+        "sha256": "66c78540d0b239ddc2699e4b32a6381c4662cc5d7773ae05350d13fcbc16f215"
       },
       {
         "path": "src/semantics/document.mjs",
@@ -522,13 +619,13 @@
       },
       {
         "path": "src/scene/static/edition.mjs",
-        "bytes": 15146,
-        "sha256": "c98cc59620676c33c24a35aaa5438117858e923807da80a19066cc3f77058845"
+        "bytes": 15119,
+        "sha256": "bfc9af407b816da5b6d11a365b889d041fcf45f4ae58607257c19f08420391c2"
       },
       {
-        "path": "src/scene/static/grouped-selection.mjs",
-        "bytes": 10597,
-        "sha256": "50007d84b67aa5159cc73de57b4bf71a5dd7a9176d00dca09e04422e5c08d2b0"
+        "path": "src/scene/static/selection.mjs",
+        "bytes": 10936,
+        "sha256": "66c78540d0b239ddc2699e4b32a6381c4662cc5d7773ae05350d13fcbc16f215"
       },
       {
         "path": "src/semantics/document.mjs",

@@ -31,14 +31,13 @@ function addBound(map, id, item) {
   map.set(id, item);
 }
 
-function selectedStructure(meaning, requireGroups) {
+function selectedStructure(meaning) {
   const view = meaning?.media?.static?.views?.[0];
   const authored = meaning?.editorial?.presentation?.static?.views?.[0];
   if (
     !view ||
     !authored ||
     view.id !== authored.id ||
-    (requireGroups && !Array.isArray(authored.groups)) ||
     !Array.isArray(view.assertionIds) ||
     !Array.isArray(meaning?.assertions) ||
     !Array.isArray(meaning?.native?.selections)
@@ -85,18 +84,21 @@ function nativeView(selectedView) {
     : null;
 }
 
-function composeSelectedLayout(meaning, geometryOwner) {
-  const { authored, nodes, relations, selectedView } = selectedStructure(meaning, true);
+/** Bind exact selected structure to one replaceable geometry owner. */
+export function composeStaticSelectionLayout(meaning, geometryOwner = composeGroupedGeometry) {
+  const { authored, nodes, relations, selectedView } = selectedStructure(meaning);
   const claimModelMode = meaning.native.selections.some(
     ({ format }) => format === 'architecture.claim-model/v2',
   );
+  const authoredGroups = authored.groups ?? [];
+  if (!authoredGroups.length && !claimModelMode) fail('static_selection_flat_unadmitted');
   const placement = new Map();
-  for (const [row, group] of authored.groups.entries())
+  for (const [row, group] of authoredGroups.entries())
     for (const [column, member] of group.elements.entries())
       placement.set(address(member), { row, column });
   const geometry = geometryOwner({
     nodes: [...nodes].map(([id, item]) => ({ id, label: item.label })),
-    groups: authored.groups.map((group) => ({
+    groups: authoredGroups.map((group) => ({
       id: group.id,
       label: group.label,
       members: group.elements.map(address),
@@ -106,35 +108,46 @@ function composeSelectedLayout(meaning, geometryOwner) {
       const to = address(item.to);
       const source = placement.get(from);
       const target = placement.get(to);
-      if (!source || !target) fail('grouped_selection_layout_unadmitted');
+      if (!nodes.has(from) || !nodes.has(to) || (authoredGroups.length && (!source || !target)))
+        fail('grouped_selection_layout_unadmitted');
       if (from === to) fail('grouped_selection_self_relation_unrepresentable');
       const caption = claimModelMode ? item.kind.replaceAll('-', ' ') : '';
-      const lateral = source.row === target.row;
-      const forward = lateral ? source.column < target.column : source.row < target.row;
+      const lateral = authoredGroups.length && source.row === target.row;
+      const forward =
+        authoredGroups.length &&
+        (lateral ? source.column < target.column : source.row < target.row);
       return {
         id,
         from,
         to,
         text: /^[\x20-\x7e]+$/u.test(caption) && [...caption].length <= 32 ? caption : '',
-        fromSide: lateral ? (forward ? 'right' : 'left') : forward ? 'bottom' : 'top',
-        toSide: lateral ? (forward ? 'left' : 'right') : forward ? 'top' : 'bottom',
-        route: lateral ? 'orthogonal-h' : 'orthogonal-v',
+        ...(authoredGroups.length
+          ? {
+              fromSide: lateral ? (forward ? 'right' : 'left') : forward ? 'bottom' : 'top',
+              toSide: lateral ? (forward ? 'left' : 'right') : forward ? 'top' : 'bottom',
+              route: lateral ? 'orthogonal-h' : 'orthogonal-v',
+            }
+          : {}),
       };
     }),
   });
   const assemble = (selected) =>
     deepFreeze({
-      closure: 'grouped-layout-unqualified',
+      closure: authoredGroups.length ? 'grouped-layout-unqualified' : 'flat-layout-unqualified',
       view: nativeView(selectedView),
-      groups: selected.layout.groups.map((group, index) => ({
-        id: group.id,
-        label: group.label,
-        elements: authored.groups[index].elements,
-        x: group.x,
-        y: group.y,
-        width: group.w,
-        height: group.h,
-      })),
+      ...(authoredGroups.length
+        ? {
+            groups: selected.layout.groups.map((group, index) => ({
+              id: group.id,
+              label: group.label,
+              elements: authoredGroups[index].elements,
+              x: group.x,
+              y: group.y,
+              width: group.w,
+              height: group.h,
+            })),
+          }
+        : {}),
       ...(selected.layout.groupPresentation
         ? { groupPresentation: selected.layout.groupPresentation }
         : {}),
@@ -178,14 +191,9 @@ function composeSelectedLayout(meaning, geometryOwner) {
   return geometry instanceof Promise ? geometry.then(assemble) : assemble(geometry);
 }
 
-/** Keep the frozen historical layout path until its selected consumers retire. */
-export function composeGroupedSelectionLayout(meaning, geometryOwner = composeGroupedGeometry) {
-  return composeSelectedLayout(meaning, geometryOwner);
-}
-
 /** Bind authored geometry to selected members without requiring neutral geometry to exist. */
 export function composeSelectedStaticRefinementLayout(meaning, refinement) {
-  const { view, authored, nodes, relations, selectedView } = selectedStructure(meaning, false);
+  const { view, authored, nodes, relations, selectedView } = selectedStructure(meaning);
   const selected = refinement?.media?.static;
   if (
     selected?.view !== view.id ||

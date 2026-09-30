@@ -16,10 +16,10 @@ import {
 import { selectedNativeEdition } from './fixtures/selected-native-edition.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import {
-  composeGroupedSelectionLayout,
+  composeStaticSelectionLayout,
   composeSelectedStaticRefinementLayout,
   selectedStaticNativeViews,
-} from '../packages/publisher/src/scene/static/grouped-selection.mjs';
+} from '../packages/publisher/src/scene/static/selection.mjs';
 import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/index.mjs';
 import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/cytoscape/index.mjs';
 import {
@@ -211,7 +211,7 @@ test('a static group heading must reserve space above its member nodes', async (
     },
   ];
   const { meaning } = await selectedInputs(project);
-  const normal = scenes.composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  const normal = scenes.composeStaticEditionScene(meaning, composeStaticSelectionLayout(meaning));
   const scene = structuredClone(normal);
   const group = scene.groups[0];
   const member = scene.nodes.find(({ id }) => id === 'a');
@@ -431,7 +431,7 @@ test('grouped geometry does not place relation labels that the successor never r
       },
     },
   };
-  const layout = composeGroupedSelectionLayout(meaning);
+  const layout = composeStaticSelectionLayout(meaning);
   assert.equal(layout.edges.length, 3);
   const alpha = layout.nodes.find(({ id }) => id === 'alpha');
   const beta = layout.nodes.find(({ id }) => id === 'beta');
@@ -449,7 +449,7 @@ test('grouped geometry does not place relation labels that the successor never r
       to: { namespace: source.namespace, id: 'alpha' },
     },
   ];
-  const lateral = composeGroupedSelectionLayout(reverse);
+  const lateral = composeStaticSelectionLayout(reverse);
   const reverseBeta = lateral.nodes.find(({ id }) => id === 'beta');
   const reverseAlpha = lateral.nodes.find(({ id }) => id === 'alpha');
   assert.equal(lateral.edges[0].points[0][0], reverseBeta.x);
@@ -460,7 +460,7 @@ test('grouped geometry does not place relation labels that the successor never r
     label: id,
     elements: [{ namespace: source.namespace, id }],
   }));
-  const vertical = composeGroupedSelectionLayout(reverse);
+  const vertical = composeStaticSelectionLayout(reverse);
   const lower = vertical.nodes.find(({ id }) => id === 'beta');
   const upper = vertical.nodes.find(({ id }) => id === 'alpha');
   assert.equal(vertical.edges[0].points[0][1], lower.y);
@@ -474,7 +474,7 @@ test('grouped geometry does not place relation labels that the successor never r
       to: { namespace: source.namespace, id: 'alpha' },
     },
   ];
-  assert.throws(() => composeGroupedSelectionLayout(self), {
+  assert.throws(() => composeStaticSelectionLayout(self), {
     code: 'grouped_selection_self_relation_unrepresentable',
   });
 });
@@ -530,7 +530,7 @@ test('grouped geometry consumes selected Claim Model relations without treating 
       },
     },
   };
-  const layout = composeGroupedSelectionLayout(meaning);
+  const layout = composeStaticSelectionLayout(meaning);
   assert.equal(layout.closure, 'grouped-layout-unqualified');
   assert.equal(layout.nodes.length, 2);
   assert.equal(layout.edges.length, 1);
@@ -540,7 +540,7 @@ test('grouped geometry consumes selected Claim Model relations without treating 
 
   const claimOnly = structuredClone(meaning);
   claimOnly.media.static.views[0].assertionIds = ['intended'];
-  assert.throws(() => composeGroupedSelectionLayout(claimOnly), {
+  assert.throws(() => composeStaticSelectionLayout(claimOnly), {
     code: 'grouped_geometry_input_invalid',
   });
 });
@@ -552,10 +552,14 @@ test('static grouping refuses missing, duplicated, or contradictory source autho
     { id: 'service', label: 'Service', elements: [{ namespace: 'example/model', id: 'b' }] },
   ];
   const { meaning } = await selectedInputs(project);
-  assert.equal(composeGroupedSelectionLayout(meaning).nodes.length, 2);
+  assert.equal(composeStaticSelectionLayout(meaning).nodes.length, 2);
+  const ungrouped = structuredClone(meaning);
+  delete ungrouped.editorial.presentation.static.views[0].groups;
+  assert.throws(() => composeStaticSelectionLayout(ungrouped), {
+    code: 'static_selection_flat_unadmitted',
+  });
   for (const mutate of [
     (value) => (value.media.static.views[0].id = 'not-authored'),
-    (value) => delete value.editorial.presentation.static.views[0].groups,
     (value) => (value.media.static.views[0].assertionIds = ['not-selected']),
     (value) => value.assertions.push(structuredClone(value.assertions[0])),
     (value) => value.native.selections.push(structuredClone(value.native.selections[0])),
@@ -564,7 +568,7 @@ test('static grouping refuses missing, duplicated, or contradictory source autho
   ]) {
     const invalid = structuredClone(meaning);
     mutate(invalid);
-    assert.throws(() => composeGroupedSelectionLayout(invalid), {
+    assert.throws(() => composeStaticSelectionLayout(invalid), {
       code: 'grouped_selection_layout_unadmitted',
     });
   }
@@ -579,7 +583,7 @@ test('static grouping refuses missing, duplicated, or contradictory source autho
     selection: second.selectionId,
   });
   conflicting.media.static.views[0].assertionIds.push('contradiction');
-  assert.throws(() => composeGroupedSelectionLayout(conflicting), {
+  assert.throws(() => composeStaticSelectionLayout(conflicting), {
     code: 'grouped_selection_semantic_conflict',
   });
 });
@@ -616,7 +620,7 @@ test('authored static refinement cannot reassign selected geometry or relation p
     { id: 'service', label: 'Service', elements: [{ namespace: 'example/model', id: 'b' }] },
   ];
   const { meaning } = await selectedInputs(project);
-  const selected = composeGroupedSelectionLayout(meaning);
+  const selected = composeStaticSelectionLayout(meaning);
   const refinement = {
     media: {
       static: {
@@ -659,7 +663,7 @@ test('static Scene composition rejects group geometry that contradicts authored 
     { id: 'service', label: 'Service', elements: [{ namespace: 'example/model', id: 'b' }] },
   ];
   const { meaning } = await selectedInputs(project);
-  const layout = composeGroupedSelectionLayout(meaning);
+  const layout = composeStaticSelectionLayout(meaning);
   assert.equal(scenes.composeStaticEditionScene(meaning, layout).groups.length, 2);
 
   const wrongClosure = structuredClone(layout);

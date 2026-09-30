@@ -3,7 +3,7 @@ import { canonical, deepFreeze } from '../../semantics/document.mjs';
 import { fail } from '../../protocol/values.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { claimRelationLabel, linkClaimModelSources } from '../claim-relations.mjs';
-import { selectedStaticNativeViews } from './grouped-selection.mjs';
+import { selectedStaticNativeViews } from './selection.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
@@ -143,13 +143,14 @@ export function composeStaticEditionScene(meaning, layout) {
       if (authoredGroups !== undefined) fail('static_scene_group_unadmitted');
       return composeClaimScene(meaning, layout);
     }
-    if (authoredGroups === undefined) fail('edition_scene_claim_model_unadmitted');
   }
   if (
     layout?.closure !==
-      (authoredGroups === undefined
-        ? 'upstream-layout-unqualified'
-        : 'grouped-layout-unqualified') ||
+      (authoredGroups !== undefined
+        ? 'grouped-layout-unqualified'
+        : claimModelMode
+          ? 'flat-layout-unqualified'
+          : 'upstream-layout-unqualified') ||
     !Array.isArray(layout.nodes) ||
     !Array.isArray(layout.edges)
   )

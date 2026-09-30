@@ -28,7 +28,7 @@ import { verifySelectedCandidateReplay } from '../packages/publisher/src/qualifi
 import { canonical } from '../packages/publisher/src/protocol/json.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
-import { composeGroupedSelectionLayout } from '../packages/publisher/src/scene/static/grouped-selection.mjs';
+import { composeStaticSelectionLayout } from '../packages/publisher/src/scene/static/selection.mjs';
 import { claimCard } from '../packages/publisher/src/scene/claim-card.mjs';
 import { composeAuthoredInteractiveArchitecture } from '../packages/publisher/src/scene/interactive/authored-architecture.mjs';
 import { composeAuthoredStaticCanvas } from '../packages/publisher/src/scene/static/authored-canvas.mjs';
@@ -286,6 +286,10 @@ test('claim-only static composition admits neither mixed parsers nor unbound ass
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
   assert.equal(composeStaticEditionScene(meaning, null).claimCards.length, 1);
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert.doesNotMatch(svg, /READING GROUPS/u);
 
   const mixed = structuredClone(meaning);
   mixed.native.selections.push({
@@ -317,7 +321,7 @@ test('a Claim Model structural Scene cannot borrow an upstream view identity', a
   const selected = await groupedMixedFixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const layout = structuredClone(composeGroupedSelectionLayout(meaning));
+  const layout = structuredClone(composeStaticSelectionLayout(meaning));
   assert.equal(layout.view, null);
   layout.view = { namespace: modelNamespace, id: 'invented', sha256: 'a'.repeat(64) };
   assert.throws(() => composeStaticEditionScene(meaning, layout), {
@@ -329,7 +333,7 @@ test('neutral Claim Model layout carries a plain relation on its visible edge, n
   const selected = await groupedMixedFixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const layout = composeGroupedSelectionLayout(meaning);
+  const layout = composeStaticSelectionLayout(meaning);
   assert.equal(layout.edges.length, 1);
   assert.equal(layout.edges[0].caption?.text, 'calls');
   assert.equal(layout.edges[0].caption?.point.length, 2);
@@ -357,7 +361,7 @@ test('a long source relation type remains visible in the ledger when it cannot f
   const selected = await groupedMixedFixture(t, { model });
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const layout = composeGroupedSelectionLayout(meaning);
+  const layout = composeStaticSelectionLayout(meaning);
   assert.equal(layout.edges[0].caption, undefined);
   const scene = composeStaticEditionScene(meaning, layout);
   const rendered = composeStaticEditionSvg(scene, { fragment: true });
@@ -368,7 +372,7 @@ test('an invalid edge caption fails with a typed renderer error before bounds pr
   const selected = await groupedMixedFixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const layout = composeGroupedSelectionLayout(meaning);
+  const layout = composeStaticSelectionLayout(meaning);
   const scene = composeStaticEditionScene(meaning, layout);
   for (const mutate of [
     (edge) => (edge.caption = null),
@@ -1426,15 +1430,25 @@ test('two source claimants can disagree without merging equal native claim IDs',
   }
 });
 
-test('ungrouped Claim Model entity and relation selections fail closed', async (t) => {
+test('ungrouped Claim Model entities and relations render without invented membership', async (t) => {
   for (const reference of ['entity:client', 'relation:request']) {
-    const selected = await fixture(t, { reference });
+    const model = claimModel();
+    model.relations.request.qualifiers = { phase: 'selected' };
+    const selected = await fixture(t, { model, reference });
     const output = path.join(selected.root, 'candidate');
-    await assert.rejects(
-      compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output),
-      { code: 'edition_scene_claim_model_unadmitted' },
-    );
-    await assert.rejects(fs.stat(output), { code: 'ENOENT' });
+    await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+    const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+    const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
+
+    assert.match(svg, /data-graphic-id="n-0"/u);
+    assert.doesNotMatch(svg, /READING GROUPS/u);
+    assert.equal(candidate.media.static.artifacts.length, 2);
+    if (reference.startsWith('relation:')) {
+      assert.match(svg, /data-graphic-id="r-0"/u);
+      assert.match(svg, /phase: selected/u);
+    } else {
+      assert.doesNotMatch(svg, /data-graphic-id="r-0"/u);
+    }
   }
 });
 
@@ -1444,7 +1458,7 @@ test('a grouped static Scene retains relation and dependent claim as separate so
   const selected = await groupedMixedFixture(t, { model });
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const layout = composeGroupedSelectionLayout(meaning);
+  const layout = composeStaticSelectionLayout(meaning);
   const scene = composeStaticEditionScene(meaning, layout);
   assert.equal(scene.nativeView, null);
   assert.deepEqual(
@@ -1517,7 +1531,7 @@ test('a grouped Claim Model refinement keeps its typed claim linked to selected 
   const selected = await groupedMixedFixture(t, { media: ['static'] });
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const layout = composeGroupedSelectionLayout(meaning);
+  const layout = composeStaticSelectionLayout(meaning);
   const refinement = {
     schema: 'architecture.scene-refinement/v1',
     media: {
@@ -2328,7 +2342,7 @@ test('a mixed page carries a scalar claim on its own source subject without inve
   const selected = await mixedScalarFixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const staticScene = composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  const staticScene = composeStaticEditionScene(meaning, composeStaticSelectionLayout(meaning));
   assert.equal(staticScene.nodes.length, 2);
   assert.equal(staticScene.edges.length, 1);
   assert.equal(staticScene.claimCards.length, 2);
@@ -2467,7 +2481,7 @@ test('a mixed scalar claim cannot forge or lose its subject dependency', async (
     assert.throws(() => composeInteractiveEditionScene(malformed), { code });
   }
   const scene = structuredClone(
-    composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning)),
+    composeStaticEditionScene(meaning, composeStaticSelectionLayout(meaning)),
   );
   const missing = structuredClone(scene);
   delete missing.claimSubjectLinks;
@@ -2579,7 +2593,7 @@ test('relation-only coverage rejects endpoints without the selected relation', a
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
 
-  const staticScene = composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  const staticScene = composeStaticEditionScene(meaning, composeStaticSelectionLayout(meaning));
   const staticForged = structuredClone(staticScene);
   staticForged.edges = [];
   staticForged.sourceAssertionCarriers[0].relationRefs = [];
@@ -2646,7 +2660,7 @@ test('a mixed page keeps unclaimed relations structural beside linked claims', a
 
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const staticScene = composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  const staticScene = composeStaticEditionScene(meaning, composeStaticSelectionLayout(meaning));
   assert.deepEqual(
     staticScene.sourceAssertionCarriers
       .filter(({ kind }) => kind === 'relation')
@@ -2868,7 +2882,7 @@ test('one mixed static claim uses the available plate in two reading columns', a
   const selected = await groupedMixedFixture(t, { media: ['static'] });
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const scene = composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  const scene = composeStaticEditionScene(meaning, composeStaticSelectionLayout(meaning));
   const rendered = composeStaticEditionSvg(scene);
   const svg = rendered.bytes.toString('utf8');
   const claim = /<g data-graphic-id="c-0">([\s\S]*?)<\/g>/u.exec(svg)?.[1];
@@ -3016,7 +3030,7 @@ test('mixed static claims follow source-relation reading order rather than claim
   );
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const scene = composeStaticEditionScene(meaning, composeGroupedSelectionLayout(meaning));
+  const scene = composeStaticEditionScene(meaning, composeStaticSelectionLayout(meaning));
   const rendered = composeStaticEditionSvg(scene);
   assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers));
   const svg = rendered.bytes.toString('utf8');
@@ -3091,7 +3105,7 @@ test('mixed static media rejects a forged graphic link or source dependency', as
   const selected = await groupedMixedFixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
-  const layout = composeGroupedSelectionLayout(meaning);
+  const layout = composeStaticSelectionLayout(meaning);
   const scene = composeStaticEditionScene(meaning, layout);
   const rendered = composeStaticEditionSvg(scene);
   assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers));

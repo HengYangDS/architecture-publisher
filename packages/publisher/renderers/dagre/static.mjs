@@ -8,7 +8,6 @@ function checkedInput(input) {
     !input.nodes.length ||
     input.nodes.length > 512 ||
     !Array.isArray(input.groups) ||
-    !input.groups.length ||
     input.groups.length > 128 ||
     !Array.isArray(input.relations) ||
     input.relations.length > 2048
@@ -48,7 +47,7 @@ function checkedInput(input) {
       members.add(id);
     }
   }
-  if (members.size !== nodes.size) fail('static_dagre_input_invalid');
+  if (input.groups.length && members.size !== nodes.size) fail('static_dagre_input_invalid');
   const relations = new Set();
   for (const relation of input.relations) {
     if (
@@ -153,7 +152,7 @@ function placeRelationLabels(routes, nodes) {
 }
 
 /** The existing pinned Dagre supply proposes coordinates, never source meaning. */
-export async function composeDagreGroupedGeometry(value) {
+export async function composeDagreStaticGeometry(value) {
   const input = checkedInput(value);
   const opaque = new Map(input.nodes.map(({ id }, index) => [id, `n${index}`]));
   const selected = await layoutStaticGraph({
@@ -222,7 +221,12 @@ export async function composeDagreGroupedGeometry(value) {
     ...labeledRoutes.flatMap(({ labelBox }) => (labelBox ? [labelBox.y + labelBox.h + 30] : [])),
   );
   return {
-    layout: { ...layout, groups, nodes, groupPresentation: 'key' },
+    layout: {
+      ...layout,
+      groups,
+      nodes,
+      ...(groups.length ? { groupPresentation: 'key' } : {}),
+    },
     routes: labeledRoutes,
     supplySha256: selected.supplySha256,
   };

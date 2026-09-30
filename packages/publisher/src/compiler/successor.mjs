@@ -8,10 +8,10 @@ import { editorialFraming } from '../scene/framing.mjs';
 import { composeInteractiveEditionScene } from '../scene/interactive/edition.mjs';
 import { composeAuthoredStaticCanvas } from '../scene/static/authored-canvas.mjs';
 import {
-  composeGroupedSelectionLayout,
+  composeStaticSelectionLayout,
   composeSelectedStaticRefinementLayout,
   selectedStaticNativeViews,
-} from '../scene/static/grouped-selection.mjs';
+} from '../scene/static/selection.mjs';
 import { composeStaticEditionScene } from '../scene/static/edition.mjs';
 import { assertAuthoredCanvasScene } from '../scene/static/audit.mjs';
 import { auditEmittedEdges } from '../qualification/static/emitted-path.mjs';
@@ -22,7 +22,7 @@ import { fail } from '../protocol/values.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
 import { renderInteractiveEditionHtml } from '../../renderers/cytoscape/index.mjs';
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
-import { composeDagreGroupedGeometry } from '../../renderers/dagre/static.mjs';
+import { composeDagreStaticGeometry } from '../../renderers/dagre/static.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
 import { verifyAuthoredCanvasTextBoxes } from '../../renderers/resvg/measurement.mjs';
 import {
@@ -98,11 +98,14 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
   let layout = null;
   if (authoredCanvas) implementationProfile = 'static-authored';
   else if (staticRefinement && staticRefinement.kind !== 'neutral') {
-    implementationProfile = 'static-grouped';
+    implementationProfile = 'static-refinement';
     layout = composeSelectedStaticRefinementLayout(meaning, meaning.refinement);
   } else if (meaning.editorial.presentation.static.views[0].groups !== undefined) {
-    implementationProfile = 'static-grouped';
-    layout = await composeGroupedSelectionLayout(meaning, composeDagreGroupedGeometry);
+    implementationProfile = 'static-structural';
+    layout = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
+  } else if (claimMode && meaning.native.selections.some(({ target }) => target.kind !== 'claim')) {
+    implementationProfile = 'static-structural';
+    layout = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
   } else if (!claimMode) {
     implementationProfile = 'static-likec4';
     const views = selectedStaticNativeViews(meaning, meaning.media.static.views[0]);

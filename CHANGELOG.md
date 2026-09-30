@@ -52,6 +52,9 @@ may contain incompatible changes.
   longer prints compiler method-limit codes as figure copy. Each exact method
   limitation remains in the Candidate and interactive disclosure; neither
   medium gains acceptance from this presentation change.
+- Claim Model entity and relation views may omit editorial visual groups. The
+  selected Dagre supply renders their flat structure without inventing group
+  membership; claim-only views retain their separate claim-card composition.
 
 ## [0.3.0-alpha.5] - 2026-09-29
 
