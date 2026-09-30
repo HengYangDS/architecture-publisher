@@ -811,6 +811,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       unqualified and unapproved by AIGW; its visual hierarchy is not yet
       flagship acceptance. Static responsibility composition and cross-workload
       qualification remain open, so Task 5.2 stays unchecked.
+      The signed `ab71fe6` Core archive was installed offline and its public
+      CLI rebuilt the exact six-member trial Candidate after the consumer and
+      three selected inputs moved outside the checkout. The bounded identities
+      and limits are in `conformance/evidence/responsibility-form-installed-probe.json`;
+      this is local conformance, not AIGW acceptance or release qualification.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

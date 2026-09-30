@@ -1,0 +1,45 @@
+{
+  "schema": "architecture.research-installed-probe/v1",
+  "status": "local-provisional-installed-conformance",
+  "workload": "aigw-product-responsibility-trial",
+  "sourceSnapshotRevision": "01776f2fd83735cc5288548f48acea00912938ba",
+  "sourceAcceptance": "not-established",
+  "publisherSourceCommit": "ab71fe6effd0730612393b2ab5bc69e9a70a45e8",
+  "package": {
+    "name": "architecture-publisher",
+    "version": "0.3.0-alpha.6",
+    "archiveSha256": "95add6b828ab8234d7dc8537c4c65288d55cbbaee31775558b95d1ee33f4db5d",
+    "archiveBytes": 4219638,
+    "memberCount": 219,
+    "installedTreeSha256": "5a52d0c32981bd417ef59587549e4ab0e2513a1be2cbae1353913d8cde2ca17d"
+  },
+  "selectedInputs": {
+    "product.request.json": "9bdac392652950382f163154786f89b83f8a2f9e7bfecc71aadcf4d58b15d756",
+    "editions/product.json": "0efc54a56e4c36e5351b34da2863494ff39ea6fafe22054325d0fc2a6054e9f0",
+    "source/product-model.json": "c61dd0f0d6253d8f80280e5803e5fd4ff620d17b54404d045295770a242655db"
+  },
+  "candidateSha256": "970849007aae913a5ad64ccf72891ca83e94a26647364b1d660addcc33831b85",
+  "memberSha256": {
+    "candidate.json": "7bca08fdb26b24f246ea5332bd8d8b5e485b4d416f3641dcdf72bcb48e7f7e0e",
+    "input-lock.json": "eb8cf2e22015da03f22d595ab1091b526b09d5dcef1f3fe4dbb64124425b0042",
+    "interactive/architecture.html": "1841271eb2fdb7f0a887de1ba04e10dad922b4bf30065c13920560ee2e9b0f0d",
+    "manifest.json": "7cd5fa122d929291cbfaa42ae9ee1ecf214e28a06662609b12f8343b8af8b6ee",
+    "static/architecture.png": "24c992c4c1eb24677eeec0d09e04fe45057494ae72b31af8fbca70eebe930ec9",
+    "static/architecture.svg": "1b2ebd0f04e6673e3ae807d65f6c414234f7de5c6e550e2bb335fe670e2ba30b"
+  },
+  "exactDirectParity": true,
+  "exactExternalRelocationParity": true,
+  "method": {
+    "pack": "npm pack --json --ignore-scripts --offline from the signed Publisher source",
+    "install": "npm install --ignore-scripts --offline with an empty cache and no runtime dependencies",
+    "build": "installed public CLI, three exact selected inputs, empty PATH and HOME",
+    "relocation": "copied installed consumer and selected inputs outside the checkout, rebuilt through the installed CLI with empty PATH and HOME, and compared six Candidate members byte-for-byte"
+  },
+  "limits": [
+    "provisional local archive, not a GitLab Release asset or protected publication",
+    "AIGW-derived editorial trial, not AIGW source or Candidate acceptance",
+    "does not establish final visual quality, a static responsibility form, or full accessibility",
+    "macOS local and external-temporary-directory replay only; no Linux or Windows result",
+    "no off-host disaster-recovery proof"
+  ]
+}
