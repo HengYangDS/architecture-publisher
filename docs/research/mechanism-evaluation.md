@@ -1815,15 +1815,20 @@ custom code. No universal winner has yet passed this comparison.
 The source-owned AIGW Work Lane was read-only at signed `01776f2`.
 `product.request.json` pins `source/product-model.json` to SHA-256
 `c61dd0f0d6253d8f80280e5803e5fd4ff620d17b54404d045295770a242655db`;
-the trial verified those exact bytes before selecting seven existing entities
-and seven existing typed relations. Apache ECharts 6.1.0, installed only in a
-disposable `/tmp` research directory, rendered its documented graph-in-matrix
+the trial verified those exact bytes and the accepted boundary decision at
+SHA-256 `b44f9903067cb9c7b21bf7128c928b0dd30520de62f4d3bb69b8bb929be3b7fb`.
+The Edition's exact `boundary` selection contains six relations and the
+`client-endpoint` Claim. The corrected trial uses those six relations and
+seven entities, not an ad hoc source subset. Apache ECharts 6.1.0, installed
+only in a disposable `/tmp` directory, rendered the documented graph-in-matrix
 form through SVG SSR. The [exact 1700×1000 SVG](evidence/aigw-echarts-matrix-graph.svg)
-has SHA-256 `908886ae245bf286569027b293deae5d9f43136dfd589b1fc2e13ba9572115a8`.
-This is a provisional editorial projection, not AIGW source acceptance,
-product Candidate, or final-media approval.
+has SHA-256 `9653853c38b0d269d391e10ed0ff523d9c6083b721245f01687ce0cdc6c2cc34`.
+An initial seven-relation probe incorrectly included effects-only relations
+and omitted `aigw-configuration`; it was replaced rather than treated as a
+valid same-question comparison. The corrected figure is still provisional,
+not AIGW source acceptance, a product Candidate, or final-media approval.
 
-The mechanism is real: all seven selected relationship type labels occur as
+The mechanism is real: all six selected relationship type labels occur as
 visible SVG text, and the matrix supplies evenly sized stage/role cells
 without manually specifying each node coordinate. Yet only seven of twenty
 cells contain an entity; thirteen are empty. Long relation labels become
@@ -1831,9 +1836,11 @@ cells contain an entity; thirteen are empty. Long relation labels become
 the chosen columns mix actor, control plane, handoff, native client, and
 external traffic. Placement in one column can be mistaken for ownership,
 which the source has not asserted for every boundary/effect entity. The
-trial also does not show the selected relations' material qualifiers or
-answer the whole boundary question. Thus a mechanically valid graph and a
-small SVG are insufficient semantic or reader-quality evidence.
+figure adds a short source-bound traffic statement below the graph, but
+does not visibly express every selected maturity, qualifier, or limit, nor
+does the graph itself answer the whole boundary question. Thus a
+mechanically valid graph and a small SVG are insufficient semantic or
+reader-quality evidence.
 
 The attempted heatmap variant was stopped when ECharts required `visualMap`:
 the selected relationships contain no quantitative measure whose color scale
