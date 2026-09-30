@@ -1,4 +1,5 @@
 import { loadBundledFonts } from '../fonts/index.mjs';
+import { createBundledTextMeasurer } from '../resvg/measurement.mjs';
 import { fail } from '../../src/protocol/values.mjs';
 import { editorialFraming } from '../../src/scene/framing.mjs';
 import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
@@ -10,6 +11,7 @@ import { layoutInteractivePages } from '../dagre/layout.mjs';
 import { projectInteractivePage } from './model.mjs';
 import { loadCytoscapeSupply } from './supply.mjs';
 import { responsibilityCss, responsibilityPageHtml } from './responsibility.mjs';
+import { claimWorkCss, claimWorkHtml } from './claim-work.mjs';
 
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const escape = (value) =>
@@ -76,7 +78,12 @@ function graphFor(index) {
       id: node.id, label: node.label,
       ...(parentByNode.has(node.id) ? { parent: parentByNode.get(node.id) } : {}),
     } })),
-    ...page.relations.map(relation => ({ data: relation })),
+    ...page.relations.map(relation => ({ data: {
+      ...relation,
+      graphLabel: selected.relationLabels[relation.id]?.lines.join('\n') || '',
+      labelOffsetX: selected.relationLabels[relation.id]?.offsetX || 0,
+      labelOffsetY: selected.relationLabels[relation.id]?.offsetY || 0,
+    } })),
   ];
   const graph = cytoscape({
     container, elements,
@@ -106,6 +113,9 @@ function graphFor(index) {
         'target-arrow-shape': 'triangle', 'target-arrow-color': '#60786a',
         'curve-style': 'bezier', label: 'data(graphLabel)',
         'font-family': 'JetBrains Mono', 'font-size': 13,
+        'text-wrap': 'wrap', 'text-max-width': 220,
+        'text-justification': 'center', 'line-height': 1.4,
+        'text-margin-x': 'data(labelOffsetX)', 'text-margin-y': 'data(labelOffsetY)',
         color: '#27352e', 'text-background-color': '#fffefa',
         'text-background-opacity': 1, 'text-background-padding': 2,
       } },
@@ -169,7 +179,7 @@ function evidenceSection(title, content, kind) {
 }
 
 function graphHeight(layout) {
-  return Math.min(660, Math.max(220, Math.ceil(layout.bounds.height + 64)));
+  return Math.max(220, Math.ceil(layout.bounds.height + 64));
 }
 
 function repeatedKind(label, kind) {
@@ -239,7 +249,7 @@ function pageHtml(page, index, methodLimits) {
   const claimStage = `${commonContext}<div class="claim-stage">${(page.claims ?? [])
     .map(
       ({ graphicId, facts, relationOrdinal, sourceAnchor }) =>
-        `<article class="claim-card" data-graphic-id="${graphicId}">${relationOrdinal ? `<p class="claim-link">ON SOURCE RELATION ${String(relationOrdinal).padStart(2, '0')}</p>` : sourceAnchor === 'entity' ? '<p class="claim-link">ON SOURCE ENTITY</p>' : ''}<dl class="claim-facts">${facts
+        `<article class="claim-card" ${page.nodes.length ? 'data-inspect-graphic' : 'data-graphic-id'}="${graphicId}">${relationOrdinal ? `<p class="claim-link">ON SOURCE RELATION ${String(relationOrdinal).padStart(2, '0')}</p>` : sourceAnchor === 'entity' ? '<p class="claim-link">ON SOURCE ENTITY</p>' : ''}<dl class="claim-facts">${facts
           .filter(({ label }) => !commonLabels.has(label))
           .map(({ label, value }) => `<dt>${escape(label)}</dt><dd>${escape(value)}</dd>`)
           .join('')}</dl></article>`,
@@ -271,7 +281,7 @@ function pageHtml(page, index, methodLimits) {
   const gridStyle =
     graphNaturalWidth === null ? '' : ` style="--graph-natural-width:${graphNaturalWidth}px"`;
   const stage = page.nodes.length
-    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Edge numbers match the source relations below. Pan and zoom in the graph; the lists provide keyboard-accessible reading and focus.</p><p class="sr-only" role="status" aria-atomic="true" data-focus-status></p>`
+    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}></div><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="graph-instruction">Pan and zoom to explore. Inspect provides complete source records and keyboard focus.</p><p class="sr-only" role="status" aria-atomic="true" data-focus-status></p>`
     : page.claims?.length
       ? claimStage
       : editorialStage;
@@ -305,10 +315,20 @@ function pageHtml(page, index, methodLimits) {
       'methods',
     ),
   ].join('');
+  const claimWork = mixed
+    ? `<section class="claim-work" aria-label="Selected source claims" style="--claim-columns:${Math.min(4, page.claims.length)}"><h3>Selected source claims</h3>${claimWorkHtml(page)}</section>`
+    : '';
+  const relationQualifiers = page.relations.filter((relation) => relation.sourceQualifiers?.length);
+  const qualifierWork = relationQualifiers.length
+    ? `<section class="relation-work" aria-label="Source-reported relation qualifiers"><h3>Source-reported relation qualifiers · unverified</h3>${relationQualifiers.map((relation) => `<article><h4>${escape(nodes.get(relation.source))} ${relation.direction === 'bidirectional' ? '↔' : '→'} ${escape(nodes.get(relation.target))}${relation.label ? ` · ${escape(relation.label)}` : ''}</h4><dl class="relation-qualifiers">${relation.sourceQualifiers.map(({ name, value }) => `<dt>${escape(name || '""')}</dt><dd>${escape(value)}</dd>`).join('')}</dl></article>`).join('')}</section>`
+    : '';
+  const sourceInspection = page.nodes.length
+    ? `<details class="source-inspection"><summary>Inspect source and method</summary><aside class="notes" aria-label="Page evidence">${evidence}</aside>${mixed ? `<section class="linked-claims" aria-label="Complete source claims"><h3>Complete source claims</h3>${claimStage}</section>` : ''}</details>`
+    : `<aside class="notes" aria-label="Page evidence">${sourceStatus}${evidence}</aside>`;
   return `<section class="edition-page" id="page-${index}" data-page="${index}" aria-labelledby="page-title-${index}">
     <header class="page-heading"><p class="eyebrow">Reading page ${index + 1}</p><h2 id="page-title-${index}">${escape(page.title)}</h2></header>
     <div class="page-grid${gridClass}"${gridStyle}><div class="stage">${page.nodes.length && !pairedGraph ? sourceStatus : ''}${stage}</div>
-    ${readingBoundary}<aside class="notes" aria-label="Page evidence">${page.nodes.length ? '' : sourceStatus}${evidence}</aside></div>${mixed ? `<section class="linked-claims" aria-label="Source claims"><h3>Source claims</h3>${claimStage}</section>` : ''}</section>`;
+    ${readingBoundary}${page.nodes.length ? '' : sourceInspection}</div>${qualifierWork}${claimWork}${page.nodes.length ? sourceInspection : ''}</section>`;
 }
 
 function css(fonts) {
@@ -337,6 +357,9 @@ function css(fonts) {
   .page-grid--paired .reading-boundary{grid-column:2;grid-row:1;min-width:0;border-left:1px solid #d3dbd1;padding:14px 0 0 24px}.reading-boundary h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 12px}.reading-boundary ul{list-style:none;margin:0;padding:0}.reading-boundary li{font-size:14px;line-height:1.55}.reading-boundary li+li{margin-top:10px}.reading-boundary .limits{padding-left:12px!important}.reading-boundary .source-note{margin-top:16px}.page-grid--paired .notes{grid-row:2;grid-template-columns:minmax(0,1fr) minmax(0,1.55fr)}
   .relation-qualifier-note{font-size:11px;color:#526158;margin:0 0 9px!important}.relation-qualifiers{display:grid;grid-template-columns:minmax(76px,.7fr) minmax(0,1.3fr);gap:4px 10px;margin:5px 0 0 12px;padding-left:10px;border-left:2px solid #b3c4b6}.relation-qualifiers dt{font-size:11px;color:#526158}.relation-qualifiers dd{font-size:12px;margin:0;overflow-wrap:anywhere}.method-limits code{font:11px 'JetBrains Mono',monospace;color:#526158;white-space:normal}
   ${responsibilityCss}
+  ${claimWorkCss}
+  .relation-work{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px 28px;border-top:1px solid #c4ccc2;margin-top:20px;padding-top:14px}.relation-work>h3{grid-column:1/-1;font-size:11px;color:#526158;margin:0}.relation-work h4{font-size:12px;line-height:1.45;margin:0 0 7px;overflow-wrap:anywhere}.relation-work .relation-qualifiers{margin:0}
+  .source-inspection{margin-top:20px;border-top:1px solid #c4ccc2;padding-top:14px}.source-inspection>summary{font-size:12px;color:#314638;cursor:pointer}.source-inspection .notes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr);gap:22px 28px;border-left:0;padding:20px 0 0}.source-inspection .evidence-methods{grid-column:1/-1}.source-inspection .notes .evidence-section+.evidence-section{margin-top:0}
   .licenses{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:15px;font-size:11px;color:#4c5a50}.licenses summary{cursor:pointer}.licenses pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font:10px/1.5 monospace}
   @media(max-width:1390px){.page-grid--paired{grid-template-columns:minmax(0,1fr)}.page-grid--paired .stage{grid-column:1;grid-row:1;margin-inline:auto}.page-grid--paired .reading-boundary{grid-column:1;grid-row:2;border-left:0;border-top:1px solid #d3dbd1;padding:18px 0 0}.page-grid--paired .notes{grid-column:1;grid-row:3}}
   @media(max-width:900px){.shell{padding:20px}.page-grid{grid-template-columns:minmax(0,1fr)}.notes{border-left:0;border-top:1px solid #d3dbd1;padding:22px 0 0}.page-grid--graph .notes,.page-grid--paired .notes{grid-template-columns:minmax(0,1fr);gap:22px}.page-grid--graph .evidence-methods,.page-grid--paired .evidence-methods{grid-column:auto}.empty-graph{min-height:280px;padding:30px}.page-heading{display:block}.page-heading h2{margin-top:7px}}`;
@@ -371,10 +394,14 @@ export async function renderInteractiveEditionHtml(scene) {
   );
   const hasGraph = graphIndexes.length > 0;
   const supply = hasGraph ? await loadCytoscapeSupply() : null;
-  const geometry = hasGraph
-    ? await layoutInteractivePages(graphIndexes.map((index) => projected[index].publicPage))
-    : null;
   const fontSupply = await loadBundledFonts();
+  const measure = hasGraph ? await createBundledTextMeasurer(fontSupply) : null;
+  const geometry = hasGraph
+    ? await layoutInteractivePages(
+        graphIndexes.map((index) => projected[index].publicPage),
+        measure,
+      )
+    : null;
   const selectedFonts = fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
   if (selectedFonts.length !== 2 || !fontSupply.license?.bytes)
     fail('render_interactive_font_supply_invalid');
@@ -393,6 +420,7 @@ export async function renderInteractiveEditionHtml(scene) {
     supplies: [
       ...(supply ? [{ id: 'cytoscape', sha256: supply.manifestSha256 }] : []),
       ...(geometry ? [{ id: 'dagre-layout', sha256: geometry.supplySha256 }] : []),
+      ...(measure ? [measure.supply] : []),
       { id: 'font-supply', sha256: fontSupply.sha256 },
     ],
     carriers: projected.map(({ carriers }) => carriers),

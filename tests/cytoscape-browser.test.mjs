@@ -253,6 +253,7 @@ test(
     const focusButton = page.locator('#page-0 [data-focus-node]').last();
     const requestedNode = await focusButton.getAttribute('data-focus-node');
     assert.equal(await focusButton.getAttribute('aria-pressed'), 'false');
+    await page.locator('#page-0 .source-inspection > summary').click();
     await focusButton.focus();
     await page.keyboard.press('Enter');
     assert.equal(await focusButton.getAttribute('aria-pressed'), 'true');
@@ -354,6 +355,13 @@ test(
           effectiveEdgeFontSize:
             Number.parseFloat(graph.edges()[0].style('font-size')) * graph.zoom(),
           overlap,
+          edgeLabels: graph.edges().map((edge) => ({
+            id: edge.id(),
+            label: edge.data('graphLabel'),
+            offsetX: Number.parseFloat(edge.style('text-margin-x')),
+            offsetY: Number.parseFloat(edge.style('text-margin-y')),
+            height: edge._private.rstyle.labelHeight,
+          })),
         };
       });
     await page.setViewportSize({ width: 1280, height: 720 });
@@ -383,6 +391,12 @@ test(
       desktopBranch.effectiveEdgeFontSize >= 11,
       `branching relation references are too small: ${JSON.stringify(desktopBranch)}`,
     );
+    for (const label of desktopBranch.edgeLabels)
+      if (label.label)
+        assert(
+          Math.abs(label.offsetX) >= 8 || Math.abs(label.offsetY) >= label.height / 2 + 6,
+          `relation label clearance is insufficient: ${JSON.stringify(label)}`,
+        );
     assert.deepEqual(errors, []);
 
     await page.goto(`${origin}/grouped.html`, { waitUntil: 'load', timeout: 15_000 });
@@ -449,6 +463,7 @@ test(
       await page.locator('#page-0 [data-focus-node]').first().getAttribute('aria-label'),
       '01 Precontract contract',
     );
+    await page.locator('#page-0 .source-inspection > summary').click();
     const registry = page.locator('#page-0 [data-focus-node]').last();
     assert.equal(await registry.getAttribute('aria-label'), '02 Client registry');
     assert.equal(await registry.locator('small').count(), 0);

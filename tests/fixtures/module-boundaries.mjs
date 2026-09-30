@@ -167,6 +167,7 @@ const owners = [
       'packages/publisher/renderers/cytoscape/',
       'packages/publisher/renderers/dagre/layout.mjs',
       'packages/publisher/renderers/fonts/',
+      'packages/publisher/renderers/resvg/measurement.mjs',
       'packages/publisher/src/scene/',
       'packages/publisher/src/source/',
     ],

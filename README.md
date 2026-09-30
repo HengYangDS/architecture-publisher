@@ -53,9 +53,8 @@ compiler or approval path.
 
 - [Product contract](docs/product-contract.md) defines the canonical product
   meaning, authority boundaries, and the build and local-delivery diagrams.
-- [Edition contract](docs/edition-contract.md) records the historical v1
-  audience, coverage, scene, and qualification contract. Selected-input
-  authoring uses the versioned Build Request and Edition Project.
+- [Edition contract](docs/edition-contract.md) explains current Project
+  authoring and its distinction from the retained historical v1 input.
 - [Edition Provider reference](docs/reference/edition-provider.md) defines the
   optional owner-attributed materialization boundary.
 - [Changelog](CHANGELOG.md) records notable released changes and compatibility
@@ -136,13 +135,16 @@ adjacent checkouts, personal credentials, and ambient repository discovery.
 
 The current checkout separates product ownership from adopter evidence:
 
-| Path                                                   | Responsibility                                          |
-| ------------------------------------------------------ | ------------------------------------------------------- |
-| `packages/publisher/`                                  | Generic product package                                 |
-| `editions/self/`                                       | Source-owned flagship self-Edition                      |
-| `conformance/journeys/self-host/`                      | Bounded structural self-use                             |
-| `conformance/fixtures/ethos-source-owned-handoff.json` | Dated ETHOS handoff fixture, not current adoption proof |
-| `conformance/fixtures/aigw-source-owned-handoff.json`  | Dated AIGW handoff fixture, not current adoption proof  |
+| Path                                                   | Responsibility                                           |
+| ------------------------------------------------------ | -------------------------------------------------------- |
+| `packages/publisher/`                                  | Generic product package                                  |
+| `docs/`                                                | Product contracts, operational reference, and research   |
+| `openspec/`                                            | Normative specs and the active Change's sole task ledger |
+| `editions/self/`                                       | Source-owned flagship self-Edition                       |
+| `conformance/journeys/self-host/`                      | Bounded structural self-use                              |
+| `conformance/fixtures/ethos-source-owned-handoff.json` | Dated ETHOS handoff fixture, not current adoption proof  |
+| `conformance/fixtures/aigw-source-owned-handoff.json`  | Dated AIGW handoff fixture, not current adoption proof   |
+| `build/`                                               | Ignored generated Candidates and local test evidence     |
 
 This repository keeps the generic package, renderer supply,
 its self-Edition, and compact conformance fixtures. ETHOS and AIGW retain

@@ -866,7 +866,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       question-led interactive map, separate from the static Scene. Focused
       Chrome tests check node-edge attachment, role and handoff alignment,
       painted text clearance, WCAG AA contrast, and page-local SVG IDs. The
-      current full local gate passed 1,375/1,378 tests with three declared
+      then-selected full local gate passed 1,375/1,378 tests with three declared
       skips and 97.71/95.03/99.56/97.71% statement/branch/function/line
       coverage. This proves the selected implementation and synthetic visual
       cases, not source-owner approval or flagship acceptance. At signed
@@ -881,6 +881,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       in `docs/research/mechanism-evaluation.md`. This is an unapproved
       copied-input trial, not installed replay, AIGW acceptance, or Task 5.2
       closure.
+      Current follow-up: neutral graph relations now carry exact measured
+      wording; compact source Claims retain visible applicability and full
+      records move to Inspect with unique primary graphic IDs. The focused
+      reader/compiler/installed-neutral suite passed 96/96; the complete local
+      gate passed 1,380/1,383 with three declared skips, no failures, and
+      97.72/95.05/99.56/97.72% statement/branch/function/line coverage.
+      Current docs and two rendered dependency diagrams distinguish Project
+      authoring, historical input, build, acceptance, and local effects;
+      41 active Markdown carriers have no missing local link or checked anchor.
+      Stable pixel-comparator controls and the six-page copied-input readback
+      are recorded in the mechanism study, not treated as source acceptance.
+      Full painted graph-label clearance, question-level cues, flagship review,
+      exact installed multi-workload freeze, and adopter acceptance remain open.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

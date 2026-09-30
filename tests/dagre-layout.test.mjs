@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
+import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg/measurement.mjs';
 import { projectInteractivePage } from '../packages/publisher/renderers/cytoscape/model.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
 
@@ -8,19 +10,20 @@ test('one pinned geometry owner produces one selected interactive layout without
     await import('../packages/publisher/renderers/dagre/layout.mjs');
   const source = projectInteractivePage(interactiveEditionScene().pages[0], 0).publicPage;
   const original = structuredClone(source);
-  const first = await layoutInteractivePages([source]);
-  const second = await layoutInteractivePages([source]);
+  const measure = await createBundledTextMeasurer(await loadBundledFonts());
+  const first = await layoutInteractivePages([source], measure);
+  const second = await layoutInteractivePages([source], measure);
   assert.deepEqual(first, second);
   assert.deepEqual(source, original);
   assert.match(first.supplySha256, /^[0-9a-f]{64}$/u);
   const layout = first.layouts[0];
-  assert.deepEqual(Object.keys(layout), ['bounds', 'positions']);
+  assert.deepEqual(Object.keys(layout), ['bounds', 'positions', 'relationLabels']);
   assert(layout.bounds.width > layout.bounds.height);
   assert.deepEqual(Object.keys(layout.positions).sort(), source.nodes.map(({ id }) => id).sort());
   assert(layout.positions['n-0'].x < layout.positions['n-1'].x);
   assert(
     layout.positions['n-1'].x - layout.positions['n-0'].x - 170 >= 48,
-    'edge number and arrow need clearance between adjacent node bodies',
+    'relation caption and arrow need clearance between adjacent node bodies',
   );
 });
 
@@ -32,6 +35,40 @@ test('a geometry request with missing relation endpoints fails closed', async ()
   await assert.rejects(layoutInteractivePages([source]), {
     code: 'render_interactive_layout_invalid',
   });
+});
+
+test('relation text reserves measured layout space without changing the selected words', async () => {
+  const { layoutInteractivePages } =
+    await import('../packages/publisher/renderers/dagre/layout.mjs');
+  const source = projectInteractivePage(interactiveEditionScene().pages[0], 0).publicPage;
+  source.relations[0].graphLabel = 'synchronizes all selected native client registrations';
+  const original = structuredClone(source);
+  const measure = await createBundledTextMeasurer(await loadBundledFonts());
+  const layout = (await layoutInteractivePages([source], measure)).layouts[0];
+  const label = layout.relationLabels['r-0'];
+  assert.equal(label.lines.join(' '), source.relations[0].graphLabel);
+  assert(label.width > 100 && label.height >= 32);
+  assert(layout.positions['n-1'].x - layout.positions['n-0'].x - 170 >= label.width + 24);
+  assert.deepEqual(source, original);
+});
+
+test('relation geometry rejects missing measurement and infeasible exact labels without fallback ordinals', async () => {
+  const { layoutInteractivePages } =
+    await import('../packages/publisher/renderers/dagre/layout.mjs');
+  const page = projectInteractivePage(interactiveEditionScene().pages[0], 0).publicPage;
+  await assert.rejects(layoutInteractivePages([page]), {
+    code: 'render_interactive_text_measurement_required',
+  });
+  const measure = await createBundledTextMeasurer(await loadBundledFonts());
+  for (const label of ['x'.repeat(120), Array.from({ length: 30 }, () => 'selected').join(' ')]) {
+    page.relations[0].graphLabel = label;
+    await assert.rejects(layoutInteractivePages([page], measure), {
+      code: 'render_interactive_relation_text_infeasible',
+    });
+    assert.equal(page.relations[0].graphLabel, label);
+  }
+  page.relations[0].graphLabel = '';
+  assert.deepEqual((await layoutInteractivePages([page])).layouts[0].relationLabels, {});
 });
 
 test('cyclic and parallel source relations retain their direction through one geometry pass', async () => {

@@ -1,0 +1,53 @@
+{
+  "schema": "architecture.pixel-comparator-probe/v1",
+  "observedAt": "2026-09-30T15:34:34.970Z",
+  "sourceArtifact": {
+    "authority": "previously reviewed Publisher static Candidate",
+    "sha256": "debb45799fae57fda50ca874f7d54d2189fa317e5346ae872544d1114281bf5a",
+    "width": 6000,
+    "height": 3375
+  },
+  "comparator": {
+    "version": "7.2.0",
+    "url": "https://raw.githubusercontent.com/mapbox/pixelmatch/v7.2.0/index.js",
+    "sha256": "52c6026c4916a07548d4ce55090ec4ed918d353e15095406dabc3a8a5135d788"
+  },
+  "projection": {
+    "kind": "ImageMagick resize for comparator-only control",
+    "width": 1600,
+    "height": 900
+  },
+  "observations": [
+    {
+      "id": "identical",
+      "differentPixels": 0,
+      "diffRatio": 0,
+      "milliseconds": 2.8
+    },
+    {
+      "id": "title-line-1px",
+      "differentPixels": 842,
+      "diffRatio": 0.0005847222222222223,
+      "milliseconds": 3.67
+    },
+    {
+      "id": "title-line-3px",
+      "differentPixels": 3240,
+      "diffRatio": 0.00225,
+      "milliseconds": 4.73
+    },
+    {
+      "id": "blank-title-region",
+      "differentPixels": 8725,
+      "diffRatio": 0.006059027777777778,
+      "milliseconds": 4.09
+    }
+  ],
+  "limits": [
+    "not a product dependency or general acceptance gate",
+    "reduced image is a comparator probe, not 6000px paint qualification",
+    "one approved source artifact only",
+    "mutation detected, not classified as geometry or meaning",
+    "timings are a single local smoke observation, not a comparative benchmark"
+  ]
+}

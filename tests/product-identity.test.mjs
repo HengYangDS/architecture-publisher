@@ -224,6 +224,30 @@ test('product documentation has one semantic owner and a concise entry point', a
   assert.match(readme, /\[Product contract\]\(docs\/product-contract\.md\)/);
   assert.match(readme, /\[Edition contract\]\(docs\/edition-contract\.md\)/);
   assert.match(readme, /\[Operational reference\]\(docs\/reference\/operations\.md\)/);
+  assert.match(edition, /^# Architecture Edition$/m);
+  assert.match(edition, /^## Current authoring$/m);
+  assert.match(edition, /^## Historical Edition v1$/m);
+  const example = JSON.parse(
+    await fs.readFile(path.join(root, 'examples/selected-edition/edition/project.json'), 'utf8'),
+  );
+  assert.equal(example.schema, 'architecture.edition-project/v1');
+  for (const field of [
+    'audiences',
+    'questions',
+    'scope.selections',
+    'presentation.static',
+    'visualPolicy',
+  ]) {
+    assert(edition.includes(`\`${field}\``), `missing current authoring field: ${field}`);
+  }
+  const diagrams = [...product.matchAll(/```mermaid\n([\s\S]*?)```/gu)].map((match) => match[1]);
+  assert.equal(diagrams.length, 2, 'build and local effect have distinct dependency diagrams');
+  assert.match(diagrams[0], /editor\["Edition Project"\] --> request/u);
+  assert.match(diagrams[0], /compose --> static/u);
+  assert.match(diagrams[0], /compose --> interactive/u);
+  assert.doesNotMatch(diagrams[0], /static --> interactive|interactive --> static/u);
+  assert.match(diagrams[1], /acceptance --> effect/u);
+  assert.match(diagrams[1], /authorization --> effect/u);
   assert.match(product, /^subject: architecture-publisher:product-contract$/m);
   assert.match(product, /^state: canonical$/m);
   assert.match(

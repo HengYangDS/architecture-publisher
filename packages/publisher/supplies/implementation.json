@@ -310,8 +310,8 @@
     "static-structural": [
       {
         "path": "renderers/dagre/layout.mjs",
-        "bytes": 9046,
-        "sha256": "d20c1b752af95b87ce19abc15c30a1e86c1f2c75715aa7669787310ec0ac588b"
+        "bytes": 11196,
+        "sha256": "9bcf98a336af14a4fad458779a41523723c7e8580a87bab097a76ccfcd6d0ec7"
       },
       {
         "path": "renderers/dagre/static.mjs",
@@ -783,8 +783,8 @@
       },
       {
         "path": "renderers/resvg/measurement.mjs",
-        "bytes": 4181,
-        "sha256": "2de7b9ba17bcb7ad7c1532bff715743580f622de637107e67951ce117a5fead2"
+        "bytes": 4275,
+        "sha256": "e07395cfd90c5b2bc960db5a78b4fc519394b088acf2158cdf11ae8f392d43a7"
       },
       {
         "path": "renderers/resvg/supply.mjs",
@@ -951,14 +951,19 @@
     ],
     "interactive-neutral": [
       {
+        "path": "renderers/cytoscape/claim-work.mjs",
+        "bytes": 2921,
+        "sha256": "e7b78d30450ca2ca945492f0dcd99a51a8dea40122e5e45fbdc25cb26ed232de"
+      },
+      {
         "path": "renderers/cytoscape/edition.mjs",
-        "bytes": 26631,
-        "sha256": "578c23bb26634c8ae9507690d5d374271d98f80221b1c586aa4d96a8c3566af2"
+        "bytes": 29469,
+        "sha256": "d7305ca76ec5b9a0a5f9a597177b59c7674616dd8a166f3c10eb977ffdf9a549"
       },
       {
         "path": "renderers/cytoscape/model.mjs",
-        "bytes": 17739,
-        "sha256": "0740426fa38b81131e9c1510a65d7f0bb2c0d8192b88bace3cda5f42f52542a1"
+        "bytes": 17712,
+        "sha256": "c8fa051a1c2347ba1f3e354328c43261dee7b164d4aeee20caa77dc96893db93"
       },
       {
         "path": "renderers/cytoscape/responsibility-map.mjs",
@@ -977,8 +982,8 @@
       },
       {
         "path": "renderers/dagre/layout.mjs",
-        "bytes": 9046,
-        "sha256": "d20c1b752af95b87ce19abc15c30a1e86c1f2c75715aa7669787310ec0ac588b"
+        "bytes": 11196,
+        "sha256": "9bcf98a336af14a4fad458779a41523723c7e8580a87bab097a76ccfcd6d0ec7"
       },
       {
         "path": "renderers/dagre/supply.mjs",
@@ -989,6 +994,16 @@
         "path": "renderers/fonts/index.mjs",
         "bytes": 1248,
         "sha256": "d84b7916cf233dbab37c79d3f6b173dfc3b8f5493947434f2c52af1bf583de96"
+      },
+      {
+        "path": "renderers/resvg/measurement.mjs",
+        "bytes": 4275,
+        "sha256": "e07395cfd90c5b2bc960db5a78b4fc519394b088acf2158cdf11ae8f392d43a7"
+      },
+      {
+        "path": "renderers/resvg/supply.mjs",
+        "bytes": 1923,
+        "sha256": "736686a3e7af9808d0a68b333d3cea696860cff26d037ba292537e2d0c756516"
       },
       {
         "path": "src/file-input/contract.mjs",

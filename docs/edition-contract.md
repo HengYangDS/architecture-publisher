@@ -6,22 +6,46 @@ relations:
   governed_by: product-contract.md
 ---
 
-# Architecture Edition v1 contract
+# Architecture Edition
 
-This page describes the historical Edition v1 input, which selects one exact
-Claim Model. The selected-input successor first released in
-`v0.3.0-alpha.4` also admits native sources without a tracked duplicate Claim
-Model. It does not retroactively change valid v1 Editions or establish an
-adopter's acceptance.
+An Edition is an editor's plan for explaining selected architecture to a
+particular audience. It names the questions, selected source meaning, omissions,
+reading order, and presentation choices. It is not a theme, source-code scan,
+renderer preset, or publication approval.
 
-An Edition is the smallest complete public unit of Architecture Publisher. It is
-not a theme, diagram file, renderer preset, or copy of the source model. It is a
-deliberate answer to a bounded set of reader questions over one exact Claim
-Model.
+## Current authoring
 
-## Required identity
+New builds select `architecture.edition-project/v1` through one
+`architecture.build-request/v1`. A Project does not require a duplicate Claim
+Model: the source may already be LikeC4 DSL or an attributed Claim Model v2.
+The [complete small example](../examples/selected-edition/) shows the actual
+files; [the build reference](reference/operations.md#edition-candidate) gives
+the command and exact-input requirements.
 
-Every Edition binds:
+| Editor's choice              | Project field                                     | Meaning                                                |
+| ---------------------------- | ------------------------------------------------- | ------------------------------------------------------ |
+| Who is reading?              | `audiences`                                       | Named audiences, linked by ID                          |
+| What must they understand?   | `questions`                                       | Reader-facing text, not executable queries             |
+| Which source answers it?     | `scope.selections`                                | Exact namespace/reference and question IDs             |
+| What is outside this work?   | `omissions`, `scope.limits`                       | Explicit excluded meaning and reading limits           |
+| What appears in each medium? | `presentation.static`, `presentation.interactive` | Independent ordered views and intent                   |
+| How should it be expressed?  | `visualPolicy`                                    | Neutral composition or a selected data-only refinement |
+
+The Build Request separately names source files and digests, optional Providers,
+the Project, requested media, and the selected toolchain. Publisher derives the
+input lock and emits a Candidate. Neither the Project nor the request proves
+source truth, grants Provider execution consent, or accepts the result.
+
+## Historical Edition v1
+
+The retained `architecture.edition/v1` input selects one exact Claim Model and
+explicit scenes. Its identity fields below remain valid for historical builds;
+new Project authoring does not retroactively change it. Schema versions belong
+in their values, not in source filenames or a parallel editable Edition.
+
+### Required identity
+
+Every historical v1 Edition binds:
 
 - stable Edition ID and owner;
 - exact product and semantic schema versions;
@@ -39,11 +63,13 @@ Every Edition binds:
 
 Source owners determine facts and accepted meaning. An Edition may select,
 aggregate, annotate, and sequence claims, but may not change their plane, scope,
-condition, maturity, validity, or provenance. Any editorial assertion introduced
-by the Edition is itself a source-bound claim.
+condition, maturity, validity, or provenance. An editorial assertion retains its
+named proponent and source-bound basis; it does not become source-endorsed
+because Publisher can render it.
 
-Omission is a decision, not absence. Every source claim is either represented in
-a declared view or classified by an explicit omission rule. Unknown dependency
+Omission is a decision, not absence. Historical v1 requires every source claim
+to be represented or explicitly omitted. Current Projects declare their selected
+scope; selected obligations cannot be silently dropped. Unknown dependency
 coverage expands review; it never licenses omission.
 
 ## Source ownership
@@ -102,8 +128,8 @@ draw those endpoints.
 
 ### Interactive scenes
 
-The interactive scene set owns responsive composition, navigation, focus,
-trace, progressive disclosure, source inspection and motion. Its overview must
+The interactive scene set owns desktop composition, navigation, focus,
+trace, progressive disclosure, contextual inspection and motion. Its overview must
 remain a complete diagram. Detail pages deepen understanding rather than split a
 single diagram into incomplete fragments.
 
@@ -140,7 +166,7 @@ novelty is rejected.
 
 An Edition lists non-substitutable predicates. At minimum a flagship requires:
 
-1. source and Claim Model integrity;
+1. exact selected source and semantic interpretation integrity;
 2. required-claim and omission coverage;
 3. cross-medium semantic agreement;
 4. painted glyph, node, stroke, endpoint, label, and canvas geometry;
@@ -166,13 +192,17 @@ analytic scene geometry or a valid SVG alone cannot substitute for it.
 
 ## Evolution
 
+New native-input comparisons use `architecture.semantic-compare-input/v3` with
+independent before/after selections. The [evolution reference](reference/operations.md#evolution)
+documents their command and execution-consent boundaries.
+
 The complete before and after Editions are the sole authority for dependencies
 from claims and questions to static and interactive scenes. Claim Model
 comparison reports semantic identity and dependency changes; Edition evolution
 combines that result with authored Edition changes and computes six independent
 obligation classes:
 
-- `rebuild` selects the publication bundle, atlas, and affected scenes;
+- `rebuild` selects the publication bundle, interactive work, and affected scenes;
 - `semanticVerification` rechecks meaning and coverage;
 - `mediumVerification` rechecks only the applicable static, interactive,
   installed-use, and recovery predicates;

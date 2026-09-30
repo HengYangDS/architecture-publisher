@@ -2689,7 +2689,7 @@ test('a mixed page keeps unclaimed relations structural beside linked claims', a
   assert(!svg.includes('SOURCE RELATIONS'));
   assert(svg.includes('SOURCE CLAIMS'));
   assert(html.includes('Source relations'));
-  assert(html.includes('Source claims'));
+  assert(html.includes('Selected source claims'));
 
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);

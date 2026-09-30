@@ -14,7 +14,7 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.equal(result.completeness, 'unqualified-medium');
   assert.deepEqual(
     result.supplies.map(({ id }) => id),
-    ['cytoscape', 'dagre-layout', 'font-supply'],
+    ['cytoscape', 'dagre-layout', 'font-measurement', 'font-supply'],
   );
   assert.match(html, /<!doctype html>/iu);
   assert.match(html, /Selected architecture/u);
@@ -34,6 +34,11 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.match(html, /class="page-grid page-grid--graph page-grid--paired"/u);
   assert.match(html, /<aside class="reading-boundary" aria-label="Reading boundary">/u);
   assert.match(html, /<aside class="notes" aria-label="Page evidence">/u);
+  assert.match(
+    html,
+    /<details class="source-inspection"><summary>Inspect source and method<\/summary>/u,
+  );
+  assert.doesNotMatch(html, /Edge numbers match/u);
   const firstPage = html.split('<section class="edition-page" id="page-1"')[0];
   assert.doesNotMatch(firstPage, /class="evidence-section evidence-questions"/u);
   assert.match(html, /Cytoscape Consortium/u);
@@ -126,6 +131,9 @@ test('a source claim preserves the unchanged graph reading width', async () => {
   ];
   const detail = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
   assert.equal(layoutClass(detail), 'page-grid page-grid--graph page-grid--paired');
+  assert.match(detail, /class="claim-work"/u);
+  assert.equal(detail.split('data-graphic-id="c-0"').length - 1, 1);
+  assert.match(detail, /data-inspect-graphic="c-0"/u);
   assert(
     detail.indexOf('<section class="linked-claims"') >
       detail.indexOf('<div class="page-grid page-grid--graph"'),
@@ -240,7 +248,7 @@ test('an unlabeled source relation stays structural without an invented kind', a
   assert.doesNotMatch(html, /Alpha &amp; one → Beta ·/u);
 });
 
-test('diagram ordinals link to complete adjacent source relations and qualifiers', async () => {
+test('diagram labels retain the selected relation meaning directly', async () => {
   const { renderInteractiveEditionHtml } =
     await import('../packages/publisher/renderers/cytoscape/index.mjs');
   const scene = interactiveEditionScene();
@@ -253,7 +261,7 @@ test('diagram ordinals link to complete adjacent source relations and qualifiers
     relation.label,
     'Source relation qualifiers (unverified): state: desired client bindings · configures',
   );
-  assert.equal(relation.graphLabel, '01');
+  assert.equal(relation.graphLabel, relation.label);
 
   const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
   assert.match(html, /label: 'data\(graphLabel\)'/u);
@@ -263,23 +271,23 @@ test('diagram ordinals link to complete adjacent source relations and qualifiers
   );
 });
 
-test('a short authored relation stays separate from its diagram ordinal', () => {
+test('a short authored relation is readable in the diagram', () => {
   const scene = interactiveEditionScene();
   scene.pages[0].relations[0].label = 'calls';
   scene.pages[0].relations[0].kind = 'dependency';
   const { publicPage } = projectInteractivePage(scene.pages[0], 0);
-  assert.equal(publicPage.relations[0].graphLabel, '01');
+  assert.equal(publicPage.relations[0].graphLabel, 'calls · dependency');
   assert.equal(publicPage.relations[0].label, 'calls · dependency');
 });
 
-test('a long untyped relation stays in the readable list rather than crowding the graph', async () => {
+test('a long relation retains its full meaning in the graph and inspection', async () => {
   const { renderInteractiveEditionHtml } =
     await import('../packages/publisher/renderers/cytoscape/index.mjs');
   const scene = interactiveEditionScene();
   scene.pages[0].relations[0].label = 'synchronizes all selected native client registrations';
   scene.pages[0].relations[0].kind = null;
   const { publicPage } = projectInteractivePage(scene.pages[0], 0);
-  assert.equal(publicPage.relations[0].graphLabel, '01');
+  assert.equal(publicPage.relations[0].graphLabel, scene.pages[0].relations[0].label);
   assert.equal(publicPage.relations[0].label, scene.pages[0].relations[0].label);
   const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
   assert.match(

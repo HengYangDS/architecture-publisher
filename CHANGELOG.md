@@ -21,6 +21,16 @@ may contain incompatible changes.
 
 ### Changed
 
+- Current Edition guidance starts with the selected-input Project and a concrete
+  field-to-reader-choice map, separating retained historical v1 input from new
+  authoring. Package guidance explains inputs, the build command, output records,
+  and the limits of question coverage; export research is not advertised as
+  implemented PDF or PowerPoint support.
+- Neutral interactive graph pages carry measured, wrapped relation wording
+  directly on their routes. Compact source Claims retain visible applicability;
+  full records move to Inspect without duplicating primary graphic identities.
+  The existing font measurer is reused and its selected supply is recorded.
+
 - Interactive responsibility pages now present roles, selected source nodes
   and relations, editorial handoffs, and linked Claims in one bounded visual
   map. A selected predicate keeps its spelling; an unlabeled source relation

@@ -69,7 +69,7 @@ separately authored files:
 1. **Selected source evidence** — exact native files or a Source Bundle with
    provenance, source identity, and revision.
 2. **Semantic interpretation** — a checked native-format index, an attributed
-   projection, or the historical Claim Model v2, bound to selected bytes with
+   projection, or an explicit Claim Model v2, bound to selected bytes with
    supported meaning and loss explicit. Native sources do not require a tracked
    duplicate Claim Model.
 3. **Edition** — audience, reader questions, required claims, explicit
@@ -138,10 +138,10 @@ medium-specific composition. Neither medium is made from the other.
 ```mermaid
 %%{init: {"theme": "neutral", "themeVariables": {"fontSize": "16px"}, "flowchart": {"nodeSpacing": 28, "rankSpacing": 40}}}%%
 flowchart LR
-    source["Source facts"] --> request["Build Request"]
-    editor["Editor plan"] --> request
+    source["Selected source files"] --> request["Build Request"]
+    editor["Edition Project"] --> request
     request --> lock["Checked input lock"]
-    lock --> compose["Validate + compose"]
+    lock --> compose["Select meaning + compose"]
     compose --> static["SVG + PNG"]
     compose --> interactive["Standalone HTML"]
     static --> candidate["Candidate"]
@@ -166,6 +166,9 @@ flowchart LR
 ```
 
 These diagrams show value and decision dependencies, not CLI invocation order.
+Only requested media are emitted; neither branch creates the other. Direct
+reading and optionally selected Provider materialization both precede the input
+lock. The detailed contracts above, not diagram proximity, define ownership.
 The raw paired-file route has narrower integrity-only obligations. Adapters
 cannot grant source authority; Editions cannot change claims; scenes cannot
 change meaning; renderers cannot add product claims; qualification cannot

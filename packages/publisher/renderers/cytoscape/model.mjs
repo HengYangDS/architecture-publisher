@@ -270,7 +270,7 @@ export function projectInteractivePage(page, index) {
       source,
       target,
       label: qualifiers,
-      graphLabel: String(position + 1).padStart(2, '0'),
+      graphLabel: qualifiers,
       direction: relation.direction,
       ...(sourceQualifiers === undefined
         ? {}

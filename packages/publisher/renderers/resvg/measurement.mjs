@@ -16,7 +16,7 @@ function parsedFont(bytes) {
 
 /** Measure the actual selected font glyphs, not a supplied character-count box. */
 export async function createBundledTextMeasurer(supply) {
-  await verifyRasterSupply();
+  const verifiedSupply = await verifyRasterSupply();
   if (!Array.isArray(supply?.fonts)) fail('authored_canvas_font_measurement_invalid');
   const fonts = new Map(
     supply.fonts
@@ -25,6 +25,7 @@ export async function createBundledTextMeasurer(supply) {
   );
   if (fonts.size !== weights.size) fail('authored_canvas_font_measurement_invalid');
   return {
+    supply: { id: 'font-measurement', sha256: verifiedSupply.sha256 },
     box({ text, fontSize, weight, anchor, x, baseline }) {
       const font = fonts.get(weight);
       if (

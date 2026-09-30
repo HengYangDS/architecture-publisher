@@ -547,6 +547,25 @@ The interactive `Inspect` state makes selected meaning and source identity
 readable without covering part of the diagram. It does not embed source files or
 invent a code link. Use the Candidate manifest and input lock for exact audit.
 
+Neutral graph pages put exact selected relation wording on the diagram, with
+font-measured wrapping and layout space; an ordinal is not a substitute for a
+relation's meaning. Linked source Claims keep their plane, predicate, subject,
+object, condition, scope, maturity, and declared validity in the reading view.
+Full source records and method limits remain available in Inspect. Moving a
+record there does not remove a selected meaning or qualify its truth.
+
+This compositor reuses the existing bundled OpenType measurer, currently owned
+by `renderers/resvg/measurement.mjs`; it does not run the raster worker to build
+HTML. The selected measurement implementation is recorded separately from font
+bytes. Dagre receives that explicit measurer and owns geometry; Cytoscape owns
+browser interaction and painting. Neither the offset calculation nor a passing
+DOM check proves that every painted label clears every route.
+
+The current output contracts cover SVG/PNG and standalone HTML. PDF reports and
+PowerPoint stories remain [evaluated design options](../research/mechanism-evaluation.md#architecture-explanation-across-media-2026-09-30),
+not implemented export commands. Exporting one diagram as a picture slide would
+not establish an editable deck or a complete multi-page explanation.
+
 A screenshot of HTML is not the static compiler. An HTML wrapper around a poster
 is not the interactive compiler.
 

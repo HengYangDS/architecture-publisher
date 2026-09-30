@@ -54,7 +54,32 @@ function checkedPage(page) {
   if (members.size !== nodes.size) fail('render_interactive_group_invalid');
 }
 
-function composeOrientation(page, runtime, rankdir) {
+function relationText(value, measure) {
+  if (!value?.trim()) return null;
+  if (typeof measure?.box !== 'function') fail('render_interactive_text_measurement_required');
+  const lines = [];
+  let current = '';
+  const width = (text) =>
+    measure.box({ text, fontSize: 13, weight: '400', anchor: 'start', x: 0, baseline: 0 }).width;
+  for (const word of value.trim().split(/\s+/u)) {
+    if (width(word) > 220) fail('render_interactive_relation_text_infeasible');
+    const next = current ? `${current} ${word}` : word;
+    if (width(next) <= 220) current = next;
+    else {
+      lines.push(current);
+      current = word;
+    }
+  }
+  if (current) lines.push(current);
+  if (lines.length > 6) fail('render_interactive_relation_text_infeasible');
+  return {
+    lines,
+    width: Math.ceil(Math.max(...lines.map(width))) + 12,
+    height: lines.length * 18 + 8,
+  };
+}
+
+function composeOrientation(page, runtime, rankdir, measure) {
   const { context, dagre, layoutScript } = runtime;
   const grouped = page.groups !== undefined;
   const graph = new dagre.graphlib.Graph({ multigraph: true, compound: grouped });
@@ -71,8 +96,18 @@ function composeOrientation(page, runtime, rankdir) {
   for (const node of page.nodes) graph.setNode(node.id, { ...nodeSize });
   if (grouped)
     for (const group of page.groups) for (const id of group.nodeIds) graph.setParent(id, group.id);
-  for (const relation of page.relations)
-    graph.setEdge(relation.source, relation.target, {}, relation.id);
+  const relationLabels = new Map(
+    page.relations.map((relation) => [relation.id, relationText(relation.graphLabel, measure)]),
+  );
+  for (const relation of page.relations) {
+    const label = relationLabels.get(relation.id);
+    graph.setEdge(
+      relation.source,
+      relation.target,
+      label ? { width: label.width, height: label.height, labelpos: 'c' } : {},
+      relation.id,
+    );
+  }
   try {
     context.graph = graph;
     layoutScript.runInContext(context, { timeout: 5000 });
@@ -131,7 +166,31 @@ function composeOrientation(page, runtime, rankdir) {
           fail('render_interactive_layout_infeasible');
       }
     }
-  return { bounds: { width, height }, positions, ...(groups ? { groups } : {}) };
+  const labels = Object.fromEntries(
+    page.relations.flatMap((relation) => {
+      const label = relationLabels.get(relation.id);
+      if (!label) return [];
+      const edge = graph.edge({ v: relation.source, w: relation.target, name: relation.id });
+      return [
+        [
+          relation.id,
+          {
+            ...label,
+            x: edge.x,
+            y: edge.y,
+            offsetX: rankdir === 'TB' ? label.width / 2 + 8 : 0,
+            offsetY: rankdir === 'LR' ? -label.height / 2 - 8 : 0,
+          },
+        ],
+      ];
+    }),
+  );
+  return {
+    bounds: { width, height },
+    positions,
+    ...(groups ? { groups } : {}),
+    relationLabels: labels,
+  };
 }
 
 async function selectedRuntime() {
@@ -253,14 +312,20 @@ export async function layoutStaticGraph(input, { alignment = 'balanced' } = {}) 
 }
 
 /** Compute disposable geometry from selected public page data and pinned bytes. */
-export async function layoutInteractivePages(pages) {
+export async function layoutInteractivePages(pages, measure = null) {
   if (!Array.isArray(pages) || !pages.length) fail('render_interactive_layout_invalid');
   for (const page of pages) checkedPage(page);
   const runtime = await selectedRuntime();
   return {
-    layouts: pages.map((page) =>
-      page.nodes.length ? composeOrientation(page, runtime, 'LR') : null,
-    ),
+    layouts: pages.map((page) => {
+      if (!page.nodes.length) return null;
+      const horizontal = composeOrientation(page, runtime, 'LR', measure);
+      const fit = ({ bounds }) =>
+        Math.min(1, 1120 / (bounds.width + 48), 596 / (bounds.height + 48));
+      if (fit(horizontal) >= 0.9) return horizontal;
+      const vertical = composeOrientation(page, runtime, 'TB', measure);
+      return fit(vertical) > fit(horizontal) ? vertical : horizontal;
+    }),
     supplySha256: runtime.supply.manifestSha256,
     license: runtime.supply.license,
   };

@@ -1824,6 +1824,48 @@ painted glyph clears every stroked path.
   can inspect raster differences without a new service, but remains a
   baseline comparator rather than an aesthetic or meaning verifier.
 
+A 2026-09-30 primary-source refresh used public GitHub release metadata and
+tagged source after the configured Exa search returned HTTP 429. No credential,
+proxy, or account configuration was changed. The latest non-prerelease records
+observed were [Pixelmatch 7.2.0](https://github.com/mapbox/pixelmatch/releases/tag/v7.2.0)
+(2026-04-29) and [ODiff 4.5.0](https://github.com/dmtrKovalenko/odiff/releases/tag/v4.5.0)
+(2026-07-23). Pixelmatch's [tagged implementation](https://github.com/mapbox/pixelmatch/blob/v7.2.0/index.js)
+uses YIQ-based color difference; its moving `main` README describes newer OKLab
+and windowed-difference options that this stable tag does not implement.
+Those options cannot be credited to the stable supplier. ODiff's throughput
+and coverage statements remain upstream claims until a local comparison.
+
+The [Playwright reference](https://playwright.dev/docs/test-snapshots) confirms
+that its Test runner waits for matching consecutive captures and uses
+Pixelmatch; it also names OS, browser, hardware, power state, and headless mode
+as variation sources. Reusing a comparator in the existing harness is a smaller
+candidate than replacing the test runner. [Chromatic's Playwright integration](https://www.chromatic.com/docs/playwright/)
+is another hosted capture/review option, not an offline qualification engine;
+its artifact upload, review state, credentials, and cost need explicit admission.
+
+| Question                                        | Existing owner or smallest candidate                                       | Cannot establish                                  |
+| ----------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
+| Did selected meaning survive?                   | Compiler carrier join and source/editor review                             | Pixel similarity cannot prove meaning             |
+| Are text and marks touching?                    | Vector geometry plus real painted-layer masks                              | Whole-page similarity does not localize ownership |
+| Did an approved render regress?                 | Pinned Chrome capture plus Pixelmatch; compare ODiff only if speed matters | An unchanged bad baseline is still bad            |
+| Does it work offline and with keyboard access?  | Existing Playwright and Axe tests                                          | A screenshot cannot establish interaction         |
+| Is the composition intelligible and restrained? | Exact-media review, supported by spacing and balance diagnostics           | No perceptual vendor score grants acceptance      |
+
+A [stable-comparator control](evidence/pixel-comparator-probe.json) used the
+previously reviewed 6000×3375 Publisher PNG SHA-256
+`debb45799fae57fda50ca874f7d54d2189fa317e5346ae872544d1114281bf5a`,
+resized to 1600×900 only for this comparator probe. The exact tagged
+Pixelmatch module SHA-256 is
+`52c6026c4916a07548d4ce55090ec4ed918d353e15095406dabc3a8a5135d788`.
+At threshold 0.1 with anti-alias differences included, an identical render had
+zero differing pixels; a one-pixel title line had 842, a three-pixel title line
+3,240, and an erased title region 8,725. Comparison took 2.80–4.73ms in single
+local observations, not a comparative benchmark. A global 0.1% image-difference
+allowance would miss the one-pixel line: 842/1,440,000 is only 0.0585%.
+Local-region and owned-mark checks therefore remain necessary. This experiment
+adds no product dependency or qualification rule and proves neither 6000px
+paint clearance nor a useful verdict on other sources.
+
 The next discriminating trial must use an approved exact artifact and a
 known bad edit from self, AIGW, ETHOS, and an independent source. Freeze the
 source/Edition, renderer, fonts, browser, desktop viewport, device scale,
@@ -2246,3 +2288,31 @@ by shrinking one graph or hiding records. Their selected meaning needs
 question-specific, source-bound visual forms and complete-page review. No
 offline installed replay or exact-byte AIGW acceptance was performed for this
 Candidate; Tasks 5.2, 5.4, and 7.5 remain open.
+
+### Direct relation reading follow-up (2026-09-30)
+
+The same copied Model, Edition, and request above rebuilt from the current
+Work Lane into Candidate manifest SHA-256
+`a2d7e26cef9088b66b984812746d4262dd213fd13897e927ad25caef37082395`.
+The HTML SHA-256 is
+`23a68c5f7ecc0cc9897378399adc14e2054cab1ea1a38f711635a250606fc5c5`.
+The [Selection page](evidence/aigw-selection-direct-labels.png), captured at
+1600×1000 (full-document height 1081, PNG SHA-256
+`48f435270122515ae2423b801dfb3de4ac04cdf2eb70a01cc03df767bf43e9b1`),
+now puts relation wording on the graph and keeps four source Claims visible
+below it; full records are in closed Inspect. The five graph chapters have
+document heights 1081, 1156, 1279, 1017, and 1083. Six-page replay found no page
+error, external request, horizontal overflow, or duplicate primary graphic ID.
+The earlier observed Axe pass applies to byte-identical HTML, not to unrelated
+Candidates. The endpoint, branch, cycle, parallel-relation, and installed neutral
+renderer regressions remain distinct from this copied-input browser observation.
+
+Current-source full `npm run check` passed 1,380/1,383 tests with three declared
+skips and 97.72/95.05/99.56/97.72% statement/branch/function/line coverage.
+The repaired browser assertion reads CSS pixel values with `parseFloat`; using
+`Number` on `-21px` produced NaN and a false geometry failure. Its numeric
+clearance assertion is not a painted-route collision proof. Compact Claim
+composition preserves selected Subject/Object wording and applicability, but
+the whole-work visual form and nearby qualification cues still require review.
+No flagship approval, AIGW source acceptance, successor release, or final
+installed multi-workload freeze follows; Tasks 5.2, 5.4, and 7.5 stay open.

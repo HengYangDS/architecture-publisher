@@ -117,7 +117,7 @@ try {
   assert(first.bytes > 400_000);
   assert.deepEqual(
     first.supplies.map(({ id }) => id),
-    ['cytoscape', 'dagre-layout', 'font-supply'],
+    ['cytoscape', 'dagre-layout', 'font-measurement', 'font-supply'],
   );
   assert.deepEqual(first.pages, ['overview', 'limit']);
   const relocated = path.join(work, 'relocated');
