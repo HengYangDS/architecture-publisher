@@ -242,6 +242,25 @@ async function evolutionSide(selected) {
   return { lock: input.lock, meaning: await compileEditionMeaning(input) };
 }
 
+async function disagreementFixture(t) {
+  const model = claimModel();
+  model.claims.implemented.validity = 'refuted';
+  const selected = await fixture(t, { model });
+  selected.project.questions[0].text = 'How do intended and implemented calls differ?';
+  selected.project.scope.selections.push({
+    id: 'implemented-claim',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'claim:implemented',
+    questions: ['condition'],
+  });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  return selected;
+}
+
 test('native Claim Model selection retains a typed claim rather than a bare arrow', async (t) => {
   const selected = await fixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
@@ -1325,21 +1344,7 @@ test('claim condition and plane changes alter both visible media without changin
 });
 
 test('intended and implemented disagreement remains two attributed visible claims', async (t) => {
-  const model = claimModel();
-  model.claims.implemented.validity = 'refuted';
-  const selected = await fixture(t, { model });
-  selected.project.questions[0].text = 'How do intended and implemented calls differ?';
-  selected.project.scope.selections.push({
-    id: 'implemented-claim',
-    namespace: modelNamespace,
-    kind: 'reference',
-    reference: 'claim:implemented',
-    questions: ['condition'],
-  });
-  await fs.writeFile(
-    path.join(selected.root, 'edition/project.json'),
-    JSON.stringify(selected.project) + '\n',
-  );
+  const selected = await disagreementFixture(t);
 
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
@@ -3200,16 +3205,39 @@ test(
     await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
     const html = await fs.readFile(path.join(output, 'interactive/architecture.html'));
     const svg = await fs.readFile(path.join(output, 'static/architecture.svg'));
+    const disagreement = await disagreementFixture(t);
+    const disagreementOutput = path.join(disagreement.root, 'candidate');
+    await compileEditionCandidateInput(
+      disagreement.requestPath,
+      disagreement.requestSha256,
+      disagreementOutput,
+    );
+    const assets = new Map([
+      ['/architecture.html', { type: 'text/html; charset=utf-8', bytes: html }],
+      ['/architecture.svg', { type: 'image/svg+xml; charset=utf-8', bytes: svg }],
+      [
+        '/disagreement.html',
+        {
+          type: 'text/html; charset=utf-8',
+          bytes: await fs.readFile(path.join(disagreementOutput, 'interactive/architecture.html')),
+        },
+      ],
+      [
+        '/disagreement.svg',
+        {
+          type: 'image/svg+xml; charset=utf-8',
+          bytes: await fs.readFile(path.join(disagreementOutput, 'static/architecture.svg')),
+        },
+      ],
+    ]);
     const server = http.createServer((request, response) => {
-      const isSvg = request.url === '/architecture.svg';
-      if (!isSvg && request.url !== '/architecture.html') {
+      const asset = assets.get(request.url);
+      if (!asset) {
         response.writeHead(404).end();
         return;
       }
-      response.writeHead(200, {
-        'Content-Type': isSvg ? 'image/svg+xml; charset=utf-8' : 'text/html; charset=utf-8',
-      });
-      response.end(isSvg ? svg : html);
+      response.writeHead(200, { 'Content-Type': asset.type });
+      response.end(asset.bytes);
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
     t.after(() => new Promise((resolve) => server.close(resolve)));
@@ -3250,32 +3278,84 @@ test(
     assert.deepEqual(await violations(), []);
     await page.goto(`${origin}/architecture.svg`, { waitUntil: 'load' });
     assert.equal((await page.locator('[data-graphic-id="c-0"] text').count()) > 0, true);
-    const collisions = await page.evaluate(() => {
-      const canvas = globalThis.document.querySelector('svg').getBoundingClientRect();
-      const text = [...globalThis.document.querySelectorAll('svg text')].map((element) => ({
-        value: element.textContent,
-        box: element.getBoundingClientRect(),
-      }));
-      const gaps = [];
-      for (const [index, left] of text.entries()) {
-        if (
-          left.box.left < canvas.left - 1 ||
-          left.box.right > canvas.right + 1 ||
-          left.box.top < canvas.top - 1 ||
-          left.box.bottom > canvas.bottom + 1
-        )
-          gaps.push(`outside:${left.value}`);
-        for (const right of text.slice(index + 1)) {
-          const width =
-            Math.min(left.box.right, right.box.right) - Math.max(left.box.left, right.box.left);
-          const height =
-            Math.min(left.box.bottom, right.box.bottom) - Math.max(left.box.top, right.box.top);
-          if (width > 1 && height > 1) gaps.push(`overlap:${left.value}:${right.value}`);
+    const collisions = () =>
+      page.evaluate(() => {
+        const canvas = globalThis.document.querySelector('svg').getBoundingClientRect();
+        const text = [...globalThis.document.querySelectorAll('svg text')].map((element) => ({
+          value: element.textContent,
+          box: element.getBoundingClientRect(),
+        }));
+        const gaps = [];
+        for (const [index, left] of text.entries()) {
+          if (
+            left.box.left < canvas.left - 1 ||
+            left.box.right > canvas.right + 1 ||
+            left.box.top < canvas.top - 1 ||
+            left.box.bottom > canvas.bottom + 1
+          )
+            gaps.push(`outside:${left.value}`);
+          for (const right of text.slice(index + 1)) {
+            const width =
+              Math.min(left.box.right, right.box.right) - Math.max(left.box.left, right.box.left);
+            const height =
+              Math.min(left.box.bottom, right.box.bottom) - Math.max(left.box.top, right.box.top);
+            if (width > 1 && height > 1) gaps.push(`overlap:${left.value}:${right.value}`);
+          }
         }
-      }
-      return gaps;
-    });
-    assert.deepEqual(collisions, []);
+        return gaps;
+      });
+    assert.deepEqual(await collisions(), []);
+    await page.goto(`${origin}/disagreement.html`, { waitUntil: 'load' });
+    await page.evaluate(() => globalThis.document.fonts.ready);
+    const cards = page.locator('.claim-stage .claim-card');
+    assert.equal(await cards.count(), 2);
+    const readings = await cards.evaluateAll((nodes) =>
+      nodes.map((node) =>
+        Object.fromEntries(
+          [...node.querySelectorAll('dt')].map((term) => [
+            term.textContent.trim(),
+            term.nextElementSibling?.textContent.trim(),
+          ]),
+        ),
+      ),
+    );
+    assert.deepEqual(
+      readings
+        .map((record) => ({
+          plane: record['Claim plane'],
+          validity: record['Claimant-declared validity'],
+        }))
+        .sort((left, right) => left.plane.localeCompare(right.plane)),
+      [
+        { plane: 'implemented', validity: 'refuted' },
+        { plane: 'intended', validity: 'affirmed' },
+      ],
+    );
+    const boxes = await cards.evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const { top, bottom } = node.getBoundingClientRect();
+        return { top, bottom };
+      }),
+    );
+    assert(boxes[1].top >= boxes[0].bottom - 1, JSON.stringify(boxes));
+    assert.equal(
+      await page.evaluate(
+        () => globalThis.document.documentElement.scrollWidth <= globalThis.window.innerWidth,
+      ),
+      true,
+    );
+    await page.addScriptTag({ content: axe.source });
+    assert.deepEqual(await violations(), []);
+    await page.goto(`${origin}/disagreement.svg`, { waitUntil: 'load' });
+    const painted = (await page.locator('svg text').allTextContents()).join(' ');
+    for (const phrase of [
+      'Claim plane: intended',
+      'Claim plane: implemented',
+      'Claimant-declared validity: affirmed',
+      'Claimant-declared validity: refuted',
+    ])
+      assert(painted.includes(phrase), phrase);
+    assert.deepEqual(await collisions(), []);
     assert.deepEqual(errors, []);
   },
 );

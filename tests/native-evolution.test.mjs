@@ -508,13 +508,33 @@ test('relocated relation locators retain uncertainty but expose changed qualifie
   );
 });
 
-test('relation locator drift alone is not reported as a proven view membership change', async (t) => {
+test('relation locator drift remains unproved and renews review and acceptance', async (t) => {
   const before = await selectedNativeEdition(t);
   const after = await selectedNativeEdition(t);
   await replaceSource(after, 'model', Buffer.from('\n' + after.model.toString()));
-  const delta = await nativeDelta(before, after);
+  const prior = await snapshot(before);
+  const next = await snapshot(after);
+  const delta = compileNativeSelectionDelta(
+    { lock: prior.lock, native: prior.meaning.native },
+    { lock: next.lock, native: next.meaning.native },
+  );
   assert.deepEqual(delta.supported, []);
   assert(delta.unknown.some(({ reason }) => reason === 'relation-lineage-unproved'));
+  const impact = compileNativeEditionEvolution({ before: prior, after: next });
+  assert.equal(impact.editions.affected[0].scope, 'complete');
+  assert.deepEqual(impact.obligations.semanticVerification[0].questions, ['shape']);
+  assert.deepEqual(
+    impact.obligations.humanReview.map(({ medium }) => medium),
+    ['static', 'interactive'],
+  );
+  assert.deepEqual(
+    impact.obligations.acceptance.map(({ action }) => action),
+    ['reaccept'],
+  );
+  assert.deepEqual(
+    impact.obligations.publication.map(({ action }) => action),
+    ['replace'],
+  );
 });
 
 test('native Edition evolution separates rebuild, verification, review, acceptance, and publication', async (t) => {

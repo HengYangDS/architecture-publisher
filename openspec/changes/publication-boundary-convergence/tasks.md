@@ -330,45 +330,27 @@ third-party or generated supply rather than moving owned code outside coverage.
       coverage with 5.1–5.4; current Linux/Windows acceptance with 7.5–7.6.
       Upstream-computed membership is explicitly unqualified; complete LikeC4
       include semantics are not claimed, and free-form Edition queries fail.
-- [ ] 4.2 In `tests/native-identity.test.mjs` and
-      `tests/native-semantics.test.mjs`, cover same-label distinct namespaces,
-      relocation/generated-ID drift, duplicate relations, explicit lineage,
-      opaque constructs, self-contradictions, and visibly distinct target/current
-      disagreement. No transitive, universal, causal, or authority inference from
-      weaker relations or graphic appearance. Partial: a LikeC4-specific,
-      source-bound reference resolver distinguishes `element`, `relation`, and
-      authored structural `view` references; equal labels remain distinct, selected
-      relations use one-based source locations rather than volatile parser IDs,
-      retain typed fields and only their endpoints, and computed view membership
-      retains its qualification limit. Missing visible endpoints and
-      unknown/generated/dynamic/query references fail closed. Focused RED/GREEN,
-      parser-run drift, duplicate-relation, and endpoint-counterexample tests
-      passed 7/7. Static, strict OpenSpec, and package checks pass. Full
-      behavior passes 818 tests, skips 2; branch coverage remains 92.88%
-      against the 95% gate. Lineage, contradictions, and target/current
-      presentation remain open.
-      The compiler now consumes the locked Edition bytes and selected LikeC4
-      sources through the admitted parser, resolves every declared source-bound
-      reference, and derives native semantic identity from normalized selections,
-      not parser-run relation IDs or the whole Edition/toolchain lock. Narrative,
-      visual-policy, and toolchain-only changes retain that native digest while
-      changing the input lock.
-      It rejects even unreferenced unsupported input formats rather than
-      silently dropping part of the selected scope. It reports parser supply
-      and incomplete closure separately. Five focused tests pass; the new
-      compiler module has 96.29% branch coverage, while the full 825-pass,
-      two-skip run remains below the global branch gate at 92.90%. Static and
-      package checks pass. This is not yet the CLI Candidate path:
-      source-backed assertion coverage, media, and qualification remain open.
-      Additional native-boundary counterexamples reject malformed parser replies,
-      supplies, selections, and source-qualified references. Relation locator
-      bounds are checked before converting one-based positions, preventing an
-      overflowed decimal from rounding into an apparently safe zero-based index.
-      Two public-build counterexamples now retain intended-versus-implemented
-      disagreement and equal native claim IDs from distinct source claimants
-      as separate, attributed claims in both emitted media. This establishes
-      structural and rendered-text preservation, not source truth, human
-      adequacy, explicit lineage, or full conflict presentation.
+- [ ] 4.2 Prove native identity and disagreement without inferred meaning in
+      `tests/native-identity.test.mjs`, `tests/native-evolution.test.mjs`,
+      `tests/semantic-compilation.test.mjs`, and
+      `tests/claim-model-selection.test.mjs`. Current tests distinguish equal
+      labels by namespace, generated relation IDs from source locators, and
+      duplicate endpoint relations; opaque or unsupported references fail or
+      retain explicit limits. Claim Model contradictions fail within one
+      applicable source assertion set, while different source claimants and
+      intended/implemented planes remain separately attributed. Public HTML
+      checks confirm two readable, non-overlapping disagreement cards; SVG
+      checks confirm both plane/validity texts without text collisions at the
+      selected desktop viewport. A moved LikeC4 relation locator remains
+      `relation-lineage-unproved` and renews semantic verification, both media
+      reviews, acceptance, and publication rather than inheriting approval.
+      Bare relations or graphic carriers cannot prove transitive, universal,
+      causal, or authority claims.
+      Still open: no admitted positive source/editor lineage witness for the
+      successor comparison, so it cannot claim precise moved-relation
+      correspondence; full reader-quality and PNG visibility belong to 5.4.
+      Do not add a public lineage protocol without a source-backed adopter need
+      and exact evidence contract.
 - [x] 4.3 Extend `packages/publisher/src/semantics/change.mjs` and
       `packages/publisher/src/edition/evolution.mjs`;
       `tests/native-evolution.test.mjs` and
