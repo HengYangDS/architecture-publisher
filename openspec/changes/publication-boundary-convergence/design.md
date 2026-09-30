@@ -1019,6 +1019,19 @@ Test bounded line wrapping, alternative orientation, and the same emitted-
 geometry audit on the exact selected cases. If Cytoscape cannot paint the
 audited routes and labels faithfully, replace its graph adapter with an
 independently composed, measured SVG; do not retain two live diagram engines.
+The browser comparison has now met that replacement condition. A 1600 by 1000
+Chrome reading of the selected AIGW Client Projection input, with exact source
+captions and measured Dagre edge boxes, painted `r-6`
+(`supplies-credentials`) over `r-8` (`dispatches`) at zoom 1. The collision
+is in Cytoscape's emitted positions, not in Dagre's reserved label boxes:
+the latter have no label-label or label-node overlap on the same selected
+Client and Product pages. A disposable SVG projection of those exact Dagre
+points and boxes removed that local collision, but Product Boundary then
+measured about 413 by 813 and left most of a desktop page unused. SVG is the
+selected graph projection, not a whole-page acceptance claim. The successor
+shall replace Cytoscape rather than ship both adapters, audit the emitted
+SVG, and reject or editorially regroup a chapter whose complete figure
+cannot meet page balance and reading size together.
 If neither complete composition is feasible at the declared desktop reading
 size, return a named editorial regrouping/caption need rather than printing
 an ordinal-key transcript. Static and interactive remain sibling media with

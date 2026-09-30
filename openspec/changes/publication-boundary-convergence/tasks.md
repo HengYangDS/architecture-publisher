@@ -748,6 +748,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       before the replacement design. Next: reserve measured relation/Claim
       cues in the graph, verify emitted geometry, and compose intrinsic-height
       chapters. Do not transfer static approval to interactive media.
+      A fresh Chrome comparison on the selected AIGW Client input found one
+      painted predicate collision (`r-6`/`r-8`) at 1600 by 1000 and zoom 1,
+      although measured Dagre label boxes were mutually clear. A disposable
+      SVG route projection removed that local collision, while Product
+      Boundary remained an unbalanced 413 by 813 vertical figure. The ignored
+      screenshots are under `build/test-work/diagram-first-iteration/`;
+      `client-overview.png` and `svg-client.png` have SHA-256 values
+      `35750f835591b2e32f93ad8bac04c8799648f6f58cbce639022f85495c7d1396`
+      and `77d244db64b559decc4f3e26271343eb79ad597d823a8e8b3be09cb5a20595f4`.
+      Ruling: replace Cytoscape as the interactive graph projection, keep
+      Dagre as the one selected coordinate owner, and make page-balance failure
+      explicit rather than filling whitespace with default prose. In-progress
+      source changes reserve measured captions and prototype audited native
+      SVG, but are not yet wired into the public compiler, qualified, or
+      accepted as complete media. Tasks 5.2 and 5.4 remain open.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
