@@ -691,6 +691,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       floors (branch 95.01%). Whole-page hierarchy and redundant reading/
       relation inventories still fail reader acceptance; neither these builds
       nor output plurality closes 5.2.
+      A controlled AIGW Client source edit synchronized one relation qualifier
+      and its linked Claim scope. Direct-locator and declarative-Provider public
+      builds yielded equal selected locks and media before and after the edit.
+      Direct needed no Build Request edit; exact Provider needed member size,
+      member digest, and selected manifest digest refresh, and stale input was
+      rejected. An editorial-only change touched only the Edition under both
+      routes. This measures authoring churn, not AIGW route approval, visual
+      quality, or independent cross-owner custody.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

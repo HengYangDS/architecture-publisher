@@ -200,7 +200,7 @@ Direct selection is the default for co-located source and editor input;
 Provider delivery is justified by a real cross-owner handoff or executable
 preparation need, not by repository identity.
 
-### Authoring and replay decision gate (2026-09-30; review pending)
+### Authoring and replay decision gate (2026-09-30; AIGW route pending)
 
 Provider v2 is a valid exact exchange format, but its selected member size and
 digest, separate `delivery.files` path, and Build Request manifest digest make
@@ -211,14 +211,28 @@ external editor of that Client Provider. This is not evidence that AIGW has
 approved retiring it: its current Change still requires a declarative
 Provider. This section proposes a decision test, not a new accepted protocol.
 
-A read-only control transformed the Client request in memory into an existing
-v1 direct locator request and called both materializers on the same selected
-bytes. Both produced lock SHA-256
-`6f9a9d7a8d85267728b2db7f5fb13ded749f3293d67b66c94dc589dbc5631f17`.
-A selected model-byte edit needs zero direct-request edits but requires
-rechecking v2's member size and digest, then refreshing the request's Provider
-manifest digest. Equal locks
-prove selected-input equivalence only, not source endorsement or future custody.
+An exact public-build trial used AIGW `01776f2` input and Publisher `b5308f8`
+outside the AIGW worktree. The direct-locator and declarative-Provider routes
+produced the same selected lock (`cb82df82`) and byte-identical static and
+interactive media on the original source. A hypothetical change to the
+`synchronizer-registry` relation's qualifier also updated its linked Claim
+scope: one semantic decision needs two source-model fields to remain
+consistent. On those changed bytes, both routes again produced the same lock
+(`2c394067`) and media; the changed qualifier was visibly wrapped in the
+static figure and shown in the interactive work. Neither route reused the
+prior Candidate identity or acceptance.
+
+The direct request stayed byte-identical (`1cd43daa`) across the source edit.
+The exact v2 Provider required three additional transport-field updates:
+selected member size `15313` to `15347`, member digest `bd652d38` to
+`090ac56a`, and the Build Request's manifest digest `87f4e844` to
+`44e8cba4`. Without those updates the public build rejected the stale member
+with `edition_provider_v2_member_size_mismatch`. A separate editorial-summary
+edit changed only the Edition Project under either route; both descriptor
+files remained unchanged and both routes again emitted equal locks and media.
+This is a measured same-repository authoring cost, not evidence of source
+endorsement, authenticated Provider issuance, independent installed custody,
+or universal medium quality.
 
 | Candidate                           | Strongest use                                             | Cost or limit                                                                          |
 | ----------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------- |
@@ -226,14 +240,15 @@ prove selected-input equivalence only, not source endorsement or future custody.
 | Generated exact v2 Provider         | A source owner issues an immutable selected-byte handoff. | Useful only if an existing preparation or release flow absorbs generation and custody. |
 | Locator Provider v3 plus Request v2 | Independent editors reuse a source-issued declaration.    | Adds two public versions; it does not itself preserve bytes or confer endorsement.     |
 
-For the observed single-repository Client, prefer the existing direct route.
-Before changing AIGW, compare the three candidates on a selected-member edit,
-an editorial-only change, and an isolated cross-owner handoff. Measure author
-edits, commands, versioned interfaces, offline replay, and custody work. V3
-needs a named external consumer and demonstrated total-cost gain; do not hide
-v2 refresh in a second live generator. AIGW alone must revise its current
-Provider obligation if it selects direct delivery. Publisher shall not edit
-that source-owned decision.
+For the observed single-repository Client, direct selection has the lower
+measured update cost. The selected-member and editorial-only comparisons are
+complete; a genuine source-issued, isolated cross-owner consumer has not been
+identified. V3 needs that named consumer and demonstrated total-cost gain; do
+not hide v2 refresh in a second live generator. The current cross-product goal
+and AIGW Change still require a source-owned declarative Provider. These
+measurements do not silently supersede them: AIGW alone must review any route
+change under its own specification, acceptance, and custody policy. Publisher
+shall not edit that source-owned decision.
 
 Four identities stay separate: request bytes, Provider manifest bytes, selected
 input bytes, and source endorsement. A request or manifest digest pins only
