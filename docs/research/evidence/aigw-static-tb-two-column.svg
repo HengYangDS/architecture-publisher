@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1505" height="2044" viewBox="0 0 1505 2044" role="img" aria-labelledby="static-figure-title static-figure-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">
+<title id="static-figure-title">AIGW — Control, Effects and Delivery</title>
+<desc id="static-figure-description">AIGW controls provider and client configuration; native clients and selected external services own request traffic. Source-attributed architecture, not an implementation audit. Editorial framing by aigw-cli · source endorsement not evidenced here</desc>
+<rect width="1505" height="2044" fill="#f5f3ed"/>
+<defs><marker id="static-view-0-source-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse"><path d="M 0 0 L 10 4 L 0 8 Z" fill="#60786a"/></marker><marker id="static-view-1-source-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse"><path d="M 0 0 L 10 4 L 0 8 Z" fill="#60786a"/></marker></defs>
+<text x="54" y="85" fill="#21332a" font-size="32" font-weight="600">AIGW — Control, Effects and Delivery</text>
+<text x="54" y="144" fill="#53645a" font-size="15" font-weight="400">AIGW controls provider and client configuration; native clients and selected external services own request traffic. Source-attributed architecture, not</text>
+<text x="54" y="170" fill="#53645a" font-size="15" font-weight="400">an implementation audit.</text>
+<text x="54" y="200" fill="#66736b" font-size="12" font-weight="400">Editorial framing by aigw-cli · source endorsement not evidenced here</text>
+<line x1="54" y1="237" x2="1451" y2="237" stroke="#c4ccc2" stroke-width="1"/>
+<g data-static-view="control-effects" transform="translate(54 261)">
+<text x="0" y="19" fill="#21332a" font-size="18" font-weight="600">How do control and guarded projection reach the native</text>
+<text x="0" y="50" fill="#21332a" font-size="18" font-weight="600">client without owning its traffic?</text>
+<g transform="translate(-84.5 -99)">
+<g data-graphic-id="static-view-0-r-0">
+<path d="M 516 306 L 516 354 L 516 402" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-0-source-arrow)"/>
+<text x="564" y="335" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">invokes</text>
+</g>
+<path d="M 516 498 L 516 546 L 516 594" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-0-source-arrow)"/>
+<text x="598.5" y="527" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">commits through</text>
+<g data-graphic-id="static-view-0-r-2">
+<path d="M 388 492.67 L 228 546 L 228 594" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-0-source-arrow)"/>
+<text x="289" y="575" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">dispatches</text>
+</g>
+<g data-graphic-id="static-view-0-r-3">
+<path d="M 228 690 L 228 738 L 388 791.33" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-0-source-arrow)"/>
+<text x="276" y="719" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">applies</text>
+</g>
+<path d="M 516 690 L 516 738 L 516 786" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-0-source-arrow)"/>
+<text x="560" y="719" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">guards</text>
+<g data-graphic-id="static-view-0-r-5">
+<path d="M 516 882 L 516 930 L 516 978" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-0-source-arrow)"/>
+<text x="577" y="911" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">configures</text>
+</g>
+<path d="M 516 1074 L 516 1122 L 516 1170" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-0-source-arrow)"/>
+<text x="607" y="1103" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">sends requests to</text>
+<g data-graphic-id="static-view-0-n-0">
+<rect x="388" y="402" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="404" y="424" fill="#6a776d" font-size="10" font-weight="600">control-plane</text>
+<text x="404" y="457" fill="#21332a" font-size="16" font-weight="600">AIGW</text>
+</g>
+<g data-graphic-id="static-view-0-n-1">
+<rect x="388" y="210" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="404" y="232" fill="#6a776d" font-size="10" font-weight="600">actor</text>
+<text x="404" y="265" fill="#21332a" font-size="16" font-weight="600">Operator</text>
+</g>
+<g data-graphic-id="static-view-0-n-2">
+<rect x="388" y="594" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="404" y="616" fill="#6a776d" font-size="10" font-weight="600">guard</text>
+<text x="404" y="649" fill="#21332a" font-size="16" font-weight="600">Guarded transaction</text>
+</g>
+<g data-graphic-id="static-view-0-n-3">
+<rect x="100" y="594" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="116" y="616" fill="#6a776d" font-size="10" font-weight="600">boundary</text>
+<text x="116" y="649" fill="#21332a" font-size="16" font-weight="600">Admitted adapters</text>
+</g>
+<g data-graphic-id="static-view-0-n-4">
+<rect x="388" y="786" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="404" y="808" fill="#6a776d" font-size="10" font-weight="600">effect</text>
+<text x="404" y="841" fill="#21332a" font-size="16" font-weight="600">Native projection</text>
+</g>
+<g data-graphic-id="static-view-0-n-5">
+<rect x="388" y="978" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="404" y="1000" fill="#6a776d" font-size="10" font-weight="600">external</text>
+<text x="404" y="1033" fill="#21332a" font-size="16" font-weight="600">Native client</text>
+</g>
+<g data-graphic-id="static-view-0-n-6">
+<rect x="388" y="1170" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="404" y="1192" fill="#6a776d" font-size="10" font-weight="600">external</text>
+<text x="404" y="1225" fill="#21332a" font-size="16" font-weight="600">Selected endpoint</text>
+</g>
+</g>
+<text x="0" y="1206" fill="#66736b" font-size="11" font-weight="600">READING GROUPS</text>
+<text x="0" y="1233" fill="#27352e" font-size="14">Control intent: Operator · AIGW · Guarded transaction</text>
+<text x="0" y="1268" fill="#27352e" font-size="14">Client configuration: Admitted adapters · Native projection · Native</text>
+<text x="0" y="1294" fill="#27352e" font-size="14">client</text>
+<text x="0" y="1329" fill="#27352e" font-size="14">External traffic: Selected endpoint</text>
+<text x="0" y="1385" fill="#66736b" font-size="11" font-weight="600">SOURCE RELATIONS</text>
+<text x="0" y="1412" fill="#66736b" font-size="12" font-weight="400">Source relation qualifiers (unverified)</text>
+<g data-graphic-id="static-view-0-r-1">
+<text x="0" y="1441" fill="#27352e" font-size="14">AIGW → Guarded transaction · operation: commit-with-client-projection</text>
+</g>
+<g data-graphic-id="static-view-0-r-4">
+<text x="0" y="1480" fill="#27352e" font-size="14">Guarded transaction → Native projection · compensation: unchanged-</text>
+<text x="0" y="1506" fill="#27352e" font-size="14">postimage-only</text>
+</g>
+<g data-graphic-id="static-view-0-r-6">
+<text x="0" y="1545" fill="#27352e" font-size="14">Native client → Selected endpoint · owner: client-or-selected-transport</text>
+</g>
+<text x="0" y="1605" fill="#66736b" font-size="11" font-weight="600">DECLARED LIMITS</text>
+<g>
+<text x="0" y="1632" fill="#27352e" font-size="14">This static view shows source-reported structure; claim maturity,</text>
+<text x="0" y="1658" fill="#27352e" font-size="14">credentials, and verification remain in the interactive chapters. It</text>
+<text x="0" y="1684" fill="#27352e" font-size="14">does not prove a current deployment.</text>
+</g>
+</g>
+<g data-static-view="delivery" transform="translate(716 261)">
+<text x="0" y="19" fill="#21332a" font-size="18" font-weight="600">How do the signed object and release asset each reach Forge, and</text>
+<text x="0" y="50" fill="#21332a" font-size="18" font-weight="600">which release-asset path continues through installation and</text>
+<text x="0" y="81" fill="#21332a" font-size="18" font-weight="600">recovery?</text>
+<g transform="translate(-100 -68)">
+<g data-graphic-id="static-view-1-r-0">
+<path d="M 654 306 L 654 354 L 654 402" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-1-source-arrow)"/>
+<text x="749" y="335" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">projects object to</text>
+</g>
+<g data-graphic-id="static-view-1-r-1">
+<path d="M 366 306 L 366 354 L 526 407.33" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-1-source-arrow)"/>
+<text x="461" y="335" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">publishes asset to</text>
+</g>
+<g data-graphic-id="static-view-1-r-2">
+<path d="M 297 306 L 228 354 L 228 402" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-1-source-arrow)"/>
+<text x="293" y="383" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">installs as</text>
+</g>
+<g data-graphic-id="static-view-1-r-3">
+<path d="M 228 498 L 228 546 L 228 594" fill="none" stroke="#60786a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#static-view-1-source-arrow)"/>
+<text x="297.5" y="527" text-anchor="middle" fill="#526158" font-size="14" font-weight="600">recovers via</text>
+</g>
+<g data-graphic-id="static-view-1-n-0">
+<rect x="526" y="402" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="542" y="424" fill="#6a776d" font-size="10" font-weight="600">external</text>
+<text x="542" y="457" fill="#21332a" font-size="16" font-weight="600">Forge peer</text>
+</g>
+<g data-graphic-id="static-view-1-n-1">
+<rect x="526" y="210" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="542" y="232" fill="#6a776d" font-size="10" font-weight="600">artifact</text>
+<text x="542" y="265" fill="#21332a" font-size="16" font-weight="600">Signed local object</text>
+</g>
+<g data-graphic-id="static-view-1-n-2">
+<rect x="238" y="210" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="254" y="232" fill="#6a776d" font-size="10" font-weight="600">artifact</text>
+<text x="254" y="265" fill="#21332a" font-size="16" font-weight="600">Release asset</text>
+</g>
+<g data-graphic-id="static-view-1-n-3">
+<rect x="100" y="402" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="116" y="424" fill="#6a776d" font-size="10" font-weight="600">runtime</text>
+<text x="116" y="457" fill="#21332a" font-size="16" font-weight="600">Installed product</text>
+</g>
+<g data-graphic-id="static-view-1-n-4">
+<rect x="100" y="594" width="256" height="96" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>
+<text x="116" y="616" fill="#6a776d" font-size="10" font-weight="600">effect</text>
+<text x="116" y="649" fill="#21332a" font-size="16" font-weight="600">Rollback and recovery</text>
+</g>
+</g>
+<text x="0" y="661" fill="#66736b" font-size="11" font-weight="600">READING GROUPS</text>
+<text x="0" y="688" fill="#27352e" font-size="14">Distribution: Signed local object · Forge peer · Release asset</text>
+<text x="0" y="723" fill="#27352e" font-size="14">Installation and recovery: Installed product · Rollback and recovery</text>
+<text x="0" y="779" fill="#66736b" font-size="11" font-weight="600">DECLARED LIMITS</text>
+<g>
+<text x="0" y="806" fill="#27352e" font-size="14">This static view separates object, asset, installation, and recovery paths; claim</text>
+<text x="0" y="832" fill="#27352e" font-size="14">evidence and failure conditions remain in the interactive chapters.</text>
+</g>
+</g>
+<g transform="translate(716 1150)">
+<line x1="0" y1="0" x2="735" y2="0" stroke="#c4ccc2" stroke-width="1"/>
+<g transform="translate(0 20)"><text x="0" y="11" fill="#66736b" font-size="11" font-weight="600">SOURCE STATUS</text>
+<g>
+<text x="0" y="38" fill="#27352e" font-size="14">Source-reported topology; provenance unverified; typed claim status not selected.</text>
+</g></g>
+</g>
+</svg>

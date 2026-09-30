@@ -1066,6 +1066,19 @@ paint the selected form must fail before Candidate completion, not silently
 fall back to the structural graph. This adds no repository command, authored
 coordinates, duplicate group membership, or source-owner responsibility.
 
+A static responsibility form is a separate Edition view and visual work, not
+an export of the interactive role page. Its editor may choose a narrower
+one-frame reader question than the interactive Edition, but must change the
+selected assertions and declare omissions at that Edition owner; a layout
+engine may not perform that subtraction. Static Scene composition consumes
+the same checked source meaning and view-local role/handoff bases, then owns
+its own measured SVG geometry and carrier map. It must not import the
+interactive Scene, DOM, coordinates, or acceptance. Every static-selected
+source and editorial assertion, condition, and limit must remain visibly
+reachable; infeasible one-frame composition fails for editorial regrouping
+instead of drawing a generic graph or printing a prose substitute. PNG is a
+raster projection of this independent SVG, never a screenshot of HTML.
+
 The AIGW Product Boundary question is a candidate for a responsibility and
 handoff form rather than a single seven-node causal chain; Client Projection
 Overview remains a candidate for a directed relationship form. These are

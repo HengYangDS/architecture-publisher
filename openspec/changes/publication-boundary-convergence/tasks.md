@@ -816,6 +816,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       three selected inputs moved outside the checkout. The bounded identities
       and limits are in `conformance/evidence/responsibility-form-installed-probe.json`;
       this is local conformance, not AIGW acceptance or release qualification.
+      On the same AIGW static Edition, rotating the pinned Dagre graph to TB
+      reduced individual widths but produced portrait panels and large unused
+      work area; bypassing the figure's one-column fallback did not cure the
+      imbalance. The bounded counterexample is in
+      `docs/research/mechanism-evaluation.md`. Do not auto-rotate or silently
+      omit source meaning: test a separately selected static visual argument.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

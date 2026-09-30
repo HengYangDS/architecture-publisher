@@ -1912,3 +1912,38 @@ compiler. Borrow typed content-versus-style separation and hard/soft
 constraint thinking. Revisit Penrose as a build-time figure tool only after
 a repeated, source-bound visual grammar justifies authoring and maintaining
 one shared Style and passes the complete installed/offline workload.
+
+### Static orientation cannot choose the visual argument (2026-09-30)
+
+On the same AIGW source snapshot `01776f2f` and selected Build Request
+SHA-256 `9bdac392652950382f163154786f89b83f8a2f9e7bfecc71aadcf4d58b15d756`,
+the static Edition asks two different questions: guarded control-to-client
+effects and object/asset delivery. The signed Publisher source at `cd64fd8`
+produces a 2565×1529 SVG and 3600×2146 PNG. Its first graph is a long strip;
+the second and the notes do not repair the work's reading balance.
+
+An isolated, unselected probe kept the same nodes, relations, label sizes,
+and pinned Dagre supply (`28a1a53ac46f760ccdf04ad98dfdf4d01af081ba49d9611fc1793bb9902714a2`).
+Only `rankdir` varied; these are raw layout dimensions, not qualified pages:
+
+| Static view     | Nodes / relations |       LR |       TB |
+| --------------- | ----------------: | -------: | -------: |
+| Control effects |             7 / 7 | 2497×264 | 630×1096 |
+| Delivery        |             5 / 4 | 1241×316 |  776×520 |
+
+Passing both TB layouts through the unchanged figure composer yielded an
+843×3038 portrait SVG. In a second throwaway probe, disabling only its
+one-column fallback yielded [a 1505×2044 two-column SVG](evidence/aigw-static-tb-two-column.svg)
+(SHA-256 `85776de833998d1b253cc3bcc71c3e92b17a71b99208da07c4cdfe7179f1336c`).
+The bundled Resvg supply painted it, but the tall first story still leaves
+the shorter second column largely empty and pushes notes below the visual
+argument. Mixing TB control with LR delivery yielded 1971×2018 and the same
+height imbalance. These SVGs are geometry counterexamples, not Publisher
+Candidates, AIGW-approved selections, or accessibility/visual acceptance.
+
+**Decision:** neither rotating Dagre nor weakening the figure fallback is a
+general static-quality repair. The Edition editor must choose the static
+reader question and any explicit omissions; Publisher then composes that
+selected meaning in a suitable medium-specific form. A static responsibility
+candidate must retain its own visible carriers and limits without borrowing
+the interactive layout or silently dropping one of the two current stories.
