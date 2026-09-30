@@ -259,6 +259,52 @@ exact-browser qualification remains separate.
 - **THEN** the browser policy blocks the connection
 - **AND** a browser error or incomplete rendering cannot be counted as qualification
 
+### Requirement: Interactive chapters carry meaning in the diagram
+
+The neutral interactive medium SHALL compose intrinsically sized, navigable
+chapters in one continuous reading work. It SHALL not use a fixed slide height
+or a default page-wide source ledger to compensate for unreadable graphic
+relations. Selected relation captions and question-relevant typed Claim cues
+SHALL be bound to their exact visible subjects, measured with the selected
+font, and placed with node, route, and page clearance. Full selected records
+SHALL remain reachable through focused inspection. No caption or cue may
+invent, silently abbreviate, or transfer source authority.
+
+#### Scenario: A selected relation has a readable source label
+
+- **WHEN** the source label fits a feasible routed graph at the declared
+  desktop reading size
+- **THEN** the reader can identify that relation in the graphic without
+  consulting a numbered prose ledger
+- **AND** the emitted label clears nodes, other labels, arrowheads, and the
+  page boundary after the actual graph renderer has painted it
+
+#### Scenario: A selected Claim qualifies a diagram relation
+
+- **WHEN** the Edition selects a typed Claim whose answer depends on its
+  plane, condition, scope, or validity
+- **THEN** a source-bound visual cue near its exact relation or subject
+  distinguishes the necessary qualification in the default reading state
+- **AND** focused inspection exposes the complete selected record without
+  making the cue a new editable Claim
+
+#### Scenario: The complete diagram is infeasible
+
+- **WHEN** measured labels and cues cannot fit without illegible scaling,
+  collisions, omission, or a false source assertion
+- **THEN** composition fails with the selected view and a bounded editorial
+  regrouping or caption need
+- **AND** an ordinal-only graph plus default relation transcript is not
+  emitted as an apparently complete architecture diagram
+
+#### Scenario: A short chapter precedes another chapter
+
+- **WHEN** one selected mechanism needs less than a viewport of height
+- **THEN** the next complete chapter follows in document flow rather than
+  leaving an otherwise empty fixed-height slide
+- **AND** navigation and inspection preserve each chapter's own identity,
+  question, selected meaning, and keyboard focus
+
 ### Requirement: Interactive inspection preserves selected meaning
 
 Standalone interactive media SHALL provide a reversible reading state for

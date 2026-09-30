@@ -541,9 +541,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       Projection Overview at 8.46 CSS pixels at 1280×720. Compact spacing alone
       caused node overlap, so the Work Lane now computes neutral geometry from
       exact selected public page data with pinned Dagre 3.1.1; Cytoscape owns
-      interaction only. Edge ordinals lead to complete adjacent source-relation
-      text, and CSS reserves each page's geometry-bounded height before graph
-      startup. Verified UMD bytes run in a bounded Node VM as a loader, not a
+      interaction only. The provisional edge ordinals lead to adjacent
+      source-relation text, but the reader later rejected this ledger-dependent
+      composition; it is not the terminal visual grammar. CSS reserves each
+      page's geometry-bounded height before graph startup. Verified UMD bytes
+      run in a bounded Node VM as a loader, not a
       security sandbox. This replaces the prior special-chain layout without
       changing source meaning
       or static geometry; if cross-workload qualification reverses the choice,
@@ -736,6 +738,16 @@ third-party or generated supply rather than moving owned code outside coverage.
       as Publisher neutral visual baselines for fidelity, clarity and elegance.
       This grants no AIGW source, Edition, interactive-media or publication
       acceptance; the broader task remains open.
+      The same reader rejected both interactive HTML works for excessive
+      blank space, stacked text and weak visual meaning. The 2026-09-30
+      measured probe found that none of 46 AIGW relation labels fits the
+      provisional 50px rank gap at the selected font and clearance. A
+      one-record Inspect/paired-rail experiment reduced raw dumps but still
+      failed the reader's aesthetic and diagram-first test; its exact patch
+      remains in ignored local trial evidence, and the Lane source was reset
+      before the replacement design. Next: reserve measured relation/Claim
+      cues in the graph, verify emitted geometry, and compose intrinsic-height
+      chapters. Do not transfer static approval to interactive media.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

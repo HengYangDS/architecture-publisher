@@ -982,6 +982,57 @@ repositories to carry Publisher presentation code. If no complete candidate
 can carry every selected assertion legibly, compilation fails and reports the
 unrepresentable view instead of shrinking text or silently dropping content.
 
+### Interactive chapters are diagrams, not source ledgers
+
+The 2026-09-30 AIGW neutral interactive trial exposed a different failure from
+the static figure: ten chapters passed offline browser and accessibility
+checks, yet the graph relied on numbered edges and a long adjacent source
+relation list. At the selected 13-pixel edge font, direct measurement with the
+bundled font found that none of the trial's 46 relation labels fits the
+current 50-pixel Dagre rank gap with 16 pixels of clearance. The ledger was
+therefore not incidental copy: it compensated for a graph that could not
+express its own relations. Moving, folding, or styling that list does not
+repair the diagram. The fixed one-chapter-per-viewport presentation also
+turns naturally short mechanisms into empty pages. These are rejected
+compositions, not accepted neutral baselines.
+
+For the successor, each interactive chapter is an intrinsically sized visual
+unit in one continuous reading work. Navigation reaches chapters without
+forcing them into equal-height slides. Its default view must carry the
+selected relationship meaning in the graphic itself: measured source labels
+on routed edges and source-bound typed Claim cues attached to their exact
+subject or relation. The diagram may use an editor-selected, source-bound
+short caption, but Publisher never silently rewrites a predicate, drops a
+condition, or promotes an editorial caption to source truth. Full qualifiers,
+claim fields, source identity where disclosure is admitted, and method limits
+remain available through focused inspection of one selected record, not as a
+page-wide default ledger or a second semantic authority.
+
+First reuse the existing selected font measurer and Dagre supply to reserve
+actual edge-label and Claim-cue boxes before layout; inspect the resulting
+routes, caption positions, node boxes, and page clearance together. A local
+probe with Dagre edge-label dimensions showed that all 46 trial labels gain
+nominal clearance, but Product Boundary grows to about 1779 pixels wide
+without wrapping. This is **not** acceptance: Cytoscape may route the edges
+differently from Dagre, and a width that forces illegible zoom still fails.
+Test bounded line wrapping, alternative orientation, and the same emitted-
+geometry audit on the exact selected cases. If Cytoscape cannot paint the
+audited routes and labels faithfully, replace its graph adapter with an
+independently composed, measured SVG; do not retain two live diagram engines.
+If neither complete composition is feasible at the declared desktop reading
+size, return a named editorial regrouping/caption need rather than printing
+an ordinal-key transcript. Static and interactive remain sibling media with
+independent coordinates and acceptance.
+
+Visual qualification measures rendered glyphs and marks, not just CSS boxes:
+zero unintended overlap, containment and arrow attachment, readable minimum
+type, stable chapter flow, exact selected-meaning reachability, keyboard focus
+return, no default source dump, and no large empty viewport manufactured by
+slide framing. A mathematical gate can reject errors; human review of exact
+bytes still judges balance and elegance. Data-only Edition art direction may
+improve a feasible neutral figure, but neither the source repository nor a
+per-adopter renderer must carry hand-positioned Publisher pixels.
+
 ### One authored source-selection record
 
 An in-memory, source-adjacent translation of AIGW's four questions, five
