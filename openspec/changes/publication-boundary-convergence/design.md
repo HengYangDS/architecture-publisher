@@ -1065,12 +1065,12 @@ universal meaning or page authority. None is selected merely by reputation.
 
 Test the form decision against real counterexamples, not a pleasing demo:
 
-| Selected workload | Dominant reader task | Candidate form; falsifier |
-| --- | --- | --- |
-| AIGW Product Boundary | Distinguish control-plane, native-client, and external-traffic responsibility | Source-reviewed responsibility and handoff view; fail if traffic direction is mistaken for ownership. |
-| AIGW Client Projection Overview | Trace source-reported configuration and coordination to admitted clients | Directed relationship view; fail on unreadable predicates, collisions, or invented implementation status. |
-| ETHOS Work Lanes | Distinguish cooperation, competition, experimental drop, and CAS integration | Decision/lifecycle view; fail if every Lane appears to integrate or a dropped Lane reaches CAS. |
-| Publisher self-use and di-effect | Explain publication authority and native system structure, respectively | Existing authored/LikeC4 views where selected; fail if a new generic form duplicates native facts or weakens the published reading. |
+| Selected workload                | Dominant reader task                                                          | Candidate form; falsifier                                                                                                           |
+| -------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| AIGW Product Boundary            | Distinguish control-plane, native-client, and external-traffic responsibility | Source-reviewed responsibility and handoff view; fail if traffic direction is mistaken for ownership.                               |
+| AIGW Client Projection Overview  | Trace source-reported configuration and coordination to admitted clients      | Directed relationship view; fail on unreadable predicates, collisions, or invented implementation status.                           |
+| ETHOS Work Lanes                 | Distinguish cooperation, competition, experimental drop, and CAS integration  | Decision/lifecycle view; fail if every Lane appears to integrate or a dropped Lane reaches CAS.                                     |
+| Publisher self-use and di-effect | Explain publication authority and native system structure, respectively       | Existing authored/LikeC4 views where selected; fail if a new generic form duplicates native facts or weakens the published reading. |
 
 These are benchmark hypotheses, not adopter-approved Editions. Their value is
 that a candidate which only passes one graph example cannot pass the product.
