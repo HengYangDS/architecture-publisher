@@ -35,6 +35,10 @@ may contain incompatible changes.
 - ELK layout workers retain a bounded live root after both success and error
   replies and flush enabled coverage before native reclamation. Root loss still
   rejects cleanup; layout geometry, stage ceilings and static media are unchanged.
+- File publication flushes owner, payload and metadata files through writable
+  handles instead of reopening the owner file read-only. Effect results declare
+  unsupported Windows directory flush and unqualified power-loss recovery;
+  required flush errors still reject installation.
 
 ### Added
 

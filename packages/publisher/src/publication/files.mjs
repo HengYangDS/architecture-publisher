@@ -442,6 +442,9 @@ async function verifyInstalled(plan, medium, acceptance) {
 }
 
 async function syncDirectory(directory) {
+  // Node's Windows directory handles cannot supply FlushFileBuffers write access.
+  // The effect result declares this limit; required file flush failures are not ignored.
+  if (process.platform === 'win32') return;
   const file = await fs.open(directory, 'r');
   try {
     await file.sync();
@@ -604,13 +607,8 @@ async function withPairWriter(plan, acceptance, recover, action) {
     await fs.writeFile(pendingOwner, encode(owner), {
       flag: 'wx',
       mode: 0o600,
+      flush: true,
     });
-    const handle = await fs.open(pendingOwner, 'r');
-    try {
-      await handle.sync();
-    } finally {
-      await handle.close();
-    }
     await syncDirectory(prepared);
     if (await exists(lock)) throw Error('Another installer acquired the writer lock');
     // Cooperating writers only expose complete nonempty directories. A competing
@@ -657,7 +655,14 @@ async function withPairWriter(plan, acceptance, recover, action) {
     );
   if (failure) throw failure;
   if (releaseFailure) throw releaseFailure;
-  return result;
+  return {
+    ...result,
+    durability: {
+      fileFlush: 'required-for-created-files',
+      directoryFlush: process.platform === 'win32' ? 'unsupported' : 'required',
+      powerLossRecovery: 'not-qualified',
+    },
+  };
 }
 function sameInventory(a, b) {
   const normalized = (x) => ({
@@ -1085,10 +1090,10 @@ async function publishLockedPair(
         await fs.mkdir(path.dirname(path.join(out, f.path)), {
           recursive: true,
         });
-        await fs.writeFile(path.join(out, f.path), bytes, { flag: 'wx' });
+        await fs.writeFile(path.join(out, f.path), bytes, { flag: 'wx', flush: true });
       }
       for (const [name, bytes] of Object.entries(plan.entries[medium]))
-        await fs.writeFile(path.join(out, name), bytes, { flag: 'wx' });
+        await fs.writeFile(path.join(out, name), bytes, { flag: 'wx', flush: true });
       const manifest = expectedManifest(plan, medium, acceptance),
         files = manifest.files;
       const snapshot = await inventory(out);
@@ -1099,6 +1104,7 @@ async function publishLockedPair(
       );
       await fs.writeFile(path.join(out, 'delivery-manifest.json'), encode(manifest), {
         flag: 'wx',
+        flush: true,
       });
       const sums =
         files
@@ -1108,7 +1114,7 @@ async function publishLockedPair(
           })
           .map((f) => `${f.sha256}  ${f.path}`)
           .join('\n') + '\n';
-      await fs.writeFile(path.join(out, 'SHA256SUMS'), sums, { flag: 'wx' });
+      await fs.writeFile(path.join(out, 'SHA256SUMS'), sums, { flag: 'wx', flush: true });
       await checkFiles(out, files);
       recovery[medium] = path.join(op, 'prior-' + medium);
     }

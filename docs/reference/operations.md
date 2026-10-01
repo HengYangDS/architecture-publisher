@@ -511,6 +511,13 @@ without the original Candidate or Provider. The commands establish local
 filesystem effects only; they do not claim hosted availability, source-product
 release, independent verification, or off-host retention.
 
+New owner, journal, payload and metadata files are flushed through writable
+handles before their write completes. Every effect result reports `durability`:
+required file flushing, required directory flushing on POSIX or unsupported
+directory flushing on Windows, and `powerLossRecovery: "not-qualified"`.
+Required flush errors remain failures. Interrupted-process recovery verifies
+retained on-disk state; it is not qualified machine-power-loss recovery.
+
 ## Public JavaScript contracts
 
 The core exports narrow owners:

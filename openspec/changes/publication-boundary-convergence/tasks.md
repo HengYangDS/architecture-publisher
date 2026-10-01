@@ -1192,3 +1192,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       separate read-only-file/directory fsync and npm ESM fixture failures
       remain open. Four same-source Linux/macOS review/protected jobs pass;
       no Windows or alpha.8 release acceptance is inferred.
+      Both Windows jobs now retain the same terminal failure; their original
+      Runner pauses are restored. The file-effect owner replaces read-only
+      owner-file fsync with native writable-handle flush for all newly created
+      publication files and reports Windows directory-flush limitations without
+      ignoring required flush failures. Three incumbent-failing regressions and
+      installed interruption/recovery tests pass locally (111 passed, one
+      explicit prior-delivery-input skip). Native successor, remaining fixture
+      defects and four-dimensional coverage acceptance remain open.

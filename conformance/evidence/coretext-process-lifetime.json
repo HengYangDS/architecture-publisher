@@ -729,5 +729,59 @@
       "Historical alpha.7 and earlier signed assets remain unchanged"
     ],
     "reviewCorrection": "Direct-worker cleanup now owns bounded close verification, request-descriptor closure and subsequent scratch removal; unproved close retains scratch."
+  },
+  "windowsFileDurabilityCorrection": {
+    "baseHead": "9ee5d8d44ea98d999d564c5cca3784ebaf003eda",
+    "status": "local RED/GREEN and public installed-recovery paths passed; native repaired Windows acceptance remains open",
+    "originatingJobs": {
+      "path": "build/review/release-alpha8/windows-terminal-failure-map.json",
+      "bytes": 1739,
+      "sha256": "aa9d22cda30664997a1f7b73c55d6319ecf1e98709a44124051ce97a43ffec24"
+    },
+    "cause": "Windows FlushFileBuffers requires a writable file handle; the writer reopened owner.json read-only before fsync. Node directory fsync is a separate unsupported platform capability, not an arbitrary ignorable permission error.",
+    "owner": "packages/publisher/src/publication/files.mjs",
+    "mechanism": "Native fs.writeFile flush:true supported since Node20.10, retains required owner/payload/metadata flushing; atomic journals retain their writable fsync. Existing effect results report the actual platform directory-flush boundary and unqualified power-loss recovery.",
+    "red": {
+      "path": "build/review/release-alpha8/publication-durability-red.log",
+      "bytes": 4039,
+      "sha256": "e21fc65b943a303f9b912a71bcf849bcfb8a384a7d0023621d63e078c49611d0"
+    },
+    "focused": {
+      "passed": 111,
+      "failed": 0,
+      "skipped": 1,
+      "skipReason": "Real prior-delivery rehearsal requires explicit PAIR_PRIOR_NATIVE and PAIR_PRIOR_ATLAS; installed fixture recovery paths ran",
+      "log": {
+        "path": "build/review/release-alpha8/publication-durability-focused.log",
+        "bytes": 11010,
+        "sha256": "3a9b3bae4cc1dd590d6876fe5811f5416deaaae32171697a4e68825e640f3166"
+      }
+    },
+    "officialSources": [
+      {
+        "url": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-flushfilebuffers",
+        "observation": "File handle must have GENERIC_WRITE access; administrative volume flush is not admitted."
+      },
+      {
+        "url": "https://github.com/libuv/libuv/blob/v1.x/src/win/fs.c",
+        "observation": "fs__sync_impl delegates to FlushFileBuffers and propagates GetLastError; this mutable branch source is narrow diagnosis, not an exact vendor-version acceptance."
+      },
+      {
+        "url": "https://nodejs.org/docs/latest-v22.x/api/fs.html#fspromiseswritefilefile-data-options",
+        "observation": "flush option available since20.10/21; when all data is written it invokes filehandle.sync before close.",
+        "retained": {
+          "path": "build/review/release-alpha8/native-checkout-review/node22-filesystem-reference.html",
+          "bytes": 682292,
+          "sha256": "f96f9f6f2d2cd8d2a3f3ab20a3523a39d509460d02fb1d1099ee2b4982320683"
+        }
+      }
+    ],
+    "limits": [
+      "Administrative native capability probe is separate from ordinary service-account qualification",
+      "No power-loss or storage-controller durability acceptance",
+      "No silent EPERM suppression for required file or POSIX directory flush",
+      "No changed historical release assets or receipt identity",
+      "Full Windows suite, four-dimensional coverage, independent slice review and release readback remain open"
+    ]
   }
 }
