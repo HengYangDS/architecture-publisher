@@ -1030,6 +1030,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       Six exact fixture histories and coordination were restored before
       seventeen owned roots were reclaimed. This does not close complete
       north-star, current-source, independent-provider or adoption acceptance.
+      Native formation adds foundation and Python-library repositories,
+      first-Change holder transfer and old-holder fencing; the separate
+      unchanged brownfield recipe preserves authored bytes and applies exactly
+      the declared governance files. Both retain source/runtime and restored
+      custody receipts at the existing installed-mechanisms evidence owner.
 - [ ] 8.3 Hand the completed SDD/DR, COMET, SpecD, semantic-graph, intent,
       and independent-verification research to the existing ETHOS knowledge
       owner with source citations and adopt/reject/defer boundaries. Keep only
@@ -1079,15 +1084,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       CoreText scratch `ENOTEMPTY` failure. The scheduling acceptance is
       complete; compiler lifetime and failure preservation remain Task 8.4.2.
 
-- [ ] 8.4.2 Reclaim each exact CoreText stage group before scratch removal;
+- [x] 8.4.2 Reclaim each exact CoreText stage group before scratch removal;
       preserve stage limits, selected identities, primary failure and cleanup
       uncertainty. Local, native, installed and hosted qualification passed at
       signed runtime `0788d916` and test successor `eddd9feb`; the
       [lifetime receipt](../../../conformance/evidence/coretext-process-lifetime.json)
       retains every prior failure and unproved cause. Exact alpha.7 HTML review,
-      asset release, download and Documents readback remain open.
+      asset release, download and Documents readback are complete in
+      `conformance/evidence/release-alpha7-readback.json`. Nineteen exact
+      policy submissions pass without authenticating verifier authority; all
+      eleven single-copy payloads and thirty installed replay members match.
 
-- [ ] 8.4.3 Replace premature fake-stage deadlines without changing product
+- [x] 8.4.3 Replace premature fake-stage deadlines without changing product
       ceilings or immutable alpha.7. The selected-child entry marker, typed
       timeout and exact tail remain required. Local full gate passed 1,419/1,422
       with three declared skips; all four coverage dimensions exceed 95%.
@@ -1098,8 +1106,10 @@ third-party or generated supply rather than moving owned code outside coverage.
       reliability: its five-second fake stage timed out with no diagnostic.
       Ruling: finite fixtures use unchanged product stage ceilings; dedicated
       timeout probes retain their explicit short bounds. A child-entered
-      5.1-second regression failed under the former default. Focused, full,
-      exact-source and hosted successor acceptance remain required. The
+      5.1-second regression failed under the former default. The
       eleven focused cases and local full gate passed (1,420 pass, three
       skips; coverage 97.59/95.15/99.47/97.59). Independent read-only review
-      found no actionable defect; signed and hosted successor remain open.
+      found no actionable defect. Signed `f799ee3` exact-HEAD proof passed;
+      proposal/dev/main pipelines 9100/9102/9103 passed every declared gate
+      and coverage floor. Immutable alpha.7 and all product/media inputs
+      remain unchanged; prior failures and unproved delay causes are retained.

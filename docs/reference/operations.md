@@ -44,28 +44,35 @@ Before pushing a new tag, create it locally and run the full repository gate
 with that exact tag present. Compare its tagger calendar date with the dated
 Changelog section; a passing untagged branch pipeline is not this check.
 
-### Last verified asset release (2026-10-01): alpha.6
+### Last verified asset release (2026-10-01): alpha.7
 
-The [alpha.6 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.6)
-selects signed source `04a0511ece552efd8cbda64a6eae94cb2f5e05db` and one
+The [alpha.7 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.7)
+selects signed source `0788d916b96f6868a3380bdb627705a6a1fe037b` and one
 Generic Package version with eleven payloads totaling 8.11 MiB. The exact
-6000px PNG and eight-view standalone HTML passed requester review.
+6000px PNG retains its approved bytes; all eight standalone HTML pages passed
+direct requester review. Both downloaded media are delivered to Documents.
 
-The signed annotated tag was created locally and the exact tag-context full
-gate passed **before** tag push. Source CI 9061 passed Linux/macOS. Every
-selected asset was independently downloaded and hashed, including the
-separately bound `SHA256SUMS`; downloaded packages rebuilt five workloads and
-thirty Candidate files after relocation with empty PATH.
+The local exact tag-context gate passed before tag push; protected tag
+pipeline 9087 passed Linux/macOS. The test/evidence successor `f799ee3` repairs
+an invalid finite-fixture deadline without changing product stage ceilings,
+package content, media inputs or the immutable tag. Its exact-HEAD proof and
+proposal/dev/main pipelines 9100/9102/9103 passed every declared gate and
+coverage floor; earlier failures and unproved host-delay causes are retained.
 
-The full current [readback receipt](../../conformance/evidence/release-alpha6-readback.json)
-is the evidence owner. Tag-context pipeline 9067 passed both native gates.
-Its original macOS job failed one CoreText compiler invocation; an isolated
-same-source native test and one exact failed-job retry passed without quality,
-timeout or source changes. The original failure is retained, not erased.
-Generic policy verification binds nineteen submitted records and reports
-`admitted: false`; explicit owner acceptance, source endorsement and delivery
-effects are separate. No ETHOS/AIGW adoption, final native Windows or
-independent off-host recovery is implied.
+Every selected payload was independently downloaded through native `glab` and
+hashed, including the separately bound `SHA256SUMS`. The first download failed
+because its caller-owned target directory was absent; creating that exact
+empty directory corrected the invocation without changing remote assets.
+Downloaded packages rebuilt five relocated workloads and thirty Candidate
+files with empty PATH. The
+[readback receipt](../../conformance/evidence/release-alpha7-readback.json)
+is the current release evidence owner.
+
+Generic policy verification binds nineteen submitted PASS records and still
+reports `admitted: false`; explicit owner acceptance, source endorsement and
+delivery effects are separate. ETHOS/AIGW adoption, final native Windows and
+independent off-host recovery remain unproved. Historical alpha.6 facts remain
+in its immutable [receipt](../../conformance/evidence/release-alpha6-readback.json).
 
 ### Historical reader release (2026-09-29): alpha.5
 

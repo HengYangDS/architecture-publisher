@@ -1,7 +1,7 @@
 {
   "schema": "architecture.ethos-installed-mechanisms-evidence/v1",
   "status": "accepted-runtime native subjourneys and component predicates passed; complete north-star and source adoption remain open",
-  "observedAt": "2026-10-01T03:13:30.894Z",
+  "observedAt": "2026-10-01T04:40:29.491Z",
   "productSource": {
     "commit": "ebe828d31aacca56f82b9a1dabc77e829989c328",
     "tree": "6a01425c21d3da7f1d127e5baeca25f56a11d722",
@@ -331,6 +331,57 @@
     "local disposable signature proves cryptographic receipt checking, not protected independent provider deployment",
     "Skills projection proves routing only, not host loading, agent comprehension or learning",
     "foundation/brownfield/transports have separately scoped prior evidence, not an unexecuted complete end-to-end ecosystem",
-    "full ETHOS/AIGW successor adoption, substantive research disposition and Publisher alpha.7 exact HTML/release remain open"
-  ]
+    "Full ETHOS/AIGW successor adoption and substantive research disposition remain open; Publisher alpha.7 exact-media/release readback is separately complete"
+  ],
+  "formation": {
+    "receipt": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-formation/acceptance.json",
+      "bytes": 8641,
+      "sha256": "135d546f9f5352f892943a01259d6766002b6930adf1f987431016d32d0fb3a4"
+    },
+    "status": "native installed formation and first-Change subjourneys accepted",
+    "sourceCommit": "ebe828d31aacca56f82b9a1dabc77e829989c328",
+    "runtimeDigest": "51db67f0315aec2950c8d72236b696dc788dcec48bfddefaefd68a30591e582e",
+    "boundaries": [
+      "foundation and Python-library formation integrity",
+      "occupied-target replay refusal",
+      "native Lease transfer and prior-holder fencing",
+      "official metadata and prewrite"
+    ],
+    "custody": {
+      "restoredMembers": 143,
+      "restoredGitHistories": 2,
+      "reclaimedFixtureRoots": 5,
+      "reclaimedExtractionRoots": 2
+    },
+    "limits": [
+      "original PATH prerequisite failure and exact continuation retained; not uninterrupted whole-recipe PASS",
+      "Lease transfer not agent comprehension",
+      "scaffold integrity not domain library usefulness or entire greenfield ecology"
+    ]
+  },
+  "brownfield": {
+    "receipt": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-formation/brownfield-acceptance.json",
+      "bytes": 3125,
+      "sha256": "56c0d03d76ada75ca902f144ba4274acf279d53ed581cc0947a403e141eba660"
+    },
+    "status": "unmodified installed prove_brownfield recipe passed",
+    "sourceCommit": "ebe828d31aacca56f82b9a1dabc77e829989c328",
+    "runtimeDigest": "51db67f0315aec2950c8d72236b696dc788dcec48bfddefaefd68a30591e582e",
+    "boundaries": [
+      "preview preserves authored bytes and HEAD",
+      "digest-qualified apply adds exactly .ethos/profile.toml and openspec/config.yaml",
+      "existing README/domain source and commit preserved"
+    ],
+    "custody": {
+      "restoredMembers": 32,
+      "reclaimedFixtureRoots": 1,
+      "reclaimedExtractionRoots": 1
+    },
+    "limits": [
+      "one installed-recipe fixture, not arbitrary brownfield safety",
+      "no newer mutable ETHOS source or Publisher-adoption acceptance"
+    ]
+  }
 }

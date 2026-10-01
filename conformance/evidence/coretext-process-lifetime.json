@@ -1,7 +1,7 @@
 {
   "schema": "architecture.coretext-process-lifetime-evidence/v1",
-  "status": "runtime and prior fixture correction qualified at declared revisions; latest finite-success hosted failure remains open",
-  "observedAt": "2026-10-01T02:07:28.719Z",
+  "status": "runtime, finite fixture correction, exact source/tag CI, alpha.7 assets and installed readback qualified at declared revisions; full goal remains open",
+  "observedAt": "2026-10-01T04:40:29.491Z",
   "source": {
     "runtimeCommit": "0788d916b96f6868a3380bdb627705a6a1fe037b",
     "testCorrectionCommit": "eddd9feb831a867cca6ad85530f0145a641dbcfe",
@@ -311,12 +311,12 @@
     "Historical Swift stall cause is unproved",
     "Supervisor loss or escaped descendants are not guaranteed arbitrary-tree reclamation",
     "Selected OS/SDK dependencies are not a complete hermetic closure",
-    "Alpha.7 exact HTML human review, release assets and downloaded readback are pending",
+    "Alpha.7 exact HTML review, single-copy asset release, all hashes, five-workload installed replay and Documents delivery are verified by release-alpha7-readback.json",
     "ETHOS/AIGW adoption, source acceptance and off-host DR are not implied"
   ],
   "finiteSuccessCorrection": {
     "sourceBase": "eaa5efc3910c8614fc460265d86b41f66b512e6d",
-    "status": "deterministic RED, focused GREEN and full local gate passed; signed and hosted successor acceptance pending",
+    "status": "deterministic RED, focused/full GREEN, signed exact-HEAD proof and hosted proposal/dev/main successor passed",
     "hostedFailure": {
       "job": 46783,
       "pipeline": 9098,
@@ -436,6 +436,39 @@
         }
       ],
       "interpretation": "Base main passed independently; base dev failure is retained, not fixed by another success."
+    },
+    "signedSource": "f799ee3d4936c7d6a840188ac65f0a509cdb1966",
+    "hosted": {
+      "status": "success",
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/finite-success/hosted/native-ci-result.json",
+        "bytes": 82435,
+        "sha256": "0a1bce4d2e8edbc1a9ea8078e7a0749c8447824814655619836b3c6bda3bee76"
+      },
+      "pipelines": [
+        {
+          "id": 9100,
+          "ref": "proposal/publication-boundary-convergence",
+          "sha": "f799ee3d4936c7d6a840188ac65f0a509cdb1966",
+          "status": "success"
+        },
+        {
+          "id": 9102,
+          "ref": "dev",
+          "sha": "f799ee3d4936c7d6a840188ac65f0a509cdb1966",
+          "status": "success"
+        },
+        {
+          "id": 9103,
+          "ref": "main",
+          "sha": "f799ee3d4936c7d6a840188ac65f0a509cdb1966",
+          "status": "success"
+        }
+      ]
     }
+  },
+  "releaseReadback": {
+    "path": "conformance/evidence/release-alpha7-readback.json",
+    "sha256": "d3de4bf7227d52cbb911cf67ffc808f5aa20ca0f8c68b1d42ca71e509f839ad8"
   }
 }
