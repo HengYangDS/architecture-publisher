@@ -87,6 +87,7 @@ test('native Windows verification runs the whole quality graph with separate tru
   assert.equal(native.image, null);
   assert.equal(native.resource_group, 'native-windows-verification');
   assert.equal(native.timeout, '30m');
+  assert.equal(native.variables?.GIT_STRATEGY, 'clone');
   assert.equal(native.script.at(-1), 'npm run check');
   assert(native.script.includes('npm ci --ignore-scripts --no-audit --no-fund'));
   assert(native.script.includes('git --version'));
@@ -95,6 +96,7 @@ test('native Windows verification runs the whole quality graph with separate tru
     assert.equal(job.extends, '.verify-windows');
     assert.equal(job.script, undefined);
     assert.equal(job.resource_group, undefined);
+    assert.equal(job.variables?.GIT_STRATEGY, undefined);
     assert.deepEqual(job.tags, [`ci-windows-arm64-${role === 'review' ? 'review' : 'shell'}`]);
   }
   assert.deepEqual(pipeline['verify:windows:review'].rules, [

@@ -674,6 +674,15 @@ The job-local mask reproduces those recorded package modes inside the Runner's
 private home. Runner service permissions and historical digests remain separate
 from that artifact-build setting.
 
+Repository-authored text checks out as LF through `.gitattributes`. Generated
+validators and third-party supply use `-text` to preserve recorded bytes,
+including mixed-line-ending notices and binary fonts. Windows CI uses GitLab's
+native clone strategy: an attribute-only successor must not retain a stat-clean
+CRLF file from a previous fetch checkout. The Runner build directory contains
+disposable job state; preserve required evidence outside it before qualification.
+Native checkout logs and byte checks must confirm the effective strategy. This
+does not modify the operator's global Git configuration or waive supply drift.
+
 The JavaScript coverage gate selects all tracked runtime `.mjs` under
 `packages/publisher/src/`, first-party
 `packages/publisher/renderers/`, and `editions/self/src/`, including

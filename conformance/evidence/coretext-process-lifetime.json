@@ -578,5 +578,81 @@
       "EPERM remains fail-closed",
       "No source-owned ETHOS/AIGW migration or off-host recovery inferred"
     ]
+  },
+  "nativeCheckoutCorrection": {
+    "baseHead": "2b9fe20459c5c4e6c998f6d8bf1dad0a213049a2",
+    "originatingHostedFailures": [
+      {
+        "pipeline": 9149,
+        "job": 46947,
+        "runner": 120,
+        "role": "Windows review"
+      },
+      {
+        "pipeline": 9150,
+        "job": 46951,
+        "runner": 121,
+        "role": "Windows protected"
+      }
+    ],
+    "cause": "System Git core.autocrlf=true transformed tracked LF validators and license bytes; the repository lacked checkout byte ownership.",
+    "nativeReadback": {
+      "path": "build/review/release-alpha8/windows-generation-diagnosis/native-eol-readback.json",
+      "bytes": 4688,
+      "sha256": "0184fe707b0f6e8f96a00e7468191e695d4268552e5d6d68c1af8c784949a8bd"
+    },
+    "localRed": {
+      "path": "build/review/release-alpha8/windows-generation-diagnosis/incumbent-crlf-generation.json",
+      "bytes": 1321,
+      "sha256": "4b6258bfe340fa6dfae7e5919b0ce6ac6494f0c2ec9bb76ac6ba867d1fdfab55"
+    },
+    "lockedLocalGreen": {
+      "path": "build/review/release-alpha8/windows-generation-diagnosis/fixed-locked-crlf-generation.json",
+      "bytes": 1611,
+      "sha256": "d390a4c257a1d664bb74a282577ed4603f309aecdafed737a7da792467914b4c"
+    },
+    "retainedPredecessorCounterexample": {
+      "path": "build/review/release-alpha8/windows-generation-diagnosis/prior-checkout-transition.json",
+      "bytes": 563,
+      "sha256": "55b3ff0efa9093f737495eca59dd1c1098ce2947e4d1c27a25fde22c7f34bad7"
+    },
+    "repair": {
+      "owner": ".gitattributes",
+      "authored": "text=auto eol=lf",
+      "byteBound": "-text for generated and third-party supply",
+      "checkout": ".verify-windows.variables.GIT_STRATEGY = clone",
+      "ordinaryFixture": "tests/authoring-schema-generation.test.mjs",
+      "roleProjection": "tests/quality-contract.test.mjs",
+      "unchanged": [
+        "all product trees and supply bytes",
+        "historical signed releases",
+        "host Git configuration",
+        "exact generation and supply comparisons",
+        "platform trust selectors and limits"
+      ]
+    },
+    "local": {
+      "focusedTests": {
+        "passed": 16,
+        "skipped": 0
+      },
+      "completeGeneratedSupplyPassed": true,
+      "lockSha256": "661e57bc0e078583958134588cda786d75a78a42fc9f5070d2fb288b5344decd",
+      "sharedNodeModulesProbe": "Retained false acceptance path: symlinked dependencies resolved outside the fixture root; corrected through an actual offline locked installation without weakening package path validation."
+    },
+    "review": {
+      "identity": "Existing independent repaired reviewer",
+      "decision": "approve bounded source and Windows-only native clone strategy",
+      "limits": [
+        "Required evidence stays outside the disposable Runner checkout",
+        "Actual effective checkout and complete successor native gate remain unproved"
+      ]
+    },
+    "status": "Root cause and local repair verified; current-source proof, native clone readback and complete Windows CI remain required",
+    "remaining": [
+      "fresh exact-HEAD governance",
+      "actual native successor checkout and complete gates",
+      "source/tag CI and release readback"
+    ]
   }
 }

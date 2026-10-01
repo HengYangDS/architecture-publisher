@@ -1172,3 +1172,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       together. This is not exact historical scheduling or hosted acceptance.
       The environment owner records the explicit project 1323 npm risk exception;
       registration, complete native Windows gate and protected rerun remain open.
+      The first ordinary Windows review/protected jobs reached the unchanged
+      generation gate, then failed because system `core.autocrlf=true` changed
+      tracked LF validators and license bytes. Native byte readback and a Git
+      checkout regression reproduce the cause. Repository attributes preserve
+      authored LF and exact supply bytes; Windows uses the existing clone
+      strategy because fetch retained stat-clean CRLF files after an attribute
+      transition. Focused generation, quality and real offline locked-supply
+      checks pass locally; actual successor checkout and full native CI remain
+      required. Retain both failures and the prior-checkout counterexample in
+      `conformance/evidence/coretext-process-lifetime.json`; do not waive drift
+      or modify global Git configuration.

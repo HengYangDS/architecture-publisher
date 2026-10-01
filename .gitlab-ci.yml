@@ -70,6 +70,8 @@ verify:macos:protected:
   resource_group: native-windows-verification
   interruptible: true
   timeout: 30m
+  variables:
+    GIT_STRATEGY: clone
   script:
     - node -e "if (process.platform !== 'win32' || process.arch !== 'arm64') process.exit(1)"
     - node --version

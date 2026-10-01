@@ -29,6 +29,9 @@ may contain incompatible changes.
 - Installed-use tests invoke the selected native npm CLI instead of a Windows
   command shim. Post-execution identity tests retain the existing Provider bound
   rather than an accidental two-second fixture limit; timeout tests remain bounded.
+- Repository checkout preserves generated and supplier bytes independently of
+  host CRLF settings. Native Windows CI clones rather than retaining a previous
+  fetch checkout with transformed files; generation comparisons remain exact.
 
 ### Added
 

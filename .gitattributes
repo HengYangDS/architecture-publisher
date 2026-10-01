@@ -1,3 +1,11 @@
+# Repository-authored text has one portable checkout representation.
+* text=auto eol=lf
+
+# Generated and third-party supply retain their exact recorded bytes.
+packages/publisher/src/edition/generated/** -text
+packages/publisher/supplies/** -text
+packages/publisher/renderers/*/supply/** -text
+
 packages/publisher/supplies/likec4/parser.mjs -whitespace
 packages/publisher/supplies/likec4/THIRD-PARTY-NOTICES.txt -whitespace
 packages/publisher/renderers/archify/supply/** -whitespace
