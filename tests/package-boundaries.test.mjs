@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PUBLICATION_MEDIA } from '../packages/publisher/src/publication/files.mjs';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
@@ -150,7 +150,7 @@ test('the first-party self Edition is an independent package below the generic c
 });
 
 test('the packed generic product contains no concrete domain package', () => {
-  const packed = spawnSync('npm', ['pack', '--json', '--dry-run', '--ignore-scripts'], {
+  const packed = spawnNativeSync('npm', ['pack', '--json', '--dry-run', '--ignore-scripts'], {
     cwd: publisher,
     encoding: 'utf8',
     timeout: 30000,

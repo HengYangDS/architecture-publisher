@@ -14,8 +14,8 @@ test('installed-test npm calls cannot inherit host allowlists or registry config
   environment.npm_config_allow_scripts = 'host-only-package';
   environment.npm_config_registry = 'https://blocked.invalid/';
   const script = `
-    import { execFileSync } from 'node:child_process';
-    const config = (name) => execFileSync('npm', ['config', 'get', name], {
+    import { execNativeSync } from ${JSON.stringify(new URL('./fixtures/npm-pack-report.mjs', import.meta.url).href)};
+    const config = (name) => execNativeSync('npm', ['config', 'get', name], {
       env: process.env, encoding: 'utf8', timeout: 3000, input: ''
     }).trim();
     process.stdout.write(JSON.stringify({

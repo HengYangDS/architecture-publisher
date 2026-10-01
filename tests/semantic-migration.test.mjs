@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+
 import { fileURLToPath } from 'node:url';
 import * as semantics from '../packages/publisher/src/semantics/document.mjs';
 import { createHash } from 'node:crypto';
@@ -17,7 +17,7 @@ import {
   admitQualificationSet,
   qualificationSetDigest,
 } from '../packages/publisher/src/qualification/contract.mjs';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import {
   alpha3CandidateDigest,
   alpha3QualificationDigest,
@@ -176,7 +176,7 @@ test('current runtime and examples contain no v1 reader or dual-schema residue',
 });
 
 test('the development-only migration tool is excluded from the package', () => {
-  const result = spawnSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], {
+  const result = spawnNativeSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], {
     cwd: path.join(root, 'packages/publisher'),
     encoding: 'utf8',
     timeout: 60000,

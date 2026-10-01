@@ -9,7 +9,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import axe from 'axe-core';
 import { chromium } from 'playwright-core';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { validateEditionProject } from '../packages/publisher/src/edition/authoring.mjs';
 import { validateClaimModel } from '../packages/publisher/src/semantics/document.mjs';
@@ -784,12 +784,12 @@ test('the installed self Edition compiles both media after its author package is
     path.join(await fs.realpath(os.tmpdir()), 'publisher-self-installed-'),
   );
   t.after(() => fs.rm(parent, { recursive: true, force: true }));
-  const packedCore = spawnSync(
+  const packedCore = spawnNativeSync(
       'npm',
       ['pack', '--json', '--ignore-scripts', '--pack-destination', parent],
       { cwd: path.join(root, 'packages/publisher'), encoding: 'utf8' },
     ),
-    packedSelf = spawnSync(
+    packedSelf = spawnNativeSync(
       'npm',
       ['pack', '--json', '--ignore-scripts', '--pack-destination', parent],
       { cwd: packageRoot, encoding: 'utf8' },
@@ -800,7 +800,7 @@ test('the installed self Edition compiles both media after its author package is
     self = parseNpmPackRecord(packedSelf.stdout),
     consumer = path.join(parent, 'consumer');
   await fs.mkdir(consumer);
-  const installed = spawnSync(
+  const installed = spawnNativeSync(
     'npm',
     [
       'install',

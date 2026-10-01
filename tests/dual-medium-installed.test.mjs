@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 
@@ -13,7 +13,7 @@ const publisher = fileURLToPath(new URL('../packages/publisher/', import.meta.ur
 const privateCanary = 'PRIVATE_UNSELECTED_SOURCE_ONLY_7f4bdc';
 
 function child(command, args, cwd, env, timeoutMs = 60_000) {
-  const result = spawnSync(command, args, {
+  const result = spawnNativeSync(command, args, {
     cwd,
     env,
     input: '',

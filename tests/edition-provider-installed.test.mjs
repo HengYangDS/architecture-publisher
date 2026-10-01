@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { npmInvocation, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import {
   alpha3CandidateDigest,
   alpha3QualificationDigest,
@@ -39,8 +39,7 @@ async function waitForExit(pid) {
 }
 
 function run(command, args, cwd, env, timeout = 60_000) {
-  const selected = command === 'npm' ? npmInvocation(args) : { command, args };
-  const result = spawnSync(selected.command, selected.args, {
+  const result = spawnNativeSync(command, args, {
     cwd,
     env,
     input: '',

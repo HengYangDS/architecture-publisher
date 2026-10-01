@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { npmPackageIdentity } from './fixtures/package-identity.mjs';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -193,7 +193,7 @@ test('the historical first-party matrix replays fixed source and adopter observa
     encoding: null,
   });
   assert.equal(extracted.status, 0, extracted.stderr?.toString());
-  const packed = spawnSync(
+  const packed = spawnNativeSync(
     'npm',
     ['pack', '--json', '--ignore-scripts', '--pack-destination', temporary],
     { cwd: source, encoding: 'utf8', timeout: 60_000 },
@@ -218,7 +218,7 @@ test('the historical first-party matrix replays fixed source and adopter observa
     encoding: null,
   });
   assert.equal(successorExtracted.status, 0, successorExtracted.stderr?.toString());
-  const successorPacked = spawnSync(
+  const successorPacked = spawnNativeSync(
     'npm',
     ['pack', '--json', '--ignore-scripts', '--pack-destination', temporary],
     { cwd: successorSource, encoding: 'utf8', timeout: 60_000 },

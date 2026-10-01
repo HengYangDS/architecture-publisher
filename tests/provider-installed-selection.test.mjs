@@ -1,20 +1,18 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { npmInvocation, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 function run(command, args, cwd, env) {
-  const selected = command === 'npm' ? npmInvocation(args) : { command, args };
-  const result = spawnSync(selected.command, selected.args, {
+  const result = spawnNativeSync(command, args, {
     cwd,
     env,
     input: '',

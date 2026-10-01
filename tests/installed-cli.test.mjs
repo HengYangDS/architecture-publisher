@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { createEditionCandidate } from '../packages/publisher/src/compiler/candidate.mjs';
 import {
   interactiveSceneDigest,
@@ -33,11 +33,15 @@ test('packed CLI verifies relocated non-Git input without development executable
     npm_config_audit: 'false',
     npm_config_cache: cache,
   };
-  const pack = spawnSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', tmp], {
-    cwd: publisher,
-    env,
-    encoding: 'utf8',
-  });
+  const pack = spawnNativeSync(
+    'npm',
+    ['pack', '--json', '--ignore-scripts', '--pack-destination', tmp],
+    {
+      cwd: publisher,
+      env,
+      encoding: 'utf8',
+    },
+  );
   assert.equal(pack.status, 0, pack.stderr);
   const info = parseNpmPackRecord(pack.stdout);
   assert(info.files.some((f) => f.path === 'src/cli/main.mjs'));
@@ -69,7 +73,7 @@ test('packed CLI verifies relocated non-Git input without development executable
   );
   const install = path.join(tmp, 'consumer');
   await fs.mkdir(install);
-  const installed = spawnSync(
+  const installed = spawnNativeSync(
     'npm',
     [
       'install',

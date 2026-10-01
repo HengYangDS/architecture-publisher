@@ -23,10 +23,22 @@ The development and CI projections pin Node.js 26.10.0; the Core runtime
 contract remains `node >=22`. Node.js 22 is in Maintenance LTS through
 2027-04-30 and is still declared by the ETHOS source-owned integration. Its
 support is a runtime compatibility promise, not a requirement to develop with
-Node.js 22. The pinned `npm@11.19.1` is the version bundled by official Node.js
-26.10.0. Moving to independently released npm 12 would require an explicit
-bootstrap and separate toolchain qualification; changing only `packageManager`
-would misstate the CI toolchain.
+Node.js 22. The private development workspace selects npm 12.2.0, independently
+released from the npm 11.19.1 bundled with Node.js 26.10.0. Native `devEngines`
+admission rejects a different development Node/npm before installation or
+scripts. The ephemeral Linux job explicitly replaces its bundled npm with the
+selected official package; shell Runners require their environment owner's
+selected installation. This does not raise the installed Core runtime floor.
+
+The 2026-10-01 official npm runtime-tree advisory check found known vulnerable
+bundled dependency versions in npm 11.19.1, 11.21.0 and 12.2.0. Selecting the
+latest stable npm does not remediate those findings. The operator approved an
+exact bounded exception for project 1323 CI: independent identities and tool
+directories, verified source, disabled installer lifecycle scripts, and no
+expansion to other projects or production. New native guest installation outside
+that scope still requires an explicit risk decision or a verified corrected
+upstream package; no dependency surgery, ignored warning, shared identity, or
+production authorization follows from this selection.
 
 The development workspace pins OpenSpec 1.14.0. Its official apply instructions
 return each task's concrete `sourcePath` and one-based `line`; the repository

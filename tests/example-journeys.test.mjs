@@ -1,11 +1,11 @@
 import test from 'node:test';
 import { npmPackageIdentity } from './fixtures/package-identity.mjs';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+
 import { createHash } from 'node:crypto';
 import sax from '../packages/publisher/renderers/resvg/supply/sax/sax.cjs';
 import { parse as parseFont } from '../packages/publisher/renderers/resvg/supply/opentype/opentype.mjs';
@@ -321,7 +321,7 @@ test('installed non-ETHOS examples support both media, updates and local bundles
   if (!process.env.ARCHITECTURE_EXAMPLE_EVIDENCE)
     t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const run = (cmd, args, cwd = root, env = process.env) => {
-    const r = spawnSync(cmd, args, {
+    const r = spawnNativeSync(cmd, args, {
       cwd,
       env,
       encoding: 'utf8',

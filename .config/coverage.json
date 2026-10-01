@@ -1,0 +1,18 @@
+{
+  "all": true,
+  "include": [
+    "packages/publisher/src/**/*.mjs",
+    "packages/publisher/renderers/**/*.mjs",
+    "editions/self/src/**/*.mjs"
+  ],
+  "exclude": [
+    "packages/publisher/src/edition/generated/**",
+    "packages/publisher/renderers/**/supply/**"
+  ],
+  "check-coverage": true,
+  "statements": 95,
+  "lines": 95,
+  "branches": 95,
+  "functions": 95,
+  "reporter": ["text", "json-summary"]
+}

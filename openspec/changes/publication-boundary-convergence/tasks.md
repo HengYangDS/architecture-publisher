@@ -1155,3 +1155,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       `conformance/evidence/coretext-process-lifetime.json` owner. Exact-HEAD
       governance, hosted/native Windows successor, installed release and
       readback remain open; this task is not complete.
+
+- [ ] 8.4.5 Qualify native Windows through the existing GitLab repository gate
+      with separate review/protected Runner identities on every platform.
+      Preserve scripts-disabled
+      locked installation, exact Node/npm selection, the whole quality graph,
+      final package/toolgraph and installed self replay; resolve actual native
+      invocation failures at their owner without weakening policy or adding a
+      PowerShell controller. Retain Linux/macOS evidence for `68d69b9`, then
+      freeze and prove the CI successor before native Windows acceptance.
+      Native npm invocation and installed Provider/media/supply probes pass;
+      scripts-disabled offline lock projection preserves exact lock bytes.
+      A delayed semantic reply reproduces the protected macOS fixture's premature
+      two-second timeout; the canonical-bound identity probes, explicit timeout,
+      delayed-stderr, shared-package digest and installed fixture suite now pass
+      together. This is not exact historical scheduling or hosted acceptance.
+      The environment owner records the explicit project 1323 npm risk exception;
+      registration, complete native Windows gate and protected rerun remain open.

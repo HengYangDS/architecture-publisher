@@ -5,15 +5,113 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { parse } from 'yaml';
+import { npmInvocation } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
+
+test('native package-manager admission rejects a mismatched toolchain before scripts', async (t) => {
+  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+  const selected = workspace.devEngines;
+  assert.equal(selected?.runtime.name, 'node');
+  assert.equal(
+    selected.runtime.version,
+    (await fs.readFile(path.join(root, '.node-version'), 'utf8')).trim(),
+  );
+  assert.equal(selected.runtime.onFail, 'error');
+  assert.equal(selected.packageManager.name, 'npm');
+  assert.equal(workspace.packageManager, `npm@${selected.packageManager.version}`);
+  assert.equal(selected.packageManager.onFail, 'error');
+  const scratch = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-dev-engine-'),
+  );
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const marker = path.join(scratch, 'ran');
+  const probe = "node -e \"require('node:fs').writeFileSync('ran','selected')\"";
+  const invoke = npmInvocation(['run', 'probe']);
+  const options = {
+    cwd: scratch,
+    encoding: 'utf8',
+    timeout: 30_000,
+    stdio: 'pipe',
+    env: { ...process.env, npm_config_cache: path.join(scratch, 'npm-cache') },
+  };
+  for (const kind of ['runtime', 'packageManager']) {
+    const rejected = structuredClone(selected);
+    rejected[kind].version = '0.0.0';
+    await fs.writeFile(
+      path.join(scratch, 'package.json'),
+      JSON.stringify({ private: true, devEngines: rejected, scripts: { probe } }),
+    );
+    assert.throws(() => execFileSync(invoke.command, invoke.args, options), /EBADDEVENGINES/u);
+    await assert.rejects(fs.access(marker), { code: 'ENOENT' });
+  }
+  await fs.writeFile(
+    path.join(scratch, 'package.json'),
+    JSON.stringify({ private: true, devEngines: selected, scripts: { probe } }),
+  );
+  execFileSync(invoke.command, invoke.args, options);
+  assert.equal(await fs.readFile(marker, 'utf8'), 'selected');
+});
+
+test('Linux verification keeps the common gate and separates trust roles', async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
+  const native = pipeline['.verify-linux'];
+  assert.equal(native?.stage, 'verify');
+  assert.equal(native.resource_group, undefined);
+  assert.equal(native.script.at(-1), 'npm run check');
+  assert(native.script.includes('npm ci --ignore-scripts --no-audit --no-fund'));
+  assert(
+    native.script.includes('npm install --global npm@12.2.0 --ignore-scripts --no-audit --no-fund'),
+  );
+  for (const role of ['review', 'protected']) {
+    const job = pipeline[`verify:linux:${role}`];
+    assert.equal(job.extends, '.verify-linux');
+    assert.equal(job.script, undefined);
+    assert.deepEqual(job.tags, [
+      `ci-linux-arm64-container${role === 'protected' ? '-protected' : ''}`,
+    ]);
+  }
+  assert.deepEqual(pipeline['verify:linux:review'].rules, [
+    { if: '$CI_PIPELINE_SOURCE == "merge_request_event"' },
+    { if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH' },
+  ]);
+  assert.deepEqual(pipeline['verify:linux:protected'].rules, [
+    { if: '$CI_COMMIT_REF_PROTECTED == "true"' },
+  ]);
+});
+
+test('native Windows verification runs the whole quality graph with separate trust roles', async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
+  const native = pipeline['.verify-windows'];
+  assert.equal(native?.stage, 'verify');
+  assert.equal(native.image, null);
+  assert.equal(native.resource_group, 'native-windows-verification');
+  assert.equal(native.timeout, '30m');
+  assert.equal(native.script.at(-1), 'npm run check');
+  assert(native.script.includes('npm ci --ignore-scripts --no-audit --no-fund'));
+  assert(native.script.includes('git --version'));
+  for (const role of ['review', 'protected']) {
+    const job = pipeline[`verify:windows:${role}`];
+    assert.equal(job.extends, '.verify-windows');
+    assert.equal(job.script, undefined);
+    assert.equal(job.resource_group, undefined);
+    assert.deepEqual(job.tags, [`ci-windows-arm64-${role === 'review' ? 'review' : 'shell'}`]);
+  }
+  assert.deepEqual(pipeline['verify:windows:review'].rules, [
+    { if: '$CI_PIPELINE_SOURCE == "merge_request_event"' },
+    { if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH' },
+  ]);
+  assert.deepEqual(pipeline['verify:windows:protected'].rules, [
+    { if: '$CI_COMMIT_REF_PROTECTED == "true"' },
+  ]);
+});
 
 test('native macOS verification shares one project resource without merging trust roles', async () => {
   const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
   const native = pipeline['.verify-macos'];
   assert.equal(typeof native.resource_group, 'string');
   assert(native.resource_group.trim());
-  assert.equal(pipeline.verify.resource_group, undefined);
+  assert.equal(pipeline['.verify-linux'].resource_group, undefined);
   const review = pipeline['verify:macos:review'];
   const protectedJob = pipeline['verify:macos:protected'];
   for (const job of [review, protectedJob]) {
@@ -57,10 +155,22 @@ test('one fail-closed quality entry point covers the repository contract', async
     'markdownlint-cli2 "README.md" "CHANGELOG.md" "docs/**/*.md" "openspec/**/*.md" "skills/**/*.md" "#openspec/changes/archive/**"',
   );
   assert.equal(manifest.scripts['check:spec'], 'openspec validate --all --strict --no-interactive');
-  assert.equal(
-    manifest.scripts['test:coverage'],
-    "c8 --all --include='packages/publisher/src/**/*.mjs' --include='packages/publisher/renderers/**/*.mjs' --include='editions/self/src/**/*.mjs' --exclude='packages/publisher/src/edition/generated/**' --exclude='packages/publisher/renderers/**/supply/**' --check-coverage --statements=95 --lines=95 --branches=95 --functions=95 npm test",
-  );
+  assert.equal(manifest.scripts['test:coverage'], 'c8 --config .config/coverage.json npm test');
+  const coverage = JSON.parse(await fs.readFile(path.join(root, '.config/coverage.json'), 'utf8'));
+  assert.equal(coverage.all, true);
+  assert.equal(coverage['check-coverage'], true);
+  assert.deepEqual(coverage.include, [
+    'packages/publisher/src/**/*.mjs',
+    'packages/publisher/renderers/**/*.mjs',
+    'editions/self/src/**/*.mjs',
+  ]);
+  assert.deepEqual(coverage.exclude, [
+    'packages/publisher/src/edition/generated/**',
+    'packages/publisher/renderers/**/supply/**',
+  ]);
+  assert.deepEqual(coverage.reporter, ['text', 'json-summary']);
+  for (const dimension of ['statements', 'lines', 'branches', 'functions'])
+    assert.equal(coverage[dimension], 95);
   assert.equal(manifest.scripts['check:package'], 'publint packages/publisher');
 
   assert.equal(manifest.devDependencies.c8, '12.0.0');

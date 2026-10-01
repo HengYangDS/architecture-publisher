@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import {
+  execNativeSync,
+  parseNpmPackRecord,
+  spawnNativeSync,
+} from './fixtures/npm-pack-report.mjs';
 
 const record = {
   name: '@architecture-publisher/self-edition',
@@ -16,4 +23,42 @@ test('one npm pack record accepts array and package-name envelopes', () => {
 test('npm pack report rejects ambiguous or malformed package records', () => {
   for (const value of [[], {}, [record, record], { wrong: record }, [null], [1]])
     assert.throws(() => parseNpmPackRecord(JSON.stringify(value)), /npm_pack_record_/u);
+});
+
+test('native npm invocation preserves exact arguments and caller process options', async (t) => {
+  const scratch = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-native-npm-'),
+  );
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  await fs.writeFile(
+    path.join(scratch, 'package.json'),
+    '{"name":"native-invocation-probe","version":"1.0.0"}\n',
+  );
+  const options = {
+    cwd: scratch,
+    encoding: 'utf8',
+    timeout: 30_000,
+    stdio: 'pipe',
+    env: {
+      ...process.env,
+      npm_config_cache: path.join(scratch, 'cache'),
+      npm_config_offline: 'true',
+      npm_config_ignore_scripts: 'true',
+    },
+  };
+  const packed = spawnNativeSync('npm', ['pack', '--dry-run', '--json'], options);
+  assert.equal(packed.error, undefined);
+  assert.equal(packed.status, 0, packed.stderr);
+  assert.equal(parseNpmPackRecord(packed.stdout).name, 'native-invocation-probe');
+  assert.match(execNativeSync('npm', ['--version'], options).trim(), /^\d+\.\d+\.\d+$/u);
+  const argument = 'literal ; argument & not a shell command';
+  const forwarded = spawnNativeSync(
+    process.execPath,
+    ['-e', 'process.stdout.write(process.argv[1])', argument],
+    options,
+  );
+  assert.equal(forwarded.status, 0, forwarded.stderr);
+  assert.equal(forwarded.stdout, argument);
+  const nonzero = spawnNativeSync(process.execPath, ['-e', 'process.exit(17)'], options);
+  assert.equal(nonzero.status, 17);
 });

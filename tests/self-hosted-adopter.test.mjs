@@ -1,8 +1,9 @@
+import { spawnNativeSync } from './fixtures/npm-pack-report.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import {
@@ -17,7 +18,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 function run(command, args, cwd, env = process.env) {
-  const result = spawnSync(command, args, {
+  const result = spawnNativeSync(command, args, {
     cwd,
     env,
     encoding: 'utf8',

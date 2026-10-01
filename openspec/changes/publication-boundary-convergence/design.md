@@ -2042,3 +2042,49 @@ counterexamples, the actual CoreText suite and fresh hosted acceptance.
 ELK and Resvg's natural exits are separate audited risks, not permission to
 expand this repair without a distinct reproducer. Runtime changes require a
 new release; all historical alpha.7 assets remain immutable.
+
+### Cross-platform qualification uses the repository gate
+
+The frozen alpha.8 repair at `68d69b9` passed its actual Linux and macOS review
+jobs. That source declared no Windows job; historical alpha.5 guest probes do
+not qualify this successor. Add Windows review and protected projections to the
+existing GitLab CI owner, with separate project-owned Runner identities and one
+project resource group. Require native Windows ARM64, the selected Node 26.10.0
+and npm 12.2.0 toolchain, scripts-disabled locked installation, and the existing
+`npm run check` graph. The official shell executor owns its generated script;
+no bespoke PowerShell controller, shared product account, policy bypass, or
+replacement command plane is admitted.
+
+Existing platform-specific tests remain explicit about their scope. Incompatible
+command invocation, permission assumptions, or missing installed/toolgraph
+behavior are source-owned failures, not reasons to skip a whole suite. Native
+macOS CoreText and desktop Chrome remain separately observed boundaries. Final
+Windows acceptance binds the same signed source and selected packages to native
+process-tree controls, Provider modes, full independent media, renderer supply,
+and the self installed Build Request. The Linux projection similarly separates
+review and protected selectors while sharing its exact container and gate.
+Runner installation, trust isolation and guest isolation belong to the
+running-environment maintainer, not Publisher runtime.
+
+Private workspace `devEngines` uses npm's native fail-closed Node and package
+manager admission; it is not a new quality controller or installed-runtime
+floor. The selected Linux container explicitly bootstraps official npm 12.2.0;
+native shell accounts use the environment owner's selected copy. Official
+runtime-tree advisory inspection still reports vulnerable dependencies in all
+observed npm 11/12 candidates. This selection is the current stable development
+identity, not a vulnerability repair. The operator approved the exact bounded
+project 1323 CI exception: independent identities and tool directories, verified
+source, disabled installer lifecycle scripts, and no expansion to other projects
+or production. The environment owner's existing Runner manifest records the
+direct human decision and exact supply evidence; any installation outside that
+scope still requires a separate decision or verified upstream correction.
+
+Protected macOS job 46914 at `68d69b9` reached the semantic source-drift test's
+ad hoc two-second fixture limit before its intended identity validator. Local
+undelayed execution reproduces the expected semantic error, while an explicit
+2.1-second fixture reply reproduces the same premature timeout. Identity-only
+tests use the existing canonical Provider bound, not a shorter accidental timing
+requirement. Explicit timeout and blocked-event-loop cases retain their smaller
+selected limits. This changes no production deadline or cleanup allowance and
+does not prove the historical host's exact scheduling cause; the successor still
+requires the actual protected job to pass.

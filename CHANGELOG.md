@@ -12,6 +12,11 @@ may contain incompatible changes.
 
 ### Changed
 
+- Development and CI select Node.js 26.10.0 and npm 12.2.0 through native
+  `devEngines` admission. The installed Core still supports Node.js 22 and later;
+  known npm bundled-dependency advisories remain subject to the scoped CI exception.
+- The repository coverage gate uses one native c8 configuration and emits a
+  fresh JSON summary for all four 95-percent thresholds.
 - The development workspace uses OpenSpec 1.14.0. A relocated task fixture
   verifies the official apply instruction's source path and one-based checkbox
   line. This development-tool upgrade leaves the released product unchanged.
@@ -21,6 +26,14 @@ may contain incompatible changes.
 - CoreText workers retain a finite live lifetime after their reply so parent
   group reclamation cannot race natural worker exit. Coverage is flushed before
   forced termination; stage ceilings and strict cleanup failures remain unchanged.
+- Installed-use tests invoke the selected native npm CLI instead of a Windows
+  command shim. Post-execution identity tests retain the existing Provider bound
+  rather than an accidental two-second fixture limit; timeout tests remain bounded.
+
+### Added
+
+- Native Windows ARM64 CI shares the complete repository gate. Linux, macOS and
+  Windows review/protected projections select distinct Runner trust roles.
 
 ## [0.3.0-alpha.7] - 2026-10-01
 

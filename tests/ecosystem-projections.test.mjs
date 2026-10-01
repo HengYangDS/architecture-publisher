@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 
@@ -47,7 +47,7 @@ test('the packaged Skill remains a thin public CLI projection', async () => {
   assert.match(skill, /grants no acceptance or authority/i);
   assert.doesNotMatch(skill, /\.architecture-state|\.comet|sqlite|daemon/i);
 
-  const packed = spawnSync('npm', ['pack', '--ignore-scripts', '--json', '--dry-run'], {
+  const packed = spawnNativeSync('npm', ['pack', '--ignore-scripts', '--json', '--dry-run'], {
     cwd: path.join(root, 'packages/publisher'),
     encoding: 'utf8',
     timeout: 60000,

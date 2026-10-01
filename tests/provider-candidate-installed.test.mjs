@@ -6,7 +6,7 @@ import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
-import { npmInvocation, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import {
   executableModelProvider,
   selectedNativeEdition,
@@ -16,8 +16,7 @@ import {
 const root = fileURLToPath(new URL('../', import.meta.url));
 
 function run(command, args, cwd, env = process.env) {
-  const selected = command === 'npm' ? npmInvocation(args) : { command, args };
-  const result = spawnSync(selected.command, selected.args, {
+  const result = spawnNativeSync(command, args, {
     cwd,
     env,
     input: '',

@@ -7,7 +7,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
 import { RASTER_LIMITS } from '../packages/publisher/renderers/resvg/limits.mjs';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
 const hash = (b) => createHash('sha256').update(b).digest('hex');
@@ -18,7 +18,7 @@ test('installed raster command needs only explicit input and its pinned static s
   const dir = await fs.mkdtemp(path.join(base, 'installed raster '));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));
   const run = (cmd, args, cwd = root) => {
-    const r = spawnSync(cmd, args, { cwd, encoding: 'utf8', timeout: 60000 });
+    const r = spawnNativeSync(cmd, args, { cwd, encoding: 'utf8', timeout: 60000 });
     assert.equal(r.status, 0, r.stdout + r.stderr);
     return r.stdout;
   };

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
 const sha = (b) => createHash('sha256').update(b).digest('hex');
@@ -416,7 +416,7 @@ test(
   async (t) => {
     const f = await setup(t);
     const runNpm = (args) => {
-      const r = spawnSync('npm', args, {
+      const r = spawnNativeSync('npm', args, {
         cwd: publisher,
         encoding: 'utf8',
         timeout: 60000,

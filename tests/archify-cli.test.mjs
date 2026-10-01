@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { serviceTopology } from './fixtures/diagrams.mjs';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
 const sha = (b) => createHash('sha256').update(b).digest('hex');
@@ -16,7 +16,7 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
   const out = await fs.mkdtemp(path.join(base, 'packed render '));
   t.after(() => fs.rm(out, { recursive: true, force: true }));
   const run = (cmd, args, cwd = root) => {
-    const r = spawnSync(cmd, args, { cwd, encoding: 'utf8' });
+    const r = spawnNativeSync(cmd, args, { cwd, encoding: 'utf8' });
     assert.equal(r.status, 0, r.stdout + r.stderr);
     return r.stdout;
   };

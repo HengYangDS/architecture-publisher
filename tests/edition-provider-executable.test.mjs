@@ -8,6 +8,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { editionDigest } from '../packages/publisher/src/edition/contract.mjs';
 import {
+  EDITION_PROVIDER_LIMITS,
   editionProviderPackageDigest,
   materializeExecutableProvider,
 } from '../packages/publisher/src/provider/index.mjs';
@@ -35,9 +36,10 @@ async function writeManifest(root, options = {}) {
   const inputFile = path.join(root, 'inputs/source.json');
   const packageJson = JSON.parse(await fs.readFile(packageFile, 'utf8'));
   const input = JSON.parse(await fs.readFile(inputFile, 'utf8'));
-  if (options.scenario || options.markerPath) {
+  if (options.scenario || options.markerPath || options.replyDelayMs) {
     if (options.scenario) input.scenario = options.scenario;
     if (options.markerPath) input.markerPath = options.markerPath;
+    if (options.replyDelayMs) input.replyDelayMs = options.replyDelayMs;
     await fs.writeFile(inputFile, JSON.stringify(input, null, 2) + '\n');
   }
   const inputBytes = await fs.readFile(inputFile);
@@ -199,6 +201,14 @@ test('executable fixture exposes one selected and one deliberately unselected ex
   assert.equal(typeof fixtureEntrypoint, 'function');
   assert.equal(typeof unselectedExport, 'function');
   assert.equal(globalThis.__providerExecuted, undefined);
+});
+
+test('shared executable fixture manifest binds its actual package bytes', async () => {
+  const manifest = JSON.parse(await fs.readFile(new URL('provider.json', fixtureRoot), 'utf8'));
+  assert.equal(
+    manifest.delivery.package.contentSha256,
+    await editionProviderPackageDigest(await fs.realpath(new URL('package/', fixtureRoot))),
+  );
 });
 
 test('executable provider runs only the selected export in a bounded child', async (t) => {
@@ -420,9 +430,12 @@ for (const [scenario, code] of [
   test(`executable provider rejects ${scenario} after selected execution`, async (t) => {
     const root = await copyFixture(t);
     const before = await scratchNames();
-    await assert.rejects(materializeExecutableProvider(await writeManifest(root, { scenario })), {
-      code,
+    const selection = await writeManifest(root, {
+      scenario,
+      timeoutMs: EDITION_PROVIDER_LIMITS.timeoutMs,
+      replyDelayMs: scenario === 'edition-source-drift' ? 2_100 : undefined,
     });
+    await assert.rejects(materializeExecutableProvider(selection), { code });
     assert.deepEqual(await scratchNames(), before);
   });
 }

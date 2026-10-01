@@ -88,6 +88,30 @@ retains its own acceptance, release, and custody decisions.
 
 ## ADDED Requirements
 
+### Requirement: Native Windows qualification retains the common repository gate
+
+Declared Windows qualification SHALL execute the common repository quality
+graph on the same selected source and packages. Every platform's review and
+protected jobs SHALL use distinct project-owned Runner identities.
+Platform-specific exclusions
+SHALL remain explicit; local, historical, or other-platform results SHALL NOT
+be promoted into final native acceptance.
+
+#### Scenario: The Windows successor is qualified
+
+- **WHEN** a frozen successor is submitted for native Windows qualification
+- **THEN** its scripts-disabled locked installation and common repository gate
+  execute on the declared Windows architecture and selected Node/npm toolchain
+- **AND** installed Provider, independent-media, renderer-supply and self-use
+  evidence remains bound to exact selected package bytes
+
+#### Scenario: An invocation or platform assumption fails
+
+- **WHEN** the native suite fails at command execution or platform semantics
+- **THEN** that source-owned failure remains unqualified until repaired and rerun
+- **AND** no copied historical result, whole-suite skip, policy bypass or custom
+  PowerShell controller substitutes for the required native behavior
+
 ### Requirement: Adopter placement follows named authority
 
 Each selected Provider SHALL retain its declared identity, and each Edition

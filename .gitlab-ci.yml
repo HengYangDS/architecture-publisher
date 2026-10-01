@@ -6,10 +6,8 @@ variables:
 stages:
   - verify
 
-verify:
+.verify-linux:
   stage: verify
-  tags:
-    - ci-linux-arm64-container
   interruptible: true
   script:
     - umask 022
@@ -17,8 +15,24 @@ verify:
     - npm --version
     - git --version
     - python3 --version
+    - npm install --global npm@12.2.0 --ignore-scripts --no-audit --no-fund
     - npm ci --ignore-scripts --no-audit --no-fund
     - npm run check
+
+verify:linux:review:
+  extends: .verify-linux
+  tags:
+    - ci-linux-arm64-container
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH'
+
+verify:linux:protected:
+  extends: .verify-linux
+  tags:
+    - ci-linux-arm64-container-protected
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
 
 .verify-macos:
   stage: verify
@@ -47,5 +61,34 @@ verify:macos:protected:
   extends: .verify-macos
   tags:
     - ci-macos-arm64-shell
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+
+.verify-windows:
+  stage: verify
+  image: null
+  resource_group: native-windows-verification
+  interruptible: true
+  timeout: 30m
+  script:
+    - node -e "if (process.platform !== 'win32' || process.arch !== 'arm64') process.exit(1)"
+    - node --version
+    - npm --version
+    - git --version
+    - npm ci --ignore-scripts --no-audit --no-fund
+    - npm run check
+
+verify:windows:review:
+  extends: .verify-windows
+  tags:
+    - ci-windows-arm64-review
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH'
+
+verify:windows:protected:
+  extends: .verify-windows
+  tags:
+    - ci-windows-arm64-shell
   rules:
     - if: '$CI_COMMIT_REF_PROTECTED == "true"'

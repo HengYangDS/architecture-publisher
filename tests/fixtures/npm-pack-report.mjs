@@ -1,12 +1,25 @@
 import path from 'node:path';
+import { execFileSync, spawnSync } from 'node:child_process';
 
 /** Invoke npm through the selected Node installation instead of a Windows cmd shim. */
 export function npmInvocation(args) {
+  if (path.isAbsolute(process.env.npm_execpath ?? ''))
+    return { command: process.execPath, args: [process.env.npm_execpath, ...args] };
   if (process.platform !== 'win32') return { command: 'npm', args };
   return {
     command: process.execPath,
     args: [path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js'), ...args],
   };
+}
+
+export function spawnNativeSync(command, args, options) {
+  const selected = command === 'npm' ? npmInvocation(args) : { command, args };
+  return spawnSync(selected.command, selected.args, options);
+}
+
+export function execNativeSync(command, args, options) {
+  const selected = command === 'npm' ? npmInvocation(args) : { command, args };
+  return execFileSync(selected.command, selected.args, options);
 }
 
 /** Parse the one-package npm pack report across supported npm JSON envelopes. */

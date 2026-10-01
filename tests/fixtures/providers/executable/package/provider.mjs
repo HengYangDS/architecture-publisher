@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 
 const selectedInput = (request) => request.inputs.find(({ id }) => id === 'source');
 const fail = (code) => {
@@ -83,6 +84,7 @@ export async function materializeEditionProvider(request) {
     ]).toString('base64');
     return reply;
   }
+  if (selected.replyDelayMs) await delay(selected.replyDelayMs);
   if (selected.scenario === 'edition-drift' || selected.scenario === 'edition-source-drift') {
     const reply = structuredClone(selected.reply);
     const edition = JSON.parse(Buffer.from(reply.edition.contentBase64, 'base64').toString('utf8'));

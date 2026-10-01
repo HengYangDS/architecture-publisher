@@ -20,7 +20,7 @@
     "check:dead-code": "knip --config knip.json && knip --config knip.json --production --strict --include files,unlisted,unresolved,cycles,exports,nsExports",
     "check:docs": "markdownlint-cli2 \"README.md\" \"CHANGELOG.md\" \"docs/**/*.md\" \"openspec/**/*.md\" \"skills/**/*.md\" \"#openspec/changes/archive/**\"",
     "check:spec": "openspec validate --all --strict --no-interactive",
-    "test:coverage": "c8 --all --include='packages/publisher/src/**/*.mjs' --include='packages/publisher/renderers/**/*.mjs' --include='editions/self/src/**/*.mjs' --exclude='packages/publisher/src/edition/generated/**' --exclude='packages/publisher/renderers/**/supply/**' --check-coverage --statements=95 --lines=95 --branches=95 --functions=95 npm test",
+    "test:coverage": "c8 --config .config/coverage.json npm test",
     "check:package": "publint packages/publisher"
   },
   "license": "UNLICENSED",
@@ -52,7 +52,19 @@
   "overrides": {
     "lodash-es": "4.18.1"
   },
-  "packageManager": "npm@11.19.1",
+  "packageManager": "npm@12.2.0",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "26.10.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": "12.2.0",
+      "onFail": "error"
+    }
+  },
   "engines": {
     "node": ">=22"
   }

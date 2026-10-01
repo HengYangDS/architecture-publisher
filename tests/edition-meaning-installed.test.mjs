@@ -1,19 +1,19 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const publisher = fileURLToPath(new URL('../packages/publisher/', import.meta.url));
 
 function child(command, args, cwd, environment, expectedStatus = 0) {
-  const result = spawnSync(command, args, {
+  const result = spawnNativeSync(command, args, {
     cwd,
     env: environment,
     input: '',

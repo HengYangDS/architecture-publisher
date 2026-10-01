@@ -9,7 +9,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright-core';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { editionDigest, validateEdition } from '../packages/publisher/src/edition/contract.mjs';
 import { compareEditionInput } from '../packages/publisher/src/edition/input.mjs';
 import {
@@ -29,7 +29,7 @@ async function json(file) {
 }
 
 function run(command, args, options = {}) {
-  const result = spawnSync(command, args, {
+  const result = spawnNativeSync(command, args, {
     encoding: 'utf8',
     timeout: 120_000,
     ...options,

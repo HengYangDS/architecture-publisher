@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import {
   planPairFiles,
   installPairFiles,
@@ -1746,15 +1746,19 @@ test('file payload can come from explicit independent media and evidence roots',
 
 test('installed file engine handles explicit roots with no developer executables', async (t) => {
   const { dir, options } = await fixture(t),
-    pack = spawnSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', dir], {
-      cwd: publisher,
-      encoding: 'utf8',
-    });
+    pack = spawnNativeSync(
+      'npm',
+      ['pack', '--json', '--ignore-scripts', '--pack-destination', dir],
+      {
+        cwd: publisher,
+        encoding: 'utf8',
+      },
+    );
   assert.equal(pack.status, 0, pack.stderr);
   const info = parseNpmPackRecord(pack.stdout),
     consumer = path.join(dir, 'installed');
   await fs.mkdir(consumer);
-  const installation = spawnSync(
+  const installation = spawnNativeSync(
     'npm',
     [
       'install',
