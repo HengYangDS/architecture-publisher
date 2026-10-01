@@ -1,7 +1,7 @@
 {
   "schema": "architecture.coretext-process-lifetime-evidence/v1",
-  "status": "runtime, finite fixture correction, exact source/tag CI, alpha.7 assets and installed readback qualified at declared revisions; full goal remains open",
-  "observedAt": "2026-10-01T04:40:29.491Z",
+  "status": "alpha.7 historical release preserved; alpha.8 CoreText replying-worker repair locally qualified; exact-HEAD governance, hosted/native successor and release remain open",
+  "observedAt": "2026-10-01T10:43:48.195Z",
   "source": {
     "runtimeCommit": "0788d916b96f6868a3380bdb627705a6a1fe037b",
     "testCorrectionCommit": "eddd9feb831a867cca6ad85530f0145a641dbcfe",
@@ -470,5 +470,113 @@
   "releaseReadback": {
     "path": "conformance/evidence/release-alpha7-readback.json",
     "sha256": "029fcdfbb550fd38c01be2602ca55efd75c454ffee769e32faf1adc8865890c2"
+  },
+  "replyingWorkerCorrection": {
+    "status": "local source slice approved, not a published successor",
+    "baseHead": "ef364a7e34691bf57c7148d8338abbadacffaec6",
+    "selectedVersion": "0.3.0-alpha.8",
+    "sourceSha256": {
+      "packages/publisher/renderers/svg/coretext-worker.mjs": "8b7b774f25d50176375910b486f9a45683a4b4c2e3524ef549c982cf4d3b9638",
+      "packages/publisher/renderers/svg/coretext-process.mjs": "738dfaef1da5401b6e75d53ec9cb2e3b2ebd7c38221ea361a26be2c89d8c6b05",
+      "tests/coretext-process.test.mjs": "ca9fed028b1153b71fbe624487aadf169b5a9fed0ab3433da589e9154c072266"
+    },
+    "originatingHostedFailure": {
+      "pipeline": 9131,
+      "job": 46883,
+      "failure": "coretext_stage_cleanup_failed after valid result; EPERM",
+      "limits": "Exact CI process inventory is missing; Darwin zombie-only group is a demonstrated race, not proof of PID reuse or every past stall"
+    },
+    "nativeCounterexample": {
+      "path": "build/review/release-alpha7/coretext-reclamation/darwin-zombie-group-counterexample.json",
+      "sha256": "7aef6eabaa46af1bdde241031dfe6719e9ef96930d78233e43774c98e0674f0b",
+      "bytes": 821
+    },
+    "red": {
+      "path": "build/review/release-alpha7/coretext-reclamation/lifetime-red.log",
+      "sha256": "247b371e2a0c8aa119c79a220375ad0a1d26a39abcbd2b89d167e3824a11163c",
+      "bytes": 1965
+    },
+    "focused": {
+      "receipt": {
+        "path": "build/review/release-alpha7/coretext-reclamation/successor-focused-native.json",
+        "sha256": "6243f9b38dd24b2975a30b0083cf428381c00fbde1bff682942c2cb413cc5e6e",
+        "bytes": 1281
+      },
+      "log": {
+        "path": "build/review/release-alpha7/coretext-reclamation/successor-focused-native.log",
+        "sha256": "e5529adea572a34890724f92dbe7cd7c7d1d78c06aa25c6787ac450637311d2a",
+        "bytes": 4212
+      },
+      "passed": 44,
+      "skipped": 0
+    },
+    "review": {
+      "path": "build/review/release-alpha7/coretext-reclamation/source-review.json",
+      "sha256": "4bcb2c277bc4fa052b81dc50e8f52547ab819a47ae4c02880423f68b63ed40a5",
+      "bytes": 1033
+    },
+    "local": {
+      "receipt": {
+        "path": "build/review/release-alpha7/coretext-reclamation/successor-current-gate.json",
+        "sha256": "981a13dd59c287e5843079e140949160cd7b4571e616c8847a0ecb7842e8f6fc",
+        "bytes": 1415
+      },
+      "log": {
+        "path": "build/review/release-alpha7/coretext-reclamation/successor-full-browser.log",
+        "sha256": "828891721752eea58d2b850ee407fbaa023f83625d7e4b9f8e806fb3d3aef9dd",
+        "bytes": 152049
+      },
+      "passed": 1426,
+      "skipped": 3,
+      "coverage": {
+        "lines": {
+          "total": 29231,
+          "covered": 28577,
+          "skipped": 0,
+          "pct": 97.76
+        },
+        "statements": {
+          "total": 29231,
+          "covered": 28577,
+          "skipped": 0,
+          "pct": 97.76
+        },
+        "functions": {
+          "total": 958,
+          "covered": 954,
+          "skipped": 0,
+          "pct": 99.58
+        },
+        "branches": {
+          "total": 11532,
+          "covered": 10975,
+          "skipped": 0,
+          "pct": 95.16
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "reviewCorrections": [
+      "Direct worker closes under a bounded deadline before scratch removal; unproved closure retains scratch",
+      "Fixture-state fields retain early cleanup registration without disabling prefer-const"
+    ],
+    "coverageCorrection": "The command wrapper read an old coverage-summary.json; fresh c8 --all report from the completed run supplies these exact coverage totals",
+    "remaining": [
+      "exact-HEAD proof and protected integration",
+      "fresh source/tag Linux/macOS CI",
+      "final frozen native Windows complete package/toolgraph",
+      "installed successor and exact-media review",
+      "release download and readback"
+    ],
+    "limits": [
+      "Self-expiry does not guarantee descendant reclamation after supervisor loss",
+      "EPERM remains fail-closed",
+      "No source-owned ETHOS/AIGW migration or off-host recovery inferred"
+    ]
   }
 }

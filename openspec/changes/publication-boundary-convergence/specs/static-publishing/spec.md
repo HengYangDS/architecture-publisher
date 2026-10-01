@@ -1,38 +1,28 @@
 ## ADDED Requirements
 
-### Requirement: CoreText stage reclamation precedes scratch cleanup
+### Requirement: CoreText worker retains bounded reclamation lifetime
 
-CoreText SHALL run the selected compiler and measurement in separately bounded
-owned process groups. Each group SHALL be reclaimed before the next stage or
-scratch removal. Compiler and measurement deadlines remain 120 and 30 seconds;
-no retry, broader input, inferred acceptance, or sandbox claim is introduced.
+A selected CoreText worker SHALL remain live after its reply until parent
+reclamation, bounded by the selected stage deadline plus the existing cleanup
+allowance and one second. It SHALL flush enabled V8 coverage before replying
+and reject invalid lifetime bounds before parsing input or launching a child.
+Stage ceilings and fail-closed group reclamation SHALL remain unchanged.
 
-#### Scenario: The selected compiler leaves a descendant
+#### Scenario: The reply precedes owner reclamation
 
-- **WHEN** the selected compiler fails or times out with a live owned descendant
-- **THEN** the parent reclaims the stage group before removing private scratch
-- **AND** no measurement stage starts and no successful metrics are published
+- **WHEN** the selected stage worker replies and the parent has not reclaimed it
+- **THEN** the worker remains live within its validated finite lifetime
+- **AND** enabled coverage is flushed before the reply
+- **AND** the parent still reclaims its group before admitting stage success
 
-#### Scenario: The selected measurement completes
+#### Scenario: The stage supervisor disappears
 
-- **WHEN** the selected compiler succeeds within its deadline
-- **THEN** its group closes before measurement starts under its own deadline
-- **AND** selected compiler, SDK, font and helper identities remain checked
+- **WHEN** the stage owner disappears before reclaiming the replying worker
+- **THEN** the worker expires after the selected stage bound plus the existing
+  cleanup allowance and one second
+- **AND** descendant reclamation and passing stage acceptance remain unproved
 
-### Requirement: CoreText failures preserve primary and cleanup causes
+#### Scenario: The worker lifetime is malformed
 
-A failed CoreText stage SHALL report its bounded primary process diagnostics.
-Unproved group or scratch reclamation SHALL retain that primary cause and a
-separate cleanup cause rather than imply successful cleanup or hide the failure.
-
-#### Scenario: Cleanup also fails after compiler rejection
-
-- **WHEN** a failed compile and a cleanup failure occur in one invocation
-- **THEN** its failure retains the compile identity and bounded diagnostic tail
-- **AND** it separately reports cleanup uncertainty without claiming no residue
-
-#### Scenario: Diagnostic checkpoint cannot be observed
-
-- **WHEN** reading the bounded checkpoint fails after a stage timeout
-- **THEN** the failure retains its typed stage timeout as the primary cause
-- **AND** unavailable diagnostics are a separate bounded observation
+- **WHEN** the selected worker lifetime is absent or outside its admitted bound
+- **THEN** the worker exits unsuccessfully before parsing input or launching a child

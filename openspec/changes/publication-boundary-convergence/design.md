@@ -2008,3 +2008,37 @@ explicit bounds and require observed entry, typed timeout and exact diagnostic
 tail. Production stage deadlines, byte bounds, runtime inputs and immutable
 alpha.7 are unchanged. No retry, skip, platform exception, clock reset or
 production readiness hook is added.
+
+### CoreText reply retains a live reclamation target
+
+Serialized protected job 46883 at `ef364a7` returned a valid CoreText result but
+failed group cleanup with `EPERM`. Its process inventory was not captured;
+neither PID reuse nor permission drift is proved. A bounded native Darwin
+counterexample instead proves that an owned, unreaped zombie-only group can
+produce `EPERM`: XNU excludes zombies from group signalling and returns that
+error when an existing group has no eligible member. The current worker clears
+its only timer on selected-child close, then replies and may exit before its
+owner signals the group. This is a concrete lifetime race, not proof of every
+historical compiler failure.
+
+Keep the existing CoreText worker alive with one referenced finite timer,
+validated before request parsing or child launch. Its argv lifetime is the
+selected stage ceiling plus the existing five-second cleanup allowance and one
+second; compilation and measurement remain bounded separately at 120 and 30
+seconds. Selected-child close clears only the child deadline, not the worker
+lifetime. The parent remains the sole group and scratch reclamation owner.
+Flush enabled V8 coverage before emitting the completed reply because normal
+parent reclamation uses SIGKILL. This changes no public command, request,
+response, retry policy, input scope or process-tree authority. Never suppress
+`EPERM`, replace group reclamation with PID inventory, or claim that worker
+self-expiry reclaims descendants after supervisor loss.
+
+A real-worker regression delays the existing test-seam reclamation after a
+reply, requires the leader still live, then uses actual group termination and
+observes closure. Direct-worker controls prove finite self-expiry and reject
+malformed lifetimes before child launch. A coverage probe checks the killed
+worker's flushed file. Retain primary-plus-cleanup and ordinary-descendant
+counterexamples, the actual CoreText suite and fresh hosted acceptance.
+ELK and Resvg's natural exits are separate audited risks, not permission to
+expand this repair without a distinct reproducer. Runtime changes require a
+new release; all historical alpha.7 assets remain immutable.

@@ -96,7 +96,7 @@ export async function runCoreTextStage({
   try {
     return await runOwnedProcess({
       worker,
-      args: [],
+      args: [String(timeoutMs + PROCESS_CLEANUP_MS + 1_000)],
       requestPath,
       scratch,
       timeoutMs,

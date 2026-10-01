@@ -8,11 +8,19 @@ may contain incompatible changes.
 
 ## Unreleased
 
+## [0.3.0-alpha.8] - 2026-10-01
+
 ### Changed
 
 - The development workspace uses OpenSpec 1.14.0. A relocated task fixture
   verifies the official apply instruction's source path and one-based checkbox
   line. This development-tool upgrade leaves the released product unchanged.
+
+### Fixed
+
+- CoreText workers retain a finite live lifetime after their reply so parent
+  group reclamation cannot race natural worker exit. Coverage is flushed before
+  forced termination; stage ceilings and strict cleanup failures remain unchanged.
 
 ## [0.3.0-alpha.7] - 2026-10-01
 
@@ -448,6 +456,7 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.3.0-alpha.8]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.8
 [0.3.0-alpha.7]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.7
 [0.3.0-alpha.6]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.6
 [0.3.0-alpha.5]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.5

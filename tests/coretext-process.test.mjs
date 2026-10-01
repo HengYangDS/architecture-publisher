@@ -1,8 +1,19 @@
 import assert from 'node:assert/strict';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+import {
+  runOwnedProcess,
+  terminatePosixGroup,
+  workerEnvironment,
+} from '../packages/publisher/src/runtime/process-tree.mjs';
+
+const worker = fileURLToPath(
+  new URL('../packages/publisher/renderers/svg/coretext-worker.mjs', import.meta.url),
+);
 
 async function fixture(t, source) {
   const scratch = await fs.mkdtemp(
@@ -39,6 +50,210 @@ function live(pid) {
     throw e;
   }
 }
+
+async function replyingWorker(t, beforeRemove = () => {}) {
+  const scratch = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-coretext-process-'),
+  );
+  const state = { child: null, exited: null };
+  const reclaim = async () => {
+    if (state.child) {
+      if (state.child.exitCode === null && state.child.signalCode === null)
+        state.child.kill('SIGKILL');
+      let deadline;
+      try {
+        const closed = await Promise.race([
+          state.exited.then(() => true),
+          new Promise((resolve) => {
+            deadline = setTimeout(() => resolve(false), 5_000);
+          }),
+        ]);
+        assert.equal(closed, true, `worker closure unproved; retained scratch: ${scratch}`);
+      } finally {
+        clearTimeout(deadline);
+      }
+    }
+    await beforeRemove();
+    await fs.rm(scratch, { recursive: true, force: true });
+  };
+  t.after(reclaim);
+  const program = path.join(scratch, 'compiler.mjs');
+  await fs.writeFile(program, "process.stdout.write('completed');");
+  const child = spawn(process.execPath, [worker, '30000'], {
+    cwd: scratch,
+    env: workerEnvironment(scratch),
+    stdio: ['pipe', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+  state.child = child;
+  let stdout = '';
+  const reply = new Promise((resolve, reject) => {
+    child.once('error', reject);
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk;
+      if (stdout.includes('\n')) resolve(JSON.parse(stdout.trim()));
+    });
+  });
+  child.stderr.resume();
+  const exited = new Promise((resolve) => child.once('close', (code) => resolve(code)));
+  state.exited = exited;
+  child.stdin.end(
+    JSON.stringify({
+      executable: process.execPath,
+      args: [program],
+      scratch,
+      env: { HOME: scratch, PATH: scratch },
+      input: '',
+      timeoutMs: 30_000,
+      maximumBytes: 65536,
+    }),
+  );
+  return { child, exited, reply, scratch, reclaim };
+}
+
+test(
+  'CoreText reply retains a live worker until delayed owner reclamation',
+  { skip: process.platform === 'win32' },
+  async (t) => {
+    const stage = await selectedStage(t, "process.stdout.write('completed');");
+    const requestPath = path.join(stage.selected.scratch, 'lifetime-request.json');
+    await fs.writeFile(requestPath, JSON.stringify(stage.selected));
+    let pid;
+    const result = await runOwnedProcess({
+      worker,
+      requestPath,
+      scratch: stage.selected.scratch,
+      args: ['126000'],
+      timeoutMs: 30_000,
+      maximumBytes: 65536,
+      failurePrefix: 'coretext_stage',
+      async terminateTree(selectedPid) {
+        pid = selectedPid;
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        const alive = live(pid);
+        await terminatePosixGroup(pid);
+        assert.equal(alive, true, 'replying worker exited before owner reclamation');
+      },
+      decode: (raw) => JSON.parse(raw),
+    });
+    assert.equal(result.exitCode, 0);
+    assert.equal(Buffer.from(result.stdoutBase64, 'base64').toString(), 'completed');
+    assert.equal(live(pid), false, 'owned worker remains after group reclamation');
+  },
+);
+
+test('CoreText replying worker self-expires without an owner', { timeout: 40_000 }, async (t) => {
+  const { child, exited, reply } = await replyingWorker(t);
+  let deadline;
+  let expiryDeadline;
+  try {
+    const first = await Promise.race([
+      reply.then(() => 'reply'),
+      exited.then(() => 'closed'),
+      new Promise((resolve) => {
+        deadline = setTimeout(() => resolve('timeout'), 35_000);
+      }),
+    ]);
+    assert.equal(first, 'reply');
+    assert.equal((await reply).exitCode, 0);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    assert.equal(live(child.pid), true, 'replying worker is not available for owner cleanup');
+    assert.equal(
+      await Promise.race([
+        exited,
+        new Promise((resolve) => {
+          expiryDeadline = setTimeout(() => resolve('timeout'), 35_000);
+        }),
+      ]),
+      1,
+      'worker lacks a finite unsuccessful self-expiry',
+    );
+  } finally {
+    clearTimeout(deadline);
+    clearTimeout(expiryDeadline);
+  }
+});
+
+test('CoreText direct-worker cleanup closes a live worker before removing scratch', async (t) => {
+  let closed = false;
+  const { child, reply, scratch, reclaim } = await replyingWorker(t, () => {
+    assert.equal(closed, true, 'scratch removal ran before the worker close event');
+    assert.equal(live(child.pid), false);
+  });
+  child.once('close', () => {
+    closed = true;
+  });
+  assert.equal((await reply).exitCode, 0);
+  assert.equal(live(child.pid), true);
+  await fs.access(scratch);
+  await reclaim();
+  assert.equal(live(child.pid), false);
+  await assert.rejects(fs.access(scratch), { code: 'ENOENT' });
+});
+
+test('CoreText worker rejects invalid lifetimes before launching selected code', async (t) => {
+  const stage = await selectedStage(
+    t,
+    "import fs from 'node:fs';fs.writeFileSync(process.argv[2],'started');",
+  );
+  const marker = path.join(stage.selected.scratch, 'started');
+  stage.selected.args.push(marker);
+  for (const value of [undefined, '', '0', '-1', '1.5', 'NaN', '126001']) {
+    const result = spawnSync(process.execPath, [worker, ...(value === undefined ? [] : [value])], {
+      cwd: stage.selected.scratch,
+      env: workerEnvironment(stage.selected.scratch),
+      input: JSON.stringify(stage.selected),
+      encoding: 'utf8',
+      timeout: 30_000,
+      windowsHide: true,
+    });
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, '');
+    assert.equal(result.stderr, '');
+    await assert.rejects(fs.access(marker), { code: 'ENOENT' });
+  }
+});
+
+test('CoreText worker flushes enabled coverage before owner SIGKILL', async (t) => {
+  const stage = await selectedStage(t, "process.stdout.write('completed');");
+  const requestPath = path.join(stage.selected.scratch, 'coverage-request.json');
+  await fs.writeFile(requestPath, JSON.stringify(stage.selected));
+  const coverage = path.join(stage.selected.scratch, 'coverage');
+  await fs.mkdir(coverage);
+  const original = process.env.NODE_V8_COVERAGE;
+  process.env.NODE_V8_COVERAGE = coverage;
+  try {
+    await runOwnedProcess({
+      worker,
+      requestPath,
+      scratch: stage.selected.scratch,
+      args: ['126000'],
+      timeoutMs: 30_000,
+      maximumBytes: 65536,
+      failurePrefix: 'coretext_stage',
+      decode: (raw) => JSON.parse(raw),
+    });
+    const reports = await Promise.all(
+      (await fs.readdir(coverage)).map(async (name) =>
+        JSON.parse(await fs.readFile(path.join(coverage, name), 'utf8')),
+      ),
+    );
+    assert(
+      reports.some((report) =>
+        report.result.some(
+          (script) =>
+            script.url.endsWith('/coretext-worker.mjs') &&
+            script.functions.some((fn) => fn.ranges.some((range) => range.count > 0)),
+        ),
+      ),
+      'SIGKILL lost the completed CoreText worker coverage',
+    );
+  } finally {
+    if (original === undefined) delete process.env.NODE_V8_COVERAGE;
+    else process.env.NODE_V8_COVERAGE = original;
+  }
+});
 test(
   'CoreText stage reclaims a selected compiler descendant before returning failure',
   { skip: process.platform === 'win32' },

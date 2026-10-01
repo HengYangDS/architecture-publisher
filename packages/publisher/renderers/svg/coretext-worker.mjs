@@ -1,7 +1,12 @@
 import fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
+import { takeCoverage } from 'node:v8';
 
+const lifetimeMs = Number(process.argv[2]);
+if (!Number.isSafeInteger(lifetimeMs) || lifetimeMs <= 0 || lifetimeMs > 126_000) process.exit(1);
+// Keep the replying group leader live until owner reclamation, then bound owner loss.
+setTimeout(() => process.exit(1), lifetimeMs);
 const request = JSON.parse(fs.readFileSync(0, 'utf8'));
 const child = spawn(request.executable, request.args, {
   cwd: request.scratch,
@@ -40,6 +45,7 @@ child.once('error', (error) => {
 });
 child.once('close', (exitCode, signal) => {
   clearTimeout(deadline);
+  if (process.env.NODE_V8_COVERAGE) takeCoverage();
   process.stdout.write(
     JSON.stringify({
       status: 'exited',

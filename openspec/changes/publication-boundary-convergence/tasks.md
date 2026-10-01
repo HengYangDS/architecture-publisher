@@ -1137,3 +1137,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       proposal/dev/main pipelines 9100/9102/9103 passed every declared gate
       and coverage floor. Immutable alpha.7 and all product/media inputs
       remain unchanged; prior failures and unproved delay causes are retained.
+
+- [ ] 8.4.4 Retain a live, finitely bounded CoreText worker after its reply;
+      preserve strict group reclamation, stage ceilings, primary diagnostics
+      and coverage. Require the incumbent-failing delayed-owner test, direct
+      expiry and invalid-bound controls, killed-worker coverage, sibling audit,
+      full four-dimensional 95% gate and fresh hosted/native successor evidence.
+      Preserve job 46883 and immutable alpha.7; no retry or ignored `EPERM`
+      establishes recovery.
+      Alpha.8 root/Core/self and lock projections agree without third-party
+      dependency changes. Independent bounded review accepted the lifecycle
+      repair and ordered test cleanup; 44 focused native/installed cases pass
+      with zero skips. The frozen Chrome-enabled full gate passes 1,426/1,429
+      with three declared skips and 97.76/95.16/99.58/97.76% coverage.
+      The command wrapper read stale summary data; a fresh native c8 `--all`
+      report binds the current totals in the existing
+      `conformance/evidence/coretext-process-lifetime.json` owner. Exact-HEAD
+      governance, hosted/native Windows successor, installed release and
+      readback remain open; this task is not complete.
