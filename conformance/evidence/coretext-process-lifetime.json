@@ -783,5 +783,138 @@
       "No changed historical release assets or receipt identity",
       "Full Windows suite, four-dimensional coverage, independent slice review and release readback remain open"
     ]
+  },
+  "nativeFixtureCorrection": {
+    "baseHead": "ec72b35da71e858b26137c95a09225c4a25fbd5e",
+    "status": "local fixture and transport RED/GREEN; ordinary native Windows rerun and full source coverage pending",
+    "owner": "Existing first-party native tests and raster transport owner",
+    "red": [
+      {
+        "path": "build/review/release-alpha8/native-platform-contract-red.log",
+        "bytes": 99794,
+        "sha256": "cd6eb450d13d46d68ea0dd97dc096b8eafb97420dcda62f64587b15e6b827b98"
+      },
+      {
+        "path": "build/review/release-alpha8/package-source-replay-red.log",
+        "bytes": 1102,
+        "sha256": "f7723065029a98eee923d8081ff967a0cf023177aee339680a541fb13203452e"
+      },
+      {
+        "path": "build/review/release-alpha8/raster-no-reply-red.log",
+        "bytes": 2188,
+        "sha256": "f299f3eae1ae2dbbe43c64bfe1113047d785148e96750fd2da89a5c42597acbd"
+      },
+      {
+        "path": "build/review/release-alpha8/package-source-inventory-red.log",
+        "bytes": 938,
+        "sha256": "1d606a80e8009c10aab1c639fbfde6fa5ae20d586a2cf06936de1a98559ceaf3"
+      }
+    ],
+    "focused": [
+      {
+        "scope": "URL/path/shim/native parser and worker expiry",
+        "passed": 42,
+        "failed": 0,
+        "skipped": 0,
+        "log": {
+          "path": "build/review/release-alpha8/native-platform-contract-focused.log",
+          "bytes": 3884,
+          "sha256": "41b2d7087eb4f07a708815e1b2767ccc4e301a36577d7a2957e341c0b15f605f"
+        }
+      },
+      {
+        "scope": "Historical package source replay and selected fixtures",
+        "passed": 14,
+        "failed": 0,
+        "skipped": 1,
+        "skipReason": "Explicit AIGW_EDITION_ROOT and AIGW_SOURCE_ROOT absent; existing actual source-owned adoption still open",
+        "log": {
+          "path": "build/review/release-alpha8/native-fixture-historical-reviewed.log",
+          "bytes": 1501,
+          "sha256": "ff6f88ca69414587fb6963db86295ce0b7a30d4e3666ab90c06f7c6a3c7f5df2"
+        }
+      },
+      {
+        "scope": "Interruption/replacement recovery with native boundary marker",
+        "passed": 95,
+        "failed": 0,
+        "skipped": 1,
+        "skipReason": "Explicit prior delivery paths not selected",
+        "log": {
+          "path": "build/review/release-alpha8/native-fixture-interruption-focused.log",
+          "bytes": 9296,
+          "sha256": "347b137db552c665b6887ff8cf3a86bd09035d1646a3185f768cf6e31f5ad6b6"
+        }
+      },
+      {
+        "scope": "Actual installed raster and empty-nonzero transport fault",
+        "passed": 22,
+        "failed": 0,
+        "skipped": 0,
+        "log": {
+          "path": "build/review/release-alpha8/raster-no-reply-green.log",
+          "bytes": 1159,
+          "sha256": "969d73b5d961ae1a7eef3d85509a4372ae0d3e4e5e349c0fa133d6a96ae631c4"
+        }
+      },
+      {
+        "scope": "Independent extracted-root inventory, nested paths, omitted files, matching-byte file links, directory and root aliases, historical callers",
+        "passed": 6,
+        "failed": 0,
+        "skipped": 1,
+        "skipReason": "Explicit external AIGW roots absent; historical source evidence is not current adopter acceptance",
+        "log": {
+          "path": "build/review/release-alpha8/package-source-inventory-reviewed-focused.log",
+          "bytes": 835,
+          "sha256": "16adc528f83dce32cd43d681a77e78ac39ba1961282dda0b57a9193387dab167"
+        }
+      }
+    ],
+    "historicalPackageIdentity": {
+      "originalDigests": "unchanged immutable fixture values",
+      "POSIX": "complete historical uncompressed TAR equality retained",
+      "Windows": "complete extracted package set and every byte match exact immutable source tree; TAR header equality is not claimed",
+      "counterexample": {
+        "path": "build/review/release-alpha8/historical-pack-mode-probe.json",
+        "bytes": 454,
+        "sha256": "a2c06ab44487fc1e1e01b083d64df9aa3d2ce1e7d974480b15e584c1a47ba061"
+      }
+    },
+    "nativeSignals": {
+      "owner": "tests/fixtures/process-termination.mjs",
+      "boundary": "fs.writeSync selected-interruption-boundary marker before native self SIGKILL",
+      "nativeLibuvSource": {
+        "path": "build/review/release-alpha8/native-checkout-review/libuv153-windows-process.c",
+        "bytes": 44940,
+        "sha256": "4b9975bde42483f8915dff79c3d2a6f2da58374ac4dbad0983be0bb94442c8fe"
+      },
+      "decision": "Windows native process.kill self-termination yields status1 without a parent signal; marker prevents treating unrelated exit1 as injected interruption"
+    },
+    "limits": [
+      "Fixture portability is not actual ordinary Windows qualification",
+      "No historical package/tag rewrite",
+      "Admin fs capability probe remains optional and explicitly nonordinary",
+      "All four coverage95 floors and complete repaired native CI remain required"
+    ],
+    "extractedInventoryReview": {
+      "reviewer": "/root/repaired_reviewer_message_probe",
+      "baseHead": "ec72b35da71e858b26137c95a09225c4a25fbd5e",
+      "decision": "approve-bounded-source-slice",
+      "helperDiffSha256": "34da0b3331a9409c91c2010ace6c18120f8fbf3c894a2c9db4d874e5684bf890",
+      "controls": {
+        "path": "tests/package-source-replay.test.mjs",
+        "bytes": 4460,
+        "sha256": "4d54d66ac613525349d3adb7ef69b0318ab8bea64283c09e07ed357147904f60"
+      },
+      "remainingLimits": [
+        "Actual native Windows file-link permissions and complete repaired execution remain unproved",
+        "Full four-dimensional coverage and release acceptance remain open"
+      ]
+    },
+    "extractedInventoryCleanup": {
+      "root": "build/test-work",
+      "prefixes": ["package-source-replay-", "package-source-nested-"],
+      "observedResidue": []
+    }
   }
 }

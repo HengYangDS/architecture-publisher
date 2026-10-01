@@ -65,5 +65,95 @@
     "The AIGW source commit is a provisional work-lane revision, not current dev or AIGW owner acceptance.",
     "The package is a signed-source local preview, not a protected tag, GitLab release, or final frozen artifact.",
     "This probe does not qualify browser behavior, accessibility, visual judgment, semantic truth, source-delta update, local publication recovery, hosted CI, or AIGW release."
-  ]
+  ],
+  "sourceOwnedAdoption": {
+    "status": "receiver-owned Client Projection integration accepted; whole-product architecture and publication not implied",
+    "receiver": {
+      "thread": "019fa96d-5279-7363-9119-9dd30f821800",
+      "observedHead": "444bbd41fd86ce0f75c230eab3c592c4007163f2",
+      "migrationCommit": "2550a0eca94b2853bebb71757000082692b7b729",
+      "decisionOwner": "terminal-product-convergence:8.6"
+    },
+    "selection": {
+      "version": "0.3.0-alpha.7",
+      "archiveSha256": "0c24ef1b831de79255dfb1e3180ab49e8d203bb1906e79d1917a529ae0160e35",
+      "manifestSha256": "59ae64a187b13a59b70b735f3c8a721eae1b23f2aa71a50a05a523ca9bb09b36",
+      "rollback": {
+        "commit": "80dbca1948bf6cf0cab59c6368b168ba6657a29b",
+        "tree": "a007a5b46d006d6ccb58874ab499dd3798fe2503"
+      }
+    },
+    "sourceFiles": [
+      {
+        "path": "architecture/edition-provider/claim-model.json",
+        "bytes": 15397,
+        "sha256": "19693114f36a9b01b26115c28178166e23ee536b92636602ed1c2534a5a27cec"
+      },
+      {
+        "path": "architecture/edition-provider/edition.json",
+        "bytes": 16661,
+        "sha256": "1baa72e1bdfef546fff81c2b4e700f0b28800d453e52bf8fa125f0764666c5d1"
+      }
+    ],
+    "provider": {
+      "path": "architecture/edition-provider/provider.json",
+      "bytes": 1167,
+      "sha256": "f24114194031938318e7043c3cf4ad43074ca0ddac9d1797899e771faf5cb9f9"
+    },
+    "buildRequest": {
+      "path": "architecture/edition-provider/build-request.json",
+      "bytes": 436,
+      "sha256": "49229e6c04a4bf27d4cd9e008d983f70a3bb09a5926745d3a9faa7d841372db0"
+    },
+    "receiverEvidence": [
+      {
+        "path": "build/verification/supply-chain-20260930/publisher-v2-delivery.json",
+        "bytes": 7170,
+        "sha256": "074cc710080933bf3344871f014d00005ea214629ed09c9d58b3f345077573fe"
+      },
+      {
+        "path": "build/verification/supply-chain-20260930/publisher-v2-retirement.json",
+        "bytes": 4884,
+        "sha256": "723f71b12e8238bb37370ca297a71b780b7cbd14fa22002ed14065ebb9e17a87"
+      },
+      {
+        "path": "build/verification/supply-chain-20260930/publisher-v2-final-installed.log",
+        "bytes": 198,
+        "sha256": "28d11c7e1202139aff72496427bd510948a6f5e1aa16ff75308442cebb87c7a9"
+      },
+      {
+        "path": "build/verification/supply-chain-20260930/publisher-v2-source-green.log",
+        "bytes": 3498,
+        "sha256": "c953aa93720810254ef84fc15063fb0401b73c6c03ff6b73c5c44cb279c74afb"
+      },
+      {
+        "path": "build/verification/supply-chain-20260930/publisher-v2-browser-navigation.log",
+        "bytes": 1115,
+        "sha256": "ade2c3c460c1dae620ea0d38a7e7e1390045fb985ec03972eb55f2486e538fc1"
+      },
+      {
+        "path": "build/verification/supply-chain-20260930/publisher-v2-probe-cleanup.json",
+        "bytes": 950,
+        "sha256": "032734eb0a72982cd2c9c62b5abcee3d854c98f8fd5d196ca0ba88ac34f54bc1"
+      }
+    ],
+    "readback": {
+      "selectedBytesMatch": true,
+      "migrationIsAncestor": true,
+      "retiredEntries": 21,
+      "retiredBeforeBytesMatch": true,
+      "retiredPathsAbsent": true,
+      "mediaManifest": {
+        "path": "build/verification/supply-chain-20260930/publisher-v2-current-media/manifest.json",
+        "bytes": 983,
+        "sha256": "96ce8d513c81369faf946a388573d05aaa03e444620675dd72145fd5106260c0"
+      },
+      "verifiedMediaMembers": 5
+    },
+    "limits": [
+      "Receipts are receiver-owned evidence, not Publisher endorsement of source truth",
+      "This verifies alpha.7 adoption and not the unreleased repaired alpha.8 source",
+      "AIGW whole-product editorial acceptance, protected delivery and independent off-host recovery remain separate"
+    ]
+  }
 }

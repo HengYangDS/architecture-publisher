@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { npmPackageIdentity } from './fixtures/package-identity.mjs';
+import { assertPackageSourceReplay, npmPackageIdentity } from './fixtures/package-identity.mjs';
 import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -199,11 +199,26 @@ test('the historical first-party matrix replays fixed source and adopter observa
     { cwd: source, encoding: 'utf8', timeout: 60_000 },
   );
   assert.equal(packed.status, 0, packed.stderr);
-  const archive = path.join(temporary, parseNpmPackRecord(packed.stdout).filename);
+  const packedInfo = parseNpmPackRecord(packed.stdout);
+  const archive = path.join(temporary, packedInfo.filename);
   const archiveBytes = await fs.readFile(archive);
   const packageIdentity = npmPackageIdentity(archiveBytes);
   assert.match(matrix.publisher.package.archiveSha256, /^[0-9a-f]{64}$/u);
-  assert.equal(packageIdentity.contentTarSha256, matrix.publisher.package.contentTarSha256);
+  if (process.platform !== 'win32')
+    assert.equal(packageIdentity.contentTarSha256, matrix.publisher.package.contentTarSha256);
+  const packedRoot = path.join(temporary, 'core-packed');
+  await fs.mkdir(packedRoot);
+  const coreExtracted = spawnSync('tar', ['-xzf', archive, '-C', packedRoot], {
+    encoding: 'utf8',
+    timeout: 30_000,
+  });
+  assert.equal(coreExtracted.status, 0, coreExtracted.stderr);
+  await assertPackageSourceReplay({
+    repository: root,
+    tree: matrix.publisher.package.tree,
+    root: path.join(packedRoot, 'package'),
+    files: packedInfo.files.map(({ path: file }) => file),
+  });
 
   const successorSource = path.join(temporary, 'successor-source');
   await fs.mkdir(successorSource);
@@ -230,10 +245,28 @@ test('the historical first-party matrix replays fixed source and adopter observa
   assert.equal(successorInfo.filename, matrix.successor.publisher.package.file);
   assert.match(matrix.successor.publisher.package.archiveSha256, /^[0-9a-f]{64}$/u);
   assert.match(successorIdentity.archiveSha256, /^[0-9a-f]{64}$/u);
-  assert.equal(
-    successorIdentity.contentTarSha256,
-    matrix.successor.publisher.package.contentTarSha256,
+  if (process.platform !== 'win32')
+    assert.equal(
+      successorIdentity.contentTarSha256,
+      matrix.successor.publisher.package.contentTarSha256,
+    );
+  const successorPackedRoot = path.join(temporary, 'successor-packed');
+  await fs.mkdir(successorPackedRoot);
+  const packedExtracted = spawnSync(
+    'tar',
+    ['-xzf', path.join(temporary, successorInfo.filename), '-C', successorPackedRoot],
+    {
+      encoding: 'utf8',
+      timeout: 30_000,
+    },
   );
+  assert.equal(packedExtracted.status, 0, packedExtracted.stderr);
+  await assertPackageSourceReplay({
+    repository: root,
+    tree: matrix.successor.publisher.source.tree,
+    root: path.join(successorPackedRoot, 'package'),
+    files: successorInfo.files.map(({ path: file }) => file),
+  });
 
   const required = [
     'source',

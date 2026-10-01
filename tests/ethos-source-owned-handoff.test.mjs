@@ -3,12 +3,12 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
-import { npmPackageIdentity } from './fixtures/package-identity.mjs';
+import { assertPackageSourceReplay, npmPackageIdentity } from './fixtures/package-identity.mjs';
 import { execNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const handoffPath = path.join(root, 'conformance/fixtures/ethos-source-owned-handoff.json');
-const thisTest = path.relative(root, import.meta.filename);
+const thisTest = path.relative(root, import.meta.filename).replaceAll('\\', '/');
 
 async function readJson(file) {
   return JSON.parse(await fs.readFile(file, 'utf8'));
@@ -237,20 +237,18 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   );
   const archive = path.join(work, pack.filename);
   const packageIdentity = npmPackageIdentity(await fs.readFile(archive));
-  assert.equal(packageIdentity.contentTarSha256, handoff.publisher.core.package.contentTarSha256);
+  if (process.platform !== 'win32')
+    assert.equal(packageIdentity.contentTarSha256, handoff.publisher.core.package.contentTarSha256);
   execFileSync('tar', ['-xzf', archive, '-C', work]);
   const packedRoot = path.join(work, 'package');
   const packedFiles = await filesBelow(packedRoot);
+  await assertPackageSourceReplay({
+    repository: root,
+    tree: handoff.publisher.core.source.oid,
+    root: packedRoot,
+    files: packedFiles,
+  });
   assert.equal(packedFiles.length, 117);
-  for (const file of packedFiles) {
-    const selected = await fs.readFile(path.join(packedRoot, file));
-    const committed = execFileSync(
-      'git',
-      ['show', `${handoff.publisher.core.source.oid}:${file}`],
-      { cwd: root, maxBuffer: 16 * 1024 * 1024 },
-    );
-    assert.deepEqual(selected, committed, file);
-  }
 
   assert.equal(
     execFileSync('git', ['cat-file', '-t', handoff.publisher.successor.source.commit], {
@@ -294,10 +292,26 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   );
   assert.match(handoff.publisher.successor.package.archiveSha256, /^[0-9a-f]{64}$/u);
   assert.match(successorIdentity.archiveSha256, /^[0-9a-f]{64}$/u);
-  assert.equal(
-    successorIdentity.contentTarSha256,
-    handoff.publisher.successor.package.contentTarSha256,
+  if (process.platform !== 'win32')
+    assert.equal(
+      successorIdentity.contentTarSha256,
+      handoff.publisher.successor.package.contentTarSha256,
+    );
+  const successorPackedRoot = path.join(work, 'successor-packed');
+  await fs.mkdir(successorPackedRoot);
+  execFileSync(
+    'tar',
+    ['-xzf', path.join(work, successorPack.filename), '-C', successorPackedRoot],
+    {
+      timeout: 30_000,
+    },
   );
+  await assertPackageSourceReplay({
+    repository: root,
+    tree: handoff.publisher.successor.source.oid,
+    root: path.join(successorPackedRoot, 'package'),
+    files: successorPack.files.map(({ path: file }) => file),
+  });
   assert.deepEqual(handoff.semanticSuccessor, {
     nodes: ['adoption_exit', 'candidate_base_stale', 'mcp_a2a', 'skills'],
     relations: ['candidate-state-to-independent'],
@@ -330,7 +344,7 @@ test('Publisher retains only immutable ETHOS conformance evidence', async () => 
           (file) =>
             /\.(?:json|md|mjs)$/.test(file) &&
             !file.startsWith('openspec/changes/') &&
-            ![path.relative(root, handoffPath), thisTest].includes(file),
+            ![path.relative(root, handoffPath).replaceAll('\\', '/'), thisTest].includes(file),
         )
         .map(async (file) => {
           try {

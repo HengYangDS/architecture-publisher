@@ -678,8 +678,12 @@ Each CI job sets `umask 022` before checkout-derived package reproduction.
 Historical `contentTarSha256` identifies the complete uncompressed TAR stream,
 including member modes; it is independent of gzip encoding, not of TAR metadata.
 The job-local mask reproduces those recorded package modes inside the Runner's
-private home. Runner service permissions and historical digests remain separate
-from that artifact-build setting.
+private home on POSIX. Native Windows filesystem metadata does not reproduce
+historical POSIX TAR headers: its historical repack tests instead verify the
+complete selected file set and every byte against the immutable Git tree. This
+is source-byte replay, not equality with the historical archive. Recorded TAR
+digests and signed release bytes remain unchanged. Runner service permissions
+and historical digests remain separate from that artifact-build setting.
 
 Repository-authored text checks out as LF through `.gitattributes`. Generated
 validators and third-party supply use `-text` to preserve recorded bytes,

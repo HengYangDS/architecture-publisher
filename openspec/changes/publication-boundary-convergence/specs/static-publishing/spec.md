@@ -26,3 +26,22 @@ Stage ceilings and fail-closed group reclamation SHALL remain unchanged.
 
 - **WHEN** the selected worker lifetime is absent or outside its admitted bound
 - **THEN** the worker exits unsuccessfully before parsing input or launching a child
+
+### Requirement: Raster process failure remains distinct from malformed replies
+
+The raster owner SHALL distinguish a nonzero process exit without a reply from
+malformed reply bytes. It SHALL retain explicit worker error replies, reject
+successful-looking replies from nonzero exits and emit no raster artifact after
+process failure.
+
+#### Scenario: Windows worker terminates without a reply
+
+- **WHEN** the native worker exits nonzero without emitting reply bytes
+- **THEN** the raster owner reports process failure rather than malformed JSON
+- **AND** no output artifact is emitted
+
+#### Scenario: Worker emits malformed reply bytes
+
+- **WHEN** the worker emits bytes that do not satisfy the response contract
+- **THEN** the raster owner reports the existing invalid-response failure
+- **AND** explicit valid error replies retain their selected error code

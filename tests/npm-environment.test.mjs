@@ -5,7 +5,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const preload = fileURLToPath(new URL('./fixtures/npm-environment.mjs', import.meta.url));
+const preload = new URL('./fixtures/npm-environment.mjs', import.meta.url).href;
 
 test('installed-test npm calls cannot inherit host allowlists or registry config', () => {
   const environment = Object.fromEntries(

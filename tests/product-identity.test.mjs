@@ -189,12 +189,28 @@ test('installed package exposes archpub and no architecture compatibility comman
   );
   assert.equal(installed.status, 0, installed.stderr);
   const bin = path.join(consumer, 'node_modules/.bin');
-  assert.equal((await fs.lstat(path.join(bin, 'archpub'))).isSymbolicLink(), true);
-  await assert.rejects(fs.lstat(path.join(bin, 'architecture')), { code: 'ENOENT' });
-  const usage = spawnSync(path.join(bin, 'archpub'), [], {
-    cwd: consumer,
-    encoding: 'utf8',
-  });
+  let usage;
+  if (process.platform === 'win32') {
+    const shim = await fs.readFile(path.join(bin, 'archpub.cmd'), 'utf8');
+    assert.match(shim, /architecture-publisher[\\/]src[\\/]cli[\\/]main\.mjs/u);
+    await assert.rejects(fs.lstat(path.join(bin, 'architecture.cmd')), { code: 'ENOENT' });
+    const npmCli = path.isAbsolute(process.env.npm_execpath ?? '')
+      ? process.env.npm_execpath
+      : path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+    usage = spawnSync(process.execPath, [npmCli, 'exec', '--offline', '--', 'archpub'], {
+      cwd: consumer,
+      encoding: 'utf8',
+      timeout: 30_000,
+    });
+  } else {
+    assert.equal((await fs.lstat(path.join(bin, 'archpub'))).isSymbolicLink(), true);
+    await assert.rejects(fs.lstat(path.join(bin, 'architecture')), { code: 'ENOENT' });
+    usage = spawnSync(path.join(bin, 'archpub'), [], {
+      cwd: consumer,
+      encoding: 'utf8',
+      timeout: 30_000,
+    });
+  }
   assert.equal(usage.status, 0);
   assert.match(usage.stdout, /^Architecture Publisher$/m);
 });

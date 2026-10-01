@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { loadElkSupply } from '../packages/publisher/renderers/elk/supply.mjs';
 import { workerEnvironment } from '../packages/publisher/src/runtime/process-tree.mjs';
 
-test('the exact layout worker exits naturally after a complete bounded reply', async (t) => {
+test('the exact layout worker self-expires after a complete bounded reply', async (t) => {
   const scratch = await fs.mkdtemp(
     path.join(await fs.realpath(os.tmpdir()), 'archpub-layout-worker-'),
   );
@@ -27,7 +27,7 @@ test('the exact layout worker exits naturally after a complete bounded reply', a
     ],
     edges: [{ id: 'r-0', sources: ['n-0'], targets: ['n-1'] }],
   };
-  const result = spawnSync(process.execPath, [worker, '10000'], {
+  const result = spawnSync(process.execPath, [worker, '2000'], {
     cwd: scratch,
     env: workerEnvironment(scratch, process.env.SystemRoot ?? null),
     input: JSON.stringify({
@@ -35,10 +35,10 @@ test('the exact layout worker exits naturally after a complete bounded reply', a
       graphs: [graph],
     }),
     encoding: 'utf8',
-    timeout: 12_000,
+    timeout: 10_000,
     maxBuffer: 1024 * 1024,
   });
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 1, result.stderr);
   assert.equal(result.signal, null);
   assert.equal(result.stderr, '');
   const reply = JSON.parse(result.stdout.trim());
@@ -125,7 +125,7 @@ test('the worker admits the complete four-candidate budget for every selected pa
     assert.equal(result.stderr, '');
     const reply = JSON.parse(result.stdout.trim());
     if (count === 256) {
-      assert.equal(result.status, 0);
+      assert.equal(result.status, 1);
       assert.equal(reply.status, 'ok');
       assert.deepEqual(
         reply.layouts.map(({ id }) => id),

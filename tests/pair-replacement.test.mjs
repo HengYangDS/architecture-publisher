@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { assertSelfInterrupted, selfInterruptionSource } from './fixtures/process-termination.mjs';
 import { spawnSync } from 'node:child_process';
 import {
   planPairFiles,
@@ -171,13 +172,14 @@ for (const boundary of ['save-native', 'install-native', 'save-atlas', 'install-
     const file = path.join(f.root, 'interrupt.mjs');
     await fs.writeFile(
       file,
-      `import fs from'node:fs/promises';import{installPairFiles}from ${JSON.stringify(entry)};const p=${JSON.stringify(plan)},a=${JSON.stringify(authorize(plan))};await installPairFiles(p,a,{rename:async(from,to)=>{let event='';for(const m of ['native','atlas']){if(from===p.options.destinations[m])event='save-'+m;else if(to===p.options.destinations[m])event='install-'+m;}await fs.rename(from,to);if(event===${JSON.stringify(boundary)})process.kill(process.pid,'SIGKILL');}});`,
+      `${selfInterruptionSource}
+import fs from'node:fs/promises';import{installPairFiles}from ${JSON.stringify(entry)};const p=${JSON.stringify(plan)},a=${JSON.stringify(authorize(plan))};await installPairFiles(p,a,{rename:async(from,to)=>{let event='';for(const m of ['native','atlas']){if(from===p.options.destinations[m])event='save-'+m;else if(to===p.options.destinations[m])event='install-'+m;}await fs.rename(from,to);if(event===${JSON.stringify(boundary)})interruptSelf();}});`,
     );
     const child = spawnSync(process.execPath, [file], {
       timeout: 15000,
       encoding: 'utf8',
     });
-    assert.equal(child.signal, 'SIGKILL', child.stderr);
+    assertSelfInterrupted(child);
     const result = await recoverPairFiles(plan, authorize(plan));
     assert.equal(result.status, 'ROLLED_BACK');
     for (const [m, d] of Object.entries(f.options.destinations))

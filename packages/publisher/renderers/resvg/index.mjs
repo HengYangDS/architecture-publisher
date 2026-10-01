@@ -97,6 +97,7 @@ export async function rasterizeBytes(plan) {
         result.error.code === 'ETIMEDOUT' ? 'raster_execution_timeout' : 'raster_process_failed',
       );
     if (result.signal || result.status === null) fail('raster_process_failed');
+    if (result.status !== 0 && !result.stdout.trim()) fail('raster_process_failed');
     let response;
     try {
       response = JSON.parse(result.stdout);

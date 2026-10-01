@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { assertSelfInterrupted, selfInterruptionSource } from './fixtures/process-termination.mjs';
 import { spawnSync } from 'node:child_process';
 import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import {
@@ -79,13 +80,14 @@ async function interruptWriter(dir, plan, acceptance, phase, side, mode = 'insta
   await fs.writeFile(input, JSON.stringify({ plan, acceptance, phase, side, mode }));
   await fs.writeFile(
     child,
-    `import fs from 'node:fs/promises';import path from 'node:path';
+    `${selfInterruptionSource}
+import fs from 'node:fs/promises';import path from 'node:path';
 import {installPairFiles,recoverPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
 const {plan,acceptance,phase,side,mode}=JSON.parse(await fs.readFile(process.argv[2])),lock=path.join(path.dirname(plan.options.destinations.native),'.architecture-publication-writer');
 const native={mkdir:fs.mkdir,writeFile:fs.writeFile,rename:fs.rename,unlink:fs.unlink};
-async function invoke(name,args,event){if(event===phase&&side==='before')process.kill(process.pid,'SIGKILL');const result=await native[name](...args);if(event===phase&&side==='after')process.kill(process.pid,'SIGKILL');return result;}
+async function invoke(name,args,event){if(event===phase&&side==='before')interruptSelf();const result=await native[name](...args);if(event===phase&&side==='after')interruptSelf();return result;}
 fs.mkdir=(a,...args)=>invoke('mkdir',[a,...args],a===lock?'activation':'');
-fs.writeFile=(a,...args)=>invoke('writeFile',[a,...args],a.endsWith('/owner.json')?'owner-publication':'');
+fs.writeFile=(a,...args)=>invoke('writeFile',[a,...args],path.basename(a)==='owner.json'?'owner-publication':'');
 fs.unlink=(a,...args)=>invoke('unlink',[a,...args],a===path.join(lock,'owner.json')?'release':'');
 fs.rename=async(a,b)=>{let event=b===lock?'activation':a===plan.options.destinations.native?'save-native':'';if(a===lock){const owner=JSON.parse(await fs.readFile(path.join(lock,'owner.json')));event=owner.pid===process.pid?'release':'reclaim';}return invoke('rename',[a,b],event);};
 await (mode==='install'?installPairFiles:recoverPairFiles)(plan,acceptance);`,
@@ -96,7 +98,7 @@ await (mode==='install'?installPairFiles:recoverPairFiles)(plan,acceptance);`,
     timeout: 30000,
     maxBuffer: 8e6,
   });
-  assert.equal(result.signal, 'SIGKILL', result.stderr);
+  assertSelfInterrupted(result);
 }
 
 for (const phase of ['owner-publication', 'activation', 'release'])
@@ -1306,9 +1308,10 @@ for (const phase of ['plan.json', 'acceptance.json', 'operation.json', 'activati
       await fs.writeFile(input, JSON.stringify({ plan, acceptance, phase, side }));
       await fs.writeFile(
         child,
-        `import fs from 'node:fs/promises';import path from 'node:path';import {installPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
+        `${selfInterruptionSource}
+import fs from 'node:fs/promises';import path from 'node:path';import {installPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
 const {plan,acceptance,phase,side}=JSON.parse(await fs.readFile(process.argv[2])),op=path.join(plan.options.recoveryRoot,plan.sha256.slice(0,20)),native={mkdir:fs.mkdir,rename:fs.rename};
-async function invoke(method,args,event){if(event===phase&&side==='before')process.kill(process.pid,'SIGKILL');const value=await native[method](...args);if(event===phase&&side==='after')process.kill(process.pid,'SIGKILL');return value;}
+async function invoke(method,args,event){if(event===phase&&side==='before')interruptSelf();const value=await native[method](...args);if(event===phase&&side==='after')interruptSelf();return value;}
 fs.mkdir=(file,...args)=>invoke('mkdir',[file,...args],file===op?'activation':'');
 fs.rename=(from,to)=>invoke('rename',[from,to],to===op?'activation':to.startsWith(plan.options.recoveryRoot+path.sep)?path.basename(to):'');
 await installPairFiles(plan,acceptance);`,
@@ -1319,7 +1322,7 @@ await installPairFiles(plan,acceptance);`,
         timeout: 30000,
         maxBuffer: 8e6,
       });
-      assert.equal(run.signal, 'SIGKILL', run.stderr);
+      assertSelfInterrupted(run);
       const activated = phase === 'activation' && side === 'after';
       assert.equal(
         (await recoverPairFiles(plan, acceptance)).status,
@@ -1348,9 +1351,10 @@ for (const status of ['PREPARING', 'INSTALLING', 'INSTALLED'])
       await fs.writeFile(acceptanceFile, JSON.stringify(acceptance));
       await fs.writeFile(
         child,
-        `import fs from 'node:fs/promises';import {installPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
+        `${selfInterruptionSource}
+import fs from 'node:fs/promises';import path from 'node:path';import {installPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
 const plan=JSON.parse(await fs.readFile(process.argv[2])),acceptance=JSON.parse(await fs.readFile(process.argv[3]));
-const rename=fs.rename;fs.rename=async(a,b)=>{const hit=b.endsWith('/operation.json')&&JSON.parse(await fs.readFile(a)).status===process.argv[4];if(hit&&process.argv[5]==='before')process.kill(process.pid,'SIGKILL');await rename(a,b);if(hit&&process.argv[5]==='after')process.kill(process.pid,'SIGKILL');};
+const rename=fs.rename;fs.rename=async(a,b)=>{const hit=path.basename(b)==='operation.json'&&JSON.parse(await fs.readFile(a)).status===process.argv[4];if(hit&&process.argv[5]==='before')interruptSelf();await rename(a,b);if(hit&&process.argv[5]==='after')interruptSelf();};
 await installPairFiles(plan,acceptance);`,
       );
       const run = spawnSync(process.execPath, [child, planFile, acceptanceFile, status, side], {
@@ -1359,7 +1363,7 @@ await installPairFiles(plan,acceptance);`,
         timeout: 30000,
         maxBuffer: 8e6,
       });
-      assert.equal(run.signal, 'SIGKILL', run.stderr);
+      assertSelfInterrupted(run);
       const result = await recoverPairFiles(plan, acceptance),
         installed = status === 'INSTALLED' && side === 'after',
         unstarted = status === 'PREPARING';
@@ -1446,9 +1450,10 @@ for (const boundary of [
     const child = path.join(dir, 'interrupt.mjs');
     await fs.writeFile(
       child,
-      `import fs from 'node:fs/promises';import {installPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
+      `${selfInterruptionSource}
+import fs from 'node:fs/promises';import {installPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
 const plan=JSON.parse(await fs.readFile(process.argv[2])),acceptance=JSON.parse(await fs.readFile(process.argv[3])),boundary=process.argv[4];
-await installPairFiles(plan,acceptance,{rename:async(a,b)=>{let event='';for(const m of ['native','atlas']){if(a===plan.options.destinations[m])event='save-'+m;else if(b===plan.options.destinations[m])event='install-'+m;}if(boundary==='before-'+event)process.kill(process.pid,'SIGKILL');await fs.rename(a,b);if(boundary==='after-'+event)process.kill(process.pid,'SIGKILL');}});`,
+await installPairFiles(plan,acceptance,{rename:async(a,b)=>{let event='';for(const m of ['native','atlas']){if(a===plan.options.destinations[m])event='save-'+m;else if(b===plan.options.destinations[m])event='install-'+m;}if(boundary==='before-'+event)interruptSelf();await fs.rename(a,b);if(boundary==='after-'+event)interruptSelf();}});`,
     );
     const run = spawnSync(process.execPath, [child, planFile, acceptanceFile, boundary], {
       cwd: dir,
@@ -1456,7 +1461,7 @@ await installPairFiles(plan,acceptance,{rename:async(a,b)=>{let event='';for(con
       timeout: 30000,
       maxBuffer: 8e6,
     });
-    assert.equal(run.signal, 'SIGKILL', run.stderr);
+    assertSelfInterrupted(run);
     if (boundary === 'after-install-native') {
       await fs.writeFile(
         path.join(options.destinations.native, 'user-arrived.txt'),
@@ -1488,9 +1493,10 @@ await installPairFiles(plan,acceptance,{rename:async(a,b)=>{let event='';for(con
       const recoveryChild = path.join(dir, 'interrupt-recovery.mjs');
       await fs.writeFile(
         recoveryChild,
-        `import fs from 'node:fs/promises';import {recoverPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
+        `${selfInterruptionSource}
+import fs from 'node:fs/promises';import {recoverPairFiles} from ${JSON.stringify(new URL('../packages/publisher/src/publication/files.mjs', import.meta.url).href)};
 const plan=JSON.parse(await fs.readFile(process.argv[2])),acceptance=JSON.parse(await fs.readFile(process.argv[3]));
-await recoverPairFiles(plan,acceptance,{rename:async(a,b)=>{await fs.rename(a,b);if(a===plan.options.destinations.atlas)process.kill(process.pid,'SIGKILL');}});`,
+await recoverPairFiles(plan,acceptance,{rename:async(a,b)=>{await fs.rename(a,b);if(a===plan.options.destinations.atlas)interruptSelf();}});`,
       );
       const killed = spawnSync(process.execPath, [recoveryChild, planFile, acceptanceFile], {
         cwd: dir,
@@ -1498,7 +1504,7 @@ await recoverPairFiles(plan,acceptance,{rename:async(a,b)=>{await fs.rename(a,b)
         timeout: 30000,
         maxBuffer: 8e6,
       });
-      assert.equal(killed.signal, 'SIGKILL', killed.stderr);
+      assertSelfInterrupted(killed);
     }
     const recovered = await recoverPairFiles(plan, acceptance);
     assert.equal(recovered.status, 'ROLLED_BACK');

@@ -39,6 +39,11 @@ may contain incompatible changes.
   handles instead of reopening the owner file read-only. Effect results declare
   unsupported Windows directory flush and unqualified power-loss recovery;
   required flush errors still reject installation.
+- Native-platform tests distinguish filesystem paths, import URLs, npm command
+  shims and interruption exit observations. Historical Windows repacks verify
+  complete source file sets and bytes without claiming POSIX TAR-header equality.
+- Raster execution classifies a nonzero exit without reply bytes as process
+  failure, preserving malformed-reply and explicit worker-error diagnostics.
 
 ### Added
 

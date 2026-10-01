@@ -17,7 +17,7 @@ import {
   validateClaimModel,
 } from '../packages/publisher/src/semantics/document.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
-import { npmPackageIdentity } from './fixtures/package-identity.mjs';
+import { assertPackageSourceReplay, npmPackageIdentity } from './fixtures/package-identity.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
@@ -170,10 +170,27 @@ test('Publisher retains only immutable AIGW source-ownership evidence', async (t
     }),
   );
   assert.equal(packed.filename, handoff.publisher.package.file);
-  assert.equal(
-    npmPackageIdentity(await fs.readFile(path.join(historical, packed.filename))).contentTarSha256,
-    handoff.publisher.package.contentTarSha256,
+  if (process.platform !== 'win32')
+    assert.equal(
+      npmPackageIdentity(await fs.readFile(path.join(historical, packed.filename)))
+        .contentTarSha256,
+      handoff.publisher.package.contentTarSha256,
+    );
+  const unpacked = spawnSync(
+    'tar',
+    ['-xzf', path.join(historical, packed.filename), '-C', historical],
+    {
+      encoding: 'utf8',
+      timeout: 30_000,
+    },
   );
+  assert.equal(unpacked.status, 0, unpacked.stderr);
+  await assertPackageSourceReplay({
+    repository: root,
+    tree: handoff.publisher.source.oid,
+    root: path.join(historical, 'package'),
+    files: packed.files.map(({ path: file }) => file),
+  });
 });
 
 const aigwEditionRoot = process.env.AIGW_EDITION_ROOT;

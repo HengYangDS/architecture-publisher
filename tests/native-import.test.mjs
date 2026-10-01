@@ -325,7 +325,10 @@ test('native LikeC4 import rejects an ambient document with a selected basename'
       documentPaths: () =>
         selected
           .documentPaths()
-          .map((file, index) => (index === 0 ? file.replace('/workspace/', '/ambient/') : file)),
+          .map((file, index) =>
+            index === 0 ? file.replaceAll('\\', '/').replace('/workspace/', '/ambient/') : file,
+          ),
+      ensureSingleProject: () => selected.ensureSingleProject(),
       languageServices: selected.languageServices,
       syncComputedModel: () => selected.syncComputedModel(),
     };

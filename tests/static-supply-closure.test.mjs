@@ -17,10 +17,25 @@ test('raster rebuild selects the packaged source manifest', async (t) => {
   const archive = path.join(work, 'source.tar.xz');
   await fs.writeFile(archive, 'not the selected source closure');
 
+  let shell = 'sh';
+  if (process.platform === 'win32') {
+    const git = spawnSync('git', ['--exec-path'], { encoding: 'utf8', timeout: 10_000 });
+    assert.equal(git.status, 0, git.stderr);
+    shell = path.resolve(git.stdout.trim(), '../../../usr/bin/sh.exe');
+    assert.equal((await fs.stat(shell)).isFile(), true, 'Selected native Git shell is missing');
+  }
   const result = spawnSync(
-    'sh',
+    shell,
     [path.join(root, 'tools/raster/resvg/build.sh'), archive, path.join(work, 'out')],
-    { cwd: root, encoding: 'utf8' },
+    {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: 30_000,
+      env:
+        process.platform === 'win32'
+          ? { ...process.env, PATH: path.dirname(shell) + path.delimiter + process.env.PATH }
+          : process.env,
+    },
   );
 
   assert.equal(result.status, 65, result.stdout + result.stderr);

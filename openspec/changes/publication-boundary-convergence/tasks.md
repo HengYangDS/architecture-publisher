@@ -993,7 +993,7 @@ third-party or generated supply rather than moving owned code outside coverage.
 
 ## 8. Source handoff and closeout
 
-- [ ] 8.1 Send AIGW's single writer exact successor protocol/package evidence,
+- [x] 8.1 Send AIGW's single writer exact successor protocol/package evidence,
       Client Projection versus whole-product limits, declarative journey, media
       identities, and rollback criteria. AIGW separately admits its own migration,
       acceptance, release, and retirement of displaced materialization.
@@ -1003,11 +1003,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       attributed projection path, not merely relocate copied snapshots.
       The exact alpha.7 release, downloaded Core/manifest/checksum hashes,
       neutral-media approval limits and rollback boundary were delivered
-      directly to the established source writer on 2026-10-01. This followed
-      the verifier's confirmed forwarding route and a clean Provider-Lane
-      readback at `01776f2`. Receiver byte verification and source-owned
-      package/media adoption remain open; current selection still pins alpha.1.
-      The existing AIGW Change, not this Publisher handoff, owns its migration.
+      directly to the established source writer on 2026-10-01. Receiver-owned
+      signed migration `2550a0ec`, retained in `444bbd41`, now selects alpha.7
+      through the declarative v2 Provider and accepts source integration in its
+      existing Task 8.6. Independent readback verifies declared model/Edition
+      hashes, five current media members and all twenty-one retired paths
+      against their signed Git predecessor. Installed replay passes one exact
+      case and source tests pass 61 cases; receiver Chrome evidence covers four
+      pages. References and limits reside in the existing
+      `conformance/evidence/aigw-successor-installed-probe.json` owner. This
+      closes handoff and observed Client Projection adoption, not whole-product
+      editorial acceptance, AIGW publication or repaired alpha.8 adoption.
 - [x] 8.2 Send ETHOS's single writer a retained-versus-displaced integration
       map and exact executable journey. Preserve ETHOS-native claims, Lane
       cooperation/competition/experiment/all-drop meaning, repository-quality
@@ -1200,3 +1206,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       installed interruption/recovery tests pass locally (111 passed, one
       explicit prior-delivery-input skip). Native successor, remaining fixture
       defects and four-dimensional coverage acceptance remain open.
+      Native fixtures now separate import URLs from filesystem paths, normalize
+      Git owner paths and bind interruption to an emitted boundary marker rather
+      than a POSIX signal string. Historical repacks compare complete extracted
+      package file sets and every byte with immutable Git trees; Windows does
+      not claim identical historical TAR metadata. Native Git supplies the shell
+      for the existing raster-source check. A new empty nonzero raster reply
+      regression fails the incumbent and passes its precise process diagnostic.
+      These local closures do not replace repaired ordinary Windows CI.
+      Independent review exposed a source-replay helper that trusted the pack
+      report. Its extracted-root inventory now rejects unlisted files and
+      file, directory or root links before comparing every source byte. Six
+      focused cases pass, one explicit external-input case remains skipped,
+      and the same reviewer approved this bounded correction. Full coverage,
+      native Windows execution and successor release remain open.
+      The official locked OpenSpec merger promotes five additions into the
+      four existing base-spec owners. Exact reapplication changes zero bytes
+      and reports zero warnings; no archive or source release is implied.

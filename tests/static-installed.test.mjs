@@ -289,6 +289,7 @@ test('installed raster command needs only explicit input and its pinned static s
       'raster_render_failed',
     ],
     ['killed child', 'process.kill(process.pid,"SIGKILL");', 'raster_process_failed'],
+    ['nonzero without reply', 'process.exit(1);', 'raster_process_failed'],
     [
       'bounded child output',
       `const chunk=Buffer.alloc(65536);for(let count=0;count<=${RASTER_LIMITS.responseBytes};count+=chunk.length)fs.writeSync(1,chunk);`,
