@@ -17,7 +17,11 @@ import {
   validateClaimModel,
 } from '../packages/publisher/src/semantics/document.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
-import { assertPackageSourceReplay, npmPackageIdentity } from './fixtures/package-identity.mjs';
+import {
+  archivePackageSource,
+  assertPackageSourceReplay,
+  npmPackageIdentity,
+} from './fixtures/package-identity.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
@@ -149,18 +153,12 @@ test('Publisher retains only immutable AIGW source-ownership evidence', async (t
   t.after(() => fs.rm(historical, { recursive: true, force: true }));
   const source = path.join(historical, 'source');
   await fs.mkdir(source);
-  const archived = spawnSync(
-    'git',
-    [
-      'archive',
-      '--format=tar',
-      `${handoff.publisher.source.commit}:${handoff.publisher.source.path}`,
-    ],
-    { cwd: root, encoding: null, maxBuffer: 32 * 1024 * 1024 },
-  );
-  assert.equal(archived.status, 0, archived.stderr?.toString());
+  const archived = archivePackageSource({
+    repository: root,
+    tree: `${handoff.publisher.source.commit}:${handoff.publisher.source.path}`,
+  });
   const extracted = spawnSync('tar', ['-xf', '-', '-C', source], {
-    input: archived.stdout,
+    input: archived,
     encoding: null,
   });
   assert.equal(extracted.status, 0, extracted.stderr?.toString());

@@ -3,7 +3,11 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
-import { assertPackageSourceReplay, npmPackageIdentity } from './fixtures/package-identity.mjs';
+import {
+  archivePackageSource,
+  assertPackageSourceReplay,
+  npmPackageIdentity,
+} from './fixtures/package-identity.mjs';
 import { execNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -219,15 +223,10 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   t.after(() => fs.rm(work, { recursive: true, force: true }));
   const source = path.join(work, 'source');
   await fs.mkdir(source);
-  const sourceArchive = execFileSync(
-    'git',
-    [
-      'archive',
-      '--format=tar',
-      `${handoff.publisher.core.source.commit}:${handoff.publisher.core.source.path}`,
-    ],
-    { cwd: root, maxBuffer: 32 * 1024 * 1024 },
-  );
+  const sourceArchive = archivePackageSource({
+    repository: root,
+    tree: `${handoff.publisher.core.source.commit}:${handoff.publisher.core.source.path}`,
+  });
   execFileSync('tar', ['-xf', '-', '-C', source], { input: sourceArchive });
   const pack = parseNpmPackRecord(
     execNativeSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', work], {
@@ -270,15 +269,10 @@ test('source-owned ETHOS handoff binds exact packages, parity and successor limi
   );
   const successorSource = path.join(work, 'successor-source');
   await fs.mkdir(successorSource);
-  const successorArchive = execFileSync(
-    'git',
-    [
-      'archive',
-      '--format=tar',
-      `${handoff.publisher.successor.source.commit}:${handoff.publisher.successor.source.path}`,
-    ],
-    { cwd: root, maxBuffer: 32 * 1024 * 1024 },
-  );
+  const successorArchive = archivePackageSource({
+    repository: root,
+    tree: `${handoff.publisher.successor.source.commit}:${handoff.publisher.successor.source.path}`,
+  });
   execFileSync('tar', ['-xf', '-', '-C', successorSource], { input: successorArchive });
   const successorPack = parseNpmPackRecord(
     execNativeSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', work], {

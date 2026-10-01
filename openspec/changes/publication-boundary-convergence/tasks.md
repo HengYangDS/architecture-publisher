@@ -1226,8 +1226,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       Signed `28d0f97` passes exact-HEAD full proof with actual desktop Chrome
       in 458 seconds: 1,450 passed, zero failed, three explicit external-input
       skips, and 97.76/95.14/99.58/97.76% coverage. Native governed integration
-      and remote readback advance candidate/dev and dev to that source. Review
-      pipeline 9163 and protected pipeline 9164 are the fresh native cohort;
-      their Windows roles, final package/media and release acceptance remain
-      open. The existing research receipt now selects the qualified five-topic
-      packet, not the superseded alpha.6 application input.
+      and remote readback advance candidate/dev and dev to that source. Windows
+      review job 46996 terminates with 1,398 passed, four failed and 51 explicit
+      platform/input skips; all coverage floors pass (96.82/95.06/98.64/96.82%).
+      Native counterexamples bind three failures to historical Git archive EOL
+      conversion and one to exact occupied-directory rename refusal. A single
+      test-side archive owner disables conversion per command while retaining
+      immutable blob comparison. The rename test admits Windows EPERM only for
+      its exact operation and verifies both owner bytes and directory identities
+      remain unchanged. Incumbent behavior fails under ambient conversion;
+      focused GREEN passes 89 cases, with two explicit input skips. Independent
+      review, static/package checks and zero-warning OpenSpec validation pass.
+      Repaired exact-HEAD proof, native review/protected acceptance and release
+      remain open; unchanged product inputs do not authorize artifact replacement.
+      The existing research receipt selects the qualified five-topic packet,
+      not the superseded alpha.6 application input.

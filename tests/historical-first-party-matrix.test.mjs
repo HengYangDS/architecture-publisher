@@ -5,7 +5,11 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { assertPackageSourceReplay, npmPackageIdentity } from './fixtures/package-identity.mjs';
+import {
+  archivePackageSource,
+  assertPackageSourceReplay,
+  npmPackageIdentity,
+} from './fixtures/package-identity.mjs';
 import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -182,14 +186,12 @@ test('the historical first-party matrix replays fixed source and adopter observa
   t.after(() => fs.rm(temporary, { recursive: true, force: true }));
   const source = path.join(temporary, 'source');
   await fs.mkdir(source);
-  const sourceArchive = spawnSync(
-    'git',
-    ['archive', '--format=tar', `${matrix.publisher.observedCommit}:packages/publisher`],
-    { cwd: root, encoding: null, maxBuffer: 32 * 1024 * 1024 },
-  );
-  assert.equal(sourceArchive.status, 0, sourceArchive.stderr?.toString());
+  const sourceArchive = archivePackageSource({
+    repository: root,
+    tree: `${matrix.publisher.observedCommit}:packages/publisher`,
+  });
   const extracted = spawnSync('tar', ['-xf', '-', '-C', source], {
-    input: sourceArchive.stdout,
+    input: sourceArchive,
     encoding: null,
   });
   assert.equal(extracted.status, 0, extracted.stderr?.toString());
@@ -222,14 +224,12 @@ test('the historical first-party matrix replays fixed source and adopter observa
 
   const successorSource = path.join(temporary, 'successor-source');
   await fs.mkdir(successorSource);
-  const successorArchive = spawnSync(
-    'git',
-    ['archive', '--format=tar', `${matrix.successor.publisher.source.commit}:packages/publisher`],
-    { cwd: root, encoding: null, maxBuffer: 32 * 1024 * 1024 },
-  );
-  assert.equal(successorArchive.status, 0, successorArchive.stderr?.toString());
+  const successorArchive = archivePackageSource({
+    repository: root,
+    tree: `${matrix.successor.publisher.source.commit}:packages/publisher`,
+  });
   const successorExtracted = spawnSync('tar', ['-xf', '-', '-C', successorSource], {
-    input: successorArchive.stdout,
+    input: successorArchive,
     encoding: null,
   });
   assert.equal(successorExtracted.status, 0, successorExtracted.stderr?.toString());

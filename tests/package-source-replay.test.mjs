@@ -5,6 +5,29 @@ import path from 'node:path';
 import test from 'node:test';
 import * as identity from './fixtures/package-identity.mjs';
 
+test('package source archives preserve immutable bytes under ambient checkout conversion', async (t) => {
+  const parent = new URL('../build/test-work/', import.meta.url);
+  await fs.mkdir(parent, { recursive: true });
+  const scratch = await fs.mkdtemp(new URL('package-source-archive-', parent));
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const repository = path.join(scratch, 'git');
+  const root = path.join(scratch, 'source');
+  await fs.mkdir(repository);
+  await fs.mkdir(root);
+  const git = (args, input) =>
+    execFileSync('git', args, { cwd: repository, input, encoding: 'utf8', timeout: 10_000 }).trim();
+  git(['init', '--quiet']);
+  git(['config', 'core.autocrlf', 'true']);
+  const bytes = Buffer.from('Selected source bytes.\n');
+  const blob = git(['hash-object', '-w', '--stdin'], bytes);
+  const tree = git(['mktree'], `100644 blob ${blob}\tselected.txt\n`);
+  const archive = identity.archivePackageSource({ repository, tree });
+  execFileSync('tar', ['-xf', '-', '-C', root], { input: archive, timeout: 10_000 });
+  assert.deepEqual(await fs.readFile(path.join(root, 'selected.txt')), bytes);
+  await identity.assertPackageSourceReplay({ repository, tree, root, files: ['selected.txt'] });
+  assert.equal(git(['config', '--get', 'core.autocrlf']), 'true');
+});
+
 test('package source replay verifies every selected byte and the complete Git file set', async (t) => {
   assert.equal(typeof identity.assertPackageSourceReplay, 'function');
   const parent = new URL('../build/test-work/', import.meta.url);

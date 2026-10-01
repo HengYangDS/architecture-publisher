@@ -518,8 +518,30 @@ test('a delayed stale reclaimer cannot move a newer active writer', async (t) =>
           if (!checked) {
             checked = true;
             const owner = await fs.readFile(path.join(lock, 'owner.json'), 'utf8');
-            await assert.rejects(rename(a, b), (e) => ['EEXIST', 'ENOTEMPTY'].includes(e.code));
+            const retainedOwner = await fs.readFile(path.join(b, 'owner.json'));
+            const sourceIdentity = await fs.stat(a);
+            const retainedIdentity = await fs.stat(b);
+            await assert.rejects(
+              rename(a, b),
+              (e) =>
+                e.syscall === 'rename' &&
+                e.path === a &&
+                e.dest === b &&
+                (['EEXIST', 'ENOTEMPTY'].includes(e.code) ||
+                  (process.platform === 'win32' && e.code === 'EPERM')),
+            );
             assert.equal(await fs.readFile(path.join(lock, 'owner.json'), 'utf8'), owner);
+            assert.deepEqual(await fs.readFile(path.join(b, 'owner.json')), retainedOwner);
+            const unchangedSource = await fs.stat(a);
+            const unchangedRetained = await fs.stat(b);
+            assert.deepEqual(
+              [unchangedSource.dev, unchangedSource.ino],
+              [sourceIdentity.dev, sourceIdentity.ino],
+            );
+            assert.deepEqual(
+              [unchangedRetained.dev, unchangedRetained.ino],
+              [retainedIdentity.dev, retainedIdentity.ino],
+            );
           }
           return rename(from, to);
         },

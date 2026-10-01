@@ -16,6 +16,14 @@ export function npmPackageIdentity(archiveBytes) {
   });
 }
 
+export function archivePackageSource({ repository, tree }) {
+  return execFileSync('git', ['-c', 'core.autocrlf=false', 'archive', '--format=tar', tree], {
+    cwd: repository,
+    maxBuffer: 32 * 1024 * 1024,
+    timeout: 10_000,
+  });
+}
+
 export async function assertPackageSourceReplay({ repository, tree, root, files }) {
   const invoke = (args) =>
     execFileSync('git', args, { cwd: repository, maxBuffer: 32 * 1024 * 1024, timeout: 10_000 });
