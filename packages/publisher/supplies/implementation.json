@@ -982,8 +982,8 @@
       },
       {
         "path": "renderers/elk/worker.mjs",
-        "bytes": 1203,
-        "sha256": "6e45be6c3160a4cabee92518a2b79c6549fc5314275965d9df74e5a46b342073"
+        "bytes": 1345,
+        "sha256": "37f353db7fa1a0bcd9def1a2675e6444371bc610d76c2782dfa406693f8545dc"
       },
       {
         "path": "renderers/fonts/index.mjs",

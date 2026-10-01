@@ -653,6 +653,81 @@
       "fresh exact-HEAD governance",
       "actual native successor checkout and complete gates",
       "source/tag CI and release readback"
-    ]
+    ],
+    "currentSourceEvidence": {
+      "sourceHead": "c49b765bb8f1d77d2ffc706ea52eb97944108075",
+      "proof": {
+        "path": "build/review/release-alpha8/native-checkout-exact-head-proof.json",
+        "bytes": 1721,
+        "sha256": "6706e1078dd583521050f168997e4216b5da20a05ae3d65c0e0f9561dc26ca14"
+      },
+      "review": {
+        "path": "build/review/release-alpha8/native-checkout-review/native-checkout-review-owner-terminal.json",
+        "bytes": 50709,
+        "sha256": "2278476b30786a7e147e5e9716cf5f9aa61e37e7e4f19a32439fd9f9752248b8"
+      },
+      "protectedObserver": {
+        "path": "build/review/release-alpha8/native-checkout-protected/native-checkout-protected-owner-terminal.json",
+        "bytes": 54692,
+        "sha256": "26a8f3cb2721d188a504333551e7550d1c4df8e2ca158d1fcadfd4033d0fe7a1"
+      },
+      "status": "Windows fresh clone, generation and static gates passed; whole native suite failed; review owner restored120; protected observation expired and restored121/122 without claiming job termination"
+    }
+  },
+  "elkReplyingWorkerCorrection": {
+    "baseHead": "c49b765bb8f1d77d2ffc706ea52eb97944108075",
+    "status": "RED/GREEN and focused local repair; Windows successor and release remain unproved",
+    "originatingHostedFailure": {
+      "pipeline": 9152,
+      "job": 46961,
+      "runner": 120,
+      "passed": 1195,
+      "failed": 190,
+      "skipped": 50,
+      "trace": {
+        "path": "build/review/release-alpha8/native-checkout-review/windows-review-failure-trace.log",
+        "bytes": 621813,
+        "sha256": "87f15649aea828f760933a27ebc3ba0f51e640a45fde5b3a7efa8b0a668c0434"
+      }
+    },
+    "cause": "The ELK worker cleared its sole lifetime timer after replying and naturally exited before Windows native tree reclamation; cleanup remained fail-closed.",
+    "owner": "packages/publisher/renderers/elk/worker.mjs",
+    "red": {
+      "path": "build/review/release-alpha8/elk-worker-lifetime-red.log",
+      "bytes": 2090,
+      "sha256": "2f646f3e680475719c40d289cf80e3025ac4fa3701436a471bb78dff18b8c910"
+    },
+    "focused": {
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0,
+      "log": {
+        "path": "build/review/release-alpha8/elk-worker-lifetime-reviewed-focused.log",
+        "bytes": 3246,
+        "sha256": "6a3c5fe81fc50a602aeb56c96342c398bdfddef874227aa38d01c3e6a48687f9"
+      }
+    },
+    "repair": [
+      "Retain the already selected bounded worker lifetime after success and error replies",
+      "Flush enabled V8 coverage before each reply",
+      "Preserve strict root-presence cleanup and existing stage/time/output/geometry contracts"
+    ],
+    "independentFailures": [
+      "Windows owner file reopened read-only before fsync",
+      "Windows directory fsync capability",
+      "Windows ESM preload fixture uses a drive-qualified filesystem path instead of a file URL"
+    ],
+    "remaining": [
+      "current-slice independent review and signed source",
+      "full four-dimensional coverage gate on changed product inputs",
+      "actual Windows successor and protected CI",
+      "new package freeze, independent artifact qualification and release readback"
+    ],
+    "limits": [
+      "Self-expiry is not proof of descendant reclamation after owner loss",
+      "Prior native Windows suite failed; local GREEN is not native Windows qualification",
+      "Historical alpha.7 and earlier signed assets remain unchanged"
+    ],
+    "reviewCorrection": "Direct-worker cleanup now owns bounded close verification, request-descriptor closure and subsequent scratch removal; unproved close retains scratch."
   }
 }

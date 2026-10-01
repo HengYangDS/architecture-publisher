@@ -32,6 +32,9 @@ may contain incompatible changes.
 - Repository checkout preserves generated and supplier bytes independently of
   host CRLF settings. Native Windows CI clones rather than retaining a previous
   fetch checkout with transformed files; generation comparisons remain exact.
+- ELK layout workers retain a bounded live root after both success and error
+  replies and flush enabled coverage before native reclamation. Root loss still
+  rejects cleanup; layout geometry, stage ceilings and static media are unchanged.
 
 ### Added
 

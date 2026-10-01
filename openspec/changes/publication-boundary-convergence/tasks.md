@@ -1183,3 +1183,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       required. Retain both failures and the prior-checkout counterexample in
       `conformance/evidence/coretext-process-lifetime.json`; do not waive drift
       or modify global Git configuration.
+      Exact `c49b765` review 46961 now proves fresh native checkout and the
+      generation/static gates, then fails full Windows testing: 1,195 passed,
+      190 failed and fifty platform/optional cases skipped. The ELK worker
+      cleared its lifetime after replying, losing the Windows reclamation
+      root; incumbent-failing delayed-owner and expiry regressions now pass
+      with success/error coverage flush and the eleven layout cases. The
+      separate read-only-file/directory fsync and npm ESM fixture failures
+      remain open. Four same-source Linux/macOS review/protected jobs pass;
+      no Windows or alpha.8 release acceptance is inferred.

@@ -451,6 +451,32 @@ layout supply SHALL execute in the existing bounded owned-worker scope.
 - **AND** the operation fails without emitting an apparently successful Candidate
 - **AND** prior artifacts, source meaning, and static geometry remain unchanged
 
+### Requirement: Layout worker retains bounded reclamation lifetime
+
+A selected layout worker SHALL remain live after every reply until owner
+reclamation, within its validated finite lifetime. It SHALL flush enabled V8
+coverage before replying and reject malformed lifetime bounds before reading
+input. Root loss SHALL remain an unproved cleanup failure; a reply SHALL NOT
+authorize Candidate emission before cleanup.
+
+#### Scenario: Owner reclamation follows a success or error reply
+
+- **WHEN** the selected layout worker replies before its owner reclaims it
+- **THEN** the selected root remains live within its validated lifetime
+- **AND** enabled worker coverage is flushed before the reply
+- **AND** the existing supervisor still requires native reclamation before admission
+
+#### Scenario: The layout owner disappears after a reply
+
+- **WHEN** the replying layout worker is not reclaimed by its owner
+- **THEN** it expires at the selected lifetime bound
+- **AND** descendant reclamation and Candidate acceptance remain unproved
+
+#### Scenario: The layout lifetime is invalid
+
+- **WHEN** the lifetime is absent or outside its admitted bound
+- **THEN** the worker exits unsuccessfully before reading inputs or executing layout
+
 ### Requirement: Interactive inspection preserves selected meaning
 
 Standalone interactive media SHALL provide a reversible reading state for
