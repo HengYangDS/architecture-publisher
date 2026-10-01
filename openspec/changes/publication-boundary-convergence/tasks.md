@@ -1223,3 +1223,11 @@ third-party or generated supply rather than moving owned code outside coverage.
       The official locked OpenSpec merger promotes five additions into the
       four existing base-spec owners. Exact reapplication changes zero bytes
       and reports zero warnings; no archive or source release is implied.
+      Signed `28d0f97` passes exact-HEAD full proof with actual desktop Chrome
+      in 458 seconds: 1,450 passed, zero failed, three explicit external-input
+      skips, and 97.76/95.14/99.58/97.76% coverage. Native governed integration
+      and remote readback advance candidate/dev and dev to that source. Review
+      pipeline 9163 and protected pipeline 9164 are the fresh native cohort;
+      their Windows roles, final package/media and release acceptance remain
+      open. The existing research receipt now selects the qualified five-topic
+      packet, not the superseded alpha.6 application input.

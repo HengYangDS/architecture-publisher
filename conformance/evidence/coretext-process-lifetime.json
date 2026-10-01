@@ -915,6 +915,55 @@
       "root": "build/test-work",
       "prefixes": ["package-source-replay-", "package-source-nested-"],
       "observedResidue": []
+    },
+    "fullProof": {
+      "head": "28d0f977af6a91489a6a925bcf6c9d5a737fe948",
+      "verdict": "pass",
+      "elapsedSeconds": 458.32,
+      "tests": 1453,
+      "passed": 1450,
+      "failed": 0,
+      "skipped": 3,
+      "skipBoundary": "Existing explicit external AIGW roots/prior deliveries not selected; not platform success",
+      "browser": "Actual selected Chrome desktop process; no mobile work",
+      "coverage": {
+        "statements": 97.76,
+        "lines": 97.76,
+        "branches": 95.14,
+        "functions": 99.58
+      },
+      "proof": {
+        "path": "build/review/release-alpha8/native-correction-exact-head-proof.json",
+        "bytes": 1091903,
+        "sha256": "62cb7a3d296b1f5351f205dc2eef951ae78e575fa670ec53e6596ec3c6044e3b"
+      },
+      "nativeArtifact": {
+        "path": "artifacts/5e6bcc04db723006650a2adaffa939b264f1d8542442421c9963d13f4df0b7c5.json",
+        "sha256": "sha256:5e6bcc04db723006650a2adaffa939b264f1d8542442421c9963d13f4df0b7c5",
+        "size_bytes": 161319,
+        "media_type": "application/json"
+      },
+      "attestationId": "10eafdb1ca2d9954c004a7c0f548318d2f2f7651cc2c904584228cf9720d2046"
+    },
+    "normativePromotion": {
+      "receipt": {
+        "path": "build/review/release-alpha8/native-fixture-base-spec-promotion.json",
+        "bytes": 3978,
+        "sha256": "b55705ad6d460bd15e0310e79f30af242c83a490c878b283666759d20fbddb86"
+      },
+      "authority": "official locked OpenSpec1.14",
+      "replay": "ten delta owners, zero byte changes and zero warnings"
+    },
+    "sourceProjection": {
+      "acceptedLocal": "28d0f977af6a91489a6a925bcf6c9d5a737fe948",
+      "remoteDevReadback": "28d0f977af6a91489a6a925bcf6c9d5a737fe948",
+      "cohort": {
+        "path": "build/review/release-alpha8/native-correction-source-cohort.json",
+        "bytes": 1777,
+        "sha256": "e6168d04a3385f6eb80c8fe6b082039143c0b4175b15715f3f9f6a4832929079"
+      },
+      "nativeAcceptance": "running or pending; not passed",
+      "release": "not performed"
     }
   }
 }

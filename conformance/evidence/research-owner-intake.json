@@ -80,15 +80,15 @@
   },
   "proposedTopicTransplant": {
     "patch": {
-      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/research-topic-transfer/general-research-transplant.patch",
-      "sha256": "39e5e93c7e9193ad556e505c9891c818f7c3253c84fe0f76741bcb512512867c"
+      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/sdd-owner-transfer-20261001/current-topic-transfer/native-topic-packet/general-research-transplant.patch",
+      "sha256": "b6c3296a840b91723d1d08f203b4f224d90171f22e9cab9a2e9a2ffe33eac057"
     },
     "manifest": {
-      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha6/research-topic-transfer/manifest.json",
-      "sha256": "5f57bf75816972df60ebf88de64e7ff15cd615f1eb3ee303cf5a7c1fb398f1fb"
+      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/sdd-owner-transfer-20261001/current-topic-transfer/native-topic-packet/manifest.json",
+      "sha256": "437c47c9790e0e9e165c56e66ff062c6c4226e057373311c41e041323902bb20"
     },
-    "baseHead": "d87240487c586973c50a445e8fac98b649bf0ac3",
-    "status": "source owner must adopt, adapt or reject at existing topics; not applied",
+    "baseHead": "c20a458cfd3e15959cfdf56fc6fce8dd3862e057",
+    "status": "Qualified proposal received, not substantively adopted; merge independent receiver changes by topic",
     "topics": [
       "docs/research/foundations/adoption.md",
       "docs/research/foundations/semantics.md",
@@ -96,6 +96,40 @@
       "docs/research/foundations/verification.md",
       "docs/research/foundations/interfaces.md"
     ],
-    "owner": "proof-throughput:12.6"
+    "owner": "proof-throughput:12.6",
+    "qualification": {
+      "isolatedRepository": true,
+      "nativeApplyCheckPassed": true,
+      "allFiveAfterBytesMatch": true,
+      "sourceOwnerMutated": false
+    },
+    "receiverReadback": [
+      {
+        "path": "docs/research/foundations/adoption.md",
+        "sha256": "7bcf158acf701bd6e1fb7836d0e465ff939eda763791a34dfa398b9107016e2d",
+        "status": "matches selected before"
+      },
+      {
+        "path": "docs/research/foundations/semantics.md",
+        "sha256": "3c77b19ad55f177a7b0f5b0a962a16e3b86762ccafd94d15096446f8c448ce6b",
+        "status": "matches selected before"
+      },
+      {
+        "path": "docs/research/foundations/effects.md",
+        "sha256": "6ed5f1fa65dc5981cf6a5793cbd8eb2aa7174e2aa83803564065d433662f8cd3",
+        "status": "receiver changed independently; topic merge required"
+      },
+      {
+        "path": "docs/research/foundations/verification.md",
+        "sha256": "0a043d9afa8e5f074dc002dda569c16142cb8a2cd0b0c67db0cc666d0bd44f93",
+        "status": "matches selected before"
+      },
+      {
+        "path": "docs/research/foundations/interfaces.md",
+        "sha256": "71e608a6b717a9cf4089c3e432ad31d38a183e0d3f5ac45fdf032f133ead1a01",
+        "status": "matches selected before"
+      }
+    ],
+    "supersedes": "The old alpha.6 transplant remains historical evidence only, not the application input"
   }
 }
