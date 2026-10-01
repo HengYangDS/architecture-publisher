@@ -1,0 +1,316 @@
+{
+  "schema": "architecture.coretext-process-lifetime-evidence/v1",
+  "status": "runtime and test correction locally, natively and hosted-qualified; alpha.7 asset release pending",
+  "observedAt": "2026-10-01T02:07:28.719Z",
+  "source": {
+    "runtimeCommit": "0788d916b96f6868a3380bdb627705a6a1fe037b",
+    "testCorrectionCommit": "eddd9feb831a867cca6ad85530f0145a641dbcfe",
+    "tree": "46d70248c95c1b9d58950822a1a1fd7a72a0dfcd",
+    "tag": "v0.3.0-alpha.7",
+    "tagObject": "7ba7c65549d14a88a594a11a8fc5a2ceca3e85de",
+    "testOnlyChangedPaths": [
+      "openspec/changes/publication-boundary-convergence/design.md",
+      "openspec/changes/publication-boundary-convergence/tasks.md",
+      "tests/coretext-process.test.mjs"
+    ]
+  },
+  "mechanism": {
+    "owner": "packages/publisher/renderers/svg/coretext-process.mjs",
+    "supervision": "existing neutral runtime/process-tree owner; one exact selected group per stage",
+    "compileDeadlineSeconds": 120,
+    "measurementDeadlineSeconds": 30,
+    "diagnosticObservationSeconds": 1,
+    "diagnosticTailCharacters": 4000,
+    "fixtureDeadlineSeconds": 5,
+    "primaryFailure": "retained separately from cleanup uncertainty and unavailable checkpoint",
+    "noNew": ["command plane", "retry", "credential", "cache", "sandbox claim"]
+  },
+  "regressions": {
+    "incumbentLeak": {
+      "path": "build/review/release-alpha6/coretext-reclamation/direct-lifecycle-counterexample.log",
+      "bytes": 191,
+      "sha256": "5a68bcaf52e2206831afd15b5e5975d9c8db92ae0be145e34afa6c848eff2c86"
+    },
+    "initialRed": {
+      "path": "build/review/release-alpha6/coretext-reclamation/stage-red.log",
+      "bytes": 5414,
+      "sha256": "893d315455aead7e023cd296aa78cb844c9857e7a7a7808a6573e4872fdc3d36"
+    },
+    "nativeSeam": {
+      "receipt": {
+        "path": "build/review/release-alpha7/native-focused.json",
+        "bytes": 851,
+        "sha256": "95028185b667a4d1c4bf06f3e057bb1cdd7b31ad6a1fd61f411398a0a7ee988b"
+      },
+      "exit": 0,
+      "expired": false,
+      "closed": true,
+      "cleanup": "owned group absent",
+      "log": {
+        "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/native-focused.log",
+        "sha256": "7cb7035207debe51e27fd7969becbe4ab4d4fd27f45c10b389f1d054237cd44f"
+      }
+    },
+    "fixtureFailure": {
+      "path": "build/review/release-alpha7/ci-job-46727.log",
+      "bytes": 214883,
+      "sha256": "3aa8df3afff0acc9a470f7c413dc114aef3d3a5eecf3577172f62842e6874e9d"
+    }
+  },
+  "local": {
+    "fullGate": {
+      "receipt": {
+        "path": "build/review/release-alpha7/fixture-correction/full-quality.json",
+        "bytes": 690,
+        "sha256": "9c6e926c50533082ceec13373f2ef8b22b08ddd401bba57465bb8fb0bdd9179d"
+      },
+      "exit": 0,
+      "expired": false,
+      "closed": true,
+      "cleanup": "owned group absent",
+      "log": {
+        "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/fixture-correction/full-quality.log",
+        "sha256": "18381dab0bf2223bef9f76e7bd8491bcb5dab7266554acc000fe2b96e6489be3"
+      }
+    },
+    "coverage": {
+      "statements": 97.59,
+      "branches": 95.15,
+      "functions": 99.47,
+      "lines": 97.59
+    },
+    "passed": 1419,
+    "declaredSkips": 3,
+    "strictOpenSpec": {
+      "valid": 17,
+      "issues": 0
+    },
+    "proof": {
+      "receipt": {
+        "path": "build/review/release-alpha7/fixture-correction/exact-head-proof.json",
+        "bytes": 1095,
+        "sha256": "4fabf82f304991fe2d21a50a9f2917fa89f98dd45636f7d0723cea48317d0839"
+      },
+      "exit": 0,
+      "expired": false,
+      "closed": true,
+      "cleanup": "owned group absent",
+      "log": {
+        "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/fixture-correction/exact-head-proof.log",
+        "sha256": "1957f4bef90cb1d57d21c3b2cceae7eaa33cb412c23a3b716931196017725300"
+      }
+    },
+    "attestation": "4cee28d8dc7e91e681d0363c9e4f4a0ce80be3c70538f37f02e0a018ba949d7d"
+  },
+  "hosted": {
+    "current": {
+      "path": "build/review/release-alpha7/fixture-correction/native-ci-result.json",
+      "bytes": 59248,
+      "sha256": "f461633b939fc7b8f5f5fe0a0794566f2bf531862d5ef33a74dd98d8cc1b8577"
+    },
+    "pipelines": [
+      {
+        "id": 9088,
+        "ref": "proposal/publication-boundary-convergence",
+        "source": "eddd9feb831a867cca6ad85530f0145a641dbcfe",
+        "status": "success"
+      },
+      {
+        "id": 9089,
+        "ref": "dev",
+        "source": "eddd9feb831a867cca6ad85530f0145a641dbcfe",
+        "status": "success"
+      },
+      {
+        "id": 9090,
+        "ref": "main",
+        "source": "eddd9feb831a867cca6ad85530f0145a641dbcfe",
+        "status": "success"
+      }
+    ],
+    "jobs": [
+      {
+        "id": 46748,
+        "logSha256": "5a719b5e59ed2a87ac4de6cf9c553d0ad7ba167631d5510701c64534eaa1273c",
+        "coverage": {
+          "statements": 97.59,
+          "branches": 95.11,
+          "functions": 99.47,
+          "lines": 97.59
+        },
+        "warningMarkers": []
+      },
+      {
+        "id": 46747,
+        "logSha256": "3e45ddb299329d57c7b90f5657bff3371bce700a83c10ec2d919aa6f68b2c803",
+        "coverage": {
+          "statements": 96.96,
+          "branches": 95.15,
+          "functions": 98.95,
+          "lines": 96.96
+        },
+        "warningMarkers": []
+      },
+      {
+        "id": 46749,
+        "logSha256": "752ce19af860893ded32cc0732aed8da5d0708473fa690444348328a35cabc01",
+        "coverage": {
+          "statements": 96.95,
+          "branches": 95.15,
+          "functions": 98.95,
+          "lines": 96.95
+        },
+        "warningMarkers": []
+      },
+      {
+        "id": 46750,
+        "logSha256": "0148b8a07b11a304c1e13377b3d6bd5745dbd8ba742bc8305842a4e3ead732c3",
+        "coverage": {
+          "statements": 97.59,
+          "branches": 95.11,
+          "functions": 99.47,
+          "lines": 97.59
+        },
+        "warningMarkers": []
+      },
+      {
+        "id": 46751,
+        "logSha256": "803279faa1795a1f1639053a5e24d5ca7968aebe183f4976d6ad7639dfe7e9f3",
+        "coverage": {
+          "statements": 96.96,
+          "branches": 95.15,
+          "functions": 98.95,
+          "lines": 96.96
+        },
+        "warningMarkers": []
+      },
+      {
+        "id": 46752,
+        "logSha256": "d44234d2524f6979c98c5fcfa4c2de0cac5ae4e3fde5421eaf9be18e63686243",
+        "coverage": {
+          "statements": 97.59,
+          "branches": 95.11,
+          "functions": 99.47,
+          "lines": 97.59
+        },
+        "warningMarkers": []
+      }
+    ],
+    "tag": {
+      "path": "build/review/release-alpha7/tag-ci/native-ci-result.json",
+      "bytes": 28593,
+      "sha256": "23f8cac6afdbdd8a7b8a52c6c1797c31f21b4ab5498b291ede1e28ff6340a7fc"
+    },
+    "tagPipeline": 9087,
+    "retainedPrior": {
+      "path": "build/review/release-alpha7/native-ci-result.json",
+      "bytes": 93294,
+      "sha256": "8491678356f37a8cb32f9c743d5c08b191c739d530aaf4a1397b550e199d8a72"
+    },
+    "priorOutcomes": [
+      {
+        "id": 9082,
+        "ref": "proposal/publication-boundary-convergence",
+        "status": "failed"
+      },
+      {
+        "id": 9083,
+        "ref": "dev",
+        "status": "failed"
+      },
+      {
+        "id": 9084,
+        "ref": "main",
+        "status": "success"
+      }
+    ]
+  },
+  "installed": {
+    "macos": {
+      "receipt": {
+        "path": "build/review/release-alpha7/installed-five-workload.json",
+        "bytes": 803,
+        "sha256": "bee315b726a81df317efd8e02cf307e3573299383296fd207c12b2025c1dd7b1"
+      },
+      "exit": 0,
+      "expired": false,
+      "closed": true,
+      "cleanup": "owned group absent",
+      "log": {
+        "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/installed-five-workload.log",
+        "sha256": "b353ae08e4eba5ef8fb021010bb99952fdc365731c38fc62005810209548f511"
+      }
+    },
+    "linuxNode24": {
+      "receipt": {
+        "path": "build/review/release-alpha7/linux-node24-installed.json",
+        "bytes": 1475,
+        "sha256": "51f8f3cf62071024cb396e730fb78b8b6a09eec250c2353d5ef5397c040fee5a"
+      },
+      "exit": 0,
+      "expired": false,
+      "closed": true,
+      "cleanup": "owned group absent",
+      "log": {
+        "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/linux-node24-installed.log",
+        "sha256": "6f7228438f68a007649a9052003e87128e7ce28efac45cbdbbf9cb285acd7cd3"
+      }
+    },
+    "linuxNode26": {
+      "receipt": {
+        "path": "build/review/release-alpha7/linux-node26-installed.json",
+        "bytes": 1475,
+        "sha256": "68e74a086ab71bac3121cf8ed396318f7ef6a3193d15d7bc93b1d22c73416b5a"
+      },
+      "exit": 0,
+      "expired": false,
+      "closed": true,
+      "cleanup": "owned group absent",
+      "log": {
+        "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/linux-node26-installed.log",
+        "sha256": "fb9ac39c4f05a209107d0b23c7a45a0af15eb5d05dfd8ece80fb1d28bdee1536"
+      }
+    },
+    "fiveWorkloadsThirtyMembers": "exact after installation and input relocation; source endorsement not implied",
+    "coreArchiveSha256": "0c24ef1b831de79255dfb1e3180ab49e8d203bb1906e79d1917a529ae0160e35",
+    "selfArchiveSha256": "a35296672788be134b2e573f8d4fc2c63c1973c5cb8213a82564ef88d104053e"
+  },
+  "observedUnresolved": {
+    "nativeLikeC4": {
+      "job": 46729,
+      "pipeline": 9083,
+      "failure": "native_likec4_timeout during unchanged-source baseline snapshot",
+      "elapsedMs": 33357.379625,
+      "operationDeadlineMs": 30000,
+      "original": {
+        "path": "build/review/release-alpha7/ci-job-46729.log",
+        "bytes": 212466,
+        "sha256": "a112352a3943b253c8c9976bc838307b1a18f9cef2be923461ca5a20affd37a2"
+      },
+      "focusedSameSource": {
+        "receipt": {
+          "path": "build/review/release-alpha7/native-evolution-failure-focused.json",
+          "bytes": 898,
+          "sha256": "e4e09c6b53106fa70015b3a226bb48df8abeb626d27e946379c2d9be12e19e28"
+        },
+        "exit": 0,
+        "expired": false,
+        "closed": true,
+        "cleanup": "owned group absent",
+        "log": {
+          "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/native-evolution-failure-focused.log",
+          "sha256": "a7e209d8c6f6979008c4fe87dee6a1262c25111f0202980e2557cf7a929569a4"
+        }
+      },
+      "status": "not locally reproduced; root cause and reliability repair unproved",
+      "noFalseInference": "later successful unchanged runs do not establish a fix"
+    }
+  },
+  "retainedLimits": [
+    "Historical Swift stall cause is unproved",
+    "Supervisor loss or escaped descendants are not guaranteed arbitrary-tree reclamation",
+    "Selected OS/SDK dependencies are not a complete hermetic closure",
+    "Alpha.7 exact HTML human review, release assets and downloaded readback are pending",
+    "ETHOS/AIGW adoption, source acceptance and off-host DR are not implied"
+  ]
+}

@@ -1073,18 +1073,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       CoreText scratch `ENOTEMPTY` failure. The scheduling acceptance is
       complete; compiler lifetime and failure preservation remain Task 8.4.2.
 
-- [ ] 8.4.2 Reclaim each CoreText compiler and measurement process group before
-      scratch removal through the existing neutral supervisor. Preserve exact
-      tool identities and stage deadlines; reproduce the known-descendant leak,
-      retain primary and cleanup causes, then prove native and installed behavior.
-      Bind any changed runtime release without rewriting accepted alpha.6 bytes.
-      The 49-test native/installed seam and full local gate passed: 1,419 passes,
-      three declared skips, zero failures, and 97.59/95.15/99.47/97.59% coverage.
-      Exact evidence is `build/review/release-alpha7/`; signed proof, hosted CI
-      and successor release remain open. The new base delta merges without warnings.
+- [ ] 8.4.2 Reclaim each exact CoreText stage group before scratch removal;
+      preserve stage limits, selected identities, primary failure and cleanup
+      uncertainty. Local, native, installed and hosted qualification passed at
+      signed runtime `0788d916` and test successor `eddd9feb`; the
+      [lifetime receipt](../../../conformance/evidence/coretext-process-lifetime.json)
+      retains every prior failure and unproved cause. Exact alpha.7 HTML review,
+      asset release, download and Documents readback remain open.
 
-- [ ] 8.4.3 Replace demonstrated cold-start assumptions in the fake CoreText
-      fixture; independently require actual child entry before asserting timeout
-      diagnostics. Keep product deadlines, exact tail/byte assertions and signed
-      alpha.7 unchanged. Qualify the test-only successor locally and on the same
-      hosted trust surfaces; retain job 46727 and its exact source identities.
+- [x] 8.4.3 Replace premature fake-stage deadlines without changing product
+      ceilings or immutable alpha.7. The selected-child entry marker, typed
+      timeout and exact tail remain required. Local full gate passed 1,419/1,422
+      with three declared skips; all four coverage dimensions exceed 95%.
+      Exact proof and hosted proposal/dev/main pipelines 9088/9089/9090 passed
+      with review/protected identities unchanged. The lifetime receipt retains
+      job 46727 and the separate unresolved LikeC4 timeout; no retry proves a fix.
