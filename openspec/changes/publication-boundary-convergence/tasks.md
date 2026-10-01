@@ -1001,13 +1001,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       source snapshot or an assumed single native format is not an admission.
       Migration must select a truthful AIGW-owned architecture source or
       attributed projection path, not merely relocate copied snapshots.
-      Exact alpha.6 Core/manifest/checksum identities and both unchanged neutral
-      HTML approvals were delivered after a read-only source/Provider/Edition
-      refresh. Role readback identifies that existing task as an independent
-      verifier, not the source writer; its established authorized forwarding
-      route was requested. The single-writer handoff, receiver byte verification
-      and source-owned adoption remain unestablished. Current selection pins
-      alpha.1. The existing release readback owns these dated input facts.
+      The exact alpha.7 release, downloaded Core/manifest/checksum hashes,
+      neutral-media approval limits and rollback boundary were delivered
+      directly to the established source writer on 2026-10-01. This followed
+      the verifier's confirmed forwarding route and a clean Provider-Lane
+      readback at `01776f2`. Receiver byte verification and source-owned
+      package/media adoption remain open; current selection still pins alpha.1.
+      The existing AIGW Change, not this Publisher handoff, owns its migration.
 - [x] 8.2 Send ETHOS's single writer a retained-versus-displaced integration
       map and exact executable journey. Preserve ETHOS-native claims, Lane
       cooperation/competition/experiment/all-drop meaning, repository-quality
@@ -1035,6 +1035,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       unchanged brownfield recipe preserves authored bytes and applies exactly
       the declared governance files. Both retain source/runtime and restored
       custody receipts at the existing installed-mechanisms evidence owner.
+      Its parallel-Lane receipt now also proves two separate contributions
+      integrated serially after native stale-base refusal and signed refresh,
+      plus two modeled alternatives retired with zero candidate/accepted
+      integration. Current custody restored 234/161/165 members; two native
+      retirements, six fixture roots and three restore roots are absent.
+      The stale-index refusal and read-only `GIT_OPTIONAL_LOCKS=0` correction
+      remain preserved. This does not prove automatic ranking, experiment
+      performance or whole-goal acceptance.
 - [ ] 8.3 Hand the completed SDD/DR, COMET, SpecD, semantic-graph, intent,
       and independent-verification research to the existing ETHOS knowledge
       owner with source citations and adopt/reject/defer boundaries. Keep only

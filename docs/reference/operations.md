@@ -67,6 +67,11 @@ Downloaded packages rebuilt five relocated workloads and thirty Candidate
 files with empty PATH. The
 [readback receipt](../../conformance/evidence/release-alpha7-readback.json)
 is the current release evidence owner.
+Its evidence-only source closure `6112b67` passed proposal/dev/main pipelines
+9104/9105/9106. A separate downloaded installed-product journey verified all
+nineteen records, applied the qualified local three-file publication and
+returned `ALREADY_INSTALLED` from recovery while preserving foreign parent
+content. This proves idempotent recovery, not an interrupted-effect test.
 
 Generic policy verification binds nineteen submitted PASS records and still
 reports `admitted: false`; explicit owner acceptance, source endorsement and

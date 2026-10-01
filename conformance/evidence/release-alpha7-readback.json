@@ -186,7 +186,42 @@
     },
     "workloads": 5,
     "exactMembers": 30,
-    "ownedScratchAbsent": true
+    "ownedScratchAbsent": true,
+    "qualifiedPublication": {
+      "receipt": {
+        "path": "build/review/release-alpha7/downloaded-qualified-replay/installed-replay.json",
+        "bytes": 16690,
+        "sha256": "d3f7e84aefde4bfc874ca089a04e9a4a189b1562ba1acb3f31080d6fdcd40a66"
+      },
+      "records": 19,
+      "admitted": false,
+      "publication": "INSTALLED",
+      "planSha256": "832228a0b157fb4e7f5ecd9c4ff28f6a8650ef289f9eda7e3643d75b2dad5cf2",
+      "exactMembers": [
+        {
+          "medium": "static",
+          "member": "architecture.png",
+          "bytes": 478249,
+          "sha256": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712"
+        },
+        {
+          "medium": "static",
+          "member": "architecture.svg",
+          "bytes": 765886,
+          "sha256": "c4fd8454986c7bc184e12db1c22dfb7dd05bc89fcc3b8b3639fa78bed2151c38"
+        },
+        {
+          "medium": "interactive",
+          "member": "architecture.html",
+          "bytes": 1542831,
+          "sha256": "08815f079ce218fa6460c37604b9cab0ee1573bc55d1fb575a7f7e2120953d60"
+        }
+      ],
+      "recovery": "ALREADY_INSTALLED",
+      "foreignParentContentPreserved": true,
+      "ownedScratchAbsent": true,
+      "limit": "idempotent already-installed recovery, not interrupted effect or arbitrary overwrite acceptance"
+    }
   },
   "assets": [
     {
@@ -370,5 +405,35 @@
     "Final native Windows acceptance and arbitrary escaped-tree recovery remain unproved",
     "PPTX/PDF output not implemented; no mobile work admitted",
     "Historical release metadata/link identities preserved; old payloads not downloaded anew"
-  ]
+  ],
+  "evidenceClosure": {
+    "sourceCommit": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+    "hostedCI": {
+      "path": "build/review/release-alpha7/closeout-hosted/native-ci-result.json",
+      "bytes": 79049,
+      "sha256": "6ac25236c09b123a60f9accf57adb8b60bbc22faa3cc7d4f5726794e6d815fc7"
+    },
+    "pipelines": [
+      {
+        "id": 9106,
+        "ref": "main",
+        "sha": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+        "status": "success"
+      },
+      {
+        "id": 9105,
+        "ref": "dev",
+        "sha": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+        "status": "success"
+      },
+      {
+        "id": 9104,
+        "ref": "proposal/publication-boundary-convergence",
+        "sha": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+        "status": "success"
+      }
+    ],
+    "scope": "Later evidence-only closure preserves immutable alpha.7 source/package/media selection",
+    "observedAt": "2026-10-01T05:20:53.725Z"
+  }
 }

@@ -1,7 +1,7 @@
 {
   "schema": "architecture.ethos-installed-mechanisms-evidence/v1",
   "status": "accepted-runtime native subjourneys and component predicates passed; complete north-star and source adoption remain open",
-  "observedAt": "2026-10-01T04:40:29.491Z",
+  "observedAt": "2026-10-01T05:28:36.032Z",
   "productSource": {
     "commit": "ebe828d31aacca56f82b9a1dabc77e829989c328",
     "tree": "6a01425c21d3da7f1d127e5baeca25f56a11d722",
@@ -327,7 +327,7 @@
   },
   "limits": [
     "native recipes qualify accepted runtime ebe828d, not newer mutable ETHOS source",
-    "cooperative merge and divergent abandonment do not prove automatic competitive winner selection, parallel full-goal completion or all-drop product acceptance",
+    "Parallel Work Lane cooperation, stale-base refresh and modeled all-drop are separately verified; automatic winner ranking, domain experiment quality and whole-goal completion remain unproved",
     "local disposable signature proves cryptographic receipt checking, not protected independent provider deployment",
     "Skills projection proves routing only, not host loading, agent comprehension or learning",
     "foundation/brownfield/transports have separately scoped prior evidence, not an unexecuted complete end-to-end ecosystem",
@@ -382,6 +382,163 @@
     "limits": [
       "one installed-recipe fixture, not arbitrary brownfield safety",
       "no newer mutable ETHOS source or Publisher-adoption acceptance"
+    ]
+  },
+  "parallelLanes": {
+    "status": "Accepted-runtime native cooperative serial integration and modeled all-drop journeys passed; exact owned fixtures reclaimed",
+    "plan": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/plan.json",
+      "bytes": 2928,
+      "sha256": "e072b247916f48e187aefe745f2c851e8c044f5621deb452f78027b981745b6a"
+    },
+    "cooperation": {
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/cooperation-result.json",
+        "bytes": 1182,
+        "sha256": "74c0a9db7e34b29804d2c8cb48d9aef7ff3279bf90936525493b2647d39d8c07"
+      },
+      "firstCasPlan": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/first-cas-plan.json",
+        "bytes": 15213,
+        "sha256": "04d08f8afe15c949cbb71aa80cbe5a2861ad7cb8d538d9643ab6e323533be63f"
+      },
+      "secondCasPlan": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/second-cas-plan.json",
+        "bytes": 15213,
+        "sha256": "124e0ff2a12285e4f6fcb55668bb72bc7e754c840f5bd1a4233fe2b7da5ea612"
+      },
+      "finalCandidate": "b301d00a492f1f96265a6c8b702585aee5041a31",
+      "acceptedHead": "2b90ea28887bd62cafef28ca230ddf130239e23e",
+      "staleGap": "candidate_base_stale",
+      "casBoundary": "Exact observed native target preimage; not independently caller-enforced --candidate-head"
+    },
+    "allDrop": {
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/all-drop-result.json",
+        "bytes": 2954,
+        "sha256": "74785435459b002aacb6471bd38aba308d17fec0409232bf51c003deea01a87d"
+      },
+      "retirements": [
+        {
+          "actor": "agent:test:parallel:alternative-a",
+          "branch": "work/alternative-a",
+          "head": "575402e454cc92b4f3a9f9b4277a1f5a12c27403",
+          "receiptSha256": "8d8dc19b73bb841f719442e89d4c32a71cde95794b31d6b79c5b4a4085cbc0a0",
+          "effect": "reviewed-alternative-a-drop-effect.stdout.json",
+          "effectSha256": "cf1c683d6c3b338815facc1322316ee0248ca09f30eaf76b93ce013d7ab83bde",
+          "state": "retired",
+          "worktreeRemoved": true,
+          "branchRemoved": true,
+          "leaseRevoked": true,
+          "acceptedUnchanged": true,
+          "candidateUnchanged": true
+        },
+        {
+          "actor": "agent:test:parallel:alternative-b",
+          "branch": "work/alternative-b",
+          "head": "6a360490dee99ab5742f5f2d7b0a41d9f1063472",
+          "receiptSha256": "f5f99e9213e3673447242603e8a6ddabc1ebbeb502987f373b9332d92345701e",
+          "effect": "reviewed-alternative-b-drop-effect.stdout.json",
+          "effectSha256": "1ab0ef68b72c3a76519a120fcfb12aa4882b3983450eae274935a3eb35d7e648",
+          "state": "retired",
+          "worktreeRemoved": true,
+          "branchRemoved": true,
+          "leaseRevoked": true,
+          "acceptedUnchanged": true,
+          "candidateUnchanged": true
+        }
+      ],
+      "acceptedHead": "069554a95aed467809cf79728f562f3407536a11",
+      "candidateHead": "069554a95aed467809cf79728f562f3407536a11",
+      "postRetirementCustody": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/post-retirement-custody.json",
+        "bytes": 4521,
+        "sha256": "167cb25486b634fc7d2e884f5cd6ae9b8c30a39867b72921270079cf123c4e70"
+      }
+    },
+    "refusalAndCorrection": {
+      "failure": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/alternative-a-drop-effect.stdout.json",
+        "bytes": 3316,
+        "sha256": "e3e4197f16c11c8eccdd94d316119e9d09cd6f4f1d778dc145054f68090d38dc"
+      },
+      "correction": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/index-preimage-correction.json",
+        "bytes": 1199,
+        "sha256": "7e906ab7886434b3f435835663ec4e27e9f74be0f4575a48d3c0e257d831f2eb"
+      },
+      "meaning": "Exact destructive index preimage drift refused before effects; fresh receipts/cold custody used without relaxing runtime"
+    },
+    "custody": {
+      "receipts": [
+        {
+          "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/custody/retention-result.json",
+          "bytes": 99834,
+          "sha256": "88c2599d61ad15407c609723e2eef0d129bc47ce91e5fc1c8314859572d45554"
+        },
+        {
+          "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/custody/reviewed-preimage/retention-result.json",
+          "bytes": 42377,
+          "sha256": "2cd168087165e127b434498a4522771ad1a86fd3832f4a6392afd9b209c8ecac"
+        }
+      ],
+      "archives": [
+        {
+          "archive": {
+            "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/custody/cooperate.tar.gz",
+            "bytes": 4513237,
+            "sha256": "8d37c03bcff50a025ebb99ea1b3ed5dec7b0d94e26e14fa7a1bd645d21d617be"
+          },
+          "members": 234,
+          "restoreVerified": true
+        },
+        {
+          "archive": {
+            "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/custody/compete.tar.gz",
+            "bytes": 4482416,
+            "sha256": "6e454e7924c242db38413a4a94e033aa0cc15b3ddcad61b40b7c0d680ba8f74e"
+          },
+          "members": 161,
+          "restoreVerified": true
+        },
+        {
+          "archive": {
+            "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/custody/reviewed-preimage/compete.tar.gz",
+            "bytes": 4484136,
+            "sha256": "5a3d99cf67ce46dd29dd33120885dba31f8e3853ba4b720921108d7a59f9801c"
+          },
+          "members": 165,
+          "restoreVerified": true
+        }
+      ],
+      "cleanup": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/custody/cleanup-result.json",
+        "bytes": 1439,
+        "sha256": "55f471ab2b69d47cf952d738a15ed74057cd4a412d89ac652404691ea849ee8f"
+      },
+      "restoreCleanup": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/custody/restore-cleanup-result.json",
+        "bytes": 806,
+        "sha256": "2d1b367aa341782e187aee81426171a76534a9d1a733c09fa595dfeff0af758c"
+      },
+      "nativelyRetiredRoots": 2,
+      "reclaimedFixtureRoots": 6,
+      "reclaimedRestoreRoots": 3,
+      "originalRuntimePreserved": true,
+      "restoreCleanupCountBasis": "The removed array and exact filesystem absence prove three restore roots; the reused raw helper status retains historical six-root prose and is not the count authority."
+    },
+    "independentReview": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/parallel-lanes/independent-terminal-review.json",
+      "bytes": 970,
+      "sha256": "79c468acdaed0d3b514ae235a3df70dfd0a4cdcf9e1081fafd5f219507319960"
+    },
+    "limits": [
+      "Accepted immutable runtime ebe828d, not newer mutable ETHOS",
+      "Distinct actors and native concurrent worktrees; not parallel-agent cognitive quality",
+      "Experiment outcomes are modeled data; not measured domain ranking or automatic winner selection",
+      "Signature/patch gates do not establish domain correctness",
+      "Candidate integration is not accepted-root closeout",
+      "Local restore custody, not independent off-host DR"
     ]
   }
 }
