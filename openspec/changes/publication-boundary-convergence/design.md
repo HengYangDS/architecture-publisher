@@ -1993,8 +1993,18 @@ against its 400 ms fixture ceiling; the successful-tail case expired at 1022 ms
 against a one-second ceiling. The outer stage includes both private Node worker
 and selected-child startup. These observations identify a test prerequisite
 gap, not renewed scratch failure or the historical Swift stall cause.
-Allow five seconds for ordinary fake stages and for the dedicated diagnostic
-timeout case. Capture that rejection, independently require the actual-entry
-marker, then assert the typed timeout and exact diagnostic tail. Product stage
-deadlines, byte bounds, assertions, signed alpha.7 and prior failures remain.
-No retry, skip, platform exception or production readiness hook is added.
+The first fixture correction used five seconds for ordinary fake stages and
+the diagnostic timeout case. It passed the frozen source matrix, but latest
+protected job 46783 at `eaa5efc` timed out its finite stderr-success case before
+any diagnostic was observed. Preserve that failure; empty output does not prove
+a CPU, startup, Swift or supervisor cause.
+
+Finite-success and nonzero-exit fixtures now use the existing product stage
+ceilings: 120 seconds for compilation and 30 seconds for measurement. A selected
+child-entry marker plus a finite 5.1-second delayed completion is a deterministic
+regression for both stages: the former five-second fixture fails, the admitted
+product ceilings succeed. The deliberate timeout tests retain their short
+explicit bounds and require observed entry, typed timeout and exact diagnostic
+tail. Production stage deadlines, byte bounds, runtime inputs and immutable
+alpha.7 are unchanged. No retry, skip, platform exception, clock reset or
+production readiness hook is added.

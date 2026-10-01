@@ -1087,10 +1087,19 @@ third-party or generated supply rather than moving owned code outside coverage.
       retains every prior failure and unproved cause. Exact alpha.7 HTML review,
       asset release, download and Documents readback remain open.
 
-- [x] 8.4.3 Replace premature fake-stage deadlines without changing product
+- [ ] 8.4.3 Replace premature fake-stage deadlines without changing product
       ceilings or immutable alpha.7. The selected-child entry marker, typed
       timeout and exact tail remain required. Local full gate passed 1,419/1,422
       with three declared skips; all four coverage dimensions exceed 95%.
       Exact proof and hosted proposal/dev/main pipelines 9088/9089/9090 passed
       with review/protected identities unchanged. The lifetime receipt retains
       job 46727 and the separate unresolved LikeC4 timeout; no retry proves a fix.
+      Fresh protected job 46783 at `eaa5efc` contradicts finite-success
+      reliability: its five-second fake stage timed out with no diagnostic.
+      Ruling: finite fixtures use unchanged product stage ceilings; dedicated
+      timeout probes retain their explicit short bounds. A child-entered
+      5.1-second regression failed under the former default. Focused, full,
+      exact-source and hosted successor acceptance remain required. The
+      eleven focused cases and local full gate passed (1,420 pass, three
+      skips; coverage 97.59/95.15/99.47/97.59). Independent read-only review
+      found no actionable defect; signed and hosted successor remain open.

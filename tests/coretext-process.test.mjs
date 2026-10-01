@@ -15,13 +15,14 @@ async function fixture(t, source) {
 }
 async function selectedStage(t, source, options = {}) {
   const fixtureValue = await fixture(t, source);
+  const stage = options.stage ?? 'compile';
   const selected = {
-    stage: 'compile',
+    stage,
     executable: process.execPath,
     args: [fixtureValue.program],
     env: { HOME: fixtureValue.scratch, PATH: fixtureValue.scratch },
     input: '',
-    timeoutMs: 5000,
+    timeoutMs: stage === 'compile' ? 120_000 : 30_000,
     maximumBytes: 65536,
     ...fixtureValue,
     ...options,
@@ -105,6 +106,30 @@ test('CoreText compile stage preserves successful stderr without treating it as 
   assert.equal(result.stdout, 'compiled');
   assert.equal(result.diagnostics, 'selected warning');
   assert.equal(result.exitCode, 0);
+});
+
+test('CoreText finite compile and measurement use their existing stage ceilings', async (t) => {
+  for (const kind of ['compile', 'execution']) {
+    const stage = await selectedStage(
+      t,
+      "import fs from 'node:fs';fs.writeFileSync(process.argv[2],'started');setTimeout(()=>{process.stderr.write('selected tail');process.stdout.write('completed');},5100);",
+      { stage: kind },
+    );
+    const started = path.join(stage.selected.scratch, 'started');
+    stage.selected.args.push(started);
+    let result;
+    let failure;
+    try {
+      result = await stage.run();
+    } catch (error) {
+      failure = error;
+    }
+    assert.equal(await fs.readFile(started, 'utf8'), 'started');
+    assert.ifError(failure);
+    assert.equal(result.stdout, 'completed');
+    assert.equal(result.diagnostics, 'selected tail');
+    assert.equal(result.exitCode, 0);
+  }
 });
 
 test('CoreText stages preserve selected completed stdin and nonzero process diagnostics', async (t) => {

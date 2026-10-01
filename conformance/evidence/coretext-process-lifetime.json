@@ -1,6 +1,6 @@
 {
   "schema": "architecture.coretext-process-lifetime-evidence/v1",
-  "status": "runtime and test correction locally, natively and hosted-qualified; alpha.7 asset release pending",
+  "status": "runtime and prior fixture correction qualified at declared revisions; latest finite-success hosted failure remains open",
   "observedAt": "2026-10-01T02:07:28.719Z",
   "source": {
     "runtimeCommit": "0788d916b96f6868a3380bdb627705a6a1fe037b",
@@ -23,7 +23,8 @@
     "diagnosticTailCharacters": 4000,
     "fixtureDeadlineSeconds": 5,
     "primaryFailure": "retained separately from cleanup uncertainty and unavailable checkpoint",
-    "noNew": ["command plane", "retry", "credential", "cache", "sandbox claim"]
+    "noNew": ["command plane", "retry", "credential", "cache", "sandbox claim"],
+    "fixtureDeadlineScope": "historical first correction and retained deliberate timeout, not finite-success default"
   },
   "regressions": {
     "incumbentLeak": {
@@ -312,5 +313,129 @@
     "Selected OS/SDK dependencies are not a complete hermetic closure",
     "Alpha.7 exact HTML human review, release assets and downloaded readback are pending",
     "ETHOS/AIGW adoption, source acceptance and off-host DR are not implied"
-  ]
+  ],
+  "finiteSuccessCorrection": {
+    "sourceBase": "eaa5efc3910c8614fc460265d86b41f66b512e6d",
+    "status": "deterministic RED, focused GREEN and full local gate passed; signed and hosted successor acceptance pending",
+    "hostedFailure": {
+      "job": 46783,
+      "pipeline": 9098,
+      "test": "CoreText compile stage preserves successful stderr without treating it as supervisor protocol",
+      "elapsedMs": 7327.108834,
+      "exitCode": null,
+      "signal": "SIGKILL",
+      "processError": "ETIMEDOUT",
+      "diagnostics": "",
+      "fixtureDeadlineMs": 5000,
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/hosted-current/ci-job-46783.log",
+        "bytes": 211818,
+        "sha256": "18f628c86ab0b761c6c361cdd0b8f6943d9b4ff926e8f03836606e8d4a07e998"
+      }
+    },
+    "regression": {
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/finite-success/finite-red.json",
+        "bytes": 783,
+        "sha256": "180ec4ea5195461344ea76b54471ee30909b7cf52b6cde2d408116796dc13bb9"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/finite-success/finite-red.log",
+        "bytes": 2968,
+        "sha256": "dec81cae01f45e77121dfe63a4d74b573c01ab06727eb07ed08598980d7a9171"
+      },
+      "childEntered": true,
+      "finiteDelayMs": 5100,
+      "redStage": "compile",
+      "executionStageRed": "not separately observed because the compile-first RED stops"
+    },
+    "selection": {
+      "compileMs": 120000,
+      "measurementMs": 30000,
+      "deliberateTimeoutMs": 5000
+    },
+    "limits": [
+      "The deterministic delayed fixture proves the old test ceiling excludes valid finite execution; it does not establish the host delay cause.",
+      "Runtime, product stage ceilings, immutable tag, package and accepted media inputs remain unchanged.",
+      "Prior passing CI is not qualification of the new test correction."
+    ],
+    "focused": {
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/finite-success/finite-green.json",
+        "bytes": 718,
+        "sha256": "f67de2c7230ca31ceeeeae83b9bfbe77382279eb87ce7e84d9fc53fdcc548e69"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/finite-success/finite-green.log",
+        "bytes": 1155,
+        "sha256": "bc85d79cba1a4adf588f6ed234f4adaa14d49c2b872d2614afc1cfcc9901f33d"
+      },
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
+    },
+    "local": {
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/finite-success/full-quality.json",
+        "bytes": 708,
+        "sha256": "0fbafe91087cda2f2f6b12e801f61536b1258155f9494c079e30bb4bcd2f7f6a"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/finite-success/full-quality.log",
+        "bytes": 151009,
+        "sha256": "b81978eae21e468d64c9fbb51d131e8ba7cb139851fd54a42e98d10cbcd4dc79"
+      },
+      "passed": 1420,
+      "declaredSkips": 3,
+      "coverage": {
+        "statements": 97.59,
+        "branches": 95.15,
+        "functions": 99.47,
+        "lines": 97.59
+      },
+      "strictOpenSpec": {
+        "valid": 17,
+        "issues": 0
+      }
+    },
+    "independentReview": {
+      "reviewer": "claim_semantics_audit",
+      "scope": "four-file diff and exact RED/GREEN evidence",
+      "verdict": "no actionable finding",
+      "notRepeated": [
+        "full gate",
+        "new proof",
+        "hosted successor",
+        "package or media qualification"
+      ]
+    },
+    "baseHosted": {
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/hosted-current/native-ci-result.json",
+        "bytes": 27220,
+        "sha256": "3bd4e4c9d8eab1aafe54a6014bc7480b231d36fad7fdee0ecea2ea4f3b8787c3"
+      },
+      "pipelines": [
+        {
+          "id": 9097,
+          "ref": "proposal/publication-boundary-convergence",
+          "status": "success",
+          "sha": "eaa5efc3910c8614fc460265d86b41f66b512e6d"
+        },
+        {
+          "id": 9098,
+          "ref": "dev",
+          "status": "failed",
+          "sha": "eaa5efc3910c8614fc460265d86b41f66b512e6d"
+        },
+        {
+          "id": 9099,
+          "ref": "main",
+          "status": "success",
+          "sha": "eaa5efc3910c8614fc460265d86b41f66b512e6d"
+        }
+      ],
+      "interpretation": "Base main passed independently; base dev failure is retained, not fixed by another success."
+    }
+  }
 }
