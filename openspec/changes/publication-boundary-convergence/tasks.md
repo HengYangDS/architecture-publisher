@@ -1060,9 +1060,25 @@ third-party or generated supply rather than moving owned code outside coverage.
       Strict validation now reports seventeen valid items and zero issues.
       Normative convergence is not source adoption, archive or Lane retirement.
 
-- [ ] 8.4.1 Remove demonstrated same-project native macOS job overlap using
+- [x] 8.4.1 Remove demonstrated same-project native macOS job overlap using
       GitLab's existing resource-group carrier. Add a failing actual-YAML
       contract test, preserve review/protected trust selectors and Linux
       independence, then run pinned local quality and exact hosted checks.
       Keep original failures, accepted alpha.6 bytes and all source-owned
       adoption obligations. No host service, credential or time-limit change.
+      Signed `16712ae` passed local pinned checks and exact proof. The existing
+      three hosted jobs shared one resource without merging Runner roles:
+      review 46708 completed before protected 46710, then protected 46712.
+      Dev/main pipelines 9078/9079 passed; review pipeline 9077 retained a new
+      CoreText scratch `ENOTEMPTY` failure. The scheduling acceptance is
+      complete; compiler lifetime and failure preservation remain Task 8.4.2.
+
+- [ ] 8.4.2 Reclaim each CoreText compiler and measurement process group before
+      scratch removal through the existing neutral supervisor. Preserve exact
+      tool identities and stage deadlines; reproduce the known-descendant leak,
+      retain primary and cleanup causes, then prove native and installed behavior.
+      Bind any changed runtime release without rewriting accepted alpha.6 bytes.
+      The 49-test native/installed seam and full local gate passed: 1,419 passes,
+      three declared skips, zero failures, and 97.59/95.15/99.47/97.59% coverage.
+      Exact evidence is `build/review/release-alpha7/`; signed proof, hosted CI
+      and successor release remain open. The new base delta merges without warnings.

@@ -8,6 +8,18 @@ may contain incompatible changes.
 
 ## Unreleased
 
+## [0.3.0-alpha.7] - 2026-10-01
+
+### Fixed
+
+- CoreText compilation and measurement use separately bounded owned process
+  groups. The parent reclaims each group before the next stage or scratch
+  removal, retains bounded primary diagnostics and cleanup uncertainty, and
+  preserves exact tool selection and the existing 120-second/30-second limits.
+- Native macOS CI uses one project-local GitLab resource group while retaining
+  separate review and protected Runner identities. This removes job overlap,
+  not every possible compiler stall; original failing jobs remain evidence.
+
 ## [0.3.0-alpha.6] - 2026-10-01
 
 ### Added
@@ -430,6 +442,7 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.3.0-alpha.7]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.7
 [0.3.0-alpha.6]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.6
 [0.3.0-alpha.5]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.5
 [0.3.0-alpha.4]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.4

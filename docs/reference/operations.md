@@ -344,6 +344,13 @@ archpub render measure <request.json>
 
 The request explicitly selects the native compiler, SDK, font files, and output.
 This operation records measurement; it does not infer fonts from the host.
+The compiler and measurement use separate private process groups with unchanged
+120-second and 30-second deadlines. Each group must be reclaimed before the next
+stage or scratch removal. Failure retains the bounded process diagnostics;
+an unavailable checkpoint is a separate observation, never a replacement cause.
+Unproved cleanup retains scratch and reports both causes. This is process
+lifetime containment, not a sandbox, full SDK closure, or proof that every
+historical compiler stall had one cause.
 
 ### Qualification
 

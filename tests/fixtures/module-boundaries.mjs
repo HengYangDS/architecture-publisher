@@ -195,6 +195,10 @@ const owners = [
     ],
   ],
   [
+    'packages/publisher/renderers/svg/coretext-process.mjs',
+    ['packages/publisher/renderers/svg/', 'packages/publisher/src/runtime/process-tree.mjs'],
+  ],
+  [
     'packages/publisher/renderers/svg/',
     ['packages/publisher/renderers/svg/', 'packages/publisher/src/scene/'],
   ],

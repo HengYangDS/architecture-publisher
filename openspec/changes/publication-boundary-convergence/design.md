@@ -1937,3 +1937,52 @@ all alpha.6 package/media bytes remain immutable; this CI-only change does
 not require an unnecessary product release. Root cause remains unproved if
 only serialized native work succeeds. Compiler-result diagnostics and process
 tree supervision are separate potential product changes, not this repair.
+
+### CoreText stage lifetime precedes scratch reclamation
+
+The resource-group change at signed `16712ae` removes same-project macOS
+job overlap. Actual serialized review job 46708 still failed after roughly
+121 seconds: `ENOTEMPTY` escaped while removing its private module-cache
+subdirectory. Protected dev job 46710 subsequently passed the same exact source.
+Neither success nor serialization proves the old compiler-timeout root cause.
+At that signed source, the runtime called `spawnSync` directly and removed scratch;
+its default signal bounds the direct child, not compiler descendants. A cleanup
+exception can replace the primary compiler failure. These are concrete lifetime
+and diagnostic gaps independent of the unproved reason compilation stalled.
+
+Reuse the existing neutral `runOwnedProcess` owner for two sequential private
+CoreText stages. The parent bounds compiler execution at the existing 120 seconds,
+cleans that owned group, then starts measurement at the existing 30 seconds.
+Do not combine the stages under a 150-second deadline: that would fail to preserve
+hard stage ceilings when a compiler ignores termination. Each stage supplies one
+completed regular JSON request descriptor to a fixed private Node worker. Keep
+exact selected compiler spelling, compiler digest, SDK settings, font identities,
+helper bytes, explicit environment and existing output bounds. The worker may
+run only the selected executable and emits a closed bounded response after that
+child exits; no output stream from the child becomes the supervisor protocol.
+
+The parent, never the worker, owns scratch removal, and removes it only after
+stage cleanup/close. A stage failure retains exit code, signal, process error and
+a bounded diagnostic tail. If cleanup is unproved, report both the primary failure
+and cleanup uncertainty rather than silently deleting active scratch or masking
+the cause. Success does not declare process isolation a sandbox or a complete
+OS/SDK dependency closure. An asynchronous private child records a bounded
+diagnostic checkpoint. The parent reads it with a one-second observation bound;
+an unavailable checkpoint annotates, but never replaces, the primary stage cause.
+Direct-child SIGKILL remains fallback containment;
+no independent-parent-loss reclamation of arbitrary descendant trees is claimed.
+
+Independent read-only review rejected the initially proposed combined worker
+because its total deadline did not establish the compile-stage bound. The reviewed
+two-stage alternative changes no public command, CoreText plan or result protocol,
+process-tree runtime owner, Runner, credential, cache or source Edition. Admit its
+runtime dependency only at the CoreText stage-runner module, not every renderer.
+
+Verification uses a selected fake compiler that starts a known private descendant
+and reports failure while that descendant remains live. It must reproduce the
+incumbent leak and prove the corrected group is gone before scratch cleanup,
+without waiting two minutes. Exercise nonzero exit, signals, bounded stderr,
+oversized output, malformed reply, selection drift and deadline failure at the
+same private seam; retain the real native suite and exact hosted job evidence.
+Changed runtime bytes require a successor release; immutable alpha.6 media and
+packages are not rewritten or resubmitted as changed artwork.

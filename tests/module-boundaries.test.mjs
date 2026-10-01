@@ -391,6 +391,23 @@ test('the neutral process-tree owner serves only admitted protocol supervisors',
       packageExports,
     ).some(({ reason }) => reason.includes('forbidden dependency')),
   );
+  assert.deepEqual(
+    inspectModuleBoundaries(
+      'packages/publisher/renderers/svg/coretext-process.mjs',
+      "import '../../src/runtime/process-tree.mjs';",
+      paths,
+      packageExports,
+    ),
+    [],
+  );
+  assert(
+    inspectModuleBoundaries(
+      'packages/publisher/renderers/svg/architecture.mjs',
+      "import '../../src/runtime/process-tree.mjs';",
+      paths,
+      packageExports,
+    ).some(({ reason }) => reason.includes('forbidden dependency')),
+  );
 });
 
 test('syntax failures and computed dependencies fail closed', async () => {

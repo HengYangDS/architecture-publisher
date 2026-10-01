@@ -2,10 +2,10 @@ import fs from 'node:fs/promises';
 import { constants } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { spawnSync } from 'node:child_process';
 import { fail, hasExactFields as fields } from '../../src/protocol/values.mjs';
 import { createRecordedMetricReader } from '../../src/scene/typography/recorded-metrics.mjs';
 import { fileIdentity } from './files.mjs';
+import { runCoreTextStage } from './coretext-process.mjs';
 
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const encode = (v) => Buffer.from(JSON.stringify(v, null, 2) + '\n');
@@ -118,6 +118,8 @@ export async function measureCoreTextBytes(plan) {
   )
     fail('coretext_scratch_root_invalid');
   const scratch = await fs.mkdtemp(path.join(parent, '.architecture-coretext-'));
+  let primaryFailure;
+  let measurement;
   try {
     const helper = await fs.readFile(new URL('./coretext.swift', import.meta.url));
     const script = path.join(scratch, 'measure.swift'),
@@ -132,9 +134,10 @@ export async function measureCoreTextBytes(plan) {
       LANG: 'C.UTF-8',
       SDKROOT: sdkPath,
     };
-    const compiled = spawnSync(
-      selected.compiler.path,
-      [
+    await runCoreTextStage({
+      stage: 'compile',
+      executable: selected.compiler.path,
+      args: [
         '-sdk',
         sdkPath,
         '-module-cache-path',
@@ -143,43 +146,32 @@ export async function measureCoreTextBytes(plan) {
         '-o',
         executable,
       ],
-      {
-        cwd: scratch,
-        env,
-        encoding: 'utf8',
-        timeout: 120000,
-        maxBuffer: 8 * 1024 * 1024,
-      },
-    );
-    if (compiled.error || compiled.status !== 0) {
-      const error = Object.assign(new Error('coretext_compile_failed'), {
-        code: 'coretext_compile_failed',
-        diagnostics: (compiled.stderr ?? '').slice(-4000),
-      });
-      throw error;
-    }
-    const response = spawnSync(executable, [], {
-      cwd: scratch,
+      scratch,
+      env,
+      timeoutMs: 120_000,
+      maximumBytes: 8 * 1024 * 1024,
+    });
+    const response = await runCoreTextStage({
+      stage: 'execution',
+      executable,
+      args: [],
+      scratch,
       env: { ...env, PATH: scratch },
       input: JSON.stringify({ fonts, requests }),
-      encoding: 'utf8',
-      timeout: 30000,
-      maxBuffer: 16 * 1024 * 1024,
+      timeoutMs: 30_000,
+      maximumBytes: 16 * 1024 * 1024,
     });
-    if (response.error)
-      fail(
-        response.error.code === 'ETIMEDOUT'
-          ? 'coretext_execution_timeout'
-          : 'coretext_execution_failed',
-      );
     let measured;
     try {
       measured = JSON.parse(response.stdout);
     } catch {
-      fail('coretext_response_invalid');
+      const code = 'coretext_response_invalid';
+      throw Object.assign(new Error(code), { code, ...response });
     }
-    if (response.status !== 0 || measured.status !== 'measured')
-      fail(measured.code ?? 'coretext_measurement_failed');
+    if (response.exitCode !== 0 || measured?.status !== 'measured') {
+      const code = measured?.code ?? 'coretext_measurement_failed';
+      throw Object.assign(new Error(code), { code, ...response });
+    }
     if (!Array.isArray(measured.observations) || measured.observations.length !== requests.length)
       fail('coretext_response_invalid');
     const observations = measured.observations.map((o, i) => {
@@ -246,8 +238,23 @@ export async function measureCoreTextBytes(plan) {
       scope:
         'Fresh CoreText run with explicit font identities. Compiler bytes and SDK settings are checked, not the complete operating-system/SDK closure.',
     };
-    return { result, metricsBytes, requests };
-  } finally {
-    await fs.rm(scratch, { recursive: true, force: true });
+    measurement = { result, metricsBytes, requests };
+  } catch (error) {
+    primaryFailure = error;
   }
+  if (primaryFailure?.scratch !== scratch) {
+    try {
+      await fs.rm(scratch, { recursive: true, force: true });
+    } catch (error) {
+      const code = 'coretext_scratch_cleanup_failed';
+      throw Object.assign(new Error(code), {
+        code,
+        primaryFailure,
+        cleanupFailure: error.code ?? error.message,
+        scratch,
+      });
+    }
+  }
+  if (primaryFailure) throw primaryFailure;
+  return measurement;
 }

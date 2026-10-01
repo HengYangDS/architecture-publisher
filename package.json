@@ -1,6 +1,6 @@
 {
   "name": "architecture-publisher-workspace",
-  "version": "0.3.0-alpha.6",
+  "version": "0.3.0-alpha.7",
   "private": true,
   "description": "Architecture Publisher product and first-party conformance workspace",
   "type": "module",
