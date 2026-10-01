@@ -1043,6 +1043,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       The stale-index refusal and read-only `GIT_OPTIONAL_LOCKS=0` correction
       remain preserved. This does not prove automatic ranking, experiment
       performance or whole-goal acceptance.
+      The same evidence owner now binds an installed Skills/feedback consumer:
+      one canonical Skill and three pre-reads loaded, one actual private
+      cardinality failure repaired through official intent, package-component
+      digest and public dependency/cycle denials, then focused clean Skills
+      proof. Native retirement preserves zero integration; 216 archive
+      members restored before two fixture and one extraction roots were
+      reclaimed. Retain full code-verifier, typed routing, host activation
+      and general-comprehension limits instead of treating Skill presence as
+      learning or source implementation acceptance.
 - [ ] 8.3 Hand the completed SDD/DR, COMET, SpecD, semantic-graph, intent,
       and independent-verification research to the existing ETHOS knowledge
       owner with source citations and adopt/reject/defer boundaries. Keep only

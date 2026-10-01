@@ -1,7 +1,7 @@
 {
   "schema": "architecture.ethos-installed-mechanisms-evidence/v1",
   "status": "accepted-runtime native subjourneys and component predicates passed; complete north-star and source adoption remain open",
-  "observedAt": "2026-10-01T05:28:36.032Z",
+  "observedAt": "2026-10-01T06:04:52.184Z",
   "productSource": {
     "commit": "ebe828d31aacca56f82b9a1dabc77e829989c328",
     "tree": "6a01425c21d3da7f1d127e5baeca25f56a11d722",
@@ -329,7 +329,7 @@
     "native recipes qualify accepted runtime ebe828d, not newer mutable ETHOS source",
     "Parallel Work Lane cooperation, stale-base refresh and modeled all-drop are separately verified; automatic winner ranking, domain experiment quality and whole-goal completion remain unproved",
     "local disposable signature proves cryptographic receipt checking, not protected independent provider deployment",
-    "Skills projection proves routing only, not host loading, agent comprehension or learning",
+    "Actual caller guidance/Skill byte loading, exact routing, dependency denials and private RED/GREEN feedback consumer are verified; host-wide activation, comprehension and general learning remain unproved",
     "foundation/brownfield/transports have separately scoped prior evidence, not an unexecuted complete end-to-end ecosystem",
     "Full ETHOS/AIGW successor adoption and substantive research disposition remain open; Publisher alpha.7 exact-media/release readback is separately complete"
   ],
@@ -539,6 +539,147 @@
       "Signature/patch gates do not establish domain correctness",
       "Candidate integration is not accepted-root closeout",
       "Local restore custody, not independent off-host DR"
+    ]
+  },
+  "skillsFeedbackConsumer": {
+    "status": "Explicit installed caller guidance/Skill loading, private failure-to-official-intent RED/GREEN, component and public-plan denials, exact clean Skills proof and controlled retirement verified",
+    "sourceCommit": "ebe828d31aacca56f82b9a1dabc77e829989c328",
+    "runtimeManifestSha256": "c2b8fc8c7a1591b296d61441d331cb0225bd997e6d59e36c0b7661eec083f83f",
+    "result": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/consumer-result.json",
+      "bytes": 2441,
+      "sha256": "e13caef884091dfb8011f939598903a5b73f6f375b4341abfb4d41a8815d9d81"
+    },
+    "selectedReader": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/actual-skill-reader-consumption.json",
+      "bytes": 1877,
+      "sha256": "ef1fcaeb6ef9898e49432531092ccfc0d95bab54d2ce09433d79cb11c46f011a"
+    },
+    "guidance": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/guidance-consumer-readback.json",
+      "bytes": 630,
+      "sha256": "529a76375a3e4179bd5e81efb1783f3a61ba1bc0562878696746ecd2d5dabe5b"
+    },
+    "planPayload": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/consumed-plan-payload.json",
+      "bytes": 37088,
+      "sha256": "711f145792edf7e1d1f8a9de4f44e738be734c1de90bb8861a8fb62ea5e411fb"
+    },
+    "domainRed": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/feedback-observation.json",
+      "bytes": 1357,
+      "sha256": "51522961f0c6356bdf2abaed7422f5fb7e8693088c9a951bca1e521a68a032dc"
+    },
+    "domainGreen": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/feedback-consumer-green.json",
+      "bytes": 374,
+      "sha256": "6699c19397af5165b6b1213b62e632fe792f1e096a0f0cd9234e7e4bd8225e05"
+    },
+    "denials": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/denial-recovery-result.json",
+      "bytes": 1380,
+      "sha256": "c77b4ce6b8053705d3d4c03a1b5ed62a5f72303e3ac64e4704892d492b3ff827"
+    },
+    "packageDigestComponent": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/installed-package-digest-denial.json",
+      "bytes": 1121,
+      "sha256": "97d9f44486b7f241aad1461c8449f41d4885c5bcc4a9b6afabd38d046976a5a3"
+    },
+    "missingDependencyPlan": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/skill-missing-dependency-plan.json",
+      "bytes": 1023,
+      "sha256": "369e803fd8935648a5a06dd256e1ead18a8be61787bfe9d28cd9b0eb2b7a60dd"
+    },
+    "cyclePlan": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/skill-cycle-plan.json",
+      "bytes": 972,
+      "sha256": "18730e43863629ae77171ed6dae6a687c142ed185c296a7f2db80192c0b59c75"
+    },
+    "restoredSkillsProof": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/restored-skills-native-proof.json",
+      "bytes": 79446,
+      "sha256": "4d27290303b4164cd7d80562d64dd8f62caa9fd4025fdde45d958087f116e95e"
+    },
+    "terminalRetirement": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/terminal-result.json",
+      "bytes": 2190,
+      "sha256": "9e6f1fda8e1ba372b19ea11f9a009fa57a07168c58cebe1232de575a1b238bf7"
+    },
+    "selectedSkills": ["ethos-repository-governance"],
+    "preReads": 3,
+    "typedRoutingLimit": "Bare feedback-loop is not the public commitment identity change:feedback-loop; actual changed-path trigger verified without guessing equivalence",
+    "retainedCallerFailures": [
+      {
+        "path": "build/review/release-alpha7/skills-feedback-consumer/consumer-execution.log",
+        "bytes": 802,
+        "sha256": "2a01fba96d1d3ba861ebf5c6cfcc75514e7df03f9a0e4a6c61eb5e1072f4c2fb"
+      },
+      {
+        "path": "build/review/release-alpha7/skills-feedback-consumer/probe-consumers.log",
+        "bytes": 569,
+        "sha256": "b42d336ac8281d1e767e397957323b879359f27202659829e949700daab71f39"
+      },
+      {
+        "path": "build/review/release-alpha7/skills-feedback-consumer/verify-reader-denials.log",
+        "bytes": 489,
+        "sha256": "ca114d6ff4e2611796c271126bacd10b5d43c340230c19e387676b4ca86c5557"
+      },
+      {
+        "path": "build/review/release-alpha7/skills-feedback-consumer/verify-native-reader.log",
+        "bytes": 494,
+        "sha256": "595f013b40a6d1299b9bc7e09efb8277e50d6d5a2b28c3bb402a6fae7f9e3b4e"
+      },
+      {
+        "path": "build/review/release-alpha7/skills-feedback-consumer/verify-skill-consumers.log",
+        "bytes": 397,
+        "sha256": "9e0cc835eaf1bc53919b1584a7e5a2438103b49be1fb75e2eed70a8d56b92809"
+      },
+      {
+        "path": "build/review/release-alpha7/skills-feedback-consumer/verify-native-contracts.log",
+        "bytes": 2433,
+        "sha256": "d986a8ce4b2d680aeb5b4ed5b8ccb2f0a3f8d9e9f65aa92095d1dabf2545cdda"
+      }
+    ],
+    "custody": {
+      "receipt": {
+        "path": "build/review/release-alpha7/skills-feedback-consumer/custody/retention-result.json",
+        "bytes": 54207,
+        "sha256": "d1dd54ed07fc1bbec9567759da75fdf265f3fc036133c97b21e114995c6185e3"
+      },
+      "archive": {
+        "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/review/release-alpha7/skills-feedback-consumer/custody/skills-feedback.tar.gz",
+        "bytes": 4645569,
+        "sha256": "1a4c1b17ec254cbc8b380b5a84eb30284398a6b471ec68d1fe5ad5c8fc91f4f5"
+      },
+      "members": 216,
+      "restoreVerified": true,
+      "cleanup": {
+        "path": "build/review/release-alpha7/skills-feedback-consumer/custody/cleanup-result.json",
+        "bytes": 687,
+        "sha256": "0f050868594cf1bfd32e550c39d534cb93690e0acaf8cff4ddcf397b4f275c91"
+      },
+      "restoreCleanup": {
+        "path": "build/review/release-alpha7/skills-feedback-consumer/custody/restore-cleanup-result.json",
+        "bytes": 406,
+        "sha256": "58298655df00565966743dd697ebb71ecc505dee31e76a42c13adcc309a26c21"
+      },
+      "nativelyRetiredRoots": 1,
+      "reclaimedFixtureRoots": 2,
+      "reclaimedRestoreRoots": 1,
+      "countBasis": "Observed removed arrays and exact absence, not reused helper historical count prose"
+    },
+    "independentReview": {
+      "path": "build/review/release-alpha7/skills-feedback-consumer/independent-consumer-review.json",
+      "bytes": 472,
+      "sha256": "270cc9025f4ace646dfa0a420da6eefb33fe0a16063de5f354529664e4d3118a"
+    },
+    "limits": [
+      "Not general semantic comprehension, automatic learning or host-wide Skill activation",
+      "Canonical bare feedback-loop routing versus change:feedback-loop is not asserted equivalent",
+      "Direct installed digest contract test is component validation; dependency/cycle use public plan",
+      "Exact source-mismatch refusal predates verifier execution and cannot prove digest rejection",
+      "Full code-verifier admission is unproven for this signature/patch fixture",
+      "No source-owner semantic acceptance, product release or off-host recovery"
     ]
   }
 }
