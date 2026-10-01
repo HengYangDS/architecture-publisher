@@ -1986,3 +1986,15 @@ oversized output, malformed reply, selection drift and deadline failure at the
 same private seam; retain the real native suite and exact hosted job evidence.
 Changed runtime bytes require a successor release; immutable alpha.6 media and
 packages are not rewritten or resubmitted as changed artwork.
+
+Exact alpha.7 hosted review job 46727 failed two fake-compiler tests before
+their selected child produced output: the diagnostic case expired at 453 ms
+against its 400 ms fixture ceiling; the successful-tail case expired at 1022 ms
+against a one-second ceiling. The outer stage includes both private Node worker
+and selected-child startup. These observations identify a test prerequisite
+gap, not renewed scratch failure or the historical Swift stall cause.
+Allow five seconds for ordinary fake stages and for the dedicated diagnostic
+timeout case. Capture that rejection, independently require the actual-entry
+marker, then assert the typed timeout and exact diagnostic tail. Product stage
+deadlines, byte bounds, assertions, signed alpha.7 and prior failures remain.
+No retry, skip, platform exception or production readiness hook is added.

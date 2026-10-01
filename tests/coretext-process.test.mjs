@@ -21,7 +21,7 @@ async function selectedStage(t, source, options = {}) {
     args: [fixtureValue.program],
     env: { HOME: fixtureValue.scratch, PATH: fixtureValue.scratch },
     input: '',
-    timeoutMs: 1000,
+    timeoutMs: 5000,
     maximumBytes: 65536,
     ...fixtureValue,
     ...options,
@@ -80,18 +80,20 @@ test('CoreText stage deadline retains observed diagnostics from an unresponsive 
   const stage = await selectedStage(
     t,
     "import fs from 'node:fs';fs.writeFileSync(process.argv[2],'started');process.stderr.write('compiler entered');process.on('SIGTERM',()=>{});setInterval(()=>{},1000);",
-    { timeoutMs: 400 },
+    { timeoutMs: 5000 },
   );
   const started = path.join(stage.selected.scratch, 'started');
   stage.selected.args.push(started);
-  await assert.rejects(
-    stage.run,
-    (err) =>
-      err.code === 'coretext_compile_failed' &&
-      err.processError === 'ETIMEDOUT' &&
-      err.diagnostics === 'compiler entered',
-  );
+  let failure;
+  try {
+    await stage.run();
+  } catch (error) {
+    failure = error;
+  }
   assert.equal(await fs.readFile(started, 'utf8'), 'started');
+  assert.equal(failure?.code, 'coretext_compile_failed');
+  assert.equal(failure?.processError, 'ETIMEDOUT');
+  assert.equal(failure?.diagnostics, 'compiler entered');
 });
 
 test('CoreText compile stage preserves successful stderr without treating it as supervisor protocol', async (t) => {

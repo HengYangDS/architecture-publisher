@@ -1082,3 +1082,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       three declared skips, zero failures, and 97.59/95.15/99.47/97.59% coverage.
       Exact evidence is `build/review/release-alpha7/`; signed proof, hosted CI
       and successor release remain open. The new base delta merges without warnings.
+
+- [ ] 8.4.3 Replace demonstrated cold-start assumptions in the fake CoreText
+      fixture; independently require actual child entry before asserting timeout
+      diagnostics. Keep product deadlines, exact tail/byte assertions and signed
+      alpha.7 unchanged. Qualify the test-only successor locally and on the same
+      hosted trust surfaces; retain job 46727 and its exact source identities.
