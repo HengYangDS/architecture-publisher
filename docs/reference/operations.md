@@ -62,7 +62,44 @@ Before pushing a new tag, create it locally and run the full repository gate
 with that exact tag present. Compare its tagger calendar date with the dated
 Changelog section; a passing untagged branch pipeline is not this check.
 
-### Last verified asset release (2026-10-01): alpha.7
+### Last verified asset release (2026-10-02): alpha.8
+
+The [alpha.8 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.8)
+selects signed source `92395df633ffb24ec040776ff16999b292e07b54`.
+Its eleven selected assets occupy one Generic Package version, 8,506,324 bytes,
+with no duplicate project upload. Native `glab release download` fetched every
+asset; sizes and hashes match the independently anchored manifest and checksum
+file. The verified 6000px PNG and eight-page standalone HTML are delivered to
+Documents; the predecessor alpha.7 files remain unchanged.
+
+Review 9178, protected dev 9179, main 9180 and tag 9181 pass all three native
+platforms, with every statements/branches/functions/lines threshold at least
+95%. Original macOS tag failure 47057 remains evidence; its one unchanged retry
+47071 passed without proving a historical scheduling cause repaired. Native
+platform and external-input skips remain explicit.
+
+A fresh offline-installed, relocated consumer reproduces the exact six-member
+self Candidate with empty PATH and user configuration. Nineteen submitted
+records pass while `admitted: false` remains; explicit acceptance and effect
+authorization are separate. Public local publication installs the selected
+pair, and idempotent recovery preserves foreign parent content. It does not
+prove power-loss or off-host recovery. Current acceptance and custody reside
+in the [alpha.8 receipt](../../conformance/evidence/release-alpha8-readback.json).
+
+The native CLI also fetched four generated source archives. Those unselected
+local copies were removed after exact ownership/hash checks; no remote source
+or historical asset was deleted. Future asset selection must use the actual
+CLI contract rather than treating release-link count as total download count.
+The Fleet owner intentionally enabled normal CI Runners 120/121/122 after
+terminal job and no-in-flight readback; artifact housekeeping must not restore
+their earlier temporary pauses.
+
+Actual ETHOS Adapter/Edition migration and substantive research absorption
+remain source-owned obligations. AIGW's accepted alpha.7 Client Projection
+adoption is distinct from alpha.8 adoption or whole-product publication. No
+Publisher release proves those outcomes.
+
+### Historical asset release (2026-10-01): alpha.7
 
 The [alpha.7 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.7)
 selects signed source `0788d916b96f6868a3380bdb627705a6a1fe037b` and one
@@ -100,8 +137,8 @@ unchanged. These local effects do not establish independent off-host custody.
 
 Generic policy verification binds nineteen submitted PASS records and still
 reports `admitted: false`; explicit owner acceptance, source endorsement and
-delivery effects are separate. ETHOS/AIGW adoption, final native Windows and
-independent off-host recovery remain unproved. Historical alpha.6 facts remain
+delivery effects are separate. At that historical checkpoint, ETHOS/AIGW adoption, final native Windows and
+independent off-host recovery were unproved. Historical alpha.6 facts remain
 in its immutable [receipt](../../conformance/evidence/release-alpha6-readback.json).
 
 ### Historical reader release (2026-09-29): alpha.5
@@ -776,7 +813,7 @@ HTML 804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa
 PNG  5f4ea104b95112d84635881600d2c75ae3eae65a45b4b61a4fe5936df3ee3cda
 ```
 
-The signed alpha.7 tag and all earlier release bytes remain unchanged. No
+The signed alpha.8 and predecessor tags and all released bytes remain unchanged. No
 predecessor repository archive is required in the successor registry.
 
 ## Off-host recovery

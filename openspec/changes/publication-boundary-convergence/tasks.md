@@ -1144,7 +1144,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       and coverage floor. Immutable alpha.7 and all product/media inputs
       remain unchanged; prior failures and unproved delay causes are retained.
 
-- [ ] 8.4.4 Retain a live, finitely bounded CoreText worker after its reply;
+- [x] 8.4.4 Retain a live, finitely bounded CoreText worker after its reply;
       preserve strict group reclamation, stage ceilings, primary diagnostics
       and coverage. Require the incumbent-failing delayed-owner test, direct
       expiry and invalid-bound controls, killed-worker coverage, sibling audit,
@@ -1156,13 +1156,15 @@ third-party or generated supply rather than moving owned code outside coverage.
       repair and ordered test cleanup; 44 focused native/installed cases pass
       with zero skips. The frozen Chrome-enabled full gate passes 1,426/1,429
       with three declared skips and 97.76/95.16/99.58/97.76% coverage.
-      The command wrapper read stale summary data; a fresh native c8 `--all`
-      report binds the current totals in the existing
-      `conformance/evidence/coretext-process-lifetime.json` owner. Exact-HEAD
-      governance, hosted/native Windows successor, installed release and
-      readback remain open; this task is not complete.
+      The fresh native c8 report corrected the stale wrapper summary. Exact
+      signed source `92395df` now passes desktop proof and review/dev/main/tag
+      Linux, macOS and Windows gates, each coverage dimension at least 95%.
+      The released alpha.8 pair has exact user review, complete native-download
+      hashes and offline-installed publication/recovery readback. See
+      `conformance/evidence/release-alpha8-readback.json`; retained failures,
+      unproved timing causes and source-owned goal obligations remain separate.
 
-- [ ] 8.4.5 Qualify native Windows through the existing GitLab repository gate
+- [x] 8.4.5 Qualify native Windows through the existing GitLab repository gate
       with separate review/protected Runner identities on every platform.
       Preserve scripts-disabled
       locked installation, exact Node/npm selection, the whole quality graph,
@@ -1249,7 +1251,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       remain unchanged. Incumbent behavior fails under ambient conversion;
       focused GREEN passes 89 cases, with two explicit input skips. Independent
       review, static/package checks and zero-warning OpenSpec validation pass.
-      Repaired exact-HEAD proof, native review/protected acceptance and release
-      remain open; unchanged product inputs do not authorize artifact replacement.
-      The existing research receipt selects the qualified five-topic packet,
-      not the superseded alpha.6 application input.
+      Exact signed `92395df` desktop proof passes 1,451 tests, zero failures,
+      three explicit input skips and 97.76/95.15/99.58/97.76% coverage.
+      Review 9178, dev 9179, main 9180 and tag 9181 pass all three native
+      platforms. Original macOS tag job 47057 remains retained; its one unchanged
+      retry 47071 passes without proving a historical scheduling cause repaired.
+      Alpha.8 is released in one Generic Package with eleven assets, 8,506,324
+      bytes, complete native CLI download/hash checks and cold offline installed
+      qualification/local publication/idempotent recovery. Both exact approved
+      media are delivered to Documents; historical alpha.7 remains unchanged.
+      The four automatic unselected source downloads were removed only after
+      exact inventory/hash verification. The Fleet owner accepted the completed
+      boundary and intentionally enabled normal Runners 120/121/122; do not
+      restore their historical paused state. Release acceptance and custody
+      reside in `conformance/evidence/release-alpha8-readback.json`.
+      Tasks 8.3 and 8.4 remain open for substantive source-topic absorption and
+      real cross-product closure. The qualified five-topic packet supersedes
+      the alpha.6 transplant; receiver changes require semantic topic merging.

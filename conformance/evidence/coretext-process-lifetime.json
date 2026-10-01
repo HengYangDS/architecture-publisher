@@ -1,7 +1,7 @@
 {
   "schema": "architecture.coretext-process-lifetime-evidence/v1",
-  "status": "alpha.7 historical release preserved; alpha.8 CoreText replying-worker repair locally qualified; exact-HEAD governance, hosted/native successor and release remain open",
-  "observedAt": "2026-10-01T10:43:48.195Z",
+  "status": "alpha.8 exact source/main/tag native gates, offline-installed release and Documents readback qualified; retained timing causes and source-owned full-goal obligations remain open",
+  "observedAt": "2026-10-01T18:10:45.207153+00:00",
   "source": {
     "runtimeCommit": "0788d916b96f6868a3380bdb627705a6a1fe037b",
     "testCorrectionCommit": "eddd9feb831a867cca6ad85530f0145a641dbcfe",
@@ -468,11 +468,12 @@
     }
   },
   "releaseReadback": {
-    "path": "conformance/evidence/release-alpha7-readback.json",
-    "sha256": "029fcdfbb550fd38c01be2602ca55efd75c454ffee769e32faf1adc8865890c2"
+    "path": "conformance/evidence/release-alpha8-readback.json",
+    "bytes": 20005,
+    "sha256": "2f33a5612d9f9c1ea8aa7a0d19ee6080be51df009403f3c41a9f5134a750d700"
   },
   "replyingWorkerCorrection": {
-    "status": "local source slice approved, not a published successor",
+    "status": "bounded replying-worker repair independently reviewed, source/main/tag gates and downloaded release qualified; original failure retained",
     "baseHead": "ef364a7e34691bf57c7148d8338abbadacffaec6",
     "selectedVersion": "0.3.0-alpha.8",
     "sourceSha256": {
@@ -566,13 +567,7 @@
       "Fixture-state fields retain early cleanup registration without disabling prefer-const"
     ],
     "coverageCorrection": "The command wrapper read an old coverage-summary.json; fresh c8 --all report from the completed run supplies these exact coverage totals",
-    "remaining": [
-      "exact-HEAD proof and protected integration",
-      "fresh source/tag Linux/macOS CI",
-      "final frozen native Windows complete package/toolgraph",
-      "installed successor and exact-media review",
-      "release download and readback"
-    ],
+    "remaining": [],
     "limits": [
       "Self-expiry does not guarantee descendant reclamation after supervisor loss",
       "EPERM remains fail-closed",
@@ -648,12 +643,8 @@
         "Actual effective checkout and complete successor native gate remain unproved"
       ]
     },
-    "status": "Root cause and local repair verified; current-source proof, native clone readback and complete Windows CI remain required",
-    "remaining": [
-      "fresh exact-HEAD governance",
-      "actual native successor checkout and complete gates",
-      "source/tag CI and release readback"
-    ],
+    "status": "bounded RED/GREEN repair and exact native source/main/tag acceptance verified by current release receipt; historical failures preserved",
+    "remaining": [],
     "currentSourceEvidence": {
       "sourceHead": "c49b765bb8f1d77d2ffc706ea52eb97944108075",
       "proof": {
@@ -676,7 +667,7 @@
   },
   "elkReplyingWorkerCorrection": {
     "baseHead": "c49b765bb8f1d77d2ffc706ea52eb97944108075",
-    "status": "RED/GREEN and focused local repair; Windows successor and release remain unproved",
+    "status": "bounded RED/GREEN repair and exact native source/main/tag acceptance verified by current release receipt; historical failures preserved",
     "originatingHostedFailure": {
       "pipeline": 9152,
       "job": 46961,
@@ -717,12 +708,7 @@
       "Windows directory fsync capability",
       "Windows ESM preload fixture uses a drive-qualified filesystem path instead of a file URL"
     ],
-    "remaining": [
-      "current-slice independent review and signed source",
-      "full four-dimensional coverage gate on changed product inputs",
-      "actual Windows successor and protected CI",
-      "new package freeze, independent artifact qualification and release readback"
-    ],
+    "remaining": [],
     "limits": [
       "Self-expiry is not proof of descendant reclamation after owner loss",
       "Prior native Windows suite failed; local GREEN is not native Windows qualification",
@@ -732,7 +718,7 @@
   },
   "windowsFileDurabilityCorrection": {
     "baseHead": "9ee5d8d44ea98d999d564c5cca3784ebaf003eda",
-    "status": "local RED/GREEN and public installed-recovery paths passed; native repaired Windows acceptance remains open",
+    "status": "exact native Windows source/main/tag and installed publication/recovery qualified; Windows directory durability limitation retained",
     "originatingJobs": {
       "path": "build/review/release-alpha8/windows-terminal-failure-map.json",
       "bytes": 1739,
@@ -786,7 +772,7 @@
   },
   "nativeFixtureCorrection": {
     "baseHead": "ec72b35da71e858b26137c95a09225c4a25fbd5e",
-    "status": "local fixture and transport RED/GREEN; ordinary native Windows rerun and full source coverage pending",
+    "status": "exact successor Windows review/protected/main/tag and four coverage floors qualified; historical native timeout cause remains unproved",
     "owner": "Existing first-party native tests and raster transport owner",
     "red": [
       {
@@ -904,7 +890,9 @@
       "controls": {
         "path": "tests/package-source-replay.test.mjs",
         "bytes": 4460,
-        "sha256": "4d54d66ac613525349d3adb7ef69b0318ab8bea64283c09e07ed357147904f60"
+        "sha256": "4d54d66ac613525349d3adb7ef69b0318ab8bea64283c09e07ed357147904f60",
+        "sourceCommit": "28d0f977af6a91489a6a925bcf6c9d5a737fe948",
+        "scope": "historical immutable source snapshot; not current working-tree bytes"
       },
       "remainingLimits": [
         "Actual native Windows file-link permissions and complete repaired execution remain unproved",
@@ -966,12 +954,12 @@
       "release": "not performed"
     },
     "currentNativeClosure": {
-      "sourceHead": "9a88c58b4870e4cb5b760367f0a26deb1908d170",
-      "observedAt": "2026-10-01T16:33:38.480711+00:00",
+      "sourceHead": "92395df633ffb24ec040776ff16999b292e07b54",
+      "observedAt": "2026-10-01T18:10:45.207153+00:00",
       "localProof": {
-        "path": "build/review/release-alpha8/native-fixture-repair-exact-head-proof.json",
-        "bytes": 594312,
-        "sha256": "fed280de76467c25846c46bec6a49ecbb1bd1c63ad008b7d1e7fcd6c330d4b46"
+        "path": "build/review/release-alpha8/native-timeout-diagnostics-desktop-exact-proof.json",
+        "bytes": 1050202,
+        "sha256": "66f5e6685ce8c6bee461dd29398bf376fca310136d30dff1acdff6bde9fe8a3a"
       },
       "localCoverage": {
         "statements": 97.76,
@@ -984,70 +972,70 @@
         "failed": 0,
         "skipped": 3
       },
-      "windowsCohort": {
-        "path": "build/review/release-alpha8/native-fixture-repair-windows-cohort.json",
-        "bytes": 4932,
-        "sha256": "606b7981c811889b3a643f25378df5617a0c4a87f8f914d57e07a6a6a3e1b499"
-      },
-      "windowsProtectedFailure": {
-        "path": "build/review/release-alpha8/native-fixture-repair-windows-protected.log",
-        "bytes": 215394,
-        "sha256": "867b867f0c44026263661793f7e13eabb1dc39e552790b33f256f90480b73a51"
-      },
-      "macosSingleRetry": {
-        "path": "build/review/release-alpha8/native-fixture-repair-macos-single-retry.json",
-        "bytes": 1538,
-        "sha256": "8de65db01ead8691d49c14f3619bf421effd7d79e09556244709ecdc18b70feb"
+      "nativeCohort": {
+        "path": "build/review/release-alpha8/current-source-native-custody.json",
+        "bytes": 10916,
+        "sha256": "e121002f7b799e50175e43f600dd4e8dbffb99b39a94516003f4870e79f528c7"
       },
       "nativeResults": {
-        "linuxReview47029": "success",
-        "linuxProtected47037": "success",
-        "macosProtected47038": "success",
-        "macosReviewRetry47040": "success",
-        "windowsReview47031": "success",
-        "windowsProtected47039": "failed"
+        "9178:verify:windows:review:47049": "success",
+        "9178:verify:macos:review:47048": "success",
+        "9178:verify:linux:review:47047": "success",
+        "9179:verify:windows:protected:47052": "success",
+        "9179:verify:macos:protected:47051": "success",
+        "9179:verify:linux:protected:47050": "success",
+        "9180:verify:windows:protected:47055": "success",
+        "9180:verify:macos:protected:47054": "success",
+        "9180:verify:linux:protected:47053": "success",
+        "9181:verify:macos:protected:47071": "success",
+        "9181:verify:windows:protected:47058": "success",
+        "9181:verify:linux:protected:47056": "success"
       },
-      "restoredRunners": [
-        {
-          "id": 120,
-          "paused": true,
-          "online": true,
-          "access_level": "not_protected",
-          "description": "ci-p1323-windows-arm64-shell-review"
+      "retainedPredecessorFailures": {
+        "windowsProtectedFailure": {
+          "path": "build/review/release-alpha8/native-fixture-repair-windows-protected.log",
+          "bytes": 215394,
+          "sha256": "867b867f0c44026263661793f7e13eabb1dc39e552790b33f256f90480b73a51"
         },
-        {
-          "id": 121,
-          "paused": true,
-          "online": true,
-          "access_level": "ref_protected",
-          "description": "ci-p1323-windows-arm64-shell-protected"
+        "macosSingleRetry": {
+          "path": "build/review/release-alpha8/native-fixture-repair-macos-single-retry.json",
+          "bytes": 1538,
+          "sha256": "8de65db01ead8691d49c14f3619bf421effd7d79e09556244709ecdc18b70feb"
         },
-        {
-          "id": 122,
-          "paused": true,
-          "online": true,
-          "access_level": "ref_protected",
-          "description": "ci-p1323-linux-arm64-docker-protected"
+        "remainingFailure": {
+          "test": "CoreText stage deadline retains observed diagnostics from an unresponsive child",
+          "actual": "coretext_stage_cleanup_unproved",
+          "expected": "coretext_compile_failed",
+          "durationMs": 5098.942708,
+          "childEntered": true,
+          "nativeCause": "unproved; incumbent assertion omitted full error cause",
+          "hypothesis": "outer taskkill tree cleanup may overlap the worker compiler timeout kill; no production repair is authorized by this hypothesis"
         }
-      ],
+      },
+      "singleTagRetry": {
+        "originalJob": 47057,
+        "retryJob": 47071,
+        "receipt": {
+          "path": "build/review/release-alpha8/alpha8-macos-tag-single-retry.json",
+          "bytes": 2666,
+          "sha256": "6f4866a4a607940cc68e3ccab51c7fe54c51c544115441a7e854503f659d5422"
+        },
+        "originalFailureSha256": "6253d897a9e2be2e1582c5642d4c5147ebc50aeabd0316cd17ef280ca76e7993",
+        "historicalSchedulingCause": "unproved"
+      },
+      "releaseReadback": {
+        "path": "conformance/evidence/release-alpha8-readback.json",
+        "bytes": 20005,
+        "sha256": "2f33a5612d9f9c1ea8aa7a0d19ee6080be51df009403f3c41a9f5134a750d700"
+      },
+      "normalRunnerOwner": {
+        "path": "/Users/yheng/Documents/Codex/2026-10-01/runner-capacity/publisher-92395df-normal-runner-admission-20261002.json",
+        "bytes": 7930,
+        "sha256": "9fbb5eb1f998290610dac3c1c7ac013d6cafa2eb3c9c6e69b5d844c3fbaf06b8"
+      },
       "observers": {
-        "91383": "terminal",
-        "24608": "terminal",
-        "ownedPIDsAbsent": [2002, 52049, 90196]
-      },
-      "remainingFailure": {
-        "test": "CoreText stage deadline retains observed diagnostics from an unresponsive child",
-        "actual": "coretext_stage_cleanup_unproved",
-        "expected": "coretext_compile_failed",
-        "durationMs": 5098.942708,
-        "childEntered": true,
-        "nativeCause": "unproved; incumbent assertion omitted full error cause",
-        "hypothesis": "outer taskkill tree cleanup may overlap the worker compiler timeout kill; no production repair is authorized by this hypothesis"
-      },
-      "replay": {
-        "path": "build/review/release-alpha8/native-fixture-repair-installed-reuse.json",
-        "bytes": 1048,
-        "sha256": "16c76f0f52f4ef3e50821abdab6150361a25100b380b8153300e36d5330c3082"
+        "83947": "terminal",
+        "ownedPid34486Absent": true
       },
       "humanReview": {
         "path": "build/review/release-alpha8/final-28d0f97/human-review.json",
@@ -1055,21 +1043,21 @@
         "sha256": "2437a3e7f53f5b1702989bc99f85b9c9befd7685e0139a08139988fb66ea4ef7"
       },
       "qualification": {
-        "path": "build/review/release-alpha8/accepted-canonical-kit-replay.json",
-        "bytes": 809,
-        "sha256": "a6a5dc81b19fcb9f41d64495bcc90548387e265db442b0166c540299e1b1e84f"
+        "path": "build/review/release-alpha8/downloaded-qualified-replay/qualification-report.json",
+        "bytes": 961,
+        "sha256": "0a485dad63e8b896c68c26ba54eb4874d9fa78109c957275c4a10e09ea768b3d"
       },
       "localPublication": {
-        "path": "build/review/release-alpha8/final-28d0f97/local-publication-readback.json",
-        "bytes": 2175,
-        "sha256": "051429e00b64470fe6eef43da7207f00dc682fb127ece538b3a57e78762708d7"
+        "path": "build/review/release-alpha8/downloaded-qualified-replay/publication-result.json",
+        "bytes": 1056,
+        "sha256": "5268d0a786f5196db7a5e113cc82831199640bc90cdd5cfee845a055aebae225"
       },
       "limits": [
-        "Native protected Windows acceptance remains failed",
-        "A single macOS retry success does not prove a timing defect fixed",
-        "Exact approved media and frozen package bytes are unchanged",
-        "No alpha.8 tag/release or Documents replacement exists",
-        "Power-loss recovery and off-host recovery remain unqualified"
+        "historical47039 CoreText and47057 ELK timing causes not reproduced or proven repaired",
+        "Frozen product/media bytes unchanged",
+        "Native ordinary required source/main/tag gates now pass with every coverage dimension >=95",
+        "Actual ETHOS migration and research absorption remain source-owned obligations",
+        "Power-loss and off-host recovery remain unqualified"
       ],
       "diagnosticSuccessor": {
         "baseHead": "9a88c58b4870e4cb5b760367f0a26deb1908d170",
