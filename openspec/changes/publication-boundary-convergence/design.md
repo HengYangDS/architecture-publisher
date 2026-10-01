@@ -1423,8 +1423,8 @@ Source-selected relations already bind their endpoint members. An authored
 canvas may render those members directly; requiring the Editor to select the
 same entities a second time would create a redundant source declaration.
 Publisher derives only exact relation members, rejects contradictory source
-identity, and still requires every authored node, relation and visible label
-to bind selected meaning.
+identity, and requires every semantic-bearing node, relation and visible label
+to bind selected meaning. Explicit adornments carry no semantic coverage.
 
 ### Semantic identity and graphic occurrences
 
@@ -1454,7 +1454,7 @@ overwrite, arbitrary primary site or copied semantic authority is allowed.
 The existing HTML compositor and static carrier owner must consume this
 distinction; removing only the duplicate check would lose earlier sites.
 
-For an aggregate connector, classify each selected relation from its actual
+For a source-relation-bearing aggregate connector, classify each selected relation from its actual
 endpoint memberships as a directed crossing, from-node context or to-node
 context. Reject reversed, missing or multiply attributable endpoint roles;
 the connector still needs at least one directed crossing. Internal relations
@@ -1463,11 +1463,13 @@ preserves the flagship's valid aggregate context without allowing one correct
 member to excuse another reversed member. The classification is shared pure
 Scene logic, derived from existing memberships rather than another ledger.
 
-Static typed Claims retain two independent carrier kinds in the private v2
-evidence: visible text first, then every structural occurrence of the selected
-relation or scalar subject. Both kinds must be nonempty. A missing relation
-anchor cannot fall back to a subject node; structural IDs do not prove complete
-painting of the Claim. Non-Claim assertions keep their admitted representation.
+Static Claims whose selected representation requires relation or scalar-subject
+structure retain their own visible-text carriers and every required structural
+occurrence. Both kinds must be nonempty. Missing required structure or declaring
+unknown coverage does not make a typed Claim statement-only. A missing relation
+anchor cannot fall back to a subject node. Opaque statement occurrences bind
+directly to their own Claim without fabricated dependencies; structural IDs do
+not prove complete painting. Non-Claims keep their admitted representation.
 
 The bounded implementation first repairs occurrence binding in both authored
 media and keeps the existing public Build Request, Provider v2 and refinement
@@ -1486,6 +1488,112 @@ cannot claim flagship parity. Resolve these limits through the existing
 data-only Scene and measured renderer boundary, or report an exact unsupported
 case. Do not discover host fonts, submit pre-rendered media, manufacture source
 edges or weaken qualification to complete adoption.
+
+### Faithful authored statements, routing and painting
+
+The next implementation slice follows the two independent bounded reviews of
+the retained source workload. It extends the existing data-only refinement,
+not the semantic model, Provider authority, CLI or source-specific renderer.
+The occurrence repair at signed `2cf2965` is a prerequisite, not flagship parity.
+The source owner verified that all thirteen historical page bindings remain
+`8f2e829` / `4ea40f...` and UNVERIFIED. Existing source validation already refuses
+mismatches, and its authored-delta path owns successor applicability and visible
+meaning review. Current `5e065ca` / `890cee16...` and selected `9f8967b` /
+`549d09...` export payloads agree excluding Git identity. That agreement does
+not permit hash-only acceptance or rewriting the historical declarations.
+
+#### One occurrence binding, three distinct responsibilities
+
+A source occurrence selects exact source-qualified entity, relation or Claim
+identity. An editorial occurrence binds an existing Edition assertion and
+retains its statement, proponent, source basis and reader question. An adornment
+has finite geometric purpose only and contributes no semantic identity,
+topology, Claim coverage, authority or standalone source inspection. The same
+selected refinement carries these decisions. Do not add a second assertion
+ledger, source-role registry or explanation authority.
+
+Visible statement occurrences bind their own Claim or editorial assertion,
+not a shared subject label. Opaque statements keep exact values, provenance,
+plane, maturity, validity and unknown coverage without an invented structural
+dependency or mandatory document box. Unknown coverage alone does not exempt
+typed relational/scalar Claims from applicable subject/endpoint checks. Their
+selected structure still requires precise structural carriers. Each required
+statement needs its own visible text witness; hidden IDs and sibling inspection
+cannot replace it. The compiler rejects wrong identity, digest, immutable facts
+and stale checked text preimages. It cannot decide every misleading paraphrase;
+source/editor review remains an explicit exact-artifact obligation.
+
+#### Finite SVG-standard primitives at the existing painting seam
+
+Use node-local `circle`, `rect`, `line` and `polyline` primitives; a polyline may
+be explicitly closed. A node admits at most 32 primitives and each polyline at
+most 64 points; one canvas admits at most 4,096 primitives and 32,768 points.
+Coordinates remain within the existing finite canvas range, dimensions are
+positive, and palette references/stroke widths are bounded. Product-controlled
+round caps and joins prevent unbounded miter growth. Raw SVG, arbitrary path
+strings, transforms, external references, URLs, scripts and symbol registries
+are inadmissible. Existing released v1 shapes retain their defined meaning;
+the new authored choices do not reinterpret source role words.
+
+Primitives own no semantic identity. The geometric owner derives actual fill,
+stroke, cap/join and closed-shape footprints from selected data; authored
+paintBox values, if retained, are checked claims rather than pass authority.
+Semantic port bounds stay independent and cannot move to hide collisions.
+Reuse the existing analytic Scene/canvas and emitted-path audits, SVG painter
+and resvg supply. This is a finite paint contract, not a new editor or solver.
+
+#### Source relation endpoints are not physical junctions
+
+An exact relation-route occurrence selects one source relation, its source and
+destination entity occurrences and an ordered, explicitly directed list of
+geometric segments. Validate actual source endpoints, each traversal direction,
+complete continuity and every referenced segment. Reuse existing member/point
+caps for route count, traversals and total references; repetition cannot evade
+those budgets. A shared segment retains each
+carrier independently; it creates no shared permission or semantic instance.
+Routing junctions remain adornments. Unrestricted reachability, a guessed
+primary route and a transitive source edge are forbidden.
+
+A multi-relation summary is always an editorial explanation. Its constituent
+source relations may independently have valid direct/context carriers; their
+coverage never promotes the summary to a source relationship. Conditional
+explanations can connect occurrences of the same source entity without creating
+a source self-loop. Inspection identifies editorial ownership, basis and limits
+separately from literal source relations or admitted effects.
+
+#### Selected fonts are resources, not ambient capabilities
+
+Extend the existing Edition resource join to admit a bounded selected font set
+alongside the selected refinement. Each font identifies exact resource bytes,
+digest, face/weight and attributed embedding/distribution evidence. Reuse direct,
+declarative and executable materialization, existing font parsing, measurement,
+embedding and raster owners. Measure and paint the same bytes. Missing glyphs,
+changed pins, absent faces or missing required distribution evidence fail
+explicitly; no host font discovery, silent substitution or font registry is
+allowed. Declared license evidence is not automatic legal approval. Each medium
+binds the resources it consumes; primitive and font parity remain separate
+qualification obligations. Existing resource-count, input-byte and raster-font
+budgets remain hard bounds rather than increasing with repeated selectors.
+
+#### Independent media and bounded delivery
+
+Static and interactive independently derive carriers, visible statements,
+routes, geometry and qualification from selected meaning. Shared contracts,
+pure validators and exact font bytes are allowed; neither medium's coordinates,
+DOM, coverage nor approval authorize the other. Changing only static refinement
+must preserve interactive scene/render payload bytes when interactive consumed
+inputs are unchanged. Whole-Candidate revision metadata may still differ and
+needs its own exact binding; it does not force duplicate authoring.
+
+Implement in source-dependency order: direct statements, finite primitives and
+adornments, exact relation routes/editorial wiring, selected font resources,
+then one coherent installed/native successor. Each slice retains incumbent RED,
+minimal GREEN, sibling audits and a signed savepoint. The source writer owns
+the thirteen-page rebind, semantic/art/rollback acceptance and retirement under
+its existing task. Do not release partial interfaces to manufacture activity,
+downgrade the flagship to neutral art or import pre-rendered media as source.
+No mobile/narrow-screen work, off-host DR effect or PDF/PPT implementation is
+added to this migration slice; their existing decision/research scope remains.
 
 That binding establishes attribution, not equivalence between free authored
 wording and a source proposition. Every authored static canvas therefore

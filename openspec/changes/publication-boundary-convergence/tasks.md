@@ -533,6 +533,34 @@ third-party or generated supply rather than moving owned code outside coverage.
       is in `conformance/evidence/authored-occurrence.json`. This closes the
       mechanism repair, not alpha.9 release or source-owned flagship adoption.
 
+- [ ] 5.2.2 Bind authored source/editorial statements directly to their own
+      exact Claim/assertion identities. Preserve opaque original values and
+      unknown coverage without invented dependencies; keep applicable typed
+      structural checks. Prove distinct shared-subject statements, omission,
+      substitution and repeated-fact failures through both media and installed
+      public input. Reuse existing assertion, scene and coverage owners.
+- [ ] 5.2.3 Add finite node-local SVG-standard primitives and explicit
+      geometry-only adornments. Derive paint footprints, retain port bounds
+      and enforce primitive/point budgets; reject false envelopes, collisions,
+      executable geometry and invented semantic coverage. Preserve released
+      v1 meanings and prove the same data drives audit and actual painting.
+- [ ] 5.2.4 Bind literal relation routes to exact ordered traversals and keep
+      editorial summaries/conditions distinct. Validate directed endpoints,
+      segment continuity, shared-carrier independence and explanation basis
+      in both authored media. Routing junctions never become source entities
+      or a transitive source edge; reuse the existing selected refinement.
+- [ ] 5.2.5 Extend existing Edition resources for a bounded exact font set.
+      Verify direct/declarative/executable parity, selected face/weight bytes,
+      attributed distribution evidence, measured glyphs, embedding, raster,
+      relocation and changed-pin refusal. No ambient discovery, silent
+      substitution or font registry; do not claim proprietary-font rights.
+- [ ] 5.2.6 Freeze one coherent faithful successor after the preceding owner
+      repairs. Verify independent media, all four 95% floors, installed public
+      input, native hosted matrix and exact release/artifact custody. Hand the
+      source writer one qualified retain/replace/retire map for its existing
+      thirteen-page rebind, semantic/art/rollback acceptance and retirement.
+      Preserve alpha.8 and do not claim source adoption from Publisher release.
+
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

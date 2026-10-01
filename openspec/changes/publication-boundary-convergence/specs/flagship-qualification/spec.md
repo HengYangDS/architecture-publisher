@@ -37,11 +37,12 @@ source facts SHALL fail. Repetition SHALL NOT assert new runtime instances.
 
 ### Requirement: Static Claims retain visible and structural carriers
 
-A static typed Claim SHALL retain nonempty visible-text carriers and structural
-owners from its selected relation or scalar subject. Publisher SHALL preserve all
-owning occurrences and reject missing structural ownership without a fallback.
-Structural anchors SHALL NOT replace visible text or prove exhaustive Claim
-painting. Non-Claim assertions SHALL retain their admitted representation.
+Static Claims representing typed relations or scalar subjects SHALL retain own
+visible text and all required structural occurrences. Missing structure SHALL
+fail without fallback. Unknown coverage SHALL NOT waive typed structural checks.
+Structural IDs SHALL NOT replace text or prove exhaustive painting. Opaque
+statements SHALL bind own text without fabricated structure; non-Claims SHALL
+retain their admitted representation.
 
 #### Scenario: One Claim describes repeated structural occurrences
 
@@ -56,7 +57,7 @@ painting. Non-Claim assertions SHALL retain their admitted representation.
 
 ### Requirement: Aggregate connectors preserve each relation's role
 
-Publisher SHALL classify each connector member as a directed crossing or
+Publisher SHALL classify each source-relation-bearing aggregate member as a directed crossing or
 context within one endpoint node. Reverse, missing or ambiguous membership
 SHALL fail, and a connector SHALL contain a directed crossing. Internal context
 facts and Claim anchors SHALL belong to that node, not borrow arrow direction.
@@ -77,8 +78,9 @@ facts and Claim anchors SHALL belong to that node, not borrow arrow direction.
 Interactive inspection SHALL expose the same selected reference at each bound
 graphic site and page without creating a competing factual record. Publisher SHALL
 reject duplicate reference/graphic pairs and any disagreement in source digest,
-title or facts for one reference. Claim facts SHALL remain bound to their
-selected subject or relation at every retained occurrence.
+title or facts for one reference. Each occurrence SHALL retain identical Claim
+facts, including original subject and object/value. Required structural bindings
+SHALL remain; opaque statements MAY bind their own Claim without a subject graphic.
 
 #### Scenario: Two graphic sites inspect one source member
 
@@ -89,3 +91,111 @@ selected subject or relation at every retained occurrence.
 
 - **WHEN** the second record changes the same reference's digest, title or fact content
 - **THEN** the HTML compositor rejects the conflict rather than selecting a primary record
+
+### Requirement: Authored statements retain their own source identity
+
+Publisher SHALL bind each selected visible source statement to its own Claim,
+not only its shared subject. Opaque statements SHALL retain exact values,
+provenance and unknown coverage without fabricated dependencies. Unknown
+coverage SHALL NOT waive applicable typed subject or relation checks. Text
+attribution SHALL NOT establish semantic equivalence, truth or acceptance.
+
+#### Scenario: Two opaque statements share a document subject
+
+- **WHEN** both original Claims have distinct visible statement occurrences
+- **THEN** each retains its own identity and immutable facts without a mandatory subject box
+- **AND** removing one required statement witness fails coverage
+
+#### Scenario: An occurrence substitutes another Claim
+
+- **WHEN** its selected Claim identity, digest, immutable facts or checked text preimage disagree
+- **THEN** Publisher refuses the mismatch without pretending to decide every paraphrase
+
+### Requirement: Editorial explanations and adornments remain distinct
+
+An editorial occurrence SHALL bind an existing Edition assertion, proponent,
+basis and question. An adornment SHALL contribute no source identity, topology,
+semantic coverage or authority. Publisher SHALL distinguish both from literal
+source relations. A multi-relation summary SHALL remain editorial regardless
+of valid constituent carriers; geometry SHALL NOT create a transitive edge.
+
+#### Scenario: Routing geometry distributes one candidate object
+
+- **WHEN** geometry-only junctions and segments connect several source occurrences
+- **THEN** they do not become new source entities, permissions or evidence of instances
+
+#### Scenario: A conditional explanation joins the same entity twice
+
+- **WHEN** an Edition assertion explains a conditional consequence between two occurrences
+- **THEN** the explanation retains editorial attribution without a source self-loop
+
+### Requirement: Authored primitives have derived paint footprints
+
+An authored node MAY select bounded circle, rect, line and polyline primitives.
+Publisher SHALL derive fill, stroke, cap/join and closed-shape paint footprints
+and validate any supplied envelope. Semantic port bounds SHALL remain separate.
+Raw SVG, arbitrary paths, transforms, external references and executable content
+SHALL fail. Primitive choice SHALL NOT define source role semantics.
+
+#### Scenario: An author understates a primitive's ink envelope
+
+- **WHEN** the selected shape or stroke exceeds the supplied paint envelope
+- **THEN** validation refuses the false envelope or derived collision without moving ports
+
+#### Scenario: A canvas exceeds the finite painting budget
+
+- **WHEN** it exceeds 32 primitives per node, 64 points per polyline, 4096 primitives or 32768 points per canvas
+- **THEN** Publisher refuses it before rendering
+
+### Requirement: Relation routes bind exact ordered traversals
+
+A source relation route SHALL identify its exact relation, source/destination
+entity occurrences and ordered segments with traversal directions. Publisher
+SHALL validate source direction, continuous attachment and every segment.
+Shared segments SHALL preserve each carrier independently. Reachability or an
+editorial summary SHALL NOT replace exact source endpoints and route identity.
+Existing scene-member, point and traversal-reference budgets SHALL remain bounds.
+
+#### Scenario: Two relations share one routing segment
+
+- **WHEN** both declare valid ordered routes through geometry-only junctions
+- **THEN** each retains independent source endpoint and direction checks
+- **AND** shared geometry grants no shared permission
+
+#### Scenario: A source route is reversed or disconnected
+
+- **WHEN** a segment's traversal, arrow or attachment contradicts its declared source route
+- **THEN** Publisher rejects the route despite another valid shared carrier
+
+### Requirement: Selected fonts have one measured paint identity
+
+Edition font resources SHALL bind exact bytes, digest, face/weight and attributed
+distribution evidence. Direct, declarative and executable materialization SHALL
+agree. Measurement, embedding and raster SHALL use the same selected bytes.
+Missing glyphs, pins, faces or required evidence SHALL fail without host discovery
+or silent fallback. Declared evidence SHALL NOT grant legal or source approval.
+Existing resource-count, input-byte and raster-font budgets SHALL remain bounds.
+
+#### Scenario: Font measurement and final painting select different bytes
+
+- **WHEN** any consumed font identity differs between measurement and rendering
+- **THEN** Publisher refuses qualification rather than reuse historical metrics
+
+#### Scenario: Required selected font evidence is missing
+
+- **WHEN** selected font bytes, face/weight or required distribution evidence are unavailable
+- **THEN** the exact input failure is reported without discovering a substitute font
+
+### Requirement: Media derive independent occurrence evidence
+
+Static and interactive SHALL independently derive carriers, statements, routes,
+geometry and qualification. Shared pure validators and selected font bytes MAY
+be reused; neither medium's geometry, DOM, coverage or approval SHALL authorize
+the other. A static-only refinement change SHALL preserve the interactive
+scene/render payload when its consumed inputs are unchanged.
+
+#### Scenario: Only static presentation changes
+
+- **WHEN** static refinement changes while interactive consumed meaning and resources remain identical
+- **THEN** interactive scene/render payload bytes remain unchanged
+- **AND** whole-Candidate metadata is rebound rather than borrowing prior acceptance
