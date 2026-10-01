@@ -1024,6 +1024,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       acknowledged existing Tasks 9.9.4/12.6. This closes handoff only;
       source-owned successor implementation, installed semantics/art/rollback
       and acceptance remain goal obligations at ETHOS, not Publisher proof.
+      The [accepted-runtime native receipt](../../../conformance/evidence/ethos-installed-mechanisms.json)
+      binds Lane bootstrap, signed merge, preserved conflict recovery and
+      divergent retirement recovery, plus fifty installed component checks.
+      Six exact fixture histories and coordination were restored before
+      seventeen owned roots were reclaimed. This does not close complete
+      north-star, current-source, independent-provider or adoption acceptance.
 - [ ] 8.3 Hand the completed SDD/DR, COMET, SpecD, semantic-graph, intent,
       and independent-verification research to the existing ETHOS knowledge
       owner with source citations and adopt/reject/defer boundaries. Keep only

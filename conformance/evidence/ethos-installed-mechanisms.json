@@ -1,0 +1,336 @@
+{
+  "schema": "architecture.ethos-installed-mechanisms-evidence/v1",
+  "status": "accepted-runtime native subjourneys and component predicates passed; complete north-star and source adoption remain open",
+  "observedAt": "2026-10-01T03:13:30.894Z",
+  "productSource": {
+    "commit": "ebe828d31aacca56f82b9a1dabc77e829989c328",
+    "tree": "6a01425c21d3da7f1d127e5baeca25f56a11d722",
+    "productVersion": "0.2.0-alpha.5",
+    "wheelSha256": "48f8d11616e6c65d2e15f7f6aed5cea9ab8a07710bec3396fc2fcbffa92f78c0",
+    "runtimeDigest": "51db67f0315aec2950c8d72236b696dc788dcec48bfddefaefd68a30591e582e",
+    "runtimeManifest": {
+      "path": "/Users/yheng/projects/ethos/.git/ethos/runtime/51db67f0315aec2950c8d72236b696dc788dcec48bfddefaefd68a30591e582e/manifest.json",
+      "bytes": 2043290,
+      "sha256": "c2b8fc8c7a1591b296d61441d331cb0225bd997e6d59e36c0b7661eec083f83f"
+    }
+  },
+  "recipe": {
+    "sourceCommit": "ebe828d31aacca56f82b9a1dabc77e829989c328",
+    "identity": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/recipe-identity.json",
+      "bytes": 902,
+      "sha256": "8cebeebc6acdf8750c607c6f1c689973fdfdadb8cea51c748cbf3e13a69a7c36"
+    },
+    "preparation": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-topology/adopter-recipe.py",
+      "bytes": 18759,
+      "sha256": "2c1b86e2e44687dbb476e86530d9004fe43731bfd04ad2266527a2e81a5eb422"
+    },
+    "contract": "unmodified prove_lifecycle and installed ethos imports after native preparation",
+    "noSourceImplementationImport": true
+  },
+  "native": {
+    "receipt": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-topology/native-lifecycle.json",
+      "bytes": 1200,
+      "sha256": "21e55cac7cc48ad86c882e6c6bd8f9753dea065fe36db0adc1ab9997330071de"
+    },
+    "log": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-topology/native-lifecycle.log",
+      "bytes": 1458,
+      "sha256": "094e0c1ca7d15db63e7a54a0324bb93156ea0c16450b31933f37f24613f8e0c0"
+    },
+    "result": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-topology/result.json",
+      "bytes": 1656,
+      "sha256": "ee0de5194c47836f3c6c2ca08943fa0fc0a840923cbdc415b9c29b04f6e0e0ca"
+    },
+    "plan": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-topology/plan.json",
+      "bytes": 2292,
+      "sha256": "3577d9b6e03f5b2b0c9c049fda44c03f9296b021f91b8fb55db17f4f5cece997"
+    },
+    "preparedFacts": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-topology/prepared-facts.json",
+      "bytes": 367,
+      "sha256": "8e48cbcdf433fea7002dc120cfdaf2000adae0cd7ce433c6c5a38d0980b7e438"
+    },
+    "bootstrap": "native Git-common installed runner and official metadata-first refusal",
+    "merge": {
+      "state": "passed",
+      "head": "cd185c765e711d41e86146480e1b9aec3e9e2a26",
+      "parents": [
+        "6df31f7ed965570970ffb23af7842078ee2beb5d",
+        "bef3a16cbba4048ebb080b4bedf51fe0a035670a"
+      ],
+      "recoveryContentVerified": true,
+      "signatureVerified": true,
+      "stagedContinuation": "base_merged"
+    },
+    "retirementRecovery": {
+      "completed_effects": ["remove_worktree", "delete_ref", "revoke_lease"],
+      "receipt_sha256": "sha256:3194d4428f63be4bc547d1c791ca517512bfa04f4d2721886e0945f057e2788d",
+      "state": "passed"
+    }
+  },
+  "components": {
+    "receipt": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/contracts/native-components.json",
+      "bytes": 1177,
+      "sha256": "50ecaa0fae99c9ab675339bbdaf44421be13b4af85808c65c394c60b0139ab06"
+    },
+    "log": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/contracts/native-components.log",
+      "bytes": 591,
+      "sha256": "ea445b1854e57ca7ae0115aac94c479ba2c213ae9a4a93e2cc1155946f740542"
+    },
+    "result": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/contracts/result.json",
+      "bytes": 15548,
+      "sha256": "ccfc75665053b959353f56ebd6de2281f97465607b1ae31c64cbad24a61a282d"
+    },
+    "count": 50,
+    "coverage": {
+      "peerCoordinationMatrix": 40,
+      "feedbackRouting": 1,
+      "skillMissingCyclicExcluded": 3,
+      "skillNonTrigger": 1,
+      "nativeReceiptSignature": 1,
+      "receiptMovedExpiredFailed": 3,
+      "providerLocalFirstAndUntrustedConfig": 1
+    },
+    "notIndependentDeployment": true
+  },
+  "failedPreparation": [
+    {
+      "cause": "candidate branch omitted during plain clone",
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/lifecycle.json",
+        "bytes": 1145,
+        "sha256": "2b4382b46aee68fd44977217e0c9c92911301a8d362ee12f6b5040671755b998"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/lifecycle.log",
+        "bytes": 1839,
+        "sha256": "9497f2e60c60fc2ffeb98a2f64359d20b576bfec2ac4d22e2f58f353f9b8b667"
+      },
+      "disposition": "prior failure retained; subsequent native full recipe uses verified prerequisites, not relaxed assertions"
+    },
+    {
+      "cause": "repository-private runtime cannot be used as foreign locator",
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/select-fixture-runtime.json",
+        "bytes": 1264,
+        "sha256": "f5dfe30620cc107fd7e34b6054565dd597a39cf2544b5f9e84a72dccf4cd7f60"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/select-fixture-runtime.log",
+        "bytes": 1098,
+        "sha256": "78c0b45b1fb1df40e97374dcdb73febfaf2f9df3f8f1e764da3927ecd6923187"
+      },
+      "disposition": "prior failure retained; subsequent native full recipe uses verified prerequisites, not relaxed assertions"
+    },
+    {
+      "cause": "inherited bootstrap selector leaked into independent merge",
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/admitted-lifecycle.json",
+        "bytes": 1155,
+        "sha256": "818dc52148a70d5a5a6ac4a4c712aaa70c0c650a71ab3b811e721f5cd56c8d27"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/admitted-lifecycle.log",
+        "bytes": 2670,
+        "sha256": "83cc13347b648a54a27f008359ad84ed41c800e66704bcf451a7ac115bed8a8d"
+      },
+      "disposition": "prior failure retained; subsequent native full recipe uses verified prerequisites, not relaxed assertions"
+    },
+    {
+      "cause": "already-created valid lease prevents preparation replay",
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/resumed-lifecycle.json",
+        "bytes": 1157,
+        "sha256": "c1c6b7f50115706280f5ff9f56270a768783f81d992044875435b716c2f3f4f3"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/resumed-lifecycle.log",
+        "bytes": 3231,
+        "sha256": "a26d2f842bc711ac340e536a8bf2d39ea7b892b2b9895da001eb05ea86e319f7"
+      },
+      "disposition": "prior failure retained; subsequent native full recipe uses verified prerequisites, not relaxed assertions"
+    },
+    {
+      "cause": "empty selector is not unset",
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-merge-stage.json",
+        "bytes": 1160,
+        "sha256": "bfc6e7d54ffdbbb43d86fd4cc26090e3a1945efce50ea73c483819d6e2fc627b"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-merge-stage.log",
+        "bytes": 2309,
+        "sha256": "240c642b087eb7f62949dace96edf2286f23567c9d0fbd9512a582b5ae1dd293"
+      },
+      "disposition": "prior failure retained; subsequent native full recipe uses verified prerequisites, not relaxed assertions"
+    },
+    {
+      "cause": "foundation had no declared signed commit policy",
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-merge-unset-selection.json",
+        "bytes": 1169,
+        "sha256": "a8de76193137dfbe0007dbd951f85ebc55e22c49077e36b875a07be7e1906f1e"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/native-merge-unset-selection.log",
+        "bytes": 699,
+        "sha256": "48205cb711bb1d3a3dffbc3db78ed2a0ef6404ddcd36c9f90ee8f623045bd752"
+      },
+      "disposition": "prior failure retained; subsequent native full recipe uses verified prerequisites, not relaxed assertions"
+    },
+    {
+      "cause": "accepted/candidate histories were not divergent",
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/signed-native/native-lifecycle.json",
+        "bytes": 1192,
+        "sha256": "b3c6166c1f03f035689020f05c0f6f2005e13b537d178698fbc52edcb7c7f88a"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/signed-native/native-lifecycle.log",
+        "bytes": 1714,
+        "sha256": "59528aacf8ff9ff1a14532c6044318dfc856d65473e7b64fd6e0d2ade5c82c23"
+      },
+      "disposition": "prior failure retained; subsequent native full recipe uses verified prerequisites, not relaxed assertions"
+    },
+    {
+      "cause": "reference-transaction observed candidate_semantic_runner_unavailable and restored the checkout; candidate-head mismatch is an inferred explanation, not a separately established root cause",
+      "receipt": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/signed-native/native-retirement.json",
+        "bytes": 1206,
+        "sha256": "23a3ca6f039a1e8d5aa7178c72b13fa914e28417ffacc5a0e79bb0eb0e27e786"
+      },
+      "log": {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/signed-native/native-retirement.log",
+        "bytes": 771,
+        "sha256": "c2a0d96f953dc006b9076e3d18aed7e13714872ca46d905c08660ce519f6dcf5"
+      },
+      "disposition": "prior failure retained; subsequent native full recipe uses verified prerequisites, not relaxed assertions"
+    }
+  ],
+  "custody": {
+    "receipts": [
+      {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/retention-result.json",
+        "bytes": 124964,
+        "sha256": "14b3760fc395384f1fa3bf8ae818536f83c5e64458b0273edf687f037eb44c45"
+      },
+      {
+        "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/native-topology/retention-result.json",
+        "bytes": 66275,
+        "sha256": "3582643cf089f67e74210e78f37ce544843b86f401cf8ec7f394618c90a213b7"
+      }
+    ],
+    "cleanupAdmission": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/cleanup-admission.json",
+      "bytes": 12620,
+      "sha256": "9736712dac203c921f6f0276eb3df039a76b482ce05f548ebe6b2ef1a4eb6d3b"
+    },
+    "cleanupReceipt": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/cleanup.json",
+      "bytes": 1163,
+      "sha256": "916c9e62fc7979d47fc78db7a3fd648ad70bb879b521e712182b33ebffc1457b"
+    },
+    "cleanupResult": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/cleanup-result.json",
+      "bytes": 3381,
+      "sha256": "ae4c9908c5df3df6ef4f350c79fa8049792e7723a973cf81faf9e748ccee5cd5"
+    },
+    "scopedOpenFiles": {
+      "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/scoped-open-files.json",
+      "bytes": 1723,
+      "sha256": "009f872dff93374b5922bf69e07e8f89b5598cb36113b2604ff0be49810a1bf4"
+    },
+    "archives": [
+      {
+        "id": "fixtures-foundation",
+        "archive": {
+          "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/fixtures-foundation.tar.gz",
+          "bytes": 4443904,
+          "sha256": "c05193b9dea2b92d55d856c252e4fd07a8d33fb7585f79d579f1cd1331951a17"
+        },
+        "members": 61,
+        "restoreVerified": true
+      },
+      {
+        "id": "fixtures-merge-adopter",
+        "archive": {
+          "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/fixtures-merge-adopter.tar.gz",
+          "bytes": 4486360,
+          "sha256": "a8af64879e973a349f790585b24c9b53150fca7336b50a178ee4dc5b4ac6d6fb"
+        },
+        "members": 170,
+        "restoreVerified": true
+      },
+      {
+        "id": "signed-native-foundation",
+        "archive": {
+          "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/signed-native-foundation.tar.gz",
+          "bytes": 4445448,
+          "sha256": "95df6022150c3111cb60dd8c2bb93286dbff9eb3c0fd5c1316f3e902032dc3a0"
+        },
+        "members": 67,
+        "restoreVerified": true
+      },
+      {
+        "id": "signed-native-merge-adopter",
+        "archive": {
+          "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/signed-native-merge-adopter.tar.gz",
+          "bytes": 4488292,
+          "sha256": "f7eb602fa91719b2aca45c1e71170489d64e2ecccc0cf362fd343adef207a795"
+        },
+        "members": 174,
+        "restoreVerified": true
+      },
+      {
+        "id": "native-topology-foundation",
+        "archive": {
+          "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/native-topology/native-topology-foundation.tar.gz",
+          "bytes": 4452796,
+          "sha256": "3eb68713106c1a9663f0dc5b88fd06b333908fd6dedfd92a834febdb5de34319"
+        },
+        "members": 75,
+        "restoreVerified": true
+      },
+      {
+        "id": "native-topology-merge-adopter",
+        "archive": {
+          "path": "build/review/release-alpha7/ethos-lane-mechanisms/custody/native-topology/native-topology-merge-adopter.tar.gz",
+          "bytes": 4489446,
+          "sha256": "f1fcc3c6840c8dfb8961940d627b11df6d2a0c87aa5a841d12236a8787092f78"
+        },
+        "members": 176,
+        "restoreVerified": true
+      }
+    ],
+    "reclaimedFixtureRoots": 17,
+    "reclaimedRuntimeDuplicates": 6,
+    "originalRuntimePreserved": true,
+    "ownedGeneratedKeyAbsent": true,
+    "unscopedObserverFailure": "native lsof exceeded 30s; no cleanup performed; exact scoped checks and cleanup passed"
+  },
+  "authority": {
+    "publisherActor": "codex:openai:task:01a02017-5246-7d30-b47b-c717b7ec674f",
+    "ethosTask": "proof-throughput",
+    "ethosOwnerThread": "01a00063-d09e-7a71-a52e-a663800a7a0f",
+    "sourceMutation": false,
+    "sourceAcceptance": false,
+    "releaseAuthorization": false,
+    "offHostRecovery": false
+  },
+  "limits": [
+    "native recipes qualify accepted runtime ebe828d, not newer mutable ETHOS source",
+    "cooperative merge and divergent abandonment do not prove automatic competitive winner selection, parallel full-goal completion or all-drop product acceptance",
+    "local disposable signature proves cryptographic receipt checking, not protected independent provider deployment",
+    "Skills projection proves routing only, not host loading, agent comprehension or learning",
+    "foundation/brownfield/transports have separately scoped prior evidence, not an unexecuted complete end-to-end ecosystem",
+    "full ETHOS/AIGW successor adoption, substantive research disposition and Publisher alpha.7 exact HTML/release remain open"
+  ]
+}
