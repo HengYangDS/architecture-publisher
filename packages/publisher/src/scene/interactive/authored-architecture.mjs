@@ -3,6 +3,7 @@ import { fail } from '../../protocol/values.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { linkClaimModelSources } from '../claim-relations.mjs';
 import { validateInteractiveArchitectureScene } from './architecture.mjs';
+import { classifyAggregateRelation } from '../aggregate-relation.mjs';
 
 const mismatch = () => fail('authored_interactive_semantic_mismatch');
 const referenceFor = (namespace, kind, id) => JSON.stringify([namespace, kind, id]);
@@ -111,6 +112,11 @@ function composePage(meaning, view, page, assertions, selections) {
     selections,
   );
   const represented = new Map();
+  const represent = (id, graphicId) => {
+    const graphics = represented.get(id) ?? [];
+    if (!graphics.includes(graphicId)) graphics.push(graphicId);
+    represented.set(id, graphics);
+  };
   const nodeEntities = new Map();
   const subjectNamespaces = {};
   for (const node of scene.nodes) {
@@ -119,10 +125,10 @@ function composePage(meaning, view, page, assertions, selections) {
     const namespaces = new Set();
     for (const id of node.semanticIds) {
       const [namespace, kind] = reference(id);
-      if (!required.has(id) || represented.has(id)) mismatch();
+      if (!required.has(id)) mismatch();
       namespaces.add(namespace);
       if (kind === 'entity') entities.add(id);
-      represented.set(id, node.id);
+      represent(id, node.id);
     }
     if (!entities.size) mismatch();
     nodeEntities.set(node.id, entities);
@@ -151,14 +157,18 @@ function composePage(meaning, view, page, assertions, selections) {
     for (const id of edge.semanticIds) {
       const [namespace, kind] = reference(id);
       const relation = required.get(id);
-      if (kind !== 'relation' || !relation || represented.has(id)) mismatch();
+      if (kind !== 'relation' || !relation) mismatch();
       const subject = referenceFor(namespace, 'entity', relation.from.id);
       const object = referenceFor(namespace, 'entity', relation.to.id);
-      if ((!from.has(subject) && !to.has(subject)) || (!from.has(object) && !to.has(object)))
-        mismatch();
-      if (from.has(subject) && to.has(object)) directed = true;
-      namespaces.add(namespace);
-      represented.set(id, edge.id);
+      const role = classifyAggregateRelation(from, to, subject, object);
+      if (role === null) mismatch();
+      if (role === 'cross') {
+        directed = true;
+        namespaces.add(namespace);
+        represent(id, edge.id);
+      } else {
+        represent(id, role === 'from-context' ? edge.from : edge.to);
+      }
     }
     if (!directed) mismatch();
     subjectNamespaces[edge.id] = [...namespaces].sort();
@@ -188,20 +198,24 @@ function composePage(meaning, view, page, assertions, selections) {
     const selected = selectedByAssertion.get(assertionId);
     const graphicIds =
       selected.target.kind === 'claim'
-        ? [represented.get(claimAnchors.get(assertionId))]
+        ? (represented.get(claimAnchors.get(assertionId)) ?? [])
         : [
-            ...selected.members.elements.map((member) =>
-              represented.get(referenceFor(member.namespace, 'entity', member.id)),
+            ...selected.members.elements.flatMap(
+              (member) =>
+                represented.get(referenceFor(member.namespace, 'entity', member.id)) ?? [],
             ),
-            ...selected.members.relations.map((member) =>
-              represented.get(referenceFor(member.origin.namespace, 'relation', member.id)),
+            ...selected.members.relations.flatMap(
+              (member) =>
+                represented.get(referenceFor(member.origin.namespace, 'relation', member.id)) ?? [],
             ),
           ];
     if (!graphicIds.length || graphicIds.some((graphicId) => !graphicId)) mismatch();
     return { assertionId, selectionId: selected.selectionId, graphicIds: [...new Set(graphicIds)] };
   });
-  const facts = [...required].map(([id, member]) =>
-    structuralFacts(id, member, selectedForReference.get(id), represented.get(id)),
+  const facts = [...required].flatMap(([id, member]) =>
+    represented
+      .get(id)
+      .map((graphicId) => structuralFacts(id, member, selectedForReference.get(id), graphicId)),
   );
   const claimReferences = new Map();
   for (const assertionId of view.assertionIds) {
@@ -209,17 +223,19 @@ function composePage(meaning, view, page, assertions, selections) {
     if (selected.target.kind !== 'claim') continue;
     const card = claimCard(selected);
     const claimReference = referenceFor(card.namespace, 'claim', card.id);
-    const graphicId = represented.get(claimAnchors.get(assertionId));
-    const record = {
-      reference: claimReference,
-      sourceSha256: card.sha256,
-      graphicId,
-      title: `Claim: ${card.id}`,
-      facts: card.facts,
-    };
-    const previous = claimReferences.get(claimReference);
-    if (previous && canonical(previous) !== canonical(record)) mismatch();
-    claimReferences.set(claimReference, record);
+    for (const graphicId of represented.get(claimAnchors.get(assertionId)) ?? []) {
+      const record = {
+        reference: claimReference,
+        sourceSha256: card.sha256,
+        graphicId,
+        title: `Claim: ${card.id}`,
+        facts: card.facts,
+      };
+      const occurrence = JSON.stringify([claimReference, graphicId]);
+      const previous = claimReferences.get(occurrence);
+      if (previous && canonical(previous) !== canonical(record)) mismatch();
+      claimReferences.set(occurrence, record);
+    }
   }
   facts.push(...claimReferences.values());
   return {

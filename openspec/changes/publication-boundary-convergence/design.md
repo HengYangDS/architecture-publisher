@@ -1426,6 +1426,67 @@ Publisher derives only exact relation members, rejects contradictory source
 identity, and still requires every authored node, relation and visible label
 to bind selected meaning.
 
+### Semantic identity and graphic occurrences
+
+The ETHOS migration probe uses the exact signed `9f8967b` source tree and
+the released alpha.8 package. Its loss-aware Adapter preserves 113 native
+entities, 164 relations, 27 opaque assertions and all source contracts. The
+existing claims-container entity remains an attributed Adapter projection,
+not a new Lane instance. A one-occurrence public build succeeds; two different
+graphic IDs carrying the same Lane concept fail at the authored interactive
+compiler's one-reference/one-graphic map. The retained native static composition
+also repeats 21 entity references and 18 relation references. This is a
+Publisher presentation restriction, not permission to copy source entities.
+
+Keep one source-qualified semantic identity and a finite set of graphic
+occurrences. Each graphic ID is unique, and its local reference list remains
+unique. A semantic member may occur at several graphic sites without changing
+the source, Claim Model or required assertion inventory. The composer checks
+each occurrence's selected source, endpoints and direction, then derives all
+assertion carriers. Coverage compares the semantic set; occurrence identity
+and geometry are checked separately. Repetition never implies extra runtime
+instances, parallel capacity or implemented behavior.
+
+Interactive inspection may expose the same immutable fact at several graphic
+sites and pages. It must reject duplicate reference/graphic pairs within a page and conflicting facts
+for one reference, including a changed source digest, title or value. No
+overwrite, arbitrary primary site or copied semantic authority is allowed.
+The existing HTML compositor and static carrier owner must consume this
+distinction; removing only the duplicate check would lose earlier sites.
+
+For an aggregate connector, classify each selected relation from its actual
+endpoint memberships as a directed crossing, from-node context or to-node
+context. Reject reversed, missing or multiply attributable endpoint roles;
+the connector still needs at least one directed crossing. Internal relations
+bind their facts and claim anchors to the owning node, not the arrow. This
+preserves the flagship's valid aggregate context without allowing one correct
+member to excuse another reversed member. The classification is shared pure
+Scene logic, derived from existing memberships rather than another ledger.
+
+Static typed Claims retain two independent carrier kinds in the private v2
+evidence: visible text first, then every structural occurrence of the selected
+relation or scalar subject. Both kinds must be nonempty. A missing relation
+anchor cannot fall back to a subject node; structural IDs do not prove complete
+painting of the Claim. Non-Claim assertions keep their admitted representation.
+
+The bounded implementation first repairs occurrence binding in both authored
+media and keeps the existing public Build Request, Provider v2 and refinement
+entry points. Tests cover repeated entity/relation and claim anchors, unknown
+members, wrong endpoints/direction, duplicate graphic IDs, source conflicts,
+loss-aware Adapter preservation and installed empty-configuration execution.
+It does not restore retired private exports or add an adopter-name branch.
+Released alpha.8 bytes and approvals remain immutable; successor bytes require
+their own applicable qualification and review.
+
+The migration also exposes separate expression limits: the incumbent static
+Edition uses eight mark roles, recorded Avenir Next/Georgia metrics and
+source-attributed explanatory connectors. The current generic canvas paints
+all nodes as circles using bundled monospace fonts. Occurrence repair alone
+cannot claim flagship parity. Resolve these limits through the existing
+data-only Scene and measured renderer boundary, or report an exact unsupported
+case. Do not discover host fonts, submit pre-rendered media, manufacture source
+edges or weaken qualification to complete adoption.
+
 That binding establishes attribution, not equivalence between free authored
 wording and a source proposition. Every authored static canvas therefore
 exposes a Candidate limit for unverified text meaning. Qualification must make

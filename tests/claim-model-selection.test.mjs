@@ -1812,7 +1812,7 @@ test('an unrelated Claim Model builds source-checked interactive HTML', async (t
       'authored_interactive_semantic_mismatch',
     ],
     [
-      'duplicate entity on two visible nodes',
+      'repeated client cannot replace the required server carrier',
       (value) =>
         (value.refinement.media.interactive.pages[0].scene.nodes[1].semanticIds = [
           ...value.refinement.media.interactive.pages[0].scene.nodes[0].semanticIds,
@@ -2282,7 +2282,7 @@ test('one authored canvas binds two views and selected relation endpoints withou
       'authored_canvas_graphic_ambiguous',
     ],
     [
-      'duplicate entity carrier',
+      'repeated entity cannot replace a required distinct entity',
       (value) => (canvas(value).nodes[1].semanticIds = [...canvas(value).nodes[0].semanticIds]),
       'authored_canvas_membership_mismatch',
     ],
@@ -2302,7 +2302,7 @@ test('one authored canvas binds two views and selected relation endpoints withou
       'authored_canvas_membership_mismatch',
     ],
     [
-      'duplicate text source',
+      'repeated text reference cannot erase a required distinct member',
       (value) => (canvas(value).texts[1].semanticIds = [...canvas(value).texts[0].semanticIds]),
       'authored_canvas_membership_mismatch',
     ],
@@ -2345,10 +2345,11 @@ test('one authored canvas binds two views and selected relation endpoints withou
       'authored_canvas_edge_binding_mismatch',
     ],
     [
-      'relation assigned to two arrows',
+      'a repeated relation still rejects a reversed arrow',
       (value) => {
         const duplicate = structuredClone(canvas(value).edges[0]);
         duplicate.id = 'request-copy';
+        [duplicate.source, duplicate.target] = [duplicate.target, duplicate.source];
         canvas(value).edges.push(duplicate);
       },
       'authored_canvas_edge_binding_mismatch',

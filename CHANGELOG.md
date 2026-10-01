@@ -8,6 +8,19 @@ may contain incompatible changes.
 
 ## Unreleased
 
+### Fixed
+
+- Authored static and interactive diagrams retain every graphic occurrence of
+  one selected semantic member without cloning source entities or relations.
+  Claim anchors remain bound at each site; inspection rejects conflicting facts
+  and duplicate reference/graphic pairs.
+- Static typed Claims retain both visible text and every exact structural owner;
+  neither proof replaces the other. A missing relation or subject owner is
+  refused without substituting another anchor.
+- Aggregate connectors reject reversed or ambiguous source relations even when
+  another member points forward. Internal context remains bound to its owning
+  node rather than borrowing the connector's arrow direction.
+
 ## [0.3.0-alpha.8] - 2026-10-02
 
 ### Changed

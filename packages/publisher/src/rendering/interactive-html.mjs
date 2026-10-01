@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { fail, hasExactFields as exact, isDigest } from '../protocol/values.mjs';
 import { LIMITS, portablePath } from '../file-input/contract.mjs';
+import { canonical } from '../protocol/json.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -31,7 +32,7 @@ function pageHtml(bytes) {
   }
 }
 
-function validatePage(page, ids, paths, sources) {
+function validatePage(page, ids, paths, sources, references) {
   const sourceIds = new Set(Object.keys(sources));
   if (
     !exact(
@@ -81,7 +82,7 @@ function validatePage(page, ids, paths, sources) {
     fail('interactive_html_page_source_invalid');
   if (!Array.isArray(page.facts) || !page.facts.length || page.facts.length > 8192)
     fail('interactive_html_page_facts_invalid');
-  const references = new Set();
+  const occurrences = new Set();
   for (const item of page.facts) {
     let reference;
     try {
@@ -96,7 +97,7 @@ function validatePage(page, ids, paths, sources) {
       reference.some((part) => !text(part)) ||
       !['entity', 'relation', 'claim'].includes(reference[1]) ||
       JSON.stringify(reference) !== item.reference ||
-      references.has(item.reference) ||
+      occurrences.has(JSON.stringify([item.reference, item.graphicId])) ||
       !isDigest(item.sourceSha256) ||
       !visibleSubjects.has(item.graphicId) ||
       !text(item.title) ||
@@ -111,7 +112,15 @@ function validatePage(page, ids, paths, sources) {
       )
     )
       fail('interactive_html_page_facts_invalid');
-    references.add(item.reference);
+    const semanticFacts = canonical({
+      sourceSha256: item.sourceSha256,
+      title: item.title,
+      facts: item.facts,
+    });
+    if (references.has(item.reference) && references.get(item.reference) !== semanticFacts)
+      fail('interactive_html_page_facts_invalid');
+    references.set(item.reference, semanticFacts);
+    occurrences.add(JSON.stringify([item.reference, item.graphicId]));
   }
   return nodes;
 }
@@ -641,12 +650,13 @@ function composeDocument(input) {
   }
   const ids = new Set();
   const paths = new Set();
+  const references = new Map();
   const blocks = [];
   const shared = new Map();
   const pages = {};
   let total = 0;
   for (const page of input.pages) {
-    const nodeSources = validatePage(page, ids, paths, sources);
+    const nodeSources = validatePage(page, ids, paths, sources, references);
     total += page.content.length + Buffer.byteLength(JSON.stringify(page.facts));
     if (total > LIMITS.totalBytes) fail('interactive_html_size_exceeded');
     pages[page.id] = {

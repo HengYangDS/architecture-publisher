@@ -333,11 +333,133 @@ try {
   assert.match(claimFirst.candidateSha256, /^[0-9a-f]{64}$/u);
   assert.match(claimFirst.digest, /^[0-9a-f]{64}$/u);
 
+  const occurrenceInputs = path.join(consumer, 'occurrence-inputs');
+  await fs.mkdir(path.join(occurrenceInputs, 'edition'), { recursive: true });
+  await fs.mkdir(path.join(occurrenceInputs, 'sources'));
+  await fs.writeFile(path.join(occurrenceInputs, 'sources/model.json'), modelBytes);
+  const occurrenceProject = structuredClone(claimProject);
+  occurrenceProject.id = 'installed-occurrences';
+  occurrenceProject.scope.selections = [
+    ['entity', 'client'],
+    ['entity', 'server'],
+    ['relation', 'request'],
+    ['claim', 'intended'],
+    ['claim', 'observed'],
+  ].map(([kind, id]) => ({
+    id: `${kind}-${id}`,
+    namespace: 'example/claims',
+    kind: 'reference',
+    reference: `${kind}:${id}`,
+    questions: ['shape'],
+  }));
+  occurrenceProject.visualPolicy.override = 'refinement.json';
+  await fs.writeFile(
+    path.join(occurrenceInputs, 'edition/project.json'),
+    JSON.stringify(occurrenceProject) + '\n',
+  );
+  const occurrenceRequest = { ...claimRequest, media: ['interactive'] };
+  await fs.writeFile(
+    path.join(occurrenceInputs, 'build-request.json'),
+    JSON.stringify(occurrenceRequest) + '\n',
+  );
+  const semantic = (kind, id) => JSON.stringify(['example/claims', kind, id]);
+  const occurrenceNode = (id, entity, x) => ({
+    id,
+    label: entity,
+    visualRole: 'backend',
+    position: { x, y: 160 },
+    size: { width: 160, height: 80 },
+    semanticIds: [semantic('entity', entity)],
+  });
+  const occurrenceEdge = (id, from) => ({
+    id,
+    from,
+    to: 'server',
+    label: 'Source request',
+    visualRole: 'default',
+    fromSide: 'right',
+    toSide: 'left',
+    route: 'auto',
+    semanticIds: [semantic('relation', 'request')],
+  });
+  await fs.writeFile(
+    path.join(occurrenceInputs, 'edition/refinement.json'),
+    JSON.stringify({
+      schema: 'architecture.scene-refinement/v1',
+      media: {
+        interactive: {
+          kind: 'authored-architecture',
+          pages: [
+            {
+              id: 'overview',
+              label: 'Repeated concepts',
+              purpose: 'overview',
+              scene: {
+                schema: 'architecture.interactive-scene/v1',
+                id: 'overview',
+                title: occurrenceProject.title,
+                subtitle: 'Repeated concepts',
+                viewport: { width: 1000, height: 500 },
+                groups: [],
+                nodes: [
+                  occurrenceNode('client-a', 'client', 40),
+                  occurrenceNode('client-b', 'client', 320),
+                  occurrenceNode('server', 'server', 720),
+                ],
+                edges: [
+                  occurrenceEdge('request-a', 'client-a'),
+                  occurrenceEdge('request-b', 'client-b'),
+                ],
+              },
+            },
+          ],
+        },
+      },
+    }) + '\n',
+  );
+  await fs.writeFile(
+    path.join(consumer, 'occurrence-run.mjs'),
+    `
+import { createHash } from 'node:crypto';
+import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { compileEditionCandidateInput } from 'architecture-publisher/compiler';
+const request = fileURLToPath(new URL('./occurrence-inputs/build-request.json', import.meta.url));
+const output = fileURLToPath(new URL('./occurrence-candidate', import.meta.url));
+const digest = createHash('sha256').update(await fs.readFile(request)).digest('hex');
+const built = await compileEditionCandidateInput(request, digest, output);
+const html = await fs.readFile(new URL('./occurrence-candidate/interactive/architecture.html', import.meta.url), 'utf8');
+const work = JSON.parse(html.match(/<script id="architecture-interactive-data" type="application\\/json">([\\s\\S]*?)<\\/script>/u)[1]);
+const page = work.pages.overview;
+await fs.rm(output, { recursive: true });
+console.log(JSON.stringify({ status: built.status, candidateSha256: built.candidateSha256,
+  subjects: Object.keys(page.subjectSources),
+  references: page.facts.map(({ reference, graphicId }) => ({ reference, graphicId })),
+  selectedClaims: page.facts.filter(({ reference }) => JSON.parse(reference)[1] === 'claim').length }));
+`,
+  );
+  const occurrenceRun = (directory) =>
+    JSON.parse(
+      child(
+        process.execPath,
+        [path.join(directory, 'occurrence-run.mjs')],
+        directory,
+        nodeEnvironment,
+      ).trim(),
+    );
+  const occurrenceFirst = occurrenceRun(consumer);
+  assert.equal(occurrenceFirst.status, 'built');
+  assert.equal(occurrenceFirst.subjects.length, 5);
+  assert.equal(occurrenceFirst.selectedClaims, 4);
+  assert.equal(occurrenceFirst.references.length, 9);
+  assert.equal(new Set(occurrenceFirst.references.map(({ reference }) => reference)).size, 5);
+
   const relocated = path.join(work, 'relocated');
   await fs.cp(consumer, relocated, { recursive: true });
   await fs.rm(consumer, { recursive: true, force: true });
   assert.deepEqual(run(relocated), first);
   assert.deepEqual(claimRun(relocated), claimFirst);
+  assert.deepEqual(occurrenceRun(relocated), occurrenceFirst);
   await fs.appendFile(path.join(relocated, 'claim-inputs/sources/model.json'), '\n');
   assert.deepEqual(claimRun(relocated, 1), {
     status: 'error',

@@ -516,6 +516,23 @@ third-party or generated supply rather than moving owned code outside coverage.
       review and visual approval cannot certify source truth or arbitrary prose.
       No mobile, narrow-screen, random pixel fallback or extra layout owner.
 
+- [x] 5.2.1 Separate authored semantic identity from graphic occurrences in
+      both media. Preserve all occurrence carriers and inspection facts;
+      reject wrong endpoints, duplicate graphic IDs, unknown members and
+      conflicting facts. Verify the exact installed public-build counterexample
+      without cloning source facts, restoring private exports or claiming
+      flagship parity. Source-owned art/acceptance and remaining expression
+      limits stay under Task 8.2 and ETHOS Task 9.9.4.
+      The released alpha.8 dual-Lane counterexample is retained. The
+      independent static-anchor re-review approves visible-text plus exact
+      relation/subject occurrence ownership; nine focused tests pass. The
+      Chrome-enabled full gate passes 1,460/1,463 with three declared skips
+      and 97.77/95.15/99.58/97.77% coverage. An actual offline packed alpha.9
+      Core, isolated HOME and empty PATH build both Lane graphic sites through
+      the public CLI without changing selected model bytes. Exact evidence
+      is in `conformance/evidence/authored-occurrence.json`. This closes the
+      mechanism repair, not alpha.9 release or source-owned flagship adoption.
+
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
