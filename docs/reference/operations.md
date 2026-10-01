@@ -28,6 +28,12 @@ Node.js 22. The pinned `npm@11.19.1` is the version bundled by official Node.js
 bootstrap and separate toolchain qualification; changing only `packageManager`
 would misstate the CI toolchain.
 
+The development workspace pins OpenSpec 1.14.0. Its official apply instructions
+return each task's concrete `sourcePath` and one-based `line`; the repository
+checks those against a relocated, isolated task fixture. This is task-location
+evidence, not implementation completion or permission to mark a checkbox.
+Strict native validation and archive rehearsal remain separate checks.
+
 The LikeC4 parser supply is rebuilt from the npm lockfile. Chevrotain 11.0.3
 declares the older `lodash-es` version exactly, so the workspace uses one npm
 `overrides` entry to select patched `lodash-es` 4.18.1 until upstream removes
@@ -72,6 +78,13 @@ Its evidence-only source closure `6112b67` passed proposal/dev/main pipelines
 nineteen records, applied the qualified local three-file publication and
 returned `ALREADY_INSTALLED` from recovery while preserving foreign parent
 content. This proves idempotent recovery, not an interrupted-effect test.
+
+The later signed evidence source `d3ee978` passed proposal/dev/main pipelines
+9110/9111/9114 with every declared gate and four coverage floors. Historical
+installed-test supply was reclaimed only after cold restoration and exact
+content/mode verification: thirteen duplicate dependency roots are absent,
+while 1,717 retained files, recovery archives and two owner-unknown groups remain
+unchanged. These local effects do not establish independent off-host custody.
 
 Generic policy verification binds nineteen submitted PASS records and still
 reports `admitted: false`; explicit owner acceptance, source endorsement and

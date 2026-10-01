@@ -8,6 +8,12 @@ may contain incompatible changes.
 
 ## Unreleased
 
+### Changed
+
+- The development workspace uses OpenSpec 1.14.0. A relocated task fixture
+  verifies the official apply instruction's source path and one-based checkbox
+  line. This development-tool upgrade leaves the released product unchanged.
+
 ## [0.3.0-alpha.7] - 2026-10-01
 
 ### Fixed

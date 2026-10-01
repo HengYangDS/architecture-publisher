@@ -1087,6 +1087,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       across two base specs; reapplication has zero operations or warnings.
       Strict validation now reports seventeen valid items and zero issues.
       Normative convergence is not source adoption, archive or Lane retirement.
+      The locked OpenSpec 1.14.0 task-source regression, strict validation,
+      no-change archive rehearsal, offline install and full local gate pass;
+      evidence is in `build/review/release-alpha7/openspec-toolchain-renewal/`.
+      Exact historical-supply reclamation and preserved-content readback are
+      bound by `conformance/evidence/release-alpha7-readback.json`.
+      Product and released alpha.7 bytes are unchanged. Source adoption,
+      current-HEAD integration, archive and Lane retirement remain open.
 
 - [x] 8.4.1 Remove demonstrated same-project native macOS job overlap using
       GitLab's existing resource-group carrier. Add a failing actual-YAML

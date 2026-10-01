@@ -407,33 +407,75 @@
     "Historical release metadata/link identities preserved; old payloads not downloaded anew"
   ],
   "evidenceClosure": {
-    "sourceCommit": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+    "sourceCommit": "d3ee978bd8cd76c02d110e92e1ec6d41dc272563",
     "hostedCI": {
-      "path": "build/review/release-alpha7/closeout-hosted/native-ci-result.json",
-      "bytes": 79049,
-      "sha256": "6ac25236c09b123a60f9accf57adb8b60bbc22faa3cc7d4f5726794e6d815fc7"
+      "path": "build/review/release-alpha7/skills-evidence-hosted-readback/native-ci-result.json",
+      "bytes": 18364,
+      "sha256": "900879357cd761ecbb1a7321e0d4dbc533ef104059388bd8d738b3acc6056174"
     },
     "pipelines": [
       {
-        "id": 9106,
+        "id": 9114,
         "ref": "main",
-        "sha": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+        "sha": "d3ee978bd8cd76c02d110e92e1ec6d41dc272563",
         "status": "success"
       },
       {
-        "id": 9105,
+        "id": 9111,
         "ref": "dev",
-        "sha": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+        "sha": "d3ee978bd8cd76c02d110e92e1ec6d41dc272563",
         "status": "success"
       },
       {
-        "id": 9104,
+        "id": 9110,
         "ref": "proposal/publication-boundary-convergence",
-        "sha": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+        "sha": "d3ee978bd8cd76c02d110e92e1ec6d41dc272563",
         "status": "success"
       }
     ],
-    "scope": "Later evidence-only closure preserves immutable alpha.7 source/package/media selection",
-    "observedAt": "2026-10-01T05:20:53.725Z"
+    "scope": "Evidence-only Skills/parallel-Lane closure; immutable alpha.7 source/package/media unchanged",
+    "observedAt": "2026-10-01T06:45:38.806Z",
+    "predecessor": {
+      "sourceCommit": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+      "hostedCI": {
+        "path": "build/review/release-alpha7/closeout-hosted/native-ci-result.json",
+        "bytes": 79049,
+        "sha256": "6ac25236c09b123a60f9accf57adb8b60bbc22faa3cc7d4f5726794e6d815fc7"
+      },
+      "pipelines": [
+        {
+          "id": 9106,
+          "ref": "main",
+          "sha": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+          "status": "success"
+        },
+        {
+          "id": 9105,
+          "ref": "dev",
+          "sha": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+          "status": "success"
+        },
+        {
+          "id": 9104,
+          "ref": "proposal/publication-boundary-convergence",
+          "sha": "6112b67f2d1ce41b0d650987bfd8f360d452ef0c",
+          "status": "success"
+        }
+      ],
+      "scope": "Later evidence-only closure preserves immutable alpha.7 source/package/media selection",
+      "observedAt": "2026-10-01T05:20:53.725Z"
+    }
+  },
+  "housekeeping": {
+    "receipt": {
+      "path": "build/review/release-alpha7/housekeeping/obsolete-self-supply/result.json",
+      "bytes": 3204,
+      "sha256": "390922844f8f0971086d4523de230c654cb37ca5578e123d2dd7f74b127682f6"
+    },
+    "removedRoots": 13,
+    "regularFiles": 2623,
+    "logicalBytesReclaimed": 185811409,
+    "preservedFileCount": 1717,
+    "scope": "Exact duplicate historical installed supply only; retained review/Candidate/archive/unknown state preserved"
   }
 }

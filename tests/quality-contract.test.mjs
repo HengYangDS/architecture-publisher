@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { parse } from 'yaml';
@@ -84,6 +85,68 @@ test('the selected LikeC4 parser supply uses the patched lodash-es release', asy
   const selected = lock.packages['node_modules/lodash-es'];
   assert.equal(selected?.version, '4.18.1');
   assert.equal(supply.packages.find(({ name }) => name === 'lodash-es')?.version, selected.version);
+});
+
+test('official OpenSpec apply instructions bind each task to its exact source checkbox', async (t) => {
+  const work = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-task-source-'));
+  t.after(() => fs.rm(work, { recursive: true, force: true }));
+  const change = path.join(work, 'openspec/changes/task-source');
+  await fs.mkdir(change, { recursive: true });
+  await fs.writeFile(
+    path.join(change, '.openspec.yaml'),
+    'schema: spec-driven\ncreated: 2026-10-01\n',
+  );
+  const taskFile = path.join(change, 'tasks.md');
+  await fs.writeFile(
+    taskFile,
+    '# Tasks\n\n- [x] 1. Preserve accepted inputs.\n  - [ ] 1.1 Verify the selected receiver.\n- [ ] 2. Close source-owned adoption.\n',
+  );
+  const cli = path.join(root, 'node_modules/@fission-ai/openspec/bin/openspec.js');
+  const instruction = JSON.parse(
+    execFileSync(
+      process.execPath,
+      [
+        cli,
+        'instructions',
+        'apply',
+        '--change',
+        'task-source',
+        '--schema',
+        'spec-driven',
+        '--json',
+      ],
+      {
+        cwd: work,
+        encoding: 'utf8',
+        timeout: 30_000,
+        stdio: ['ignore', 'pipe', 'pipe'],
+        env: {
+          ...process.env,
+          HOME: work,
+          XDG_CONFIG_HOME: path.join(work, 'config'),
+          CI: 'true',
+          OPENSPEC_TELEMETRY: '0',
+        },
+      },
+    ),
+  );
+  const lines = (await fs.readFile(taskFile, 'utf8')).split('\n');
+  const checkboxes = lines.flatMap((line, index) => {
+    const match = /^\s*- \[([ xX])\] (.+)$/u.exec(line);
+    return match ? [{ line: index + 1, done: match[1] !== ' ', description: match[2] }] : [];
+  });
+  assert.equal(instruction.tasks.length, checkboxes.length);
+  assert.equal(instruction.progress.total, checkboxes.length);
+  for (const [index, task] of instruction.tasks.entries()) {
+    assert.equal(typeof task.sourcePath, 'string', 'The official task source must be explicit');
+    const source = path.isAbsolute(task.sourcePath)
+      ? task.sourcePath
+      : path.resolve(work, task.sourcePath);
+    assert.equal(source, taskFile);
+    assert.equal(task.line, checkboxes[index].line);
+    assert.equal(task.done, checkboxes[index].done);
+    assert.equal(task.description, checkboxes[index].description);
+  }
 });
 
 test('coverage roots include all tracked first-party package runtime modules', () => {

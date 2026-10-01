@@ -469,6 +469,6 @@
   },
   "releaseReadback": {
     "path": "conformance/evidence/release-alpha7-readback.json",
-    "sha256": "0e7a057dfe0acce6dcab52c34ece25a7a3f5bf1411223b45bc007c5012524d6c"
+    "sha256": "029fcdfbb550fd38c01be2602ca55efd75c454ffee769e32faf1adc8865890c2"
   }
 }
