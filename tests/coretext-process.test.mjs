@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { inspect } from 'node:util';
 import {
   runOwnedProcess,
   terminatePosixGroup,
@@ -307,7 +308,7 @@ test('CoreText stage deadline retains observed diagnostics from an unresponsive 
     failure = error;
   }
   assert.equal(await fs.readFile(started, 'utf8'), 'started');
-  assert.equal(failure?.code, 'coretext_compile_failed');
+  assert.equal(failure?.code, 'coretext_compile_failed', inspect(failure, { depth: 5 }));
   assert.equal(failure?.processError, 'ETIMEDOUT');
   assert.equal(failure?.diagnostics, 'compiler entered');
 });

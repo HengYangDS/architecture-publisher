@@ -1206,6 +1206,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       installed interruption/recovery tests pass locally (111 passed, one
       explicit prior-delivery-input skip). Native successor, remaining fixture
       defects and four-dimensional coverage acceptance remain open.
+      Exact signed `9a88c58` proof passes 1,451 tests, with zero failures, three
+      explicit input skips and 97.76/95.15/99.58/97.76% coverage. Linux
+      review/protected, macOS protected and one exact macOS review retry pass.
+      Windows review passes; protected job 47039 retains one cleanup-unproved
+      CoreText timeout failure. Its compiler-entered marker passed, but the
+      native cleanup cause was omitted by the assertion. The test now reports
+      the full failure without broadening its accepted result. Both observers
+      are terminal and Runner 120/121/122 pauses are restored and read back.
+      Exact HTML human review, 19-record installed qualification and authorized
+      local pair installation pass; frozen package/media bytes stay unchanged.
+      Alpha.8 tag, release, protected Windows acceptance and Documents replacement
+      remain open. Evidence: `coretext-process-lifetime.json` currentNativeClosure.
       Native fixtures now separate import URLs from filesystem paths, normalize
       Git owner paths and bind interruption to an emitted boundary marker rather
       than a POSIX signal string. Historical repacks compare complete extracted

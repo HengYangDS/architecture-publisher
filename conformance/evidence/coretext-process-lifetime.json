@@ -964,6 +964,143 @@
       },
       "nativeAcceptance": "running or pending; not passed",
       "release": "not performed"
+    },
+    "currentNativeClosure": {
+      "sourceHead": "9a88c58b4870e4cb5b760367f0a26deb1908d170",
+      "observedAt": "2026-10-01T16:33:38.480711+00:00",
+      "localProof": {
+        "path": "build/review/release-alpha8/native-fixture-repair-exact-head-proof.json",
+        "bytes": 594312,
+        "sha256": "fed280de76467c25846c46bec6a49ecbb1bd1c63ad008b7d1e7fcd6c330d4b46"
+      },
+      "localCoverage": {
+        "statements": 97.76,
+        "branches": 95.15,
+        "functions": 99.58,
+        "lines": 97.76
+      },
+      "localTests": {
+        "passed": 1451,
+        "failed": 0,
+        "skipped": 3
+      },
+      "windowsCohort": {
+        "path": "build/review/release-alpha8/native-fixture-repair-windows-cohort.json",
+        "bytes": 4932,
+        "sha256": "606b7981c811889b3a643f25378df5617a0c4a87f8f914d57e07a6a6a3e1b499"
+      },
+      "windowsProtectedFailure": {
+        "path": "build/review/release-alpha8/native-fixture-repair-windows-protected.log",
+        "bytes": 215394,
+        "sha256": "867b867f0c44026263661793f7e13eabb1dc39e552790b33f256f90480b73a51"
+      },
+      "macosSingleRetry": {
+        "path": "build/review/release-alpha8/native-fixture-repair-macos-single-retry.json",
+        "bytes": 1538,
+        "sha256": "8de65db01ead8691d49c14f3619bf421effd7d79e09556244709ecdc18b70feb"
+      },
+      "nativeResults": {
+        "linuxReview47029": "success",
+        "linuxProtected47037": "success",
+        "macosProtected47038": "success",
+        "macosReviewRetry47040": "success",
+        "windowsReview47031": "success",
+        "windowsProtected47039": "failed"
+      },
+      "restoredRunners": [
+        {
+          "id": 120,
+          "paused": true,
+          "online": true,
+          "access_level": "not_protected",
+          "description": "ci-p1323-windows-arm64-shell-review"
+        },
+        {
+          "id": 121,
+          "paused": true,
+          "online": true,
+          "access_level": "ref_protected",
+          "description": "ci-p1323-windows-arm64-shell-protected"
+        },
+        {
+          "id": 122,
+          "paused": true,
+          "online": true,
+          "access_level": "ref_protected",
+          "description": "ci-p1323-linux-arm64-docker-protected"
+        }
+      ],
+      "observers": {
+        "91383": "terminal",
+        "24608": "terminal",
+        "ownedPIDsAbsent": [2002, 52049, 90196]
+      },
+      "remainingFailure": {
+        "test": "CoreText stage deadline retains observed diagnostics from an unresponsive child",
+        "actual": "coretext_stage_cleanup_unproved",
+        "expected": "coretext_compile_failed",
+        "durationMs": 5098.942708,
+        "childEntered": true,
+        "nativeCause": "unproved; incumbent assertion omitted full error cause",
+        "hypothesis": "outer taskkill tree cleanup may overlap the worker compiler timeout kill; no production repair is authorized by this hypothesis"
+      },
+      "replay": {
+        "path": "build/review/release-alpha8/native-fixture-repair-installed-reuse.json",
+        "bytes": 1048,
+        "sha256": "16c76f0f52f4ef3e50821abdab6150361a25100b380b8153300e36d5330c3082"
+      },
+      "humanReview": {
+        "path": "build/review/release-alpha8/final-28d0f97/human-review.json",
+        "bytes": 1372,
+        "sha256": "2437a3e7f53f5b1702989bc99f85b9c9befd7685e0139a08139988fb66ea4ef7"
+      },
+      "qualification": {
+        "path": "build/review/release-alpha8/accepted-canonical-kit-replay.json",
+        "bytes": 809,
+        "sha256": "a6a5dc81b19fcb9f41d64495bcc90548387e265db442b0166c540299e1b1e84f"
+      },
+      "localPublication": {
+        "path": "build/review/release-alpha8/final-28d0f97/local-publication-readback.json",
+        "bytes": 2175,
+        "sha256": "051429e00b64470fe6eef43da7207f00dc682fb127ece538b3a57e78762708d7"
+      },
+      "limits": [
+        "Native protected Windows acceptance remains failed",
+        "A single macOS retry success does not prove a timing defect fixed",
+        "Exact approved media and frozen package bytes are unchanged",
+        "No alpha.8 tag/release or Documents replacement exists",
+        "Power-loss recovery and off-host recovery remain unqualified"
+      ],
+      "diagnosticSuccessor": {
+        "baseHead": "9a88c58b4870e4cb5b760367f0a26deb1908d170",
+        "change": "Only existing assertion message exposes full failure cause; no accepted-result or runtime change",
+        "reviewer": "/root/native_windows_replay_review",
+        "review": "APPROVE; zero actionable issues; every evidence reference matches",
+        "focused": {
+          "command": [
+            "node",
+            "--import=./tests/fixtures/npm-environment.mjs",
+            "--test",
+            "--test-concurrency=1",
+            "--test-name-pattern=^(CoreText stage deadline retains observed diagnostics from an unresponsive child|CoreText group uncertainty retains the primary failure and scratch|release history follows Keep a Changelog with one SemVer identity)$",
+            "tests/coretext-process.test.mjs",
+            "tests/product-identity.test.mjs"
+          ],
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "path": "build/review/release-alpha8/native-timeout-diagnostics-focused.log",
+          "sha256": "cd3deb8c2757154f32cbaedef6eff1d7004e4afb3d922a086a13534e53621565"
+        },
+        "static": {
+          "path": "build/review/release-alpha8/native-timeout-diagnostics-static.log",
+          "sha256": "9b376f9712d6857554beb389dc14147b0b11fc8a35957d0a9fe92094593d1c32",
+          "exit": 0,
+          "warnings": 0
+        },
+        "releasePreparation": "Unpublished alpha.8 section selects current calendar date 2026-10-02; historical releases unchanged",
+        "nativeCause": "not yet reproduced with diagnostic successor"
+      }
     }
   }
 }

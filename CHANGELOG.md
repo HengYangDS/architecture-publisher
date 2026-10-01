@@ -8,7 +8,7 @@ may contain incompatible changes.
 
 ## Unreleased
 
-## [0.3.0-alpha.8] - 2026-10-01
+## [0.3.0-alpha.8] - 2026-10-02
 
 ### Changed
 
