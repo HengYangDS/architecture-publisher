@@ -654,6 +654,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       fails, so this is diagnosis only. Protected/native complete source,
       tag, Forge readback and exact HTML review remain open. Existing
       `coretext-process-lifetime.json` binds the retained failures and correction.
+      Exact accepted-root tag-context proof exposed a separate documentation
+      boundary defect: Git metadata dependencies contributed 77 lint errors.
+      The existing gate now excludes `.git/**`; its real directory fixture
+      fails before the correction and passes after it. All 190 tracked Markdown
+      carriers have zero spacing findings, including preserved historical inputs.
+      The immutable alpha.10 source and selected package/media bytes are
+      unchanged; its linked-candidate tag-context and native review remain open.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

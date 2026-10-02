@@ -273,6 +273,7 @@ test('the native documentation gate enforces one blank line across maintained Ma
     '# Scope\n\n```python\nclass First:\n    pass\n\n\nclass Second:\n    pass\n```\n',
   );
   for (const file of [
+    '.git/ethos/runtime/dependency/README.md',
     'openspec/changes/archive/retained/spec.md',
     'tests/fixtures/source.md',
     'conformance/fixtures/source.md',

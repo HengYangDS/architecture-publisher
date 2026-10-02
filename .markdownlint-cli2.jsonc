@@ -2,6 +2,7 @@
   "globs": ["*.md", "**/README.md", "docs/**/*.md", "openspec/**/*.md", "skills/**/*.md"],
   "gitignore": ".gitignore",
   "ignores": [
+    ".git/**",
     "openspec/changes/archive/**",
     "tests/fixtures/**",
     "conformance/fixtures/**",
