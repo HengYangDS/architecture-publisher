@@ -8,6 +8,23 @@ may contain incompatible changes.
 
 ## Unreleased
 
+## [0.3.0-alpha.10] - 2026-10-02
+
+### Fixed
+
+- Native verification preserves setup timeout errors, signals and diagnostics
+  instead of reporting a missing exit status without its cause. Disposable
+  offline supply installation avoids unnecessary manifest and lock writes
+  without changing sequential installation, runtime deadlines or coverage.
+
+### Changed
+
+- Canonical specifications carry the complete authored qualification and
+  single-parent stage-deadline contracts. General SDD research resides with
+  the ETHOS topic owners; publication keeps its own custody decisions.
+- Closeout separates completed archive prerequisites from later native
+  lifecycle effects, without declaring an unexecuted archive or retirement.
+
 ## [0.3.0-alpha.9] - 2026-10-02
 
 ### Added
@@ -536,6 +553,7 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.3.0-alpha.10]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.10
 [0.3.0-alpha.9]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.9
 [0.3.0-alpha.8]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.8
 [0.3.0-alpha.7]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.7

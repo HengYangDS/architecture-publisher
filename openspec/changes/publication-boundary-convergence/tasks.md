@@ -636,6 +636,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       whitespace-free five-case selection passes locally. The scoped repair and
       sequential consumer now pass thirteen focused cases. Neither failure is
       waived or reported as full/native acceptance.
+      Signed scoped `74f0b24` passes all three exact-HEAD proof gates, with
+      97.74/95.16/99.50/97.74% coverage. The unchanged alpha.9 tag stays
+      immutable and unqualified for asset release; alpha.10 is the selected
+      successor so repaired verification can bind its own exact source and tag.
+      Native npm projection preserves all 449 resolved supplier entries. This
+      version selection is not a release, a native result or source adoption.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

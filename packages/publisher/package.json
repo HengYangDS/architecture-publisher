@@ -1,6 +1,6 @@
 {
   "name": "architecture-publisher",
-  "version": "0.3.0-alpha.9",
+  "version": "0.3.0-alpha.10",
   "description": "Source-bound semantic architecture editions with independent static and interactive publication",
   "type": "module",
   "bin": {
