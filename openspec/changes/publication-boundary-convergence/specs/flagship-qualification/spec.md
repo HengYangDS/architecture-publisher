@@ -94,11 +94,11 @@ SHALL remain; opaque statements MAY bind their own Claim without a subject graph
 
 ### Requirement: Authored statements retain their own source identity
 
-Publisher SHALL bind each selected visible source statement to its own Claim,
-not only its shared subject. Opaque statements SHALL retain exact values,
-provenance and unknown coverage without fabricated dependencies. Unknown
-coverage SHALL NOT waive applicable typed subject or relation checks. Text
-attribution SHALL NOT establish semantic equivalence, truth or acceptance.
+Publisher SHALL bind each explicitly selected direct source statement to its
+own visible Claim text. Existing valid anchored aggregate text SHALL retain
+its representation and limits. Opaque statements SHALL retain exact facts
+without fabricated dependencies. Unknown coverage SHALL NOT waive typed
+structural checks. Text attribution SHALL NOT establish truth or acceptance.
 
 #### Scenario: Two opaque statements share a document subject
 
@@ -108,8 +108,37 @@ attribution SHALL NOT establish semantic equivalence, truth or acceptance.
 
 #### Scenario: An occurrence substitutes another Claim
 
-- **WHEN** its selected Claim identity, digest, immutable facts or checked text preimage disagree
+- **WHEN** its selected Claim identity, digest or derived immutable facts disagree
 - **THEN** Publisher refuses the mismatch without pretending to decide every paraphrase
+
+### Requirement: Statement obligations derive from required assertions
+
+Publisher SHALL derive assertions and structural closure from Edition views
+and native selections. The existing declaration SHALL contain structural
+closure, explicitly selected direct Claims and all required editorial
+statements. Direct selection SHALL include required unanchorable opaque
+Claims. Hidden, undeclared or missing text SHALL fail without anchor fallback.
+
+#### Scenario: Two direct statements share their only visible text
+
+- **WHEN** one text occurrence is the sole carrier of two distinct required direct statements
+- **THEN** coverage fails until each statement has at least one exclusive visible witness
+- **AND** shared additional context may remain beside those own witnesses
+
+#### Scenario: A direct Claim loses its own text but keeps a subject label
+
+- **WHEN** the required direct text disappears while its subject or relation remains visible
+- **THEN** coverage fails without downgrading the Claim to anchored aggregate text
+
+#### Scenario: A previously valid anchored input is rebuilt
+
+- **WHEN** it does not select the new direct statement representation
+- **THEN** its existing v1 interpretation and limitations remain unchanged
+
+#### Scenario: A declaration attempts to hide an opaque required Claim
+
+- **WHEN** the Edition requires an unanchorable opaque Claim but direct text is not declared
+- **THEN** compilation refuses it rather than inventing a document dependency
 
 ### Requirement: Editorial explanations and adornments remain distinct
 
@@ -118,6 +147,16 @@ basis and question. An adornment SHALL contribute no source identity, topology,
 semantic coverage or authority. Publisher SHALL distinguish both from literal
 source relations. A multi-relation summary SHALL remain editorial regardless
 of valid constituent carriers; geometry SHALL NOT create a transitive edge.
+
+#### Scenario: A required editorial statement shows only its source basis
+
+- **WHEN** its exact Edition-qualified text witness is missing
+- **THEN** coverage fails without attributing the editor's assertion to a source
+
+#### Scenario: A statement-only view has no structural source assertion
+
+- **WHEN** every required Claim and editorial statement has its admitted visible text carrier
+- **THEN** no fabricated source node is required and wording remains unverified
 
 #### Scenario: Routing geometry distributes one candidate object
 

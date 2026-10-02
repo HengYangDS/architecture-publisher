@@ -48,6 +48,7 @@ export default [
     files: [
       'packages/publisher/src/rendering/interactive-html.mjs',
       'tests/aigw-adopter.test.mjs',
+      'tests/authored-statements.test.mjs',
       'tools/qualification/semantic-browser.mjs',
     ],
     languageOptions: {

@@ -676,6 +676,29 @@ Flat groups retain exact membership and containment. Long acyclic graphs may
 use the same ELK owner's finite wrapping candidate, never an edited fallback.
 Static Dagre geometry and authored Archify geometry remain independent.
 
+Authored statement text uses the same bounded text shape in each independent
+medium. Select a Claim with `semanticIds: ['["namespace","claim","claim-id"]']`;
+select an editorial assertion with
+`semanticIds: ['["edition-id","editorial","assertion-id"]']`. Add each direct
+reference to that scene's `requiredSemanticIds`. Source facts come only from
+selected native bytes; editorial statement, proponent, basis and questions
+come only from the selected Edition. Neither is copied into refinement facts.
+
+Every explicitly selected direct statement requires its own visible text.
+Opaque Claims need no invented document node or dependency. Typed relational
+and scalar Claims still require their selected relation or subject owners.
+Previously valid anchored aggregate text retains its existing v1 interpretation
+and limits. A direct statement cannot silently fall back to that representation
+when its text is missing. A statement-only interactive page may have no nodes.
+
+The Archify adapter validates finite text against the same bundled font bytes
+it embeds, measured bounds and the native desktop readability/route geometry.
+Each page records its exact adapted runtime identity; different page input is
+not a conflicting shared runtime. Inspection distinguishes source identity from
+Edition identity and returns keyboard focus to the selected text. These checks
+establish identity and visible coverage, not paraphrase equivalence or truth;
+wording remains unverified until the selected exact-artifact review.
+
 The current output contracts cover SVG/PNG and standalone HTML. PDF reports and
 PowerPoint stories remain [evaluated design options](../research/mechanism-evaluation.md#architecture-explanation-across-media-2026-09-30),
 not implemented export commands. Exporting one diagram as a picture slide would

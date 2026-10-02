@@ -316,6 +316,34 @@ const semanticIds = {
   uniqueItems: true,
   items: text,
 };
+const authoredText = closed(
+  [
+    'id',
+    'text',
+    'fontSize',
+    'weight',
+    'anchor',
+    'tone',
+    'x',
+    'baseline',
+    'visible',
+    'semanticIds',
+    'box',
+  ],
+  {
+    id: identifier,
+    text,
+    fontSize: { type: 'number', exclusiveMinimum: 0, maximum: 300 },
+    weight: { enum: ['400', '600'] },
+    anchor: { enum: ['start', 'middle', 'end'] },
+    tone: identifier,
+    x: coordinate,
+    baseline: coordinate,
+    visible: { type: 'boolean' },
+    semanticIds,
+    box: canvasBox,
+  },
+);
 const canvasScene = closed(
   [
     'schema',
@@ -372,34 +400,7 @@ const canvasScene = closed(
     texts: {
       type: 'array',
       maxItems: 4096,
-      items: closed(
-        [
-          'id',
-          'text',
-          'fontSize',
-          'weight',
-          'anchor',
-          'tone',
-          'x',
-          'baseline',
-          'visible',
-          'semanticIds',
-          'box',
-        ],
-        {
-          id: identifier,
-          text,
-          fontSize: { type: 'number', exclusiveMinimum: 0, maximum: 300 },
-          weight: { enum: ['400', '600'] },
-          anchor: { enum: ['start', 'middle', 'end'] },
-          tone: identifier,
-          x: coordinate,
-          baseline: coordinate,
-          visible: { type: 'boolean' },
-          semanticIds,
-          box: canvasBox,
-        },
-      ),
+      items: authoredText,
     },
     edges: {
       type: 'array',
@@ -515,9 +516,11 @@ const interactiveArchitectureScene = closed(
     title: text,
     subtitle: text,
     viewport: interactiveSize,
-    nodes: { type: 'array', minItems: 1, maxItems: 512, items: interactiveNode },
+    nodes: { type: 'array', maxItems: 512, items: interactiveNode },
     groups: { type: 'array', maxItems: 256, items: interactiveGroup },
     edges: { type: 'array', maxItems: 2048, items: interactiveEdge },
+    texts: { type: 'array', maxItems: 4096, items: authoredText },
+    requiredSemanticIds: { ...semanticIds, minItems: 1, maxItems: 8192 },
   },
 );
 const interactiveArchitectureRefinement = closed(['kind', 'pages'], {

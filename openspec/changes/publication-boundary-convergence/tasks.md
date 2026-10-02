@@ -533,12 +533,25 @@ third-party or generated supply rather than moving owned code outside coverage.
       is in `conformance/evidence/authored-occurrence.json`. This closes the
       mechanism repair, not alpha.9 release or source-owned flagship adoption.
 
-- [ ] 5.2.2 Bind authored source/editorial statements directly to their own
-      exact Claim/assertion identities. Preserve opaque original values and
-      unknown coverage without invented dependencies; keep applicable typed
-      structural checks. Prove distinct shared-subject statements, omission,
+- [x] 5.2.2 Bind authored source/editorial statements directly to their own
+      exact Claim/assertion identities through the existing canonical text
+      references. Derive assertion and structural obligations independently;
+      direct Claim text is explicitly selected, never a fallback from missing
+      structure. Preserve valid v1 anchored inputs and their stated limits,
+      opaque original values and unknown coverage without invented dependencies;
+      keep applicable typed checks. Prove shared-subject statements, omission,
       substitution and repeated-fact failures through both media and installed
       public input. Reuse existing assertion, scene and coverage owners.
+      Independent review findings became RED/GREEN cases for exact embedded
+      fonts, literal dollar text, page-local runtime identity, editorial-only
+      pages and statement-exclusive witnesses. Thirty focused tests including
+      real Chrome pass without skips. Offline packed public CLI builds
+      independent SVG/1800px PNG and a two-page standalone HTML with isolated
+      HOME and empty PATH. The final full gate passes 1,481/1,484 with three
+      declared skips and 97.74/95.17/99.58/97.74% coverage. Evidence is
+      `conformance/evidence/authored-statements.json`; wording, flagship parity,
+      source adoption, later geometry/font-resource slices and release remain
+      separate obligations.
 - [ ] 5.2.3 Add finite node-local SVG-standard primitives and explicit
       geometry-only adornments. Derive paint footprints, retain port bounds
       and enforce primitive/point budgets; reject false envelopes, collisions,

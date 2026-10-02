@@ -32,7 +32,7 @@ function pageHtml(bytes) {
   }
 }
 
-function validatePage(page, ids, paths, sources, references) {
+function validatePage(page, ids, paths, sources, references, editionId, editionSha256) {
   const sourceIds = new Set(Object.keys(sources));
   if (
     !exact(
@@ -48,7 +48,7 @@ function validatePage(page, ids, paths, sources, references) {
     !portablePath(page.path).endsWith('.html') ||
     paths.has(page.path) ||
     !Array.isArray(page.sourceIds) ||
-    !page.sourceIds.length ||
+    (!page.sourceIds.length && !page.facts?.some((fact) => fact.editionSha256 === editionSha256)) ||
     new Set(page.sourceIds).size !== page.sourceIds.length ||
     page.sourceIds.some((id) => !sourceIds.has(id)) ||
     (Object.hasOwn(page, 'subjectSources') && !record(page.subjectSources))
@@ -63,7 +63,10 @@ function validatePage(page, ids, paths, sources, references) {
     if (
       !identifier(id) ||
       !Array.isArray(values) ||
-      !values.length ||
+      (!values.length &&
+        !page.facts?.some(
+          (fact) => fact.graphicId === id && fact.editionSha256 === editionSha256,
+        )) ||
       new Set(values).size !== values.length ||
       values.some((sourceId) => !sourceIds.has(sourceId) || !pageSources.has(sourceId))
     )
@@ -71,7 +74,7 @@ function validatePage(page, ids, paths, sources, references) {
     nodes[id] = [...values];
   }
   const visibleSubjects = new Set(
-    [...pageHtml(page.content).matchAll(/\bdata-(?:node|edge)-id=["']([^"']+)["']/g)].map(
+    [...pageHtml(page.content).matchAll(/\bdata-(?:node|edge|text)-id=["']([^"']+)["']/g)].map(
       (match) => match[1],
     ),
   );
@@ -90,15 +93,24 @@ function validatePage(page, ids, paths, sources, references) {
     } catch {
       fail('interactive_html_page_facts_invalid');
     }
+    const editorial = reference?.[1] === 'editorial';
     if (
-      !exact(item, ['reference', 'sourceSha256', 'graphicId', 'title', 'facts']) ||
+      !exact(item, [
+        'reference',
+        editorial ? 'editionSha256' : 'sourceSha256',
+        'graphicId',
+        'title',
+        'facts',
+      ]) ||
       !Array.isArray(reference) ||
       reference.length !== 3 ||
       reference.some((part) => !text(part)) ||
-      !['entity', 'relation', 'claim'].includes(reference[1]) ||
+      !['entity', 'relation', 'claim', 'editorial'].includes(reference[1]) ||
       JSON.stringify(reference) !== item.reference ||
       occurrences.has(JSON.stringify([item.reference, item.graphicId])) ||
-      !isDigest(item.sourceSha256) ||
+      !(editorial
+        ? reference[0] === editionId && item.editionSha256 === editionSha256
+        : isDigest(item.sourceSha256)) ||
       !visibleSubjects.has(item.graphicId) ||
       !text(item.title) ||
       !Array.isArray(item.facts) ||
@@ -107,13 +119,15 @@ function validatePage(page, ids, paths, sources, references) {
       item.facts.some(
         (fact) => !exact(fact, ['label', 'value']) || !text(fact.label) || !text(fact.value),
       ) ||
-      !page.sourceIds.some(
-        (id) => sources[id].namespace === reference[0] && sources[id].sha256 === item.sourceSha256,
-      )
+      (!editorial &&
+        !page.sourceIds.some(
+          (id) =>
+            sources[id].namespace === reference[0] && sources[id].sha256 === item.sourceSha256,
+        ))
     )
       fail('interactive_html_page_facts_invalid');
     const semanticFacts = canonical({
-      sourceSha256: item.sourceSha256,
+      ...(editorial ? { editionSha256: item.editionSha256 } : { sourceSha256: item.sourceSha256 }),
       title: item.title,
       facts: item.facts,
     });
@@ -243,11 +257,12 @@ function interactiveReader() {
     const details = document.createElement('details');
     details.id = 'interactive-inspect-basis-details';
     const summary = document.createElement('summary');
-    summary.textContent = 'Source identity';
+    summary.textContent = sourceIds.length ? 'Source identity' : 'Edition identity';
     details.appendChild(summary);
     const note = document.createElement('p');
-    note.textContent =
-      'These are selected input identities, not embedded source files or verified domain truth.';
+    note.textContent = sourceIds.length
+      ? 'These are selected input identities, not embedded source files or verified domain truth.'
+      : 'This statement belongs to the selected Edition, not a source-endorsed fact.';
     details.appendChild(note);
     for (const id of sourceIds) {
       const source = data.sources[id];
@@ -258,6 +273,20 @@ function interactiveReader() {
         ['Claimant', source.claimant],
         ['Input kind', source.kind],
         ['SHA-256', source.sha256],
+      ]) {
+        const term = document.createElement('dt');
+        const definition = document.createElement('dd');
+        term.textContent = label;
+        definition.textContent = value;
+        record.append(term, definition);
+      }
+      details.appendChild(record);
+    }
+    if (!sourceIds.length) {
+      const record = document.createElement('dl');
+      for (const [label, value] of [
+        ['Edition', data.editionId],
+        ['SHA-256', data.build.editionSha256],
       ]) {
         const term = document.createElement('dt');
         const definition = document.createElement('dd');
@@ -283,7 +312,7 @@ function interactiveReader() {
       ? entries.length
         ? `${entries.length} selected meaning records. Open a record for its exact fields.`
         : 'This graphic has a selected source binding but no typed assertion in this Edition.'
-      : 'Choose a component or relationship to read its selected meaning and source identity.';
+      : 'Choose a graphic or statement to read its selected meaning and attribution.';
     inspectContent.appendChild(intro);
     for (const [index, entry] of entries.entries()) {
       const details = document.createElement('details');
@@ -374,6 +403,10 @@ function interactiveReader() {
       if (id && label && !nodeLabels.has(id)) nodeLabels.set(id, label);
     }
     subjectLabels = new Map(nodeLabels);
+    for (const text of parsed.querySelectorAll('[data-text-id]')) {
+      const id = text.getAttribute('data-text-id');
+      if (id) subjectLabels.set(id, text.getAttribute('data-text-label') || text.textContent);
+    }
     for (const edge of parsed.querySelectorAll('[data-edge-id]')) {
       const id = edge.getAttribute('data-edge-id');
       if (!id || subjectLabels.has(id)) continue;
@@ -414,14 +447,14 @@ function interactiveReader() {
         if(!id)return;
         event.preventDefault();parent.postMessage({type:'architecture-interactive:navigate',page:id},'*');
       },true);
-      function inspect(subject){const id=subject.getAttribute('data-node-id')||subject.getAttribute('data-edge-id');parent.postMessage({type:'architecture-interactive:inspect',page:page,subject:id,label:subject.getAttribute('data-node-label')||subject.getAttribute('data-edge-label')||id},'*');}
-      document.addEventListener('dblclick',function(event){const subject=event.target.closest&&event.target.closest('[data-node-id],[data-edge-id]');if(subject)inspect(subject);},true);
-      document.addEventListener('keydown',function(event){const subject=event.target.closest&&event.target.closest('[data-node-id],[data-edge-id]');if(subject&&(event.key==='i'||event.key==='I')){event.preventDefault();inspect(subject);}},true);
+      function inspect(subject){const id=subject.getAttribute('data-node-id')||subject.getAttribute('data-edge-id')||subject.getAttribute('data-text-id');parent.postMessage({type:'architecture-interactive:inspect',page:page,subject:id,label:subject.getAttribute('data-node-label')||subject.getAttribute('data-edge-label')||subject.getAttribute('data-text-label')||id},'*');}
+      document.addEventListener('dblclick',function(event){const subject=event.target.closest&&event.target.closest('[data-node-id],[data-edge-id],[data-text-id]');if(subject)inspect(subject);},true);
+      document.addEventListener('keydown',function(event){const subject=event.target.closest&&event.target.closest('[data-node-id],[data-edge-id],[data-text-id]');if(subject&&(event.key==='i'||event.key==='I'||(subject.hasAttribute('data-text-id')&&(event.key==='Enter'||event.key===' ')))){event.preventDefault();inspect(subject);}},true);
       window.addEventListener('message',function(event){
         const message=event.data;
         if(event.source!==parent||!message||message.type!=='architecture-interactive:restore-focus'||message.page!==page||typeof message.subject!=='string'||!/^[a-z][a-z0-9-]{0,79}$/.test(message.subject))return;
         const id=message.subject;
-        const subject=document.querySelector('[data-node-id="'+id+'"][tabindex], [data-edge-id="'+id+'"][tabindex]');
+        const subject=document.querySelector('[data-node-id="'+id+'"][tabindex], [data-edge-id="'+id+'"][tabindex], [data-text-id="'+id+'"][tabindex]');
         if(subject)subject.focus();
       });
     })();`;
@@ -600,18 +633,23 @@ main[data-reading="inspect"] iframe { visibility: hidden; pointer-events: none; 
 function composeDocument(input) {
   const attributed = input?.schema === 'architecture.interactive-html-composition/v2';
   if (
-    !exact(input, [
-      'schema',
-      'title',
-      'build',
-      'overview',
-      'pages',
-      'sources',
-      'state',
-      ...(attributed ? ['framing'] : []),
-    ]) ||
+    !exact(
+      input,
+      [
+        'schema',
+        'title',
+        'build',
+        'overview',
+        'pages',
+        'sources',
+        'state',
+        ...(attributed ? ['framing'] : []),
+      ],
+      ['editionId'],
+    ) ||
     (input.schema !== 'architecture.interactive-html-composition/v1' && !attributed) ||
     (attributed && !text(input.framing)) ||
+    (Object.hasOwn(input, 'editionId') && !identifier(input.editionId)) ||
     !exact(input.build, ['lockSha256', 'editionSha256', 'semanticDigest']) ||
     !Object.values(input.build).every(isDigest) ||
     !text(input.title) ||
@@ -656,7 +694,15 @@ function composeDocument(input) {
   const pages = {};
   let total = 0;
   for (const page of input.pages) {
-    const nodeSources = validatePage(page, ids, paths, sources, references);
+    const nodeSources = validatePage(
+      page,
+      ids,
+      paths,
+      sources,
+      references,
+      input.editionId,
+      input.build.editionSha256,
+    );
     total += page.content.length + Buffer.byteLength(JSON.stringify(page.facts));
     if (total > LIMITS.totalBytes) fail('interactive_html_size_exceeded');
     pages[page.id] = {
@@ -697,6 +743,7 @@ function composeDocument(input) {
     schema: 'architecture.interactive-html/v1',
     title: input.title,
     build: structuredClone(input.build),
+    ...(input.editionId ? { editionId: input.editionId } : {}),
     overview: input.overview,
     order: input.pages.map(({ id }) => id),
     pages,

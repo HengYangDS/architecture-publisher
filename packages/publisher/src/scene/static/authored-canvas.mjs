@@ -1,7 +1,11 @@
 import { deepFreeze } from '../../semantics/document.mjs';
 import { fail } from '../../protocol/values.mjs';
-import { linkClaimModelSources } from '../claim-relations.mjs';
 import { classifyAggregateRelation } from '../aggregate-relation.mjs';
+import {
+  authoredReference,
+  deriveAuthoredStatements,
+  requireAuthoredStatementText,
+} from '../statements.mjs';
 
 function reference(value) {
   if (typeof value !== 'string') fail('authored_canvas_reference_invalid');
@@ -20,6 +24,13 @@ function reference(value) {
   )
     fail('authored_canvas_reference_invalid');
   return parts;
+}
+
+function admitEditorial(assertion) {
+  if (assertion?.kind !== 'editorial') return false;
+  if (typeof assertion.statement !== 'string' || !assertion.statement.trim())
+    fail('authored_canvas_editorial_unadmitted');
+  return true;
 }
 
 const selectionReference = ({ source, target }) =>
@@ -73,6 +84,7 @@ export function composeAuthoredStaticCanvas(meaning) {
   };
   for (const id of requiredAssertionIds) {
     const assertion = assertions.get(id);
+    if (admitEditorial(assertion)) continue;
     if (assertion?.kind !== 'source') fail('authored_canvas_editorial_unadmitted');
     const item = selections.get(assertion.selection);
     if (
@@ -104,16 +116,24 @@ export function composeAuthoredStaticCanvas(meaning) {
       }
     }
   }
-  const declared = scene.requiredSemanticIds.map((id) => {
-    reference(id);
-    return id;
-  });
-  if (
-    declared.length !== required.size ||
-    new Set(declared).size !== declared.length ||
-    declared.some((id) => !required.has(id))
-  )
-    fail('authored_canvas_membership_mismatch');
+  for (const id of scene.requiredSemanticIds)
+    authoredReference(
+      id,
+      ['entity', 'relation', 'claim', 'editorial'],
+      'authored_canvas_reference_invalid',
+    );
+  const statements = deriveAuthoredStatements(
+    {
+      views,
+      assertions,
+      selections,
+      edition: meaning.edition,
+      structuralReferences: new Set(required.keys()),
+      declaredReferences: scene.requiredSemanticIds,
+    },
+    'authored_canvas_membership_mismatch',
+    'authored_canvas_claim_unbound',
+  );
 
   const nodes = new Map();
   const membersByNode = new Map();
@@ -149,12 +169,19 @@ export function composeAuthoredStaticCanvas(meaning) {
     if (textIds.has(label.id)) fail('authored_canvas_graphic_ambiguous');
     textIds.add(label.id);
     for (const id of label.semanticIds) {
-      reference(id);
-      if (!label.visible || !required.has(id)) fail('authored_canvas_membership_mismatch');
+      authoredReference(
+        id,
+        ['entity', 'relation', 'claim', 'editorial'],
+        'authored_canvas_reference_invalid',
+      );
+      if (!label.visible || !label.text?.trim() || !statements.requiredReferences.has(id))
+        fail('authored_canvas_membership_mismatch');
       bindOccurrence(textGraphics, id, `text:${label.id}`);
     }
   }
-  if (textGraphics.size !== required.size) fail('authored_canvas_membership_mismatch');
+  requireAuthoredStatementText(statements, textGraphics);
+  if (textGraphics.size !== statements.requiredReferences.size)
+    fail('authored_canvas_membership_mismatch');
 
   const edgeIds = new Set();
   const relationGraphics = new Map();
@@ -189,38 +216,31 @@ export function composeAuthoredStaticCanvas(meaning) {
     if (!crosses) fail('authored_canvas_edge_binding_mismatch');
   }
 
-  const links = views.map((view) =>
-    linkClaimModelSources(view, assertions, selections, 'authored_canvas_claim_unbound'),
-  );
-  const relationAnchor = new Map(
-    links.flatMap(({ links: selectedLinks }) =>
-      selectedLinks.map(({ claimAssertionId, relationAssertionId }) => [
-        claimAssertionId,
-        selectionReference(selectedByAssertion.get(relationAssertionId)),
-      ]),
-    ),
-  );
-  const subjectAnchor = new Map(
-    links.flatMap(({ subjectLinks }) =>
-      subjectLinks.map(({ claimAssertionId, subject }) => [
-        claimAssertionId,
-        JSON.stringify([subject.namespace, 'entity', subject.id]),
-      ]),
-    ),
-  );
   const carriers = requiredAssertionIds.map((id) => {
+    const editorial = statements.editorial.get(id);
+    if (editorial)
+      return {
+        assertionId: id,
+        edition: editorial.edition,
+        graphicIds: [...textGraphics.get(editorial.reference)],
+        representation: 'editorial-statement',
+      };
     const item = selectedByAssertion.get(id);
-    const anchor =
-      item.target.kind === 'claim'
-        ? (relationAnchor.get(id) ?? subjectAnchor.get(id))
-        : selectionReference(item);
-    const textIds = textGraphics.get(anchor);
+    const statement = statements.claims.get(id);
+    const anchor = item.target.kind === 'claim' ? statement.anchor : selectionReference(item);
+    const textIds = textGraphics.get(statement?.direct ? statement.reference : anchor);
     if (!textIds?.length) fail('authored_canvas_claim_unbound');
     const structuralIds =
       item.target.kind === 'claim'
-        ? (relationAnchor.has(id) ? relationGraphics : entityGraphics).get(anchor)
+        ? (anchor && JSON.parse(anchor)[1] === 'relation' ? relationGraphics : entityGraphics).get(
+            anchor,
+          )
         : [];
-    if (item.target.kind === 'claim' && !structuralIds?.length)
+    if (
+      item.target.kind === 'claim' &&
+      (anchor !== null || !statement.direct) &&
+      !structuralIds?.length
+    )
       fail('authored_canvas_claim_unbound');
     return {
       assertionId: id,
@@ -230,8 +250,8 @@ export function composeAuthoredStaticCanvas(meaning) {
         kind: item.target.kind,
         id: item.target.id,
       },
-      graphicIds: [...new Set([...textIds, ...structuralIds])],
-      representation: 'source-anchored-aggregate',
+      graphicIds: [...new Set([...textIds, ...(structuralIds ?? [])])],
+      representation: statement?.direct ? 'source-statement' : 'source-anchored-aggregate',
     };
   });
   return deepFreeze({
@@ -246,7 +266,10 @@ export function composeAuthoredStaticCanvas(meaning) {
     },
     limits: [
       'authored-canvas-text-meaning-unverified',
-      ...(carriers.some(({ source }) => source.kind === 'claim')
+      ...(statements.directReferences.size || statements.editorialReferences.size
+        ? ['authored-statement-wording-unverified']
+        : []),
+      ...(carriers.some(({ source }) => source?.kind === 'claim')
         ? ['authored-canvas-claim-facts-not-exhaustively-painted']
         : []),
     ],

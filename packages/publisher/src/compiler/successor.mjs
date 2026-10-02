@@ -310,10 +310,11 @@ async function authoredInteractiveMedium(selected, meaning, scratch) {
     const rendered = await renderArchitectureScene({ scene: page.scene, output });
     const content = await fs.readFile(output);
     for (const supply of rendered.supplies) {
-      const previous = supplies.get(supply.id);
+      const supplyId = supply.id === 'runtime' ? `${page.id}/runtime` : supply.id;
+      const previous = supplies.get(supplyId);
       if (previous && previous.sha256 !== supply.sha256)
         fail('authored_interactive_supply_conflict');
-      supplies.set(supply.id, supply);
+      supplies.set(supplyId, { ...supply, id: supplyId });
     }
     const subjectSources = Object.fromEntries(
       Object.entries(page.subjectNamespaces).map(([id, namespaces]) => {
@@ -341,6 +342,7 @@ async function authoredInteractiveMedium(selected, meaning, scratch) {
   const bytes = composeInteractiveHtml({
     schema: 'architecture.interactive-html-composition/v2',
     title: meaning.editorial.title,
+    editionId: meaning.edition.id,
     framing: editorialFraming(meaning.edition.editor),
     build: {
       lockSha256: selected.lockSha256,

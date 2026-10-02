@@ -8,6 +8,18 @@ may contain incompatible changes.
 
 ## Unreleased
 
+### Added
+
+- Explicit authored Claim and editorial statement text in both independent
+  media. Opaque original statements need no fabricated document box; typed
+  Claims retain exact structural owners. Required text cannot silently fall
+  back to a shared subject label, and existing valid anchored v1 inputs retain
+  their meanings and limits.
+- Measured standalone statement text in the Archify adapter, with exact bundled
+  font bytes, native desktop readability and geometry checks, page-local runtime
+  receipts, and source/Edition-separated keyboard inspection. Wording remains
+  unverified rather than pretending identity coverage proves a paraphrase.
+
 ### Fixed
 
 - Authored static and interactive diagrams retain every graphic occurrence of

@@ -1860,7 +1860,7 @@ test('an unrelated Claim Model builds source-checked interactive HTML', async (t
       (value) => {
         for (const item of value.native.selections) item.provenanceSources = {};
       },
-      'authored_interactive_semantic_mismatch',
+      'edition_claim_card_invalid',
     ],
     [
       'mechanism page substituted for the overview',

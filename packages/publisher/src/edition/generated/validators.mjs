@@ -3013,7 +3013,6 @@ const ref0 = function validate(data) {
           }
           if (!(Array.isArray(data.media.interactive.pages[ii].scene.nodes))) return false
           if (data.media.interactive.pages[ii].scene.nodes.length > 512) return false
-          if (data.media.interactive.pages[ii].scene.nodes.length < 1) return false
           for (let jj = 0; jj < data.media.interactive.pages[ii].scene.nodes.length; jj++) {
             if (jj in data.media.interactive.pages[ii].scene.nodes && hasOwn(data.media.interactive.pages[ii].scene.nodes, jj)) {
               if (!(typeof data.media.interactive.pages[ii].scene.nodes[jj] === "object" && data.media.interactive.pages[ii].scene.nodes[jj] && !Array.isArray(data.media.interactive.pages[ii].scene.nodes[jj]))) return false
@@ -3217,16 +3216,104 @@ const ref0 = function validate(data) {
               }
             }
           }
-          for (const key31 of Object.keys(data.media.interactive.pages[ii].scene)) {
-            if (key31 !== "schema" && key31 !== "id" && key31 !== "title" && key31 !== "subtitle" && key31 !== "viewport" && key31 !== "nodes" && key31 !== "groups" && key31 !== "edges") return false
+          if ("texts" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "texts")) {
+            if (!(Array.isArray(data.media.interactive.pages[ii].scene.texts))) return false
+            if (data.media.interactive.pages[ii].scene.texts.length > 4096) return false
+            for (let rr = 0; rr < data.media.interactive.pages[ii].scene.texts.length; rr++) {
+              if (rr in data.media.interactive.pages[ii].scene.texts && hasOwn(data.media.interactive.pages[ii].scene.texts, rr)) {
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr] === "object" && data.media.interactive.pages[ii].scene.texts[rr] && !Array.isArray(data.media.interactive.pages[ii].scene.texts[rr]))) return false
+                if (!("id" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "id"))) return false
+                if (!("text" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "text"))) return false
+                if (!("fontSize" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "fontSize"))) return false
+                if (!("weight" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "weight"))) return false
+                if (!("anchor" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "anchor"))) return false
+                if (!("tone" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "tone"))) return false
+                if (!("x" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "x"))) return false
+                if (!("baseline" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "baseline"))) return false
+                if (!("visible" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "visible"))) return false
+                if (!("semanticIds" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "semanticIds"))) return false
+                if (!("box" in data.media.interactive.pages[ii].scene.texts[rr] && hasOwn(data.media.interactive.pages[ii].scene.texts[rr], "box"))) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].id === "string")) return false
+                if (!(pattern0.test(data.media.interactive.pages[ii].scene.texts[rr].id))) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].text === "string")) return false
+                if (data.media.interactive.pages[ii].scene.texts[rr].text.length > 2048 && stringLength(data.media.interactive.pages[ii].scene.texts[rr].text) > 2048) return false
+                if (data.media.interactive.pages[ii].scene.texts[rr].text.length < 1 || stringLength(data.media.interactive.pages[ii].scene.texts[rr].text) < 1) return false
+                if (!(pattern1.test(data.media.interactive.pages[ii].scene.texts[rr].text))) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].fontSize === "number")) return false
+                if (!(0 < data.media.interactive.pages[ii].scene.texts[rr].fontSize)) return false
+                if (!(300 >= data.media.interactive.pages[ii].scene.texts[rr].fontSize)) return false
+                if (!(data.media.interactive.pages[ii].scene.texts[rr].weight === "400" || data.media.interactive.pages[ii].scene.texts[rr].weight === "600")) return false
+                if (!(data.media.interactive.pages[ii].scene.texts[rr].anchor === "start" || data.media.interactive.pages[ii].scene.texts[rr].anchor === "middle" || data.media.interactive.pages[ii].scene.texts[rr].anchor === "end")) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].tone === "string")) return false
+                if (!(pattern0.test(data.media.interactive.pages[ii].scene.texts[rr].tone))) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].x === "number")) return false
+                if (!(-12000 <= data.media.interactive.pages[ii].scene.texts[rr].x)) return false
+                if (!(12000 >= data.media.interactive.pages[ii].scene.texts[rr].x)) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].baseline === "number")) return false
+                if (!(-12000 <= data.media.interactive.pages[ii].scene.texts[rr].baseline)) return false
+                if (!(12000 >= data.media.interactive.pages[ii].scene.texts[rr].baseline)) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].visible === "boolean")) return false
+                if (!(Array.isArray(data.media.interactive.pages[ii].scene.texts[rr].semanticIds))) return false
+                if (data.media.interactive.pages[ii].scene.texts[rr].semanticIds.length > 4096) return false
+                for (let ss = 0; ss < data.media.interactive.pages[ii].scene.texts[rr].semanticIds.length; ss++) {
+                  if (ss in data.media.interactive.pages[ii].scene.texts[rr].semanticIds && hasOwn(data.media.interactive.pages[ii].scene.texts[rr].semanticIds, ss)) {
+                    if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].semanticIds[ss] === "string")) return false
+                    if (data.media.interactive.pages[ii].scene.texts[rr].semanticIds[ss].length > 2048 && stringLength(data.media.interactive.pages[ii].scene.texts[rr].semanticIds[ss]) > 2048) return false
+                    if (data.media.interactive.pages[ii].scene.texts[rr].semanticIds[ss].length < 1 || stringLength(data.media.interactive.pages[ii].scene.texts[rr].semanticIds[ss]) < 1) return false
+                    if (!(pattern1.test(data.media.interactive.pages[ii].scene.texts[rr].semanticIds[ss]))) return false
+                  }
+                }
+                if (!unique(data.media.interactive.pages[ii].scene.texts[rr].semanticIds)) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].box === "object" && data.media.interactive.pages[ii].scene.texts[rr].box && !Array.isArray(data.media.interactive.pages[ii].scene.texts[rr].box))) return false
+                if (!("x" in data.media.interactive.pages[ii].scene.texts[rr].box && hasOwn(data.media.interactive.pages[ii].scene.texts[rr].box, "x"))) return false
+                if (!("y" in data.media.interactive.pages[ii].scene.texts[rr].box && hasOwn(data.media.interactive.pages[ii].scene.texts[rr].box, "y"))) return false
+                if (!("width" in data.media.interactive.pages[ii].scene.texts[rr].box && hasOwn(data.media.interactive.pages[ii].scene.texts[rr].box, "width"))) return false
+                if (!("height" in data.media.interactive.pages[ii].scene.texts[rr].box && hasOwn(data.media.interactive.pages[ii].scene.texts[rr].box, "height"))) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].box.x === "number")) return false
+                if (!(-12000 <= data.media.interactive.pages[ii].scene.texts[rr].box.x)) return false
+                if (!(12000 >= data.media.interactive.pages[ii].scene.texts[rr].box.x)) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].box.y === "number")) return false
+                if (!(-12000 <= data.media.interactive.pages[ii].scene.texts[rr].box.y)) return false
+                if (!(12000 >= data.media.interactive.pages[ii].scene.texts[rr].box.y)) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].box.width === "number")) return false
+                if (!(0 < data.media.interactive.pages[ii].scene.texts[rr].box.width)) return false
+                if (!(12000 >= data.media.interactive.pages[ii].scene.texts[rr].box.width)) return false
+                if (!(typeof data.media.interactive.pages[ii].scene.texts[rr].box.height === "number")) return false
+                if (!(0 < data.media.interactive.pages[ii].scene.texts[rr].box.height)) return false
+                if (!(12000 >= data.media.interactive.pages[ii].scene.texts[rr].box.height)) return false
+                for (const key31 of Object.keys(data.media.interactive.pages[ii].scene.texts[rr].box)) {
+                  if (key31 !== "x" && key31 !== "y" && key31 !== "width" && key31 !== "height") return false
+                }
+                for (const key32 of Object.keys(data.media.interactive.pages[ii].scene.texts[rr])) {
+                  if (key32 !== "id" && key32 !== "text" && key32 !== "fontSize" && key32 !== "weight" && key32 !== "anchor" && key32 !== "tone" && key32 !== "x" && key32 !== "baseline" && key32 !== "visible" && key32 !== "semanticIds" && key32 !== "box") return false
+                }
+              }
+            }
           }
-          for (const key32 of Object.keys(data.media.interactive.pages[ii])) {
-            if (key32 !== "id" && key32 !== "label" && key32 !== "purpose" && key32 !== "scene") return false
+          if ("requiredSemanticIds" in data.media.interactive.pages[ii].scene && hasOwn(data.media.interactive.pages[ii].scene, "requiredSemanticIds")) {
+            if (!(Array.isArray(data.media.interactive.pages[ii].scene.requiredSemanticIds))) return false
+            if (data.media.interactive.pages[ii].scene.requiredSemanticIds.length > 8192) return false
+            if (data.media.interactive.pages[ii].scene.requiredSemanticIds.length < 1) return false
+            for (let tt = 0; tt < data.media.interactive.pages[ii].scene.requiredSemanticIds.length; tt++) {
+              if (tt in data.media.interactive.pages[ii].scene.requiredSemanticIds && hasOwn(data.media.interactive.pages[ii].scene.requiredSemanticIds, tt)) {
+                if (!(typeof data.media.interactive.pages[ii].scene.requiredSemanticIds[tt] === "string")) return false
+                if (data.media.interactive.pages[ii].scene.requiredSemanticIds[tt].length > 2048 && stringLength(data.media.interactive.pages[ii].scene.requiredSemanticIds[tt]) > 2048) return false
+                if (data.media.interactive.pages[ii].scene.requiredSemanticIds[tt].length < 1 || stringLength(data.media.interactive.pages[ii].scene.requiredSemanticIds[tt]) < 1) return false
+                if (!(pattern1.test(data.media.interactive.pages[ii].scene.requiredSemanticIds[tt]))) return false
+              }
+            }
+            if (!unique(data.media.interactive.pages[ii].scene.requiredSemanticIds)) return false
+          }
+          for (const key33 of Object.keys(data.media.interactive.pages[ii].scene)) {
+            if (key33 !== "schema" && key33 !== "id" && key33 !== "title" && key33 !== "subtitle" && key33 !== "viewport" && key33 !== "nodes" && key33 !== "groups" && key33 !== "edges" && key33 !== "texts" && key33 !== "requiredSemanticIds") return false
+          }
+          for (const key34 of Object.keys(data.media.interactive.pages[ii])) {
+            if (key34 !== "id" && key34 !== "label" && key34 !== "purpose" && key34 !== "scene") return false
           }
         }
       }
-      for (const key33 of Object.keys(data.media.interactive)) {
-        if (key33 !== "kind" && key33 !== "pages") return false
+      for (const key35 of Object.keys(data.media.interactive)) {
+        if (key35 !== "kind" && key35 !== "pages") return false
       }
       return true
     })()
@@ -3235,8 +3322,8 @@ const ref0 = function validate(data) {
       if (!(typeof data.media.interactive === "object" && data.media.interactive && !Array.isArray(data.media.interactive))) return false
       if (!("kind" in data.media.interactive && hasOwn(data.media.interactive, "kind"))) return false
       if (!(data.media.interactive.kind === "neutral")) return false
-      for (const key34 of Object.keys(data.media.interactive)) {
-        if (key34 !== "kind") return false
+      for (const key36 of Object.keys(data.media.interactive)) {
+        if (key36 !== "kind") return false
       }
       return true
     })()
@@ -3246,15 +3333,15 @@ const ref0 = function validate(data) {
       return false
     }
   }
-  for (const key35 of Object.keys(data.media)) {
-    if (key35 !== "static" && key35 !== "interactive") {
-      validate.errors = [{ keywordLocation: "#/properties/media/additionalProperties", instanceLocation: "#/media/"+pointerPart(key35) }]
+  for (const key37 of Object.keys(data.media)) {
+    if (key37 !== "static" && key37 !== "interactive") {
+      validate.errors = [{ keywordLocation: "#/properties/media/additionalProperties", instanceLocation: "#/media/"+pointerPart(key37) }]
       return false
     }
   }
-  for (const key36 of Object.keys(data)) {
-    if (key36 !== "schema" && key36 !== "media") {
-      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key36) }]
+  for (const key38 of Object.keys(data)) {
+    if (key38 !== "schema" && key38 !== "media") {
+      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key38) }]
       return false
     }
   }

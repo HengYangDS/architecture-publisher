@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { fail, hasExactFields, isDigest } from '../../src/protocol/values.mjs';
 import { portablePath } from '../../src/file-input/contract.mjs';
 import { adaptArchitectureScene } from './architecture.mjs';
+import { adaptArchitectureTexts } from './text.mjs';
 
 const supplyRoot = fileURLToPath(new URL('./supply/', import.meta.url));
 const supplyDigest = '93cfa952940ae568f59c5080ce5a675497b4b984607b2975933e3d0b06acd466';
@@ -176,23 +177,21 @@ function semanticPublicationTemplate(template) {
   return result;
 }
 
-/** Render one interactive semantic projection without renderer identity badges. */
-async function renderSemanticDiagram(plan) {
-  if (!plan || !types.has(plan.type)) fail('render_type_unsupported');
-  if (!Buffer.isBuffer(plan.inputBytes)) fail('render_input_type_invalid');
-  return renderNativeDiagram(plan, (native, notice) => adaptOfflineTemplate(native, notice, true));
-}
-
 /** Render one backend-neutral architecture scene through the Archify adapter. */
 export async function renderArchitectureScene(plan) {
   if (!plan || typeof plan !== 'object') fail('render_scene_plan_invalid');
-  const diagram = adaptArchitectureScene(plan.scene),
+  const scene = structuredClone(plan.scene);
+  const output = plan.output;
+  const diagram = adaptArchitectureScene(scene),
     inputBytes = Buffer.from(JSON.stringify(diagram, null, 2) + '\n');
-  return renderSemanticDiagram({
-    type: 'architecture',
-    inputBytes,
-    output: plan.output,
-  });
+  return renderNativeDiagram(
+    { type: 'architecture', inputBytes, output },
+    async (native, notice) => {
+      const template = await adaptOfflineTemplate(native, notice, true);
+      const text = await adaptArchitectureTexts(native, scene);
+      return { supplies: [...template.supplies, ...text.supplies] };
+    },
+  );
 }
 
 /** Internal code-owned edition seam. Never selected by input data or plugin paths. */

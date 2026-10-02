@@ -9,7 +9,13 @@ export const UNLINKED_RELATION_NOTE =
 export const SOURCE_RELATION_QUALIFIER_CONTEXT = 'Source relation qualifiers (unverified)';
 
 /** Derive relation and subject associations without inventing graph edges. */
-export function linkClaimModelSources(view, assertions, selections, errorCode) {
+export function linkClaimModelSources(
+  view,
+  assertions,
+  selections,
+  errorCode,
+  directStatementSelections = new Set(),
+) {
   if (!Array.isArray(view?.assertionIds)) fail(errorCode);
   const sources = view.assertionIds
     .map((id) => ({ assertionId: id, assertion: assertions.get(id) }))
@@ -30,6 +36,18 @@ export function linkClaimModelSources(view, assertions, selections, errorCode) {
   const subjectLinks = [];
   for (const { assertionId, selection } of claims) {
     const claim = selection.members?.claims?.[0];
+    if (
+      selection.predicate?.valueKind === 'opaque' &&
+      directStatementSelections.has(selection.selectionId)
+    ) {
+      if (
+        claim?.object !== null ||
+        selection.members?.claims?.length !== 1 ||
+        claim.id !== selection.target.id
+      )
+        fail(errorCode);
+      continue;
+    }
     if (claim?.object === null) {
       const subject = selection.members?.elements?.find((item) => item?.id === claim.subject);
       if (
@@ -42,8 +60,9 @@ export function linkClaimModelSources(view, assertions, selections, errorCode) {
         !claim.dependsOn?.some(
           (reference) => reference?.section === 'entities' && reference.id === claim.subject,
         )
-      )
+      ) {
         fail(errorCode);
+      }
       subjectLinks.push({
         claimAssertionId: assertionId,
         subject: {

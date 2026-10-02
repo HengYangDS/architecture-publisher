@@ -1,9 +1,12 @@
 import { canonical, deepFreeze } from '../../semantics/document.mjs';
 import { fail } from '../../protocol/values.mjs';
-import { claimCard } from '../claim-card.mjs';
-import { linkClaimModelSources } from '../claim-relations.mjs';
 import { validateInteractiveArchitectureScene } from './architecture.mjs';
 import { classifyAggregateRelation } from '../aggregate-relation.mjs';
+import {
+  authoredReference,
+  deriveAuthoredStatements,
+  requireAuthoredStatementText,
+} from '../statements.mjs';
 
 const mismatch = () => fail('authored_interactive_semantic_mismatch');
 const referenceFor = (namespace, kind, id) => JSON.stringify([namespace, kind, id]);
@@ -34,6 +37,11 @@ function requiredMeaning(view, assertions, selections) {
   let hasClaims = false;
   for (const id of view.assertionIds) {
     const assertion = assertions.get(id);
+    if (assertion?.kind === 'editorial') {
+      if (typeof assertion.statement !== 'string' || !assertion.statement.trim())
+        fail('authored_interactive_editorial_unadmitted');
+      continue;
+    }
     if (assertion?.kind !== 'source') fail('authored_interactive_editorial_unadmitted');
     const item = selections.get(assertion.selection);
     if (
@@ -59,7 +67,12 @@ function requiredMeaning(view, assertions, selections) {
       if (!selectedForReference.has(key)) selectedForReference.set(key, item);
     }
   }
-  if (!required.size) mismatch();
+  if (
+    !required.size &&
+    !hasClaims &&
+    !view.assertionIds.some((id) => assertions.get(id)?.kind === 'editorial')
+  )
+    mismatch();
   return { required, selectedForReference, selectedByAssertion, hasClaims };
 }
 
@@ -110,6 +123,18 @@ function composePage(meaning, view, page, assertions, selections) {
     view,
     assertions,
     selections,
+  );
+  const statements = deriveAuthoredStatements(
+    {
+      views: [view],
+      assertions,
+      selections,
+      edition: meaning.edition,
+      structuralReferences: new Set(required.keys()),
+      declaredReferences: scene.requiredSemanticIds,
+    },
+    'authored_interactive_semantic_mismatch',
+    'authored_interactive_claim_unbound',
   );
   const represented = new Map();
   const represent = (id, graphicId) => {
@@ -176,29 +201,42 @@ function composePage(meaning, view, page, assertions, selections) {
   if (represented.size !== required.size || [...required.keys()].some((id) => !represented.has(id)))
     mismatch();
 
-  const claimAnchors = new Map();
-  if (hasClaims) {
-    const links = linkClaimModelSources(
-      view,
-      assertions,
-      selections,
-      'authored_interactive_claim_unbound',
-    );
-    for (const { claimAssertionId, relationAssertionId } of links.links) {
-      const relation = selectedByAssertion.get(relationAssertionId);
-      claimAnchors.set(
-        claimAssertionId,
-        referenceFor(relation.source.namespace, 'relation', relation.target.id),
+  const textGraphics = new Map();
+  for (const label of scene.texts ?? []) {
+    const namespaces = new Set();
+    for (const id of label.semanticIds) {
+      const [namespace, kind] = authoredReference(
+        id,
+        ['entity', 'relation', 'claim', 'editorial'],
+        'authored_interactive_semantic_mismatch',
       );
+      if (!label.visible || !label.text.trim() || !statements.requiredReferences.has(id))
+        mismatch();
+      const graphics = textGraphics.get(id) ?? [];
+      graphics.push(label.id);
+      textGraphics.set(id, graphics);
+      if (kind !== 'editorial') namespaces.add(namespace);
     }
-    for (const { claimAssertionId, subject } of links.subjectLinks)
-      claimAnchors.set(claimAssertionId, referenceFor(subject.namespace, 'entity', subject.id));
+    if (label.semanticIds.length) subjectNamespaces[label.id] = [...namespaces].sort();
   }
+  requireAuthoredStatementText(statements, textGraphics);
   const carriers = view.assertionIds.map((assertionId) => {
+    const editorial = statements.editorial.get(assertionId);
+    if (editorial)
+      return {
+        assertionId,
+        edition: editorial.edition,
+        graphicIds: [...textGraphics.get(editorial.reference)],
+        representation: 'editorial-statement',
+      };
     const selected = selectedByAssertion.get(assertionId);
+    const statement = statements.claims.get(assertionId);
     const graphicIds =
       selected.target.kind === 'claim'
-        ? (represented.get(claimAnchors.get(assertionId)) ?? [])
+        ? [
+            ...(statement.direct ? (textGraphics.get(statement.reference) ?? []) : []),
+            ...(represented.get(statement.anchor) ?? []),
+          ]
         : [
             ...selected.members.elements.flatMap(
               (member) =>
@@ -210,7 +248,13 @@ function composePage(meaning, view, page, assertions, selections) {
             ),
           ];
     if (!graphicIds.length || graphicIds.some((graphicId) => !graphicId)) mismatch();
-    return { assertionId, selectionId: selected.selectionId, graphicIds: [...new Set(graphicIds)] };
+    if (statement?.anchor && !represented.get(statement.anchor)?.length) mismatch();
+    return {
+      assertionId,
+      selectionId: selected.selectionId,
+      graphicIds: [...new Set(graphicIds)],
+      ...(statement?.direct ? { representation: 'source-statement' } : {}),
+    };
   });
   const facts = [...required].flatMap(([id, member]) =>
     represented
@@ -219,11 +263,14 @@ function composePage(meaning, view, page, assertions, selections) {
   );
   const claimReferences = new Map();
   for (const assertionId of view.assertionIds) {
-    const selected = selectedByAssertion.get(assertionId);
-    if (selected.target.kind !== 'claim') continue;
-    const card = claimCard(selected);
-    const claimReference = referenceFor(card.namespace, 'claim', card.id);
-    for (const graphicId of represented.get(claimAnchors.get(assertionId)) ?? []) {
+    const statement = statements.claims.get(assertionId);
+    if (!statement) continue;
+    const { card, reference: claimReference } = statement;
+    const graphicIds = [
+      ...(statement.direct ? (textGraphics.get(claimReference) ?? []) : []),
+      ...(represented.get(statement.anchor) ?? []),
+    ];
+    for (const graphicId of new Set(graphicIds)) {
       const record = {
         reference: claimReference,
         sourceSha256: card.sha256,
@@ -238,6 +285,21 @@ function composePage(meaning, view, page, assertions, selections) {
     }
   }
   facts.push(...claimReferences.values());
+  for (const { assertion, reference, edition } of statements.editorial.values())
+    for (const graphicId of textGraphics.get(reference))
+      facts.push({
+        reference,
+        editionSha256: edition.sha256,
+        graphicId,
+        title: `Editorial: ${assertion.id}`,
+        facts: [
+          { label: 'Statement', value: assertion.statement },
+          { label: 'Proponent', value: assertion.proponent },
+          { label: 'Basis', value: assertion.basis.join(' · ') },
+          { label: 'Questions', value: assertion.questions.join(' · ') },
+          { label: 'Status', value: 'editor-attributed-unverified' },
+        ],
+      });
   return {
     id: page.id,
     label: page.label,
@@ -281,6 +343,12 @@ export function composeAuthoredInteractiveArchitecture(meaning) {
   return deepFreeze({
     pages,
     carriers: pages.map(({ id, carriers }) => ({ id, assertions: carriers })),
-    limits: [],
+    limits: pages.some(({ scene }) =>
+      (scene.texts ?? []).some(({ semanticIds }) =>
+        semanticIds.some((id) => ['claim', 'editorial'].includes(JSON.parse(id)[1])),
+      ),
+    )
+      ? ['authored-statement-wording-unverified']
+      : [],
   });
 }

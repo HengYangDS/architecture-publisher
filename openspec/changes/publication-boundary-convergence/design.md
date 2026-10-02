@@ -1512,16 +1512,49 @@ topology, Claim coverage, authority or standalone source inspection. The same
 selected refinement carries these decisions. Do not add a second assertion
 ledger, source-role registry or explanation authority.
 
-Visible statement occurrences bind their own Claim or editorial assertion,
-not a shared subject label. Opaque statements keep exact values, provenance,
-plane, maturity, validity and unknown coverage without an invented structural
-dependency or mandatory document box. Unknown coverage alone does not exempt
-typed relational/scalar Claims from applicable subject/endpoint checks. Their
-selected structure still requires precise structural carriers. Each required
-statement needs its own visible text witness; hidden IDs and sibling inspection
-cannot replace it. The compiler rejects wrong identity, digest, immutable facts
-and stale checked text preimages. It cannot decide every misleading paraphrase;
-source/editor review remains an explicit exact-artifact obligation.
+Direct statement occurrences select their own Claim or editorial assertion,
+not a shared subject label. Extend the existing canonical text `semanticIds`
+to admit `[namespace, "claim", claimId]`; never put Claim identities on source
+entity nodes or relation edges. Existing valid structural aggregate text keeps
+its `source-anchored-aggregate` representation and its unverified-text and
+incomplete-painting limits. Explicit direct selection is not a fallback.
+
+Derive `A`, every required source assertion including Claims, from the existing
+Edition view and native selections. Derive `S`, required structural references
+and selected relation-endpoint closure, independently. Let `O` contain opaque
+Claims unable to use the admitted structural-anchor representation. Let `D`
+contain required Claims explicitly selected in `scene.requiredSemanticIds` for
+direct visible text. Require `O` to be a subset of `D`, permit only Claims from
+`A` in `D`. Let `E` contain every required editorial statement reference
+`[editionId, "editorial", assertionId]`, resolved only against the existing
+hash-bound Edition inventory. Derive its statement, proponent, basis, questions
+and unverified status there, never from repeated refinement facts or a source
+namespace. Require the declaration to equal `S` union `D` union `E`. Declarations
+cannot remove assertions from `A`. A direct Claim reference in text without
+the declared obligation fails. A Claim in `D` requires its own visible text
+even when a subject label or relation survives. Historical interactive inputs
+without direct text declarations retain their existing meaning; the optional
+bounded text collection and declaration extend that same scene contract.
+Share the text schema across media, not coordinates, carriers, measurement or
+approval. Statement-only interactive scenes need no invented source node.
+Existing structural obligations still require their exact structural owners.
+
+Opaque statements keep exact values, provenance, plane, maturity, validity and
+unknown coverage without an invented structural dependency or mandatory
+document box. Unknown coverage alone does not exempt typed relational/scalar
+Claims from applicable subject/endpoint checks. Their selected structure still
+requires precise structural carriers. Each direct statement needs its own
+visible text witness; hidden IDs and sibling inspection cannot replace it.
+Each distinct direct Claim/editorial statement needs at least one exclusive
+visible text occurrence. Shared additional context is permitted but cannot be
+the sole witness of several statements.
+Changing direct selection creates new authoring and a new Candidate, not
+inherited acceptance. The compiler derives immutable facts only from selected
+bytes and rejects identity or repeated-fact conflicts. Ordinary statement
+carriers add no editable fact snapshot or `textPreimage`. The existing constrained
+editing/rebind operation checks its own text preimages; identity coverage alone
+cannot decide misleading paraphrases or complete proposition fidelity. Keep
+wording unverified and source/editor review an exact-artifact obligation.
 
 #### Finite SVG-standard primitives at the existing painting seam
 

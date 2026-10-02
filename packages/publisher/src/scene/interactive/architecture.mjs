@@ -48,21 +48,77 @@ function validLabelPlacement(value) {
   );
 }
 
+function validTextOccurrence(value) {
+  return (
+    exact(value, [
+      'id',
+      'text',
+      'fontSize',
+      'weight',
+      'anchor',
+      'tone',
+      'x',
+      'baseline',
+      'visible',
+      'semanticIds',
+      'box',
+    ]) &&
+    identifier(value.id) &&
+    text(value.text) &&
+    Number.isFinite(value.fontSize) &&
+    value.fontSize > 0 &&
+    value.fontSize <= 300 &&
+    ['400', '600'].includes(value.weight) &&
+    ['start', 'middle', 'end'].includes(value.anchor) &&
+    identifier(value.tone) &&
+    Number.isFinite(value.x) &&
+    Number.isFinite(value.baseline) &&
+    typeof value.visible === 'boolean' &&
+    Array.isArray(value.semanticIds) &&
+    value.semanticIds.length <= 4096 &&
+    new Set(value.semanticIds).size === value.semanticIds.length &&
+    value.semanticIds.every(text) &&
+    exact(value.box, ['x', 'y', 'width', 'height']) &&
+    Object.values(value.box).every(Number.isFinite) &&
+    value.box.width > 0 &&
+    value.box.height > 0
+  );
+}
+
 /** Validate a backend-neutral interactive architecture scene. */
 export function validateInteractiveArchitectureScene(scene) {
   if (
-    !exact(scene, ['schema', 'id', 'title', 'subtitle', 'viewport', 'nodes', 'groups', 'edges']) ||
+    !exact(
+      scene,
+      ['schema', 'id', 'title', 'subtitle', 'viewport', 'nodes', 'groups', 'edges'],
+      ['texts', 'requiredSemanticIds'],
+    ) ||
     scene.schema !== 'architecture.interactive-scene/v1' ||
     !identifier(scene.id) ||
     !text(scene.title) ||
     !text(scene.subtitle) ||
     !validSize(scene.viewport) ||
     !Array.isArray(scene.nodes) ||
-    !scene.nodes.length ||
+    (!scene.nodes.length &&
+      !scene.texts?.some(
+        (value) => value.visible && text(value.text) && value.semanticIds?.length,
+      )) ||
     !Array.isArray(scene.groups) ||
     !Array.isArray(scene.edges)
   )
     fail('interactive_scene_invalid');
+  if (
+    Object.hasOwn(scene, 'requiredSemanticIds') &&
+    (!validSemanticIds(scene.requiredSemanticIds) || scene.requiredSemanticIds.length > 8192)
+  )
+    fail('interactive_scene_invalid');
+  if (
+    Object.hasOwn(scene, 'texts') &&
+    (!Array.isArray(scene.texts) ||
+      scene.texts.length > 4096 ||
+      scene.texts.some((value) => !validTextOccurrence(value)))
+  )
+    fail('interactive_scene_text_invalid');
 
   const nodes = new Set();
   for (const node of scene.nodes) {
@@ -127,6 +183,12 @@ export function validateInteractiveArchitectureScene(scene) {
     )
       fail('interactive_scene_edge_invalid');
     edges.add(edge.id);
+  }
+  const textIds = new Set();
+  for (const label of scene.texts ?? []) {
+    if (nodes.has(label.id) || edges.has(label.id) || textIds.has(label.id))
+      fail('interactive_scene_text_invalid');
+    textIds.add(label.id);
   }
   return scene;
 }
