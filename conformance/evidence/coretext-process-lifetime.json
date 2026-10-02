@@ -1089,6 +1089,108 @@
         "releasePreparation": "Unpublished alpha.8 section selects current calendar date 2026-10-02; historical releases unchanged",
         "nativeCause": "not yet reproduced with diagnostic successor"
       }
+    },
+    "setupOwnerCorrection": {
+      "sourceCommit": "131b401cc93d9f3ba8b405d71c4c175f511cc3ce",
+      "sourceTree": "e84d477b27165970a846b3c80756934e46870880",
+      "owner": "existing native npm invocation and ephemeral native-supply test",
+      "failureBoundary": "Offline native setup, not parser semantics or CoreText runtime",
+      "preservedTag": "v0.3.0-alpha.9",
+      "red": {
+        "path": "build/release/alpha.9/portable-qualification/setup-owner-red.log",
+        "bytes": 2202,
+        "sha256": "d2b612be581a30bf1df8063c895bfbdb009800fbbcbef93b2232647dc7c2920d"
+      },
+      "sequentialRed": {
+        "path": "build/release/alpha.9/portable-qualification/setup-owner-sequential-red.log",
+        "bytes": 1708,
+        "sha256": "5e8ec828d2ef49907722f298e0ce7cb8dc930a3200680fa777439571fc87da26"
+      },
+      "green": {
+        "path": "build/release/alpha.9/portable-qualification/setup-owner-scoped-green.log",
+        "bytes": 1311,
+        "sha256": "d12e3d47f7a6a97bf606ce54962c17785db666763c355d1e97a56c4a925c5d53"
+      },
+      "static": {
+        "path": "build/release/alpha.9/portable-qualification/setup-owner-scoped-static.log",
+        "bytes": 4799,
+        "sha256": "39779ec9e23baf268b53110f9e0aa7145835a09e10e87818f396ebb9f1f05dee"
+      },
+      "fullProof": {
+        "path": "build/release/alpha.10/alpha10-exact-proof.json",
+        "bytes": 1298042,
+        "sha256": "6c0793ca0db34936466c95f71ccd047b4d34544e4a88a8350b96aa1a393f07f7"
+      },
+      "attestation": "d2bda1bf10721eea4770620a03d51caa496705f6d0cf6b2d09aa25f423a32421",
+      "coverage": {
+        "statements": 97.74,
+        "branches": 95.22,
+        "functions": 99.5,
+        "lines": 97.74
+      },
+      "tests": {
+        "total": 1649,
+        "passed": 1646,
+        "failed": 0,
+        "skipped": 3
+      },
+      "nativeFocused": {
+        "pipeline": 9260,
+        "job": 47393,
+        "runner": 120,
+        "log": {
+          "path": "build/release/alpha.10/windows-focused-47393.log",
+          "bytes": 48173,
+          "sha256": "4c9acc6d3b26ff59be3778b63d6076a57365bbd5777300396ea06b3bd8302444"
+        },
+        "intentionalCasesPassed": 5,
+        "emptyFilteredFileWrappers": 137,
+        "reportedTests": 142,
+        "reportedFailures": 0,
+        "durationMs": 25696.617667,
+        "fullCoverage": {
+          "statements": 17.28,
+          "branches": 87.02,
+          "functions": 1.04,
+          "lines": 17.28
+        },
+        "pipelineVerdict": "failed; planned diagnostic coverage gap retained",
+        "installedSupplyDurationMs": 16746.099375
+      },
+      "correction": [
+        "Native invocation throws original spawn failure with stdout/stderr/status/signal instead of null-exit assertion",
+        "No-save and lockless flags belong only to the one disposable native-supply consumer",
+        "Shared preload remains byte-identical; sequential Provider installation must preserve prior Core",
+        "Qualification and archive preparation do not imply authority or executed lifecycle effects"
+      ],
+      "retainedFailures": [
+        {
+          "path": "build/release/alpha.9/portable-qualification/close-owner-native-47244-failed.log",
+          "bytes": 241612,
+          "sha256": "3ded1e5a7ff9d1639fe659b91886ac9ca245ca01674b6d3185d6c3ae3737cb50"
+        },
+        {
+          "path": "build/release/alpha.9/portable-qualification/close-owner-native-47287-failed.log",
+          "bytes": 242050,
+          "sha256": "b792425c927c63a078b55ca8e2497eb3af627174293f15dc82f081cd324be93c"
+        },
+        {
+          "path": "build/release/alpha.9/portable-qualification/setup-owner-exact-proof.json",
+          "bytes": 1286824,
+          "sha256": "c4cafff7bcbeade8ba9fd1e98a9dc582f0c5b54d5f537ddcd8a571a5fb8e8ec1"
+        },
+        {
+          "path": "build/release/alpha.9/portable-qualification/setup-owner-diagnostic-macos-47353.log",
+          "bytes": 6619,
+          "sha256": "3759463792c8f9f3d0e396c5fd1d2386d2c2f61848428bdb7d7c9a2d52ef5905"
+        }
+      ],
+      "limits": [
+        "Focused native review120 does not establish full protected121 acceptance",
+        "Five passing setup probes do not prove the historical host scheduling cause",
+        "Old alpha.9 tag remains immutable with its failed native tag cohort; no asset Release exists",
+        "No deadline, coverage, platform exclusions, trust route or guest policy relaxed"
+      ]
     }
   },
   "singleDeadlineOwnerCorrection": {

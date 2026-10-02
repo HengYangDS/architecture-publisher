@@ -642,6 +642,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       successor so repaired verification can bind its own exact source and tag.
       Native npm projection preserves all 449 resolved supplier entries. This
       version selection is not a release, a native result or source adoption.
+      Alpha.10 source `131b401` passes exact-HEAD proof: 1,649 total tests,
+      1,646 passed, three explicit input skips, zero failures, and all four
+      coverage floors. Its relocated installed Core/Self reproduce all thirty
+      members across five workloads with empty PATH and original roots absent.
+      All eight exact HTML pages pass isolated desktop Chrome, painted bounds,
+      axe and keyboard checks; their screens match approved alpha.9 exactly.
+      Windows review 47393 passes the five selected setup cases, including the
+      formerly failing supply install in 16.75 seconds. Its 142 reported tests
+      include 137 filtered empty-file wrappers; full coverage intentionally
+      fails, so this is diagnosis only. Protected/native complete source,
+      tag, Forge readback and exact HTML review remain open. Existing
+      `coretext-process-lifetime.json` binds the retained failures and correction.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -1386,6 +1398,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       boundary and intentionally enabled normal Runners 120/121/122; do not
       restore their historical paused state. Release acceptance and custody
       reside in `conformance/evidence/release-alpha8-readback.json`.
-      Tasks 8.3 and 8.4 remain open for substantive source-topic absorption and
-      real cross-product closure. The qualified five-topic packet supersedes
-      the alpha.6 transplant; receiver changes require semantic topic merging.
+      This alpha.8 receipt closes only that historical release. Current research
+      absorption and cross-product closure are recorded solely by Tasks 8.3
+      and 8.4; framework implementation remains source-owned.

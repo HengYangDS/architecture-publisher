@@ -92,8 +92,10 @@ The Fleet owner intentionally enabled normal CI Runners 120/121/122 after
 terminal job and no-in-flight readback; artifact housekeeping must not restore
 their earlier temporary pauses.
 
-Actual ETHOS Adapter/Edition migration and substantive research absorption
-remain source-owned obligations. AIGW's accepted alpha.7 Client Projection
+Actual ETHOS Adapter/Edition migration and framework implementation remain
+source-owned obligations. Research ownership is recorded in the
+[source intake](../../conformance/evidence/research-owner-intake.json), not
+another progress statement here. AIGW's accepted alpha.7 Client Projection
 adoption is distinct from alpha.8 adoption or whole-product publication. No
 Publisher release proves those outcomes.
 
