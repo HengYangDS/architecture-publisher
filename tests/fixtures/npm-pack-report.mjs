@@ -12,9 +12,27 @@ export function npmInvocation(args) {
   };
 }
 
+function npmSetupOptions(command, args, options) {
+  if (
+    command !== 'npm' ||
+    !['pack', 'install', 'ci'].includes(args[0]) ||
+    !args.includes('--ignore-scripts')
+  )
+    return options;
+  // Scripts-disabled setup cannot execute owned runtime; instrument product children separately.
+  const env = { ...(options?.env ?? process.env) };
+  for (const name of Object.keys(env))
+    if (name.toUpperCase() === 'NODE_V8_COVERAGE') delete env[name];
+  return { ...options, env };
+}
+
 export function spawnNativeSync(command, args, options) {
   const selected = command === 'npm' ? npmInvocation(args) : { command, args };
-  const result = spawnSync(selected.command, selected.args, options);
+  const result = spawnSync(
+    selected.command,
+    selected.args,
+    npmSetupOptions(command, args, options),
+  );
   if (result.error)
     throw Object.assign(result.error, {
       status: result.status,
@@ -27,7 +45,7 @@ export function spawnNativeSync(command, args, options) {
 
 export function execNativeSync(command, args, options) {
   const selected = command === 'npm' ? npmInvocation(args) : { command, args };
-  return execFileSync(selected.command, selected.args, options);
+  return execFileSync(selected.command, selected.args, npmSetupOptions(command, args, options));
 }
 
 /** Parse the one-package npm pack report across supported npm JSON envelopes. */

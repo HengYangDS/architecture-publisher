@@ -84,3 +84,49 @@ test('native setup deadlines expose the process error and selected diagnostics',
     },
   );
 });
+
+test('scripts-disabled npm setup excludes tooling coverage and preserves product instrumentation', async (t) => {
+  const scratch = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-npm-coverage-'),
+  );
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const entry = path.join(scratch, 'selected-npm.mjs');
+  await fs.writeFile(
+    entry,
+    'console.log(JSON.stringify({ coverage: process.env.NODE_V8_COVERAGE ?? null, marker: process.env.SELECTED_MARKER, args: process.argv.slice(2) }));\n',
+  );
+  const previous = process.env.npm_execpath;
+  process.env.npm_execpath = entry;
+  t.after(() => {
+    if (previous === undefined) delete process.env.npm_execpath;
+    else process.env.npm_execpath = previous;
+  });
+  const coverage = path.join(scratch, 'coverage');
+  await fs.mkdir(coverage);
+  const options = {
+    cwd: scratch,
+    encoding: 'utf8',
+    timeout: 5000,
+    env: { ...process.env, NODE_V8_COVERAGE: coverage, SELECTED_MARKER: 'preserved' },
+  };
+  for (const command of ['pack', 'install', 'ci']) {
+    const args = [command, '--ignore-scripts', '--offline'];
+    const result = JSON.parse(spawnNativeSync('npm', args, options).stdout);
+    assert.equal(result.coverage, null);
+    assert.equal(result.marker, 'preserved');
+    assert.deepEqual(result.args, args);
+  }
+  assert.equal(
+    JSON.parse(execNativeSync('npm', ['pack', '--ignore-scripts'], options)).coverage,
+    null,
+  );
+  assert.deepEqual(await fs.readdir(coverage), []);
+  for (const command of ['pack', 'run'])
+    assert.equal(JSON.parse(execNativeSync('npm', [command], options)).coverage, coverage);
+  assert.equal(
+    JSON.parse(spawnNativeSync(process.execPath, [entry], options).stdout).coverage,
+    coverage,
+  );
+  assert.equal(options.env.NODE_V8_COVERAGE, coverage);
+  assert.ok((await fs.readdir(coverage)).length > 0);
+});

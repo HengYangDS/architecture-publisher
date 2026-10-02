@@ -659,8 +659,20 @@ third-party or generated supply rather than moving owned code outside coverage.
       The existing gate now excludes `.git/**`; its real directory fixture
       fails before the correction and passes after it. All 190 tracked Markdown
       carriers have zero spacing findings, including preserved historical inputs.
-      The immutable alpha.10 source and selected package/media bytes are
-      unchanged; its linked-candidate tag-context and native review remain open.
+      Signed repair `e9599e8` and immutable alpha.10 each pass exact-HEAD full
+      proof; alpha.10 also passes with its signed tag present. The requester
+      approves its exact eight-page HTML; all nineteen qualification submissions
+      pass with attributed, not authenticated, identities. Native Windows
+      review 47412 instead fails three real offline installs while every
+      coverage floor passes. The original trace remains evidence. A local
+      causal probe shows scripts-disabled npm setup still collecting 1.64 MB
+      of irrelevant tooling coverage and taking twice the uninstrumented time.
+      The existing invocation owner now excludes only that tooling process;
+      product commands, lifecycle-enabled npm, caller environment and all four
+      coverage floors remain unchanged. Its regression is RED then GREEN;
+      seven contract and three installed sibling cases pass. Native full
+      successor qualification remains required; the timing cause is not yet
+      established on Windows. No signed tag or package/media byte is rewritten.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
