@@ -228,3 +228,25 @@ process failure.
 - **WHEN** the worker emits bytes that do not satisfy the response contract
 - **THEN** the raster owner reports the existing invalid-response failure
 - **AND** explicit valid error replies retain their selected error code
+
+### Requirement: CoreText execution has one stage deadline owner
+
+The parent stage supervisor SHALL own the compiler or measurement deadline and
+native process-tree reclamation. The worker SHALL NOT start a second execution
+timer or receive a duplicate stage timeout. Its finite owner-loss lifetime
+SHALL remain separate and unchanged. Stage ceilings, output bounds and
+fail-closed cleanup semantics SHALL remain unchanged.
+
+#### Scenario: Execution reaches its selected deadline
+
+- **WHEN** a live selected compiler or measurement exceeds its stage deadline
+- **THEN** the parent reclaims the selected tree before reporting the timeout
+- **AND** an inaccessible diagnostic checkpoint annotates the timeout without
+  replacing it or relaxing cleanup evidence
+
+#### Scenario: Only the parent selects the execution deadline
+
+- **WHEN** the worker receives exact executable, arguments, environment, input,
+  scratch and output bounds without a second timeout value
+- **THEN** selected finite execution may complete before the parent deadline
+- **AND** the worker remains available for owner reclamation or finite self-expiry

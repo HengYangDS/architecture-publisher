@@ -1,6 +1,6 @@
 {
   "schema": "architecture.research-owner-intake/v1",
-  "status": "source-hash-verified-receipt-not-substantive-topic-absorption",
+  "status": "five-current-source-topics-observed; source-owner signed checkpoint and implementation acceptance remain separate",
   "date": "2026-10-01",
   "publisherSourceCommit": "d64592ddb30bbf9aaa3aab57c7206354e64fff20",
   "owner": {
@@ -75,61 +75,93 @@
         "bytes": 328745
       }
     ],
-    "status": "received_not_substantively_absorbed",
+    "status": "Included in actual source-owned adoption/semantic/quality topics; no upstream complete acceptance inferred",
     "custody": "Retain original unique packet until current topic owners absorb it and recovery is proven"
   },
   "proposedTopicTransplant": {
     "patch": {
-      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/sdd-owner-transfer-20261001/current-topic-transfer/native-topic-packet/general-research-transplant.patch",
-      "sha256": "b6c3296a840b91723d1d08f203b4f224d90171f22e9cab9a2e9a2ffe33eac057"
+      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/ethos-provider-migration-20261002/research-topic-handoff/general-research-transplant.patch",
+      "sha256": "ca0194b12d6a53a1885cfb5c218d683157b2e3d5602f9ded94b68155da4d2477"
     },
     "manifest": {
-      "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/sdd-owner-transfer-20261001/current-topic-transfer/native-topic-packet/manifest.json",
-      "sha256": "437c47c9790e0e9e165c56e66ff062c6c4226e057373311c41e041323902bb20"
+      "path": "build/test-work/ethos-provider-migration-20261002/research-topic-handoff/manifest.json",
+      "sha256": "7699c4a7a8dc192ab47f70e77cf9516043898f8be9a9f2009887be1667e07d20"
     },
-    "baseHead": "c20a458cfd3e15959cfdf56fc6fce8dd3862e057",
-    "status": "Qualified proposal received, not substantively adopted; merge independent receiver changes by topic",
+    "baseHead": "9fdf8b04262970889597c4052f1a2ddc35e0009d",
+    "status": "Actual source-owned topic additions observed; four exact proposal bytes and evidence-backed effects refinement; signed checkpoint not yet observed",
     "topics": [
       "docs/research/foundations/adoption.md",
-      "docs/research/foundations/semantics.md",
       "docs/research/foundations/effects.md",
-      "docs/research/foundations/verification.md",
-      "docs/research/foundations/interfaces.md"
+      "docs/research/foundations/interfaces.md",
+      "docs/research/foundations/semantics.md",
+      "docs/research/foundations/verification.md"
     ],
     "owner": "proof-throughput:12.6",
     "qualification": {
       "isolatedRepository": true,
       "nativeApplyCheckPassed": true,
-      "allFiveAfterBytesMatch": true,
-      "sourceOwnerMutated": false
+      "originalAllFiveAfterBytesMatch": true,
+      "sourceOwnerMutatedByPublisher": false
     },
     "receiverReadback": [
       {
         "path": "docs/research/foundations/adoption.md",
-        "sha256": "7bcf158acf701bd6e1fb7836d0e465ff939eda763791a34dfa398b9107016e2d",
-        "status": "matches selected before"
-      },
-      {
-        "path": "docs/research/foundations/semantics.md",
-        "sha256": "3c77b19ad55f177a7b0f5b0a962a16e3b86762ccafd94d15096446f8c448ce6b",
-        "status": "matches selected before"
+        "sha256": "cdb3821f62a827b510721d07ca7c28cb7c6e4aca44ef438c03f28bcd6f1ac919",
+        "bytes": 13443,
+        "status": "matches selected proposed after"
       },
       {
         "path": "docs/research/foundations/effects.md",
-        "sha256": "6ed5f1fa65dc5981cf6a5793cbd8eb2aa7174e2aa83803564065d433662f8cd3",
-        "status": "receiver changed independently; topic merge required"
-      },
-      {
-        "path": "docs/research/foundations/verification.md",
-        "sha256": "0a043d9afa8e5f074dc002dda569c16142cb8a2cd0b0c67db0cc666d0bd44f93",
-        "status": "matches selected before"
+        "sha256": "d31413cec17598e2493c217e3b3f709a146d4f4dee7d9a6b555a7cbd549dda86",
+        "bytes": 13807,
+        "status": "Current source owner refined daemon proposal to evidence-backed rejection; earlier after hash remains historical"
       },
       {
         "path": "docs/research/foundations/interfaces.md",
-        "sha256": "71e608a6b717a9cf4089c3e432ad31d38a183e0d3f5ac45fdf032f133ead1a01",
-        "status": "matches selected before"
+        "sha256": "b9b8eb1847756a279c73f815216f2c670b40edd6e61ffc52eb708658abe72b26",
+        "bytes": 11859,
+        "status": "matches selected proposed after"
+      },
+      {
+        "path": "docs/research/foundations/semantics.md",
+        "sha256": "d959af304602113c62ed91b26517bc583218fb3eecc832c848b61a6f2da41280",
+        "bytes": 11123,
+        "status": "matches selected proposed after"
+      },
+      {
+        "path": "docs/research/foundations/verification.md",
+        "sha256": "7cd4bbfae7bd404c94f6ec80cbfeb6164e7779e955348b7f46ef82217eb36a12",
+        "bytes": 16856,
+        "status": "matches selected proposed after"
       }
     ],
-    "supersedes": "The old alpha.6 transplant remains historical evidence only, not the application input"
+    "sourceWorkingObservation": {
+      "path": "build/release/alpha.9/final-3e10b11/final-research-topic-observation.json",
+      "sha256": "a8e3d69ceb1de80c8bac9a592653cc6ae3b7209adf584749c76341a22f2a6ef3",
+      "observedAt": "2026-10-02T12:14:41.150Z",
+      "sourceHead": "b3cb66b823384281b2a168260ca62715d698f306"
+    },
+    "receiverAbsorptionReceipt": {
+      "path": "/Users/yheng/.local/share/ethos/recovery/identity-repair-20261001/continuation-20261001/native-research-topic-absorption-result.json",
+      "sha256": "3786344c8b356009e705c4ff5d7a6bd98210ec1f4d527c904a52f728e6d9ac6a",
+      "bytes": 1342,
+      "submittedStatus": "five research topics absorbed into existing source owners, not accepted implementation"
+    },
+    "supersedes": {
+      "scope": "Former proposal is dated historical evidence only, not current application input or parallel authority",
+      "patch": {
+        "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/sdd-owner-transfer-20261001/current-topic-transfer/native-topic-packet/general-research-transplant.patch",
+        "sha256": "b6c3296a840b91723d1d08f203b4f224d90171f22e9cab9a2e9a2ffe33eac057"
+      },
+      "manifest": {
+        "path": "/Users/yheng/projects/architecture-publisher-worktrees/20260924-publication-boundary-design/build/test-work/sdd-owner-transfer-20261001/current-topic-transfer/native-topic-packet/manifest.json",
+        "sha256": "437c47c9790e0e9e165c56e66ff062c6c4226e057373311c41e041323902bb20"
+      }
+    },
+    "remaining": [
+      "Receiver-owned signed checkpoint",
+      "Durable knowledge custody readback",
+      "Framework implementation and source-specific acceptance remain receiver scope, not receipt"
+    ]
   }
 }
