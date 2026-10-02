@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { assertAuthoredCanvasScene } from '../packages/publisher/src/scene/static/audit.mjs';
 import { renderArchitectureScene } from '../packages/publisher/renderers/archify/index.mjs';
+import { adaptArchitectureRoutes } from '../packages/publisher/renderers/archify/routes.mjs';
 import {
   renderAuthoredCanvasSvg,
   authoredCanvasFramingRequest,
@@ -131,6 +133,68 @@ test('the real Archify adapter retains literal contact bytes and paints a shared
     1,
   );
   assert.equal(html.includes('data-node-id="junction"'), false);
+});
+
+test('the route adapter never mutates a native renderer when no literal segments are selected', async () => {
+  assert.deepEqual(
+    await adaptArchitectureRoutes('/unselected/native', { nodes: [], edges: [] }),
+    {},
+  );
+});
+
+test('the route adapter refuses an unsupported literal tone before repainting the native runtime', async () => {
+  const scene = structuredClone(compose(meaningFor('interactive'), 'interactive').pages[0].scene);
+  scene.edges[0].strokeTone = 'unselected';
+  const native = fileURLToPath(
+    new URL('../packages/publisher/renderers/archify/supply/', import.meta.url),
+  );
+  await assert.rejects(adaptArchitectureRoutes(native, scene), {
+    code: 'render_scene_route_tone_unsupported',
+  });
+});
+
+test('the route adapter refuses a missing or duplicated selected native seam before writing', async (t) => {
+  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'archpub-route-seam-')));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await fs.cp(new URL('../packages/publisher/renderers/archify/supply/', import.meta.url), root, {
+    recursive: true,
+  });
+  const file = path.join(root, 'renderers/architecture/render-architecture.mjs');
+  const original = await fs.readFile(file, 'utf8');
+  const seam = 'function renderConnectionPath(conn, index) {\n';
+  const scene = compose(meaningFor('interactive'), 'interactive').pages[0].scene;
+  for (const changed of [original.replace(seam, ''), `${original}\n${seam}`]) {
+    await fs.writeFile(file, changed);
+    await assert.rejects(adaptArchitectureRoutes(root, scene), {
+      code: 'render_scene_route_seam_invalid',
+    });
+    assert.equal(await fs.readFile(file, 'utf8'), changed);
+  }
+});
+
+test('unbound literal decoration paints without acquiring an inspection record', async (t) => {
+  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'archpub-route-paint-')));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await fs.cp(new URL('../packages/publisher/renderers/archify/supply/', import.meta.url), root, {
+    recursive: true,
+  });
+  const scene = structuredClone(compose(meaningFor('interactive'), 'interactive').pages[0].scene);
+  scene.routes = [];
+  const adaptation = await adaptArchitectureRoutes(root, scene);
+  const source = await fs.readFile(
+    path.join(root, 'renderers/architecture/render-architecture.mjs'),
+    'utf8',
+  );
+  const painted = Object.values(JSON.parse(/^ {2}const painted = (.*);$/mu.exec(source)[1]));
+  assert.equal(painted.length, scene.edges.length);
+  for (const markup of painted) {
+    assert.match(markup, /aria-hidden="true"/u);
+    assert.doesNotMatch(markup, /data-composition-points=|data-edge-id=/u);
+  }
+  assert.throws(
+    () => adaptation.verifyRendered(Buffer.from('<svg/>')),
+    /emitted edge identity set mismatch/u,
+  );
 });
 
 test(

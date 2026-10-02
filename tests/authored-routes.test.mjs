@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { parseSelectedSceneRefinement } from '../packages/publisher/src/edition/refinement.mjs';
 import {
+  validateAuthoredRouteGeometry,
+  bindAuthoredRoutes,
+} from '../packages/publisher/src/scene/routes.mjs';
+import {
   sha,
   ref,
   editorialRef,
@@ -14,6 +18,59 @@ import {
 } from './fixtures/authored-routes.mjs';
 
 for (const medium of ['static', 'interactive']) {
+  test(`${medium} literal geometry rejects duplicate identity and impossible segment contacts at its own boundary`, () => {
+    for (const mutate of [
+      (scene) => scene.edges.push(structuredClone(scene.edges[0])),
+      (scene) => (scene.edges[0][medium === 'static' ? 'source' : 'from'] = 'absent'),
+      (scene) => (scene.edges[0][medium === 'static' ? 'target' : 'to'] = 'absent'),
+      (scene) => scene.edges[0].points.splice(1, 0, { ...scene.edges[0].points[0] }),
+      (scene) => scene.edges[0].points.splice(1, 0, { x: 250, y: 220 }),
+      (scene) => (scene.edges[0].strokeTone = 'paper'),
+      (scene) => {
+        const node = structuredClone(scene.nodes[0]);
+        node.id = 'unrelated-ink';
+        node.paintBox = { x: 230, y: 190, width: 30, height: 20 };
+        scene.nodes.push(node);
+      },
+    ]) {
+      const scene = sceneFor(meaningFor(medium), medium);
+      mutate(scene);
+      assert.throws(() => validateAuthoredRouteGeometry(scene, medium), /authored_route_/u);
+    }
+    const geometryOnly = sceneFor(meaningFor(medium), medium);
+    delete geometryOnly.texts;
+    assert.equal(validateAuthoredRouteGeometry(geometryOnly, medium).length, 2);
+  });
+
+  test(`${medium} literal point budgets apply before route and carrier deduplication`, () => {
+    const scene = sceneFor(meaningFor(medium), medium);
+    scene.routes = [];
+    const bridge = scene.edges[1];
+    scene.edges = Array.from({ length: 17 }, (_, index) => ({
+      ...structuredClone(bridge),
+      id: `dense-${index}`,
+      points: Array.from({ length: 2048 }, (_, point) => ({ x: point % 2 ? 432 : 400, y: 200 })),
+    }));
+    assert.throws(() => validateAuthoredRouteGeometry(scene, medium), {
+      code: 'authored_route_budget_exceeded',
+    });
+  });
+
+  test(`${medium} route binding cannot borrow source membership from a missing endpoint`, () => {
+    const scene = sceneFor(meaningFor(medium), medium);
+    assert.throws(
+      () =>
+        bindAuthoredRoutes(scene, {
+          medium,
+          entities: new Map(),
+          relations: new Map(),
+          editorials: new Map(),
+          selections: new Map(),
+        }),
+      /authored_route_/u,
+    );
+  });
+
   test(`${medium} exact routes preserve independent relations on each shared segment`, () => {
     const result = compose(meaningFor(medium), medium);
     assert.equal(composedScene(result, medium).edges.length, 3);

@@ -1,11 +1,61 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import test from 'node:test';
+import { decodeMeasurement } from '../packages/publisher/renderers/resvg/measurement-response.mjs';
 import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
 import {
   createBundledTextMeasurer,
   verifyAuthoredCanvasTextBoxes,
 } from '../packages/publisher/renderers/resvg/measurement.mjs';
+
+test('measurement response admission separates execution failure from invalid selected protocol', () => {
+  const state = { spawnError: null, stderrBytes: 0, closed: { code: 0, signal: null } };
+  const measured = JSON.stringify({ status: 'measured', boxes: [0, 0, 1, 1] });
+  assert.deepEqual(decodeMeasurement(measured, state, 'reply', 1), [0, 0, 1, 1]);
+  assert.deepEqual(decodeMeasurement(measured, state, 'closed', 1), [0, 0, 1, 1]);
+  for (const [reason, expected] of [
+    ['timeout', 'authored_canvas_measurement_execution_timeout'],
+    ['overflow', 'authored_canvas_measurement_response_limit'],
+    ['spawn-error', 'authored_canvas_measurement_execution_failed'],
+    ['stderr', 'authored_canvas_measurement_execution_failed'],
+  ])
+    assert.throws(() => decodeMeasurement(measured, state, reason, 1), { code: expected });
+  for (const change of [
+    { spawnError: new Error('selected worker unavailable') },
+    { stderrBytes: 1 },
+    { closed: null },
+    { closed: { code: 1, signal: null } },
+    { closed: { code: 0, signal: 'SIGTERM' } },
+  ])
+    assert.throws(() => decodeMeasurement(measured, { ...state, ...change }, 'closed', 1), {
+      code: 'authored_canvas_measurement_execution_failed',
+    });
+  for (const raw of [
+    '{broken',
+    'null',
+    JSON.stringify({ status: 'waiting', boxes: [0, 0, 1, 1] }),
+    JSON.stringify({ status: 'measured', boxes: {} }),
+    JSON.stringify({ status: 'measured', boxes: [0, 0, 1] }),
+    JSON.stringify({ status: 'measured', boxes: [0, 0, 1, null] }),
+    JSON.stringify({ status: 'measured', boxes: [0, 0, 1, 'wrong'] }),
+    JSON.stringify({ status: 'measured', boxes: [0, 0, 1, 1], extra: true }),
+    JSON.stringify({ status: 'error', code: {} }),
+    JSON.stringify({ status: 'error', code: 'Bad-Error' }),
+  ])
+    assert.throws(() => decodeMeasurement(raw, state, 'reply', 1), {
+      code: 'authored_canvas_measurement_response_invalid',
+    });
+  assert.throws(
+    () =>
+      decodeMeasurement(
+        JSON.stringify({ status: 'error', code: 'measurement_text_missing' }),
+        state,
+        'reply',
+        1,
+      ),
+    { code: 'measurement_text_missing' },
+  );
+});
 
 test('bundled native shaped metrics reproduce recorded self glyph bounds', async () => {
   const source = JSON.parse(

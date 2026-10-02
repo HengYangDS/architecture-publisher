@@ -797,9 +797,14 @@
         "sha256": "d84139dcef220469951abebee5ce3c1b6edb8ce3f301137dbbb5a3055dcc1e9e"
       },
       {
+        "path": "renderers/resvg/measurement-response.mjs",
+        "bytes": 1246,
+        "sha256": "302815f2ec4af50de9b43f6659754f59afebbdefc258d664163f9358653ef1e0"
+      },
+      {
         "path": "renderers/resvg/measurement.mjs",
-        "bytes": 9409,
-        "sha256": "33999e91247764320c060e7aec7fbb87af57b790d11f590316d0927063281bdb"
+        "bytes": 8288,
+        "sha256": "dac400d25b20168689ad25dcb960a6b0533990ca2e7a2fa8beaabbde65997108"
       },
       {
         "path": "renderers/resvg/supply.mjs",
@@ -1106,9 +1111,14 @@
         "sha256": "d84139dcef220469951abebee5ce3c1b6edb8ce3f301137dbbb5a3055dcc1e9e"
       },
       {
+        "path": "renderers/resvg/measurement-response.mjs",
+        "bytes": 1246,
+        "sha256": "302815f2ec4af50de9b43f6659754f59afebbdefc258d664163f9358653ef1e0"
+      },
+      {
         "path": "renderers/resvg/measurement.mjs",
-        "bytes": 9409,
-        "sha256": "33999e91247764320c060e7aec7fbb87af57b790d11f590316d0927063281bdb"
+        "bytes": 8288,
+        "sha256": "dac400d25b20168689ad25dcb960a6b0533990ca2e7a2fa8beaabbde65997108"
       },
       {
         "path": "renderers/resvg/supply.mjs",
@@ -1238,9 +1248,14 @@
         "sha256": "d84139dcef220469951abebee5ce3c1b6edb8ce3f301137dbbb5a3055dcc1e9e"
       },
       {
+        "path": "renderers/resvg/measurement-response.mjs",
+        "bytes": 1246,
+        "sha256": "302815f2ec4af50de9b43f6659754f59afebbdefc258d664163f9358653ef1e0"
+      },
+      {
         "path": "renderers/resvg/measurement.mjs",
-        "bytes": 9409,
-        "sha256": "33999e91247764320c060e7aec7fbb87af57b790d11f590316d0927063281bdb"
+        "bytes": 8288,
+        "sha256": "dac400d25b20168689ad25dcb960a6b0533990ca2e7a2fa8beaabbde65997108"
       },
       {
         "path": "renderers/resvg/supply.mjs",

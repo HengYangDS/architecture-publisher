@@ -6,6 +6,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import test from 'node:test';
 import { validateEditionProject } from '../packages/publisher/src/edition/authoring.mjs';
+import { selectedEditionResources } from '../packages/publisher/src/edition/resources.mjs';
 import { parseSelectedSceneRefinement } from '../packages/publisher/src/edition/refinement.mjs';
 import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
 import * as fontModule from '../packages/publisher/renderers/resvg/font.mjs';
@@ -121,6 +122,38 @@ test('Edition font selection binds exact face resources and attributed evidence'
     sha256: 'a'.repeat(64),
   }));
   assert.throws(() => validateEditionProject(excessive), { code: 'edition_project_invalid' });
+});
+
+test('the shared Edition resource owner deduplicates exact pins and refuses conflicting identities', async () => {
+  const project = selectedProject(await loadBundledFonts());
+  const first = project.visualPolicy.fonts[0];
+  const second = structuredClone(first);
+  second.id = 'second';
+  project.visualPolicy.fonts.push(second);
+  const resources = selectedEditionResources(project);
+  assert.deepEqual(resources, [
+    { ref: 'refinement.json', sha256: null },
+    ...first.faces.map(({ ref, sha256 }) => ({ ref, sha256 })),
+    ...first.distribution,
+  ]);
+  for (const mutate of [
+    (value) => (value.visualPolicy.fonts[1].id = first.id),
+    (value) => value.visualPolicy.fonts[0].faces.push(structuredClone(first.faces[0])),
+    (value) => (value.visualPolicy.fonts[1].faces[0].sha256 = 'b'.repeat(64)),
+    (value) => (value.visualPolicy.fonts[1].faces[0].ref = 'Fonts/400.ttf'),
+    (value) => (value.visualPolicy.override = first.faces[0].ref),
+  ]) {
+    const changed = structuredClone(project);
+    mutate(changed);
+    assert.throws(() => selectedEditionResources(changed), { code: 'edition_project_invalid' });
+  }
+  const excessive = structuredClone(project);
+  excessive.visualPolicy.fonts[0].distribution = Array.from({ length: 64 }, (_, index) => ({
+    ref: `fonts/evidence-${index}.txt`,
+    sha256: 'a'.repeat(64),
+  }));
+  assert.throws(() => selectedEditionResources(excessive), { code: 'edition_project_invalid' });
+  assert.deepEqual(selectedEditionResources({ visualPolicy: { profile: 'neutral' } }), []);
 });
 
 test('authored media select optional default and text-local fonts without widening neutral seams', () => {
@@ -609,11 +642,21 @@ test('selected font resolution rejects invalid inputs and unavailable declared e
     code: 'authored_canvas_font_unselected',
   });
   await assert.rejects(
+    fontModule.resolveAuthoredFontSupply({
+      ...input,
+      defaultFont: undefined,
+      texts: [{ text: 'Source', weight: '500', visible: true }],
+      bundled: { ...bundled, fonts: bundled.fonts.filter(({ weight }) => weight === 400) },
+    }),
+    { code: 'authored_canvas_font_unselected' },
+  );
+  await assert.rejects(
     fontModule.resolveAuthoredFontSupply({ ...input, readResource: undefined }),
     { code: 'authored_canvas_font_unselected' },
   );
   for (const change of [
     { readResource: () => 'not resource bytes' },
+    { readResource: (ref) => (ref.endsWith('.txt') ? 'not evidence bytes' : resources.get(ref)) },
     { readResource: (ref) => (ref.endsWith('.txt') ? Buffer.alloc(0) : resources.get(ref)) },
     { readResource: (ref) => (ref.endsWith('.txt') ? Buffer.from('changed') : resources.get(ref)) },
   ])
@@ -769,6 +812,43 @@ test('default OFL and selected distribution evidence survive export-aware font s
   assert(css.includes(notice.toString('utf8')));
 });
 
+test('font metadata selects preferred and Macintosh family records without fabricating a family', async () => {
+  const original = (await loadBundledFonts()).fonts[0].bytes;
+  let nameOffset;
+  for (let index = 0; index < original.readUInt16BE(4); index++) {
+    const entry = 12 + index * 16;
+    if (original.toString('ascii', entry, entry + 4) === 'name')
+      nameOffset = original.readUInt32BE(entry + 8);
+  }
+  assert.notEqual(nameOffset, undefined);
+  const select = (nameId, macintosh = false) => {
+    const bytes = Buffer.from(original);
+    for (let index = 0; index < bytes.readUInt16BE(nameOffset + 2); index++) {
+      const record = nameOffset + 6 + index * 12;
+      if (bytes.readUInt16BE(record + 6) !== 1) continue;
+      bytes.writeUInt16BE(nameId, record + 6);
+      if (macintosh) {
+        bytes.writeUInt16BE(1, record);
+        bytes.writeUInt16BE(0, record + 2);
+        bytes.writeUInt16BE(0, record + 4);
+        bytes.writeUInt16BE(14, record + 8);
+        const storage = nameOffset + bytes.readUInt16BE(nameOffset + 4);
+        Buffer.from('JetBrains Mono').copy(bytes, storage + bytes.readUInt16BE(record + 10));
+      }
+    }
+    return bytes;
+  };
+  for (const bytes of [select(16), select(1, true)]) {
+    const face = readFontFace(bytes, 'invalid_selected_static_font');
+    assert.equal(face.family, 'JetBrains Mono');
+    assert.equal(face.weight, 400);
+    assert.equal(face.aliases.has(face.family), true);
+  }
+  assert.throws(() => readFontFace(select(20), 'invalid_selected_static_font'), {
+    code: 'invalid_selected_static_font',
+  });
+});
+
 test('font metadata cannot turn one measured family into a CSS fallback list or executable value', async () => {
   const bundled = await loadBundledFonts();
   const regular = bundled.fonts[0].bytes;
@@ -778,6 +858,8 @@ test('font metadata cannot turn one measured family into a CSS fallback list or 
     'Jet"BrainsMono',
     'JetBrain; Mono',
     'JetBrain\u0000 Mono',
+    'JetBrains Mon ',
+    'JetBrain\u007f Mono',
   ]) {
     const replacement = Buffer.from(family, 'utf16le').swap16();
     assert.equal(replacement.length, actual.length);
@@ -1228,9 +1310,16 @@ test('native measurement refuses malformed interrupted and diagnostic worker rep
     ['process.stdout.write("A".repeat(700000));', 'authored_canvas_measurement_response_limit'],
   ];
   for (const [body, expected] of replies) {
-    await fs.writeFile(worker, `import fs from 'node:fs';fs.readFileSync(0);${body}`);
-    await assert.rejects(selected.module.createBundledTextMeasurer(font, [label]), {
-      code: expected,
+    await t.test(body, async () => {
+      const interrupted = body === 'process.exit(1);';
+      // Invalid replies still preserve a finite live root for native tree reclamation.
+      const lifetime = interrupted ? '' : 'setTimeout(() => process.exit(1), 36000);';
+      await fs.writeFile(worker, `import fs from 'node:fs';fs.readFileSync(0);${lifetime}${body}`);
+      const failure =
+        interrupted && process.platform === 'win32'
+          ? { code: 'authored_canvas_measurement_cleanup_unproved', originalFailure: expected }
+          : { code: expected };
+      await assert.rejects(selected.module.createBundledTextMeasurer(font, [label]), failure);
     });
   }
 });

@@ -591,6 +591,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       source writer one qualified retain/replace/retire map for its existing
       thirteen-page rebind, semantic/art/rollback acceptance and retirement.
       Preserve alpha.8 and do not claim source adoption from Publisher release.
+      Exact-source Push review pipeline 9213 on `e28b966` failed the 95%
+      branch floor on Linux (94.99%), macOS (94.94%) and Windows (94.91%).
+      Windows also exposed an invalid-response test Worker exiting before
+      tree reclamation. Portable resource, font-metadata and route-adapter
+      counterexamples cover the same owners; finite reply fixtures preserve
+      a live root while actual premature exit retains cleanup uncertainty.
+      The unchanged measurement reply decoder now has one internal owner,
+      directly exercised without Worker copies or platform timing. Its
+      focused protocol counterexamples cover all four dimensions at 100%.
+      The complete native profile and signed-source qualification still
+      govern release; these tests do not relax process-tree reclamation.
+      Corrected exact-source native qualification and release remain required.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
