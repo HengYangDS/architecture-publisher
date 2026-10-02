@@ -1320,7 +1320,7 @@
   },
   "sharedInstallationCorrection": {
     "observedAt": "2026-10-02T17:58:45.882Z",
-    "source": "987a1ee2797a1ebad5464cced43dca7b4cc02153",
+    "source": "195a5bfaecdd84963ad7956a8b4664a464fbc4a8",
     "originatingFailure": {
       "pipeline": 9278,
       "job": 47451,
@@ -1379,8 +1379,44 @@
     "limits": [
       "The exact native Windows timeout cause is not proved by a command-contract regression or local speed",
       "Source-only fixture correction; released alpha.10 tag, Core/Self/media bytes remain immutable",
-      "Fresh full source/native matrix is still required; no unchanged retry used",
-      "No source-owned ETHOS migration or independent trust-domain acceptance"
-    ]
+      "No source-owned ETHOS migration or independent trust-domain acceptance",
+      "Fresh review, dev and main native matrices pass without rewriting the original failure; success does not establish its exact historical delay cause"
+    ],
+    "originatingSource": "987a1ee2797a1ebad5464cced43dca7b4cc02153",
+    "qualification": {
+      "source": "195a5bfaecdd84963ad7956a8b4664a464fbc4a8",
+      "tree": "9bb030e7b9e724bc98f20005df04f784fe85182a",
+      "localProof": {
+        "path": "build/release/alpha.10/shared-install-current-proof-summary.json",
+        "bytes": 2636,
+        "sha256": "3a0a87c726cbb767d8bdb20fb22367b519bc94f616b0ac7b2997e1587ee33fb5"
+      },
+      "nativeProtected": {
+        "path": "build/release/alpha.10/shared-install-protected-conformance.json",
+        "bytes": 5060,
+        "sha256": "2f9bd257490431e86f89bb7c64601bb7831f026ec325a2420a54b81c586d5028"
+      },
+      "sourceDelivery": {
+        "path": "build/release/alpha.10/current-source-delivery.json",
+        "bytes": 6561,
+        "sha256": "2a96defc83e3bca77994f5be7b54b72895790178ae4b7ce6f107de5a2c705466"
+      },
+      "counts": {
+        "tests": 1651,
+        "pass": 1648,
+        "fail": 0,
+        "skipped": 3
+      },
+      "coverage": {
+        "statements": 97.74,
+        "branches": 95.22,
+        "functions": 99.5,
+        "lines": 97.74
+      },
+      "reviewPipeline": 9282,
+      "protectedPipelines": [9284, 9285],
+      "allNineHostedJobsPass": true,
+      "frozenReleaseInputsUnchanged": true
+    }
   }
 }

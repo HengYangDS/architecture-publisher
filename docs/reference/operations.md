@@ -74,10 +74,13 @@ The full local gate with the exact annotated tag present and tag pipeline 9272
 pass Linux, macOS and Windows ARM64. Statements, branches, functions and lines
 each meet the 95% floor; platform and external-input skips remain explicit.
 Original review and main failures are retained, not overwritten by the tag
-success. Later test/config/document-only source `4e9b22a` leaves the frozen
-package and media inputs unchanged. Its Linux/macOS review passed; Windows
-execution was interrupted by a proved guest shutdown. That separately named
-source repair still requires native Windows and protected-source acceptance.
+success. Test/config/document-only source `195a5bf` leaves the frozen
+package and media inputs unchanged. Its exact local proof and review 9282,
+protected dev 9284 and main 9285 pass all three platforms and all four coverage
+floors. The original guest interruption and npm-install timeout remain evidence;
+fresh success does not prove their exact historical cause. Current source
+qualification is separate from the immutable release source and later
+documentary or archive transitions.
 
 The downloaded packages install offline with empty user configuration and
 cache, then run from relocated roots with empty PATH. Five frozen workloads

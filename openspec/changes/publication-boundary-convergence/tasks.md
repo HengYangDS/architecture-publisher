@@ -584,8 +584,9 @@ third-party or generated supply rather than moving owned code outside coverage.
       changed-pin refusal pass. Scripts-disabled installed Core and custom Han
       sibling media retain exact pins without fabricating an editorial Claim.
       See the same evidence owner. Distribution references remain attributed,
-      not legal permission; Task 5.2.6 still owns source adoption and release.
-- [ ] 5.2.6 Freeze one coherent faithful successor after the preceding owner
+      not legal permission. Task 5.2.6 owns the qualified handoff and release;
+      actual source adoption remains ETHOS-owned.
+- [x] 5.2.6 Freeze one coherent faithful successor after the preceding owner
       repairs. Verify independent media, all four 95% floors, installed public
       input, native hosted matrix and exact release/artifact custody. Hand the
       source writer one qualified retain/replace/retire map for its existing
@@ -716,8 +717,14 @@ third-party or generated supply rather than moving owned code outside coverage.
       command-contract RED fails before these owner changes and GREEN passes;
       nine real sibling/contract tests and the complete static graph pass.
       Product deadlines, release bytes and source lockfiles are unchanged.
-      This is not proof of the original Windows timing cause; fresh complete
-      source/native qualification remains required at the same evidence owner.
+      Fresh signed `195a5bf` passes exact local proof: 1,648/1,651 with three
+      explicit input skips and 97.74/95.22/99.50/97.74% coverage. Review 9282,
+      protected dev 9284 and main 9285 pass all three native platforms and every
+      coverage floor. Candidate, accepted and release refs plus remote parity
+      select that exact source. The qualified public-API and retain/replace/retire
+      packet was sent to the ETHOS writer; its thirteen-page semantic/media and
+      rollback acceptance remain a separate source obligation. No exact historical
+      timeout cause, source migration or overall Goal completion is inferred.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -1274,7 +1281,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       DR decision contract remains here as Publisher custody input, not an
       implemented backup. Upstream full suites, framework implementation,
       accepted ETHOS runtime and thirteen-page migration are not inferred.
-- [ ] 8.4 After release readback, verify exact normative base projection,
+- [x] 8.4 After release readback, verify exact normative base projection,
       protected-ref parity, remote readback and source-owned handoff. Prepare
       the official archive and owned Lane-retirement transitions with exact
       inputs and preserved evidence; classify durable, active, foreign and
@@ -1300,8 +1307,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       evidence is in `build/review/release-alpha7/openspec-toolchain-renewal/`.
       Exact historical-supply reclamation and preserved-content readback are
       bound by `conformance/evidence/release-alpha7-readback.json`.
-      Product and released alpha.7 bytes are unchanged. Source adoption,
-      current-HEAD integration, archive and Lane retirement remain open.
+      At that historical alpha.7 checkpoint, product and release bytes were
+      unchanged; source adoption, current-HEAD integration and lifecycle remained
+      open. The current prerequisite result follows.
+      Current prerequisite closure: alpha.10 release and downloaded installed
+      replay are complete; `195a5bf` has protected remote parity and native
+      review/dev/main acceptance. Official OpenSpec reapplication changes zero
+      bytes with zero warnings. All 190 tracked Markdown carriers have no
+      repeated blank lines. Exact local archive restored 2,158 scratch entries
+      before reclaiming 862,633,628 source bytes; recovery and media remain.
+      The official archive and owned retirement interfaces are resolved; their
+      subsequent effects are not claimed by this prerequisite task. The overall
+      Goal retains actual ETHOS migration and source acceptance obligations.
 - [x] 8.4.1 Remove demonstrated same-project native macOS job overlap using
       GitLab's existing resource-group carrier. Add a failing actual-YAML
       contract test, preserve review/protected trust selectors and Linux
