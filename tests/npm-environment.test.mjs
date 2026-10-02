@@ -62,7 +62,7 @@ test('ephemeral offline installation preserves consumer metadata without lock wr
     const packed = spawnNativeSync('npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', ${JSON.stringify(scratch)}], options);
     assert.equal(packed.status, 0, packed.stderr);
     const archive = path.join(${JSON.stringify(scratch)}, parseNpmPackRecord(packed.stdout).filename);
-    const installed = spawnNativeSync('npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', archive], { ...options, cwd: ${JSON.stringify(consumer)} });
+    const installed = spawnNativeSync('npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', '--no-save', '--package-lock=false', archive], { ...options, cwd: ${JSON.stringify(consumer)} });
     assert.equal(installed.status, 0, installed.stderr);
   `;
   const child = spawnSync(

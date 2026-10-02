@@ -620,13 +620,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       tag Windows jobs 47244 and 47287 retain temporary npm-install failures.
       The retry budget is exhausted; alpha.9 has no Forge Release. Two actual
       owner regressions now reproduce lost native timeout diagnostics and
-      needless consumer-manifest/lock writes. The existing test preload disables
-      only ephemeral metadata writes; native invocation preserves its exact
+      needless consumer-manifest/lock writes. The exact ephemeral supply install
+      disables only its own metadata writes; native invocation preserves its exact
       error, output and signal. All thirty-seven focused and sibling cases and
       zero-warning static gates pass without changing product inputs, existing
       deadlines, coverage floors, selected media or the signed tag. Native
       focused diagnosis and complete successor acceptance remain required; see
       `build/release/alpha.9/portable-qualification/setup-owner-{red,green,siblings,static}.log`.
+      Full `f0afbc5` proof retains a separate sequential-install regression:
+      a global no-save setting let npm prune the previously installed Core.
+      The original installed-Provider test reproduces it; ephemeral policy now
+      belongs only to the one disposable supply consumer, not the shared
+      preload. Native diagnostic 9247 ran no setup cases because unquoted spaces
+      truncated `NODE_OPTIONS`; its transport failure is preserved, and the
+      whitespace-free five-case selection passes locally. The scoped repair and
+      sequential consumer now pass thirteen focused cases. Neither failure is
+      waived or reported as full/native acceptance.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -1183,11 +1192,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       DR decision contract remains here as Publisher custody input, not an
       implemented backup. Upstream full suites, framework implementation,
       accepted ETHOS runtime and thirteen-page migration are not inferred.
-- [ ] 8.4 After release readback, use `openspec archive --skip-specs` only after
-      verifying that the active base specs already carry
-      its exact normative delta; the archive must not change released behavior.
-      Close the owned Lane, verify protected refs and remote readback, and classify
-      durable evidence, active, foreign, and disposable state. Off-host DR remains
+- [ ] 8.4 After release readback, verify exact normative base projection,
+      protected-ref parity, remote readback and source-owned handoff. Prepare
+      the official archive and owned Lane-retirement transitions with exact
+      inputs and preserved evidence; classify durable, active, foreign and
+      disposable state. This task covers completed prerequisites, not its own
+      subsequent archive or Lane-retirement effects. Native lifecycle readback
+      must prove those postconditions before the overall Goal can close. Off-host DR remains
       excluded until destination, custody, retention, encryption, bounded
       credential, and clean-host restore acceptance are selected.
       The decision-ready tier, inventory, operator-choice, and clean-host

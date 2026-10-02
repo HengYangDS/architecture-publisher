@@ -35,6 +35,22 @@ marketplace, universal semantic compiler, and automatic aesthetic optimizer
 remain outside Workline A. Do not advertise them as implemented or let them
 indefinitely delay fixed delivery.
 
+### Closeout prerequisites and postconditions
+
+Task 8.4 records only completed release-readback, normative-projection,
+protected-ref, custody and transition-preparation prerequisites. It must not
+require its own Change archive or Lane retirement before the native lifecycle
+admits those effects. This removes a dependency cycle without removing work.
+
+After every substantive task is complete, use the existing ETHOS
+`lane archive-change` transition, preserving exact already-projected base
+specifications. Commit and prove the resulting archive through the same signed
+source path, converge the candidate and protected refs by native exact-CAS,
+and reobserve their remote objects and required CI. Only then retire the owned
+Lane through its native transition and verify disposable-resource absence and
+preserved evidence. Task completion does not establish these postconditions;
+the overall Goal remains incomplete until their actual readback passes.
+
 The selected historical baseline is the signed `v0.3.0-alpha.3` product line.
 No predecessor tag, Architecture Publisher 0.2 release, or signed artifact is
 rewritten. The read-only cases used to challenge this design are Publisher

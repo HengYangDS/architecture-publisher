@@ -212,6 +212,8 @@ test('installed LikeC4 supply verifies exact bytes and rejects post-install drif
       '--no-audit',
       '--no-fund',
       '--offline',
+      '--no-save',
+      '--package-lock=false',
       '--prefix',
       consumer,
       packageFile,
