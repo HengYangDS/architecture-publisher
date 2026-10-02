@@ -23,6 +23,7 @@ function npmSetupOptions(command, args, options) {
   const env = { ...(options?.env ?? process.env) };
   for (const name of Object.keys(env))
     if (name.toUpperCase() === 'NODE_V8_COVERAGE') delete env[name];
+  env.NODE_V8_COVERAGE = '';
   return { ...options, env };
 }
 

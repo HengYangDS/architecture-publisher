@@ -673,6 +673,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       seven contract and three installed sibling cases pass. Native full
       successor qualification remains required; the timing cause is not yet
       established on Windows. No signed tag or package/media byte is rewritten.
+      Full `67e3e97` proof retains one regression failure: Node's native child
+      executor restores an absent `NODE_V8_COVERAGE` from the parent. An explicit
+      empty override now disables only scripts-disabled setup; an outer-c8 RED
+      reproduces the incumbent and GREEN verifies the correction while product
+      children remain covered. The failure and original proof are preserved;
+      fresh complete source and native qualification remain required.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

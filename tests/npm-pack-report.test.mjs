@@ -112,13 +112,13 @@ test('scripts-disabled npm setup excludes tooling coverage and preserves product
   for (const command of ['pack', 'install', 'ci']) {
     const args = [command, '--ignore-scripts', '--offline'];
     const result = JSON.parse(spawnNativeSync('npm', args, options).stdout);
-    assert.equal(result.coverage, null);
+    assert.equal(result.coverage, '');
     assert.equal(result.marker, 'preserved');
     assert.deepEqual(result.args, args);
   }
   assert.equal(
     JSON.parse(execNativeSync('npm', ['pack', '--ignore-scripts'], options)).coverage,
-    null,
+    '',
   );
   assert.deepEqual(await fs.readdir(coverage), []);
   for (const command of ['pack', 'run'])
