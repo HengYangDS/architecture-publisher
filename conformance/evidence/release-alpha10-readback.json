@@ -1,0 +1,358 @@
+{
+  "schema": "architecture.publisher-release-readback/v1",
+  "observedAt": "2026-10-02T17:09:49.653Z",
+  "sourceCommit": "131b401cc93d9f3ba8b405d71c4c175f511cc3ce",
+  "sourceTree": "e84d477b27165970a846b3c80756934e46870880",
+  "tag": {
+    "name": "v0.3.0-alpha.10",
+    "object": "c6b3af0e33280ebdfa2ef5fef3388dd49425e90c",
+    "signatureVerifiedLocally": true,
+    "immutable": true,
+    "doesNotSignForgeAssets": true
+  },
+  "release": "v0.3.0-alpha.10",
+  "releaseUrl": "http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.10",
+  "status": "Exact frozen assets released, native-downloaded, cold offline installed and relocated, all five workloads/thirty members reproduced; submitted qualifications/publication/idempotent recovery and Documents readback pass; latest source repair acceptance and global source obligations remain open",
+  "protectedRefs": {
+    "main": {
+      "commit": "131b401cc93d9f3ba8b405d71c4c175f511cc3ce",
+      "protected": true,
+      "default": true
+    },
+    "dev": {
+      "commit": "131b401cc93d9f3ba8b405d71c4c175f511cc3ce",
+      "protected": true,
+      "default": false
+    }
+  },
+  "proofAttestationId": "bd2cd6bba94af8e075ad8f070c7216a260374ceeecc922486b9acd6ed30e6e1b",
+  "hostedSourceAndTagCI": {
+    "frozenTag": {
+      "schema": "architecture.native-tag-conformance/v1",
+      "observedAt": "2026-10-02T15:55:48.878Z",
+      "source": "131b401cc93d9f3ba8b405d71c4c175f511cc3ce",
+      "tag": "v0.3.0-alpha.10",
+      "tagObject": "c6b3af0e33280ebdfa2ef5fef3388dd49425e90c",
+      "pipeline": 9272,
+      "jobs": [
+        {
+          "job": 47424,
+          "platform": "linux",
+          "runner": 122,
+          "file": "native-tag-47424.log",
+          "sha256": "c7ada67abac759f2b635a488d033cb43e0b57593d4d4e8c3236fed9cf955d32b",
+          "counts": {
+            "tests": 1649,
+            "pass": 1611,
+            "fail": 0,
+            "skipped": 38
+          },
+          "coverage": {
+            "statements": 97.01,
+            "branches": 95.2,
+            "functions": 98.91,
+            "lines": 97.01
+          },
+          "status": "PASS"
+        },
+        {
+          "job": 47425,
+          "platform": "macos",
+          "runner": 112,
+          "file": "native-tag-47425.log",
+          "sha256": "0074bd989ce587432e7d4b294641c66be2b19485922b4aeb3a57c8626a92219b",
+          "counts": {
+            "tests": 1649,
+            "pass": 1626,
+            "fail": 0,
+            "skipped": 23
+          },
+          "coverage": {
+            "statements": 97.74,
+            "branches": 95.16,
+            "functions": 99.5,
+            "lines": 97.74
+          },
+          "status": "PASS"
+        },
+        {
+          "job": 47426,
+          "platform": "windows",
+          "runner": 121,
+          "file": "native-tag-47426.log",
+          "sha256": "d131ebefcb156752b9b58a89d0d1630afb71fdb5986aceffb07f4c90e954d142",
+          "counts": {
+            "tests": 1649,
+            "pass": 1592,
+            "fail": 0,
+            "skipped": 57
+          },
+          "coverage": {
+            "statements": 96.86,
+            "branches": 95.12,
+            "functions": 98.61,
+            "lines": 96.86
+          },
+          "status": "PASS"
+        }
+      ],
+      "allFourFloorsPass": true,
+      "limits": [
+        "Review47412 and main47423 failures remain retained",
+        "No historical timeout cause proved by a successful tag run",
+        "Latest test-only correction still needs its own native qualification",
+        "No source-owned ETHOS/AIGW adoption is implied"
+      ]
+    },
+    "currentRepairReview": {
+      "path": "build/release/alpha.10/native-prerequisites-review-two-platform-conformance.json",
+      "bytes": 1848,
+      "sha256": "db8c92dafa98ab3f4e53b07afcab147eacaebc12eae1c590dc93ebd411800307"
+    },
+    "nativeInterruption": {
+      "path": "build/release/alpha.10/native-interruption-recovery.json",
+      "bytes": 3144,
+      "sha256": "bd62f9afb6593336e6da7d042dce4562f354ddf63b10fa6d49d0850a5c4566a0"
+    },
+    "currentProtectedSource": "not yet projected; frozen refs remain remote"
+  },
+  "mediaReview": {
+    "directAnswer": {
+      "thread": "01a02017-5246-7d30-b47b-c717b7ec674f",
+      "questionCall": "call_Z3ghRfugPeiZ5xG0sP7YzB84",
+      "answer": "已审阅，八页均通过"
+    },
+    "record": {
+      "path": "build/release/alpha.10/human-review.json",
+      "bytes": 1497,
+      "sha256": "1806593f585d8db7260e087381a971ffaca84cc6423d6b05659331b35abc83a3"
+    },
+    "htmlSha256": "d869f486d7bf867669edab6ada13286ad4249e104b15fde79d0d6dc23153b98f",
+    "pngSha256": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712"
+  },
+  "assets": [
+    {
+      "name": "SHA256SUMS",
+      "bytes": 946,
+      "sha256": "18e37fdcef080acc9e0c58d89ebc72bb660369dfa9cd5bb73d210f1c9dc5cad0",
+      "file": "build/release/alpha.10/forge-download/SHA256SUMS",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/SHA256SUMS"
+    },
+    {
+      "name": "architecture-publisher-0.3.0-alpha.10.tgz",
+      "bytes": 4622087,
+      "sha256": "bd5f4d106fbb94b146388fff9026fda907a569a2f29ccae868e45c1dbd4487a1",
+      "file": "build/release/alpha.10/forge-download/architecture-publisher-0.3.0-alpha.10.tgz",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/architecture-publisher-0%2E3%2E0-alpha%2E10%2Etgz"
+    },
+    {
+      "name": "architecture-publisher-6000.png",
+      "bytes": 478249,
+      "sha256": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712",
+      "file": "build/release/alpha.10/forge-download/architecture-publisher-6000.png",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/architecture-publisher-6000%2Epng"
+    },
+    {
+      "name": "architecture-publisher-self-edition-0.3.0-alpha.10.tgz",
+      "bytes": 27473,
+      "sha256": "27b43b5fad19774e75e6414d5009ee5475109a9a2ee93f18c833d9bc3083942a",
+      "file": "build/release/alpha.10/forge-download/architecture-publisher-self-edition-0.3.0-alpha.10.tgz",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/architecture-publisher-self-edition-0%2E3%2E0-alpha%2E10%2Etgz"
+    },
+    {
+      "name": "architecture-publisher.html",
+      "bytes": 1543938,
+      "sha256": "d869f486d7bf867669edab6ada13286ad4249e104b15fde79d0d6dc23153b98f",
+      "file": "build/release/alpha.10/forge-download/architecture-publisher.html",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/architecture-publisher%2Ehtml"
+    },
+    {
+      "name": "architecture-publisher.svg",
+      "bytes": 768987,
+      "sha256": "31c7bd368a665d69a09f037f4a4c882717d9ef77dbebf7a117ce509b6e54474e",
+      "file": "build/release/alpha.10/forge-download/architecture-publisher.svg",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/architecture-publisher%2Esvg"
+    },
+    {
+      "name": "browser-evidence.json",
+      "bytes": 4498,
+      "sha256": "cb346eb81d5d389653602078bb1152b132bb2e3f7575a1dcb297c8149ddaecf1",
+      "file": "build/release/alpha.10/forge-download/browser-evidence.json",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/browser-evidence%2Ejson"
+    },
+    {
+      "name": "conformance.json",
+      "bytes": 16869,
+      "sha256": "69190ecb0d14fe6b45069f1500aeac5530ce9c418ff7751447c5d8dba584b918",
+      "file": "build/release/alpha.10/forge-download/conformance.json",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/conformance%2Ejson"
+    },
+    {
+      "name": "human-review.json",
+      "bytes": 1497,
+      "sha256": "1806593f585d8db7260e087381a971ffaca84cc6423d6b05659331b35abc83a3",
+      "file": "build/release/alpha.10/forge-download/human-review.json",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/human-review%2Ejson"
+    },
+    {
+      "name": "release-manifest.json",
+      "bytes": 6801,
+      "sha256": "ae0e12d61103d050c52506bff803c10d9d2f5a3959abb8feec8b526ad1c38b04",
+      "file": "build/release/alpha.10/forge-download/release-manifest.json",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/release-manifest%2Ejson"
+    },
+    {
+      "name": "self-replay-kit.tar.gz",
+      "bytes": 1073255,
+      "sha256": "bd544b5de0d7dac95a1865795d55e7f4e5544b94e369b6c2aac3c9db7bc6f7db",
+      "file": "build/release/alpha.10/forge-download/self-replay-kit.tar.gz",
+      "url": "http://192.168.64.101:18086/api/v4/projects/dig%2Fresearch%2Fhuman-agent-stewardship%2Farchitecture-publisher/packages/generic/architecture-publisher-release/v0%2E3%2E0-alpha%2E10/self-replay-kit%2Etar%2Egz"
+    }
+  ],
+  "storage": {
+    "kind": "gitlab-generic-package",
+    "project": 1323,
+    "packageId": 258,
+    "name": "architecture-publisher-release",
+    "version": "v0.3.0-alpha.10",
+    "files": 11,
+    "totalBytes": 8544600,
+    "oneCopyPerSelectedAsset": true
+  },
+  "separatelyAnchoredChecksums": {
+    "manifest": {
+      "bytes": 6801,
+      "sha256": "ae0e12d61103d050c52506bff803c10d9d2f5a3959abb8feec8b526ad1c38b04"
+    },
+    "checksums": {
+      "bytes": 946,
+      "sha256": "18e37fdcef080acc9e0c58d89ebc72bb660369dfa9cd5bb73d210f1c9dc5cad0"
+    },
+    "downloadedManifest": "ae0e12d61103d050c52506bff803c10d9d2f5a3959abb8feec8b526ad1c38b04",
+    "downloadedChecksums": "18e37fdcef080acc9e0c58d89ebc72bb660369dfa9cd5bb73d210f1c9dc5cad0"
+  },
+  "consumerReadback": {
+    "status": "passed",
+    "installedPackage": {
+      "schema": "architecture.publisher-installed-package/v1",
+      "name": "architecture-publisher",
+      "version": "0.3.0-alpha.10",
+      "treeSha256": "ac260738c49146c3a3164308867382881ef918eec1955929e8ac785de918cca2",
+      "files": 250,
+      "bytes": 16740033,
+      "method": "declared-package-tree-sha256/v1",
+      "scope": "current-invocation-installed-content"
+    },
+    "selfExactMembers": 6,
+    "workloads": 5,
+    "totalMatchingMembers": 30,
+    "recordCount": 19,
+    "admitted": false,
+    "publication": {
+      "status": "INSTALLED",
+      "exactMedia": [
+        {
+          "medium": "static",
+          "name": "architecture.png",
+          "bytes": 478249,
+          "sha256": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712"
+        },
+        {
+          "medium": "static",
+          "name": "architecture.svg",
+          "bytes": 768987,
+          "sha256": "31c7bd368a665d69a09f037f4a4c882717d9ef77dbebf7a117ce509b6e54474e"
+        },
+        {
+          "medium": "interactive",
+          "name": "architecture.html",
+          "bytes": 1543938,
+          "sha256": "d869f486d7bf867669edab6ada13286ad4249e104b15fde79d0d6dc23153b98f"
+        }
+      ],
+      "foreignParentContentPreserved": true
+    },
+    "recovery": {
+      "status": "ALREADY_INSTALLED",
+      "powerLossRecovery": "not-qualified"
+    },
+    "evidence": {
+      "path": "build/release/alpha.10/downloaded-installed-replay.json",
+      "bytes": 6132,
+      "sha256": "eb9e109cf63533f31109517fa4b2341f37f1801fa77f1dbee797c4eee6b4ddaa"
+    },
+    "fiveWorkloads": {
+      "path": "build/release/alpha.10/downloaded-five-workload-readback.json",
+      "bytes": 6638,
+      "sha256": "139df052b45c49298a579a2cb6f452240539c47b333ea328b32f27391ffe5880"
+    }
+  },
+  "documents": {
+    "allHashesMatch": true,
+    "selected": [
+      {
+        "source": "build/release/alpha.10/self-candidate/static/architecture.png",
+        "destination": "/Users/yheng/Documents/architecture-publisher-0.3.0-alpha.10-6000.png",
+        "bytes": 478249,
+        "sha256": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712"
+      },
+      {
+        "source": "build/release/alpha.10/self-candidate/interactive/architecture.html",
+        "destination": "/Users/yheng/Documents/architecture-publisher-0.3.0-alpha.10.html",
+        "bytes": 1543938,
+        "sha256": "d869f486d7bf867669edab6ada13286ad4249e104b15fde79d0d6dc23153b98f"
+      }
+    ],
+    "preserved": [
+      {
+        "file": "/Users/yheng/Documents/architecture-publisher-0.3.0-alpha.8-6000.png",
+        "bytes": 478249,
+        "sha256": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712"
+      },
+      {
+        "file": "/Users/yheng/Documents/architecture-publisher-0.3.0-alpha.8.html",
+        "bytes": 1542831,
+        "sha256": "15973bac47a76f3b08e97a53a9dd1835d82d0adf93eda5c9f6e27da4cd2303f8"
+      },
+      {
+        "file": "/Users/yheng/Documents/architecture-publisher-0.3.0-alpha.9-6000.png",
+        "bytes": 478249,
+        "sha256": "85745f5087d61c6a8b85fb9c4de1f1b08c20adffc23024d2a49b22cccab42712"
+      },
+      {
+        "file": "/Users/yheng/Documents/architecture-publisher-0.3.0-alpha.9.html",
+        "bytes": 1543938,
+        "sha256": "7d8a486517cab7980e9486260f3ee29fa509da2d4065eb9263a60d6ac9911cf3"
+      }
+    ]
+  },
+  "housekeeping": {
+    "nativeObserverTerminal": true,
+    "nativeObserverExit": 124,
+    "oldInterruptedJob": "canceled",
+    "coldConsumerAbsent": true,
+    "reclaimedBytes": 38137358,
+    "retainedEvidenceRechecked": true,
+    "noUnselectedSourceDownloads": true,
+    "historicalReleaseCount": 15,
+    "allHistoricalReleaseLinksAndDescriptionPreserved": true,
+    "existingPackageStatesPreserved": true,
+    "fleetWindowReceipt": "/Users/yheng/Documents/Codex/2026-10-01/runner-capacity/windows-native-secret-input-canary-20261002.json",
+    "windowsVM": "Restored running state; source/recovery operations did not change isolated/autostart/login/account policies"
+  },
+  "sourceHandoffs": {
+    "ethos": "Existing source writer receives exact released digests; actual minimum Provider/Edition migration is still own Task9.9.4 and is not inferred",
+    "aigw": "Own canonical declarative Provider and accepted alpha.7 Client Projection remain separate; no alpha.10 or whole-product release acceptance",
+    "research": "General SDD/COMET/SpecD/semantics/intent/verifier research lives in signed ETHOS topic owners, not Publisher runtime or parallel interpretation",
+    "offHostDR": "Complete operator-decision contract exists; no destination/custody/credentials/backup selected"
+  },
+  "limits": [
+    "Latest test-only source4e9b22a protected acceptance and native Windows replay remain open",
+    "Generic submitted qualifications remain admitted:false and actors are attributed, not authenticated",
+    "Successful tag CI does not prove historical timeout causes or guest shutdown initiator fixed",
+    "Source-owned ETHOS minimum migration, source framework implementation and overall goal closure remain open",
+    "Selected dependency closure not fully hermetic",
+    "Power-loss recovery and independent off-host DR unqualified",
+    "No mobile/narrow-screen work"
+  ]
+}

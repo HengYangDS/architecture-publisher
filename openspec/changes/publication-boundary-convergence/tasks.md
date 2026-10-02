@@ -691,6 +691,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       The normal spacing case falls from 7.67 seconds to 0.63 seconds locally.
       These source-side repairs require fresh complete native acceptance; no
       historical job, signed tag, coverage limit or selected output is rewritten.
+      Exact frozen alpha.10 is now released with eleven single-copy Generic
+      Package assets totaling 8,544,600 bytes. Native selected-name downloads
+      match every anchored hash. Cold offline installation, relocated empty-PATH
+      execution, five workloads/thirty members, nineteen submitted records,
+      explicit local file installation and idempotent recovery pass; the owned
+      38 MB consumer is removed after evidence readback. Documents media retain
+      the exact approved bytes. `conformance/evidence/release-alpha10-readback.json`
+      owns this released-product result, not a blanket current-source acceptance.
+      Latest signed repair `4e9b22a` passes local exact-HEAD proof and Linux/macOS
+      review, with all four coverage floors. Its Windows job 47429 was interrupted
+      by a proved guest shutdown and lost executor; the sole watcher reached its
+      deadline, the guest's running state was restored without changing policy,
+      and only the interrupted job was natively canceled. Original failures and
+      trace remain; one native replay and protected-source qualification are open.
+      Source-owned ETHOS thirteen-page migration and global closure remain open.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

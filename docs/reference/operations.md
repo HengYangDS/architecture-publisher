@@ -60,7 +60,41 @@ Before pushing a new tag, create it locally and run the full repository gate
 with that exact tag present. Compare its tagger calendar date with the dated
 Changelog section; a passing untagged branch pipeline is not this check.
 
-### Last verified asset release (2026-10-02): alpha.8
+### Last verified asset release (2026-10-03): alpha.10
+
+The [alpha.10 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.10)
+selects signed source `131b401cc93d9f3ba8b405d71c4c175f511cc3ce`.
+Its eleven selected assets occupy one Generic Package version, 8,544,600 bytes.
+Each has one storage copy. Native `glab release download --asset-name` fetched
+only the selected names; every byte matches the separately anchored manifest
+and checksum. The [release receipt](../../conformance/evidence/release-alpha10-readback.json)
+owns the complete identities, observed effects and remaining limits.
+
+The full local gate with the exact annotated tag present and tag pipeline 9272
+pass Linux, macOS and Windows ARM64. Statements, branches, functions and lines
+each meet the 95% floor; platform and external-input skips remain explicit.
+Original review and main failures are retained, not overwritten by the tag
+success. Later test/config/document-only source `4e9b22a` leaves the frozen
+package and media inputs unchanged. Its Linux/macOS review passed; Windows
+execution was interrupted by a proved guest shutdown. That separately named
+source repair still requires native Windows and protected-source acceptance.
+
+The downloaded packages install offline with empty user configuration and
+cache, then run from relocated roots with empty PATH. Five frozen workloads
+reproduce all thirty Candidate members. Nineteen submitted records pass while
+`admitted: false` remains. Explicit qualified local publication installs the
+three media files, and recovery returns `ALREADY_INSTALLED` while preserving
+unrelated parent content. The invocation-owned consumer, configuration, cache,
+copied inputs and outputs were removed after verification; source inputs,
+downloaded assets and all operation evidence remain.
+
+The exact approved 6000px PNG and eight-page standalone HTML are delivered to
+Documents. Historical releases and Documents predecessors are unchanged.
+This release does not approve ETHOS's minimum Provider/Edition migration,
+whole-product AIGW publication, independent verifier authority, power-loss
+recovery or off-host disaster recovery. Those owners and limits remain separate.
+
+### Historical asset release (2026-10-02): alpha.8
 
 The [alpha.8 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.8)
 selects signed source `92395df633ffb24ec040776ff16999b292e07b54`.
