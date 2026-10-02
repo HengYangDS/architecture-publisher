@@ -1165,5 +1165,55 @@
       "Full exact-source proof and native successor CI are still required",
       "No successor release, source-owned migration or off-host recovery is inferred"
     ]
+  },
+  "directWorkerCloseCorrection": {
+    "scope": "Test-side direct Provider Worker resource lifetime; no runtime/package/coverage-policy change",
+    "baseHead": "3e10b11f698de43dd1dc59e6786d4dfc2e96b3b4",
+    "observedAt": "2026-10-02T11:22:06.446Z",
+    "originatingFailure": {
+      "pipeline": 9221,
+      "job": 47226,
+      "runner": 120,
+      "test": "worker self-deadline survives synchronous Provider code",
+      "actual": "EBUSY during scratch rmdir after process liveness check",
+      "trace": {
+        "path": "build/release/alpha.9/portable-qualification/single-owner-windows-review-result.log",
+        "bytes": 241050,
+        "sha256": "323c34ed44cd31fae65b57e25153799362d02f4167d62cb234e3d4ec2856874b"
+      }
+    },
+    "causeBoundary": "PID absence does not establish the native close event or released process handles; both direct tests removed scratch without awaiting close",
+    "repair": "One private test-side teardown waits for close under the existing 2-second observation allowance, closes the request descriptor and only then removes scratch; unproved close preserves scratch",
+    "red": {
+      "path": "build/release/alpha.9/portable-qualification/provider-close-order-red.log",
+      "bytes": 1472,
+      "sha256": "bb525dc8e49cddbe51951f90ec582d6e4ff517a111d74e5fe4e6cfaabefe1293"
+    },
+    "green": {
+      "path": "build/release/alpha.9/portable-qualification/provider-close-full-green.log",
+      "bytes": 481,
+      "sha256": "6f442478d4f34dd20494bb596fbb32b00e319f411c0fcddd8eee540fa5a525cd"
+    },
+    "focusedPass": 4,
+    "focusedFail": 0,
+    "siblings": {
+      "path": "build/release/alpha.9/portable-qualification/provider-close-final-siblings.log",
+      "bytes": 4262,
+      "sha256": "90ee69e6d69202f8f187632fdea4770e5907731834f717ac42fb7b30b74a282e"
+    },
+    "siblingPass": 47,
+    "siblingFail": 0,
+    "unchanged": [
+      "Production package and media bytes",
+      "Shared process-tree supervisor",
+      "Provider 500 ms self-expiry case",
+      "Original 2-second process-exit observation",
+      "Four coverage floors at 95 percent"
+    ],
+    "limits": [
+      "Native successor source qualification still required",
+      "No proof that all Windows EBUSY causes are equivalent",
+      "No source-owned ETHOS/AIGW acceptance or completed release inferred"
+    ]
   }
 }

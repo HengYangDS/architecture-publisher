@@ -50,6 +50,24 @@ async function waitForExit(pid) {
   return !alive(pid);
 }
 
+async function reclaimWorker(child, closed, request, scratch) {
+  if (child && alive(child.pid)) child.kill('SIGKILL');
+  let deadline;
+  try {
+    const observed = await Promise.race([
+      closed.then(() => true),
+      new Promise((resolve) => {
+        deadline = setTimeout(() => resolve(false), 2_000);
+      }),
+    ]);
+    assert.equal(observed, true, `worker close unproved; retained scratch: ${scratch}`);
+  } finally {
+    clearTimeout(deadline);
+    await request?.close();
+  }
+  await fs.rm(scratch, { recursive: true, force: true });
+}
+
 async function requestFile(scratch, scenario = undefined) {
   for (const name of ['config', 'cache', 'data', 'tmp']) await fs.mkdir(path.join(scratch, name));
   let bytes = await fs.readFile(source);
@@ -94,11 +112,57 @@ function workerEnvironment(scratch) {
   };
 }
 
+test('direct Provider worker teardown awaits native close before removing scratch', async (t) => {
+  await fs.mkdir(evidence, { recursive: true });
+  const scratch = await fs.mkdtemp(new URL('provider-worker-close-', evidence));
+  const child = spawn(process.execPath, ['-e', 'process.exit(0)'], {
+    cwd: scratch,
+    stdio: 'ignore',
+    windowsHide: true,
+  });
+  await new Promise((resolve) => child.once('close', resolve));
+  let observed = false;
+  const closed = new Promise((resolve) => {
+    setImmediate(() => {
+      observed = true;
+      resolve();
+    });
+  });
+  const remove = fs.rm;
+  const observer = t.mock.method(fs, 'rm', async (...args) => {
+    assert.equal(observed, true, 'PID absence was mistaken for native close observation');
+    return remove(...args);
+  });
+  try {
+    await reclaimWorker(child, closed, undefined, scratch);
+    await assert.rejects(fs.access(scratch), { code: 'ENOENT' });
+  } finally {
+    observer.mock.restore();
+    await closed;
+    await remove(scratch, { recursive: true, force: true });
+  }
+});
+
+test('unproved direct Worker close preserves scratch and closes the request descriptor', async (t) => {
+  await fs.mkdir(evidence, { recursive: true });
+  const scratch = await fs.mkdtemp(new URL('provider-worker-close-unproved-', evidence));
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const request = await fs.open(path.join(scratch, 'request.json'), 'wx+');
+  await request.writeFile('retained request');
+  await assert.rejects(reclaimWorker(undefined, new Promise(() => {}), request, scratch), {
+    code: 'ERR_ASSERTION',
+    message: `worker close unproved; retained scratch: ${scratch}\n\nfalse !== true\n`,
+  });
+  assert.equal(await fs.readFile(path.join(scratch, 'request.json'), 'utf8'), 'retained request');
+  assert.equal(request.fd, -1);
+});
+
 test('unreclaimed Provider worker stays available for cleanup, then self-expires', async () => {
   await fs.mkdir(evidence, { recursive: true });
   const scratch = await fs.mkdtemp(new URL('provider-worker-lifetime-', evidence));
   let request;
   let child;
+  let closed = Promise.resolve();
   try {
     const requestPath = await requestFile(scratch);
     request = await fs.open(requestPath, 'r');
@@ -108,6 +172,7 @@ test('unreclaimed Provider worker stays available for cleanup, then self-expires
       stdio: [request.fd, 'pipe', 'pipe'],
       windowsHide: true,
     });
+    closed = new Promise((resolve) => child.once('close', resolve));
     let output = '';
     await new Promise((resolve, reject) => {
       const deadline = setTimeout(() => reject(new Error('worker reply deadline')), 2_000);
@@ -127,9 +192,7 @@ test('unreclaimed Provider worker stays available for cleanup, then self-expires
     assert.equal(output.endsWith('\n'), true, 'worker reply is not framed');
     assert.equal(await waitForExit(child.pid), true, 'worker lacks a self-expiring deadline');
   } finally {
-    if (child && alive(child.pid)) child.kill('SIGKILL');
-    await request?.close();
-    await fs.rm(scratch, { recursive: true, force: true });
+    await reclaimWorker(child, closed, request, scratch);
   }
 });
 
@@ -138,6 +201,7 @@ test('worker self-deadline survives synchronous Provider code', async () => {
   const scratch = await fs.mkdtemp(new URL('provider-worker-blocked-', evidence));
   let request;
   let child;
+  let closed = Promise.resolve();
   try {
     const requestPath = await requestFile(scratch, 'blocked-event-loop');
     request = await fs.open(requestPath, 'r');
@@ -147,15 +211,14 @@ test('worker self-deadline survives synchronous Provider code', async () => {
       stdio: [request.fd, 'ignore', 'ignore'],
       windowsHide: true,
     });
+    closed = new Promise((resolve) => child.once('close', resolve));
     assert.equal(
       await waitForExit(child.pid),
       true,
       'synchronous Provider code blocked the worker self-deadline',
     );
   } finally {
-    if (child && alive(child.pid)) child.kill('SIGKILL');
-    await request?.close();
-    await fs.rm(scratch, { recursive: true, force: true });
+    await reclaimWorker(child, closed, request, scratch);
   }
 });
 

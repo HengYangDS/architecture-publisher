@@ -609,6 +609,13 @@ third-party or generated supply rather than moving owned code outside coverage.
       The incumbent-failing ownership case, four focused cases and seventy sibling
       regressions pass. Exact successor proof, native CI and release remain required;
       see `conformance/evidence/coretext-process-lifetime.json`.
+      Exact `3e10b11` proof passes 1,642 tests with three explicit input skips and
+      97.74/95.22/99.50/97.74% coverage. Current installed packages reproduce
+      thirty exact members after relocation; approved media and the Candidate
+      are unchanged. Linux/macOS review pass; Windows confirms the CoreText
+      correction but exposes a separate direct-test scratch `EBUSY`. Its teardown
+      now observes native close, not PID absence, before removal; unproved close
+      preserves scratch. Final source/native/release acceptance remains required.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
