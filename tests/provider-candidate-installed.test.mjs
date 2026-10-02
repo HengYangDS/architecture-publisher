@@ -35,7 +35,6 @@ test('offline installed Core builds a full dual-media Candidate from an installe
   const { executionMarker } = await executableModelProvider(selected);
   const installation = path.join(selected.root, 'installed');
   await fs.mkdir(installation);
-  const { consumer, coreRoot } = await installCoreAndSelf(root, installation);
   const providerArchive = parseNpmPackRecord(
     run(
       'npm',
@@ -43,22 +42,12 @@ test('offline installed Core builds a full dual-media Candidate from an installe
       path.join(selected.root, 'provider/package'),
     ),
   );
-  run(
-    'npm',
-    [
-      'install',
-      '--offline',
-      '--ignore-scripts',
-      '--no-audit',
-      '--no-fund',
-      '--no-save',
-      '--prefix',
-      consumer,
-      path.join(installation, providerArchive.filename),
-    ],
-    consumer,
-    { ...process.env, npm_config_offline: 'true', npm_config_update_notifier: 'false' },
-  );
+  const { consumer, coreRoot, selfRoot } = await installCoreAndSelf(root, installation, [
+    path.join(installation, providerArchive.filename),
+  ]);
+  for (const file of ['package.json', 'package-lock.json'])
+    await assert.rejects(fs.access(path.join(consumer, file)), { code: 'ENOENT' });
+  await fs.access(path.join(selfRoot, 'package.json'));
   const providerRoot = path.join(consumer, 'node_modules/@fixture/model-provider');
   const providerApi = await import(pathToFileURL(path.join(coreRoot, 'src/provider/index.mjs')));
   const manifestPath = path.join(selected.root, 'provider/provider.json');

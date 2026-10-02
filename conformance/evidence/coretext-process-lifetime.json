@@ -1317,5 +1317,70 @@
       "No proof that all Windows EBUSY causes are equivalent",
       "No source-owned ETHOS/AIGW acceptance or completed release inferred"
     ]
+  },
+  "sharedInstallationCorrection": {
+    "observedAt": "2026-10-02T17:58:45.882Z",
+    "source": "987a1ee2797a1ebad5464cced43dca7b4cc02153",
+    "originatingFailure": {
+      "pipeline": 9278,
+      "job": 47451,
+      "runner": 120,
+      "test": "offline installed Core builds a full dual-media Candidate from an installed executable Provider",
+      "owner": "tests/fixtures/installed-packages.mjs: installCoreAndSelf",
+      "actual": "ETIMEDOUT during scripts-disabled npm install before any Provider execution",
+      "trace": {
+        "path": "build/release/alpha.10/final-readback-47451.log",
+        "bytes": 243824,
+        "sha256": "26deb5ef9fdf20ef0fc073110560d87266d3b231afadef175e4e476b3658aaa4"
+      },
+      "coverage": {
+        "statements": 96.86,
+        "branches": 95.12,
+        "functions": 98.61,
+        "lines": 96.86
+      }
+    },
+    "demonstratedDefect": "The shared preparation still maintained unused consumer package.json/lock and global npm cache; the Provider case installed into that root twice despite all exact archives already being available. The native argument regression fails against these exact omissions.",
+    "repair": [
+      "Give only the invocation-owned preparation a private npm cache",
+      "One native offline install selects exact Core, Self and optional fixture Provider archives together",
+      "Disable unused consumer manifest/lock writes; keep source lockfiles and archived packages unchanged",
+      "Keep all subsequent actual installed Provider execution, denial, public dual-media Candidate and byte checks",
+      "Retain process diagnostics and all existing installation/runtime deadlines"
+    ],
+    "focused": {
+      "contractRed": {
+        "path": "build/release/alpha.10/shared-install-contract-red.log",
+        "bytes": 2629,
+        "sha256": "4cc6502105b41a53a6fcdc616e164bc6929e3b00e5768e8ebd180a171bb218f4"
+      },
+      "contractGreen": {
+        "path": "build/release/alpha.10/shared-install-contract-green.log",
+        "bytes": 230,
+        "sha256": "d8ed3bce5ede2d26828f0a6887d4288d313afe06d8002e1fad71d27c09962fe8"
+      },
+      "realSharedConsumers": {
+        "path": "build/release/alpha.10/shared-install-focused-green.log",
+        "bytes": 908,
+        "sha256": "02f6bf360551257e790ec59f73e9d3dee001611a9f61c79becbb8de45f8d3274"
+      },
+      "claimModelInstalledConsumer": {
+        "path": "build/release/alpha.10/shared-install-claim-sibling-green.log",
+        "bytes": 214,
+        "sha256": "ee59ef87be5e6c6b28c02bedc9d90dd39de770316a788b2051d4775af66b7009"
+      },
+      "static": {
+        "path": "build/release/alpha.10/shared-install-static.log",
+        "bytes": 3216,
+        "sha256": "a9402606359cf41aa236f4a4c818bc3c0ddf626aded1feb60dd38bdddae1e928"
+      },
+      "passedTests": 9
+    },
+    "limits": [
+      "The exact native Windows timeout cause is not proved by a command-contract regression or local speed",
+      "Source-only fixture correction; released alpha.10 tag, Core/Self/media bytes remain immutable",
+      "Fresh full source/native matrix is still required; no unchanged retry used",
+      "No source-owned ETHOS migration or independent trust-domain acceptance"
+    ]
   }
 }

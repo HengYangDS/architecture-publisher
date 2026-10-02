@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
 import {
   execNativeSync,
   parseNpmPackRecord,
@@ -129,4 +130,69 @@ test('scripts-disabled npm setup excludes tooling coverage and preserves product
   );
   assert.equal(options.env.NODE_V8_COVERAGE, coverage);
   assert.ok((await fs.readdir(coverage)).length > 0);
+});
+
+test('shared offline installation installs all exact archives once without mutable consumer manifests', async (t) => {
+  const scratch = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-shared-install-'),
+  );
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const project = path.join(scratch, 'project');
+  const directory = path.join(scratch, 'installation');
+  await fs.mkdir(path.join(project, 'packages/publisher'), { recursive: true });
+  await fs.mkdir(path.join(project, 'editions/self'), { recursive: true });
+  await fs.mkdir(directory);
+  const entry = path.join(scratch, 'selected-npm.mjs');
+  const log = path.join(scratch, 'invocations.jsonl');
+  await fs.writeFile(
+    entry,
+    `import { appendFileSync } from 'node:fs';
+import path from 'node:path';
+const args = process.argv.slice(2);
+appendFileSync(${JSON.stringify(log)}, JSON.stringify({ args, cwd: process.cwd(), cache: process.env.npm_config_cache, coverage: process.env.NODE_V8_COVERAGE }) + '\\n');
+if (args[0] === 'pack') {
+  const name = path.basename(process.cwd()) === 'publisher' ? 'architecture-publisher' : '@architecture-publisher/self-edition';
+  console.log(JSON.stringify([{ name, filename: name === 'architecture-publisher' ? 'core.tgz' : 'self.tgz', files: [{ path: 'package.json' }] }]));
+}
+`,
+  );
+  const previous = process.env.npm_execpath;
+  process.env.npm_execpath = entry;
+  try {
+    const extra = path.join(directory, 'provider.tgz');
+    const installed = await installCoreAndSelf(project, directory, [extra]);
+    const invocations = (await fs.readFile(log, 'utf8')).trim().split('\n').map(JSON.parse);
+    const installs = invocations.filter(({ args }) => args[0] === 'install');
+    assert.equal(installs.length, 1);
+    assert.deepEqual(installs[0].args, [
+      'install',
+      '--offline',
+      '--ignore-scripts',
+      '--no-audit',
+      '--no-fund',
+      '--no-save',
+      '--package-lock=false',
+      '--prefix',
+      installed.consumer,
+      path.join(directory, 'core.tgz'),
+      path.join(directory, 'self.tgz'),
+      extra,
+    ]);
+    for (const invocation of invocations) {
+      assert.equal(invocation.cache, path.join(directory, 'npm-cache'));
+      assert.equal(invocation.coverage, '');
+    }
+    assert.equal(installs[0].cwd, installed.consumer);
+    assert.equal(
+      installed.coreRoot,
+      path.join(installed.consumer, 'node_modules/architecture-publisher'),
+    );
+    assert.equal(
+      installed.selfRoot,
+      path.join(installed.consumer, 'node_modules/@architecture-publisher/self-edition'),
+    );
+  } finally {
+    if (previous === undefined) delete process.env.npm_execpath;
+    else process.env.npm_execpath = previous;
+  }
 });

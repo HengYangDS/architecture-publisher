@@ -706,6 +706,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       and only the interrupted job was natively canceled. Original failures and
       trace remain; one native replay and protected-source qualification are open.
       Source-owned ETHOS thirteen-page migration and global closure remain open.
+      Final signed documentary source `987a1ee` passes exact-HEAD proof:
+      1,647 passed, zero failed, three explicit input skips and
+      97.74/95.22/99.50/97.74% coverage. Native review 9278 passes Linux/macOS
+      but Windows 47451 retains one scripts-disabled shared-install timeout
+      before Provider execution; all coverage floors still pass. Its shared
+      fixture now uses an invocation-owned cache and one exact Core/Self/Provider
+      installation, without unused consumer manifest/lock writes. An explicit
+      command-contract RED fails before these owner changes and GREEN passes;
+      nine real sibling/contract tests and the complete static graph pass.
+      Product deadlines, release bytes and source lockfiles are unchanged.
+      This is not proof of the original Windows timing cause; fresh complete
+      source/native qualification remains required at the same evidence owner.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

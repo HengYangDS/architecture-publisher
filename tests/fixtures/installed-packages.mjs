@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnNativeSync, parseNpmPackRecord } from './npm-pack-report.mjs';
 
-function run(command, args, cwd, timeout = 60000) {
+function run(command, args, cwd, cache, timeout = 60000) {
   const result = spawnNativeSync(command, args, {
     cwd,
     encoding: 'utf8',
@@ -13,6 +13,7 @@ function run(command, args, cwd, timeout = 60000) {
       npm_config_offline: 'true',
       npm_config_update_notifier: 'false',
       npm_config_audit: 'false',
+      npm_config_cache: cache,
     },
   });
   assert.equal(result.status, 0, result.stdout + result.stderr);
@@ -23,16 +24,19 @@ function archive(directory, result) {
   return path.join(directory, parseNpmPackRecord(result.stdout).filename);
 }
 
-export async function installCoreAndSelf(root, directory) {
-  const core = run(
+export async function installCoreAndSelf(root, directory, extraArchives = []) {
+  const cache = path.join(directory, 'npm-cache'),
+    core = run(
       'npm',
       ['pack', '--json', '--ignore-scripts', '--pack-destination', directory],
       path.join(root, 'packages/publisher'),
+      cache,
     ),
     extension = run(
       'npm',
       ['pack', '--json', '--ignore-scripts', '--pack-destination', directory],
       path.join(root, 'editions/self'),
+      cache,
     ),
     consumer = path.join(directory, 'consumer');
   await fs.mkdir(consumer);
@@ -44,12 +48,16 @@ export async function installCoreAndSelf(root, directory) {
       '--ignore-scripts',
       '--no-audit',
       '--no-fund',
+      '--no-save',
+      '--package-lock=false',
       '--prefix',
       consumer,
       archive(directory, core),
       archive(directory, extension),
+      ...extraArchives,
     ],
     consumer,
+    cache,
   );
   return {
     consumer,
