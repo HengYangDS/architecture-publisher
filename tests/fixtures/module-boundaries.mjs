@@ -107,7 +107,6 @@ const owners = [
       'packages/publisher/src/scene/',
       'packages/publisher/src/runtime.mjs',
       'packages/publisher/src/rendering/interactive-html.mjs',
-      'packages/publisher/src/qualification/static/emitted-path.mjs',
       'packages/publisher/renderers/',
     ],
   ],
@@ -152,6 +151,14 @@ const owners = [
     ],
   ],
   ['packages/publisher/src/cli/', ['packages/publisher/src/', 'packages/publisher/renderers/']],
+  [
+    'packages/publisher/renderers/archify/routes.mjs',
+    [
+      'packages/publisher/renderers/archify/',
+      'packages/publisher/src/scene/',
+      'packages/publisher/renderers/svg/segments.mjs',
+    ],
+  ],
   [
     'packages/publisher/renderers/archify/primitives.mjs',
     [
@@ -218,6 +225,10 @@ const owners = [
   [
     'packages/publisher/renderers/svg/',
     ['packages/publisher/renderers/svg/', 'packages/publisher/src/scene/'],
+  ],
+  [
+    'packages/publisher/renderers/resvg/measurement.mjs',
+    ['packages/publisher/renderers/resvg/', 'packages/publisher/src/runtime/process-tree.mjs'],
   ],
   [
     'packages/publisher/renderers/resvg/',
@@ -394,6 +405,50 @@ export function inspectModuleBoundaries(
         node.source.object.arguments[0].name === 'selected'
       )
         return;
+      if (
+        file === 'packages/publisher/renderers/archify/routes.mjs' &&
+        property(node.source, 'href') &&
+        node.source.object.type === 'CallExpression' &&
+        node.source.object.callee.type === 'Identifier' &&
+        node.source.object.callee.name === 'pathToFileURL' &&
+        node.source.object.arguments.length === 1
+      ) {
+        const selected = node.source.object.arguments[0];
+        if (
+          selected.type === 'CallExpression' &&
+          property(selected.callee, 'join') &&
+          selected.callee.object.type === 'Identifier' &&
+          selected.callee.object.name === 'path' &&
+          selected.arguments.length === 2 &&
+          selected.arguments[0].type === 'Identifier' &&
+          selected.arguments[0].name === 'native' &&
+          literal(selected.arguments[1]) === 'renderers/shared/cli.mjs'
+        )
+          return;
+      }
+      if (
+        file === 'packages/publisher/renderers/archify/text.mjs' &&
+        property(node.source, 'href') &&
+        node.source.object.type === 'CallExpression' &&
+        node.source.object.callee.type === 'Identifier' &&
+        node.source.object.callee.name === 'pathToFileURL' &&
+        node.source.object.arguments.length === 1
+      ) {
+        const selected = node.source.object.arguments[0];
+        if (
+          selected.type === 'CallExpression' &&
+          property(selected.callee, 'join') &&
+          selected.callee.object.type === 'Identifier' &&
+          selected.callee.object.name === 'path' &&
+          selected.arguments.length === 2 &&
+          selected.arguments[0].type === 'Identifier' &&
+          selected.arguments[0].name === 'native' &&
+          ['renderers/shared/geometry.mjs', 'renderers/shared/desktop-readability.mjs'].includes(
+            literal(selected.arguments[1]),
+          )
+        )
+          return;
+      }
       if (
         file === 'packages/publisher/src/provider/worker-task.mjs' &&
         node.source.type === 'Identifier' &&

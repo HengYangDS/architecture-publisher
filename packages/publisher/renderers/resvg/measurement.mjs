@@ -1,86 +1,205 @@
-import { fail } from '../../src/protocol/values.mjs';
-import { parse as parseFont } from './supply/opentype/opentype.mjs';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { fail, hasExactFields } from '../../src/protocol/values.mjs';
+import { PROCESS_CLEANUP_MS, runOwnedProcess } from '../../src/runtime/process-tree.mjs';
+import { readFontFace } from './font.mjs';
+import { RASTER_LIMITS as limits } from './limits.mjs';
 import { verifyRasterSupply } from './supply.mjs';
 
-const weights = new Set(['400', '600']);
+const weights = new Set(['400', '500', '600', '700']);
 const tolerance = 0.5;
-const maximumGlyphs = 200_000;
+const worker = fileURLToPath(new URL('./worker.mjs', import.meta.url));
+const escape = (text) =>
+  text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
 
-function parsedFont(bytes) {
+function decodeMeasurement(raw, state, reason, count) {
+  if (reason === 'timeout') fail('authored_canvas_measurement_execution_timeout');
+  if (reason === 'overflow') fail('authored_canvas_measurement_response_limit');
+  if (
+    !['closed', 'reply'].includes(reason) ||
+    state.spawnError ||
+    state.stderrBytes ||
+    (reason === 'closed' && (!state.closed || state.closed.code !== 0 || state.closed.signal))
+  )
+    fail('authored_canvas_measurement_execution_failed');
+  let value;
   try {
-    return parseFont(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+    value = JSON.parse(raw);
   } catch {
-    fail('authored_canvas_font_measurement_invalid');
+    fail('authored_canvas_measurement_response_invalid');
+  }
+  if (hasExactFields(value, ['status', 'code']) && value.status === 'error') {
+    if (typeof value.code !== 'string' || !/^[a-z][a-z0-9_]{0,127}$/u.test(value.code))
+      fail('authored_canvas_measurement_response_invalid');
+    fail(value.code);
+  }
+  if (
+    !hasExactFields(value, ['status', 'boxes']) ||
+    value.status !== 'measured' ||
+    !Array.isArray(value.boxes) ||
+    value.boxes.length !== count * 4 ||
+    value.boxes.some((number) => !Number.isFinite(number))
+  )
+    fail('authored_canvas_measurement_response_invalid');
+  return value.boxes;
+}
+
+async function measureBatch(labels, fonts) {
+  if (!labels.length) return [];
+  const svg = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" xml:space="preserve" text-rendering="geometricPrecision">${labels.map((label, index) => `<text id="architecture-measure-${index}" x="0" y="0" font-family="${escape(JSON.stringify(label.family))}" font-size="${label.fontSize}" font-weight="${label.weight}" text-anchor="${label.anchor}">${escape(label.text)}</text>`).join('')}</svg>`,
+  );
+  if (svg.length > limits.svgBytes) fail('authored_canvas_text_measurement_limit');
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'archpub-measure-'));
+  try {
+    const requestPath = path.join(scratch, 'request.json');
+    await fs.writeFile(
+      requestPath,
+      JSON.stringify({
+        schema: 'architecture.raster-measurement-request/v1',
+        svg: svg.toString('base64'),
+        fonts: fonts.map((face) => ({
+          family: face.family,
+          weight: face.weight,
+          bytes: face.bytes.toString('base64'),
+        })),
+        count: labels.length,
+      }),
+      { flag: 'wx', mode: 0o600 },
+    );
+    return await runOwnedProcess({
+      worker,
+      nodeFlags: [
+        `--max-old-space-size=${limits.heapMiB}`,
+        `--wasm-max-mem-pages=${limits.wasmPages}`,
+      ],
+      args: [String(limits.executionMs + PROCESS_CLEANUP_MS + 1000)],
+      requestPath,
+      scratch,
+      timeoutMs: limits.executionMs,
+      maximumBytes: limits.measurementQueries * 160,
+      failurePrefix: 'authored_canvas_measurement',
+      decode: (raw, state, reason) => decodeMeasurement(raw, state, reason, labels.length),
+    });
+  } finally {
+    await fs.rm(scratch, { recursive: true, force: true });
   }
 }
 
-/** Measure the actual selected font glyphs, not a supplied character-count box. */
-export async function createBundledTextMeasurer(supply) {
+/** Prepare renderer-native shaped ink once; synchronous cache misses never estimate. */
+export async function createBundledTextMeasurer(supply, requests = []) {
   const verifiedSupply = await verifyRasterSupply();
   if (!Array.isArray(supply?.fonts)) fail('authored_canvas_font_measurement_invalid');
-  const fonts = new Map(
-    supply.fonts
-      .filter(({ weight }) => weights.has(String(weight)))
-      .map(({ weight, bytes }) => [String(weight), parsedFont(bytes)]),
+  if (
+    supply.fonts.length > limits.fonts ||
+    supply.fonts.some(
+      (face) => !face || !Buffer.isBuffer(face.bytes) || face.bytes.length > limits.fontBytes,
+    ) ||
+    supply.fonts.reduce((sum, { bytes }) => sum + bytes.length, 0) > limits.fontTotalBytes
+  )
+    fail('authored_canvas_font_measurement_invalid');
+  const fonts = new Map();
+  const defaultFamily = supply.defaultFamily ?? supply.manifest?.family ?? 'JetBrains Mono';
+  for (const selected of supply.fonts) {
+    if (!weights.has(String(selected.weight))) fail('authored_canvas_font_measurement_invalid');
+    const face = readFontFace(selected.bytes, 'authored_canvas_font_measurement_invalid');
+    const family = selected.family ?? defaultFamily;
+    if (
+      !face.aliases.has(family) ||
+      face.weight !== Number(selected.weight) ||
+      !face.normal ||
+      !face.staticTtf
+    )
+      fail('authored_canvas_font_identity_mismatch');
+    const key = JSON.stringify([face.family, String(selected.weight)]);
+    const previous = fonts.get(key);
+    if (previous && previous.sha256 !== face.sha256)
+      fail('authored_canvas_font_identity_ambiguous');
+    fonts.set(key, { ...face, bytes: selected.bytes });
+  }
+  if (!fonts.size) fail('authored_canvas_font_measurement_invalid');
+  const validate = (label) => {
+    if (!label || typeof label !== 'object') fail('authored_canvas_text_metrics_invalid');
+    const { text, fontSize, weight, anchor, x, baseline, family = defaultFamily } = label;
+    const face = fonts.get(JSON.stringify([family, weight]));
+    if (!face && weights.has(weight)) fail('authored_canvas_font_unselected');
+    if (
+      !face ||
+      typeof text !== 'string' ||
+      !text.trim() ||
+      text.length > 4096 ||
+      !Number.isFinite(fontSize) ||
+      fontSize <= 0 ||
+      fontSize > 4096 ||
+      !Number.isFinite(x) ||
+      Math.abs(x) > 100000 ||
+      !Number.isFinite(baseline) ||
+      Math.abs(baseline) > 100000 ||
+      !['start', 'middle', 'end'].includes(anchor)
+    )
+      fail('authored_canvas_text_metrics_invalid');
+    if (
+      /[\p{Mark}\p{Other}]/u.test(text) ||
+      !/^[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{Script=Han}\p{Script=Common}]+$/u.test(
+        text,
+      ) ||
+      /[\p{Separator}]/u.test(text.replaceAll(' ', ''))
+    )
+      fail('authored_canvas_text_profile_unsupported');
+    for (const character of text)
+      if (character !== ' ' && !face.font.charToGlyphIndex(character))
+        fail('authored_canvas_glyph_missing');
+    return { text, fontSize, weight, anchor, family, x, baseline };
+  };
+  const key = ({ text, fontSize, weight, anchor, family }) =>
+    JSON.stringify([text, fontSize, weight, anchor, family]);
+  if (!requests || typeof requests[Symbol.iterator] !== 'function')
+    fail('authored_canvas_measurement_request_invalid');
+  const prepared = new Map();
+  let glyphs = 0;
+  let count = 0;
+  for (const request of requests) {
+    if (++count > limits.measurementQueries) fail('authored_canvas_text_measurement_limit');
+    const label = validate(request);
+    if (prepared.has(key(label))) continue;
+    glyphs += [...label.text].length;
+    if (glyphs > limits.measurementGlyphs) fail('authored_canvas_text_measurement_limit');
+    prepared.set(key(label), label);
+  }
+  const labels = [...prepared.values()];
+  const nativeFonts = [...fonts.values()].map(({ family, weight, bytes }) => ({
+    family,
+    weight,
+    bytes,
+  }));
+  const boxes = await measureBatch(labels, nativeFonts);
+  const cache = new Map(
+    labels.map((label, index) => {
+      const [x, y, width, height] = boxes.slice(index * 4, index * 4 + 4);
+      if (width <= 0 || height <= 0) fail('authored_canvas_measurement_response_invalid');
+      return [key(label), { x, y, width, height }];
+    }),
   );
-  if (fonts.size !== weights.size) fail('authored_canvas_font_measurement_invalid');
   return {
     supply: { id: 'font-measurement', sha256: verifiedSupply.sha256 },
-    box({ text, fontSize, weight, anchor, x, baseline }) {
-      const font = fonts.get(weight);
-      if (
-        !font ||
-        typeof text !== 'string' ||
-        !text.trim() ||
-        /[\r\n]/u.test(text) ||
-        !Number.isFinite(fontSize) ||
-        fontSize <= 0 ||
-        !Number.isFinite(x) ||
-        !Number.isFinite(baseline) ||
-        !['start', 'middle', 'end'].includes(anchor) ||
-        !Number.isFinite(font.unitsPerEm) ||
-        font.unitsPerEm <= 0
-      )
-        fail('authored_canvas_text_metrics_invalid');
-      const scale = fontSize / font.unitsPerEm;
-      const glyphs = [...text].map((character) => {
-        const glyph = font.charToGlyph(character);
-        if (!glyph?.index || !Number.isFinite(glyph.advanceWidth))
-          fail('authored_canvas_glyph_missing');
-        return glyph;
-      });
-      const advance = glyphs.reduce((sum, glyph) => sum + glyph.advanceWidth * scale, 0);
-      let pen = x - (anchor === 'middle' ? advance / 2 : anchor === 'end' ? advance : 0);
-      const bounds = { x1: Infinity, y1: Infinity, x2: -Infinity, y2: -Infinity };
-      for (const glyph of glyphs) {
-        let box;
-        try {
-          box = glyph.getBoundingBox();
-        } catch {
-          fail('authored_canvas_font_measurement_invalid');
-        }
-        if (box.x1 !== box.x2 || box.y1 !== box.y2) {
-          bounds.x1 = Math.min(bounds.x1, pen + box.x1 * scale);
-          bounds.x2 = Math.max(bounds.x2, pen + box.x2 * scale);
-          bounds.y1 = Math.min(bounds.y1, baseline - box.y2 * scale);
-          bounds.y2 = Math.max(bounds.y2, baseline - box.y1 * scale);
-        }
-        pen += glyph.advanceWidth * scale;
-      }
-      if (![bounds.x1, bounds.y1, bounds.x2, bounds.y2].every(Number.isFinite))
-        fail('authored_canvas_text_metrics_invalid');
-      return {
-        x: bounds.x1,
-        y: bounds.y1,
-        width: bounds.x2 - bounds.x1,
-        height: bounds.y2 - bounds.y1,
-      };
+    defaultFamily,
+    box(request) {
+      const label = validate(request);
+      const result = cache.get(key(label));
+      if (!result) fail('authored_canvas_measurement_unprepared');
+      return { ...result, x: result.x + label.x, y: result.y + label.baseline };
     },
   };
 }
 
-/** Refuse authored boxes that do not describe the bundled font's painted glyphs. */
-export async function verifyAuthoredCanvasTextBoxes(scene, supply) {
+/** Check declared boxes against native shaped ink from the exact selected faces. */
+export async function verifyAuthoredCanvasTextBoxes(scene, supply, extraRequests = []) {
   if (
     !Array.isArray(scene?.texts) ||
     scene.texts.some(
@@ -88,14 +207,14 @@ export async function verifyAuthoredCanvasTextBoxes(scene, supply) {
     )
   )
     fail('authored_canvas_text_metrics_invalid');
+  const labels = scene.texts.filter(({ visible }) => visible);
   if (
-    scene.texts.reduce((total, label) => total + (label.visible ? [...label.text].length : 0), 0) >
-    maximumGlyphs
+    [...labels, ...extraRequests].reduce((total, label) => total + [...label.text].length, 0) >
+    limits.measurementGlyphs
   )
     fail('authored_canvas_text_measurement_limit');
-  const measurer = await createBundledTextMeasurer(supply);
-  for (const label of scene.texts) {
-    if (!label.visible) continue;
+  const measurer = await createBundledTextMeasurer(supply, [...labels, ...extraRequests]);
+  for (const label of labels) {
     const actual = measurer.box(label);
     const declared = label.box;
     if (

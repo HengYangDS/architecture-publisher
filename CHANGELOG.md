@@ -23,6 +23,14 @@ may contain incompatible changes.
   Derived ink bounds remain separate from semantic ports; checked geometry-only
   adornments add no source coverage or inspection. Cancelling filled contours,
   false envelopes, mixed legacy painting and excessive path budgets are refused.
+- Exact ordered relation and Edition-owned editorial routes over shared literal
+  segments. Physical junctions remain geometry, each source reference retains
+  independent inspection, and every route checks actual contacts, terminal
+  direction, selected stroke and arrow paint without transitive source claims.
+- Exact authored font resources across direct, declarative and executable
+  inputs. Selected static TTF faces, weights and distribution references bind
+  native shaped ink, exported fonts and independent SVG/PNG/HTML painting;
+  absent glyphs, changed pins and unsupported text fail without ambient fallback.
 
 ### Fixed
 
@@ -36,6 +44,12 @@ may contain incompatible changes.
 - Aggregate connectors reject reversed or ambiguous source relations even when
   another member points forward. Internal context remains bound to its owning
   node rather than borrowing the connector's arrow direction.
+- Browser test resources release dependants before HTTP servers through native
+  async disposal. The repository uses its existing process-isolated Node test
+  workers, without another scheduler or relaxed coverage floor.
+- One native Markdownlint configuration covers maintained Markdown, rejects
+  extra simple-list spacing, and preserves embedded-language, raw HTML,
+  historical archive and supplier bytes.
 
 ## [0.3.0-alpha.8] - 2026-10-02
 
@@ -121,7 +135,6 @@ may contain incompatible changes.
   restoration have explicit regressions. Eligible long causal graphs can use
   ELK wrapping; static geometry remains independent. The unreleased library
   export is now `renderers/interactive`, with no compatibility facade.
-
 - Interactive responsibility pages now present roles, selected source nodes
   and relations, editorial handoffs, and linked Claims in one bounded visual
   map. A selected predicate keeps its spelling; an unlabeled source relation

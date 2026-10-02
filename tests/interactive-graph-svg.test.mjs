@@ -3,6 +3,7 @@ import test from 'node:test';
 import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
 import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg/measurement.mjs';
 import { layoutInteractivePages } from '../packages/publisher/renderers/elk/layout.mjs';
+import { interactiveLabelRequests } from '../packages/publisher/renderers/elk/text.mjs';
 
 test('the painter emits exact graph paths and glyph positions without a second geometry engine', async () => {
   const painter = await import('../packages/publisher/renderers/interactive/graph-svg.mjs').catch(
@@ -25,7 +26,10 @@ test('the painter emits exact graph paths and glyph positions without a second g
     ],
     groups: [{ id: 'g-0', label: 'Reading boundary', nodeIds: ['n-0', 'n-1'] }],
   };
-  const measure = await createBundledTextMeasurer(await loadBundledFonts());
+  const measure = await createBundledTextMeasurer(
+    await loadBundledFonts(),
+    interactiveLabelRequests([page]),
+  );
   page.geometry = (await layoutInteractivePages([page], measure)).layouts[0];
   const original = structuredClone(page);
   const html = painter.renderGraphSvg(page, 0);

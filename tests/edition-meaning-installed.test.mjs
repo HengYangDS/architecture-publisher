@@ -659,7 +659,7 @@ import { createBundledTextMeasurer } from './node_modules/architecture-publisher
 import { loadBundledFonts } from 'architecture-publisher/renderers/fonts';
 const root=fileURLToPath(new URL('./statement-inputs/',import.meta.url));
 const refinement=${JSON.stringify(statementRefinement)};
-const measurer=await createBundledTextMeasurer(await loadBundledFonts());
+const measurer=await createBundledTextMeasurer(await loadBundledFonts(), [...refinement.media.interactive.pages.flatMap(page=>page.scene.texts),...refinement.media.static.scene.texts]);
 for(const page of refinement.media.interactive.pages)for(const text of page.scene.texts)text.box=measurer.box(text);
 for(const text of refinement.media.static.scene.texts)text.box=measurer.box(text);
 await fs.writeFile(root+'edition/refinement.json',JSON.stringify(refinement)+'\\n');

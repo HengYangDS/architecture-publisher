@@ -7,13 +7,12 @@ import {
   verifyAuthoredCanvasTextBoxes,
 } from '../packages/publisher/renderers/resvg/measurement.mjs';
 
-test('bundled OpenType metrics reproduce recorded self glyph bounds', async () => {
+test('bundled native shaped metrics reproduce recorded self glyph bounds', async () => {
   const source = JSON.parse(
     await fs.readFile('editions/self/src/edition/static/authoring/metrics.json', 'utf8'),
   );
   const record = new Map(source.records).get('["Source Bundle",14.5,"600"]');
   const supply = await loadBundledFonts();
-  const measurer = await createBundledTextMeasurer(supply);
   const label = {
     id: 'source-bundle',
     text: 'Source Bundle',
@@ -24,6 +23,7 @@ test('bundled OpenType metrics reproduce recorded self glyph bounds', async () =
     baseline: 200,
     visible: true,
   };
+  const measurer = await createBundledTextMeasurer(supply, [label]);
   const box = measurer.box(label);
   assert(Math.abs(box.x - (300 - record.width / 2 + record.glyph.x)) < 0.01);
   assert(Math.abs(box.y - (200 - record.glyph.y - record.glyph.height)) < 0.01);

@@ -15,7 +15,7 @@ import {
 import { composeStaticEditionScene } from '../scene/static/edition.mjs';
 import { composeStaticResponsibilityScene } from '../scene/static/responsibility.mjs';
 import { assertAuthoredCanvasScene } from '../scene/static/audit.mjs';
-import { auditEmittedEdges } from '../qualification/static/emitted-path.mjs';
+import { auditEmittedEdges } from '../scene/emitted-path.mjs';
 import { importLikeC4Layout } from '../semantics/native-likec4.mjs';
 import { canonical } from '../semantics/document.mjs';
 import { readPublisherInstalledPackage } from '../runtime.mjs';
@@ -25,7 +25,9 @@ import { renderInteractiveEditionHtml } from '../../renderers/interactive/index.
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
 import { composeDagreStaticGeometry } from '../../renderers/dagre/static.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
+import { resolveAuthoredFontSupply } from '../../renderers/resvg/font.mjs';
 import { verifyAuthoredCanvasTextBoxes } from '../../renderers/resvg/measurement.mjs';
+import { authoredCanvasFramingRequest } from '../../renderers/svg/canvas.mjs';
 import {
   composeStaticEditionSvg,
   composeStaticFigureSvg,
@@ -151,11 +153,21 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
   let scene;
   let rendered;
   let limits = [];
+  let authoredFonts = null;
   if (authoredCanvas) {
     const authored = composeAuthoredStaticCanvas(meaning);
-    scene = authored.scene;
+    authoredFonts = await resolveAuthoredFontSupply({
+      catalogue: meaning.editorial.visualPolicy.fonts,
+      defaultFont: staticRefinement.font,
+      texts: authored.scene.texts,
+      readResource: selected.readEditionResource,
+      bundled: fontSupply,
+    });
+    scene = { ...authored.scene, texts: authoredFonts.texts };
     const { emittedContract } = assertAuthoredCanvasScene(scene);
-    const measurer = await verifyAuthoredCanvasTextBoxes(scene, fontSupply);
+    const measurer = await verifyAuthoredCanvasTextBoxes(scene, authoredFonts, [
+      authoredCanvasFramingRequest(meaning.edition.editor),
+    ]);
     const rasterWidth = meaning.editorial.presentation.static.width;
     if (!Number.isSafeInteger(rasterWidth)) fail('authored_canvas_width_required');
     const svg = renderAuthoredCanvasSvg(scene, meaning.edition.editor, measurer);
@@ -172,7 +184,7 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
     scene = composeStaticEditionScene(meaning, layout);
     rendered = composeStaticEditionSvg(scene, options);
   }
-  return { scene, rendered, limits, implementationProfile };
+  return { scene, rendered, limits, implementationProfile, authoredFonts };
 }
 
 async function staticMedium(selected, meaning, scratch) {
@@ -254,9 +266,12 @@ async function staticMedium(selected, meaning, scratch) {
   const implementationProfile = !useFigure
     ? parts[0].implementationProfile
     : [...new Set(parts.map((part) => part.implementationProfile)), 'static-figure'];
-  const fonts = fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
-  if (fonts.length !== 2 || !fontSupply.license?.bytes) fail('static_edition_font_supply_invalid');
-  const svg = embedFonts(rendered.bytes, fonts, fontSupply.license);
+  const authoredFonts = wholeAuthoredCanvas ? parts[0].authoredFonts : null;
+  const fonts =
+    authoredFonts?.fonts ?? fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
+  if ((!authoredFonts && fonts.length !== 2) || !fontSupply.license?.bytes)
+    fail('static_edition_font_supply_invalid');
+  const svg = embedFonts(rendered.bytes, fonts, fontSupply.license, authoredFonts?.distributions);
   const png = await rasterizeSvg(scratch, rendered.bytes, fonts, rendered.rasterWidth);
   const files = [
     { path: 'static/architecture.svg', content: svg },
@@ -274,6 +289,14 @@ async function staticMedium(selected, meaning, scratch) {
       ],
       supplies: [
         checkedSupply({ id: 'font-supply', sha256: fontSupply.sha256 }, 'bundled-file-check/v1'),
+        ...(authoredFonts
+          ? [
+              checkedSupply(
+                { id: 'selected-fonts', sha256: authoredFonts.sha256 },
+                'renderer-returned-check/v1',
+              ),
+            ]
+          : []),
         checkedSupply(
           { id: 'raster-supply', sha256: png.result.supply.sha256 },
           'bundled-file-check/v1',
@@ -286,6 +309,7 @@ async function staticMedium(selected, meaning, scratch) {
 
 async function authoredInteractiveMedium(selected, meaning, scratch) {
   const authored = composeAuthoredInteractiveArchitecture(meaning);
+  const bundledFonts = await loadBundledFonts();
   const sourceRecords = [
     ...new Map(
       meaning.native.selections.map(({ source, sourceClass }) => [
@@ -306,11 +330,23 @@ async function authoredInteractiveMedium(selected, meaning, scratch) {
   const pageRecords = [];
   const supplies = new Map();
   for (const page of authored.pages) {
+    const fontSupply = await resolveAuthoredFontSupply({
+      catalogue: meaning.editorial.visualPolicy.fonts,
+      defaultFont: meaning.refinement.media.interactive.font,
+      texts: page.scene.texts ?? [],
+      readResource: selected.readEditionResource,
+      bundled: bundledFonts,
+      backendDefaults: true,
+      includeFraming: false,
+    });
+    const scene = { ...page.scene, texts: fontSupply.texts };
     const output = path.join(scratch, `${page.id}.html`);
-    const rendered = await renderArchitectureScene({ scene: page.scene, output });
+    const rendered = await renderArchitectureScene({ scene, output, fontSupply });
     const content = await fs.readFile(output);
     for (const supply of rendered.supplies) {
-      const supplyId = supply.id === 'runtime' ? `${page.id}/runtime` : supply.id;
+      const supplyId = ['runtime', 'statement-fonts'].includes(supply.id)
+        ? `${page.id}/${supply.id}`
+        : supply.id;
       const previous = supplies.get(supplyId);
       if (previous && previous.sha256 !== supply.sha256)
         fail('authored_interactive_supply_conflict');

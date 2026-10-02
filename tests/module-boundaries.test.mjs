@@ -249,12 +249,7 @@ test('the build coordinator may invoke only the emitted-artifact predicate', asy
   const packageExports = await declaredPackageExports();
   const caller = 'packages/publisher/src/compiler/successor.mjs';
   assert.deepEqual(
-    inspectModuleBoundaries(
-      caller,
-      "import '../qualification/static/emitted-path.mjs';",
-      paths,
-      packageExports,
-    ),
+    inspectModuleBoundaries(caller, "import '../scene/emitted-path.mjs';", paths, packageExports),
     [],
   );
   assert(
@@ -484,6 +479,46 @@ test('layout worker admits only its exact private verified geometry supply', asy
         ({ reason }) => reason.includes('computed dependency'),
       ),
     );
+});
+
+test('literal routes load only the exact private verified Archify helper', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  const file = 'packages/publisher/renderers/archify/routes.mjs';
+  const selected =
+    "await import(pathToFileURL(path.join(native, 'renderers/shared/cli.mjs')).href);";
+  assert.deepEqual(inspectModuleBoundaries(file, selected, paths, packageExports), []);
+  for (const changed of [
+    selected.replace('native,', 'otherRoot,'),
+    selected.replace('shared/cli.mjs', 'shared/utils.mjs'),
+    selected.replace('path.join', 'path.resolve'),
+    'await import(privateLayoutUrl);',
+  ])
+    assert(
+      inspectModuleBoundaries(file, changed, paths, packageExports).some(({ reason }) =>
+        reason.includes('computed dependency'),
+      ),
+    );
+});
+
+test('authored text loads only its private verified geometry and readability helpers', async () => {
+  const { paths } = await inventory(runtimeRoots);
+  const packageExports = await declaredPackageExports();
+  const file = 'packages/publisher/renderers/archify/text.mjs';
+  for (const member of ['geometry.mjs', 'desktop-readability.mjs']) {
+    const selected =
+      "await import(pathToFileURL(path.join(native, 'renderers/shared/" + member + "')).href);";
+    assert.deepEqual(inspectModuleBoundaries(file, selected, paths, packageExports), []);
+    for (const changed of [
+      selected.replace('native,', 'otherRoot,'),
+      selected.replace(member, 'utils.mjs'),
+    ])
+      assert(
+        inspectModuleBoundaries(file, changed, paths, packageExports).some(({ reason }) =>
+          reason.includes('computed dependency'),
+        ),
+      );
+  }
 });
 
 test('provider and generic kernels reject forbidden dependency directions and adopter names', async () => {

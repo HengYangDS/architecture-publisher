@@ -4,8 +4,8 @@
     {
       "name": "resvg",
       "version": "0.48.1",
-      "archive": "gitlab-generic://dig/research/human-agent-stewardship/architecture-publisher/architecture-raster-resvg-source/0.48.1-9c1219f8e903/source.tar.xz",
-      "integrity": "sha256-9c1219f8e9037730a51e95c1dd905137987f8b084c7f0e3666642f52b93260e8",
+      "archive": "gitlab-generic://dig/research/human-agent-stewardship/architecture-publisher/architecture-raster-resvg-source/0.48.1-74812e78d5f7/source.tar.xz",
+      "integrity": "sha256-74812e78d5f76131d799dbdc269819d9623a6c0ba7901ccf386df31a5265e137",
       "license": "MIT OR Apache-2.0",
       "sourceCommit": "crates.io:resvg@0.48.1"
     },
@@ -30,14 +30,14 @@
     {
       "path": "resvg/index.mjs",
       "source": "wasm-bindgen 0.2.128 generated glue from the pinned source closure",
-      "bytes": 3577,
-      "sha256": "4f4218b14ecd618019dbcd768a2ef04fe2f1818e183011a87c242a6a456c81f5"
+      "bytes": 4550,
+      "sha256": "5a2d6b8e3c1f07131de5af3eb67a0361d1d427c0f740992a1b2977ed389aaf57"
     },
     {
       "path": "resvg/index_bg.wasm",
       "source": "offline frozen Rust 1.98.1 build from the pinned source closure",
-      "bytes": 3425187,
-      "sha256": "f350cad80eeadc6f9277708dd4a42ac35cd1c5ff8514f89eb62ecace70c33abe"
+      "bytes": 3427609,
+      "sha256": "6827b7a3c62d7534250f81595c237086179989eac0eb5b02c3f952bcf20d8761"
     },
     {
       "path": "resvg/package.json",
@@ -67,7 +67,7 @@
       "path": "resvg/source.json",
       "source": "source, toolchain, build and output identity binding",
       "bytes": 2258,
-      "sha256": "d4ad9c98bb7d780fa25b1b1869101a1b7fd84bd37e406a94fcfb60380eb56ed0"
+      "sha256": "3caf53024faf348d0784ed2e9c66156b609b6890438a3b53ac61d68f2b35091d"
     },
     {
       "path": "sax/sax.cjs",

@@ -2,6 +2,7 @@ import { deepFreeze } from '../../semantics/document.mjs';
 import { fail } from '../../protocol/values.mjs';
 import { classifyAggregateRelation } from '../aggregate-relation.mjs';
 import { assertPrimitiveContrast, resolvePrimitiveNodes } from '../primitives.mjs';
+import { bindAuthoredRoutes } from '../routes.mjs';
 import {
   authoredReference,
   deriveAuthoredStatements,
@@ -32,6 +33,48 @@ function admitEditorial(assertion) {
   if (typeof assertion.statement !== 'string' || !assertion.statement.trim())
     fail('authored_canvas_editorial_unadmitted');
   return true;
+}
+
+function staticRouteBindings(
+  scene,
+  membersByNode,
+  required,
+  statements,
+  selections,
+  relationGraphics,
+) {
+  const routes = bindAuthoredRoutes(scene, {
+    medium: 'static',
+    entities: membersByNode,
+    relations: new Map(
+      [...required]
+        .filter(([, item]) => item.target.kind === 'relation')
+        .map(([id, item]) => [id, item.members.relations[0]]),
+    ),
+    editorials: statements.editorial,
+    selections,
+  });
+  for (const [id, graphics] of routes) {
+    if (JSON.parse(id)[1] !== 'relation') continue;
+    const previous = relationGraphics.get(id) ?? [];
+    for (const graphic of graphics) {
+      const occurrence = `edge:${graphic}`;
+      if (!previous.includes(occurrence)) previous.push(occurrence);
+    }
+    relationGraphics.set(id, previous);
+  }
+  return routes;
+}
+
+function staticEditorialCarrier(editorial, textGraphics, routeGraphics) {
+  return {
+    edition: editorial.edition,
+    graphicIds: [
+      ...textGraphics.get(editorial.reference),
+      ...(routeGraphics.get(editorial.reference) ?? []).map((id) => `edge:${id}`),
+    ],
+    representation: 'editorial-statement',
+  };
 }
 
 const selectionReference = ({ source, target }) =>
@@ -195,7 +238,7 @@ export function composeAuthoredStaticCanvas(meaning) {
 
   const edgeIds = new Set();
   const relationGraphics = new Map();
-  for (const edge of scene.edges) {
+  for (const edge of scene.edges.filter((edge) => !Object.hasOwn(edge, 'adornment'))) {
     if (edgeIds.has(edge.id)) fail('authored_canvas_graphic_ambiguous');
     edgeIds.add(edge.id);
     const from = membersByNode.get(edge.source);
@@ -226,14 +269,21 @@ export function composeAuthoredStaticCanvas(meaning) {
     if (!crosses) fail('authored_canvas_edge_binding_mismatch');
   }
 
+  const routeGraphics = staticRouteBindings(
+    scene,
+    membersByNode,
+    required,
+    statements,
+    selections,
+    relationGraphics,
+  );
+
   const carriers = requiredAssertionIds.map((id) => {
     const editorial = statements.editorial.get(id);
     if (editorial)
       return {
         assertionId: id,
-        edition: editorial.edition,
-        graphicIds: [...textGraphics.get(editorial.reference)],
-        representation: 'editorial-statement',
+        ...staticEditorialCarrier(editorial, textGraphics, routeGraphics),
       };
     const item = selectedByAssertion.get(id);
     const statement = statements.claims.get(id);

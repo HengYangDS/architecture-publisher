@@ -12,6 +12,8 @@ export const RASTER_LIMITS = Object.freeze({
   references: 100000,
   referenceDepth: 256,
   fontContexts: 100000,
+  measurementQueries: 4096,
+  measurementGlyphs: 200000,
   pngBytes: 96 * 1024 * 1024,
   responseBytes: 128 * 1024 * 1024,
   executionMs: 30000,

@@ -7,7 +7,6 @@ import {
   resolvePrimitivePaint,
 } from '../../src/scene/primitives.mjs';
 import { renderPrimitives } from '../svg/primitives.mjs';
-import { rectsOverlap, segmentIntersectsRect } from './supply/renderers/shared/geometry.mjs';
 
 const tones = new Map([
   ['paper', 'var(--bg)'],
@@ -15,7 +14,17 @@ const tones = new Map([
   ['muted', 'var(--text-muted)'],
 ]);
 
-function assertPaintLayout(marks, components, boundaries, labels, connections, paths, viewBox) {
+function assertPaintLayout(
+  marks,
+  components,
+  boundaries,
+  labels,
+  connections,
+  paths,
+  viewBox,
+  rectsOverlap,
+  segmentIntersectsRect,
+) {
   const owners = new Map(components.map((component) => [component.id, component]));
   for (const mark of marks) {
     const box = mark.paintBox;
@@ -86,7 +95,7 @@ export async function adaptArchitecturePrimitives(native, scene) {
   source = source.replace(
     checks,
     () =>
-      `  const paintedOwners = new Map(${paintOwners});\n  (${assertPaintLayout.toString()})(${selected}, [...components.values()].map((c) => ({ ...c, paintBox: paintedOwners.get(c.id) })), boundaries, connectionLabels, asArray(arch.connections), asArray(arch.connections).map((conn) => pathFor(conn).points), viewBox);\n${checks}`,
+      `  const paintedOwners = new Map(${paintOwners});\n  (${assertPaintLayout.toString()})(${selected}, [...components.values()].map((c) => ({ ...c, paintBox: paintedOwners.get(c.id) })), boundaries, connectionLabels, asArray(arch.connections), asArray(arch.connections).map((conn) => pathFor(conn).points), viewBox, rectsOverlap, segmentIntersectsRect);\n${checks}`,
   );
   source = source.replace(
     legacyLabel,

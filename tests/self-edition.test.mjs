@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import axe from 'axe-core';
 import { chromium } from 'playwright-core';
 import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import { browserLifetime } from './fixtures/browser-lifetime.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { validateEditionProject } from '../packages/publisher/src/edition/authoring.mjs';
 import { validateClaimModel } from '../packages/publisher/src/semantics/document.mjs';
@@ -381,7 +382,13 @@ test('self Project gives the static map structural scope and interactive pages e
   const { loadBundledFonts } = await import('../packages/publisher/renderers/fonts/index.mjs');
   const { createBundledTextMeasurer } =
     await import('../packages/publisher/renderers/resvg/measurement.mjs');
-  const measurer = await createBundledTextMeasurer(await loadBundledFonts());
+  const { authoredCanvasFramingRequest } =
+    await import('../packages/publisher/renderers/svg/canvas.mjs');
+  const measurer = await createBundledTextMeasurer(await loadBundledFonts(), [
+    ...scene.texts,
+    authoredCanvasFramingRequest(project.editor),
+    authoredCanvasFramingRequest('A'.repeat(500)),
+  ]);
   assert.throws(() => renderAuthoredCanvasSvg(scene), {
     code: 'authored_canvas_editor_invalid',
   });
@@ -956,14 +963,15 @@ test('the installed self Edition compiles both media after its author package is
         response.end(html);
       });
       await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-      browserTest.after(() => new Promise((resolve) => server.close(resolve)));
+      const lifetime = browserLifetime(browserTest);
+      lifetime.use(server);
       const browser = await chromium.launch({
         executablePath: process.env.ARCHPUB_BROWSER_EXECUTABLE,
         headless: true,
         chromiumSandbox: true,
         timeout: 15_000,
       });
-      browserTest.after(() => browser.close());
+      lifetime.use(browser);
       const page = await browser.newPage({
         viewport: { width: 1440, height: 900 },
         reducedMotion: 'reduce',

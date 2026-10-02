@@ -1,5 +1,3 @@
-<!-- markdownlint-disable MD013 -->
-
 # Architecture Publisher operational reference
 
 This document describes the 0.3 CLI surface. A development checkout is not a
@@ -361,6 +359,30 @@ These checks prove bounded geometry, not perceptual visibility or art quality
 at every delivery size. Limits are 32 primitives per node, 64 points per
 polyline, 4096 primitives and 32768 line/vertex/closing points per canvas.
 
+An optional `routes` array binds source relationships or editorial explanations
+to existing physical segments. Each route contains `id`, one canonical
+`reference`, source/target occurrence IDs, and ordered `{ edge, direction }`
+traversals. Directions are `forward` or `reverse`; they do not reverse painted
+arrows. An editorial route additionally binds the exact `editionSha256` and
+retains its own visible statement and selected basis. It cannot become a
+source relationship or make an inferred transitive edge.
+
+Literal segments use `adornment: true`, empty `semanticIds`, explicit ordered
+points and stroke/arrow geometry. They paint once; routes supply the separate
+inspection records. Junction identity alone cannot bridge contacts on opposite
+sides of its box. Use an explicit segment, which paints after its filled
+junction. Each route needs a forward terminal arrow; opposing routes may share
+unarrowed geometry but not contrary arrow evidence. Existing valid legacy
+carriers need no migration merely because another route is added.
+
+The same admitted points, stroke widths and arrow wings drive collision,
+containment and emitted-paint validation in both media. Per canvas/page, limits
+are 2048 routes, 2048 traversals per route, 8192 traversal references, 8192
+expanded reference/graphic pairs and 32768 literal points. Repetitions count
+before deduplication; repeated segments within one route are unsupported.
+These finite geometric checks do not certify source truth, editorial wording
+or subjective visual quality.
+
 Historical v1 plans retain their selected output field and original meaning.
 They select a Source Bundle, Claim Model member, and exact
 `architecture.edition/v1` file, then emit an
@@ -683,16 +705,33 @@ object, condition, scope, maturity, and declared validity in the reading view.
 Full source records and method limits remain available in Inspect. Moving a
 record there does not remove a selected meaning or qualify its truth.
 
-This compositor reuses the existing bundled OpenType measurer, currently owned
-by `renderers/resvg/measurement.mjs`; it does not run the raster worker to build
-HTML. The selected measurement implementation is recorded separately from font
-bytes. Pinned ELK receives that explicit measurer and owns complete geometry;
+This compositor prepares a bounded batch of exact possible label lines through
+`renderers/resvg/measurement.mjs` and the existing supervised raster Worker.
+The native renderer shapes the selected fonts and returns actual outline ink,
+not summed character advances. A synchronous cache supplies ELK; an unprepared
+request fails without estimation or starting another process. Font bytes and
+the measurement implementation remain separately bound. Pinned ELK owns geometry;
 the SVG painter preserves its routes, labels, and node bounds. A pinned camera
 supplier owns viewport interaction only. Shared paint dimensions bind audits
 to emitted strokes and arrowheads; browser glyph checks remain separate.
 Flat groups retain exact membership and containment. Long acyclic graphs may
 use the same ELK owner's finite wrapping candidate, never an edited fallback.
 Static Dagre geometry and authored Archify geometry remain independent.
+
+Authored font resources select normal static TTF faces at weights 400, 500, 600
+or 700. Per-text selection overrides the medium default; absence alone selects
+bundled typography. Missing selections, glyphs or pins fail rather than falling
+back. Measurement supports single-line horizontal LTR Latin, Greek, Cyrillic,
+Common characters and explicitly supplied Han. Combining marks, controls,
+joiners, variation selectors and unsupported scripts are refused; no text
+normalization occurs. Both authored painters preserve spaces, disable synthetic
+faces and request geometric precision. Browser paint remains a separate check.
+
+Each preparation admits at most 4096 queries and 200000 glyphs, including
+static-only editorial framing. The existing raster bounds control font bytes,
+heap, WASM memory, time, output and owned-process reclamation. Font metadata
+and glyph-availability parsing still occur in the parent; native supervision
+does not imply sandboxed parsing or protection from a malicious installer.
 
 Authored statement text uses the same bounded text shape in each independent
 medium. Select a Claim with `semanticIds: ['["namespace","claim","claim-id"]']`;
@@ -709,8 +748,8 @@ Previously valid anchored aggregate text retains its existing v1 interpretation
 and limits. A direct statement cannot silently fall back to that representation
 when its text is missing. A statement-only interactive page may have no nodes.
 
-The Archify adapter validates finite text against the same bundled font bytes
-it embeds, measured bounds and the native desktop readability/route geometry.
+The Archify adapter validates finite text against the exact selected font bytes
+it embeds, native-shaped bounds and the desktop readability/route geometry.
 Each page records its exact adapted runtime identity; different page input is
 not a conflicting shared runtime. Inspection distinguishes source identity from
 Edition identity and returns keyboard focus to the selected text. These checks
@@ -740,6 +779,15 @@ and dead-code analysis, Markdown and strict OpenSpec validation, measured test
 coverage, and packed-package validation. Vendored Archify, font, and raster
 supply remain outside first-party rewrite and dead-code ownership; their pinned
 bytes are verified through supply-chain and behavior tests.
+
+`.markdownlint-cli2.jsonc` owns maintained Markdown selection and spacing;
+`npm run check:docs` consumes it without inline rule overrides. The native
+MD012 rule rejects repeated blank lines outside code, and
+`tools/quality/markdown.mjs` uses Markdownlint's parsed block structure to keep
+single-paragraph list items adjacent. Separate paragraphs and compound list
+items retain their structural spacing. Embedded code follows its language's
+formatter. Archived specifications, fixtures, and third-party supply retain
+their recorded bytes.
 
 Hosted CI runs this same command on Linux ARM64 and native macOS ARM64. GitLab's
 protected-ref flag selects the protected macOS Runner; merge requests and

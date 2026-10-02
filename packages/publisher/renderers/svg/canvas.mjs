@@ -6,6 +6,7 @@ import {
   resolvePrimitivePaint,
 } from '../../src/scene/primitives.mjs';
 import { renderPrimitives } from './primitives.mjs';
+import { renderLiteralSegment } from './segments.mjs';
 
 const escape = (value) =>
   String(value)
@@ -16,6 +17,18 @@ const escape = (value) =>
 const pathData = (points) =>
   points.map(({ x, y }, index) => `${index ? 'L' : 'M'} ${x} ${y}`).join(' ');
 
+/** One static-only framing request for preparation and painting. */
+export function authoredCanvasFramingRequest(editor) {
+  return {
+    text: editorialFraming(editor),
+    fontSize: 11,
+    weight: '400',
+    anchor: 'start',
+    x: 64,
+    baseline: -16,
+  };
+}
+
 /** Paint one already source-checked authored canvas without source bytes or code execution. */
 export function renderAuthoredCanvasSvg(scene, editor, measurer) {
   if (scene?.schema !== 'architecture.authored-static-scene/v1')
@@ -23,15 +36,9 @@ export function renderAuthoredCanvasSvg(scene, editor, measurer) {
   if (typeof editor !== 'string' || !editor.trim() || editor.trim() !== editor)
     fail('authored_canvas_editor_invalid');
   if (typeof measurer?.box !== 'function') fail('authored_canvas_measurer_required');
-  const framing = editorialFraming(editor);
-  const framingBox = measurer.box({
-    text: framing,
-    fontSize: 11,
-    weight: '400',
-    anchor: 'start',
-    x: 64,
-    baseline: -16,
-  });
+  const framingRequest = authoredCanvasFramingRequest(editor);
+  const framing = framingRequest.text;
+  const framingBox = measurer.box(framingRequest);
   if (
     framingBox.x < 56 ||
     framingBox.x + framingBox.width > scene.width - 64 ||
@@ -54,7 +61,7 @@ export function renderAuthoredCanvasSvg(scene, editor, measurer) {
     tone('paper').toLowerCase(),
   );
   const lines = [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${scene.width}" height="${scene.height + 42}" viewBox="0 -42 ${scene.width} ${scene.height + 42}" role="img" aria-labelledby="canvas-title" aria-describedby="canvas-description" font-family="JetBrains Mono">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${scene.width}" height="${scene.height + 42}" viewBox="0 -42 ${scene.width} ${scene.height + 42}" role="img" aria-labelledby="canvas-title" aria-describedby="canvas-description" xml:space="preserve" text-rendering="geometricPrecision" font-family="${escape(JSON.stringify(measurer.defaultFamily ?? 'JetBrains Mono'))}">`,
     `<title id="canvas-title">${escape(scene.title)}</title>`,
     `<desc id="canvas-description">${escape(description)} ${escape(framing)}</desc>`,
     `<rect y="-42" width="${scene.width}" height="${scene.height + 42}" fill="${tone('paper')}"/>`,
@@ -65,8 +72,21 @@ export function renderAuthoredCanvasSvg(scene, editor, measurer) {
     lines.push(
       `<path d="${pathData(rule.points)}" fill="none" stroke="${tone(rule.tone)}" stroke-width="${rule.strokeWidth}"/>`,
     );
+  const deferredSegments = [];
   for (const [index, edge] of scene.edges.entries()) {
     const color = tone(edge.strokeTone);
+    if (edge.adornment) {
+      const target = edge.source === edge.target ? deferredSegments : lines;
+      target.push(
+        renderLiteralSegment(
+          edge,
+          `data-edge="${escape(edge.id)}" data-source="${escape(edge.source)}" data-target="${escape(edge.target)}" data-graphic-id="edge:${escape(edge.id)}"`,
+          color,
+          `canvas-arrow-${index}`,
+        ),
+      );
+      continue;
+    }
     if (edge.arrow) {
       const { length, halfWidth, strokeWidth } = edge.arrowGeometry;
       lines.push(
@@ -91,10 +111,11 @@ export function renderAuthoredCanvasSvg(scene, editor, measurer) {
       `<circle cx="${node.center.x}" cy="${node.center.y}" r="2.4" fill="${color}"/>`,
     );
   }
+  lines.push(...deferredSegments);
   for (const label of scene.texts) {
     if (!label.visible) continue;
     lines.push(
-      `<text data-graphic-id="text:${escape(label.id)}" x="${label.x}" y="${label.baseline}" text-anchor="${label.anchor}" font-size="${label.fontSize}" font-weight="${label.weight}" fill="${tone(label.tone)}">${escape(label.text)}</text>`,
+      `<text data-graphic-id="text:${escape(label.id)}" x="${label.x}" y="${label.baseline}" text-anchor="${label.anchor}" font-size="${label.fontSize}" font-weight="${label.weight}"${label.family ? ` font-family="${escape(JSON.stringify(label.family))}"` : ''} fill="${tone(label.tone)}">${escape(label.text)}</text>`,
     );
   }
   lines.push('</svg>', '');

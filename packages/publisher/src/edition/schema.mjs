@@ -266,12 +266,44 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
       visualPolicy: closed(['profile'], {
         profile: identifier,
         override: { anyOf: [portable, { type: 'null' }] },
+        fonts: {
+          type: 'array',
+          minItems: 1,
+          maxItems: 16,
+          items: closed(['id', 'family', 'faces', 'distribution'], {
+            id: identifier,
+            family: { ...text, maxLength: 128 },
+            faces: {
+              type: 'array',
+              minItems: 1,
+              maxItems: 4,
+              items: closed(['weight', 'ref', 'sha256'], {
+                weight: { enum: ['400', '500', '600', '700'] },
+                ref: portable,
+                sha256: digest,
+              }),
+            },
+            distribution: {
+              type: 'array',
+              minItems: 1,
+              maxItems: 16,
+              items: closed(['ref', 'sha256'], { ref: portable, sha256: digest }),
+            },
+          }),
+        },
       }),
     },
   ),
 });
 
 const coordinate = { type: 'number', minimum: -12000, maximum: 12000 };
+export const AUTHORED_ROUTE_LIMITS = deepFreeze({
+  routes: 2048,
+  traversals: 2048,
+  references: 8192,
+  pairs: 8192,
+  points: 32768,
+});
 const visualNode = closed(['namespace', 'id', 'x', 'y', 'width', 'height'], {
   namespace: text,
   id: text,
@@ -357,6 +389,60 @@ const primitiveNode = {
   paintBox: canvasBox,
   adornment: { const: true },
 };
+const literalSegment = (source, target) =>
+  closed(
+    [
+      'id',
+      source,
+      target,
+      'points',
+      'strokeWidth',
+      'strokeTone',
+      'arrow',
+      'arrowGeometry',
+      'semanticIds',
+      'adornment',
+    ],
+    {
+      id: identifier,
+      [source]: identifier,
+      [target]: identifier,
+      adornment: { const: true },
+      semanticIds: { type: 'array', maxItems: 0, items: text },
+      points: { type: 'array', minItems: 2, maxItems: 2048, items: canvasPoint },
+      strokeWidth: { type: 'number', exclusiveMinimum: 0, maximum: 100 },
+      strokeTone: identifier,
+      arrow: { type: 'boolean' },
+      arrowGeometry: closed(['length', 'halfWidth', 'strokeWidth'], {
+        length: { type: 'number', minimum: 0, maximum: 100 },
+        halfWidth: { type: 'number', minimum: 0, maximum: 100 },
+        strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
+      }),
+    },
+  );
+export const LITERAL_SEGMENT_SCHEMA = deepFreeze({
+  oneOf: [literalSegment('source', 'target'), literalSegment('from', 'to')],
+});
+export const AUTHORED_ROUTES_SCHEMA = deepFreeze({
+  type: 'array',
+  maxItems: AUTHORED_ROUTE_LIMITS.routes,
+  items: closed(['id', 'reference', 'source', 'target', 'traversals'], {
+    id: identifier,
+    reference: text,
+    source: identifier,
+    target: identifier,
+    editionSha256: digest,
+    traversals: {
+      type: 'array',
+      minItems: 1,
+      maxItems: AUTHORED_ROUTE_LIMITS.traversals,
+      items: closed(['edge', 'direction'], {
+        edge: identifier,
+        direction: { enum: ['forward', 'reverse'] },
+      }),
+    },
+  }),
+});
 const authoredText = closed(
   [
     'id',
@@ -375,7 +461,8 @@ const authoredText = closed(
     id: identifier,
     text,
     fontSize: { type: 'number', exclusiveMinimum: 0, maximum: 300 },
-    weight: { enum: ['400', '600'] },
+    weight: { enum: ['400', '500', '600', '700'] },
+    font: identifier,
     anchor: { enum: ['start', 'middle', 'end'] },
     tone: identifier,
     x: coordinate,
@@ -464,37 +551,43 @@ const canvasScene = closed(
     edges: {
       type: 'array',
       maxItems: 8192,
-      items: closed(
-        [
-          'id',
-          'kind',
-          'source',
-          'target',
-          'points',
-          'strokeWidth',
-          'arrow',
-          'arrowGeometry',
-          'semanticIds',
-          'strokeTone',
+      items: {
+        oneOf: [
+          closed(
+            [
+              'id',
+              'kind',
+              'source',
+              'target',
+              'points',
+              'strokeWidth',
+              'arrow',
+              'arrowGeometry',
+              'semanticIds',
+              'strokeTone',
+            ],
+            {
+              id: identifier,
+              kind: text,
+              source: identifier,
+              target: identifier,
+              points: { type: 'array', minItems: 2, maxItems: 2048, items: canvasPoint },
+              strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
+              arrow: { type: 'boolean' },
+              arrowGeometry: closed(['length', 'halfWidth', 'strokeWidth'], {
+                length: { type: 'number', minimum: 0, maximum: 100 },
+                halfWidth: { type: 'number', minimum: 0, maximum: 100 },
+                strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
+              }),
+              semanticIds,
+              strokeTone: identifier,
+            },
+          ),
+          literalSegment('source', 'target'),
         ],
-        {
-          id: identifier,
-          kind: text,
-          source: identifier,
-          target: identifier,
-          points: { type: 'array', minItems: 2, maxItems: 2048, items: canvasPoint },
-          strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
-          arrow: { type: 'boolean' },
-          arrowGeometry: closed(['length', 'halfWidth', 'strokeWidth'], {
-            length: { type: 'number', minimum: 0, maximum: 100 },
-            halfWidth: { type: 'number', minimum: 0, maximum: 100 },
-            strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
-          }),
-          semanticIds,
-          strokeTone: identifier,
-        },
-      ),
+      },
     },
+    routes: AUTHORED_ROUTES_SCHEMA,
     decorations: {
       type: 'array',
       maxItems: 4096,
@@ -523,6 +616,7 @@ const staticGeometryRefinement = closed(['view', 'nodes', 'edges', 'groups'], {
 });
 const staticCanvasRefinement = closed(['kind', 'scene'], {
   kind: { const: 'authored-canvas' },
+  font: identifier,
   scene: canvasScene,
 });
 const neutralRefinement = closed(['kind'], { kind: { const: 'neutral' } });
@@ -560,22 +654,24 @@ const interactiveLabelPlacement = closed([], {
   dy: coordinate,
   segment: { type: 'integer', minimum: 0, maximum: 2048 },
 });
-const interactiveEdge = closed(
-  ['id', 'from', 'to', 'label', 'visualRole', 'fromSide', 'toSide', 'route'],
-  {
-    id: identifier,
-    from: identifier,
-    to: identifier,
-    label: text,
-    visualRole: text,
-    fromSide: { enum: ['top', 'right', 'bottom', 'left'] },
-    toSide: { enum: ['top', 'right', 'bottom', 'left'] },
-    route: { enum: ['auto', 'straight', 'orthogonal-h', 'orthogonal-v'] },
-    labelPlacement: interactiveLabelPlacement,
-    semanticIds: { ...semanticIds, minItems: 1 },
-    waypoints: { type: 'array', minItems: 1, maxItems: 2048, items: canvasPoint },
-  },
-);
+const interactiveEdge = {
+  oneOf: [
+    closed(['id', 'from', 'to', 'label', 'visualRole', 'fromSide', 'toSide', 'route'], {
+      id: identifier,
+      from: identifier,
+      to: identifier,
+      label: text,
+      visualRole: text,
+      fromSide: { enum: ['top', 'right', 'bottom', 'left'] },
+      toSide: { enum: ['top', 'right', 'bottom', 'left'] },
+      route: { enum: ['auto', 'straight', 'orthogonal-h', 'orthogonal-v'] },
+      labelPlacement: interactiveLabelPlacement,
+      semanticIds: { ...semanticIds, minItems: 1 },
+      waypoints: { type: 'array', minItems: 1, maxItems: 2048, items: canvasPoint },
+    }),
+    literalSegment('from', 'to'),
+  ],
+};
 const interactiveArchitectureScene = closed(
   ['schema', 'id', 'title', 'subtitle', 'viewport', 'nodes', 'groups', 'edges'],
   {
@@ -587,12 +683,14 @@ const interactiveArchitectureScene = closed(
     nodes: { type: 'array', maxItems: 512, items: interactiveNode },
     groups: { type: 'array', maxItems: 256, items: interactiveGroup },
     edges: { type: 'array', maxItems: 2048, items: interactiveEdge },
+    routes: AUTHORED_ROUTES_SCHEMA,
     texts: { type: 'array', maxItems: 4096, items: authoredText },
     requiredSemanticIds: { ...semanticIds, minItems: 1, maxItems: 8192 },
   },
 );
 const interactiveArchitectureRefinement = closed(['kind', 'pages'], {
   kind: { const: 'authored-architecture' },
+  font: identifier,
   pages: {
     type: 'array',
     minItems: 1,

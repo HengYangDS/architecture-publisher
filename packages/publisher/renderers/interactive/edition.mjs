@@ -8,6 +8,7 @@ import {
   UNLINKED_RELATION_NOTE,
 } from '../../src/scene/claim-relations.mjs';
 import { layoutInteractivePages } from '../elk/layout.mjs';
+import { interactiveLabelRequests } from '../elk/text.mjs';
 import { projectInteractivePage } from './model.mjs';
 import { loadInteractiveSupply } from './supply.mjs';
 import { renderGraphSvg } from './graph-svg.mjs';
@@ -220,7 +221,7 @@ function css(fonts) {
   .navigation{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.navigation button{border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:10px 18px;font-size:12px;text-align:left;max-width:35ch}.navigation button[aria-current=page]{background:#214f3c;color:#fffefa;border-color:#214f3c}
   .edition-page[hidden]{display:none}.page-heading{display:grid;grid-template-columns:minmax(150px,.18fr) minmax(0,1fr);align-items:baseline;gap:24px;margin:22px 0 20px}.page-heading h2{font-size:28px;line-height:1.3;margin:0}.page-heading>p{font-size:18px;line-height:1.5;margin:0;max-width:92ch;overflow-wrap:anywhere}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#4c5a50;margin:0;white-space:nowrap}
   .source-note{font-size:11px;line-height:1.45;color:#526158;margin:0 0 12px;padding-left:12px;border-left:2px solid #b3c4b6}
-  .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.page-grid--graph{grid-template-columns:minmax(0,1fr)}.page-grid--graph .stage{grid-column:1/-1;width:100%;max-width:var(--graph-natural-width);margin-inline:auto}.page-grid--paired{display:flex;flex-wrap:wrap;gap:${marks.readingGap}px;align-items:flex-start}.page-grid--paired .stage{flex:0 1 var(--graph-natural-width);max-width:100%;margin:0}.reading-unit{flex:1 0 ${marks.readingRailMinimumWidth}px;min-width:0;max-width:100%;display:flex;flex-wrap:wrap;gap:20px 28px;border-top:1px solid #c4ccc2;padding-top:16px}.reading-unit>section{flex:1 0 ${marks.readingRailMinimumWidth}px;max-width:100%;min-width:0}.reading-unit .reading-boundary{flex:1 0 ${marks.readingRailMinimumWidth}px;min-width:0;max-width:100%}.stage{position:relative;min-width:0}.graph-wrap{position:relative}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:var(--graph-height,220px);overflow:hidden}.graph-svg{display:block;width:100%;height:100%;font-family:'JetBrains Mono';color:#21332a}.graph-group>rect{fill:#e7eee6;fill-opacity:.24;stroke:#879b89;stroke-width:${marks.groupStroke}}.graph-node>rect{fill:#fffefa;stroke:#84978a;stroke-width:${marks.nodeStroke}}.graph-label{fill:#21332a;pointer-events:none}.graph-label--relation{fill:#27352e}.graph-route{fill:none;stroke:#60786a;stroke-width:${marks.routeStroke}}.graph-hit{fill:none;stroke:transparent;stroke-width:${marks.hitStroke};pointer-events:stroke}.graph-svg marker path{fill:#60786a}.graph-node,.graph-relation{cursor:pointer}.graph-node.is-selected>rect{stroke:#214f3c;stroke-width:${marks.selectedNodeStroke}}.graph-relation.is-selected>.graph-route{stroke:#214f3c;stroke-width:${marks.selectedRouteStroke}}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-controls{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:12px}.graph-instruction{font-size:11px;color:#4c5a50;margin:0;max-width:72ch}.fit{flex-shrink:0;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
+  .page-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(320px,1fr);gap:32px}.page-grid--graph{grid-template-columns:minmax(0,1fr)}.page-grid--graph .stage{grid-column:1/-1;width:100%;max-width:var(--graph-natural-width);margin-inline:auto}.page-grid--paired{display:flex;flex-wrap:wrap;gap:${marks.readingGap}px;align-items:flex-start}.page-grid--paired .stage{flex:0 1 var(--graph-natural-width);max-width:100%;margin:0}.reading-unit{flex:1 0 ${marks.readingRailMinimumWidth}px;min-width:0;max-width:100%;display:flex;flex-wrap:wrap;gap:20px 28px;border-top:1px solid #c4ccc2;padding-top:16px}.reading-unit>section{flex:1 0 ${marks.readingRailMinimumWidth}px;max-width:100%;min-width:0}.reading-unit .reading-boundary{flex:1 0 ${marks.readingRailMinimumWidth}px;min-width:0;max-width:100%}.stage{position:relative;min-width:0}.graph-wrap{position:relative}.graph,.empty-graph{border:1px solid #c4ccc2;border-radius:18px;background:#fffefa}.graph{height:var(--graph-height,220px);overflow:hidden}.graph-svg{display:block;width:100%;height:100%;font-family:'JetBrains Mono';color:#21332a}.graph-group>rect{fill:#e7eee6;fill-opacity:.24;stroke:#879b89;stroke-width:${marks.groupStroke}}.graph-node>rect{fill:#fffefa;stroke:#84978a;stroke-width:${marks.nodeStroke}}.graph-label{fill:#21332a;pointer-events:none;white-space:pre;text-rendering:geometricPrecision;font-synthesis:none}.graph-label--relation{fill:#27352e}.graph-route{fill:none;stroke:#60786a;stroke-width:${marks.routeStroke}}.graph-hit{fill:none;stroke:transparent;stroke-width:${marks.hitStroke};pointer-events:stroke}.graph-svg marker path{fill:#60786a}.graph-node,.graph-relation{cursor:pointer}.graph-node.is-selected>rect{stroke:#214f3c;stroke-width:${marks.selectedNodeStroke}}.graph-relation.is-selected>.graph-route{stroke:#214f3c;stroke-width:${marks.selectedRouteStroke}}.empty-graph{min-height:320px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:25px;padding:44px 55px}.empty-graph blockquote{font-size:clamp(22px,2.3vw,34px);line-height:1.3;margin:0;max-width:30ch}.editorial-card p{font-size:12px;color:#526158;margin:12px 0 0}.graph-controls{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:12px}.graph-instruction{font-size:11px;color:#4c5a50;margin:0;max-width:72ch}.fit{flex-shrink:0;border:1px solid #c4ccc2;background:#fffefa;border-radius:999px;padding:7px 12px;font-size:11px;z-index:2}
   .claim-stage{display:block}.claim-card{border-top:1px solid #c4ccc2;padding:20px 0}.claim-card:last-child{border-bottom:1px solid #c4ccc2}.claim-facts{display:grid;grid-template-columns:minmax(120px,180px) minmax(0,1fr);gap:9px 16px;margin:0}.claim-facts dt{font-size:11px;color:#526158}.claim-facts dd{font-size:13px;line-height:1.45;margin:0;overflow-wrap:anywhere}
   .linked-claims{border-top:1px solid #c4ccc2;margin-top:28px;padding-top:22px}.linked-claims h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#4c5a50;margin:0 0 16px}.claim-link{font-size:11px;color:#4c5a50;margin:0 0 16px}
   .claim-context{border-bottom:1px solid #d3dbd1;margin-bottom:18px}.claim-context dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 18px;margin:14px 0 20px}.claim-context dt{font-size:10px;color:#526158}.claim-context dd{font-size:12px;line-height:1.45;margin:4px 0 0;overflow-wrap:anywhere}
@@ -269,16 +270,14 @@ export async function renderInteractiveEditionHtml(scene) {
   const hasGraph = graphIndexes.length > 0;
   const supply = hasGraph ? await loadInteractiveSupply() : null;
   const fontSupply = await loadBundledFonts();
-  const measure = hasGraph ? await createBundledTextMeasurer(fontSupply) : null;
-  const geometry = hasGraph
-    ? await layoutInteractivePages(
-        graphIndexes.map((index) => ({
-          ...projected[index].publicPage,
-          id: scene.pages[index].id,
-        })),
-        measure,
-      )
+  const graphPages = graphIndexes.map((index) => ({
+    ...projected[index].publicPage,
+    id: scene.pages[index].id,
+  }));
+  const measure = hasGraph
+    ? await createBundledTextMeasurer(fontSupply, interactiveLabelRequests(graphPages))
     : null;
+  const geometry = hasGraph ? await layoutInteractivePages(graphPages, measure) : null;
   const selectedFonts = fontSupply.fonts.filter(({ weight }) => [400, 600].includes(weight));
   if (selectedFonts.length !== 2 || !fontSupply.license?.bytes)
     fail('render_interactive_font_supply_invalid');

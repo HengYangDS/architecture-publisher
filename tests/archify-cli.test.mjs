@@ -122,6 +122,20 @@ test('installed render CLI works offline and rejects corrupted renderer supply',
   } finally {
     await fs.rename(removed, supplyMember);
   }
+  for (const member of ['geometry.mjs', 'desktop-readability.mjs']) {
+    const selected = path.join(pkg, 'renderers/archify/supply/renderers/shared', member);
+    const removed = path.join(out, 'removed-' + member);
+    await fs.rename(selected, removed);
+    try {
+      const target = path.join(out, 'missing-' + member + '.html');
+      const missing = invoke([...args.slice(0, -1), target]);
+      assert.equal(missing.status, 1);
+      assert.equal(JSON.parse(missing.stdout).error.code, 'render_supply_invalid');
+      await assert.rejects(fs.stat(target), { code: 'ENOENT' });
+    } finally {
+      await fs.rename(removed, selected);
+    }
+  }
   const extra = path.join(pkg, 'renderers/archify/supply/unselected.txt');
   await fs.writeFile(extra, 'not selected');
   try {

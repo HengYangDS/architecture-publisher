@@ -5,6 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { parse } from 'yaml';
+import { applyFixes } from 'markdownlint-cli2/markdownlint';
+import { lint } from 'markdownlint-cli2/markdownlint/promise';
 import { npmInvocation } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -134,7 +136,7 @@ test('one fail-closed quality entry point covers the repository contract', async
   const manifest = JSON.parse(await fs.readFile(path.join(root, 'package.json')));
   assert.equal(
     manifest.scripts.test,
-    'node --import=./tests/fixtures/npm-environment.mjs --test --test-concurrency=2 tests/*.test.mjs',
+    'node --import=./tests/fixtures/npm-environment.mjs --test --test-concurrency=4 tests/*.test.mjs',
   );
   assert.equal(
     manifest.scripts.check,
@@ -152,10 +154,7 @@ test('one fail-closed quality entry point covers the repository contract', async
   assert.equal(manifest.scripts['check:lint'], 'eslint . --max-warnings 0');
   assert.equal(manifest.scripts['check:types'], 'tsc --project jsconfig.json --noEmit');
   assert.equal(manifest.scripts['check:imports'], 'node --test tests/module-boundaries.test.mjs');
-  assert.equal(
-    manifest.scripts['check:docs'],
-    'markdownlint-cli2 "README.md" "CHANGELOG.md" "docs/**/*.md" "openspec/**/*.md" "skills/**/*.md" "#openspec/changes/archive/**"',
-  );
+  assert.equal(manifest.scripts['check:docs'], 'markdownlint-cli2');
   assert.equal(manifest.scripts['check:spec'], 'openspec validate --all --strict --no-interactive');
   assert.equal(manifest.scripts['test:coverage'], 'c8 --config .config/coverage.json npm test');
   const coverage = JSON.parse(await fs.readFile(path.join(root, '.config/coverage.json'), 'utf8'));
@@ -187,6 +186,131 @@ test('one fail-closed quality entry point covers the repository contract', async
     'jsconfig.json',
   ])
     assert((await fs.stat(path.join(root, file))).isFile(), file);
+});
+
+test('the native documentation gate enforces one blank line across maintained Markdown', async (t) => {
+  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+  const scratch = await fs.mkdtemp(
+    path.join(await fs.realpath(os.tmpdir()), 'archpub-markdown-spacing-'),
+  );
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  for (const file of ['.markdownlint-cli2.jsonc', '.gitignore'])
+    await fs.copyFile(path.join(root, file), path.join(scratch, file));
+  await fs.mkdir(path.join(scratch, 'tools/quality'), { recursive: true });
+  await fs.copyFile(
+    path.join(root, 'tools/quality/markdown.mjs'),
+    path.join(scratch, 'tools/quality/markdown.mjs'),
+  );
+  await fs.writeFile(
+    path.join(scratch, 'package.json'),
+    JSON.stringify({
+      name: 'documentation-spacing-fixture',
+      version: '1.0.0',
+      scripts: { 'check:docs': workspace.scripts['check:docs'] },
+    }),
+  );
+  const files = [
+    'README.md',
+    'packages/publisher/README.md',
+    'editions/self/README.md',
+    'conformance/journeys/self-host/README.md',
+    'examples/README.md',
+    'docs/reference/guide.md',
+    'openspec/changes/current/tasks.md',
+    'openspec/changes/current/design.md',
+    'openspec/changes/current/specs/owner/spec.md',
+  ];
+  const valid = '# Scope\n\nRead the selected contract.\n';
+  for (const file of files) {
+    await fs.mkdir(path.dirname(path.join(scratch, file)), { recursive: true });
+    await fs.writeFile(path.join(scratch, file), valid);
+  }
+  const invoke = npmInvocation(['run', 'check:docs']);
+  const options = {
+    cwd: scratch,
+    encoding: 'utf8',
+    timeout: 30_000,
+    stdio: 'pipe',
+    env: {
+      ...process.env,
+      PATH: [path.join(root, 'node_modules/.bin'), process.env.PATH].join(path.delimiter),
+      npm_config_cache: path.join(scratch, 'npm-cache'),
+    },
+  };
+  const check = () => execFileSync(invoke.command, invoke.args, options);
+  assert.doesNotThrow(check);
+  for (const file of files) {
+    await fs.writeFile(path.join(scratch, file), '# Scope\n\n\nRead the selected contract.\n');
+    assert.throws(
+      check,
+      (error) => error.status === 1 && /MD012/u.test(`${error.stdout}${error.stderr}`),
+      file,
+    );
+    await fs.writeFile(path.join(scratch, file), valid);
+  }
+  for (const source of [
+    '# Scope\n\n- [ ] First task\n\n- [x] Second task\n',
+    '# Scope\n\n- First item\n  with a wrapped paragraph.\n\n- Second item\n',
+    '# Scope\n\n1. First item\n\n2. Second item\n',
+    '# Scope\n\n- Group\n  - First item\n\n  - Second item\n',
+    '# Scope\n\n> - First item\n>\n> - Second item\n',
+    '<!-- markdownlint-disable compact-simple-lists -->\n\n# Scope\n\n- First item\n\n- Second item\n',
+  ]) {
+    await fs.writeFile(path.join(scratch, 'README.md'), source);
+    assert.throws(
+      check,
+      (error) => /compact-simple-lists/u.test(`${error.stdout}${error.stderr}`),
+      'A simple list keeps its paragraph items adjacent',
+    );
+  }
+  await fs.writeFile(
+    path.join(scratch, 'README.md'),
+    '<!-- markdownlint-disable MD012 -->\n\n# Scope\n\n\nRead the selected contract.\n',
+  );
+  assert.throws(check, (error) => /MD012/u.test(`${error.stdout}${error.stderr}`));
+  await fs.writeFile(
+    path.join(scratch, 'README.md'),
+    '# Scope\n\n```python\nclass First:\n    pass\n\n\nclass Second:\n    pass\n```\n',
+  );
+  for (const file of [
+    'openspec/changes/archive/retained/spec.md',
+    'tests/fixtures/source.md',
+    'conformance/fixtures/source.md',
+    'packages/publisher/renderers/example/supply/README.md',
+    'build/output.md',
+    'node_modules/supplier/README.md',
+  ]) {
+    await fs.mkdir(path.dirname(path.join(scratch, file)), { recursive: true });
+    await fs.writeFile(path.join(scratch, file), '# Retained bytes\n\n\nDo not format.\n');
+  }
+  assert.doesNotThrow(check, 'Language-significant code spacing and retained inputs remain intact');
+  for (const source of [
+    '# Scope\n\n-\n\n- First paragraph\n\n  Second paragraph\n',
+    '# Scope\n\n- First item\n\n  A separate paragraph.\n\n- Second item\n',
+    '# Scope\n\n- Group\n\n  - First item\n  - Second item\n\n- Another group\n\n  ```python\n  def first():\n      pass\n\n\n  def second():\n      pass\n  ```\n',
+  ]) {
+    await fs.writeFile(path.join(scratch, 'README.md'), source);
+    assert.doesNotThrow(check, 'Multi-block items retain their structural spacing');
+  }
+  const { default: spacingRule } = await import('../tools/quality/markdown.mjs');
+  for (const [source, expected] of [
+    [
+      '-\n  First paragraph.\n\n- Second paragraph.\n',
+      '-\n  First paragraph.\n- Second paragraph.\n',
+    ],
+    [
+      '<pre>\n\n- First literal line\n\n- Second literal line\n\n</pre>\n',
+      '<pre>\n\n- First literal line\n\n- Second literal line\n\n</pre>\n',
+    ],
+  ]) {
+    const findings = await lint({
+      strings: { fixture: source },
+      config: { default: false, 'compact-simple-lists': true },
+      customRules: [spacingRule],
+      noInlineConfig: true,
+    });
+    assert.equal(applyFixes(source, findings.fixture), expected);
+  }
 });
 
 test('the selected LikeC4 parser supply uses the patched lodash-es release', async () => {

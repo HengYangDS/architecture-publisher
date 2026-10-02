@@ -1,6 +1,20 @@
 {
+  "globs": ["*.md", "**/README.md", "docs/**/*.md", "openspec/**/*.md", "skills/**/*.md"],
+  "gitignore": ".gitignore",
+  "ignores": [
+    "openspec/changes/archive/**",
+    "tests/fixtures/**",
+    "conformance/fixtures/**",
+    "**/supply/**",
+    "packages/publisher/supplies/**",
+  ],
+  "customRules": ["./tools/quality/markdown.mjs"],
+  "noInlineConfig": true,
   "config": {
     "default": true,
+    "MD012": {
+      "maximum": 1,
+    },
     "MD013": false,
     "MD024": {
       "siblings_only": true,

@@ -1,9 +1,11 @@
 import { parseStrictJson } from '../protocol/json.mjs';
+import { createHash } from 'node:crypto';
 import { fail, isDigest } from '../protocol/values.mjs';
 import { LIMITS } from '../file-input/contract.mjs';
 import { sealMaterializedInputLock } from '../source/materialize.mjs';
 import { deepFreeze } from '../semantics/document.mjs';
 import { deriveEditionAssertions, validateEditionProject } from './authoring.mjs';
+import { selectedEditionResources } from './resources.mjs';
 
 function sameSet(left, right) {
   return left.length === right.length && left.every((value) => right.includes(value));
@@ -168,12 +170,24 @@ export function assembleEditionSelection({
 
   const override = project.visualPolicy.override ?? null;
   const resources = edition.resources;
+  const expectedResources = selectedEditionResources(project);
   if (
     !Array.isArray(resources) ||
-    (override === null && resources.length !== 0) ||
-    (override !== null && (resources.length !== 1 || resources[0].ref !== override))
+    !sameSet(
+      resources.map(({ ref }) => ref),
+      expectedResources.map(({ ref }) => ref),
+    )
   )
     fail('materialized_edition_resource_missing');
+  for (const selected of expectedResources) {
+    if (selected.sha256 === null) continue;
+    const content = resources.find(({ ref }) => ref === selected.ref)?.content;
+    if (
+      !Buffer.isBuffer(content) ||
+      createHash('sha256').update(content).digest('hex') !== selected.sha256
+    )
+      fail('materialized_edition_resource_digest_mismatch');
+  }
 
   const selectedBytes = [
     edition.content,

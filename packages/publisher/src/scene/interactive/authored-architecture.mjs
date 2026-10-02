@@ -3,6 +3,7 @@ import { fail } from '../../protocol/values.mjs';
 import { validateInteractiveArchitectureScene } from './architecture.mjs';
 import { classifyAggregateRelation } from '../aggregate-relation.mjs';
 import { assertPrimitiveContrast } from '../primitives.mjs';
+import { bindAuthoredRoutes } from '../routes.mjs';
 import {
   authoredReference,
   deriveAuthoredStatements,
@@ -145,7 +146,7 @@ function composePage(meaning, view, page, assertions, selections) {
     represented.set(id, graphics);
   };
   const nodeEntities = new Map();
-  const subjectNamespaces = {};
+  const subjectNamespaces = Object.create(null);
   for (const node of scene.nodes) {
     if (node.adornment) continue;
     if (!node.semanticIds?.length) mismatch();
@@ -177,6 +178,7 @@ function composePage(meaning, view, page, assertions, selections) {
     }
   }
   for (const edge of scene.edges) {
+    if (Object.hasOwn(edge, 'adornment')) continue;
     if (nodeEntities.has(edge.id)) mismatch();
     if (!edge.semanticIds?.length) mismatch();
     const from = nodeEntities.get(edge.from);
@@ -201,6 +203,26 @@ function composePage(meaning, view, page, assertions, selections) {
     }
     if (!directed) mismatch();
     subjectNamespaces[edge.id] = [...namespaces].sort();
+  }
+  const routeGraphics = bindAuthoredRoutes(scene, {
+    medium: 'interactive',
+    entities: nodeEntities,
+    relations: new Map([...required].filter(([id]) => reference(id)[1] === 'relation')),
+    editorials: statements.editorial,
+    selections,
+  });
+  for (const [id, graphics] of routeGraphics) {
+    const [namespace, kind] = authoredReference(
+      id,
+      ['relation', 'editorial'],
+      'authored_route_reference_invalid',
+    );
+    for (const graphicId of graphics) {
+      if (kind === 'relation') represent(id, graphicId);
+      const namespaces = subjectNamespaces[graphicId] ?? [];
+      if (kind === 'relation' && !namespaces.includes(namespace)) namespaces.push(namespace);
+      subjectNamespaces[graphicId] = namespaces.sort();
+    }
   }
   if (represented.size !== required.size || [...required.keys()].some((id) => !represented.has(id)))
     mismatch();
@@ -230,7 +252,10 @@ function composePage(meaning, view, page, assertions, selections) {
       return {
         assertionId,
         edition: editorial.edition,
-        graphicIds: [...textGraphics.get(editorial.reference)],
+        graphicIds: [
+          ...textGraphics.get(editorial.reference),
+          ...(routeGraphics.get(editorial.reference) ?? []),
+        ],
         representation: 'editorial-statement',
       };
     const selected = selectedByAssertion.get(assertionId);
@@ -290,7 +315,10 @@ function composePage(meaning, view, page, assertions, selections) {
   }
   facts.push(...claimReferences.values());
   for (const { assertion, reference, edition } of statements.editorial.values())
-    for (const graphicId of textGraphics.get(reference))
+    for (const graphicId of [
+      ...textGraphics.get(reference),
+      ...(routeGraphics.get(reference) ?? []),
+    ])
       facts.push({
         reference,
         editionSha256: edition.sha256,

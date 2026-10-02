@@ -62,6 +62,76 @@ function inspectPath(d) {
 
 /** Narrow emitted-geometry gate. Parses the actual native static path bytes;
  * metadata only supplies the intended identities and contacts. No browser claim. */
+function attribute(tag, name) {
+  const values = [...tag.matchAll(new RegExp(`\\s${name}="([^"]*)"`, 'gu'))];
+  if (values.length > 1) throw Error('duplicate emitted literal paint attribute');
+  return values[0]?.[1];
+}
+
+function assertLiteralPaint(svg, raw, edge, actual) {
+  if (
+    actual.samples.length !== edge.points.length ||
+    /[Q]/u.test(attribute(raw, 'd')) ||
+    actual.samples.some(
+      (point, index) => point.x !== edge.points[index].x || point.y !== edge.points[index].y,
+    ) ||
+    attribute(raw, 'fill') !== 'none' ||
+    !attribute(raw, 'stroke') ||
+    attribute(raw, 'stroke') === 'none' ||
+    Number(attribute(raw, 'stroke-width')) !== edge.strokeWidth ||
+    ['transform', 'style', 'opacity', 'filter', 'display', 'visibility', 'stroke-opacity'].some(
+      (name) => attribute(raw, name) !== undefined,
+    )
+  )
+    throw Error('emitted literal route points or paint mismatch');
+  if (!edge.arrow) return;
+  const link = /^url\(#([a-z][a-z0-9-]*)\)$/u.exec(attribute(raw, 'marker-end'));
+  if (!link) throw Error('emitted literal arrow marker invalid');
+  const markers = [...svg.matchAll(/<marker\b[^>]*>[\s\S]*?<\/marker>/gu)].filter(
+    (match) => attribute(match[0].split('>')[0] + '>', 'id') === link[1],
+  );
+  if (markers.length !== 1) throw Error('emitted literal arrow marker missing or ambiguous');
+  const marker = markers[0][0],
+    header = marker.slice(0, marker.indexOf('>') + 1);
+  const geometry = edge.arrowGeometry;
+  if (
+    attribute(header, 'markerUnits') !== 'userSpaceOnUse' ||
+    attribute(header, 'orient') !== 'auto' ||
+    Number(attribute(header, 'markerWidth')) !== geometry.length ||
+    Number(attribute(header, 'markerHeight')) !== geometry.halfWidth * 2 ||
+    Number(attribute(header, 'refX')) !== geometry.length ||
+    Number(attribute(header, 'refY')) !== geometry.halfWidth ||
+    ['transform', 'style', 'opacity', 'filter', 'display', 'visibility'].some(
+      (name) => attribute(header, name) !== undefined,
+    )
+  )
+    throw Error('emitted literal arrow geometry mismatch');
+  const content = marker.slice(marker.indexOf('>') + 1, marker.lastIndexOf('</marker>')).trim();
+  if (
+    !/^<path\b[^>]*\/>$/u.test(content) ||
+    attribute(content, 'fill') !== 'none' ||
+    attribute(content, 'stroke') !== attribute(raw, 'stroke') ||
+    Number(attribute(content, 'stroke-width')) !== geometry.strokeWidth ||
+    ['transform', 'style', 'opacity', 'filter', 'display', 'visibility', 'stroke-opacity'].some(
+      (name) => attribute(content, name) !== undefined,
+    )
+  )
+    throw Error('emitted literal arrow paint mismatch');
+  const wing = inspectPath(attribute(content, 'd') ?? '');
+  const expected = [
+    { x: 0, y: 0 },
+    { x: geometry.length, y: geometry.halfWidth },
+    { x: 0, y: geometry.halfWidth * 2 },
+  ];
+  if (
+    wing.samples.length !== 3 ||
+    wing.samples.some(
+      (point, index) => point.x !== expected[index].x || point.y !== expected[index].y,
+    )
+  )
+    throw Error('emitted literal arrow wing mismatch');
+}
+
 export function auditEmittedEdges(svg, scene, contract) {
   if (
     !Number.isFinite(contract.minimumTerminal) ||
@@ -75,7 +145,12 @@ export function auditEmittedEdges(svg, scene, contract) {
   if (intended.size !== scene.edges.length) throw Error('duplicate intended edge identity');
   const failures = [],
     edges = [];
-  for (const m of svg.matchAll(/<path\b[^>]*\bdata-edge="([^"]+)"[^>]*>/g)) {
+  const graphicAttribute = contract.graphicAttribute ?? 'data-edge';
+  if (!['data-edge', 'data-literal-segment-id'].includes(graphicAttribute))
+    throw Error('invalid emitted edge attribute');
+  for (const m of svg.matchAll(
+    new RegExp(`<path\\b[^>]*\\b${graphicAttribute}="([^"]+)"[^>]*>`, 'gu'),
+  )) {
     const id = m[1],
       edge = intended.get(id);
     if (!edge || seen.has(id)) throw Error('emitted edge identity mismatch');
@@ -86,6 +161,7 @@ export function auditEmittedEdges(svg, scene, contract) {
       arrow = /\smarker-end=/.test(m[0]);
     if (arrow !== (edge.arrow !== false)) throw Error('emitted arrow contract mismatch');
     if (edge.points.length < 2) throw Error('intended edge geometry missing');
+    if (edge.adornment) assertLiteralPaint(svg, m[0], edge, actual);
     const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
     const delta = Math.max(
       distance(actual.start, edge.points[0]),
@@ -116,7 +192,7 @@ export function auditEmittedEdges(svg, scene, contract) {
   if (seen.size !== intended.size) throw Error('emitted edge identity set mismatch');
   return {
     scope:
-      'Actual emitted M/L/Q terminal lengths and intended endpoint equality; no browser, marker envelope or semantic acceptance',
+      'Actual emitted M/L/Q terminals and endpoint equality; literal segments additionally bind all M/L points and marker paint; no browser perceptibility or source acceptance',
     failures,
     edges,
   };

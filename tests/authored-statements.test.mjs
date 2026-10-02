@@ -18,6 +18,7 @@ import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mj
 import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg/measurement.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { chromium } from 'playwright-core';
+import { browserLifetime } from './fixtures/browser-lifetime.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const namespace = 'fixture/statements';
@@ -477,7 +478,7 @@ test('the installed Archify adapter actually paints source statements without hi
   const scene = sceneFor(meaning, 'interactive');
   scene.texts[0].text = "A <statement> & literal $$ $& $' $`";
   const supply = await loadBundledFonts();
-  const measurer = await createBundledTextMeasurer(supply);
+  const measurer = await createBundledTextMeasurer(supply, scene.texts);
   for (const label of scene.texts) label.box = measurer.box(label);
   const output = path.join(root, 'architecture.html');
   const rendered = await renderArchitectureScene({ scene, output });
@@ -491,7 +492,7 @@ test('the installed Archify adapter actually paints source statements without hi
   for (const { weight, bytes } of supply.fonts.filter(({ weight }) => [400, 600].includes(weight)))
     assert(
       html.includes(
-        `font-weight:${weight};src:url(data:font/ttf;base64,${bytes.toString('base64')})`,
+        `font-weight:${weight};font-display:block;src:url(data:font/ttf;base64,${bytes.toString('base64')})`,
       ),
       `Selected ${weight} face is embedded`,
     );
@@ -502,7 +503,6 @@ test('the interactive text renderer rejects projected unreadability and measured
   const root = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-text-errors-'));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const supply = await loadBundledFonts();
-  const measurer = await createBundledTextMeasurer(supply);
   for (const [id, change] of [
     [
       'too-wide',
@@ -520,6 +520,13 @@ test('the interactive text renderer rejects projected unreadability and measured
       },
     ],
     [
+      'nonsemantic-text-collision',
+      (scene) => {
+        scene.texts[1].baseline = scene.texts[0].baseline;
+        scene.texts[1].semanticIds = [];
+      },
+    ],
+    [
       'unsupported-tone',
       (scene) => {
         scene.texts[0].tone = 'not-a-palette-role';
@@ -528,6 +535,7 @@ test('the interactive text renderer rejects projected unreadability and measured
   ]) {
     const scene = sceneFor(meaningFor('interactive'), 'interactive');
     change(scene);
+    const measurer = await createBundledTextMeasurer(supply, scene.texts);
     for (const label of scene.texts) label.box = measurer.box(label);
     const output = path.join(root, `${id}.html`);
     await assert.rejects(renderArchitectureScene({ scene, output }));
@@ -625,7 +633,7 @@ test(
     const meaning = meaningFor('interactive', { editor: true });
     const scene = sceneFor(meaning, 'interactive');
     const supply = await loadBundledFonts();
-    const measurer = await createBundledTextMeasurer(supply);
+    const measurer = await createBundledTextMeasurer(supply, scene.texts);
     for (const label of scene.texts) label.box = measurer.box(label);
     const composed = composeAuthoredInteractiveArchitecture(meaning).pages[0];
     const renderedPath = path.join(root, 'page.html');
@@ -680,14 +688,15 @@ test(
     const server = http.createServer((_request, response) =>
       response.writeHead(200, { 'Content-Type': 'text/html' }).end(output),
     );
+    const lifetime = browserLifetime(t);
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-    t.after(() => new Promise((resolve) => server.close(resolve)));
+    lifetime.use(server);
     const browser = await chromium.launch({
       executablePath: process.env.ARCHPUB_BROWSER_EXECUTABLE,
       headless: true,
       chromiumSandbox: true,
     });
-    t.after(() => browser.close());
+    lifetime.use(browser);
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -705,9 +714,9 @@ test(
       const baseline = Number(node.getAttribute('y'));
       return {
         family: getComputedStyle(node).fontFamily,
-        loaded: document.fonts.check('14px "Architecture Statement"'),
+        loaded: document.fonts.check('14px "JetBrains Mono"'),
         faces: [...document.fonts]
-          .filter((face) => face.family.replaceAll('"', '') === 'Architecture Statement')
+          .filter((face) => face.family.replaceAll('"', '') === 'JetBrains Mono')
           .map((face) => ({ weight: face.weight, status: face.status })),
         box: {
           x: x - painted.actualBoundingBoxLeft,
@@ -717,9 +726,9 @@ test(
         },
       };
     });
-    assert(paint.family.includes('Architecture Statement'));
+    assert(paint.family.includes('JetBrains Mono'));
     assert.equal(paint.loaded, true);
-    assert.deepEqual(paint.faces.map(({ weight }) => weight).sort(), ['400', '600']);
+    assert.deepEqual(paint.faces.map(({ weight }) => weight).sort(), ['400', '500', '600', '700']);
     assert(paint.faces.some(({ status }) => status === 'loaded'));
     const declared = scene.texts[0].box;
     for (const key of ['x', 'y', 'width', 'height'])

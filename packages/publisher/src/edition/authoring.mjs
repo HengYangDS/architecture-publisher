@@ -2,6 +2,7 @@ import { deepFreeze, jsonValue } from '../semantics/document.mjs';
 import { fail } from '../protocol/values.mjs';
 import { portablePath } from '../file-input/contract.mjs';
 import { buildRequestValid, editionProjectValid } from './generated/validators.mjs';
+import { selectedEditionResources } from './resources.mjs';
 
 export {
   BUILD_REQUEST_SCHEMA,
@@ -315,5 +316,6 @@ export function validateEditionProject(value) {
       invalid(code, 'omission target also omitted');
   if (typeof value.visualPolicy.override === 'string')
     checkedPath(value.visualPolicy.override, code);
+  selectedEditionResources(value);
   return deepFreeze(structuredClone(value));
 }

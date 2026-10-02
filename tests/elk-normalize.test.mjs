@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { normalizeInteractiveGeometry } from '../packages/publisher/renderers/elk/normalize.mjs';
-import { measuredLabel } from '../packages/publisher/renderers/elk/text.mjs';
+import { measuredLabel, wrappedLabelRequests } from '../packages/publisher/renderers/elk/text.mjs';
 import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg/measurement.mjs';
 import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
 import { auditInteractiveGeometry } from '../packages/publisher/renderers/elk/audit.mjs';
 
 async function groupFixture() {
-  const measure = await createBundledTextMeasurer(await loadBundledFonts());
+  const measure = await createBundledTextMeasurer(await loadBundledFonts(), [
+    ...wrappedLabelRequests('Member'),
+    ...wrappedLabelRequests('Owner'),
+  ]);
   const nodeLabel = measuredLabel('Member', measure);
   const groupLabel = measuredLabel('Owner', measure);
   const prepared = {
@@ -110,7 +113,10 @@ test('missing, ambiguous, and non-finite group coordinates fail instead of being
 });
 
 test('the complete arrow envelope must clear the canvas, not only its route stroke', async () => {
-  const measure = await createBundledTextMeasurer(await loadBundledFonts());
+  const measure = await createBundledTextMeasurer(
+    await loadBundledFonts(),
+    wrappedLabelRequests('Node'),
+  );
   const plan = measuredLabel('Node', measure);
   const label = (x, y) => ({
     baselines: [{ box: { x: x + 40, y: y + 25, width: 42, height: 15 } }],

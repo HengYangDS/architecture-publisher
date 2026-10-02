@@ -6,6 +6,7 @@ import { missingPaintedWitnesses, paintedContactCounts } from './fixtures/painte
 import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/interactive/index.mjs';
 import { interactiveGraphMarks as marks } from '../packages/publisher/src/scene/marks.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
+import { inspectRgbaPngCanvas } from '../packages/publisher/src/qualification/static/png.mjs';
 
 const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
 
@@ -415,5 +416,104 @@ test(
     assert(audit.textCount >= 10);
     assert(audit.maximumMetricDrift < 0.001);
     assert.deepEqual(audit.collisions, [], JSON.stringify(audit));
+  },
+);
+
+test(
+  'neutral production-size labels paint within renderer-native shaped ink under one text profile',
+  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 30000 },
+  async (t) => {
+    const scene = interactiveEditionScene();
+    const first = scene.pages[0];
+    first.nodes[0].label = 'AV office ffi -> ==';
+    first.nodes[1].label = 'Exact output';
+    for (const relation of first.relations) relation.label = 'ffi -> ==';
+    const candidate = await renderInteractiveEditionHtml(scene);
+    const browser = await chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+    });
+    t.after(() => browser.close());
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.setContent(candidate.bytes.toString('utf8'), { waitUntil: 'load' });
+    await page.waitForSelector('#graph-0[data-rendered=true]');
+    await page.evaluate(() => globalThis.document.fonts.ready);
+    const geometry = await page.evaluate(
+      () => JSON.parse(globalThis.document.getElementById('edition-data').textContent)[0].geometry,
+    );
+    const styles = await page.locator('style').allTextContents();
+    const inkPage = await browser.newPage({ viewport: { width: 600, height: 180 } });
+    const assertInk = (observed, expected) => {
+      const detail = JSON.stringify({ observed, expected });
+      assert(Math.abs(observed.left - expected.x) <= 1.1, `native ink left: ${detail}`);
+      assert(Math.abs(observed.top - expected.y) <= 1.1, `native ink top: ${detail}`);
+      assert(
+        Math.abs(observed.right + 1 - (expected.x + expected.width)) <= 1.1,
+        `native ink right: ${detail}`,
+      );
+      assert(
+        Math.abs(observed.bottom + 1 - (expected.y + expected.height)) <= 1.1,
+        `native ink bottom: ${detail}`,
+      );
+    };
+    let probed = false;
+    for (const owner of [
+      ...geometry.groups,
+      ...geometry.nodes,
+      ...geometry.relations.filter(({ label }) => label),
+    ]) {
+      for (const [index, baseline] of owner.label.baselines.entries()) {
+        const text = page.locator(`[data-graphic-id="${owner.id}"] text`).nth(index);
+        const profile = await text.evaluate((node) => {
+          const style = globalThis.getComputedStyle(node);
+          return {
+            rendering: style.textRendering,
+            synthesis: style.fontSynthesis,
+            whitespace: style.whiteSpace,
+          };
+        });
+        assert.equal(profile.rendering, 'geometricprecision');
+        assert.equal(profile.synthesis, 'none');
+        assert.equal(profile.whitespace, 'pre');
+        assert.equal(await text.textContent(), baseline.text);
+        const emitted = await text.evaluate((node) => {
+          const svg = node.closest('svg').cloneNode(false);
+          svg.setAttribute('width', '600');
+          svg.setAttribute('height', '180');
+          svg.setAttribute('viewBox', '0 0 600 180');
+          svg.removeAttribute('style');
+          const owner = node.parentElement.cloneNode(false);
+          const label = node.cloneNode(true);
+          label.setAttribute('x', '80');
+          label.setAttribute('y', '120');
+          owner.append(label);
+          svg.append(owner);
+          return svg.outerHTML;
+        });
+        await inkPage.setContent(
+          `<style>${styles.join('\n')}html,body,svg{background:transparent!important}html,body{margin:0!important}svg{display:block!important;width:600px!important;height:180px!important}</style>${emitted}`,
+        );
+        await inkPage.evaluate(() => globalThis.document.fonts.ready);
+        const expected = {
+          ...baseline.box,
+          x: baseline.box.x + 80 - baseline.x,
+          y: baseline.box.y + 120 - baseline.baseline,
+        };
+        const paint = async () =>
+          inspectRgbaPngCanvas(await inkPage.locator('svg').screenshot({ omitBackground: true }), {
+            background: [0, 0, 0, 0],
+            colorDistance: 0,
+          }).envelope;
+        assertInk(await paint(), expected);
+        if (!probed) {
+          await inkPage.locator('text').evaluate((node) => node.setAttribute('x', '84'));
+          const shifted = await paint();
+          assert.throws(() => assertInk(shifted, expected), /native ink/u);
+          probed = true;
+        }
+      }
+    }
+    assert.equal(probed, true);
   },
 );

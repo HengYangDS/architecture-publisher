@@ -19,6 +19,43 @@ impl Renderer {
         self.fonts.push(bytes.to_vec());
     }
 
+    #[wasm_bindgen(js_name = measureText)]
+    pub fn measure_text(&self, svg: &[u8], count: u32) -> Result<Vec<f64>, JsError> {
+        if count == 0 || count > 4096 || svg.len() > 16 * 1024 * 1024 {
+            return Err(JsError::new("measurement_limit"));
+        }
+        let mut fontdb = resvg::usvg::fontdb::Database::new();
+        for bytes in &self.fonts {
+            fontdb.load_font_data(bytes.clone());
+        }
+        let options = resvg::usvg::Options {
+            resources_dir: None,
+            fontdb: Arc::new(fontdb),
+            ..resvg::usvg::Options::default()
+        };
+        let tree =
+            resvg::usvg::Tree::from_data(svg, &options).map_err(|_| JsError::new("svg_invalid"))?;
+        let mut values = Vec::with_capacity(count as usize * 4);
+        for index in 0..count {
+            let id = format!("architecture-measure-{index}");
+            let Some(resvg::usvg::Node::Text(text)) = tree.node_by_id(&id) else {
+                return Err(JsError::new("measurement_text_missing"));
+            };
+            let ink = text.flattened();
+            if !ink.has_children() {
+                return Err(JsError::new("measurement_ink_missing"));
+            }
+            let bounds = ink.abs_bounding_box();
+            values.extend([
+                bounds.x() as f64,
+                bounds.y() as f64,
+                bounds.width() as f64,
+                bounds.height() as f64,
+            ]);
+        }
+        Ok(values)
+    }
+
     pub fn render(&self, svg: &[u8], width: u32) -> Result<Vec<u8>, JsError> {
         if width == 0 {
             return Err(JsError::new("width_invalid"));

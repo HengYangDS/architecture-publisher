@@ -144,7 +144,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       strict OpenSpec checks passed. The full run passed 747 tests, skipped 2,
       but branch coverage remains 93.06% against 95%; no landing or release
       is admitted by this task alone.
-
 - [x] 2.6 Remove duplicate source-assertion and reading-order authorship from
       the unreleased Edition Project without a compatibility facade. Derive
       same-ID source assertions from selected questions; context-only remains
@@ -156,7 +155,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       package gates passed. AIGW's four-question/five-group authoring probe
       removes 22 duplicate records, not its mixed-media limitation. Branch
       coverage is 92.95% < 95%; Tasks 5.2, 5.4 and 7.5 still block release.
-
 - [x] 2.7 Remove the unreleased Edition Project's query and transformation
       authoring fields until executable, versioned consumers exist. Reject
       them at validation; retain exact references and attributed editorial
@@ -515,7 +513,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       Human decisions are bound in the same receipt. Independent code/paint
       review and visual approval cannot certify source truth or arbitrary prose.
       No mobile, narrow-screen, random pixel fallback or extra layout owner.
-
 - [x] 5.2.1 Separate authored semantic identity from graphic occurrences in
       both media. Preserve all occurrence carriers and inspection facts;
       reject wrong endpoints, duplicate graphic IDs, unknown members and
@@ -532,7 +529,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       the public CLI without changing selected model bytes. Exact evidence
       is in `conformance/evidence/authored-occurrence.json`. This closes the
       mechanism repair, not alpha.9 release or source-owned flagship adoption.
-
 - [x] 5.2.2 Bind authored source/editorial statements directly to their own
       exact Claim/assertion identities through the existing canonical text
       references. Derive assertion and structural obligations independently;
@@ -568,23 +564,33 @@ third-party or generated supply rather than moving owned code outside coverage.
       `conformance/evidence/authored-primitives.json`. Conservative envelopes,
       nonzero contours and final contrast do not prove perceptibility at every
       scale, source truth, flagship parity, later route/font slices or release.
-- [ ] 5.2.4 Bind literal relation routes to exact ordered traversals and keep
+- [x] 5.2.4 Bind literal relation routes to exact ordered traversals and keep
       editorial summaries/conditions distinct. Validate directed endpoints,
       segment continuity, shared-carrier independence and explanation basis
       in both authored media. Routing junctions never become source entities
       or a transitive source edge; reuse the existing selected refinement.
-- [ ] 5.2.5 Extend existing Edition resources for a bounded exact font set.
+      Both authored media, exact inspection and emitted-paint counterexamples
+      pass through the installed public CLI. The frozen source passes the
+      complete gate with actual Chrome and all four 95% coverage floors.
+      See `conformance/evidence/authored-routes-fonts.json`; source truth,
+      flagship art/rollback acceptance and native release remain separate.
+- [x] 5.2.5 Extend existing Edition resources for a bounded exact font set.
       Verify direct/declarative/executable parity, selected face/weight bytes,
       attributed distribution evidence, measured glyphs, embedding, raster,
       relocation and changed-pin refusal. No ambient discovery, silent
       substitution or font registry; do not claim proprietary-font rights.
+      Direct/declarative/executable closure, exact static TTF faces, native
+      shaped ink, embedded/exported painting, source-font relocation and
+      changed-pin refusal pass. Scripts-disabled installed Core and custom Han
+      sibling media retain exact pins without fabricating an editorial Claim.
+      See the same evidence owner. Distribution references remain attributed,
+      not legal permission; Task 5.2.6 still owns source adoption and release.
 - [ ] 5.2.6 Freeze one coherent faithful successor after the preceding owner
       repairs. Verify independent media, all four 95% floors, installed public
       input, native hosted matrix and exact release/artifact custody. Hand the
       source writer one qualified retain/replace/retire map for its existing
       thirteen-page rebind, semantic/art/rollback acceptance and retirement.
       Preserve alpha.8 and do not claim source adoption from Publisher release.
-
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
@@ -1034,7 +1040,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       source-owned AIGW/ETHOS adoption and off-host recovery are not implied.
       Evidence-only closeout commits renew exact-HEAD governance without
       changing the frozen signed release or unchanged package/media bytes.
-
 - [x] 7.6 Release only the frozen Task 7.5 identity. Require exact-HEAD ETHOS
       proof, installed conformance, hosted CI success, the designated release
       decision, and a local full gate with the exact annotated tag present
@@ -1169,7 +1174,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       bound by `conformance/evidence/release-alpha7-readback.json`.
       Product and released alpha.7 bytes are unchanged. Source adoption,
       current-HEAD integration, archive and Lane retirement remain open.
-
 - [x] 8.4.1 Remove demonstrated same-project native macOS job overlap using
       GitLab's existing resource-group carrier. Add a failing actual-YAML
       contract test, preserve review/protected trust selectors and Linux
@@ -1182,7 +1186,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       Dev/main pipelines 9078/9079 passed; review pipeline 9077 retained a new
       CoreText scratch `ENOTEMPTY` failure. The scheduling acceptance is
       complete; compiler lifetime and failure preservation remain Task 8.4.2.
-
 - [x] 8.4.2 Reclaim each exact CoreText stage group before scratch removal;
       preserve stage limits, selected identities, primary failure and cleanup
       uncertainty. Local, native, installed and hosted qualification passed at
@@ -1193,7 +1196,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       `conformance/evidence/release-alpha7-readback.json`. Nineteen exact
       policy submissions pass without authenticating verifier authority; all
       eleven single-copy payloads and thirty installed replay members match.
-
 - [x] 8.4.3 Replace premature fake-stage deadlines without changing product
       ceilings or immutable alpha.7. The selected-child entry marker, typed
       timeout and exact tail remain required. Local full gate passed 1,419/1,422
@@ -1212,7 +1214,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       proposal/dev/main pipelines 9100/9102/9103 passed every declared gate
       and coverage floor. Immutable alpha.7 and all product/media inputs
       remain unchanged; prior failures and unproved delay causes are retained.
-
 - [x] 8.4.4 Retain a live, finitely bounded CoreText worker after its reply;
       preserve strict group reclamation, stage ceilings, primary diagnostics
       and coverage. Require the incumbent-failing delayed-owner test, direct
@@ -1232,7 +1233,6 @@ third-party or generated supply rather than moving owned code outside coverage.
       hashes and offline-installed publication/recovery readback. See
       `conformance/evidence/release-alpha8-readback.json`; retained failures,
       unproved timing causes and source-owned goal obligations remain separate.
-
 - [x] 8.4.5 Qualify native Windows through the existing GitLab repository gate
       with separate review/protected Runner identities on every platform.
       Preserve scripts-disabled

@@ -1,19 +1,47 @@
 import { fail } from '../../src/protocol/values.mjs';
 
+function labelWords(value) {
+  if (typeof value !== 'string' || !value.trim()) fail('render_interactive_text_infeasible');
+  if (value.length > 4096 || [...value].some((character) => character.codePointAt(0) < 32))
+    fail('render_interactive_text_infeasible');
+  return value.trim().split(/\s+/u);
+}
+
+/** Prepare every possible contiguous line; no character-count layout estimate. */
+export function* wrappedLabelRequests(value, { fontSize = 16, weight = '600' } = {}) {
+  const words = labelWords(value);
+  for (let start = 0; start < words.length; start++) {
+    let text = '';
+    for (let end = start; end < words.length; end++) {
+      text = text ? `${text} ${words[end]}` : words[end];
+      yield { text, fontSize, weight, anchor: 'start', x: 0, baseline: 0 };
+    }
+  }
+}
+
+/** Mirror the one native geometry owner's group, node and relation label roles. */
+export function* interactiveLabelRequests(pages) {
+  for (const page of pages) {
+    for (const group of page.groups ?? []) yield* wrappedLabelRequests(group.label);
+    for (const node of page.nodes) yield* wrappedLabelRequests(node.label);
+    for (const relation of page.relations)
+      if (relation.graphLabel?.trim())
+        yield* wrappedLabelRequests(relation.graphLabel, { fontSize: 13, weight: '400' });
+  }
+}
+
 /** Exact selected words, with measured glyph positions relative to the layout label. */
 export function measuredLabel(
   value,
   measure,
   { fontSize = 16, weight = '600', maximumWidth = 216, maximumLines = 4 } = {},
 ) {
-  if (typeof value !== 'string' || !value.trim()) fail('render_interactive_text_infeasible');
+  const words = labelWords(value);
   if (typeof measure?.box !== 'function') fail('render_interactive_text_measurement_required');
-  if (value.length > 4096 || [...value].some((character) => character.codePointAt(0) < 32))
-    fail('render_interactive_text_infeasible');
   const box = (text) => measure.box({ text, fontSize, weight, anchor: 'start', x: 0, baseline: 0 });
   const lines = [];
   let current = '';
-  for (const word of value.trim().split(/\s+/u)) {
+  for (const word of words) {
     if (box(word).width > maximumWidth) fail('render_interactive_text_infeasible');
     const next = current ? `${current} ${word}` : word;
     if (box(next).width <= maximumWidth) current = next;

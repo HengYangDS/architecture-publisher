@@ -204,17 +204,13 @@ export async function compileEditionMeaning(input) {
   const override = project.visualPolicy.override ?? null;
   if (override !== null) {
     const selected = lock.edition.resources;
-    if (
-      !Array.isArray(selected) ||
-      selected.length !== 1 ||
-      selected[0].ref !== override ||
-      typeof input.readEditionOverride !== 'function'
-    )
+    const resource = selected?.find(({ ref }) => ref === override);
+    if (!Array.isArray(selected) || !resource || typeof input.readEditionOverride !== 'function')
       fail('scene_refinement_resource_missing');
     const bytes = input.readEditionOverride();
-    if (!Buffer.isBuffer(bytes) || sha(bytes) !== selected[0].sha256)
+    if (!Buffer.isBuffer(bytes) || sha(bytes) !== resource.sha256)
       fail('scene_refinement_resource_mismatch');
-    refinement = parseSelectedSceneRefinement(bytes, media, selected[0].sha256);
+    refinement = parseSelectedSceneRefinement(bytes, media, resource.sha256);
   }
 
   const native = await compileEditionNativeSelections({

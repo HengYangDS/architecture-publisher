@@ -3,8 +3,7 @@ import path from 'node:path';
 import { fail } from '../../src/protocol/values.mjs';
 import { loadBundledFonts } from '../fonts/index.mjs';
 import { verifyAuthoredCanvasTextBoxes } from '../resvg/measurement.mjs';
-import { rectsOverlap, segmentIntersectsRect } from './supply/renderers/shared/geometry.mjs';
-import { minimumReadableSourceTextPx } from './supply/renderers/shared/desktop-readability.mjs';
+import { pathToFileURL } from 'node:url';
 
 const tones = new Map([
   ['ink', 't-primary'],
@@ -52,11 +51,22 @@ function assertTextLayout(
 }
 
 /** Extend only the existing checked Archify runtime with finite measured text. */
-export async function adaptArchitectureTexts(native, scene) {
+export async function adaptArchitectureTexts(native, scene, selectedFonts = null) {
   const labels = (scene.texts ?? []).filter(({ visible }) => visible);
   if (!labels.length) return { supplies: [] };
+  const { rectsOverlap, segmentIntersectsRect } = await import(
+    pathToFileURL(path.join(native, 'renderers/shared/geometry.mjs')).href
+  );
+  const { minimumReadableSourceTextPx } = await import(
+    pathToFileURL(path.join(native, 'renderers/shared/desktop-readability.mjs')).href
+  );
   if (labels.some(({ tone }) => !tones.has(tone))) fail('render_scene_text_tone_unsupported');
-  const fonts = await loadBundledFonts();
+  if (
+    selectedFonts === null &&
+    labels.some(({ font, family }) => font !== undefined || family !== undefined)
+  )
+    fail('authored_canvas_font_unselected');
+  const fonts = selectedFonts ?? (await loadBundledFonts());
   const measurer = await verifyAuthoredCanvasTextBoxes({ texts: scene.texts }, fonts);
   assertTextLayout(
     labels,
@@ -70,17 +80,18 @@ export async function adaptArchitectureTexts(native, scene) {
     minimumReadableSourceTextPx,
   );
   const fontCss = fonts.fonts
-    .filter(({ weight }) => ['400', '600'].includes(String(weight)))
     .map(
-      ({ bytes, weight }) =>
-        `@font-face{font-family:'Architecture Statement';font-style:normal;font-weight:${weight};src:url(data:font/ttf;base64,${bytes.toString('base64')}) format('truetype')}`,
+      ({ bytes, weight, family = 'JetBrains Mono' }) =>
+        `@font-face{font-family:${JSON.stringify(family).replaceAll('<', '\\3c ')};font-style:normal;font-weight:${weight};font-display:block;src:url(data:font/ttf;base64,${bytes.toString('base64')}) format('truetype')}`,
     )
     .join('');
   const markup = labels
-    .map(
-      (label) =>
-        `<text data-text-id="${escape(label.id)}" data-text-label="${escape(label.text)}" role="button" tabindex="0" aria-label="Inspect ${escape(label.text)}" x="${label.x}" y="${label.baseline}" font-family="Architecture Statement" font-size="${label.fontSize}" font-weight="${label.weight}" text-anchor="${label.anchor}" class="${tones.get(label.tone)}">${escape(label.text)}</text>`,
-    )
+    .map((label) => {
+      const identity = label.semanticIds.length
+        ? `data-text-id="${escape(label.id)}" data-text-label="${escape(label.text)}" role="button" tabindex="0" aria-label="Inspect ${escape(label.text)}"`
+        : `data-graphic-id="text:${escape(label.id)}"`;
+      return `<text ${identity} x="${label.x}" y="${label.baseline}" font-family="${escape(JSON.stringify(label.family ?? fonts.defaultFamily ?? 'JetBrains Mono'))}" font-size="${label.fontSize}" font-weight="${label.weight}" text-anchor="${label.anchor}" xml:space="preserve" text-rendering="geometricPrecision" class="${tones.get(label.tone)}">${escape(label.text)}</text>`;
+    })
     .join('\n');
   const file = path.join(native, 'renderers/architecture/render-architecture.mjs');
   let source = await fs.readFile(file, 'utf8');
@@ -131,10 +142,28 @@ export async function adaptArchitectureTexts(native, scene) {
   );
   const templateFile = path.join(native, 'assets/template.html');
   const template = await fs.readFile(templateFile, 'utf8');
-  if (template.split('</head>').length !== 2) fail('render_scene_text_seam_invalid');
+  const fontGroup = /<style id="archify-fonts">[\s\S]*?<\/style>/gu;
+  if ([...template.matchAll(fontGroup)].length !== 1) fail('render_scene_text_seam_invalid');
+  const distribution = (fonts.distributions ?? [])
+    .map(({ bytes }) => escape(bytes.toString('utf8')))
+    .join('\n');
+  const notices = [fonts.license, ...(fonts.distributions ?? [])]
+    .filter(Boolean)
+    .map(({ bytes }) => bytes.toString('utf8').replaceAll('*/', '* /').replaceAll('<', '\\3c '))
+    .join('\n');
   await fs.writeFile(
     templateFile,
-    template.replace('</head>', () => `<style>${fontCss}</style></head>`),
+    template
+      .replace(
+        fontGroup,
+        () =>
+          `<style id="archify-fonts">/* ${notices} */\n${fontCss}\nsvg text{font-synthesis:none;white-space:pre;text-rendering:geometricPrecision}</style>`,
+      )
+      .replace(
+        '</body>',
+        () =>
+          `${distribution ? `<details><summary>Selected font distribution evidence</summary><pre>${distribution}</pre></details>` : ''}</body>`,
+      ),
   );
   return { supplies: [{ id: 'statement-fonts', sha256: fonts.sha256 }, measurer.supply] };
 }

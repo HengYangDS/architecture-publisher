@@ -6,6 +6,7 @@ import axe from 'axe-core';
 import { chromium } from 'playwright-core';
 import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/interactive/index.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
+import { browserLifetime } from './fixtures/browser-lifetime.mjs';
 
 const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
 
@@ -60,6 +61,7 @@ test(
   },
   async (t) => {
     const scene = interactiveEditionScene();
+    const lifetime = browserLifetime(t);
     const compactCandidate = await renderInteractiveEditionHtml(interactiveEditionScene());
     const dedupScene = interactiveEditionScene();
     dedupScene.pages[0].nodes[0].label = 'Precontract';
@@ -214,20 +216,20 @@ test(
       );
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-    t.after(() => new Promise((resolve) => server.close(resolve)));
+    lifetime.use(server);
     const browser = await chromium.launch({
       executablePath: browserExecutable,
       headless: true,
       chromiumSandbox: true,
       timeout: 15_000,
     });
-    t.after(() => browser.close());
+    lifetime.use(browser);
     const context = await browser.newContext({
       viewport: { width: 1440, height: 900 },
       reducedMotion: 'reduce',
       serviceWorkers: 'block',
     });
-    t.after(() => context.close());
+    lifetime.use(context);
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));

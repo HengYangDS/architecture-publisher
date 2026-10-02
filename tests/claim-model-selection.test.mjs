@@ -28,6 +28,7 @@ import { verifySelectedCandidateReplay } from '../packages/publisher/src/qualifi
 import { canonical } from '../packages/publisher/src/protocol/json.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
+import { browserLifetime } from './fixtures/browser-lifetime.mjs';
 import { composeStaticSelectionLayout } from '../packages/publisher/src/scene/static/selection.mjs';
 import { claimCard } from '../packages/publisher/src/scene/claim-card.mjs';
 import { composeAuthoredInteractiveArchitecture } from '../packages/publisher/src/scene/interactive/authored-architecture.mjs';
@@ -1982,7 +1983,17 @@ test('one authored canvas binds two views and selected relation endpoints withou
   );
   const semantic = (kind, id) => JSON.stringify([modelNamespace, kind, id]);
   const box = (x, y, width, height) => ({ x, y, width, height });
-  const measurer = await createBundledTextMeasurer(await loadBundledFonts());
+  const measurer = await createBundledTextMeasurer(
+    await loadBundledFonts(),
+    ['Client', 'Server', 'Calls', 'All approve'].map((text) => ({
+      text,
+      fontSize: 16,
+      weight: '600',
+      anchor: 'middle',
+      x: 0,
+      baseline: 0,
+    })),
+  );
   const node = (id, x) => ({
     id,
     kind: 'stage',
@@ -3311,14 +3322,15 @@ test(
       response.end(asset.bytes);
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-    t.after(() => new Promise((resolve) => server.close(resolve)));
+    const lifetime = browserLifetime(t);
+    lifetime.use(server);
     const browser = await chromium.launch({
       executablePath: process.env.ARCHPUB_BROWSER_EXECUTABLE,
       headless: true,
       chromiumSandbox: true,
       timeout: 15_000,
     });
-    t.after(() => browser.close());
+    lifetime.use(browser);
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));

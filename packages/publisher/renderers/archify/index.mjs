@@ -9,6 +9,7 @@ import { portablePath } from '../../src/file-input/contract.mjs';
 import { adaptArchitectureScene } from './architecture.mjs';
 import { adaptArchitectureTexts } from './text.mjs';
 import { adaptArchitecturePrimitives } from './primitives.mjs';
+import { adaptArchitectureRoutes } from './routes.mjs';
 import { validateInteractiveArchitectureScene } from '../../src/scene/interactive/architecture.mjs';
 
 const supplyRoot = fileURLToPath(new URL('./supply/', import.meta.url));
@@ -191,8 +192,9 @@ export async function renderArchitectureScene(plan) {
     async (native, notice) => {
       const template = await adaptOfflineTemplate(native, notice, true);
       await adaptArchitecturePrimitives(native, scene);
-      const text = await adaptArchitectureTexts(native, scene);
-      return { supplies: [...template.supplies, ...text.supplies] };
+      const routes = await adaptArchitectureRoutes(native, scene);
+      const text = await adaptArchitectureTexts(native, scene, plan.fontSupply ?? null);
+      return { supplies: [...template.supplies, ...text.supplies], ...routes };
     },
   );
 }
@@ -336,6 +338,7 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
     const rendered = await bytes(candidate, 32 * 1024 * 1024, 'render_artifact_invalid');
     if (receipt.artifact?.sha256 !== sha(rendered) || receipt.artifact.bytes !== rendered.length)
       fail('render_artifact_invalid');
+    if (adaptation?.verifyRendered) adaptation.verifyRendered(rendered);
     try {
       await fs.copyFile(candidate, plan.output, constants.COPYFILE_EXCL);
     } catch (error) {

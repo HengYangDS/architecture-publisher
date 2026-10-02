@@ -7,10 +7,10 @@
       "provider": "gitlab",
       "projectPath": "dig/research/human-agent-stewardship/architecture-publisher",
       "package": "architecture-raster-resvg-source",
-      "version": "0.48.1-38b10c6d9b5a",
+      "version": "0.48.1-74812e78d5f7",
       "file": "source.tar.xz"
     },
-    "archiveSha256": "38b10c6d9b5a2282f5043d301d9faaf44e3406311646f187be9d9b0a62a7ff06"
+    "archiveSha256": "74812e78d5f76131d799dbdc269819d9623a6c0ba7901ccf386df31a5265e137"
   },
   "toolchain": {
     "rust": "1.98.1",
@@ -45,8 +45,8 @@
       },
       {
         "path": "tools/raster/resvg/src/lib.rs",
-        "bytes": 1810,
-        "sha256": "31c48a91ad7ed5a25e20690e3624d3bf4d700d704bc968ff3ad175208cdcdf26"
+        "bytes": 3293,
+        "sha256": "fb1aab2d2f362ec38501111d4950a221e68b4eec2c6894d641fd9ac6e90c8893"
       },
       {
         "path": "tools/raster/resvg/build.sh",
@@ -58,13 +58,13 @@
   "outputs": [
     {
       "path": "packages/publisher/renderers/resvg/supply/resvg/index.mjs",
-      "bytes": 3577,
-      "sha256": "4f4218b14ecd618019dbcd768a2ef04fe2f1818e183011a87c242a6a456c81f5"
+      "bytes": 4550,
+      "sha256": "5a2d6b8e3c1f07131de5af3eb67a0361d1d427c0f740992a1b2977ed389aaf57"
     },
     {
       "path": "packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm",
-      "bytes": 3425187,
-      "sha256": "f350cad80eeadc6f9277708dd4a42ac35cd1c5ff8514f89eb62ecace70c33abe"
+      "bytes": 3427609,
+      "sha256": "6827b7a3c62d7534250f81595c237086179989eac0eb5b02c3f952bcf20d8761"
     }
   ]
 }

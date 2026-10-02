@@ -17,6 +17,22 @@ export class Renderer {
         const len0 = WASM_VECTOR_LEN;
         wasm.renderer_addFont(this.__wbg_ptr, ptr0, len0);
     }
+    /**
+     * @param {Uint8Array} svg
+     * @param {number} count
+     * @returns {Float64Array}
+     */
+    measureText(svg, count) {
+        const ptr0 = passArray8ToWasm0(svg, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.renderer_measureText(this.__wbg_ptr, ptr0, len0, count);
+        if (ret[3]) {
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        var v2 = getArrayF64FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 8, 8);
+        return v2;
+    }
     constructor() {
         const ret = wasm.renderer_new();
         this.__wbg_ptr = ret;
@@ -61,9 +77,22 @@ const RendererFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_renderer_free(ptr, 1));
 
+function getArrayF64FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getFloat64ArrayMemory0().subarray(ptr / 8, ptr / 8 + len);
+}
+
 function getArrayU8FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
+}
+
+let cachedFloat64ArrayMemory0 = null;
+function getFloat64ArrayMemory0() {
+    if (cachedFloat64ArrayMemory0 === null || cachedFloat64ArrayMemory0.byteLength === 0) {
+        cachedFloat64ArrayMemory0 = new Float64Array(wasm.memory.buffer);
+    }
+    return cachedFloat64ArrayMemory0;
 }
 
 function getStringFromWasm0(ptr, len) {

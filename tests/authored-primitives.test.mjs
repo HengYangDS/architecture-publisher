@@ -11,7 +11,10 @@ import { composeAuthoredStaticCanvas } from '../packages/publisher/src/scene/sta
 import { composeAuthoredInteractiveArchitecture } from '../packages/publisher/src/scene/interactive/authored-architecture.mjs';
 import { parseSelectedSceneRefinement } from '../packages/publisher/src/edition/refinement.mjs';
 import { assertAuthoredCanvasScene } from '../packages/publisher/src/scene/static/audit.mjs';
-import { renderAuthoredCanvasSvg } from '../packages/publisher/renderers/svg/canvas.mjs';
+import {
+  renderAuthoredCanvasSvg,
+  authoredCanvasFramingRequest,
+} from '../packages/publisher/renderers/svg/canvas.mjs';
 import { renderArchitectureScene } from '../packages/publisher/renderers/archify/index.mjs';
 import { adaptArchitecturePrimitives } from '../packages/publisher/renderers/archify/primitives.mjs';
 import { adaptArchitectureTexts } from '../packages/publisher/renderers/archify/text.mjs';
@@ -410,7 +413,10 @@ test('legacy SVG keeps valid uppercase palette bytes without primitive normaliza
     strokeWidth: 2,
     semanticIds: [reference],
   };
-  const measurer = await createBundledTextMeasurer(await loadBundledFonts());
+  const measurer = await createBundledTextMeasurer(await loadBundledFonts(), [
+    ...scene.texts,
+    authoredCanvasFramingRequest('fixture-editor'),
+  ]);
   const svg = renderAuthoredCanvasSvg(
     compose(value, 'static').scene,
     'fixture-editor',
@@ -481,7 +487,7 @@ test('public interactive render derives omitted ink bounds before testing author
     scene = sceneFor(value, 'interactive');
   scene.nodes[0].primitives[0].box = { x: -155, y: -125, width: 200, height: 180 };
   const fonts = await loadBundledFonts(),
-    measurer = await createBundledTextMeasurer(fonts);
+    measurer = await createBundledTextMeasurer(fonts, scene.texts);
   for (const text of scene.texts) text.box = measurer.box(text);
   await assert.rejects(
     renderArchitectureScene({ scene, output: path.join(root, 'architecture.html') }),
@@ -525,7 +531,7 @@ test('primitive adaptation retains valid native parser and painter syntax', asyn
   });
   const value = meaning('interactive');
   const fonts = await loadBundledFonts();
-  const measurer = await createBundledTextMeasurer(fonts);
+  const measurer = await createBundledTextMeasurer(fonts, sceneFor(value, 'interactive').texts);
   for (const text of sceneFor(value, 'interactive').texts) text.box = measurer.box(text);
   const scene = resultScene(compose(value, 'interactive'), 'interactive');
   await adaptArchitecturePrimitives(root, scene);
@@ -546,7 +552,6 @@ test('both renderers emit the same admitted primitive data, not the legacy circl
   const root = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-primitives-'));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
   const fonts = await loadBundledFonts();
-  const measurer = await createBundledTextMeasurer(fonts);
   const primitive = {
     kind: 'polyline',
     closed: true,
@@ -564,6 +569,10 @@ test('both renderers emit the same admitted primitive data, not the legacy circl
     const value = meaning(medium);
     const source = sceneFor(value, medium);
     source.nodes[0].primitives = [structuredClone(primitive)];
+    const measurer = await createBundledTextMeasurer(fonts, [
+      ...source.texts,
+      ...(medium === 'static' ? [authoredCanvasFramingRequest('fixture-editor')] : []),
+    ]);
     for (const label of source.texts) label.box = measurer.box(label);
     const scene = resultScene(compose(value, medium), medium);
     if (medium === 'static') {
@@ -592,7 +601,11 @@ test(
     );
     t.after(() => fs.rm(root, { recursive: true, force: true }));
     const fonts = await loadBundledFonts(),
-      measurer = await createBundledTextMeasurer(fonts);
+      measurer = await createBundledTextMeasurer(fonts, [
+        ...sceneFor(meaning('static'), 'static').texts,
+        ...sceneFor(meaning('interactive'), 'interactive').texts,
+        authoredCanvasFramingRequest('fixture-editor'),
+      ]);
     const browser = await chromium.launch({
       executablePath: process.env.ARCHPUB_BROWSER_EXECUTABLE,
       headless: true,

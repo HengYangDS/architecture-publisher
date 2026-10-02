@@ -22,6 +22,7 @@ import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mj
 import { composeStaticResponsibilitySvg } from '../packages/publisher/renderers/svg/responsibility.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
+import { withOwnedProcessScope } from '../packages/publisher/src/runtime/process-tree.mjs';
 
 const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
 
@@ -53,14 +54,8 @@ async function contrastAgainstPaper(page, selector, property) {
 
 async function responsibilityFixture(t, medium = 'interactive') {
   const selected = await selectedNativeEdition(t, { media: [medium], width: 800 });
-  const original = await compileEditionMeaning(
-    await materializeBuildRequestInput(selected.file, selected.digest),
-  );
-  const members = original.native.selections[0].members.elements.map(({ namespace, id }) => ({
-    namespace,
-    id,
-  }));
-  assert.equal(members.length, 2);
+  const namespace = selected.request.sources.find(({ id }) => id === 'model').namespace;
+  const members = ['alpha', 'beta'].map((id) => ({ namespace, id }));
   const view = selected.project.presentation[medium].views[0];
   view.groups = members.map((member, index) => ({
     id: index === 0 ? 'first-role' : 'second-role',
@@ -108,6 +103,26 @@ async function responsibilityFixture(t, medium = 'interactive') {
   await writeProject();
   return { selected, view, members, writeProject };
 }
+
+test('responsibility fixture preparation does not execute the native parser before the actual assertion', async (t) => {
+  const workers = [];
+  await withOwnedProcessScope(
+    {
+      registerOwned: async (pid) => workers.push(pid),
+      releaseOwned: async () => {},
+    },
+    async () => {
+      const { selected, members } = await responsibilityFixture(t);
+      assert.deepEqual(members, [
+        { namespace: 'fixture/model', id: 'alpha' },
+        { namespace: 'fixture/model', id: 'beta' },
+      ]);
+      assert(selected.model.toString().includes("alpha = component 'Alpha'"));
+      assert(selected.model.toString().includes("beta = component 'Beta'"));
+    },
+  );
+  assert.deepEqual(workers, [], 'Only the actual system-under-test call may start the parser');
+});
 
 test('attributed responsibility roles and handoff survive pre-layout selection', async (t) => {
   const { selected, view } = await responsibilityFixture(t);

@@ -242,7 +242,6 @@ entity occurrences and ordered segments with traversal directions. Publisher
 SHALL validate source direction, continuous attachment and every segment.
 Shared segments SHALL preserve each carrier independently. Reachability or an
 editorial summary SHALL NOT replace exact source endpoints and route identity.
-Existing scene-member, point and traversal-reference budgets SHALL remain bounds.
 
 #### Scenario: Two relations share one routing segment
 
@@ -254,6 +253,53 @@ Existing scene-member, point and traversal-reference budgets SHALL remain bounds
 
 - **WHEN** a segment's traversal, arrow or attachment contradicts its declared source route
 - **THEN** Publisher rejects the route despite another valid shared carrier
+
+### Requirement: Route contacts and painted direction agree
+
+Adjacent traversals SHALL join both physical occurrence IDs and their actual
+contacts within one source unit. Reversal SHALL reverse traversal, not paint.
+Opposing painted arrows SHALL fail. The final traversal SHALL carry forward,
+nonzero emitted directional evidence. Legacy edge checks SHALL remain intact.
+
+#### Scenario: Junction identity hides a geometric gap
+
+- **WHEN** adjacent edges name one junction but touch its opposite sides
+- **THEN** the route fails unless an explicit segment spans those contacts
+
+#### Scenario: Opposite routes share unarrowed geometry
+
+- **WHEN** each route supplies its own forward terminal arrow
+- **THEN** their common unarrowed segment may be traversed in opposite directions
+
+### Requirement: Route expansion has finite existing bounds
+
+A canvas/page SHALL contain at most 2,048 routes, 2,048 traversals per route,
+8,192 traversal references and 8,192 reference/graphic pairs. Expansion SHALL
+be counted before deduplication. Duplicate route IDs, missing segments and
+repeated segments within one route SHALL fail independently of other carriers.
+
+#### Scenario: Repeated references exceed the expansion bound
+
+- **WHEN** traversal references exceed 8,192 before any deduplication
+- **THEN** the scene is rejected instead of expanding its inspection records
+
+### Requirement: Editorial routes retain Edition ownership
+
+An editorial route SHALL bind one exact assertion reference and Edition digest.
+Its endpoint entities SHALL be supported by the assertion's selected basis.
+Its own visible statement SHALL remain required. Shared physical segments SHALL
+paint once while retaining each relation/editorial inspection record separately.
+
+#### Scenario: Conditional explanation returns to one entity
+
+- **WHEN** a basis-bound editorial route connects two occurrences of one entity
+- **THEN** it remains editorial and does not create a source self-loop
+
+#### Scenario: An editorial route copies source authority
+
+- **WHEN** its Edition digest changes, its own statement is omitted, or it claims
+  to be an unselected direct relation
+- **THEN** Publisher rejects the route without inventing source endorsement
 
 ### Requirement: Selected fonts have one measured paint identity
 
@@ -273,6 +319,42 @@ Existing resource-count, input-byte and raster-font budgets SHALL remain bounds.
 
 - **WHEN** selected font bytes, face/weight or required distribution evidence are unavailable
 - **THEN** the exact input failure is reported without discovering a substitute font
+
+### Requirement: Native measurement is a bounded prepared operation
+
+Publisher SHALL measure shaped outline ink using the selected native renderer.
+The supervised batch SHALL include static framing and needed wrap candidates.
+Exact text, family, weight, size and anchor SHALL bind cached bounds. Misses SHALL
+fail without estimation or another invocation. Query, glyph, byte, memory, time
+and reply limits SHALL bound preparation and owned-worker reclamation.
+
+#### Scenario: A cached label changes its shaping identity
+
+- **WHEN** text, family, weight, size or anchor was not prepared
+- **THEN** measurement fails instead of reusing another shaped box
+
+#### Scenario: Parent metadata parsing is mistaken for supervised shaping
+
+- **WHEN** font metadata and glyph availability are checked outside the Worker
+- **THEN** Publisher does not claim that native supervision contains that parsing
+
+### Requirement: Measured text is preserved within its supported profile
+
+Publisher SHALL preserve exact single-line horizontal LTR Latin, Greek,
+Cyrillic, Common and explicitly supplied Han text. Unsupported scripts,
+combining marks, controls, joiners and variation selectors SHALL fail. Authored
+paint SHALL preserve spaces and select geometric precision without synthetic
+faces. Independent native and browser paint SHALL not be inferred from font pins.
+
+#### Scenario: Spaces collapse despite an exact-font measurement
+
+- **WHEN** visible authored text contains consecutive spaces
+- **THEN** both independent painters preserve them rather than change measured meaning
+
+#### Scenario: A supplied font lacks a selected Han character
+
+- **WHEN** a selected visible Han character has no glyph in the selected face
+- **THEN** the missing glyph fails without ambient font discovery
 
 ### Requirement: Media derive independent occurrence evidence
 

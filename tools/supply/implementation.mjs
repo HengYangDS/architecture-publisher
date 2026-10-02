@@ -57,7 +57,7 @@ const profiles = {
     'packages/publisher/renderers/resvg/measurement.mjs',
     'packages/publisher/src/scene/static/authored-canvas.mjs',
     'packages/publisher/src/scene/static/audit.mjs',
-    'packages/publisher/src/qualification/static/emitted-path.mjs',
+    'packages/publisher/src/scene/emitted-path.mjs',
     'packages/publisher/renderers/svg/canvas.mjs',
   ],
   'static-figure': [...baseStatic, 'packages/publisher/renderers/svg/figure.mjs'],
@@ -65,11 +65,13 @@ const profiles = {
     'packages/publisher/src/scene/interactive/edition.mjs',
     'packages/publisher/renderers/interactive/edition.mjs',
     'packages/publisher/renderers/elk/worker.mjs',
+    'packages/publisher/renderers/resvg/worker.mjs',
   ],
   'interactive-authored': [
     'packages/publisher/src/scene/interactive/authored-architecture.mjs',
     'packages/publisher/src/rendering/interactive-html.mjs',
     'packages/publisher/renderers/archify/index.mjs',
+    'packages/publisher/renderers/resvg/worker.mjs',
   ],
 };
 

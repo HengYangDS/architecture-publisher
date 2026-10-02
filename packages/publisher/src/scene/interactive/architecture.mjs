@@ -1,5 +1,6 @@
 import { fail, hasExactFields as exact } from '../../protocol/values.mjs';
 import { resolvePrimitiveNodes } from '../primitives.mjs';
+import { validateAuthoredRouteGeometry } from '../routes.mjs';
 
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const identifier = (value) => typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
@@ -51,25 +52,31 @@ function validLabelPlacement(value) {
 
 function validTextOccurrence(value) {
   return (
-    exact(value, [
-      'id',
-      'text',
-      'fontSize',
-      'weight',
-      'anchor',
-      'tone',
-      'x',
-      'baseline',
-      'visible',
-      'semanticIds',
-      'box',
-    ]) &&
+    exact(
+      value,
+      [
+        'id',
+        'text',
+        'fontSize',
+        'weight',
+        'anchor',
+        'tone',
+        'x',
+        'baseline',
+        'visible',
+        'semanticIds',
+        'box',
+      ],
+      ['font', 'family'],
+    ) &&
     identifier(value.id) &&
     text(value.text) &&
     Number.isFinite(value.fontSize) &&
     value.fontSize > 0 &&
     value.fontSize <= 300 &&
-    ['400', '600'].includes(value.weight) &&
+    ['400', '500', '600', '700'].includes(value.weight) &&
+    (!Object.hasOwn(value, 'font') || identifier(value.font)) &&
+    (!Object.hasOwn(value, 'family') || (text(value.family) && value.family.length <= 128)) &&
     ['start', 'middle', 'end'].includes(value.anchor) &&
     identifier(value.tone) &&
     Number.isFinite(value.x) &&
@@ -92,7 +99,7 @@ export function validateInteractiveArchitectureScene(scene) {
     !exact(
       scene,
       ['schema', 'id', 'title', 'subtitle', 'viewport', 'nodes', 'groups', 'edges'],
-      ['texts', 'requiredSemanticIds'],
+      ['texts', 'requiredSemanticIds', 'routes'],
     ) ||
     scene.schema !== 'architecture.interactive-scene/v1' ||
     !identifier(scene.id) ||
@@ -171,6 +178,11 @@ export function validateInteractiveArchitectureScene(scene) {
 
   const edges = new Set();
   for (const edge of scene.edges) {
+    if (Object.hasOwn(edge, 'adornment')) {
+      if (edges.has(edge.id)) fail('interactive_scene_edge_invalid');
+      edges.add(edge.id);
+      continue;
+    }
     if (
       !exact(
         edge,
@@ -199,7 +211,11 @@ export function validateInteractiveArchitectureScene(scene) {
       fail('interactive_scene_text_invalid');
     textIds.add(label.id);
   }
-  return resolvedNodes.some((node) => node.primitives) ? { ...scene, nodes: resolvedNodes } : scene;
+  const normalized = resolvedNodes.some((node) => node.primitives)
+    ? { ...scene, nodes: resolvedNodes }
+    : scene;
+  validateAuthoredRouteGeometry(normalized, 'interactive');
+  return normalized;
 }
 
 /** Compile semantic and Edition input into a backend-neutral interactive scene. */

@@ -17,7 +17,7 @@ export function adaptArchitectureScene(scene) {
   scene = validateInteractiveArchitectureScene(scene);
   if (scene.nodes.some((node) => !node.primitives && !componentTypes.has(node.visualRole)))
     fail('render_scene_visual_role_unsupported');
-  if (scene.edges.some((edge) => !variants.has(edge.visualRole)))
+  if (scene.edges.some((edge) => !edge.adornment && !variants.has(edge.visualRole)))
     fail('render_scene_edge_role_unsupported');
   return {
     schema_version: 1,
@@ -49,11 +49,11 @@ export function adaptArchitectureScene(scene) {
       id: edge.id,
       from: edge.from,
       to: edge.to,
-      label: edge.label,
-      variant: edge.visualRole,
+      label: edge.adornment ? '' : edge.label,
+      variant: edge.adornment ? 'default' : edge.visualRole,
       fromSide: edge.fromSide,
       toSide: edge.toSide,
-      route: edge.route,
+      route: edge.adornment ? 'straight' : edge.route,
       ...(edge.waypoints ? { via: edge.waypoints.map(({ x, y }) => [x, y]) } : {}),
       ...(edge.labelPlacement?.at ? { labelAt: edge.labelPlacement.at } : {}),
       ...(edge.labelPlacement?.dx === undefined ? {} : { labelDx: edge.labelPlacement.dx }),

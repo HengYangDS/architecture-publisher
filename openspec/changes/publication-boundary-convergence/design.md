@@ -1248,7 +1248,7 @@ fallback, new CLI, backend selector, or per-adopter implementation.
 Use existing owned-process supervision for exact verified ELK bytes in a
 disposable worker with bounded input, output, heap, execution, and cleanup.
 Verified supply identifies code, not a filesystem/network sandbox. Measure
-leaf, group, and relation text using the selected bundled font before layout.
+leaf, group, and relation text using the exact selected font closure before layout.
 Audit all returned routes against nodes, measured labels and arrow envelopes;
 actual SVG paint and desktop browser operation remain separate evidence.
 Any missing route, ambiguous container, unsupported geometry, infeasible
@@ -1609,13 +1609,41 @@ and resvg supply. This is a finite paint contract, not a new editor or solver.
 
 #### Source relation endpoints are not physical junctions
 
-An exact relation-route occurrence selects one source relation, its source and
-destination entity occurrences and an ordered, explicitly directed list of
-geometric segments. Validate actual source endpoints, each traversal direction,
-complete continuity and every referenced segment. Reuse existing member/point
-caps for route count, traversals and total references; repetition cannot evade
-those budgets. A shared segment retains each
-carrier independently; it creates no shared permission or semantic instance.
+One optional `routes` collection selects exact source or editorial references;
+it does not add another edge model. Each entry contains `id`, one canonical
+`reference`, `source` and `target` occurrence IDs, and nonempty ordered
+`traversals` of `{ edge, direction }`, with `forward` or `reverse` direction.
+An editorial entry also binds `editionSha256` to the existing Edition assertion.
+Its endpoint entities must be supported by that assertion's selected basis.
+Relation entries contain no Edition digest and bind the exact source direction.
+
+Physical segments reuse the existing edge collection. New literal segments
+have `adornment: true`, empty `semanticIds`, explicit ordered `points`,
+`strokeWidth`, `strokeTone`, `arrow` and `arrowGeometry`; they cannot mix with
+legacy routing fields or grant standalone source coverage. Static segments
+retain `source`/`target`; interactive segments retain `from`/`to`. Junction
+occurrences are geometry-only node adornments. Each segment paints once;
+bound source/editorial references remain separately inspectable at that site.
+
+Every traversal must connect both occurrence IDs and actual adjoining contacts
+within one source unit. Contacts on opposite sides of one junction do not
+imply a bridge through its box: an explicit segment must span it. Reversing
+a traversal reverses its point order, never its painted arrow. Opposing arrows
+fail; the terminal traversal must be forward and carry a nonzero, actually
+emitted arrow. Opposite routes may share unarrowed segments, not directional
+evidence. Existing physical collision, containment and endpoint checks remain.
+
+Reuse the existing bounds: at most 2,048 routes, 2,048 traversals per route,
+8,192 total traversal references and 8,192 resulting reference/graphic pairs
+per canvas/page. Count expansion before deduplication. Reject duplicate route
+IDs, missing segments and repeated segments within one route. Validate every
+declared route independently; another route or a legacy edge cannot excuse a
+failed route. A shared segment creates no shared permission or semantic instance.
+Valid legacy carriers remain valid when an unrelated editorial or source route
+is added. They cannot rescue an invalid declared route. Literal stroke width
+and arrow-wing paint participate in text/node clearance and canvas containment,
+not only centerline checks. A self-contact bridge paints after its junction
+so a filled junction cannot erase the declared traversal.
 Routing junctions remain adornments. Unrestricted reachability, a guessed
 primary route and a transitive source edge are forbidden.
 
@@ -1639,6 +1667,26 @@ allowed. Declared license evidence is not automatic legal approval. Each medium
 binds the resources it consumes; primitive and font parity remain separate
 qualification obligations. Existing resource-count, input-byte and raster-font
 budgets remain hard bounds rather than increasing with repeated selectors.
+
+Use the existing supervised raster Worker for one closed native measurement
+operation, sharing its renderer initialization and limits. resvg/usvg shapes
+the exact selected faces and measures flattened glyph-outline ink. OpenType
+metadata/cmap checks establish identity and glyph availability, never layout.
+Prepare visible texts and static-only framing together; neutral ELK wrapping
+prepares bounded contiguous-word candidates. The synchronous cache binds exact
+text, family, weight, size and anchor within the selected-font closure. Positions
+translate the native result; cache misses fail instead of estimating or spawning
+another process. At most 4096 requests and 200000 glyphs are admitted per batch.
+
+The initial measured profile is single-line horizontal LTR Latin, Greek,
+Cyrillic, Common and explicitly supplied Han. Preserve exact source text and
+spaces; refuse combining marks, controls, joiners, variation selectors and
+unsupported scripts. Both authored painters request geometric precision and
+disable synthetic faces. Real Chrome and raster paint are checked independently;
+same font bytes alone do not prove hinting, shaping or whitespace parity.
+Metadata/glyph checks remain parent-side and byte-bounded, not supervised native
+parsing or a claimed sandbox. Keep exact frozen offline wrapper source and
+generated supply closure; do not hand-edit hashes around an unavailable archive.
 
 #### Independent media and bounded delivery
 

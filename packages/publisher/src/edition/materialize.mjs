@@ -12,10 +12,11 @@ import {
   validateEditionProject,
 } from './authoring.mjs';
 import { deriveSourceRevision } from './revision.mjs';
+import { selectedEditionResources } from './resources.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
-function selectedRootPaths(request, requestFile, override) {
+function selectedRootPaths(request, requestFile, resources) {
   const requestName = path.basename(requestFile);
   try {
     portablePath(requestName);
@@ -25,7 +26,7 @@ function selectedRootPaths(request, requestFile, override) {
   const selected = [requestName, ...request.providers.map(({ manifest }) => manifest)];
   if (request.edition.kind === 'direct') {
     selected.push(path.posix.join(request.edition.root, request.edition.manifest));
-    if (override !== null) selected.push(path.posix.join(request.edition.root, override));
+    for (const { ref } of resources) selected.push(path.posix.join(request.edition.root, ref));
   }
   for (const source of request.sources) {
     selected.push(
@@ -65,8 +66,8 @@ export async function readBuildRequestSelection(requestPath, expectedSha256) {
 export async function readDirectSelectedInputs({ file, root, request }) {
   /** @type {{ content: Buffer, resources: { ref: string, content: Buffer }[], expected: null } | null} */
   let edition = null;
-  /** @type {string | null} */
-  let override = null;
+  /** @type {{ ref: string, sha256: string | null }[]} */
+  let resources = [];
   const observations = [];
   if (request.edition.kind === 'direct') {
     const editionPath = path.resolve(
@@ -83,25 +84,25 @@ export async function readDirectSelectedInputs({ file, root, request }) {
         'materialized_edition_json_duplicate_key',
       ),
     );
-    override = project.visualPolicy.override ?? null;
+    resources = selectedEditionResources(project);
     edition = { content, resources: [], expected: null };
     observations.push({ kind: 'edition', key: project.id, method: 'filesystem-read-sha256/v1' });
   }
-  selectedRootPaths(request, file, override);
-  if (request.edition.kind === 'direct' && edition !== null && override !== null) {
-    const selectedOverride = path.resolve(
-      root,
-      ...request.edition.root.split('/'),
-      ...override.split('/'),
-    );
-    await noSymlinkAncestors(selectedOverride);
-    const content = await regularBytes(selectedOverride, EDITION_AUTHORING_FILE_BYTES);
-    edition.resources.push({ ref: override, content });
-    observations.push({
-      kind: 'edition-resource',
-      key: override,
-      method: 'filesystem-read-sha256/v1',
-    });
+  selectedRootPaths(request, file, resources);
+  if (request.edition.kind === 'direct' && edition !== null) {
+    for (const { ref, sha256 } of resources) {
+      const selected = path.resolve(root, ...request.edition.root.split('/'), ...ref.split('/'));
+      await noSymlinkAncestors(selected);
+      const content = await regularBytes(selected, EDITION_AUTHORING_FILE_BYTES);
+      if (sha256 !== null && sha(content) !== sha256)
+        fail('materialized_edition_resource_digest_mismatch');
+      edition.resources.push({ ref, content });
+      observations.push({
+        kind: 'edition-resource',
+        key: ref,
+        method: 'filesystem-read-sha256/v1',
+      });
+    }
   }
 
   const sources = [];
@@ -111,7 +112,10 @@ export async function readDirectSelectedInputs({ file, root, request }) {
     'rendering-supplies-unchecked',
     'path-confinement-under-concurrent-mutation-unproved',
   ];
-  let totalBytes = (edition?.content.length ?? 0) + (edition?.resources[0]?.content.length ?? 0);
+  let totalBytes =
+    (edition?.content.length ?? 0) +
+    (edition?.resources.reduce((total, resource) => total + resource.content.length, 0) ?? 0);
+  if (totalBytes > LIMITS.totalBytes) fail('bundle_size_exceeded');
   for (const source of request.sources) {
     const selected = await readSelectedInput(root, {
       ...source.input,

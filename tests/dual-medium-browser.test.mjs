@@ -7,6 +7,7 @@ import axe from 'axe-core';
 import { chromium } from 'playwright-core';
 import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/index.mjs';
 import { selectedNativeEdition } from './fixtures/selected-native-edition.mjs';
+import { browserLifetime } from './fixtures/browser-lifetime.mjs';
 
 const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
 
@@ -15,6 +16,7 @@ test(
   { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 35_000 },
   async (t) => {
     const fixture = await selectedNativeEdition(t, { width: 1800 });
+    const lifetime = browserLifetime(t);
     const output = path.join(fixture.root, 'candidate');
     await compileEditionCandidateInput(fixture.file, fixture.digest, output);
     const bytes = await fs.readFile(path.join(output, 'interactive/architecture.html'));
@@ -32,14 +34,14 @@ test(
       response.end(isSvg ? svg : bytes);
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-    t.after(() => new Promise((resolve) => server.close(resolve)));
+    lifetime.use(server);
     const browser = await chromium.launch({
       executablePath: browserExecutable,
       headless: true,
       chromiumSandbox: true,
       timeout: 15_000,
     });
-    t.after(() => browser.close());
+    lifetime.use(browser);
     const page = await browser.newPage({
       viewport: { width: 1440, height: 900 },
       reducedMotion: 'reduce',
