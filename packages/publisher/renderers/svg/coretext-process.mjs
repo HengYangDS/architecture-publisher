@@ -89,7 +89,7 @@ export async function runCoreTextStage({
   )
     fail('coretext_stage_plan_invalid');
   const requestPath = path.join(scratch, `coretext-${stage}-request.json`);
-  const request = { executable, args, env, input, scratch, timeoutMs, maximumBytes };
+  const request = { executable, args, env, input, scratch, maximumBytes };
   await fs.writeFile(path.join(scratch, 'coretext-stage-diagnostics.txt'), '');
   await fs.writeFile(requestPath, JSON.stringify(request), { flag: 'wx' });
   let primary;

@@ -36,6 +36,10 @@ may contain incompatible changes.
 
 ### Fixed
 
+- CoreText stages use one parent-owned execution deadline and native tree
+  reclamation, without a competing Worker timeout. Diagnostic-read failures
+  remain separate from the primary timeout; stage ceilings and fail-closed
+  cleanup are unchanged.
 - Authored static and interactive diagrams retain every graphic occurrence of
   one selected semantic member without cloning source entities or relations.
   Claim anchors remain bound at each site; inspection rejects conflicting facts

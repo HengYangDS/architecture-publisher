@@ -17,10 +17,6 @@ let stdout = Buffer.alloc(0);
 let diagnostics = '';
 let stderrBytes = 0;
 let processError = null;
-const deadline = setTimeout(() => {
-  processError = 'ETIMEDOUT';
-  child.kill('SIGKILL');
-}, request.timeoutMs);
 child.stdout.on('data', (chunk) => {
   if (stdout.length + chunk.length > request.maximumBytes) {
     processError = 'ENOBUFS';
@@ -44,7 +40,6 @@ child.once('error', (error) => {
   processError = error.code;
 });
 child.once('close', (exitCode, signal) => {
-  clearTimeout(deadline);
   if (process.env.NODE_V8_COVERAGE) takeCoverage();
   process.stdout.write(
     JSON.stringify({

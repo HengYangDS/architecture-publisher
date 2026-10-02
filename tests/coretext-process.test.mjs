@@ -105,7 +105,6 @@ async function replyingWorker(t, beforeRemove = () => {}) {
       scratch,
       env: { HOME: scratch, PATH: scratch },
       input: '',
-      timeoutMs: 30_000,
       maximumBytes: 65536,
     }),
   );
@@ -422,6 +421,39 @@ test('CoreText compiler stderr overflow retains the existing stage byte limit', 
   );
 });
 
+test('CoreText stage deadline has one parent owner and no worker execution timer', async (t) => {
+  const stage = await selectedStage(t, "setTimeout(()=>process.stdout.write('completed'),200);");
+  const requestPath = path.join(stage.selected.scratch, 'parent-owned-deadline.json');
+  const request = {
+    executable: stage.selected.executable,
+    args: stage.selected.args,
+    env: stage.selected.env,
+    input: stage.selected.input,
+    scratch: stage.selected.scratch,
+    maximumBytes: stage.selected.maximumBytes,
+  };
+  await fs.writeFile(requestPath, JSON.stringify(request));
+  const result = await runOwnedProcess({
+    worker,
+    args: ['11000'],
+    requestPath,
+    scratch: stage.selected.scratch,
+    timeoutMs: 5000,
+    maximumBytes: 131072,
+    failurePrefix: 'coretext_stage',
+    decode: (raw) => JSON.parse(raw),
+  });
+  assert.equal(result.processError, null, inspect(result));
+  assert.equal(result.exitCode, 0);
+  assert.equal(Buffer.from(result.stdoutBase64, 'base64').toString(), 'completed');
+
+  assert.equal((await stage.run()).stdout, 'completed');
+  const selectedRequest = JSON.parse(
+    await fs.readFile(path.join(stage.selected.scratch, 'coretext-compile-request.json'), 'utf8'),
+  );
+  assert.deepEqual(Object.keys(selectedRequest).sort(), Object.keys(request).sort());
+});
+
 test('CoreText diagnostic observation errors do not replace the stage timeout', async (t) => {
   const stage = await selectedStage(t, 'setInterval(()=>{},1000);', { timeoutMs: 250 });
   const original = fs.readFile;
@@ -431,13 +463,15 @@ test('CoreText diagnostic observation errors do not replace the stage timeout', 
     return original(...args);
   };
   try {
-    await assert.rejects(
-      stage.run,
-      (error) =>
-        error.code === 'coretext_compile_failed' &&
-        error.processError === 'ETIMEDOUT' &&
-        error.diagnosticsObservation === 'unobserved:EACCES',
-    );
+    let failure;
+    try {
+      await stage.run();
+    } catch (error) {
+      failure = error;
+    }
+    assert.equal(failure?.code, 'coretext_compile_failed', inspect(failure, { depth: 5 }));
+    assert.equal(failure?.processError, 'ETIMEDOUT');
+    assert.equal(failure?.diagnosticsObservation, 'unobserved:EACCES');
   } finally {
     fs.readFile = original;
   }

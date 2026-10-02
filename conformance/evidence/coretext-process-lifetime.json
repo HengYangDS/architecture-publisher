@@ -1090,5 +1090,80 @@
         "nativeCause": "not yet reproduced with diagnostic successor"
       }
     }
+  },
+  "singleDeadlineOwnerCorrection": {
+    "scope": "One parent-owned CoreText stage deadline; source repair, not native successor or release acceptance",
+    "baseHead": "4447eb974a75ace30c9ceaedcfef0f4eaa907aad",
+    "observedAt": "2026-10-02T10:51:29.545Z",
+    "originatingFailure": {
+      "pipeline": 9219,
+      "job": 47220,
+      "runner": 120,
+      "source": "d50039e405d509b5a4d5def7cdbe08b2484565ac",
+      "test": "CoreText diagnostic observation errors do not replace the stage timeout",
+      "actual": "coretext_stage_cleanup_unproved",
+      "durationMs": 516.433666,
+      "trace": {
+        "path": "build/release/alpha.9/portable-qualification/windows-47220-terminal.log",
+        "bytes": 242997,
+        "sha256": "389e4db972b801dd57fe43aef4ca7c4b1b36f845864d680097383c372d78df3a"
+      }
+    },
+    "sameSourceProtected": {
+      "pipeline": 9220,
+      "job": 47223,
+      "runner": 121,
+      "status": "success",
+      "trace": {
+        "path": "build/release/alpha.9/portable-qualification/windows-47223-completed.log",
+        "bytes": 240374,
+        "sha256": "10544fe51a221a1e1e1664d3dc32bfc2496f11083e0dc4559b779b2c656a9e1d"
+      },
+      "meaning": "Intermittent failure remains; sibling success is not a root-cause repair"
+    },
+    "demonstratedOwnerDefect": "The Worker independently consumed a duplicate stage timeout; omitting that duplicate still caused immediate ETIMEDOUT despite a live parent and a finite selected compiler",
+    "repair": [
+      "Remove only the redundant Worker execution timer and duplicate request timeout",
+      "Retain parent total deadline, finite Worker owner-loss lifetime, stage ceilings, strict native reclamation and diagnostic observation",
+      "Report complete assertion errors without widening the accepted result or the existing 250 ms test bound"
+    ],
+    "unchanged": [
+      "Shared process-tree supervisor",
+      "120-second compiler and 30-second measurement ceilings",
+      "Existing 250 ms diagnostic-observation regression",
+      "95-percent four-dimensional coverage contract",
+      "Generated selected-media implementation identities; previously approved media are not mutated"
+    ],
+    "focused": {
+      "red": {
+        "path": "build/release/alpha.9/portable-qualification/coretext-single-owner-red.log",
+        "bytes": 1075,
+        "sha256": "53f9630ec1f1b5bd2d86838a30410d49c12b9370de6799b9b01858fc08ed02fc"
+      },
+      "green": {
+        "path": "build/release/alpha.9/portable-qualification/coretext-single-owner-green.log",
+        "bytes": 487,
+        "sha256": "fe3959c16f251bd4866d56bccd130ed3816a7878a7d69f4ad9c63cf75a89ebdd"
+      },
+      "passed": 4,
+      "failed": 0,
+      "siblings": {
+        "path": "build/release/alpha.9/portable-qualification/coretext-single-owner-siblings.log",
+        "bytes": 6269,
+        "sha256": "d35ba164832e39fc840ef84db89ea782df8fd08fb965aa97e3d4f96609e8fcdc"
+      },
+      "siblingPassed": 70,
+      "siblingFailed": 0,
+      "static": {
+        "path": "build/release/alpha.9/portable-qualification/coretext-single-owner-static.log",
+        "bytes": 4799,
+        "sha256": "c8318ed5153adb93cab8a4e9d6c8bd3e14767f5fa16e89593a7ea2685b852963"
+      }
+    },
+    "limits": [
+      "Exact historical native scheduling/root-loss cause is not proved by the ownership regression",
+      "Full exact-source proof and native successor CI are still required",
+      "No successor release, source-owned migration or off-host recovery is inferred"
+    ]
   }
 }

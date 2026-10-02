@@ -603,6 +603,12 @@ third-party or generated supply rather than moving owned code outside coverage.
       The complete native profile and signed-source qualification still
       govern release; these tests do not relax process-tree reclamation.
       Corrected exact-source native qualification and release remain required.
+      Windows review 47220 retains a separate CoreText cleanup-unproved failure;
+      same-source protected 47223 passes. The parent now owns the only stage
+      execution timer, with finite Worker self-expiry and cleanup policy unchanged.
+      The incumbent-failing ownership case, four focused cases and seventy sibling
+      regressions pass. Exact successor proof, native CI and release remain required;
+      see `conformance/evidence/coretext-process-lifetime.json`.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

@@ -2254,6 +2254,16 @@ an unavailable checkpoint annotates, but never replaces, the primary stage cause
 Direct-child SIGKILL remains fallback containment;
 no independent-parent-loss reclamation of arbitrary descendant trees is claimed.
 
+The parent is the sole stage-deadline owner. The worker request carries the
+selected executable, arguments, environment, input, scratch and output bound,
+not a second timeout. The worker retains only its separate finite owner-loss
+lifetime. Removing its redundant execution timer prevents concurrent child kill
+and native tree reclamation without increasing either stage ceiling. The
+incumbent-failing direct-worker regression proves this ownership correction;
+the exact historical Windows failure still requires native successor acceptance.
+Diagnostic-observation regressions report complete failures rather than hide
+cleanup causes behind an opaque predicate assertion.
+
 Independent read-only review rejected the initially proposed combined worker
 because its total deadline did not establish the compile-stage bound. The reviewed
 two-stage alternative changes no public command, CoreText plan or result protocol,
