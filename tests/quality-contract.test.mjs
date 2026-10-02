@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { parse } from 'yaml';
+import { main as lintMarkdown } from 'markdownlint-cli2';
 import { applyFixes } from 'markdownlint-cli2/markdownlint';
 import { lint } from 'markdownlint-cli2/markdownlint/promise';
 import { npmInvocation } from './fixtures/npm-pack-report.mjs';
@@ -237,15 +238,21 @@ test('the native documentation gate enforces one blank line across maintained Ma
       npm_config_cache: path.join(scratch, 'npm-cache'),
     },
   };
-  const check = () => execFileSync(invoke.command, invoke.args, options);
-  assert.doesNotThrow(check);
+  const check = async () => {
+    const diagnostics = [];
+    const code = await lintMarkdown({
+      directory: scratch,
+      argv: [],
+      logError: (message) => diagnostics.push(message),
+    });
+    return { code, diagnostics: diagnostics.join('\n') };
+  };
+  assert.equal((await check()).code, 0);
   for (const file of files) {
     await fs.writeFile(path.join(scratch, file), '# Scope\n\n\nRead the selected contract.\n');
-    assert.throws(
-      check,
-      (error) => error.status === 1 && /MD012/u.test(`${error.stdout}${error.stderr}`),
-      file,
-    );
+    const result = await check();
+    assert.equal(result.code, 1, file);
+    assert.match(result.diagnostics, /MD012/u, file);
     await fs.writeFile(path.join(scratch, file), valid);
   }
   for (const source of [
@@ -257,17 +264,17 @@ test('the native documentation gate enforces one blank line across maintained Ma
     '<!-- markdownlint-disable compact-simple-lists -->\n\n# Scope\n\n- First item\n\n- Second item\n',
   ]) {
     await fs.writeFile(path.join(scratch, 'README.md'), source);
-    assert.throws(
-      check,
-      (error) => /compact-simple-lists/u.test(`${error.stdout}${error.stderr}`),
-      'A simple list keeps its paragraph items adjacent',
-    );
+    const result = await check();
+    assert.equal(result.code, 1);
+    assert.match(result.diagnostics, /compact-simple-lists/u);
   }
   await fs.writeFile(
     path.join(scratch, 'README.md'),
     '<!-- markdownlint-disable MD012 -->\n\n# Scope\n\n\nRead the selected contract.\n',
   );
-  assert.throws(check, (error) => /MD012/u.test(`${error.stdout}${error.stderr}`));
+  const disabledRule = await check();
+  assert.equal(disabledRule.code, 1);
+  assert.match(disabledRule.diagnostics, /MD012/u);
   await fs.writeFile(
     path.join(scratch, 'README.md'),
     '# Scope\n\n```python\nclass First:\n    pass\n\n\nclass Second:\n    pass\n```\n',
@@ -284,15 +291,16 @@ test('the native documentation gate enforces one blank line across maintained Ma
     await fs.mkdir(path.dirname(path.join(scratch, file)), { recursive: true });
     await fs.writeFile(path.join(scratch, file), '# Retained bytes\n\n\nDo not format.\n');
   }
-  assert.doesNotThrow(check, 'Language-significant code spacing and retained inputs remain intact');
+  assert.equal((await check()).code, 0, 'Language-significant spacing and retained inputs');
   for (const source of [
     '# Scope\n\n-\n\n- First paragraph\n\n  Second paragraph\n',
     '# Scope\n\n- First item\n\n  A separate paragraph.\n\n- Second item\n',
     '# Scope\n\n- Group\n\n  - First item\n  - Second item\n\n- Another group\n\n  ```python\n  def first():\n      pass\n\n\n  def second():\n      pass\n  ```\n',
   ]) {
     await fs.writeFile(path.join(scratch, 'README.md'), source);
-    assert.doesNotThrow(check, 'Multi-block items retain their structural spacing');
+    assert.equal((await check()).code, 0, 'Multi-block items retain their structural spacing');
   }
+  execFileSync(invoke.command, invoke.args, options);
   const { default: spacingRule } = await import('../tools/quality/markdown.mjs');
   for (const [source, expected] of [
     [

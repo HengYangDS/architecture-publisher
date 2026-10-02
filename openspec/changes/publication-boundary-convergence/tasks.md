@@ -679,6 +679,18 @@ third-party or generated supply rather than moving owned code outside coverage.
       reproduces the incumbent and GREEN verifies the correction while product
       children remain covered. The failure and original proof are preserved;
       fresh complete source and native qualification remain required.
+      Protected main job 47423 retains two accidental short Provider-fixture
+      deadlines and a documentation setup timeout; all coverage floors pass.
+      A finite delayed reply reproduces each incorrect timing prerequisite.
+      Lifetime observation now uses the existing cleanup bound, while cleanup
+      semantics use the canonical Provider ceiling; explicit timeout tests and
+      product ceilings remain unchanged. The documentation regression exercises
+      the same official lint engine in-process and one native npm entry,
+      instead of launching npm for every invalid example. All original carrier,
+      rule, retained-input and formatter checks remain; 31 focused cases pass.
+      The normal spacing case falls from 7.67 seconds to 0.63 seconds locally.
+      These source-side repairs require fresh complete native acceptance; no
+      historical job, signed tag, coverage limit or selected output is rewritten.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,

@@ -7,6 +7,8 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { validateProviderReply } from '../packages/publisher/src/provider/protocol.mjs';
+import { EDITION_PROVIDER_LIMITS } from '../packages/publisher/src/provider/limits.mjs';
+import { PROCESS_CLEANUP_MS } from '../packages/publisher/src/runtime/process-tree.mjs';
 
 const worker = fileURLToPath(
   new URL('../packages/publisher/src/provider/worker.mjs', import.meta.url),
@@ -41,8 +43,8 @@ function alive(pid) {
   }
 }
 
-async function waitForExit(pid) {
-  const deadline = Date.now() + 2_000;
+async function waitForExit(pid, timeoutMs = 2_000) {
+  const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     if (!alive(pid)) return true;
     await new Promise((resolve) => setTimeout(resolve, 25));
@@ -68,12 +70,13 @@ async function reclaimWorker(child, closed, request, scratch) {
   await fs.rm(scratch, { recursive: true, force: true });
 }
 
-async function requestFile(scratch, scenario = undefined) {
+async function requestFile(scratch, scenario = undefined, replyDelayMs = undefined) {
   for (const name of ['config', 'cache', 'data', 'tmp']) await fs.mkdir(path.join(scratch, name));
   let bytes = await fs.readFile(source);
   const selected = JSON.parse(bytes);
-  if (scenario) {
-    selected.scenario = scenario;
+  if (scenario || replyDelayMs !== undefined) {
+    if (scenario) selected.scenario = scenario;
+    if (replyDelayMs !== undefined) selected.replyDelayMs = replyDelayMs;
     bytes = Buffer.from(JSON.stringify(selected));
   }
   const input = {
@@ -164,9 +167,9 @@ test('unreclaimed Provider worker stays available for cleanup, then self-expires
   let child;
   let closed = Promise.resolve();
   try {
-    const requestPath = await requestFile(scratch);
+    const requestPath = await requestFile(scratch, undefined, 750);
     request = await fs.open(requestPath, 'r');
-    child = spawn(process.execPath, [worker, provider, '500'], {
+    child = spawn(process.execPath, [worker, provider, String(PROCESS_CLEANUP_MS)], {
       cwd: scratch,
       env: workerEnvironment(scratch),
       stdio: [request.fd, 'pipe', 'pipe'],
@@ -175,7 +178,10 @@ test('unreclaimed Provider worker stays available for cleanup, then self-expires
     closed = new Promise((resolve) => child.once('close', resolve));
     let output = '';
     await new Promise((resolve, reject) => {
-      const deadline = setTimeout(() => reject(new Error('worker reply deadline')), 2_000);
+      const deadline = setTimeout(
+        () => reject(new Error('worker reply deadline')),
+        PROCESS_CLEANUP_MS,
+      );
       const done = () => {
         clearTimeout(deadline);
         resolve();
@@ -186,11 +192,16 @@ test('unreclaimed Provider worker stays available for cleanup, then self-expires
       });
       child.once('close', done);
     });
+    assert.ok(output.endsWith('\n'), 'worker closed without a framed reply');
     assert.equal(JSON.parse(output.trim()).status, 'ok');
     await new Promise((resolve) => setTimeout(resolve, 25));
     assert.equal(alive(child.pid), true, 'worker exited before its owner could reclaim the tree');
     assert.equal(output.endsWith('\n'), true, 'worker reply is not framed');
-    assert.equal(await waitForExit(child.pid), true, 'worker lacks a self-expiring deadline');
+    assert.equal(
+      await waitForExit(child.pid, PROCESS_CLEANUP_MS),
+      true,
+      'worker lacks a self-expiring deadline',
+    );
   } finally {
     await reclaimWorker(child, closed, request, scratch);
   }
@@ -234,7 +245,7 @@ test('unavailable tree cleanup cannot admit a valid Provider reply', async () =>
         entrypoint: provider,
         requestPath,
         scratch,
-        limits: { timeoutMs: 1_000, replyBytes: 2 * 1024 * 1024 },
+        limits: { timeoutMs: EDITION_PROVIDER_LIMITS.timeoutMs, replyBytes: 2 * 1024 * 1024 },
         validateReply: validateProviderReply,
         terminateTree: async (pid) => {
           selectedPid = pid;
@@ -263,7 +274,7 @@ test('unproved tree cleanup remains distinct from ordinary cleanup failure', asy
         entrypoint: provider,
         requestPath,
         scratch,
-        limits: { timeoutMs: 1_000, replyBytes: 2 * 1024 * 1024 },
+        limits: { timeoutMs: EDITION_PROVIDER_LIMITS.timeoutMs, replyBytes: 2 * 1024 * 1024 },
         validateReply: validateProviderReply,
         terminateTree: async (pid) => {
           selectedPid = pid;
@@ -294,7 +305,7 @@ test('a rejected reply and failed cleanup retain both precise causes', async () 
         entrypoint: provider,
         requestPath,
         scratch,
-        limits: { timeoutMs: 1_000, replyBytes: 2 * 1024 * 1024 },
+        limits: { timeoutMs: EDITION_PROVIDER_LIMITS.timeoutMs, replyBytes: 2 * 1024 * 1024 },
         validateReply: validateProviderReply,
         terminateTree: async (pid) => {
           selectedPid = pid;
@@ -326,7 +337,7 @@ test('a cleanup rejection without an Error never admits the Provider reply', asy
         entrypoint: provider,
         requestPath,
         scratch,
-        limits: { timeoutMs: 1_000, replyBytes: 2 * 1024 * 1024 },
+        limits: { timeoutMs: EDITION_PROVIDER_LIMITS.timeoutMs, replyBytes: 2 * 1024 * 1024 },
         validateReply: validateProviderReply,
         terminateTree: async (pid) => {
           selectedPid = pid;
