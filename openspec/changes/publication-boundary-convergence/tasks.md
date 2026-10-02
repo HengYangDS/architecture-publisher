@@ -552,11 +552,22 @@ third-party or generated supply rather than moving owned code outside coverage.
       `conformance/evidence/authored-statements.json`; wording, flagship parity,
       source adoption, later geometry/font-resource slices and release remain
       separate obligations.
-- [ ] 5.2.3 Add finite node-local SVG-standard primitives and explicit
+- [x] 5.2.3 Add finite node-local SVG-standard primitives and explicit
       geometry-only adornments. Derive paint footprints, retain port bounds
       and enforce primitive/point budgets; reject false envelopes, collisions,
       executable geometry and invented semantic coverage. Preserve released
       v1 meanings and prove the same data drives audit and actual painting.
+      One generated schema, shared geometric owner and standard SVG painter
+      drive independent media. Independent review counterexamples now refuse
+      cancelling integer/decimal fills, inherited-property joins, omitted ink
+      envelopes, line-budget escapes, background overpaint and adornment
+      grouping; legacy palette bytes remain unchanged. Twenty-four focused
+      tests include actual resvg and desktop Chrome; 78 installed/sibling cases
+      pass without skips. Final `npm run check` passes 1,505/1,508 with three
+      declared skips and 97.68/95.12/99.49/97.68% coverage. Evidence is
+      `conformance/evidence/authored-primitives.json`. Conservative envelopes,
+      nonzero contours and final contrast do not prove perceptibility at every
+      scale, source truth, flagship parity, later route/font slices or release.
 - [ ] 5.2.4 Bind literal relation routes to exact ordered traversals and keep
       editorial summaries/conditions distinct. Validate directed endpoints,
       segment continuity, shared-carrier independence and explanation basis

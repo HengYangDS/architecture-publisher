@@ -1,0 +1,88 @@
+{
+  "schema": "architecture.authored-primitive-evidence/v1",
+  "scope": "Finite authored geometric painting and source-carrier checks; not source truth, semantic paraphrase, flagship adoption or release",
+  "productVersion": "0.3.0-alpha.9",
+  "baseCommit": "2f7db1763166e9434952f88a3db3ae5eccaadb72",
+  "rules": [
+    "one-bounded-schema",
+    "node-local-arithmetic",
+    "legacy-branch-preserved",
+    "semantic-ports-not-paint",
+    "derived-conservative-envelopes",
+    "finite-primitive-and-all-path-point-budgets",
+    "explicit-geometry-only-adornments",
+    "no-source-group-or-endpoint-adornment",
+    "final-nonbackground-paint-operation",
+    "uncertain-contour-refusal",
+    "own-property-safe-joins",
+    "public-render-normalized-scene",
+    "independent-media"
+  ],
+  "checks": [
+    {
+      "path": "build/test-work/ethos-provider-migration-20261002/primitive-expanded-red.log",
+      "sha256": "9736139c007bdbf0429aa726a1fac289faf946afec7e553376ad2b80b2cff988",
+      "scope": "Initial primitive-only/schema, geometry and budget RED before implementation"
+    },
+    {
+      "path": "build/test-work/ethos-provider-migration-20261002/primitive-review-red.log",
+      "sha256": "b0a78656554711601fb1c124e553a58581e13f02e03d4b498a768b135992b317",
+      "scope": "Independent cancellation, prototype lookup, omitted-envelope and line-budget counterexamples"
+    },
+    {
+      "path": "build/test-work/ethos-provider-migration-20261002/primitive-decimal-red.log",
+      "sha256": "77b993a266c3aaddf7a32dc9e419809c7a700a4a997a91d6e571ca324828a61c",
+      "scope": "Decimal cancelling-fill residual reproduced before robust predicate"
+    },
+    {
+      "path": "build/test-work/ethos-provider-migration-20261002/primitive-palette-group-red.log",
+      "sha256": "ed50f69d3eae026923c99c71ffc1f43b147290f0fdc52112116c75015207cc51",
+      "scope": "Background-only source paint and adornment grouping RED"
+    },
+    {
+      "path": "build/test-work/ethos-provider-migration-20261002/primitive-overpaint-red.log",
+      "sha256": "3263be09ccf55d08da7622d9a4487dae88aaf63e2240c211898087b66e486a39",
+      "scope": "Layer-order cancellation and legacy palette-byte RED"
+    },
+    {
+      "path": "build/test-work/ethos-provider-migration-20261002/primitive-overpaint-green.log",
+      "sha256": "3ee866aa995b3b44a82091ba53698e86fdbe1b55513a54656065b0ba1de133d2",
+      "scope": "24 focused semantic, painter, actual resvg and desktop Chrome tests; zero skips"
+    },
+    {
+      "path": "build/test-work/ethos-provider-migration-20261002/primitive-qualified-installed.log",
+      "sha256": "f8554108acd97fa091fc54339baf1fca89ace8db7c25fe153eceaed55309b757",
+      "scope": "78 installed and related regressions; offline packed public CLI, independent media and relocated inputs; zero skips"
+    },
+    {
+      "path": "build/test-work/ethos-provider-migration-20261002/primitive-qualified-full-gate.log",
+      "sha256": "1325f79703f6c619cc08fcb1e61c1e526103116cccf3acbb7e96a97de945efda",
+      "scope": "Final exact-input npm run check, strict/static/package and all four coverage floors"
+    }
+  ],
+  "coverage": {
+    "statements": 97.68,
+    "branches": 95.12,
+    "functions": 99.49,
+    "lines": 97.68
+  },
+  "results": {
+    "tests": 1508,
+    "passed": 1505,
+    "failed": 0,
+    "skipped": 3
+  },
+  "housekeeping": {
+    "nativeScratch": "Test-owned work directories, private adaptation copies, browser and loopback server closed by test teardown",
+    "releaseAlpha8": "No artifact, signed tag, source or acceptance bytes changed"
+  },
+  "limits": [
+    "derived-union-envelope-conservative-not-per-pixel-ink",
+    "final-geometric-contrast-not-perceptibility-or-minimum-mark-size",
+    "zero-algebraic-area-and-numerically-uncertain-filled-contours-unsupported",
+    "final-background-only-composite-unsupported-even-if-earlier-ink-remains",
+    "source-owner-wording-and-art-review-still-required",
+    "ordered-routes-and-selected-font-resources-not-qualified-by-this-slice",
+    "new-exact-head-attestation-hosted-ci-adoption-and-release-not-performed"
+  ]
+}

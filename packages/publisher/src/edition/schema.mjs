@@ -316,6 +316,47 @@ const semanticIds = {
   uniqueItems: true,
   items: text,
 };
+const primitivePaint = {
+  fill: { anyOf: [identifier, { type: 'null' }] },
+  stroke: { anyOf: [identifier, { type: 'null' }] },
+  strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
+};
+export const PRIMITIVE_SCHEMA = deepFreeze({
+  $id: 'architecture.paint-primitive/v1',
+  oneOf: [
+    closed(['kind', 'center', 'radius', 'fill', 'stroke', 'strokeWidth'], {
+      kind: { const: 'circle' },
+      center: canvasPoint,
+      radius: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
+      ...primitivePaint,
+    }),
+    closed(['kind', 'box', 'fill', 'stroke', 'strokeWidth'], {
+      kind: { const: 'rect' },
+      box: canvasBox,
+      ...primitivePaint,
+    }),
+    closed(['kind', 'start', 'end', 'fill', 'stroke', 'strokeWidth'], {
+      kind: { const: 'line' },
+      start: canvasPoint,
+      end: canvasPoint,
+      ...primitivePaint,
+      fill: { type: 'null' },
+    }),
+    closed(['kind', 'points', 'closed', 'fill', 'stroke', 'strokeWidth'], {
+      kind: { const: 'polyline' },
+      points: { type: 'array', minItems: 2, maxItems: 64, items: canvasPoint },
+      closed: { type: 'boolean' },
+      ...primitivePaint,
+    }),
+  ],
+});
+const primitiveNode = {
+  id: identifier,
+  semanticIds,
+  primitives: { type: 'array', minItems: 1, maxItems: 32, items: PRIMITIVE_SCHEMA },
+  paintBox: canvasBox,
+  adornment: { const: true },
+};
 const authoredText = closed(
   [
     'id',
@@ -382,20 +423,38 @@ const canvasScene = closed(
     nodes: {
       type: 'array',
       maxItems: 512,
-      items: closed(
-        ['id', 'kind', 'tone', 'center', 'radius', 'box', 'paintBox', 'strokeWidth', 'semanticIds'],
-        {
-          id: identifier,
-          kind: text,
-          tone: identifier,
-          center: canvasPoint,
-          radius: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
-          box: canvasBox,
-          paintBox: canvasBox,
-          strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
-          semanticIds: { ...semanticIds, minItems: 1 },
-        },
-      ),
+      items: {
+        oneOf: [
+          closed(
+            [
+              'id',
+              'kind',
+              'tone',
+              'center',
+              'radius',
+              'box',
+              'paintBox',
+              'strokeWidth',
+              'semanticIds',
+            ],
+            {
+              id: identifier,
+              kind: text,
+              tone: identifier,
+              center: canvasPoint,
+              radius: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
+              box: canvasBox,
+              paintBox: canvasBox,
+              strokeWidth: { type: 'number', minimum: 0, maximum: 100 },
+              semanticIds: { ...semanticIds, minItems: 1 },
+            },
+          ),
+          closed(['id', 'box', 'semanticIds', 'primitives'], {
+            ...primitiveNode,
+            box: canvasBox,
+          }),
+        ],
+      },
     },
     texts: {
       type: 'array',
@@ -471,15 +530,24 @@ const interactiveSize = closed(['width', 'height'], {
   width: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
   height: { type: 'number', exclusiveMinimum: 0, maximum: 12000 },
 });
-const interactiveNode = closed(['id', 'label', 'visualRole', 'position', 'size'], {
-  id: identifier,
-  label: text,
-  visualRole: text,
-  position: canvasPoint,
-  size: interactiveSize,
-  detail: text,
-  semanticIds: { ...semanticIds, minItems: 1 },
-});
+const interactiveNode = {
+  oneOf: [
+    closed(['id', 'label', 'visualRole', 'position', 'size'], {
+      id: identifier,
+      label: text,
+      visualRole: text,
+      position: canvasPoint,
+      size: interactiveSize,
+      detail: text,
+      semanticIds: { ...semanticIds, minItems: 1 },
+    }),
+    closed(['id', 'position', 'size', 'semanticIds', 'primitives'], {
+      ...primitiveNode,
+      position: canvasPoint,
+      size: interactiveSize,
+    }),
+  ],
+};
 const interactiveGroup = closed(['id', 'label', 'nodeIds', 'padding'], {
   id: identifier,
   label: text,

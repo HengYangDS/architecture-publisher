@@ -1,6 +1,7 @@
 import { deepFreeze } from '../../semantics/document.mjs';
 import { fail } from '../../protocol/values.mjs';
 import { classifyAggregateRelation } from '../aggregate-relation.mjs';
+import { assertPrimitiveContrast, resolvePrimitiveNodes } from '../primitives.mjs';
 import {
   authoredReference,
   deriveAuthoredStatements,
@@ -40,7 +41,7 @@ const selectionReference = ({ source, target }) =>
 export function composeAuthoredStaticCanvas(meaning) {
   const views = meaning?.media?.static?.views;
   const selected = meaning?.refinement?.media?.static;
-  const scene = selected?.scene;
+  let scene = selected?.scene;
   if (
     !Array.isArray(views) ||
     !views.length ||
@@ -61,6 +62,14 @@ export function composeAuthoredStaticCanvas(meaning) {
     !Array.isArray(meaning.native?.selections)
   )
     fail('authored_canvas_input_invalid');
+  scene = { ...scene, nodes: resolvePrimitiveNodes(scene.nodes, 'static') };
+  const tone = (name) => {
+    const color = scene.paint?.[name];
+    if (typeof color !== 'string' || !/^#[0-9a-f]{6}$/iu.test(color))
+      fail('authored_canvas_tone_invalid');
+    return color.toLowerCase();
+  };
+  assertPrimitiveContrast(scene.nodes, tone, tone('paper'));
   const requiredAssertionIds = [...new Set(views.flatMap(({ assertionIds }) => assertionIds))];
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
@@ -147,6 +156,7 @@ export function composeAuthoredStaticCanvas(meaning) {
   for (const node of scene.nodes) {
     if (nodes.has(node.id)) fail('authored_canvas_graphic_ambiguous');
     nodes.set(node.id, node);
+    if (node.adornment) continue;
     const members = new Set();
     for (const id of node.semanticIds) {
       const [, kind] = reference(id);

@@ -8,6 +8,8 @@ import { fail, hasExactFields, isDigest } from '../../src/protocol/values.mjs';
 import { portablePath } from '../../src/file-input/contract.mjs';
 import { adaptArchitectureScene } from './architecture.mjs';
 import { adaptArchitectureTexts } from './text.mjs';
+import { adaptArchitecturePrimitives } from './primitives.mjs';
+import { validateInteractiveArchitectureScene } from '../../src/scene/interactive/architecture.mjs';
 
 const supplyRoot = fileURLToPath(new URL('./supply/', import.meta.url));
 const supplyDigest = '93cfa952940ae568f59c5080ce5a675497b4b984607b2975933e3d0b06acd466';
@@ -180,7 +182,7 @@ function semanticPublicationTemplate(template) {
 /** Render one backend-neutral architecture scene through the Archify adapter. */
 export async function renderArchitectureScene(plan) {
   if (!plan || typeof plan !== 'object') fail('render_scene_plan_invalid');
-  const scene = structuredClone(plan.scene);
+  const scene = validateInteractiveArchitectureScene(structuredClone(plan.scene));
   const output = plan.output;
   const diagram = adaptArchitectureScene(scene),
     inputBytes = Buffer.from(JSON.stringify(diagram, null, 2) + '\n');
@@ -188,6 +190,7 @@ export async function renderArchitectureScene(plan) {
     { type: 'architecture', inputBytes, output },
     async (native, notice) => {
       const template = await adaptOfflineTemplate(native, notice, true);
+      await adaptArchitecturePrimitives(native, scene);
       const text = await adaptArchitectureTexts(native, scene);
       return { supplies: [...template.supplies, ...text.supplies] };
     },

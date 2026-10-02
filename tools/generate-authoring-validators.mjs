@@ -6,6 +6,7 @@ import {
   BUILD_REQUEST_SCHEMA,
   EDITION_PROJECT_SCHEMA,
   SCENE_REFINEMENT_SCHEMA,
+  PRIMITIVE_SCHEMA,
 } from '../packages/publisher/src/edition/schema.mjs';
 
 const target = fileURLToPath(
@@ -23,6 +24,7 @@ const modules = [
   moduleFor(BUILD_REQUEST_SCHEMA),
   moduleFor(EDITION_PROJECT_SCHEMA),
   moduleFor(SCENE_REFINEMENT_SCHEMA),
+  moduleFor({ $schema: 'http://json-schema.org/draft-07/schema#', ...PRIMITIVE_SCHEMA }),
 ];
 if (modules.some((source) => source.includes('require(') || source.includes('import ')))
   throw Error('generated_validator_has_runtime_dependency');
@@ -34,6 +36,7 @@ const output = [
   `export const buildRequestValid = ${modules[0]};`,
   `export const editionProjectValid = ${modules[1]};`,
   `export const sceneRefinementValid = ${modules[2]};`,
+  `export const primitiveValid = ${modules[3]};`,
   '',
 ].join('\n');
 

@@ -365,11 +365,18 @@ try {
   const semantic = (kind, id) => JSON.stringify(['example/claims', kind, id]);
   const occurrenceNode = (id, entity, x) => ({
     id,
-    label: entity,
-    visualRole: 'backend',
     position: { x, y: 160 },
     size: { width: 160, height: 80 },
     semanticIds: [semantic('entity', entity)],
+    primitives: [
+      {
+        kind: 'rect',
+        box: { x: 0, y: 0, width: 160, height: 80 },
+        fill: 'paper',
+        stroke: 'ink',
+        strokeWidth: 2,
+      },
+    ],
   });
   const occurrenceEdge = (id, from) => ({
     id,
@@ -431,6 +438,8 @@ const built = await compileEditionCandidateInput(request, digest, output);
 const html = await fs.readFile(new URL('./occurrence-candidate/interactive/architecture.html', import.meta.url), 'utf8');
 const work = JSON.parse(html.match(/<script id="architecture-interactive-data" type="application\\/json">([\\s\\S]*?)<\\/script>/u)[1]);
 const page = work.pages.overview;
+const painted = page.pieces.map((piece) => typeof piece === 'number' ? work.blocks[piece] : piece).join('');
+if (!painted.includes('data-node-id="client-a"') || !painted.includes('stroke-linejoin="round"')) throw Error('installed_primitive_not_painted');
 await fs.rm(output, { recursive: true });
 console.log(JSON.stringify({ status: built.status, candidateSha256: built.candidateSha256,
   subjects: Object.keys(page.subjectSources),
@@ -616,6 +625,30 @@ console.log(JSON.stringify({ status: built.status, candidateSha256: built.candid
       ],
     },
   };
+  const adornment = {
+    id: 'editorial-marker',
+    semanticIds: [],
+    adornment: true,
+    primitives: [
+      {
+        kind: 'circle',
+        center: { x: 10, y: 10 },
+        radius: 8,
+        fill: 'ink',
+        stroke: null,
+        strokeWidth: 0,
+      },
+    ],
+  };
+  statementRefinement.media.static.scene.nodes.push({
+    ...adornment,
+    box: { x: 760, y: 380, width: 20, height: 20 },
+  });
+  statementRefinement.media.interactive.pages[0].scene.nodes.push({
+    ...adornment,
+    position: { x: 760, y: 380 },
+    size: { width: 20, height: 20 },
+  });
   await fs.writeFile(
     path.join(consumer, 'statement-run.mjs'),
     `
@@ -693,6 +726,12 @@ console.log(createHash('sha256').update(request).digest('hex'));
   assert(statementSvg.includes('data-graphic-id="text:editorial-text"'));
   assert.equal(statementPng.readUInt32BE(16), 1800);
   assert.equal(/<circle\b[^>]*data-graphic-id="node:/u.test(statementSvg), false);
+  assert(statementSvg.includes('data-graphic-id="node:editorial-marker" aria-hidden="true"'));
+  assert.equal(statementOutput.includes('data-node-id="editorial-marker"'), false);
+  assert.equal(
+    statementWork.pages.overview.facts.some(({ graphicId }) => graphicId === 'editorial-marker'),
+    false,
+  );
 
   const relocated = path.join(work, 'relocated');
   await fs.cp(consumer, relocated, { recursive: true });

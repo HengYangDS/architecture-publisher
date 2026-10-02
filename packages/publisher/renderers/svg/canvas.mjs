@@ -1,5 +1,11 @@
 import { fail } from '../../src/protocol/values.mjs';
 import { editorialFraming } from '../../src/scene/framing.mjs';
+import {
+  assertPrimitiveContrast,
+  resolvePrimitiveNodes,
+  resolvePrimitivePaint,
+} from '../../src/scene/primitives.mjs';
+import { renderPrimitives } from './primitives.mjs';
 
 const escape = (value) =>
   String(value)
@@ -42,6 +48,11 @@ export function renderAuthoredCanvasSvg(scene, editor, measurer) {
       fail('authored_canvas_tone_invalid');
     return value;
   };
+  assertPrimitiveContrast(
+    scene.nodes,
+    (name) => tone(name).toLowerCase(),
+    tone('paper').toLowerCase(),
+  );
   const lines = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${scene.width}" height="${scene.height + 42}" viewBox="0 -42 ${scene.width} ${scene.height + 42}" role="img" aria-labelledby="canvas-title" aria-describedby="canvas-description" font-family="JetBrains Mono">`,
     `<title id="canvas-title">${escape(scene.title)}</title>`,
@@ -66,7 +77,14 @@ export function renderAuthoredCanvasSvg(scene, editor, measurer) {
       `<path data-edge="${escape(edge.id)}" data-source="${escape(edge.source)}" data-target="${escape(edge.target)}" data-graphic-id="edge:${escape(edge.id)}" d="${pathData(edge.points)}" fill="none" stroke="${color}" stroke-width="${edge.strokeWidth}" stroke-linecap="round" stroke-linejoin="round"${edge.arrow ? ` marker-end="url(#canvas-arrow-${index})"` : ''}/>`,
     );
   }
-  for (const node of scene.nodes) {
+  for (const node of resolvePrimitiveNodes(scene.nodes, 'static')) {
+    if (node.primitives) {
+      const { primitives } = resolvePrimitivePaint(node, { x: node.box.x, y: node.box.y });
+      lines.push(
+        `<g data-graphic-id="node:${escape(node.id)}"${node.adornment ? ' aria-hidden="true"' : ''}>${renderPrimitives(primitives, tone)}</g>`,
+      );
+      continue;
+    }
     const color = tone(node.tone);
     lines.push(
       `<circle data-graphic-id="node:${escape(node.id)}" cx="${node.center.x}" cy="${node.center.y}" r="${node.radius}" fill="${tone('paper')}" stroke="${color}" stroke-width="${node.strokeWidth}"/>`,

@@ -1,4 +1,5 @@
 import { fail, hasExactFields as exact } from '../../protocol/values.mjs';
+import { resolvePrimitiveNodes } from '../primitives.mjs';
 
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const identifier = (value) => typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
@@ -120,8 +121,14 @@ export function validateInteractiveArchitectureScene(scene) {
   )
     fail('interactive_scene_text_invalid');
 
+  const resolvedNodes = resolvePrimitiveNodes(scene.nodes, 'interactive');
   const nodes = new Set();
-  for (const node of scene.nodes) {
+  for (const node of resolvedNodes) {
+    if (node.primitives) {
+      if (nodes.has(node.id)) fail('interactive_scene_node_invalid');
+      nodes.add(node.id);
+      continue;
+    }
     if (
       !exact(node, ['id', 'label', 'visualRole', 'position', 'size'], ['detail', 'semanticIds']) ||
       !identifier(node.id) ||
@@ -137,6 +144,7 @@ export function validateInteractiveArchitectureScene(scene) {
     nodes.add(node.id);
   }
 
+  const groupedNodes = new Set(resolvedNodes.filter((node) => !node.adornment).map(({ id }) => id));
   const groups = new Set(),
     grouped = new Set();
   for (const group of scene.groups) {
@@ -153,11 +161,12 @@ export function validateInteractiveArchitectureScene(scene) {
       fail('interactive_scene_group_invalid');
     groups.add(group.id);
     for (const id of group.nodeIds) {
-      if (!nodes.has(id) || grouped.has(id)) fail('interactive_scene_group_membership_invalid');
+      if (!groupedNodes.has(id) || grouped.has(id))
+        fail('interactive_scene_group_membership_invalid');
       grouped.add(id);
     }
   }
-  if (scene.groups.length && grouped.size !== nodes.size)
+  if (scene.groups.length && grouped.size !== groupedNodes.size)
     fail('interactive_scene_group_membership_invalid');
 
   const edges = new Set();
@@ -190,7 +199,7 @@ export function validateInteractiveArchitectureScene(scene) {
       fail('interactive_scene_text_invalid');
     textIds.add(label.id);
   }
-  return scene;
+  return resolvedNodes.some((node) => node.primitives) ? { ...scene, nodes: resolvedNodes } : scene;
 }
 
 /** Compile semantic and Edition input into a backend-neutral interactive scene. */

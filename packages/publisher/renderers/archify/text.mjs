@@ -60,7 +60,7 @@ export async function adaptArchitectureTexts(native, scene) {
   const measurer = await verifyAuthoredCanvasTextBoxes({ texts: scene.texts }, fonts);
   assertTextLayout(
     labels,
-    scene.nodes.map(({ position, size }) => ({ ...position, ...size })),
+    scene.nodes.map(({ position, size, paintBox }) => paintBox ?? { ...position, ...size }),
     [],
     [],
     [],
@@ -84,17 +84,21 @@ export async function adaptArchitectureTexts(native, scene) {
     .join('\n');
   const file = path.join(native, 'renderers/architecture/render-architecture.mjs');
   let source = await fs.readFile(file, 'utf8');
-  source = "import { segmentIntersectsRect } from '../shared/geometry.mjs';\n" + source;
+  const geometryImport = "import { segmentIntersectsRect } from '../shared/geometry.mjs';\n";
+  if (!source.includes(geometryImport)) source = geometryImport + source;
   const checks = '  if (problems.length) {\n';
   const painting = '      </svg>`;';
   if (source.split(checks).length !== 2 || source.split(painting).length !== 2)
     fail('render_scene_text_seam_invalid');
   const selected = JSON.stringify(labels).replaceAll('<', '\\u003c');
+  const paintOwners = JSON.stringify(
+    scene.nodes.filter((node) => node.paintBox).map(({ id, paintBox }) => [id, paintBox]),
+  );
   source = source
     .replace(
       checks,
       () =>
-        `  (${assertTextLayout.toString()})(${selected}, [...components.values()], boundaries, connectionLabels, asArray(arch.connections).map((conn) => pathFor(conn).points), viewBox, rectsOverlap, segmentIntersectsRect, minimumReadableSourceTextPx);\n${checks}`,
+        `  const textPaintOwners = new Map(${paintOwners});\n  (${assertTextLayout.toString()})(${selected}, [...components.values()].map((c) => textPaintOwners.get(c.id) ?? c), boundaries, connectionLabels, asArray(arch.connections).map((conn) => pathFor(conn).points), viewBox, rectsOverlap, segmentIntersectsRect, minimumReadableSourceTextPx);\n${checks}`,
     )
     .replace(
       painting,

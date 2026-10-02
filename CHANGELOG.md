@@ -19,6 +19,10 @@ may contain incompatible changes.
   font bytes, native desktop readability and geometry checks, page-local runtime
   receipts, and source/Edition-separated keyboard inspection. Wording remains
   unverified rather than pretending identity coverage proves a paraphrase.
+- Finite circle, rectangle, line and polyline painting in authored media.
+  Derived ink bounds remain separate from semantic ports; checked geometry-only
+  adornments add no source coverage or inspection. Cancelling filled contours,
+  false envelopes, mixed legacy painting and excessive path budgets are refused.
 
 ### Fixed
 

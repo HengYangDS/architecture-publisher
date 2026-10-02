@@ -1,4 +1,5 @@
 import { fail } from '../../protocol/values.mjs';
+import { resolvePrimitiveNodes } from '../primitives.mjs';
 import {
   boxRight as right,
   boxBottom as bottom,
@@ -67,7 +68,7 @@ export function auditScene(scene, contract) {
   });
   // Ports attach to semantic bounds; text must clear the actual painted mark.
   // Keeping the two envelopes separate avoids moving endpoints to clear ink.
-  const nodes = scene.nodes.map((n) => ({
+  const nodes = resolvePrimitiveNodes(scene.nodes, 'static').map((n) => ({
     ...n,
     box: b(n.box),
     paintBox: n.paintBox ? b(n.paintBox) : expand(b(n.box), ((n.strokeWidth ?? 0) * scale) / 2),
@@ -134,7 +135,12 @@ export function auditScene(scene, contract) {
         add('text-clearance', texts[i].id, texts[j].id);
   for (let i = 0; i < nodes.length; i++)
     for (let j = i + 1; j < nodes.length; j++)
-      if (overlaps(nodes[i].box, nodes[j].box)) add('node-overlap', nodes[i].id, nodes[j].id);
+      if (
+        overlaps(nodes[i].box, nodes[j].box) ||
+        ((nodes[i].primitives || nodes[j].primitives) &&
+          overlaps(nodes[i].paintBox, nodes[j].paintBox))
+      )
+        add('node-overlap', nodes[i].id, nodes[j].id);
   for (const e of scene.edges) {
     const points = e.points.map((p) => ({ x: p.x * scale, y: p.y * scale }));
     if (points.length < 2) {
@@ -165,7 +171,12 @@ export function auditScene(scene, contract) {
         )
           add('edge-text-collision', e.id, t.id);
       for (const n of nodes)
-        if (![e.source, e.target].includes(n.id) && segmentHitsBox(a, z, n.box))
+        if (
+          ![e.source, e.target].includes(n.id) &&
+          (segmentHitsBox(a, z, n.box) ||
+            (n.primitives &&
+              segmentHitsBox(a, z, expand(n.paintBox, ((e.strokeWidth ?? 1) * scale) / 2))))
+        )
           add('edge-node-collision', e.id, n.id);
     }
     if (e.arrowGeometry) {
@@ -264,7 +275,7 @@ export function auditCanvasEnvelope(scene, quality) {
     });
   }
   // The trace renderer owns actual paint footprints; port boxes are not ink.
-  for (const n of scene.nodes) {
+  for (const n of resolvePrimitiveNodes(scene.nodes, 'static')) {
     if (n.paintBox) add(n.id, 'node', n.paintBox);
     else if (Number.isFinite(n.strokeWidth) && n.strokeWidth >= 0)
       add(n.id, 'node', expand(n.box, n.strokeWidth / 2));

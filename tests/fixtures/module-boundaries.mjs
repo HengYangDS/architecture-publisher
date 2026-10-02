@@ -153,6 +153,14 @@ const owners = [
   ],
   ['packages/publisher/src/cli/', ['packages/publisher/src/', 'packages/publisher/renderers/']],
   [
+    'packages/publisher/renderers/archify/primitives.mjs',
+    [
+      'packages/publisher/renderers/archify/',
+      'packages/publisher/src/scene/',
+      'packages/publisher/renderers/svg/primitives.mjs',
+    ],
+  ],
+  [
     'packages/publisher/renderers/archify/text.mjs',
     [
       'packages/publisher/renderers/archify/',

@@ -186,6 +186,55 @@ SHALL fail. Primitive choice SHALL NOT define source role semantics.
 - **WHEN** it exceeds 32 primitives per node, 64 points per polyline, 4096 primitives or 32768 points per canvas
 - **THEN** Publisher refuses it before rendering
 
+#### Scenario: A filled contour cancels its own winding
+
+- **WHEN** a fill-only closed polygon traverses the same triangle in opposite directions
+- **THEN** Publisher refuses the zero-area contour rather than treating its bounds as visible ink
+
+#### Scenario: Primitive ink extends beyond its semantic port box
+
+- **WHEN** a public renderer receives no optional paint envelope and the derived ink collides with text or another owner
+- **THEN** the same normalized scene drives auditing and painting without moving ports
+
+### Requirement: Primitive point budgets count actual paths
+
+The canvas point budget SHALL include line endpoints, polyline vertices and
+explicit closing traversals. Geometry-only adornments SHALL consume those
+budgets without contributing source coverage, inspection or relation endpoints.
+
+#### Scenario: Lines exceed the canvas budget after polyline saturation
+
+- **WHEN** polylines consume 32768 points and another line adds two endpoints
+- **THEN** Publisher refuses the canvas before painting
+
+### Requirement: Source marks cannot use background-only painting
+
+Publisher SHALL refuse a source-bearing primitive node whose complete fill and
+stroke selection resolves to the canvas background. Outlined paper interiors
+MAY remain valid. This predicate SHALL NOT imply perceptual contrast or visibility
+at every delivery scale.
+
+#### Scenario: Final paper painting erases an earlier contrasting operation
+
+- **WHEN** the final primitive ends with background-only fill or stroke
+- **THEN** Publisher refuses it conservatively without treating earlier possibly covered paint as a witness
+
+#### Scenario: A source mark paints only paper
+
+- **WHEN** its fill and stroke resolve to the same color as the medium background
+- **THEN** Publisher refuses the structural carrier instead of counting invisible bounds
+
+### Requirement: Adornments cannot define source grouping
+
+Interactive structural groups SHALL partition non-adornment nodes only.
+Geometry-only adornments SHALL remain outside those groups and SHALL NOT
+enlarge their selected-source frames.
+
+#### Scenario: A routing mark is added beside a grouped source node
+
+- **WHEN** the source group selects the node but not the adornment
+- **THEN** the grouping remains valid and adding the adornment as a member fails
+
 ### Requirement: Relation routes bind exact ordered traversals
 
 A source relation route SHALL identify its exact relation, source/destination

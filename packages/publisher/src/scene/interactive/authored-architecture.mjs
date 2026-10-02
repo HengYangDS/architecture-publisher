@@ -2,6 +2,7 @@ import { canonical, deepFreeze } from '../../semantics/document.mjs';
 import { fail } from '../../protocol/values.mjs';
 import { validateInteractiveArchitectureScene } from './architecture.mjs';
 import { classifyAggregateRelation } from '../aggregate-relation.mjs';
+import { assertPrimitiveContrast } from '../primitives.mjs';
 import {
   authoredReference,
   deriveAuthoredStatements,
@@ -111,6 +112,7 @@ function structuralFacts(id, member, selected, graphicId) {
 
 function composePage(meaning, view, page, assertions, selections) {
   const scene = validateInteractiveArchitectureScene(page.scene);
+  assertPrimitiveContrast(scene.nodes, (name) => name, 'paper');
   if (
     page.id !== view.id ||
     scene.id !== view.id ||
@@ -145,6 +147,7 @@ function composePage(meaning, view, page, assertions, selections) {
   const nodeEntities = new Map();
   const subjectNamespaces = {};
   for (const node of scene.nodes) {
+    if (node.adornment) continue;
     if (!node.semanticIds?.length) mismatch();
     const entities = new Set();
     const namespaces = new Set();
@@ -160,6 +163,7 @@ function composePage(meaning, view, page, assertions, selections) {
     subjectNamespaces[node.id] = [...namespaces].sort();
   }
   for (const node of scene.nodes) {
+    if (node.adornment) continue;
     const entities = nodeEntities.get(node.id);
     for (const id of node.semanticIds) {
       const [namespace, kind] = reference(id);

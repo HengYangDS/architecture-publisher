@@ -343,6 +343,24 @@ The reusable scene audit keeps text-to-non-owner geometry clearance
 overlap-only rule; it does not borrow a source contract's geometry distance.
 The successor authored canvas explicitly selects the five-unit floor for both.
 
+An authored node may select `primitives` instead of its historical component
+painting: circles, rectangles, stroked lines and explicitly open/closed
+polylines. Coordinates are node-local offsets from the unchanged static `box`
+or interactive `position`. The compiler derives `paintBox`; an optional supplied
+box must match it. Labels remain separate measured text occurrences, not fields
+silently dropped with the replaced component.
+
+Use `adornment: true` with empty `semanticIds` for geometry-only marks. They
+consume painting budgets and collision checks but supply no source coverage,
+inspection, group membership or source-relation endpoint. Source marks cannot
+paint only the resolved background. Cancelling, zero-area or numerically
+uncertain filled contours fail; lines and open paths need a visible stroke.
+The final primitive must end with non-background stroke, or fill when no stroke
+is selected. Final background-only overpainting is conservatively unsupported.
+These checks prove bounded geometry, not perceptual visibility or art quality
+at every delivery size. Limits are 32 primitives per node, 64 points per
+polyline, 4096 primitives and 32768 line/vertex/closing points per canvas.
+
 Historical v1 plans retain their selected output field and original meaning.
 They select a Source Bundle, Claim Model member, and exact
 `architecture.edition/v1` file, then emit an

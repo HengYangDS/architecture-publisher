@@ -14,8 +14,8 @@ const variants = new Set(['default', 'emphasis', 'security', 'dashed']);
 
 /** Adapt a renderer-neutral architecture scene to the bundled Archify protocol. */
 export function adaptArchitectureScene(scene) {
-  validateInteractiveArchitectureScene(scene);
-  if (scene.nodes.some((node) => !componentTypes.has(node.visualRole)))
+  scene = validateInteractiveArchitectureScene(scene);
+  if (scene.nodes.some((node) => !node.primitives && !componentTypes.has(node.visualRole)))
     fail('render_scene_visual_role_unsupported');
   if (scene.edges.some((edge) => !variants.has(edge.visualRole)))
     fail('render_scene_edge_role_unsupported');
@@ -33,8 +33,8 @@ export function adaptArchitectureScene(scene) {
     },
     components: scene.nodes.map((node) => ({
       id: node.id,
-      type: node.visualRole,
-      label: node.label,
+      type: node.primitives ? 'paint' : node.visualRole,
+      label: node.primitives ? node.id : node.label,
       ...(node.detail ? { sublabel: node.detail } : {}),
       pos: [node.position.x, node.position.y],
       size: [node.size.width, node.size.height],

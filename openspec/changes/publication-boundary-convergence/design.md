@@ -1572,6 +1572,38 @@ Primitives own no semantic identity. The geometric owner derives actual fill,
 stroke, cap/join and closed-shape footprints from selected data; authored
 paintBox values, if retained, are checked claims rather than pass authority.
 Semantic port bounds stay independent and cannot move to hide collisions.
+Primitive coordinates are offsets from the static node's `box.x/y` or the
+interactive node's `position.x/y`, resolved once without SVG transforms.
+The primitive static branch requires only identity, port box, semantic IDs
+and nonempty primitives; it rejects mixed legacy circle fields. Historical
+circle nodes retain their original branch unchanged. Interactive primitive
+selection replaces the complete component painting, including role sigils;
+labels use explicit text occurrences rather than silently disappearing.
+No fabricated backend/database role is required for a new painted mark.
+
+An explicit `adornment: true` node requires empty semantic IDs. It participates
+in geometry checks but contributes no source inspection, aggregate membership
+or source-relation endpoints in this slice. Replacing a required source node
+with an adornment fails coverage. Filled closed polylines require at least
+three usable vertices and a nonzero algebraic contour area, and use actual
+SVG closure with the product-controlled fill rule. Cancelling and zero-area
+filled contours and values within a conservative floating-point error bound
+remain unsupported; bounds alone do not establish fill ink.
+Open lines/polylines require visible strokes. The canvas point budget counts
+line endpoints, polyline vertices and explicit closing traversals.
+Source marks whose complete selected palette resolves to the canvas background
+are refused. Outlined paper interiors remain valid. This does not establish a
+minimum perceptible pixel size, contrast ratio or visibility at every scale;
+exact-media qualification and art review retain those responsibilities.
+The last primitive must end with a non-background paint operation: SVG paints
+its fill before its stroke. Final background-only overpainting is conservatively
+unsupported even when it may leave earlier ink. No compositing solver is added.
+Structural groups partition non-adornment nodes only; geometry-only marks
+cannot join or enlarge those selected-source frames.
+The union paint box is a conservative collision envelope, not a claim that
+every enclosed pixel contains ink. Internal primitive overlap within one
+composite mark is permitted; distinct marks and nonendpoint routes must clear
+the derived paint envelope without moving semantic ports.
 Reuse the existing analytic Scene/canvas and emitted-path audits, SVG painter
 and resvg supply. This is a finite paint contract, not a new editor or solver.
 
