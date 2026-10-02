@@ -14,7 +14,15 @@ export function npmInvocation(args) {
 
 export function spawnNativeSync(command, args, options) {
   const selected = command === 'npm' ? npmInvocation(args) : { command, args };
-  return spawnSync(selected.command, selected.args, options);
+  const result = spawnSync(selected.command, selected.args, options);
+  if (result.error)
+    throw Object.assign(result.error, {
+      status: result.status,
+      signal: result.signal,
+      stdout: result.stdout,
+      stderr: result.stderr,
+    });
+  return result;
 }
 
 export function execNativeSync(command, args, options) {

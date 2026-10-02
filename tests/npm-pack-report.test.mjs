@@ -62,3 +62,25 @@ test('native npm invocation preserves exact arguments and caller process options
   const nonzero = spawnNativeSync(process.execPath, ['-e', 'process.exit(17)'], options);
   assert.equal(nonzero.status, 17);
 });
+
+test('native setup deadlines expose the process error and selected diagnostics', () => {
+  assert.throws(
+    () =>
+      spawnNativeSync(
+        process.execPath,
+        [
+          '--input-type=module',
+          '--eval',
+          "import { writeSync } from 'node:fs'; writeSync(1, 'selected stdout'); writeSync(2, 'selected stderr'); Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 30_000);",
+        ],
+        { encoding: 'utf8', timeout: 5000 },
+      ),
+    (error) => {
+      assert.equal(error.code, 'ETIMEDOUT');
+      assert.equal(error.status, null);
+      assert.equal(error.stdout, 'selected stdout');
+      assert.equal(error.stderr, 'selected stderr');
+      return true;
+    },
+  );
+});

@@ -616,6 +616,17 @@ third-party or generated supply rather than moving owned code outside coverage.
       correction but exposes a separate direct-test scratch `EBUSY`. Its teardown
       now observes native close, not PID absence, before removal; unproved close
       preserves scratch. Final source/native/release acceptance remains required.
+      Frozen `6d6a5d5` passes all three source/ref cohorts and local proof, but
+      tag Windows jobs 47244 and 47287 retain temporary npm-install failures.
+      The retry budget is exhausted; alpha.9 has no Forge Release. Two actual
+      owner regressions now reproduce lost native timeout diagnostics and
+      needless consumer-manifest/lock writes. The existing test preload disables
+      only ephemeral metadata writes; native invocation preserves its exact
+      error, output and signal. All thirty-seven focused and sibling cases and
+      zero-warning static gates pass without changing product inputs, existing
+      deadlines, coverage floors, selected media or the signed tag. Native
+      focused diagnosis and complete successor acceptance remain required; see
+      `build/release/alpha.9/portable-qualification/setup-owner-{red,green,siblings,static}.log`.
 - [x] 5.3 Compile static SVG/selected-width PNG and standalone interactive
       HTML from separate scene owners. `tests/dual-medium-contract.test.mjs`
       proves shared selected claim identities but independent geometry, DOM,
