@@ -8,6 +8,8 @@ may contain incompatible changes.
 
 ## Unreleased
 
+## [0.3.0-alpha.9] - 2026-10-02
+
 ### Added
 
 - Explicit authored Claim and editorial statement text in both independent
@@ -50,6 +52,10 @@ may contain incompatible changes.
 - One native Markdownlint configuration covers maintained Markdown, rejects
   extra simple-list spacing, and preserves embedded-language, raw HTML,
   historical archive and supplier bytes.
+- Native measurement reply admission has one private protocol owner with direct
+  portable counterexamples. Invalid-response fixtures preserve a finite live
+  Worker for reclamation; actual premature exit remains cleanup uncertainty.
+  Coverage scope and all four 95-percent thresholds remain unchanged.
 
 ## [0.3.0-alpha.8] - 2026-10-02
 
@@ -526,6 +532,7 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.3.0-alpha.9]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.9
 [0.3.0-alpha.8]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.8
 [0.3.0-alpha.7]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.7
 [0.3.0-alpha.6]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.6
