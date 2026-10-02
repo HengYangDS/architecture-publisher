@@ -1157,22 +1157,21 @@ third-party or generated supply rather than moving owned code outside coverage.
       reclaimed. Retain full code-verifier, typed routing, host activation
       and general-comprehension limits instead of treating Skill presence as
       learning or source implementation acceptance.
-- [ ] 8.3 Hand the completed SDD/DR, COMET, SpecD, semantic-graph, intent,
-      and independent-verification research to the existing ETHOS knowledge
-      owner with source citations and adopt/reject/defer boundaries. Keep only
-      Publisher-relevant publication mechanism decisions here; verify receipt,
-      not presumed adoption or an editable duplicate authority.
-      The existing ETHOS proof-throughput Task 12.6 independently verified
-      the signed Lane study and DR contract, then all three exact refresh
-      packet hashes on 2026-10-01. Its topic owners and source boundaries are
-      in `conformance/evidence/research-owner-intake.json`. Receipt is proven;
-      the expanded receiver receipt now also binds all four exact adjacent
-      Spec Kit/BMAD/GSD packet members. Its current bytes were independently
-      read back and preserved at an immutable local snapshot. Five-topic source
-      additions remain a proposed transplant, not adopted or silently applied.
-      Substantive topic absorption and retiring general research here remain
-      open. Preserve unique broader findings until that migration is verified;
-      no upstream suite, source acceptance or off-host DR effect is claimed.
+- [x] 8.3 Transfer general SDD, COMET, SpecD, semantic-graph, intent and
+      independent-verification research to the existing ETHOS topic owners;
+      retain only publication mechanism decisions here. Source-owned signed
+      checkpoint `e108fb1408cd122e25d37895fccd6cfc4abf129a` has signature G and
+      tree `fb6ce1228c2f9c2b79205d68acc9dde61f0553f7`. All five committed topic
+      hashes were independently read back; four match the selected transplant
+      exactly, while the effects owner replaces daemon deferral with the
+      measured rejection linked to its execution topic. Current knowledge
+      ownership and immutable original packets are bound by
+      `conformance/evidence/research-owner-intake.json`. General comparison
+      prose and historical size figures here now point to that signed source
+      rather than maintaining another interpretation authority. The off-host
+      DR decision contract remains here as Publisher custody input, not an
+      implemented backup. Upstream full suites, framework implementation,
+      accepted ETHOS runtime and thirteen-page migration are not inferred.
 - [ ] 8.4 After release readback, use `openspec archive --skip-specs` only after
       verifying that the active base specs already carry
       its exact normative delta; the archive must not change released behavior.
