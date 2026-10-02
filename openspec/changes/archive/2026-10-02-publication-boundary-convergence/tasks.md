@@ -1238,7 +1238,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       acknowledged existing Tasks 9.9.4/12.6. This closes handoff only;
       source-owned successor implementation, installed semantics/art/rollback
       and acceptance remain goal obligations at ETHOS, not Publisher proof.
-      The [accepted-runtime native receipt](../../../conformance/evidence/ethos-installed-mechanisms.json)
+      The [accepted-runtime native receipt](../../../../conformance/evidence/ethos-installed-mechanisms.json)
       binds Lane bootstrap, signed merge, preserved conflict recovery and
       divergent retirement recovery, plus fifty installed component checks.
       Six exact fixture histories and coordination were restored before
@@ -1335,7 +1335,7 @@ third-party or generated supply rather than moving owned code outside coverage.
       preserve stage limits, selected identities, primary failure and cleanup
       uncertainty. Local, native, installed and hosted qualification passed at
       signed runtime `0788d916` and test successor `eddd9feb`; the
-      [lifetime receipt](../../../conformance/evidence/coretext-process-lifetime.json)
+      [lifetime receipt](../../../../conformance/evidence/coretext-process-lifetime.json)
       retains every prior failure and unproved cause. Exact alpha.7 HTML review,
       asset release, download and Documents readback are complete in
       `conformance/evidence/release-alpha7-readback.json`. Nineteen exact
