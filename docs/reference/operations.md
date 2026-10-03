@@ -69,9 +69,8 @@ binds the signed source and tag, all nine native jobs, seven selected downloads,
 single-copy storage, six-file offline replay and preserved historical records.
 Every configured aggregate coverage dimension remains at least 95%.
 
-This software release does not renew self-artwork approval. The new HTML has
-unchanged desktop scenes but different source/version metadata; its precise
-human review remains separate. The approved reader release below stays intact.
+The software Release remains unchanged. Exact human approval now covers the new
+eight-page self HTML; its standalone reader publication is separate below.
 ETHOS and AIGW retain their own source, Edition, acceptance and custody decisions.
 
 Qualification uses Node's existing two-file concurrency. All test files and
@@ -81,7 +80,40 @@ actual native snapshot, glyph and installed-use checks remain. The earlier
 compiler and npm timeouts are preserved; their historical causes are unproved.
 The passing successor establishes current acceptance, not a causal explanation.
 
-### Last verified reader release (2026-10-03): alpha.11
+### Last verified self-architecture publication (2026-10-03): alpha.14
+
+The [self-architecture package](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/packages/263)
+contains the independently approved eight-page HTML, the unchanged approved
+6000px PNG and SVG, selected replay inputs, publication manifest and checksums.
+Seven files occupy 2,840,303 bytes. Each file was downloaded through native
+`glab api`; every size and SHA-256 matches its frozen inventory and native
+package metadata. Media occur once each: the replay archive excludes them and
+selects those same files by digest. The assembled Candidate reproduces all six
+files through the exact downloaded installed Core.
+
+Nineteen submitted qualifications pass; `admitted:false` remains correct.
+Explicit acceptance and effect authorization then install the local paired
+publication, and recovery returns `ALREADY_INSTALLED`. All eleven delivered
+files and both Documents copies were read back. The standalone HTML and
+highest-resolution PNG are available at these local paths:
+
+- `~/Documents/architecture-publisher-0.3.0-alpha.14.html`
+- `~/Documents/architecture-publisher-0.3.0-alpha.14-6000.png`
+
+The immutable software Release's seven assets, all eighteen existing Release
+records and all eighteen prior package identities remain unchanged. Eighteen
+prior Documents files are preserved byte-for-byte. Five completed owned
+installation, assembled-replay and superseded-staging trees were reclaimed;
+43,437,579 logical bytes were removed after exact inventory and retained-evidence
+verification. Final media, packages, raw failures and required receipts remain.
+
+This is attributed exact-artifact acceptance and primary-forge custody, not
+independent verifier authentication, universal comprehension, power-loss or
+off-host recovery. Native Change/Lane closeout is a separate effect; neither
+this publication nor Publisher qualification accepts ETHOS/AIGW source state
+or completes the full cross-product goal.
+
+### Retained reader release (2026-10-03): alpha.11
 
 The [alpha.11 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.11)
 selects signed source `25233468464dde6ed6699cf1d560428082c38f5f` and its
