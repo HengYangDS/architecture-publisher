@@ -8,6 +8,17 @@ may contain incompatible changes.
 
 ## Unreleased
 
+## [0.3.0-alpha.14] - 2026-10-03
+
+### Changed
+
+- Native qualification uses two concurrent test files through Node's existing
+  runner. All test files, offline installation checks, child deadlines and four
+  coverage floors remain; no runtime scheduler or persistent cache is added.
+- The CoreText asynchronous font-binding counterexample rejects an originally
+  mismatched digest before compilation. Actual native font, request and output
+  snapshot checks remain in the existing measurement case.
+
 ## [0.3.0-alpha.13] - 2026-10-03
 
 ### Fixed
@@ -579,6 +590,7 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.3.0-alpha.14]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.14
 [0.3.0-alpha.13]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.13
 [0.3.0-alpha.12]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.12
 [0.3.0-alpha.11]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.11

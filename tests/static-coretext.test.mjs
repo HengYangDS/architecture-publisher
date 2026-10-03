@@ -23,9 +23,15 @@ test(
     assert.equal(typeof measureCoreTextBytes, 'function');
     const f = await setup(t);
     const { output, ...selection } = f.plan;
-    const measured = await measureCoreTextBytes({ ...selection, scratchRoot: f.dir });
+    const plan = { ...selection, scratchRoot: f.dir };
+    const pending = measureCoreTextBytes(plan);
+    plan.fonts[0].postscript = 'Unselected-Font';
+    plan.requests[0].text = 'Unselected request';
+    const measured = await pending;
     assert.equal(measured.result.status, 'measured');
     assert(Buffer.isBuffer(measured.metricsBytes));
+    assert.equal(measured.result.observations[0].fonts[0].postscript, 'JetBrainsMono-Regular');
+    assert.equal(measured.requests[0].text, 'Reliable work');
     await assert.rejects(fs.stat(f.plan.output), { code: 'ENOENT' });
   },
 );
@@ -39,11 +45,11 @@ test(
     const f = await setup(t);
     const { output, ...selection } = f.plan;
     const plan = { ...selection, scratchRoot: f.dir };
+    const selectedFontSha256 = plan.fonts[0].sha256;
+    plan.fonts[0].sha256 = '0'.repeat(64);
     const pending = measureCoreTextBytes(plan);
-    plan.fonts[0].postscript = 'Unselected-Font';
-    const measured = await pending;
-    assert.equal(measured.result.observations[0].fonts[0].postscript, 'JetBrainsMono-Regular');
-    assert.equal(measured.requests[0].text, 'Reliable work');
+    plan.fonts[0].sha256 = selectedFontSha256;
+    await assert.rejects(pending, { code: 'coretext_font_changed' });
     await assert.rejects(fs.stat(output), { code: 'ENOENT' });
   },
 );

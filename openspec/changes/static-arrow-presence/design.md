@@ -67,3 +67,31 @@ The corrected notice changes packaged inputs. Freeze a new successor version
 before complete release gates; never reuse the existing alpha.12 tag or package
 identity for different bytes. Rendering runtime and historical releases remain
 unchanged.
+
+## Native snapshot test preparation
+
+The exact alpha.13 tag gate found a compiler deadline in the second CoreText
+input-snapshot test, not an npm setup failure. That test's JavaScript binding
+predicate unnecessarily requires another cold Swift compilation. Preserve the
+successful native PostScript-name, request snapshot and non-publication checks
+in the first real measurement test. The independent negative case starts with
+an invalid selected font digest, mutates the caller's digest after invocation,
+and must still reject the originally selected bytes before compilation.
+
+Demonstrate RED with a clone-removed isolated source and GREEN at the real owner.
+Keep every test, actual native glyph and installed-use cases, stage deadlines,
+coverage dimensions and historical failures. This removes a test preparation
+dependency; it neither proves historical load causality nor changes production
+compilation, caching or source trust.
+
+The independent Windows failures remain offline npm installation timeouts.
+Use Node's existing two-file test concurrency as one bounded contention trial,
+not a causal explanation or a timeout fix. Keep all 142 files, 1680 test names,
+60-second setup limits and configured coverage. The prior two/four-worker
+diagnostics select the trial; only the exact successor's complete native gates
+qualify delivery. Do not add a scheduler, persistent cache or automatic retry.
+
+Freeze alpha.14 before this final matrix. Alpha.12 and alpha.13 original failed
+tag gates remain immutable evidence; neither receives replacement package bytes
+or a falsely successful Release. A failed two-worker run returns to the actual
+setup boundary, rather than another arbitrary resource or deadline change.
