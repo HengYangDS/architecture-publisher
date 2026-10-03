@@ -60,7 +60,28 @@ Before pushing a new tag, create it locally and run the full repository gate
 with that exact tag present. Compare its tagger calendar date with the dated
 Changelog section; a passing untagged branch pipeline is not this check.
 
-### Last verified asset release (2026-10-03): alpha.11
+### Last verified software release (2026-10-03): alpha.14
+
+The [alpha.14 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.14)
+provides Core and Self software packages with exact source, native CI and
+installed-use evidence. The [release receipt](../../conformance/evidence/release-alpha14-readback.json)
+binds the signed source and tag, all nine native jobs, seven selected downloads,
+single-copy storage, six-file offline replay and preserved historical records.
+Every configured aggregate coverage dimension remains at least 95%.
+
+This software release does not renew self-artwork approval. The new HTML has
+unchanged desktop scenes but different source/version metadata; its precise
+human review remains separate. The approved reader release below stays intact.
+ETHOS and AIGW retain their own source, Edition, acceptance and custody decisions.
+
+Qualification uses Node's existing two-file concurrency. All test files and
+native offline cases remain, with unchanged child deadlines and coverage scope.
+The CoreText snapshot test no longer requires a duplicate cold compilation;
+actual native snapshot, glyph and installed-use checks remain. The earlier
+compiler and npm timeouts are preserved; their historical causes are unproved.
+The passing successor establishes current acceptance, not a causal explanation.
+
+### Last verified reader release (2026-10-03): alpha.11
 
 The [alpha.11 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.11)
 selects signed source `25233468464dde6ed6699cf1d560428082c38f5f` and its
