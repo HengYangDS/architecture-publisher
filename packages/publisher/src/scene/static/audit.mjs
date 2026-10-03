@@ -1,5 +1,6 @@
 import { fail } from '../../protocol/values.mjs';
-import { resolvePrimitiveNodes } from '../primitives.mjs';
+import { resolvePrimitiveNodes, resolvePrimitivePaint } from '../primitives.mjs';
+import { textOwnerInsets, textOwnerPaintCollides } from '../text-ownership.mjs';
 import {
   boxRight as right,
   boxBottom as bottom,
@@ -72,6 +73,7 @@ export function auditScene(scene, contract) {
     ...n,
     box: b(n.box),
     paintBox: n.paintBox ? b(n.paintBox) : expand(b(n.box), ((n.strokeWidth ?? 0) * scale) / 2),
+    ownerPaint: n.primitives ? resolvePrimitivePaint(n, { x: n.box.x, y: n.box.y }).primitives : [],
   }));
   const byId = new Map(nodes.map((n) => [n.id, n]));
   if (byId.size !== nodes.length) throw new Error('duplicate node identity');
@@ -113,13 +115,20 @@ export function auditScene(scene, contract) {
       const owner = byId.get(t.owner);
       if (!owner) add('missing-text-owner', t.id);
       else {
-        const margins = [
-          t.box.x - owner.box.x,
-          t.box.y - owner.box.y,
-          right(owner.box) - right(t.box),
-          bottom(owner.box) - bottom(t.box),
-        ];
+        const margins = textOwnerInsets(t.box, owner.box);
         if (Math.min(...margins) < contract.ownerClearance) add('owner-clearance', t.id);
+        if (
+          textOwnerPaintCollides(
+            Object.fromEntries(Object.entries(t.box).map(([key, value]) => [key, value / scale])),
+            owner.ownerPaint,
+            contract.textClearance / scale,
+            segmentHitsBox,
+            Object.fromEntries(
+              Object.entries(owner.box).map(([key, value]) => [key, value / scale]),
+            ),
+          )
+        )
+          add('text-owner-paint-collision', t.id, owner.id);
       }
     }
     for (const n of nodes)

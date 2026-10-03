@@ -8,6 +8,13 @@ may contain incompatible changes.
 
 ## Unreleased
 
+### Fixed
+
+- Authored static and interactive labels can declare their scene-local node
+  owner. Exact structural membership and measured containment are checked;
+  unrelated nodes, internal primitive boundaries, text, routes and arrowheads
+  remain obstacles. Ownerless scenes retain their existing behavior.
+
 ## [0.3.0-alpha.10] - 2026-10-02
 
 ### Fixed

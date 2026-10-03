@@ -4,6 +4,12 @@ import { fail } from '../../src/protocol/values.mjs';
 import { loadBundledFonts } from '../fonts/index.mjs';
 import { verifyAuthoredCanvasTextBoxes } from '../resvg/measurement.mjs';
 import { pathToFileURL } from 'node:url';
+import {
+  TEXT_OWNER_CLEARANCE,
+  textOwnerInsets,
+  textOwnerPaintCollides,
+} from '../../src/scene/text-ownership.mjs';
+import { resolvePrimitivePaint } from '../../src/scene/primitives.mjs';
 
 const tones = new Map([
   ['ink', 't-primary'],
@@ -26,7 +32,11 @@ function assertTextLayout(
   overlaps,
   intersects,
   minimumReadable,
+  ownerInsets,
+  ownerClearance,
+  ownerPaintCollides,
 ) {
+  const owners = new Map(components.map((node) => [node.id, node]));
   for (const [index, text] of texts.entries()) {
     const box = text.box;
     if (
@@ -37,9 +47,25 @@ function assertTextLayout(
       box.y + box.height > viewBox[1]
     )
       throw Error(`authored_interactive_text_geometry_invalid:${text.id}:bounds`);
+    if (text.owner) {
+      const owner = owners.get(text.owner);
+      if (!owner || Math.min(...ownerInsets(box, owner.portBox ?? owner)) < ownerClearance)
+        throw Error(`authored_interactive_text_geometry_invalid:${text.id}:owner`);
+      if (
+        ownerPaintCollides(
+          box,
+          owner.ownerPaint ?? [],
+          5,
+          (start, end, glyphs) =>
+            intersects({ start: [start.x, start.y], end: [end.x, end.y] }, glyphs),
+          owner.portBox ?? owner,
+        )
+      )
+        throw Error(`authored_interactive_text_geometry_invalid:${text.id}:collision`);
+    }
     if (
-      [...components, ...boundaries.map((boundary) => boundary.title), ...labels].some((owner) =>
-        overlaps(box, owner, 5),
+      [...components, ...boundaries.map((boundary) => boundary.title), ...labels].some(
+        (owner) => (owner.id !== text.owner || owner.nativeText) && overlaps(box, owner, 5),
       ) ||
       texts.slice(0, index).some((other) => overlaps(box, other.box, 5)) ||
       paths.some((points) =>
@@ -70,7 +96,13 @@ export async function adaptArchitectureTexts(native, scene, selectedFonts = null
   const measurer = await verifyAuthoredCanvasTextBoxes({ texts: scene.texts }, fonts);
   assertTextLayout(
     labels,
-    scene.nodes.map(({ position, size, paintBox }) => paintBox ?? { ...position, ...size }),
+    scene.nodes.map(({ id, position, size, paintBox, primitives }) => ({
+      id,
+      ...(paintBox ?? { ...position, ...size }),
+      portBox: { ...position, ...size },
+      ownerPaint: primitives ? resolvePrimitivePaint({ primitives }, position).primitives : [],
+      nativeText: !primitives,
+    })),
     [],
     [],
     [],
@@ -78,6 +110,9 @@ export async function adaptArchitectureTexts(native, scene, selectedFonts = null
     rectsOverlap,
     segmentIntersectsRect,
     minimumReadableSourceTextPx,
+    textOwnerInsets,
+    TEXT_OWNER_CLEARANCE,
+    textOwnerPaintCollides,
   );
   const fontCss = fonts.fonts
     .map(
@@ -103,13 +138,21 @@ export async function adaptArchitectureTexts(native, scene, selectedFonts = null
     fail('render_scene_text_seam_invalid');
   const selected = JSON.stringify(labels).replaceAll('<', '\\u003c');
   const paintOwners = JSON.stringify(
-    scene.nodes.filter((node) => node.paintBox).map(({ id, paintBox }) => [id, paintBox]),
+    scene.nodes
+      .filter((node) => node.paintBox)
+      .map(({ id, paintBox, primitives, position }) => [
+        id,
+        {
+          ...paintBox,
+          ownerPaint: resolvePrimitivePaint({ primitives }, position).primitives,
+        },
+      ]),
   );
   source = source
     .replace(
       checks,
       () =>
-        `  const textPaintOwners = new Map(${paintOwners});\n  (${assertTextLayout.toString()})(${selected}, [...components.values()].map((c) => textPaintOwners.get(c.id) ?? c), boundaries, connectionLabels, asArray(arch.connections).map((conn) => pathFor(conn).points), viewBox, rectsOverlap, segmentIntersectsRect, minimumReadableSourceTextPx);\n${checks}`,
+        `  const textPaintOwners = new Map(${paintOwners});\n  (${assertTextLayout.toString()})(${selected}, [...components.values()].map((c) => ({...c, ...(textPaintOwners.get(c.id) ?? {}), portBox:c, nativeText:c.type !== 'paint'})), boundaries, connectionLabels, asArray(arch.connections).map((conn) => pathFor(conn).points), viewBox, rectsOverlap, segmentIntersectsRect, minimumReadableSourceTextPx, (${textOwnerInsets.toString()}), ${TEXT_OWNER_CLEARANCE}, (${textOwnerPaintCollides.toString()}));\n${checks}`,
     )
     .replace(
       painting,

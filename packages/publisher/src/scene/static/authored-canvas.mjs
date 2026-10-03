@@ -3,6 +3,7 @@ import { fail } from '../../protocol/values.mjs';
 import { classifyAggregateRelation } from '../aggregate-relation.mjs';
 import { assertPrimitiveContrast, resolvePrimitiveNodes } from '../primitives.mjs';
 import { bindAuthoredRoutes } from '../routes.mjs';
+import { validateAuthoredTextOwners } from '../text-ownership.mjs';
 import {
   authoredReference,
   deriveAuthoredStatements,
@@ -218,6 +219,7 @@ export function composeAuthoredStaticCanvas(meaning) {
 
   const textGraphics = new Map();
   const textIds = new Set();
+  validateAuthoredTextOwners(scene.texts, scene.nodes);
   for (const label of scene.texts) {
     if (textIds.has(label.id)) fail('authored_canvas_graphic_ambiguous');
     textIds.add(label.id);

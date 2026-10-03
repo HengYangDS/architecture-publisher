@@ -463,6 +463,7 @@ const authoredText = closed(
     fontSize: { type: 'number', exclusiveMinimum: 0, maximum: 300 },
     weight: { enum: ['400', '500', '600', '700'] },
     font: identifier,
+    owner: identifier,
     anchor: { enum: ['start', 'middle', 'end'] },
     tone: identifier,
     x: coordinate,

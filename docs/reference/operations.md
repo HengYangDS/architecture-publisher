@@ -380,6 +380,18 @@ The reusable scene audit keeps text-to-non-owner geometry clearance
 overlap-only rule; it does not borrow a source contract's geometry distance.
 The successor authored canvas explicitly selects the five-unit floor for both.
 
+An authored text record may declare `owner: "node-id"`. The identifier names
+exactly one source-bearing node in that medium, never a source entity or trust
+owner. Its entity and relation references must already belong to that node;
+Claim and editorial wording retains separate statement obligations. Measured
+glyphs must fit the node's semantic port allocation. Containing paint does not
+waive internal primitive boundaries, other text or geometry, routes or arrowheads.
+Only the first primitive fill enclosing the semantic allocation may surround owned text; later fills
+retain clearance. Native components already paint their labels and receive no
+blanket owner exemption. Use explicit primitive composition for interior labels.
+An omitted owner receives no inferred exemption. Static and interactive each
+validate their own allocation and geometry; neither inherits sibling approval.
+
 An authored node may select `primitives` instead of its historical component
 painting: circles, rectangles, stroked lines and explicitly open/closed
 polylines. Coordinates are node-local offsets from the unchanged static `box`

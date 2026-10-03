@@ -3268,6 +3268,10 @@ const ref0 = function validate(data) {
             if (!(typeof data.media.static.scene.texts[u].font === "string")) return false
             if (!(pattern0.test(data.media.static.scene.texts[u].font))) return false
           }
+          if ("owner" in data.media.static.scene.texts[u] && hasOwn(data.media.static.scene.texts[u], "owner")) {
+            if (!(typeof data.media.static.scene.texts[u].owner === "string")) return false
+            if (!(pattern0.test(data.media.static.scene.texts[u].owner))) return false
+          }
           if (!(data.media.static.scene.texts[u].anchor === "start" || data.media.static.scene.texts[u].anchor === "middle" || data.media.static.scene.texts[u].anchor === "end")) return false
           if (!(typeof data.media.static.scene.texts[u].tone === "string")) return false
           if (!(pattern0.test(data.media.static.scene.texts[u].tone))) return false
@@ -3310,7 +3314,7 @@ const ref0 = function validate(data) {
             if (key25 !== "x" && key25 !== "y" && key25 !== "width" && key25 !== "height") return false
           }
           for (const key26 of Object.keys(data.media.static.scene.texts[u])) {
-            if (key26 !== "id" && key26 !== "text" && key26 !== "fontSize" && key26 !== "weight" && key26 !== "font" && key26 !== "anchor" && key26 !== "tone" && key26 !== "x" && key26 !== "baseline" && key26 !== "visible" && key26 !== "semanticIds" && key26 !== "box") return false
+            if (key26 !== "id" && key26 !== "text" && key26 !== "fontSize" && key26 !== "weight" && key26 !== "font" && key26 !== "owner" && key26 !== "anchor" && key26 !== "tone" && key26 !== "x" && key26 !== "baseline" && key26 !== "visible" && key26 !== "semanticIds" && key26 !== "box") return false
           }
         }
       }
@@ -4356,6 +4360,10 @@ const ref0 = function validate(data) {
                   if (!(typeof data.media.interactive.pages[pp].scene.texts[ooo].font === "string")) return false
                   if (!(pattern0.test(data.media.interactive.pages[pp].scene.texts[ooo].font))) return false
                 }
+                if ("owner" in data.media.interactive.pages[pp].scene.texts[ooo] && hasOwn(data.media.interactive.pages[pp].scene.texts[ooo], "owner")) {
+                  if (!(typeof data.media.interactive.pages[pp].scene.texts[ooo].owner === "string")) return false
+                  if (!(pattern0.test(data.media.interactive.pages[pp].scene.texts[ooo].owner))) return false
+                }
                 if (!(data.media.interactive.pages[pp].scene.texts[ooo].anchor === "start" || data.media.interactive.pages[pp].scene.texts[ooo].anchor === "middle" || data.media.interactive.pages[pp].scene.texts[ooo].anchor === "end")) return false
                 if (!(typeof data.media.interactive.pages[pp].scene.texts[ooo].tone === "string")) return false
                 if (!(pattern0.test(data.media.interactive.pages[pp].scene.texts[ooo].tone))) return false
@@ -4398,7 +4406,7 @@ const ref0 = function validate(data) {
                   if (key66 !== "x" && key66 !== "y" && key66 !== "width" && key66 !== "height") return false
                 }
                 for (const key67 of Object.keys(data.media.interactive.pages[pp].scene.texts[ooo])) {
-                  if (key67 !== "id" && key67 !== "text" && key67 !== "fontSize" && key67 !== "weight" && key67 !== "font" && key67 !== "anchor" && key67 !== "tone" && key67 !== "x" && key67 !== "baseline" && key67 !== "visible" && key67 !== "semanticIds" && key67 !== "box") return false
+                  if (key67 !== "id" && key67 !== "text" && key67 !== "fontSize" && key67 !== "weight" && key67 !== "font" && key67 !== "owner" && key67 !== "anchor" && key67 !== "tone" && key67 !== "x" && key67 !== "baseline" && key67 !== "visible" && key67 !== "semanticIds" && key67 !== "box") return false
                 }
               }
             }

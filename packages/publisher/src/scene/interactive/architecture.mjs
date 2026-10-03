@@ -1,6 +1,7 @@
 import { fail, hasExactFields as exact } from '../../protocol/values.mjs';
 import { resolvePrimitiveNodes } from '../primitives.mjs';
 import { validateAuthoredRouteGeometry } from '../routes.mjs';
+import { validateAuthoredTextOwners } from '../text-ownership.mjs';
 
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const identifier = (value) => typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
@@ -67,7 +68,7 @@ function validTextOccurrence(value) {
         'semanticIds',
         'box',
       ],
-      ['font', 'family'],
+      ['font', 'family', 'owner'],
     ) &&
     identifier(value.id) &&
     text(value.text) &&
@@ -214,6 +215,7 @@ export function validateInteractiveArchitectureScene(scene) {
   const normalized = resolvedNodes.some((node) => node.primitives)
     ? { ...scene, nodes: resolvedNodes }
     : scene;
+  validateAuthoredTextOwners(scene.texts ?? [], normalized.nodes);
   validateAuthoredRouteGeometry(normalized, 'interactive');
   return normalized;
 }
