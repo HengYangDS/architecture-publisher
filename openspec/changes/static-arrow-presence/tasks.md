@@ -10,6 +10,8 @@
 
 ## 3. Release and handoff
 
+- [x] 3.4 Align current raster source notices with the selected source closure and Cargo.lock; preserve license text and prove exact installed supply.
+- [ ] 3.5 Diagnose native npm setup timeouts with matched whole-suite evidence; retain all predicates, child deadlines and four coverage floors before release.
 - [ ] 3.1 Publish and natively read back the exact successor package with SemVer and Keep a Changelog identity.
 - [x] 3.2 Hand the qualified generic fix to source-owned ETHOS migration without granting source or visual acceptance.
 - [ ] 3.3 Verify release, protected refs, required CI and owned cleanup for native lifecycle closeout.

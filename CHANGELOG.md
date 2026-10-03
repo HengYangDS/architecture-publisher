@@ -8,6 +8,14 @@ may contain incompatible changes.
 
 ## Unreleased
 
+## [0.3.0-alpha.13] - 2026-10-03
+
+### Fixed
+
+- Raster third-party source notices identify the selected source archive and
+  Cargo.lock instead of stale predecessor bindings. Required license text and
+  renderer runtime bytes are preserved; supply checks reject mismatched headers.
+
 ## [0.3.0-alpha.12] - 2026-10-03
 
 ### Fixed
@@ -571,6 +579,7 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.3.0-alpha.13]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.13
 [0.3.0-alpha.12]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.12
 [0.3.0-alpha.11]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.11
 [0.3.0-alpha.10]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.10

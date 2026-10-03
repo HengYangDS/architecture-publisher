@@ -61,7 +61,7 @@
       "path": "resvg/THIRD-PARTY-NOTICES.txt",
       "source": "license texts for every Cargo.lock package in the pinned source closure",
       "bytes": 172534,
-      "sha256": "41efdf2cc099de3529cc9cb6c9dddb043f207bf89033dcb5e3cd9f459c1275e4"
+      "sha256": "38a21271e436cdbd4e531ea6d13be2c82dbf373133327ad4df7b3477cee4494e"
     },
     {
       "path": "resvg/source.json",

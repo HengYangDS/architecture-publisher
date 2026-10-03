@@ -129,11 +129,28 @@ test('raster binding has no implicit file or network loader', async () => {
 });
 
 test('raster notices cover every locked third-party Rust package', async () => {
+  const source = JSON.parse(
+    await fs.readFile(
+      path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/source.json'),
+      'utf8',
+    ),
+  );
   const lock = await fs.readFile(path.join(root, 'tools/raster/resvg/Cargo.lock'), 'utf8');
   const notices = await fs.readFile(
     path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/THIRD-PARTY-NOTICES.txt'),
     'utf8',
   );
+  const registry = source.source.registry;
+  const location = `gitlab-generic://${registry.projectPath}/${registry.package}/${registry.version}/${registry.file}`;
+  const fields = new Map(
+    [
+      ...notices.matchAll(/^(Source closure|Source archive SHA-256|Cargo\.lock SHA-256): (.+)$/gm),
+    ].map(([, name, value]) => [name, value]),
+  );
+  assert.equal(fields.get('Source closure'), location);
+  assert.equal(fields.get('Source archive SHA-256'), source.source.archiveSha256);
+  assert.equal(fields.get('Cargo.lock SHA-256'), source.build.cargoLockSha256);
+  assert.equal(source.build.cargoLockSha256, sha(lock));
   const packages = [...lock.matchAll(/\[\[package\]\]\nname = "([^"]+)"\nversion = "([^"]+)"/g)]
     .map(([, name, version]) => `${name} ${version}`)
     .filter((identity) => identity !== 'architecture-publisher-resvg-wasm 0.1.0');

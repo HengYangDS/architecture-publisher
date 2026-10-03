@@ -45,3 +45,25 @@ after its exact package and native gates pass; alpha.11 remains immutable.
 Implementation tasks finish at verified release, handoff and closeout
 prerequisites. Actual archival and Lane retirement are later required native
 effects with their own receipts, not prerequisites of their own admission.
+
+## Release preflight repairs
+
+The October 3 remote-custody readback found that the current raster manifest
+selects a new source archive and Cargo.lock, while the notice header retains
+three predecessor bindings. Use that existing manifest as the source; correct
+only the closure location, archive hash and lock hash. Preserve the complete
+third-party license body and exact runtime bytes. Refresh derived supply digests
+through their existing owners and reject mismatched notices in the supply test.
+
+Native npm setup diagnosis uses the same source, selected launcher, test set and
+per-child deadlines when comparing scheduling. Preserve the original failures;
+a successful diagnostic cannot substitute for the failed hosted gate or prove
+its cause. Compare actual preparation phases before replacing redundant setup at
+its existing owner. Preserve all tests, platform accounting and four coverage
+floors; no unchanged CI retry, VM expansion or deadline inflation substitutes
+for correction.
+
+The corrected notice changes packaged inputs. Freeze a new successor version
+before complete release gates; never reuse the existing alpha.12 tag or package
+identity for different bytes. Rendering runtime and historical releases remain
+unchanged.
