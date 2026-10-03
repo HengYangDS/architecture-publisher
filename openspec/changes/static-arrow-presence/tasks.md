@@ -11,5 +11,5 @@
 ## 3. Release and handoff
 
 - [ ] 3.1 Publish and natively read back the exact successor package with SemVer and Keep a Changelog identity.
-- [ ] 3.2 Hand the qualified generic fix to source-owned ETHOS migration without granting source or visual acceptance.
+- [x] 3.2 Hand the qualified generic fix to source-owned ETHOS migration without granting source or visual acceptance.
 - [ ] 3.3 Verify release, protected refs, required CI and owned cleanup for native lifecycle closeout.
