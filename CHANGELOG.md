@@ -8,6 +8,8 @@ may contain incompatible changes.
 
 ## Unreleased
 
+## [0.3.0-alpha.11] - 2026-10-03
+
 ### Fixed
 
 - Authored static and interactive labels can declare their scene-local node
@@ -560,6 +562,7 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.3.0-alpha.11]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.11
 [0.3.0-alpha.10]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.10
 [0.3.0-alpha.9]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.9
 [0.3.0-alpha.8]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.8
