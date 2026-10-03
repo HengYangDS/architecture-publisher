@@ -164,7 +164,7 @@ export function auditScene(scene, contract) {
       if (!n || boundaryDistance(p, n.box) > contract.endpointTolerance)
         add('endpoint-detached', e.id, id);
     }
-    if (distance(points.at(-2), points.at(-1)) < contract.minimumTerminal)
+    if (e.arrow !== false && distance(points.at(-2), points.at(-1)) < contract.minimumTerminal)
       add('short-terminal', e.id);
     for (let i = 1; i < points.length; i++) {
       const a = points[i - 1],
@@ -188,7 +188,7 @@ export function auditScene(scene, contract) {
         )
           add('edge-node-collision', e.id, n.id);
     }
-    if (e.arrowGeometry) {
+    if (e.arrow !== false && e.arrowGeometry) {
       const geometry = e.arrowGeometry,
         tip = points.at(-1),
         prev = points.at(-2),
@@ -316,7 +316,7 @@ export function auditCanvasEnvelope(scene, quality) {
   };
   for (const e of scene.edges) {
     points(e.id, 'edge', e.points, e.strokeWidth ?? 1);
-    if (e.arrowGeometry) {
+    if (e.arrow !== false && e.arrowGeometry) {
       const g = e.arrowGeometry,
         tip = e.points.at(-1),
         previous = e.points.at(-2);

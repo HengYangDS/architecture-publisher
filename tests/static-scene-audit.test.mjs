@@ -322,3 +322,70 @@ test('optional decorations and source labels do not manufacture measured content
   assert.equal(report.sourceQualitySchema, null);
   assert.deepEqual(report.failures, []);
 });
+
+test('static audit admits a short unarrowed bridge without phantom arrow paint', () => {
+  const selected = scene();
+  selected.nodes[1].box.x = 32;
+  selected.nodes[1].paintBox.x = 32;
+  selected.edges[0].points[1].x = 32;
+  selected.edges[0].arrow = false;
+  selected.edges[0].arrowGeometry = { length: 8, halfWidth: 4, strokeWidth: 1 };
+  assert.deepEqual(auditScene(selected, contract).failures, []);
+  const canvas = auditCanvasEnvelope(selected, quality);
+  assert.equal(canvas.envelopes.filter((value) => value.kind === 'arrow').length, 0);
+  assert.deepEqual(canvas.envelopes.find((value) => value.kind === 'edge').box, {
+    x: 29,
+    y: 19,
+    width: 4,
+    height: 2,
+  });
+});
+
+test('unarrowed inactive zero arrow parameters do not create an invalid arrow', () => {
+  const selected = scene();
+  selected.edges[0].arrow = false;
+  selected.edges[0].arrowGeometry = { length: 0, halfWidth: 0, strokeWidth: 0 };
+  assert.deepEqual(auditScene(selected, contract).failures, []);
+  const canvas = auditCanvasEnvelope(selected, quality);
+  assert.equal(canvas.envelopes.filter((value) => value.kind === 'arrow').length, 0);
+});
+
+test('true and historical default arrows retain the directional terminal minimum', () => {
+  for (const arrow of [true, undefined]) {
+    const selected = scene();
+    selected.nodes[1].box.x = 32;
+    selected.nodes[1].paintBox.x = 32;
+    selected.edges[0].points[1].x = 32;
+    if (arrow !== undefined) selected.edges[0].arrow = arrow;
+    selected.edges[0].arrowGeometry = { length: 8, halfWidth: 4, strokeWidth: 1 };
+    assert(
+      auditScene(selected, contract).failures.some((value) => value.code === 'short-terminal'),
+    );
+    assert.equal(
+      auditCanvasEnvelope(selected, quality).envelopes.filter((value) => value.kind === 'arrow')
+        .length,
+      1,
+    );
+  }
+});
+
+test('unarrowed shafts retain measured text collision and attachment checks', () => {
+  const selected = scene();
+  selected.edges[0].arrow = false;
+  selected.edges[0].arrowGeometry = { length: 0, halfWidth: 0, strokeWidth: 0 };
+  selected.texts.push({
+    id: 'shaft-obstruction',
+    text: 'Block',
+    visible: true,
+    semanticIds: [],
+    fontSize: 12,
+    box: { x: 45, y: 18, width: 8, height: 4 },
+  });
+  assert(
+    auditScene(selected, contract).failures.some((value) => value.code === 'edge-text-collision'),
+  );
+  selected.edges[0].points[1].x = 68;
+  assert(
+    auditScene(selected, contract).failures.some((value) => value.code === 'endpoint-detached'),
+  );
+});

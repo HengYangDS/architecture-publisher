@@ -918,8 +918,8 @@
       },
       {
         "path": "src/scene/static/audit.mjs",
-        "bytes": 13437,
-        "sha256": "a2d55a2abeb8c708a3f8c58b73f9e1e592490e8d8fdd0a25522b3c0280606a46"
+        "bytes": 13500,
+        "sha256": "e3a758c46b6e788822b586c8c8a3e209390e42fa72facd3d8475c28f7cd8ab56"
       },
       {
         "path": "src/scene/static/authored-canvas.mjs",

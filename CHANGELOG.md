@@ -8,6 +8,15 @@ may contain incompatible changes.
 
 ## Unreleased
 
+## [0.3.0-alpha.12] - 2026-10-03
+
+### Fixed
+
+- Static qualification respects explicitly unarrowed segments: short junction
+  bridges retain their actual shaft, without an invented arrowhead or arrow
+  terminal minimum. Arrowed and historical default-arrow checks, attachment,
+  source-route direction and glyph clearance remain enforced.
+
 ## [0.3.0-alpha.11] - 2026-10-03
 
 ### Fixed
@@ -562,6 +571,7 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.3.0-alpha.12]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.12
 [0.3.0-alpha.11]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.11
 [0.3.0-alpha.10]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.10
 [0.3.0-alpha.9]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.9
