@@ -66,3 +66,9 @@ The ETHOS thirteen-page and independent static rehearsal remains unaccepted
 until source-specific semantic and visual checks pass. This repair does not
 authorize rebinding old hashes, dropping explanatory paths, source acceptance
 or retirement. Historical signed packages, tags and approved media stay frozen.
+
+Implementation tasks end at verified release, handoff, cleanup and closeout
+readiness. Native Change archival and Lane retirement are subsequent effects
+recorded by their lifecycle receipts, not prerequisites of their own admission.
+Both effects remain required by the overall goal and cannot be inferred from
+a completed implementation checklist.

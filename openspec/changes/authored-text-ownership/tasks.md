@@ -12,6 +12,6 @@
 
 ## 3. Release and handoff
 
-- [ ] 3.1 Record SemVer and Keep a Changelog changes; publish the exact successor without changing historical releases.
-- [ ] 3.2 Hand the verified generic capability to the ETHOS source-owned migration; do not claim its acceptance.
-- [ ] 3.3 Archive the completed Change, converge exact protected refs and required CI, retire this owned Lane and verify cleanup.
+- [x] 3.1 Record SemVer and Keep a Changelog changes; publish the exact successor without changing historical releases.
+- [x] 3.2 Hand the verified generic capability to the ETHOS source-owned migration; do not claim its acceptance.
+- [x] 3.3 Verify exact protected refs, required CI, release/handoff evidence and owned cleanup for native lifecycle closeout.

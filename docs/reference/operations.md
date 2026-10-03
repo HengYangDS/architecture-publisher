@@ -60,7 +60,43 @@ Before pushing a new tag, create it locally and run the full repository gate
 with that exact tag present. Compare its tagger calendar date with the dated
 Changelog section; a passing untagged branch pipeline is not this check.
 
-### Last verified asset release (2026-10-03): alpha.10
+### Last verified asset release (2026-10-03): alpha.11
+
+The [alpha.11 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.11)
+selects signed source `25233468464dde6ed6699cf1d560428082c38f5f` and its
+annotated tag object `5fd3d068c9805ec306859ab700c37cd3e92f26f4`.
+Eleven selected assets occupy one Generic Package version, 8,546,343 bytes;
+each has one storage copy. Native `glab release download` fetched only those
+names. Every size and hash agrees with the pre-upload manifest/checksum anchors
+and native package metadata. The [release receipt](../../conformance/evidence/release-alpha11-readback.json)
+records exact evidence and limits. Historical release records and package
+identities were read back unchanged.
+
+The exact local tagged gate passes with explicit desktop Chrome. Dev, main and
+tag pipelines 9330, 9331 and 9332 pass Linux, macOS and Windows ARM64. Every
+configured aggregate statements, branches, functions and lines floor is at least
+95%; explicit platform and input skips remain. The downloaded Core/Self archives
+install offline with empty user/global configuration and cache. Empty-PATH,
+relocated self and four neutral conformance workloads reproduce thirty selected
+Candidate files. Installed Self preparation also reproduces its exact selected
+inputs. Nineteen submitted qualifications pass while `admitted:false` remains.
+
+Explicit qualified local publication installs all three media files; recovery
+returns `ALREADY_INSTALLED` and preserves foreign parent/static content. Exact
+approved media remain in Documents. Fourteen invocation-owned installed, copied
+input/output and cache roots were reclaimed after inventory/hash verification;
+80,750,190 logical bytes were removed. Source inputs, downloaded assets,
+publication/recovery evidence and browser observations remain.
+
+Authored text ownership is a generic scene-local contract, not source authority.
+ETHOS and AIGW received exact package evidence without adoption, retirement or
+publication approval. Independent static ETHOS migration remains source-owned. Native lifecycle
+receipts establish Change/Lane closeout separately; this release does not close
+the full cross-product goal. No
+independent verifier trust domain, universal comprehension, power-loss or
+off-host recovery is established.
+
+### Historical asset release (2026-10-03): alpha.10
 
 The [alpha.10 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.10)
 selects signed source `131b401cc93d9f3ba8b405d71c4c175f511cc3ce`.
