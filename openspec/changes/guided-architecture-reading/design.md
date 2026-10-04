@@ -254,6 +254,15 @@ imports, fixture-relative bindings and immutable evidence bytes. Update current
 readers and native file selection in the same change; historical references
 inside retained receipts describe their original source, not active paths.
 
+Use the installed ETHOS quality provider for the existing `node-behavior`
+gate; it compiles the canonical npm test and c8 recipe into one bound attempt.
+The existing static command keeps its full native quality graph and adds the
+installed static-verification provider. The package gate remains independent.
+Provider availability is not quality proof: subject applicability, all four
+95 percent floors, exact input custody and bounded execution still require
+their actual installed observations. Source, installed runtime, media
+qualification and hosted release are separate acceptance boundaries.
+
 Keep durable secret-free evidence in the repository family records and reader
 deliverables in Documents. Verify exact custody before disposing of owned
 temporary outputs. Historical signed releases, original reader bytes, foreign

@@ -522,7 +522,13 @@ test('ETHOS projects non-overlapping repository quality gates from package scrip
   assert.match(profile, /behavior = "node-behavior"/u);
   assert.match(profile, /static-analysis = "node-static"/u);
   assert.equal(profile.match(/^\[\[proof\.gates\]\]$/gmu)?.length, 3);
-  assert.match(profile, /command = \["npm", "run", "test:coverage"\]/u);
+  assert.match(profile, /providers = \["ethos.adapters.gates.code_quality:behavior_report"\]/u);
+  assert.match(
+    profile,
+    /verification_providers = \["ethos.adapters.gates.code_quality:static_report"\]/u,
+  );
+  assert.match(profile, /execution_mode = "provider"/u);
+  assert.doesNotMatch(profile, /command = \["npm", "run", "test:coverage"\]/u);
   assert.match(profile, /command = \["npm", "run", "check:static"\]/u);
   assert.match(profile, /command = \["npm", "run", "check:package"\]/u);
   assert.doesNotMatch(profile, /node-syntax/u);
