@@ -1,155 +1,92 @@
 ---
 subject: aigw:edition-provider-migration
 role: handoff
-state: released-core-source-adoption-unverified
+state: source-provider-migrated-publication-unverified
 relations:
   uses: ../reference/edition-provider.md
 ---
 
 # AIGW Edition Provider boundary
 
-This packet separates an observed AIGW v1 adoption from a proposed successor
-migration. It is not AIGW authorization, acceptance, or publication. The
-[operational release reference](../reference/operations.md) names Publisher's
-current verified release; `v0.3.0-alpha.4` was the first historical v2
-baseline, not an automatic AIGW selection. The provisional AIGW probes below
-do not establish AIGW's selection, acceptance, or release.
-Publisher implementation or release does not authorize AIGW migration; no AIGW
-source change is authorized by this packet.
+AIGW's source-owned Client Projection uses declarative Provider v2 in the
+existing `architecture/edition-provider/` directory. The compiler selection is
+Publisher `0.3.0-alpha.7`; this packet neither changes that selection nor grants
+AIGW authorization, acceptance or publication. Publisher implementation or
+release does not authorize AIGW migration; no AIGW source change is authorized
+by this packet.
 
-## Observed v1 state
+The source observation is dated 2026-10-04 and bound to AIGW
+`f43d304efd942a21400e5c6741503a7f3d09eaa3`. Its complete Provider inputs match
+the exercised source `86cd24fe4d27a3bb91c6cf7b580106278d1548e7`; later task-only
+commits do not change those bytes. The named AIGW source files and its existing
+task 8.6 own the source-adoption result. They do not establish final release,
+source-specific artwork acceptance or hosted publication.
 
-At AIGW `ea9b600b957f53737eb605772825e43de2d01ac5` on 2026-09-24,
-`architecture/edition-provider/` already exists as the AIGW-owned declarative
-Provider root. It contains `architecture.edition-provider/v1` in
-`provider.json`, Source Bundle v1 and Claim Model v2 under `_source/`, Edition
-v1, evolution inputs, immutable history, source and installed tests, and
-`materialize.mjs`. The previous `docs/architecture/client-projection` owner is
-not tracked at this revision. Its `selection.json` pins the published
-Architecture Publisher `0.3.0-alpha.1` package and exact package identities.
+## Source inputs and output
 
 The authored scope is **AIGW Client Projection**, not the whole AIGW product.
-The Provider's 64-hex subject revision is computed by SHA-256 over
-Publisher-canonical semantic JSON after removing `context.revision`; it is not
-a Git commit. `materialize.mjs` selects live source files, rewrites derived
-revision and digest fields, packs a Source Bundle, validates an Edition, runs
-both direct and Provider builds, then replaces tracked files one by one, with
-exception-triggered rollback. This establishes the physical location and v1
-input mechanism at that revision, not the successor contract's acceptance,
-media quality, or hosted availability.
+A whole-product Edition requires its own reader questions and source selection,
+not a renamed chapter.
 
-### Read-only responsibility map
+| Source carrier            | Responsibility                                                    |
+| ------------------------- | ----------------------------------------------------------------- |
+| `claim-model.json`        | AIGW-authored entities, typed relations, claims and provenance    |
+| `edition.json`            | Four reader questions, scope, narrative and independent media     |
+| `provider.json`           | Declarative v2 selection of the exact Claim Model and Edition     |
+| `build-request.json`      | One public build input selecting that Provider and both media     |
+| `selection.json`          | Exact published compiler package and Git-bound rollback selection |
+| `test/source.test.mjs`    | Live source provenance, selected identity and rollback checks     |
+| `test/installed.test.mjs` | Offline compiler installation, relocation and refusal checks      |
 
-The existing declarative location is already correct. Migration should change
-which responsibilities AIGW must maintain, not move the directory again:
+Claim Model `source/` locators refer to live repository-relative provenance;
+they are not captured source copies. Its selected revision is content-derived;
+it is not a Git commit. Byte consistency does not certify implementation truth.
+The compiler records that provenance limit rather than promoting an authored
+assertion into independent evidence.
 
-- `internal/**` and the native architecture policy remain AIGW's behavior
-  owners. `_source/semantic.json` is a curated, source-bound Client Projection
-  with 12 entities, 11 relations, and 11 claims over 14 provenance members.
-  Its distinctions and asserted planes are authored meaning, not mechanically
-  proved by matching Go-file hashes. Keep or deliberately migrate that meaning;
-  do not delete it merely because a native-input adapter becomes available.
-  Its source digests and content-derived revision are separately generated
-  fields, not extra editorial authority.
-- `edition.json` owns the chapter's four explicit reader questions, selected
-  claims, scope, narrative, and independent media choices. Those are AIGW or
-  its named editor's decisions. `evolution.json` selects comparison inputs and
-  any correspondence; `history/**` retains immutable v1 values. A whole-AIGW
-  Edition requires a separate editorial scope, not a renamed chapter.
-- `_source/manifest.json` and `_source/source/**` are selected v1 replay and
-  provenance carriers, not live Go implementation owners. `provider.json`
-  carries the declarative v1 selection. Preserve their exact historical
-  identities until a successor proves relocated offline input, source
-  integrity, and rollback; then retire only the displaced mutable copies.
-- `selection.json` mixes AIGW's exact Publisher package choice and explicit
-  non-authorizing role declaration with generated Provider, Candidate, and
-  migration hashes. `provider-evolution.json` is derived from selected
-  `evolution.json`. The successor must let AIGW select its toolchain, native
-  inputs, and editorial intent while Publisher derives and checks the locks,
-  seals, comparison projection, and Candidate identities.
-- `materialize.mjs` verifies and installs a selected Publisher
-  archive, selects live source paths, computes the content revision, invokes
-  `source pack` and both direct/Provider `edition build`, then uses per-file
-  atomic replacement with exception-triggered rollback. This is not an atomic
-  commit across the file set or a proven crash-recovery guarantee. AIGW retains
-  source selection and any deliberate semantic adaptation; generic package
-  installation, packing, digest
-  rewriting, build comparison, and replacement mechanics should not remain a
-  mandatory source-side authoring burden after admitted successor parity.
+The normal public build emits an unqualified Candidate. Generated locks,
+Candidate manifests and media belong in owned untracked output, not beside the
+source inputs as another authority. Equal selected contents or media do not
+transfer approval between direct and declarative Candidate identities.
 
-`test/source.test.mjs` is wired into AIGW's native quality graph and proves
-selected byte consistency, not implemented behavior or a final publication.
-`test/installed.test.mjs` requires exact package inputs through environment
-variables; no tracked invocation of that file was found in the observed AIGW
-quality graph. Its successor journey must be executed and admitted by AIGW,
-not inferred from Publisher conformance. This map is not per-file deletion
-authorization or proof that the released successor can replace v1 for AIGW.
+## Responsibility boundary
 
-## Reviewed successor boundary
+The [Authority Matrix](../product-contract.md#authority-matrix) governs the
+generic boundary. AIGW owns its native facts and any source-specific adaptation;
+the named Edition editor owns questions, omission and presentation. Publisher
+owns the versioned input contract, compilation, renderer integration,
+browser/accessibility observation and qualification mechanism. AIGW alone
+decides its source-product acceptance, protected refs, release and custody.
 
-Do **not** move the directory again merely to satisfy this packet. AIGW shall
-retain authority over its native facts, Client Projection scope, editorial
-choices when it is the named editor, acceptance, and product release. Publisher
-shall own the generic versioned input protocol, derived lock and Candidate,
-rendering, qualification contracts and browser/accessibility observation
-mechanics, and optional bounded local file effect. Source location and provider mode do not confer editorial or release
-authority in the universal product.
+The v2 source has no materialization controller, duplicate captured-source tree
+or tracked generated Candidate identity. Necessary source-member and Provider
+hashes still bind authored inputs; they are not copies of Publisher's derived
+lock. There is no AIGW Provider command or neighboring Publisher source import.
 
-Under a reviewed successor, AIGW may keep declarative selection of exact native
-source and Edition authoring while Publisher generates content identities and
-seals. The content-derived revision needs an explicit kind, canonicalization,
-input set, and verifier; it must never be sent to Git as a guessed commit. AIGW
-should not have to maintain duplicate Publisher hashes, packed source snapshots,
-or generic build effects merely to express a 12-entity/11-relation chapter. Its
-existing `_source` tree is still a selected v1 provenance carrier, not proved
-disposable residue. Retire or relocate only the portions replaced by an
-accepted, reproducible successor; preserve exact historical identities and a
-rollback route. A whole-product AIGW Edition is a separate editorial scope and
-cannot be asserted by relabeling the Client Projection.
+## Finish source-owned delivery
 
-## Conditional migration sequence
+1. Keep the selected compiler or explicitly select another published package
+   by exact digest. The [release reference](../reference/operations.md#release-identity)
+   describes Publisher delivery, not an automatic AIGW upgrade.
+2. Follow the AIGW Provider README's locked source and installed journeys. The
+   latter requires its exact archive and Release manifest; missing inputs reject
+   the run. Source-only checks cannot replace installed acceptance.
+3. Review selected meaning and complete figures separately for static and
+   interactive media. A whole-product experiment or neutral visual baseline
+   does not approve Client Projection or AIGW release.
+4. Verify the signed Git-bound predecessor and required rollback input closure.
+   Preserve immutable history; do not restore displaced v1 copies as live owners.
+5. Apply AIGW's own acceptance and publication policy. Read back its exact
+   package, diagrams, target paths and remote refs before declaring delivery.
 
-1. In the AIGW-owned work process, freeze its current Provider, Source Bundle,
-   Claim Model, Edition, package archive, source-member hashes, and resulting
-   Candidate and media identities. Record the existing v1 acceptance and
-   publication state rather than inferring it from this packet.
-2. Select one reviewed Publisher release from the operational reference by its
-   exact archive digest. Verify its installed conformance and exact artifact
-   identities. Do not silently use the historical alpha.4 baseline, migrate
-   against a neighboring Publisher checkout, or infer AIGW acceptance from a
-   Publisher release.
-3. Choose AIGW's exact source claimant, Edition editor, accepter, custodian,
-   revision kind, and selected native inputs. Keep historical v1 bytes intact;
-   introduce a versioned successor selection rather than reinterpreting v1.
-4. Verify direct and declarative input preparation reach the same normalized
-   selected contents; run common conformance, relocated offline build, exact
-   semantic and visible-carrier checks, independent static/interactive media,
-   browser/accessibility tests, and source-specific reader review. A semantic
-   change needs an explicitly reviewed successor Edition, not a parity label.
-5. Only after AIGW's own admission and rollback rehearsal, remove the
-   displaced materialization, duplicate digest-maintenance, or captured-source
-   owners. Retain native source meaning, authored Edition intent, immutable
-   history, and any proven necessary source snapshot. AIGW alone decides its
-   protected-ref, release, custody, and remote-readback effects.
+Provider conformance establishes transport consistency, not AIGW implementation
+truth. The Publisher-side direct/declarative and relocated probes remain scoped
+evidence; they cannot approve an AIGW Change or complete its release.
 
-## Handoff evidence and limits
+## Historical analysis
 
-The next AIGW writer needs exact before/after identities for selected native
-sources, revision computation, Provider reply, Edition project, Candidate,
-static and interactive media, qualification, and release. It must distinguish
-an installed Publisher build from AIGW acceptance. Publisher conformance cannot
-approve an AIGW Change, advance its refs, or make generated media source truth.
-Provisional installed and relocated Client Projection and whole-product builds
-at Publisher `0e391e7` and AIGW `bd3c09d5` are recorded in
-`conformance/evidence/aigw-client-paired-installed-probe.json` and
-`conformance/evidence/aigw-product-installed-probe.json`. Those exact Candidate
-bytes are not final released inputs, AIGW acceptance, a source-delta update, or
-publication recovery. This packet has not executed AIGW's source-owned
-successor migration.
-
-At a read-only check of local AIGW `dev` commit
-`2aa58eeaee5e56e78922368bc08f0c7ea67d9eff` on 2026-09-30, the
-source-owned Provider remains v1 and `selection.json` still selects Publisher
-`0.3.0-alpha.1`. That checkout was 29 commits ahead of `origin/dev`; this
-spot-check is neither remote readback nor a verdict on AIGW's separate active
-Work Lanes.
+The complete earlier v1 inventory and conditional migration analysis remains in
+this [published predecessor document](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/blob/9f607e98a634819d92a508da96ac00da5d8c67e2/docs/migration/aigw-edition-provider.md).
+Its September observations describe that source revision, not the current
+canonical v2 owner. Required original inputs and rollback evidence retain their
+native owners; this concise handoff introduces no second progress ledger.
