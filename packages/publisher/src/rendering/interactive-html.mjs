@@ -2,6 +2,12 @@ import { createHash } from 'node:crypto';
 import { fail, hasExactFields as exact, isDigest } from '../protocol/values.mjs';
 import { LIMITS, portablePath } from '../file-input/contract.mjs';
 import { canonical } from '../protocol/json.mjs';
+import { interactiveAppearance } from '../scene/appearance.mjs';
+import {
+  interactiveAppearanceControls,
+  interactiveAppearanceCss,
+  interactiveAppearanceScript,
+} from '../../renderers/reader/appearance.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -74,9 +80,9 @@ function validatePage(page, ids, paths, sources, references, editionId, editionS
     nodes[id] = [...values];
   }
   const visibleSubjects = new Set(
-    [...pageHtml(page.content).matchAll(/\bdata-(?:node|edge|text)-id=["']([^"']+)["']/g)].map(
-      (match) => match[1],
-    ),
+    [
+      ...pageHtml(page.content).matchAll(/\bdata-(?:inspect|node|edge|text)-id=["']([^"']+)["']/g),
+    ].map((match) => match[1]),
   );
   if (
     visibleSubjects.size !== Object.keys(nodes).length ||
@@ -215,7 +221,7 @@ function interactiveReader() {
   'use strict';
   const payload = document.getElementById('architecture-interactive-data');
   const data = JSON.parse(payload.textContent);
-  const frame = document.getElementById('interactive-frame');
+  let frame = document.getElementById('interactive-frame');
   const pageLabel = document.getElementById('interactive-page-label');
   const main = document.getElementById('interactive-main');
   const inspector = document.getElementById('interactive-inspector');
@@ -230,6 +236,7 @@ function interactiveReader() {
   const inspectBack = document.getElementById('interactive-inspect-back');
   const error = document.getElementById('interactive-error');
   let active = null;
+  let activeReading = null;
   let subjectLabels = new Map();
   let returnToGraphic = null;
 
@@ -241,6 +248,10 @@ function interactiveReader() {
     } catch (_) {
       return data.overview;
     }
+  };
+  const readingHash = () => {
+    const value = new URLSearchParams(location.hash.slice(1)).get('reader') || '';
+    return value.length <= 2048 ? value : '';
   };
   const page = () => data.pages[selectedId()];
   const rebuild = (selected) =>
@@ -345,7 +356,11 @@ function interactiveReader() {
     for (const fact of selected.facts) {
       const previous = factsByGraphic.get(fact.graphicId);
       if (previous) previous.count += 1;
-      else factsByGraphic.set(fact.graphicId, { count: 1, firstTitle: fact.title });
+      else
+        factsByGraphic.set(fact.graphicId, {
+          count: 1,
+          firstTitle: fact.title,
+        });
     }
     inspectIndex.replaceChildren();
     inspectEmpty.hidden = true;
@@ -389,27 +404,44 @@ function interactiveReader() {
     inspectToggle.setAttribute('aria-expanded', 'false');
     if (graphicId)
       frame.contentWindow.postMessage(
-        { type: 'architecture-interactive:restore-focus', page: active, subject: graphicId },
+        {
+          type: 'architecture-interactive:restore-focus',
+          page: active,
+          subject: graphicId,
+        },
         '*',
       );
     else if (restoreFocus) inspectToggle.focus();
   };
   const hydrate = (selected) => {
     const parsed = new DOMParser().parseFromString(rebuild(selected), 'text/html');
+    const bindInspect = (element, id, label) => {
+      const previous = element.getAttribute('data-inspect-id');
+      if (previous && previous !== id) throw new Error('Graphic identity mismatch');
+      element.setAttribute('data-inspect-id', id);
+      if (label) element.setAttribute('data-inspect-label', label);
+    };
     const nodeLabels = new Map();
-    for (const node of parsed.querySelectorAll('[data-node-id]')) {
-      const id = node.getAttribute('data-node-id');
-      const label = node.getAttribute('data-node-label');
+    for (const node of parsed.querySelectorAll('[data-node-id],g[data-inspect-id]')) {
+      const id = node.getAttribute('data-node-id') || node.getAttribute('data-inspect-id');
+      const label = node.getAttribute('data-inspect-label') || node.getAttribute('data-node-label');
+      if (id) bindInspect(node, id, label);
       if (id && label && !nodeLabels.has(id)) nodeLabels.set(id, label);
     }
     subjectLabels = new Map(nodeLabels);
     for (const text of parsed.querySelectorAll('[data-text-id]')) {
       const id = text.getAttribute('data-text-id');
-      if (id) subjectLabels.set(id, text.getAttribute('data-text-label') || text.textContent);
+      if (id) {
+        const label = text.getAttribute('data-text-label') || text.textContent;
+        bindInspect(text, id, label);
+        subjectLabels.set(id, label);
+      }
     }
     for (const edge of parsed.querySelectorAll('[data-edge-id]')) {
       const id = edge.getAttribute('data-edge-id');
-      if (!id || subjectLabels.has(id)) continue;
+      if (!id) continue;
+      bindInspect(edge, id, edge.getAttribute('data-edge-label'));
+      if (subjectLabels.has(id)) continue;
       const from = nodeLabels.get(edge.getAttribute('data-edge-from'));
       const to = nodeLabels.get(edge.getAttribute('data-edge-to'));
       if (from && to)
@@ -418,12 +450,35 @@ function interactiveReader() {
           `${from} → ${to}${edge.getAttribute('data-edge-label') ? ` · ${edge.getAttribute('data-edge-label')}` : ''}`,
         );
     }
-    parsed.documentElement.setAttribute('data-interactive-member', 'true');
-    parsed.documentElement.setAttribute('data-theme', 'light');
+    const publicationUri = new URL(location.href);
+    publicationUri.hash = 'page=' + encodeURIComponent(selected.id);
+    parsed.documentElement.setAttribute('data-publication-uri', publicationUri.href);
+    if (readingHash()) {
+      const addressed = parsed.createElement('script');
+      addressed.textContent =
+        'location.replace(location.href.replace(/#.*$/,"")+"#"+' +
+        JSON.stringify(readingHash()).replaceAll('<', '\\u003c') +
+        ');';
+      parsed.head.appendChild(addressed);
+    }
+    parsed.documentElement.setAttribute('data-interactive-member', selected.id);
+    parsed.documentElement.setAttribute('data-style', document.documentElement.dataset.style);
+    parsed.documentElement.setAttribute('data-theme', document.documentElement.dataset.theme);
+    parsed.documentElement.setAttribute(
+      'data-appearance-style',
+      document.documentElement.dataset.style,
+    );
+    parsed.documentElement.setAttribute(
+      'data-appearance-theme',
+      document.documentElement.dataset.theme,
+    );
     const style = parsed.createElement('style');
     style.textContent =
-      'html[data-interactive-member]{height:100%;overflow:hidden}html[data-interactive-member] body{height:100%;min-height:0;padding:.65rem;background:#f3f0e8;overflow:hidden}html[data-interactive-member] .toolbar,html[data-interactive-member] .header,html[data-interactive-member] .no-print,html[data-interactive-member] .archify-toast{display:none!important}html[data-interactive-member] .container{height:100%;max-width:none;margin:0;padding:0}html[data-interactive-member] .diagram-container{display:flex;height:100%;min-height:0;margin:0;padding:.5rem;align-items:center;justify-content:center;overflow:hidden}html[data-interactive-member] .diagram-container>svg{width:100%;height:100%;max-height:100%;object-fit:contain}';
+      'html[data-interactive-member]{min-height:100%}html[data-interactive-member] body{min-height:100%;padding:.65rem;background:var(--bg)}html[data-interactive-member] .header{display:none!important}html[data-interactive-member] .container{max-width:none;margin:0;padding:0}html[data-interactive-member]:not([data-present="true"]){height:100%;overflow:hidden}html[data-interactive-member]:not([data-present="true"]) body{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}html[data-interactive-member]:not([data-present="true"]) .toolbar{position:relative;inset:auto;width:fit-content;max-width:100%;margin:0 0 .6rem auto;flex:none}html[data-interactive-member]:not([data-present="true"]) .container{flex:1;min-height:0;display:flex;flex-direction:column}html[data-interactive-member]:not([data-present="true"]) .diagram-container{flex:1;min-height:0;height:auto;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:.5rem .5rem calc(.5rem + var(--archify-nav-reserve,0px))}html[data-interactive-member]:not([data-present="true"]) .diagram-container>svg{width:100%;height:100%;max-height:100%}html[data-interactive-member]:not([data-present="true"]) .publication-query-limit{flex:none;margin:.5rem 0 0}';
     parsed.head.appendChild(style);
+    const appearanceScript = parsed.createElement('script');
+    appearanceScript.textContent = data.appearanceScript;
+    parsed.body.appendChild(appearanceScript);
     for (const script of parsed.scripts) {
       if (script.src) throw new Error('External script is not embedded');
       if (script.type && !['text/javascript', 'application/javascript'].includes(script.type))
@@ -447,14 +502,14 @@ function interactiveReader() {
         if(!id)return;
         event.preventDefault();parent.postMessage({type:'architecture-interactive:navigate',page:id},'*');
       },true);
-      function inspect(subject){const id=subject.getAttribute('data-node-id')||subject.getAttribute('data-edge-id')||subject.getAttribute('data-text-id');parent.postMessage({type:'architecture-interactive:inspect',page:page,subject:id,label:subject.getAttribute('data-node-label')||subject.getAttribute('data-edge-label')||subject.getAttribute('data-text-label')||id},'*');}
-      document.addEventListener('dblclick',function(event){const subject=event.target.closest&&event.target.closest('[data-node-id],[data-edge-id],[data-text-id]');if(subject)inspect(subject);},true);
-      document.addEventListener('keydown',function(event){const subject=event.target.closest&&event.target.closest('[data-node-id],[data-edge-id],[data-text-id]');if(subject&&(event.key==='i'||event.key==='I'||(subject.hasAttribute('data-text-id')&&(event.key==='Enter'||event.key===' ')))){event.preventDefault();inspect(subject);}},true);
+      function inspect(subject){const id=subject.getAttribute('data-inspect-id');parent.postMessage({type:'architecture-interactive:inspect',page:page,subject:id,label:subject.getAttribute('data-inspect-label')||id},'*');}
+      document.addEventListener('dblclick',function(event){const subject=event.target.closest&&event.target.closest('[data-inspect-id]');if(subject)inspect(subject);},true);
+      document.addEventListener('keydown',function(event){const subject=event.target.closest&&event.target.closest('[data-inspect-id]');if(subject&&(event.key==='i'||event.key==='I'||(!subject.hasAttribute('data-node-id')&&(event.key==='Enter'||event.key===' ')))){event.preventDefault();inspect(subject);}},true);
       window.addEventListener('message',function(event){
         const message=event.data;
         if(event.source!==parent||!message||message.type!=='architecture-interactive:restore-focus'||message.page!==page||typeof message.subject!=='string'||!/^[a-z][a-z0-9-]{0,79}$/.test(message.subject))return;
         const id=message.subject;
-        const subject=document.querySelector('[data-node-id="'+id+'"][tabindex], [data-edge-id="'+id+'"][tabindex], [data-text-id="'+id+'"][tabindex]');
+        const subject=document.querySelector('[data-inspect-id="'+id+'"][tabindex]');
         if(subject)subject.focus();
       });
     })();`;
@@ -469,10 +524,17 @@ function interactiveReader() {
     pageLabel.textContent = selected.label;
     for (const button of document.querySelectorAll('[data-interactive-page]'))
       button.setAttribute('aria-current', button.dataset.interactivePage === id ? 'page' : 'false');
-    if (id === active) return;
+    const reading = readingHash();
+    if (id === active && reading === activeReading) return;
     if (!inspector.hidden) closeInspector(false);
     active = id;
-    frame.srcdoc = hydrate(selected);
+    activeReading = reading;
+    const successor = frame.cloneNode(false);
+    successor.dataset.page = id;
+    successor.title = selected.label;
+    successor.srcdoc = hydrate(selected);
+    frame.replaceWith(successor);
+    frame = successor;
   };
   const navigate = (id) => {
     if (!Object.prototype.hasOwnProperty.call(data.pages, id)) return false;
@@ -503,9 +565,6 @@ function interactiveReader() {
       event.preventDefault();
       closeInspector();
     }
-  });
-  frame.addEventListener('load', () => {
-    frame.title = page().label;
   });
   addEventListener('message', (event) => {
     if (
@@ -550,6 +609,10 @@ function interactiveReader() {
 }
 
 function shell(input, data) {
+  const appearance = interactiveAppearance(input.appearance);
+  const nativeReader = Object.values(data.pages).every(
+    (page) => page.nativeReader === 'archify/v1',
+  );
   const attributed = input.schema === 'architecture.interactive-html-composition/v2';
   const framing = attributed ? `<p class="editorial-framing">${escapeHtml(input.framing)}</p>` : '';
   const framingStyle = attributed
@@ -576,7 +639,8 @@ function shell(input, data) {
     )
     .join('\n');
   return `<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="${contentPolicy}"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>${escapeHtml(input.title)} — Interactive architecture</title><style>
+<html lang="en" data-style="${appearance.style}" data-theme="${appearance.theme}"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="${contentPolicy}"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>${escapeHtml(input.title)} — Interactive architecture</title><style>
+${interactiveAppearanceCss()}
 :root { color-scheme: light; --paper: #f3f0e8; --panel: #faf8f2; --ink: #26362f; --muted: #58675e; --rule: #c8c7bb; --accent: #456a59; }
 * { box-sizing: border-box; }
 html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--paper); color: var(--ink); font-family: system-ui, -apple-system, sans-serif; }
@@ -589,7 +653,7 @@ header { display: grid; grid-template-columns: minmax(13rem, 1fr) minmax(0, 4fr)
 .chapters button, #interactive-inspect, #interactive-inspect-back, #interactive-inspect-index button { border: 1px solid transparent; background: transparent; color: var(--muted); font: 600 .74rem/1.3 system-ui, sans-serif; cursor: pointer; }
 .chapters button { white-space: nowrap; padding: .42rem .58rem; border-radius: .35rem; }
 .chapters button:hover, .chapters button[aria-current="page"] { border-color: var(--rule); background: var(--panel); color: var(--ink); }
-.actions { display: flex; align-items: center; }
+.actions { display: flex; align-items: center; gap: .8rem; }
 #interactive-inspect, #interactive-inspect-back { padding: .5rem .75rem; border-color: var(--rule); border-radius: .35rem; color: var(--accent); background: var(--panel); }
 button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 main { position: relative; min-height: 0; }
@@ -602,7 +666,7 @@ main[data-reading="inspect"] iframe { visibility: hidden; pointer-events: none; 
 .inspect-head { display: flex; align-items: start; justify-content: space-between; gap: 2rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--rule); }
 .inspect-head p { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.5; }
 .inspect-head h1 { margin: .22rem 0 .35rem; font: 600 clamp(1.4rem, 2.3vw, 2.1rem)/1.18 system-ui, sans-serif; letter-spacing: -.02em; }
-.inspect-head .inspect-eyebrow { color: var(--accent); font: 600 .68rem/1.2 system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+.inspect-head .inspect-eyebrow { color: var(--reader-ink); font: 600 .68rem/1.2 system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
 #interactive-inspect-back { white-space: nowrap; }
 .inspect-layout { display: grid; grid-template-columns: minmax(15rem, 20rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: start; padding-top: 1.5rem; }
 .inspect-navigation, .inspect-reading { min-width: 0; }
@@ -621,13 +685,13 @@ main[data-reading="inspect"] iframe { visibility: hidden; pointer-events: none; 
 #interactive-inspect-content details[open] summary, #interactive-inspect-basis details[open] summary { border-bottom: 1px solid var(--rule); }
 #interactive-inspect-content dl, #interactive-inspect-basis dl { display: grid; grid-template-columns: minmax(9rem, .7fr) minmax(0, 1.3fr); gap: .5rem 1rem; margin: 0; padding: .85rem .9rem 1rem; }
 #interactive-inspect-content dt, #interactive-inspect-basis dt { color: var(--muted); font-size: .72rem; line-height: 1.45; }
-#interactive-inspect-content dd, #interactive-inspect-basis dd { min-width: 0; margin: 0; overflow-wrap: anywhere; font-size: .78rem; line-height: 1.45; }
+#interactive-inspect-content dd, #interactive-inspect-basis dd { min-width: 0; margin: 0; overflow-wrap: anywhere; white-space: break-spaces; font-size: .78rem; line-height: 1.45; }
 #interactive-inspect-basis { margin: 0 0 1.2rem; }
 #interactive-inspect-basis p { margin: 0; padding: .75rem .9rem 0; color: var(--muted); font-size: .76rem; line-height: 1.5; }
 #interactive-inspect-basis dl + dl { border-top: 1px solid var(--rule); }
 @media (max-width: 900px) { header { grid-template-columns: 1fr auto; } .chapters { grid-column: 1 / -1; grid-row: 2; } .identity small { display: none; } .inspect-layout { grid-template-columns: minmax(0, 1fr); } #interactive-inspect-index { grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); max-height: none; overflow: visible; } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
-</style></head><body><header><div class="identity"><strong>${escapeHtml(input.title)}</strong><small id="interactive-page-label"></small></div><nav class="chapters" aria-label="Interactive chapters">${navigation}</nav><div class="actions"><button id="interactive-inspect" type="button" aria-expanded="false" aria-controls="interactive-inspector">Inspect</button></div>${framing}</header><main id="interactive-main"><p id="interactive-error" hidden></p><iframe id="interactive-frame" title="${escapeHtml(input.title)} interactive architecture" sandbox="allow-scripts allow-downloads"></iframe><section id="interactive-inspector" hidden aria-labelledby="interactive-inspect-title"><div class="inspect-shell"><div class="inspect-head"><div><p class="inspect-eyebrow">Selected meaning</p><h1 id="interactive-inspect-title">Inspect this diagram</h1><p id="interactive-inspect-context"></p></div><button id="interactive-inspect-back" type="button">Back to diagram</button></div><div class="inspect-layout"><div class="inspect-navigation"><label for="interactive-inspect-search">Find a component or relationship</label><input id="interactive-inspect-search" type="search" autocomplete="off"><nav id="interactive-inspect-index" aria-label="Diagram subjects"></nav><p id="interactive-inspect-empty" hidden>No matching subject.</p></div><div class="inspect-reading"><div id="interactive-inspect-basis"></div><div id="interactive-inspect-content"></div></div></div></div></section></main><noscript>This interactive architecture requires JavaScript for navigation and inspection; source files are not embedded.</noscript><script id="architecture-interactive-data" type="application/json">${scriptJson(data)}</script><script>(${interactiveReader.toString()})();</script></body></html>\n`;
+</style></head><body><header><div class="identity"><strong>${escapeHtml(input.title)}</strong><small id="interactive-page-label"></small></div><nav class="chapters" aria-label="Interactive chapters">${navigation}</nav><div class="actions">${nativeReader ? '' : interactiveAppearanceControls(appearance)}<button id="interactive-inspect" type="button" aria-expanded="false" aria-controls="interactive-inspector">Inspect</button></div>${framing}</header><main id="interactive-main"><p id="interactive-error" hidden></p><iframe id="interactive-frame" title="${escapeHtml(input.title)} interactive architecture" sandbox="allow-scripts allow-downloads"></iframe><section id="interactive-inspector" hidden aria-labelledby="interactive-inspect-title"><div class="inspect-shell"><div class="inspect-head"><div><p class="inspect-eyebrow">Selected meaning</p><h1 id="interactive-inspect-title">Inspect this diagram</h1><p id="interactive-inspect-context"></p></div><button id="interactive-inspect-back" type="button">Back to diagram</button></div><div class="inspect-layout"><div class="inspect-navigation"><label for="interactive-inspect-search">Find a component or relationship</label><input id="interactive-inspect-search" type="search" autocomplete="off"><nav id="interactive-inspect-index" aria-label="Diagram subjects"></nav><p id="interactive-inspect-empty" hidden>No matching subject.</p></div><div class="inspect-reading"><div id="interactive-inspect-basis"></div><div id="interactive-inspect-content"></div></div></div></div></section></main><noscript>This interactive architecture requires JavaScript for navigation and inspection; source files are not embedded.</noscript><script id="architecture-interactive-data" type="application/json">${scriptJson(data)}</script><script>(${interactiveReader.toString()})();</script><script>${interactiveAppearanceScript()}</script></body></html>\n`;
 }
 
 function composeDocument(input) {
@@ -645,7 +709,7 @@ function composeDocument(input) {
         'state',
         ...(attributed ? ['framing'] : []),
       ],
-      ['editionId'],
+      ['editionId', 'appearance'],
     ) ||
     (input.schema !== 'architecture.interactive-html-composition/v1' && !attributed) ||
     (attributed && !text(input.framing)) ||
@@ -715,6 +779,11 @@ function composeDocument(input) {
       sourceIds: [...page.sourceIds],
       subjectSources: nodeSources,
       facts: structuredClone(page.facts),
+      nativeReader: /<meta name="publication-reader" content="archify\/v1">/i.test(
+        pageHtml(page.content),
+      )
+        ? 'archify/v1'
+        : null,
       pieces: pagePieces(page.content, shared, blocks),
     };
   }
@@ -750,6 +819,9 @@ function composeDocument(input) {
     blocks,
     sources,
     state: structuredClone(input.state),
+    appearance: interactiveAppearance(input.appearance),
+    appearanceCss: interactiveAppearanceCss(),
+    appearanceScript: interactiveAppearanceScript(),
   };
   return Buffer.from(shell(input, data));
 }

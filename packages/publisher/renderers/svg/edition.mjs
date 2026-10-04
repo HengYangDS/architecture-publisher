@@ -18,6 +18,8 @@ const groupTitleLeading = 19;
 const groupTitleClearance = 17;
 const noteLineLeading = 26;
 const noteItemGap = 9;
+const maximumExtent = 12_000;
+const claimColumnGap = 24;
 const escape = (value) =>
   String(value)
     .replaceAll('&', '&amp;')
@@ -51,7 +53,7 @@ function wrap(value, width, size, limit = 12) {
   if (typeof value !== 'string' || !value.trim()) fail('static_edition_text_unrepresentable');
   const lines = [];
   let current = '';
-  for (const character of [...value.trim().replace(/\s+/gu, ' ')]) {
+  for (const character of [...value]) {
     if (advance(current + character, size) <= width) {
       current += character;
       continue;
@@ -59,11 +61,11 @@ function wrap(value, width, size, limit = 12) {
     if (!current) fail('static_edition_text_unrepresentable');
     const breakAt = Math.max(current.lastIndexOf(' ') + 1, current.lastIndexOf('-') + 1);
     if (breakAt > 0 && breakAt < current.length) {
-      lines.push(current.slice(0, breakAt).trimEnd());
-      current = current.slice(breakAt).trimStart() + character;
+      lines.push(current.slice(0, breakAt));
+      current = current.slice(breakAt) + character;
     } else {
-      lines.push(current.trimEnd());
-      current = character === ' ' ? '' : character;
+      lines.push(current);
+      current = character;
     }
     if (advance(current, size) > width) fail('static_edition_text_unrepresentable');
   }
@@ -78,9 +80,65 @@ function textLines(output, content, x, y, width, size, color, weight = 400, limi
   const lines = wrap(content, width, size, limit);
   for (const [index, line] of lines.entries())
     output.push(
-      `<text x="${number(x)}" y="${number(y + index * size * 1.4)}" fill="${color}" font-size="${size}" font-weight="${weight}">${escape(line)}</text>`,
+      `<text x="${number(x)}" y="${number(y + index * size * 1.4)}" fill="${color}" font-size="${size}" font-weight="${weight}" xml:space="preserve">${escape(line)}</text>`,
     );
   return y + lines.length * size * 1.4;
+}
+
+function paintClaimStatements(cards, commonLabels, { idPrefix, x, y, width, columns }) {
+  const plate = [];
+  const carriers = [];
+  columns = Math.max(1, columns);
+  const columnWidth = (width - (columns - 1) * claimColumnGap) / columns;
+  let rowBottom = y;
+  for (const [position, claim] of cards.entries()) {
+    const column = position % columns;
+    const columnX = x + column * (columnWidth + claimColumnGap);
+    let cardY = y;
+    const graphicId = `${idPrefix}c-${position}`;
+    carriers.push({
+      graphicId,
+      source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
+    });
+    plate.push(`<g data-graphic-id="${graphicId}">`);
+    for (const fact of claim.facts) {
+      if (commonLabels.has(fact.label)) continue;
+      cardY =
+        textLines(
+          plate,
+          `${fact.label}: ${fact.value}`,
+          columnX,
+          cardY,
+          columnWidth,
+          14,
+          '#27352e',
+          400,
+          Math.floor((maximumExtent - cardY - 48) / (14 * 1.4)),
+        ) + 5;
+    }
+    plate.push(
+      `<line x1="${number(columnX)}" y1="${number(cardY + 5)}" x2="${number(columnX + columnWidth)}" y2="${number(cardY + 5)}" stroke="#d3dbd1" stroke-width="1"/>`,
+      '</g>',
+    );
+    rowBottom = Math.max(rowBottom, cardY);
+    if (column === columns - 1 || position === cards.length - 1) {
+      y = rowBottom + 27;
+      rowBottom = y;
+    }
+  }
+  return { plate, carriers, y };
+}
+
+function staticBodyGeometry(bounds, cards) {
+  const columns = bounds === null ? Math.min(2, cards.length) : 1;
+  return {
+    columns,
+    width: Math.max(
+      640,
+      Math.ceil((bounds?.width ?? 0) + 120),
+      columns * 640 + Math.max(0, columns - 1) * claimColumnGap,
+    ),
+  };
 }
 
 function boundsOf(scene) {
@@ -497,12 +555,14 @@ export function composeStaticEditionSvg(scene, options = {}) {
     fail('static_edition_bounds_mismatch');
   const bounds =
     scene.groupPresentation === 'key' ? boundsOf({ ...scene, groups: [] }) : sourceBounds;
-  const graphWidth = Math.max(640, Math.ceil((bounds?.width ?? 0) + 120));
+  const claimCards = scene.claimCards ?? [];
+  const { common, commonLabels } = factorClaimFacts(claimCards);
+  const { columns: claimColumns, width: graphWidth } = staticBodyGeometry(bounds, claimCards);
   const notesWidth = 400;
   const gap = 54;
   const notesX = 60 + graphWidth + gap;
   const width = notesX + notesWidth + 60;
-  if (width > 12_000) fail('static_edition_geometry_invalid');
+  if (width > maximumExtent) fail('static_edition_geometry_invalid');
   const header = [];
   const framing = editorialFraming(scene.edition.editor);
   let y = 76;
@@ -662,35 +722,35 @@ export function composeStaticEditionSvg(scene, options = {}) {
     scene.sourceAssertionCarriers.some(
       ({ assertionId, kind }) => kind === 'relation' && !linkedRelationIds.has(assertionId),
     );
-  y = namedSection(
-    notes,
-    'SOURCE STATUS',
-    unlinkedRelation
-      ? [{ text: relationOnly ? SOURCE_REPORTED_TOPOLOGY_NOTE : UNLINKED_RELATION_NOTE }]
-      : [],
-    notesX,
-    y,
-    notesWidth,
-  );
-  y = namedSection(notes, 'SOURCE RELATIONS', relationItems, notesX, y, notesWidth);
-  y = namedSection(
-    notes,
-    'EDITORIAL ASSERTIONS',
-    scene.editorialAssertions.map(({ statement, proponent }) => ({
-      text: `${statement} · Editorial judgment · ${proponent} · unverified`,
-    })),
-    notesX,
-    y,
-    notesWidth,
-  );
-  const scopeLimits = Object.values(scene.limitsByQuestion)
-    .flat()
-    .map(({ reason }) => ({ text: reason }));
-  y = namedSection(notes, 'DECLARED LIMITS', scopeLimits, notesX, y, notesWidth);
+  if (!fragment) {
+    y = namedSection(
+      notes,
+      'SOURCE STATUS',
+      unlinkedRelation
+        ? [{ text: relationOnly ? SOURCE_REPORTED_TOPOLOGY_NOTE : UNLINKED_RELATION_NOTE }]
+        : [],
+      notesX,
+      y,
+      notesWidth,
+    );
+    y = namedSection(notes, 'SOURCE RELATIONS', relationItems, notesX, y, notesWidth);
+    y = namedSection(
+      notes,
+      'EDITORIAL ASSERTIONS',
+      scene.editorialAssertions.map(({ statement, proponent }) => ({
+        text: `${statement} · Editorial judgment · ${proponent} · unverified`,
+      })),
+      notesX,
+      y,
+      notesWidth,
+    );
+    const scopeLimits = Object.values(scene.limitsByQuestion)
+      .flat()
+      .map(({ reason }) => ({ text: reason }));
+    y = namedSection(notes, 'DECLARED LIMITS', scopeLimits, notesX, y, notesWidth);
+  }
   const structureHeight = Math.max(300, (bounds?.height ?? 0) + 120);
   const notesHeight = y - graphTop + 32;
-  const claimCards = scene.claimCards ?? [];
-  const { common, commonLabels } = factorClaimFacts(claimCards);
   const paintClaims = (placement) => {
     const claimSectionY =
       graphTop +
@@ -730,10 +790,10 @@ export function composeStaticEditionSvg(scene, options = {}) {
             14,
             '#27352e',
             400,
-            8,
+            mixed ? 8 : Math.floor((maximumExtent - claimY - 48) / (14 * 1.4)),
           ) + 5;
       claimPlate.push(
-        `<line x1="${claimX}" y1="${number(claimY + 5)}" x2="${number(mixed ? claimX + claimWidth : 60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#aebbb0" stroke-width="1"/>`,
+        `<line x1="${claimX}" y1="${number(claimY + 5)}" x2="${number(claimX + claimWidth)}" y2="${number(claimY + 5)}" stroke="#aebbb0" stroke-width="1"/>`,
       );
       claimY += 27;
     }
@@ -830,34 +890,16 @@ export function composeStaticEditionSvg(scene, options = {}) {
         claimY = rowBottom + 24;
       }
     } else {
-      for (const [position, claim] of claimCards.entries()) {
-        const graphicId = `${idPrefix}c-${position}`;
-        claimCarriers.push({
-          graphicId,
-          source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
-        });
-        claimPlate.push(`<g data-graphic-id="${graphicId}">`);
-        for (const fact of claim.facts) {
-          if (commonLabels.has(fact.label)) continue;
-          claimY =
-            textLines(
-              claimPlate,
-              `${fact.label}: ${fact.value}`,
-              74,
-              claimY,
-              graphWidth - 32,
-              14,
-              '#27352e',
-              400,
-              8,
-            ) + 5;
-        }
-        claimPlate.push(
-          `<line x1="74" y1="${number(claimY + 5)}" x2="${number(60 + graphWidth - 16)}" y2="${number(claimY + 5)}" stroke="#d3dbd1" stroke-width="1"/>`,
-          '</g>',
-        );
-        claimY += 27;
-      }
+      const statements = paintClaimStatements(claimCards, commonLabels, {
+        idPrefix,
+        x: claimX,
+        y: claimY,
+        width: claimWidth,
+        columns: claimColumns,
+      });
+      claimPlate.push(...statements.plate);
+      claimCarriers.push(...statements.carriers);
+      claimY = statements.y;
     }
     return {
       claimSectionY,
@@ -899,7 +941,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
       : graphTop + 42 + (contentHeight - 42 - bounds.height) / 2 - bounds.y
     : 0;
   const height = Math.ceil(graphTop + contentHeight + 48);
-  if (height > 12_000) fail('static_edition_geometry_invalid');
+  if (height > maximumExtent) fail('static_edition_geometry_invalid');
   const nodeGraphicIds = new Map(
     nodeCarriers.map(({ source, graphicId }) => [key(source), graphicId]),
   );
@@ -967,7 +1009,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
     };
   }
   const lines = [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="edition-title edition-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="edition-title edition-description" font-family="JetBrains Mono" font-weight="400" font-style="normal" xml:space="preserve">`,
     `<title id="edition-title">${escape(scene.title)}</title>`,
     `<desc id="edition-description">${escape(scene.summary)} ${escape(framing)}</desc>`,
     `<rect width="${width}" height="${height}" fill="#f5f3ed"/>`,

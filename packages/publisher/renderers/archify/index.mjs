@@ -10,6 +10,7 @@ import { adaptArchitectureScene } from './architecture.mjs';
 import { adaptArchitectureTexts } from './text.mjs';
 import { adaptArchitecturePrimitives } from './primitives.mjs';
 import { adaptArchitectureRoutes } from './routes.mjs';
+import { adaptArchitectureExploration } from './semantics.mjs';
 import { validateInteractiveArchitectureScene } from '../../src/scene/interactive/architecture.mjs';
 
 const supplyRoot = fileURLToPath(new URL('./supply/', import.meta.url));
@@ -109,10 +110,44 @@ async function adaptOfflineTemplate(native, notice, semantic) {
   )
     fail('render_font_seam_invalid');
   const template = semantic ? semanticPublicationTemplate(original) : original;
+  const linkPattern =
+    /var value = location\.href\.replace\(\/#\.\*\$\/, ''\) \+ ([\s\S]*?);(?=\n {8}var copy =)/g;
+  const linkValues = [...template.matchAll(linkPattern)];
+  const linkMarker = 'var Archify = {};';
+  const exportContext =
+    "if (target.closest('[data-node-id], [data-relationship-hit-key], .overview-map')) return;";
+  const textCopy = 'var copy = navigator.clipboard &&';
+  const imageCopy = "return typeof ClipboardItem !== 'undefined' &&";
+  if (
+    linkValues.length !== 3 ||
+    template.split(linkMarker).length !== 2 ||
+    template.split(exportContext).length !== 2 ||
+    template.split(textCopy).length !== 4 ||
+    template.split(imageCopy).length !== 2
+  )
+    fail('render_reader_interaction_seam_invalid');
+  const addressed = template
+    .replace(
+      linkMarker,
+      linkMarker +
+        '\nfunction publicationReaderLink(hash) {\n  var base = document.documentElement.getAttribute("data-publication-uri");\n  return base ? base + "&reader=" + encodeURIComponent(hash.replace(/^#/, "")) : location.href.replace(/#.*$/, "") + hash;\n}\nfunction publicationClipboardAllowed() {\n  var policy = document.permissionsPolicy || document.featurePolicy;\n  return window.isSecureContext && (!policy || policy.allowsFeature("clipboard-write"));\n}',
+    )
+    .replace(linkPattern, 'var value = publicationReaderLink($1);')
+    .replaceAll(textCopy, 'var copy = publicationClipboardAllowed() && navigator.clipboard &&')
+    .replace(
+      imageCopy,
+      "return publicationClipboardAllowed() && typeof ClipboardItem !== 'undefined' &&",
+    )
+    .replace(
+      exportContext,
+      "if (target.closest('[data-node-id], [data-relationship-hit-key], .overview-map, #btn-export, #export-menu')) return;",
+    );
   await accessibleDiagramRuntime(native);
   await fs.writeFile(
     file,
-    template.replace('</head>', '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>'),
+    addressed
+      .replace('<head>', '<head>\n<meta name="publication-reader" content="archify/v1">')
+      .replace('</head>', '<!-- ' + notice.replaceAll('--', '—') + '-->\n</head>'),
   );
   return { supplies: [] };
 }
@@ -177,7 +212,10 @@ function semanticPublicationTemplate(template) {
     );
   if (/data-preset-badge-/.test(result) || /content:\s*attr\(data-preset-badge-/.test(result))
     fail('render_semantic_template_seam_invalid');
-  return result;
+  return result.replace(
+    '</head>',
+    '<style>:root[data-preset="classic"]{--arrow:var(--text-muted)}svg text.t-edge-default,svg text.t-edge-emphasis,svg text.t-edge-security,svg text.t-edge-dashed{fill:var(--text)}</style></head>',
+  );
 }
 
 /** Render one backend-neutral architecture scene through the Archify adapter. */
@@ -194,6 +232,7 @@ export async function renderArchitectureScene(plan) {
       await adaptArchitecturePrimitives(native, scene);
       const routes = await adaptArchitectureRoutes(native, scene);
       const text = await adaptArchitectureTexts(native, scene, plan.fontSupply ?? null);
+      await adaptArchitectureExploration(native, scene, plan.exploration);
       return { supplies: [...template.supplies, ...text.supplies], ...routes };
     },
   );
@@ -221,7 +260,10 @@ export async function renderNativeDiagram(plan, adaptRuntime) {
   // The public output path owns publication. Archify's required meta.output is
   // only the private candidate slot; the caller's original bytes retain identity.
   const nativeInput = Buffer.from(
-      JSON.stringify({ ...diagram, meta: { ...diagram.meta, output: 'candidate.html' } }) + '\n',
+      JSON.stringify({
+        ...diagram,
+        meta: { ...diagram.meta, output: 'candidate.html' },
+      }) + '\n',
     ),
     nativeInputSha256 = sha(nativeInput);
   if (nativeInput.length > maxDiagramBytes) fail('render_input_type_invalid');

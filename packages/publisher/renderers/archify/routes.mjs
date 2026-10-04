@@ -3,7 +3,6 @@ import path from 'node:path';
 import { fail } from '../../src/protocol/values.mjs';
 import { validateAuthoredRouteGeometry } from '../../src/scene/routes.mjs';
 import { renderLiteralSegment } from '../svg/segments.mjs';
-import { pathToFileURL } from 'node:url';
 import { auditEmittedEdges } from '../../src/scene/emitted-path.mjs';
 
 const tones = new Map([
@@ -16,9 +15,6 @@ export async function adaptArchitectureRoutes(native, scene) {
   validateAuthoredRouteGeometry(scene, 'interactive');
   const edges = scene.edges.filter((edge) => edge.adornment);
   if (!edges.length) return {};
-  const { focusEdgeAttrs } = await import(
-    pathToFileURL(path.join(native, 'renderers/shared/cli.mjs')).href
-  );
   const markup = Object.fromEntries(
     edges.map((edge) => {
       if (!tones.has(edge.strokeTone)) fail('render_scene_route_tone_unsupported');
@@ -26,7 +22,7 @@ export async function adaptArchitectureRoutes(native, scene) {
         route.traversals.some((traversal) => traversal.edge === edge.id),
       );
       const attributes = bound
-        ? `${focusEdgeAttrs(edge.from, edge.to, '', edge.id, edge.id)} data-composition-points="${edge.points.map(({ x, y }) => `${x},${y}`).join(';')}"`
+        ? `data-edge-id="${edge.id}" data-composition-points="${edge.points.map(({ x, y }) => `${x},${y}`).join(';')}"`
         : 'aria-hidden="true"';
       return [
         edge.id,

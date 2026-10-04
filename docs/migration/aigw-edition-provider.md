@@ -91,8 +91,8 @@ Do **not** move the directory again merely to satisfy this packet. AIGW shall
 retain authority over its native facts, Client Projection scope, editorial
 choices when it is the named editor, acceptance, and product release. Publisher
 shall own the generic versioned input protocol, derived lock and Candidate,
-rendering, browser/accessibility qualification, and optional bounded local file
-effect. Source location and provider mode do not confer editorial or release
+rendering, qualification contracts and browser/accessibility observation
+mechanics, and optional bounded local file effect. Source location and provider mode do not confer editorial or release
 authority in the universal product.
 
 Under a reviewed successor, AIGW may keep declarative selection of exact native

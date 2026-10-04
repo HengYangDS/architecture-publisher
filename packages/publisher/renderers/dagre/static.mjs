@@ -134,7 +134,7 @@ function placeRelationLabels(routes, nodes) {
       const perpendicular = [-dy / length, dx / length];
       for (const fraction of [0.5, 0.35, 0.65, 0.2, 0.8])
         for (const sign of [-1, 1]) {
-          const offset = Math.abs(dx) >= Math.abs(dy) ? h / 2 + 9 : w / 2 + 9;
+          const offset = (Math.abs(dy) * (w / 2 + 5) + Math.abs(dx) * (h / 2 + 5)) / length + 4;
           const centerX = from[0] + dx * fraction + perpendicular[0] * offset * sign;
           const centerY = from[1] + dy * fraction + perpendicular[1] * offset * sign;
           const candidate = place(centerX, centerY);

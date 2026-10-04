@@ -43,10 +43,9 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.doesNotMatch(firstPage, /class="evidence-section evidence-questions"/u);
   assert.match(html, /Eclipse Public License/u);
   assert.match(html, /Redistribution and use in source and binary forms/u);
-  assert.doesNotMatch(
-    html,
-    /private\/model|secret-alpha|secret-beta|relation:4:2|backend|external/u,
-  );
+  assert.doesNotMatch(html, /private\/model|secret-alpha|secret-beta|relation:4:2/u);
+  const readingContent = html.replace(/<(style|script)\b[^>]*>[\s\S]*?<\/\1>/gu, '');
+  assert.doesNotMatch(readingContent, /\bbackend\b|\bexternal\b/u);
   assert.deepEqual(
     result.carriers[0].nodes.map(({ graphicId }) => graphicId),
     ['n-0', 'n-1'],

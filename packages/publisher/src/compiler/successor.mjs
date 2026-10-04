@@ -11,6 +11,7 @@ import {
   composeStaticSelectionLayout,
   composeSelectedStaticRefinementLayout,
   selectedStaticNativeViews,
+  selectedStaticSourceSelections,
 } from '../scene/static/selection.mjs';
 import { composeStaticEditionScene } from '../scene/static/edition.mjs';
 import { composeStaticResponsibilityScene } from '../scene/static/responsibility.mjs';
@@ -136,7 +137,12 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
   } else if (meaning.editorial.presentation.static.views[0].groups !== undefined) {
     implementationProfile = 'static-structural';
     layout = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
-  } else if (claimMode && meaning.native.selections.some(({ target }) => target.kind !== 'claim')) {
+  } else if (
+    claimMode &&
+    selectedStaticSourceSelections(meaning, meaning.media.static.views[0]).some(
+      ({ target }) => target.kind !== 'claim',
+    )
+  ) {
     implementationProfile = 'static-structural';
     layout = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
   } else if (!claimMode) {
@@ -190,13 +196,9 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
 async function staticMedium(selected, meaning, scratch) {
   const views = meaning.media.static.views;
   if (!Array.isArray(views) || !views.length) fail('static_figure_views_invalid');
-  const firstViewAssertions = new Set(views[0].assertionIds);
-  const targetKinds = new Map(
-    meaning.native.selections.map(({ selectionId, target }) => [selectionId, target.kind]),
+  const firstViewTargets = selectedStaticSourceSelections(meaning, views[0]).map(
+    ({ target }) => target.kind,
   );
-  const firstViewTargets = meaning.assertions
-    .filter(({ id, kind }) => kind === 'source' && firstViewAssertions.has(id))
-    .map(({ selection }) => targetKinds.get(selection));
   const firstViewHasClaims = firstViewTargets.includes('claim');
   const firstViewHasRawStructure = firstViewTargets.some((kind) =>
     ['entity', 'relation'].includes(kind),
@@ -341,7 +343,12 @@ async function authoredInteractiveMedium(selected, meaning, scratch) {
     });
     const scene = { ...page.scene, texts: fontSupply.texts };
     const output = path.join(scratch, `${page.id}.html`);
-    const rendered = await renderArchitectureScene({ scene, output, fontSupply });
+    const rendered = await renderArchitectureScene({
+      scene,
+      output,
+      fontSupply,
+      exploration: page.exploration,
+    });
     const content = await fs.readFile(output);
     for (const supply of rendered.supplies) {
       const supplyId = ['runtime', 'statement-fonts'].includes(supply.id)
@@ -379,6 +386,7 @@ async function authoredInteractiveMedium(selected, meaning, scratch) {
     schema: 'architecture.interactive-html-composition/v2',
     title: meaning.editorial.title,
     editionId: meaning.edition.id,
+    appearance: meaning.editorial.presentation.interactive.appearance,
     framing: editorialFraming(meaning.edition.editor),
     build: {
       lockSha256: selected.lockSha256,

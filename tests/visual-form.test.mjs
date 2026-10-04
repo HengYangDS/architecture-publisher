@@ -18,6 +18,7 @@ import {
   responsibilityMapCss,
   responsibilityMapHtml,
 } from '../packages/publisher/renderers/interactive/responsibility-map.mjs';
+import { interactiveAppearanceCss } from '../packages/publisher/renderers/reader/appearance.mjs';
 import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
 import { composeStaticResponsibilitySvg } from '../packages/publisher/renderers/svg/responsibility.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
@@ -328,7 +329,9 @@ test(
       },
       0,
     );
-    await page.setContent(`<style>${responsibilityMapCss}</style>${labeled}`);
+    await page.setContent(
+      `<html data-style="editorial" data-theme="light"><style>${interactiveAppearanceCss()}${responsibilityMapCss}</style>${labeled}</html>`,
+    );
     const relationContrast = await contrastAgainstPaper(
       page,
       '.form-map-graph [data-graphic-id="r-0"] text',

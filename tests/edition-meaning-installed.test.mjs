@@ -439,7 +439,7 @@ const html = await fs.readFile(new URL('./occurrence-candidate/interactive/archi
 const work = JSON.parse(html.match(/<script id="architecture-interactive-data" type="application\\/json">([\\s\\S]*?)<\\/script>/u)[1]);
 const page = work.pages.overview;
 const painted = page.pieces.map((piece) => typeof piece === 'number' ? work.blocks[piece] : piece).join('');
-if (!painted.includes('data-node-id="client-a"') || !painted.includes('stroke-linejoin="round"')) throw Error('installed_primitive_not_painted');
+if (!painted.includes('data-inspect-id="client-a"') || painted.includes('data-node-id="client-a"') || !painted.includes('stroke-linejoin="round"')) throw Error('installed_primitive_identity_invalid');
 await fs.rm(output, { recursive: true });
 console.log(JSON.stringify({ status: built.status, candidateSha256: built.candidateSha256,
   subjects: Object.keys(page.subjectSources),

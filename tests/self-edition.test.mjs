@@ -777,6 +777,72 @@ test('the evolution view carries semantic delta and distinct renewal obligations
     assert(relations.has(id), `evolution view missing ${id}`);
 });
 
+test('self renewal edges express required work rather than performed effects', async (t) => {
+  const { prepareArchitecturePublisherEdition } =
+    await import('../editions/self/src/edition/prepare.mjs');
+  const { architecturePublisherInteractiveScenes } =
+    await import('../editions/self/src/edition/interactive-scenes.mjs');
+  const { composeArchitecturePublisherInteractiveScene } =
+    await import('../editions/self/src/edition/interactive-scene.mjs');
+  const parent = await fs.mkdtemp(path.join(os.tmpdir(), 'publisher-self-obligations-'));
+  t.after(() => fs.rm(parent, { recursive: true, force: true }));
+  const prepared = await prepareArchitecturePublisherEdition(
+    await request(path.join(parent, 'prepared')),
+  );
+  const bundle = await readSourceBundle(prepared.sourceManifest, prepared.sourceSha256);
+  const model = validateClaimModel(
+    JSON.parse(bundle.members.find(({ path: name }) => name === 'semantic.json').content),
+  );
+  const project = validateEditionProject(JSON.parse(await fs.readFile(prepared.project, 'utf8')));
+  const requiredWork = new Map([
+    ['rebuild-obligations', 'requires rebuild'],
+    ['semantic-verification-obligations', 'requires recheck'],
+    ['medium-verification-obligations', 'requires recheck'],
+    ['human-review-obligations', 'requires renewal'],
+    ['acceptance-obligations', 'requires renewal'],
+    ['publication-obligations', 'requires publication'],
+  ]);
+  const expected = new Set(
+    Object.entries(model.relations)
+      .filter(([, relation]) => requiredWork.has(relation.subject))
+      .map(([id]) => id),
+  );
+  const observed = new Set();
+  const catalog = architecturePublisherInteractiveScenes();
+  for (const id of ['overview', 'evolution']) {
+    const view = catalog[id];
+    const scene = composeArchitecturePublisherInteractiveScene(model, project, {
+      id,
+      label: view.label,
+      purpose: view.purpose,
+      ...view.composition,
+    });
+    for (const edge of scene.edges) {
+      const labels = new Set();
+      for (const carrier of edge.semanticIds) {
+        const relationId = carrier.slice('relation:'.length);
+        if (!expected.has(relationId)) continue;
+        const subject = model.relations[relationId].subject;
+        assert.equal(model.claims[`role-${subject}`].condition.effect, 'planned-not-executed');
+        labels.add(requiredWork.get(subject));
+        observed.add(relationId);
+      }
+      if (labels.size)
+        assert.equal(
+          edge.label,
+          labels.size === 1 ? [...labels][0] : 'requires renewal',
+          `${id}: ${edge.id}`,
+        );
+    }
+    if (id === 'evolution')
+      assert.equal(
+        scene.nodes.find((node) => node.id === 'effect').detail,
+        'planned · not executed',
+      );
+  }
+  assert.deepEqual(observed, expected);
+});
+
 test('the semantics view connects uncertainty and claims to Edition authorship', async () => {
   const { architecturePublisherInteractiveScenes } =
     await import('../editions/self/src/edition/interactive-scenes.mjs');
@@ -1089,14 +1155,15 @@ test('the installed self Edition compiles both media after its author package is
       await page.getByRole('button', { name: 'Back to diagram' }).click();
       assert.equal(await inspector.isVisible(), false);
       const overviewFrame = page.frames().find((item) => item.parentFrame() === page.mainFrame());
-      await overviewFrame.locator('[data-node-id="source"][tabindex="0"]').first().focus();
+      await overviewFrame.locator('[data-inspect-id="source"][tabindex="0"]').first().focus();
       await page.keyboard.press('i');
+      await inspector.waitFor({ state: 'visible' });
       assert.equal(await inspector.isVisible(), true);
       await page.keyboard.press('Escape');
       assert.equal(await inspector.isVisible(), false);
       assert.equal(
         await overviewFrame.evaluate(() =>
-          globalThis.document.activeElement?.getAttribute('data-node-id'),
+          globalThis.document.activeElement?.getAttribute('data-inspect-id'),
         ),
         'source',
       );
@@ -1125,45 +1192,93 @@ test('the installed self Edition compiles both media after its author package is
           .frames()
           .find((item) => item.parentFrame() === readerPage.mainFrame());
         await frame.waitForSelector('svg', { timeout: 8_000 });
+        await frame.waitForFunction(() => !!globalThis.Archify?.layoutStability?.whenStable);
+        await frame.evaluate(() => globalThis.Archify.layoutStability.whenStable());
+        const shellFits = await readerPage.evaluate(() => {
+          const frame = globalThis.document
+            .querySelector('#interactive-frame')
+            .getBoundingClientRect();
+          return (
+            frame.right <= globalThis.innerWidth + 1 &&
+            frame.bottom <= globalThis.innerHeight + 1 &&
+            globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth &&
+            globalThis.document.documentElement.scrollHeight <= globalThis.innerHeight
+          );
+        });
+        assert.equal(shellFits, true, `${id}: complete desktop publication`);
         const fit = await frame.evaluate(async () => {
           await globalThis.document.fonts.ready;
           const stage = globalThis.document
             .querySelector('.diagram-container')
             .getBoundingClientRect();
           const svg = globalThis.document.querySelector('svg');
+          const aperture = globalThis.Archify.viewerChromeLayout.stageRect();
+          const chrome = globalThis.Archify.viewerChromeLayout.receipt();
+          const dock = globalThis.document.querySelector('.diagram-nav').getBoundingClientRect();
           const visible = (element) => {
             const style = globalThis.getComputedStyle(element);
             return style.visibility !== 'hidden' && style.opacity !== '0';
           };
+          const inside = (box) =>
+            box.left >= aperture.left - 1 &&
+            box.right <= aperture.right + 1 &&
+            box.top >= aperture.top - 1 &&
+            box.bottom <= aperture.bottom + 1;
           const text = [...svg.querySelectorAll('text')]
             .filter(visible)
             .map((element) => element.getBoundingClientRect());
-          const nodes = [...svg.querySelectorAll('[data-node-id]')].map((element) =>
-            element.getBoundingClientRect(),
+          const nodes = [...svg.querySelectorAll('g[data-inspect-id],g[data-node-id]')].map(
+            (element) => element.getBoundingClientRect(),
+          );
+          const shellContentFits = [
+            ...globalThis.document.querySelectorAll('body > *, .container > *'),
+          ]
+            .filter(visible)
+            .every((element) => {
+              const box = element.getBoundingClientRect();
+              return (
+                box.left >= -1 &&
+                box.right <= globalThis.innerWidth + 1 &&
+                box.top >= -1 &&
+                box.bottom <= globalThis.innerHeight + 1
+              );
+            });
+          const artworkClearOfControls = [...text, ...nodes].every(
+            (box) =>
+              Math.min(box.right, dock.right) <= Math.max(box.left, dock.left) ||
+              Math.min(box.bottom, dock.bottom) <= Math.max(box.top, dock.top),
           );
           return {
             textCount: text.length,
-            completeText: text.filter(
-              (box) =>
-                box.left >= stage.left - 1 &&
-                box.right <= stage.right + 1 &&
-                box.top >= stage.top - 1 &&
-                box.bottom <= stage.bottom + 1,
-            ).length,
+            completeText: text.filter(inside).length,
             nodeCount: nodes.length,
-            completeNodes: nodes.filter(
-              (box) =>
-                box.left >= stage.left - 1 &&
-                box.right <= stage.right + 1 &&
-                box.top >= stage.top - 1 &&
-                box.bottom <= stage.bottom + 1,
-            ).length,
+            completeNodes: nodes.filter(inside).length,
             bottomGapRatio:
-              (stage.bottom - Math.max(...nodes.map(({ bottom }) => bottom))) / stage.height,
+              (aperture.bottom - Math.max(...nodes.map(({ bottom }) => bottom))) / aperture.height,
+            canvasFitsViewport: stage.bottom <= globalThis.innerHeight + 1,
+            controlsFitViewport: dock.bottom <= globalThis.innerHeight + 1,
+            shellContentFits,
+            artworkClearOfControls,
+            controlsClearCanvas: dock.top >= aperture.bottom + chrome.gap - 1,
+            unreservedOverlap: chrome.stageIntersectionArea,
+            camera: globalThis.Archify.view.state(),
           };
+        });
+        assert.equal(fit.canvasFitsViewport, true, `${id}: complete desktop canvas`);
+        assert.equal(fit.controlsFitViewport, true, `${id}: complete desktop controls`);
+        assert.equal(fit.shellContentFits, true, `${id}: unclipped visible member content`);
+        assert.equal(fit.artworkClearOfControls, true, `${id}: independent artwork clearance`);
+        assert.equal(fit.controlsClearCanvas, true, `${id}: native control clearance`);
+        assert.equal(fit.unreservedOverlap, 0, `${id}: no control overlap`);
+        assert.deepEqual(fit.camera, {
+          scale: 1,
+          x: 0,
+          y: 0,
+          mode: 'overview',
         });
         assert(fit.textCount > 0, `${id}: visible text`);
         assert.equal(fit.completeText, fit.textCount, `${id}: text fit`);
+        assert(fit.nodeCount > 0, `${id}: visible checked carriers`);
         assert.equal(fit.completeNodes, fit.nodeCount, `${id}: complete fit`);
         if (id === 'overview')
           assert(fit.bottomGapRatio <= 0.14, `overview: bottom gap ${fit.bottomGapRatio}`);
@@ -1179,6 +1294,23 @@ test('the installed self Edition compiles both media after its author package is
         await auditPage.goto(`${origin}/views/${id}.html`, { waitUntil: 'load' });
         await auditPage.addScriptTag({ content: axe.source });
         assert.deepEqual(await violations(auditPage), [], id);
+        await auditPage.evaluate(() => globalThis.Archify.presentation.enter());
+        await auditPage.evaluate(() => globalThis.Archify.layoutStability.whenStable());
+        assert.equal(
+          await auditPage.evaluate(() => {
+            const note = globalThis.document.querySelector('.publication-query-limit');
+            if (!note) return true;
+            const box = note.getBoundingClientRect();
+            return (
+              note.parentElement === globalThis.document.querySelector('.container') &&
+              box.top >= 0 &&
+              box.bottom <= globalThis.innerHeight + 1
+            );
+          }),
+          true,
+          `${id}: native query limit remains visible in presentation`,
+        );
+        await auditPage.evaluate(() => globalThis.Archify.presentation.exit());
       }
       assert.deepEqual(errors, []);
     },

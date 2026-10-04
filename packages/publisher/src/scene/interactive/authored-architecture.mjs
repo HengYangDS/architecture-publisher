@@ -111,6 +111,66 @@ function structuralFacts(id, member, selected, graphicId) {
   };
 }
 
+function sourceExploration(scene, required, nodeEntities) {
+  const occurrences = new Map();
+  const nodes = scene.nodes
+    .filter((node) => !node.adornment)
+    .map((node) => {
+      const references = [...nodeEntities.get(node.id)];
+      for (const reference of references) {
+        const values = occurrences.get(reference) ?? [];
+        values.push(node.id);
+        occurrences.set(reference, values);
+      }
+      const members = references.map((reference) => required.get(reference));
+      return {
+        id: node.id,
+        label: members.map((member) => member.label).join(' · '),
+        kind: members.length === 1 ? members[0].kind : 'aggregate',
+      };
+    });
+  const limits = [];
+  if (
+    [...nodeEntities.values()].some((members) => members.size !== 1) ||
+    [...occurrences.values()].some((values) => values.length !== 1)
+  )
+    limits.push('nonbijective-source-membership');
+  const relations = [];
+  const represented = new Set();
+  for (const edge of scene.edges.filter((edge) => !edge.adornment))
+    for (const reference of edge.semanticIds) {
+      const member = required.get(reference);
+      if (represented.has(reference)) limits.push('nonunique-relation-carrier');
+      represented.add(reference);
+      if (edge.semanticIds.length !== 1) limits.push('nonbijective-relation-membership');
+      relations.push({
+        id: edge.id,
+        reference,
+        from: edge.from,
+        to: edge.to,
+        label: member.kind,
+        edgeId: edge.id,
+      });
+    }
+  for (const route of scene.routes ?? []) {
+    if (JSON.parse(route.reference)[1] !== 'relation') continue;
+    if (represented.has(route.reference)) limits.push('nonunique-relation-carrier');
+    represented.add(route.reference);
+    relations.push({
+      id: route.id,
+      reference: route.reference,
+      from: route.source,
+      to: route.target,
+      label: required.get(route.reference).kind,
+      routeId: route.id,
+    });
+  }
+  for (const reference of required.keys())
+    if (JSON.parse(reference)[1] === 'relation' && !represented.has(reference))
+      limits.push('undrawable-source-relation');
+  return { nodes, relations: limits.length ? [] : relations, limits: [...new Set(limits)] };
+}
+
 function composePage(meaning, view, page, assertions, selections) {
   const scene = validateInteractiveArchitectureScene(page.scene);
   assertPrimitiveContrast(scene.nodes, (name) => name, 'paper');
@@ -332,6 +392,22 @@ function composePage(meaning, view, page, assertions, selections) {
           { label: 'Status', value: 'editor-attributed-unverified' },
         ],
       });
+  const exploration = sourceExploration(scene, required, nodeEntities);
+  for (const relation of exploration.relations) {
+    if (!relation.routeId) continue;
+    if (Object.hasOwn(subjectNamespaces, relation.id))
+      fail('authored_interactive_exploration_conflict');
+    const [namespace] = reference(relation.reference);
+    subjectNamespaces[relation.id] = [namespace];
+    facts.push(
+      structuralFacts(
+        relation.reference,
+        required.get(relation.reference),
+        selectedForReference.get(relation.reference),
+        relation.id,
+      ),
+    );
+  }
   return {
     id: page.id,
     label: page.label,
@@ -340,6 +416,7 @@ function composePage(meaning, view, page, assertions, selections) {
     subjectNamespaces,
     carriers,
     facts,
+    exploration,
     hasClaims,
   };
 }

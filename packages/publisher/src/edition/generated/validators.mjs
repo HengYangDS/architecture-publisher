@@ -2257,15 +2257,43 @@ const ref0 = function validate(data) {
       return false
     }
   }
-  for (const key26 of Object.keys(data.presentation.interactive)) {
-    if (key26 !== "views" && key26 !== "intent") {
-      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/additionalProperties", instanceLocation: "#/presentation/interactive/"+pointerPart(key26) }]
+  if ("appearance" in data.presentation.interactive && hasOwn(data.presentation.interactive, "appearance")) {
+    if (!(typeof data.presentation.interactive.appearance === "object" && data.presentation.interactive.appearance && !Array.isArray(data.presentation.interactive.appearance))) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/appearance/type", instanceLocation: "#/presentation/interactive/appearance" }]
+      return false
+    }
+    if (!("style" in data.presentation.interactive.appearance && hasOwn(data.presentation.interactive.appearance, "style"))) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/appearance/required", instanceLocation: "#/presentation/interactive/appearance/style" }]
+      return false
+    }
+    if (!("theme" in data.presentation.interactive.appearance && hasOwn(data.presentation.interactive.appearance, "theme"))) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/appearance/required", instanceLocation: "#/presentation/interactive/appearance/theme" }]
+      return false
+    }
+    if (!(data.presentation.interactive.appearance.style === "editorial" || data.presentation.interactive.appearance.style === "blueprint" || data.presentation.interactive.appearance.style === "classic" || data.presentation.interactive.appearance.style === "signal-flow")) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/appearance/properties/style/enum", instanceLocation: "#/presentation/interactive/appearance/style" }]
+      return false
+    }
+    if (!(data.presentation.interactive.appearance.theme === "light" || data.presentation.interactive.appearance.theme === "dark")) {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/appearance/properties/theme/enum", instanceLocation: "#/presentation/interactive/appearance/theme" }]
+      return false
+    }
+    for (const key26 of Object.keys(data.presentation.interactive.appearance)) {
+      if (key26 !== "style" && key26 !== "theme") {
+        validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/properties/appearance/additionalProperties", instanceLocation: "#/presentation/interactive/appearance/"+pointerPart(key26) }]
+        return false
+      }
+    }
+  }
+  for (const key27 of Object.keys(data.presentation.interactive)) {
+    if (key27 !== "views" && key27 !== "intent" && key27 !== "appearance") {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/properties/interactive/additionalProperties", instanceLocation: "#/presentation/interactive/"+pointerPart(key27) }]
       return false
     }
   }
-  for (const key27 of Object.keys(data.presentation)) {
-    if (key27 !== "static" && key27 !== "interactive") {
-      validate.errors = [{ keywordLocation: "#/properties/presentation/additionalProperties", instanceLocation: "#/presentation/"+pointerPart(key27) }]
+  for (const key28 of Object.keys(data.presentation)) {
+    if (key28 !== "static" && key28 !== "interactive") {
+      validate.errors = [{ keywordLocation: "#/properties/presentation/additionalProperties", instanceLocation: "#/presentation/"+pointerPart(key28) }]
       return false
     }
   }
@@ -2421,9 +2449,9 @@ const ref0 = function validate(data) {
               validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/faces/items/properties/sha256/pattern", instanceLocation: "#/visualPolicy/fonts/"+ss+"faces/"+tt+"/sha256" }]
               return false
             }
-            for (const key28 of Object.keys(data.visualPolicy.fonts[ss].faces[tt])) {
-              if (key28 !== "weight" && key28 !== "ref" && key28 !== "sha256") {
-                validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/faces/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"faces/"+tt+"/"+pointerPart(key28) }]
+            for (const key29 of Object.keys(data.visualPolicy.fonts[ss].faces[tt])) {
+              if (key29 !== "weight" && key29 !== "ref" && key29 !== "sha256") {
+                validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/faces/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"faces/"+tt+"/"+pointerPart(key29) }]
                 return false
               }
             }
@@ -2479,32 +2507,32 @@ const ref0 = function validate(data) {
               validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/distribution/items/properties/sha256/pattern", instanceLocation: "#/visualPolicy/fonts/"+ss+"distribution/"+uu+"/sha256" }]
               return false
             }
-            for (const key29 of Object.keys(data.visualPolicy.fonts[ss].distribution[uu])) {
-              if (key29 !== "ref" && key29 !== "sha256") {
-                validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/distribution/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"distribution/"+uu+"/"+pointerPart(key29) }]
+            for (const key30 of Object.keys(data.visualPolicy.fonts[ss].distribution[uu])) {
+              if (key30 !== "ref" && key30 !== "sha256") {
+                validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/distribution/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"distribution/"+uu+"/"+pointerPart(key30) }]
                 return false
               }
             }
           }
         }
-        for (const key30 of Object.keys(data.visualPolicy.fonts[ss])) {
-          if (key30 !== "id" && key30 !== "family" && key30 !== "faces" && key30 !== "distribution") {
-            validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"/"+pointerPart(key30) }]
+        for (const key31 of Object.keys(data.visualPolicy.fonts[ss])) {
+          if (key31 !== "id" && key31 !== "family" && key31 !== "faces" && key31 !== "distribution") {
+            validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"/"+pointerPart(key31) }]
             return false
           }
         }
       }
     }
   }
-  for (const key31 of Object.keys(data.visualPolicy)) {
-    if (key31 !== "profile" && key31 !== "override" && key31 !== "fonts") {
-      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/additionalProperties", instanceLocation: "#/visualPolicy/"+pointerPart(key31) }]
+  for (const key32 of Object.keys(data.visualPolicy)) {
+    if (key32 !== "profile" && key32 !== "override" && key32 !== "fonts") {
+      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/additionalProperties", instanceLocation: "#/visualPolicy/"+pointerPart(key32) }]
       return false
     }
   }
-  for (const key32 of Object.keys(data)) {
-    if (key32 !== "schema" && key32 !== "id" && key32 !== "editor" && key32 !== "title" && key32 !== "audiences" && key32 !== "questions" && key32 !== "scope" && key32 !== "editorialAssertions" && key32 !== "omissions" && key32 !== "narrative" && key32 !== "presentation" && key32 !== "visualPolicy") {
-      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key32) }]
+  for (const key33 of Object.keys(data)) {
+    if (key33 !== "schema" && key33 !== "id" && key33 !== "editor" && key33 !== "title" && key33 !== "audiences" && key33 !== "questions" && key33 !== "scope" && key33 !== "editorialAssertions" && key33 !== "omissions" && key33 !== "narrative" && key33 !== "presentation" && key33 !== "visualPolicy") {
+      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key33) }]
       return false
     }
   }

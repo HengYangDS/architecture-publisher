@@ -26,15 +26,50 @@ The evaluation therefore asks five questions:
    distinct concepts?
 5. Is its total ownership cost lower than the narrower existing mechanism?
 
+### Native Archify leverage (2026-10-04)
+
+This audit follows the semantic path, not a file inventory:
+selected source members → checked graphic carriers → native reader operations
+→ predicate-specific evidence. Archify 3.0.1 is the selected rendering supply;
+its bundled source and input hashes remain separate from Publisher's adapted
+runtime identity. No upstream supplier file was edited in place.
+
+| Native mechanism      | Actual implementation boundary                                                                                                                                                                      | Publisher decision                                                                                                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Typed authoring       | Architecture, workflow, sequence, data-flow and lifecycle use separate checked grammars and renderers. Natural-language or Mermaid interpretation is authoring work, not repository fact discovery. | Retain the five native modes through the existing render entry; choose a mode by the reader question, not a universal box template.                                                        |
+| Placement and routing | Architecture grid assigns fixed cells; it does not rearrange nodes from topology. Native routing spreads ports, avoids obstacles, places labels and checks flow, crossings, clearance and rhythm.   | Preserve measured authored geometry and use native route checks. Do not attribute automatic layout or aesthetics to the grid.                                                              |
+| Stable reader layout  | Reader and viewer-chrome owners coordinate aperture, rails, camera baseline and font settlement through a shared stability contract.                                                                | Remove blanket toolbar hiding and the competing viewport-height layout. Exercise the native owner inside the desktop-only publication member.                                              |
+| Appearance            | Four native presets (`classic`, `signal-flow`, `blueprint`, `editorial`) and two themes synchronize HTML, SVG and controls.                                                                         | Keep native controls as the sole owner on native pages; reflect their paint tokens to the outer publication shell. Other forms keep one bounded shared palette.                            |
+| Semantic exploration  | Finder, Passport, Intent Trace, direct relationship inspection, Route, Reach and Lens consume stable semantic SVG attributes. They never infer directed routes from line proximity.                 | Bind checked source labels, kinds and logical relations before advertising queries. Shared physical segments remain drawing, not entities or extra hops.                                   |
+| Route reading         | Native Route supplies whole-route overview, manual steps and a bounded journey with pause/replay and motion ownership. Removal of the historical Story view did not remove these mechanisms.        | Do not add a redundant chapter grammar or player. Enable timed motion only for an explicit, useful reading request; retain complete still diagrams.                                        |
+| Communication assets  | Native exports clean transient camera, focus, query and overlay state. PNG/JPEG/WebP/SVG, query share cards and trace-enabled WebM have distinct preconditions.                                     | Reuse native exports and refuse stale or unsupported query snapshots. These assets do not acquire Publisher acceptance or publication authority.                                           |
+| Delivery assurance    | Native `deliver` provides deterministic checked rendering; finalization additionally binds strict artifact/provenance and real-browser gates.                                                       | The adapter uses native rendering and retains its receipt. Publisher's existing qualification owns the composed multi-page work; passing one native stage is not composed-work acceptance. |
+
+The graph adapter keeps one logical carrier per checked relationship even when
+several relationships share a painted segment. Exact queries are unavailable
+when aggregation or repeated source occurrences cannot preserve query endpoints;
+the work discloses that limit and retains precise Inspect. This prevents a
+drawable path from becoming an invented source path.
+
+Focused source-membership, shared-route, native-control and real-browser
+counterexamples live in the existing test owners. Desktop browser evidence,
+full coverage, installed use, source acceptance and release remain separate
+gates. No mobile work, resident preview service, second graph store, source
+checkout modification or historical-button compatibility is admitted.
+
 ## Source baseline
 
 General SDD and source-governance research belongs to ETHOS. Its source owner
-absorbed the reviewed COMET, OpenSpec, SpecD, Spec Kit, BMAD, GSD and adjacent
-mechanisms into existing topics in signed commit `e108fb1408cd122e25d37895fccd6cfc4abf129a`.
+recorded reviewed COMET, OpenSpec, SpecD, Spec Kit, BMAD, GSD and adjacent
+mechanisms in five topics at signed commit `e108fb1408cd122e25d37895fccd6cfc4abf129a`.
 The [intake receipt](../../conformance/evidence/research-owner-intake.json)
-binds source revisions, original packets, current topic hashes and limits.
-Those immutable packets remain dated evidence, not another editable knowledge
-authority or proof of upstream workloads.
+binds the dated source revisions, packet identities, topic hashes and limits.
+Readback on 2026-10-04 verified those Git blobs remain intact, but the current
+source-owner branch does not contain the comparison sections. Its existing
+research task must reconcile that scope before current settlement is claimed.
+The receipt is historical evidence; its former worktree paths are not current
+application inputs. Neither the checkpoint nor this receipt establishes
+upstream workloads, current implementation or another editable knowledge authority.
 
 Read the canonical topic by question:
 

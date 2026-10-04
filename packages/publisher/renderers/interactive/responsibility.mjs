@@ -77,14 +77,14 @@ export function responsibilityPageHtml(page, index, methodLimits) {
 }
 
 export const responsibilityCss = `
-.form-page-heading{display:flex;align-items:baseline;gap:18px;margin:15px 0 20px}.form-page-heading h2{font-size:29px;line-height:1.2;margin:0}.form-page-heading>p:last-child{font-size:15px;line-height:1.5;color:#526158;margin:0;max-width:78ch}
-.responsibility-work{border-top:1px solid #8e9f91}
+.form-page-heading{display:flex;align-items:baseline;gap:18px;margin:15px 0 20px}.form-page-heading h2{font-size:29px;line-height:1.2;margin:0}.form-page-heading>p:last-child{font-size:15px;line-height:1.5;color:var(--reader-muted);margin:0;max-width:78ch}
+.responsibility-work{border-top:1px solid var(--reader-line)}
 ${responsibilityMapCss}
-.form-scope{padding:12px 0;border-bottom:1px solid #c9d2c7}.form-scope p{font-size:11px;line-height:1.5;color:#526158;margin:0}
-.form-inspect{padding:13px 0}.form-inspect summary{font-size:11px;color:#314638;cursor:pointer}
-.form-inspect article{padding:13px 0;border-bottom:1px solid #e0e5dc}.form-inspect article>p{font-size:11px;line-height:1.5;color:#526158}
-.form-inspect h3{font-size:11px;color:#526158;margin:0 0 8px}.form-inspect dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px 17px;margin:0}
-.form-inspect dt{font-size:10px;color:#526158}.form-inspect dd{font-size:12px;line-height:1.4;margin:2px 0 0;overflow-wrap:anywhere}
-.form-inspect ul{padding-left:18px;font-size:11px;line-height:1.6}.form-inspect small{display:block;color:#526158}
+.form-scope{padding:12px 0;border-bottom:1px solid var(--reader-rule)}.form-scope p{font-size:11px;line-height:1.5;color:var(--reader-muted);margin:0}
+.form-inspect{padding:13px 0}.form-inspect summary{font-size:11px;color:var(--reader-muted);cursor:pointer}
+.form-inspect article{padding:13px 0;border-bottom:1px solid var(--reader-rule)}.form-inspect article>p{font-size:11px;line-height:1.5;color:var(--reader-muted)}
+.form-inspect h3{font-size:11px;color:var(--reader-muted);margin:0 0 8px}.form-inspect dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px 17px;margin:0}
+.form-inspect dt{font-size:10px;color:var(--reader-muted)}.form-inspect dd{font-size:12px;line-height:1.4;margin:2px 0 0;overflow-wrap:anywhere}
+.form-inspect ul{padding-left:18px;font-size:11px;line-height:1.6}.form-inspect small{display:block;color:var(--reader-muted)}
 .form-inspect code{font:inherit;overflow-wrap:anywhere}
 `;

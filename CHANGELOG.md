@@ -8,6 +8,32 @@ may contain incompatible changes.
 
 ## Unreleased
 
+## [0.3.0-alpha.15] - 2026-10-04
+
+### Added
+
+- Bounded independent interactive appearance with native style and light/dark
+  choices, preserving selected source meaning, typography and authored geometry.
+- Native exploration over checked logical relations and scene occurrences, with
+  neutral Inspect identity retained where grouping or repetition limits queries.
+
+### Fixed
+
+- Query sharing remains selected when the reader opens Export. Copied native
+  reading links address the standalone publication and its exact page.
+- Back, Forward, reload and rapid page changes restore the native addressed
+  selection without hidden iframe history entries or automatic playback.
+- Every physical relationship carrier remains inspectable even when a shared
+  logical route has already supplied its label.
+- Static view classification follows its own selected assertions, not unrelated
+  sibling selections. Pure claim text uses bounded content-dependent flow.
+- Static line breaks preserve source whitespace; fragment bounds exclude notes
+  that are independently composed and checked by the complete figure.
+- Native relationship captions use readable text paint across offered styles
+  without changing source geometry or the native reader's control ownership.
+- Clipboard actions respect the document's effective permissions policy; opaque
+  readers use native text-copy fallback without invoking a forbidden API.
+
 ## [0.3.0-alpha.14] - 2026-10-03
 
 ### Changed
@@ -590,6 +616,7 @@ may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.3.0-alpha.15]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.15
 [0.3.0-alpha.14]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.14
 [0.3.0-alpha.13]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.13
 [0.3.0-alpha.12]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.12

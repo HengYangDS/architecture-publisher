@@ -3,7 +3,7 @@ import { canonical, deepFreeze } from '../../semantics/document.mjs';
 import { fail } from '../../protocol/values.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { claimRelationLabel, linkClaimModelSources } from '../claim-relations.mjs';
-import { selectedStaticNativeViews } from './selection.mjs';
+import { selectedStaticNativeViews, selectedStaticSourceSelections } from './selection.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
@@ -144,7 +144,11 @@ export function composeStaticEditionScene(meaning, layout) {
   if (claimModelMode) {
     if (meaning.native.selections.some(({ format }) => format !== 'architecture.claim-model/v2'))
       fail('edition_scene_claim_model_unadmitted');
-    if (meaning.native.selections.every(({ target }) => target.kind === 'claim')) {
+    if (
+      selectedStaticSourceSelections(meaning, meaning.media.static.views[0]).every(
+        ({ target }) => target.kind === 'claim',
+      )
+    ) {
       if (authoredGroups !== undefined) fail('static_scene_group_unadmitted');
       return composeClaimScene(meaning, layout);
     }

@@ -432,7 +432,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
       `<marker id="static-view-${index}-source-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse"><path d="M 0 0 L 10 4 L 0 8 Z" fill="#60786a"/></marker>`,
   );
   const svg = [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="static-figure-title static-figure-description" font-family="JetBrains Mono" font-weight="400" font-style="normal">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="static-figure-title static-figure-description" font-family="JetBrains Mono" font-weight="400" font-style="normal" xml:space="preserve">`,
     `<title id="static-figure-title">${escape(title)}</title>`,
     `<desc id="static-figure-description">${escape(summary)} ${escape(framing)}</desc>`,
     `<rect width="${width}" height="${height}" fill="#f5f3ed"/>`,

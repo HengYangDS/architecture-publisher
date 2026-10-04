@@ -157,10 +157,12 @@ advertised as fully implemented behavior.
    dependency pin. Do not silently use the historical alpha.4 baseline, build
    against an adjacent source checkout, or treat a Publisher release as ETHOS
    acceptance.
-3. Select ETHOS's source claimant, Edition editor, accepter and custodian in
-   the versioned Build Request. Use one exact executable Provider entry point
-   only where native facts require adaptation; preserve derived-from links and
-   unsupported/unknown meaning. Historical v1 bytes remain immutable.
+3. Select the source claimant in the Build Request and the Edition editor in
+   the selected Edition Project. Bind the accepter, authorization owner and
+   custodian through the exact publication policy, plan and receipts, not the
+   build input. Use an exact executable Provider only when native facts require
+   adaptation; preserve derived-from links and unsupported or unknown meaning.
+   Historical v1 bytes remain immutable.
 4. Compare the successor's structural and flagship outputs with the incumbent
    at their actual promises. Require visible semantic coverage, independent
    static and interactive composition, exact consumed authoring, 6000-pixel

@@ -142,7 +142,7 @@ function handoffHtml(page, centers, pageIndex) {
     const end = centers[to];
     const direction = end > start ? 1 : -1;
     const markerId = `handoff-arrow-${pageIndex}-${from}-${to}`;
-    return `<div class="form-map-handoff" data-form-handoff="${escape(fromGroup)}:${escape(toGroup)}"><svg viewBox="0 0 ${width} 44" aria-hidden="true"><defs><marker id="${markerId}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#a46f4c" stroke-width="1.4"/></marker></defs><path data-handoff-source-stem d="M${start} 0 V22" fill="none" stroke="#a46f4c" stroke-width="1.5"/><path data-handoff-target-stem d="M${end} 0 V22" fill="none" stroke="#a46f4c" stroke-width="1.5"/><path data-handoff-route d="M${start} 22 L${end - direction * 8} 22" fill="none" stroke="#a46f4c" stroke-width="2.2" marker-end="url(#${markerId})"/></svg><p><strong>Editorial handoff</strong> · ${escape(basis.statement)}</p></div>`;
+    return `<div class="form-map-handoff" data-form-handoff="${escape(fromGroup)}:${escape(toGroup)}"><svg viewBox="0 0 ${width} 44" aria-hidden="true"><defs><marker id="${markerId}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="var(--reader-warm)" stroke-width="1.4"/></marker></defs><path data-handoff-source-stem d="M${start} 0 V22" fill="none" stroke="var(--reader-warm)" stroke-width="1.5"/><path data-handoff-target-stem d="M${end} 0 V22" fill="none" stroke="var(--reader-warm)" stroke-width="1.5"/><path data-handoff-route d="M${start} 22 L${end - direction * 8} 22" fill="none" stroke="var(--reader-warm)" stroke-width="2.2" marker-end="url(#${markerId})"/></svg><p><strong>Editorial handoff</strong> · ${escape(basis.statement)}</p></div>`;
   });
   return `<div class="form-map-handoffs">${rows.join('')}</div>`;
 }
@@ -154,7 +154,7 @@ function graphHtml(page, layout, nodes, roleByNode, pageIndex) {
   const descriptionId = `form-map-description-${pageIndex}`;
   const sourceMarkerId = `form-source-arrow-${pageIndex}`;
   output.push(
-    `<svg class="form-map-graph" viewBox="0 0 ${width} ${graphHeight}" role="img" aria-labelledby="${titleId}" aria-describedby="${descriptionId}"><title id="${titleId}">Selected source relationships</title><desc id="${descriptionId}">${escape(page.questions[0].text)}; relation direction and editorial handoff are separate.</desc><defs><marker id="${sourceMarkerId}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M0 0L8 4L0 8" fill="none" stroke="#527461" stroke-width="1.4"/></marker></defs>`,
+    `<svg class="form-map-graph" viewBox="0 0 ${width} ${graphHeight}" role="img" aria-labelledby="${titleId}" aria-describedby="${descriptionId}"><title id="${titleId}">Selected source relationships</title><desc id="${descriptionId}">${escape(page.questions[0].text)}; relation direction and editorial handoff are separate.</desc><defs><marker id="${sourceMarkerId}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M0 0L8 4L0 8" fill="none" stroke="var(--reader-accent)" stroke-width="1.4"/></marker></defs>`,
   );
   for (const relation of page.relations) {
     const first = positions.get(relation.source);
@@ -182,19 +182,19 @@ function graphHtml(page, layout, nodes, roleByNode, pageIndex) {
     const anchor = internal ? (last.x < first.x ? 'end' : 'start') : 'middle';
     const labelY = internal ? middleY + 4 : middleY - 12;
     output.push(
-      `<g data-graphic-id="${escape(relation.id)}" data-source="${escape(relation.source)}" data-target="${escape(relation.target)}"><path d="M${start[0]} ${start[1]} L${end[0]} ${end[1]}" fill="none" stroke="#527461" stroke-width="2" marker-end="url(#${sourceMarkerId})"${relation.direction === 'bidirectional' ? ` marker-start="url(#${sourceMarkerId})"` : ''}/>${label ? textRows(label, labelX, labelY, available, 12, 1, `text-anchor="${anchor}" fill="#476854" font-weight="600"`) : ''}</g>`,
+      `<g data-graphic-id="${escape(relation.id)}" data-source="${escape(relation.source)}" data-target="${escape(relation.target)}"><path d="M${start[0]} ${start[1]} L${end[0]} ${end[1]}" fill="none" stroke="var(--reader-accent)" stroke-width="2" marker-end="url(#${sourceMarkerId})"${relation.direction === 'bidirectional' ? ` marker-start="url(#${sourceMarkerId})"` : ''}/>${label ? textRows(label, labelX, labelY, available, 12, 1, `text-anchor="${anchor}" fill="var(--reader-ink)" font-weight="600"`) : ''}</g>`,
     );
   }
   for (const node of page.nodes) {
     const position = positions.get(node.id);
     const labels = lines(node.label, nodeWidth - 18, 12, 2);
     output.push(
-      `<g data-graphic-id="${escape(node.id)}"><rect x="${position.x - nodeWidth / 2}" y="${position.y}" width="${nodeWidth}" height="${nodeHeight}" rx="7" fill="#fffefa" stroke="#6b8a72" stroke-width="1.5"/>`,
+      `<g data-graphic-id="${escape(node.id)}"><rect x="${position.x - nodeWidth / 2}" y="${position.y}" width="${nodeWidth}" height="${nodeHeight}" rx="7" fill="var(--reader-panel)" stroke="var(--reader-line)" stroke-width="1.5"/>`,
     );
     labels.forEach((label, index) => {
       const y = position.y + (labels.length === 1 ? 32 : 23 + index * 17);
       output.push(
-        `<text x="${position.x}" y="${y}" text-anchor="middle" font-size="12" font-weight="600" fill="#24362e">${escape(label)}</text>`,
+        `<text x="${position.x}" y="${y}" text-anchor="middle" font-size="12" font-weight="600" fill="var(--reader-ink)">${escape(label)}</text>`,
       );
     });
     output.push('</g>');
@@ -262,20 +262,20 @@ export function responsibilityMapHtml(page, pageIndex) {
 }
 
 export const responsibilityMapCss = `
-.form-map{margin:0;border-top:2px solid #314638;border-bottom:1px solid #9cab9e;background:#faf9f5}
+.form-map{margin:0;border-top:2px solid var(--reader-ink);border-bottom:1px solid var(--reader-line);background:var(--reader-panel)}
 .form-map-roles{display:grid;grid-template-columns:repeat(var(--form-count),minmax(0,1fr))}
-.form-map-role{min-width:0;min-height:126px;padding:13px 14px 12px;border-right:1px solid #d1d9ce}
+.form-map-role{min-width:0;min-height:126px;padding:13px 14px 12px;border-right:1px solid var(--reader-rule)}
 .form-map-role:last-child{border-right:0}.form-map-role h3{font-size:17px;line-height:1.3;margin:0 0 11px}
 .form-map-role p{font-size:12px;line-height:1.5;margin:0 0 5px;overflow-wrap:anywhere}
-.form-map-role small{display:block;font-size:10px;line-height:1.4;color:#526158;overflow-wrap:anywhere}
-.form-map-handoffs{padding:0 0 2px;border-bottom:1px solid #d1d9ce}
+.form-map-role small{display:block;font-size:10px;line-height:1.4;color:var(--reader-muted);overflow-wrap:anywhere}
+.form-map-handoffs{padding:0 0 2px;border-bottom:1px solid var(--reader-rule)}
 .form-map-handoff svg{display:block;width:100%;height:auto}
 .form-map-handoff p{font-size:12px;line-height:1.45;text-align:center;margin:0 24px 8px;overflow-wrap:anywhere}
-.form-map-handoff strong{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#8d5c3b}
+.form-map-handoff strong{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--reader-warm)}
 .form-map-graph{display:block;width:100%;height:auto;min-width:0}
-.form-map-evidence{border-top:1px solid #d1d9ce;padding:10px 14px 12px}
-.form-map-evidence>p{font-size:11px;line-height:1.45;color:#526158;margin:0 0 8px;overflow-wrap:anywhere}
+.form-map-evidence{border-top:1px solid var(--reader-rule);padding:10px 14px 12px}
+.form-map-evidence>p{font-size:11px;line-height:1.45;color:var(--reader-muted);margin:0 0 8px;overflow-wrap:anywhere}
 .form-map-claim{display:grid;grid-template-columns:170px minmax(0,1fr);gap:12px;align-items:start;padding-top:6px}
-.form-map-claim>strong{font-size:11px;color:#8d5c3b}.form-map-claim dl{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0}
-.form-map-claim dt{font-size:10px;color:#526158}.form-map-claim dd{font-size:11px;line-height:1.4;margin:3px 0 0;overflow-wrap:anywhere}
+.form-map-claim>strong{font-size:11px;color:var(--reader-warm)}.form-map-claim dl{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0}
+.form-map-claim dt{font-size:10px;color:var(--reader-muted)}.form-map-claim dd{font-size:11px;line-height:1.4;margin:3px 0 0;overflow-wrap:anywhere}
 `;

@@ -1,4 +1,5 @@
 import { deepFreeze } from '../semantics/document.mjs';
+import { INTERACTIVE_APPEARANCE_SCHEMA } from './appearance.mjs';
 
 const closed = (required, properties) => ({
   type: 'object',
@@ -261,6 +262,7 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
         interactive: closed(['views'], {
           views: { type: 'array', minItems: 1, maxItems: 256, items: view },
           intent: text,
+          appearance: INTERACTIVE_APPEARANCE_SCHEMA,
         }),
       }),
       visualPolicy: closed(['profile'], {

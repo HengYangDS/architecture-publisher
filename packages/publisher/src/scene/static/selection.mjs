@@ -7,6 +7,20 @@ const relationAddress = ({ id, origin }) => JSON.stringify([origin.namespace, id
 const authoredRelationAddress = ({ namespace, reference }) =>
   JSON.stringify([namespace, reference]);
 
+/** Resolve source selections from this view's exact assertion set. */
+export function selectedStaticSourceSelections(meaning, view) {
+  const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
+  const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
+  return view.assertionIds.flatMap((id) => {
+    const assertion = assertions.get(id);
+    if (!assertion) fail('static_scene_assertion_unbound');
+    if (assertion.kind === 'editorial') return [];
+    const selected = selections.get(assertion.selection);
+    if (!selected) fail('static_scene_assertion_unbound');
+    return [selected];
+  });
+}
+
 /** Resolve a sole context view or one static assertion among attributed sibling views. */
 export function selectedStaticNativeViews(meaning, view) {
   const nativeViews = meaning.native.selections.filter(({ target }) => target.kind === 'view');

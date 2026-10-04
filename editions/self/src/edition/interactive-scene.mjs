@@ -113,7 +113,7 @@ const DETAILS = Object.freeze({
   rebuild: 'candidate and medium rebuild',
   verification: 'semantic and medium re-verification',
   review: 'human review and acceptance renewal',
-  effect: 'publish · replace · withdraw',
+  effect: 'planned · not executed',
   'renewed-values': 'scenes · proof · approval · release',
 });
 
@@ -221,7 +221,7 @@ const OVERVIEW_RELATIONS = Object.freeze([
     'evolution-media',
     'evolution',
     'media',
-    'rebuilds media',
+    'requires rebuild',
     ['rebuild-renews-static', 'rebuild-renews-interactive'],
     {
       fromSide: 'right',
@@ -235,7 +235,7 @@ const OVERVIEW_RELATIONS = Object.freeze([
     'evolution-meaning',
     'evolution',
     'meaning',
-    'revalidates claims',
+    'requires recheck',
     ['semantic-verification-renews-claims'],
     {
       fromSide: 'left',
@@ -249,14 +249,14 @@ const OVERVIEW_RELATIONS = Object.freeze([
     'evolution-delivery',
     'evolution',
     'delivery',
-    'renews publication',
+    'requires publication',
     ['publication-obligation-renews-publication'],
   ],
   [
     'evolution-renews',
     'evolution',
     'assurance',
-    'invalidates · renews',
+    'requires renewal',
     [
       'medium-verification-renews-qualification',
       'human-review-obligation-renews-review',
@@ -517,7 +517,7 @@ const EVOLUTION_RELATIONS = Object.freeze([
     'impact-effect',
     'impact',
     'effect',
-    'renew effect',
+    'requires publication',
     ['affected-views-require-publication'],
     {
       fromSide: 'bottom',
@@ -531,7 +531,7 @@ const EVOLUTION_RELATIONS = Object.freeze([
     'rebuild-renewed',
     'rebuild',
     'renewed-values',
-    'rebuilds',
+    'requires rebuild',
     ['rebuild-renews-static', 'rebuild-renews-interactive'],
     {
       fromSide: 'bottom',
@@ -545,7 +545,7 @@ const EVOLUTION_RELATIONS = Object.freeze([
     'verification-renewed',
     'verification',
     'renewed-values',
-    'revalidates',
+    'requires recheck',
     ['medium-verification-renews-qualification'],
     {
       fromSide: 'bottom',
@@ -559,7 +559,7 @@ const EVOLUTION_RELATIONS = Object.freeze([
     'verification-inputs',
     'verification',
     'inputs',
-    'revalidates claims',
+    'requires recheck',
     ['semantic-verification-renews-claims'],
     {
       fromSide: 'left',
@@ -573,7 +573,7 @@ const EVOLUTION_RELATIONS = Object.freeze([
     'review-renewed',
     'review',
     'renewed-values',
-    'renews judgment',
+    'requires renewal',
     ['human-review-obligation-renews-review', 'acceptance-obligation-renews-acceptance'],
     {
       fromSide: 'bottom',
@@ -587,7 +587,7 @@ const EVOLUTION_RELATIONS = Object.freeze([
     'effect-renewed',
     'effect',
     'renewed-values',
-    'publishes',
+    'requires publication',
     ['publication-obligation-renews-publication'],
     {
       fromSide: 'bottom',

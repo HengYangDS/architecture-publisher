@@ -1139,7 +1139,10 @@ test('one public build measures embeds and rasterizes exact authored 500 and 700
     painted,
   )?.[0];
   assert(mark, 'Nonsemantic text still paints in the independent interactive medium');
-  assert.doesNotMatch(mark, /data-text-id|data-text-label|role=|tabindex=|aria-label=/u);
+  assert.doesNotMatch(
+    mark,
+    /data-inspect-id|data-inspect-label|data-text-id|data-text-label|role=|tabindex=|aria-label=/u,
+  );
   assert.equal(Object.hasOwn(interactive.subjectSources, 'graphic-mark'), false);
   assert.match(painted, /<text[^>]*data-text-id="client-label"[^>]*role="button"/u);
   for (const weight of [500, 700]) {

@@ -317,7 +317,20 @@ test(
       .locator('#graph-0 .graph-svg')
       .evaluate((element) => element.outerHTML);
     const faces = candidate.bytes.toString('utf8').match(/<style>([\s\S]*?)<\/style>/u)[1];
-    await layers.setContent('<!doctype html><style>' + faces + '</style>' + graphic);
+    const appearance = await page
+      .locator('html')
+      .evaluate((element) => ({ style: element.dataset.style, theme: element.dataset.theme }));
+    await layers.setContent(
+      '<!doctype html><html data-style="' +
+        appearance.style +
+        '" data-theme="' +
+        appearance.theme +
+        '"><style>' +
+        faces +
+        '</style>' +
+        graphic +
+        '</html>',
+    );
     await layers.evaluate(() => globalThis.document.fonts.ready);
     const geometry = await page.evaluate(
       () => JSON.parse(globalThis.document.getElementById('edition-data').textContent)[0].geometry,

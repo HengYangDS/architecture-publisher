@@ -6,6 +6,7 @@ import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mj
 import { validateSvg } from '../packages/publisher/renderers/resvg/public.mjs';
 import { rasterizeBundle as rasterize } from '../packages/publisher/src/rendering/raster.mjs';
 import * as svg from '../packages/publisher/renderers/svg/index.mjs';
+import { wrapStaticText } from '../packages/publisher/renderers/svg/edition.mjs';
 import { staticEditionScene } from './fixtures/static-edition-scene.mjs';
 import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
 
@@ -154,6 +155,23 @@ test('a nontext source relation label fails rather than becoming a caption', () 
   input.edges[0].relations[0].label = 42;
   assert.throws(() => svg.composeStaticEditionSvg(input), {
     code: 'static_edition_relation_label_invalid',
+  });
+});
+
+test('a static fragment is bounded by emitted content, not its unpainted page notes', () => {
+  const input = staticEditionScene();
+  input.limitsByQuestion.shape = Array.from({ length: 600 }, () => ({
+    kind: 'scope',
+    reason: 'Runtime was not observed.',
+  }));
+  const fragment = svg.composeStaticEditionSvg(input, { fragment: true });
+  assert.match(fragment.parts.graph, /Alpha &amp; one/u);
+  assert.deepEqual(
+    fragment.carriers.nodes.map(({ source }) => source.id),
+    ['a', 'b'],
+  );
+  assert.throws(() => svg.composeStaticEditionSvg(input), {
+    code: 'static_edition_geometry_invalid',
   });
 });
 
@@ -441,7 +459,9 @@ test('long text wraps without truncating source language or hiding editorial sco
   assert.match(result, /Editorial judgment remains attributed/u);
   assert.match(result, /view-membership-/u);
   assert.match(result, /upstream-computed-/u);
-  assert.match(result, /<text[^>]*>Y<\/text>/u);
+  const titleLines = [...result.matchAll(/<text[^>]*font-size="34"[^>]*>(.*?)<\/text>/gu)];
+  assert.equal(titleLines.map(([, line]) => line).join(''), input.title);
+  assert.equal(titleLines.at(-1)[1].trim(), 'Y');
 });
 
 test('two label lines cannot collide with a kind label inside a short node', () => {
@@ -451,6 +471,19 @@ test('two label lines cannot collide with a kind label inside a short node', () 
   assert.throws(() => svg.composeStaticEditionSvg(input), {
     code: 'static_edition_node_unrepresentable',
   });
+});
+
+test('static wrapping preserves exact source whitespace across every line break', () => {
+  const source = '"alpha  beta   gamma - delta"';
+  const lines = wrapStaticText(source, 90, 14);
+  assert(lines.length > 1);
+  assert.equal(lines.join(''), source);
+  assert.equal(wrapStaticText(source, 1000, 14).join(''), source);
+  const input = linkedMixedScene();
+  input.claimCards[0].facts = [{ label: 'Value', value: source }];
+  const result = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  assert(result.includes('&quot;alpha  beta   gamma - delta&quot;'));
+  assert.match(result, /xml:space="preserve"/u);
 });
 
 test('unspaced reader limits wrap without changing characters or inventing relation qualifiers', () => {

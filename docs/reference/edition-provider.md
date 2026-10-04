@@ -73,7 +73,7 @@ second live source authority.
 | -------------------- | -------------------------------------------------------------- |
 | `subject`            | Product whose architecture is described                        |
 | `producer`           | Exact Architecture Publisher package that emitted the output   |
-| `authorizationOwner` | Source-product authority allowed to approve the effect         |
+| `authorizationOwner` | Target policy authority allowed to approve the exact effect    |
 | `custodian`          | Selected release, package, filesystem, or artifact destination |
 
 These identities are intentionally separate. A successful Provider run records

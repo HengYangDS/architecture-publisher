@@ -2,6 +2,7 @@ import { canonical, deepFreeze, record, text } from '../../semantics/document.mj
 import { fail, hasExactFields, isDigest } from '../../protocol/values.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { claimRelationQualifiers, linkClaimModelSources } from '../claim-relations.mjs';
+import { interactiveAppearance } from '../appearance.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ id, origin }) => JSON.stringify([origin.namespace, id, origin.sha256]);
@@ -259,6 +260,7 @@ export function composeInteractiveEditionScene(meaning) {
     edition: meaning.edition,
     title: meaning.editorial.title,
     summary: meaning.editorial.narrative.summary,
+    appearance: interactiveAppearance(meaning.editorial.presentation?.interactive?.appearance),
     visualPolicy:
       meaning.refinement?.media?.interactive?.kind === 'neutral'
         ? { profile: 'neutral' }

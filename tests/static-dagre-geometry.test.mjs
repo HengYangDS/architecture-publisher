@@ -401,3 +401,75 @@ test('the selected Dagre adapter refuses invalid flat nodes and relations', asyn
   ])
     await assert.rejects(layoutStaticGraph(item), { code: 'render_static_layout_invalid' });
 });
+
+test('diagonal relation captions clear their own and adjacent strokes', async () => {
+  const input = {
+    nodes: [
+      {
+        id: 'admitted_runner',
+        label: 'Admitted runner',
+      },
+      {
+        id: 'effect_recheck',
+        label: 'Fresh effect-time recheck',
+      },
+      {
+        id: 'effect_pass',
+        label: 'PASS',
+      },
+      {
+        id: 'candidate_next',
+        label: 'Integrated candidate',
+      },
+      {
+        id: 'greenfield_effect_recheck',
+        label: 'Fresh founding recheck',
+      },
+      {
+        id: 'publication_effect_recheck',
+        label: 'Fresh publication recheck',
+      },
+    ],
+    groups: [],
+    relations: [
+      {
+        id: 'candidate-next-to-recheck',
+        from: 'candidate_next',
+        to: 'effect_recheck',
+        text: 'binds',
+      },
+      {
+        id: 'effect-pass-to-recheck',
+        from: 'effect_pass',
+        to: 'effect_recheck',
+        text: 'admits',
+      },
+      {
+        id: 'greenfield-pass-to-recheck',
+        from: 'effect_pass',
+        to: 'greenfield_effect_recheck',
+        text: 'admits',
+      },
+      {
+        id: 'publication-pass-to-recheck',
+        from: 'effect_pass',
+        to: 'publication_effect_recheck',
+        text: 'admits',
+      },
+      {
+        id: 'recheck-admits-runner',
+        from: 'effect_recheck',
+        to: 'admitted_runner',
+        text: 'admits',
+      },
+    ],
+  };
+  const result = await composeDagreStaticGeometry(input);
+  assert.equal(result.layout.nodes.size, input.nodes.length);
+  assert.deepEqual(
+    result.routes.map(({ id, from, to, text }) => ({ id, from, to, text })),
+    input.relations,
+  );
+  assert(result.routes.every(({ label, labelBox }) => label && labelBox));
+  assert.deepEqual(await composeDagreStaticGeometry(input), result);
+});

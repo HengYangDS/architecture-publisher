@@ -49,7 +49,10 @@ for (const medium of ['static', 'interactive']) {
     scene.edges = Array.from({ length: 17 }, (_, index) => ({
       ...structuredClone(bridge),
       id: `dense-${index}`,
-      points: Array.from({ length: 2048 }, (_, point) => ({ x: point % 2 ? 432 : 400, y: 200 })),
+      points: Array.from({ length: 2048 }, (_, point) => ({
+        x: point % 2 ? 432 : 400,
+        y: 200,
+      })),
     }));
     assert.throws(() => validateAuthoredRouteGeometry(scene, medium), {
       code: 'authored_route_budget_exceeded',
@@ -90,7 +93,7 @@ for (const medium of ['static', 'interactive']) {
         occurrences.get(ref('relation', id)),
         medium === 'static'
           ? ['edge:approach', 'edge:bridge', 'edge:terminal']
-          : ['approach', 'bridge', 'terminal'],
+          : ['approach', 'bridge', 'terminal', `route-${id}`],
       );
     assert.equal(JSON.stringify(result).includes('fixture/routes","entity","junction'), false);
   });
@@ -167,7 +170,9 @@ for (const medium of ['static', 'interactive']) {
       if (defect === 'duplicate-route') scene.routes[1].id = scene.routes[0].id;
       if (defect === 'missing-segment') scene.routes[0].traversals[0].edge = 'absent';
       if (defect === 'repeated-segment')
-        scene.routes[0].traversals.splice(1, 0, { ...scene.routes[0].traversals[0] });
+        scene.routes[0].traversals.splice(1, 0, {
+          ...scene.routes[0].traversals[0],
+        });
       if (defect === 'mixed-fields') scene.edges[0].route = 'auto';
       if (defect === 'invented-relation')
         scene.routes[0].reference = ref('relation', 'client-to-transitive-target');
@@ -371,7 +376,11 @@ for (const medium of ['static', 'interactive']) {
     reverse.members.relations[0].from.id = 'server';
     reverse.members.relations[0].to.id = 'client';
     meaning.native.selections.push(reverse);
-    meaning.assertions.push({ id: 'response', kind: 'source', selection: 'response' });
+    meaning.assertions.push({
+      id: 'response',
+      kind: 'source',
+      selection: 'response',
+    });
     meaning.media[medium].views[0].assertionIds.push('response');
     const scene = sceneFor(meaning, medium);
     scene.requiredSemanticIds.push(ref('relation', 'response'));
@@ -420,7 +429,19 @@ for (const medium of ['static', 'interactive']) {
         : result.pages[0].facts
             .filter(({ reference }) => reference === ref('relation', 'response'))
             .map(({ graphicId }) => graphicId);
-    assert.equal(records.length, 3);
+    assert.deepEqual(
+      records,
+      medium === 'static'
+        ? ['edge:response-approach', 'edge:bridge', 'edge:response-terminal']
+        : ['response-approach', 'bridge', 'response-terminal', 'response-route'],
+    );
+    if (medium === 'interactive') {
+      const relation = result.pages[0].exploration.relations.find(
+        (relation) => relation.reference === ref('relation', 'response'),
+      );
+      assert.equal(relation.from, 'server');
+      assert.equal(relation.to, 'client');
+    }
     assert.equal(records.includes(medium === 'static' ? 'edge:bridge' : 'bridge'), true);
   });
 
@@ -467,7 +488,9 @@ for (const medium of ['static', 'interactive']) {
       ...structuredClone(route),
       id: `shared-${index}`,
     }));
-    assert.throws(() => compose(meaning, medium), { code: 'authored_route_budget_exceeded' });
+    assert.throws(() => compose(meaning, medium), {
+      code: 'authored_route_budget_exceeded',
+    });
   });
 }
 

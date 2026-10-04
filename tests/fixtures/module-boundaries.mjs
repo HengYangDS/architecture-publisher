@@ -115,6 +115,7 @@ const owners = [
     [
       'packages/publisher/src/rendering/',
       'packages/publisher/src/source/',
+      'packages/publisher/src/scene/appearance.mjs',
       'packages/publisher/renderers/',
     ],
   ],
@@ -189,11 +190,20 @@ const owners = [
     'packages/publisher/renderers/interactive/',
     [
       'packages/publisher/renderers/interactive/',
+      'packages/publisher/renderers/reader/',
       'packages/publisher/renderers/elk/',
       'packages/publisher/renderers/fonts/',
       'packages/publisher/renderers/resvg/measurement.mjs',
       'packages/publisher/src/scene/',
       'packages/publisher/src/source/',
+    ],
+  ],
+  [
+    'packages/publisher/renderers/reader/',
+    [
+      'packages/publisher/renderers/reader/',
+      'packages/publisher/src/scene/appearance.mjs',
+      'packages/publisher/src/edition/appearance.mjs',
     ],
   ],
   [

@@ -348,6 +348,116 @@ test('claim-only static composition admits neither mixed parsers nor unbound ass
   });
 });
 
+test('a claim-only static view ignores structural selections belonging to its sibling', async (t) => {
+  const model = claimModel();
+  model.claims.published.dependsOn = [];
+  const selected = await fixture(t, { model, reference: 'claim:published' });
+  selected.project.questions.push({
+    id: 'structure',
+    audience: 'maintainer',
+    text: 'Which client calls the server?',
+  });
+  selected.project.scope.selections.push({
+    id: 'selected-relation',
+    namespace: modelNamespace,
+    kind: 'reference',
+    reference: 'relation:request',
+    questions: ['structure'],
+  });
+  selected.project.presentation.static.views.push({ id: 'structure', questions: ['structure'] });
+  await fs.writeFile(
+    path.join(selected.root, 'edition/project.json'),
+    JSON.stringify(selected.project) + '\n',
+  );
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const statementView = {
+    ...meaning,
+    editorial: {
+      ...meaning.editorial,
+      presentation: {
+        ...meaning.editorial.presentation,
+        static: {
+          ...meaning.editorial.presentation.static,
+          views: [meaning.editorial.presentation.static.views[0]],
+        },
+      },
+    },
+    media: {
+      ...meaning.media,
+      static: { ...meaning.media.static, views: [meaning.media.static.views[0]] },
+    },
+  };
+  const scene = composeStaticEditionScene(statementView, null);
+  assert.deepEqual(scene.nodes, []);
+  assert.deepEqual(scene.edges, []);
+  assert.deepEqual(
+    scene.claimCards.map(({ id }) => id),
+    ['published'],
+  );
+  assert.deepEqual(
+    scene.sourceAssertionCarriers.map(({ assertionId }) => assertionId),
+    ['selected-claim'],
+  );
+  assert.deepEqual(
+    meaning.native.selections.find(({ selectionId }) => selectionId === 'selected-claim').members
+      .claims[0].dependsOn,
+    [],
+  );
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json')));
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  assert.deepEqual(
+    candidate.obligations.static.views.map(({ id }) => id),
+    ['overview', 'structure'],
+  );
+  assert.equal((svg.match(/data-static-view=/gu) ?? []).length, 2);
+  assert.match(svg, /The client is available to operators\./u);
+  assert.match(svg, /data-graphic-id="static-view-1-r-0"/u);
+  assert(candidate.limits.includes('claim-model-provenance-unverified'));
+});
+
+test('pure static claims size their complete content independently of absent structure', async (t) => {
+  const model = claimModel();
+  const value = {
+    label: 'Replaceable capabilities',
+    surface: 'overview',
+    text: 'People and Agents compose replaceable capabilities without taking ownership of repository truth. '.repeat(
+      6,
+    ),
+  };
+  model.claims.published.value = value;
+  model.claims.published.dependsOn = [];
+  const selected = await fixture(t, { model, reference: 'claim:published' });
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  const scene = composeStaticEditionScene(meaning, null);
+  const rendered = composeStaticEditionSvg(scene, { fragment: true });
+  assert.deepEqual(scene.nodes, []);
+  assert.deepEqual(scene.edges, []);
+  assert.deepEqual(
+    rendered.carriers.claims.map(({ source }) => source.reference),
+    ['published'],
+  );
+  const painted = [...rendered.parts.claim.markup.matchAll(/<text[^>]*>(.*?)<\/text>/gu)]
+    .map(([, text]) => text)
+    .join('');
+  assert.match(painted, /Replaceable capabilities/u);
+  assert.match(painted, /overview/u);
+  assert.equal((painted.match(/repository truth\./gu) ?? []).length, 6);
+  assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers));
+  const output = path.join(selected.root, 'candidate');
+  await compileEditionCandidateInput(selected.requestPath, selected.requestSha256, output);
+  const svg = await fs.readFile(path.join(output, 'static/architecture.svg'), 'utf8');
+  const published = [...svg.matchAll(/<text[^>]*>(.*?)<\/text>/gu)]
+    .map(([, text]) => text)
+    .join('');
+  assert.equal((published.match(/repository truth\./gu) ?? []).length, 6);
+  assert.deepEqual(meaning.native.selections[0].members.claims[0].value, value);
+  assert.deepEqual(meaning.native.selections[0].members.claims[0].dependsOn, []);
+});
+
 test('a Claim Model structural Scene cannot borrow an upstream view identity', async (t) => {
   const selected = await groupedMixedFixture(t);
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);

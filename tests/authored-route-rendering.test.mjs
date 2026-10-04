@@ -240,7 +240,11 @@ test(
     }));
     const composed = compose(meaning, 'interactive').pages[0];
     const output = path.join(root, 'page.html');
-    await renderArchitectureScene({ scene: composed.scene, output });
+    await renderArchitectureScene({
+      scene: composed.scene,
+      exploration: composed.exploration,
+      output,
+    });
     const content = await fs.readFile(output);
     const source = meaning.native.selections[0].source;
     const standalone = composeInteractiveHtml({
