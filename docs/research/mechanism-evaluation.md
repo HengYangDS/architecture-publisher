@@ -1901,12 +1901,6 @@ clearance. Compare whole-page raster changes only to the approved baseline.
 Record missed defects, false positives, speed, platform supply, and review
 cost. Occupancy, visual center, and empty-region measures may diagnose
 composition but cannot be optimized into a substitute for editorial judgment.
-For future PPTX and PDF, inspect native text and page structure and render
-each page or slide under a pinned font/toolchain before image comparison; a
-flattened preview cannot prove an editable deck or a readable report. The
-installed Poppler `pdftotext -bbox` and `pdftoppm`, plus LibreOffice's
-headless PDF conversion, support a local trial but do not prove PowerPoint
-fidelity.
 
 **Decision:** retain the existing Playwright and static-audit owners. Trial
 Pixelmatch or ODiff, and painted-layer masks, against known counterexamples
@@ -1942,14 +1936,11 @@ forms, not only two layouts of the same graph. The complete work needs a
 meaningful overview and sufficient chapters for responsibility, mechanism,
 and evidence; no one-page or equal-height-slide limit applies.
 
-Compare four independently qualified carriers: static SVG/PNG overview,
-standalone interactive HTML, native or explicitly non-editable PPTX story,
-and multi-page PDF report. Source locks and attributed assertions remain
-shared; chapter order, graphic form, density, navigation, and layout may
-differ. Each carrier declares its audience, questions, visible coverage,
-omissions, provenance route, and limitations. A slide-handout PDF does not
-substitute for a promised report. Do not mechanically append `pdf` and
-`pptx` to an interaction-mode enum.
+Compare independently composed static SVG/PNG and standalone interactive HTML.
+Source locks and attributed assertions remain shared; chapter order, graphic
+form, density, navigation, and layout may differ. Each medium declares its
+audience, questions, visible coverage, omissions, provenance route, and
+limitations. Qualification applies to each medium independently.
 
 Reject invented or hidden meaning, unanswered promised questions, actual
 pixel overlap/clipping, broken offline use, and missing required navigation
