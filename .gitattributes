@@ -1,6 +1,22 @@
 # Repository-authored text has one portable checkout representation.
 * text=auto eol=lf
 
+# Native carrier responsibility is independent of formatting and test selection.
+*.mjs ethos-role=code
+*.cjs ethos-role=code
+*.js ethos-role=code
+tests/**/*.mjs ethos-role=test
+tests/**/*.cjs ethos-role=test
+tests/**/*.js ethos-role=test
+tools/**/*.mjs ethos-role=tooling
+tools/**/*.cjs ethos-role=tooling
+tools/**/*.js ethos-role=tooling
+.config/** ethos-role=config
+eslint.config.mjs ethos-role=config
+packages/publisher/src/edition/generated/** ethos-role=generated
+packages/publisher/supplies/** ethos-role=snapshot
+packages/publisher/renderers/*/supply/** ethos-role=snapshot
+
 # Generated and third-party supply retain their exact recorded bytes.
 packages/publisher/src/edition/generated/** -text
 packages/publisher/supplies/** -text

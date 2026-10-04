@@ -263,6 +263,17 @@ Provider availability is not quality proof: subject applicability, all four
 their actual installed observations. Source, installed runtime, media
 qualification and hosted release are separate acceptance boundaries.
 
+Declare carrier responsibilities once through Git-native `ethos-role`
+attributes: authored runtime is code, verification is test, development supply
+is tooling, native settings are config, generated validators are generated,
+and frozen third-party bytes are snapshots. Roles describe responsibility;
+they do not confer provenance or waive behavior, integrity or license checks.
+The exact native coverage selection must equal the authored code set and keep
+all four 95 percent floors. Generated runtime inputs and frozen supply retain
+their existing native generation, source-manifest and installed-use checks.
+Development tooling keeps its complete static and native execution contract.
+Unobserved applicability remains a gap rather than an inferred exemption.
+
 Keep durable secret-free evidence in the repository family records and reader
 deliverables in Documents. Verify exact custody before disposing of owned
 temporary outputs. Historical signed releases, original reader bytes, foreign

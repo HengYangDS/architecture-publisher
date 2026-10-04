@@ -455,6 +455,60 @@ test('coverage roots include all tracked first-party package runtime modules', (
   }
 });
 
+test('native Git carrier roles preserve authored coverage and frozen supply obligations', async () => {
+  const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' })
+    .split('\0')
+    .filter(Boolean);
+  const attributes = execFileSync('git', ['check-attr', '-z', '--stdin', 'ethos-role'], {
+    cwd: root,
+    encoding: 'utf8',
+    input: `${tracked.join('\0')}\0`,
+  }).split('\0');
+  const roles = new Map();
+  for (let index = 0; index + 2 < attributes.length; index += 3) {
+    assert.equal(attributes[index + 1], 'ethos-role');
+    roles.set(attributes[index], attributes[index + 2]);
+  }
+  assert.equal(roles.size, tracked.length);
+  const coverage = JSON.parse(
+    await fs.readFile(path.join(root, '.config/checks/coverage.json'), 'utf8'),
+  );
+  const covered = new Set();
+  for await (const file of fs.glob(coverage.include, { cwd: root, exclude: coverage.exclude }))
+    covered.add(file.split(path.sep).join('/'));
+  const runtime = new Set();
+  for (const file of tracked) {
+    const role = roles.get(file);
+    if (!/\.(?:mjs|cjs|js)$/u.test(file)) {
+      assert(!['code', 'test', 'tooling'].includes(role), `${file} is not a JavaScript carrier`);
+      continue;
+    }
+    assert.notEqual(role, 'unspecified', `${file} has no native responsibility`);
+    if (role === 'code') runtime.add(file);
+    else if (role === 'test') assert.match(file, /^tests\//u);
+    else if (role === 'tooling') assert.match(file, /^tools\//u);
+    else if (role === 'config') assert.match(file, /^(?:\.config\/|eslint\.config\.mjs$)/u);
+    else if (role === 'generated') {
+      assert.match(file, /^packages\/publisher\/src\/edition\/generated\//u);
+      assert.match(await fs.readFile(path.join(root, file), 'utf8'), /^\/\/ Generated from /u);
+    } else if (role === 'snapshot') {
+      assert.match(file, /^packages\/publisher\/(?:renderers\/[^/]+\/supply\/|supplies\/)/u);
+      const owner = file.match(
+        /^(packages\/publisher\/(?:renderers\/[^/]+\/supply|supplies\/[^/]+))\//u,
+      )?.[1];
+      assert(owner);
+      await fs.access(path.join(root, owner, 'supply.json'));
+    } else assert.fail(`${file} has an unsupported carrier role: ${role}`);
+  }
+  assert.deepEqual([...runtime].sort(), [...covered].sort());
+  assert(coverage.all);
+  for (const dimension of ['statements', 'lines', 'branches', 'functions'])
+    assert(coverage[dimension] >= 95);
+  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+  assert.match(workspace.scripts['check:static'], /npm run check:generated/u);
+  assert.match(workspace.scripts['check:generated'], /generate-authoring-validators\.mjs --check/u);
+});
+
 test('the existing type-check project includes every Provider runtime module', async () => {
   const selected = new Set(
     execFileSync(
