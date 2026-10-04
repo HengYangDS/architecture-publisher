@@ -326,7 +326,9 @@ test('reading composition does not exchange a small height saving for a page-wid
     })),
   };
   const before = structuredClone(input);
-  const graph = (await layoutInteractivePages([input], await measurePages([input]))).layouts[0];
+  const graph = (
+    await layoutInteractivePages([input], await measurePages([input]), { timeoutMs: 25_000 })
+  ).layouts[0];
   const detour = graph.relations.reduce((total, relation) => {
     const length = relation.points.slice(1).reduce((sum, point, index) => {
       const previous = relation.points[index];

@@ -106,12 +106,15 @@ test('packed Publisher executes a relocated Provider and reclaims a rejected des
       '--ignore-scripts',
       '--no-audit',
       '--no-fund',
+      '--no-save',
+      '--package-lock=false',
       '--prefix',
       consumer,
       path.join(work, archive.filename),
     ],
     consumer,
     npmEnv,
+    120_000,
   );
   assert.equal(installed.status, 0, installed.stderr);
   const packageRoot = path.join(consumer, 'node_modules/architecture-publisher');

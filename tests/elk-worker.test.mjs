@@ -74,9 +74,10 @@ test('invalid worker input, deadline, or supply cannot borrow an ambient install
       env: workerEnvironment(scratch, process.env.SystemRoot ?? null),
       input: request,
       encoding: 'utf8',
-      timeout: 3_000,
+      timeout: 10_000,
       maxBuffer: 1024 * 1024,
     });
+    assert.equal(result.error, undefined, result.error?.message);
     assert.equal(result.status, 1, result.stderr);
     assert.equal(result.stderr, '');
     assert.deepEqual(JSON.parse(result.stdout.trim()), {
@@ -90,8 +91,9 @@ test('invalid worker input, deadline, or supply cannot borrow an ambient install
       env: workerEnvironment(scratch, process.env.SystemRoot ?? null),
       input: '{}',
       encoding: 'utf8',
-      timeout: 3_000,
+      timeout: 10_000,
     });
+    assert.equal(result.error, undefined, result.error?.message);
     assert.equal(result.status, 1);
     assert.equal(result.stdout, '');
     assert.equal(result.stderr, '');
@@ -119,9 +121,10 @@ test('the worker admits the complete four-candidate budget for every selected pa
         graphs: Array.from({ length: count }, (_, index) => ({ id: `selected-${index}` })),
       }),
       encoding: 'utf8',
-      timeout: 3_000,
+      timeout: 10_000,
       maxBuffer: 1024 * 1024,
     });
+    assert.equal(result.error, undefined, result.error?.message);
     assert.equal(result.stderr, '');
     const reply = JSON.parse(result.stdout.trim());
     if (count === 256) {

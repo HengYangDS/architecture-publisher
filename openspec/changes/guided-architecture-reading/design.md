@@ -274,6 +274,18 @@ their existing native generation, source-manifest and installed-use checks.
 Development tooling keeps its complete static and native execution contract.
 Unobserved applicability remains a gap rather than an inferred exemption.
 
+Test harness deadlines include cold native startup and teardown, independently
+of a product worker's execution deadline. Direct layout-worker probes retain
+their one-second self-expiry and use a finite ten-second parent observation
+budget; assert process errors before interpreting replies. The geometry-only
+reading test selects the existing 25-second layout ceiling. Installed Provider
+setup uses native offline, scripts-disabled npm with no saved manifest or
+lockfile and a finite 120-second installation budget. Product defaults,
+coverage scope and all assertions remain unchanged. Pipeline 9507 failures
+and the unchanged 25-case macOS guest replay establish the affected boundary,
+not a proved hardware, parser or filesystem root cause. A complete successor
+matrix must still pass before publication.
+
 Keep durable secret-free evidence in the repository family records and reader
 deliverables in Documents. Verify exact custody before disposing of owned
 temporary outputs. Historical signed releases, original reader bytes, foreign
