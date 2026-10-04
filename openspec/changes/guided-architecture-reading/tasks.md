@@ -19,5 +19,5 @@
 
 ## 4. Release and bounded closeout
 
-- [ ] 4.1 Publish one signed SemVer successor with Keep a Changelog, exact installed/native CI evidence and remote readback. Review-source CI 9493 passes on signed `ef2d20fb`; installed quality admission, protected integration and release remain open.
+- [ ] 4.1 Publish one signed SemVer successor with Keep a Changelog, exact installed/native CI evidence and remote readback. Review-source CI 9493 passes on signed `ef2d20fb`. Native duplicate-review selection passes 21 focused tests, all static gates and package admission; GitLab dry-runs preserve protected branches and tags. Its next exact-source pipeline, installed quality admission, protected integration and release remain open.
 - [ ] 4.2 Verify reader/evidence custody, native Change and Lane closure, preserved historical artifacts and exact owned housekeeping. Failed-test residue and the installed starter experiment are retired after verified custody; see `publisher-final-fixture-residue-cleanup.json` and `north-star-starter-successor-cleanup.json`. Product Change and Lane closure remain open.

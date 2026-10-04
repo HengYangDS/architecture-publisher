@@ -232,6 +232,14 @@ to the existing ETHOS migration task; do not seize the source writer's lane.
 AIGW retains its accepted package selection until its owner chooses an upgrade.
 This repair cannot block unrelated source safety/runtime delivery.
 
+Select pipelines through GitLab native `workflow:rules`. An open merge
+request receives one review pipeline rather than a duplicate push pipeline.
+Unprotected branches without a merge request remain testable; protected branch
+and tag pipelines retain their complete native gates and trust roles. Schedules
+and other branch-triggered pipelines are not silently removed. Existing running
+pipelines finish before the new selection is published. No custom condition
+interpreter, cancellation controller or second CI authority is introduced.
+
 Keep durable secret-free evidence in the repository family records and reader
 deliverables in Documents. Verify exact custody before disposing of owned
 temporary outputs. Historical signed releases, original reader bytes, foreign

@@ -56,6 +56,19 @@ test('native package-manager admission rejects a mismatched toolchain before scr
   assert.equal(await fs.readFile(marker, 'utf8'), 'selected');
 });
 
+test('native workflow selects one review pipeline without skipping protected refs or tags', async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
+  assert.deepEqual(pipeline.workflow?.rules, [
+    { if: '$CI_PIPELINE_SOURCE == "merge_request_event"' },
+    { if: '$CI_COMMIT_TAG || $CI_COMMIT_REF_PROTECTED == "true"' },
+    {
+      if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS',
+      when: 'never',
+    },
+    { if: '$CI_COMMIT_BRANCH' },
+  ]);
+});
+
 test('Linux verification keeps the common gate and separates trust roles', async () => {
   const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
   const native = pipeline['.verify-linux'];
