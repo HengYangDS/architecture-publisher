@@ -20,15 +20,17 @@ requester's standing authorization. Self-review is not independent endorsement.
 
 ## Complete delivery scope
 
-The current goal includes eight finite outcomes. Earlier reader-only scope and
-PDF/PPT exclusions no longer describe the selected delivery. The following
-table maps outcomes to native responsibilities and task acceptance, not a second
-progress store. Checked predecessor tasks retain their original evidence scope.
+The current goal includes eight finite outcomes. The human withdrew PDF and
+PPTX support on 2026-10-05; independently composed PNG and desktop HTML remain
+the selected media. This scope revision supersedes earlier media commitments,
+including the original goal wording. The table maps outcomes to native owners
+and task acceptance, not a second progress store. Checked predecessor tasks
+retain their original evidence scope.
 
 | Outcome                       | Existing responsibility                       | Remaining task acceptance |
 | ----------------------------- | --------------------------------------------- | ------------------------- |
 | Inputs, authority and DX      | Source/Provider intake and Edition authoring  | 4.1-4.2                   |
-| General publication and media | Composition, renderers and qualification      | 5.1-5.3                   |
+| General publication and media | Composition, renderers and qualification      | 5.1-5.2                   |
 | AIGW adoption                 | Source-owned Client and Product Editions      | 6.1-6.2                   |
 | Minimal ETHOS flagship        | Source export/selection and Edition migration | 7.1                       |
 | ETHOS north-star feedback     | Existing source research and evolution owners | 7.2                       |
@@ -376,7 +378,7 @@ signed releases, original reader bytes, foreign work and user windows remain
 unchanged. Source acceptance, research settlement and lifecycle closure are
 separate remaining obligations.
 
-## Editorial input and media expansion
+## Editorial input and independent media
 
 The public input is selected system material plus an editorial brief: audience,
 questions, scope, limits and independent media choices. The existing
@@ -387,28 +389,75 @@ Providers and separately owned editorial roots converge before compilation.
 Questions are human-readable choices, not executable queries. Deterministic
 rebuilds require no Agent, ambient checkout or source-specific runtime.
 
+The human withdrew PDF and PPTX support on 2026-10-05. This Change and the
+remaining goal deliver independently composed PNG and desktop HTML only, with
+SVG as a vector carrier. Document/deck requirements, admission experiments and
+future implementation work are withdrawn, not completed capabilities. Historical
+accepted artifacts and dated research keep their original identity.
+
 Mature mechanisms are reusable implementations, not competitors to Publisher.
-Select parsing, geometry, native reading, vector document and presentation
-libraries by measured semantic preservation, offline operation, portability and
-total authoring/maintenance burden. Reuse verified Archify controls rather than
-create a parallel reader. A library upgrade alone is not superiority evidence.
+Select parsing, geometry, native reading, SVG and raster mechanisms by measured
+semantic preservation, offline operation, portability and total ownership cost.
+Reuse verified Archify controls rather than create a parallel reader. A library
+upgrade alone is not superiority evidence.
 
-Static, interactive, PDF and presentation output share selected semantic
-identities but own their medium-specific composition and qualification.
-A PDF/deck can reuse a qualified static scene deliberately selected for its
-page; HTML screenshots do not define static art direction. Every document page
-and slide answers its declared question with a complete diagram. Do not
-manufacture extra pages, render long canvases into unreadable slides or replace
-an interactive overview with partial tables.
+### Medium purposes and editorial authority
 
-Add media through the existing Build Request, Candidate and qualification
-owners, using mature vector/PPTX libraries behind small renderer boundaries.
-Bundle portable fonts or their verified outlines; retain searchable text only
-where demonstrated. PDF has actual vector text/paths; embedding a PNG in a PDF
-does not satisfy vector delivery. A valid PPTX and editable diagram objects are
-different claims: expose the actual editability scope and verify it natively.
-The minimum product demonstration is a complete multipage self-Edition and an
-unrelated conformance Edition through the same installed public entry.
+Each medium serves a distinct reader activity. Format conversion is an
+implementation detail, never the product definition or acceptance boundary.
+
+| Medium       | Reader activity                                            | Composition responsibility                                                                            |
+| ------------ | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| PNG          | Understand the architecture at a glance.                   | A deliberately composed overview or flagship poster with clear hierarchy and readable relationships.  |
+| Desktop HTML | Explore the overview and understand individual mechanisms. | Complete overview and mechanism diagrams, native navigation, focus, Inspect and qualified appearance. |
+
+The existing Edition Project owns shared audiences, questions, selections,
+limits, attribution and editorial assertions. Its existing `presentation`
+owner declares independent static composition and desktop navigation plans.
+Plans reference existing selection, question and view identities; they do not
+create duplicate facts or require two semantic models. Defaults may supply
+style and typography, not source assertions, omissions or approval.
+
+Narrative and reading order do not create runtime dependencies, execution order
+or causal edges. Unknown references and unsupported source assertions fail at
+the existing selection owner. Publisher checks identity, declared coverage and
+attribution; source and editorial judgment retain their own reviewers.
+
+The two media share selected semantic identities, not compulsory coordinates,
+layout or approval. HTML screenshots do not establish static composition, and
+an HTML wrapper around a poster does not establish interactive exploration.
+Every HTML page contains a complete, readable architecture or mechanism diagram;
+partial tables cannot replace an overview. Mobile and narrow-screen work remain
+excluded.
+
+### Integrated composition and measurable acceptance
+
+Keep the existing Build Request, selection, Candidate, qualification,
+publication and recovery owners. Dispatch the two supported media explicitly;
+unsupported media must not fall through to HTML. The existing scene, route,
+primitive, marker and font owners supply each receiving composition without a
+second scene model, semantic exporter or command plane.
+
+Qualification binds exact source selections and output bytes to complete
+figures, directed routes, readable glyphs, alignment, contrast and painted
+clearance. A successful command, file validity, semantic coverage, native
+interaction and artwork quality establish different predicates. Exact font
+resources and actual consumer paint remain required; silent fallback or valid
+SVG syntax does not prove appearance.
+
+Source meaning, editorial judgment, artwork acceptance, independent review and
+publication authorization remain distinct. Maintainer self-review is allowed
+when policy permits it, but cannot be reported as independent review. Artwork
+approval does not approve later byte changes or source-product publication.
+
+### Mature mechanism reuse
+
+Use existing pinned suppliers and native executors before adding custom code.
+Admission checks actual selected paths, complete notices and resources,
+resolved advisories, offline relocation and target-platform behavior. Replace
+an existing implementation only when the alternative preserves required
+meaning and reduces measured authoring or maintenance cost. These checks do
+not add document/deck dependencies or revive withdrawn media work.
 
 Pixel rules derive from one measured geometry owner. Test actual painted
 glyphs, paths, arrowheads, box clearance, alignment and reader controls;

@@ -12,7 +12,7 @@
 
 ## 3. Qualification and source handoff
 
-- [x] 3.1 Pass focused and sibling regressions, serialized browser-code checks, native static/module gates and every coverage dimension at least 95 percent. The same-attempt Node/c8 suite at signed `5a4baaaf` passes 1,705 tests with no failures and three explicit missing-external-input skips; all four coverage floors pass. Evidence: `publisher-native-c8-repaired-result.json` (`07b26295…`) in terminal-convergence custody. Installed ETHOS admission remains part of 4.1.
+- [x] 3.1 Pass focused and sibling regressions, serialized browser-code checks, native static/module gates and every coverage dimension at least 95 percent. The same-attempt Node/c8 suite at signed `5a4baaaf` passes 1,705 tests with no failures and three explicit missing-external-input skips; all four coverage floors pass. Evidence: `publisher-native-c8-repaired-result.json` (`07b26295…`) in terminal-convergence custody. Installed ETHOS admission remains part of 10.2 and 10.3.
 - [x] 3.2 Exercise real background Chrome for generic native/authored content and the complete ETHOS rehearsal; qualify every page, selected reading behavior, offered appearance, Inspect, addressed reading and history without requiring legacy feature parity.
 - [x] 3.3 Verify relocated offline installed public builds, exact media and historical preservation; retain explicit visual/source-acceptance limits.
 - [x] 3.4 Deliver the qualified contract and concrete evidence to the existing ETHOS migration owner without blocking source safety work or changing AIGW's package selection.
@@ -22,11 +22,10 @@
 - [x] 4.1 Reconcile all eight goal outcomes into this Change's design, requirement increments and tasks; pass official strict validation and focused documentation checks without duplicate progress or superseded scope.
 - [ ] 4.2 Verify one readable native-source/editorial-brief journey through the installed public entry and external declarative Provider; require no duplicate Claim Model, source edits, ambient checkout or Agent for deterministic regeneration.
 
-## 5. General publication and media
+## 5. Independent PNG and desktop HTML
 
-- [ ] 5.1 Select mature PDF/PPTX mechanisms with pinned official implementation evidence, license, offline/native portability and total-cost rationale; extend the existing input, Candidate and qualification owners without a second command plane.
-- [ ] 5.2 Deliver a complete self-Edition multipage vector PDF and PPTX plus one unrelated installed conformance Edition; verify all pages/slides, semantic coverage, portable fonts, vector objects and the exact claimed editability.
-- [ ] 5.3 Qualify each new or changed medium with painted-glyph/path clearance, complete diagrams, alignment, contrast, keyboard/Inspect behavior and exact visual acceptance; preserve independent static and interactive composition and historical approved bytes.
+- [ ] 5.1 Converge existing PNG and desktop HTML composition, explicit media dispatch, Candidate and qualification through pinned mature mechanisms; preserve one editorial owner without duplicate facts, source-repository invasion or a second command plane.
+- [ ] 5.2 Qualify independently composed PNG overviews and complete desktop HTML diagrams for purpose, painted clearance, alignment, contrast, native reading and exact visual acceptance; preserve historical bytes and distinct source, editor, artwork, independent-review and publication roles.
 
 ## 6. AIGW source adoption
 
@@ -44,7 +43,7 @@
 
 ## 9. Artifact custody and recovery
 
-- [ ] 9.1 Deliver selected Publisher, ETHOS and AIGW PNG6000, standalone HTML, vector PDF and PPTX to Documents and designated GitLab release custody; verify exact links, manifests, downloaded bytes and preserved historical content.
+- [ ] 9.1 Deliver selected Publisher, ETHOS and AIGW PNG6000 and standalone HTML to Documents and designated GitLab release custody; verify exact links, manifests, downloaded bytes and preserved historical content.
 - [ ] 9.2 Prove selected source/asset recovery from simulated local loss through GitLab without production mutation; distinguish Git, assets, Forge metadata and credential limits, then retire only exact consumer-released residue.
 
 ## 10. Native quality, release and closeout

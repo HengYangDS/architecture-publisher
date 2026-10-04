@@ -11,8 +11,8 @@ source-repository invasion or repeated manual reconstruction.
   build entry, with optional declarative Providers and external editorial roots.
 - Reuse checked native parsing, layout, reading and export mechanisms; preserve
   semantic identity without treating drawing junctions as source relationships.
-- Deliver independently composed desktop figures, standalone HTML, vector PDF
-  and PPTX; qualify typography, geometry, accessibility and actual editability.
+- Deliver independently composed PNG overviews and standalone desktop HTML;
+  qualify typography, geometry, accessibility and complete mechanism diagrams.
 - Complete source-owned AIGW and minimal ETHOS adoption, including exact target
   mechanisms, finite north-star feedback and implementation-grounded research.
 - Verify native macOS, Linux and Windows rebuilding, installed operation,
@@ -22,7 +22,7 @@ source-repository invasion or repeated manual reconstruction.
 
 ### New Capabilities
 
-- `media-export`: qualified vector documents and presentation delivery.
+None. PDF and PPTX support was withdrawn by the human on 2026-10-05.
 
 ### Modified Capabilities
 
@@ -33,8 +33,8 @@ source-repository invasion or repeated manual reconstruction.
 ## Impact
 
 The existing input, composition, renderer, qualification and publication owners
-retain responsibility. PDF and PPTX enter the same candidate and qualification
-boundaries; they do not become a second publisher or source truth authority.
+retain responsibility. PNG and desktop HTML keep independent composition and
+qualification within the same candidate and publication boundaries.
 ETHOS and AIGW own their meanings and designated acceptance. Publisher owns
 generic contracts, not repository-specific semantic contracts.
 No compulsory source change, mobile mode, resident service, duplicate progress

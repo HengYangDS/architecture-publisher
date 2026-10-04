@@ -896,10 +896,8 @@ Edition identity and returns keyboard focus to the selected text. These checks
 establish identity and visible coverage, not paraphrase equivalence or truth;
 wording remains unverified until the selected exact-artifact review.
 
-The current output contracts cover SVG/PNG and standalone HTML. PDF reports and
-PowerPoint stories remain [evaluated design options](../research/mechanism-evaluation.md#architecture-explanation-across-media-2026-09-30),
-not implemented export commands. Exporting one diagram as a picture slide would
-not establish an editable deck or a complete multi-page explanation.
+Supported delivery is SVG/PNG and standalone desktop HTML. PDF and PPTX are
+not supported and are outside the current work scope.
 
 A screenshot of HTML is not the static compiler. An HTML wrapper around a poster
 is not the interactive compiler.

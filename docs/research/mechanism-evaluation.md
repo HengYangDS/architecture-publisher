@@ -1,5 +1,10 @@
 # Mechanism evaluation
 
+Current scope, confirmed by the human on 2026-10-05: SVG/PNG and standalone
+desktop HTML. PDF and PPTX implementation and admission work are withdrawn.
+Dated findings below remain research history, not active requirements, shipping
+claims or scheduled follow-up.
+
 Publication mechanism experiments are dated by section. Versioned source and
 executed behavior, not product claims, are the evidence basis. General SDD
 comparison and size figures now belong to the signed ETHOS topic owners.
