@@ -12,7 +12,7 @@
 
 ## 3. Qualification and source handoff
 
-- [x] 3.1 Pass focused and sibling regressions, serialized browser-code checks, native static/module gates and every coverage dimension at least 95 percent.
+- [ ] 3.1 Pass focused and sibling regressions, serialized browser-code checks, native static/module gates and every coverage dimension at least 95 percent. The full native Node/c8 attempt preserves all four floors but fails one relocation fixture; its success-only budget is repaired and 58 focused cases pass. Full successor and installed gate admission remain required. Evidence: `publisher-relocation-fixture-focused-green.json` in terminal-convergence custody.
 - [x] 3.2 Exercise real background Chrome for generic native/authored content and the complete ETHOS rehearsal; qualify every page, selected reading behavior, offered appearance, Inspect, addressed reading and history without requiring legacy feature parity.
 - [x] 3.3 Verify relocated offline installed public builds, exact media and historical preservation; retain explicit visual/source-acceptance limits.
 - [x] 3.4 Deliver the qualified contract and concrete evidence to the existing ETHOS migration owner without blocking source safety work or changing AIGW's package selection.

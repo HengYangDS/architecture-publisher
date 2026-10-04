@@ -23,6 +23,10 @@ async function copied(t, name) {
     root,
     name === 'declarative' ? 'valid/provider.json' : 'provider.json',
   );
+  const manifest = JSON.parse(await fs.readFile(providerManifest, 'utf8'));
+  // Conformance verifies portability, not a two-second process-startup budget.
+  manifest.limits.timeoutMs = 10_000;
+  await fs.writeFile(providerManifest, `${JSON.stringify(manifest, null, 2)}\n`);
   return {
     providerManifest,
     providerManifestSha256: sha(await fs.readFile(providerManifest)),
