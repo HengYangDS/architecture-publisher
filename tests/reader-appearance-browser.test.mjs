@@ -205,6 +205,123 @@ test(
 );
 
 test(
+  'Inspect card states preserve measured contrast in every offered appearance',
+  runBrowser,
+  async (t) => {
+    const root = await fs.realpath(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'archpub-inspect-contrast-')),
+    );
+    t.after(() => fs.rm(root, { recursive: true, force: true }));
+    const browser = browserLifetime(t).use(await chromium.launch(browserOptions));
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+    const source = {
+      id: 'source',
+      kind: 'native',
+      namespace: 'example/claims',
+      sha256: '4'.repeat(64),
+      claimant: 'fixture:owner',
+    };
+    const content = Buffer.from(
+      '<!doctype html><html><head><title>Claims</title></head><body><div data-node-id="first">First</div><div data-node-id="second">Second</div></body></html>',
+    );
+    const html = composeInteractiveHtml({
+      schema: 'architecture.interactive-html-composition/v2',
+      title: 'Selected meaning',
+      framing: 'Source-attributed statements for independent reading.',
+      build: {
+        lockSha256: '1'.repeat(64),
+        editionSha256: '2'.repeat(64),
+        semanticDigest: '3'.repeat(64),
+      },
+      editionId: 'inspect-reading',
+      overview: 'overview',
+      sources: [source],
+      pages: [
+        {
+          id: 'overview',
+          label: 'Claims',
+          shortLabel: 'Claims',
+          purpose: 'overview',
+          path: 'views/overview.html',
+          sha256: sha(content),
+          sourceIds: ['source'],
+          content,
+          subjectSources: { first: ['source'], second: ['source'] },
+          facts: ['first', 'second'].map((graphicId) => ({
+            reference: JSON.stringify([source.namespace, 'claim', graphicId]),
+            sourceSha256: source.sha256,
+            graphicId,
+            title: graphicId === 'first' ? 'First statement' : 'Second statement',
+            facts: [{ label: 'Value', value: 'Exact selected meaning' }],
+          })),
+        },
+      ],
+      state: {
+        qualification: 'not-performed',
+        humanAcceptance: 'not-performed',
+        publication: 'not-performed',
+      },
+    });
+    const file = path.join(root, 'inspect.html');
+    await fs.writeFile(file, html);
+    await page.goto(pathToFileURL(file).href);
+    await page.locator('#interactive-inspect').click();
+    const cards = page.locator('#interactive-inspect-index button');
+    assert.equal(await cards.count(), 2);
+    const observations = [];
+    for (const style of ['editorial', 'blueprint', 'classic', 'signal-flow']) {
+      for (const theme of ['light', 'dark']) {
+        await page.evaluate(
+          ({ style, theme }) => {
+            globalThis.document.documentElement.dataset.style = style;
+            globalThis.document.documentElement.dataset.theme = theme;
+          },
+          { style, theme },
+        );
+        for (const state of ['idle', 'hover', 'selected', 'keyboard-focus']) {
+          await cards.nth(1).click();
+          await page.mouse.move(1500, 80);
+          if (state === 'hover') await cards.first().hover();
+          if (state === 'selected' || state === 'keyboard-focus') {
+            await cards.first().click();
+            await page.mouse.move(1500, 80);
+          }
+          if (state === 'keyboard-focus') {
+            await cards.nth(1).press('Shift+Tab');
+            assert(await cards.first().evaluate((item) => item.matches(':focus-visible')));
+          }
+          observations.push({
+            style,
+            theme,
+            state,
+            title: await contrast(
+              page,
+              '#interactive-inspect-index strong',
+              'color',
+              '#interactive-inspect-index button',
+            ),
+            detail: await contrast(
+              page,
+              '#interactive-inspect-index small',
+              'color',
+              '#interactive-inspect-index button',
+            ),
+          });
+        }
+      }
+    }
+    assert.deepEqual(
+      observations.filter((item) => item.title < 4.5 || item.detail < 4.5),
+      [],
+      'Inspect title and detail must remain readable in every state, style and theme',
+    );
+    t.diagnostic(
+      `Measured ${observations.length} Inspect states; minimum title ${Math.min(...observations.map((item) => item.title))}, minimum detail ${Math.min(...observations.map((item) => item.detail))}`,
+    );
+  },
+);
+
+test(
   'native relationship captions keep text contrast in every offered appearance',
   runBrowser,
   async (t) => {
@@ -427,13 +544,15 @@ async function contrast(frame, selector, property, backgroundSelector) {
     .first()
     .evaluate(
       (element, args) => {
-        const channels = (value) =>
-          value
-            .match(/[\d.]+/g)
-            ?.map(Number)
-            .slice(0, 3) ?? [];
+        const channels = (value) => value.match(/[\d.]+/g)?.map(Number) ?? [];
+        const over = (foreground, background) => {
+          const alpha = foreground[3] ?? 1;
+          return foreground
+            .slice(0, 3)
+            .map((channel, index) => channel * alpha + background[index] * (1 - alpha));
+        };
         const luminance = (value) => {
-          const rgb = channels(value).map((channel) => {
+          const rgb = value.slice(0, 3).map((channel) => {
             const normalized = channel / 255;
             return normalized <= 0.04045
               ? normalized / 12.92
@@ -442,8 +561,22 @@ async function contrast(frame, selector, property, backgroundSelector) {
           return rgb.length === 3 ? rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722 : -1;
         };
         const background = element.ownerDocument.querySelector(args.backgroundSelector);
-        const foreground = luminance(globalThis.getComputedStyle(element)[args.property]);
-        const paper = luminance(globalThis.getComputedStyle(background).backgroundColor);
+        const layers = [];
+        for (let current = background; current; current = current.parentElement) {
+          const style = globalThis.getComputedStyle(current);
+          if (Number(style.opacity) !== 1 || style.backgroundImage !== 'none')
+            throw Error('The selected contrast surface requires a separate compositing observer');
+          const color = channels(style.backgroundColor);
+          layers.push(color);
+          if ((color[3] ?? 1) === 1) break;
+        }
+        if (!layers.length || (layers.at(-1)[3] ?? 1) !== 1)
+          throw Error('The selected contrast surface has no observed opaque background');
+        const surface = layers.reduceRight((below, above) => over(above, below), [0, 0, 0]);
+        const foreground = luminance(
+          over(channels(globalThis.getComputedStyle(element)[args.property]), surface),
+        );
+        const paper = luminance(surface);
         return foreground < 0 || paper < 0
           ? 0
           : (Math.max(foreground, paper) + 0.05) / (Math.min(foreground, paper) + 0.05);

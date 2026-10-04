@@ -33,6 +33,8 @@ may contain incompatible changes.
   without changing source geometry or the native reader's control ownership.
 - Clipboard actions respect the document's effective permissions policy; opaque
   readers use native text-copy fallback without invoking a forbidden API.
+- Inspect cards retain readable title and detail colors in idle, hover, selected
+  and keyboard-focus states across every offered style and light/dark theme.
 
 ## [0.3.0-alpha.14] - 2026-10-03
 

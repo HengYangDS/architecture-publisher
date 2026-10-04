@@ -674,9 +674,9 @@ main[data-reading="inspect"] iframe { visibility: hidden; pointer-events: none; 
 #interactive-inspect-search { display: block; width: 100%; min-height: 2.4rem; margin-bottom: .8rem; padding: .45rem .65rem; border: 1px solid var(--rule); border-radius: .35rem; background: var(--panel); color: var(--ink); font: .82rem/1.35 system-ui, sans-serif; }
 #interactive-inspect-index { display: grid; gap: .3rem; max-height: calc(100vh - 17rem); overflow: auto; padding: .1rem .2rem .1rem .1rem; }
 #interactive-inspect-index button { display: grid; gap: .18rem; width: 100%; padding: .7rem .75rem; border-color: var(--rule); border-radius: .35rem; text-align: left; background: var(--panel); }
-#interactive-inspect-index button:hover, #interactive-inspect-index button[aria-current="true"] { border-color: var(--accent); background: #ebf0e9; color: var(--ink); }
+#interactive-inspect-index button:hover, #interactive-inspect-index button[aria-current="true"] { border-color: var(--accent); background: var(--reader-soft); color: var(--ink); }
 #interactive-inspect-index strong { font-size: .78rem; font-weight: 600; line-height: 1.4; }
-#interactive-inspect-index small { color: var(--muted); font-size: .67rem; }
+#interactive-inspect-index small { color: inherit; font-size: .67rem; }
 #interactive-inspect-empty { margin: .7rem 0 0; color: var(--muted); font-size: .78rem; }
 #interactive-inspect-content { display: grid; align-content: start; gap: .55rem; }
 .inspect-intro { margin: 0 0 .55rem; max-width: 65ch; color: var(--muted); font-size: .86rem; line-height: 1.55; }

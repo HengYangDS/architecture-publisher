@@ -1364,8 +1364,8 @@
       },
       {
         "path": "src/rendering/interactive-html.mjs",
-        "bytes": 41060,
-        "sha256": "0619928eeb77c01689750193da6b80871033053a6fad905b3af3fd2e2bc234ea"
+        "bytes": 41066,
+        "sha256": "8cf9b44f3080777dd628db2389910c14de569f40801a6c3e65599de757267d87"
       },
       {
         "path": "src/runtime/process-tree.mjs",
