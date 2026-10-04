@@ -274,6 +274,44 @@ their existing native generation, source-manifest and installed-use checks.
 Development tooling keeps its complete static and native execution contract.
 Unobserved applicability remains a gap rather than an inferred exemption.
 
+## Cross-platform execution boundary
+
+The supported execution targets are native macOS, Linux and Windows. The
+public build, qualification, installation and recovery contract is identical
+on those targets; passing through Git Bash or checking Shell/PowerShell syntax
+does not establish that contract. Keep npm, Cargo and wasm-bindgen responsible
+for their native operations. Do not translate a Shell controller into another
+language, add a second task authority, or require source repositories to carry
+platform-specific publication scripts.
+
+The complete npm quality graph runs on all three native targets. This graph
+checks frozen raster input/output integrity but does not rebuild its Rust/WASM
+source closure on each target. `tools/raster/resvg/build.sh` remains an authored
+POSIX development tool, not a portable build entry. Its Windows Git-shell
+regression proves only manifest refusal and syntax, not native Windows rebuild
+support. Historical frozen source and output bytes remain unchanged until an
+accepted successor replaces their selected active responsibilities together.
+
+The replacement decision must compare the native Cargo/wasm-bindgen workflow
+with a mature WASM executor on the same frozen closure. Require exact toolchain
+selection, offline/frozen dependency resolution, existing binding flags and
+path remapping, safe extraction, bounded execution and cleanup, and output
+hashes. A default optimizer, automatic tool installation or additional task
+language is not accepted merely because its tool supports multiple platforms.
+Retain only minimal product-specific manifest validation around the selected
+native executor; retire the active POSIX controller after complete native
+rebuild and installed-renderer acceptance on all three targets.
+
+Platform acceptance must cover actual native execution, relocated paths with
+spaces and Unicode, executable discovery, cold offline installation, bounded
+process-tree reclamation, publication/recovery effects and exact selected font
+rendering. OS-specific process and filesystem facilities remain small explicit
+capability boundaries, not emulated promises: Windows directory flushing is
+reported as unsupported, and optional CoreText measurement is macOS-only.
+The portable raster path must not depend on CoreText, Bash or PowerShell.
+Passing one platform, ARM64 runners, or a rejection fixture does not imply
+other architectures or a full cross-platform source rebuild.
+
 Test harness deadlines include cold native startup and teardown, independently
 of a product worker's execution deadline. Direct layout-worker probes retain
 their one-second self-expiry and use a finite ten-second parent observation
