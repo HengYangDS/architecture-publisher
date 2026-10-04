@@ -20,7 +20,7 @@
 ## 4. Inputs, authority and authoring
 
 - [x] 4.1 Reconcile all eight goal outcomes into this Change's design, requirement increments and tasks; pass official strict validation and focused documentation checks without duplicate progress or superseded scope.
-- [ ] 4.2 Verify one readable native-source/editorial-brief journey through the installed public entry and external declarative Provider; require no duplicate Claim Model, source edits, ambient checkout or Agent for deterministic regeneration.
+- [x] 4.2 Verify one readable native-source/editorial-brief journey through the installed public entry and external declarative Provider; require no duplicate Claim Model, source edits, ambient checkout or Agent for deterministic regeneration.
 
 ## 5. Independent PNG and desktop HTML
 
