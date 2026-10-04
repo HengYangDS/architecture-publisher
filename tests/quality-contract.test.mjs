@@ -103,7 +103,7 @@ test('native Windows verification runs the whole quality graph with separate tru
   assert.equal(native?.stage, 'verify');
   assert.equal(native.image, null);
   assert.equal(native.resource_group, 'native-windows-verification');
-  assert.equal(native.timeout, '30m');
+  assert.equal(native.timeout, '60m');
   assert.equal(native.variables?.GIT_STRATEGY, 'clone');
   assert.equal(native.script.at(-1), 'npm run check');
   assert(native.script.includes('npm ci --ignore-scripts --no-audit --no-fund'));
