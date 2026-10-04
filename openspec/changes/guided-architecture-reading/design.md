@@ -240,6 +240,20 @@ and other branch-triggered pipelines are not silently removed. Existing running
 pipelines finish before the new selection is published. No custom condition
 interpreter, cancellation controller or second CI authority is introduced.
 
+Converge movable quality policy under `.config/checks/`, not tool-default root
+filenames. Preserve native npm, Git, runtime, editor and Forge discovery where
+those consumers require their current entry. Each policy has one owner and each
+native command selects it directly; no root forwarding facade, copied rule or
+custom configuration loader is introduced. Qualify relative globs, actual
+formatter discovery, the documentation rule module, package boundaries and
+unchanged coverage scope before committing. The workspace layout separates
+generic runtime, the independently packaged self-Edition, specs/governance,
+verification, development supply and retained evidence by responsibility.
+Conformance belongs under `tests/conformance/`, preserving its package-only
+imports, fixture-relative bindings and immutable evidence bytes. Update current
+readers and native file selection in the same change; historical references
+inside retained receipts describe their original source, not active paths.
+
 Keep durable secret-free evidence in the repository family records and reader
 deliverables in Documents. Verify exact custody before disposing of owned
 temporary outputs. Historical signed releases, original reader bytes, foreign

@@ -17,12 +17,13 @@
     "check:lint": "eslint . --max-warnings 0",
     "check:types": "tsc --project jsconfig.json --noEmit",
     "check:imports": "node --test tests/module-boundaries.test.mjs",
-    "check:dead-code": "knip --config knip.json && knip --config knip.json --production --strict --include files,unlisted,unresolved,cycles,exports,nsExports",
-    "check:docs": "markdownlint-cli2",
+    "check:dead-code": "knip --config .config/checks/knip.json && knip --config .config/checks/knip.json --production --strict --include files,unlisted,unresolved,cycles,exports,nsExports",
+    "check:docs": "markdownlint-cli2 --config .config/checks/markdownlint-cli2.jsonc",
     "check:spec": "openspec validate --all --strict --no-interactive",
-    "test:coverage": "c8 --config .config/coverage.json npm test",
+    "test:coverage": "c8 --config .config/checks/coverage.json npm test",
     "check:package": "publint packages/publisher"
   },
+  "prettier": "./.config/checks/prettier.json",
   "license": "UNLICENSED",
   "devDependencies": {
     "@dagrejs/dagre": "3.1.1",

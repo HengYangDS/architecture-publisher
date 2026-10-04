@@ -66,8 +66,8 @@ test('current guidance names only the public 0.3 command and package boundaries'
     'README.md',
     'docs/reference/operations.md',
     'examples/README.md',
-    'conformance/journeys/self-host/README.md',
-    'conformance/fixtures/ethos-source-owned-handoff.json',
+    'tests/conformance/journeys/self-host/README.md',
+    'tests/conformance/fixtures/ethos-source-owned-handoff.json',
     'packages/publisher/README.md',
     'skills/architecture-publisher/SKILL.md',
   ];

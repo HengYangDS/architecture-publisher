@@ -25,7 +25,7 @@ import {
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publisher = path.join(root, 'packages/publisher');
-const handoffPath = path.join(root, 'conformance/fixtures/aigw-source-owned-handoff.json');
+const handoffPath = path.join(root, 'tests/conformance/fixtures/aigw-source-owned-handoff.json');
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 async function json(file) {

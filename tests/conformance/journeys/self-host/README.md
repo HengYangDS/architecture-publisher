@@ -6,7 +6,7 @@ Claim Model and structural Edition, emits a closed declarative Provider manifest
 and writes the provider form of the ordinary Edition build request.
 
 ```sh
-node conformance/journeys/self-host/build.mjs /absolute/input-directory
+node tests/conformance/journeys/self-host/build.mjs /absolute/input-directory
 archpub edition build /absolute/input-directory/plan.json \
   --sha256 <reported-plan-digest>
 ```

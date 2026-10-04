@@ -6,15 +6,15 @@
   "workspaces": {
     ".": {
       "entry": [
-        "conformance/journeys/provider/run.mjs",
-        "conformance/journeys/self-host/build.mjs",
+        "tests/conformance/journeys/provider/run.mjs",
+        "tests/conformance/journeys/self-host/build.mjs",
         "tools/migration/semantic-document-to-claim-model.mjs",
         "tools/qualification/semantic-browser.mjs",
         "tests/*.test.mjs"
       ],
       "project": [
-        "conformance/journeys/provider/**/*.mjs",
-        "conformance/journeys/self-host/**/*.mjs",
+        "tests/conformance/journeys/provider/**/*.mjs",
+        "tests/conformance/journeys/self-host/**/*.mjs",
         "tools/**/*.mjs",
         "tests/**/*.mjs"
       ],

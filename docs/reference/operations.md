@@ -64,7 +64,7 @@ Changelog section; a passing untagged branch pipeline is not this check.
 
 The [alpha.14 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.14)
 provides Core and Self software packages with exact source, native CI and
-installed-use evidence. The [release receipt](../../conformance/evidence/release-alpha14-readback.json)
+installed-use evidence. The [release receipt](../../tests/conformance/evidence/release-alpha14-readback.json)
 binds the signed source and tag, all nine native jobs, seven selected downloads,
 single-copy storage, six-file offline replay and preserved historical records.
 Every configured aggregate coverage dimension remains at least 95%.
@@ -121,7 +121,7 @@ annotated tag object `5fd3d068c9805ec306859ab700c37cd3e92f26f4`.
 Eleven selected assets occupy one Generic Package version, 8,546,343 bytes;
 each has one storage copy. Native `glab release download` fetched only those
 names. Every size and hash agrees with the pre-upload manifest/checksum anchors
-and native package metadata. The [release receipt](../../conformance/evidence/release-alpha11-readback.json)
+and native package metadata. The [release receipt](../../tests/conformance/evidence/release-alpha11-readback.json)
 records exact evidence and limits. Historical release records and package
 identities were read back unchanged.
 
@@ -156,7 +156,7 @@ selects signed source `131b401cc93d9f3ba8b405d71c4c175f511cc3ce`.
 Its eleven selected assets occupy one Generic Package version, 8,544,600 bytes.
 Each has one storage copy. Native `glab release download --asset-name` fetched
 only the selected names; every byte matches the separately anchored manifest
-and checksum. The [release receipt](../../conformance/evidence/release-alpha10-readback.json)
+and checksum. The [release receipt](../../tests/conformance/evidence/release-alpha10-readback.json)
 owns the complete identities, observed effects and remaining limits.
 
 The full local gate with the exact annotated tag present and tag pipeline 9272
@@ -208,7 +208,7 @@ records pass while `admitted: false` remains; explicit acceptance and effect
 authorization are separate. Public local publication installs the selected
 pair, and idempotent recovery preserves foreign parent content. It does not
 prove power-loss or off-host recovery. Current acceptance and custody reside
-in the [alpha.8 receipt](../../conformance/evidence/release-alpha8-readback.json).
+in the [alpha.8 receipt](../../tests/conformance/evidence/release-alpha8-readback.json).
 
 The native CLI also fetched four generated source archives. Those unselected
 local copies were removed after exact ownership/hash checks; no remote source
@@ -220,7 +220,7 @@ their earlier temporary pauses.
 
 Actual ETHOS Adapter/Edition migration and framework implementation remain
 source-owned obligations. Research ownership is recorded in the
-[source intake](../../conformance/evidence/research-owner-intake.json), not
+[source intake](../../tests/conformance/evidence/research-owner-intake.json), not
 another progress statement here. AIGW's accepted alpha.7 Client Projection
 adoption is distinct from alpha.8 adoption or whole-product publication. No
 Publisher release proves those outcomes.
@@ -246,7 +246,7 @@ because its caller-owned target directory was absent; creating that exact
 empty directory corrected the invocation without changing remote assets.
 Downloaded packages rebuilt five relocated workloads and thirty Candidate
 files with empty PATH. The
-[readback receipt](../../conformance/evidence/release-alpha7-readback.json)
+[readback receipt](../../tests/conformance/evidence/release-alpha7-readback.json)
 is the current release evidence owner.
 Its evidence-only source closure `6112b67` passed proposal/dev/main pipelines
 9104/9105/9106. A separate downloaded installed-product journey verified all
@@ -265,7 +265,7 @@ Generic policy verification binds nineteen submitted PASS records and still
 reports `admitted: false`; explicit owner acceptance, source endorsement and
 delivery effects are separate. At that historical checkpoint, ETHOS/AIGW adoption, final native Windows and
 independent off-host recovery were unproved. Historical alpha.6 facts remain
-in its immutable [receipt](../../conformance/evidence/release-alpha6-readback.json).
+in its immutable [receipt](../../tests/conformance/evidence/release-alpha6-readback.json).
 
 ### Historical reader release (2026-09-29): alpha.5
 
@@ -287,7 +287,7 @@ Release assets. Four additional GitLab-generated source archives are not part
 of the selected asset set. A fresh offline install of the downloaded
 Core and self-Edition rebuilt the independent-editor six-member Candidate
 byte-for-byte. The exact receipt is
-[`release-alpha5-readback.json`](../../conformance/evidence/release-alpha5-readback.json).
+[`release-alpha5-readback.json`](../../tests/conformance/evidence/release-alpha5-readback.json).
 This establishes primary-forge custody at readback time, not off-host recovery,
 ETHOS or AIGW adoption, or generic Candidate v2 qualification.
 
@@ -815,7 +815,7 @@ flagship-media parity or a reviewed successor. The package is not a second CLI
 and cannot compile ETHOS Commitments, control Work Lanes, mint proof, execute
 CAS effects, or accept ETHOS state. This
 repository retains only the exact digest-bound source-ownership handoff under
-`conformance/fixtures/ethos-source-owned-handoff.json`. Each package identity
+`tests/conformance/fixtures/ethos-source-owned-handoff.json`. Each package identity
 includes its repository, commit, repository-relative package path, Git tree
 object, archive name, exact archive digest, and portable uncompressed-tar
 content digest. The archive digest identifies one selected `.tgz` asset; the
@@ -920,14 +920,21 @@ coverage, and packed-package validation. Vendored Archify, font, and raster
 supply remain outside first-party rewrite and dead-code ownership; their pinned
 bytes are verified through supply-chain and behavior tests.
 
-`.markdownlint-cli2.jsonc` owns maintained Markdown selection and spacing;
+`.config/checks/markdownlint-cli2.jsonc` owns maintained Markdown selection and spacing;
 `npm run check:docs` consumes it without inline rule overrides. The native
 MD012 rule rejects repeated blank lines outside code, and
-`tools/quality/markdown.mjs` uses Markdownlint's parsed block structure to keep
+`.config/checks/markdown.mjs` uses Markdownlint's parsed block structure to keep
 single-paragraph list items adjacent. Separate paragraphs and compound list
 items retain their structural spacing. Embedded code follows its language's
 formatter. Archived specifications, fixtures, and third-party supply retain
 their recorded bytes.
+
+Repository quality policy lives in `.config/checks/`; npm scripts select the
+native tools and their exact configuration paths. Prettier discovers its one
+rule file through the native `package.json` reference. Its root ignore file,
+ESLint's root entry and the JavaScript project remain native discovery inputs,
+not forwarding wrappers or duplicated policy. See
+[configuration ownership](../../.config/README.md) for the retained entries.
 
 Hosted CI runs this same command on Linux ARM64 and native macOS ARM64. GitLab's
 protected-ref flag selects the protected macOS Runner; merge requests and
@@ -998,15 +1005,15 @@ generation. Evidence is applicable only to its exact bytes and declared scope.
 First-party co-location is optional. The locations below describe current
 selected inputs, not a Publisher requirement or source-product CI gate.
 
-- `conformance/journeys/self-host/` is a bounded structural self-use journey through the
+- `tests/conformance/journeys/self-host/` is a bounded structural self-use journey through the
   public generic contracts. It is not the final flagship self-Edition.
 - `editions/self/` is the source-owned Architecture Publisher self-Edition.
-- `conformance/fixtures/ethos-source-owned-handoff.json` records the immutable
+- `tests/conformance/fixtures/ethos-source-owned-handoff.json` records the immutable
   ETHOS package, parity, semantic-successor, and remaining-acceptance boundary.
   Current mutable ETHOS adapter and Edition files reside in ETHOS; their
   continuation or retirement requires its product owner's decision. Their
   placement grants Publisher no source authority.
-- `conformance/fixtures/aigw-source-owned-handoff.json` records the exact AIGW
+- `tests/conformance/fixtures/aigw-source-owned-handoff.json` records the exact AIGW
   source owner, current and historical semantic values, reproduced candidate,
   and remaining governance limits. Current mutable AIGW Edition files reside
   in AIGW; their continuation or retirement requires its product owner's

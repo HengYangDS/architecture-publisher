@@ -135,16 +135,25 @@ adjacent checkouts, personal credentials, and ambient repository discovery.
 
 The current checkout separates product ownership from adopter evidence:
 
-| Path                                                   | Responsibility                                           |
-| ------------------------------------------------------ | -------------------------------------------------------- |
-| `packages/publisher/`                                  | Generic product package                                  |
-| `docs/`                                                | Product contracts, operational reference, and research   |
-| `openspec/`                                            | Normative specs and the active Change's sole task ledger |
-| `editions/self/`                                       | Source-owned flagship self-Edition                       |
-| `conformance/journeys/self-host/`                      | Bounded structural self-use                              |
-| `conformance/fixtures/ethos-source-owned-handoff.json` | Dated ETHOS handoff fixture, not current adoption proof  |
-| `conformance/fixtures/aigw-source-owned-handoff.json`  | Dated AIGW handoff fixture, not current adoption proof   |
-| `build/`                                               | Ignored generated Candidates and local test evidence     |
+| Path                     | Responsibility                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| `packages/publisher/`    | Generic product, renderer adapters and verified supply                          |
+| `editions/self/`         | Separately packaged source-owned flagship self-Edition                          |
+| `openspec/`              | Normative specs and the active Change's sole task ledger                        |
+| `.ethos/`                | Native repository governance bindings                                           |
+| `.config/checks/`        | Repository quality policy, consumed by native tools                             |
+| `tests/`                 | Behavioral regressions and portable installed conformance                       |
+| `tools/`                 | Development generators, supply preparation and qualification helpers            |
+| `examples/`              | Small public-input examples, not alternate runtime owners                       |
+| `skills/`                | Packaged agent guidance through the public CLI                                  |
+| `docs/`                  | Product explanation, reference, migration and source-backed mechanism decisions |
+| `build/` and `coverage/` | Ignored, reproducible build and verification outputs                            |
+
+The root holds the workspace manifest, lockfile, reader entry documents and
+required native discovery entries. [Configuration ownership](.config/README.md)
+explains each retained entry. Host-custodied evidence and recovery live in the
+repository-family records outside source; they are not runtime inputs or a
+second progress ledger.
 
 This repository keeps the generic package, renderer supply,
 its self-Edition, and compact conformance fixtures. ETHOS and AIGW retain
@@ -154,6 +163,8 @@ product may elect co-location. Neither choice transfers source authority or
 requires a source-product CI gate for independent, read-only analysis.
 Conformance consumes portable standard values or an independently installed
 package; ordinary runtime has no adjacent checkout dependency.
+Its journeys, fixtures and immutable release receipts live together under
+`tests/conformance/`; recorded evidence retains its original bytes and source time.
 
 The root remains a private development and conformance workspace, not the
 published package. The core never imports a concrete Edition. A source-owned

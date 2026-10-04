@@ -8,6 +8,7 @@ import { parse } from 'yaml';
 import { main as lintMarkdown } from 'markdownlint-cli2';
 import { applyFixes } from 'markdownlint-cli2/markdownlint';
 import { lint } from 'markdownlint-cli2/markdownlint/promise';
+import { getFileInfo, resolveConfig } from 'prettier';
 import { npmInvocation } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -168,10 +169,18 @@ test('one fail-closed quality entry point covers the repository contract', async
   assert.equal(manifest.scripts['check:lint'], 'eslint . --max-warnings 0');
   assert.equal(manifest.scripts['check:types'], 'tsc --project jsconfig.json --noEmit');
   assert.equal(manifest.scripts['check:imports'], 'node --test tests/module-boundaries.test.mjs');
-  assert.equal(manifest.scripts['check:docs'], 'markdownlint-cli2');
+  assert.equal(
+    manifest.scripts['check:docs'],
+    'markdownlint-cli2 --config .config/checks/markdownlint-cli2.jsonc',
+  );
   assert.equal(manifest.scripts['check:spec'], 'openspec validate --all --strict --no-interactive');
-  assert.equal(manifest.scripts['test:coverage'], 'c8 --config .config/coverage.json npm test');
-  const coverage = JSON.parse(await fs.readFile(path.join(root, '.config/coverage.json'), 'utf8'));
+  assert.equal(
+    manifest.scripts['test:coverage'],
+    'c8 --config .config/checks/coverage.json npm test',
+  );
+  const coverage = JSON.parse(
+    await fs.readFile(path.join(root, '.config/checks/coverage.json'), 'utf8'),
+  );
   assert.equal(coverage.all, true);
   assert.equal(coverage['check-coverage'], true);
   assert.deepEqual(coverage.include, [
@@ -193,13 +202,32 @@ test('one fail-closed quality entry point covers the repository contract', async
     assert.match(version, /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u, name);
 
   for (const file of [
-    '.markdownlint-cli2.jsonc',
+    '.config/checks/markdownlint-cli2.jsonc',
+    '.config/checks/markdown.mjs',
+    '.config/checks/knip.json',
+    '.config/checks/prettier.json',
     '.prettierignore',
-    '.prettierrc.json',
     'eslint.config.mjs',
     'jsconfig.json',
   ])
     assert((await fs.stat(path.join(root, file))).isFile(), file);
+});
+
+test('native formatter discovery retains one rule owner and preserved input boundaries', async () => {
+  const manifest = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+  assert.equal(manifest.prettier, './.config/checks/prettier.json');
+  assert.deepEqual(
+    await resolveConfig(path.join(root, 'README.md')),
+    JSON.parse(await fs.readFile(path.join(root, '.config/checks/prettier.json'), 'utf8')),
+  );
+  const ignorePath = [path.join(root, '.gitignore'), path.join(root, '.prettierignore')];
+  for (const [file, ignored] of [
+    ['.config/checks/prettier.json', false],
+    ['tests/quality-contract.test.mjs', false],
+    ['packages/publisher/renderers/archify/supply/archify.html', true],
+    ['editions/self/src/edition/static/authoring/metrics.json', true],
+  ])
+    assert.equal((await getFileInfo(path.join(root, file), { ignorePath })).ignored, ignored, file);
 });
 
 test('the native documentation gate enforces one blank line across maintained Markdown', async (t) => {
@@ -208,13 +236,13 @@ test('the native documentation gate enforces one blank line across maintained Ma
     path.join(await fs.realpath(os.tmpdir()), 'archpub-markdown-spacing-'),
   );
   t.after(() => fs.rm(scratch, { recursive: true, force: true }));
-  for (const file of ['.markdownlint-cli2.jsonc', '.gitignore'])
+  await fs.mkdir(path.join(scratch, '.config/checks'), { recursive: true });
+  for (const file of [
+    '.config/checks/markdownlint-cli2.jsonc',
+    '.config/checks/markdown.mjs',
+    '.gitignore',
+  ])
     await fs.copyFile(path.join(root, file), path.join(scratch, file));
-  await fs.mkdir(path.join(scratch, 'tools/quality'), { recursive: true });
-  await fs.copyFile(
-    path.join(root, 'tools/quality/markdown.mjs'),
-    path.join(scratch, 'tools/quality/markdown.mjs'),
-  );
   await fs.writeFile(
     path.join(scratch, 'package.json'),
     JSON.stringify({
@@ -225,9 +253,10 @@ test('the native documentation gate enforces one blank line across maintained Ma
   );
   const files = [
     'README.md',
+    '.config/README.md',
     'packages/publisher/README.md',
     'editions/self/README.md',
-    'conformance/journeys/self-host/README.md',
+    'tests/conformance/journeys/self-host/README.md',
     'examples/README.md',
     'docs/reference/guide.md',
     'openspec/changes/current/tasks.md',
@@ -255,7 +284,7 @@ test('the native documentation gate enforces one blank line across maintained Ma
     const diagnostics = [];
     const code = await lintMarkdown({
       directory: scratch,
-      argv: [],
+      argv: ['--config', '.config/checks/markdownlint-cli2.jsonc'],
       logError: (message) => diagnostics.push(message),
     });
     return { code, diagnostics: diagnostics.join('\n') };
@@ -296,7 +325,7 @@ test('the native documentation gate enforces one blank line across maintained Ma
     '.git/ethos/runtime/dependency/README.md',
     'openspec/changes/archive/retained/spec.md',
     'tests/fixtures/source.md',
-    'conformance/fixtures/source.md',
+    'tests/conformance/fixtures/source.md',
     'packages/publisher/renderers/example/supply/README.md',
     'build/output.md',
     'node_modules/supplier/README.md',
@@ -314,7 +343,7 @@ test('the native documentation gate enforces one blank line across maintained Ma
     assert.equal((await check()).code, 0, 'Multi-block items retain their structural spacing');
   }
   execFileSync(invoke.command, invoke.args, options);
-  const { default: spacingRule } = await import('../tools/quality/markdown.mjs');
+  const { default: spacingRule } = await import('../.config/checks/markdown.mjs');
   for (const [source, expected] of [
     [
       '-\n  First paragraph.\n\n- Second paragraph.\n',
@@ -454,7 +483,7 @@ test('the existing type-check project includes every Provider runtime module', a
 
   // TypeScript resolves this declaration; Knip resolves its config name to the runtime package.
   assert(selected.has(path.join(root, 'node_modules/@types/punycode/index.d.ts')));
-  const knip = JSON.parse(await fs.readFile(path.join(root, 'knip.json')));
+  const knip = JSON.parse(await fs.readFile(path.join(root, '.config/checks/knip.json')));
   assert.deepEqual(knip.ignoreDependencies, ['@types/punycode']);
 });
 

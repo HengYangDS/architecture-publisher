@@ -1,15 +1,22 @@
 {
-  "globs": ["*.md", "**/README.md", "docs/**/*.md", "openspec/**/*.md", "skills/**/*.md"],
+  "globs": [
+    "*.md",
+    "**/README.md",
+    ".config/**/*.md",
+    "docs/**/*.md",
+    "openspec/**/*.md",
+    "skills/**/*.md",
+  ],
   "gitignore": ".gitignore",
   "ignores": [
     ".git/**",
     "openspec/changes/archive/**",
     "tests/fixtures/**",
-    "conformance/fixtures/**",
+    "tests/conformance/fixtures/**",
     "**/supply/**",
     "packages/publisher/supplies/**",
   ],
-  "customRules": ["./tools/quality/markdown.mjs"],
+  "customRules": ["./markdown.mjs"],
   "noInlineConfig": true,
   "config": {
     "default": true,

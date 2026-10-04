@@ -254,9 +254,9 @@ const owners = [
     ['editions/self/src/edition/', 'packages/publisher/src/', 'packages/publisher/renderers/'],
   ],
   [
-    'conformance/journeys/self-host/',
+    'tests/conformance/journeys/self-host/',
     [
-      'conformance/journeys/self-host/',
+      'tests/conformance/journeys/self-host/',
       'packages/publisher/src/edition/',
       'packages/publisher/src/provider/',
       'packages/publisher/src/source/',
@@ -265,8 +265,8 @@ const owners = [
     ],
   ],
   [
-    'conformance/journeys/provider/',
-    ['conformance/journeys/provider/', 'packages/publisher/src/provider/index.mjs'],
+    'tests/conformance/journeys/provider/',
+    ['tests/conformance/journeys/provider/', 'packages/publisher/src/provider/index.mjs'],
   ],
   ['tools/', ['tools/', 'packages/publisher/', 'editions/', 'migration/']],
 ];
@@ -274,7 +274,10 @@ const owners = [
 const resourceOwners = [
   ['packages/publisher/src/semantics/supply.mjs', ['packages/publisher/supplies/likec4/']],
   ['packages/publisher/renderers/dagre/supply.mjs', ['packages/publisher/renderers/dagre/supply/']],
-  ['conformance/journeys/self-host/', ['conformance/journeys/self-host/', 'packages/publisher/']],
+  [
+    'tests/conformance/journeys/self-host/',
+    ['tests/conformance/journeys/self-host/', 'packages/publisher/'],
+  ],
 ];
 
 const selectedProviderModules = new Set([

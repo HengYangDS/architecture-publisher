@@ -3,14 +3,14 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
-import { runProviderConformance } from '../conformance/journeys/provider/run.mjs';
+import { runProviderConformance } from './conformance/journeys/provider/run.mjs';
 import { editionProviderPackageDigest } from '../packages/publisher/src/provider/index.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const evidence = new URL('../build/test-work/', import.meta.url);
 const matrix = JSON.parse(
   await fs.readFile(
-    new URL('../conformance/fixtures/provider-contract-matrix.json', import.meta.url),
+    new URL('./conformance/fixtures/provider-contract-matrix.json', import.meta.url),
   ),
 );
 

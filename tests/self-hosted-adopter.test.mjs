@@ -11,7 +11,7 @@ import {
   bindQualificationSet,
 } from '../packages/publisher/src/qualification/index.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
-import { runProviderConformance } from '../conformance/journeys/provider/run.mjs';
+import { runProviderConformance } from './conformance/journeys/provider/run.mjs';
 import { installCoreAndSelf } from './fixtures/installed-packages.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -45,7 +45,7 @@ test('the installed product builds its structural self-portrait through the publ
   await fs.mkdir(decoy);
   await fs.writeFile(path.join(decoy, 'DO-NOT-READ'), 'misleading adjacent checkout\n');
   const journey = path.join(consumer, 'self-host-build.mjs');
-  await fs.copyFile(path.join(root, 'conformance/journeys/self-host/build.mjs'), journey);
+  await fs.copyFile(path.join(root, 'tests/conformance/journeys/self-host/build.mjs'), journey);
   const inputs = path.join(aliasedParent, 'inputs'),
     publication = path.join(directory, 'publication'),
     installedEnvironment = {
@@ -61,7 +61,7 @@ test('the installed product builds its structural self-portrait through the publ
     providerBytes = await fs.readFile(selected.providerManifest),
     provider = JSON.parse(providerBytes);
   await assert.rejects(
-    fs.stat(path.join(pkg, 'conformance/journeys/self-host/browser-acceptance.json')),
+    fs.stat(path.join(pkg, 'tests/conformance/journeys/self-host/browser-acceptance.json')),
     { code: 'ENOENT' },
   );
   await assert.rejects(fs.stat(path.join(pkg, 'migration/aigw/browser-acceptance.json')), {

@@ -11,7 +11,7 @@ const runtimeRoots = [
   'packages/publisher/renderers',
   'packages/publisher/supplies',
   'editions/self/src',
-  'conformance/journeys/self-host',
+  'tests/conformance/journeys/self-host',
 ];
 
 async function declaredPackageExports() {
@@ -603,7 +603,11 @@ test('selected Provider modules cannot import historical Provider implementation
 });
 
 test('first-party owner names stay precise outside vendored assets', async () => {
-  const { modules } = await inventory([...runtimeRoots, 'conformance/journeys/self-host', 'tools']);
+  const { modules } = await inventory([
+    ...runtimeRoots,
+    'tests/conformance/journeys/self-host',
+    'tools',
+  ]);
   const forbidden = /(?:^|\/)(?:core|common|shared|utils|legacy|compat)(?:\/|$)/;
   assert.deepEqual(
     modules.filter((file) => forbidden.test(file)),
@@ -624,7 +628,7 @@ test('first-party source filenames name responsibilities, not protocol generatio
 
 test('repository check composes one fail-closed static and acceptance graph', async () => {
   const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json')));
-  const knip = JSON.parse(await fs.readFile(path.join(root, 'knip.json')));
+  const knip = JSON.parse(await fs.readFile(path.join(root, '.config/checks/knip.json')));
   assert.equal(
     workspace.scripts.check,
     'npm run check:static && npm run test:coverage && npm run check:package',

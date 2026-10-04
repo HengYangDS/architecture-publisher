@@ -2,7 +2,7 @@ build/
 .superpowers/
 node_modules/
 openspec/changes/archive/
-conformance/fixtures/
+tests/conformance/fixtures/
 examples/
 migration/
 packages/publisher/renderers/archify/supply/

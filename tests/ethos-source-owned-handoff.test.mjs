@@ -11,7 +11,7 @@ import {
 import { execNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
-const handoffPath = path.join(root, 'conformance/fixtures/ethos-source-owned-handoff.json');
+const handoffPath = path.join(root, 'tests/conformance/fixtures/ethos-source-owned-handoff.json');
 const thisTest = path.relative(root, import.meta.filename).replaceAll('\\', '/');
 
 async function readJson(file) {
