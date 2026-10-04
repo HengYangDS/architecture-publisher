@@ -920,6 +920,50 @@ coverage, and packed-package validation. Vendored Archify, font, and raster
 supply remain outside first-party rewrite and dead-code ownership; their pinned
 bytes are verified through supply-chain and behavior tests.
 
+### Native raster source rebuild
+
+The installed raster renderer uses packaged WASM; ordinary users need neither
+Rust nor a platform shell. Source rebuilding uses native archive extraction,
+Cargo and wasm-bindgen, with the exact toolchain and digests selected
+by `packages/publisher/renderers/resvg/supply/resvg/source.json`.
+
+In a caller-owned disposable directory:
+
+1. Download the selected source archive through its native registry consumer.
+2. Run `node tools/raster/resvg/verify.mjs --archive <archive>` before extraction.
+3. Extract the verified archive with the platform's native archive tool. Keep
+   the original extracted Cargo manifest and vendored dependencies unchanged.
+4. Run `node tools/raster/resvg/verify.mjs --inputs <absolute-source-root>`.
+5. Select the manifest's already installed Rust toolchain/target and matching
+   wasm-bindgen without replacing another installation owner. From the extracted
+   source root, execute the two native commands:
+
+   ```text
+   cargo build --release --target wasm32-unknown-unknown --offline --frozen
+     --config 'build.rustflags=["--remap-path-prefix=<absolute-source-root>=/workspace"]'
+
+   wasm-bindgen
+     target/wasm32-unknown-unknown/release/architecture_publisher_resvg_wasm.wasm
+     --target bundler --out-name index --out-dir native-output
+     --no-typescript --omit-default-module-path
+   ```
+
+6. Run `node tools/raster/resvg/verify.mjs --outputs <absolute-native-output-root>`.
+   Recheck `--inputs` too: successful compilation cannot waive source drift.
+   The checked `index_bg.js` bytes correspond to packaged `index.mjs`; the
+   checked `index_bg.wasm` bytes retain their native filename. Neither the native
+   loader nor its extra output files are selected into the renderer supply.
+7. Preserve the commands, target/tool identities and exact input/output digests,
+   then reclaim only the caller-owned disposable build root.
+
+The command is native on each platform; placeholder resolution and command-line
+quoting belong to the caller's executor, not a repository Bash or PowerShell
+controller. A resolved absolute source root is required: remapping `.` produces
+different WASM bytes. Native CI supplies the execution deadline. A successful
+integrity test does not prove a full source rebuild or an untested architecture.
+The evaluated wasm-pack wrapper is not selected: its metadata discovery rewrites
+the original lockfile before applying its later offline/frozen build options.
+
 `.config/checks/markdownlint-cli2.jsonc` owns maintained Markdown selection and spacing;
 `npm run check:docs` consumes it without inline rule overrides. The native
 MD012 rule rejects repeated blank lines outside code, and

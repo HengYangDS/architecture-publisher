@@ -182,7 +182,7 @@ test('shared font supply belongs to its own renderer capability', async () => {
   const product = await json(path.join(publisher, 'package.json')),
     archify = await fs.readFile(path.join(publisher, 'renderers/archify/public.mjs'), 'utf8'),
     resvgSupply = await json(path.join(publisher, 'renderers/resvg/supply/resvg/package.json')),
-    rasterBuild = await fs.readFile(path.join(root, 'tools/raster/resvg/build.sh'), 'utf8'),
+    rasterBuild = await fs.readFile(path.join(root, 'tools/raster/resvg/verify.mjs'), 'utf8'),
     rasterCargo = await fs.readFile(path.join(root, 'tools/raster/resvg/Cargo.toml'), 'utf8'),
     rasterWasm = await fs.readFile(
       path.join(publisher, 'renderers/resvg/supply/resvg/index_bg.wasm'),

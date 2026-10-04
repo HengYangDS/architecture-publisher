@@ -1,3 +1,3 @@
 /** Generated from the selected Publisher media file sets. Do not edit. */
 export const IMPLEMENTATION_MANIFEST_SHA256 =
-  '17b6dc8644466f510691d9142e7fb8e69a2370601d4080fffe437b3c6f71459f';
+  'b6af16ddcc13c1e623cc34d8558dff0dca4d93f27f7283e843072b4bea20d9f1';

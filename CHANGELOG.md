@@ -8,6 +8,13 @@ may contain incompatible changes.
 
 ## Unreleased
 
+### Changed
+
+- Raster source verification uses a platform-native, read-only Node entry and
+  the selected manifest's native output names. Native Cargo and wasm-bindgen own compilation
+  instead of an authored replacement build controller; frozen renderer bytes
+  and historical release artifacts remain unchanged.
+
 ## [0.3.0-alpha.15] - 2026-10-04
 
 ### Added

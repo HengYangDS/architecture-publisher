@@ -23,6 +23,7 @@ stages:
     - npm --version
     - git --version
     - python3 --version
+    - node -e "const {spawnSync}=require('node:child_process');for(const tool of ['cargo','rustup','wasm-bindgen','tar','curl','mise']){const r=spawnSync(tool,['--version'],{encoding:'utf8',timeout:10000});console.log(JSON.stringify({tool,status:r.status,error:r.error?.code,version:(r.stdout||r.stderr||'').split('\n')[0]}))}"
     - npm install --global npm@12.2.0 --ignore-scripts --no-audit --no-fund
     - npm ci --ignore-scripts --no-audit --no-fund
     - npm run check
@@ -54,6 +55,7 @@ verify:linux:protected:
     - npm --version
     - git --version
     - swift --version
+    - node -e "const {spawnSync}=require('node:child_process');for(const tool of ['cargo','rustup','wasm-bindgen','tar','curl','mise']){const r=spawnSync(tool,['--version'],{encoding:'utf8',timeout:10000});console.log(JSON.stringify({tool,status:r.status,error:r.error?.code,version:(r.stdout||r.stderr||'').split('\n')[0]}))}"
     - npm ci --ignore-scripts --no-audit --no-fund
     - npm run check
 
@@ -85,6 +87,7 @@ verify:macos:protected:
     - node --version
     - npm --version
     - git --version
+    - node -e "const {spawnSync}=require('node:child_process');for(const tool of ['cargo','rustup','wasm-bindgen','tar','curl','mise']){const r=spawnSync(tool,['--version'],{encoding:'utf8',timeout:10000});console.log(JSON.stringify({tool,status:r.status,error:r.error?.code,version:(r.stdout||r.stderr||'').split('\n')[0]}))}"
     - npm ci --ignore-scripts --no-audit --no-fund
     - npm run check
 

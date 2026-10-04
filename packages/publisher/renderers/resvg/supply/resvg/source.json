@@ -47,11 +47,6 @@
         "path": "tools/raster/resvg/src/lib.rs",
         "bytes": 3293,
         "sha256": "fb1aab2d2f362ec38501111d4950a221e68b4eec2c6894d641fd9ac6e90c8893"
-      },
-      {
-        "path": "tools/raster/resvg/build.sh",
-        "bytes": 3277,
-        "sha256": "30a88aaaf1d55a0b7e49db583b7c01b750f997c1996fe516594c02f00b1af16e"
       }
     ]
   },
@@ -59,12 +54,14 @@
     {
       "path": "packages/publisher/renderers/resvg/supply/resvg/index.mjs",
       "bytes": 4550,
-      "sha256": "5a2d6b8e3c1f07131de5af3eb67a0361d1d427c0f740992a1b2977ed389aaf57"
+      "sha256": "5a2d6b8e3c1f07131de5af3eb67a0361d1d427c0f740992a1b2977ed389aaf57",
+      "nativeFile": "index_bg.js"
     },
     {
       "path": "packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm",
       "bytes": 3427609,
-      "sha256": "6827b7a3c62d7534250f81595c237086179989eac0eb5b02c3f952bcf20d8761"
+      "sha256": "6827b7a3c62d7534250f81595c237086179989eac0eb5b02c3f952bcf20d8761",
+      "nativeFile": "index_bg.wasm"
     }
   ]
 }

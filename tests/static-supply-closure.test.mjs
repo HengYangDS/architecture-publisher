@@ -17,36 +17,63 @@ test('raster rebuild selects the packaged source manifest', async (t) => {
   const archive = path.join(work, 'source.tar.xz');
   await fs.writeFile(archive, 'not the selected source closure');
 
-  let shell = 'sh';
-  if (process.platform === 'win32') {
-    const git = spawnSync('git', ['--exec-path'], { encoding: 'utf8', timeout: 10_000 });
-    assert.equal(git.status, 0, git.stderr);
-    shell = path.resolve(git.stdout.trim(), '../../../usr/bin/sh.exe');
-    assert.equal((await fs.stat(shell)).isFile(), true, 'Selected native Git shell is missing');
-  }
-  const syntax = spawnSync(shell, ['-n', path.join(root, 'tools/raster/resvg/build.sh')], {
-    cwd: root,
-    encoding: 'utf8',
-    timeout: 10_000,
-  });
-  assert.equal(syntax.error, undefined);
-  assert.equal(syntax.status, 0, syntax.stdout + syntax.stderr);
   const result = spawnSync(
-    shell,
-    [path.join(root, 'tools/raster/resvg/build.sh'), archive, path.join(work, 'out')],
+    process.execPath,
+    [path.join(root, 'tools/raster/resvg/verify.mjs'), '--archive', archive],
     {
       cwd: root,
       encoding: 'utf8',
       timeout: 30_000,
-      env:
-        process.platform === 'win32'
-          ? { ...process.env, PATH: path.dirname(shell) + path.delimiter + process.env.PATH }
-          : process.env,
     },
   );
 
+  assert.equal(result.error, undefined);
   assert.equal(result.status, 65, result.stdout + result.stderr);
   assert.equal(result.stderr, 'source closure digest mismatch\n');
+});
+
+test('raster verification checks selected native inputs and outputs without compiling', async (t) => {
+  const work = await fs.mkdtemp(path.join(root, 'build/test-work/resvg-native-'));
+  t.after(() => fs.rm(work, { recursive: true, force: true }));
+  const sourceRoot = path.join(work, 'source space Δ');
+  const outputRoot = path.join(work, 'output space Δ');
+  const source = JSON.parse(
+    await fs.readFile(
+      path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/source.json'),
+      'utf8',
+    ),
+  );
+  for (const input of source.build.inputs) {
+    const relative = input.path.slice('tools/raster/resvg/'.length);
+    const destination = path.join(sourceRoot, relative);
+    await fs.mkdir(path.dirname(destination), { recursive: true });
+    await fs.copyFile(path.join(root, input.path), destination);
+  }
+  await fs.mkdir(outputRoot, { recursive: true });
+  for (const output of source.outputs) {
+    await fs.copyFile(path.join(root, output.path), path.join(outputRoot, output.nativeFile));
+  }
+  const invoke = (mode, directory) => {
+    const result = spawnSync(
+      process.execPath,
+      [path.join(root, 'tools/raster/resvg/verify.mjs'), mode, directory],
+      {
+        cwd: work,
+        encoding: 'utf8',
+        timeout: 30_000,
+        env: { ...process.env, PATH: '' },
+      },
+    );
+    assert.equal(result.error, undefined);
+    return result;
+  };
+  assert.equal(invoke('--inputs', sourceRoot).status, 0);
+  assert.equal(invoke('--outputs', outputRoot).status, 0);
+  await fs.appendFile(path.join(sourceRoot, 'Cargo.toml'), '\n# drift\n');
+  assert.equal(invoke('--inputs', sourceRoot).status, 65);
+  await fs.appendFile(path.join(outputRoot, 'index_bg.wasm'), 'drift');
+  assert.equal(invoke('--outputs', outputRoot).status, 65);
+  assert.equal(invoke('--invalid', sourceRoot).status, 64);
 });
 
 test('raster renderer is bound to a reproducible source closure', async () => {
@@ -83,7 +110,6 @@ test('raster renderer is bound to a reproducible source closure', async () => {
       'tools/raster/resvg/rust-toolchain.toml',
       'tools/raster/resvg/.cargo/config.toml',
       'tools/raster/resvg/src/lib.rs',
-      'tools/raster/resvg/build.sh',
     ],
   );
   for (const input of source.build.inputs) {
@@ -93,6 +119,7 @@ test('raster renderer is bound to a reproducible source closure', async () => {
   }
 
   for (const output of source.outputs) {
+    assert.equal(path.basename(output.nativeFile), output.nativeFile);
     const bytes = await fs.readFile(path.join(root, output.path));
     assert.equal(bytes.length, output.bytes);
     assert.equal(sha(bytes), output.sha256);

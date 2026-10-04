@@ -8,8 +8,10 @@
       "entry": [
         "tests/conformance/journeys/provider/run.mjs",
         "tests/conformance/journeys/self-host/build.mjs",
+        "tests/conformance/journeys/raster/rebuild.test.mjs",
         "tools/migration/semantic-document-to-claim-model.mjs",
         "tools/qualification/semantic-browser.mjs",
+        "tools/raster/resvg/verify.mjs",
         "tests/*.test.mjs"
       ],
       "project": [

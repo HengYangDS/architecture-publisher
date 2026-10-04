@@ -284,23 +284,33 @@ for their native operations. Do not translate a Shell controller into another
 language, add a second task authority, or require source repositories to carry
 platform-specific publication scripts.
 
-The complete npm quality graph runs on all three native targets. This graph
-checks frozen raster input/output integrity but does not rebuild its Rust/WASM
-source closure on each target. `tools/raster/resvg/build.sh` remains an authored
-POSIX development tool, not a portable build entry. Its Windows Git-shell
-regression proves only manifest refusal and syntax, not native Windows rebuild
-support. Historical frozen source and output bytes remain unchanged until an
-accepted successor replaces their selected active responsibilities together.
+The complete npm quality graph checks frozen raster input/output integrity;
+native Rust/WASM source rebuilding is a separate acceptance obligation.
+Historical Git-shell refusal checks do not establish Windows rebuild support.
+Preserve the selected source archive and runtime output bytes.
 
-The replacement decision must compare the native Cargo/wasm-bindgen workflow
-with a mature WASM executor on the same frozen closure. Require exact toolchain
-selection, offline/frozen dependency resolution, existing binding flags and
-path remapping, safe extraction, bounded execution and cleanup, and output
-hashes. A default optimizer, automatic tool installation or additional task
-language is not accepted merely because its tool supports multiple platforms.
-Retain only minimal product-specific manifest validation around the selected
-native executor; retire the active POSIX controller after complete native
-rebuild and installed-renderer acceptance on all three targets.
+Use native archive extraction, Cargo and wasm-bindgen for the frozen rebuild.
+Cargo remains offline and frozen; binding uses the existing explicit flags.
+Pass the resolved absolute source root to Cargo's path remapping; mapping `.`
+is not equivalent. Keep the original Cargo manifest and lockfile unchanged.
+The tested wasm-pack wrapper produces the selected output bytes but rewrites
+the original lockfile during metadata discovery, so it does not qualify.
+
+The only authored build helper is `tools/raster/resvg/verify.mjs`. It checks
+the selected archive digest, extracted input bytes and native output bytes;
+it starts no subprocess, installs nothing and writes no output. It is not a
+build input and cannot authorize its own integrity. Native output
+names come from the supply manifest. Packaging selects the verified binding
+as `index.mjs` without rewriting its contents. The helper is an explicit
+development entry in the existing dead-code configuration, not a public
+command or another orchestration plane.
+
+Rebuild tests must independently bind the source closure, selected toolchain,
+native target, relocated path and exact output hashes. Native CI owns job
+deadlines and disposable build roots. Retire the historical POSIX controller
+and its active consumers together only after actual rebuild and installed
+renderer acceptance on macOS, Linux and Windows. No Bash fallback or PowerShell
+controller qualifies as that replacement.
 
 Platform acceptance must cover actual native execution, relocated paths with
 spaces and Unicode, executable discovery, cold offline installation, bounded
