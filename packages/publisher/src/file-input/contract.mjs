@@ -15,7 +15,8 @@ export function portablePath(value) {
     !value ||
     Buffer.byteLength(value, 'utf8') > 2048 ||
     /[\uD800-\uDFFF]/u.test(value) ||
-    /[\\\x00-\x1f\x7f:<>"|?*]/.test(value)
+    /[\\:<>"|?*]/u.test(value) ||
+    [...value].some((character) => character.charCodeAt(0) < 32 || character === '\x7f')
   )
     fail('member_path_invalid');
   const parts = value.split('/');

@@ -713,7 +713,8 @@ function remainingLock(lock) {
 }
 
 function globalEditorial(meaning) {
-  const { presentation, ...editorial } = meaning.editorial;
+  const editorial = { ...meaning.editorial };
+  delete editorial.presentation;
   return { editorial, questions: meaning.questions, assertions: meaning.assertions };
 }
 

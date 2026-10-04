@@ -706,16 +706,16 @@ test(
     const statement = frame.locator('[data-text-id="text-claim-published"]');
     await statement.waitFor();
     const paint = await statement.evaluate(async (node) => {
-      await document.fonts.ready;
-      const context = document.createElement('canvas').getContext('2d');
-      context.font = `${getComputedStyle(node).fontWeight} ${getComputedStyle(node).fontSize} ${getComputedStyle(node).fontFamily}`;
+      await globalThis.document.fonts.ready;
+      const context = globalThis.document.createElement('canvas').getContext('2d');
+      context.font = `${globalThis.getComputedStyle(node).fontWeight} ${globalThis.getComputedStyle(node).fontSize} ${globalThis.getComputedStyle(node).fontFamily}`;
       const painted = context.measureText(node.textContent);
       const x = Number(node.getAttribute('x'));
       const baseline = Number(node.getAttribute('y'));
       return {
-        family: getComputedStyle(node).fontFamily,
-        loaded: document.fonts.check('14px "JetBrains Mono"'),
-        faces: [...document.fonts]
+        family: globalThis.getComputedStyle(node).fontFamily,
+        loaded: globalThis.document.fonts.check('14px "JetBrains Mono"'),
+        faces: [...globalThis.document.fonts]
           .filter((face) => face.family.replaceAll('"', '') === 'JetBrains Mono')
           .map((face) => ({ weight: face.weight, status: face.status })),
         box: {
@@ -739,7 +739,10 @@ test(
     assert((await page.locator('#interactive-inspect-content').textContent()).includes('unknown'));
     await page.locator('#interactive-inspect-back').click();
     await statement.waitFor({ state: 'visible' });
-    assert.equal(await statement.evaluate((node) => document.activeElement === node), true);
+    assert.equal(
+      await statement.evaluate((node) => globalThis.document.activeElement === node),
+      true,
+    );
     await frame.locator('[data-text-id="editor-text"]').press('Enter');
     await page.locator('#interactive-inspector').waitFor({ state: 'visible' });
     assert(

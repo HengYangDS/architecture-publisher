@@ -446,16 +446,20 @@ test(
               { waitUntil: 'load', timeout: 20_000 },
             );
             assert.equal(response.status(), 200, artifact.path);
-            await page.evaluate(async () => document.fonts.ready);
+            await page.evaluate(async () => globalThis.document.fonts.ready);
             assert.deepEqual(errors, [], artifact.path);
             assert.equal(
-              await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches),
+              await page.evaluate(
+                () => globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches,
+              ),
               true,
             );
             assert.equal((await page.title()).length > 0, true, artifact.path);
             assert.equal(
               await page.evaluate(
-                () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+                () =>
+                  globalThis.document.documentElement.scrollWidth <=
+                  globalThis.document.documentElement.clientWidth,
               ),
               true,
               artifact.path,

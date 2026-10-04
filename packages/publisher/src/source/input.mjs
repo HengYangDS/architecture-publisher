@@ -6,6 +6,10 @@ export async function verifySourceInput(manifestPath, expectedSha256) {
   return {
     status: 'verified',
     ...verified,
-    members: verified.members.map(({ content, ...member }) => member),
+    members: verified.members.map((member) => {
+      const selected = { ...member };
+      delete selected.content;
+      return selected;
+    }),
   };
 }

@@ -22,7 +22,8 @@ function qualified(reference) {
 }
 
 function qualifyStaticScene(scene, groupDefinitions, model) {
-  const { coverage: _computedCoverage, ...selected } = scene;
+  const selected = { ...scene };
+  delete selected.coverage;
   const strokeTones = { flow: 'line', trust: 'accent', renewal: 'proof', feedback: 'ghost' };
   const groups = new Map(
     groupDefinitions.map(({ id, elements }) => [

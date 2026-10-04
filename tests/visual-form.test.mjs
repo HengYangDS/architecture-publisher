@@ -145,18 +145,17 @@ test('a bare structural view cannot become responsibility authority', async (t) 
     compileEditionMeaning(await materializeBuildRequestInput(selected.file, selected.digest)),
     (error) => {
       assert.equal(error.code, 'edition_visual_form_basis_unsupported');
-      assert.deepEqual(
-        (({ editionSha256, ...subject }) => subject)(error.diagnostics?.[0]?.subject),
-        {
-          kind: 'edition-visual-form-role',
-          editionId: selected.project.id,
-          medium: 'interactive',
-          viewId: 'overview',
-          questionId: 'shape',
-          groupId: 'first-role',
-          basisAssertionId: 'overview',
-        },
-      );
+      const subject = { ...error.diagnostics?.[0]?.subject };
+      delete subject.editionSha256;
+      assert.deepEqual(subject, {
+        kind: 'edition-visual-form-role',
+        editionId: selected.project.id,
+        medium: 'interactive',
+        viewId: 'overview',
+        questionId: 'shape',
+        groupId: 'first-role',
+        basisAssertionId: 'overview',
+      });
       assert.match(error.diagnostics[0].subject.editionSha256, /^[a-f0-9]{64}$/u);
       return true;
     },

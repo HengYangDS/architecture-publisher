@@ -183,9 +183,7 @@ export async function materializeExecutableProvider(
             bytes: packageSelection.packageIdentity.bytes,
             sha256: packageSelection.packageIdentity.sha256,
           },
-          ...request.inputs.map(
-            ({ contentBase64: _contentBase64, mediaType: _mediaType, ...input }) => input,
-          ),
+          ...request.inputs.map(({ id, bytes, sha256 }) => ({ id, bytes, sha256 })),
         ].sort((left, right) => left.id.localeCompare(right.id)),
         materialized: {
           sourceManifestSha256: values.sourceSha256,

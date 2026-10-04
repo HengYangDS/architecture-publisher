@@ -71,7 +71,7 @@ test('public source pack writes selected files with portable paths and no approv
   assert.deepEqual(manifest.source, f.plan.source);
   assert.deepEqual(
     manifest.files,
-    f.plan.files.map(({ input, ...row }) => row),
+    f.plan.files.map(({ path, bytes, sha256 }) => ({ path, bytes, sha256 })),
   );
   assert(!raw.toString().includes(f.dir));
   assert.deepEqual(

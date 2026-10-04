@@ -844,7 +844,8 @@ test('a recomputed plan cannot replace the canonical payload with arbitrary cont
     sha256: sha('arbitrary'),
     bytes: 9,
   };
-  const { sha256: _, ...body } = p;
+  const body = { ...p };
+  delete body.sha256;
   p.sha256 = sha(JSON.stringify(body, null, 2) + '\n');
   await assert.rejects(installPairFiles(p, approve(p)), /canonical|plan.*changed|source outside/i);
   await assert.rejects(fs.stat(options.recoveryRoot), { code: 'ENOENT' });
@@ -1054,7 +1055,8 @@ test('a replay must refer to the actually recorded operation, not a newly invent
   await installPairFiles(p, approve(p));
   const original = p.sha256;
   p.policy.arbitrary = 'changed';
-  const { sha256: _, ...body } = p;
+  const body = { ...p };
+  delete body.sha256;
   p.sha256 = sha(JSON.stringify(body, null, 2) + '\n');
   for (const target of Object.values(options.destinations)) {
     const file = path.join(target, 'delivery-manifest.json');

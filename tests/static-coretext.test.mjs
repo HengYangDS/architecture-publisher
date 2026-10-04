@@ -22,7 +22,8 @@ test(
       await import('../packages/publisher/renderers/svg/coretext.mjs');
     assert.equal(typeof measureCoreTextBytes, 'function');
     const f = await setup(t);
-    const { output, ...selection } = f.plan;
+    const selection = { ...f.plan };
+    delete selection.output;
     const plan = { ...selection, scratchRoot: f.dir };
     const pending = measureCoreTextBytes(plan);
     plan.fonts[0].postscript = 'Unselected-Font';

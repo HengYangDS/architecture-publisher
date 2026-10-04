@@ -219,22 +219,22 @@ function pagePieces(bytes, shared, blocks) {
 
 function interactiveReader() {
   'use strict';
-  const payload = document.getElementById('architecture-interactive-data');
+  const payload = globalThis.document.getElementById('architecture-interactive-data');
   const data = JSON.parse(payload.textContent);
-  let frame = document.getElementById('interactive-frame');
-  const pageLabel = document.getElementById('interactive-page-label');
-  const main = document.getElementById('interactive-main');
-  const inspector = document.getElementById('interactive-inspector');
-  const inspectTitle = document.getElementById('interactive-inspect-title');
-  const inspectContext = document.getElementById('interactive-inspect-context');
-  const inspectSearch = document.getElementById('interactive-inspect-search');
-  const inspectIndex = document.getElementById('interactive-inspect-index');
-  const inspectEmpty = document.getElementById('interactive-inspect-empty');
-  const inspectContent = document.getElementById('interactive-inspect-content');
-  const inspectBasis = document.getElementById('interactive-inspect-basis');
-  const inspectToggle = document.getElementById('interactive-inspect');
-  const inspectBack = document.getElementById('interactive-inspect-back');
-  const error = document.getElementById('interactive-error');
+  let frame = globalThis.document.getElementById('interactive-frame');
+  const pageLabel = globalThis.document.getElementById('interactive-page-label');
+  const main = globalThis.document.getElementById('interactive-main');
+  const inspector = globalThis.document.getElementById('interactive-inspector');
+  const inspectTitle = globalThis.document.getElementById('interactive-inspect-title');
+  const inspectContext = globalThis.document.getElementById('interactive-inspect-context');
+  const inspectSearch = globalThis.document.getElementById('interactive-inspect-search');
+  const inspectIndex = globalThis.document.getElementById('interactive-inspect-index');
+  const inspectEmpty = globalThis.document.getElementById('interactive-inspect-empty');
+  const inspectContent = globalThis.document.getElementById('interactive-inspect-content');
+  const inspectBasis = globalThis.document.getElementById('interactive-inspect-basis');
+  const inspectToggle = globalThis.document.getElementById('interactive-inspect');
+  const inspectBack = globalThis.document.getElementById('interactive-inspect-back');
+  const error = globalThis.document.getElementById('interactive-error');
   let active = null;
   let activeReading = null;
   let subjectLabels = new Map();
@@ -242,15 +242,15 @@ function interactiveReader() {
 
   const selectedId = () => {
     try {
-      const value = new URL(location.href).hash.match(/^#page=([^&]+)/)?.[1];
+      const value = new URL(globalThis.location.href).hash.match(/^#page=([^&]+)/)?.[1];
       const decoded = value ? decodeURIComponent(value) : data.overview;
       return Object.prototype.hasOwnProperty.call(data.pages, decoded) ? decoded : data.overview;
-    } catch (_) {
+    } catch {
       return data.overview;
     }
   };
   const readingHash = () => {
-    const value = new URLSearchParams(location.hash.slice(1)).get('reader') || '';
+    const value = new URLSearchParams(globalThis.location.hash.slice(1)).get('reader') || '';
     return value.length <= 2048 ? value : '';
   };
   const page = () => data.pages[selectedId()];
@@ -259,18 +259,18 @@ function interactiveReader() {
       .map((piece) => (typeof piece === 'number' ? data.blocks[piece] : piece))
       .join('');
   const setLocation = (id, replace) => {
-    const url = new URL(location.href);
+    const url = new URL(globalThis.location.href);
     url.hash = 'page=' + encodeURIComponent(id);
-    history[replace ? 'replaceState' : 'pushState'](null, '', url);
+    globalThis.history[replace ? 'replaceState' : 'pushState'](null, '', url);
   };
   const showBasis = (sourceIds) => {
     inspectBasis.replaceChildren();
-    const details = document.createElement('details');
+    const details = globalThis.document.createElement('details');
     details.id = 'interactive-inspect-basis-details';
-    const summary = document.createElement('summary');
+    const summary = globalThis.document.createElement('summary');
     summary.textContent = sourceIds.length ? 'Source identity' : 'Edition identity';
     details.appendChild(summary);
-    const note = document.createElement('p');
+    const note = globalThis.document.createElement('p');
     note.textContent = sourceIds.length
       ? 'These are selected input identities, not embedded source files or verified domain truth.'
       : 'This statement belongs to the selected Edition, not a source-endorsed fact.';
@@ -278,15 +278,15 @@ function interactiveReader() {
     for (const id of sourceIds) {
       const source = data.sources[id];
       if (!source) continue;
-      const record = document.createElement('dl');
+      const record = globalThis.document.createElement('dl');
       for (const [label, value] of [
         ['Namespace', source.namespace],
         ['Claimant', source.claimant],
         ['Input kind', source.kind],
         ['SHA-256', source.sha256],
       ]) {
-        const term = document.createElement('dt');
-        const definition = document.createElement('dd');
+        const term = globalThis.document.createElement('dt');
+        const definition = globalThis.document.createElement('dd');
         term.textContent = label;
         definition.textContent = value;
         record.append(term, definition);
@@ -294,13 +294,13 @@ function interactiveReader() {
       details.appendChild(record);
     }
     if (!sourceIds.length) {
-      const record = document.createElement('dl');
+      const record = globalThis.document.createElement('dl');
       for (const [label, value] of [
         ['Edition', data.editionId],
         ['SHA-256', data.build.editionSha256],
       ]) {
-        const term = document.createElement('dt');
-        const definition = document.createElement('dd');
+        const term = globalThis.document.createElement('dt');
+        const definition = globalThis.document.createElement('dd');
         term.textContent = label;
         definition.textContent = value;
         record.append(term, definition);
@@ -317,7 +317,7 @@ function interactiveReader() {
     inspectTitle.textContent = graphicId
       ? subjectLabels.get(graphicId) || label || entries[0]?.title || 'Selected graphic'
       : 'Inspect this diagram';
-    const intro = document.createElement('p');
+    const intro = globalThis.document.createElement('p');
     intro.className = 'inspect-intro';
     intro.textContent = graphicId
       ? entries.length
@@ -326,15 +326,15 @@ function interactiveReader() {
       : 'Choose a graphic or statement to read its selected meaning and attribution.';
     inspectContent.appendChild(intro);
     for (const [index, entry] of entries.entries()) {
-      const details = document.createElement('details');
+      const details = globalThis.document.createElement('details');
       details.open = index === 0;
-      const summary = document.createElement('summary');
+      const summary = globalThis.document.createElement('summary');
       summary.textContent = entry.title;
       details.appendChild(summary);
-      const fields = document.createElement('dl');
+      const fields = globalThis.document.createElement('dl');
       for (const fact of entry.facts) {
-        const term = document.createElement('dt');
-        const definition = document.createElement('dd');
+        const term = globalThis.document.createElement('dt');
+        const definition = globalThis.document.createElement('dd');
         term.textContent = fact.label;
         definition.textContent = fact.value;
         fields.append(term, definition);
@@ -367,12 +367,12 @@ function interactiveReader() {
     for (const graphicId of Object.keys(selected.subjectSources)) {
       const facts = factsByGraphic.get(graphicId);
       const count = facts?.count ?? 0;
-      const button = document.createElement('button');
+      const button = globalThis.document.createElement('button');
       button.type = 'button';
       button.dataset.graphicId = graphicId;
-      const title = document.createElement('strong');
+      const title = globalThis.document.createElement('strong');
       title.textContent = subjectLabels.get(graphicId) || facts?.firstTitle || graphicId;
-      const detail = document.createElement('small');
+      const detail = globalThis.document.createElement('small');
       detail.textContent = `${count} selected ${count === 1 ? 'record' : 'records'}`;
       button.append(title, detail);
       button.addEventListener('click', () => showSelection(graphicId));
@@ -414,7 +414,7 @@ function interactiveReader() {
     else if (restoreFocus) inspectToggle.focus();
   };
   const hydrate = (selected) => {
-    const parsed = new DOMParser().parseFromString(rebuild(selected), 'text/html');
+    const parsed = new globalThis.DOMParser().parseFromString(rebuild(selected), 'text/html');
     const bindInspect = (element, id, label) => {
       const previous = element.getAttribute('data-inspect-id');
       if (previous && previous !== id) throw new Error('Graphic identity mismatch');
@@ -450,7 +450,7 @@ function interactiveReader() {
           `${from} → ${to}${edge.getAttribute('data-edge-label') ? ` · ${edge.getAttribute('data-edge-label')}` : ''}`,
         );
     }
-    const publicationUri = new URL(location.href);
+    const publicationUri = new URL(globalThis.location.href);
     publicationUri.hash = 'page=' + encodeURIComponent(selected.id);
     parsed.documentElement.setAttribute('data-publication-uri', publicationUri.href);
     if (readingHash()) {
@@ -462,15 +462,21 @@ function interactiveReader() {
       parsed.head.appendChild(addressed);
     }
     parsed.documentElement.setAttribute('data-interactive-member', selected.id);
-    parsed.documentElement.setAttribute('data-style', document.documentElement.dataset.style);
-    parsed.documentElement.setAttribute('data-theme', document.documentElement.dataset.theme);
+    parsed.documentElement.setAttribute(
+      'data-style',
+      globalThis.document.documentElement.dataset.style,
+    );
+    parsed.documentElement.setAttribute(
+      'data-theme',
+      globalThis.document.documentElement.dataset.theme,
+    );
     parsed.documentElement.setAttribute(
       'data-appearance-style',
-      document.documentElement.dataset.style,
+      globalThis.document.documentElement.dataset.style,
     );
     parsed.documentElement.setAttribute(
       'data-appearance-theme',
-      document.documentElement.dataset.theme,
+      globalThis.document.documentElement.dataset.theme,
     );
     const style = parsed.createElement('style');
     style.textContent =
@@ -522,7 +528,7 @@ function interactiveReader() {
     error.hidden = true;
     frame.hidden = false;
     pageLabel.textContent = selected.label;
-    for (const button of document.querySelectorAll('[data-interactive-page]'))
+    for (const button of globalThis.document.querySelectorAll('[data-interactive-page]'))
       button.setAttribute('aria-current', button.dataset.interactivePage === id ? 'page' : 'false');
     const reading = readingHash();
     if (id === active && reading === activeReading) return;
@@ -544,7 +550,7 @@ function interactiveReader() {
     return true;
   };
 
-  for (const button of document.querySelectorAll('[data-interactive-page]'))
+  for (const button of globalThis.document.querySelectorAll('[data-interactive-page]'))
     button.addEventListener('click', () => navigate(button.dataset.interactivePage));
   inspectToggle.addEventListener('click', () => {
     if (inspector.hidden) showInspector();
@@ -560,13 +566,13 @@ function interactiveReader() {
     }
     inspectEmpty.hidden = matches !== 0;
   });
-  addEventListener('keydown', (event) => {
+  globalThis.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && !inspector.hidden) {
       event.preventDefault();
       closeInspector();
     }
   });
-  addEventListener('message', (event) => {
+  globalThis.addEventListener('message', (event) => {
     if (
       event.source !== frame.contentWindow ||
       !event.data ||
@@ -589,8 +595,8 @@ function interactiveReader() {
       );
     }
   });
-  addEventListener('hashchange', render);
-  window.__architectureInteractive = {
+  globalThis.addEventListener('hashchange', render);
+  globalThis.window.__architectureInteractive = {
     navigate,
     active: () => active,
     pageIds: () => data.order.slice(),
@@ -599,7 +605,7 @@ function interactiveReader() {
     closeInspect: closeInspector,
   };
   try {
-    if (!location.hash) setLocation(data.overview, true);
+    if (!globalThis.location.hash) setLocation(data.overview, true);
     render();
   } catch (cause) {
     error.hidden = false;

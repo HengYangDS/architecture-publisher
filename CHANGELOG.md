@@ -15,6 +15,12 @@ may contain incompatible changes.
   instead of an authored replacement build controller; frozen renderer bytes
   and historical release artifacts remain unchanged.
 
+### Fixed
+
+- First-party code passes native recommended static analysis without ambient
+  browser-global or ignored-binding exceptions. Exact field projection and
+  portable-path validation preserve the existing input and reader contracts.
+
 ## [0.3.0-alpha.15] - 2026-10-04
 
 ### Added

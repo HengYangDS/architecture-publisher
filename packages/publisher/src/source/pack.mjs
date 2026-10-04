@@ -39,7 +39,7 @@ export async function packSourceFiles(planPath, expectedSha256) {
   const manifest = validateManifest({
     schema: 'architecture.source-bundle/v1',
     source: plan.source,
-    files: plan.files.map(({ input, ...row }) => row),
+    files: plan.files.map(({ path, bytes, sha256 }) => ({ path, bytes, sha256 })),
   });
   const members = [];
   for (const row of plan.files) {

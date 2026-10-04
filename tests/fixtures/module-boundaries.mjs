@@ -379,7 +379,10 @@ export function inspectModuleBoundaries(
       if (declaredExternals.has(specifier)) return;
       return issue(node, 'dependency must be a public package export or declared external');
     }
-    if (/[\\%?#\x00-\x1f]/.test(specifier))
+    if (
+      /[\\%?#]/u.test(specifier) ||
+      [...specifier].some((character) => character.charCodeAt(0) < 32)
+    )
       return issue(node, 'dependency path must be literal and portable');
     const target = path.posix.normalize(path.posix.join(path.posix.dirname(file), specifier));
     if (target === '..' || target.startsWith('../'))

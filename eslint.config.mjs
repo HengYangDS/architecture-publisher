@@ -30,38 +30,9 @@ export default [
       eqeqeq: ['error', 'always'],
       'max-depth': ['error', 5],
       'no-duplicate-imports': 'error',
-      'no-unused-vars': [
-        'error',
-        {
-          argsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-          ignoreRestSiblings: true,
-          varsIgnorePattern: '^_',
-        },
-      ],
       'no-var': 'error',
       'object-shorthand': 'error',
       'prefer-const': 'error',
-    },
-  },
-  {
-    files: [
-      'packages/publisher/src/rendering/interactive-html.mjs',
-      'tests/aigw-adopter.test.mjs',
-      'tests/authored-statements.test.mjs',
-      'tools/qualification/semantic-browser.mjs',
-    ],
-    languageOptions: {
-      globals: globals.browser,
-    },
-  },
-  {
-    files: [
-      'packages/publisher/src/file-input/contract.mjs',
-      'tests/fixtures/module-boundaries.mjs',
-    ],
-    rules: {
-      'no-control-regex': 'off',
     },
   },
   {

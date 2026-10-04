@@ -68,7 +68,7 @@ try {
         { waitUntil: 'load', timeout: 20000 },
       );
       if (response.status() !== 200) throw Error('Browser artifact missing');
-      await page.evaluate(async () => document.fonts.ready);
+      await page.evaluate(async () => globalThis.document.fonts.ready);
       const observed = await page.evaluate(() => {
         const box = (element) => {
           const rect = element.getBoundingClientRect();
@@ -84,13 +84,13 @@ try {
         const overlaps = (left, right) =>
           Math.min(left.right, right.right) - Math.max(left.x, right.x) > 0.5 &&
           Math.min(left.bottom, right.bottom) - Math.max(left.y, right.y) > 0.5;
-        const svg = document.querySelector('.diagram-container > svg'),
-          panel = document.querySelector('.diagram-container'),
+        const svg = globalThis.document.querySelector('.diagram-container > svg'),
+          panel = globalThis.document.querySelector('.diagram-container'),
           panelBox = box(panel),
           texts = [...svg.querySelectorAll('text')].map((element) => ({
             text: element.textContent.trim(),
             box: box(element),
-            font: Number.parseFloat(getComputedStyle(element).fontSize),
+            font: Number.parseFloat(globalThis.getComputedStyle(element).fontSize),
           })),
           overlapsFound = [];
         for (let left = 0; left < texts.length; left++)
@@ -124,13 +124,14 @@ try {
             )
             .map((text) => text.text),
           minimumFont: Math.min(...texts.map((text) => text.font)),
-          scrollWidth: document.documentElement.scrollWidth,
-          viewportWidth: innerWidth,
+          scrollWidth: globalThis.document.documentElement.scrollWidth,
+          viewportWidth: globalThis.innerWidth,
           surfaceBadges: [
-            getComputedStyle(document.querySelector('.header-row'), '::after').content,
-            getComputedStyle(panel, '::after').content,
+            globalThis.getComputedStyle(globalThis.document.querySelector('.header-row'), '::after')
+              .content,
+            globalThis.getComputedStyle(panel, '::after').content,
           ],
-          title: document.title,
+          title: globalThis.document.title,
         };
 
         function point(element, length) {
@@ -184,15 +185,15 @@ try {
       !response.headers()['content-type']?.startsWith('image/svg+xml')
     )
       throw Error('Static SVG artifact missing or incorrectly served');
-    await page.evaluate(async () => document.fonts.ready);
+    await page.evaluate(async () => globalThis.document.fonts.ready);
     const observed = await page.evaluate(() => {
-      const svg = document.documentElement,
+      const svg = globalThis.document.documentElement,
         rect = svg.getBoundingClientRect(),
         viewBox = svg.viewBox.baseVal,
         texts = [...svg.querySelectorAll('text')].map((element) => ({
           text: element.textContent.trim(),
           box: box(element),
-          font: Number.parseFloat(getComputedStyle(element).fontSize),
+          font: Number.parseFloat(globalThis.getComputedStyle(element).fontSize),
         })),
         nodes = [...svg.querySelectorAll('[data-node-id]')].map((node) => ({
           id: node.getAttribute('data-node-id'),
@@ -244,7 +245,7 @@ try {
       }
       return {
         root: svg.localName,
-        fontFaces: [...document.fonts].map((font) => ({
+        fontFaces: [...globalThis.document.fonts].map((font) => ({
           family: font.family,
           weight: font.weight,
           status: font.status,
@@ -260,7 +261,7 @@ try {
           from: edge.getAttribute('data-edge-from'),
           to: edge.getAttribute('data-edge-to'),
           path: edge.getAttribute('d'),
-          stroke: getComputedStyle(edge).stroke,
+          stroke: globalThis.getComputedStyle(edge).stroke,
           start: point(edge, 0),
           end: point(edge, edge.getTotalLength()),
           fromBox: box(

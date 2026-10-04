@@ -133,7 +133,8 @@ test('native parent rejects a reply with changed selected identity or malformed 
 
 test('native parent rejects a source range whose quality marker contradicts its span', async () => {
   const index = await executeLikeC4Native(selected(), await readLikeC4ParserSupply());
-  const { parserSupply: _parserSupply, ...raw } = structuredClone(index);
+  const raw = structuredClone(index);
+  delete raw.parserSupply;
   assert.doesNotThrow(() => validateNativeIndexReply(raw, index.sources));
   const changed = structuredClone(raw);
   changed.elements[0].origin.quality =
@@ -145,7 +146,8 @@ test('native parent rejects a source range whose quality marker contradicts its 
 
 test('native parent rejects lost uncertainty and duplicate visible membership', async () => {
   const index = await executeLikeC4Native(selected(), await readLikeC4ParserSupply());
-  const { parserSupply: _parserSupply, ...valid } = structuredClone(index);
+  const valid = structuredClone(index);
+  delete valid.parserSupply;
   assert.doesNotThrow(() => validateNativeIndexReply(valid, index.sources));
   const counterexamples = [
     (value) => value.semanticLimits.pop(),
@@ -171,7 +173,8 @@ test('native parent rejects lost uncertainty and duplicate visible membership', 
 
 test('native parent rejects malformed typed meaning before admitting parser output', async () => {
   const index = await executeLikeC4Native(selected(), await readLikeC4ParserSupply());
-  const { parserSupply: _parserSupply, ...valid } = structuredClone(index);
+  const valid = structuredClone(index);
+  delete valid.parserSupply;
   const counterexamples = [
     ['changed selected source', (value) => (value.sources[0].sha256 = '0'.repeat(64))],
     ['non-JSON metadata', (value) => (value.elements[0].opaqueMetadata = { value: 1n })],

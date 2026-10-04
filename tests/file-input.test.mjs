@@ -3,6 +3,17 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { portablePath } from '../packages/publisher/src/file-input/contract.mjs';
+
+test('portable member paths refuse ASCII controls without rejecting valid Unicode', () => {
+  for (const code of [...Array.from({ length: 32 }, (_, index) => index), 127]) {
+    assert.throws(() => portablePath(`nested/a${String.fromCharCode(code)}b.txt`), {
+      code: 'member_path_invalid',
+    });
+  }
+  assert.equal(portablePath('nested/source \u0394.txt'), 'nested/source \u0394.txt');
+  assert.equal(portablePath('nested/a\u0080b.txt'), 'nested/a\u0080b.txt');
+});
 
 test('independent editors read bounded regular bytes and decode strict JSON without Source Bundle authority', async (t) => {
   const api = await import('../packages/publisher/src/file-input/index.mjs').catch(() => null);

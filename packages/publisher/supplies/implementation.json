@@ -49,8 +49,8 @@
       },
       {
         "path": "src/file-input/contract.mjs",
-        "bytes": 2520,
-        "sha256": "f6413d34cd20514b2cbf05efa442e73c078a7d4b99a30fab9c412bc93510e3d7"
+        "bytes": 2600,
+        "sha256": "4fac43da77fdeeefa651a8e485e09b997c010609935e59a614e083fac9ba5a67"
       },
       {
         "path": "src/file-input/read.mjs",
@@ -161,8 +161,8 @@
       },
       {
         "path": "src/file-input/contract.mjs",
-        "bytes": 2520,
-        "sha256": "f6413d34cd20514b2cbf05efa442e73c078a7d4b99a30fab9c412bc93510e3d7"
+        "bytes": 2600,
+        "sha256": "4fac43da77fdeeefa651a8e485e09b997c010609935e59a614e083fac9ba5a67"
       },
       {
         "path": "src/file-input/read.mjs",
@@ -390,8 +390,8 @@
       },
       {
         "path": "src/file-input/contract.mjs",
-        "bytes": 2520,
-        "sha256": "f6413d34cd20514b2cbf05efa442e73c078a7d4b99a30fab9c412bc93510e3d7"
+        "bytes": 2600,
+        "sha256": "4fac43da77fdeeefa651a8e485e09b997c010609935e59a614e083fac9ba5a67"
       },
       {
         "path": "src/file-input/read.mjs",
@@ -691,8 +691,8 @@
       },
       {
         "path": "src/file-input/contract.mjs",
-        "bytes": 2520,
-        "sha256": "f6413d34cd20514b2cbf05efa442e73c078a7d4b99a30fab9c412bc93510e3d7"
+        "bytes": 2600,
+        "sha256": "4fac43da77fdeeefa651a8e485e09b997c010609935e59a614e083fac9ba5a67"
       },
       {
         "path": "src/file-input/read.mjs",
@@ -1172,8 +1172,8 @@
       },
       {
         "path": "src/file-input/contract.mjs",
-        "bytes": 2520,
-        "sha256": "f6413d34cd20514b2cbf05efa442e73c078a7d4b99a30fab9c412bc93510e3d7"
+        "bytes": 2600,
+        "sha256": "4fac43da77fdeeefa651a8e485e09b997c010609935e59a614e083fac9ba5a67"
       },
       {
         "path": "src/file-input/read.mjs",
@@ -1349,8 +1349,8 @@
       },
       {
         "path": "src/file-input/contract.mjs",
-        "bytes": 2520,
-        "sha256": "f6413d34cd20514b2cbf05efa442e73c078a7d4b99a30fab9c412bc93510e3d7"
+        "bytes": 2600,
+        "sha256": "4fac43da77fdeeefa651a8e485e09b997c010609935e59a614e083fac9ba5a67"
       },
       {
         "path": "src/protocol/json.mjs",
@@ -1364,8 +1364,8 @@
       },
       {
         "path": "src/rendering/interactive-html.mjs",
-        "bytes": 41066,
-        "sha256": "8cf9b44f3080777dd628db2389910c14de569f40801a6c3e65599de757267d87"
+        "bytes": 41650,
+        "sha256": "9816dc6843df63d622cd2f313a3e26343f6ad536da821502406f74f93d5ab2a8"
       },
       {
         "path": "src/runtime/process-tree.mjs",
