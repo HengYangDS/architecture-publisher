@@ -18,6 +18,38 @@ reproducing a button, animation, page count or layout.
 The single writer makes and verifies the implementation decisions under the
 requester's standing authorization. Self-review is not independent endorsement.
 
+## Complete delivery scope
+
+The current goal includes eight finite outcomes. Earlier reader-only scope and
+PDF/PPT exclusions no longer describe the selected delivery. The following
+table maps outcomes to native responsibilities and task acceptance, not a second
+progress store. Checked predecessor tasks retain their original evidence scope.
+
+| Outcome                       | Existing responsibility                       | Remaining task acceptance |
+| ----------------------------- | --------------------------------------------- | ------------------------- |
+| Inputs, authority and DX      | Source/Provider intake and Edition authoring  | 4.1-4.2                   |
+| General publication and media | Composition, renderers and qualification      | 5.1-5.3                   |
+| AIGW adoption                 | Source-owned Client and Product Editions      | 6.1-6.2                   |
+| Minimal ETHOS flagship        | Source export/selection and Edition migration | 7.1                       |
+| ETHOS north-star feedback     | Existing source research and evolution owners | 7.2                       |
+| Broad research settlement     | Current ETHOS research owner                  | 8.1                       |
+| Artifact custody and recovery | Designated release and local delivery owners  | 9.1-9.2                   |
+| Native quality and closeout   | Native toolchain, installed ETHOS and GitLab  | 10.1-10.3                 |
+
+Sources own repository-specific versioned meanings. Publisher owns only generic
+input, composition and publication contracts. The editor owns audience,
+questions, selected scope and explanatory choices; the designated accepter and
+target policy own acceptance and publication respectively. Co-location, matching
+names, source bytes and passing builds do not transfer those authorities.
+
+The first active day maps all outcomes into this Change's design, specs and
+tasks. Estimated execution is three to five active working days. At
+2026-10-10 18:00 Asia/Shanghai, stop mutation and report exact remaining gaps.
+That cutoff is not completion, deletion or a waiver of mandatory acceptance.
+Unavailable source approval or an unqualified installed ETHOS proof successor
+remains open unless the requester explicitly accepts its disposition.
+Advance independent tasks while preserving the dependent gap.
+
 ## Outcome-first selection
 
 The hard constraints are exact selected meaning, complete declared reader
@@ -334,9 +366,99 @@ and the unchanged 25-case macOS guest replay establish the affected boundary,
 not a proved hardware, parser or filesystem root cause. A complete successor
 matrix must still pass before publication.
 
-Keep durable secret-free evidence in the repository family records and reader
-deliverables in Documents. Verify exact custody before disposing of owned
-temporary outputs. Historical signed releases, original reader bytes, foreign
-work and user browser windows stay unchanged. The full cross-product goal
-remains active until source adoption, north-star/research settlement and final
-lifecycle obligations also close.
+New generated output belongs under the repository's ignored `build/`, according
+to the projects-family contract. Existing records remain exact retained inputs
+until their named consumers release them; do not create another records root.
+Designated Forge records preserve required durable release evidence. Documents
+contains reader deliveries, not source or a second mutable Edition.
+Verify exact custody before disposing of owned temporary outputs. Historical
+signed releases, original reader bytes, foreign work and user windows remain
+unchanged. Source acceptance, research settlement and lifecycle closure are
+separate remaining obligations.
+
+## Editorial input and media expansion
+
+The public input is selected system material plus an editorial brief: audience,
+questions, scope, limits and independent media choices. The existing
+schema-validated Edition Project remains the machine carrier. Improve its
+example, diagnostics and documented happy path before inventing another grammar.
+Native LikeC4 sources need no duplicate Claim Model; optional declarative
+Providers and separately owned editorial roots converge before compilation.
+Questions are human-readable choices, not executable queries. Deterministic
+rebuilds require no Agent, ambient checkout or source-specific runtime.
+
+Mature mechanisms are reusable implementations, not competitors to Publisher.
+Select parsing, geometry, native reading, vector document and presentation
+libraries by measured semantic preservation, offline operation, portability and
+total authoring/maintenance burden. Reuse verified Archify controls rather than
+create a parallel reader. A library upgrade alone is not superiority evidence.
+
+Static, interactive, PDF and presentation output share selected semantic
+identities but own their medium-specific composition and qualification.
+A PDF/deck can reuse a qualified static scene deliberately selected for its
+page; HTML screenshots do not define static art direction. Every document page
+and slide answers its declared question with a complete diagram. Do not
+manufacture extra pages, render long canvases into unreadable slides or replace
+an interactive overview with partial tables.
+
+Add media through the existing Build Request, Candidate and qualification
+owners, using mature vector/PPTX libraries behind small renderer boundaries.
+Bundle portable fonts or their verified outlines; retain searchable text only
+where demonstrated. PDF has actual vector text/paths; embedding a PNG in a PDF
+does not satisfy vector delivery. A valid PPTX and editable diagram objects are
+different claims: expose the actual editability scope and verify it natively.
+The minimum product demonstration is a complete multipage self-Edition and an
+unrelated conformance Edition through the same installed public entry.
+
+Pixel rules derive from one measured geometry owner. Test actual painted
+glyphs, paths, arrowheads, box clearance, alignment and reader controls;
+DOM bounds alone cannot prove separation. Deliberate containment and exact
+semantic junctions are distinguished from accidental overlap. Offered styles
+must preserve readable Inspect selection, keyboard behavior and semantic
+distinctions. Aesthetic acceptance uses declared reader tasks and the approved
+flagship baseline, not fabricated universal whitespace percentages.
+
+## Source settlement and recovery
+
+AIGW Client Projection already selects declarative Provider v2 at the observed
+source revision. Verify that exact interface and its installed execution;
+do not repeat a superseded v1 migration. Product Edition is a distinct source
+scope with its own source-owned meaning and acceptance. Neutral visual approval
+does not settle either source meaning or publication authority.
+
+The ETHOS adapter starts from its current authoritative export and selection.
+No second semantic exporter, repository-specific Publisher schema, compulsory
+runtime dependency or publication controller enters the source. The target
+explanation includes greenfield and brownfield formation, intent and constraints,
+Skills boundaries, parallel cooperation, competitive zero-or-one selection,
+experimental/all-drop outcomes, per-ref serial CAS, assurance, effect recovery,
+publication and outcome feedback. A required predecessor remains preserved
+until its designated successor is accepted.
+
+ETHOS north-star delivery is a finite decision packet, source-owner disposition
+and one falsifying feedback journey. It preserves the complete agentic-native
+repository and ecosystem ambition but does not require implementing the entire
+future ETHOS roadmap in this Change. SDD, DR and semantic/formal research settles
+with current ETHOS owners; Publisher retains only findings used by publication.
+Compare substantive OpenSpec releases, COMET, SpecD versus SpecDD, Spec Kit,
+BMAD/GSD, adjacent coordination, symbolic binding, semantic graphs and formal
+methods at fixed implementations. Separate authored source, tests, generated
+and vendor size; compare guarantees, failure behavior and maintenance cost,
+not promotional claims or unsupported semantic-density rankings.
+Each selected mechanism has adopt/reuse/replace/defer/reject disposition,
+rationale, evidence, owner and revisit trigger.
+
+Selected GitLab recovery covers repository source plus the actually designated
+release inputs/assets and records. It is not a promise to recover credentials
+or all Forge metadata from Git. Prove recovery in an isolated local-loss
+rehearsal without changing production state, then download selected outputs
+and verify their manifests and bytes. No unselected disk, Time Machine or
+second-site service is introduced.
+
+Keep one writer and the existing `tasks.md`. Repair message/authentication
+failures at their actual consumer/transport owner, with bounded noninteractive
+operations and exact process cleanup; preserve sessions, model metadata and
+credentials. Maintainer self-review is valid where the actual policy permits it.
+Freeze product inputs before the full matrix, reuse applicable immutable
+evidence and refresh exact-current governance separately. No deadline or
+unsuccessful reviewer substitutes for required proof or acceptance.

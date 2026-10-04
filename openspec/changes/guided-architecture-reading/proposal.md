@@ -1,36 +1,42 @@
 ## Why
 
-The generic HTML suppresses useful native appearance and exploration. Readers
-need complete architecture figures, exact queries and usable provenance without
-mistaking geometry, reading order or unavailable queries for source facts.
-Historical playback is evidence, not a mandatory successor feature.
+The complete delivery needs a general architecture publication product, not
+another local reader repair. Sources must retain their semantics while editors
+can explain them through professional, independently qualified media without
+source-repository invasion or repeated manual reconstruction.
 
 ## What Changes
 
-- Admit optional interactive appearance through the existing Edition Project.
-- Retain native Finder, Passport, Lens, Radar, Route, Reach, camera and exports.
-- Separate checked logical relations from shared physical strokes and Inspect
-  carriers; unavailable exact queries must not assert non-connectivity.
-- Keep query-attached Export usable and make copied native reading links address
-  the independent HTML through the existing publication bridge.
-- Verify real native/authored reading, installed use and unchanged static meaning.
-- Preserve historical works without adding a chapter grammar or playback owner.
+- Keep native source inputs and a readable editorial brief behind one public
+  build entry, with optional declarative Providers and external editorial roots.
+- Reuse checked native parsing, layout, reading and export mechanisms; preserve
+  semantic identity without treating drawing junctions as source relationships.
+- Deliver independently composed desktop figures, standalone HTML, vector PDF
+  and PPTX; qualify typography, geometry, accessibility and actual editability.
+- Complete source-owned AIGW and minimal ETHOS adoption, including exact target
+  mechanisms, finite north-star feedback and implementation-grounded research.
+- Verify native macOS, Linux and Windows rebuilding, installed operation,
+  recoverable custody, signed release and governed lifecycle closure.
 
 ## Capabilities
 
 ### New Capabilities
 
-None.
+- `media-export`: qualified vector documents and presentation delivery.
 
 ### Modified Capabilities
 
-- `semantic-publication`: source-bound native exploration and appearance.
-- `browser-evidence`: reading, addressed state and native lifecycle observations.
+- `semantic-publication`: native editorial input, exploration and visual quality.
+- `browser-evidence`: desktop reading, addressed state and native lifecycle.
+- `ecosystem-adoption`: finite source feedback and research settlement.
 
 ## Impact
 
-Edition validation, composition, renderer adaptation and their tests change.
-ETHOS and AIGW retain their facts, editorial choices, acceptance and publication.
-No new command, service, arbitrary executable input or mobile mode is added.
-PDF/PPT implementation and independent off-host recovery are outside this repair.
-Implementation status lives only in this Change's `tasks.md`.
+The existing input, composition, renderer, qualification and publication owners
+retain responsibility. PDF and PPTX enter the same candidate and qualification
+boundaries; they do not become a second publisher or source truth authority.
+ETHOS and AIGW own their meanings and designated acceptance. Publisher owns
+generic contracts, not repository-specific semantic contracts.
+No compulsory source change, mobile mode, resident service, duplicate progress
+store or unselected backup system is admitted. The existing `tasks.md` owns
+progress; the design defines dependency order and the stop-and-report boundary.

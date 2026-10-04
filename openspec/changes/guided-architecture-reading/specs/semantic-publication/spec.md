@@ -99,3 +99,31 @@ that feature in a successor.
 - **WHEN** a successor preserves IDs but fails to explain required structure or mechanisms
 - **THEN** the source migration remains incomplete and the predecessor is preserved
 - **AND** a format or library upgrade is not accepted as proof of superiority
+
+### Requirement: Native editorial input remains readable and non-invasive
+
+The public build SHALL admit selected native material and a declarative
+editorial brief through the existing authoring owner. Supported native sources
+SHALL NOT require a duplicated Claim Model. Optional Providers and external
+editorial roots SHALL converge before compilation; deterministic regeneration
+SHALL require neither an Agent nor source-repository modification.
+
+#### Scenario: An editor supplies reader questions
+
+- **WHEN** the brief names audience, questions, scope, omissions and media
+- **THEN** those choices are ordinary editable data, not executable queries
+- **AND** actionable diagnostics identify the affected choice without inventing source meaning
+
+### Requirement: Native rebuilding and installed quality are distinct evidence
+
+The delivery SHALL separately qualify full quality execution, frozen Raster
+rebuilding and installed offline relocation/recovery on macOS, Linux and
+Windows. All applicable lines, statements, functions and branches SHALL remain
+at least 95 percent covered. Frozen integrity, a syntax check or one OS result
+SHALL NOT establish rebuilding or another target's support.
+
+#### Scenario: Three native quality jobs pass without rebuilding
+
+- **WHEN** native jobs verify frozen supply but do not rebuild it
+- **THEN** source-rebuild acceptance remains unproved for those targets
+- **AND** unnecessary platform controllers remain pending verified consumer migration
