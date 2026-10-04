@@ -479,6 +479,11 @@ test('native Git carrier roles preserve authored coverage and frozen supply obli
   const runtime = new Set();
   for (const file of tracked) {
     const role = roles.get(file);
+    if (file.endsWith('.sh')) {
+      assert.equal(role, 'tooling', `${file} has no native script responsibility`);
+      assert.match(file, /^tools\//u);
+      continue;
+    }
     if (!/\.(?:mjs|cjs|js)$/u.test(file)) {
       assert(!['code', 'test', 'tooling'].includes(role), `${file} is not a JavaScript carrier`);
       continue;

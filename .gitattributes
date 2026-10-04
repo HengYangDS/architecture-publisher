@@ -11,6 +11,7 @@ tests/**/*.js ethos-role=test
 tools/**/*.mjs ethos-role=tooling
 tools/**/*.cjs ethos-role=tooling
 tools/**/*.js ethos-role=tooling
+tools/**/*.sh ethos-role=tooling
 .config/** ethos-role=config
 eslint.config.mjs ethos-role=config
 packages/publisher/src/edition/generated/** ethos-role=generated
