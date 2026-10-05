@@ -63,7 +63,6 @@ test('native Cargo and wasm-bindgen reproduce the admitted raster witness', asyn
   const snapshot = async (directory, prefix = '') => {
     const files = [];
     for (const item of await fs.readdir(directory, { withFileTypes: true })) {
-      if (prefix === '' && item.name === 'target') continue;
       const relative = prefix + item.name;
       const selected = path.join(directory, item.name);
       assert(!item.isSymbolicLink(), relative);
@@ -87,7 +86,7 @@ test('native Cargo and wasm-bindgen reproduce the admitted raster witness', asyn
     );
     invoke(process.execPath, [verifier, '--inputs', source]);
     const inputs = await snapshot(source);
-    const target = path.join(source, 'target');
+    const target = path.join(work, `target ${builds.length} Δ`);
     await assert.rejects(fs.lstat(target), { code: 'ENOENT' });
     invoke(
       'cargo',
@@ -117,6 +116,7 @@ test('native Cargo and wasm-bindgen reproduce the admitted raster witness', asyn
     ]);
     invoke(process.execPath, [verifier, '--inputs', source]);
     assert.deepEqual(await snapshot(source), inputs, 'all extracted source bytes remain unchanged');
+    await assert.rejects(fs.lstat(path.join(source, 'target')), { code: 'ENOENT' });
     const outputs = [];
     for (const selected of manifest.outputs) {
       const bytes = await fs.readFile(path.join(output, selected.nativeFile));

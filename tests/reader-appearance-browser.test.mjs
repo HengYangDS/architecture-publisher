@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 import test from 'node:test';
 import { chromium } from 'playwright-core';
 import { browserLifetime } from './fixtures/browser-lifetime.mjs';
+import { selectedInteractiveMember } from './fixtures/interactive-member.mjs';
 import { compileEditionCandidateInput } from '../packages/publisher/src/compiler/index.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
 import { composeInteractiveHtml } from '../packages/publisher/src/rendering/interactive-html.mjs';
@@ -649,6 +650,47 @@ async function authoredHtml(t, repeatMember = false, multiplePages = false) {
   });
 }
 
+async function observeSystemTheme(member, theme, deliver, timeout = 5000) {
+  await member.evaluate((light) => {
+    const media = globalThis.matchMedia('(prefers-color-scheme: light)');
+    const observation = { settled: media.matches === light };
+    const listener = (event) => {
+      if (event.matches === light) observation.settled = true;
+    };
+    if (!observation.settled) media.addEventListener('change', listener, { once: true });
+    observation.cancel = () => media.removeEventListener('change', listener);
+    globalThis.systemThemeObservation = observation;
+  }, theme === 'light');
+  try {
+    await deliver();
+    const settled = await member.waitForFunction(
+      () => globalThis.systemThemeObservation.settled,
+      undefined,
+      { timeout },
+    );
+    await settled.dispose();
+    assert.equal(
+      await member.evaluate(() => globalThis.matchMedia('(prefers-color-scheme: light)').matches),
+      theme === 'light',
+      'the real browser delivered the selected system preference',
+    );
+  } catch (cause) {
+    if (cause.name === 'TimeoutError')
+      throw new Error(
+        `The real browser did not deliver the ${theme} preference within ${timeout}ms`,
+        {
+          cause,
+        },
+      );
+    throw cause;
+  } finally {
+    await member.evaluate(() => {
+      globalThis.systemThemeObservation.cancel();
+      delete globalThis.systemThemeObservation;
+    });
+  }
+}
+
 async function geometry(frame, selector) {
   return frame.locator(selector).evaluateAll((elements) =>
     elements.map((element) => {
@@ -905,6 +947,38 @@ test(
 );
 
 test(
+  'native system-theme observation times out and releases its listener when no change is delivered',
+  runBrowser,
+  async (t) => {
+    const browser = browserLifetime(t).use(await chromium.launch(browserOptions));
+    const page = await browser.newPage({ colorScheme: 'light' });
+    const member = page.mainFrame();
+    await assert.rejects(
+      observeSystemTheme(
+        member,
+        'dark',
+        () =>
+          member.evaluate(() => {
+            globalThis.expiredSystemThemeObservation = globalThis.systemThemeObservation;
+          }),
+        200,
+      ),
+      { message: 'The real browser did not deliver the dark preference within 200ms' },
+    );
+    assert.equal(
+      await member.evaluate(() => typeof globalThis.systemThemeObservation),
+      'undefined',
+    );
+    await observeSystemTheme(member, 'dark', () => page.emulateMedia({ colorScheme: 'dark' }));
+    assert.equal(
+      await member.evaluate(() => globalThis.expiredSystemThemeObservation.settled),
+      false,
+      'the expired listener does not observe a later real media event',
+    );
+  },
+);
+
+test(
   'authored reader style is shared with its opaque frame and never replaced by source initialization',
   runBrowser,
   async (t) => {
@@ -917,27 +991,8 @@ test(
     });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
-    await page.addInitScript(() => {
-      const nativeMatchMedia = globalThis.matchMedia.bind(globalThis);
-      const changes = [];
-      globalThis.matchMedia = (query) => {
-        const media = nativeMatchMedia(query);
-        const add = media.addEventListener.bind(media);
-        media.addEventListener = (type, listener, ...options) => {
-          if (type === 'change' && query === '(prefers-color-scheme: light)')
-            changes.push(listener);
-          return add(type, listener, ...options);
-        };
-        return media;
-      };
-      globalThis.deliverSystemTheme = (matches) => {
-        if (changes.length !== 1) throw new Error('Expected the native theme observer');
-        changes[0]({ matches });
-      };
-    });
     await page.setContent(html.toString(), { waitUntil: 'load' });
-    const member = page.frameLocator('#interactive-frame');
-    await member.locator('[data-interactive-member]').waitFor();
+    const member = await selectedInteractiveMember(page, 'overview');
     await member.locator('svg').first().waitFor();
     assert.equal(
       await member.locator('.toolbar').isVisible(),
@@ -969,12 +1024,15 @@ test(
       await member.locator(`html[data-style="${style}"][data-theme="${theme}"]`).waitFor();
       await member.locator('html').evaluate(() => globalThis.Archify.layoutStability.whenStable());
     };
+    const systemTheme = (theme) =>
+      observeSystemTheme(member, theme, () => page.emulateMedia({ colorScheme: theme }));
     await settle('blueprint', 'dark');
-    await member.locator('html').evaluate(() => globalThis.deliverSystemTheme(true));
+    await systemTheme('dark');
+    await systemTheme('light');
     assert.equal(
       await member.locator('html').getAttribute('data-theme'),
       'dark',
-      'a queued system preference must not replace the explicit authored theme',
+      'a delivered system preference must not replace the explicit authored theme',
     );
     assert.equal(await member.locator('#theme-label').textContent(), 'Dark');
     assert.equal(await member.locator('#btn-theme').getAttribute('aria-pressed'), 'false');
@@ -986,9 +1044,7 @@ test(
         const currentTheme = await member.locator('html').getAttribute('data-theme');
         if (currentTheme !== theme) await member.locator('#btn-theme').click();
         await settle(style, theme);
-        await member
-          .locator('html')
-          .evaluate((_, theme) => globalThis.deliverSystemTheme(theme !== 'light'), theme);
+        await systemTheme(theme === 'light' ? 'dark' : 'light');
         assert.equal(
           await member.locator('html').getAttribute('data-theme'),
           theme,
