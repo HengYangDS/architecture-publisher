@@ -3,6 +3,7 @@ import { fail } from '../../protocol/values.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { claimRelationLabel, linkClaimModelSources } from '../claim-relations.mjs';
 import { selectedStaticNativeViews } from './selection.mjs';
+import { neutralFigurePolicy, resolveFigureTypes } from '../figure-types.mjs';
 
 const nodeKey = ({ namespace, id }) => canonical([namespace, id]);
 const relationKey = ({ id, origin }) => canonical([origin.namespace, id, origin.sha256]);
@@ -138,12 +139,24 @@ export function composeStaticResponsibilityScene(meaning) {
         'static_responsibility_claim_relation_unbound',
       )
     : { links: [], subjectLinks: [] };
+  const [{ nodes: figures }] = resolveFigureTypes(
+    [
+      {
+        nodes: [...nodes.values()].map((item) => ({
+          ...structuredClone(item),
+          figureKind: item.kind ?? 'source element',
+        })),
+      },
+    ],
+    meaning.editorial.visualPolicy?.figureTypes,
+  );
   return deepFreeze({
     schema: 'architecture.edition-static-responsibility-scene/v1',
     completeness: 'unqualified-scene',
     edition: meaning.edition,
     title: meaning.editorial.title,
     summary: meaning.editorial.narrative.summary,
+    visualPolicy: neutralFigurePolicy(meaning.editorial.visualPolicy),
     requestedWidth: meaning.editorial.presentation.static.width ?? null,
     editorialViewId: view.id,
     questionIds: view.questionIds,
@@ -151,7 +164,7 @@ export function composeStaticResponsibilityScene(meaning) {
     limitsByQuestion: view.limitsByQuestion,
     visualForm: structuredClone(form),
     groups: structuredClone(authored.groups),
-    nodes: [...nodes.values()].map((item) => structuredClone(item)),
+    nodes: figures,
     relations: [...relations.values()].map((item) => ({
       ...structuredClone(item),
       label: claimMode

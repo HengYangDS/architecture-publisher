@@ -162,6 +162,36 @@ Irregular shapes, curves, gradients, animation, and whitespace have no inherent
 value. Each must make a semantic distinction or improve reading. Decorative
 novelty is rejected.
 
+### Figure types
+
+One Edition-wide `visualPolicy.figureTypes` catalog assigns an icon to each
+effective figure kind. The same kind uses the same icon on every selected page;
+different kinds require different resolved artwork. A renamed icon alias does
+not count as different artwork.
+
+```json
+{
+  "profile": "neutral",
+  "figureTypes": {
+    "service": "lucide:server",
+    "store": "lucide:database"
+  }
+}
+```
+
+Publisher resolves this catalog before rendering either medium. Nodes, Legends,
+and canonical exports use the same pinned offline glyphs. Each Legend entry has
+one icon first, followed by its kind label; occurrence counts are not displayed.
+An occurrence cannot override or suppress its icon. Missing kinds, unsupported
+icons, reused artwork, or insufficient painted clearance reject the candidate.
+
+A figure kind describes the reader-facing role, not a replacement source fact.
+Source kinds and membership remain available in Inspect; a null source kind
+stays null and requires the separate `source element` figure role. Source-owned
+primitive artwork and adornments remain unchanged. The catalog belongs to the
+Edition, which may live outside the source repository; Publisher supplies the
+generic contract and checked glyph library, not a repository-specific taxonomy.
+
 ## Qualification
 
 An Edition lists non-substitutable predicates. At minimum a flagship requires:

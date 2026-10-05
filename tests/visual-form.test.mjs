@@ -20,10 +20,13 @@ import {
 } from '../packages/publisher/renderers/interactive/responsibility-map.mjs';
 import { interactiveAppearanceCss } from '../packages/publisher/renderers/reader/appearance.mjs';
 import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
+import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
 import { composeStaticResponsibilitySvg } from '../packages/publisher/renderers/svg/responsibility.mjs';
 import { claimModel } from './fixtures/claim-model.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
 import { withOwnedProcessScope } from '../packages/publisher/src/runtime/process-tree.mjs';
+
+const figureIcons = await loadFigureIconSupply();
 
 const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
 
@@ -137,6 +140,20 @@ test('attributed responsibility roles and handoff survive pre-layout selection',
   );
 });
 
+test('static responsibility nodes and Legend share the global Edition figure vocabulary', async (t) => {
+  const { selected } = await responsibilityFixture(t, 'static');
+  const meaning = await compileEditionMeaning(
+    await materializeBuildRequestInput(selected.file, selected.digest),
+  );
+  const scene = composeStaticResponsibilityScene(meaning);
+  assert.deepEqual(scene.visualPolicy.figureTypes, { component: 'lucide:box' });
+  assert(scene.nodes.every((node) => node.kind === 'component' && node.icon === 'lucide:box'));
+  const icons = await loadFigureIconSupply();
+  const svg = composeStaticResponsibilitySvg(scene, { icons }).bytes.toString('utf8');
+  assert.equal((svg.match(/data-semantic-sigil="lucide:box"/gu) ?? []).length, 3);
+  assert.equal((svg.match(/data-legend-kind="component"/gu) ?? []).length, 1);
+});
+
 test('a bare structural view cannot become responsibility authority', async (t) => {
   const { selected, view, writeProject } = await responsibilityFixture(t);
   view.form.roles[0].basis = 'overview';
@@ -174,6 +191,16 @@ test('a selected responsibility form builds an independent interactive role work
   assert.match(html, /The first component hands control to the second/u);
   assert.match(html, /Alpha/u);
   assert.match(html, /Beta/u);
+  const nodeGroups = [...html.matchAll(/<g data-graphic-id="n-\d+"[^>]*>([\s\S]*?)<\/g>/gu)];
+  assert.equal(nodeGroups.length, 2);
+  for (const [, markup] of nodeGroups) assert.match(markup, /data-semantic-sigil="lucide:box"/u);
+  const legend = html.match(/<ul class="figure-types"[\s\S]*?<\/ul>/u)?.[0];
+  assert.ok(legend);
+  assert.match(
+    legend,
+    /data-legend-kind="component"><svg[^>]*>[\s\S]*?data-semantic-sigil="lucide:box"[\s\S]*?<\/svg><span>component<\/span>/u,
+  );
+  assert.doesNotMatch(legend, /badge|count|ordinal/u);
   assert.doesNotMatch(html, /id="graph-0"/u);
   const candidate = JSON.parse(await fs.readFile(path.join(output, 'candidate.json'), 'utf8'));
   assert.equal(candidate.qualification, 'unqualified');
@@ -317,8 +344,8 @@ test(
           { id: 'g-1', label: 'Second role', nodeIds: ['n-1'] },
         ],
         nodes: [
-          { id: 'n-0', label: 'Alpha' },
-          { id: 'n-1', label: 'Beta' },
+          { id: 'n-0', label: 'Alpha', figureKind: 'component', icon: 'lucide:box' },
+          { id: 'n-1', label: 'Beta', figureKind: 'component', icon: 'lucide:box' },
         ],
         relations: [
           { id: 'r-0', source: 'n-0', target: 'n-1', label: 'configures', direction: 'directed' },
@@ -327,6 +354,7 @@ test(
         questions: [{ text: 'How is Beta configured?' }],
       },
       0,
+      await loadFigureIconSupply(),
     );
     await page.setContent(
       `<html data-style="editorial" data-theme="light"><style>${interactiveAppearanceCss()}${responsibilityMapCss}</style>${labeled}</html>`,
@@ -520,7 +548,12 @@ test(
         'Projection',
         'Client',
         'Endpoint',
-      ].map((label, index) => ({ id: `n-${index}`, label })),
+      ].map((label, index) => ({
+        id: `n-${index}`,
+        label,
+        figureKind: 'component',
+        icon: 'lucide:box',
+      })),
       relations: [
         ['n-0', 'n-1', 'invokes'],
         ['n-1', 'n-2', 'maintains'],
@@ -537,7 +570,7 @@ test(
       })),
       claims: [],
     };
-    const markup = responsibilityMapHtml(page, 0);
+    const markup = responsibilityMapHtml(page, 0, await loadFigureIconSupply());
     const svg = markup.match(/<svg class="form-map-graph"[\s\S]*?<\/svg>/u)?.[0];
     assert.ok(svg);
     const fonts = await loadBundledFonts();
@@ -583,7 +616,9 @@ test('static responsibility coverage rejects a substituted role basis or group c
   const meaning = await compileEditionMeaning(
     await materializeBuildRequestInput(selected.file, selected.digest),
   );
-  const rendered = composeStaticResponsibilitySvg(composeStaticResponsibilityScene(meaning));
+  const rendered = composeStaticResponsibilitySvg(composeStaticResponsibilityScene(meaning), {
+    icons: figureIcons,
+  });
   assert.doesNotThrow(() =>
     validateVisibleSelection(meaning, 'static', rendered.scene, rendered.carriers),
   );
@@ -686,7 +721,11 @@ test('a static responsibility map refuses unsupported roles, routes, and labels'
   for (const [name, mutate, code] of cases) {
     const scene = structuredClone(original);
     mutate(scene);
-    assert.throws(() => composeStaticResponsibilitySvg(scene), { code }, name);
+    assert.throws(
+      () => composeStaticResponsibilitySvg(scene, { icons: figureIcons }),
+      { code },
+      name,
+    );
   }
 });
 
@@ -707,7 +746,7 @@ test('an internal source relation places its caption beside, not across, its rou
     from: { namespace: first.namespace, id: first.id },
     to: { namespace: sibling.namespace, id: sibling.id },
   });
-  const svg = composeStaticResponsibilitySvg(scene).bytes.toString('utf8');
+  const svg = composeStaticResponsibilitySvg(scene, { icons: figureIcons }).bytes.toString('utf8');
   assert.match(
     svg,
     /data-source-relation="r-1"[\s\S]*?<text[^>]*text-anchor="(?:start|end)"[^>]*>maintains<\/text>/u,
@@ -721,7 +760,7 @@ test('a bidirectional static relation reverses its start arrowhead', async (t) =
   );
   const scene = structuredClone(composeStaticResponsibilityScene(meaning));
   scene.relations[0].direction = 'bidirectional';
-  const svg = composeStaticResponsibilitySvg(scene).bytes.toString('utf8');
+  const svg = composeStaticResponsibilitySvg(scene, { icons: figureIcons }).bytes.toString('utf8');
   assert.match(svg, /marker-start="url\(#source-arrow\)"/u);
   assert.match(svg, /orient="auto-start-reverse"/u);
 });
@@ -774,14 +813,14 @@ test('four responsibility domains compose a branching map and reject an internal
     makeRelation('configures', 'projection', 'client'),
     makeRelation('requests', 'client', 'external'),
   ];
-  const rendered = composeStaticResponsibilitySvg(scene);
+  const rendered = composeStaticResponsibilitySvg(scene, { icons: figureIcons });
   assert.equal(rendered.carriers.nodes.length, 7);
   assert.equal(rendered.carriers.relations.length, 6);
   assert.match(rendered.bytes.toString('utf8'), /data-source-relation="r-5"/u);
   assert(rendered.scene.layout.height < 1500);
   const cycle = structuredClone(scene);
   cycle.relations.push(makeRelation('cycle', 'projection', 'controller'));
-  assert.throws(() => composeStaticResponsibilitySvg(cycle), {
+  assert.throws(() => composeStaticResponsibilitySvg(cycle, { icons: figureIcons }), {
     code: 'static_responsibility_graph_unrepresentable',
   });
 });
@@ -1178,7 +1217,7 @@ test('a typed source Claim can remain an attributed responsibility basis', async
         ],
       },
     },
-    visualPolicy: { profile: 'neutral' },
+    visualPolicy: { profile: 'neutral', figureTypes: { component: 'lucide:box' } },
   };
   project.scope.selections.push({
     id: 'selected-observed',
@@ -1229,16 +1268,18 @@ test('a typed source Claim can remain an attributed responsibility basis', async
   const selectedScene = composeStaticResponsibilityScene(meaning);
   const missingClaim = structuredClone(selectedScene);
   missingClaim.claimCards = [];
-  assert.throws(() => composeStaticResponsibilitySvg(missingClaim), {
+  assert.throws(() => composeStaticResponsibilitySvg(missingClaim, { icons: figureIcons }), {
     code: 'static_responsibility_basis_invalid',
   });
   const missingFacts = structuredClone(selectedScene);
   missingFacts.claimCards[0].facts = [];
-  assert.throws(() => composeStaticResponsibilitySvg(missingFacts), {
+  assert.throws(() => composeStaticResponsibilitySvg(missingFacts, { icons: figureIcons }), {
     code: 'static_responsibility_claim_invalid',
   });
   const unlinkedRelation = structuredClone(selectedScene);
   unlinkedRelation.claimRelationLinks = [];
-  const unlinkedSvg = composeStaticResponsibilitySvg(unlinkedRelation).bytes.toString('utf8');
+  const unlinkedSvg = composeStaticResponsibilitySvg(unlinkedRelation, {
+    icons: figureIcons,
+  }).bytes.toString('utf8');
   assert.match(unlinkedSvg, /Unlinked relations show source topology only/u);
 });

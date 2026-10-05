@@ -554,7 +554,8 @@ const deepEqual = (obj, obj2) => {
   return false
 };
 const pattern2 = new RegExp("^[^\\\\\\u0000-\\u001f\\u007f]+$", "u");
-const pattern3 = new RegExp("^[a-f0-9]{64}$", "u");
+const pattern3 = new RegExp("^lucide:[a-z0-9-]+$", "u");
+const pattern4 = new RegExp("^[a-f0-9]{64}$", "u");
 const ref0 = function validate(data) {
   validate.errors = null
   if (!(typeof data === "object" && data && !Array.isArray(data))) {
@@ -2332,6 +2333,46 @@ const ref0 = function validate(data) {
       }
     }
   }
+  if ("figureTypes" in data.visualPolicy && hasOwn(data.visualPolicy, "figureTypes")) {
+    if (!(typeof data.visualPolicy.figureTypes === "object" && data.visualPolicy.figureTypes && !Array.isArray(data.visualPolicy.figureTypes))) {
+      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/figureTypes/type", instanceLocation: "#/visualPolicy/figureTypes" }]
+      return false
+    }
+    if (Object.keys(data.visualPolicy.figureTypes).length > 512) {
+      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/figureTypes/maxProperties", instanceLocation: "#/visualPolicy/figureTypes" }]
+      return false
+    }
+    if (Object.keys(data.visualPolicy.figureTypes).length < 1) {
+      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/figureTypes/minProperties", instanceLocation: "#/visualPolicy/figureTypes" }]
+      return false
+    }
+    for (const key29 of Object.keys(data.visualPolicy.figureTypes)) {
+      if (key29.length > 2048 && stringLength(key29) > 2048) {
+        validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/figureTypes/propertyNames/maxLength", instanceLocation: "#/visualPolicy/figureTypes/"+pointerPart(key29) }]
+        return false
+      }
+      if (key29.length < 1 || stringLength(key29) < 1) {
+        validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/figureTypes/propertyNames/minLength", instanceLocation: "#/visualPolicy/figureTypes/"+pointerPart(key29) }]
+        return false
+      }
+      if (!pattern1.test(key29)) {
+        validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/figureTypes/propertyNames/pattern", instanceLocation: "#/visualPolicy/figureTypes/"+pointerPart(key29) }]
+        return false
+      }
+    }
+    for (const key30 of Object.keys(data.visualPolicy.figureTypes)) {
+      if (data.visualPolicy.figureTypes[key30] !== undefined) {
+        if (!(typeof data.visualPolicy.figureTypes[key30] === "string")) {
+          validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/figureTypes/additionalProperties/type", instanceLocation: "#/visualPolicy/figureTypes/"+pointerPart(key30) }]
+          return false
+        }
+        if (!(pattern3.test(data.visualPolicy.figureTypes[key30]))) {
+          validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/figureTypes/additionalProperties/pattern", instanceLocation: "#/visualPolicy/figureTypes/"+pointerPart(key30) }]
+          return false
+        }
+      }
+    }
+  }
   if ("fonts" in data.visualPolicy && hasOwn(data.visualPolicy, "fonts")) {
     if (!Array.isArray(data.visualPolicy.fonts)) {
       validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/type", instanceLocation: "#/visualPolicy/fonts" }]
@@ -2445,13 +2486,13 @@ const ref0 = function validate(data) {
               validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/faces/items/properties/sha256/type", instanceLocation: "#/visualPolicy/fonts/"+ss+"faces/"+tt+"/sha256" }]
               return false
             }
-            if (!(pattern3.test(data.visualPolicy.fonts[ss].faces[tt].sha256))) {
+            if (!(pattern4.test(data.visualPolicy.fonts[ss].faces[tt].sha256))) {
               validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/faces/items/properties/sha256/pattern", instanceLocation: "#/visualPolicy/fonts/"+ss+"faces/"+tt+"/sha256" }]
               return false
             }
-            for (const key29 of Object.keys(data.visualPolicy.fonts[ss].faces[tt])) {
-              if (key29 !== "weight" && key29 !== "ref" && key29 !== "sha256") {
-                validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/faces/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"faces/"+tt+"/"+pointerPart(key29) }]
+            for (const key31 of Object.keys(data.visualPolicy.fonts[ss].faces[tt])) {
+              if (key31 !== "weight" && key31 !== "ref" && key31 !== "sha256") {
+                validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/faces/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"faces/"+tt+"/"+pointerPart(key31) }]
                 return false
               }
             }
@@ -2503,36 +2544,36 @@ const ref0 = function validate(data) {
               validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/distribution/items/properties/sha256/type", instanceLocation: "#/visualPolicy/fonts/"+ss+"distribution/"+uu+"/sha256" }]
               return false
             }
-            if (!(pattern3.test(data.visualPolicy.fonts[ss].distribution[uu].sha256))) {
+            if (!(pattern4.test(data.visualPolicy.fonts[ss].distribution[uu].sha256))) {
               validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/distribution/items/properties/sha256/pattern", instanceLocation: "#/visualPolicy/fonts/"+ss+"distribution/"+uu+"/sha256" }]
               return false
             }
-            for (const key30 of Object.keys(data.visualPolicy.fonts[ss].distribution[uu])) {
-              if (key30 !== "ref" && key30 !== "sha256") {
-                validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/distribution/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"distribution/"+uu+"/"+pointerPart(key30) }]
+            for (const key32 of Object.keys(data.visualPolicy.fonts[ss].distribution[uu])) {
+              if (key32 !== "ref" && key32 !== "sha256") {
+                validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/properties/distribution/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"distribution/"+uu+"/"+pointerPart(key32) }]
                 return false
               }
             }
           }
         }
-        for (const key31 of Object.keys(data.visualPolicy.fonts[ss])) {
-          if (key31 !== "id" && key31 !== "family" && key31 !== "faces" && key31 !== "distribution") {
-            validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"/"+pointerPart(key31) }]
+        for (const key33 of Object.keys(data.visualPolicy.fonts[ss])) {
+          if (key33 !== "id" && key33 !== "family" && key33 !== "faces" && key33 !== "distribution") {
+            validate.errors = [{ keywordLocation: "#/properties/visualPolicy/properties/fonts/items/additionalProperties", instanceLocation: "#/visualPolicy/fonts/"+ss+"/"+pointerPart(key33) }]
             return false
           }
         }
       }
     }
   }
-  for (const key32 of Object.keys(data.visualPolicy)) {
-    if (key32 !== "profile" && key32 !== "override" && key32 !== "fonts") {
-      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/additionalProperties", instanceLocation: "#/visualPolicy/"+pointerPart(key32) }]
+  for (const key34 of Object.keys(data.visualPolicy)) {
+    if (key34 !== "profile" && key34 !== "override" && key34 !== "figureTypes" && key34 !== "fonts") {
+      validate.errors = [{ keywordLocation: "#/properties/visualPolicy/additionalProperties", instanceLocation: "#/visualPolicy/"+pointerPart(key34) }]
       return false
     }
   }
-  for (const key33 of Object.keys(data)) {
-    if (key33 !== "schema" && key33 !== "id" && key33 !== "editor" && key33 !== "title" && key33 !== "audiences" && key33 !== "questions" && key33 !== "scope" && key33 !== "editorialAssertions" && key33 !== "omissions" && key33 !== "narrative" && key33 !== "presentation" && key33 !== "visualPolicy") {
-      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key33) }]
+  for (const key35 of Object.keys(data)) {
+    if (key35 !== "schema" && key35 !== "id" && key35 !== "editor" && key35 !== "title" && key35 !== "audiences" && key35 !== "questions" && key35 !== "scope" && key35 !== "editorialAssertions" && key35 !== "omissions" && key35 !== "narrative" && key35 !== "presentation" && key35 !== "visualPolicy") {
+      validate.errors = [{ keywordLocation: "#/additionalProperties", instanceLocation: "#/"+pointerPart(key35) }]
       return false
     }
   }
@@ -3750,6 +3791,12 @@ const ref0 = function validate(data) {
                   if (data.media.interactive.pages[pp].scene.nodes[qq].detail.length < 1 || stringLength(data.media.interactive.pages[pp].scene.nodes[qq].detail) < 1) return false
                   if (!(pattern1.test(data.media.interactive.pages[pp].scene.nodes[qq].detail))) return false
                 }
+                if ("figureKind" in data.media.interactive.pages[pp].scene.nodes[qq] && hasOwn(data.media.interactive.pages[pp].scene.nodes[qq], "figureKind")) {
+                  if (!(typeof data.media.interactive.pages[pp].scene.nodes[qq].figureKind === "string")) return false
+                  if (data.media.interactive.pages[pp].scene.nodes[qq].figureKind.length > 2048 && stringLength(data.media.interactive.pages[pp].scene.nodes[qq].figureKind) > 2048) return false
+                  if (data.media.interactive.pages[pp].scene.nodes[qq].figureKind.length < 1 || stringLength(data.media.interactive.pages[pp].scene.nodes[qq].figureKind) < 1) return false
+                  if (!(pattern1.test(data.media.interactive.pages[pp].scene.nodes[qq].figureKind))) return false
+                }
                 if ("semanticIds" in data.media.interactive.pages[pp].scene.nodes[qq] && hasOwn(data.media.interactive.pages[pp].scene.nodes[qq], "semanticIds")) {
                   if (!(Array.isArray(data.media.interactive.pages[pp].scene.nodes[qq].semanticIds))) return false
                   if (data.media.interactive.pages[pp].scene.nodes[qq].semanticIds.length > 4096) return false
@@ -3765,7 +3812,7 @@ const ref0 = function validate(data) {
                   if (!unique(data.media.interactive.pages[pp].scene.nodes[qq].semanticIds)) return false
                 }
                 for (const key43 of Object.keys(data.media.interactive.pages[pp].scene.nodes[qq])) {
-                  if (key43 !== "id" && key43 !== "label" && key43 !== "visualRole" && key43 !== "position" && key43 !== "size" && key43 !== "detail" && key43 !== "semanticIds") return false
+                  if (key43 !== "id" && key43 !== "label" && key43 !== "visualRole" && key43 !== "position" && key43 !== "size" && key43 !== "detail" && key43 !== "figureKind" && key43 !== "semanticIds") return false
                 }
                 return true
               })()

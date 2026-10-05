@@ -1,5 +1,6 @@
 import { fail } from '../../src/protocol/values.mjs';
 import { validateInteractiveArchitectureScene } from '../../src/scene/interactive/architecture.mjs';
+import nativeCommon from './supply/schemas/common.schema.json' with { type: 'json' };
 
 const componentTypes = new Set([
   'frontend',
@@ -11,6 +12,7 @@ const componentTypes = new Set([
   'external',
 ]);
 const variants = new Set(['default', 'emphasis', 'security', 'dashed']);
+const icons = new Set(nativeCommon.$defs.nodeIcon.enum);
 
 /** Adapt a renderer-neutral architecture scene to the bundled Archify protocol. */
 export function adaptArchitectureScene(scene) {
@@ -19,6 +21,13 @@ export function adaptArchitectureScene(scene) {
     fail('render_scene_visual_role_unsupported');
   if (scene.edges.some((edge) => !edge.adornment && !variants.has(edge.visualRole)))
     fail('render_scene_edge_role_unsupported');
+  if (
+    scene.nodes.some(
+      (node) =>
+        node.icon !== undefined && !icons.has(node.icon) && !/^lucide:[a-z0-9-]+$/u.test(node.icon),
+    )
+  )
+    fail('render_scene_icon_unsupported');
   return {
     schema_version: 1,
     diagram_type: 'architecture',
@@ -34,6 +43,7 @@ export function adaptArchitectureScene(scene) {
     components: scene.nodes.map((node) => ({
       id: node.id,
       type: node.primitives ? 'paint' : node.visualRole,
+      ...(node.icon === undefined ? {} : { icon: node.icon }),
       label: node.primitives ? node.id : node.label,
       ...(node.detail ? { sublabel: node.detail } : {}),
       pos: [node.position.x, node.position.y],

@@ -64,10 +64,18 @@ test(
     const lifetime = browserLifetime(t);
     const compactCandidate = await renderInteractiveEditionHtml(interactiveEditionScene());
     const dedupScene = interactiveEditionScene();
+    Object.assign(dedupScene.visualPolicy.figureTypes, {
+      contract: 'lucide:scroll-text',
+      registry: 'lucide:database',
+    });
     dedupScene.pages[0].nodes[0].label = 'Precontract';
     dedupScene.pages[0].nodes[0].kind = 'contract';
+    dedupScene.pages[0].nodes[0].figureKind = 'contract';
+    dedupScene.pages[0].nodes[0].icon = 'lucide:scroll-text';
     dedupScene.pages[0].nodes[1].label = 'Client registry';
     dedupScene.pages[0].nodes[1].kind = 'registry';
+    dedupScene.pages[0].nodes[1].figureKind = 'registry';
+    dedupScene.pages[0].nodes[1].icon = 'lucide:database';
     const dedupCandidate = await renderInteractiveEditionHtml(dedupScene);
     const overview = scene.pages[0];
     for (let index = 0; index < 10; index += 1) {

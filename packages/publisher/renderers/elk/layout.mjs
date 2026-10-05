@@ -91,10 +91,14 @@ function preparePage(page, measure) {
   if (grouped && memberships.size !== nodeIds.size) fail('render_interactive_group_invalid');
   const measuredNodes = page.nodes.map((node) => ({
     id: node.id,
+    ...(node.icon === undefined ? {} : { icon: node.icon }),
     groupId: memberships.get(node.id),
     label: measuredLabel(node.label, measure),
   }));
-  const width = Math.max(170, ...measuredNodes.map(({ label }) => label.width + 24));
+  const width = Math.max(
+    170,
+    ...measuredNodes.map(({ label, icon }) => label.width + (icon === undefined ? 24 : 48)),
+  );
   const height = Math.max(64, ...measuredNodes.map(({ label }) => label.height + 16));
   const nodes = measuredNodes.map((node) => ({ ...node, width, height }));
   const relations = page.relations.map((relation) => ({

@@ -41,7 +41,41 @@ test('interactive scene is renderer-neutral and Archify adaptation is renderer-o
   assert.equal(native.meta.visual_preset, 'editorial');
   assert.deepEqual(native.meta.viewBox, [scene.viewport.width, scene.viewport.height]);
   assert.equal(native.components[0].type, 'backend');
+  assert.equal(native.components[0].icon, undefined);
   assert.deepEqual(native.components[0].pos, [135, 110]);
+});
+
+test('authored figure roles and icons are independent of color and source membership', () => {
+  const { model, edition } = editionFixture();
+  const view = semanticArchitectureProjections(model, edition).interactiveScenes[0];
+  const scene = structuredClone(interactiveArchitectureScene(model, edition, view));
+  scene.nodes[0].figureKind = 'consumer';
+  scene.nodes[0].icon = 'person';
+  assert.equal(validateInteractiveArchitectureScene(scene), scene);
+  const native = adaptArchitectureScene(scene);
+  assert.equal(native.components[0].icon, 'person');
+  assert.equal(native.components[0].type, scene.nodes[0].visualRole);
+  assert.equal(scene.nodes[0].figureKind, 'consumer');
+  assert.equal(model.entities[scene.nodes[0].id].type, 'component');
+  for (const figureKind of ['', ' consumer', 'consumer ', 'consumer\n']) {
+    const invalid = structuredClone(scene);
+    invalid.nodes[0].figureKind = figureKind;
+    assert.throws(() => validateInteractiveArchitectureScene(invalid), {
+      code: 'interactive_scene_node_invalid',
+    });
+  }
+  const blankIcon = structuredClone(scene);
+  blankIcon.nodes[0].icon = '';
+  assert.throws(() => validateInteractiveArchitectureScene(blankIcon), {
+    code: 'interactive_scene_node_invalid',
+  });
+  for (const icon of ['invented-icon']) {
+    const invalid = structuredClone(scene);
+    invalid.nodes[0].icon = icon;
+    assert.throws(() => adaptArchitectureScene(invalid), {
+      code: 'render_scene_icon_unsupported',
+    });
+  }
 });
 
 test('renderer support does not constrain the renderer-neutral scene vocabulary', () => {

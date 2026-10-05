@@ -26,6 +26,9 @@ import {
   importClaimModel,
   resolveClaimModelSelection,
 } from '../packages/publisher/src/semantics/native-claim-model.mjs';
+import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
+
+const figureIcons = await loadFigureIconSupply();
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const sources = new Map([
@@ -68,7 +71,7 @@ function editionProject() {
         intent: 'An explorable overview.',
       },
     },
-    visualPolicy: { profile: 'neutral' },
+    visualPolicy: { profile: 'neutral', figureTypes: { component: 'lucide:box' } },
   };
 }
 
@@ -239,7 +242,7 @@ test('a static group heading must reserve space above its member nodes', async (
     width: Math.max(...xs) - minX,
     height: Math.max(...ys) - minY,
   };
-  assert.throws(() => composeStaticEditionSvg(scene), {
+  assert.throws(() => composeStaticEditionSvg(scene, { icons: figureIcons }), {
     code: 'static_edition_group_heading_collision',
   });
 
@@ -249,7 +252,7 @@ test('a static group heading must reserve space above its member nodes', async (
     [heading.x + 4, heading.y + 31],
     [heading.x + heading.width - 4, heading.y + 31],
   ];
-  assert.throws(() => composeStaticEditionSvg(crossing), {
+  assert.throws(() => composeStaticEditionSvg(crossing, { icons: figureIcons }), {
     code: 'static_edition_group_heading_collision',
   });
 
@@ -259,7 +262,9 @@ test('a static group heading must reserve space above its member nodes', async (
     [movableHeading.x + 40, movableHeading.y + 4],
     [movableHeading.x + 40, movableHeading.y + 50],
   ];
-  const relocated = composeStaticEditionSvg(relocatable).bytes.toString('utf8');
+  const relocated = composeStaticEditionSvg(relocatable, { icons: figureIcons }).bytes.toString(
+    'utf8',
+  );
   const headingX = /<text x="([\d.]+)"[^>]*>Entry boundary<\/text>/u.exec(relocated)?.[1];
   assert(headingX);
   assert(Number(headingX) > movableHeading.x + 26);
@@ -274,7 +279,9 @@ test('a static group heading must reserve space above its member nodes', async (
     point: [captionBox.x + 50, captionBox.y + 16],
     box: captionBox,
   };
-  const withCaption = composeStaticEditionSvg(captioned).bytes.toString('utf8');
+  const withCaption = composeStaticEditionSvg(captioned, { icons: figureIcons }).bytes.toString(
+    'utf8',
+  );
   const movedHeadingX = /<text x="([\d.]+)"[^>]*>Entry boundary<\/text>/u.exec(withCaption)?.[1];
   assert(movedHeadingX);
   assert(Number(movedHeadingX) > captionBox.x + captionBox.w + 6);
@@ -813,7 +820,7 @@ test('editorial prose stays attributed and does not become a source node or edge
   assert.equal(scene.bounds, null);
   assert.deepEqual(scene.sourceAssertionCarriers, []);
   assert.equal(scene.editorialAssertions[0].semanticStatus, 'editor-attributed-unverified');
-  const staticSvg = composeStaticEditionSvg(scene).bytes.toString('utf8');
+  const staticSvg = composeStaticEditionSvg(scene, { icons: figureIcons }).bytes.toString('utf8');
   const interactiveScene = scenes.composeInteractiveEditionScene(meaning);
   const interactiveHtml = (await renderInteractiveEditionHtml(interactiveScene)).bytes.toString(
     'utf8',

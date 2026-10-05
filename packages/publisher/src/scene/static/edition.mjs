@@ -4,6 +4,7 @@ import { fail } from '../../protocol/values.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { claimRelationLabel, linkClaimModelSources } from '../claim-relations.mjs';
 import { selectedStaticNativeViews, selectedStaticSourceSelections } from './selection.mjs';
+import { neutralFigurePolicy, resolveFigureTypes } from '../figure-types.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
@@ -312,12 +313,21 @@ export function composeStaticEditionScene(meaning, layout) {
   )
     fail('static_scene_native_membership_mismatch');
 
-  const nodes = layout.nodes
+  const selectedNodes = layout.nodes
     .filter((node) => requiredNodes.has(key(node)))
     .map((node) => {
       const semantic = semanticNodes.get(key(node));
-      return { ...node, kind: semantic.kind, label: semantic.label, origin: semantic.origin };
+      return {
+        ...node,
+        kind: semantic.kind,
+        label: semantic.label,
+        origin: semantic.origin,
+      };
     });
+  const [{ nodes }] = resolveFigureTypes(
+    [{ nodes: selectedNodes }],
+    meaning.editorial.visualPolicy.figureTypes,
+  );
   const edges = layout.edges
     .filter((edge) => {
       const identities = edge.relations.map(relationKey);
@@ -351,7 +361,9 @@ export function composeStaticEditionScene(meaning, layout) {
     edition: meaning.edition,
     title: meaning.editorial.title,
     summary: meaning.editorial.narrative.summary,
-    visualPolicy: meaning.refinement ? { profile: 'neutral' } : meaning.editorial.visualPolicy,
+    visualPolicy: meaning.refinement
+      ? neutralFigurePolicy(meaning.editorial.visualPolicy)
+      : meaning.editorial.visualPolicy,
     ...(staticRefinement && staticRefinement.kind !== 'neutral'
       ? {
           refinement: {

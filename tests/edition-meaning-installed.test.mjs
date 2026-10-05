@@ -109,7 +109,7 @@ test('offline installed Edition meaning, Scenes, and Candidate survive relocatio
       static: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'One overview.' },
       interactive: { views: [{ id: 'overview', questions: ['shape'] }], intent: 'Explore.' },
     },
-    visualPolicy: { profile: 'neutral' },
+    visualPolicy: { profile: 'neutral', figureTypes: { component: 'lucide:box' } },
   };
   await fs.writeFile(path.join(inputs, 'edition/project.json'), JSON.stringify(project) + '\n');
   const request = {
@@ -139,7 +139,7 @@ import { materializeBuildRequestInput } from './node_modules/architecture-publis
 import { compileEditionMeaning } from 'architecture-publisher/compiler';
 import { importLikeC4Layout } from 'architecture-publisher/semantics';
 import { composeInteractiveEditionScene, composeStaticEditionScene } from 'architecture-publisher/scene';
-import { composeStaticEditionSvg } from 'architecture-publisher/renderers/svg';
+import { composeStaticEditionSvg, loadFigureIconSupply } from 'architecture-publisher/renderers/svg';
 const file = fileURLToPath(new URL('./inputs/build-request.json', import.meta.url));
 try {
   const bytes = await fs.readFile(file);
@@ -153,7 +153,7 @@ try {
   });
   const staticScene = composeStaticEditionScene(meaning, layout);
   const interactiveScene = composeInteractiveEditionScene(meaning);
-  const staticSvg = composeStaticEditionSvg(staticScene);
+  const staticSvg = composeStaticEditionSvg(staticScene, { icons: await loadFigureIconSupply() });
   console.log(JSON.stringify({
     status: 'ok', lock: selected.lockSha256, semantic: meaning.native.semanticDigest,
     parser: meaning.native.parserSupply.sha256,
@@ -439,7 +439,7 @@ const html = await fs.readFile(new URL('./occurrence-candidate/interactive/archi
 const work = JSON.parse(html.match(/<script id="architecture-interactive-data" type="application\\/json">([\\s\\S]*?)<\\/script>/u)[1]);
 const page = work.pages.overview;
 const painted = page.pieces.map((piece) => typeof piece === 'number' ? work.blocks[piece] : piece).join('');
-if (!painted.includes('data-inspect-id="client-a"') || painted.includes('data-node-id="client-a"') || !painted.includes('stroke-linejoin="round"')) throw Error('installed_primitive_identity_invalid');
+if (!painted.includes('data-inspect-id="client-a"') || !painted.includes('data-node-id="client-a"') || !painted.includes('data-node-id="client-b"') || !painted.includes('data-native-query-limit') || !painted.includes('stroke-linejoin="round"') || /data-logical-relation="true"/.test(painted)) throw Error('installed_primitive_identity_invalid');
 await fs.rm(output, { recursive: true });
 console.log(JSON.stringify({ status: built.status, candidateSha256: built.candidateSha256,
   subjects: Object.keys(page.subjectSources),

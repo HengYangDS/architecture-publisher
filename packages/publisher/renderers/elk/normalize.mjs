@@ -126,6 +126,7 @@ export function normalizeInteractiveGeometry(raw, prepared) {
         selectedNodes.set(child.id, {
           ...box,
           groupId: plan.groupId ?? null,
+          ...(plan.icon === undefined ? {} : { icon: plan.icon }),
           label: labelAt(child.labels[0], plan.label, box),
         });
         if (child.edges !== undefined) invalid();

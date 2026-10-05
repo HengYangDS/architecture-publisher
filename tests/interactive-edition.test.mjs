@@ -14,7 +14,7 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.equal(result.completeness, 'unqualified-medium');
   assert.deepEqual(
     result.supplies.map(({ id }) => id),
-    ['svg-pan-zoom', 'elk-layout', 'font-measurement', 'font-supply'],
+    ['figure-icons', 'svg-pan-zoom', 'elk-layout', 'font-measurement', 'font-supply'],
   );
   assert.match(html, /<!doctype html>/iu);
   assert.match(html, /Selected architecture/u);
@@ -44,7 +44,9 @@ test('a neutral standalone HTML keeps every page complete without source-byte di
   assert.match(html, /Eclipse Public License/u);
   assert.match(html, /Redistribution and use in source and binary forms/u);
   assert.doesNotMatch(html, /private\/model|secret-alpha|secret-beta|relation:4:2/u);
-  const readingContent = html.replace(/<(style|script)\b[^>]*>[\s\S]*?<\/\1>/gu, '');
+  const readingContent = html
+    .split('<details class="licenses">')[0]
+    .replace(/<(style|script)\b[^>]*>[\s\S]*?<\/\1>/gu, '');
   assert.doesNotMatch(readingContent, /\bbackend\b|\bexternal\b/u);
   assert.deepEqual(
     result.carriers[0].nodes.map(({ graphicId }) => graphicId),
@@ -305,16 +307,36 @@ test('HTML escaping preserves authored text without executable or raw source dis
   assert.doesNotMatch(html, /<h3>Method limits<\/h3>/u);
 });
 
-test('an unlabeled source relation stays structural without an invented kind', async () => {
+test('an untyped source node keeps its source kind and its distinct figure role in the Legend', async () => {
   const { renderInteractiveEditionHtml } =
     await import('../packages/publisher/renderers/interactive/index.mjs');
   const scene = interactiveEditionScene();
   scene.pages[0].nodes[0].kind = null;
+  scene.pages[0].nodes[0].figureKind = 'source element';
+  scene.pages[0].nodes[0].icon = 'lucide:circle';
+  scene.visualPolicy.figureTypes['source element'] = 'lucide:circle';
   scene.pages[0].relations[0].label = null;
   scene.pages[0].relations[0].kind = null;
   const html = (await renderInteractiveEditionHtml(scene)).bytes.toString('utf8');
   assert.match(html, /Alpha &amp; one → Beta<\/button>/u);
   assert.doesNotMatch(html, /Alpha &amp; one → Beta ·/u);
+  const pages = JSON.parse(
+    html.match(/<script type="application\/json" id="edition-data">([\s\S]*?)<\/script>/u)[1],
+  );
+  assert.equal(pages[0].nodes[0].kind, null);
+  assert.equal(pages[0].nodes[0].figureKind, 'source element');
+  assert.equal(scene.pages[0].relations[0].kind, null);
+  assert.equal(scene.pages[0].relations[0].label, null);
+  assert.equal(pages[0].relations[0].label, '');
+  assert.match(
+    html,
+    /data-legend-kind="source element"><svg[^>]*>[\s\S]*?data-semantic-sigil="lucide:circle"[\s\S]*?<\/svg><span>source element<\/span>/u,
+  );
+  assert.match(
+    html,
+    /data-legend-kind="component"><svg[^>]*>[\s\S]*?data-semantic-sigil="lucide:box"[\s\S]*?<\/svg><span>component<\/span>/u,
+  );
+  assert.doesNotMatch(html, /data-legend-kind="null"/u);
 });
 
 test('diagram labels retain the selected relation meaning directly', async () => {

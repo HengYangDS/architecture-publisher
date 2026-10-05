@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { responsibilityMapHtml } from '../packages/publisher/renderers/interactive/responsibility-map.mjs';
 import { responsibilityPageHtml } from '../packages/publisher/renderers/interactive/responsibility.mjs';
+import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
+
+const figureIcons = await loadFigureIconSupply();
 
 const editorial = (statement) => ({ kind: 'editorial', statement, proponent: 'editor' });
 
@@ -20,9 +23,9 @@ function pageFixture() {
       { id: 'g-1', label: 'Second role', nodeIds: ['n-2'] },
     ],
     nodes: [
-      { id: 'n-0', label: 'Alpha' },
-      { id: 'n-1', label: 'Beta' },
-      { id: 'n-2', label: 'Gamma' },
+      { id: 'n-0', label: 'Alpha', kind: 'component', figureKind: 'component', icon: 'lucide:box' },
+      { id: 'n-1', label: 'Beta', kind: 'component', figureKind: 'component', icon: 'lucide:box' },
+      { id: 'n-2', label: 'Gamma', kind: 'component', figureKind: 'component', icon: 'lucide:box' },
     ],
     relations: [
       {
@@ -63,7 +66,7 @@ test('one primary map carries roles, nodes, relations, and the editorial handoff
   page.form.handoffs = [
     { fromGroup: 'g-0', toGroup: 'g-1', basis: editorial('Selected handoff.') },
   ];
-  const html = responsibilityPageHtml(page, 0, []);
+  const html = responsibilityPageHtml(page, 0, [], figureIcons);
   const figure = html.match(/<figure class="form-map"[\s\S]*?<\/figure>/u)?.[0];
   assert.ok(figure, 'one primary visual map exists');
   for (const id of ['g-0', 'g-1', 'n-0', 'n-1', 'n-2', 'r-0', 'r-1'])
@@ -77,7 +80,9 @@ test('separate form pages keep SVG labels and arrow markers page-local', () => {
   page.form.handoffs = [
     { fromGroup: 'g-0', toGroup: 'g-1', basis: editorial('Selected handoff.') },
   ];
-  const html = responsibilityPageHtml(page, 0, []) + responsibilityPageHtml(page, 1, []);
+  const html =
+    responsibilityPageHtml(page, 0, [], figureIcons) +
+    responsibilityPageHtml(page, 1, [], figureIcons);
   const ids = [...html.matchAll(/\sid="([^"]+)"/gu)].map((match) => match[1]);
   assert.equal(new Set(ids).size, ids.length);
   for (const reference of html.matchAll(/url\(#([^)]+)\)/gu))
@@ -93,7 +98,7 @@ test('a one-member role in each domain still attaches a selected source relation
   page.relations.splice(0, 1);
   page.relations[0].source = 'n-0';
   page.claims = [];
-  const html = responsibilityPageHtml(page, 0, []);
+  const html = responsibilityPageHtml(page, 0, [], figureIcons);
   assert.match(html, /data-source="n-0" data-target="n-2"/u);
   assert.match(html, /data-graphic-id="n-0"/u);
   assert.match(html, /data-graphic-id="n-2"/u);
@@ -102,13 +107,13 @@ test('a one-member role in each domain still attaches a selected source relation
 test('responsibility SVG identity requires a valid page index', () => {
   const page = pageFixture();
   for (const index of [-1, '0'])
-    assert.throws(() => responsibilityMapHtml(page, index), {
+    assert.throws(() => responsibilityMapHtml(page, index, figureIcons), {
       code: 'render_responsibility_page_invalid',
     });
 });
 
 test('one visual map retains internal and cross-domain source evidence', () => {
-  const html = responsibilityPageHtml(pageFixture(), 0, []);
+  const html = responsibilityPageHtml(pageFixture(), 0, [], figureIcons);
   const figure = html.match(/<figure class="form-map"[\s\S]*?<\/figure>/u)?.[0];
   assert.ok(figure);
   const firstRole = html.indexOf('data-graphic-id="g-0"');
@@ -138,7 +143,7 @@ test('source-Claim role and reverse relationships retain their direction and lim
   page.relations[1].source = 'n-2';
   page.relations[1].target = 'n-1';
   page.relations[1].direction = 'bidirectional';
-  const html = responsibilityPageHtml(page, 0, []);
+  const html = responsibilityPageHtml(page, 0, [], figureIcons);
   assert.match(html, /Selected source Claim · editorial interpretation/u);
   assert.match(html, /Scope · selected client only/u);
   assert.match(html, /data-form-handoff="g-1:g-0"/u);
@@ -157,7 +162,7 @@ test('complete source record, unlinked Claim and method limits remain inspectabl
     statement: 'Another bounded interpretation.',
     proponent: 'editor',
   });
-  const html = responsibilityPageHtml(page, 1, ['Parser is not a sandbox.']);
+  const html = responsibilityPageHtml(page, 1, ['Parser is not a sandbox.'], figureIcons);
   assert.match(html, /data-graphic-id="c-1"/u);
   assert.match(html, /Additional editorial assertions/u);
   assert.match(html, /Another bounded interpretation/u);
@@ -171,7 +176,7 @@ test('a relation-free role page does not fabricate handoff or relation sections'
   page.relations = [];
   page.claims = [];
   page.questions[0].limits = [];
-  const html = responsibilityPageHtml(page, 0, []);
+  const html = responsibilityPageHtml(page, 0, [], figureIcons);
   assert.doesNotMatch(
     html,
     /form-domain-detail|form-handoffs|form-relations|form-claim|form-scope|form-inspect/u,
@@ -182,7 +187,7 @@ test('a relation-free role page does not fabricate handoff or relation sections'
 test('a selected node label wraps without dropping words or shrinking type', () => {
   const page = pageFixture();
   page.nodes[0].label = 'Primary control authority';
-  const html = responsibilityPageHtml(page, 0, []);
+  const html = responsibilityPageHtml(page, 0, [], figureIcons);
   assert.match(html, />Primary control<\/text>/u);
   assert.match(html, />authority<\/text>/u);
   assert.match(html, /font-size="12"/u);
@@ -191,11 +196,11 @@ test('a selected node label wraps without dropping words or shrinking type', () 
 test('a responsibility relation retains its selected predicate spelling', () => {
   const page = pageFixture();
   page.relations[0].label = 'read-only';
-  const html = responsibilityPageHtml(page, 0, []);
+  const html = responsibilityPageHtml(page, 0, [], figureIcons);
   assert.match(html, />read-only<\/text>/u);
 
   page.relations[0].label = null;
-  const unlabeled = responsibilityPageHtml(page, 0, []);
+  const unlabeled = responsibilityPageHtml(page, 0, [], figureIcons);
   assert.match(unlabeled, /<h3>Unlabeled source relation<\/h3>/u);
   assert.doesNotMatch(unlabeled, /<text[^>]*>Selected source relation<\/text>/u);
   assert.match(unlabeled, /data-graphic-id="r-0" data-source="n-0" data-target="n-1"/u);
@@ -315,7 +320,7 @@ test('the renderer refuses malformed responsibility structures instead of guessi
     await t.test(name, () => {
       const page = pageFixture();
       change(page);
-      assert.throws(() => responsibilityPageHtml(page, 0, []), { code });
+      assert.throws(() => responsibilityPageHtml(page, 0, [], figureIcons), { code });
     });
   }
 });

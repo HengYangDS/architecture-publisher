@@ -8,6 +8,15 @@ may contain incompatible changes.
 
 ## Unreleased
 
+### Added
+
+- One Edition-wide figure-kind catalog supplies pinned, distinct icons across
+  every selected page and medium. Nodes, type Legends and canonical exports use
+  the same artwork; Legends show icon then label without occurrence counts.
+  Missing type mappings, occurrence overrides, reused artwork and inadequate
+  painted clearance reject the candidate before output. The editor may supply
+  the catalog outside the source repository without changing source semantics.
+
 ### Changed
 
 - Raster source verification uses a platform-native, read-only Node entry and

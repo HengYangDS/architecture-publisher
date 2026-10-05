@@ -140,6 +140,64 @@ test('a later static render failure leaves no complete Candidate after interacti
   );
 });
 
+test('all selected page types are checked before even a static-first renderer', async (t) => {
+  const cases = [
+    { catalog: { client: 'lucide:box' }, code: 'figure_type_missing' },
+    {
+      catalog: { client: 'lucide:box', service: 'lucide:not-an-admitted-icon' },
+      code: 'figure_type_glyph_unsupported',
+    },
+    {
+      catalog: { client: 'lucide:alarm-check', service: 'lucide:alarm-clock-check' },
+      code: 'figure_type_glyph_conflict',
+    },
+  ];
+  for (const { catalog, code } of cases) {
+    const fixture = await selectedNativeEdition(t, {
+      title: 'X'.repeat(2048),
+      media: ['static', 'interactive'],
+    });
+    const model = Buffer.from(
+      'specification { element client\n element service }\n' +
+        "model { alpha = client 'Alpha'\n beta = service 'Beta'\n alpha -> beta }\n",
+    );
+    const views = Buffer.from(
+      'views { view overview { include alpha }\n view detail { include beta } }\n',
+    );
+    fixture.project.scope.selections.push({
+      ...fixture.project.scope.selections[0],
+      id: 'detail',
+      reference: 'view:detail',
+    });
+    fixture.project.presentation.interactive.views.push({ id: 'detail', questions: ['shape'] });
+    fixture.project.visualPolicy.figureTypes = catalog;
+    await fs.writeFile(
+      path.join(fixture.root, 'edition/project.json'),
+      JSON.stringify(fixture.project),
+    );
+    for (const [id, bytes] of [
+      ['model', model],
+      ['views', views],
+    ]) {
+      const source = fixture.request.sources.find((source) => source.id === id);
+      source.input.sha256 = sha(bytes);
+      await fs.writeFile(path.join(fixture.root, source.input.path), bytes);
+    }
+    const request = Buffer.from(JSON.stringify(fixture.request));
+    await fs.writeFile(fixture.file, request);
+    const output = path.join(fixture.root, 'candidate');
+    // If preflight is omitted, the deliberately overlong static title fails first.
+    await assert.rejects(compileEditionCandidateInput(fixture.file, sha(request), output), {
+      code,
+    });
+    await assert.rejects(fs.stat(output), { code: 'ENOENT' });
+    assert.equal(
+      (await fs.readdir(fixture.root)).some((name) => name.startsWith('.edition-candidate-')),
+      false,
+    );
+  }
+});
+
 test('destination conflicts and invalid parents fail before output effects', async (t) => {
   const fixture = await selectedNativeEdition(t);
   const occupied = path.join(fixture.root, 'candidate');

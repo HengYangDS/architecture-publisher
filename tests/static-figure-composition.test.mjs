@@ -5,6 +5,9 @@ import {
   composeStaticFigureSvg,
 } from '../packages/publisher/renderers/svg/index.mjs';
 import { staticEditionScene } from './fixtures/static-edition-scene.mjs';
+import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
+
+const figureIcons = await loadFigureIconSupply();
 
 function view(id, index, options = {}) {
   const scene = staticEditionScene();
@@ -22,6 +25,7 @@ function view(id, index, options = {}) {
     scene.sourceAssertionCarriers[0].kind = 'relation';
   }
   const rendered = composeStaticEditionSvg(scene, {
+    icons: figureIcons,
     idPrefix: `static-view-${index}-`,
     fragment: true,
   });

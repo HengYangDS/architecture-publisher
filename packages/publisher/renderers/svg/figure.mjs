@@ -4,7 +4,7 @@ import {
   SOURCE_REPORTED_TOPOLOGY_NOTE,
   UNLINKED_RELATION_NOTE,
 } from '../../src/scene/claim-relations.mjs';
-import { escapeStaticText as escape, wrapStaticText as wrap } from './edition.mjs';
+import { escapeStaticText as escape, wrapStaticText as wrap } from './text.mjs';
 
 const margin = 54;
 const gutter = 42;
@@ -55,6 +55,10 @@ function checkedViews(views) {
       !scene.questions.length ||
       scene.questions.some(({ text }) => typeof text !== 'string' || !text.trim()) ||
       typeof parts?.graph !== 'string' ||
+      (scene.nodes?.length &&
+        (!parts.figureTypes ||
+          typeof parts.figureTypes.markup !== 'string' ||
+          ![parts.figureTypes.width, parts.figureTypes.height].every(Number.isFinite))) ||
       !validGroups(parts.groups) ||
       !Array.isArray(parts.relations) ||
       (parts.claim !== null &&
@@ -214,6 +218,11 @@ function panel(view, width, options = {}) {
       '</g>',
     );
     y += bounds.height + 28;
+  }
+  if (parts.figureTypes) {
+    if (parts.figureTypes.width > width) fail('static_figure_width_unrepresentable');
+    output.push(`<g transform="translate(0 ${number(y)})">${parts.figureTypes.markup}</g>`);
+    y += parts.figureTypes.height + 14;
   }
   y = readingGroupKey(output, parts.groups, notesWidth, y);
   const notesStart = y;
@@ -438,6 +447,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
     `<rect width="${width}" height="${height}" fill="#f5f3ed"/>`,
     `<defs>${defs.join('')}</defs>`,
     ...content,
+    ...new Set(selected.map(({ parts }) => parts.iconLicense).filter(Boolean)),
     '</svg>',
     '',
   ];

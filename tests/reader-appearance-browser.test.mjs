@@ -447,6 +447,137 @@ test(
   },
 );
 
+test(
+  'native node labels and details retain contrast over layered fills in every appearance',
+  runBrowser,
+  async (t) => {
+    const root = await fs.realpath(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'archpub-node-contrast-')),
+    );
+    t.after(() => fs.rm(root, { recursive: true, force: true }));
+    const output = path.join(root, 'architecture.html');
+    const roles = [
+      'frontend',
+      'backend',
+      'database',
+      'cloud',
+      'security',
+      'messagebus',
+      'external',
+    ];
+    await renderArchitectureScene({
+      output,
+      scene: {
+        schema: 'architecture.interactive-scene/v1',
+        id: 'overview',
+        title: 'Node content contrast',
+        subtitle: 'Labels and details remain readable over their actual paint layers.',
+        viewport: { width: 1080, height: 560 },
+        nodes: roles.map((visualRole, index) => ({
+          id: visualRole,
+          label: `Native ${visualRole}`,
+          detail: 'Readable node detail',
+          visualRole,
+          position: { x: 60 + (index % 3) * 310, y: 70 + Math.floor(index / 3) * 150 },
+          size: { width: 260, height: 100 },
+        })),
+        groups: [],
+        edges: [],
+      },
+    });
+    const lifetime = browserLifetime(t);
+    const browser = lifetime.use(await chromium.launch(browserOptions));
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.setContent(await fs.readFile(output, 'utf8'), { waitUntil: 'load' });
+    await page.waitForFunction(() => !!globalThis.Archify?.layoutStability);
+    await page.evaluate(async () => {
+      await globalThis.document.fonts.ready;
+      await globalThis.Archify.layoutStability.whenStable();
+    });
+    const failures = [];
+    for (const style of ['editorial', 'blueprint', 'classic', 'signal-flow']) {
+      for (const theme of ['light', 'dark']) {
+        await page.evaluate(
+          ({ style, theme }) => {
+            globalThis.Archify.preset.apply(style);
+            if (globalThis.document.documentElement.dataset.theme !== theme)
+              globalThis.Archify.theme.toggle();
+          },
+          { style, theme },
+        );
+        await page.evaluate(() => globalThis.Archify.layoutStability.whenStable());
+        const observations = await page
+          .locator('.diagram-container>svg [data-node-id]>text')
+          .evaluateAll((elements) => {
+            const channels = (value) => {
+              const values = value.match(/[\d.]+/gu)?.map(Number) ?? [];
+              if (value.startsWith('color(srgb '))
+                return values.map((channel, index) => (index < 3 ? channel * 255 : channel));
+              if (!value.startsWith('rgb')) throw Error('Unobserved node color space');
+              return values;
+            };
+            const over = (foreground, background, opacity = 1) => {
+              const alpha = (foreground[3] ?? 1) * opacity;
+              return foreground
+                .slice(0, 3)
+                .map((channel, index) => channel * alpha + background[index] * (1 - alpha));
+            };
+            const luminance = (value) =>
+              value
+                .map((channel) => {
+                  const normalized = channel / 255;
+                  return normalized <= 0.04045
+                    ? normalized / 12.92
+                    : ((normalized + 0.055) / 1.055) ** 2.4;
+                })
+                .reduce(
+                  (sum, channel, index) => sum + channel * [0.2126, 0.7152, 0.0722][index],
+                  0,
+                );
+            return elements.map((element) => {
+              const node = element.parentElement;
+              const layers = [...node.querySelectorAll(':scope>rect')].map((rect) => {
+                const paint = globalThis.getComputedStyle(rect);
+                const fill = channels(paint.fill);
+                if (fill.length < 3 || Number(paint.opacity) !== 1)
+                  throw Error('Node paint requires a different compositing observer');
+                return { fill, opacity: Number(paint.fillOpacity) };
+              });
+              if (!layers.length || (layers[0].fill[3] ?? 1) * layers[0].opacity !== 1)
+                throw Error('Node text has no observed opaque paint base');
+              const surface = layers.reduce(
+                (below, above) => over(above.fill, below, above.opacity),
+                [0, 0, 0],
+              );
+              const text = globalThis.getComputedStyle(element);
+              const foreground = luminance(
+                over(channels(text.fill), surface, Number(text.fillOpacity)),
+              );
+              const background = luminance(surface);
+              return {
+                node: node.dataset.nodeId,
+                text: element.textContent,
+                foreground: text.fill,
+                layers,
+                surface,
+                ratio:
+                  (Math.max(foreground, background) + 0.05) /
+                  (Math.min(foreground, background) + 0.05),
+              };
+            });
+          });
+        assert.equal(observations.length, roles.length * 2);
+        failures.push(
+          ...observations
+            .filter(({ ratio }) => ratio < 4.5)
+            .map((observation) => ({ style, theme, ...observation })),
+        );
+      }
+    }
+    assert.deepEqual(failures, [], JSON.stringify(failures));
+  },
+);
+
 async function authoredHtml(t, repeatMember = false, multiplePages = false) {
   const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'archpub-appearance-')));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
@@ -742,6 +873,38 @@ test(
 );
 
 test(
+  'native appearance reception is installed before an opaque child begins initialization',
+  runBrowser,
+  async (t) => {
+    const html = await authoredHtml(t);
+    const browser = browserLifetime(t).use(await chromium.launch(browserOptions));
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    const observation = `<script>(() => {
+      let receiving = false;
+      const add = window.addEventListener;
+      window.addEventListener = function (type, listener, options) {
+        if (type === 'message' && String(listener).includes('architecture-interactive:native-appearance')) receiving = true;
+        return add.call(this, type, listener, options);
+      };
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'srcdoc');
+      window.appearanceReception = [];
+      Object.defineProperty(HTMLIFrameElement.prototype, 'srcdoc', {
+        configurable: true, get: descriptor.get,
+        set(value) {
+          window.appearanceReception.push(receiving);
+          descriptor.set.call(this, value);
+        }
+      });
+    })();</script>`;
+    await page.setContent(html.toString().replace('<head>', '<head>' + observation), {
+      waitUntil: 'load',
+    });
+    await page.frameLocator('#interactive-frame').locator('[data-interactive-member]').waitFor();
+    assert.deepEqual(await page.evaluate(() => globalThis.appearanceReception), [true]);
+  },
+);
+
+test(
   'authored reader style is shared with its opaque frame and never replaced by source initialization',
   runBrowser,
   async (t) => {
@@ -885,7 +1048,7 @@ test(
     await limitedPage.setContent(limited.toString(), { waitUntil: 'load' });
     frame = limitedPage.frames().find((value) => value !== limitedPage.mainFrame());
     await frame.waitForFunction(() => !!globalThis.Archify?.routeProbe);
-    assert.equal(await frame.locator('svg [data-node-id]').count(), 0);
+    assert.equal(await frame.locator('.diagram-container > svg [data-node-id]').count(), 3);
     const refusal = await frame.evaluate(() => {
       globalThis.Archify.routeProbe.begin({
         source: 'client',
@@ -899,10 +1062,14 @@ test(
       };
     });
     assert.equal(refusal.route, null);
-    assert.equal(refusal.radar, 0);
+    assert.equal(refusal.radar, 3);
     assert.doesNotMatch(refusal.title, /cannot reach/i);
-    await frame.locator('g[data-inspect-id="client-copy"]').press('Enter');
-    assert.equal(await limitedPage.locator('#interactive-inspector').isVisible(), true);
+    const occurrence = frame.locator('g[data-inspect-id="client-copy"]');
+    await occurrence.press('Enter');
+    assert.equal(await frame.evaluate(() => globalThis.Archify.focus.active()), 'client-copy');
+    assert.equal(await limitedPage.locator('#interactive-inspector').isVisible(), false);
+    await occurrence.press('i');
+    await limitedPage.locator('#interactive-inspector').waitFor({ state: 'visible' });
     await limitedPage.locator('#interactive-inspect-back').click();
     await frame.waitForFunction(
       () => globalThis.document.activeElement?.getAttribute('data-inspect-id') === 'client-copy',

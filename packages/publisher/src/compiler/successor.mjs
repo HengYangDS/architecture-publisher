@@ -6,6 +6,7 @@ import { composeInteractiveHtml } from '../rendering/interactive-html.mjs';
 import { composeAuthoredInteractiveArchitecture } from '../scene/interactive/authored-architecture.mjs';
 import { editorialFraming } from '../scene/framing.mjs';
 import { composeInteractiveEditionScene } from '../scene/interactive/edition.mjs';
+import { resolveFigureTypes } from '../scene/figure-types.mjs';
 import { composeAuthoredStaticCanvas } from '../scene/static/authored-canvas.mjs';
 import {
   composeStaticSelectionLayout,
@@ -24,6 +25,11 @@ import { fail } from '../protocol/values.mjs';
 import { writeSourceBundle } from '../source/write.mjs';
 import { renderInteractiveEditionHtml } from '../../renderers/interactive/index.mjs';
 import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
+import {
+  loadFigureIconSupply,
+  validateFigureIconCatalog,
+  validateResolvedFigureIcons,
+} from '../../renderers/icons/index.mjs';
 import { composeDagreStaticGeometry } from '../../renderers/dagre/static.mjs';
 import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
 import { resolveAuthoredFontSupply } from '../../renderers/resvg/font.mjs';
@@ -117,7 +123,7 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
   const authoredCanvas = staticRefinement?.kind === 'authored-canvas';
   if (meaning.editorial.presentation.static.views[0].form !== undefined) {
     const scene = composeStaticResponsibilityScene(meaning);
-    const rendered = composeStaticResponsibilitySvg(scene);
+    const rendered = composeStaticResponsibilitySvg(scene, { icons: options.icons });
     return {
       scene: rendered.scene,
       rendered,
@@ -193,7 +199,7 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
   return { scene, rendered, limits, implementationProfile, authoredFonts };
 }
 
-async function staticMedium(selected, meaning, scratch) {
+async function staticMedium(selected, meaning, scratch, icons) {
   const views = meaning.media.static.views;
   if (!Array.isArray(views) || !views.length) fail('static_figure_views_invalid');
   const firstViewTargets = selectedStaticSourceSelections(meaning, views[0]).map(
@@ -222,7 +228,10 @@ async function staticMedium(selected, meaning, scratch) {
   const fontSupply = await loadBundledFonts();
   const parts = [];
   if (wholeAuthoredCanvas) {
-    parts.push({ id: 'whole-medium', ...(await staticView(selected, meaning, fontSupply)) });
+    parts.push({
+      id: 'whole-medium',
+      ...(await staticView(selected, meaning, fontSupply, { icons })),
+    });
   } else {
     for (const [index, view] of views.entries()) {
       const scoped = views.length === 1 ? meaning : staticViewMeaning(meaning, index);
@@ -232,7 +241,7 @@ async function staticMedium(selected, meaning, scratch) {
           selected,
           scoped,
           fontSupply,
-          useFigure ? { idPrefix: `static-view-${index}-`, fragment: true } : {},
+          useFigure ? { icons, idPrefix: `static-view-${index}-`, fragment: true } : { icons },
         )),
       });
     }
@@ -303,14 +312,23 @@ async function staticMedium(selected, meaning, scratch) {
           { id: 'raster-supply', sha256: png.result.supply.sha256 },
           'bundled-file-check/v1',
         ),
+        ...(parts.some(({ scene: part }) =>
+          part.nodes?.some((node) => node.icon?.startsWith('lucide:')),
+        )
+          ? [
+              checkedSupply(
+                { id: 'figure-icons', sha256: icons.manifestSha256 },
+                'bundled-file-check/v1',
+              ),
+            ]
+          : []),
         await readImplementationSupply(implementationProfile),
       ],
     },
   };
 }
 
-async function authoredInteractiveMedium(selected, meaning, scratch) {
-  const authored = composeAuthoredInteractiveArchitecture(meaning);
+async function authoredInteractiveMedium(selected, meaning, scratch, authored) {
   const bundledFonts = await loadBundledFonts();
   const sourceRecords = [
     ...new Map(
@@ -420,10 +438,9 @@ async function authoredInteractiveMedium(selected, meaning, scratch) {
   };
 }
 
-async function interactiveMedium(selected, meaning, scratch) {
+async function interactiveMedium(selected, meaning, scratch, scene) {
   if (meaning.refinement?.media?.interactive?.kind === 'authored-architecture')
-    return authoredInteractiveMedium(selected, meaning, scratch);
-  const scene = composeInteractiveEditionScene(meaning);
+    return authoredInteractiveMedium(selected, meaning, scratch, scene);
   const rendered = await renderInteractiveEditionHtml(scene);
   validateVisibleSelection(meaning, 'interactive', scene, rendered.carriers);
   const file = { path: 'interactive/architecture.html', content: rendered.bytes };
@@ -454,6 +471,58 @@ export async function compileSelectedEditionCandidateInput(
   if (selected.lock.toolchain.profile !== 'portable') fail('edition_toolchain_profile_unadmitted');
   const meaning = await compileEditionMeaning(selected);
   assertSelectedFormsRenderable(meaning, selected.lock.media);
+  // Qualify the complete selected vocabulary before even a static-first renderer.
+  const authored = meaning.refinement?.media?.interactive?.kind === 'authored-architecture';
+  const interactiveScene = selected.lock.media.includes('interactive')
+    ? authored
+      ? composeAuthoredInteractiveArchitecture(meaning)
+      : composeInteractiveEditionScene(meaning)
+    : null;
+  const staticFigures = selected.lock.media.includes('static')
+    ? meaning.refinement?.media?.static?.kind === 'authored-canvas'
+      ? // The closed canvas contract paints source-owned circles or finite primitives, not ordinary markers.
+        [
+          {
+            nodes: composeAuthoredStaticCanvas(meaning).scene.nodes.filter(
+              (node) => !node.primitives && !(node.center && Number.isFinite(node.radius)),
+            ),
+          },
+        ]
+      : meaning.media.static.views.map((view) => ({
+          nodes: selectedStaticSourceSelections(meaning, view).flatMap((selection) =>
+            selection.target.kind === 'claim'
+              ? []
+              : selection.members.elements.map((node) => ({
+                  ...node,
+                  figureKind: node.kind ?? 'source element',
+                })),
+          ),
+        }))
+    : [];
+  const resolvedStaticFigures = resolveFigureTypes(
+    staticFigures,
+    meaning.editorial.visualPolicy?.figureTypes,
+  );
+  let icons = null;
+  if (
+    interactiveScene !== null ||
+    staticFigures.some(({ nodes }) => nodes.length) ||
+    meaning.editorial.visualPolicy?.figureTypes !== undefined
+  ) {
+    icons = await loadFigureIconSupply();
+    validateFigureIconCatalog(meaning.editorial.visualPolicy?.figureTypes, icons);
+    validateResolvedFigureIcons(
+      [
+        ...resolvedStaticFigures,
+        ...(interactiveScene
+          ? authored
+            ? interactiveScene.pages.map(({ scene }) => scene)
+            : interactiveScene.pages
+          : []),
+      ],
+      icons,
+    );
+  }
   const semanticProfile = selected.lock.sources.some(({ format }) => format.id === 'likec4/dsl')
     ? 'semantic-likec4'
     : 'semantic-claim';
@@ -466,8 +535,8 @@ export async function compileSelectedEditionCandidateInput(
     for (const medium of selected.lock.media) {
       const rendered =
         medium === 'static'
-          ? await staticMedium(selected, meaning, scratch)
-          : await interactiveMedium(selected, meaning, scratch);
+          ? await staticMedium(selected, meaning, scratch, icons)
+          : await interactiveMedium(selected, meaning, scratch, interactiveScene);
       media[medium] = rendered.record;
       files.push(...rendered.files);
       mediumLimits.push(...(rendered.limits ?? []));

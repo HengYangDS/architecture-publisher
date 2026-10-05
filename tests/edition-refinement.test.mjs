@@ -10,6 +10,9 @@ import { materializeBuildRequestInput } from '../packages/publisher/src/compiler
 import { composeStaticEditionScene } from '../packages/publisher/src/scene/static/edition.mjs';
 import { importLikeC4Layout } from '../packages/publisher/src/semantics/native-likec4.mjs';
 import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
+import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
+
+const figureIcons = await loadFigureIconSupply();
 
 async function inputWithRefinement(t, change = (value) => value, media = ['static']) {
   const fixture = await selectedNativeEdition(t, { media });
@@ -194,7 +197,7 @@ test('explicit neutral static does not inherit interactive-only refinement ident
         ...meaning,
         editorial: {
           ...meaning.editorial,
-          visualPolicy: { profile: 'neutral', override: 'refinement.json' },
+          visualPolicy: { ...meaning.editorial.visualPolicy, override: 'refinement.json' },
         },
         refinement,
       },
@@ -231,7 +234,10 @@ test('authored static identity excludes a sibling authored interactive decision'
   assert.deepEqual(first, second);
   assert.match(first.refinement.decisionSha256, /^[a-f0-9]{64}$/u);
   assert.equal(Object.hasOwn(first.refinement, 'sha256'), false);
-  assert.deepEqual(composeStaticEditionSvg(first).bytes, composeStaticEditionSvg(second).bytes);
+  assert.deepEqual(
+    composeStaticEditionSvg(first, { icons: figureIcons }).bytes,
+    composeStaticEditionSvg(second, { icons: figureIcons }).bytes,
+  );
 });
 
 test('neutral decisions cannot become an unobserved no-op or media payload', async (t) => {

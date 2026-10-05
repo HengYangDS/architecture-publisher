@@ -181,6 +181,8 @@ export function projectInteractivePage(page, index) {
       id: graphicId,
       label: node.label,
       kind: text(node.kind) ? node.kind : null,
+      ...(node.figureKind === undefined ? {} : { figureKind: node.figureKind }),
+      ...(node.icon === undefined ? {} : { icon: node.icon }),
     };
   });
 

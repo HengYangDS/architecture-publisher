@@ -156,8 +156,10 @@ the actual physical stroke is still painted once.
 Exact traversal is enabled only when source-to-graphic membership preserves
 logical endpoints. Aggregation or repeated occurrences cannot silently merge
 entities and create a path that does not exist in the source. Such a figure
-keeps complete artwork, camera and searchable precise Inspect. Its graphic
-identity is not exposed as native query identity until exact binding is supported.
+keeps complete artwork, camera and searchable precise Inspect. Native Finder,
+focus, Radar and Lens may index distinct graphic occurrences independently of
+relationship traversal. Homogeneous aggregates retain their source kind; mixed
+aggregates are explicitly figure aggregates, not a new source type.
 Unavailable queries therefore cannot report that source members are unreachable.
 
 ## Reader mechanism
@@ -177,13 +179,75 @@ No load-time autoplay or ambient-motion promise is introduced.
 
 The checked composition derives source membership and query availability once.
 Paint identity describes geometry; checked Inspect identity describes a selected
-source or Edition occurrence; native node identity enables exact graph queries.
-The renderer projects neutral Inspect identity for checked carriers, and native
-query identity only for exact bindings. Decoration never gains coverage merely
+source or Edition occurrence; native node identity indexes that occurrence.
+The derived capability limit, not the existence of a focusable node, controls
+exact relationship queries. Decoration never gains coverage merely
 by carrying a paint ID. The composition keeps an exact equality between semantic
 carrier identities and their declared source/Edition bindings, not a subset test. The publication bridge normalizes existing
 native graphic carriers under equality checks; it does not reinterpret source
 meaning or keep another semantic table. Preserve paint attributes and children.
+
+### Node type encoding
+
+The selected official references at Archify commit
+`2ab3cae7ac2c2a55d7386ca789d03c4fcd31816c` are the
+[authoring contract](https://github.com/tt-a1i/archify/blob/2ab3cae7ac2c2a55d7386ca789d03c4fcd31816c/archify/references/authoring-contract.md),
+[shared schema](https://github.com/tt-a1i/archify/blob/2ab3cae7ac2c2a55d7386ca789d03c4fcd31816c/archify/schemas/common.schema.json)
+and [viewer runtime](https://github.com/tt-a1i/archify/blob/2ab3cae7ac2c2a55d7386ca789d03c4fcd31816c/archify/references/viewer-runtime.md).
+The schemas define native kinds; icons are decorative, not another semantic
+authority. A generic source kind is not silently reclassified as a native kind.
+
+Archify's default corner icon follows native `type`; an explicit `icon` is
+decorative and does not change type, color or Legend grouping. Publisher's
+`visualRole` selects paint only. Do not let a paint role impersonate source
+meaning, and do not suppress icons merely because they are decorative.
+
+An ordinary authored node may declare `figureKind`. The Edition's single
+`visualPolicy.figureTypes` catalog owns its glyph, not each occurrence.
+`figureKind` describes that figure's architecture role for the reader; it does
+not replace any bound entity's source kind. Its default is the checked source
+kind for a homogeneous figure and `aggregate` for a mixed figure. Source kinds
+and exact membership remain separately available through Inspect. Thus a
+mixed Source figure can honestly group source entities of several kinds without
+showing `aggregate` repeatedly in the main diagram.
+
+Resolve effective kinds across all selected pages before any selected medium
+renders. Require a catalog for ordinary type-bearing figures, coverage of
+later-page kinds, and distinct resolved artwork for distinct kinds. A name
+alias is not a distinct glyph. Missing entries never become neutral defaults;
+source kinds are never collapsed to fit a small artwork vocabulary. Neutral
+composition preserves the same catalog independently of its geometry profile.
+Per-occurrence icon authoring is removed; checked scene icons are derived IR.
+Unused catalog entries remain valid as selected pages change. An external
+Edition Project can own this policy without modifying its source repository.
+
+Reuse pinned offline Lucide artwork rather than hand-drawing extra icons.
+`lucide-static@1.52.0` is a development-only supply input with no transitive
+packages or install scripts; the public package ships a compact finite SVG catalog and
+the full ISC/Feather MIT notice, not the 51 MB development package. Exact npm
+advisory lookup returned no advisory for this version on 2026-10-05. Normalize
+its 24-unit artwork into Archify's 16-unit icon rail, preserve measured footprint,
+and include supply hashes through the existing renderer receipts. No network
+icon loader, arbitrary editable SVG, parallel renderer or taxonomy is added.
+Authored primitives remain unchanged and require no automatic glyph catalog.
+
+Reuse native Legend resolution, footprint, collision checks and Lens bridge.
+Each entry places exactly one catalog glyph before its effective figure-kind
+label. The shared glyph resolver owns both node and Legend symbols; paint
+never determines kind grouping. Count badges are absent. Internal
+occurrence membership remains available to Lens, not displayed as architecture
+meaning. Native layout must diagnose insufficient space; neither hiding an
+unfit Legend nor shrinking meaningful text qualifies it. The native footprint
+reserves the actual icon rail; hit bounds map transformed glyphs into the entry's
+coordinate space. Pointer and keyboard activation reuse the native selection
+toggle; closing Lens preserves selection.
+The self-Edition's measured missing Legend bands are 17px for Overview, 16px
+for Adoption and 6px for Evolution. Its source-owned canvas heights reserve
+20px, 20px and 10px respectively; node placement and all meaning remain unchanged.
+The generic renderer retains strict authored-canvas bounds instead of hiding
+the Legend or resizing an adopter's supplied viewport.
+Reader wording belongs in the one copied native catalogue used by both template
+localization and runtime messages. Authored relationships are not runtime traffic.
 
 Export belongs to the selected query interaction, not an outside dismissal.
 The existing native menu exports the resolved Route or Reach; no parallel export

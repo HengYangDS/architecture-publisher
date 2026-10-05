@@ -104,7 +104,10 @@ function meaningFor(medium, { typed = false, editor = false, anchored = false } 
     },
     assertions,
     native: { selections },
-    editorial: { title: 'Explicit statements' },
+    editorial: {
+      title: 'Explicit statements',
+      visualPolicy: { figureTypes: { component: 'lucide:box', aggregate: 'lucide:layers' } },
+    },
     questions: [{ id: 'shape', text: 'What is asserted?' }],
     media: {
       [medium]: { views: [{ id: 'overview', assertionIds: assertions.map(({ id }) => id) }] },

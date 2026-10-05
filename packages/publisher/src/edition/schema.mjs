@@ -268,6 +268,13 @@ export const EDITION_PROJECT_SCHEMA = deepFreeze({
       visualPolicy: closed(['profile'], {
         profile: identifier,
         override: { anyOf: [portable, { type: 'null' }] },
+        figureTypes: {
+          type: 'object',
+          minProperties: 1,
+          maxProperties: 512,
+          propertyNames: text,
+          additionalProperties: { type: 'string', pattern: '^lucide:[a-z0-9-]+$' },
+        },
         fonts: {
           type: 'array',
           minItems: 1,
@@ -636,6 +643,7 @@ const interactiveNode = {
       position: canvasPoint,
       size: interactiveSize,
       detail: text,
+      figureKind: text,
       semanticIds: { ...semanticIds, minItems: 1 },
     }),
     closed(['id', 'position', 'size', 'semanticIds', 'primitives'], {

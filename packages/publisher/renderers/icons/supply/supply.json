@@ -1,0 +1,27 @@
+{
+  "schema": "architecture.icon-supply/v1",
+  "package": {
+    "package": "lucide-static",
+    "version": "1.52.0",
+    "license": "ISC",
+    "integrity": "sha512-0zZYihAze4ZmUCcyNa9OkWYqn/Y5f9AdTh02AZIxMtP5ravcTTfoSIAnUPBH6ZvKxt+ZW28JB0ldzLRyD82fcw==",
+    "viewBox": [
+      0,
+      0,
+      24,
+      24
+    ]
+  },
+  "files": [
+    {
+      "path": "artwork.json",
+      "bytes": 707232,
+      "sha256": "b11432a632b8ed3166c226e3b70e95141fd7eed53bafa9f259b122b90bc92cf3"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 3208,
+      "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+    }
+  ]
+}

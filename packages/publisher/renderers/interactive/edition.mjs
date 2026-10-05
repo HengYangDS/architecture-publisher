@@ -11,12 +11,13 @@ import { layoutInteractivePages } from '../elk/layout.mjs';
 import { interactiveLabelRequests } from '../elk/text.mjs';
 import { projectInteractivePage } from './model.mjs';
 import { loadInteractiveSupply } from './supply.mjs';
-import { renderGraphSvg } from './graph-svg.mjs';
+import { renderFigureTypeLegend, renderGraphSvg } from './graph-svg.mjs';
 import { viewerScript } from './viewport.mjs';
 import { interactiveGraphMarks as marks } from '../../src/scene/marks.mjs';
 import { responsibilityCss, responsibilityPageHtml } from './responsibility.mjs';
 import { claimWorkCss, claimWorkHtml } from './claim-work.mjs';
 import { interactiveAppearance } from '../../src/scene/appearance.mjs';
+import { loadFigureIconSupply, validateResolvedFigureIcons } from '../icons/index.mjs';
 import {
   interactiveAppearanceControls,
   interactiveAppearanceCss,
@@ -56,8 +57,8 @@ function repeatedKind(label, kind) {
   return name === suffix || name.endsWith(` ${suffix}`);
 }
 
-function pageHtml(page, index, methodLimits) {
-  if (page.form) return responsibilityPageHtml(page, index, methodLimits);
+function pageHtml(page, index, methodLimits, icons) {
+  if (page.form) return responsibilityPageHtml(page, index, methodLimits, icons);
   const nodes = new Map(page.nodes.map((node) => [node.id, node.label]));
   const mixed = Boolean(page.nodes.length && page.claims?.length);
   const relationOnly =
@@ -152,8 +153,9 @@ function pageHtml(page, index, methodLimits) {
     : '';
   const gridStyle =
     graphNaturalWidth === null ? '' : ` style="--graph-natural-width:${graphNaturalWidth}px"`;
+  const legend = renderFigureTypeLegend(page.nodes, icons);
   const stage = page.nodes.length
-    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}>${renderGraphSvg(page, index)}</div></div><div class="graph-controls"><p class="graph-instruction">Pan and zoom to explore. Inspect provides complete source records and keyboard focus.</p><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="sr-only" role="status" aria-atomic="true" data-focus-status></p>`
+    ? `<div class="graph-wrap"><div class="graph" id="graph-${index}" aria-hidden="true"${graphStyle}>${renderGraphSvg(page, index, icons)}</div></div>${legend}<div class="graph-controls"><p class="graph-instruction">Pan and zoom to explore. Inspect provides complete source records and keyboard focus.</p><button class="fit" type="button" data-fit="${index}">Fit graph</button></div><p class="sr-only" role="status" aria-atomic="true" data-focus-status></p>`
     : page.claims?.length
       ? claimStage
       : editorialStage;
@@ -273,6 +275,8 @@ export async function renderInteractiveEditionHtml(scene) {
     fail('render_interactive_complexity_exceeded');
 
   const projected = scene.pages.map(projectInteractivePage);
+  const icons = scene.pages.some((page) => page.nodes.length) ? await loadFigureIconSupply() : null;
+  if (icons) validateResolvedFigureIcons(scene.pages, icons);
   const graphIndexes = projected.flatMap(({ publicPage }, index) =>
     publicPage.form || !publicPage.nodes.length ? [] : [index],
   );
@@ -296,13 +300,14 @@ export async function renderInteractiveEditionHtml(scene) {
     ...(geometryByIndex.has(index) ? { geometry: geometryByIndex.get(index) } : {}),
   }));
   const vendor = supply?.script.toString('utf8').replace(/<\/script/giu, '<\\/script') ?? '';
-  const html = `<!doctype html><html lang="en" data-style="${appearance.style}" data-theme="${appearance.theme}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'"><link rel="icon" href="data:,"><title>${escape(scene.title)}</title><style>${css(selectedFonts)}</style></head><body><div class="shell"><header class="masthead"><h1>${escape(scene.title)}</h1><p>${escape(scene.summary)}</p><small class="editorial-framing">${escape(editorialFraming(scene.edition.editor))}</small></header><div class="reader-navigation"><nav class="navigation" aria-label="Reading pages">${pages.map((page, index) => `<button type="button" data-page-index="${index}" aria-controls="page-${index}" aria-label="${escape(`${page.navigationLabel} — ${page.title}`)}">${escape(page.navigationLabel)}</button>`).join('')}</nav>${interactiveAppearanceControls(appearance)}</div><main>${pages.map((page, index) => pageHtml(page, index, scene.limits)).join('')}</main><details class="licenses"><summary>Open-source licenses</summary><pre>${supply ? escape(supply.license.toString('utf8')) + '\n' : ''}${geometry ? escape(geometry.license.toString('utf8')) + '\n' : ''}${escape(fontSupply.license.bytes.toString('utf8'))}</pre></details></div>${vendor ? `<script>${vendor}</script>` : ''}<script type="application/json" id="edition-data">${scriptJson(pages)}</script><script>${viewerScript}</script><script>${interactiveAppearanceScript()}</script></body></html>\n`;
+  const html = `<!doctype html><html lang="en" data-style="${appearance.style}" data-theme="${appearance.theme}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'"><link rel="icon" href="data:,"><title>${escape(scene.title)}</title><style>${css(selectedFonts)}.figure-types{display:flex;flex-wrap:wrap;gap:10px 24px;list-style:none;margin:14px 0 0;padding:0;font-size:11px;color:var(--reader-ink)}.figure-types li{display:flex;align-items:center;gap:8px}.figure-types svg{flex:none;overflow:visible}</style></head><body><div class="shell"><header class="masthead"><h1>${escape(scene.title)}</h1><p>${escape(scene.summary)}</p><small class="editorial-framing">${escape(editorialFraming(scene.edition.editor))}</small></header><div class="reader-navigation"><nav class="navigation" aria-label="Reading pages">${pages.map((page, index) => `<button type="button" data-page-index="${index}" aria-controls="page-${index}" aria-label="${escape(`${page.navigationLabel} — ${page.title}`)}">${escape(page.navigationLabel)}</button>`).join('')}</nav>${interactiveAppearanceControls(appearance)}</div><main>${pages.map((page, index) => pageHtml(page, index, scene.limits, icons)).join('')}</main><details class="licenses"><summary>Open-source licenses</summary><pre>${icons ? escape(icons.license.toString('utf8')) + '\n' : ''}${supply ? escape(supply.license.toString('utf8')) + '\n' : ''}${geometry ? escape(geometry.license.toString('utf8')) + '\n' : ''}${escape(fontSupply.license.bytes.toString('utf8'))}</pre></details></div>${vendor ? `<script>${vendor}</script>` : ''}<script type="application/json" id="edition-data">${scriptJson(pages)}</script><script>${viewerScript}</script><script>${interactiveAppearanceScript()}</script></body></html>\n`;
   const bytes = Buffer.from(html);
   if (bytes.length > 32 * 1024 * 1024) fail('render_interactive_output_limit');
   return {
     completeness: 'unqualified-medium',
     bytes,
     supplies: [
+      ...(icons ? [{ id: 'figure-icons', sha256: icons.manifestSha256 }] : []),
       ...(supply ? [{ id: 'svg-pan-zoom', sha256: supply.manifestSha256 }] : []),
       ...(geometry ? [{ id: 'elk-layout', sha256: geometry.supplySha256 }] : []),
       ...(measure ? [measure.supply] : []),

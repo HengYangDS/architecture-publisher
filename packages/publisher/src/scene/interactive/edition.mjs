@@ -3,6 +3,7 @@ import { fail, hasExactFields, isDigest } from '../../protocol/values.mjs';
 import { claimCard } from '../claim-card.mjs';
 import { claimRelationQualifiers, linkClaimModelSources } from '../claim-relations.mjs';
 import { interactiveAppearance } from '../appearance.mjs';
+import { resolveFigureTypes } from '../figure-types.mjs';
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ id, origin }) => JSON.stringify([origin.namespace, id, origin.sha256]);
@@ -24,6 +25,7 @@ function element(value) {
     id: value.id,
     sha256: value.sha256,
     kind: value.kind,
+    figureKind: value.kind ?? 'source element',
     label: value.label,
     origin: structuredClone(value.origin),
   };
@@ -263,18 +265,26 @@ export function composeInteractiveEditionScene(meaning) {
     appearance: interactiveAppearance(meaning.editorial.presentation?.interactive?.appearance),
     visualPolicy:
       meaning.refinement?.media?.interactive?.kind === 'neutral'
-        ? { profile: 'neutral' }
+        ? {
+            profile: 'neutral',
+            ...(meaning.editorial.visualPolicy?.figureTypes === undefined
+              ? {}
+              : { figureTypes: meaning.editorial.visualPolicy.figureTypes }),
+          }
         : meaning.editorial.visualPolicy,
-    pages: views.map((view, index) =>
-      composePage(
-        view,
-        selections,
-        assertions,
-        questions,
-        claimMode,
-        authoredViews?.[index]?.groups,
-        authoredViews?.[index]?.form,
+    pages: resolveFigureTypes(
+      views.map((view, index) =>
+        composePage(
+          view,
+          selections,
+          assertions,
+          questions,
+          claimMode,
+          authoredViews?.[index]?.groups,
+          authoredViews?.[index]?.form,
+        ),
       ),
+      meaning.editorial.visualPolicy?.figureTypes,
     ),
     limits: meaning.limits,
   });

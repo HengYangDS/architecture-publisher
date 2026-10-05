@@ -47,6 +47,11 @@ test('self interactive scenes bind complete semantics to authored visual carrier
     assert.deepEqual(represented, semanticIds(view), id);
     assert.equal(new Set(represented).size, represented.length, id);
     assert.equal(scene.groups.length, 0, id);
+    for (const node of scene.nodes) {
+      assert.equal(typeof node.figureKind, 'string', `${id}:${node.id}: figure kind`);
+      assert(node.figureKind.trim().length > 0, `${id}:${node.id}: precise figure kind`);
+      assert.equal(typeof node.icon, 'string', `${id}:${node.id}: deliberate icon`);
+    }
     assert(scene.viewport.width <= 1240, id);
     assert(scene.viewport.height <= 980, id);
   }

@@ -184,6 +184,7 @@ const owners = [
       'packages/publisher/src/scene/',
       'packages/publisher/src/source/',
       'packages/publisher/renderers/archify/supply/',
+      'packages/publisher/renderers/icons/',
     ],
   ],
   [
@@ -191,6 +192,7 @@ const owners = [
     [
       'packages/publisher/renderers/interactive/',
       'packages/publisher/renderers/reader/',
+      'packages/publisher/renderers/icons/',
       'packages/publisher/renderers/elk/',
       'packages/publisher/renderers/fonts/',
       'packages/publisher/renderers/resvg/measurement.mjs',
@@ -198,6 +200,7 @@ const owners = [
       'packages/publisher/src/source/',
     ],
   ],
+  ['packages/publisher/renderers/icons/', ['packages/publisher/renderers/icons/']],
   [
     'packages/publisher/renderers/reader/',
     [
@@ -234,7 +237,11 @@ const owners = [
   ],
   [
     'packages/publisher/renderers/svg/',
-    ['packages/publisher/renderers/svg/', 'packages/publisher/src/scene/'],
+    [
+      'packages/publisher/renderers/svg/',
+      'packages/publisher/renderers/icons/',
+      'packages/publisher/src/scene/',
+    ],
   ],
   [
     'packages/publisher/renderers/resvg/measurement.mjs',

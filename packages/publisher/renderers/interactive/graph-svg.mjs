@@ -1,4 +1,5 @@
 import { interactiveGraphMarks as marks } from '../../src/scene/marks.mjs';
+import { renderFigureIcon } from '../icons/index.mjs';
 
 const escape = (value) =>
   String(value)
@@ -19,8 +20,15 @@ function labelText(label, kind) {
     .join('');
 }
 
+export function renderFigureTypeLegend(nodes, icons) {
+  const kinds = [...new Map(nodes.map(({ figureKind, kind, icon }) => [figureKind ?? kind, icon]))];
+  return kinds.length
+    ? `<ul class="figure-types" aria-label="Figure types">${kinds.map(([kind, icon]) => `<li data-legend-kind="${escape(kind)}"><svg width="11" height="11" viewBox="0 0 11 11" aria-hidden="true">${renderFigureIcon(icon, icons)}</svg><span>${escape(kind)}</span></li>`).join('')}</ul>`
+    : '';
+}
+
 /** Exact normalized coordinates are painted once; interaction transforms the viewport only. */
-export function renderGraphSvg(page, index) {
+export function renderGraphSvg(page, index, icons) {
   const graph = page.geometry;
   const prefix = `graph-${index}`;
   const length = marks.arrowLength;
@@ -43,7 +51,7 @@ export function renderGraphSvg(page, index) {
   const nodes = graph.nodes
     .map(
       (node) =>
-        `<g class="graph-node" data-graphic-id="${escape(node.id)}" data-select-id="${escape(node.id)}"><rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}"/>${labelText(node.label, 'node')}</g>`,
+        `<g class="graph-node" data-graphic-id="${escape(node.id)}" data-select-id="${escape(node.id)}"><rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}"/>${node.icon === undefined ? '' : renderFigureIcon(node.icon, icons, { x: node.x + 6, y: node.y + 6 })}${labelText(node.label, 'node')}</g>`,
     )
     .join('');
   return `<svg class="graph-svg" id="${prefix}-svg" viewBox="0 0 ${graph.bounds.width} ${graph.bounds.height}" width="${graph.bounds.width}" height="${graph.bounds.height}" aria-hidden="true">${markers}<g class="graph-viewport">${groups}${relations}${nodes}</g></svg>`;

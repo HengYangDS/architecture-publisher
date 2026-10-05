@@ -1,6 +1,13 @@
 import { fail } from '../../src/protocol/values.mjs';
 import { editorialFraming } from '../../src/scene/framing.mjs';
 import { factorCommonClaimContext } from '../../src/scene/claim-card.mjs';
+import { renderFigureIcon } from '../icons/index.mjs';
+import { composeFigureTypeLegend, figureIconLicenseMetadata } from './figure-types.mjs';
+import {
+  escapeStaticText as escape,
+  measureStaticText as advance,
+  wrapStaticText as wrap,
+} from './text.mjs';
 import {
   SOURCE_RELATION_QUALIFIER_CONTEXT,
   SOURCE_REPORTED_TOPOLOGY_NOTE,
@@ -12,7 +19,6 @@ const relationKey = ({ namespace, reference, sha256 }) =>
   JSON.stringify([namespace, reference, sha256]);
 const claimKey = relationKey;
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
-const advance = (value, size) => [...value].length * size * 0.61;
 const groupTitleBaseline = 31;
 const groupTitleLeading = 19;
 const groupTitleClearance = 17;
@@ -20,12 +26,6 @@ const noteLineLeading = 26;
 const noteItemGap = 9;
 const maximumExtent = 12_000;
 const claimColumnGap = 24;
-const escape = (value) =>
-  String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
 
 function factorClaimFacts(cards) {
   for (const claim of cards) {
@@ -48,33 +48,6 @@ function number(value) {
     fail('static_edition_geometry_invalid');
   return Number(value.toFixed(2));
 }
-
-function wrap(value, width, size, limit = 12) {
-  if (typeof value !== 'string' || !value.trim()) fail('static_edition_text_unrepresentable');
-  const lines = [];
-  let current = '';
-  for (const character of [...value]) {
-    if (advance(current + character, size) <= width) {
-      current += character;
-      continue;
-    }
-    if (!current) fail('static_edition_text_unrepresentable');
-    const breakAt = Math.max(current.lastIndexOf(' ') + 1, current.lastIndexOf('-') + 1);
-    if (breakAt > 0 && breakAt < current.length) {
-      lines.push(current.slice(0, breakAt));
-      current = current.slice(breakAt) + character;
-    } else {
-      lines.push(current);
-      current = character;
-    }
-    if (advance(current, size) > width) fail('static_edition_text_unrepresentable');
-  }
-  if (current) lines.push(current);
-  if (lines.length > limit) fail('static_edition_text_unrepresentable');
-  return lines;
-}
-
-export { escape as escapeStaticText, wrap as wrapStaticText };
 
 function textLines(output, content, x, y, width, size, color, weight = 400, limit = 12) {
   const lines = wrap(content, width, size, limit);
@@ -538,7 +511,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
   const idPrefix = options.idPrefix ?? '';
   const fragment = options.fragment === true;
   if (
-    Object.keys(options).some((key) => !['idPrefix', 'fragment'].includes(key)) ||
+    Object.keys(options).some((key) => !['idPrefix', 'fragment', 'icons'].includes(key)) ||
     typeof idPrefix !== 'string' ||
     !/^[a-z0-9-]*$/u.test(idPrefix) ||
     (options.fragment !== undefined && typeof options.fragment !== 'boolean')
@@ -559,6 +532,8 @@ export function composeStaticEditionSvg(scene, options = {}) {
   const { common, commonLabels } = factorClaimFacts(claimCards);
   const { columns: claimColumns, width: graphWidth } = staticBodyGeometry(bounds, claimCards);
   const notesWidth = 400;
+  const figureTypes = composeFigureTypeLegend(scene.nodes, options.icons, notesWidth);
+  const iconLicense = figureIconLicenseMetadata(figureTypes && options.icons);
   const gap = 54;
   const notesX = 60 + graphWidth + gap;
   const width = notesX + notesWidth + 60;
@@ -644,21 +619,21 @@ export function composeStaticEditionSvg(scene, options = {}) {
     const nodeHeight = number(node.height);
     if (nodeWidth < 96 || nodeHeight < 64) fail('static_edition_node_unrepresentable');
     const labelLines = wrap(node.label, nodeWidth - 28, 16, 2);
-    const kindLines = node.kind === null ? [] : wrap(node.kind, nodeWidth - 28, 10, 1);
-    if (kindLines.length && labelLines.length > 1 && nodeHeight < 86)
-      fail('static_edition_node_unrepresentable');
+    const kindLines = node.kind === null ? [] : wrap(node.kind, nodeWidth - 51, 10, 1);
+    if (labelLines.length > 1 && nodeHeight < 86) fail('static_edition_node_unrepresentable');
     const graphicId = `${idPrefix}n-${position}`;
     nodeCarriers.push({
       graphicId,
       source: { namespace: node.namespace, id: node.id, sha256: node.sha256 },
     });
     graph.push(
-      `<g data-graphic-id="${graphicId}">`,
+      `<g data-graphic-id="${graphicId}" color="#6a776d">`,
       `<rect x="${x}" y="${nodeY}" width="${nodeWidth}" height="${nodeHeight}" rx="12" fill="#fffefa" stroke="#84978a" stroke-width="1.6"/>`,
+      renderFigureIcon(node.icon, options.icons, { x: x + 16, y: nodeY + 12, size: 11 }),
     );
     if (kindLines.length)
       graph.push(
-        `<text x="${number(x + 16)}" y="${number(nodeY + 22)}" fill="#6a776d" font-size="10" font-weight="600">${escape(kindLines[0])}</text>`,
+        `<text x="${number(x + 35)}" y="${number(nodeY + 22)}" fill="#6a776d" font-size="10" font-weight="600">${escape(kindLines[0])}</text>`,
       );
     const baseline = nodeY + nodeHeight / 2 + (labelLines.length === 1 ? 7 : -1);
     for (const [index, label] of labelLines.entries())
@@ -669,7 +644,13 @@ export function composeStaticEditionSvg(scene, options = {}) {
   }
   y = graphTop + 28;
   const notes = [];
-  if (!fragment)
+  if (!fragment) {
+    if (figureTypes) {
+      notes.push(
+        `<g transform="translate(${notesX} ${number(graphTop + 6)})">${figureTypes.markup}</g>`,
+      );
+      y = graphTop + 6 + figureTypes.height + 22;
+    }
     y = namedSection(
       notes,
       'READER QUESTIONS',
@@ -678,7 +659,6 @@ export function composeStaticEditionSvg(scene, options = {}) {
       y,
       notesWidth,
     );
-  if (!fragment)
     y = namedSection(
       notes,
       'READING GROUPS',
@@ -687,6 +667,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
       y,
       notesWidth,
     );
+  }
   let relationIndex = 0;
   const relationItems = scene.edges.flatMap((edge) =>
     edge.relations.flatMap((relation) => {
@@ -992,6 +973,8 @@ export function composeStaticEditionSvg(scene, options = {}) {
         graph: graph.join('\n'),
         bounds,
         groups,
+        figureTypes,
+        iconLicense,
         relations: relationItems,
         claim:
           claimCarriers.length > 0
@@ -1016,6 +999,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
     ...bodyPrelude,
     ...header,
     ...bodyContent,
+    iconLicense,
     '</svg>',
     '',
   ];

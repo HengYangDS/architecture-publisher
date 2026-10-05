@@ -35,6 +35,9 @@ import { composeAuthoredInteractiveArchitecture } from '../packages/publisher/sr
 import { composeAuthoredStaticCanvas } from '../packages/publisher/src/scene/static/authored-canvas.mjs';
 import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
 import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg/measurement.mjs';
+import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
+
+const figureIcons = await loadFigureIconSupply();
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const modelFormat = { id: 'architecture.claim-model', version: '2' };
@@ -85,7 +88,7 @@ async function fixture(
         intent: 'One explorable view.',
       },
     },
-    visualPolicy: { profile: 'neutral' },
+    visualPolicy: { profile: 'neutral', figureTypes: { component: 'lucide:box' } },
   };
   await fs.writeFile(path.join(root, 'edition/project.json'), JSON.stringify(project) + '\n');
   const request = {
@@ -433,7 +436,7 @@ test('pure static claims size their complete content independently of absent str
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
   const scene = composeStaticEditionScene(meaning, null);
-  const rendered = composeStaticEditionSvg(scene, { fragment: true });
+  const rendered = composeStaticEditionSvg(scene, { icons: figureIcons, fragment: true });
   assert.deepEqual(scene.nodes, []);
   assert.deepEqual(scene.edges, []);
   assert.deepEqual(
@@ -480,7 +483,11 @@ test('neutral Claim Model layout carries a plain relation on its visible edge, n
   assert.equal(layout.edges[0].caption?.point.length, 2);
 
   const scene = composeStaticEditionScene(meaning, layout);
-  const rendered = composeStaticEditionSvg(scene, { idPrefix: 'probe-', fragment: true });
+  const rendered = composeStaticEditionSvg(scene, {
+    icons: figureIcons,
+    idPrefix: 'probe-',
+    fragment: true,
+  });
   assert.match(rendered.parts.graph, /data-graphic-id="probe-r-0"[\s\S]*?>calls<\/text>/u);
   assert.deepEqual(rendered.parts.relations, []);
   assert.deepEqual(
@@ -505,7 +512,7 @@ test('a long source relation type remains visible in the ledger when it cannot f
   const layout = composeStaticSelectionLayout(meaning);
   assert.equal(layout.edges[0].caption, undefined);
   const scene = composeStaticEditionScene(meaning, layout);
-  const rendered = composeStaticEditionSvg(scene, { fragment: true });
+  const rendered = composeStaticEditionSvg(scene, { icons: figureIcons, fragment: true });
   assert.match(rendered.parts.relations[0].text, /publishes-a-resource-to-an-independent-forge/u);
 });
 
@@ -530,7 +537,7 @@ test('an invalid edge caption fails with a typed renderer error before bounds pr
   ]) {
     const invalid = structuredClone(scene);
     mutate(invalid.edges[0]);
-    assert.throws(() => composeStaticEditionSvg(invalid), {
+    assert.throws(() => composeStaticEditionSvg(invalid, { icons: figureIcons }), {
       code: 'static_edition_relation_caption_invalid',
     });
   }
@@ -1615,7 +1622,7 @@ test('a grouped static Scene retains relation and dependent claim as separate so
     scene.edges[0].relations[0].label,
     'Source relation qualifiers (unverified): phase: selected · z: tail · ä: accent',
   );
-  const fragment = composeStaticEditionSvg(scene, { fragment: true });
+  const fragment = composeStaticEditionSvg(scene, { icons: figureIcons, fragment: true });
   assert.equal(fragment.parts.relations[0].context, 'Source relation qualifiers (unverified)');
   assert.equal(Object.hasOwn(fragment.parts.relations[0], 'compactText'), false);
   assert.equal(scene.claimCards.length, 1);
@@ -2511,7 +2518,7 @@ test('a mixed page carries a scalar claim on its own source subject without inve
       },
     },
   ]);
-  const staticRendered = composeStaticEditionSvg(staticScene);
+  const staticRendered = composeStaticEditionSvg(staticScene, { icons: figureIcons });
   assert.match(staticRendered.bytes.toString('utf8'), /ON SOURCE ENTITY/u);
   assert.doesNotThrow(() =>
     validateVisibleSelection(meaning, 'static', staticScene, staticRendered.carriers),
@@ -2640,7 +2647,7 @@ test('a mixed scalar claim cannot forge or lose its subject dependency', async (
   );
   const missing = structuredClone(scene);
   delete missing.claimSubjectLinks;
-  assert.throws(() => composeStaticEditionSvg(missing), {
+  assert.throws(() => composeStaticEditionSvg(missing, { icons: figureIcons }), {
     code: 'static_edition_claim_relation_invalid',
   });
   const interactive = composeInteractiveEditionScene(meaning);
@@ -2653,7 +2660,7 @@ test('a mixed scalar claim cannot forge or lose its subject dependency', async (
     { code: 'edition_visible_coverage_mismatch' },
   );
   scene.claimSubjectLinks[0].subject.id = 'invented';
-  const rendered = composeStaticEditionSvg(scene);
+  const rendered = composeStaticEditionSvg(scene, { icons: figureIcons });
   assert.throws(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers), {
     code: 'edition_visible_coverage_mismatch',
   });
@@ -2752,7 +2759,7 @@ test('relation-only coverage rejects endpoints without the selected relation', a
   const staticForged = structuredClone(staticScene);
   staticForged.edges = [];
   staticForged.sourceAssertionCarriers[0].relationRefs = [];
-  const staticRendered = composeStaticEditionSvg(staticForged);
+  const staticRendered = composeStaticEditionSvg(staticForged, { icons: figureIcons });
   assert.throws(
     () => validateVisibleSelection(meaning, 'static', staticForged, staticRendered.carriers),
     { code: 'edition_visible_coverage_mismatch' },
@@ -2829,7 +2836,7 @@ test('a mixed page keeps unclaimed relations structural beside linked claims', a
   ]);
   const staticWrongLink = structuredClone(staticScene);
   staticWrongLink.claimRelationLinks[0].relationAssertionId = 'second-relation';
-  const staticWrongRendered = composeStaticEditionSvg(staticWrongLink);
+  const staticWrongRendered = composeStaticEditionSvg(staticWrongLink, { icons: figureIcons });
   assert.throws(
     () =>
       validateVisibleSelection(meaning, 'static', staticWrongLink, staticWrongRendered.carriers),
@@ -2842,7 +2849,7 @@ test('a mixed page keeps unclaimed relations structural beside linked claims', a
   staticForged.sourceAssertionCarriers.find(
     ({ assertionId }) => assertionId === 'second-relation',
   ).relationRefs = [];
-  const staticRendered = composeStaticEditionSvg(staticForged);
+  const staticRendered = composeStaticEditionSvg(staticForged, { icons: figureIcons });
   assert.throws(
     () => validateVisibleSelection(meaning, 'static', staticForged, staticRendered.carriers),
     { code: 'edition_visible_coverage_mismatch' },
@@ -3059,7 +3066,7 @@ test('one mixed static claim uses the available plate in two reading columns', a
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
   const scene = composeStaticEditionScene(meaning, composeStaticSelectionLayout(meaning));
-  const rendered = composeStaticEditionSvg(scene);
+  const rendered = composeStaticEditionSvg(scene, { icons: figureIcons });
   const svg = rendered.bytes.toString('utf8');
   const claim = /<g data-graphic-id="c-0">([\s\S]*?)<\/g>/u.exec(svg)?.[1];
   assert(claim);
@@ -3207,7 +3214,7 @@ test('mixed static claims follow source-relation reading order rather than claim
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
   const scene = composeStaticEditionScene(meaning, composeStaticSelectionLayout(meaning));
-  const rendered = composeStaticEditionSvg(scene);
+  const rendered = composeStaticEditionSvg(scene, { icons: figureIcons });
   assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers));
   const svg = rendered.bytes.toString('utf8');
   const first = svg.indexOf('ON SOURCE RELATION 01');
@@ -3283,24 +3290,24 @@ test('mixed static media rejects a forged graphic link or source dependency', as
   const meaning = await compileEditionMeaning(input);
   const layout = composeStaticSelectionLayout(meaning);
   const scene = composeStaticEditionScene(meaning, layout);
-  const rendered = composeStaticEditionSvg(scene);
+  const rendered = composeStaticEditionSvg(scene, { icons: figureIcons });
   assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers));
 
   const forged = structuredClone(scene);
   forged.claimRelationLinks[0].relationAssertionId = 'not-selected';
-  assert.throws(() => composeStaticEditionSvg(forged), {
+  assert.throws(() => composeStaticEditionSvg(forged, { icons: figureIcons }), {
     code: 'static_edition_claim_relation_invalid',
   });
   const malformed = structuredClone(scene);
   malformed.claimRelationLinks[0] = null;
-  assert.throws(() => composeStaticEditionSvg(malformed), {
+  assert.throws(() => composeStaticEditionSvg(malformed, { icons: figureIcons }), {
     code: 'static_edition_claim_relation_invalid',
   });
 
   const retargeted = structuredClone(scene);
   retargeted.edges[0].relations[0].reference = 'invented';
   retargeted.sourceAssertionCarriers[0].relationRefs[0].reference = 'invented';
-  const retargetedCarriers = composeStaticEditionSvg(retargeted).carriers;
+  const retargetedCarriers = composeStaticEditionSvg(retargeted, { icons: figureIcons }).carriers;
   assert.throws(() => validateVisibleSelection(meaning, 'static', retargeted, retargetedCarriers), {
     code: 'edition_visible_coverage_mismatch',
   });
@@ -3325,7 +3332,7 @@ test('a forged Scene cannot hide a selected claim condition behind a valid carri
   const meaning = await compileEditionMeaning(input);
   const scene = structuredClone(composeStaticEditionScene(meaning, null));
   scene.claimCards[0].facts.find(({ label }) => label === 'Condition').value = 'hidden';
-  const rendered = composeStaticEditionSvg(scene);
+  const rendered = composeStaticEditionSvg(scene, { icons: figureIcons });
   assert.throws(() => validateVisibleSelection(meaning, 'static', scene, rendered.carriers), {
     code: 'edition_visible_coverage_mismatch',
   });
@@ -3361,7 +3368,7 @@ test('malformed claim carriers fail by name before either renderer emits media',
   const meaning = await compileEditionMeaning(input);
   const staticScene = structuredClone(composeStaticEditionScene(meaning, null));
   staticScene.claimCards[0] = null;
-  assert.throws(() => composeStaticEditionSvg(staticScene), {
+  assert.throws(() => composeStaticEditionSvg(staticScene, { icons: figureIcons }), {
     code: 'static_edition_claim_invalid',
   });
   const interactive = structuredClone(composeInteractiveEditionScene(meaning));

@@ -49,7 +49,7 @@ export async function selectedNativeEdition(t, options = {}) {
         intent: 'Explore the selected source structure.',
       },
     },
-    visualPolicy: { profile: 'neutral' },
+    visualPolicy: { profile: 'neutral', figureTypes: { component: 'lucide:box' } },
   };
   const request = {
     schema: 'architecture.build-request/v1',

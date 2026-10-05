@@ -4,6 +4,9 @@ import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/in
 import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/edition.mjs';
 import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
 import { staticEditionScene } from './fixtures/static-edition-scene.mjs';
+import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
+
+const figureIcons = await loadFigureIconSupply();
 
 function selectedMeaning(scene, medium) {
   const pages =
@@ -63,8 +66,16 @@ test('a multi-view figure cannot lose, reorder, or reuse another view graphic', 
   };
   const meaning = selectedMeaning(figure, 'static');
   const maps = [
-    composeStaticEditionSvg(first, { idPrefix: 'static-view-0-', fragment: true }).carriers,
-    composeStaticEditionSvg(second, { idPrefix: 'static-view-1-', fragment: true }).carriers,
+    composeStaticEditionSvg(first, {
+      icons: figureIcons,
+      idPrefix: 'static-view-0-',
+      fragment: true,
+    }).carriers,
+    composeStaticEditionSvg(second, {
+      icons: figureIcons,
+      idPrefix: 'static-view-1-',
+      fragment: true,
+    }).carriers,
   ];
   assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', figure, maps));
   for (const mutate of [
@@ -114,7 +125,7 @@ test('interactive rendering refuses a limit for an undisplayed question', async 
 test('static rendering refuses an authored question with no visible question record', () => {
   const scene = staticEditionScene();
   scene.questionIds.push('hidden');
-  assert.throws(() => composeStaticEditionSvg(scene), {
+  assert.throws(() => composeStaticEditionSvg(scene, { icons: figureIcons }), {
     code: 'static_edition_question_invalid',
   });
 });
@@ -124,7 +135,7 @@ test('static rendering refuses a limit for an undisplayed question', () => {
   scene.limitsByQuestion.hidden = [
     { kind: 'scope', reason: 'A hidden limit cannot count as disclosure.' },
   ];
-  assert.throws(() => composeStaticEditionSvg(scene), {
+  assert.throws(() => composeStaticEditionSvg(scene, { icons: figureIcons }), {
     code: 'static_edition_question_invalid',
   });
 });
@@ -132,13 +143,13 @@ test('static rendering refuses a limit for an undisplayed question', () => {
 test('static rendering refuses graphic carriers with no bound source assertion', () => {
   const scene = staticEditionScene();
   scene.sourceAssertionCarriers = [];
-  assert.throws(() => composeStaticEditionSvg(scene), {
+  assert.throws(() => composeStaticEditionSvg(scene, { icons: figureIcons }), {
     code: 'static_edition_carrier_unclaimed',
   });
 });
 
 test('static private carrier evidence binds assertions to the visible graphics', () => {
-  const rendered = composeStaticEditionSvg(staticEditionScene());
+  const rendered = composeStaticEditionSvg(staticEditionScene(), { icons: figureIcons });
   assert.deepEqual(rendered.carriers.assertions, [
     {
       assertionId: 'source-shape',
@@ -149,10 +160,10 @@ test('static private carrier evidence binds assertions to the visible graphics',
 });
 
 test('changing only assertion binding changes private evidence even when visible bytes agree', () => {
-  const before = composeStaticEditionSvg(staticEditionScene());
+  const before = composeStaticEditionSvg(staticEditionScene(), { icons: figureIcons });
   const scene = staticEditionScene();
   scene.sourceAssertionCarriers[0].assertionId = 'another-assertion';
-  const after = composeStaticEditionSvg(scene);
+  const after = composeStaticEditionSvg(scene, { icons: figureIcons });
   assert.deepEqual(after.bytes, before.bytes);
   assert.notDeepEqual(after.carriers.assertions, before.carriers.assertions);
 });
@@ -162,7 +173,7 @@ test('static relation notes preserve bidirectional meaning', () => {
   scene.edges[0].relations[0].direction = 'bidirectional';
   scene.edges[0].relations[0].label = null;
   scene.edges[0].relations[0].kind = 'peer';
-  const svg = composeStaticEditionSvg(scene).bytes.toString('utf8');
+  const svg = composeStaticEditionSvg(scene, { icons: figureIcons }).bytes.toString('utf8');
   assert.match(svg, /Alpha &amp; one ↔ Beta · peer/u);
   assert.doesNotMatch(svg, /Alpha &amp; one → Beta · peer/u);
 });
@@ -171,7 +182,7 @@ test('compiler coverage join accepts the selected static and interactive view ob
   const { validateVisibleSelection } =
     await import('../packages/publisher/src/compiler/coverage.mjs');
   const staticScene = staticEditionScene();
-  const staticCarriers = composeStaticEditionSvg(staticScene).carriers;
+  const staticCarriers = composeStaticEditionSvg(staticScene, { icons: figureIcons }).carriers;
   assert.doesNotThrow(() =>
     validateVisibleSelection(
       selectedMeaning(staticScene, 'static'),
@@ -198,7 +209,7 @@ test('compiler coverage join refuses an invented Scene assertion despite valid r
   const scene = staticEditionScene();
   const meaning = selectedMeaning(scene, 'static');
   scene.sourceAssertionCarriers[0].assertionId = 'invented';
-  const carriers = composeStaticEditionSvg(scene).carriers;
+  const carriers = composeStaticEditionSvg(scene, { icons: figureIcons }).carriers;
   assert.throws(() => validateVisibleSelection(meaning, 'static', scene, carriers), {
     code: 'edition_visible_coverage_mismatch',
   });
@@ -209,7 +220,7 @@ test('compiler coverage join refuses an invented private carrier assertion', asy
     await import('../packages/publisher/src/compiler/coverage.mjs');
   const scene = staticEditionScene();
   const meaning = selectedMeaning(scene, 'static');
-  const carriers = composeStaticEditionSvg(scene).carriers;
+  const carriers = composeStaticEditionSvg(scene, { icons: figureIcons }).carriers;
   carriers.assertions[0].assertionId = 'invented';
   assert.throws(() => validateVisibleSelection(meaning, 'static', scene, carriers), {
     code: 'edition_visible_coverage_mismatch',
@@ -221,7 +232,7 @@ test('compiler coverage join refuses a partial assertion-to-graphic binding', as
     await import('../packages/publisher/src/compiler/coverage.mjs');
   const scene = staticEditionScene();
   const meaning = selectedMeaning(scene, 'static');
-  const carriers = composeStaticEditionSvg(scene).carriers;
+  const carriers = composeStaticEditionSvg(scene, { icons: figureIcons }).carriers;
   carriers.assertions[0].nodeGraphicIds = ['n-1'];
   assert.throws(() => validateVisibleSelection(meaning, 'static', scene, carriers), {
     code: 'edition_visible_coverage_mismatch',
@@ -233,7 +244,7 @@ test('compiler coverage rejects ambiguous question and graphic identities at the
     await import('../packages/publisher/src/compiler/coverage.mjs');
   const original = staticEditionScene();
   const originalMeaning = selectedMeaning(original, 'static');
-  const originalCarriers = composeStaticEditionSvg(original).carriers;
+  const originalCarriers = composeStaticEditionSvg(original, { icons: figureIcons }).carriers;
   for (const [name, mutate] of [
     ['unknown medium', (value) => (value.medium = 'foreign')],
     [
@@ -446,7 +457,7 @@ test('compiler coverage join refuses swapping declared assertions between questi
     shape: ['source-shape'],
     risk: ['editorial-risk'],
   };
-  const carriers = composeStaticEditionSvg(scene).carriers;
+  const carriers = composeStaticEditionSvg(scene, { icons: figureIcons }).carriers;
   assert.doesNotThrow(() => validateVisibleSelection(meaning, 'static', scene, carriers));
 
   meaning.media.static.views[0].assertionsByQuestion = {

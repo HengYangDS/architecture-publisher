@@ -13,7 +13,7 @@ export function interactiveEditionScene() {
     edition: { id: 'source-atlas', editor: 'fixture-editor', sha256: 'b'.repeat(64) },
     title: 'Selected architecture',
     summary: 'A source-bound overview.',
-    visualPolicy: { profile: 'neutral' },
+    visualPolicy: { profile: 'neutral', figureTypes: { component: 'lucide:box' } },
     pages: [
       {
         id: 'overview',
@@ -26,6 +26,7 @@ export function interactiveEditionScene() {
             id: 'secret-alpha',
             sha256: MODEL,
             kind: 'component',
+            icon: 'lucide:box',
             label: 'Alpha & one',
             origin,
           },
@@ -34,6 +35,7 @@ export function interactiveEditionScene() {
             id: 'secret-beta',
             sha256: MODEL,
             kind: 'component',
+            icon: 'lucide:box',
             label: 'Beta',
             origin,
           },

@@ -75,10 +75,14 @@ function qualifyStaticScene(scene, groupDefinitions, model) {
 function qualifyInteractiveScene(scene) {
   return {
     ...scene,
-    nodes: scene.nodes.map((node) => ({
-      ...node,
-      ...(node.semanticIds ? { semanticIds: node.semanticIds.map(qualified) } : {}),
-    })),
+    nodes: scene.nodes.map((node) => {
+      const authored = { ...node };
+      delete authored.icon;
+      return {
+        ...authored,
+        ...(node.semanticIds ? { semanticIds: node.semanticIds.map(qualified) } : {}),
+      };
+    }),
     edges: scene.edges.map((edge) => ({
       ...edge,
       ...(edge.semanticIds ? { semanticIds: edge.semanticIds.map(qualified) } : {}),

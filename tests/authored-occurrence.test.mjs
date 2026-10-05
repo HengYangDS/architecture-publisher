@@ -45,7 +45,10 @@ function selectedMeaning() {
       selection: selectionId,
     })),
     native: { selections },
-    editorial: { title: 'Shared source meaning' },
+    editorial: {
+      title: 'Shared source meaning',
+      visualPolicy: { figureTypes: { component: 'lucide:box', aggregate: 'lucide:layers' } },
+    },
     media: {},
     refinement: { media: {} },
   };

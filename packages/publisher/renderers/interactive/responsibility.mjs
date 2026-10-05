@@ -40,7 +40,7 @@ function inspect(page, methodLimits) {
 }
 
 /** Paint one selected responsibility argument without importing static media geometry. */
-export function responsibilityPageHtml(page, index, methodLimits) {
+export function responsibilityPageHtml(page, index, methodLimits, icons) {
   if (
     !page?.form ||
     !Array.isArray(page.form.roles) ||
@@ -71,7 +71,7 @@ export function responsibilityPageHtml(page, index, methodLimits) {
     page.relations.some(({ source, target }) => !nodes.has(source) || !nodes.has(target))
   )
     fail('render_responsibility_page_invalid');
-  const map = responsibilityMapHtml(page, index);
+  const map = responsibilityMapHtml(page, index, icons);
   const limits = page.questions.flatMap(({ limits: items }) => items);
   return `<section class="edition-page edition-page--responsibility" id="page-${index}" data-page="${index}" aria-labelledby="page-title-${index}"><header class="form-page-heading"><p class="eyebrow">Reading page ${index + 1}</p><h2 id="page-title-${index}">${escape(page.navigationLabel)}</h2><p>${escape(page.questions[0].text)}</p></header><div class="responsibility-work">${map}${limits.length ? `<aside class="form-scope" aria-label="Reading limits">${limits.map((limit) => `<p>${escape(limit)}</p>`).join('')}</aside>` : ''}${inspect(page, methodLimits)}</div></section>`;
 }

@@ -11,6 +11,8 @@ import { adaptArchitectureTexts } from './text.mjs';
 import { adaptArchitecturePrimitives } from './primitives.mjs';
 import { adaptArchitectureRoutes } from './routes.mjs';
 import { adaptArchitectureExploration } from './semantics.mjs';
+import { adaptArchitectureIcons } from './icons.mjs';
+import { loadFigureIconSupply } from '../icons/index.mjs';
 import { validateInteractiveArchitectureScene } from '../../src/scene/interactive/architecture.mjs';
 
 const supplyRoot = fileURLToPath(new URL('./supply/', import.meta.url));
@@ -214,7 +216,7 @@ function semanticPublicationTemplate(template) {
     fail('render_semantic_template_seam_invalid');
   return result.replace(
     '</head>',
-    '<style>:root[data-preset="classic"]{--arrow:var(--text-muted)}svg text.t-edge-default,svg text.t-edge-emphasis,svg text.t-edge-security,svg text.t-edge-dashed{fill:var(--text)}</style></head>',
+    '<style>:root[data-preset="classic"]{--arrow:var(--text-muted)}svg [data-node-id]>text.t-muted{fill:color-mix(in srgb,var(--text-muted) 75%,var(--text) 25%)}svg text.t-edge-default,svg text.t-edge-emphasis,svg text.t-edge-security,svg text.t-edge-dashed{fill:var(--text)}</style></head>',
   );
 }
 
@@ -222,6 +224,7 @@ function semanticPublicationTemplate(template) {
 export async function renderArchitectureScene(plan) {
   if (!plan || typeof plan !== 'object') fail('render_scene_plan_invalid');
   const scene = validateInteractiveArchitectureScene(structuredClone(plan.scene));
+  const icons = await loadFigureIconSupply();
   const output = plan.output;
   const diagram = adaptArchitectureScene(scene),
     inputBytes = Buffer.from(JSON.stringify(diagram, null, 2) + '\n');
@@ -229,11 +232,19 @@ export async function renderArchitectureScene(plan) {
     { type: 'architecture', inputBytes, output },
     async (native, notice) => {
       const template = await adaptOfflineTemplate(native, notice, true);
+      const typed = await adaptArchitectureIcons(native, scene, icons);
       await adaptArchitecturePrimitives(native, scene);
       const routes = await adaptArchitectureRoutes(native, scene);
       const text = await adaptArchitectureTexts(native, scene, plan.fontSupply ?? null);
       await adaptArchitectureExploration(native, scene, plan.exploration);
-      return { supplies: [...template.supplies, ...text.supplies], ...routes };
+      return {
+        supplies: [
+          ...template.supplies,
+          ...text.supplies,
+          ...(typed ? [{ id: 'figure-icons', sha256: icons.manifestSha256 }] : []),
+        ],
+        ...routes,
+      };
     },
   );
 }

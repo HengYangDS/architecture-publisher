@@ -29,7 +29,7 @@ function meaning() {
     editorial: {
       title: 'Selected architecture',
       narrative: { summary: 'Read the source, then the limit.' },
-      visualPolicy: { profile: 'neutral' },
+      visualPolicy: { profile: 'neutral', figureTypes: { component: 'lucide:box' } },
       presentation: { interactive: { intent: 'Two complete pages.' } },
     },
     questions: [
@@ -90,6 +90,38 @@ function meaning() {
     limits: ['native-dependency-closure-unchecked'],
   };
 }
+
+test('untyped source nodes retain their source kind and use a catalog-owned figure role', () => {
+  const input = meaning();
+  input.native.selections[0].members.elements[0].kind = null;
+  input.editorial.visualPolicy.figureTypes['source element'] = 'lucide:circle';
+  const missing = structuredClone(input);
+  delete missing.editorial.visualPolicy.figureTypes['source element'];
+  const scene = scenes.composeInteractiveEditionScene(input);
+  assert.equal(scene.pages[0].nodes[0].kind, null);
+  assert.equal(scene.pages[0].nodes[0].figureKind, 'source element');
+  assert.equal(scene.pages[0].nodes[0].icon, 'lucide:circle');
+  assert.equal(scene.pages[0].nodes[1].kind, 'component');
+  assert.equal(scene.pages[0].nodes[1].figureKind, 'component');
+  assert.equal(scene.pages[0].nodes[1].icon, 'lucide:box');
+  assert.equal(scene.pages[0].relations[0].kind, null);
+  assert.equal(scene.pages[0].relations[0].label, null);
+  assert.equal(input.native.selections[0].members.elements[0].kind, null);
+  assert.throws(() => scenes.composeInteractiveEditionScene(missing), {
+    code: 'figure_type_missing',
+  });
+});
+
+test('neutral interactive projects its catalog without a sibling refinement carrier', () => {
+  const input = meaning();
+  input.editorial.visualPolicy.override = 'refinement.json';
+  input.refinement = { media: { interactive: { kind: 'neutral' } } };
+  const scene = scenes.composeInteractiveEditionScene(input);
+  assert.equal(scene.visualPolicy.profile, 'neutral');
+  assert.deepEqual(scene.visualPolicy.figureTypes, { component: 'lucide:box' });
+  assert.equal(Object.hasOwn(scene.visualPolicy, 'override'), false);
+  assert.equal(input.editorial.visualPolicy.override, 'refinement.json');
+});
 
 test('interactive Edition pages each retain their own complete semantic obligation', () => {
   assert.equal(typeof scenes.composeInteractiveEditionScene, 'function');

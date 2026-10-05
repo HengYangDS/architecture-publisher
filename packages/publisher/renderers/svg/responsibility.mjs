@@ -1,5 +1,7 @@
 import { fail } from '../../src/protocol/values.mjs';
 import { editorialFraming } from '../../src/scene/framing.mjs';
+import { renderFigureIcon } from '../icons/index.mjs';
+import { composeFigureTypeLegend, figureIconLicenseMetadata } from './figure-types.mjs';
 import { UNLINKED_RELATION_NOTE } from '../../src/scene/claim-relations.mjs';
 
 const colors = {
@@ -290,9 +292,10 @@ function sourceRelation(relation, position, roleByNode, geometry, output) {
 }
 
 /** Paint a selected responsibility map without borrowing interactive geometry or DOM. */
-export function composeStaticResponsibilitySvg(scene) {
+export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
   const { roles, nodes, roleByNode, handoffs } = selectedForm(scene);
   const geometry = layout(scene, roles, roleByNode);
+  const figureTypes = composeFigureTypeLegend(scene.nodes, icons, geometry.width - 2 * margin);
   const rasterWidth = scene.requestedWidth ?? 1800;
   if (!Number.isSafeInteger(rasterWidth) || rasterWidth < 320 || rasterWidth > 12_000)
     fail('static_responsibility_width_invalid');
@@ -374,14 +377,19 @@ export function composeStaticResponsibilitySvg(scene) {
       const node = nodes.get(nodeKey(member));
       const position = geometry.positions.get(nodeKey(member));
       const graphicId = `n-${nodeCarriers.length}`;
-      const labels = wrap(node.label, nodeWidth - 20, 12, 2);
+      const labels = wrap(node.label, nodeWidth - 46, 12, 2);
       body.push(
-        `<g data-graphic-id="${graphicId}">`,
+        `<g data-graphic-id="${graphicId}" color="${colors.source}">`,
         `<rect x="${number(position.x - nodeWidth / 2)}" y="${number(position.y)}" width="${nodeWidth}" height="${nodeHeight}" rx="7" fill="#fffefa" stroke="${colors.source}" stroke-width="1.4"/>`,
+        renderFigureIcon(node.icon, icons, {
+          x: position.x - nodeWidth / 2 + 12,
+          y: position.y + (nodeHeight - 13) / 2,
+          size: 13,
+        }),
       );
       for (const [line, text] of labels.entries())
         body.push(
-          `<text x="${number(position.x)}" y="${number(position.y + 21 + line * 16)}" text-anchor="middle" fill="${colors.ink}" font-size="12" font-weight="600">${escape(text)}</text>`,
+          `<text x="${number(position.x + 12)}" y="${number(position.y + 21 + line * 16)}" text-anchor="middle" fill="${colors.ink}" font-size="12" font-weight="600">${escape(text)}</text>`,
         );
       body.push('</g>');
       nodeCarriers.push({
@@ -399,6 +407,10 @@ export function composeStaticResponsibilitySvg(scene) {
     });
   }
   y = Math.max(y + 70, geometry.graphBottom + 35);
+  if (figureTypes) {
+    body.push(`<g transform="translate(${margin} ${number(y - 18)})">${figureTypes.markup}</g>`);
+    y += figureTypes.height + 18;
+  }
   const roleNotes = roles.map(({ basis }, index) => {
     const out = [];
     const x = geometry.xs[index] + 4;
@@ -649,6 +661,7 @@ export function composeStaticResponsibilitySvg(scene) {
     `<desc id="responsibility-description">${escape(scene.questions[0].text)} ${escape(scene.summary)} ${escape(framing)}</desc>`,
     `<rect width="${geometry.width}" height="${height}" fill="${colors.paper}"/>`,
     ...body,
+    ...(figureTypes ? [figureIconLicenseMetadata(icons)] : []),
     '</svg>',
     '',
   ].join('\n');

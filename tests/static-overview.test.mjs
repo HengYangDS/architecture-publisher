@@ -4,6 +4,9 @@ import { composeStaticOverview } from '../packages/publisher/renderers/svg/archi
 import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/edition.mjs';
 import * as groupedGeometry from '../packages/publisher/src/scene/static/architecture.mjs';
 import { staticEditionScene } from './fixtures/static-edition-scene.mjs';
+import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
+
+const figureIcons = await loadFigureIconSupply();
 
 const { composeStaticArchitectureScene } = groupedGeometry;
 
@@ -326,6 +329,8 @@ test('a singleton group admits its heading beside three incoming ports', () => {
     sha256,
     origin,
     kind: 'component',
+    figureKind: 'component',
+    icon: 'lucide:box',
     label: id,
     x: box.x,
     y: box.y,
@@ -368,7 +373,7 @@ test('a singleton group admits its heading beside three incoming ports', () => {
     height: layout.groups[1].y + layout.groups[1].h - layout.groups[0].y,
   };
 
-  assert.doesNotThrow(() => composeStaticEditionSvg(scene, { fragment: true }));
+  assert.doesNotThrow(() => composeStaticEditionSvg(scene, { icons: figureIcons, fragment: true }));
 });
 
 test('an upward adjacent relation bends between groups rather than through a heading', () => {

@@ -37,5 +37,5 @@
       "intent": "Explore the selected connection."
     }
   },
-  "visualPolicy": { "profile": "neutral" }
+  "visualPolicy": { "profile": "neutral", "figureTypes": { "component": "lucide:box" } }
 }

@@ -4,6 +4,11 @@ import { validateAuthoredRouteGeometry } from '../routes.mjs';
 import { validateAuthoredTextOwners } from '../text-ownership.mjs';
 
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
+const preciseText = (value) =>
+  text(value) &&
+  value.length <= 2048 &&
+  value === value.trim() &&
+  ![...value].some((character) => character.charCodeAt(0) < 32 || character === '\x7f');
 const identifier = (value) => typeof value === 'string' && /^[a-z][a-z0-9-]{0,79}$/.test(value);
 const side = new Set(['top', 'right', 'bottom', 'left']);
 const route = new Set(['auto', 'straight', 'orthogonal-h', 'orthogonal-v']);
@@ -138,7 +143,11 @@ export function validateInteractiveArchitectureScene(scene) {
       continue;
     }
     if (
-      !exact(node, ['id', 'label', 'visualRole', 'position', 'size'], ['detail', 'semanticIds']) ||
+      !exact(
+        node,
+        ['id', 'label', 'visualRole', 'position', 'size'],
+        ['detail', 'semanticIds', 'figureKind', 'icon'],
+      ) ||
       !identifier(node.id) ||
       nodes.has(node.id) ||
       !text(node.label) ||
@@ -146,6 +155,8 @@ export function validateInteractiveArchitectureScene(scene) {
       !validPoint(node.position) ||
       !validSize(node.size) ||
       (Object.hasOwn(node, 'detail') && !text(node.detail)) ||
+      (Object.hasOwn(node, 'figureKind') && !preciseText(node.figureKind)) ||
+      (Object.hasOwn(node, 'icon') && !preciseText(node.icon)) ||
       (Object.hasOwn(node, 'semanticIds') && !validSemanticIds(node.semanticIds))
     )
       fail('interactive_scene_node_invalid');

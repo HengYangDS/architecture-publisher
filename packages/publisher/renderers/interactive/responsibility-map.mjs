@@ -1,4 +1,6 @@
 import { fail } from '../../src/protocol/values.mjs';
+import { renderFigureIcon } from '../icons/index.mjs';
+import { renderFigureTypeLegend } from './graph-svg.mjs';
 
 const width = 1480;
 const margin = 0;
@@ -147,7 +149,7 @@ function handoffHtml(page, centers, pageIndex) {
   return `<div class="form-map-handoffs">${rows.join('')}</div>`;
 }
 
-function graphHtml(page, layout, nodes, roleByNode, pageIndex) {
+function graphHtml(page, layout, nodes, roleByNode, pageIndex, icons) {
   const { positions, nodeWidth, graphHeight } = layout;
   const output = [];
   const titleId = `form-map-title-${pageIndex}`;
@@ -187,14 +189,16 @@ function graphHtml(page, layout, nodes, roleByNode, pageIndex) {
   }
   for (const node of page.nodes) {
     const position = positions.get(node.id);
-    const labels = lines(node.label, nodeWidth - 18, 12, 2);
+    const labelWidth = nodeWidth - 42;
+    const labelX = position.x + 12;
+    const labels = lines(node.label, labelWidth, 12, 2);
     output.push(
-      `<g data-graphic-id="${escape(node.id)}"><rect x="${position.x - nodeWidth / 2}" y="${position.y}" width="${nodeWidth}" height="${nodeHeight}" rx="7" fill="var(--reader-panel)" stroke="var(--reader-line)" stroke-width="1.5"/>`,
+      `<g data-graphic-id="${escape(node.id)}" color="var(--reader-ink)"><rect x="${position.x - nodeWidth / 2}" y="${position.y}" width="${nodeWidth}" height="${nodeHeight}" rx="7" fill="var(--reader-panel)" stroke="var(--reader-line)" stroke-width="1.5"/>${renderFigureIcon(node.icon, icons, { x: position.x - nodeWidth / 2 + 9, y: position.y + (nodeHeight - 11) / 2 })}`,
     );
     labels.forEach((label, index) => {
       const y = position.y + (labels.length === 1 ? 32 : 23 + index * 17);
       output.push(
-        `<text x="${position.x}" y="${y}" text-anchor="middle" font-size="12" font-weight="600" fill="var(--reader-ink)">${escape(label)}</text>`,
+        `<text x="${labelX}" y="${y}" text-anchor="middle" font-size="12" font-weight="600" fill="var(--reader-ink)">${escape(label)}</text>`,
       );
     });
     output.push('</g>');
@@ -224,7 +228,7 @@ function claimHtml(claim, page, nodes) {
 }
 
 /** Compose an interactive-medium responsibility map from selected Page meaning. */
-export function responsibilityMapHtml(page, pageIndex) {
+export function responsibilityMapHtml(page, pageIndex, icons) {
   if (!Number.isSafeInteger(pageIndex) || pageIndex < 0) fail('render_responsibility_page_invalid');
   const count = page.form.roles.length;
   const groups = new Map(page.groups.map((group) => [group.id, group]));
@@ -258,7 +262,7 @@ export function responsibilityMapHtml(page, pageIndex) {
     qualifierRows.length || claims
       ? `<figcaption class="form-map-evidence">${qualifierRows.length ? `<p>${qualifierRows.join(' · ')}</p>` : ''}${claims}</figcaption>`
       : '';
-  return `<figure class="form-map" style="--form-count:${count}"><div class="form-map-roles">${roles}</div>${handoffHtml(page, layout.centers, pageIndex)}${graphHtml(page, layout, nodes, roleByNode, pageIndex)}${notes}</figure>`;
+  return `<figure class="form-map" style="--form-count:${count}"><div class="form-map-roles">${roles}</div>${handoffHtml(page, layout.centers, pageIndex)}${graphHtml(page, layout, nodes, roleByNode, pageIndex, icons)}${renderFigureTypeLegend(page.nodes, icons)}${notes}</figure>`;
 }
 
 export const responsibilityMapCss = `

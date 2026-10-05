@@ -4,6 +4,7 @@ import { validateInteractiveArchitectureScene } from './architecture.mjs';
 import { classifyAggregateRelation } from '../aggregate-relation.mjs';
 import { assertPrimitiveContrast } from '../primitives.mjs';
 import { bindAuthoredRoutes } from '../routes.mjs';
+import { resolveFigureTypes } from '../figure-types.mjs';
 import {
   authoredReference,
   deriveAuthoredStatements,
@@ -123,10 +124,11 @@ function sourceExploration(scene, required, nodeEntities) {
         occurrences.set(reference, values);
       }
       const members = references.map((reference) => required.get(reference));
+      const kinds = new Set(members.map((member) => member.kind));
       return {
         id: node.id,
-        label: members.map((member) => member.label).join(' · '),
-        kind: members.length === 1 ? members[0].kind : 'aggregate',
+        label: node.primitives ? members.map((member) => member.label).join(' · ') : node.label,
+        kind: node.figureKind ?? (kinds.size === 1 ? members[0].kind : 'aggregate'),
       };
     });
   const limits = [];
@@ -441,9 +443,24 @@ export function composeAuthoredInteractiveArchitecture(meaning) {
     selections.size !== meaning.native.selections.length
   )
     fail('authored_interactive_input_invalid');
-  const pages = views.map((view, index) =>
+  const composed = views.map((view, index) =>
     composePage(meaning, view, selected.pages[index], assertions, selections),
   );
+  const resolved = resolveFigureTypes(
+    composed.map(({ scene, exploration }) => ({
+      ...scene,
+      nodes: scene.nodes.map((node) => ({
+        ...node,
+        ...(node.primitives || node.adornment
+          ? {}
+          : {
+              figureKind: exploration.nodes.find(({ id }) => id === node.id).kind,
+            }),
+      })),
+    })),
+    meaning.editorial.visualPolicy?.figureTypes,
+  );
+  const pages = composed.map((page, index) => ({ ...page, scene: resolved[index] }));
   if (
     pages[0]?.purpose !== 'overview' ||
     pages.slice(1).some(({ purpose }) => purpose !== 'mechanism')

@@ -6,13 +6,16 @@ import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mj
 import { validateSvg } from '../packages/publisher/renderers/resvg/public.mjs';
 import { rasterizeBundle as rasterize } from '../packages/publisher/src/rendering/raster.mjs';
 import * as svg from '../packages/publisher/renderers/svg/index.mjs';
-import { wrapStaticText } from '../packages/publisher/renderers/svg/edition.mjs';
+import { wrapStaticText } from '../packages/publisher/renderers/svg/text.mjs';
 import { staticEditionScene } from './fixtures/static-edition-scene.mjs';
 import { writeSourceBundle } from '../packages/publisher/src/source/write.mjs';
+import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
+
+const figureIcons = await loadFigureIconSupply();
 
 test('a neutral static SVG shows the selected structure and authored limits', () => {
   assert.equal(typeof svg.composeStaticEditionSvg, 'function');
-  const rendered = svg.composeStaticEditionSvg(staticEditionScene());
+  const rendered = svg.composeStaticEditionSvg(staticEditionScene(), { icons: figureIcons });
   const content = rendered.bytes.toString('utf8');
 
   assert.equal(rendered.rasterWidth, 6000);
@@ -32,7 +35,9 @@ test('a neutral static SVG shows the selected structure and authored limits', ()
 });
 
 test('a standalone static SVG keeps reader limits but not compiler method codes', () => {
-  const content = svg.composeStaticEditionSvg(staticEditionScene()).bytes.toString('utf8');
+  const content = svg
+    .composeStaticEditionSvg(staticEditionScene(), { icons: figureIcons })
+    .bytes.toString('utf8');
 
   assert.match(content, /Runtime was not observed\./u);
   assert.doesNotMatch(content, /METHOD LIMITS|domain-metadata-opaque/u);
@@ -45,7 +50,9 @@ test('group membership remains visible without painting a frame through a relati
     { id: 'target', label: 'Target', x: 220, y: -60, width: 240, height: 160 },
   ];
   scene.bounds = { x: -40, y: -60, width: 500, height: 160 };
-  const rendered = svg.composeStaticEditionSvg(scene).bytes.toString('utf8');
+  const rendered = svg
+    .composeStaticEditionSvg(scene, { icons: figureIcons })
+    .bytes.toString('utf8');
   const groups = [...rendered.matchAll(/<rect x="(?:-40|220)" y="-60"[^>]*>/gu)].map(
     ([markup]) => markup,
   );
@@ -58,7 +65,7 @@ test('group membership remains visible without painting a frame through a relati
 });
 
 test('static publication bytes expose graphic carriers, not private source identities', () => {
-  const result = svg.composeStaticEditionSvg(staticEditionScene());
+  const result = svg.composeStaticEditionSvg(staticEditionScene(), { icons: figureIcons });
   const content = result.bytes.toString('utf8');
   assert.match(content, /data-graphic-id="n-0"/u);
   assert.match(content, /data-graphic-id="r-0"/u);
@@ -74,7 +81,7 @@ test('static publication bytes expose graphic carriers, not private source ident
 });
 
 test('small source structure and reading notes occupy distinct landscape regions', () => {
-  const rendered = svg.composeStaticEditionSvg(staticEditionScene());
+  const rendered = svg.composeStaticEditionSvg(staticEditionScene(), { icons: figureIcons });
   const content = rendered.bytes.toString('utf8');
   const reading = /<text x="([\d.]+)"[^>]*>READER QUESTIONS<\/text>/u.exec(content);
   assert(reading);
@@ -97,7 +104,7 @@ test('wrapped source relations have readable line and item separation', () => {
     reference: second.reference,
     sha256: second.sha256,
   });
-  const markup = svg.composeStaticEditionSvg(scene).bytes.toString('utf8');
+  const markup = svg.composeStaticEditionSvg(scene, { icons: figureIcons }).bytes.toString('utf8');
   const baselines = (id) =>
     [
       ...markup.matchAll(
@@ -120,7 +127,7 @@ test('fractional native geometry is not rejected by serialization rounding', () 
   input.nodes[1].x = 260.125;
   input.edges[0].points[1][0] = 260.125;
   input.bounds.width = 420.125;
-  const output = svg.composeStaticEditionSvg(input);
+  const output = svg.composeStaticEditionSvg(input, { icons: figureIcons });
   assert.match(output.bytes.toString('utf8'), /260\.13/u);
 });
 
@@ -129,7 +136,7 @@ test('a bidirectional source relation retains both directions and its kind', () 
   input.edges[0].relations[0].direction = 'bidirectional';
   input.edges[0].relations[0].label = null;
   input.edges[0].relations[0].kind = 'peer';
-  const output = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  const output = svg.composeStaticEditionSvg(input, { icons: figureIcons }).bytes.toString('utf8');
   assert.match(output, /marker-start="url\(#source-arrow\)"/u);
   assert.match(output, /Alpha &amp; one ↔ Beta · peer/u);
 });
@@ -143,17 +150,43 @@ test('malformed editorial and relation collections fail with a named diagnostic'
     const input = staticEditionScene();
     mutate(input);
     assert.throws(
-      () => svg.composeStaticEditionSvg(input),
+      () => svg.composeStaticEditionSvg(input, { icons: figureIcons }),
       { code: 'static_edition_scene_invalid' },
       name,
     );
   }
 });
 
+test('static source scope rejects incomplete question membership and unpaintable text', () => {
+  const input = staticEditionScene();
+  input.questionIds.push('missing-question');
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), {
+    code: 'static_edition_question_invalid',
+  });
+  input.questionIds.pop();
+  input.limitsByQuestion.unselected = [];
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), {
+    code: 'static_edition_question_invalid',
+  });
+  delete input.limitsByQuestion.unselected;
+  input.claimCards = [null];
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), {
+    code: 'static_edition_claim_invalid',
+  });
+  delete input.claimCards;
+  input.edges[0].caption = [];
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), {
+    code: 'static_edition_relation_caption_invalid',
+  });
+  assert.throws(() => wrapStaticText('W', 0, 11), {
+    code: 'static_edition_text_unrepresentable',
+  });
+});
+
 test('a nontext source relation label fails rather than becoming a caption', () => {
   const input = staticEditionScene();
   input.edges[0].relations[0].label = 42;
-  assert.throws(() => svg.composeStaticEditionSvg(input), {
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), {
     code: 'static_edition_relation_label_invalid',
   });
 });
@@ -164,13 +197,13 @@ test('a static fragment is bounded by emitted content, not its unpainted page no
     kind: 'scope',
     reason: 'Runtime was not observed.',
   }));
-  const fragment = svg.composeStaticEditionSvg(input, { fragment: true });
+  const fragment = svg.composeStaticEditionSvg(input, { icons: figureIcons, fragment: true });
   assert.match(fragment.parts.graph, /Alpha &amp; one/u);
   assert.deepEqual(
     fragment.carriers.nodes.map(({ source }) => source.id),
     ['a', 'b'],
   );
-  assert.throws(() => svg.composeStaticEditionSvg(input), {
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), {
     code: 'static_edition_geometry_invalid',
   });
 });
@@ -198,21 +231,26 @@ test('a reading-group key names exact members without placing a false enclosure 
       height: 80,
     },
   ];
-  const fragment = svg.composeStaticEditionSvg(input, { fragment: true });
+  const fragment = svg.composeStaticEditionSvg(input, { icons: figureIcons, fragment: true });
 
   assert(!fragment.parts.graph.includes('Entry boundary'));
   assert.deepEqual(fragment.parts.groups, [
     { id: 'entry', label: 'Entry boundary', members: ['Alpha & one'] },
     { id: 'service', label: 'Service boundary', members: ['Beta'] },
   ]);
-  assert(svg.composeStaticEditionSvg(input).bytes.toString('utf8').includes('READING GROUPS'));
+  assert(
+    svg
+      .composeStaticEditionSvg(input, { icons: figureIcons })
+      .bytes.toString('utf8')
+      .includes('READING GROUPS'),
+  );
   input.groups[1].elements = [{ namespace: 'example/model', id: 'a' }];
-  assert.throws(() => svg.composeStaticEditionSvg(input), {
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), {
     code: 'static_edition_group_key_invalid',
   });
   input.groups[1].elements = [{ namespace: 'example/model', id: 'b' }];
   input.groups[1].label = 'Entry boundary';
-  assert.throws(() => svg.composeStaticEditionSvg(input), {
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), {
     code: 'static_edition_group_key_invalid',
   });
 });
@@ -268,7 +306,36 @@ test('the renderer refuses unsupported scene authority and dimensions', () => {
     ],
   ];
   for (const [name, alter, code] of cases)
-    assert.throws(() => svg.composeStaticEditionSvg(alter(staticEditionScene())), { code }, name);
+    assert.throws(
+      () => svg.composeStaticEditionSvg(alter(staticEditionScene()), { icons: figureIcons }),
+      { code },
+      name,
+    );
+});
+
+test('static rendering rejects unselected options and insufficient glyph clearance', () => {
+  for (const options of [
+    { idPrefix: 1 },
+    { idPrefix: 'invalid/' },
+    { fragment: 'yes' },
+    { color: 'red' },
+  ]) {
+    assert.throws(
+      () => svg.composeStaticEditionSvg(staticEditionScene(), { icons: figureIcons, ...options }),
+      { code: 'static_edition_render_options_invalid' },
+    );
+  }
+  const scene = staticEditionScene();
+  scene.nodes[0].height = 63;
+  scene.bounds.height = 80;
+  assert.throws(() => svg.composeStaticEditionSvg(scene, { icons: figureIcons }), {
+    code: 'static_edition_node_unrepresentable',
+  });
+  scene.nodes[0].height = 80;
+  scene.nodes[0].width = 95;
+  assert.throws(() => svg.composeStaticEditionSvg(scene, { icons: figureIcons }), {
+    code: 'static_edition_node_unrepresentable',
+  });
 });
 
 test('the renderer rejects infeasible geometry without cropping selected meaning', () => {
@@ -338,7 +405,7 @@ test('the renderer rejects infeasible geometry without cropping selected meaning
   for (const [name, mutate, code] of cases) {
     const input = staticEditionScene();
     mutate(input);
-    assert.throws(() => svg.composeStaticEditionSvg(input), { code }, name);
+    assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), { code }, name);
   }
 });
 
@@ -433,7 +500,7 @@ test('source carriers cannot duplicate, forge, or omit visible graph members', (
   for (const [name, mutate, code] of cases) {
     const input = staticEditionScene();
     mutate(input);
-    assert.throws(() => svg.composeStaticEditionSvg(input), { code }, name);
+    assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), { code }, name);
   }
 });
 
@@ -442,6 +509,8 @@ test('long text wraps without truncating source language or hiding editorial sco
   input.title = `${'x'.repeat(52)} Y`;
   input.nodes[0].label = 'Alpha service one';
   input.nodes[0].kind = null;
+  input.nodes[0].height = 86;
+  input.bounds.height = 86;
   input.editorialAssertions.push({
     id: 'editorial-note',
     kind: 'editorial',
@@ -453,7 +522,7 @@ test('long text wraps without truncating source language or hiding editorial sco
     kind: 'scope',
     reason: 'view-membership-upstream-computed-unqualified',
   });
-  const result = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  const result = svg.composeStaticEditionSvg(input, { icons: figureIcons }).bytes.toString('utf8');
   assert.match(result, /Alpha service/u);
   assert.match(result, /one/u);
   assert.match(result, /Editorial judgment remains attributed/u);
@@ -468,7 +537,7 @@ test('two label lines cannot collide with a kind label inside a short node', () 
   const input = staticEditionScene();
   input.nodes[0].height = 64;
   input.nodes[0].label = 'Alpha service one';
-  assert.throws(() => svg.composeStaticEditionSvg(input), {
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), {
     code: 'static_edition_node_unrepresentable',
   });
 });
@@ -481,7 +550,7 @@ test('static wrapping preserves exact source whitespace across every line break'
   assert.equal(wrapStaticText(source, 1000, 14).join(''), source);
   const input = linkedMixedScene();
   input.claimCards[0].facts = [{ label: 'Value', value: source }];
-  const result = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  const result = svg.composeStaticEditionSvg(input, { icons: figureIcons }).bytes.toString('utf8');
   assert(result.includes('&quot;alpha  beta   gamma - delta&quot;'));
   assert.match(result, /xml:space="preserve"/u);
 });
@@ -491,7 +560,7 @@ test('unspaced reader limits wrap without changing characters or inventing relat
   input.limitsByQuestion.shape.push({ kind: 'scope', reason: 'x'.repeat(100) });
   input.edges[0].relations[0].label = null;
   input.edges[0].relations[0].kind = null;
-  const result = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  const result = svg.composeStaticEditionSvg(input, { icons: figureIcons }).bytes.toString('utf8');
   const pieces = [...result.matchAll(/<text[^>]*>(x+)<\/text>/gu)].map((match) => match[1]);
   assert.equal(pieces.join(''), 'x'.repeat(100));
   assert.match(result, /Alpha &amp; one → Beta<\/text>/u);
@@ -501,7 +570,7 @@ test('unspaced reader limits wrap without changing characters or inventing relat
 test('absence of a width selects a generic default, not a named adopter preset', () => {
   const input = staticEditionScene();
   input.requestedWidth = null;
-  assert.equal(svg.composeStaticEditionSvg(input).rasterWidth, 1800);
+  assert.equal(svg.composeStaticEditionSvg(input, { icons: figureIcons }).rasterWidth, 1800);
 });
 
 test('missing or excessive text and an overlong poster fail rather than truncate', () => {
@@ -530,7 +599,7 @@ test('missing or excessive text and an overlong poster fail rather than truncate
   for (const [name, mutate, code] of cases) {
     const input = staticEditionScene();
     mutate(input);
-    assert.throws(() => svg.composeStaticEditionSvg(input), { code }, name);
+    assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), { code }, name);
   }
 });
 
@@ -549,7 +618,7 @@ test('an editorial-only scene remains truthful and does not manufacture structur
       semanticStatus: 'editor-attributed-unverified',
     },
   ];
-  const result = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  const result = svg.composeStaticEditionSvg(input, { icons: figureIcons }).bytes.toString('utf8');
   assert.match(result, /No source graph was selected/u);
   assert.match(result, /fixture-editor/u);
   assert.match(result, /unverified/u);
@@ -559,7 +628,7 @@ test('an editorial-only scene remains truthful and does not manufacture structur
   for (const field of ['proponent', 'semanticStatus']) {
     const invalid = structuredClone(input);
     delete invalid.editorialAssertions[0][field];
-    assert.throws(() => svg.composeStaticEditionSvg(invalid), {
+    assert.throws(() => svg.composeStaticEditionSvg(invalid, { icons: figureIcons }), {
       code: 'static_edition_editorial_invalid',
     });
   }
@@ -607,7 +676,7 @@ test('static claims factor only exact shared context while retaining each claim 
     claimRefs: [{ namespace, reference: id, sha256 }],
   }));
 
-  const first = svg.composeStaticEditionSvg(input);
+  const first = svg.composeStaticEditionSvg(input, { icons: figureIcons });
   const content = first.bytes.toString('utf8');
   assert.match(content, /COMMON TO ALL SELECTED CLAIMS/u);
   assert.equal((content.match(/Claim plane: implemented/gu) ?? []).length, 1);
@@ -619,12 +688,14 @@ test('static claims factor only exact shared context while retaining each claim 
   const sameAnchors = structuredClone(input);
   sameAnchors.claimCards[1].facts.find(({ label }) => label === 'Subject').value = 'Client';
   sameAnchors.claimCards[1].facts.find(({ label }) => label === 'Scope').value = 'local';
-  const anchored = svg.composeStaticEditionSvg(sameAnchors).bytes.toString('utf8');
+  const anchored = svg
+    .composeStaticEditionSvg(sameAnchors, { icons: figureIcons })
+    .bytes.toString('utf8');
   assert.equal((anchored.match(/Subject: Client/gu) ?? []).length, 2);
   assert.equal((anchored.match(/Scope: local/gu) ?? []).length, 2);
 
   input.claimCards[1].facts[0].value = 'observed';
-  const changed = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  const changed = svg.composeStaticEditionSvg(input, { icons: figureIcons }).bytes.toString('utf8');
   assert.equal((changed.match(/Claim plane: implemented/gu) ?? []).length, 1);
   assert.equal((changed.match(/Claim plane: observed/gu) ?? []).length, 1);
 });
@@ -655,7 +726,7 @@ function linkedMixedScene() {
 test('a mixed graph and claim plate require exact source-bound links', () => {
   const input = linkedMixedScene();
   delete input.claimRelationLinks;
-  assert.throws(() => svg.composeStaticEditionSvg(input), {
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons }), {
     code: 'static_edition_claim_relation_invalid',
   });
 });
@@ -686,11 +757,11 @@ test('a static renderer refuses unbound claim and group authoring before paintin
   ]) {
     const scene = linkedMixedScene();
     mutate(scene);
-    assert.throws(() => svg.composeStaticEditionSvg(scene), { code }, name);
+    assert.throws(() => svg.composeStaticEditionSvg(scene, { icons: figureIcons }), { code }, name);
   }
   const unlinked = staticEditionScene();
   unlinked.claimRelationLinks = [];
-  assert.throws(() => svg.composeStaticEditionSvg(unlinked), {
+  assert.throws(() => svg.composeStaticEditionSvg(unlinked, { icons: figureIcons }), {
     code: 'static_edition_claim_relation_invalid',
   });
 });
@@ -723,7 +794,7 @@ test('mixed-plate subject links require one claim anchor and the same source ide
     scene.claimRelationLinks = [];
     mutate(scene);
     assert.throws(
-      () => svg.composeStaticEditionSvg(scene),
+      () => svg.composeStaticEditionSvg(scene, { icons: figureIcons }),
       { code: 'static_edition_claim_relation_invalid' },
       name,
     );
@@ -736,7 +807,7 @@ test('mixed neutral composition flows graph and claims beside longer reader note
     kind: 'scope',
     reason: `reader-${index}`,
   }));
-  const output = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  const output = svg.composeStaticEditionSvg(input, { icons: figureIcons }).bytes.toString('utf8');
   const at = (label) => {
     const match = new RegExp(`<text x="([\\d.]+)" y="([\\d.]+)"[^>]*>${label}<\\/text>`, 'u').exec(
       output,
@@ -765,7 +836,7 @@ test('an infeasible side candidate cannot discard a readable full-width claim', 
     reason: `reader-${index}`,
   }));
   input.claimCards[0].facts = [{ label: 'Description', value: 'x'.repeat(700) }];
-  const output = svg.composeStaticEditionSvg(input).bytes.toString('utf8');
+  const output = svg.composeStaticEditionSvg(input, { icons: figureIcons }).bytes.toString('utf8');
   assert.match(output, /SOURCE CLAIMS/u);
   assert.match(output, /Description:/u);
   const pieces = [...output.matchAll(/<text[^>]*>(x+)<\/text>/gu)].map((match) => match[1]);
@@ -773,7 +844,7 @@ test('an infeasible side candidate cannot discard a readable full-width claim', 
 });
 
 test('the static Edition SVG is admitted by the pinned raster profile', async () => {
-  const output = svg.composeStaticEditionSvg(staticEditionScene());
+  const output = svg.composeStaticEditionSvg(staticEditionScene(), { icons: figureIcons });
   const supply = await loadBundledFonts();
   const selected = supply.fonts
     .filter(({ weight }) => [400, 600].includes(weight))
@@ -789,7 +860,7 @@ test('the selected-width PNG is rendered from the static SVG, not from HTML', as
   await fs.mkdir(root, { recursive: true });
   const work = await fs.mkdtemp(path.join(root, 'static-edition-'));
   t.after(() => fs.rm(work, { recursive: true, force: true }));
-  const output = svg.composeStaticEditionSvg(staticEditionScene());
+  const output = svg.composeStaticEditionSvg(staticEditionScene(), { icons: figureIcons });
   const supply = await loadBundledFonts();
   const selected = supply.fonts.filter(({ weight }) => [400, 600].includes(weight));
   const members = [

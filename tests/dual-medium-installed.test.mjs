@@ -84,7 +84,7 @@ async function mixedClaimInput(root) {
         intent: 'Explore both meanings.',
       },
     },
-    visualPolicy: { profile: 'neutral' },
+    visualPolicy: { profile: 'neutral', figureTypes: { component: 'lucide:box' } },
   };
   await fs.writeFile(path.join(root, 'edition/project.json'), JSON.stringify(project) + '\n');
   const request = {

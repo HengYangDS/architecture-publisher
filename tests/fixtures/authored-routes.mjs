@@ -14,8 +14,7 @@ export const ref = (kind, id) => JSON.stringify([namespace, kind, id]);
 export const editorialRef = JSON.stringify(['route-reading', 'editorial', 'conditional']);
 export const arrowGeometry = { length: 8, halfWidth: 4, strokeWidth: 1.2 };
 
-export function meaningFor(medium, editorial = false) {
-  const model = claimModel();
+export function meaningFor(medium, editorial = false, model = claimModel()) {
   model.relations.telemetry = {
     ...structuredClone(model.relations.request),
     qualifiers: { purpose: 'telemetry' },

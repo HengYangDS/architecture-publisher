@@ -45,6 +45,27 @@ remain unproved; historical playback or Node results do not qualify a reader.
 - **WHEN** a message has the wrong sender or page
 - **THEN** it cannot navigate, inspect or change the selected reading state
 
+### Requirement: Native capability admission follows semantic support
+
+The reader SHALL preserve source-bound graphic occurrences for native Finder,
+focus, Lens, viewport navigation and presentation. Relationship traversal SHALL
+require complete, unambiguous logical membership. Occurrence counts SHALL NOT
+claim source-entity counts, and unavailable relationship counts SHALL NOT appear
+as zero. Inspect retains the selected source facts without creating a second graph.
+
+#### Scenario: A figure groups or repeats source members
+
+- **WHEN** complete logical relationship membership cannot be admitted
+- **THEN** native Finder and Lens still read uniquely identified graphic occurrences
+- **AND** Path and Reach refuse queries without claiming that no source path exists
+- **AND** Passport and Guide state the limitation without invented relationship counts
+
+#### Scenario: Exact logical graph membership is admitted
+
+- **WHEN** source nodes and relationships have complete unambiguous graphic bindings
+- **THEN** native Path, Reach, Lens and relationship inspection consume those bindings
+- **AND** shared physical segments never become extra logical edges
+
 ### Requirement: Portable addressed reading
 
 Native copy-link actions SHALL address the independent publication and its exact
@@ -102,3 +123,76 @@ from source metadata and human judgment. Unobserved predicates stay unproved.
 
 - **WHEN** geometry or structure passes without the required reading or visual review
 - **THEN** the exact work remains unaccepted for those unobserved predicates
+
+### Requirement: Node type encoding has one semantic owner
+
+The Edition's `visualPolicy.figureTypes` SHALL define one pinned glyph identity
+per effective figure kind. Composition SHALL resolve kinds independently of
+paint and preserve source facts in Inspect. Every selected ordinary figure
+SHALL use its catalog glyph. Passport, Lens, Legend and canonical exports SHALL
+agree. Legend SHALL place one glyph before its label, without count badges.
+Source-owned primitives SHALL remain unchanged.
+
+#### Scenario: Paint and source kinds differ
+
+- **WHEN** a checked source component uses a Backend paint role
+- **THEN** its Passport, Legend and Lens identify the effective figure kind
+- **AND** no Backend identity is inferred from the paint or corner symbol
+
+#### Scenario: Mixed source membership has an explicit reader role
+
+- **WHEN** an authored figure binds several source kinds and declares its figure kind
+- **THEN** native reading uses that declared architecture role
+- **AND** Inspect retains every bound entity and its original source kind
+- **AND** no repeated aggregate footer is inserted into the diagram
+
+#### Scenario: A kind occurs on several selected pages
+
+- **WHEN** ordinary figures share an effective kind across selected pages
+- **THEN** their nodes, Legend entries and exports use the same resolved glyph
+- **AND** one Legend entry contains one glyph and its native Lens groups all occurrences
+
+#### Scenario: The selected publication has an invalid type catalog
+
+- **WHEN** a catalog is absent, misses a later-page kind, uses an unsupported glyph,
+  or maps distinct kinds to identical resolved artwork
+- **THEN** preflight refuses the publication before any selected medium renders
+- **AND** neutral composition cannot bypass this contract or discard its catalog
+
+#### Scenario: An occurrence attempts an independent icon override
+
+- **WHEN** authored input supplies a per-occurrence icon or suppression value
+- **THEN** the authoring contract refuses it rather than adding another mapping authority
+- **AND** checked scene icons remain projections of the Edition catalog
+
+#### Scenario: Source-owned primitives have no automatic type glyph
+
+- **WHEN** selected artwork consists only of source-owned primitive figures
+- **THEN** it requires no automatic glyph catalog and its artwork remains unchanged
+- **AND** unused catalog entries remain valid when selected pages omit those types
+
+#### Scenario: A source node has no declared kind
+
+- **WHEN** an ordinary source node has a null kind
+- **THEN** composition preserves that null source fact and uses the separate `source element` figure role
+- **AND** that role requires its own catalog glyph in the node and Legend
+- **AND** missing role coverage is refused without inventing a source kind or relation predicate
+
+#### Scenario: Responsibility pages use the same type encoding
+
+- **WHEN** a selected responsibility page paints ordinary source nodes
+- **THEN** it uses the same catalog resolution and node glyph painter as other selected pages
+- **AND** its Legend places each represented glyph before its kind label without count badges
+- **AND** node labels reserve measured glyph clearance without changing source relationships
+
+#### Scenario: Type labels exceed their measured space
+
+- **WHEN** a node or Legend cannot contain its declared label and icon
+- **THEN** native measured layout rejects the candidate rather than overlapping or hiding it
+
+#### Scenario: Native type Legend activation
+
+- **WHEN** a reader activates a represented type through its Legend
+- **THEN** its measured pointer target covers the visible glyph and type label
+- **AND** pointer, Enter and Space use the same native Lens selection toggle
+- **AND** closing Lens preserves the selected kind

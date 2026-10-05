@@ -2,6 +2,7 @@ import { validateEditionProject } from 'architecture-publisher/edition';
 import { validateClaimModel } from 'architecture-publisher/semantics';
 import { architecturePublisherInteractiveScenes } from './interactive-scenes.mjs';
 import { composeArchitecturePublisherFlagship } from './static/composition.mjs';
+import { SELF_FIGURE_TYPES } from './figure-types.mjs';
 
 export const SELF_NAMESPACE = 'architecture-publisher/self';
 
@@ -92,6 +93,10 @@ export function projectFromSelfModel(sourceModel) {
         intent: QUESTION_TEXT.overview,
       },
     },
-    visualPolicy: { profile: 'neutral', override: 'refinement.json' },
+    visualPolicy: {
+      profile: 'neutral',
+      override: 'refinement.json',
+      figureTypes: SELF_FIGURE_TYPES,
+    },
   });
 }
