@@ -493,6 +493,12 @@ function interactiveReader() {
         'var Archify = {};',
         'var Archify = window.Archify = {};',
       );
+      if (selected.nativeReader === 'archify/v1' && script.textContent.includes('Archify.theme ='))
+        // Opaque members retain explicit preferences in native theme state, not host storage.
+        script.textContent = script.textContent.replace(
+          'try { return localStorage.getItem(STORAGE_KEY); } catch (_) { return null; }',
+          'try { return localStorage.getItem(STORAGE_KEY); } catch (_) { return html.getAttribute("data-theme"); }',
+        );
     }
     const pathToId = Object.fromEntries(
       Object.entries(data.pages).map(([id, candidate]) => [candidate.path, id]),

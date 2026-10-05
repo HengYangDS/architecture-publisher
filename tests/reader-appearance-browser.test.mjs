@@ -917,6 +917,24 @@ test(
     });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
+    await page.addInitScript(() => {
+      const nativeMatchMedia = globalThis.matchMedia.bind(globalThis);
+      const changes = [];
+      globalThis.matchMedia = (query) => {
+        const media = nativeMatchMedia(query);
+        const add = media.addEventListener.bind(media);
+        media.addEventListener = (type, listener, ...options) => {
+          if (type === 'change' && query === '(prefers-color-scheme: light)')
+            changes.push(listener);
+          return add(type, listener, ...options);
+        };
+        return media;
+      };
+      globalThis.deliverSystemTheme = (matches) => {
+        if (changes.length !== 1) throw new Error('Expected the native theme observer');
+        changes[0]({ matches });
+      };
+    });
     await page.setContent(html.toString(), { waitUntil: 'load' });
     const member = page.frameLocator('#interactive-frame');
     await member.locator('[data-interactive-member]').waitFor();
@@ -951,6 +969,12 @@ test(
       await member.locator(`html[data-style="${style}"][data-theme="${theme}"]`).waitFor();
     };
     await settle('blueprint', 'dark');
+    await member.locator('html').evaluate(() => globalThis.deliverSystemTheme(true));
+    assert.equal(
+      await member.locator('html').getAttribute('data-theme'),
+      'dark',
+      'a queued system preference must not replace the explicit authored theme',
+    );
     assert.equal(await member.locator('#theme-label').textContent(), 'Dark');
     assert.equal(await member.locator('#btn-theme').getAttribute('aria-pressed'), 'false');
     const baseline = await geometry(member, 'svg text, [data-node-id], [data-edge-id]');
@@ -961,6 +985,14 @@ test(
         const currentTheme = await member.locator('html').getAttribute('data-theme');
         if (currentTheme !== theme) await member.locator('#btn-theme').click();
         await settle(style, theme);
+        await member
+          .locator('html')
+          .evaluate((_, theme) => globalThis.deliverSystemTheme(theme !== 'light'), theme);
+        assert.equal(
+          await member.locator('html').getAttribute('data-theme'),
+          theme,
+          'native reader selection remains explicit in an opaque frame',
+        );
         assert.deepEqual(
           await geometry(member, 'svg text, [data-node-id], [data-edge-id]'),
           baseline,

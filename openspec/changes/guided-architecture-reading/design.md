@@ -153,6 +153,12 @@ links and decorative segments are never promoted into source entities or edges.
 The adapter supplies one nonpainting whole-route carrier per logical relation;
 the actual physical stroke is still painted once.
 
+The self-use Edition gives ordinary nodes neutral paint. Its Edition-wide
+figure-kind catalogue owns type icons; color does not declare another type or
+ownership hierarchy. Native selection, Lens and directed-path emphasis remain
+distinct reading states. This editorial choice does not recolor other Editions
+or the independently authored static sibling.
+
 Exact traversal is enabled only when source-to-graphic membership preserves
 logical endpoints. Aggregation or repeated occurrences cannot silently merge
 entities and create a path that does not exist in the source. Such a figure

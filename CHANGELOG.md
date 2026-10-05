@@ -19,6 +19,9 @@ may contain incompatible changes.
 
 ### Changed
 
+- Self-use interactive diagrams use neutral ordinary-node paint. Their distinct
+  type icons retain the Edition-wide catalogue; selected reading states and
+  relationships retain native emphasis without an undocumented color taxonomy.
 - Raster source verification uses a platform-native, read-only Node entry and
   the selected manifest's native output names. Native Cargo and wasm-bindgen own compilation
   instead of an authored replacement build controller; frozen renderer bytes
@@ -26,6 +29,9 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Explicit native reader themes survive system appearance events when an opaque
+  publication member cannot use browser storage. Sandbox and source geometry
+  remain unchanged.
 - First-party code passes native recommended static analysis without ambient
   browser-global or ignored-binding exceptions. Exact field projection and
   portable-path validation preserve the existing input and reader contracts.
