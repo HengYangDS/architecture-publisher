@@ -138,6 +138,7 @@ test('Linux verification keeps the common gate and separates trust roles', async
   assert.equal(native.resource_group, undefined);
   assert.equal(native.extends, '.verify-native');
   assert.equal(native.variables.FF_USE_INIT_WITH_DOCKER_EXECUTOR, 'true');
+  assert.equal(native.variables.FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR, 'true');
   assert(native.before_script.some((command) => command.includes('sha256sum --check')));
   assert(native.before_script.some((command) => command.includes('mise-v2026.10.2-linux-arm64')));
   for (const role of ['review', 'protected']) {

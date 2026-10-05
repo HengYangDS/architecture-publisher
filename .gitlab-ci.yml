@@ -55,6 +55,7 @@ stages:
   extends: .verify-native
   variables:
     FF_USE_INIT_WITH_DOCKER_EXECUTOR: 'true'
+    FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: 'true'
     PIXI_HOME: '$CI_PROJECT_DIR/build/runtime/work/native-linux-prerequisites/home'
     PIXI_CACHE_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/pixi'
   before_script:

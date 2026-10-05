@@ -4,12 +4,13 @@ import http from 'node:http';
 import path from 'node:path';
 import test from 'node:test';
 import { chromium } from 'playwright-core';
+import { selectedInteractiveMember } from './fixtures/interactive-member.mjs';
 import { composeInteractiveHtml } from '../packages/publisher/src/rendering/index.mjs';
 
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const html = (title, link = '') =>
   Buffer.from(
-    `<!DOCTYPE html><html lang="en"><head><title>${title}</title><style>body{color:#26362f}</style></head><body><svg data-page="${title}"><g data-node-id="compiler" data-node-label="Compiler"></g></svg>${link}<script>var Archify = {}; window.pageReady = true;</script></body></html>`,
+    `<!DOCTYPE html><html lang="en"><head><title>${title}</title><style>body{color:#26362f}</style></head><body><svg role="group" data-diagram-type="architecture" data-page="${title}"><g data-node-id="compiler" data-node-label="Compiler"></g></svg>${link}<script>var Archify = {}; window.pageReady = true;</script></body></html>`,
   );
 
 function fixture() {
@@ -296,6 +297,46 @@ test(
     } finally {
       await browser?.close();
       await new Promise((resolve) => server.close(resolve));
+    }
+  },
+);
+
+test(
+  'member observation resolves the selected document after iframe replacement',
+  { skip: !path.isAbsolute(process.env.ARCHPUB_BROWSER_EXECUTABLE ?? '') },
+  async (t) => {
+    const browser = await chromium.launch({
+      executablePath: process.env.ARCHPUB_BROWSER_EXECUTABLE,
+      headless: true,
+      chromiumSandbox: true,
+    });
+    try {
+      const page = await browser.newPage();
+      const input = fixture();
+      for (const member of input.pages) {
+        member.content = html(member.label, '<svg role="group" aria-label="Overview map"></svg>');
+        member.sha256 = sha256(member.content);
+      }
+      await page.setContent(composeInteractiveHtml(input).toString(), { waitUntil: 'load' });
+      await page.frameLocator('#interactive-frame').locator('svg[data-diagram-type]').waitFor();
+      const predecessor = await page.locator('#interactive-frame').elementHandle();
+      const previousFrame = await predecessor.contentFrame();
+      await predecessor.dispose();
+      await page.getByRole('button', { name: 'Semantics', exact: true }).click();
+      await page
+        .frameLocator('#interactive-frame')
+        .locator('html[data-interactive-member="semantics"] svg[data-diagram-type]')
+        .waitFor();
+      assert.equal(previousFrame.isDetached(), true);
+      t.mock.method(page, 'frames', () => [page.mainFrame(), previousFrame]);
+      const selected = await selectedInteractiveMember(page, 'semantics');
+      assert.equal(selected.isDetached(), false);
+      assert.equal(
+        await selected.locator('html').getAttribute('data-interactive-member'),
+        'semantics',
+      );
+    } finally {
+      await browser.close();
     }
   },
 );

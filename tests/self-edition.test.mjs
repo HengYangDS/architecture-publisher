@@ -11,6 +11,7 @@ import axe from 'axe-core';
 import { chromium } from 'playwright-core';
 import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
 import { browserLifetime } from './fixtures/browser-lifetime.mjs';
+import { selectedInteractiveMember } from './fixtures/interactive-member.mjs';
 import { readSourceBundle } from '../packages/publisher/src/source/bundle.mjs';
 import { validateEditionProject } from '../packages/publisher/src/edition/authoring.mjs';
 import { validateClaimModel } from '../packages/publisher/src/semantics/document.mjs';
@@ -1071,8 +1072,7 @@ test('the installed self Edition compiles both media after its author package is
             globalThis.document.getElementById('interactive-page-label').textContent === label,
           selected.label,
         );
-        const frame = page.frames().find((item) => item.parentFrame() === page.mainFrame());
-        await frame.waitForSelector('svg', { timeout: 8_000 });
+        const frame = await selectedInteractiveMember(page, id);
         assert.equal((await frame.locator('svg[role="group"]').count()) > 0, true, id);
       }
       await page.getByRole('button', { name: 'Overview', exact: true }).click();
@@ -1154,7 +1154,7 @@ test('the installed self Edition compiles both media after its author package is
       await inspect.click();
       await page.getByRole('button', { name: 'Back to diagram' }).click();
       assert.equal(await inspector.isVisible(), false);
-      const overviewFrame = page.frames().find((item) => item.parentFrame() === page.mainFrame());
+      const overviewFrame = await selectedInteractiveMember(page, 'overview');
       await overviewFrame.locator('[data-inspect-id="source"][tabindex="0"]').first().focus();
       await page.keyboard.press('i');
       await inspector.waitFor({ state: 'visible' });
@@ -1188,10 +1188,7 @@ test('the installed self Edition compiles both media after its author package is
       for (const id of data.order) {
         const selected = data.pages[id];
         await readerPage.getByRole('button', { name: selected.shortLabel, exact: true }).click();
-        const frame = readerPage
-          .frames()
-          .find((item) => item.parentFrame() === readerPage.mainFrame());
-        await frame.waitForSelector('svg', { timeout: 8_000 });
+        const frame = await selectedInteractiveMember(readerPage, id);
         await frame.waitForFunction(() => !!globalThis.Archify?.layoutStability?.whenStable);
         await frame.evaluate(() => globalThis.Archify.layoutStability.whenStable());
         const shellFits = await readerPage.evaluate(() => {
