@@ -115,7 +115,10 @@ test('native CI binds browser and frozen Raster journeys before the whole qualit
     /npm install --global|--no-sandbox|continue-on-error|\|\| true/,
   );
   assert.equal(native.artifacts?.when, 'always');
-  assert(native.artifacts.paths.includes('coverage/'));
+  assert.deepEqual(native.artifacts.paths, [
+    'coverage/coverage-summary.json',
+    'coverage/coverage-final.json',
+  ]);
 });
 
 test('Linux verification keeps the common gate and separates trust roles', async () => {

@@ -30,7 +30,8 @@ stages:
     when: always
     expire_in: 7 days
     paths:
-      - coverage/
+      - coverage/coverage-summary.json
+      - coverage/coverage-final.json
   script:
     - mise --version
     - mise install

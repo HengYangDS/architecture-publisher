@@ -329,9 +329,21 @@ test(
     assert.equal(await focusButton.getAttribute('aria-label'), '12 Client 9 component');
     assert.equal(await selectionStatus.innerText(), nodeAnnouncement);
     await page.waitForFunction(
-      () => globalThis.document.querySelector('#graph-0 .graph-node.is-selected') !== null,
+      (id) => {
+        const selected = globalThis.document.querySelector('#graph-0 .graph-node.is-selected');
+        if (selected?.dataset.selectId !== id) return false;
+        const graph = globalThis.document.querySelector('#graph-0').getBoundingClientRect();
+        const node = selected.getBoundingClientRect();
+        return (
+          Math.hypot(
+            node.x + node.width / 2 - graph.x - graph.width / 2,
+            node.y + node.height / 2 - graph.y - graph.height / 2,
+          ) <= 2
+        );
+      },
+      requestedNode,
+      { timeout: 5_000 },
     );
-    await page.waitForTimeout(50);
     const focused = await page.evaluate(() => {
       const selected = globalThis.document.querySelector('#graph-0 .graph-node.is-selected');
       const node = selected.getBoundingClientRect();
