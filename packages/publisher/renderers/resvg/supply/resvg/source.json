@@ -48,6 +48,46 @@
         "bytes": 3293,
         "sha256": "fb1aab2d2f362ec38501111d4950a221e68b4eec2c6894d641fd9ac6e90c8893"
       }
+    ],
+    "nativeWitnesses": [
+      {
+        "tools": {
+          "rustc": {
+            "release": "1.98.1",
+            "commit": "48a229ceaefd4985c50990b14116b6d856af0985",
+            "host": "aarch64-apple-darwin"
+          },
+          "cargo": {
+            "release": "1.98.1",
+            "commit": "797e8a9bca276c1c9f9f738d2a20f484fa4eea9d",
+            "host": "aarch64-apple-darwin"
+          },
+          "wasmBindgen": "0.2.128"
+        },
+        "wasm": {
+          "bytes": 3427609,
+          "sha256": "6827b7a3c62d7534250f81595c237086179989eac0eb5b02c3f952bcf20d8761"
+        }
+      },
+      {
+        "tools": {
+          "rustc": {
+            "release": "1.98.1",
+            "commit": "48a229ceaefd4985c50990b14116b6d856af0985",
+            "host": "aarch64-unknown-linux-gnu"
+          },
+          "cargo": {
+            "release": "1.98.1",
+            "commit": "797e8a9bca276c1c9f9f738d2a20f484fa4eea9d",
+            "host": "aarch64-unknown-linux-gnu"
+          },
+          "wasmBindgen": "0.2.128"
+        },
+        "wasm": {
+          "bytes": 3427664,
+          "sha256": "db31774c8451ded296654179db08e6c4454f313eea0e9f720b1b26a90e2cc142"
+        }
+      }
     ]
   },
   "outputs": [

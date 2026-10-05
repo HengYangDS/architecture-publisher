@@ -16,7 +16,55 @@ async function check(file, selected, message) {
   return bytes;
 }
 
-async function verify(mode, selectedPath) {
+function toolIdentity(tools) {
+  const exact = (value, keys) =>
+    value !== null &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.keys(value).length === keys.length &&
+    keys.every((key) => Object.hasOwn(value, key));
+  if (!exact(tools, ['rustc', 'cargo', 'wasmBindgen'])) return null;
+  const fields = ['release', 'commit', 'host'];
+  for (const compiler of [tools.rustc, tools.cargo]) {
+    if (
+      !exact(compiler, fields) ||
+      !/^\d+\.\d+\.\d+$/u.test(compiler.release) ||
+      !/^[a-f0-9]{40}$/u.test(compiler.commit) ||
+      !/^[a-z0-9]+(?:-[a-z0-9]+){2,}$/u.test(compiler.host)
+    )
+      return null;
+  }
+  if (tools.rustc.host !== tools.cargo.host || !/^\d+\.\d+\.\d+$/u.test(tools.wasmBindgen))
+    return null;
+  return JSON.stringify([
+    ...fields.map((field) => tools.rustc[field]),
+    ...fields.map((field) => tools.cargo[field]),
+    tools.wasmBindgen,
+  ]);
+}
+
+async function nativeWitness(manifest, identityPath) {
+  const info = await fs.lstat(identityPath);
+  if (!info.isFile() || info.size > 8192) throw new Error('native tool identity not admitted');
+  const identity = toolIdentity(JSON.parse(await fs.readFile(identityPath, 'utf8')));
+  const selected = (manifest.build.nativeWitnesses ?? []).filter(
+    (witness) => identity !== null && toolIdentity(witness.tools) === identity,
+  );
+  if (selected.length !== 1) throw new Error('native tool identity not admitted');
+  const witness = selected[0];
+  if (
+    witness.tools.rustc.release !== manifest.toolchain.rust ||
+    witness.tools.cargo.release !== manifest.toolchain.rust ||
+    witness.tools.wasmBindgen !== manifest.toolchain.wasmBindgen ||
+    !Number.isSafeInteger(witness.wasm.bytes) ||
+    witness.wasm.bytes <= 0 ||
+    !/^[a-f0-9]{64}$/u.test(witness.wasm.sha256)
+  )
+    throw new Error('native witness invalid');
+  return witness.wasm;
+}
+
+async function verify(mode, selectedPath, identityPath) {
   const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
   if (mode === '--registry-url') {
     const base = new URL(selectedPath);
@@ -66,10 +114,11 @@ async function verify(mode, selectedPath) {
     }
     return;
   }
+  const witness = identityPath ? await nativeWitness(manifest, identityPath) : undefined;
   for (const selected of manifest.outputs) {
     const bytes = await check(
       path.join(directory, selected.nativeFile),
-      selected,
+      witness && selected.nativeFile === 'index_bg.wasm' ? witness : selected,
       `generated output mismatch: ${selected.nativeFile}`,
     );
     process.stdout.write(
@@ -81,14 +130,20 @@ async function verify(mode, selectedPath) {
 const mode = process.argv[2];
 const selectedPath =
   process.argv[3] ?? (mode === '--registry-url' ? process.env.CI_API_V4_URL : undefined);
-if (!modes.includes(mode) || !selectedPath || process.argv.length > 4) {
+const identityPath = process.argv[4];
+if (
+  !modes.includes(mode) ||
+  !selectedPath ||
+  process.argv.length > 5 ||
+  (identityPath && mode !== '--outputs')
+) {
   process.stderr.write(
-    'usage: node verify.mjs <--archive|--inputs|--outputs> <path> | --registry-url [API_BASE]\n',
+    'usage: node verify.mjs <--archive|--inputs> <path> | --outputs <path> [tool-identity.json] | --registry-url [API_BASE]\n',
   );
   process.exitCode = 64;
 } else {
   try {
-    await verify(mode, selectedPath);
+    await verify(mode, selectedPath, identityPath);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = 65;

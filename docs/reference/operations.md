@@ -960,19 +960,30 @@ In a caller-owned disposable directory:
      --no-typescript --omit-default-module-path
    ```
 
-6. Run `node tools/raster/resvg/verify.mjs --outputs <absolute-native-output-root>`.
-   Recheck `--inputs` too: successful compilation cannot waive source drift.
-   The checked `index_bg.js` bytes correspond to packaged `index.mjs`; the
-   checked `index_bg.wasm` bytes retain their native filename. Neither the native
-   loader nor its extra output files are selected into the renderer supply.
-7. Preserve the commands, target/tool identities and exact input/output digests,
-   then reclaim only the caller-owned disposable build root.
+6. Observe `rustc -vV`, `cargo -vV` and `wasm-bindgen --version` from the selected
+   executables. The native journey records their exact host, release and commit
+   identities in caller-owned JSON; it is evidence, not another configuration owner.
+7. Run `node tools/raster/resvg/verify.mjs --outputs <output-root> <tool-identity.json>`.
+   The source manifest selects the exact pre-admitted native WASM witness;
+   unknown identities fail without a fallback or learned hash. Without the JSON
+   argument, `--outputs` checks the canonical packaged bytes. Recheck `--inputs`
+   too: successful compilation cannot waive source drift. The binding always
+   matches packaged `index.mjs`; native output never replaces canonical supply.
+8. Repeat from a second clean extraction, using a different relocated root and
+   empty Cargo target. Both builds must match the selected witness. The native
+   journey also compares canonical and rebuilt imports/exports, exact PNG bytes,
+   selected fonts, text measurement, declared errors and an authored static workload.
+9. Preserve command/tool identities, both input/output digests and behavioral
+   comparison results, then reclaim only the caller-owned disposable roots.
 
 The command is native on each platform; placeholder resolution and command-line
 quoting belong to the caller's executor, not a repository Bash or PowerShell
 controller. A resolved absolute source root is required: remapping `.` produces
 different WASM bytes. Native CI supplies the execution deadline. A successful
 integrity test does not prove a full source rebuild or an untested architecture.
+Native witnesses do not claim cross-host WASM byte identity or universal behavioral
+equivalence. New witnesses require independent clean-build evidence and review;
+the source manifest remains their sole owner, not a runtime hash-acceptance list.
 The evaluated wasm-pack wrapper is not selected: its metadata discovery rewrites
 the original lockfile before applying its later offline/frozen build options.
 
@@ -1002,6 +1013,15 @@ This scheduling constraint is not a sandbox or a proof that every historical
 compiler stall had the same cause. Native macOS executes the CoreText Swift
 paths that skip on other platforms. Browser and external input tests still
 require their explicit selectors.
+
+Linux Docker jobs set GitLab Runner's native
+`FF_USE_INIT_WITH_DOCKER_EXECUTOR=true`. Its `--init` process reaps orphaned
+children after the existing supervisor kills an invocation's process group.
+Without an init, a terminated orphan may retain a zombie PID and fail the
+unchanged installed Provider and qualification lifetime assertions. This is a
+Runner precondition, not a Publisher process scanner, sandbox exception or
+direct-child-only fallback. Local container acceptance uses the same `--init`
+boundary; hosted execution must independently qualify its actual Runner.
 
 The standalone Raster rebuild initializes its own repository-local test workspace
 before allocating a unique execution directory. It does not depend on the npm

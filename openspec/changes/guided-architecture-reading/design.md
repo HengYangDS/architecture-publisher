@@ -401,20 +401,49 @@ The tested wasm-pack wrapper produces the selected output bytes but rewrites
 the original lockfile during metadata discovery, so it does not qualify.
 
 The only authored build helper is `tools/raster/resvg/verify.mjs`. It checks
-the selected archive digest, extracted input bytes and native output bytes;
-it starts no subprocess, installs nothing and writes no output. It is not a
-build input and cannot authorize its own integrity. Native output
-names come from the supply manifest. Packaging selects the verified binding
-as `index.mjs` without rewriting its contents. The helper is an explicit
-development entry in the existing dead-code configuration, not a public
-command or another orchestration plane.
+the selected archive digest, extracted input bytes and output bytes; it starts
+no subprocess, installs nothing and writes no files. It is not a build input
+and cannot authorize its own integrity. Packaging retains one immutable
+canonical output pair from `source.json.outputs`, selecting the verified
+binding as `index.mjs` without rewriting its contents. The helper is an
+explicit development entry, not a public command or another orchestration plane.
 
-Rebuild tests must independently bind the source closure, selected toolchain,
-native target, relocated path and exact output hashes. Native CI owns job
-deadlines and disposable build roots. Retire the historical POSIX controller
-and its active consumers together only after actual rebuild and installed
-renderer acceptance on macOS, Linux and Windows. No Bash fallback or PowerShell
-controller qualifies as that replacement.
+Frozen native rebuilding and canonical package integrity are separate
+guarantees. Current macOS and Linux builds produce identical binding bytes
+but different WASM bytes. Cargo's host-dependent recursive dependency metadata
+supports this diagnosis; removing custom sections did not restore identity.
+That evidence neither proves every difference has this cause nor authorizes
+changing canonical output hashes to the last build's result.
+
+The existing source manifest owns pre-admitted native witnesses. Each witness
+binds the full compiler host triple, exact Rust and Cargo releases and commits,
+the selected wasm-bindgen version and the expected native WASM digest/size.
+The JavaScript binding remains bound to the canonical digest. Witnesses are
+admitted only after two independent, clean extractions and builds agree, and
+an independent review accepts the resulting evidence. Unknown or altered
+tool identities fail closed; execution never learns a hash or chooses a fallback.
+
+`verify.mjs --outputs <output-root>` checks canonical output. Supplying an
+additional tool-identity JSON file selects the exact pre-admitted native
+witness. That file is a caller-owned observation, not execution proof: the
+native journey obtains Rust/Cargo verbose versions and wasm-bindgen's version
+from the actual selected executables. The helper only checks that observation
+against the manifest and verifies output bytes.
+
+The native journey independently extracts the verified archive twice into
+relocated roots containing spaces and Unicode, with separate empty Cargo
+targets. It checks the selected inputs before and after each offline/frozen
+build, verifies both outputs against the selected witness, and compares their
+digests. Rebuilt and canonical modules must also agree on imports/exports,
+exact representative PNG bytes, all selected packaged fonts, text measurement,
+declared errors and an actual authored static workload. These are finite
+behavioral witnesses, not universal equivalence or cross-host WASM byte identity.
+
+Native CI owns job deadlines and disposable build roots. Actual macOS, Linux
+and Windows evidence remains mandatory. Retire the historical POSIX controller
+and its active consumers together only after those native rebuilds and installed
+renderer acceptance pass. No Bash fallback or PowerShell controller qualifies
+as that replacement.
 
 Platform acceptance must cover actual native execution, relocated paths with
 spaces and Unicode, executable discovery, cold offline installation, bounded
@@ -438,6 +467,35 @@ and the unchanged 25-case macOS guest replay establish the affected boundary,
 not a proved hardware, parser or filesystem root cause. A complete successor
 matrix must still pass before publication.
 
+### Native Linux orphan reaping
+
+Linux Docker verification selects the Runner's native
+`FF_USE_INIT_WITH_DOCKER_EXECUTOR` feature flag. The Docker executor then starts
+the build container with `--init`; its PID 1 reaps orphaned children after
+Publisher's existing invocation-scoped process-group termination. No additional
+process controller, host configuration change or assertion relaxation is needed.
+
+The same exact snapshot and twelve installed Provider and qualification tests
+fail without init and pass unchanged with init. The failing descendants are
+PID-1-owned zombies; the passing process table contains none. This isolates the
+container precondition without declaring hosted or full-release acceptance.
+The official Runner feature declaration and Docker executor wiring, fixed blobs
+`9bcb2c3b4dbc9bd4b6376f11cb3dfeb970042fc6` and
+`ba0b63e53ba7e5a087b32d18bf201559eb6cb4bf`, are preserved alongside the exact
+RED/GREEN logs under the current Lane's Linux prerequisite evidence. Native
+hosted execution still has to prove this setting on its actual Runner.
+
+### Native Windows tool discovery
+
+Locked Rust owns MSVC linker and SDK discovery for the actual target. Its
+upstream `get_linker` delegates to `find_msvc_tools::find_tool` and applies the
+selected tool environment. Windows CI therefore only binds the native platform
+and executor; it does not assume Visual Studio's installation path or launch
+a developer-shell controller. The unchanged Cargo journey must perform real
+host compilation and WASM rebuilding before quality checks. Missing tools
+remain a native compilation failure, not a bypassed prerequisite. This design
+changes no Guest isolation, execution policy, credentials or Rust target.
+
 ### Required native CI execution
 
 The native Linux job retains the pinned Playwright image and non-root user.
@@ -451,15 +509,6 @@ compiler is the explicit Cargo native-target linker. Actual compilation and
 execution, frozen Raster rebuilding and the whole quality gate qualify this
 boundary; a zero installer exit alone is insufficient if diagnostics show an
 incomplete environment. Preserve prior failed receipts.
-
-The Windows job discovers the existing Visual Studio installation with native
-`vswhere` and initializes its Microsoft-owned `Launch-VsDevShell.ps1` for the
-ARM64 target while preserving the job's working directory. Do not guess a host
-architecture or replace an existing installation. Required compiler and linker
-discovery precedes the common gate; actual Raster rebuilding and quality checks
-qualify the selected environment. This is bounded vendor execution glue, not a
-handwritten PowerShell controller. Execution policy, host credentials, VM
-isolation and service state remain unchanged.
 
 The locked Playwright installer owns the CI browser supply under each job's
 `build/runtime/tool-cache/playwright/`. The existing npm test preload binds its

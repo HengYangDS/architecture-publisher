@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { fail } from '../../src/protocol/values.mjs';
 
-const RASTER_SUPPLY_SHA256 = 'f4571905391903a56dae2c01c219869a34daf65c9c769869bc00ea1282299734';
+const RASTER_SUPPLY_SHA256 = '91c39184c2b3e0373d68290d197ba10232c48545733fd928dda3f1a09fb8addf';
 const root = fileURLToPath(new URL('./supply/', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 

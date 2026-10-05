@@ -137,6 +137,7 @@ test('Linux verification keeps the common gate and separates trust roles', async
   assert.equal(pipeline['.verify-native'].stage, 'verify');
   assert.equal(native.resource_group, undefined);
   assert.equal(native.extends, '.verify-native');
+  assert.equal(native.variables.FF_USE_INIT_WITH_DOCKER_EXECUTOR, 'true');
   assert(native.before_script.some((command) => command.includes('sha256sum --check')));
   assert(native.before_script.some((command) => command.includes('mise-v2026.10.2-linux-arm64')));
   for (const role of ['review', 'protected']) {
@@ -198,14 +199,17 @@ test('native Windows verification runs the whole quality graph with separate tru
   assert.equal(native.variables?.GIT_STRATEGY, 'clone');
   assert.equal(native.extends, '.verify-native');
   assert(native.before_script.some((command) => command.includes("process.platform !== 'win32'")));
-  const setup = native.before_script.join('\n');
-  assert.match(setup, /vswhere\.exe.*-latest.*-products.*-property installationPath/);
-  assert.match(setup, /Launch-VsDevShell\.ps1.*-Arch arm64 -SkipAutomaticLocation/);
-  assert.match(setup, /Get-Command cl\.exe, link\.exe/);
-  assert.doesNotMatch(
-    setup,
-    /ExecutionPolicy|Set-ExecutionPolicy|HostArch|Start-Process|winget install/,
+  assert.deepEqual(native.before_script, [
+    '$env:PATH = (Join-Path $env:ProgramFiles "mise/bin") + [IO.Path]::PathSeparator + $env:PATH',
+    "node -e \"if (process.platform !== 'win32' || process.arch !== 'arm64') process.exit(1)\"",
+  ]);
+  const execution = pipeline['.verify-native'].script;
+  assert(execution.includes('mise install'));
+  const rebuild = execution.indexOf(
+    'mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs',
   );
+  const quality = execution.indexOf('mise exec -- npm run check');
+  assert(rebuild >= 0 && quality > rebuild, 'native compilation must precede full quality');
   for (const role of ['review', 'protected']) {
     const job = pipeline[`verify:windows:${role}`];
     assert.equal(job.extends, '.verify-windows');

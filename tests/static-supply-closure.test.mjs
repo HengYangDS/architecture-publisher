@@ -89,10 +89,15 @@ test('raster verification checks selected native inputs and outputs without comp
   for (const output of source.outputs) {
     await fs.copyFile(path.join(root, output.path), path.join(outputRoot, output.nativeFile));
   }
-  const invoke = (mode, directory) => {
+  const invoke = (mode, directory, identity) => {
     const result = spawnSync(
       process.execPath,
-      [path.join(root, 'tools/raster/resvg/verify.mjs'), mode, directory],
+      [
+        path.join(root, 'tools/raster/resvg/verify.mjs'),
+        mode,
+        directory,
+        ...(identity ? [identity] : []),
+      ],
       {
         cwd: work,
         encoding: 'utf8',
@@ -104,6 +109,40 @@ test('raster verification checks selected native inputs and outputs without comp
     return result;
   };
   assert.equal(invoke('--inputs', sourceRoot).status, 0);
+  assert.equal(invoke('--outputs', outputRoot).status, 0);
+  const tools = {
+    rustc: {
+      release: '1.98.1',
+      commit: '48a229ceaefd4985c50990b14116b6d856af0985',
+      host: 'aarch64-apple-darwin',
+    },
+    cargo: {
+      release: '1.98.1',
+      commit: '797e8a9bca276c1c9f9f738d2a20f484fa4eea9d',
+      host: 'aarch64-apple-darwin',
+    },
+    wasmBindgen: '0.2.128',
+  };
+  const identity = path.join(work, 'tool identity.json');
+  await fs.writeFile(identity, JSON.stringify(tools));
+  const admitted = invoke('--outputs', outputRoot, identity);
+  assert.equal(admitted.status, 0, admitted.stdout + admitted.stderr);
+  for (const change of [
+    (value) => (value.rustc.host = 'unknown-host'),
+    (value) => (value.rustc.commit = '0'.repeat(40)),
+    (value) => (value.cargo.commit = '0'.repeat(40)),
+    (value) => (value.cargo.release = '0.0.0'),
+    (value) => (value.wasmBindgen = '0.0.0'),
+    (value) => (value.fallback = true),
+  ]) {
+    const unknown = structuredClone(tools);
+    change(unknown);
+    await fs.writeFile(identity, JSON.stringify(unknown));
+    const result = invoke('--outputs', outputRoot, identity);
+    assert.equal(result.status, 65, result.stdout + result.stderr);
+    assert.equal(result.stderr, 'native tool identity not admitted\n');
+  }
+  assert.equal(invoke('--inputs', sourceRoot, identity).status, 64);
   assert.equal(invoke('--outputs', outputRoot).status, 0);
   await fs.appendFile(path.join(sourceRoot, 'Cargo.toml'), '\n# drift\n');
   assert.equal(invoke('--inputs', sourceRoot).status, 65);

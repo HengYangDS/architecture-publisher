@@ -54,6 +54,7 @@ stages:
 .verify-linux:
   extends: .verify-native
   variables:
+    FF_USE_INIT_WITH_DOCKER_EXECUTOR: 'true'
     PIXI_HOME: '$CI_PROJECT_DIR/build/runtime/work/native-linux-prerequisites/home'
     PIXI_CACHE_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/pixi'
   before_script:
@@ -125,10 +126,6 @@ verify:macos:protected:
   before_script:
     - '$env:PATH = (Join-Path $env:ProgramFiles "mise/bin") + [IO.Path]::PathSeparator + $env:PATH'
     - node -e "if (process.platform !== 'win32' || process.arch !== 'arm64') process.exit(1)"
-    - '$vsInstallation = & (Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio/Installer/vswhere.exe") -latest -products "*" -property installationPath'
-    - 'if (-not $vsInstallation) { throw "Visual Studio native build installation is unavailable" }'
-    - '& (Join-Path $vsInstallation "Common7/Tools/Launch-VsDevShell.ps1") -Arch arm64 -SkipAutomaticLocation'
-    - 'Get-Command cl.exe, link.exe -ErrorAction Stop | Select-Object Name, Source'
 
 verify:windows:review:
   extends: .verify-windows

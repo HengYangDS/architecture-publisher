@@ -66,8 +66,8 @@
     {
       "path": "resvg/source.json",
       "source": "source, toolchain, build and output identity binding",
-      "bytes": 2158,
-      "sha256": "7c3a81a89e65fee6b837d187de55683e0003abcf1946206fa1b77733c4fc06c3"
+      "bytes": 3353,
+      "sha256": "80e13d0fc0df6348d6cc3a2cfba0779b494a6ef51b9b50e996edbb794482948c"
     },
     {
       "path": "sax/sax.cjs",
