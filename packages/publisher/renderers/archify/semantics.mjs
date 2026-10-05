@@ -144,6 +144,84 @@ ${seam}`,
   );
 }
 
+function adaptReaderTypeIcons(source) {
+  const patches = [
+    [
+      '    function hasDrawableGeometry(element) {',
+      `    function publicationTypeIcon(kind, occurrence) {
+      var diagram = document.querySelector('.diagram-container > svg');
+      var nodes = diagram.querySelectorAll('[data-node-id][data-node-kind]');
+      var glyph = occurrence ? occurrence.querySelector('[data-semantic-sigil]') : null;
+      for (var index = 0; !occurrence && index < nodes.length; index += 1) {
+        if (nodes[index].getAttribute('data-node-kind') !== kind) continue;
+        glyph = nodes[index].querySelector('[data-semantic-sigil]');
+        if (glyph) break;
+      }
+      if (!glyph) return null;
+      var icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('class', 'publication-type-icon');
+      icon.setAttribute('viewBox', '-1 -1 13 13');
+      icon.setAttribute('aria-hidden', 'true');
+      icon.setAttribute('focusable', 'false');
+      icon.setAttribute('data-figure-kind', kind);
+      var artwork = glyph.cloneNode(true);
+      artwork.setAttribute('class', 'semantic-sigil');
+      artwork.setAttribute('transform', artwork.getAttribute('transform').replace(/translate\\([^)]*\\)/g, 'translate(0 0)'));
+      icon.appendChild(artwork);
+      return icon;
+    }
+
+    function hasDrawableGeometry(element) {`,
+    ],
+    [
+      "        setPassportValue(kind, viewerKindLabel(node.getAttribute('data-node-kind') || 'node'));",
+      `        setPassportValue(kind, viewerKindLabel(node.getAttribute('data-node-kind') || 'node'));
+        var glyph = publicationTypeIcon(node.getAttribute('data-node-kind'), node);
+        if (glyph) kind.insertBefore(glyph, kind.firstChild);`,
+    ],
+    [
+      `          var swatch = document.createElement('span');
+          swatch.className = 'semantic-lens-swatch';
+          swatch.setAttribute('aria-hidden', 'true');`,
+      '          var glyph = publicationTypeIcon(kind.id);',
+    ],
+    [
+      `          var count = document.createElement('em');
+          count.textContent = String(kind.nodes.length);
+          button.appendChild(swatch);
+          button.appendChild(label);
+          button.appendChild(count);`,
+      `          if (glyph) button.appendChild(glyph);
+          button.appendChild(label);`,
+    ],
+    [
+      "          meta.textContent = [viewerKindLabel(item.type), item.id, item.sublabel, item.tag].filter(Boolean).join(' \\u00b7 ');",
+      `          var glyph = publicationTypeIcon(item.type, item.node);
+          if (glyph) meta.appendChild(glyph);
+          var description = document.createElement('span');
+          description.textContent = [viewerKindLabel(item.type), item.id, item.sublabel, item.tag].filter(Boolean).join(' \\u00b7 ');
+          meta.appendChild(description);`,
+    ],
+    [
+      '</head>',
+      `<style>
+    .publication-type-icon { width: 1rem; height: 1rem; min-width: 0; flex: none; display: block; }
+    .publication-type-icon .semantic-sigil { color: inherit; opacity: 1; }
+    #focus-kind { display: inline-flex; align-items: center; gap: .35rem; }
+    .semantic-lens-kind { grid-template-columns: 1rem minmax(0, 1fr); }
+    .semantic-lens-kind > strong { grid-column: 2; }
+    .node-finder-result small { display: flex; align-items: center; gap: .35rem; }
+    .node-finder-result small > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    </style></head>`,
+    ],
+  ];
+  for (const [before, after] of patches) {
+    if (source.split(before).length !== 2) fail('render_exploration_seam_invalid');
+    source = source.replace(before, after);
+  }
+  return source;
+}
+
 async function adaptLegendBridge(native) {
   const legendFile = path.join(native, 'renderers/shared/legend.mjs');
   const legendSource = await fs.readFile(legendFile, 'utf8');
@@ -162,7 +240,7 @@ async function adaptLegendBridge(native) {
   }
   await fs.writeFile(legendFile, legend);
   const file = path.join(native, 'assets/template.html');
-  let source = await fs.readFile(file, 'utf8');
+  let source = adaptReaderTypeIcons(await fs.readFile(file, 'utf8'));
   const geometryStart = '      function legendSourceBounds(entry) {';
   const geometryEnd = '      function layoutLegendBridge() {';
   const start = source.indexOf(geometryStart);

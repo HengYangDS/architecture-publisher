@@ -1434,8 +1434,8 @@
       },
       {
         "path": "renderers/archify/semantics.mjs",
-        "bytes": 18954,
-        "sha256": "9958f6fef5566164d1814dbd0a56b6e416df2fc564d2db42e907276ac3ddf4f5"
+        "bytes": 22633,
+        "sha256": "a14487cc0963d71f092816cf1c67ff262dfa74f7dfae919f528e843b56be223e"
       },
       {
         "path": "renderers/archify/text.mjs",

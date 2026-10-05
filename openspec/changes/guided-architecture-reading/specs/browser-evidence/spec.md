@@ -126,12 +126,12 @@ from source metadata and human judgment. Unobserved predicates stay unproved.
 
 ### Requirement: Node type encoding has one semantic owner
 
-The Edition's `visualPolicy.figureTypes` SHALL define one pinned glyph identity
-per effective figure kind. Composition SHALL resolve kinds independently of
-paint and preserve source facts in Inspect. Every selected ordinary figure
-SHALL use its catalog glyph. Passport, Lens, Legend and canonical exports SHALL
-agree. Legend SHALL place one glyph before its label, without count badges.
-Source-owned primitives SHALL remain unchanged.
+The Edition's `visualPolicy.figureTypes` SHALL define one pinned glyph per
+effective kind. Every ordinary figure, Passport, Lens, Finder, Legend and
+canonical export SHALL reuse it across all selected pages and media, independent
+of paint. Type rows SHALL place a bounded icon before a readable label, without
+count badges. Source kinds, navigation counts and source-owned primitive artwork
+SHALL retain their separate meaning.
 
 #### Scenario: Paint and source kinds differ
 
@@ -149,7 +149,7 @@ Source-owned primitives SHALL remain unchanged.
 #### Scenario: A kind occurs on several selected pages
 
 - **WHEN** ordinary figures share an effective kind across selected pages
-- **THEN** their nodes, Legend entries and exports use the same resolved glyph
+- **THEN** nodes, Passport, Lens, Finder, Legend entries and exports use the same resolved glyph
 - **AND** one Legend entry contains one glyph and its native Lens groups all occurrences
 
 #### Scenario: The selected publication has an invalid type catalog

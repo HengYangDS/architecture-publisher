@@ -279,12 +279,32 @@ test(
     for (const [index, member] of exploration.nodes.entries()) {
       const node = page.locator(`.diagram-container > svg [data-node-id="${member.id}"]`);
       assert.equal(await node.getAttribute('data-node-kind'), member.kind);
+      assert.equal(await node.locator('.c-backend').count(), 1);
       assert.equal(await node.locator('[data-node-type]').count(), 0);
       assert.equal(
         await node.locator(`[data-semantic-sigil="${icons[index]}"]`).count(),
         icons[index] === 'none' ? 0 : 1,
       );
       assert.doesNotMatch(await node.locator('title').textContent(), /Backend|Frontend|Security/i);
+      await page.evaluate((id) => globalThis.Archify.focus.set(id, { toggle: false }), member.id);
+      const passport = page.locator('#focus-kind');
+      assert.equal((await passport.textContent()).trim().toLowerCase(), member.kind);
+      assert.equal(await passport.locator(`[data-semantic-sigil="${icons[index]}"]`).count(), 1);
+      assert.equal(await passport.locator('svg').getAttribute('aria-hidden'), 'true');
+      assert.equal(
+        await passport.locator('[data-semantic-sigil]').innerHTML(),
+        await node.locator('[data-semantic-sigil]').innerHTML(),
+      );
+      assert.ok(
+        (await passport.evaluate((element) => {
+          const icon = element.querySelector('svg').getBoundingClientRect();
+          const range = globalThis.document.createRange();
+          range.selectNodeContents(element.lastChild);
+          return range.getBoundingClientRect().left - icon.right;
+        })) >= 4,
+        'Passport glyph needs measured clearance before its type label',
+      );
+      await page.evaluate(() => globalThis.Archify.focus.clear());
     }
     const legend = page.locator(`[data-legend-kind="${sourceKinds[0]}"]`);
     assert.deepEqual(
@@ -350,6 +370,19 @@ test(
       'true',
     );
     assert.match(await page.locator('#semantic-lens-status').textContent(), /2/);
+    for (const member of exploration.nodes) {
+      const kind = page.locator(`#semantic-lens-kinds [data-kind="${member.kind}"]`);
+      const icon = member.kind === 'scene' ? icons[2] : icons[0];
+      assert.equal(await kind.locator(`[data-semantic-sigil="${icon}"]`).count(), 1);
+      assert.equal(await kind.locator('.semantic-lens-swatch, em').count(), 0);
+      assert.equal(await kind.locator('svg').getAttribute('aria-hidden'), 'true');
+      const geometry = await kind.evaluate((button) => ({
+        iconWidth: button.querySelector('svg').getBoundingClientRect().width,
+        labelWidth: button.querySelector('strong').getBoundingClientRect().width,
+      }));
+      assert.ok(geometry.iconWidth >= 14 && geometry.iconWidth <= 18);
+      assert.ok(geometry.labelWidth > 20, 'Lens must reserve readable type-label space');
+    }
     await page.keyboard.press('Escape');
     assert.equal(await page.locator('#semantic-lens').isVisible(), false);
     assert.equal(await legend.getAttribute('aria-pressed'), 'true');
@@ -372,6 +405,20 @@ test(
         .getAttribute('aria-pressed'),
       'true',
     );
+    await page.evaluate(() => globalThis.Archify.semanticLens.clear({ closePanel: true }));
+    await page.evaluate(() => globalThis.Archify.finder.open());
+    for (const [index, member] of exploration.nodes.entries()) {
+      const result = page.locator(`.node-finder-result[data-node-id="${member.id}"] small`);
+      assert.equal(await result.locator(`[data-semantic-sigil="${icons[index]}"]`).count(), 1);
+      assert.equal(await result.locator('svg').getAttribute('aria-hidden'), 'true');
+      const geometry = await result.evaluate((element) => ({
+        iconWidth: element.querySelector('svg').getBoundingClientRect().width,
+        labelWidth: element.querySelector('span').getBoundingClientRect().width,
+      }));
+      assert.ok(geometry.iconWidth >= 14 && geometry.iconWidth <= 18);
+      assert.ok(geometry.labelWidth > 20, 'Finder must reserve readable type-label space');
+    }
+    await page.evaluate(() => globalThis.Archify.finder.close({ restoreFocus: false }));
     const downloaded = page.waitForEvent('download', { timeout: 15000 });
     await page.evaluate(() => globalThis.Archify.exportMenu.run('svg'));
     const exported = await fs.readFile(await (await downloaded).path(), 'utf8');

@@ -180,8 +180,12 @@ not count as different artwork.
 ```
 
 Publisher resolves this catalog before rendering either medium. Nodes, Legends,
-and canonical exports use the same pinned offline glyphs. Each Legend entry has
-one icon first, followed by its kind label; occurrence counts are not displayed.
+Passport, Lens, Finder and canonical exports use the same pinned offline glyphs
+on every selected page. Reader controls reuse the painted glyph rather than
+resolving a separate mapping. Type-identity rows place one icon before its label,
+with bounded glyph size, readable label space and measured clearance; they do
+not display occurrence counts. Native analysis can retain counts in accessible
+descriptions and relationship summaries.
 An occurrence cannot override or suppress its icon. Missing kinds, unsupported
 icons, reused artwork, or insufficient painted clearance reject the candidate.
 
