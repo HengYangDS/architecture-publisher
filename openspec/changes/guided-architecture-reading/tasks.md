@@ -25,7 +25,7 @@
 ## 5. Independent PNG and desktop HTML
 
 - [ ] 5.1 Converge existing PNG and desktop HTML composition, explicit media dispatch, Candidate and qualification through pinned mature mechanisms; preserve one editorial owner without duplicate facts, source-repository invasion or a second command plane.
-- [ ] 5.2 Qualify independently composed PNG overviews and complete desktop HTML diagrams for purpose, painted clearance, alignment, contrast, native reading and exact visual acceptance; preserve historical bytes and distinct source, editor, artwork, independent-review and publication roles. Local grouped-layout and appearance evidence: `build/evidence/guided-architecture-reading/validation.json`; successor source acceptance and three-platform qualification remain open.
+- [ ] 5.2 Qualify independently composed PNG overviews and complete desktop HTML diagrams for purpose, painted clearance, alignment, contrast, native reading and exact visual acceptance; preserve historical bytes and distinct source, editor, artwork, independent-review and publication roles. Exact self Candidate `2abc256d…` retains accepted PNG/SVG bytes, passes native static audits and 64 Chrome appearance/Inspect observations; nine-scope machine policy has no missing requirements and retains `admitted:false`. Evidence: `build/evidence/guided-architecture-reading/publisher-self-8fcb124/`. Exact HTML `4b932d26…` human judgment, successor source acceptance and final publication remain open.
 
 ## 6. AIGW source adoption
 
@@ -48,6 +48,6 @@
 
 ## 10. Native quality, release and closeout
 
-- [ ] 10.1 Pass native macOS/Linux/Windows full checks, frozen Raster rebuilding and installed offline relocation/recovery; preserve all four coverage floors at least 95 percent and retire the POSIX controller only after real consumer migration.
+- [ ] 10.1 Pass native macOS/Linux/Windows full checks, frozen Raster rebuilding and installed offline relocation/recovery; preserve all four coverage floors at least 95 percent and retire the POSIX controller only after real consumer migration. Exact-source review pipeline 9545 at `8fcb124f…` passes all three native jobs and four coverage floors; raw traces and explicit skipped cases are bound in `build/evidence/guided-architecture-reading/ci-9545-final/result.json`. Missing Chrome-backed execution and separate Linux/Windows frozen Raster rebuilds remain open; green CI does not waive them or qualify later HEADs.
 - [ ] 10.2 Complete semantic source/module/configuration/documentation and warning audit; repair actual message/authentication/execution owners without session/model/credential edits and qualify the exact-current installed ETHOS proof successor.
 - [ ] 10.3 Publish a signed SemVer successor with Keep a Changelog, designated source/media acceptance and remote readback; converge protected refs and close Change/proposal/Lane through native owners with verified evidence custody and exact housekeeping.
