@@ -1,4 +1,5 @@
 build/
+.config/mise/locks/
 .superpowers/
 node_modules/
 openspec/changes/archive/

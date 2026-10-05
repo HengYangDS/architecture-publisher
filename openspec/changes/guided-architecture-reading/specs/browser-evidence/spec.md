@@ -1,5 +1,26 @@
 ## ADDED Requirements
 
+### Requirement: Required native CI execution
+
+Each native CI job SHALL use locked, job-local tools and execute browser-backed
+checks and the frozen Raster rebuild before the whole quality gate. Missing
+supply SHALL fail required execution. The Raster manifest owns source identity;
+CI uses its caller-provided Forge API and native job-token authentication.
+Each platform retains separate evidence and all four coverage floors at 95
+percent or higher.
+
+#### Scenario: Required browser supply is missing
+
+- **WHEN** CI has no accessible selected Chromium executable
+- **THEN** the npm test preload refuses execution instead of skipping browser checks
+- **AND** an explicit caller-selected executable is not silently replaced
+
+#### Scenario: A native CI job qualifies rendering
+
+- **WHEN** locked installation and source verification succeed
+- **THEN** the job executes sandbox-enabled browser checks and the frozen Raster journey
+- **AND** no privilege increase or skipped prerequisite counts as platform acceptance
+
 ### Requirement: Complete native-reader lifecycle evidence
 
 Browser evidence SHALL bind exact HTML and observe selected native exploration,

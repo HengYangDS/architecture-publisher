@@ -28,3 +28,18 @@ Moving a native entry requires qualifying its actual consumer, not leaving a
 forwarding file. Knip, c8 and Markdownlint file globs remain repository-relative;
 Markdownlint's custom rule is configuration-relative. Prettier ignore rules
 stay root-relative. No host path, copied policy or custom loader is needed.
+
+## Job-local native tools
+
+Mise discovers `mise.ci.toml` and its native lockfile here when `MISE_ENV=ci`.
+The Forge projection requires locked installation and keeps tool supply under
+the job's ignored `build/runtime/tool-cache/`, separate from host installations.
+The generated `mise/locks/` files belong to Mise's npm lock closure; they are not
+another package manifest or product interface.
+
+Node selection comes from `.node-version`. The selected npm, Rust target and
+wasm-bindgen versions serve native execution, not an alternative quality gate.
+Playwright owns Chromium installation; the npm test preload requires the exact
+selected executable in CI. The Raster source manifest owns archive identity and
+registry coordinates; `tools/raster/resvg/verify.mjs` derives its retrieval URL
+from the caller's Forge API base and verifies bytes before the frozen journey.

@@ -368,6 +368,32 @@ and the unchanged 25-case macOS guest replay establish the affected boundary,
 not a proved hardware, parser or filesystem root cause. A complete successor
 matrix must still pass before publication.
 
+### Required native CI execution
+
+The locked Playwright installer owns the CI browser supply under each job's
+`build/runtime/tool-cache/playwright/`. The existing npm test preload binds its
+native Chromium executable only when CI has not selected an explicit browser.
+CI requires an absolute, accessible executable and refuses missing supply before
+tests can silently skip. Explicit caller selections remain unchanged. Local
+focused tests may remain browser-optional; browser launch, sandbox and actual
+rendering are separate runtime acceptance, not inferred from a path check.
+
+Every native platform job must execute the selected browser journey with the
+Chromium sandbox enabled. Linux execution requires a qualified non-root job
+principal; installing a browser or changing a flag is not sandbox acceptance.
+The existing frozen Raster journey uses the manifest-selected Rust, WASM target,
+wasm-bindgen and source archive through native tool supply and execution. Keep
+job-owned caches separate from host installation owners. Missing prerequisites
+fail the required journey rather than waive it; retain platform-specific raw
+results and all four coverage floors. Retire the POSIX Raster controller only
+after its actual consumers migrate and the native target-platform journey passes.
+
+Native npm and Publint subprocess resolution must retain the selected npm version,
+not fall back to Node's bundled npm when a subprocess prepends its executable
+directory. The private workspace declares the already selected npm as a locked
+development tool; native dependency bins, not a custom script or vendor patch,
+own that binding. The installed Core package gains no npm runtime dependency.
+
 New generated output belongs under the repository's ignored `build/`, according
 to the projects-family contract. Existing records remain exact retained inputs
 until their named consumers release them; do not create another records root.

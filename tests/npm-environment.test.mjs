@@ -9,6 +9,72 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const preload = new URL('./fixtures/npm-environment.mjs', import.meta.url).href;
 
+test('CI browser binding preserves an explicit caller executable', () => {
+  const child = spawnSync(
+    process.execPath,
+    [
+      `--import=${preload}`,
+      '--input-type=module',
+      '--eval',
+      'process.stdout.write(process.env.ARCHPUB_BROWSER_EXECUTABLE ?? "")',
+    ],
+    {
+      cwd: root,
+      env: { ...process.env, CI: 'true', ARCHPUB_BROWSER_EXECUTABLE: process.execPath },
+      encoding: 'utf8',
+      timeout: 10_000,
+    },
+  );
+  assert.equal(child.status, 0, child.stderr);
+  assert.equal(child.stdout, process.execPath);
+});
+
+test('CI refuses missing locked browser supply instead of skipping its tests', async (t) => {
+  const scratch = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-browser-'));
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const environment = { ...process.env, CI: 'true', PLAYWRIGHT_BROWSERS_PATH: scratch };
+  delete environment.ARCHPUB_BROWSER_EXECUTABLE;
+  const child = spawnSync(
+    process.execPath,
+    [`--import=${preload}`, '--input-type=module', '--eval', 'process.stdout.write("ran")'],
+    { cwd: root, env: environment, encoding: 'utf8', timeout: 10_000 },
+  );
+  assert.notEqual(child.status, 0);
+  assert.equal(child.stdout, '');
+  assert.match(child.stderr, /CI requires an accessible absolute browser executable/u);
+});
+
+test('CI binds its locked browser only when the caller has not selected one', async (t) => {
+  const scratch = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-browser-'));
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const environment = { ...process.env, CI: 'true', PLAYWRIGHT_BROWSERS_PATH: scratch };
+  delete environment.ARCHPUB_BROWSER_EXECUTABLE;
+  const resolved = spawnSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '--eval',
+      'import { chromium } from "playwright-core"; process.stdout.write(chromium.executablePath());',
+    ],
+    { cwd: root, env: environment, encoding: 'utf8', timeout: 10_000 },
+  );
+  assert.equal(resolved.status, 0, resolved.stderr);
+  await fs.mkdir(path.dirname(resolved.stdout), { recursive: true });
+  await fs.writeFile(resolved.stdout, 'browser-binding-fixture', { mode: 0o700 });
+  const child = spawnSync(
+    process.execPath,
+    [
+      `--import=${preload}`,
+      '--input-type=module',
+      '--eval',
+      'process.stdout.write(process.env.ARCHPUB_BROWSER_EXECUTABLE ?? "")',
+    ],
+    { cwd: root, env: environment, encoding: 'utf8', timeout: 10_000 },
+  );
+  assert.equal(child.status, 0, child.stderr);
+  assert.equal(child.stdout, resolved.stdout);
+});
+
 test('installed-test npm calls cannot inherit host allowlists or registry config', () => {
   const environment = Object.fromEntries(
     Object.entries(process.env).filter(([name]) => !name.toLowerCase().startsWith('npm_config_')),

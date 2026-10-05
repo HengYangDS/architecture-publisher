@@ -17,11 +17,13 @@ eslint.config.mjs ethos-role=config
 packages/publisher/src/edition/generated/** ethos-role=generated
 packages/publisher/supplies/** ethos-role=snapshot
 packages/publisher/renderers/*/supply/** ethos-role=snapshot
+.config/mise/locks/** ethos-role=snapshot
 
 # Generated and third-party supply retain their exact recorded bytes.
 packages/publisher/src/edition/generated/** -text
 packages/publisher/supplies/** -text
 packages/publisher/renderers/*/supply/** -text
+.config/mise/locks/** -text
 
 packages/publisher/supplies/likec4/parser.mjs -whitespace
 packages/publisher/supplies/likec4/THIRD-PARTY-NOTICES.txt -whitespace

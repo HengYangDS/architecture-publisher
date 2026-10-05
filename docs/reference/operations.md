@@ -24,9 +24,23 @@ support is a runtime compatibility promise, not a requirement to develop with
 Node.js 22. The private development workspace selects npm 12.2.0, independently
 released from the npm 11.19.1 bundled with Node.js 26.10.0. Native `devEngines`
 admission rejects a different development Node/npm before installation or
-scripts. The ephemeral Linux job explicitly replaces its bundled npm with the
-selected official package; shell Runners require their environment owner's
-selected installation. This does not raise the installed Core runtime floor.
+scripts. Every native CI job uses the locked `.config/mise.ci.toml` tool selection
+in its own ignored tool cache, including the independently selected npm. Mise
+owns installation and execution; shell Runners retain their existing Mise
+installation owner. This does not raise the installed Core runtime floor.
+The private workspace also locks that same npm as a development tool. Native
+packaging subprocesses prepend workspace bins and the Node directory, so an
+external PATH selection alone can fall back to Node's bundled npm. The local
+dependency closes that real execution gap without a wrapper or runtime dependency.
+
+The common CI job installs the locked Chromium through Playwright, downloads the
+manifest-selected Raster source archive through the caller's `CI_API_V4_URL`,
+verifies its hash and executes the frozen native Raster journey before
+`npm run check`. Curl imports the native job token from its environment; it is
+not embedded in a command argument or copied into repository configuration.
+Missing browser or Raster supply fails required execution. Linux uses a non-root
+job principal and retains Chromium's sandbox; actual native job results, not
+installation or YAML inspection, qualify each platform.
 
 The 2026-10-01 official npm runtime-tree advisory check found known vulnerable
 bundled dependency versions in npm 11.19.1, 11.21.0 and 12.2.0. Selecting the

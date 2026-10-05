@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import npmPackage from 'npm/package.json' with { type: 'json' };
 import { parse } from 'yaml';
 import { main as lintMarkdown } from 'markdownlint-cli2';
 import { applyFixes } from 'markdownlint-cli2/markdownlint';
@@ -24,6 +25,8 @@ test('native package-manager admission rejects a mismatched toolchain before scr
   assert.equal(selected.runtime.onFail, 'error');
   assert.equal(selected.packageManager.name, 'npm');
   assert.equal(workspace.packageManager, `npm@${selected.packageManager.version}`);
+  assert.equal(workspace.devDependencies.npm, selected.packageManager.version);
+  assert.equal(npmPackage.version, selected.packageManager.version);
   assert.equal(selected.packageManager.onFail, 'error');
   const scratch = await fs.mkdtemp(
     path.join(await fs.realpath(os.tmpdir()), 'archpub-dev-engine-'),
@@ -70,16 +73,59 @@ test('native workflow selects one review pipeline without skipping protected ref
   ]);
 });
 
+test('native CI binds browser and frozen Raster journeys before the whole quality gate', async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
+  const native = pipeline['.verify-native'];
+  assert.equal(native?.stage, 'verify');
+  assert.equal(native.timeout, '60m');
+  assert.equal(pipeline.variables?.MISE_ENV, 'ci');
+  assert.equal(pipeline.variables?.MISE_LOCKED, '1');
+  assert.equal(pipeline.variables?.MISE_DATA_DIR, '$CI_PROJECT_DIR/build/runtime/tool-cache/mise');
+  assert.equal(pipeline.variables?.MISE_TRUSTED_CONFIG_PATHS, '$CI_PROJECT_DIR');
+  assert.equal(native.script.at(-1), 'mise exec -- npm run check');
+  assert(native.script.includes('mise install'));
+  assert(native.script.includes('mise exec -- npm ci --ignore-scripts --no-audit --no-fund'));
+  assert(
+    native.script.includes(
+      'mise exec -- node node_modules/playwright-core/cli.js install chromium',
+    ),
+  );
+  assert(
+    native.script.includes(
+      'mise exec -- node tools/raster/resvg/verify.mjs --registry-url > build/runtime/tool-cache/raster/source-url.txt',
+    ),
+  );
+  const retrieval = native.script.find((command) => command.includes('--expand-url'));
+  assert.match(retrieval, /--variable %CI_JOB_TOKEN/);
+  assert.match(retrieval, /--expand-header/);
+  assert.match(retrieval, /--max-time 180/);
+  assert.doesNotMatch(retrieval, /\$\{?CI_JOB_TOKEN|\$env:CI_JOB_TOKEN/);
+  assert(
+    native.script.includes(
+      'mise exec -- node tools/raster/resvg/verify.mjs --archive build/runtime/tool-cache/raster/source.tar.xz',
+    ),
+  );
+  assert(
+    native.script.includes(
+      'mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs',
+    ),
+  );
+  assert.doesNotMatch(
+    native.script.join('\n'),
+    /npm install --global|--no-sandbox|continue-on-error|\|\| true/,
+  );
+  assert.equal(native.artifacts?.when, 'always');
+  assert(native.artifacts.paths.includes('coverage/'));
+});
+
 test('Linux verification keeps the common gate and separates trust roles', async () => {
   const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
   const native = pipeline['.verify-linux'];
-  assert.equal(native?.stage, 'verify');
+  assert.equal(pipeline['.verify-native'].stage, 'verify');
   assert.equal(native.resource_group, undefined);
-  assert.equal(native.script.at(-1), 'npm run check');
-  assert(native.script.includes('npm ci --ignore-scripts --no-audit --no-fund'));
-  assert(
-    native.script.includes('npm install --global npm@12.2.0 --ignore-scripts --no-audit --no-fund'),
-  );
+  assert.equal(native.extends, '.verify-native');
+  assert(native.before_script.some((command) => command.includes('sha256sum --check')));
+  assert(native.before_script.some((command) => command.includes('mise-v2026.10.2-linux-arm64')));
   for (const role of ['review', 'protected']) {
     const job = pipeline[`verify:linux:${role}`];
     assert.equal(job.extends, '.verify-linux');
@@ -100,14 +146,13 @@ test('Linux verification keeps the common gate and separates trust roles', async
 test('native Windows verification runs the whole quality graph with separate trust roles', async () => {
   const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
   const native = pipeline['.verify-windows'];
-  assert.equal(native?.stage, 'verify');
+  assert.equal(pipeline['.verify-native'].stage, 'verify');
   assert.equal(native.image, null);
   assert.equal(native.resource_group, 'native-windows-verification');
   assert.equal(native.timeout, '60m');
   assert.equal(native.variables?.GIT_STRATEGY, 'clone');
-  assert.equal(native.script.at(-1), 'npm run check');
-  assert(native.script.includes('npm ci --ignore-scripts --no-audit --no-fund'));
-  assert(native.script.includes('git --version'));
+  assert.equal(native.extends, '.verify-native');
+  assert(native.before_script.some((command) => command.includes("process.platform !== 'win32'")));
   for (const role of ['review', 'protected']) {
     const job = pipeline[`verify:windows:${role}`];
     assert.equal(job.extends, '.verify-windows');
@@ -128,6 +173,7 @@ test('native Windows verification runs the whole quality graph with separate tru
 test('native macOS verification shares one project resource without merging trust roles', async () => {
   const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
   const native = pipeline['.verify-macos'];
+  assert.equal(native.extends, '.verify-native');
   assert.equal(typeof native.resource_group, 'string');
   assert(native.resource_group.trim());
   assert.equal(pipeline['.verify-linux'].resource_group, undefined);
@@ -226,6 +272,8 @@ test('native formatter discovery retains one rule owner and preserved input boun
     ['tests/quality-contract.test.mjs', false],
     ['packages/publisher/renderers/archify/supply/archify.html', true],
     ['editions/self/src/edition/static/authoring/metrics.json', true],
+    ['.config/mise/locks/mise.ci/npm-npm/12.2.0/aube-lock.yaml', true],
+    ['.config/mise/locks/mise.ci/npm-npm/12.2.0/package.json', true],
   ])
     assert.equal((await getFileInfo(path.join(root, file), { ignorePath })).ignored, ignored, file);
 });

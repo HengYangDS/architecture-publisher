@@ -124,11 +124,10 @@ test('GitLab CI only projects repository-native gates', async () => {
   const ci = await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8');
   assert.match(
     ci,
-    /node:26\.10\.0-bookworm@sha256:2aaae6d91f99fee84cfc92da9b52c22a185752d247746052bbc3f961e44478c6/,
+    /mcr\.microsoft\.com\/playwright:v1\.63\.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27/,
   );
   assert.match(ci, /npm --version/);
   assert.match(ci, /git --version/);
-  assert.match(ci, /python3 --version/);
   assert.match(ci, /npm ci --ignore-scripts --no-audit --no-fund/);
   assert.match(ci, /npm run check/);
   assert.doesNotMatch(ci, /^[ ]+- npm test$/mu);

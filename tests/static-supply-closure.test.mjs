@@ -32,6 +32,42 @@ test('raster rebuild selects the packaged source manifest', async (t) => {
   assert.equal(result.stderr, 'source closure digest mismatch\n');
 });
 
+test('raster registry retrieval derives its URL from the canonical source manifest', async () => {
+  const manifest = JSON.parse(
+    await fs.readFile(
+      path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/source.json'),
+      'utf8',
+    ),
+  );
+  const invoke = (...args) =>
+    spawnSync(
+      process.execPath,
+      [path.join(root, 'tools/raster/resvg/verify.mjs'), '--registry-url', ...args],
+      {
+        encoding: 'utf8',
+        env: { ...process.env, CI_API_V4_URL: 'http://forge.invalid:18086/api/v4' },
+      },
+    );
+  const registry = manifest.source.registry;
+  const expected = `http://forge.invalid:18086/api/v4/projects/${encodeURIComponent(registry.projectPath)}/packages/generic/${encodeURIComponent(registry.package)}/${encodeURIComponent(registry.version)}/${encodeURIComponent(registry.file)}`;
+  assert.equal(invoke().status, 0);
+  assert.equal(invoke().stdout.trim(), expected);
+  assert.equal(
+    invoke('https://forge.invalid/api/v4/').stdout.trim(),
+    expected.replace('http://forge.invalid:18086', 'https://forge.invalid'),
+  );
+  for (const invalid of [
+    'file:///api/v4',
+    'https://user:password@forge.invalid/api/v4',
+    'https://forge.invalid/wrong',
+    'https://forge.invalid/api/v4?token=invalid',
+  ]) {
+    const result = invoke(invalid);
+    assert.equal(result.status, 65);
+    assert.equal(result.stdout, '');
+  }
+});
+
 test('raster verification checks selected native inputs and outputs without compiling', async (t) => {
   const work = await fs.mkdtemp(path.join(root, 'build/test-work/resvg-native-'));
   t.after(() => fs.rm(work, { recursive: true, force: true }));

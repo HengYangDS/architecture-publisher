@@ -4,7 +4,7 @@ import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '../../..');
 const manifestPath = path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/source.json');
-const modes = ['--archive', '--inputs', '--outputs'];
+const modes = ['--archive', '--inputs', '--outputs', '--registry-url'];
 
 async function check(file, selected, message) {
   const info = await fs.lstat(file);
@@ -18,6 +18,28 @@ async function check(file, selected, message) {
 
 async function verify(mode, selectedPath) {
   const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+  if (mode === '--registry-url') {
+    const base = new URL(selectedPath);
+    if (
+      !['http:', 'https:'].includes(base.protocol) ||
+      base.username ||
+      base.password ||
+      base.search ||
+      base.hash ||
+      !/^\/api\/v4\/?$/u.test(base.pathname)
+    )
+      throw new Error('source registry API base invalid');
+    const registry = manifest.source.registry;
+    if (registry.provider !== 'gitlab') throw new Error('source registry provider invalid');
+    const segments = [registry.projectPath, registry.package, registry.version, registry.file];
+    if (segments.some((value) => typeof value !== 'string' || !value))
+      throw new Error('source registry identity invalid');
+    const [project, name, version, file] = segments.map((value) => encodeURIComponent(value));
+    process.stdout.write(
+      `${base.origin}/api/v4/projects/${project}/packages/generic/${name}/${version}/${file}\n`,
+    );
+    return;
+  }
   const directory = path.resolve(selectedPath);
   if (mode === '--archive') {
     await check(
@@ -56,12 +78,17 @@ async function verify(mode, selectedPath) {
   }
 }
 
-if (process.argv.length !== 4 || !modes.includes(process.argv[2])) {
-  process.stderr.write('usage: node verify.mjs <--archive|--inputs|--outputs> <path>\n');
+const mode = process.argv[2];
+const selectedPath =
+  process.argv[3] ?? (mode === '--registry-url' ? process.env.CI_API_V4_URL : undefined);
+if (!modes.includes(mode) || !selectedPath || process.argv.length > 4) {
+  process.stderr.write(
+    'usage: node verify.mjs <--archive|--inputs|--outputs> <path> | --registry-url [API_BASE]\n',
+  );
   process.exitCode = 64;
 } else {
   try {
-    await verify(process.argv[2], process.argv[3]);
+    await verify(mode, selectedPath);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = 65;

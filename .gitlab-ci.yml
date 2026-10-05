@@ -6,27 +6,65 @@ workflow:
       when: never
     - if: '$CI_COMMIT_BRANCH'
 
-image: node:26.10.0-bookworm@sha256:2aaae6d91f99fee84cfc92da9b52c22a185752d247746052bbc3f961e44478c6
+image:
+  name: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+  docker:
+    user: pwuser
 
 variables:
   GIT_DEPTH: '0'
+  MISE_ENV: ci
+  MISE_LOCKED: '1'
+  MISE_DATA_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/mise'
+  MISE_TRUSTED_CONFIG_PATHS: '$CI_PROJECT_DIR'
+  PLAYWRIGHT_BROWSERS_PATH: '$CI_PROJECT_DIR/build/runtime/tool-cache/playwright'
 
 stages:
   - verify
 
-.verify-linux:
+.verify-native:
   stage: verify
   interruptible: true
+  timeout: 60m
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - coverage/
   script:
-    - umask 022
-    - node --version
-    - npm --version
+    - mise --version
+    - mise install
+    - mise exec -- node --version
+    - mise exec -- npm --version
     - git --version
-    - python3 --version
-    - node -e "const {spawnSync}=require('node:child_process');for(const tool of ['cargo','rustup','wasm-bindgen','tar','curl','mise']){const r=spawnSync(tool,['--version'],{encoding:'utf8',timeout:10000});console.log(JSON.stringify({tool,status:r.status,error:r.error?.code,version:(r.stdout||r.stderr||'').split('\n')[0]}))}"
-    - npm install --global npm@12.2.0 --ignore-scripts --no-audit --no-fund
-    - npm ci --ignore-scripts --no-audit --no-fund
-    - npm run check
+    - mise exec -- npm ci --ignore-scripts --no-audit --no-fund
+    - mise exec -- node node_modules/playwright-core/cli.js install chromium
+    - mise exec -- node -e "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
+    - mise exec -- node tools/raster/resvg/verify.mjs --registry-url > build/runtime/tool-cache/raster/source-url.txt
+    - >-
+      curl --fail --silent --show-error --connect-timeout 15 --max-time 180
+      --variable source@build/runtime/tool-cache/raster/source-url.txt
+      --expand-url "{{source:trim}}" --variable %CI_JOB_TOKEN
+      --expand-header "JOB-TOKEN: {{CI_JOB_TOKEN}}"
+      --output build/runtime/tool-cache/raster/source.tar.xz
+    - mise exec -- node tools/raster/resvg/verify.mjs --archive build/runtime/tool-cache/raster/source.tar.xz
+    - mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
+    - mise exec -- npm run check
+
+.verify-linux:
+  extends: .verify-native
+  before_script:
+    - umask 022
+    - test "$(uname -sm)" = "Linux aarch64"
+    - test "$(id -u)" != "0"
+    - mkdir -p build/runtime/tool-cache/mise-bootstrap
+    - >-
+      curl --fail --silent --show-error --location --connect-timeout 15 --max-time 180
+      --output build/runtime/tool-cache/mise-bootstrap/mise.tar.gz
+      https://github.com/jdx/mise/releases/download/v2026.10.2/mise-v2026.10.2-linux-arm64.tar.gz
+    - echo '5d3368679ce0cc37fb222511a04c61426cded69f0cda0f8248d03970dc34f303  build/runtime/tool-cache/mise-bootstrap/mise.tar.gz' | sha256sum --check
+    - tar -xzf build/runtime/tool-cache/mise-bootstrap/mise.tar.gz -C build/runtime/tool-cache/mise-bootstrap --strip-components=1
+    - export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise-bootstrap/bin:$PATH"
 
 verify:linux:review:
   extends: .verify-linux
@@ -44,20 +82,12 @@ verify:linux:protected:
     - if: '$CI_COMMIT_REF_PROTECTED == "true"'
 
 .verify-macos:
-  stage: verify
+  extends: .verify-native
   image: null
   resource_group: native-macos-verification
-  interruptible: true
-  script:
+  before_script:
     - umask 022
     - test "$(uname -sm)" = "Darwin arm64"
-    - node --version
-    - npm --version
-    - git --version
-    - swift --version
-    - node -e "const {spawnSync}=require('node:child_process');for(const tool of ['cargo','rustup','wasm-bindgen','tar','curl','mise']){const r=spawnSync(tool,['--version'],{encoding:'utf8',timeout:10000});console.log(JSON.stringify({tool,status:r.status,error:r.error?.code,version:(r.stdout||r.stderr||'').split('\n')[0]}))}"
-    - npm ci --ignore-scripts --no-audit --no-fund
-    - npm run check
 
 verify:macos:review:
   extends: .verify-macos
@@ -75,21 +105,16 @@ verify:macos:protected:
     - if: '$CI_COMMIT_REF_PROTECTED == "true"'
 
 .verify-windows:
-  stage: verify
+  extends: .verify-native
   image: null
   resource_group: native-windows-verification
   interruptible: true
   timeout: 60m
   variables:
     GIT_STRATEGY: clone
-  script:
+  before_script:
+    - '$env:PATH = (Join-Path $env:ProgramFiles "mise/bin") + [IO.Path]::PathSeparator + $env:PATH'
     - node -e "if (process.platform !== 'win32' || process.arch !== 'arm64') process.exit(1)"
-    - node --version
-    - npm --version
-    - git --version
-    - node -e "const {spawnSync}=require('node:child_process');for(const tool of ['cargo','rustup','wasm-bindgen','tar','curl','mise']){const r=spawnSync(tool,['--version'],{encoding:'utf8',timeout:10000});console.log(JSON.stringify({tool,status:r.status,error:r.error?.code,version:(r.stdout||r.stderr||'').split('\n')[0]}))}"
-    - npm ci --ignore-scripts --no-audit --no-fund
-    - npm run check
 
 verify:windows:review:
   extends: .verify-windows
