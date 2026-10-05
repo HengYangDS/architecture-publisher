@@ -29,6 +29,9 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Native CI admits locked rootless Linux compiler/xz prerequisites through Pixi
+  and discovers Windows Visual Studio development tools before frozen Raster
+  rebuilding; neither path relaxes browser isolation or quality requirements.
 - Explicit native reader themes survive system appearance events when an opaque
   publication member cannot use browser storage. Sandbox and source geometry
   remain unchanged.

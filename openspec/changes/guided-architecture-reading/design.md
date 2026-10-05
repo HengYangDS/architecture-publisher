@@ -440,6 +440,27 @@ matrix must still pass before publication.
 
 ### Required native CI execution
 
+The native Linux job retains the pinned Playwright image and non-root user.
+Mise selects official Pixi only for Linux ARM64; its native lock binds the
+binary. A separate native Pixi lock supplies conda-forge C compilation and xz.
+Copy the selected manifest, lock and configuration into ignored job-local
+`build/` state on the Runner's native filesystem. Pixi owns installation and
+generated shell activation; no handwritten installer, root package manager,
+registry-policy bypass or parallel quality controller is added. The activated
+compiler is the explicit Cargo native-target linker. Actual compilation and
+execution, frozen Raster rebuilding and the whole quality gate qualify this
+boundary; a zero installer exit alone is insufficient if diagnostics show an
+incomplete environment. Preserve prior failed receipts.
+
+The Windows job discovers the existing Visual Studio installation with native
+`vswhere` and initializes its Microsoft-owned `Launch-VsDevShell.ps1` for the
+ARM64 target while preserving the job's working directory. Do not guess a host
+architecture or replace an existing installation. Required compiler and linker
+discovery precedes the common gate; actual Raster rebuilding and quality checks
+qualify the selected environment. This is bounded vendor execution glue, not a
+handwritten PowerShell controller. Execution policy, host credentials, VM
+isolation and service state remain unchanged.
+
 The locked Playwright installer owns the CI browser supply under each job's
 `build/runtime/tool-cache/playwright/`. The existing npm test preload binds its
 native Chromium executable only when CI has not selected an explicit browser.

@@ -39,6 +39,15 @@ another package manifest or product interface.
 
 Node selection comes from `.node-version`. The selected npm, Rust target and
 wasm-bindgen versions serve native execution, not an alternative quality gate.
+Linux ARM64 additionally selects official Pixi through Mise's lock. The native
+`ci/linux/` manifest and lock provide C compilation and xz without root package
+installation. CI copies their inputs and the Pixi configuration into ignored
+`build/runtime/work/` state; Pixi owns the environment and generated activation.
+Its cache stays in `build/runtime/tool-cache/pixi/` on the Runner's native
+filesystem. These prerequisites do not change the public product's runtime.
+The Pixi-generated lock retains native bytes as a Git snapshot and is excluded
+from editorial formatting; authored manifest and configuration remain config.
+
 Playwright owns Chromium installation; the npm test preload requires the exact
 selected executable in CI. The Raster source manifest owns archive identity and
 registry coordinates; `tools/raster/resvg/verify.mjs` derives its retrieval URL

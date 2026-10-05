@@ -1,0 +1,11 @@
+[workspace]
+name = "archpub-native-linux-prerequisites"
+channels = ["conda-forge"]
+platforms = ["linux-aarch64"]
+
+[dependencies]
+c-compiler = "*"
+xz = "*"
+
+[activation.env]
+CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER = "aarch64-conda-linux-gnu-cc"

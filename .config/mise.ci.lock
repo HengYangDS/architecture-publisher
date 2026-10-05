@@ -60,6 +60,17 @@ aube = { path = "mise/locks/mise.ci/npm-npm/12.2.0", digest = "sha256:ce704ee0a9
 backend = "npm:npm"
 specifiers = ["12.2.0"]
 
+[[tools.pixi]]
+version = "0.81.0"
+backend = "github:prefix-dev/pixi"
+specifiers = ["0.81.0"]
+
+[tools.pixi."platforms.linux-arm64"]
+checksum = "sha256:9f8d2113fe9dc01788a65f5c2acec34fa56b1193461a5c3e9a775d6d2d621bcb"
+url = "https://github.com/prefix-dev/pixi/releases/download/v0.81.0/pixi-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/565929781"
+provenance = "github-attestations"
+
 [[tools.rust]]
 version = "1.98.1"
 backend = "core:rust"

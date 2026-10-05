@@ -146,6 +146,38 @@ test('Linux verification keeps the common gate and separates trust roles', async
   ]);
 });
 
+test('Linux native prerequisites use one locked rootless Pixi environment', async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
+  const native = pipeline['.verify-linux'];
+  const setup = native.before_script.join('\n');
+  const toolchain = await fs.readFile(path.join(root, '.config/mise.ci.toml'), 'utf8');
+  assert.match(
+    toolchain,
+    /pixi\s*=\s*\{\s*version\s*=\s*"0\.81\.0",\s*os\s*=\s*\["linux\/arm64"\]/,
+  );
+  assert.equal(
+    native.variables.PIXI_HOME,
+    '$CI_PROJECT_DIR/build/runtime/work/native-linux-prerequisites/home',
+  );
+  assert.equal(native.variables.PIXI_CACHE_DIR, '$CI_PROJECT_DIR/build/runtime/tool-cache/pixi');
+  assert.match(setup, /cp \.config\/ci\/linux\/pixi\.toml \.config\/ci\/linux\/pixi\.lock/);
+  assert.match(
+    setup,
+    /pixi shell-hook --locked --shell bash --manifest-path build\/runtime\/work\/native-linux-prerequisites\/pixi\.toml/,
+  );
+  assert.match(setup, /\. build\/runtime\/work\/native-linux-prerequisites\/activation\.bash/);
+  assert.doesNotMatch(setup, /sudo|apt(?:-get)?|--no-sandbox|\|\| true/);
+  const lock = parse(await fs.readFile(path.join(root, '.config/ci/linux/pixi.lock'), 'utf8'));
+  assert.deepEqual(
+    lock.platforms.map((platform) => platform.name),
+    ['linux-aarch64'],
+  );
+  for (const entry of lock.packages) {
+    assert.match(entry.conda, /^https:\/\/conda\.anaconda\.org\/conda-forge\//);
+    assert.match(entry.sha256, /^[0-9a-f]{64}$/);
+  }
+});
+
 test('native Windows verification runs the whole quality graph with separate trust roles', async () => {
   const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
   const native = pipeline['.verify-windows'];
@@ -156,6 +188,14 @@ test('native Windows verification runs the whole quality graph with separate tru
   assert.equal(native.variables?.GIT_STRATEGY, 'clone');
   assert.equal(native.extends, '.verify-native');
   assert(native.before_script.some((command) => command.includes("process.platform !== 'win32'")));
+  const setup = native.before_script.join('\n');
+  assert.match(setup, /vswhere\.exe.*-latest.*-products.*-property installationPath/);
+  assert.match(setup, /Launch-VsDevShell\.ps1.*-Arch arm64 -SkipAutomaticLocation/);
+  assert.match(setup, /Get-Command cl\.exe, link\.exe/);
+  assert.doesNotMatch(
+    setup,
+    /ExecutionPolicy|Set-ExecutionPolicy|HostArch|Start-Process|winget install/,
+  );
   for (const role of ['review', 'protected']) {
     const job = pipeline[`verify:windows:${role}`];
     assert.equal(job.extends, '.verify-windows');
@@ -277,6 +317,8 @@ test('native formatter discovery retains one rule owner and preserved input boun
     ['editions/self/src/edition/static/authoring/metrics.json', true],
     ['.config/mise/locks/mise.ci/npm-npm/12.2.0/aube-lock.yaml', true],
     ['.config/mise/locks/mise.ci/npm-npm/12.2.0/package.json', true],
+    ['.config/ci/linux/pixi.lock', true],
+    ['.config/ci/linux/pixi.toml', false],
   ])
     assert.equal((await getFileInfo(path.join(root, file), { ignorePath })).ignored, ignored, file);
 });

@@ -1,5 +1,6 @@
 build/
 .config/mise/locks/
+.config/ci/linux/pixi.lock
 .superpowers/
 node_modules/
 openspec/changes/archive/

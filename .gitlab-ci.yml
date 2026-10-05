@@ -54,6 +54,9 @@ stages:
 
 .verify-linux:
   extends: .verify-native
+  variables:
+    PIXI_HOME: '$CI_PROJECT_DIR/build/runtime/work/native-linux-prerequisites/home'
+    PIXI_CACHE_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/pixi'
   before_script:
     - umask 022
     - test "$(uname -sm)" = "Linux aarch64"
@@ -66,6 +69,13 @@ stages:
     - echo '5d3368679ce0cc37fb222511a04c61426cded69f0cda0f8248d03970dc34f303  build/runtime/tool-cache/mise-bootstrap/mise.tar.gz' | sha256sum --check
     - tar -xzf build/runtime/tool-cache/mise-bootstrap/mise.tar.gz -C build/runtime/tool-cache/mise-bootstrap --strip-components=1
     - export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise-bootstrap/bin:$PATH"
+    - mkdir -p "$PIXI_HOME" build/runtime/work/native-linux-prerequisites
+    - cp .config/ci/linux/pixi.toml .config/ci/linux/pixi.lock build/runtime/work/native-linux-prerequisites/
+    - cp .config/ci/linux/pixi-config.toml "$PIXI_HOME/config.toml"
+    - mise exec -- pixi shell-hook --locked --shell bash --manifest-path build/runtime/work/native-linux-prerequisites/pixi.toml > build/runtime/work/native-linux-prerequisites/activation.bash
+    - . build/runtime/work/native-linux-prerequisites/activation.bash
+    - xz --version
+    - '"$CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER" --version'
 
 verify:linux:review:
   extends: .verify-linux
@@ -116,6 +126,10 @@ verify:macos:protected:
   before_script:
     - '$env:PATH = (Join-Path $env:ProgramFiles "mise/bin") + [IO.Path]::PathSeparator + $env:PATH'
     - node -e "if (process.platform !== 'win32' || process.arch !== 'arm64') process.exit(1)"
+    - '$vsInstallation = & (Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio/Installer/vswhere.exe") -latest -products "*" -property installationPath'
+    - 'if (-not $vsInstallation) { throw "Visual Studio native build installation is unavailable" }'
+    - '& (Join-Path $vsInstallation "Common7/Tools/Launch-VsDevShell.ps1") -Arch arm64 -SkipAutomaticLocation'
+    - 'Get-Command cl.exe, link.exe -ErrorAction Stop | Select-Object Name, Source'
 
 verify:windows:review:
   extends: .verify-windows

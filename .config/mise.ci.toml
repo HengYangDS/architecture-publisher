@@ -11,6 +11,7 @@ _.path = { path = [
 [tools]
 node = "{{read_file(path=config_root ~ '/.node-version') | trim}}"
 "npm:npm" = "12.2.0"
+pixi = { version = "0.81.0", os = ["linux/arm64"] }
 rust = { version = "1.98.1", profile = "minimal", targets = [
   "wasm32-unknown-unknown",
 ] }
