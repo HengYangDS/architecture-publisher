@@ -114,7 +114,7 @@ function preparePage(page, measure) {
   return { nodes, groups, relations };
 }
 
-function elkGraph(prepared, direction, wrapAspect = null) {
+function elkGraph(prepared, direction, { wrapAspect = null, groupHeading = 'CENTER' } = {}) {
   const label = (id, plan) => ({
     id: `${id}-label`,
     text: plan.lines.join('\n'),
@@ -135,7 +135,7 @@ function elkGraph(prepared, direction, wrapAspect = null) {
         labels: [label(group.id, group.label)],
         children: group.nodeIds.map((id) => leaf(byId.get(id))),
         layoutOptions: {
-          'elk.nodeLabels.placement': '[INSIDE,H_CENTER,V_TOP]',
+          'elk.nodeLabels.placement': `[INSIDE,H_${groupHeading},V_TOP]`,
           'elk.padding': '[top=24,left=24,bottom=24,right=24]',
         },
       }))
@@ -226,8 +226,16 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
   const indexes = [];
   const graphs = prepared.flatMap((page) => {
     const candidates = [elkGraph(page, 'RIGHT'), elkGraph(page, 'DOWN')];
-    if (wrappingEligible(page))
-      candidates.push(elkGraph(page, 'RIGHT', 1.8), elkGraph(page, 'RIGHT', 3.2));
+    if (page.groups.length)
+      candidates.push(
+        elkGraph(page, 'DOWN', { groupHeading: 'LEFT' }),
+        elkGraph(page, 'DOWN', { groupHeading: 'RIGHT' }),
+      );
+    else if (wrappingEligible(page))
+      candidates.push(
+        elkGraph(page, 'RIGHT', { wrapAspect: 1.8 }),
+        elkGraph(page, 'RIGHT', { wrapAspect: 3.2 }),
+      );
     indexes.push(candidates.length);
     return candidates;
   });
@@ -294,14 +302,16 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
         }
         const readingCost =
           candidate.bounds.height + detour / Math.max(1, candidate.relations.length);
-        return { readable, scale, readingCost, routeLength };
+        return { readable, readingCost, routeLength };
       };
-      return candidates.reduce((best, candidate) => {
+      const readable = candidates.filter((candidate) => assessment(candidate).readable);
+      if (!readable.length) {
+        const code = 'render_interactive_layout_infeasible';
+        throw editorialFailure(Object.assign(new Error(code), { code }), pages[index]);
+      }
+      return readable.reduce((best, candidate) => {
         const prior = assessment(best);
         const next = assessment(candidate);
-        if (prior.readable !== next.readable) return next.readable ? candidate : best;
-        if (!next.readable && next.scale !== prior.scale)
-          return next.scale > prior.scale ? candidate : best;
         if (next.readingCost !== prior.readingCost)
           return next.readingCost < prior.readingCost ? candidate : best;
         return next.routeLength < prior.routeLength ? candidate : best;

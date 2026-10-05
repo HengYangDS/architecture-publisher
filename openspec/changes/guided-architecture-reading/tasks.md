@@ -25,12 +25,12 @@
 ## 5. Independent PNG and desktop HTML
 
 - [ ] 5.1 Converge existing PNG and desktop HTML composition, explicit media dispatch, Candidate and qualification through pinned mature mechanisms; preserve one editorial owner without duplicate facts, source-repository invasion or a second command plane.
-- [ ] 5.2 Qualify independently composed PNG overviews and complete desktop HTML diagrams for purpose, painted clearance, alignment, contrast, native reading and exact visual acceptance; preserve historical bytes and distinct source, editor, artwork, independent-review and publication roles.
+- [ ] 5.2 Qualify independently composed PNG overviews and complete desktop HTML diagrams for purpose, painted clearance, alignment, contrast, native reading and exact visual acceptance; preserve historical bytes and distinct source, editor, artwork, independent-review and publication roles. Local grouped-layout and appearance evidence: `build/evidence/guided-architecture-reading/validation.json`; successor source acceptance and three-platform qualification remain open.
 
 ## 6. AIGW source adoption
 
-- [ ] 6.1 Verify the current declarative Client Projection Provider v2 at its exact source-owned selection through the installed public build; obtain designated meaning and publication acceptance, not just neutral visual approval.
-- [ ] 6.2 Settle the distinct Product Edition with its current source owner; qualify its complete selected media and obtain exact source/publication acceptance without compulsory repository invasion.
+- [ ] 6.1 Verify the current declarative Client Projection Provider v2 at its exact source-owned selection through the installed public build; obtain designated meaning and publication acceptance, not just neutral visual approval. Current alpha.7 replay: five passing tests in `build/evidence/guided-architecture-reading/aigw-selected-alpha7-current.log`; successor adoption is not approved.
+- [ ] 6.2 Settle the distinct Product Edition with its current source owner; qualify its complete selected media and obtain exact source/publication acceptance without compulsory repository invasion. The AIGW owner defers Product until its current source freeze releases; recheck on 2026-10-06 without source mutation.
 
 ## 7. ETHOS flagship and feedback
 

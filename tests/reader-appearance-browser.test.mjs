@@ -639,6 +639,15 @@ test(
           (await contrast(page, '.graph-route', 'stroke', '.graph')) >= 3,
           `${style}/${theme}: route contrast`,
         );
+        assert(
+          (await contrast(
+            page,
+            '.navigation button[aria-current=page]',
+            'color',
+            '.navigation button[aria-current=page]',
+          )) >= 4.5,
+          `${style}/${theme}: selected navigation text contrast`,
+        );
       }
     }
     assert.equal(colors.size, 8);

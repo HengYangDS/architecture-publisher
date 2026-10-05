@@ -10,7 +10,7 @@ const palettes = {
       muted: '#587287',
       rule: '#bfd5e2',
       line: '#7b97aa',
-      accent: '#0d9488',
+      accent: '#0f766e',
       onAccent: '#ffffff',
       soft: '#e8f3f8',
       cool: '#0789a1',

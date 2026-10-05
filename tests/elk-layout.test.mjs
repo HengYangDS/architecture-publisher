@@ -5,6 +5,7 @@ import test from 'node:test';
 import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
 import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg/measurement.mjs';
 import { interactiveLabelRequests } from '../packages/publisher/renderers/elk/text.mjs';
+import { interactiveGraphMarks as marks } from '../packages/publisher/src/scene/marks.mjs';
 
 const page = () => ({
   nodes: ['Alpha', 'Beta', 'Gamma'].map((label, index) => ({ id: `n-${index}`, label })),
@@ -384,6 +385,121 @@ test('the same layout owner admits a wider native wrap without shortening select
     );
     assert(relation.label.fontSize * scale >= 12);
   }
+});
+
+test('grouped branching preserves every member and readable labels when centered headings obstruct a route', async () => {
+  const { layoutInteractivePages } = await selected();
+  const input = {
+    nodes: [
+      'Adapter contract',
+      'Claude Code',
+      'Claude Desktop',
+      'CLI',
+      'Codex',
+      'Configuration',
+      'Credential store',
+      'Native discovery',
+      'Hermes',
+      'Client registry',
+      'Synchronizer',
+      'Guarded transaction',
+    ].map((label, index) => ({ id: `n-${index}`, label })),
+    groups: [
+      ['Operator intent and host state', [3, 5, 7]],
+      ['Desired-state coordination', [10]],
+      ['Credential and client admission', [6, 9]],
+      ['Adapter contract and transaction', [0, 11]],
+      ['Native client projections', [4, 1, 2, 8]],
+    ].map(([label, members], index) => ({
+      id: `g-${index}`,
+      label,
+      nodeIds: members.map((member) => `n-${member}`),
+    })),
+    relations: [
+      [3, 10, 'delegates'],
+      [5, 10, 'configures'],
+      [0, 1, 'realized-by'],
+      [0, 2, 'realized-by'],
+      [0, 4, 'realized-by'],
+      [0, 8, 'realized-by'],
+      [0, 11, 'guards'],
+      [6, 0, 'supplies-credentials'],
+      [7, 10, 'reports-to'],
+      [9, 0, 'dispatches'],
+      [10, 9, 'delegates'],
+    ].map(([source, target, graphLabel], index) => ({
+      id: `r-${index}`,
+      source: `n-${source}`,
+      target: `n-${target}`,
+      graphLabel,
+    })),
+  };
+  const before = structuredClone(input);
+  const graph = (await layoutInteractivePages([input], await measurePages([input]))).layouts[0];
+  const readingWidth =
+    Math.min(marks.desktopReadingWidth, marks.shellMaximumWidth) - marks.shellInset * 2;
+  const scale = Math.min(1, readingWidth / (graph.bounds.width + marks.graphInset * 2));
+  for (const item of [...graph.nodes, ...graph.groups, ...graph.relations]) {
+    assert(
+      item.label.fontSize * scale >= marks.minimumLabelSize,
+      `${item.id} must remain readable in the declared desktop reading width`,
+    );
+  }
+  for (const group of input.groups) {
+    assert.deepEqual(
+      graph.nodes
+        .filter((node) => node.groupId === group.id)
+        .map((node) => node.id)
+        .sort(),
+      [...group.nodeIds].sort(),
+    );
+    assert.equal(
+      graph.groups.find((item) => item.id === group.id).label.lines.join(' '),
+      group.label,
+    );
+  }
+  assert.equal(graph.relations.length, input.relations.length);
+  assert.deepEqual(input, before);
+});
+
+test('complete grouped content rejects unreadable candidates with source-bound guidance', async () => {
+  const { layoutInteractivePages } = await selected();
+  const input = {
+    id: 'complete-stages',
+    questions: [{ text: 'Which stage owns each boundary?' }],
+    nodes: [],
+    relations: [],
+    groups: [],
+  };
+  for (let stage = 0; stage < 8; stage++) {
+    const nodeIds = [];
+    for (let member = 0; member < 8; member++) {
+      const id = `n-${stage}-${member}`;
+      nodeIds.push(id);
+      input.nodes.push({ id, label: `Stage ${stage} responsibility ${member}` });
+      if (stage)
+        input.relations.push({
+          id: `r-${stage}-${member}`,
+          source: `n-${stage - 1}-${member}`,
+          target: id,
+          graphLabel: 'delegates',
+        });
+    }
+    input.groups.push({ id: `g-${stage}`, label: `Execution stage ${stage}`, nodeIds });
+  }
+  const before = structuredClone(input);
+  await assert.rejects(layoutInteractivePages([input], await measurePages([input])), (error) => {
+    assert.equal(error.code, 'render_interactive_layout_infeasible');
+    assert.deepEqual(error.diagnostics, [
+      {
+        view: input.id,
+        questions: ['Which stage owns each boundary?'],
+        need: 'source-bound-caption-or-regrouping',
+      },
+    ]);
+    return true;
+  });
+  assert.deepEqual(input, before);
 });
 
 test('resource, graph identity, group partition, and text bounds reject invalid requests', async () => {
