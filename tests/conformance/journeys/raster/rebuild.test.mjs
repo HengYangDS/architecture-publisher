@@ -18,7 +18,9 @@ test('native Cargo and wasm-bindgen rebuild the exact raster closure', async (t)
       path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/source.json'),
     ),
   );
-  const work = await fs.mkdtemp(path.join(root, 'build/test-work/raster source Δ '));
+  const base = path.join(root, 'build/test-work');
+  await fs.mkdir(base, { recursive: true });
+  const work = await fs.mkdtemp(path.join(base, 'raster source Δ '));
   t.after(() => fs.rm(work, { recursive: true, force: true }));
   const invoke = (command, args, cwd = work, env = process.env) => {
     const result = spawnSync(command, args, {

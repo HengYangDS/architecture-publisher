@@ -1003,6 +1003,11 @@ compiler stall had the same cause. Native macOS executes the CoreText Swift
 paths that skip on other platforms. Browser and external input tests still
 require their explicit selectors.
 
+The standalone Raster rebuild initializes its own repository-local test workspace
+before allocating a unique execution directory. It does not depend on the npm
+suite having run first or on retained output from a previous checkout. Native
+test cleanup removes only that execution directory; the owning parent remains.
+
 Each CI job sets `umask 022` before checkout-derived package reproduction.
 Historical `contentTarSha256` identifies the complete uncompressed TAR stream,
 including member modes; it is independent of gzip encoding, not of TAR metadata.
