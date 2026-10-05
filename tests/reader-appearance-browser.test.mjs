@@ -967,6 +967,7 @@ test(
         { timeout: 5000 },
       );
       await member.locator(`html[data-style="${style}"][data-theme="${theme}"]`).waitFor();
+      await member.locator('html').evaluate(() => globalThis.Archify.layoutStability.whenStable());
     };
     await settle('blueprint', 'dark');
     await member.locator('html').evaluate(() => globalThis.deliverSystemTheme(true));
@@ -1077,9 +1078,39 @@ test(
       viewport: { width: 1440, height: 900 },
       colorScheme: 'light',
     });
+    await limitedPage.addInitScript(() => {
+      const request = globalThis.requestAnimationFrame.bind(globalThis);
+      const cancel = globalThis.cancelAnimationFrame.bind(globalThis);
+      const pending = new Map();
+      let identity = 0;
+      globalThis.requestAnimationFrame = (callback) => {
+        const id = --identity;
+        pending.set(id, callback);
+        return id;
+      };
+      globalThis.cancelAnimationFrame = (id) => {
+        if (!pending.delete(id)) cancel(id);
+      };
+      globalThis.releaseNativeLayout = () => {
+        globalThis.requestAnimationFrame = request;
+        globalThis.cancelAnimationFrame = cancel;
+        for (const callback of pending.values()) request(callback);
+        pending.clear();
+      };
+    });
     await limitedPage.setContent(limited.toString(), { waitUntil: 'load' });
     frame = limitedPage.frames().find((value) => value !== limitedPage.mainFrame());
     await frame.waitForFunction(() => !!globalThis.Archify?.routeProbe);
+    assert.equal(await frame.evaluate(() => globalThis.Archify.radar.count()), 0);
+    await frame.evaluate(() => {
+      const owner = globalThis.Archify.layoutStability;
+      const whenStable = owner.whenStable.bind(owner);
+      owner.whenStable = () => {
+        globalThis.releaseNativeLayout();
+        return whenStable();
+      };
+    });
+    await frame.evaluate(() => globalThis.Archify.layoutStability.whenStable());
     assert.equal(await frame.locator('.diagram-container > svg [data-node-id]').count(), 3);
     const refusal = await frame.evaluate(() => {
       globalThis.Archify.routeProbe.begin({
