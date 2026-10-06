@@ -217,6 +217,7 @@ diagnose:windows:browser-loader:
         $process.StartInfo.RedirectStandardOutput = $true
         $process.StartInfo.RedirectStandardError = $true
         foreach ($argument in @('--headless', '--no-first-run', '--no-default-browser-check', ('--user-data-dir=' + $profile), '--dump-dom', 'about:blank')) { $process.StartInfo.ArgumentList.Add($argument) }
+        $activationStartedAt = [DateTime]::UtcNow
         $record.started = $process.Start()
         $record.pid = $process.Id
         $record.created = $process.StartTime.ToUniversalTime().ToString('o')
@@ -248,6 +249,14 @@ diagnose:windows:browser-loader:
           $exception = $exception.InnerException
         }
         $record.errors = $errors
+        if (@($errors | Where-Object { $_.nativeErrorCode -eq 14001 }).Count -gt 0) {
+          try {
+            $filter = @{ LogName = 'Application'; ProviderName = 'SideBySide'; StartTime = $activationStartedAt.ToLocalTime(); EndTime = [DateTime]::Now }
+            $record.sideBySideEvents = @(Get-WinEvent -FilterHashtable $filter -MaxEvents 20 -ErrorAction Stop | Where-Object { $_.Message -and $_.Message.Contains($browser.executable) } | Sort-Object TimeCreated | ForEach-Object {
+              [ordered]@{ id = $_.Id; created = $_.TimeCreated.ToUniversalTime().ToString('o'); message = $_.Message.Substring(0, [Math]::Min(8192, $_.Message.Length)) }
+            })
+          } catch { $record.sideBySideReadError = $_.Exception.Message }
+        }
       } finally {
         try {
           if ($null -ne $process -and $record.started) {
