@@ -92,6 +92,11 @@ test('native CI binds browser and frozen Raster journeys before the whole qualit
   assert.equal(pipeline.variables?.MISE_ENV, 'ci');
   assert.equal(pipeline.variables?.MISE_LOCKED, '1');
   assert.equal(pipeline.variables?.MISE_DATA_DIR, '$CI_PROJECT_DIR/build/runtime/tool-cache/mise');
+  assert.equal(
+    pipeline.variables?.MISE_CACHE_DIR,
+    `${pipeline.variables.MISE_DATA_DIR}/cache`,
+    'native npm hardlinks remain inside the job-owned Mise cache and permission boundary',
+  );
   assert.equal(pipeline.variables?.MISE_TRUSTED_CONFIG_PATHS, '$CI_PROJECT_DIR');
   const toolchain = await fs.readFile(path.join(root, '.config/mise.ci.toml'), 'utf8');
   assert.match(

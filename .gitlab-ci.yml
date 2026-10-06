@@ -14,6 +14,7 @@ variables:
   MISE_ENV: ci
   MISE_LOCKED: '1'
   MISE_DATA_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/mise'
+  MISE_CACHE_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/mise/cache'
   MISE_TRUSTED_CONFIG_PATHS: '$CI_PROJECT_DIR'
   PLAYWRIGHT_BROWSERS_PATH: '$CI_PROJECT_DIR/build/runtime/tool-cache/playwright'
 

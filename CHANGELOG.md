@@ -31,6 +31,8 @@ may contain incompatible changes.
 
 ### Fixed
 
+- CI confines Mise's package store to the job-owned cache so native npm
+  hardlinks do not inherit permissions from an inaccessible system store.
 - Windows verification refreshes every tracked file through native Git checkout
   while retaining only verified tool-cache bytes, so a mapped browser DLL no
   longer requires recursive workspace replacement. Previous coverage and other

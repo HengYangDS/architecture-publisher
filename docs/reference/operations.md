@@ -1055,6 +1055,13 @@ Mise's locked Rust declaration includes both `cargo` and `rustc`. Its native
 installation repairs missing selected components in the retained tool-cache;
 a minimal profile alone does not reconcile an already installed toolchain.
 
+CI selects both `MISE_DATA_DIR` and `MISE_CACHE_DIR` within the job-owned
+tool-cache. The native npm backend hardlinks package files from the latter.
+Reinstall only a damaged locked tool using that same cache rather than granting
+a Runner access to a system-principal store. Verify the resulting files and
+version under the actual Runner identity; a management-principal probe alone
+does not establish hosted acceptance.
+
 The JavaScript coverage gate selects all tracked runtime `.mjs` under
 `packages/publisher/src/`, first-party
 `packages/publisher/renderers/`, and `editions/self/src/`, including

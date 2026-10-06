@@ -550,6 +550,13 @@ fail the required journey rather than waive it; retain platform-specific raw
 results and all four coverage floors. Retire the POSIX Raster controller only
 after its actual consumers migrate and the native target-platform journey passes.
 
+CI binds both Mise installation data and its download/package store beneath
+the job-owned tool-cache. The native npm backend links payload files from the
+Mise cache, so a system-principal store can leave an otherwise readable install
+tree with inaccessible hardlinked files. Rebuild a damaged selected tool through
+native locked installation using the job-owned cache; never widen system-store
+permissions. A management-principal repair is not Runner acceptance.
+
 Native npm and Publint subprocess resolution must retain the selected npm version,
 not fall back to Node's bundled npm when a subprocess prepends its executable
 directory. The private workspace declares the already selected npm as a locked
