@@ -1056,6 +1056,11 @@ Its native installation repairs missing selected components in the retained
 tool-cache; a minimal profile alone does not reconcile an already installed
 toolchain. The separate WASM target does not replace the host standard library
 needed to compile build scripts.
+The native bootstrap invokes `mise exec -- rustup component add rust-std`
+after locked installation. Rustup resolves the host from the selected toolchain;
+this is idempotent component reconciliation, not a second version declaration
+or installer. Mise's generic component predicate can otherwise count a WASM
+standard library as satisfying the unqualified host component.
 
 CI selects both `MISE_DATA_DIR` and `MISE_CACHE_DIR` within the job-owned
 tool-cache. The native npm backend hardlinks package files from the latter.

@@ -510,6 +510,11 @@ installation, which reconciles missing selected components in a retained
 cache. WASM target selection does not cover the host library used by build
 scripts. The minimal profile, target and version remain unchanged; no
 secondary installer or retry controller is introduced.
+The native bootstrap reconciles host `rust-std` with a single
+`mise exec -- rustup component add rust-std` command. The selected Mise
+toolchain still owns version and homes; rustup chooses its host without a
+copied platform table. This compensates for Mise's component predicate accepting
+any target-qualified library, including WASM, as an unqualified component.
 
 The native Linux job uses the pinned official Playwright filesystem with
 `pwuser` as the image's default user. The two-instruction Dockerfile changes

@@ -117,6 +117,11 @@ test('native CI binds browser and frozen Raster journeys before the whole qualit
   );
   assert.equal(native.script.at(-1), 'mise exec -- npm run check');
   assert(native.script.includes('mise install'));
+  assert.equal(
+    native.script[native.script.indexOf('mise install') + 1],
+    'mise exec -- rustup component add rust-std',
+    'native rustup reconciles the selected host library before Cargo build scripts',
+  );
   assert(native.script.includes('mise exec -- npm ci --ignore-scripts --no-audit --no-fund'));
   assert(
     native.script.includes(

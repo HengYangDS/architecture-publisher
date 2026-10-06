@@ -33,6 +33,7 @@ stages:
   script:
     - mise --version
     - mise install
+    - mise exec -- rustup component add rust-std
     - mise exec -- node --version
     - mise exec -- npm --version
     - git --version

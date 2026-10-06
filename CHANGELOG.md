@@ -33,6 +33,8 @@ may contain incompatible changes.
 
 - Native CI selects Rust's host standard library as well as both build tools,
   so retained caches reconcile the components required by Cargo build scripts.
+  Native rustup resolves the exact selected host; a WASM library cannot
+  substitute for the host library during bootstrap.
 - CI confines Mise's package store to the job-owned cache so native npm
   hardlinks do not inherit permissions from an inaccessible system store.
 - Windows verification refreshes every tracked file through native Git checkout
