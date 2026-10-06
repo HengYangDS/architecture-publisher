@@ -153,7 +153,7 @@ diagnose:windows:browser-loader:
   extends: .verify-windows
   tags:
     - ci-windows-arm64-review
-  timeout: 3m
+  timeout: 6m
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: manual
@@ -181,6 +181,13 @@ diagnose:windows:browser-loader:
         mise exec -- npm ci --ignore-scripts --no-audit --no-fund
         $record.packageSupplyExit = $LASTEXITCODE
         if ($LASTEXITCODE -ne 0) { throw 'Locked project dependency preparation failed' }
+        $targets = mise exec -- node node_modules/playwright-core/cli.js install --force --no-shell --no-remove --dry-run chromium
+        if ($LASTEXITCODE -ne 0) { throw 'Locked private browser target resolution failed' }
+        $record.browserSupplyTargets = @($targets)
+        $record.browserSupplyScope = 'Job-private locked Chromium 1243 and native installer companions FFmpeg 1011 and Winldd 1007; no system dependencies or unused-browser removal'
+        mise exec -- node node_modules/playwright-core/cli.js install --force --no-shell --no-remove chromium
+        $record.browserSupplyExit = $LASTEXITCODE
+        if ($LASTEXITCODE -ne 0) { throw 'Locked private browser supply restoration failed' }
         $selected = mise exec -- node --import=./tests/fixtures/npm-environment.mjs -e "console.log(JSON.stringify({executable:process.env.ARCHPUB_BROWSER_EXECUTABLE,node:process.execPath,version:process.version,arch:process.arch}))"
         if ($LASTEXITCODE -ne 0) { throw 'Native browser selection failed' }
         $browser = $selected | ConvertFrom-Json
