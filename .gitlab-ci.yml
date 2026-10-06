@@ -148,3 +148,128 @@ verify:windows:protected:
     - ci-windows-arm64-shell
   rules:
     - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+
+diagnose:windows:browser-loader:
+  extends: .verify-windows
+  tags:
+    - ci-windows-arm64-review
+  timeout: 3m
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
+    - if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH'
+      when: manual
+      allow_failure: true
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - build/evidence/windows-browser-loader-$CI_JOB_ID/
+  script:
+    - |
+      $ErrorActionPreference = 'Stop'
+      $record = [ordered]@{ schemaVersion = 1; job = $env:CI_JOB_ID; sha = $env:CI_COMMIT_SHA; retirement = 'Review uploaded receipt and profile custody, then remove this temporary job; retain failed evidence' }
+      $directory = Join-Path $env:CI_PROJECT_DIR ('build/evidence/windows-browser-loader-' + $env:CI_JOB_ID)
+      [IO.Directory]::CreateDirectory($directory) | Out-Null
+      $target = Join-Path $directory 'receipt.json'
+      $process = $null
+      $members = @()
+      try {
+        $record.identity = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+        if ($record.identity -ne 'NT SERVICE\gitlab-runner-p1323-windows-review') { throw 'Unexpected diagnostic service identity' }
+        $selected = mise exec -- node --import=./tests/fixtures/npm-environment.mjs -e "console.log(JSON.stringify({executable:process.env.ARCHPUB_BROWSER_EXECUTABLE,node:process.execPath,version:process.version,arch:process.arch}))"
+        if ($LASTEXITCODE -ne 0) { throw 'Native browser selection failed' }
+        $browser = $selected | ConvertFrom-Json
+        $record.selected = $browser
+        $parents = @()
+        $parentPath = $browser.executable
+        while ($parentPath) {
+          $acl = Get-Acl -LiteralPath $parentPath
+          $parents += [ordered]@{ path = $parentPath; owner = $acl.Owner; access = $acl.AccessToString }
+          $parent = [IO.Directory]::GetParent($parentPath)
+          $parentPath = if ($null -eq $parent) { $null } else { $parent.FullName }
+        }
+        $record.acls = $parents
+        $file = Get-Item -LiteralPath $browser.executable
+        $signature = Get-AuthenticodeSignature -LiteralPath $browser.executable
+        $record.file = [ordered]@{ size = $file.Length; attributes = $file.Attributes.ToString(); signatureStatus = $signature.Status.ToString(); signer = $signature.SignerCertificate.Subject }
+        $stream = [IO.File]::OpenRead($browser.executable)
+        try {
+          $reader = [IO.BinaryReader]::new($stream)
+          $record.file.dosMagic = $reader.ReadUInt16()
+          $stream.Position = 60
+          $stream.Position = $reader.ReadUInt32()
+          $record.file.peSignature = $reader.ReadUInt32()
+          $record.file.machine = ('0x{0:X4}' -f $reader.ReadUInt16())
+        } finally { $stream.Dispose() }
+        if ($record.file.dosMagic -ne 23117 -or $record.file.peSignature -ne 17744) { throw 'Invalid executable header; loader probe not performed' }
+        $profile = Join-Path $directory 'profile'
+        if (Test-Path -LiteralPath $profile) { throw 'Diagnostic profile already exists' }
+        $record.profile = $profile
+        $process = [Diagnostics.Process]::new()
+        $process.StartInfo = [Diagnostics.ProcessStartInfo]::new($browser.executable)
+        $process.StartInfo.UseShellExecute = $false
+        $process.StartInfo.CreateNoWindow = $true
+        $process.StartInfo.RedirectStandardOutput = $true
+        $process.StartInfo.RedirectStandardError = $true
+        foreach ($argument in @('--headless', '--no-first-run', '--no-default-browser-check', ('--user-data-dir=' + $profile), '--dump-dom', 'about:blank')) { $process.StartInfo.ArgumentList.Add($argument) }
+        $record.started = $process.Start()
+        $record.pid = $process.Id
+        $record.created = $process.StartTime.ToUniversalTime().ToString('o')
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        $record.exited = $process.WaitForExit(5000)
+        $all = @(Get-CimInstance Win32_Process -Filter "Name='chrome.exe'" | Where-Object { $_.ExecutablePath -eq $browser.executable -and $_.CreationDate.ToUniversalTime() -ge $process.StartTime.ToUniversalTime() })
+        $ids = @($process.Id)
+        do {
+          $added = @($all | Where-Object { $_.ParentProcessId -in $ids -and $_.ProcessId -notin $ids })
+          $members += $added
+          $ids += @($added | ForEach-Object { $_.ProcessId })
+        } while ($added.Count -gt 0)
+        foreach ($member in $members) {
+          $observed = Get-Process -Id $member.ProcessId -ErrorAction SilentlyContinue
+          if ($null -ne $observed) {
+            $member | Add-Member -NotePropertyName ProbeStartTime -NotePropertyValue $observed.StartTime.ToUniversalTime().ToString('o')
+            $observed.Dispose()
+          }
+        }
+        if ($process.HasExited) { $record.exitCode = $process.ExitCode }
+        if ($stdout.IsCompleted) { $text = $stdout.Result; $record.stdout = $text.Substring(0, [Math]::Min(8192, $text.Length)) }
+        if ($stderr.IsCompleted) { $text = $stderr.Result; $record.stderr = $text.Substring(0, [Math]::Min(8192, $text.Length)) }
+      } catch {
+        $errors = @()
+        $exception = $_.Exception
+        while ($null -ne $exception) {
+          $errors += [ordered]@{ type = $exception.GetType().FullName; hresult = $exception.HResult; nativeErrorCode = if ($exception -is [ComponentModel.Win32Exception]) { $exception.NativeErrorCode } else { $null }; message = $exception.Message }
+          $exception = $exception.InnerException
+        }
+        $record.errors = $errors
+      } finally {
+        try {
+          if ($null -ne $process -and $record.started) {
+            if (!$process.HasExited) { $process.Kill($true) }
+            $record.rootExited = $process.WaitForExit(5000)
+            $survivors = @()
+            $unverified = @()
+            foreach ($member in $members) {
+              $child = Get-Process -Id $member.ProcessId -ErrorAction SilentlyContinue
+              if ($null -ne $child -and $member.ProbeStartTime -and $child.StartTime.ToUniversalTime().ToString('o') -eq $member.ProbeStartTime) {
+                $child.Kill($true)
+                if (!$child.WaitForExit(5000)) { $survivors += $member.ProcessId }
+                $child.Dispose()
+              } elseif ($null -ne $child) {
+                $unverified += $member.ProcessId
+                $child.Dispose()
+              }
+            }
+            $record.observedDescendants = @($members | Select-Object ProcessId, ParentProcessId, CreationDate, ExecutablePath)
+            $record.survivors = $survivors
+            $record.cleanupUnverified = $unverified
+            $record.cleanupScope = 'Owned root and observed attributable descendants; not arbitrary detached processes'
+          }
+        } catch { $record.cleanupError = $_.Exception.Message }
+        if ($null -ne $process) { $process.Dispose() }
+        $record | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $target -Encoding utf8
+      }
+      Get-Content -LiteralPath $target
