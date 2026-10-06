@@ -44,6 +44,9 @@ may contain incompatible changes.
 - Native Windows source retrieval and cleanup enable Git long-path support
   through job-scoped configuration before checkout; no persistent host setting
   or cleanup bypass is required.
+- Native prerequisite checks compare default filesystem paths canonically while
+  preserving explicit browser selections exactly; they run before expensive
+  Raster and coverage acceptance, without a separate diagnostic job.
 - Native supply installation has explicit HTTP budgets under the existing CI
   deadline. Windows Raster rebuilds select the independently observed Rust
   1.99.0 witness; canonical packaged WASM bytes are unchanged.

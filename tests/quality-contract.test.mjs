@@ -125,6 +125,13 @@ test('native CI binds browser and frozen Raster journeys before the whole qualit
     'native rustup reconciles the selected host library before Cargo build scripts',
   );
   assert(native.script.includes('mise exec -- npm ci --ignore-scripts --no-audit --no-fund'));
+  assert.equal(
+    native.script[
+      native.script.indexOf('mise exec -- npm ci --ignore-scripts --no-audit --no-fund') + 1
+    ],
+    "mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native CI honors the invoker-owned pinned browser root|self preparation selects one direct Project instead of a legacy Edition authority' tests/quality-contract.test.mjs tests/self-edition.test.mjs",
+    'selected runtime and self-use prerequisites fail before expensive native acceptance',
+  );
   assert(
     native.script.includes(
       'mise exec -- node node_modules/playwright-core/cli.js install chromium',
@@ -196,7 +203,10 @@ test('native CI honors the invoker-owned pinned browser root', () => {
       { cwd: root, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 20_000 },
     ).trim();
   delete environment.PLAYWRIGHT_BROWSERS_PATH;
-  assert.equal(readRoot(environment), path.join(root, 'build/runtime/tool-cache/playwright'));
+  assert.equal(
+    path.normalize(readRoot(environment)),
+    path.join(root, 'build/runtime/tool-cache/playwright'),
+  );
   assert.equal(readRoot({ ...environment, PLAYWRIGHT_BROWSERS_PATH: selected }), selected);
 });
 
