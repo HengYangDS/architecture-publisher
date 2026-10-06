@@ -130,6 +130,10 @@ verify:macos:protected:
   resource_group: native-windows-verification
   interruptible: true
   timeout: 60m
+  variables:
+    GIT_CONFIG_COUNT: '1'
+    GIT_CONFIG_KEY_0: 'core.longPaths'
+    GIT_CONFIG_VALUE_0: 'true'
   before_script:
     - git checkout-index --all --force
     - '$env:PATH = (Join-Path $env:ProgramFiles "mise/bin") + [IO.Path]::PathSeparator + $env:PATH'

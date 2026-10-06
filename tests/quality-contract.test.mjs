@@ -291,6 +291,22 @@ test('native Windows verification runs the whole quality graph with separate tru
   assert.equal(native.timeout, '60m');
   assert.equal(native.variables?.GIT_STRATEGY, undefined);
   assert.equal(native.variables?.GIT_CLEAN_FLAGS, undefined);
+  assert.deepEqual(native.variables, {
+    GIT_CONFIG_COUNT: '1',
+    GIT_CONFIG_KEY_0: 'core.longPaths',
+    GIT_CONFIG_VALUE_0: 'true',
+  });
+  assert.equal(
+    execFileSync('git', ['config', '--get', 'core.longPaths'], {
+      cwd: root,
+      env: { ...process.env, ...native.variables },
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 20_000,
+    }).trim(),
+    'true',
+    'native source retrieval and cleanup inherit job-scoped Windows long-path support',
+  );
   assert.equal(native.extends, '.verify-native');
   assert(native.before_script.some((command) => command.includes("process.platform !== 'win32'")));
   assert.deepEqual(native.before_script, [

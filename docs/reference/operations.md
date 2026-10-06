@@ -44,7 +44,7 @@ Missing browser or Raster supply fails required execution. Linux uses a non-root
 job principal and retains Chromium's sandbox; actual native job results, not
 installation or YAML inspection, qualify each platform.
 
-The 2026-10-06 official npm audit reports 15 affected development-package
+The 2026-10-07 official npm audit reports 15 affected development-package
 entries in the selected stable tool closure, not 15 independent advisories.
 OpenSpec and Markdownlint retain the affected glob chain; Markdownlint also
 retains affected math and TOML parsers. npm 12.2.0 bundles affected
@@ -60,7 +60,7 @@ The existing supply-update owner must re-audit exact selected bytes when an
 upstream stable fix arrives; that fix, a new affected shipped dependency or an
 expanded consumer invalidates this disposition. Raw audit and resolver evidence
 is retained under `build/evidence/guided-architecture-reading/stable-supply-20261006/`.
-The next supply-owner review is 2026-10-07; the accepted restriction remains in
+The next supply-owner review is 2026-10-08; the accepted restriction remains in
 force until a verified upstream fix or an explicit successor disposition.
 
 The development workspace pins OpenSpec 1.14.1. Its official apply instructions

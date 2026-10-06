@@ -41,6 +41,9 @@ may contain incompatible changes.
 - Native CI retains only each job's verified tool cache across checkout. Linux
   selects the locked browser already present in its pinned image; Mise preserves
   an explicit invoker-owned browser root instead of replacing that selection.
+- Native Windows source retrieval and cleanup enable Git long-path support
+  through job-scoped configuration before checkout; no persistent host setting
+  or cleanup bypass is required.
 - Native supply installation has explicit HTTP budgets under the existing CI
   deadline. Windows Raster rebuilds select the independently observed Rust
   1.99.0 witness; canonical packaged WASM bytes are unchanged.
