@@ -19,7 +19,7 @@ import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg
 import { claimModel } from './fixtures/claim-model.mjs';
 import { chromium } from 'playwright-core';
 import { browserLifetime } from './fixtures/browser-lifetime.mjs';
-import { observeGlyphPaintEnvelope } from './fixtures/font-paint.mjs';
+import { assertGlyphPaintBounds, observeGlyphPaintEnvelope } from './fixtures/font-paint.mjs';
 import { embedFonts } from '../packages/publisher/src/compiler/media.mjs';
 import { rasterizeBytes } from '../packages/publisher/renderers/resvg/public.mjs';
 
@@ -711,6 +711,7 @@ test(
     const frame = page.frameLocator('#interactive-frame');
     const statement = frame.locator('[data-text-id="text-claim-published"]');
     await statement.waitFor();
+    assert.equal(await statement.textContent(), scene.texts[0].text);
     const paint = await statement.evaluate(async (node) => {
       await globalThis.document.fonts.ready;
       const context = globalThis.document.createElement('canvas').getContext('2d');
@@ -817,11 +818,23 @@ test(
         samples,
       }),
     );
-    for (const key of ['x', 'y', 'width', 'height'])
-      assert(
-        Math.abs(paint.box[key] - declared[key]) <= 0.5,
-        `Same-byte ${key} measurement: ${JSON.stringify({ declared, paint })}`,
-      );
+    // Canvas metrics are diagnostic; SVG ink is compared through its complete pixel footprint.
+    const precisePaint = samples.find(({ scale }) => scale === 4);
+    for (const observed of [precisePaint.native, precisePaint.chrome]) {
+      assert.equal(observed.width, 2400);
+      assert.equal(observed.height, 640);
+    }
+    assertGlyphPaintBounds(precisePaint.native, declared, 0.5);
+    assertGlyphPaintBounds(precisePaint.chrome, declared, 0.5);
+    for (const engine of ['native', 'chrome']) {
+      const deliveryPaint = samples.find(({ scale }) => scale === 1)[engine];
+      assert.equal(deliveryPaint.width, 600);
+      assert.equal(deliveryPaint.height, 160);
+      const { count, envelope } = deliveryPaint.samples.find(({ threshold }) => threshold === 0);
+      assert(count > 0, `The delivery-scale ${engine} statement must remain visible`);
+      assert(envelope.left > 0 && envelope.top > 0);
+      assert(envelope.right < 599 && envelope.bottom < 159);
+    }
     await statement.focus();
     await statement.press('Enter');
     await page.locator('#interactive-inspector').waitFor({ state: 'visible' });

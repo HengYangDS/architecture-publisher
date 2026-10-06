@@ -26,7 +26,7 @@ import { inspectRgbaPngCanvas } from '../packages/publisher/src/qualification/st
 import { withOwnedProcessScope } from '../packages/publisher/src/runtime/process-tree.mjs';
 import { spawnSync } from 'node:child_process';
 import { meaningFor, compose, composedScene } from './fixtures/authored-routes.mjs';
-import { observeGlyphPaintEnvelope } from './fixtures/font-paint.mjs';
+import { assertGlyphPaintBounds, observeGlyphPaintEnvelope } from './fixtures/font-paint.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -1047,11 +1047,18 @@ test(
           };
         }
         return {
+          text: node.textContent,
+          weight: style.fontWeight,
+          loaded: globalThis.document.fonts.check(`${style.fontWeight} 40px "JetBrains Mono"`),
           family: style.fontFamily,
           rendering: style.textRendering,
           measurements,
         };
       });
+      assert.equal(browserMetrics.text, label.text);
+      assert.equal(browserMetrics.weight, label.weight);
+      assert.equal(browserMetrics.loaded, true);
+      assert(browserMetrics.family.includes('JetBrains Mono'));
       const chromeBytes = await page.locator('svg').screenshot({ omitBackground: true });
       const chrome = inspectRgbaPngCanvas(chromeBytes, {
         background: [0, 0, 0, 0],
@@ -1077,7 +1084,11 @@ test(
           chrome: chrome.envelope,
         }),
       );
-      if (label.weight === '400' && ['ffi', 'A  B'].includes(label.text)) {
+      for (const observed of [native, chrome]) {
+        assert(observed.envelope.left > 0 && observed.envelope.top > 0);
+        assert(observed.envelope.right < 599 && observed.envelope.bottom < 179);
+      }
+      {
         const scale = 4;
         const enlarged = svg
           .toString('utf8')
@@ -1100,6 +1111,12 @@ test(
         });
         const nativeBytes = await fs.readFile(output);
         const scaledNative = await fs.readFile(scaledOutput);
+        const sampledNative = await observeGlyphPaintEnvelope(page, scaledNative, scale);
+        const sampledChrome = await observeGlyphPaintEnvelope(page, scaledChrome, scale);
+        for (const observed of [sampledNative, sampledChrome]) {
+          assert.equal(observed.width, 600 * scale);
+          assert.equal(observed.height, 180 * scale);
+        }
         t.diagnostic(
           JSON.stringify({
             sampling: 'Exact selected SVG font bytes; independent alpha envelopes at 1x and 4x',
@@ -1109,37 +1126,27 @@ test(
             deviceScaleFactor: await page.evaluate(() => globalThis.devicePixelRatio),
             native: await observeGlyphPaintEnvelope(page, nativeBytes),
             chrome: await observeGlyphPaintEnvelope(page, chromeBytes),
-            scaledNative: await observeGlyphPaintEnvelope(page, scaledNative, scale),
-            scaledChrome: await observeGlyphPaintEnvelope(page, scaledChrome, scale),
+            scaledNative: sampledNative,
+            scaledChrome: sampledChrome,
           }),
         );
+        // Outline edges are continuous; raster footprints include both outer pixel edges.
+        assertGlyphPaintBounds(sampledNative, bound, 1.1);
+        assertGlyphPaintBounds(sampledChrome, bound, 1.1);
+        if (label.weight === '400' && label.text === 'A  B') {
+          await page.locator('text').evaluate((node) => (node.textContent = 'A B'));
+          const collapsed = await observeGlyphPaintEnvelope(
+            page,
+            await page.locator('svg').screenshot({ omitBackground: true }),
+            scale,
+          );
+          assert.throws(() => assertGlyphPaintBounds(collapsed, bound, 1.1), /right/u);
+        }
         await page.setViewportSize({ width: 1440, height: 900 });
       }
       observations.push({ label, bound, browserMetrics, native, chrome });
     }
-    for (const { label, bound, browserMetrics, native, chrome } of observations)
-      for (const [engine, observed] of [
-        ['native', native],
-        ['chrome', chrome],
-      ]) {
-        const detail = JSON.stringify({
-          engine,
-          label,
-          bound,
-          observed: observed.envelope,
-          browserMetrics,
-        });
-        assert(Math.abs(observed.envelope.left - bound.x) <= 1.1, `left:${detail}`);
-        assert(Math.abs(observed.envelope.top - bound.y) <= 1.1, `top:${detail}`);
-        assert(
-          Math.abs(observed.envelope.right + 1 - (bound.x + bound.width)) <= 1.1,
-          `right:${detail}`,
-        );
-        assert(
-          Math.abs(observed.envelope.bottom + 1 - (bound.y + bound.height)) <= 1.1,
-          `bottom:${detail}`,
-        );
-      }
+    assert.equal(observations.length, cases.length);
     assert.deepEqual(errors, []);
   },
 );

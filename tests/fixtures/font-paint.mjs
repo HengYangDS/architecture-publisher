@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+
 export function observeGlyphPaintEnvelope(page, png, scale = 1) {
   return page.evaluate(
     async ({ base64, scale }) => {
@@ -58,4 +60,33 @@ export function observeGlyphPaintEnvelope(page, png, scale = 1) {
     },
     { base64: png.toString('base64'), scale },
   );
+}
+
+export function assertGlyphPaintBounds(
+  observation,
+  expected,
+  allowance,
+  { originX = 0, originY = 0, scaleX = observation.scale, scaleY = observation.scale } = {},
+) {
+  const sample = observation.samples.find(({ threshold }) => threshold === 0);
+  assert(sample?.count > 0, 'The exact text must have a nonzero-alpha footprint');
+  const { left, top, right, bottom } = sample.envelope;
+  const edges = {
+    left: originX + left / scaleX,
+    top: originY + top / scaleY,
+    right: originX + (right + 1) / scaleX,
+    bottom: originY + (bottom + 1) / scaleY,
+  };
+  const declared = {
+    left: expected.x,
+    top: expected.y,
+    right: expected.x + expected.width,
+    bottom: expected.y + expected.height,
+  };
+  for (const edge of ['left', 'top', 'right', 'bottom'])
+    assert(
+      Math.abs(edges[edge] - declared[edge]) <= allowance,
+      `${edge}: ${JSON.stringify({ edges, declared, allowance, sample })}`,
+    );
+  return edges;
 }
