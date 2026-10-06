@@ -89,6 +89,8 @@ test('native CI binds browser and frozen Raster journeys before the whole qualit
   const native = pipeline['.verify-native'];
   assert.equal(native?.stage, 'verify');
   assert.equal(native.timeout, '60m');
+  assert.equal(pipeline.variables?.GIT_STRATEGY, 'fetch');
+  assert.equal(pipeline.variables?.GIT_CLEAN_FLAGS, '-ffdx -e build/runtime/tool-cache/');
   assert.equal(pipeline.variables?.MISE_ENV, 'ci');
   assert.equal(pipeline.variables?.MISE_LOCKED, '1');
   assert.equal(pipeline.variables?.MISE_DATA_DIR, '$CI_PROJECT_DIR/build/runtime/tool-cache/mise');
@@ -178,9 +180,30 @@ test('native CI binds browser and frozen Raster journeys before the whole qualit
   );
 });
 
+test('native CI honors the invoker-owned pinned browser root', () => {
+  const environment = { ...process.env, MISE_ENV: 'ci', MISE_LOCKED: '1' };
+  const selected = path.join(root, 'build/runtime/tool-cache/selected-browser');
+  const readRoot = (env) =>
+    execFileSync(
+      'mise',
+      [
+        'exec',
+        '--',
+        process.execPath,
+        '--eval',
+        'console.log(process.env.PLAYWRIGHT_BROWSERS_PATH)',
+      ],
+      { cwd: root, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 20_000 },
+    ).trim();
+  delete environment.PLAYWRIGHT_BROWSERS_PATH;
+  assert.equal(readRoot(environment), path.join(root, 'build/runtime/tool-cache/playwright'));
+  assert.equal(readRoot({ ...environment, PLAYWRIGHT_BROWSERS_PATH: selected }), selected);
+});
+
 test('Linux verification keeps the common gate and separates trust roles', async () => {
   const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
   const native = pipeline['.verify-linux'];
+  assert.equal(native.variables?.PLAYWRIGHT_BROWSERS_PATH, '/ms-playwright');
   assert.equal(pipeline['.verify-native'].stage, 'verify');
   assert.equal(native.resource_group, undefined);
   assert.equal(native.extends, '.verify-native');
@@ -266,8 +289,8 @@ test('native Windows verification runs the whole quality graph with separate tru
   assert.equal(native.image, null);
   assert.equal(native.resource_group, 'native-windows-verification');
   assert.equal(native.timeout, '60m');
-  assert.equal(native.variables?.GIT_STRATEGY, 'fetch');
-  assert.equal(native.variables?.GIT_CLEAN_FLAGS, '-ffdx -e build/runtime/tool-cache/');
+  assert.equal(native.variables?.GIT_STRATEGY, undefined);
+  assert.equal(native.variables?.GIT_CLEAN_FLAGS, undefined);
   assert.equal(native.extends, '.verify-native');
   assert(native.before_script.some((command) => command.includes("process.platform !== 'win32'")));
   assert.deepEqual(native.before_script, [

@@ -2,7 +2,7 @@
 MISE_RUSTUP_HOME = "{{config_root}}/build/runtime/tool-cache/rustup"
 MISE_CARGO_HOME = "{{config_root}}/build/runtime/tool-cache/cargo"
 ARCHPUB_RESVG_SOURCE_ARCHIVE = "{{config_root}}/build/runtime/tool-cache/raster/source.tar.xz"
-PLAYWRIGHT_BROWSERS_PATH = "{{config_root}}/build/runtime/tool-cache/playwright"
+PLAYWRIGHT_BROWSERS_PATH = "{{ get_env(name='PLAYWRIGHT_BROWSERS_PATH', default=config_root ~ '/build/runtime/tool-cache/playwright') }}"
 ARCHPUB_RESVG_BINDGEN = { value = "{% set tool = tools['github:wasm-bindgen/wasm-bindgen'] %}{% if tool is map %}{{tool.path}}{% else %}{{tool[0].path}}{% endif %}/wasm-bindgen{% if os() == 'windows' %}.exe{% endif %}", tools = true }
 _.path = { path = [
   "{% set tool = tools['npm:npm'] %}{% if tool is map %}{{tool.path}}{% else %}{{tool[0].path}}{% endif %}/node_modules/.bin",

@@ -28,6 +28,8 @@ scripts. Every native CI job uses the locked `.config/mise.ci.toml` tool selecti
 in its own ignored tool cache, including the independently selected npm. Mise
 owns installation and execution; shell Runners retain their existing Mise
 installation owner. This does not raise the installed Core runtime floor.
+Knip excludes the external `mise` bootstrap binary from npm dependency lookup;
+the native CI environment regression executes that installed owner directly.
 The private workspace also locks that same npm as a development tool. Native
 packaging subprocesses prepend workspace bins and the Node directory, so an
 external PATH selection alone can fall back to Node's bundled npm. The local
@@ -58,6 +60,8 @@ The existing supply-update owner must re-audit exact selected bytes when an
 upstream stable fix arrives; that fix, a new affected shipped dependency or an
 expanded consumer invalidates this disposition. Raw audit and resolver evidence
 is retained under `build/evidence/guided-architecture-reading/stable-supply-20261006/`.
+The next supply-owner review is 2026-10-07; the accepted restriction remains in
+force until a verified upstream fix or an explicit successor disposition.
 
 The development workspace pins OpenSpec 1.14.1. Its official apply instructions
 return each task's concrete `sourcePath` and one-based `line`; the repository
@@ -1048,16 +1052,37 @@ and historical digests remain separate from that artifact-build setting.
 
 Repository-authored text checks out as LF through `.gitattributes`. Generated
 validators and third-party supply use `-text` to preserve recorded bytes,
-including mixed-line-ending notices and binary fonts. Windows CI uses GitLab's
-native fetch strategy and default cleaning, excluding only
+including mixed-line-ending notices and binary fonts. Native CI uses GitLab's
+fetch strategy and default cleaning, excluding only
 `build/runtime/tool-cache/`. A completed browser can retain a mapped DLL that
-prevents recursive workspace replacement. `git checkout-index --all --force`
-refreshes every tracked carrier before tool execution, including attribute-only
-changes and stat-clean CRLF files. Previous coverage and other generated output
-are cleaned; required evidence belongs outside that disposable job state.
-Retained tools remain subject to their locked supply checks. Native checkout
-logs and byte checks must confirm the effective strategy. This does not modify
-global Git configuration or prove that a previous process was reclaimed.
+prevents recursive workspace replacement on Windows; on Linux and macOS, deleting
+the same verified cache also needlessly repeats large upstream downloads.
+Windows additionally runs `git checkout-index --all --force` to refresh every
+tracked carrier before tool execution, including attribute-only changes and
+stat-clean CRLF files. Previous coverage and other generated output are cleaned;
+required evidence belongs outside that disposable job state. Retained tools
+remain subject to their locked supply checks. Each Runner and trust role retains
+only its own workspace cache; no shared GitLab cache or cross-role store is used.
+Linux selects `/ms-playwright` from its pinned official Playwright image instead
+of downloading a second browser copy into the workspace. The image and locked
+Playwright package must select the same native browser revision. Mise preserves
+the explicit invoker-owned browser root; without one, it uses the existing
+project-local cache. Native browser launch and the complete quality graph still
+qualify the selected bytes, not just their presence in the image.
+Native checkout logs and byte checks must confirm the effective strategy. This
+does not modify global Git configuration or prove that a previous process was
+reclaimed.
+The two Publisher Linux Docker Runner owners select the verified official
+Playwright seccomp profile, which permits user-namespace creation without
+privileged execution or disabling Chromium's sandbox. Only their Docker
+`security_opt` fields change; credentials, other Runner blocks, ownership and
+VM sharing remain unchanged. Original configuration bytes stay with their
+native owners until the corresponding full native job releases rollback
+custody. A successful sandboxed browser probe does not qualify the full CI
+matrix. Evidence: `build/evidence/guided-architecture-reading/stable-supply-20261006/linux-runner-seccomp-readback.log`
+and `linux-native-sandboxed-browser.log`. The protected image download remains
+unqualified after its bounded timeout; the protected job must verify its own
+selected image and browser.
 Mise's locked Rust declaration includes `cargo`, `rustc` and the host `rust-std`.
 Its native installation repairs missing selected components in the retained
 tool-cache; a minimal profile alone does not reconcile an already installed

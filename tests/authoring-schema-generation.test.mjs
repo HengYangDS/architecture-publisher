@@ -72,24 +72,31 @@ test('native Git checkout preserves generated and supplier bytes under automatic
       relative,
     );
   const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
-  const native = pipeline['.verify-windows'];
   const cache = 'build/runtime/tool-cache/playwright/chrome_elf.dll';
   const disposable = ['build/evidence/prior-job.json', 'coverage/coverage-summary.json'];
   const cacheBytes = Buffer.from('pinned native browser supply');
-  await fs.mkdir(path.dirname(path.join(checkout, cache)), { recursive: true });
-  await fs.writeFile(path.join(checkout, cache), cacheBytes);
-  for (const relative of disposable) {
-    await fs.mkdir(path.dirname(path.join(checkout, relative)), { recursive: true });
-    await fs.writeFile(path.join(checkout, relative), 'previous job');
+  for (const platform of ['linux', 'macos', 'windows']) {
+    const native = pipeline[`.verify-${platform}`];
+    const variables = {
+      ...pipeline.variables,
+      ...pipeline['.verify-native'].variables,
+      ...native.variables,
+    };
+    await fs.mkdir(path.dirname(path.join(checkout, cache)), { recursive: true });
+    await fs.writeFile(path.join(checkout, cache), cacheBytes);
+    for (const relative of disposable) {
+      await fs.mkdir(path.dirname(path.join(checkout, relative)), { recursive: true });
+      await fs.writeFile(path.join(checkout, relative), 'previous job');
+    }
+    assert.equal(variables.GIT_STRATEGY, 'fetch', platform);
+    git('clean', ...variables.GIT_CLEAN_FLAGS.split(' '));
+    assert.deepEqual(await fs.readFile(path.join(checkout, cache)), cacheBytes, platform);
+    for (const relative of disposable)
+      await assert.rejects(fs.access(path.join(checkout, relative)), { code: 'ENOENT' });
   }
   const authored = selected[0];
   await fs.writeFile(path.join(checkout, authored), 'stale CRLF carrier\r\n');
-  assert.equal(native.variables?.GIT_STRATEGY, 'fetch');
-  git('clean', ...native.variables.GIT_CLEAN_FLAGS.split(' '));
-  git(...native.before_script[0].split(' ').slice(1));
-  assert.deepEqual(await fs.readFile(path.join(checkout, cache)), cacheBytes);
-  for (const relative of disposable)
-    await assert.rejects(fs.access(path.join(checkout, relative)), { code: 'ENOENT' });
+  git(...pipeline['.verify-windows'].before_script[0].split(' ').slice(1));
   for (const relative of selected)
     assert.deepEqual(
       await fs.readFile(path.join(checkout, relative)),

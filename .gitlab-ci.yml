@@ -11,6 +11,8 @@ image:
 
 variables:
   GIT_DEPTH: '0'
+  GIT_STRATEGY: fetch
+  GIT_CLEAN_FLAGS: '-ffdx -e build/runtime/tool-cache/'
   MISE_ENV: ci
   MISE_LOCKED: '1'
   MISE_HTTP_TIMEOUT: '180s'
@@ -61,6 +63,7 @@ stages:
   variables:
     FF_USE_INIT_WITH_DOCKER_EXECUTOR: 'true'
     FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: 'true'
+    PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     PIXI_HOME: '$CI_PROJECT_DIR/build/runtime/work/native-linux-prerequisites/home'
     PIXI_CACHE_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/pixi'
   before_script:
@@ -127,9 +130,6 @@ verify:macos:protected:
   resource_group: native-windows-verification
   interruptible: true
   timeout: 60m
-  variables:
-    GIT_STRATEGY: fetch
-    GIT_CLEAN_FLAGS: '-ffdx -e build/runtime/tool-cache/'
   before_script:
     - git checkout-index --all --force
     - '$env:PATH = (Join-Path $env:ProgramFiles "mise/bin") + [IO.Path]::PathSeparator + $env:PATH'
