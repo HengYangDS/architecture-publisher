@@ -39,6 +39,8 @@ another package manifest or product interface.
 
 Node selection comes from `.node-version`. The selected npm, Rust target and
 wasm-bindgen versions serve native execution, not an alternative quality gate.
+Mise exposes each selected tool as either a map or an array. Both environment
+templates resolve the native shape before selecting its installation path.
 Linux ARM64 additionally selects official Pixi through Mise's lock. The native
 `ci/linux/` manifest and lock provide C compilation and xz without root package
 installation. CI copies their inputs and the Pixi configuration into ignored
