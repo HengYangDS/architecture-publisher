@@ -9,6 +9,89 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
+test('raster parent supply includes the currently admitted source witness bytes', async () => {
+  const { verifyRasterSupply } = await import('../packages/publisher/renderers/resvg/supply.mjs');
+  const result = await verifyRasterSupply();
+  const manifest = await fs.readFile(
+    path.join(root, 'packages/publisher/renderers/resvg/supply/supply.json'),
+  );
+  assert.equal(result.sha256, sha(manifest));
+});
+
+test('raster supply generation is deterministic and refuses unadmitted binary or input drift', async (t) => {
+  const base = path.join(root, 'build/test-work');
+  await fs.mkdir(base, { recursive: true });
+  const work = await fs.mkdtemp(path.join(base, 'raster-supply-'));
+  t.after(() => fs.rm(work, { recursive: true, force: true }));
+  const relative = 'packages/publisher/renderers/resvg';
+  const target = path.join(work, relative);
+  await fs.cp(path.join(root, relative, 'supply'), path.join(target, 'supply'), {
+    recursive: true,
+  });
+  for (const file of [
+    'tools/supply/resvg.mjs',
+    'tools/raster/resvg/verify.mjs',
+    `${relative}/identity.mjs`,
+  ]) {
+    await fs.mkdir(path.dirname(path.join(work, file)), { recursive: true });
+    await fs.copyFile(path.join(root, file), path.join(work, file));
+  }
+  const sourcePath = path.join(target, 'supply/resvg/source.json');
+  const source = JSON.parse(await fs.readFile(sourcePath, 'utf8'));
+  for (const input of source.build.inputs) {
+    await fs.mkdir(path.dirname(path.join(work, input.path)), { recursive: true });
+    await fs.copyFile(path.join(root, input.path), path.join(work, input.path));
+  }
+  const invoke = (mode) => {
+    const result = spawnSync(process.execPath, [path.join(work, 'tools/supply/resvg.mjs'), mode], {
+      cwd: work,
+      encoding: 'utf8',
+      timeout: 30_000,
+      env: { ...process.env, PATH: '' },
+    });
+    assert.equal(result.error, undefined);
+    return result;
+  };
+  const seals = () =>
+    Promise.all(
+      ['supply/supply.json', 'identity.mjs'].map(async (name) =>
+        sha(await fs.readFile(path.join(target, name))),
+      ),
+    );
+  const original = await seals();
+  assert.equal(invoke('--check').status, 0);
+  await fs.appendFile(sourcePath, '\n');
+  const stale = invoke('--check');
+  assert.notEqual(stale.status, 0);
+  assert.match(stale.stderr, /raster_supply_drift/u);
+  assert.deepEqual(await seals(), original, 'checking never updates the selected seals');
+  const written = invoke('--write');
+  assert.equal(written.status, 0, written.stdout + written.stderr);
+  const manifest = JSON.parse(await fs.readFile(path.join(target, 'supply/supply.json'), 'utf8'));
+  const member = manifest.files.find(({ path: name }) => name === 'resvg/source.json');
+  const bytes = await fs.readFile(sourcePath);
+  assert.equal(member.bytes, bytes.length);
+  assert.equal(member.sha256, sha(bytes));
+  const current = await seals();
+  assert.notDeepEqual(current, original);
+  assert.equal(invoke('--check').status, 0);
+  assert.equal(invoke('--write').status, 0);
+  assert.deepEqual(await seals(), current, 'repeated generation is byte-identical');
+  assert.notEqual(invoke('--invalid').status, 0);
+  const binary = path.join(target, 'supply/resvg/index_bg.wasm');
+  await fs.appendFile(binary, 'unadmitted');
+  const tampered = invoke('--write');
+  assert.notEqual(tampered.status, 0);
+  assert.match(tampered.stderr, /raster_supply_member_drift/u);
+  assert.deepEqual(await seals(), current, 'generation cannot learn altered binary bytes');
+  await fs.copyFile(path.join(root, relative, 'supply/resvg/index_bg.wasm'), binary);
+  await fs.appendFile(path.join(work, source.build.inputs[0].path), '\n# unadmitted\n');
+  const inputDrift = invoke('--write');
+  assert.notEqual(inputDrift.status, 0);
+  assert.match(inputDrift.stderr, /source closure input mismatch/u);
+  assert.deepEqual(await seals(), current);
+});
+
 test('raster rebuild selects the packaged source manifest', async (t) => {
   const base = path.join(root, 'build/test-work');
   await fs.mkdir(base, { recursive: true });

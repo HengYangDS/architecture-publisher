@@ -29,6 +29,10 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Raster witness amendments regenerate their parent inventory and immutable
+  identity through one checked supply entry. The early generated gate validates
+  that dependency before the implementation closure; changed canonical binaries
+  or frozen source inputs cannot be learned as new expected bytes.
 - Native CI admits locked rootless Linux compiler/xz prerequisites through Pixi
   and discovers Windows Visual Studio development tools before frozen Raster
   rebuilding; neither path relaxes browser isolation or quality requirements.

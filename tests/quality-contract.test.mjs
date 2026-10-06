@@ -14,6 +14,17 @@ import { npmInvocation } from './fixtures/npm-pack-report.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 
+test('the generated gate validates Raster before its dependent implementation closure', async () => {
+  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+  const steps = workspace.scripts['check:generated'].split(' && ');
+  const raster = steps.indexOf('node tools/supply/resvg.mjs --check');
+  const implementation = steps.indexOf('node tools/supply/implementation.mjs --check');
+  assert(
+    raster >= 0 && implementation > raster,
+    'Raster supply must participate in the early dependency gate',
+  );
+});
+
 test('native package-manager admission rejects a mismatched toolchain before scripts', async (t) => {
   const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
   const selected = workspace.devEngines;
@@ -267,7 +278,7 @@ test('one fail-closed quality entry point covers the repository contract', async
   );
   assert.equal(
     manifest.scripts['check:generated'],
-    'node tools/generate-authoring-validators.mjs --check && node tools/supply/likec4.mjs --check && node tools/supply/interactive.mjs --check && node tools/supply/elk.mjs --check && node tools/supply/dagre.mjs --check && node tools/supply/icons.mjs --check && node tools/supply/implementation.mjs --check',
+    'node tools/generate-authoring-validators.mjs --check && node tools/supply/likec4.mjs --check && node tools/supply/interactive.mjs --check && node tools/supply/elk.mjs --check && node tools/supply/dagre.mjs --check && node tools/supply/icons.mjs --check && node tools/supply/resvg.mjs --check && node tools/supply/implementation.mjs --check',
   );
   assert.equal(manifest.scripts['check:format'], 'prettier --check .');
   assert.equal(manifest.scripts['check:lint'], 'eslint . --max-warnings 0');

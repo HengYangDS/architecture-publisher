@@ -49,5 +49,16 @@
 ## 10. Native quality, release and closeout
 
 - [ ] 10.1 Pass native macOS/Linux/Windows full checks, frozen Raster rebuilding and installed offline relocation/recovery with all four coverage floors at least 95 percent. The unchanged Windows ARM64 journey first rejects an unknown tool witness, then passes with the independently measured witness admitted in the source manifest. Two relocated offline/frozen builds agree, selected inputs remain unchanged, and representative behavior matches the immutable canonical renderer. Native test scratch is empty; VM isolation and its initial running state are restored. Evidence: `build/evidence/guided-architecture-reading/signed-checkpoint-566e32d/{windows-successor-native,windows-native-acceptance,windows-witness-local-check}.*`. This does not prove cross-host WASM byte identity or full Windows acceptance. Linux checkout ownership, hosted full checks and final installed recovery remain open.
+      The witness amendment exposed a missing Raster-parent generated gate. Three
+      focused regressions now pass after generation and dependency wiring; 99
+      related runtime/closure/boundary checks and 15 sandboxed Chrome tests pass
+      with zero skips. Canonical JS/WASM bytes remain unchanged. Evidence:
+      `build/evidence/guided-architecture-reading/raster-parent-seal-convergence/`.
+      The tracked carrier-role regression also passes without excluding the new
+      runtime identity from coverage. Node 22.23.3 passes two relocated offline
+      installed journeys outside the Node-26 development workspace; the temporary
+      conformance root is removed. This proves representative macOS ARM64 use,
+      not universal minimum-runtime or platform support. Current full coverage,
+      hosted acceptance and final recovery remain open.
 - [ ] 10.2 Complete semantic source/module/configuration/documentation and warning audit; repair actual message/authentication/execution owners without session/model/credential edits and qualify the exact-current installed ETHOS proof successor. Formal proof at `6a94c64` preserves a blocked receipt: the installed common JavaScript observer applies authored ESLint rules to declared generated/snapshot supply. Direct observation isolates all errors to those carriers; authored paths have no reported errors. The existing ETHOS source owner has acknowledged the general classification repair but has not delivered an accepted successor. Evidence: `ci-browser-binding/{proof,static-provider}-6a94c64*` under this Change's evidence root. Review-object proposal projection is separately admitted and does not qualify accepted refs.
 - [ ] 10.3 Publish a signed SemVer successor with Keep a Changelog, designated source/media acceptance and remote readback; converge protected refs and close Change/proposal/Lane through native owners with verified evidence custody and exact housekeeping.
