@@ -13,6 +13,7 @@ variables:
   GIT_DEPTH: '0'
   MISE_ENV: ci
   MISE_LOCKED: '1'
+  MISE_HTTP_TIMEOUT: '180s'
   MISE_DATA_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/mise'
   MISE_CACHE_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/mise/cache'
   MISE_TRUSTED_CONFIG_PATHS: '$CI_PROJECT_DIR'
@@ -68,7 +69,7 @@ stages:
     - test "$(id -u)" != "0"
     - mkdir -p build/runtime/tool-cache/mise-bootstrap
     - >-
-      curl --fail --silent --show-error --location --connect-timeout 15 --max-time 180
+      curl --fail --silent --show-error --location --connect-timeout 15 --max-time 900
       --output build/runtime/tool-cache/mise-bootstrap/mise.tar.gz
       https://github.com/jdx/mise/releases/download/v2026.10.3/mise-v2026.10.3-linux-arm64.tar.gz
     - echo 'e79866e32624b346f6854d93ca8a24294516cd7c0b48ce0e80af508fb7c3d8b8  build/runtime/tool-cache/mise-bootstrap/mise.tar.gz' | sha256sum --check

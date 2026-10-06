@@ -35,6 +35,9 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Native supply installation has explicit HTTP budgets under the existing CI
+  deadline. Windows Raster rebuilds select the independently observed Rust
+  1.99.0 witness; canonical packaged WASM bytes are unchanged.
 - LikeC4 regeneration derives and checks the installer's immutable supply
   identity together with the bundled parser, eliminating stale digest wiring.
 - Reader accessible names include native control labels, current camera state

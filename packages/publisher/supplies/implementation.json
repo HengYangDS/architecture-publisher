@@ -259,7 +259,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
+        "sha256": "5d9c13bf36652e10b68553d56e1e4acab17bc311f98eb9f1c92b5e19c72975aa"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -411,7 +411,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
+        "sha256": "5d9c13bf36652e10b68553d56e1e4acab17bc311f98eb9f1c92b5e19c72975aa"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -548,7 +548,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
+        "sha256": "5d9c13bf36652e10b68553d56e1e4acab17bc311f98eb9f1c92b5e19c72975aa"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -685,7 +685,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
+        "sha256": "5d9c13bf36652e10b68553d56e1e4acab17bc311f98eb9f1c92b5e19c72975aa"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -822,7 +822,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
+        "sha256": "5d9c13bf36652e10b68553d56e1e4acab17bc311f98eb9f1c92b5e19c72975aa"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -994,7 +994,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
+        "sha256": "5d9c13bf36652e10b68553d56e1e4acab17bc311f98eb9f1c92b5e19c72975aa"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -1166,7 +1166,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
+        "sha256": "5d9c13bf36652e10b68553d56e1e4acab17bc311f98eb9f1c92b5e19c72975aa"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -1343,7 +1343,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
+        "sha256": "5d9c13bf36652e10b68553d56e1e4acab17bc311f98eb9f1c92b5e19c72975aa"
       },
       {
         "path": "renderers/resvg/limits.mjs",
@@ -1525,7 +1525,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
+        "sha256": "5d9c13bf36652e10b68553d56e1e4acab17bc311f98eb9f1c92b5e19c72975aa"
       },
       {
         "path": "renderers/resvg/limits.mjs",
