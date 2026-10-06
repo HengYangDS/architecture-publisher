@@ -178,6 +178,9 @@ diagnose:windows:browser-loader:
       try {
         $record.identity = [Security.Principal.WindowsIdentity]::GetCurrent().Name
         if ($record.identity -ne 'NT SERVICE\gitlab-runner-p1323-windows-review') { throw 'Unexpected diagnostic service identity' }
+        mise exec -- npm ci --ignore-scripts --no-audit --no-fund
+        $record.packageSupplyExit = $LASTEXITCODE
+        if ($LASTEXITCODE -ne 0) { throw 'Locked project dependency preparation failed' }
         $selected = mise exec -- node --import=./tests/fixtures/npm-environment.mjs -e "console.log(JSON.stringify({executable:process.env.ARCHPUB_BROWSER_EXECUTABLE,node:process.execPath,version:process.version,arch:process.arch}))"
         if ($LASTEXITCODE -ne 0) { throw 'Native browser selection failed' }
         $browser = $selected | ConvertFrom-Json
