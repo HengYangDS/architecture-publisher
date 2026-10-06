@@ -2,8 +2,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileEnvelope } from '../file-input/read.mjs';
 import { fail } from '../protocol/values.mjs';
+import { LIKEC4_SUPPLY_SHA256 } from './supply-identity.mjs';
 
-const SUPPLY_SHA256 = 'eef5eaecf551db619c6a96bc5b87e3e7353e70f9ab08fd9f32f88972e5c3d2b5';
 const supplyRoot = fileURLToPath(new URL('../../supplies/likec4/', import.meta.url));
 const supplyError = 'native_likec4_supply_invalid';
 
@@ -29,7 +29,7 @@ async function verifyLikeC4Supply() {
   try {
     const verified = await readFileEnvelope(
       path.join(supplyRoot, 'supply.json'),
-      SUPPLY_SHA256,
+      LIKEC4_SUPPLY_SHA256,
       admittedManifest,
     );
     const parser = verified.members.find(({ path: name }) => name === 'parser.mjs');

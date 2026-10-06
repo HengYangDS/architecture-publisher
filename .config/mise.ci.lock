@@ -3,38 +3,37 @@
 lockfile_version = 3
 
 [[tools."github:wasm-bindgen/wasm-bindgen"]]
-version = "0.2.128"
+version = "0.2.129"
 backend = "github:wasm-bindgen/wasm-bindgen"
-specifiers = ["0.2.128"]
+specifiers = ["0.2.129"]
 
 [tools."github:wasm-bindgen/wasm-bindgen".options]
 matching_regex = '^wasm-bindgen-[0-9.]+-(aarch64-apple-darwin|aarch64-unknown-linux-gnu|x86_64-pc-windows-msvc)\.tar\.gz$'
 
 [tools."github:wasm-bindgen/wasm-bindgen"."platforms.linux-arm64"]
-checksum = "sha256:2f61267bbef279c2d6357b199649468b073223febde4ae108d30ac3d6b5540af"
-url = "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.128/wasm-bindgen-0.2.128-aarch64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/wasm-bindgen/wasm-bindgen/releases/assets/545035805"
+checksum = "sha256:1797c349a0f45d30946e8986b184135e12839ab576c9a04203e85febfc5dcb35"
+url = "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/wasm-bindgen/wasm-bindgen/releases/assets/587769532"
 provenance = "github-attestations"
 
 [tools."github:wasm-bindgen/wasm-bindgen"."platforms.macos-arm64"]
-checksum = "sha256:67ba17f260977725c0b541b516dbb5153538140f079a900329fb6077661b47ab"
-url = "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.128/wasm-bindgen-0.2.128-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/wasm-bindgen/wasm-bindgen/releases/assets/545035806"
+checksum = "sha256:81d4a23d56b3c3eb8187658329116d50e0b228a93b343825fb71f70179051cd1"
+url = "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/wasm-bindgen/wasm-bindgen/releases/assets/587769526"
 provenance = "github-attestations"
 
 [[tools."github:wasm-bindgen/wasm-bindgen"]]
-version = "0.2.128"
+version = "0.2.129"
 backend = "github:wasm-bindgen/wasm-bindgen"
-specifiers = ["0.2.128"]
 
 [tools."github:wasm-bindgen/wasm-bindgen".options]
-asset_pattern = "wasm-bindgen-0.2.128-x86_64-pc-windows-msvc.tar.gz"
+asset_pattern = "wasm-bindgen-0.2.129-x86_64-pc-windows-msvc.tar.gz"
 matching_regex = '^wasm-bindgen-[0-9.]+-(aarch64-apple-darwin|aarch64-unknown-linux-gnu|x86_64-pc-windows-msvc)\.tar\.gz$'
 
 [tools."github:wasm-bindgen/wasm-bindgen"."platforms.windows-arm64"]
-checksum = "sha256:8fd8e2165da16b21ee3f5efd19e7f97d8d27cb7832f54edaef4b18e830283ec0"
-url = "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.128/wasm-bindgen-0.2.128-x86_64-pc-windows-msvc.tar.gz"
-url_api = "https://api.github.com/repos/wasm-bindgen/wasm-bindgen/releases/assets/545035796"
+checksum = "sha256:79e348c169d0c10c0b287647f1e753d0985353ca96800bc29be8f4261baf13e6"
+url = "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-x86_64-pc-windows-msvc.tar.gz"
+url_api = "https://api.github.com/repos/wasm-bindgen/wasm-bindgen/releases/assets/587769522"
 provenance = "github-attestations"
 
 [[tools.node]]
@@ -71,10 +70,22 @@ url = "https://github.com/prefix-dev/pixi/releases/download/v0.81.0/pixi-aarch64
 url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/565929781"
 provenance = "github-attestations"
 
+[tools.pixi."platforms.macos-arm64"]
+checksum = "sha256:f4e32ea91970d4e11739488817979a5f2c6ebbb9cedb0d6dea74b2b790b272dc"
+url = "https://github.com/prefix-dev/pixi/releases/download/v0.81.0/pixi-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/565929700"
+provenance = "github-attestations"
+
+[tools.pixi."platforms.windows-arm64"]
+checksum = "sha256:4981a25df1a26389712bc1c27992635cff629a635b083755d71938ebe92d5e89"
+url = "https://github.com/prefix-dev/pixi/releases/download/v0.81.0/pixi-aarch64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/565929732"
+provenance = "github-attestations"
+
 [[tools.rust]]
-version = "1.98.1"
+version = "1.99.0"
 backend = "core:rust"
-specifiers = ["1.98.1"]
+specifiers = ["1.99.0"]
 
 [tools.rust.options]
 components = "cargo,rust-std,rustc"

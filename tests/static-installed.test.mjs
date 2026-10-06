@@ -64,8 +64,8 @@ test('installed raster command needs only explicit input and its pinned static s
     await fs.readFile(path.join(pkg, 'renderers/resvg/supply/resvg/source.json'), 'utf8'),
   );
   assert.equal(rendererSource.source.version, '0.48.1');
-  assert.equal(rendererSource.toolchain.rust, '1.98.1');
-  assert.equal(rendererSource.toolchain.wasmBindgen, '0.2.128');
+  assert.equal(rendererSource.toolchain.rust, '1.99.0');
+  assert.equal(rendererSource.toolchain.wasmBindgen, '0.2.129');
   assert.equal(
     rendererSource.source.archiveSha256,
     JSON.parse(
@@ -78,7 +78,7 @@ test('installed raster command needs only explicit input and its pinned static s
   const observedNotice = await fs.readFile(path.join(pkg, observedNoticePath), 'utf8');
   assert.match(observedNotice, /Resolved Rust packages:/);
   assert.match(observedNotice, /resvg 0\.48\.1/);
-  assert.match(observedNotice, /wasm-bindgen 0\.2\.128/);
+  assert(observedNotice.includes(`wasm-bindgen ${rendererSource.toolchain.wasmBindgen}`));
   // This disposable installed copy deliberately lacks the interactive and ETHOS code.
   // Static execution must never load those independent capability owners.
   for (const name of ['renderers/archify']) await fs.rm(path.join(pkg, name), { recursive: true });

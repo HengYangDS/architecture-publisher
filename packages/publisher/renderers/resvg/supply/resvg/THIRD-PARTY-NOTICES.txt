@@ -1,8 +1,8 @@
 Architecture Publisher raster renderer third-party notices
 
-Source closure: gitlab-generic://dig/research/human-agent-stewardship/architecture-publisher/architecture-raster-resvg-source/0.48.1-74812e78d5f7/source.tar.xz
-Source archive SHA-256: 74812e78d5f76131d799dbdc269819d9623a6c0ba7901ccf386df31a5265e137
-Cargo.lock SHA-256: d149719a6fda6c98cbb52d5baac06f31938923c26db8e68eb64879165fd16c7a
+Source closure: gitlab-generic://dig/research/human-agent-stewardship/architecture-publisher/architecture-raster-resvg-source/0.48.1-f8fad322964f/source.tar.xz
+Source archive SHA-256: f8fad322964fb58fea53c442f8842d3fb491ec95dbd63c8709eb336fceda69b3
+Cargo.lock SHA-256: 3378975d184989640ea75f389e796a3d14ed83db8d1d9c22fcfce4850433a12e
 
 Resolved Rust packages:
 - adler2 2.0.1: 0BSD OR MIT OR Apache-2.0
@@ -21,7 +21,7 @@ Resolved Rust packages:
 - fdeflate 0.3.7: MIT OR Apache-2.0
 - flate2 1.1.10: MIT OR Apache-2.0
 - float-cmp 0.9.0: MIT
-- font-types 0.12.5: MIT OR Apache-2.0
+- font-types 0.12.6: MIT OR Apache-2.0
 - fontdb 0.24.0: MIT
 - harfrust 0.12.0: MIT
 - imagesize 0.15.0: MIT
@@ -44,10 +44,10 @@ Resolved Rust packages:
 - rustversion 1.0.23: MIT OR Apache-2.0
 - simd-adler32 0.3.10: MIT
 - simplecss 0.2.2: Apache-2.0 OR MIT
-- siphasher 1.0.3: MIT/Apache-2.0
+- siphasher 1.0.4: MIT OR Apache-2.0
 - skrifa 0.44.0: MIT OR Apache-2.0
 - slotmap 1.1.1: Zlib
-- smallvec 1.16.1: MIT OR Apache-2.0
+- smallvec 1.16.2: MIT OR Apache-2.0
 - strict-num 0.1.1: MIT
 - svgtypes 0.16.1: Apache-2.0 OR MIT
 - syn 3.0.6: MIT OR Apache-2.0
@@ -60,10 +60,10 @@ Resolved Rust packages:
 - unicode-vo 0.1.0: MIT/Apache-2.0
 - usvg 0.48.1: Apache-2.0 OR MIT
 - version_check 0.9.5: MIT/Apache-2.0
-- wasm-bindgen 0.2.128: MIT OR Apache-2.0
-- wasm-bindgen-macro 0.2.128: MIT OR Apache-2.0
-- wasm-bindgen-macro-support 0.2.128: MIT OR Apache-2.0
-- wasm-bindgen-shared 0.2.128: MIT OR Apache-2.0
+- wasm-bindgen 0.2.129: MIT OR Apache-2.0
+- wasm-bindgen-macro 0.2.129: MIT OR Apache-2.0
+- wasm-bindgen-macro-support 0.2.129: MIT OR Apache-2.0
+- wasm-bindgen-shared 0.2.129: MIT OR Apache-2.0
 - xmlwriter 0.1.0: MIT
 - zlib-rs 0.6.8: Zlib
 
@@ -133,7 +133,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 ==============================================================================
 SHA-256: 0b28172679e0009b655da42797c03fd163a3379d5cfa67ba1f1655e974a2a1a9
 Applies to:
-- smallvec 1.16.1/LICENSE-MIT
+- smallvec 1.16.2/LICENSE-MIT
 
 Copyright (c) 2018 The Servo Project Developers
 
@@ -587,10 +587,10 @@ THE SOFTWARE.
 SHA-256: 378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397
 Applies to:
 - cfg-if 1.0.5/LICENSE-MIT
-- wasm-bindgen 0.2.128/LICENSE-MIT
-- wasm-bindgen-macro 0.2.128/LICENSE-MIT
-- wasm-bindgen-macro-support 0.2.128/LICENSE-MIT
-- wasm-bindgen-shared 0.2.128/LICENSE-MIT
+- wasm-bindgen 0.2.129/LICENSE-MIT
+- wasm-bindgen-macro 0.2.129/LICENSE-MIT
+- wasm-bindgen-macro-support 0.2.129/LICENSE-MIT
+- wasm-bindgen-shared 0.2.129/LICENSE-MIT
 
 Copyright (c) 2014 Alex Crichton
 
@@ -1252,7 +1252,7 @@ DEALINGS IN THE SOFTWARE.
 ==============================================================================
 SHA-256: 7b4c9a3946dfcea7967582760e963e27799e225dcf20565c8ef55324bb017427
 Applies to:
-- font-types 0.12.5/LICENSE-MIT
+- font-types 0.12.6/LICENSE-MIT
 - read-fonts 0.41.0/LICENSE-MIT
 - skrifa 0.44.0/LICENSE-MIT
 
@@ -1519,6 +1519,36 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+==============================================================================
+SHA-256: 7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c
+Applies to:
+- memchr 2.8.3/UNLICENSE
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
 
 ==============================================================================
 SHA-256: 84b34dd7608f7fb9b17bd588a6bf392bf7de504e2716f024a77d89f1b145a151
@@ -1798,15 +1828,15 @@ Applies to:
 - png 0.18.1/LICENSE-APACHE
 - roxmltree 0.21.1/LICENSE-APACHE
 - simplecss 0.2.2/LICENSE-APACHE
-- smallvec 1.16.1/LICENSE-APACHE
+- smallvec 1.16.2/LICENSE-APACHE
 - svgtypes 0.16.1/LICENSE-APACHE
 - unicode-bidi 0.3.18/LICENSE-APACHE
 - unicode-vo 0.1.0/LICENSE-APACHE
 - version_check 0.9.5/LICENSE-APACHE
-- wasm-bindgen 0.2.128/LICENSE-APACHE
-- wasm-bindgen-macro 0.2.128/LICENSE-APACHE
-- wasm-bindgen-macro-support 0.2.128/LICENSE-APACHE
-- wasm-bindgen-shared 0.2.128/LICENSE-APACHE
+- wasm-bindgen 0.2.129/LICENSE-APACHE
+- wasm-bindgen-macro 0.2.129/LICENSE-APACHE
+- wasm-bindgen-macro-support 0.2.129/LICENSE-APACHE
+- wasm-bindgen-shared 0.2.129/LICENSE-APACHE
 
                               Apache License
                         Version 2.0, January 2004
@@ -2277,23 +2307,6 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ==============================================================================
-SHA-256: b84fdd2c3da5db56385cdbb639795e90aa3e035c53bc3591135f18df3331451f
-Applies to:
-- fontdb 0.24.0/tests/fonts/LICENSE.txt
-
-We, the copyright holders of this work, hereby release it into the
-public domain. This applies worldwide.
-
-In case this is not legally possible,
-
-We grant any entity the right to use this work for any purpose, without
-any conditions, unless such conditions are required by law.
-
-Thatcher Ulrich <tu@tulrich.com> http://tulrich.com
-Karoly Barta bartakarcsi@gmail.com
-Michael Evans http://www.evertype.com
-
-==============================================================================
 SHA-256: c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08
 Applies to:
 - crc32fast 1.5.2/LICENSE-APACHE
@@ -2534,7 +2547,7 @@ DEALINGS IN THE SOFTWARE.
 ==============================================================================
 SHA-256: c962ee4d1d05ddc138b202b2540219ebc57893fcf97b364852094a9a94ce1365
 Applies to:
-- siphasher 1.0.3/COPYING
+- siphasher 1.0.4/COPYING
 
 Copyright 2012-2016 The Rust Project Developers.
 Copyright 2016-2026 Frank Denis.
@@ -2549,6 +2562,7 @@ SHA-256: cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30
 Applies to:
 - kurbo 0.13.1/LICENSE-APACHE
 - polycool 0.4.0/LICENSE-APACHE
+- siphasher 1.0.4/LICENSE-APACHE
 - tinyvec 1.13.3/LICENSE-APACHE.md
 
 
@@ -2881,7 +2895,7 @@ DEALINGS IN THE SOFTWARE.
 ==============================================================================
 SHA-256: eba684204073ed715c4abb48129acdfd2bff8ae48339e6a7da3b341d3027b7f0
 Applies to:
-- font-types 0.12.5/LICENSE-APACHE
+- font-types 0.12.6/LICENSE-APACHE
 - read-fonts 0.41.0/LICENSE-APACHE
 - skrifa 0.44.0/LICENSE-APACHE
 
@@ -2952,31 +2966,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-==============================================================================
-SHA-256: ec82b96487e9e778ee610c7ab245162464782cfa1f555c2299333f8dbe5c036a
-Applies to:
-- euclid 0.22.14/COPYRIGHT
-
-Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-<LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-option. All files in the project carrying such notice may not be
-copied, modified, or distributed except according to those terms.
-
-==============================================================================
-SHA-256: edb20b474f6cbd4f4db066b54a9e0f687d0009d309412a63431189b59b8e2a07
-Applies to:
-- unicode-bidi 0.3.18/COPYRIGHT
-
-This project is copyright 2015, The Servo Project Developers (given in the
-file AUTHORS).
-
-Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-http://www.apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
-http://opensource.org/licenses/MIT>, at your option. All files in the project
-carrying such notice may not be copied, modified, or distributed except
-according to those terms.
 
 ==============================================================================
 SHA-256: f3c9fe731c701ed77fd5fbaac573872af04dc5869385eb9bd5e3c73c42713814
@@ -3104,6 +3093,29 @@ Except as contained in this notice, the name of a copyright holder shall
 not be used in advertising or otherwise to promote the sale, use or other
 dealings in these Data Files or Software without prior written
 authorization of the copyright holder.
+
+==============================================================================
+SHA-256: f9c4c77baa3828004ee54b8a4f2db2e88ed44a6237a493965bf551fac0fcb62d
+Applies to:
+- siphasher 1.0.4/LICENSE-MIT
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ==============================================================================
 SHA-256: fa0d694967d5c279e70a5c7b7e4b9929e4c1c8c1b8506998e66fc2f1547b200a

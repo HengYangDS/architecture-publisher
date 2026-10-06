@@ -12,7 +12,7 @@ _.path = { path = [
 node = "{{read_file(path=config_root ~ '/.node-version') | trim}}"
 "npm:npm" = "12.2.0"
 pixi = { version = "0.81.0", os = ["linux/arm64"] }
-rust = { version = "1.98.1", profile = "minimal", components = [
+rust = { version = "1.99.0", profile = "minimal", components = [
   "cargo",
   "rust-std",
   "rustc",
@@ -21,10 +21,10 @@ rust = { version = "1.98.1", profile = "minimal", components = [
 ] }
 
 [tools."github:wasm-bindgen/wasm-bindgen"]
-version = "0.2.128"
+version = "0.2.129"
 matching_regex = "^wasm-bindgen-[0-9.]+-(aarch64-apple-darwin|aarch64-unknown-linux-gnu|x86_64-pc-windows-msvc)\\.tar\\.gz$"
 strip_components = 1
 
 [tools."github:wasm-bindgen/wasm-bindgen".platforms.windows-arm64]
-asset_pattern = "wasm-bindgen-0.2.128-x86_64-pc-windows-msvc.tar.gz"
-checksum = "sha256:8fd8e2165da16b21ee3f5efd19e7f97d8d27cb7832f54edaef4b18e830283ec0"
+asset_pattern = "wasm-bindgen-0.2.129-x86_64-pc-windows-msvc.tar.gz"
+checksum = "sha256:79e348c169d0c10c0b287647f1e753d0985353ca96800bc29be8f4261baf13e6"

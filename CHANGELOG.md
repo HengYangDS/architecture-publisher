@@ -19,6 +19,10 @@ may contain incompatible changes.
 
 ### Changed
 
+- Refresh the selected stable development, LikeC4 and Raster supply, including
+  OpenSpec 1.14.1, Rust 1.99.0, wasm-bindgen 0.2.129 and Mise 2026.10.3. Remaining
+  upstream development-tool advisories retain the approved trusted-local-input
+  restriction; they are not reported as repaired or as shipped-reader findings.
 - Locked CI Rust installation reconciles required `cargo` and `rustc`
   components in retained tool caches instead of failing at compiler discovery.
 - Self-use interactive diagrams use neutral ordinary-node paint. Their distinct
@@ -31,6 +35,10 @@ may contain incompatible changes.
 
 ### Fixed
 
+- LikeC4 regeneration derives and checks the installer's immutable supply
+  identity together with the bundled parser, eliminating stale digest wiring.
+- Reader accessible names include native control labels, current camera state
+  and literal spacing between visible label parts without changing scene geometry.
 - CI executes the existing sandboxed browser journey immediately after browser
   installation, before expensive Raster and coverage work. Legend hit-target
   observation waits for native joint layout readiness instead of sampling a

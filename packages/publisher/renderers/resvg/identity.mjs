@@ -1,3 +1,3 @@
 /** Generated from the admitted Raster supply. Do not edit. */
 export const RASTER_SUPPLY_SHA256 =
-  'c542c2561ca14106af6a558420766b1ba7340a2f0c5c9c1d8fd2c656297ed055';
+  '08b0267530963b78c22fd6b384047b286dbfe4a41af1c651b3d87645b83c7a0b';

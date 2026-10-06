@@ -120,15 +120,21 @@ async function adaptOfflineTemplate(native, notice, semantic) {
     "if (target.closest('[data-node-id], [data-relationship-hit-key], .overview-map')) return;";
   const textCopy = 'var copy = navigator.clipboard &&';
   const imageCopy = "return typeof ClipboardItem !== 'undefined' &&";
+  const cameraName =
+    "resetBtn.setAttribute('aria-label', viewerText('viewer.nav.camera', { hint: detailHint }));";
+  const namedControls = /aria-label="\{\{i18n:viewer\.nav\.(route|radar|lens)\}\}"/gu;
   if (
     linkValues.length !== 3 ||
     template.split(linkMarker).length !== 2 ||
     template.split(exportContext).length !== 2 ||
     template.split(textCopy).length !== 4 ||
-    template.split(imageCopy).length !== 2
+    template.split(imageCopy).length !== 2 ||
+    template.split(cameraName).length !== 2 ||
+    [...template.matchAll(namedControls)].length !== 3
   )
     fail('render_reader_interaction_seam_invalid');
   const addressed = template
+    .replace(namedControls, 'aria-label="{{i18n:viewer.nav.$1.short}}. {{i18n:viewer.nav.$1}}"')
     .replace(
       linkMarker,
       linkMarker +
@@ -139,6 +145,10 @@ async function adaptOfflineTemplate(native, notice, semantic) {
     .replace(
       imageCopy,
       "return publicationClipboardAllowed() && typeof ClipboardItem !== 'undefined' &&",
+    )
+    .replace(
+      cameraName,
+      "resetBtn.setAttribute('aria-label', (showDetailLevel ? resolvedLevel + ' ' : '') + percent + '. ' + viewerText('viewer.nav.camera', { hint: detailHint }));",
     )
     .replace(
       exportContext,

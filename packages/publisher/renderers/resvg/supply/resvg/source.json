@@ -7,18 +7,18 @@
       "provider": "gitlab",
       "projectPath": "dig/research/human-agent-stewardship/architecture-publisher",
       "package": "architecture-raster-resvg-source",
-      "version": "0.48.1-74812e78d5f7",
+      "version": "0.48.1-f8fad322964f",
       "file": "source.tar.xz"
     },
-    "archiveSha256": "74812e78d5f76131d799dbdc269819d9623a6c0ba7901ccf386df31a5265e137"
+    "archiveSha256": "f8fad322964fb58fea53c442f8842d3fb491ec95dbd63c8709eb336fceda69b3"
   },
   "toolchain": {
-    "rust": "1.98.1",
+    "rust": "1.99.0",
     "target": "wasm32-unknown-unknown",
-    "wasmBindgen": "0.2.128"
+    "wasmBindgen": "0.2.129"
   },
   "build": {
-    "cargoLockSha256": "d149719a6fda6c98cbb52d5baac06f31938923c26db8e68eb64879165fd16c7a",
+    "cargoLockSha256": "3378975d184989640ea75f389e796a3d14ed83db8d1d9c22fcfce4850433a12e",
     "network": "offline",
     "frozen": true,
     "pathRemap": "/workspace",
@@ -26,17 +26,17 @@
       {
         "path": "tools/raster/resvg/Cargo.toml",
         "bytes": 256,
-        "sha256": "6a18c826bc0d0080b05ce4c39149550d674fecd93aaa841d4fc2117b5ccec25a"
+        "sha256": "a96f251dbb96d1786d01eada9e94bc4479e71c562a222beb1c23dede611a1bee"
       },
       {
         "path": "tools/raster/resvg/Cargo.lock",
         "bytes": 14047,
-        "sha256": "d149719a6fda6c98cbb52d5baac06f31938923c26db8e68eb64879165fd16c7a"
+        "sha256": "3378975d184989640ea75f389e796a3d14ed83db8d1d9c22fcfce4850433a12e"
       },
       {
         "path": "tools/raster/resvg/rust-toolchain.toml",
         "bytes": 88,
-        "sha256": "dbc9ef41d801c3173680ffbadb5b0afbd818eb8b06fee6ed6d88cc8f375984dd"
+        "sha256": "d30dfd45f6ee9ef9f90db627260edb5c36434131e0b1964177cd25c9325ca225"
       },
       {
         "path": "tools/raster/resvg/.cargo/config.toml",
@@ -53,58 +53,20 @@
       {
         "tools": {
           "rustc": {
-            "release": "1.98.1",
-            "commit": "48a229ceaefd4985c50990b14116b6d856af0985",
+            "release": "1.99.0",
+            "commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
             "host": "aarch64-apple-darwin"
           },
           "cargo": {
-            "release": "1.98.1",
-            "commit": "797e8a9bca276c1c9f9f738d2a20f484fa4eea9d",
+            "release": "1.99.0",
+            "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
             "host": "aarch64-apple-darwin"
           },
-          "wasmBindgen": "0.2.128"
+          "wasmBindgen": "0.2.129"
         },
         "wasm": {
-          "bytes": 3427609,
-          "sha256": "6827b7a3c62d7534250f81595c237086179989eac0eb5b02c3f952bcf20d8761"
-        }
-      },
-      {
-        "tools": {
-          "rustc": {
-            "release": "1.98.1",
-            "commit": "48a229ceaefd4985c50990b14116b6d856af0985",
-            "host": "aarch64-unknown-linux-gnu"
-          },
-          "cargo": {
-            "release": "1.98.1",
-            "commit": "797e8a9bca276c1c9f9f738d2a20f484fa4eea9d",
-            "host": "aarch64-unknown-linux-gnu"
-          },
-          "wasmBindgen": "0.2.128"
-        },
-        "wasm": {
-          "bytes": 3427664,
-          "sha256": "db31774c8451ded296654179db08e6c4454f313eea0e9f720b1b26a90e2cc142"
-        }
-      },
-      {
-        "tools": {
-          "rustc": {
-            "release": "1.98.1",
-            "commit": "48a229ceaefd4985c50990b14116b6d856af0985",
-            "host": "aarch64-pc-windows-msvc"
-          },
-          "cargo": {
-            "release": "1.98.1",
-            "commit": "797e8a9bca276c1c9f9f738d2a20f484fa4eea9d",
-            "host": "aarch64-pc-windows-msvc"
-          },
-          "wasmBindgen": "0.2.128"
-        },
-        "wasm": {
-          "bytes": 3427593,
-          "sha256": "93f0036247f368af0c2c9df9315ada866b488351361920db5334867750732628"
+          "bytes": 3358713,
+          "sha256": "5075385aaedca6b93a5f76bd5e4134ea739b331db5eba77a1e449784d222af6f"
         }
       }
     ]
@@ -113,13 +75,13 @@
     {
       "path": "packages/publisher/renderers/resvg/supply/resvg/index.mjs",
       "bytes": 4550,
-      "sha256": "5a2d6b8e3c1f07131de5af3eb67a0361d1d427c0f740992a1b2977ed389aaf57",
+      "sha256": "7ce19569277c85ef2cca60c7b64de64b6264d6f3fc6b55531e272477f50c220c",
       "nativeFile": "index_bg.js"
     },
     {
       "path": "packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm",
-      "bytes": 3427609,
-      "sha256": "6827b7a3c62d7534250f81595c237086179989eac0eb5b02c3f952bcf20d8761",
+      "bytes": 3358713,
+      "sha256": "5075385aaedca6b93a5f76bd5e4134ea739b331db5eba77a1e449784d222af6f",
       "nativeFile": "index_bg.wasm"
     }
   ]

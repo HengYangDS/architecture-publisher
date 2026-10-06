@@ -36,7 +36,7 @@ async function licenseText(packagePath, manifest) {
   const notices = entries
     .filter(({ name }) => /^(?:licen[cs]e|copying|notice)(?:[._-]|$)/iu.test(name))
     .sort((left, right) => compare(left.name, right.name));
-  if (!notices.length && manifest.name === 'remeda' && manifest.version === '2.50.0') {
+  if (!notices.length && manifest.name === 'remeda' && manifest.version === '2.51.0') {
     const bytes = await fs.readFile(new URL('./licenses/remeda-LICENSE', import.meta.url));
     if (sha(bytes) !== remedaLicenseSha256) throw Error('likec4_supply_license_drift');
     return bytes.toString('utf8');
@@ -191,6 +191,11 @@ async function main() {
     throw Error('usage: likec4.mjs --write|--check');
   const files = await supplyFiles();
   const destination = path.join(root, 'packages/publisher/supplies/likec4');
+  const identityPath = path.join(root, 'packages/publisher/src/semantics/supply-identity.mjs');
+  const identity = Buffer.from(
+    '/** Generated from the admitted LikeC4 parser supply. Do not edit. */\n' +
+      `export const LIKEC4_SUPPLY_SHA256 =\n  '${sha(files.get('supply.json'))}';\n`,
+  );
   if (mode === '--write') {
     await fs.mkdir(destination, { recursive: true });
     await noSymlinkAncestors(destination);
@@ -200,8 +205,19 @@ async function main() {
     )
       throw Error('likec4_supply_unknown_content');
     for (const [name, bytes] of files) await fs.writeFile(path.join(destination, name), bytes);
+    await noSymlinkAncestors(path.dirname(identityPath));
+    try {
+      const entry = await fs.lstat(identityPath);
+      if (!entry.isFile() || entry.isSymbolicLink()) throw Error('likec4_supply_identity_invalid');
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    await fs.writeFile(identityPath, identity);
   }
   await verifyDirectory(destination, files);
+  await noSymlinkAncestors(identityPath);
+  if (!(await fs.readFile(identityPath)).equals(identity))
+    throw Error('likec4_supply_identity_drift');
   process.stdout.write(`LikeC4 supply ${mode === '--write' ? 'written' : 'verified'}\n`);
 }
 

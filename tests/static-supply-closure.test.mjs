@@ -195,16 +195,16 @@ test('raster verification checks selected native inputs and outputs without comp
   assert.equal(invoke('--outputs', outputRoot).status, 0);
   const tools = {
     rustc: {
-      release: '1.98.1',
-      commit: '48a229ceaefd4985c50990b14116b6d856af0985',
+      release: '1.99.0',
+      commit: 'b940084d7eb6a299eb4bfeb8e34901bc051e7ac4',
       host: 'aarch64-apple-darwin',
     },
     cargo: {
-      release: '1.98.1',
-      commit: '797e8a9bca276c1c9f9f738d2a20f484fa4eea9d',
+      release: '1.99.0',
+      commit: '5f94df4789f005f9a352888e8355ffc645b7ed0e',
       host: 'aarch64-apple-darwin',
     },
-    wasmBindgen: '0.2.128',
+    wasmBindgen: '0.2.129',
   };
   const identity = path.join(work, 'tool identity.json');
   await fs.writeFile(identity, JSON.stringify(tools));
@@ -253,9 +253,9 @@ test('raster renderer is bound to a reproducible source closure', async () => {
     version: `0.48.1-${source.source.archiveSha256.slice(0, 12)}`,
     file: 'source.tar.xz',
   });
-  assert.equal(source.toolchain.rust, '1.98.1');
+  assert.equal(source.toolchain.rust, '1.99.0');
   assert.equal(source.toolchain.target, 'wasm32-unknown-unknown');
-  assert.equal(source.toolchain.wasmBindgen, '0.2.128');
+  assert.equal(source.toolchain.wasmBindgen, '0.2.129');
   assert.match(source.build.cargoLockSha256, /^[a-f0-9]{64}$/);
   assert.equal(source.build.network, 'offline');
   assert.equal(source.build.frozen, true);
@@ -303,12 +303,12 @@ test('raster binding has no implicit file or network loader', async () => {
     [
       {
         module: './index_bg.js',
-        name: '__wbg___wbindgen_throw_5d9e815e6fdf150f',
+        name: '__wbg___wbindgen_throw_41e9ee4f547fc59a',
         kind: 'function',
       },
       {
         module: './index_bg.js',
-        name: '__wbg_Error_67e7344beaa85059',
+        name: '__wbg_Error_30c8987f7c2ed4e2',
         kind: 'function',
       },
       {

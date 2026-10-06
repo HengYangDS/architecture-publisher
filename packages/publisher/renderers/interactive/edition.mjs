@@ -77,7 +77,7 @@ function pageHtml(page, index, methodLimits, icons) {
     const ordinal = String(at + 1).padStart(2, '0');
     const kind = repeatedKind(node.label, node.kind) ? null : node.kind;
     const name = [ordinal, node.label, kind].filter(Boolean).join(' ');
-    return `<li><button type="button" data-focus-node="${node.id}" aria-label="${escape(name)}" aria-pressed="false"><span class="ordinal">${ordinal}</span><span>${escape(node.label)}</span>${kind ? `<small>${escape(kind)}</small>` : ''}</button></li>`;
+    return `<li><button type="button" data-focus-node="${node.id}" aria-label="${escape(name)}" aria-pressed="false"><span class="ordinal">${ordinal}</span> <span>${escape(node.label)}</span>${kind ? ` <small>${escape(kind)}</small>` : ''}</button></li>`;
   };
   const nodeItems = page.groups?.length
     ? page.groups
@@ -96,7 +96,7 @@ function pageHtml(page, index, methodLimits, icons) {
         : '';
       const ordinal = mixed ? String(at + 1).padStart(2, '0') : null;
       const name = ordinal ? `${ordinal} ${words}` : words;
-      return `<li><button type="button" data-focus-relation="${relation.id}" aria-label="${escape(name)}" aria-pressed="false">${ordinal ? `<span class="ordinal">${ordinal}</span>` : ''}${escape(words)}</button>${sourceQualifiers}</li>`;
+      return `<li><button type="button" data-focus-relation="${relation.id}" aria-label="${escape(name)}" aria-pressed="false">${ordinal ? `<span class="ordinal">${ordinal}</span> ` : ''}${escape(words)}</button>${sourceQualifiers}</li>`;
     })
     .join('');
   const qualifierNote = page.relations.some((relation) => relation.sourceQualifiers?.length)

@@ -27,6 +27,37 @@ const runBrowser = {
 };
 
 test(
+  'native camera accessible names include the visible readout after every action',
+  runBrowser,
+  async (t) => {
+    const html = await authoredHtml(t);
+    const browser = browserLifetime(t).use(await chromium.launch(browserOptions));
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.setContent(html.toString(), { waitUntil: 'load' });
+    const frame = page.frames().find((value) => value !== page.mainFrame());
+    await frame.waitForFunction(() => Boolean(globalThis.Archify?.view));
+    const control = frame.locator('[data-view="reset"]');
+    for (const action of [null, 'in', 'in', 'reset']) {
+      if (action) await frame.locator(`[data-view="${action}"]`).click();
+      const name = await control.evaluate((element) => ({
+        visible: element.innerText.replace(/\s+/gu, ' ').trim(),
+        accessible: element.getAttribute('aria-label'),
+      }));
+      assert(name.visible, JSON.stringify(name));
+      assert(name.accessible.includes(name.visible), JSON.stringify(name));
+      assert.match(name.accessible, /Reset diagram view/u);
+    }
+    const names = await frame.locator('.diagram-nav button').evaluateAll((elements) =>
+      elements.map((element) => ({
+        visible: element.innerText.replace(/\s+/gu, ' ').trim().toLowerCase(),
+        accessible: (element.getAttribute('aria-label') ?? '').toLowerCase(),
+      })),
+    );
+    for (const name of names) assert(name.accessible.includes(name.visible), JSON.stringify(name));
+  },
+);
+
+test(
   'interactive source values preserve exact whitespace in diagrams and Inspect',
   runBrowser,
   async (t) => {

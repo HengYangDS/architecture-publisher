@@ -103,9 +103,14 @@
         "sha256": "5e8bfca9200084b48501fc9b1d6b2e96c241d194d969f4e661b63a7b5c87f369"
       },
       {
+        "path": "src/semantics/supply-identity.mjs",
+        "bytes": 176,
+        "sha256": "8d2a0a6bc2b4b7fd7ddf9195e6fd993bb7c426cf1ca53a4f0931b8c210e6f9eb"
+      },
+      {
         "path": "src/semantics/supply.mjs",
-        "bytes": 1740,
-        "sha256": "5547e38f6924f5701df4df7b686fc0c1ccab53864795a36aa939a47b59013b09"
+        "bytes": 1719,
+        "sha256": "773e585831290777609a3906c541fdf71c913f2781ca240f5c28c4a28903bd81"
       },
       {
         "path": "src/source/materialize.mjs",
@@ -220,9 +225,14 @@
         "sha256": "ead7cd6acc7a37c1603ac319db4372dffad4c9bca15d252ead08ee47f2c6c2ed"
       },
       {
+        "path": "src/semantics/supply-identity.mjs",
+        "bytes": 176,
+        "sha256": "8d2a0a6bc2b4b7fd7ddf9195e6fd993bb7c426cf1ca53a4f0931b8c210e6f9eb"
+      },
+      {
         "path": "src/semantics/supply.mjs",
-        "bytes": 1740,
-        "sha256": "5547e38f6924f5701df4df7b686fc0c1ccab53864795a36aa939a47b59013b09"
+        "bytes": 1719,
+        "sha256": "773e585831290777609a3906c541fdf71c913f2781ca240f5c28c4a28903bd81"
       },
       {
         "path": "src/source/materialize.mjs",
@@ -249,7 +259,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "64219758d2333f6a9f3dcd5f876e3d501813afd13ce1be281381af0cc4fa3521"
+        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -401,7 +411,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "64219758d2333f6a9f3dcd5f876e3d501813afd13ce1be281381af0cc4fa3521"
+        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -538,7 +548,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "64219758d2333f6a9f3dcd5f876e3d501813afd13ce1be281381af0cc4fa3521"
+        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -675,7 +685,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "64219758d2333f6a9f3dcd5f876e3d501813afd13ce1be281381af0cc4fa3521"
+        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -812,7 +822,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "64219758d2333f6a9f3dcd5f876e3d501813afd13ce1be281381af0cc4fa3521"
+        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -960,9 +970,14 @@
         "sha256": "ead7cd6acc7a37c1603ac319db4372dffad4c9bca15d252ead08ee47f2c6c2ed"
       },
       {
+        "path": "src/semantics/supply-identity.mjs",
+        "bytes": 176,
+        "sha256": "8d2a0a6bc2b4b7fd7ddf9195e6fd993bb7c426cf1ca53a4f0931b8c210e6f9eb"
+      },
+      {
         "path": "src/semantics/supply.mjs",
-        "bytes": 1740,
-        "sha256": "5547e38f6924f5701df4df7b686fc0c1ccab53864795a36aa939a47b59013b09"
+        "bytes": 1719,
+        "sha256": "773e585831290777609a3906c541fdf71c913f2781ca240f5c28c4a28903bd81"
       }
     ],
     "static-authored": [
@@ -979,7 +994,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "64219758d2333f6a9f3dcd5f876e3d501813afd13ce1be281381af0cc4fa3521"
+        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -1151,7 +1166,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "64219758d2333f6a9f3dcd5f876e3d501813afd13ce1be281381af0cc4fa3521"
+        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
       },
       {
         "path": "renderers/resvg/index.mjs",
@@ -1282,8 +1297,8 @@
       },
       {
         "path": "renderers/interactive/edition.mjs",
-        "bytes": 28072,
-        "sha256": "d0c1be6d0d8141847c6300a77dda32e5bb8cb17ac1b1e2510202dd8dbd2ef7c0"
+        "bytes": 28075,
+        "sha256": "2b30b036992567390c61a9d5926ba9af10b74b749bd0f9789c5e135cb71c9e52"
       },
       {
         "path": "renderers/interactive/graph-svg.mjs",
@@ -1328,7 +1343,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "64219758d2333f6a9f3dcd5f876e3d501813afd13ce1be281381af0cc4fa3521"
+        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
       },
       {
         "path": "renderers/resvg/limits.mjs",
@@ -1459,8 +1474,8 @@
       },
       {
         "path": "renderers/archify/index.mjs",
-        "bytes": 16484,
-        "sha256": "b3d773f3bdeb58c93d56d8143a6909ed71a3f8b2b02deabaa9b007fe906e2526"
+        "bytes": 17096,
+        "sha256": "9853140458c86c1d451ec2c7386670dee072ec8578cae5b3bfe7c17b6c7e6d69"
       },
       {
         "path": "renderers/archify/primitives.mjs",
@@ -1510,7 +1525,7 @@
       {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
-        "sha256": "64219758d2333f6a9f3dcd5f876e3d501813afd13ce1be281381af0cc4fa3521"
+        "sha256": "dfd751417620f6902d46652da68eadac06661927cdc5f85da05d285c370a4d17"
       },
       {
         "path": "renderers/resvg/limits.mjs",

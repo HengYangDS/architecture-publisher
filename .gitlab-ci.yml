@@ -70,8 +70,8 @@ stages:
     - >-
       curl --fail --silent --show-error --location --connect-timeout 15 --max-time 180
       --output build/runtime/tool-cache/mise-bootstrap/mise.tar.gz
-      https://github.com/jdx/mise/releases/download/v2026.10.2/mise-v2026.10.2-linux-arm64.tar.gz
-    - echo '5d3368679ce0cc37fb222511a04c61426cded69f0cda0f8248d03970dc34f303  build/runtime/tool-cache/mise-bootstrap/mise.tar.gz' | sha256sum --check
+      https://github.com/jdx/mise/releases/download/v2026.10.3/mise-v2026.10.3-linux-arm64.tar.gz
+    - echo 'e79866e32624b346f6854d93ca8a24294516cd7c0b48ce0e80af508fb7c3d8b8  build/runtime/tool-cache/mise-bootstrap/mise.tar.gz' | sha256sum --check
     - tar -xzf build/runtime/tool-cache/mise-bootstrap/mise.tar.gz -C build/runtime/tool-cache/mise-bootstrap --strip-components=1
     - export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise-bootstrap/bin:$PATH"
     - mkdir -p "$PIXI_HOME" build/runtime/work/native-linux-prerequisites

@@ -42,17 +42,24 @@ Missing browser or Raster supply fails required execution. Linux uses a non-root
 job principal and retains Chromium's sandbox; actual native job results, not
 installation or YAML inspection, qualify each platform.
 
-The 2026-10-01 official npm runtime-tree advisory check found known vulnerable
-bundled dependency versions in npm 11.19.1, 11.21.0 and 12.2.0. Selecting the
-latest stable npm does not remediate those findings. The operator approved an
-exact bounded exception for project 1323 CI: independent identities and tool
-directories, verified source, disabled installer lifecycle scripts, and no
-expansion to other projects or production. New native guest installation outside
-that scope still requires an explicit risk decision or a verified corrected
-upstream package; no dependency surgery, ignored warning, shared identity, or
-production authorization follows from this selection.
+The 2026-10-06 official npm audit reports 15 affected development-package
+entries in the selected stable tool closure, not 15 independent advisories.
+OpenSpec and Markdownlint retain the affected glob chain; Markdownlint also
+retains affected math and TOML parsers. npm 12.2.0 bundles affected
+brace-expansion, HTTP-cache, address, selector and Undici dependencies. Native
+compatible resolution does not remove these findings; forcing a downgrade or
+editing bundled packages is not remediation. The operator accepts these tools
+only for this Publisher checkout and project 1323 CI: trusted local source and
+configuration, pinned verified supply, isolated job identities/directories,
+disabled installer lifecycle scripts and bounded execution. Do not pass
+untrusted repository, glob, Markdown, TOML or arbitrary network input to them.
+This exception does not authorize production use or weaken renderer admission.
+The existing supply-update owner must re-audit exact selected bytes when an
+upstream stable fix arrives; that fix, a new affected shipped dependency or an
+expanded consumer invalidates this disposition. Raw audit and resolver evidence
+is retained under `build/evidence/guided-architecture-reading/stable-supply-20261006/`.
 
-The development workspace pins OpenSpec 1.14.0. Its official apply instructions
+The development workspace pins OpenSpec 1.14.1. Its official apply instructions
 return each task's concrete `sourcePath` and one-based `line`; the repository
 checks those against a relocated, isolated task fixture. This is task-location
 evidence, not implementation completion or permission to mark a checkbox.
