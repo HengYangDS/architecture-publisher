@@ -87,6 +87,25 @@
           "bytes": 3427664,
           "sha256": "db31774c8451ded296654179db08e6c4454f313eea0e9f720b1b26a90e2cc142"
         }
+      },
+      {
+        "tools": {
+          "rustc": {
+            "release": "1.98.1",
+            "commit": "48a229ceaefd4985c50990b14116b6d856af0985",
+            "host": "aarch64-pc-windows-msvc"
+          },
+          "cargo": {
+            "release": "1.98.1",
+            "commit": "797e8a9bca276c1c9f9f738d2a20f484fa4eea9d",
+            "host": "aarch64-pc-windows-msvc"
+          },
+          "wasmBindgen": "0.2.128"
+        },
+        "wasm": {
+          "bytes": 3427593,
+          "sha256": "93f0036247f368af0c2c9df9315ada866b488351361920db5334867750732628"
+        }
       }
     ]
   },
