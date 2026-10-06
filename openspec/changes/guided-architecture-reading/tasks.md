@@ -12,7 +12,7 @@
 
 ## 3. Qualification and source handoff
 
-- [x] 3.1 Pass the current local quality graph and all four coverage floors. The sandbox-enabled macOS `npm run check` at signed checkpoint `566e32d` exits zero: 1,753 passed, none failed/cancelled, three scoped skips; lines/statements 97.62%, functions 99.52%, branches 95.20%. Evidence: `build/evidence/guided-architecture-reading/signed-checkpoint-566e32d/full-native.{log,exit}`. This run precedes the Windows-witness-only manifest amendment; preserve prior skip dispositions. Hosted platforms and source/publication acceptance remain separate.
+- [x] 3.1 Pass the current local quality graph and all four coverage floors. The sandbox-enabled macOS `npm run check` at signed checkpoint `37da596` exits zero in a clean, temporary native Git clone: 1,756 passed, none failed/cancelled, three scoped skips; lines/statements 97.62%, functions 99.52%, branches 95.20%. Evidence: `build/evidence/guided-architecture-reading/raster-parent-seal-convergence/full-native-37da596.{log,exit,json}` and `full-native-37da596-coverage-summary.json`. The independent pending Linux-image RED and unknown-owned files remain outside this signed acceptance subject, not excluded by test filters. Preserve prior skip dispositions. Hosted platforms and source/publication acceptance remain separate.
 - [x] 3.2 Exercise real background Chrome for generic native/authored content and the complete ETHOS rehearsal; qualify every page, selected reading behavior, offered appearance, Inspect, addressed reading and history without requiring legacy feature parity.
 - [x] 3.3 Verify relocated offline installed public builds, exact media and historical preservation; retain explicit visual/source-acceptance limits.
 - [x] 3.4 Deliver the qualified contract and concrete evidence to the existing ETHOS migration owner without blocking source safety work or changing AIGW's package selection.
@@ -39,7 +39,7 @@
 
 ## 8. Implementation-grounded research
 
-- [ ] 8.1 Reconcile substantive OpenSpec updates, COMET, SpecD/SpecDD, Spec Kit, BMAD/GSD, adjacent coordination, symbolic/graph semantics and formal methods into the current ETHOS research owner; bind fixed implementations, separated size/quality/cost and adopt/reuse/replace/defer/reject decisions with evidence and revisit triggers.
+- [ ] 8.1 Reconcile substantive OpenSpec updates, COMET, SpecD/SpecDD, Spec Kit, BMAD/GSD, adjacent coordination, symbolic/graph semantics and formal methods into the current ETHOS research owner; bind fixed implementations, separated size/quality/cost and adopt/reuse/replace/defer/reject decisions with evidence and revisit triggers. Current signed Lane and working-tree readback confirms all five source-owned topic blobs equal the signed intake baseline; the former branch-absence statement is corrected. Current decision disposition, accepted-ref absorption and falsifying adoption remain open. Evidence: `build/evidence/guided-architecture-reading/raster-parent-seal-convergence/research-current-owner-readback.json`.
 
 ## 9. Artifact custody and recovery
 
@@ -58,7 +58,11 @@
       runtime identity from coverage. Node 22.23.3 passes two relocated offline
       installed journeys outside the Node-26 development workspace; the temporary
       conformance root is removed. This proves representative macOS ARM64 use,
-      not universal minimum-runtime or platform support. Current full coverage,
-      hosted acceptance and final recovery remain open.
+      not universal minimum-runtime or platform support. The clean signed macOS
+      checkpoint `37da596` now passes the full gate and all four coverage floors;
+      its separate frozen Raster journey reproduces canonical JS/WASM bytes in
+      two relocated offline builds with one pass and zero skips. Evidence:
+      `raster-native-37da596.{log,exit,json}` under the same evidence root.
+      Hosted acceptance and final recovery remain open.
 - [ ] 10.2 Complete semantic source/module/configuration/documentation and warning audit; repair actual message/authentication/execution owners without session/model/credential edits and qualify the exact-current installed ETHOS proof successor. Formal proof at `6a94c64` preserves a blocked receipt: the installed common JavaScript observer applies authored ESLint rules to declared generated/snapshot supply. Direct observation isolates all errors to those carriers; authored paths have no reported errors. The existing ETHOS source owner has acknowledged the general classification repair but has not delivered an accepted successor. Evidence: `ci-browser-binding/{proof,static-provider}-6a94c64*` under this Change's evidence root. Review-object proposal projection is separately admitted and does not qualify accepted refs.
 - [ ] 10.3 Publish a signed SemVer successor with Keep a Changelog, designated source/media acceptance and remote readback; converge protected refs and close Change/proposal/Lane through native owners with verified evidence custody and exact housekeeping.

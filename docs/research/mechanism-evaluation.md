@@ -69,9 +69,13 @@ recorded reviewed COMET, OpenSpec, SpecD, Spec Kit, BMAD, GSD and adjacent
 mechanisms in five topics at signed commit `e108fb1408cd122e25d37895fccd6cfc4abf129a`.
 The [intake receipt](../../tests/conformance/evidence/research-owner-intake.json)
 binds the dated source revisions, packet identities, topic hashes and limits.
-Readback on 2026-10-04 verified those Git blobs remain intact, but the current
-source-owner branch does not contain the comparison sections. Its existing
-research task must reconcile that scope before current settlement is claimed.
+Readback on 2026-10-06 verified all five topic blobs are identical in the signed
+baseline, the current source-owner Lane at `3253e7e1b99a3058ff8f1c7876842a7acad400f0`,
+and its working tree. Evidence:
+`build/evidence/guided-architecture-reading/raster-parent-seal-convergence/research-current-owner-readback.json`.
+Its existing research task still owns current decision disposition, accepted-ref
+absorption and the falsifying adoption journey; preserved topic bytes do not
+settle those separate obligations.
 The receipt is historical evidence; its former worktree paths are not current
 application inputs. Neither the checkpoint nor this receipt establishes
 upstream workloads, current implementation or another editable knowledge authority.

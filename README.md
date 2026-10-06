@@ -141,7 +141,7 @@ The current checkout separates product ownership from adopter evidence:
 | `editions/self/`         | Separately packaged source-owned flagship self-Edition                          |
 | `openspec/`              | Normative specs and the active Change's sole task ledger                        |
 | `.ethos/`                | Native repository governance bindings                                           |
-| `.config/checks/`        | Repository quality policy, consumed by native tools                             |
+| `.config/`               | Native quality, locked CI tools and bounded supply configuration                |
 | `tests/`                 | Behavioral regressions and portable installed conformance                       |
 | `tools/`                 | Development generators, supply preparation and qualification helpers            |
 | `examples/`              | Small public-input examples, not alternate runtime owners                       |
@@ -151,9 +151,11 @@ The current checkout separates product ownership from adopter evidence:
 
 The root holds the workspace manifest, lockfile, reader entry documents and
 required native discovery entries. [Configuration ownership](.config/README.md)
-explains each retained entry. Host-custodied evidence and recovery live in the
-repository-family records outside source; they are not runtime inputs or a
-second progress ledger.
+explains each retained entry. Local tool state, evidence and recovery preimages
+live in the owning checkout's ignored `build/`; they are not runtime inputs or
+a second progress ledger. Required unique evidence moves to its selected durable
+custodian before workspace retirement. A sibling records directory is not an
+active output or custody owner.
 
 This repository keeps the generic package, renderer supply,
 its self-Edition, and compact conformance fixtures. ETHOS and AIGW retain
