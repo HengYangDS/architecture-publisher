@@ -504,6 +504,11 @@ before tools run, preserving exact LF and frozen supplier bytes after attribute
 changes without recursively deleting a mapped browser cache. All other prior
 job output is cleaned. Retained tools still undergo locked supply validation;
 this checkout policy does not claim process reclamation or hosted acceptance.
+The locked Rust declaration selects `cargo` and `rustc` explicitly. Mise passes
+these requirements to native rustup toolchain installation, which reconciles
+missing selected components in a retained cache. The minimal profile, target
+and version remain unchanged; no secondary installer or retry controller is
+introduced.
 
 The native Linux job uses the pinned official Playwright filesystem with
 `pwuser` as the image's default user. The two-instruction Dockerfile changes

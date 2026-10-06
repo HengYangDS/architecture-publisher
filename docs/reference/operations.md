@@ -1051,6 +1051,9 @@ are cleaned; required evidence belongs outside that disposable job state.
 Retained tools remain subject to their locked supply checks. Native checkout
 logs and byte checks must confirm the effective strategy. This does not modify
 global Git configuration or prove that a previous process was reclaimed.
+Mise's locked Rust declaration includes both `cargo` and `rustc`. Its native
+installation repairs missing selected components in the retained tool-cache;
+a minimal profile alone does not reconcile an already installed toolchain.
 
 The JavaScript coverage gate selects all tracked runtime `.mjs` under
 `packages/publisher/src/`, first-party

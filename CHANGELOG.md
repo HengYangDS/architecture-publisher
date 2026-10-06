@@ -19,6 +19,8 @@ may contain incompatible changes.
 
 ### Changed
 
+- Locked CI Rust installation reconciles required `cargo` and `rustc`
+  components in retained tool caches instead of failing at compiler discovery.
 - Self-use interactive diagrams use neutral ordinary-node paint. Their distinct
   type icons retain the Edition-wide catalogue; selected reading states and
   relationships retain native emphasis without an undocumented color taxonomy.

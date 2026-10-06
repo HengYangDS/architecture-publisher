@@ -93,6 +93,23 @@ test('native CI binds browser and frozen Raster journeys before the whole qualit
   assert.equal(pipeline.variables?.MISE_LOCKED, '1');
   assert.equal(pipeline.variables?.MISE_DATA_DIR, '$CI_PROJECT_DIR/build/runtime/tool-cache/mise');
   assert.equal(pipeline.variables?.MISE_TRUSTED_CONFIG_PATHS, '$CI_PROJECT_DIR');
+  const toolchain = await fs.readFile(path.join(root, '.config/mise.ci.toml'), 'utf8');
+  assert.match(
+    toolchain,
+    /components = \[\s*"cargo",\s*"rustc",?\s*\]/u,
+    'native Rust installation reconciles both required host compilers in a retained cache',
+  );
+  const toolchainLock = await fs.readFile(path.join(root, '.config/mise.ci.lock'), 'utf8');
+  assert.equal(
+    toolchainLock.match(/\[\[tools\.rust\]\]/gu)?.length,
+    1,
+    'one native lock entry owns the selected Rust toolchain',
+  );
+  assert.match(
+    toolchainLock,
+    /\[tools\.rust\.options\][\s\S]*components = "cargo,rustc"/u,
+    'the native lock binds the required Rust component selection',
+  );
   assert.equal(native.script.at(-1), 'mise exec -- npm run check');
   assert(native.script.includes('mise install'));
   assert(native.script.includes('mise exec -- npm ci --ignore-scripts --no-audit --no-fund'));

@@ -39,6 +39,8 @@ another package manifest or product interface.
 
 Node selection comes from `.node-version`. The selected npm, Rust target and
 wasm-bindgen versions serve native execution, not an alternative quality gate.
+The Rust declaration explicitly selects `cargo` and `rustc`; native Mise
+installation reconciles these components even when the tool-cache survives.
 Mise exposes each selected tool as either a map or an array. Both environment
 templates resolve the native shape before selecting its installation path.
 Windows CI retains only the locked tool-cache through GitLab's native fetch and
