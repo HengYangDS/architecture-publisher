@@ -39,6 +39,10 @@ stages:
     - git --version
     - mise exec -- npm ci --ignore-scripts --no-audit --no-fund
     - mise exec -- node node_modules/playwright-core/cli.js install chromium
+    - >-
+      mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+      --test-name-pattern='standalone reader policy blocks dynamic page connections'
+      tests/interactive-html.test.mjs
     - mise exec -- node -e "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
     - mise exec -- node tools/raster/resvg/verify.mjs --registry-url > build/runtime/tool-cache/raster/source-url.txt
     - >-

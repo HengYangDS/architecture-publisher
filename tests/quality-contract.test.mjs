@@ -128,6 +128,15 @@ test('native CI binds browser and frozen Raster journeys before the whole qualit
       'mise exec -- node node_modules/playwright-core/cli.js install chromium',
     ),
   );
+  assert.equal(
+    native.script[
+      native.script.indexOf(
+        'mise exec -- node node_modules/playwright-core/cli.js install chromium',
+      ) + 1
+    ],
+    "mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test --test-name-pattern='standalone reader policy blocks dynamic page connections' tests/interactive-html.test.mjs",
+    'the existing sandboxed browser journey runs before expensive Raster and coverage gates',
+  );
   assert(
     native.script.includes(
       'mise exec -- node tools/raster/resvg/verify.mjs --registry-url > build/runtime/tool-cache/raster/source-url.txt',

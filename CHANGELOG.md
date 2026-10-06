@@ -31,6 +31,10 @@ may contain incompatible changes.
 
 ### Fixed
 
+- CI executes the existing sandboxed browser journey immediately after browser
+  installation, before expensive Raster and coverage work. Legend hit-target
+  observation waits for native joint layout readiness instead of sampling a
+  moving surface; its geometry and click assertions remain unchanged.
 - Native CI selects Rust's host standard library as well as both build tools,
   so retained caches reconcile the components required by Cargo build scripts.
   Native rustup resolves the exact selected host; a WASM library cannot

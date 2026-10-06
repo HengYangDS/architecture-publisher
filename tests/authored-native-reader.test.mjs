@@ -317,6 +317,7 @@ test(
     assert.equal(await legend.locator('[data-legend-count-badge]').count(), 0);
     assert.equal(await legend.locator('text').textContent(), 'editorial project');
     assert.equal(await legend.getAttribute('aria-label'), 'Inspect editorial project');
+    await page.evaluate(() => globalThis.Archify.layoutStability.whenStable());
     const hitGeometry = await legend.evaluate((entry) => {
       const hit = entry.querySelector('[data-legend-hit]').getBoundingClientRect();
       const label = entry
