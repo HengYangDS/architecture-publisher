@@ -29,6 +29,10 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Windows verification refreshes every tracked file through native Git checkout
+  while retaining only verified tool-cache bytes, so a mapped browser DLL no
+  longer requires recursive workspace replacement. Previous coverage and other
+  generated job output remain disposable; locked supply checks are unchanged.
 - Linux CI selects a registry-verified Playwright image with a non-root default
   user so Runner repairs checkout ownership before executing the job. Its
   filesystem is unchanged from the pinned official image; no source, credentials,

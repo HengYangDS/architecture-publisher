@@ -224,10 +224,12 @@ test('native Windows verification runs the whole quality graph with separate tru
   assert.equal(native.image, null);
   assert.equal(native.resource_group, 'native-windows-verification');
   assert.equal(native.timeout, '60m');
-  assert.equal(native.variables?.GIT_STRATEGY, 'clone');
+  assert.equal(native.variables?.GIT_STRATEGY, 'fetch');
+  assert.equal(native.variables?.GIT_CLEAN_FLAGS, '-ffdx -e build/runtime/tool-cache/');
   assert.equal(native.extends, '.verify-native');
   assert(native.before_script.some((command) => command.includes("process.platform !== 'win32'")));
   assert.deepEqual(native.before_script, [
+    'git checkout-index --all --force',
     '$env:PATH = (Join-Path $env:ProgramFiles "mise/bin") + [IO.Path]::PathSeparator + $env:PATH',
     "node -e \"if (process.platform !== 'win32' || process.arch !== 'arm64') process.exit(1)\"",
   ]);

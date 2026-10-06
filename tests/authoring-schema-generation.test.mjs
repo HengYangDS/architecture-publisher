@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { parse } from 'yaml';
 import * as edition from '../packages/publisher/src/edition/index.mjs';
 import * as generated from '../packages/publisher/src/edition/generated/validators.mjs';
 
@@ -64,6 +65,31 @@ test('native Git checkout preserves generated and supplier bytes under automatic
   git('config', 'core.autocrlf', 'true');
   for (const relative of selected) await fs.rm(path.join(checkout, relative));
   git('checkout-index', '--all', '--force');
+  for (const relative of selected)
+    assert.deepEqual(
+      await fs.readFile(path.join(checkout, relative)),
+      originals.get(relative),
+      relative,
+    );
+  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
+  const native = pipeline['.verify-windows'];
+  const cache = 'build/runtime/tool-cache/playwright/chrome_elf.dll';
+  const disposable = ['build/evidence/prior-job.json', 'coverage/coverage-summary.json'];
+  const cacheBytes = Buffer.from('pinned native browser supply');
+  await fs.mkdir(path.dirname(path.join(checkout, cache)), { recursive: true });
+  await fs.writeFile(path.join(checkout, cache), cacheBytes);
+  for (const relative of disposable) {
+    await fs.mkdir(path.dirname(path.join(checkout, relative)), { recursive: true });
+    await fs.writeFile(path.join(checkout, relative), 'previous job');
+  }
+  const authored = selected[0];
+  await fs.writeFile(path.join(checkout, authored), 'stale CRLF carrier\r\n');
+  assert.equal(native.variables?.GIT_STRATEGY, 'fetch');
+  git('clean', ...native.variables.GIT_CLEAN_FLAGS.split(' '));
+  git(...native.before_script[0].split(' ').slice(1));
+  assert.deepEqual(await fs.readFile(path.join(checkout, cache)), cacheBytes);
+  for (const relative of disposable)
+    await assert.rejects(fs.access(path.join(checkout, relative)), { code: 'ENOENT' });
   for (const relative of selected)
     assert.deepEqual(
       await fs.readFile(path.join(checkout, relative)),

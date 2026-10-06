@@ -121,8 +121,10 @@ verify:macos:protected:
   interruptible: true
   timeout: 60m
   variables:
-    GIT_STRATEGY: clone
+    GIT_STRATEGY: fetch
+    GIT_CLEAN_FLAGS: '-ffdx -e build/runtime/tool-cache/'
   before_script:
+    - git checkout-index --all --force
     - '$env:PATH = (Join-Path $env:ProgramFiles "mise/bin") + [IO.Path]::PathSeparator + $env:PATH'
     - node -e "if (process.platform !== 'win32' || process.arch !== 'arm64') process.exit(1)"
 

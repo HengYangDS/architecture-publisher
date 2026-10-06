@@ -1042,11 +1042,15 @@ and historical digests remain separate from that artifact-build setting.
 Repository-authored text checks out as LF through `.gitattributes`. Generated
 validators and third-party supply use `-text` to preserve recorded bytes,
 including mixed-line-ending notices and binary fonts. Windows CI uses GitLab's
-native clone strategy: an attribute-only successor must not retain a stat-clean
-CRLF file from a previous fetch checkout. The Runner build directory contains
-disposable job state; preserve required evidence outside it before qualification.
-Native checkout logs and byte checks must confirm the effective strategy. This
-does not modify the operator's global Git configuration or waive supply drift.
+native fetch strategy and default cleaning, excluding only
+`build/runtime/tool-cache/`. A completed browser can retain a mapped DLL that
+prevents recursive workspace replacement. `git checkout-index --all --force`
+refreshes every tracked carrier before tool execution, including attribute-only
+changes and stat-clean CRLF files. Previous coverage and other generated output
+are cleaned; required evidence belongs outside that disposable job state.
+Retained tools remain subject to their locked supply checks. Native checkout
+logs and byte checks must confirm the effective strategy. This does not modify
+global Git configuration or prove that a previous process was reclaimed.
 
 The JavaScript coverage gate selects all tracked runtime `.mjs` under
 `packages/publisher/src/`, first-party

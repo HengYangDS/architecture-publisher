@@ -498,6 +498,13 @@ changes no Guest isolation, execution policy, credentials or Rust target.
 
 ### Required native CI execution
 
+Windows uses native GitLab fetch and cleaning, excluding only the job-local
+`build/runtime/tool-cache/`. Forced index checkout renews every tracked carrier
+before tools run, preserving exact LF and frozen supplier bytes after attribute
+changes without recursively deleting a mapped browser cache. All other prior
+job output is cleaned. Retained tools still undergo locked supply validation;
+this checkout policy does not claim process reclamation or hosted acceptance.
+
 The native Linux job uses the pinned official Playwright filesystem with
 `pwuser` as the image's default user. The two-instruction Dockerfile changes
 only image configuration: `FROM` an immutable upstream digest, then `USER pwuser`.
