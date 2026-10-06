@@ -1028,6 +1028,28 @@ test(
         `<style>html,body{margin:0;background:transparent}svg{display:block}</style>${exactSvg.toString('utf8')}`,
       );
       await page.evaluate(() => globalThis.document.fonts.ready);
+      const browserMetrics = await page.locator('text').evaluate((node) => {
+        const style = globalThis.getComputedStyle(node);
+        const context = globalThis.document.createElement('canvas').getContext('2d');
+        context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        const measurements = {};
+        for (const rendering of ['auto', 'geometricPrecision']) {
+          context.textRendering = rendering;
+          const observed = context.measureText(node.textContent);
+          measurements[rendering] = {
+            left: observed.actualBoundingBoxLeft,
+            right: observed.actualBoundingBoxRight,
+            ascent: observed.actualBoundingBoxAscent,
+            descent: observed.actualBoundingBoxDescent,
+            width: observed.width,
+          };
+        }
+        return {
+          family: style.fontFamily,
+          rendering: style.textRendering,
+          measurements,
+        };
+      });
       const chromeBytes = await page.locator('svg').screenshot({ omitBackground: true });
       const chrome = inspectRgbaPngCanvas(chromeBytes, {
         background: [0, 0, 0, 0],
@@ -1044,11 +1066,26 @@ test(
         background: [0, 0, 0, 0],
         colorDistance: 0,
       });
+      t.diagnostic(
+        JSON.stringify({
+          label,
+          bound,
+          browserMetrics,
+          native: native.envelope,
+          chrome: chrome.envelope,
+        }),
+      );
       for (const [engine, observed] of [
         ['native', native],
         ['chrome', chrome],
       ]) {
-        const detail = JSON.stringify({ engine, label, bound, observed: observed.envelope });
+        const detail = JSON.stringify({
+          engine,
+          label,
+          bound,
+          observed: observed.envelope,
+          browserMetrics,
+        });
         assert(Math.abs(observed.envelope.left - bound.x) <= 1.1, `left:${detail}`);
         assert(Math.abs(observed.envelope.top - bound.y) <= 1.1, `top:${detail}`);
         assert(

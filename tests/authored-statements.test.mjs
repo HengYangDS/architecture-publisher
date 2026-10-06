@@ -713,10 +713,19 @@ test(
       const context = globalThis.document.createElement('canvas').getContext('2d');
       context.font = `${globalThis.getComputedStyle(node).fontWeight} ${globalThis.getComputedStyle(node).fontSize} ${globalThis.getComputedStyle(node).fontFamily}`;
       const painted = context.measureText(node.textContent);
+      context.textRendering = 'geometricPrecision';
+      const precise = context.measureText(node.textContent);
       const x = Number(node.getAttribute('x'));
       const baseline = Number(node.getAttribute('y'));
       return {
         family: globalThis.getComputedStyle(node).fontFamily,
+        rendering: globalThis.getComputedStyle(node).textRendering,
+        geometric: {
+          x: x - precise.actualBoundingBoxLeft,
+          y: baseline - precise.actualBoundingBoxAscent,
+          width: precise.actualBoundingBoxLeft + precise.actualBoundingBoxRight,
+          height: precise.actualBoundingBoxAscent + precise.actualBoundingBoxDescent,
+        },
         loaded: globalThis.document.fonts.check('14px "JetBrains Mono"'),
         faces: [...globalThis.document.fonts]
           .filter((face) => face.family.replaceAll('"', '') === 'JetBrains Mono')
@@ -734,8 +743,12 @@ test(
     assert.deepEqual(paint.faces.map(({ weight }) => weight).sort(), ['400', '500', '600', '700']);
     assert(paint.faces.some(({ status }) => status === 'loaded'));
     const declared = scene.texts[0].box;
+    t.diagnostic(JSON.stringify({ text: scene.texts[0].text, declared, paint }));
     for (const key of ['x', 'y', 'width', 'height'])
-      assert(Math.abs(paint.box[key] - declared[key]) <= 0.5, `Same-byte ${key} measurement`);
+      assert(
+        Math.abs(paint.box[key] - declared[key]) <= 0.5,
+        `Same-byte ${key} measurement: ${JSON.stringify({ declared, paint })}`,
+      );
     await statement.focus();
     await statement.press('Enter');
     await page.locator('#interactive-inspector').waitFor({ state: 'visible' });

@@ -73,5 +73,14 @@
       Hosted ownership and execution remain unproved. Windows job `48850`
       passes all four global coverage floors but fails two exact-font Chrome
       ink predicates; retain those failures without weakening their assertions.
+      Pipeline `9630` verifies Linux checkout ownership and two frozen Raster
+      rebuilds, then exposes Chromium's unavailable container sandbox and one
+      stale mirror of the CI-image assertion. That duplicate assertion is
+      removed; its existing image-policy owner and 27 focused checks pass.
+      macOS runs 1756 passing tests and fails only that stale assertion. Windows
+      still fails the two ink predicates; exact Canvas modes, native outlines
+      and browser pixels are now recorded without changing tolerances.
+      Evidence: `linux-default-user-image/` and `windows-font-convergence/`
+      under this Change's evidence root. Full hosted acceptance remains open.
 - [ ] 10.2 Complete semantic source/module/configuration/documentation and warning audit; repair actual message/authentication/execution owners without session/model/credential edits and qualify the exact-current installed ETHOS proof successor. Formal proof at `6a94c64` preserves a blocked receipt: the installed common JavaScript observer applies authored ESLint rules to declared generated/snapshot supply. Direct observation isolates all errors to those carriers; authored paths have no reported errors. The existing ETHOS source owner has acknowledged the general classification repair but has not delivered an accepted successor. Evidence: `ci-browser-binding/{proof,static-provider}-6a94c64*` under this Change's evidence root. Review-object proposal projection is separately admitted and does not qualify accepted refs.
 - [ ] 10.3 Publish a signed SemVer successor with Keep a Changelog, designated source/media acceptance and remote readback; converge protected refs and close Change/proposal/Lane through native owners with verified evidence custody and exact housekeeping.
