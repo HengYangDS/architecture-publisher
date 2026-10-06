@@ -207,6 +207,13 @@ diagnose:windows:browser-loader:
           $record.file.machine = ('0x{0:X4}' -f $reader.ReadUInt16())
         } finally { $stream.Dispose() }
         if ($record.file.dosMagic -ne 23117 -or $record.file.peSignature -ne 17744) { throw 'Invalid executable header; loader probe not performed' }
+        try {
+          $record.selectedSupplyFiles = @(Get-ChildItem -LiteralPath ([IO.Path]::GetDirectoryName($browser.executable)) -File | Where-Object { $_.Extension -in @('.exe', '.dll', '.manifest') -or $_.Name -eq 'icudtl.dat' } | ForEach-Object {
+            $item = [ordered]@{ name = $_.Name; size = $_.Length; sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
+            if ($_.Extension -eq '.manifest') { $text = [IO.File]::ReadAllText($_.FullName); $item.manifest = $text.Substring(0, [Math]::Min(8192, $text.Length)) }
+            $item
+          })
+        } catch { $record.selectedSupplyReadError = $_.Exception.Message }
         $profile = Join-Path $directory 'profile'
         if (Test-Path -LiteralPath $profile) { throw 'Diagnostic profile already exists' }
         $record.profile = $profile
