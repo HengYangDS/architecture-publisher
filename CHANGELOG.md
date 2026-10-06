@@ -19,6 +19,9 @@ may contain incompatible changes.
 
 ### Changed
 
+- Admit the observed Linux ARM64 Raster witness for Rust 1.99.0 and
+  wasm-bindgen 0.2.129 after two relocated frozen builds and canonical behavior
+  comparison. Packaged renderer bytes remain unchanged.
 - Refresh the selected stable development, LikeC4 and Raster supply, including
   OpenSpec 1.14.1, Rust 1.99.0, wasm-bindgen 0.2.129 and Mise 2026.10.3. Remaining
   upstream development-tool advisories retain the approved trusted-local-input

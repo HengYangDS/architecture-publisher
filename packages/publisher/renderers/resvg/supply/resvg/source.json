@@ -74,6 +74,25 @@
           "rustc": {
             "release": "1.99.0",
             "commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+            "host": "aarch64-unknown-linux-gnu"
+          },
+          "cargo": {
+            "release": "1.99.0",
+            "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
+            "host": "aarch64-unknown-linux-gnu"
+          },
+          "wasmBindgen": "0.2.129"
+        },
+        "wasm": {
+          "bytes": 3357161,
+          "sha256": "2f30f3ec643fd331e3116fd698378cf66b85637da84917846ff685509b1ace82"
+        }
+      },
+      {
+        "tools": {
+          "rustc": {
+            "release": "1.99.0",
+            "commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
             "host": "aarch64-pc-windows-msvc"
           },
           "cargo": {
