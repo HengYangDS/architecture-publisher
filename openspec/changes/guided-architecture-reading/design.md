@@ -569,6 +569,20 @@ directory. The private workspace declares the already selected npm as a locked
 development tool; native dependency bins, not a custom script or vendor patch,
 own that binding. The installed Core package gains no npm runtime dependency.
 
+Browser test ownership uses one outer native asynchronous lifetime with two
+disposal phases. Completed resources and deferred actions close in reverse
+acquisition order first. Pending acquisitions drain afterward; each late
+resource receives native disposal without being returned to an expired test.
+Register pending ownership before its factory executes, and transfer a
+completed resource synchronously before returning it. A parent's closure may
+reject or complete its pending dependant; cleanup must not await that dependant
+before closing the parent. Acquisition rejections retain their original error,
+and disposal failures cannot skip the pending drain. Both phases preserve
+exactly-once synchronous/asynchronous disposal and native empty resources.
+Deadline-bounded subprocess regressions cover rejected and resolved pending
+dependants, throwing parent disposal, normal dependant-first order and test
+expiry. They do not increase existing deadlines or weaken reader assertions.
+
 New generated output belongs under the repository's ignored `build/`, according
 to the projects-family contract. Existing records remain exact retained inputs
 until their named consumers release them; do not create another records root.

@@ -8,6 +8,26 @@ const scenario = fileURLToPath(
   new URL('./fixtures/browser-lifetime-scenario.mjs', import.meta.url),
 );
 
+for (const outcome of ['reject', 'resolve', 'parent-failure'])
+  test(`browser lifetime closes a parent before draining its ${outcome} acquisition`, () => {
+    const environment = { ...process.env };
+    delete environment.NODE_TEST_CONTEXT;
+    const output = execFileSync(
+      process.execPath,
+      ['--test', '--test-isolation=none', scenario, `--dependent-${outcome}`],
+      {
+        env: environment,
+        encoding: 'utf8',
+        timeout: 10_000,
+        killSignal: 'SIGKILL',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      },
+    );
+    assert.match(output, /PARENT_CLOSED/u);
+    assert.match(output, /PENDING_OWNERSHIP_DRAINED/u);
+    assert.match(output, /fail 0/u);
+  });
+
 for (const failAfterConnection of [false, true])
   test(`browser lifetime drains active HTTP on ${failAfterConnection ? 'failure' : 'success'}`, () => {
     const environment = { ...process.env };
