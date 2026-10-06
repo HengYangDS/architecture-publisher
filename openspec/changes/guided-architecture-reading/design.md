@@ -498,7 +498,17 @@ changes no Guest isolation, execution policy, credentials or Rust target.
 
 ### Required native CI execution
 
-The native Linux job retains the pinned Playwright image and non-root user.
+The native Linux job uses the pinned official Playwright filesystem with
+`pwuser` as the image's default user. The two-instruction Dockerfile changes
+only image configuration: `FROM` an immutable upstream digest, then `USER pwuser`.
+It copies no repository material, installs nothing and adds no process owner.
+Runner 19.4.1 checks the image default when deciding whether to repair checkout
+ownership; a job-level user override does not satisfy that prerequisite.
+CI must select a registry-verified immutable derivative digest and preserve
+the native ownership flag, rather than using root or manual checkout repair.
+Actual hosted preparation must prove both project and temporary-directory
+ownership before the existing product gate can establish platform acceptance.
+
 Mise selects official Pixi only for Linux ARM64; its native lock binds the
 binary. A separate native Pixi lock supplies conda-forge C compilation and xz.
 Copy the selected manifest, lock and configuration into ignored job-local

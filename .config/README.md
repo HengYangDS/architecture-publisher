@@ -52,3 +52,10 @@ Playwright owns Chromium installation; the npm test preload requires the exact
 selected executable in CI. The Raster source manifest owns archive identity and
 registry coordinates; `tools/raster/resvg/verify.mjs` derives its retrieval URL
 from the caller's Forge API base and verifies bytes before the frozen journey.
+
+`ci/linux/Dockerfile` changes only the immutable official Playwright image's
+default to `pwuser`. Runner's native checkout ownership inspection uses that
+image configuration, not the job's late user override. The recipe introduces
+no filesystem layer, package installer, repository content or runtime command.
+CI may select its immutable digest only after registry readback; actual hosted
+ownership and sandboxed browser execution remain separate acceptance predicates.

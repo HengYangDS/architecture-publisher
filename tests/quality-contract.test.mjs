@@ -169,6 +169,22 @@ test('Linux verification keeps the common gate and separates trust roles', async
   ]);
 });
 
+test('Linux image declares the non-root default inspected by Runner', async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
+  assert.equal(
+    pipeline.image.docker,
+    undefined,
+    'Runner ownership inspection must see the image default, not a late user override',
+  );
+  const recipe = await fs.readFile(path.join(root, '.config/ci/linux/Dockerfile'), 'utf8');
+  const [base, user, ...extra] = recipe.trim().split('\n');
+  assert.match(base, /^FROM mcr\.microsoft\.com\/playwright:v[0-9.]+-noble@sha256:[a-f0-9]{64}$/u);
+  assert.equal(user, 'USER pwuser');
+  assert.deepEqual(extra, [], 'the supply changes only the official image default user');
+  assert.match(pipeline.image.name, /^\S+@sha256:[a-f0-9]{64}$/u);
+  assert.notEqual(pipeline.image.name, base.slice('FROM '.length));
+});
+
 test('Linux native prerequisites use one locked rootless Pixi environment', async () => {
   const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
   const native = pipeline['.verify-linux'];

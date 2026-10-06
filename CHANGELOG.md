@@ -29,6 +29,10 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Linux CI selects a registry-verified Playwright image with a non-root default
+  user so Runner repairs checkout ownership before executing the job. Its
+  filesystem is unchanged from the pinned official image; no source, credentials,
+  manual ownership repair or relaxed browser sandbox is added.
 - Raster witness amendments regenerate their parent inventory and immutable
   identity through one checked supply entry. The early generated gate validates
   that dependency before the implementation closure; changed canonical binaries

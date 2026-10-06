@@ -64,5 +64,14 @@
       two relocated offline builds with one pass and zero skips. Evidence:
       `raster-native-37da596.{log,exit,json}` under the same evidence root.
       Hosted acceptance and final recovery remain open.
+      Linux job `48848` reproduces the Runner temporary-directory permission
+      failure before product execution. The source-free Playwright derivative
+      is published and pulled back at `aa3b5007…`; its filesystem matches the
+      official image and only its default user changes to `pwuser`. CI now
+      selects that immutable digest without a late user override. Evidence:
+      `build/evidence/guided-architecture-reading/linux-default-user-image/`.
+      Hosted ownership and execution remain unproved. Windows job `48850`
+      passes all four global coverage floors but fails two exact-font Chrome
+      ink predicates; retain those failures without weakening their assertions.
 - [ ] 10.2 Complete semantic source/module/configuration/documentation and warning audit; repair actual message/authentication/execution owners without session/model/credential edits and qualify the exact-current installed ETHOS proof successor. Formal proof at `6a94c64` preserves a blocked receipt: the installed common JavaScript observer applies authored ESLint rules to declared generated/snapshot supply. Direct observation isolates all errors to those carriers; authored paths have no reported errors. The existing ETHOS source owner has acknowledged the general classification repair but has not delivered an accepted successor. Evidence: `ci-browser-binding/{proof,static-provider}-6a94c64*` under this Change's evidence root. Review-object proposal projection is separately admitted and does not qualify accepted refs.
 - [ ] 10.3 Publish a signed SemVer successor with Keep a Changelog, designated source/media acceptance and remote readback; converge protected refs and close Change/proposal/Lane through native owners with verified evidence custody and exact housekeeping.
