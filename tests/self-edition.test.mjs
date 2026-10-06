@@ -1029,16 +1029,17 @@ test('the installed self Edition compiles both media after its author package is
         response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         response.end(html);
       });
-      await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
       const lifetime = browserLifetime(browserTest);
       lifetime.use(server);
-      const browser = await chromium.launch({
-        executablePath: process.env.ARCHPUB_BROWSER_EXECUTABLE,
-        headless: true,
-        chromiumSandbox: true,
-        timeout: 15_000,
-      });
-      lifetime.use(browser);
+      await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+      const browser = await lifetime.acquire(() =>
+        chromium.launch({
+          executablePath: process.env.ARCHPUB_BROWSER_EXECUTABLE,
+          headless: true,
+          chromiumSandbox: true,
+          timeout: 15_000,
+        }),
+      );
       const page = await browser.newPage({
         viewport: { width: 1440, height: 900 },
         reducedMotion: 'reduce',
@@ -1161,6 +1162,11 @@ test('the installed self Edition compiles both media after its author package is
       assert.equal(await inspector.isVisible(), true);
       await page.keyboard.press('Escape');
       assert.equal(await inspector.isVisible(), false);
+      await overviewFrame.waitForFunction(
+        () => globalThis.document.activeElement?.getAttribute('data-inspect-id') === 'source',
+        null,
+        { timeout: 5_000 },
+      );
       assert.equal(
         await overviewFrame.evaluate(() =>
           globalThis.document.activeElement?.getAttribute('data-inspect-id'),

@@ -14,14 +14,16 @@ test(
   'superseded page callbacks do not fit a hidden viewport camera',
   { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 20_000 },
   async (t) => {
+    const lifetime = browserLifetime(t);
     const candidate = await renderInteractiveEditionHtml(interactiveEditionScene());
-    const browser = await chromium.launch({
-      executablePath: browserExecutable,
-      headless: true,
-      chromiumSandbox: true,
-      timeout: 10_000,
-    });
-    t.after(() => browser.close());
+    const browser = await lifetime.acquire(() =>
+      chromium.launch({
+        executablePath: browserExecutable,
+        headless: true,
+        chromiumSandbox: true,
+        timeout: 10_000,
+      }),
+    );
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -223,21 +225,23 @@ test(
                     : candidate.bytes,
       );
     });
-    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
     lifetime.use(server);
-    const browser = await chromium.launch({
-      executablePath: browserExecutable,
-      headless: true,
-      chromiumSandbox: true,
-      timeout: 15_000,
-    });
-    lifetime.use(browser);
-    const context = await browser.newContext({
-      viewport: { width: 1440, height: 900 },
-      reducedMotion: 'reduce',
-      serviceWorkers: 'block',
-    });
-    lifetime.use(context);
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const browser = await lifetime.acquire(() =>
+      chromium.launch({
+        executablePath: browserExecutable,
+        headless: true,
+        chromiumSandbox: true,
+        timeout: 15_000,
+      }),
+    );
+    const context = await lifetime.acquire(() =>
+      browser.newContext({
+        viewport: { width: 1440, height: 900 },
+        reducedMotion: 'reduce',
+        serviceWorkers: 'block',
+      }),
+    );
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -585,6 +589,7 @@ test(
   'exact qualifiers stay near a compact tall graph without shrinking or detached evidence',
   { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 20_000 },
   async (t) => {
+    const lifetime = browserLifetime(t);
     const scene = interactiveEditionScene();
     const selected = scene.pages[0];
     const node = selected.nodes[0];
@@ -619,13 +624,14 @@ test(
       sha256: 'a'.repeat(64),
     }));
     const candidate = await renderInteractiveEditionHtml(scene);
-    const browser = await chromium.launch({
-      executablePath: browserExecutable,
-      headless: true,
-      chromiumSandbox: true,
-      timeout: 10_000,
-    });
-    t.after(() => browser.close());
+    const browser = await lifetime.acquire(() =>
+      chromium.launch({
+        executablePath: browserExecutable,
+        headless: true,
+        chromiumSandbox: true,
+        timeout: 10_000,
+      }),
+    );
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -667,6 +673,7 @@ test(
   'one qualifier article fills its available reading track without an empty heading column',
   { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 20_000 },
   async (t) => {
+    const lifetime = browserLifetime(t);
     const scene = interactiveEditionScene();
     scene.pages[0].limitsByQuestion = { shape: [] };
     scene.pages[0].relations[0].sourceQualifiers = [
@@ -676,13 +683,14 @@ test(
       },
     ];
     const candidate = await renderInteractiveEditionHtml(scene);
-    const browser = await chromium.launch({
-      executablePath: browserExecutable,
-      headless: true,
-      chromiumSandbox: true,
-      timeout: 10_000,
-    });
-    t.after(() => browser.close());
+    const browser = await lifetime.acquire(() =>
+      chromium.launch({
+        executablePath: browserExecutable,
+        headless: true,
+        chromiumSandbox: true,
+        timeout: 10_000,
+      }),
+    );
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     await page.setContent(candidate.bytes.toString('utf8'));
     await page.waitForSelector('#graph-0[data-rendered=true]', { timeout: 8_000 });
@@ -724,6 +732,7 @@ test(
   'unequal source claims read in order without stretched empty cards',
   { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 20_000 },
   async (t) => {
+    const lifetime = browserLifetime(t);
     const scene = interactiveEditionScene();
     const selected = scene.pages[0];
     const revision = 'a'.repeat(64);
@@ -761,13 +770,14 @@ test(
       relationAssertionId: 'relation-assertion',
     }));
     const html = await renderInteractiveEditionHtml(scene);
-    const browser = await chromium.launch({
-      executablePath: browserExecutable,
-      headless: true,
-      chromiumSandbox: true,
-      timeout: 15_000,
-    });
-    t.after(() => browser.close());
+    const browser = await lifetime.acquire(() =>
+      chromium.launch({
+        executablePath: browserExecutable,
+        headless: true,
+        chromiumSandbox: true,
+        timeout: 15_000,
+      }),
+    );
     const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
     await page.setContent(html.bytes.toString('utf8'), { waitUntil: 'load' });
     await page.evaluate(() => globalThis.document.fonts.ready);

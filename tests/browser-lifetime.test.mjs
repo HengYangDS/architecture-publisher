@@ -51,3 +51,98 @@ test('native lifetime releases dependants first and does not skip cleanup after 
   await dispose();
   assert.equal(closed.length, 3);
 });
+
+test('browser lifetime drains a real resource acquired after the native test deadline', () => {
+  const environment = { ...process.env };
+  delete environment.NODE_TEST_CONTEXT;
+  assert.throws(
+    () =>
+      execFileSync(process.execPath, ['--test', '--test-isolation=none', scenario, '--late'], {
+        env: environment,
+        encoding: 'utf8',
+        timeout: 2_000,
+        killSignal: 'SIGKILL',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }),
+    (error) => {
+      assert.equal(error.status, 1, 'an expired test must terminate instead of leaking its server');
+      assert.match(error.stdout, /LATE_SERVER_ACQUIRED/u);
+      assert.match(error.stdout, /test timed out after 20ms/u);
+      assert.doesNotMatch(error.stdout, /EXPIRED_RESOURCE_RETURNED/u);
+      return true;
+    },
+  );
+});
+
+test('pending acquisition remains owned and cannot return after lifetime disposal', async () => {
+  let dispose;
+  const lifetime = browserLifetime({ after: (callback) => (dispose = callback) });
+  const acquired = Promise.withResolvers();
+  const started = Promise.withResolvers();
+  let released = 0;
+  const resource = { [Symbol.asyncDispose]: async () => (released += 1) };
+  const pending = lifetime.acquire(() => {
+    started.resolve();
+    return acquired.promise;
+  });
+  const refused = assert.rejects(pending, /Browser lifetime has ended/u);
+  await started.promise;
+  const draining = dispose();
+  acquired.resolve(resource);
+  await Promise.all([refused, draining]);
+  assert.equal(released, 1);
+  await assert.rejects(
+    lifetime.acquire(() => {
+      throw new Error('expired lifetime started an acquisition');
+    }),
+    /Browser lifetime has ended/u,
+  );
+  await dispose();
+  assert.equal(released, 1);
+});
+
+test('acquisition preserves native sync disposal and empty-resource semantics', async () => {
+  let dispose;
+  const lifetime = browserLifetime({ after: (callback) => (dispose = callback) });
+  let released = 0;
+  const resource = { [Symbol.dispose]: () => (released += 1) };
+  assert.equal(await lifetime.acquire(() => resource), resource);
+  assert.equal(await lifetime.acquire(() => null), null);
+  assert.equal(await lifetime.acquire(() => undefined), undefined);
+  await dispose();
+  assert.equal(released, 1);
+  await dispose();
+  assert.equal(released, 1);
+});
+
+test('failed acquisition keeps its original failure without inventing a cleanup resource', async () => {
+  let dispose;
+  const lifetime = browserLifetime({ after: (callback) => (dispose = callback) });
+  const failed = new Error('native acquisition refused');
+  await assert.rejects(
+    lifetime.acquire(() => Promise.reject(failed)),
+    (error) => error === failed,
+  );
+  await dispose();
+});
+
+test('an aborted native test cannot start a new browser acquisition', async () => {
+  const stopped = new Error('native test deadline reached');
+  const lifetime = browserLifetime({ after() {}, signal: AbortSignal.abort(stopped) });
+  await assert.rejects(
+    lifetime.acquire(() => {
+      throw new Error('aborted test started an acquisition');
+    }),
+    (error) => error === stopped,
+  );
+});
+
+test('lifetime disposal cancels a queued factory before it acquires any resource', async () => {
+  let dispose;
+  const lifetime = browserLifetime({ after: (callback) => (dispose = callback) });
+  const pending = lifetime.acquire(() => {
+    throw new Error('closed lifetime started a queued acquisition');
+  });
+  const refused = assert.rejects(pending, /Browser lifetime has ended/u);
+  await Promise.all([dispose(), refused]);
+});

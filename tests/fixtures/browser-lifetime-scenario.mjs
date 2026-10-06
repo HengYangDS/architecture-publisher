@@ -1,5 +1,6 @@
 import http from 'node:http';
 import test from 'node:test';
+import { setTimeout as delay } from 'node:timers/promises';
 import { browserLifetime } from './browser-lifetime.mjs';
 
 test('an active reader releases its request before the listening server', async (t) => {
@@ -14,3 +15,16 @@ test('an active reader releases its request before the listening server', async 
   process.stdout.write('ACTIVE_REQUEST_REACHED\n');
   if (process.argv.includes('--fail')) throw new Error('INTENTIONAL_ASSERTION_FAILURE');
 });
+
+if (process.argv.includes('--late'))
+  test('a pending acquisition is released after its test expires', { timeout: 20 }, async (t) => {
+    const lifetime = browserLifetime(t);
+    await lifetime.acquire(async () => {
+      await delay(100);
+      const server = http.createServer();
+      await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+      process.stdout.write('LATE_SERVER_ACQUIRED\n');
+      return server;
+    });
+    process.stdout.write('EXPIRED_RESOURCE_RETURNED\n');
+  });
