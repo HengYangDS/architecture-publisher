@@ -149,3 +149,22 @@ verify:windows:protected:
     - ci-windows-arm64-shell
   rules:
     - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+
+diagnose:windows:current:
+  extends: .verify-windows
+  timeout: 8m
+  tags:
+    - ci-windows-arm64-review
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
+  script:
+    - mise --version
+    - mise exec -- node --version
+    - mise exec -- npm ci --ignore-scripts --no-audit --no-fund
+    - >-
+      mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+      --test-concurrency=1 --test-timeout=90000
+      --test-name-pattern='native CI honors the invoker-owned pinned browser root|self preparation selects one direct Project instead of a legacy Edition authority'
+      tests/quality-contract.test.mjs tests/self-edition.test.mjs
