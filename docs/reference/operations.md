@@ -1051,9 +1051,11 @@ are cleaned; required evidence belongs outside that disposable job state.
 Retained tools remain subject to their locked supply checks. Native checkout
 logs and byte checks must confirm the effective strategy. This does not modify
 global Git configuration or prove that a previous process was reclaimed.
-Mise's locked Rust declaration includes both `cargo` and `rustc`. Its native
-installation repairs missing selected components in the retained tool-cache;
-a minimal profile alone does not reconcile an already installed toolchain.
+Mise's locked Rust declaration includes `cargo`, `rustc` and the host `rust-std`.
+Its native installation repairs missing selected components in the retained
+tool-cache; a minimal profile alone does not reconcile an already installed
+toolchain. The separate WASM target does not replace the host standard library
+needed to compile build scripts.
 
 CI selects both `MISE_DATA_DIR` and `MISE_CACHE_DIR` within the job-owned
 tool-cache. The native npm backend hardlinks package files from the latter.

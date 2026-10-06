@@ -77,6 +77,6 @@ backend = "core:rust"
 specifiers = ["1.98.1"]
 
 [tools.rust.options]
-components = "cargo,rustc"
+components = "cargo,rust-std,rustc"
 profile = "minimal"
 targets = "wasm32-unknown-unknown"

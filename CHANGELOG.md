@@ -31,6 +31,8 @@ may contain incompatible changes.
 
 ### Fixed
 
+- Native CI selects Rust's host standard library as well as both build tools,
+  so retained caches reconcile the components required by Cargo build scripts.
 - CI confines Mise's package store to the job-owned cache so native npm
   hardlinks do not inherit permissions from an inaccessible system store.
 - Windows verification refreshes every tracked file through native Git checkout

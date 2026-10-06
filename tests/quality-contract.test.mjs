@@ -101,8 +101,8 @@ test('native CI binds browser and frozen Raster journeys before the whole qualit
   const toolchain = await fs.readFile(path.join(root, '.config/mise.ci.toml'), 'utf8');
   assert.match(
     toolchain,
-    /components = \[\s*"cargo",\s*"rustc",?\s*\]/u,
-    'native Rust installation reconciles both required host compilers in a retained cache',
+    /components = \[\s*"cargo",\s*"rust-std",\s*"rustc",?\s*\]/u,
+    'native Rust installation reconciles the required host build tools and standard library',
   );
   const toolchainLock = await fs.readFile(path.join(root, '.config/mise.ci.lock'), 'utf8');
   assert.equal(
@@ -112,7 +112,7 @@ test('native CI binds browser and frozen Raster journeys before the whole qualit
   );
   assert.match(
     toolchainLock,
-    /\[tools\.rust\.options\][\s\S]*components = "cargo,rustc"/u,
+    /\[tools\.rust\.options\][\s\S]*components = "cargo,rust-std,rustc"/u,
     'the native lock binds the required Rust component selection',
   );
   assert.equal(native.script.at(-1), 'mise exec -- npm run check');

@@ -14,6 +14,7 @@ node = "{{read_file(path=config_root ~ '/.node-version') | trim}}"
 pixi = { version = "0.81.0", os = ["linux/arm64"] }
 rust = { version = "1.98.1", profile = "minimal", components = [
   "cargo",
+  "rust-std",
   "rustc",
 ], targets = [
   "wasm32-unknown-unknown",
