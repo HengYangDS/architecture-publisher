@@ -8,11 +8,11 @@
 - [x] 2.1 Admit bounded appearance through the existing schema; retain native reader controls without adding a redundant chapter grammar.
 - [x] 2.2 Bind native and authored source members, exact directed relations and shared physical routes; refuse unsafe aggregate traversal without inventing facts or a source-product branch.
 - [x] 2.3 Exercise native Finder, Passport, Route, Reach, Lens, Guide, camera, presentation and canonical exports; verify truthful query limits, portable sharing and the global Edition figure-kind catalog across every page, medium and type-identifying reader control. The corrected 64-state Chrome matrix verifies 53 figures, 26 distinct kinds, bounded reader icons, readable labels and eight clean exports. Independent review covers all eight pages; existing native query and primitive regressions remain green. Evidence: `build/review/global-figure-standard-20261005/global-reader-icons-bounded/` and `build/review/global-figure-standard-20261005/native-reader-final-journey.json`.
-- [ ] 2.4 Expose consistent qualified style/theme and reading controls without changing source geometry or the static sibling. The opaque reader retains explicit preferences without storage; 23 Chrome regressions and the installed 64-state matrix pass. All 53 ordinary nodes use neutral paint; icons, relationships and approved PNG bytes are unchanged. Exact new-HTML visual acceptance remains open. Evidence: `build/evidence/guided-architecture-reading/node-paint-convergence-1fbbec8/`.
+- [x] 2.4 Expose consistent qualified style/theme and reading controls without changing source geometry or the static sibling. All 53 ordinary nodes use neutral paint; the installed 64-state matrix and 23 Chrome regressions pass. The user approved exact HTML `ed50c9e6…`; icons, relationships and approved PNG bytes are unchanged. Evidence: `build/evidence/guided-architecture-reading/node-paint-convergence-1fbbec8/`.
 
 ## 3. Qualification and source handoff
 
-- [x] 3.1 Pass the current local quality graph and all four coverage floors. The sandbox-enabled macOS `npm run check` at signed checkpoint `37da596` exits zero in a clean, temporary native Git clone: 1,756 passed, none failed/cancelled, three scoped skips; lines/statements 97.62%, functions 99.52%, branches 95.20%. Evidence: `build/evidence/guided-architecture-reading/raster-parent-seal-convergence/full-native-37da596.{log,exit,json}` and `full-native-37da596-coverage-summary.json`. The independent pending Linux-image RED and unknown-owned files remain outside this signed acceptance subject, not excluded by test filters. Preserve prior skip dispositions. Hosted platforms and source/publication acceptance remain separate.
+- [x] 3.1 Pass the current macOS quality graph and all four coverage floors. Hosted job `48855`, pipeline `9631`, signed HEAD `481adc3`, passes with 1,757 tests, zero failures and three scoped skips: lines/statements 97.62%, functions 99.52%, branches 95.20%. Evidence: `build/evidence/guided-architecture-reading/ci-9631-current/`. Preserve earlier local/frozen acceptance and skip dispositions under `raster-parent-seal-convergence/`; other platforms and final publication remain separate.
 - [x] 3.2 Exercise real background Chrome for generic native/authored content and the complete ETHOS rehearsal; qualify every page, selected reading behavior, offered appearance, Inspect, addressed reading and history without requiring legacy feature parity.
 - [x] 3.3 Verify relocated offline installed public builds, exact media and historical preservation; retain explicit visual/source-acceptance limits.
 - [x] 3.4 Deliver the qualified contract and concrete evidence to the existing ETHOS migration owner without blocking source safety work or changing AIGW's package selection.
@@ -25,11 +25,11 @@
 ## 5. Independent PNG and desktop HTML
 
 - [ ] 5.1 Converge existing PNG and desktop HTML composition, explicit media dispatch, Candidate and qualification through pinned mature mechanisms; preserve one editorial owner without duplicate facts, source-repository invasion or a second command plane.
-- [ ] 5.2 Qualify independent PNG and complete desktop HTML for geometry, contrast, reading and exact visual acceptance without conflating source/editor/artwork/publication roles. Global-icon HTML `74ae7baa…` remains approved. The installed neutral-paint successor `ed50c9e6…` passes 64 appearance states and title contrast of at least 11.59:1; PNG bytes remain approved and unchanged. New HTML visual approval, source endorsement and final publication remain open. Evidence: `build/evidence/guided-architecture-reading/node-paint-convergence-1fbbec8/`; preserve `global-figure-approval/` and prior installed-reproduction receipts.
+- [ ] 5.2 Qualify independent PNG and complete desktop HTML for geometry, contrast, reading and exact visual acceptance without conflating source/editor/artwork/publication roles. The user approved neutral-paint HTML `ed50c9e6…`; its installed 64-state matrix passes and title contrast is at least 11.59:1. Approved PNG bytes are unchanged. Final coherent-successor qualification, source endorsement and publication remain open. Evidence: `build/evidence/guided-architecture-reading/node-paint-convergence-1fbbec8/`.
 
 ## 6. AIGW source adoption
 
-- [ ] 6.1 Verify the current declarative Client Projection Provider v2 at its exact source-owned selection through the installed public build; obtain designated meaning and publication acceptance, not just neutral visual approval. The selected alpha.7 replay passes five tests. Current installed successor rejects the unchanged source Edition with `figure_types_required` before creating output. An external conformance editor adds only its Edition-wide type catalog: all four pages, 32 appearance states and eight static/interactive kinds pass; exact original source files remain unchanged. Evidence: `build/review/global-figure-standard-20261005/aigw-current-successor-replay.json` and `aigw-neutral-figure-conformance/global-figure-browser.json`. This is not AIGW successor adoption or publication approval.
+- [ ] 6.1 Verify the current declarative Client Projection Provider v2 at its exact source-owned selection through the installed public build; obtain designated meaning and publication acceptance, not just neutral visual approval. Signed AIGW HEAD `1825f15` still selects alpha.7; its existing installed offline test passes once without failures or skips and preserves all five source files. Evidence: `build/evidence/guided-architecture-reading/aigw-current-input-conformance/`. The new compiler still requires the source-owned figure catalog; external neutral conformance is not source adoption or publication approval. Preserve `aigw-neutral-figure-conformance/` and the earlier refusal receipt.
 - [ ] 6.2 Settle the distinct Product Edition with its current source owner; qualify its complete selected media and obtain exact source/publication acceptance without compulsory repository invasion. The AIGW owner defers Product until its current source freeze releases; recheck on 2026-10-06 without source mutation.
 
 ## 7. ETHOS flagship and feedback
@@ -43,44 +43,13 @@
 
 ## 9. Artifact custody and recovery
 
-- [ ] 9.1 Deliver selected Publisher, ETHOS and AIGW PNG6000 and standalone HTML to Documents and designated GitLab release custody; verify exact links, manifests, downloaded bytes and preserved historical content. Publisher's user-approved `74ae7baa…` HTML now replaces only the exact Documents convenience copy; its `4b932d26…` preimage is retained and PNG remains `85745f50…`. Exact readback and preserved sibling metadata: `build/evidence/guided-architecture-reading/global-figure-approval/documents-readback.json`. This local delivery does not qualify the successor release or settle other source custody.
+- [ ] 9.1 Deliver selected Publisher, ETHOS and AIGW PNG6000 and standalone HTML to Documents and designated GitLab release custody; verify exact links, manifests, downloaded bytes and preserved historical content. Publisher Documents now contains approved neutral-paint HTML `ed50c9e6…`; the exact `74ae7baa…` preimage is retained and PNG remains `85745f50…` at 6000 × 3533. Readback preserves siblings. Evidence: `build/evidence/guided-architecture-reading/node-paint-convergence-1fbbec8/documents-readback.json`. This convenience delivery does not qualify a release or settle other sources.
 - [ ] 9.2 Prove selected source/asset recovery from simulated local loss through GitLab without production mutation; distinguish Git, assets, Forge metadata and credential limits, then retire only exact consumer-released residue.
 
 ## 10. Native quality, release and closeout
 
-- [ ] 10.1 Pass native macOS/Linux/Windows full checks, frozen Raster rebuilding and installed offline relocation/recovery with all four coverage floors at least 95 percent. The unchanged Windows ARM64 journey first rejects an unknown tool witness, then passes with the independently measured witness admitted in the source manifest. Two relocated offline/frozen builds agree, selected inputs remain unchanged, and representative behavior matches the immutable canonical renderer. Native test scratch is empty; VM isolation and its initial running state are restored. Evidence: `build/evidence/guided-architecture-reading/signed-checkpoint-566e32d/{windows-successor-native,windows-native-acceptance,windows-witness-local-check}.*`. This does not prove cross-host WASM byte identity or full Windows acceptance. Linux checkout ownership, hosted full checks and final installed recovery remain open.
-      The witness amendment exposed a missing Raster-parent generated gate. Three
-      focused regressions now pass after generation and dependency wiring; 99
-      related runtime/closure/boundary checks and 15 sandboxed Chrome tests pass
-      with zero skips. Canonical JS/WASM bytes remain unchanged. Evidence:
-      `build/evidence/guided-architecture-reading/raster-parent-seal-convergence/`.
-      The tracked carrier-role regression also passes without excluding the new
-      runtime identity from coverage. Node 22.23.3 passes two relocated offline
-      installed journeys outside the Node-26 development workspace; the temporary
-      conformance root is removed. This proves representative macOS ARM64 use,
-      not universal minimum-runtime or platform support. The clean signed macOS
-      checkpoint `37da596` now passes the full gate and all four coverage floors;
-      its separate frozen Raster journey reproduces canonical JS/WASM bytes in
-      two relocated offline builds with one pass and zero skips. Evidence:
-      `raster-native-37da596.{log,exit,json}` under the same evidence root.
-      Hosted acceptance and final recovery remain open.
-      Linux job `48848` reproduces the Runner temporary-directory permission
-      failure before product execution. The source-free Playwright derivative
-      is published and pulled back at `aa3b5007…`; its filesystem matches the
-      official image and only its default user changes to `pwuser`. CI now
-      selects that immutable digest without a late user override. Evidence:
-      `build/evidence/guided-architecture-reading/linux-default-user-image/`.
-      Hosted ownership and execution remain unproved. Windows job `48850`
-      passes all four global coverage floors but fails two exact-font Chrome
-      ink predicates; retain those failures without weakening their assertions.
-      Pipeline `9630` verifies Linux checkout ownership and two frozen Raster
-      rebuilds, then exposes Chromium's unavailable container sandbox and one
-      stale mirror of the CI-image assertion. That duplicate assertion is
-      removed; its existing image-policy owner and 27 focused checks pass.
-      macOS runs 1756 passing tests and fails only that stale assertion. Windows
-      still fails the two ink predicates; exact Canvas modes, native outlines
-      and browser pixels are now recorded without changing tolerances.
-      Evidence: `linux-default-user-image/` and `windows-font-convergence/`
-      under this Change's evidence root. Full hosted acceptance remains open.
+- [ ] 10.1 Pass native macOS/Linux/Windows full checks, frozen Raster rebuilding and installed offline relocation/recovery with all four coverage floors at least 95 percent. Pipeline `9631` at `481adc3`: macOS `48855` passes; Linux `48854` passes checkout ownership and two frozen rebuilds but rejects Chromium sandbox creation. The pinned source-free image is verified at `aa3b5007…`; only Runners 82/122 seccomp repair is authorized, with the intentionally isolated guest management bridge awaiting separate approval. Evidence: `ci-9631-current/`, `linux-default-user-image/` and `linux-sandbox-runner-convergence/` under this Change’s evidence root.
+      Stale owned Windows job `48856` is canceling through its native owner; its sanitized trace and exact cancellation receipt are retained. A focused native diagnosis replaces the stalled full run without claiming acceptance. Native continuous outline and browser raster/Canvas metrics disagree at two predicates. Exact SVG/font alpha sampling at 1×/4× is implemented and its 74 related macOS tests and static gate pass without changing tolerances; native Windows root-cause evidence remains open. Evidence: `windows-font-convergence/`.
+      Preserve earlier relocated offline/frozen Windows and macOS acceptance under `signed-checkpoint-566e32d/` and `raster-parent-seal-convergence/`, including restoration receipts and Node-22 representative use. They do not qualify current full Windows/Linux acceptance, cross-host WASM identity or final installed recovery.
 - [ ] 10.2 Complete semantic source/module/configuration/documentation and warning audit; repair actual message/authentication/execution owners without session/model/credential edits and qualify the exact-current installed ETHOS proof successor. Formal proof at `6a94c64` preserves a blocked receipt: the installed common JavaScript observer applies authored ESLint rules to declared generated/snapshot supply. Direct observation isolates all errors to those carriers; authored paths have no reported errors. The existing ETHOS source owner has acknowledged the general classification repair but has not delivered an accepted successor. Evidence: `ci-browser-binding/{proof,static-provider}-6a94c64*` under this Change's evidence root. Review-object proposal projection is separately admitted and does not qualify accepted refs.
 - [ ] 10.3 Publish a signed SemVer successor with Keep a Changelog, designated source/media acceptance and remote readback; converge protected refs and close Change/proposal/Lane through native owners with verified evidence custody and exact housekeeping.

@@ -19,6 +19,9 @@ import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg
 import { claimModel } from './fixtures/claim-model.mjs';
 import { chromium } from 'playwright-core';
 import { browserLifetime } from './fixtures/browser-lifetime.mjs';
+import { observeGlyphPaintEnvelope } from './fixtures/font-paint.mjs';
+import { embedFonts } from '../packages/publisher/src/compiler/media.mjs';
+import { rasterizeBytes } from '../packages/publisher/renderers/resvg/public.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const namespace = 'fixture/statements';
@@ -717,7 +720,24 @@ test(
       const precise = context.measureText(node.textContent);
       const x = Number(node.getAttribute('x'));
       const baseline = Number(node.getAttribute('y'));
+      const isolated = node.cloneNode(true);
+      const style = globalThis.getComputedStyle(node);
+      for (const property of [
+        'font-family',
+        'font-size',
+        'font-weight',
+        'font-style',
+        'font-synthesis',
+        'font-kerning',
+        'font-feature-settings',
+        'font-variant-ligatures',
+        'text-rendering',
+        'white-space',
+      ])
+        isolated.style.setProperty(property, style.getPropertyValue(property));
+      isolated.style.fill = '#000000';
       return {
+        isolated: isolated.outerHTML,
         family: globalThis.getComputedStyle(node).fontFamily,
         rendering: globalThis.getComputedStyle(node).textRendering,
         geometric: {
@@ -744,6 +764,59 @@ test(
     assert(paint.faces.some(({ status }) => status === 'loaded'));
     const declared = scene.texts[0].box;
     t.diagnostic(JSON.stringify({ text: scene.texts[0].text, declared, paint }));
+    const isolatedPage = await browser.newPage({ viewport: { width: 600, height: 160 } });
+    lifetime.defer(() => isolatedPage.close());
+    const svg = Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="160" xml:space="preserve">${paint.isolated}</svg>`,
+    );
+    const label = scene.texts[0];
+    const escaped = label.text
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;');
+    const nativeSvg = Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="160" xml:space="preserve" text-rendering="geometricPrecision" font-family="JetBrains Mono"><text x="${label.x}" y="${label.baseline}" font-size="${label.fontSize}" font-weight="${label.weight}" text-anchor="${label.anchor}">${escaped}</text></svg>`,
+    );
+    const samples = [];
+    for (const scale of [1, 4]) {
+      const scaledSvg = svg
+        .toString('utf8')
+        .replace(
+          'width="600" height="160"',
+          `width="${600 * scale}" height="${160 * scale}" viewBox="0 0 600 160"`,
+        );
+      await isolatedPage.setViewportSize({ width: 600 * scale, height: 160 * scale });
+      await isolatedPage.setContent(
+        `<style>html,body{margin:0;background:transparent}svg{display:block}</style>${embedFonts(Buffer.from(scaledSvg), supply.fonts, supply.license).toString('utf8')}`,
+      );
+      await isolatedPage.evaluate(() => globalThis.document.fonts.ready);
+      const chromePng = await isolatedPage.locator('svg').screenshot({ omitBackground: true });
+      const nativePath = path.join(root, `statement-native-${scale}.png`);
+      await rasterizeBytes({
+        svg: nativeSvg,
+        fonts: supply.fonts.map(({ weight, bytes }) => ({
+          weight,
+          bytes,
+          family: 'JetBrains Mono',
+        })),
+        width: 600 * scale,
+        output: nativePath,
+      });
+      samples.push({
+        scale,
+        chrome: await observeGlyphPaintEnvelope(isolatedPage, chromePng, scale),
+        native: await observeGlyphPaintEnvelope(isolatedPage, await fs.readFile(nativePath), scale),
+      });
+    }
+    t.diagnostic(
+      JSON.stringify({
+        sampling: 'Actual statement SVG node, computed typography and exact selected font bytes',
+        text: scene.texts[0].text,
+        outline: declared,
+        browser: await browser.version(),
+        samples,
+      }),
+    );
     for (const key of ['x', 'y', 'width', 'height'])
       assert(
         Math.abs(paint.box[key] - declared[key]) <= 0.5,

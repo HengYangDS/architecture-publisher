@@ -26,6 +26,7 @@ import { inspectRgbaPngCanvas } from '../packages/publisher/src/qualification/st
 import { withOwnedProcessScope } from '../packages/publisher/src/runtime/process-tree.mjs';
 import { spawnSync } from 'node:child_process';
 import { meaningFor, compose, composedScene } from './fixtures/authored-routes.mjs';
+import { observeGlyphPaintEnvelope } from './fixtures/font-paint.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -1017,6 +1018,7 @@ test(
     const measure = await createBundledTextMeasurer(fonts, cases);
     const xml = (text) =>
       text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    const observations = [];
     for (const [index, label] of cases.entries()) {
       const svg = Buffer.from(
         `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="180" xml:space="preserve" text-rendering="geometricPrecision" font-family="JetBrains Mono"><text x="${label.x}" y="${label.baseline}" font-size="${label.fontSize}" font-weight="${label.weight}">${xml(label.text)}</text></svg>`,
@@ -1075,6 +1077,47 @@ test(
           chrome: chrome.envelope,
         }),
       );
+      if (label.weight === '400' && ['ffi', 'A  B'].includes(label.text)) {
+        const scale = 4;
+        const enlarged = svg
+          .toString('utf8')
+          .replace(
+            'width="600" height="180"',
+            `width="${600 * scale}" height="${180 * scale}" viewBox="0 0 600 180"`,
+          );
+        await page.setViewportSize({ width: 600 * scale, height: 180 * scale });
+        await page.setContent(
+          `<style>html,body{margin:0;background:transparent}svg{display:block}</style>${embedFonts(Buffer.from(enlarged), selected, fonts.license).toString('utf8')}`,
+        );
+        await page.evaluate(() => globalThis.document.fonts.ready);
+        const scaledChrome = await page.locator('svg').screenshot({ omitBackground: true });
+        const scaledOutput = path.join(root, `${index}-scale-${scale}.png`);
+        await rasterizeBytes({
+          svg,
+          fonts: selected.map(({ weight, bytes }) => ({ weight, bytes, family: 'JetBrains Mono' })),
+          width: 600 * scale,
+          output: scaledOutput,
+        });
+        const nativeBytes = await fs.readFile(output);
+        const scaledNative = await fs.readFile(scaledOutput);
+        t.diagnostic(
+          JSON.stringify({
+            sampling: 'Exact selected SVG font bytes; independent alpha envelopes at 1x and 4x',
+            label,
+            outline: bound,
+            browser: await browser.version(),
+            deviceScaleFactor: await page.evaluate(() => globalThis.devicePixelRatio),
+            native: await observeGlyphPaintEnvelope(page, nativeBytes),
+            chrome: await observeGlyphPaintEnvelope(page, chromeBytes),
+            scaledNative: await observeGlyphPaintEnvelope(page, scaledNative, scale),
+            scaledChrome: await observeGlyphPaintEnvelope(page, scaledChrome, scale),
+          }),
+        );
+        await page.setViewportSize({ width: 1440, height: 900 });
+      }
+      observations.push({ label, bound, browserMetrics, native, chrome });
+    }
+    for (const { label, bound, browserMetrics, native, chrome } of observations)
       for (const [engine, observed] of [
         ['native', native],
         ['chrome', chrome],
@@ -1097,7 +1140,6 @@ test(
           `bottom:${detail}`,
         );
       }
-    }
     assert.deepEqual(errors, []);
   },
 );
