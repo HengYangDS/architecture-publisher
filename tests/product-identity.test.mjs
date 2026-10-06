@@ -229,6 +229,17 @@ test('product documentation has one semantic owner and a concise entry point', a
   );
 
   assert(readme.split('\n').length <= 260, 'README is an entry point, not an operations archive');
+  const releaseIdentity = operations.split('## Release identity\n')[1]?.split('\n## ')[0];
+  const releaseEvidence = operations.split('## Release evidence\n')[1]?.split('\n## ')[0];
+  assert(releaseIdentity, 'the release contract has one current reference owner');
+  assert.doesNotMatch(
+    releaseIdentity,
+    /^### /m,
+    'release observations belong to evidence, not nested current policy',
+  );
+  assert(releaseEvidence, 'historical observations have a separate evidence index');
+  assert.match(releaseEvidence, /release-alpha14-readback\.json/u);
+  assert.match(releaseEvidence, /blob\/[a-f0-9]{40}\/docs\/reference\/operations\.md/u);
   assert.match(readme, /\[Product contract\]\(docs\/product-contract\.md\)/);
   assert.match(readme, /\[Edition contract\]\(docs\/edition-contract\.md\)/);
   assert.match(readme, /\[Operational reference\]\(docs\/reference\/operations\.md\)/);

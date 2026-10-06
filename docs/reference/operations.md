@@ -1,8 +1,8 @@
 # Architecture Publisher operational reference
 
 This document describes the 0.3 CLI surface. A development checkout is not a
-release, and a Publisher release is not adopter acceptance. Exact release facts
-are named separately below. The OpenSpec task ledger owns implementation status;
+release, and a Publisher release is not adopter acceptance. Retained release observations
+are indexed separately below. The OpenSpec task ledger owns implementation status;
 this reference does not.
 
 ## Release identity
@@ -85,277 +85,42 @@ Before pushing a new tag, create it locally and run the full repository gate
 with that exact tag present. Compare its tagger calendar date with the dated
 Changelog section; a passing untagged branch pipeline is not this check.
 
-### Last verified software release (2026-10-03): alpha.14
+Store each release asset once in the selected Forge package registry, then link
+the Release to that same-host package API URL. Do not duplicate the payload as
+a project upload. Before accepting custody, download every selected asset with
+noninteractive authentication, a bounded deadline and an isolated destination.
+Compare every size and SHA-256 with its frozen manifest and compare the checksum
+file with its independently selected digest. A link record, API-only readback
+or one successful download does not prove the complete consumer journey.
+Failure preserves the receipt without an automatic alternate storage route.
 
-The [alpha.14 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.14)
-provides Core and Self software packages with exact source, native CI and
-installed-use evidence. The [release receipt](../../tests/conformance/evidence/release-alpha14-readback.json)
-binds the signed source and tag, all nine native jobs, seven selected downloads,
-single-copy storage, six-file offline replay and preserved historical records.
-Every configured aggregate coverage dimension remains at least 95%.
+## Release evidence
 
-The software Release remains unchanged. Exact human approval now covers the new
-eight-page self HTML; its standalone reader publication is separate below.
-ETHOS and AIGW retain their own source, Edition, acceptance and custody decisions.
+The table indexes retained observations, not current product policy or live
+availability. Each receipt owns its source, qualification, acceptance and
+custody limits; later source or reader bytes do not inherit them.
 
-Qualification uses Node's existing two-file concurrency. All test files and
-native offline cases remain, with unchanged child deadlines and coverage scope.
-The CoreText snapshot test no longer requires a duplicate cold compilation;
-actual native snapshot, glyph and installed-use checks remain. The earlier
-compiler and npm timeouts are preserved; their historical causes are unproved.
-The passing successor establishes current acceptance, not a causal explanation.
+The [alpha.14 receipt](../../tests/conformance/evidence/release-alpha14-readback.json)
+binds the software and self-reader independently. Its selected custody is the
+[software Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.14)
+and [self-reader package](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/packages/263).
 
-### Last verified self-architecture publication (2026-10-03): alpha.14
+Earlier readbacks retain their exact downloads, installed replay and limits:
+[alpha.11](../../tests/conformance/evidence/release-alpha11-readback.json),
+[alpha.10](../../tests/conformance/evidence/release-alpha10-readback.json),
+[alpha.8](../../tests/conformance/evidence/release-alpha8-readback.json),
+[alpha.7](../../tests/conformance/evidence/release-alpha7-readback.json),
+[alpha.6](../../tests/conformance/evidence/release-alpha6-readback.json), and
+[alpha.5](../../tests/conformance/evidence/release-alpha5-readback.json).
+The [alpha.5 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.5)
+and [alpha.4 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.4)
+retain their selected manifest/checksum identities. Alpha.4's earlier
+authenticated-upload limitation belongs to the historical snapshot.
 
-The [self-architecture package](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/packages/263)
-contains the independently approved eight-page HTML, the unchanged approved
-6000px PNG and SVG, selected replay inputs, publication manifest and checksums.
-Seven files occupy 2,840,303 bytes. Each file was downloaded through native
-`glab api`; every size and SHA-256 matches its frozen inventory and native
-package metadata. Media occur once each: the replay archive excludes them and
-selects those same files by digest. The assembled Candidate reproduces all six
-files through the exact downloaded installed Core.
-
-Nineteen submitted qualifications pass; `admitted:false` remains correct.
-Explicit acceptance and effect authorization then install the local paired
-publication, and recovery returns `ALREADY_INSTALLED`. All eleven delivered
-files and both Documents copies were read back. The standalone HTML and
-highest-resolution PNG are available at these local paths:
-
-- `~/Documents/architecture-publisher-0.3.0-alpha.14.html`
-- `~/Documents/architecture-publisher-0.3.0-alpha.14-6000.png`
-
-The immutable software Release's seven assets, all eighteen existing Release
-records and all eighteen prior package identities remain unchanged. Eighteen
-prior Documents files are preserved byte-for-byte. Five completed owned
-installation, assembled-replay and superseded-staging trees were reclaimed;
-43,437,579 logical bytes were removed after exact inventory and retained-evidence
-verification. Final media, packages, raw failures and required receipts remain.
-
-This is attributed exact-artifact acceptance and primary-forge custody, not
-independent verifier authentication, universal comprehension, power-loss or
-off-host recovery. Native Change/Lane closeout is a separate effect; neither
-this publication nor Publisher qualification accepts ETHOS/AIGW source state
-or completes the full cross-product goal.
-
-### Retained reader release (2026-10-03): alpha.11
-
-The [alpha.11 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.11)
-selects signed source `25233468464dde6ed6699cf1d560428082c38f5f` and its
-annotated tag object `5fd3d068c9805ec306859ab700c37cd3e92f26f4`.
-Eleven selected assets occupy one Generic Package version, 8,546,343 bytes;
-each has one storage copy. Native `glab release download` fetched only those
-names. Every size and hash agrees with the pre-upload manifest/checksum anchors
-and native package metadata. The [release receipt](../../tests/conformance/evidence/release-alpha11-readback.json)
-records exact evidence and limits. Historical release records and package
-identities were read back unchanged.
-
-The exact local tagged gate passes with explicit desktop Chrome. Dev, main and
-tag pipelines 9330, 9331 and 9332 pass Linux, macOS and Windows ARM64. Every
-configured aggregate statements, branches, functions and lines floor is at least
-95%; explicit platform and input skips remain. The downloaded Core/Self archives
-install offline with empty user/global configuration and cache. Empty-PATH,
-relocated self and four neutral conformance workloads reproduce thirty selected
-Candidate files. Installed Self preparation also reproduces its exact selected
-inputs. Nineteen submitted qualifications pass while `admitted:false` remains.
-
-Explicit qualified local publication installs all three media files; recovery
-returns `ALREADY_INSTALLED` and preserves foreign parent/static content. Exact
-approved media remain in Documents. Fourteen invocation-owned installed, copied
-input/output and cache roots were reclaimed after inventory/hash verification;
-80,750,190 logical bytes were removed. Source inputs, downloaded assets,
-publication/recovery evidence and browser observations remain.
-
-Authored text ownership is a generic scene-local contract, not source authority.
-ETHOS and AIGW received exact package evidence without adoption, retirement or
-publication approval. Independent static ETHOS migration remains source-owned. Native lifecycle
-receipts establish Change/Lane closeout separately; this release does not close
-the full cross-product goal. No
-independent verifier trust domain, universal comprehension, power-loss or
-off-host recovery is established.
-
-### Historical asset release (2026-10-03): alpha.10
-
-The [alpha.10 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.10)
-selects signed source `131b401cc93d9f3ba8b405d71c4c175f511cc3ce`.
-Its eleven selected assets occupy one Generic Package version, 8,544,600 bytes.
-Each has one storage copy. Native `glab release download --asset-name` fetched
-only the selected names; every byte matches the separately anchored manifest
-and checksum. The [release receipt](../../tests/conformance/evidence/release-alpha10-readback.json)
-owns the complete identities, observed effects and remaining limits.
-
-The full local gate with the exact annotated tag present and tag pipeline 9272
-pass Linux, macOS and Windows ARM64. Statements, branches, functions and lines
-each meet the 95% floor; platform and external-input skips remain explicit.
-Original review and main failures are retained, not overwritten by the tag
-success. Test/config/document-only source `195a5bf` leaves the frozen
-package and media inputs unchanged. Its exact local proof and review 9282,
-protected dev 9284 and main 9285 pass all three platforms and all four coverage
-floors. The original guest interruption and npm-install timeout remain evidence;
-fresh success does not prove their exact historical cause. Current source
-qualification is separate from the immutable release source and later
-documentary or archive transitions.
-
-The downloaded packages install offline with empty user configuration and
-cache, then run from relocated roots with empty PATH. Five frozen workloads
-reproduce all thirty Candidate members. Nineteen submitted records pass while
-`admitted: false` remains. Explicit qualified local publication installs the
-three media files, and recovery returns `ALREADY_INSTALLED` while preserving
-unrelated parent content. The invocation-owned consumer, configuration, cache,
-copied inputs and outputs were removed after verification; source inputs,
-downloaded assets and all operation evidence remain.
-
-The exact approved 6000px PNG and eight-page standalone HTML are delivered to
-Documents. Historical releases and Documents predecessors are unchanged.
-This release does not approve ETHOS's minimum Provider/Edition migration,
-whole-product AIGW publication, independent verifier authority, power-loss
-recovery or off-host disaster recovery. Those owners and limits remain separate.
-
-### Historical asset release (2026-10-02): alpha.8
-
-The [alpha.8 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.8)
-selects signed source `92395df633ffb24ec040776ff16999b292e07b54`.
-Its eleven selected assets occupy one Generic Package version, 8,506,324 bytes,
-with no duplicate project upload. Native `glab release download` fetched every
-asset; sizes and hashes match the independently anchored manifest and checksum
-file. The verified 6000px PNG and eight-page standalone HTML are delivered to
-Documents; the predecessor alpha.7 files remain unchanged.
-
-Review 9178, protected dev 9179, main 9180 and tag 9181 pass all three native
-platforms, with every statements/branches/functions/lines threshold at least
-95%. Original macOS tag failure 47057 remains evidence; its one unchanged retry
-47071 passed without proving a historical scheduling cause repaired. Native
-platform and external-input skips remain explicit.
-
-A fresh offline-installed, relocated consumer reproduces the exact six-member
-self Candidate with empty PATH and user configuration. Nineteen submitted
-records pass while `admitted: false` remains; explicit acceptance and effect
-authorization are separate. Public local publication installs the selected
-pair, and idempotent recovery preserves foreign parent content. It does not
-prove power-loss or off-host recovery. Current acceptance and custody reside
-in the [alpha.8 receipt](../../tests/conformance/evidence/release-alpha8-readback.json).
-
-The native CLI also fetched four generated source archives. Those unselected
-local copies were removed after exact ownership/hash checks; no remote source
-or historical asset was deleted. Future asset selection must use the actual
-CLI contract rather than treating release-link count as total download count.
-The Fleet owner intentionally enabled normal CI Runners 120/121/122 after
-terminal job and no-in-flight readback; artifact housekeeping must not restore
-their earlier temporary pauses.
-
-Actual ETHOS Adapter/Edition migration and framework implementation remain
-source-owned obligations. Research ownership is recorded in the
-[source intake](../../tests/conformance/evidence/research-owner-intake.json), not
-another progress statement here. AIGW's accepted alpha.7 Client Projection
-adoption is distinct from alpha.8 adoption or whole-product publication. No
-Publisher release proves those outcomes.
-
-### Historical asset release (2026-10-01): alpha.7
-
-The [alpha.7 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.7)
-selects signed source `0788d916b96f6868a3380bdb627705a6a1fe037b` and one
-Generic Package version with eleven payloads totaling 8.11 MiB. The exact
-6000px PNG retains its approved bytes; all eight standalone HTML pages passed
-direct requester review. Both downloaded media are delivered to Documents.
-
-The local exact tag-context gate passed before tag push; protected tag
-pipeline 9087 passed Linux/macOS. The test/evidence successor `f799ee3` repairs
-an invalid finite-fixture deadline without changing product stage ceilings,
-package content, media inputs or the immutable tag. Its exact-HEAD proof and
-proposal/dev/main pipelines 9100/9102/9103 passed every declared gate and
-coverage floor; earlier failures and unproved host-delay causes are retained.
-
-Every selected payload was independently downloaded through native `glab` and
-hashed, including the separately bound `SHA256SUMS`. The first download failed
-because its caller-owned target directory was absent; creating that exact
-empty directory corrected the invocation without changing remote assets.
-Downloaded packages rebuilt five relocated workloads and thirty Candidate
-files with empty PATH. The
-[readback receipt](../../tests/conformance/evidence/release-alpha7-readback.json)
-is the current release evidence owner.
-Its evidence-only source closure `6112b67` passed proposal/dev/main pipelines
-9104/9105/9106. A separate downloaded installed-product journey verified all
-nineteen records, applied the qualified local three-file publication and
-returned `ALREADY_INSTALLED` from recovery while preserving foreign parent
-content. This proves idempotent recovery, not an interrupted-effect test.
-
-The later signed evidence source `d3ee978` passed proposal/dev/main pipelines
-9110/9111/9114 with every declared gate and four coverage floors. Historical
-installed-test supply was reclaimed only after cold restoration and exact
-content/mode verification: thirteen duplicate dependency roots are absent,
-while 1,717 retained files, recovery archives and two owner-unknown groups remain
-unchanged. These local effects do not establish independent off-host custody.
-
-Generic policy verification binds nineteen submitted PASS records and still
-reports `admitted: false`; explicit owner acceptance, source endorsement and
-delivery effects are separate. At that historical checkpoint, ETHOS/AIGW adoption, final native Windows and
-independent off-host recovery were unproved. Historical alpha.6 facts remain
-in its immutable [receipt](../../tests/conformance/evidence/release-alpha6-readback.json).
-
-### Historical reader release (2026-09-29): alpha.5
-
-At the 2026-09-29 release readback, the signed `v0.3.0-alpha.5` tag,
-protected `main`, and accepted `dev` selected
-`67ade23f20414dc76a3ca2f65d398396c525a05d`. The [alpha.5
-Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.5) links ten selected assets from one
-GitLab Generic Package version, not a second project-upload copy. Its Core
-archive has SHA-256
-`4ce1793efecb32a8f9bbabcf5a2761ab1b587eda2ddf27ef73122b767df5d7cd`.
-The reviewed 6000px PNG and standalone HTML have SHA-256 `debb4579...` and
-`44dab0ba...` respectively; use the full digests in the Release manifest.
-
-At the 2026-09-29 readback, `glab release download` 1.119.0 fetched all ten
-linked assets through the supported package-API route. Nine payload assets
-matched `SHA256SUMS`; the checksum file itself matched the selected local bytes
-and its separate digest in the readback receipt. A signed Git tag does not sign
-Release assets. Four additional GitLab-generated source archives are not part
-of the selected asset set. A fresh offline install of the downloaded
-Core and self-Edition rebuilt the independent-editor six-member Candidate
-byte-for-byte. The exact receipt is
-[`release-alpha5-readback.json`](../../tests/conformance/evidence/release-alpha5-readback.json).
-This establishes primary-forge custody at readback time, not off-host recovery,
-ETHOS or AIGW adoption, or generic Candidate v2 qualification.
-
-The required local tag-context full gate was run after, not before, the tag
-push. The tag's hosted CI and the post-push local gate passed before Release
-assets were created. This sequencing deviation is recorded, not treated as a
-precedent or concealed by rewriting the tag.
-
-### Historical selected-input baseline: alpha.4
-
-The signed `v0.3.0-alpha.4` tag selects commit
-`5ad344a2938e3f381d2b49e0ffba223b6d84c8bf`. On 2026-09-28, the primary
-GitLab Release's 11 linked assets were fetched back and checked against their
-SHA-256 manifest. The core archive's SHA-256 is
-`2e0d23233e5a200d20c148983844911cfb58ebde1d94b5f01d55d540b551b716`.
-Its offline-installed Core reproduced the independent-editor Candidate's exact
-bytes. The Release binds separately reviewed static and interactive self-media;
-neither review transfers to changed bytes or to an adopter Edition.
-
-Use the [alpha.4 Release](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/releases/v0.3.0-alpha.4), its manifest and
-checksum file for exact asset selection. This is primary-forge readback, not
-independent off-host recovery. ETHOS and AIGW still own their own source facts,
-Edition selection, acceptance, custody and publication.
-
-At the 2026-09-28 readback, selected alpha.4 project-upload bytes remained
-available through GitLab's authenticated uploads API. On this workstation,
-`glab release download` 1.119.0 returned 404 for a linked web-upload URL;
-its zero-byte failed output did not establish asset loss. Machine consumers
-must use a verified authenticated route and compare SHA-256. The normal CLI
-download route is not yet accepted for this release.
-
-For subsequent releases, select one Forge storage copy per asset in the GitLab
-Generic Package Registry and point each Release link at its same-host package
-API URL. Alpha.5 demonstrated this route with the installed `glab` CLI; that
-precedent does not approve a later asset. Do not also upload
-the same asset as a Markdown project upload. After creating the exact Release
-links, download every selected asset through `glab release download` with
-noninteractive authentication, a bounded process deadline, and an isolated
-destination. Compare every payload with `SHA256SUMS` and compare that checksum
-file with its separately selected digest. API-only readback, a valid link
-record, or one successful asset cannot substitute for the complete consumer
-check. A failure stops release acceptance without an automatic second storage
-route or a claim that existing bytes were lost.
+The complete earlier release narratives remain in the
+[immutable operations snapshot](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/blob/f0774ca579deb62c4b7438cbc7da4ab9c8107f4b/docs/reference/operations.md).
+Its bytes preserve historical failures, deviations, recovery and custody
+observations; they are not instructions to replay an obsolete release.
 
 ## Authority and state model
 
