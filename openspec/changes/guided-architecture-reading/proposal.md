@@ -29,6 +29,10 @@ None. PDF and PPTX support was withdrawn by the human on 2026-10-05.
 - `semantic-publication`: native editorial input, exploration and visual quality.
 - `browser-evidence`: desktop reading, addressed state and native lifecycle.
 - `ecosystem-adoption`: finite source feedback and research settlement.
+- Retire `ethos-input` and `ethos-atlas`: source-specific replay and historical
+  media obligations are not generic Publisher capabilities. Existing generic
+  intake, Provider, Edition, qualification and publication contracts retain
+  their respective responsibilities.
 
 ## Impact
 

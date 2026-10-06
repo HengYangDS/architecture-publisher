@@ -726,3 +726,30 @@ credentials. Maintainer self-review is valid where the actual policy permits it.
 Freeze product inputs before the full matrix, reuse applicable immutable
 evidence and refresh exact-current governance separately. No deadline or
 unsuccessful reviewer substitutes for required proof or acceptance.
+
+## Canonical contract ownership
+
+The former `ethos-input` and `ethos-atlas` capabilities describe a source-specific
+Python importer and exact historical HTML reproduction. Neither has an active
+product consumer; they cannot remain parallel authority beside the generic
+input and publication contracts. This Change retires their requirements through
+official OpenSpec removal deltas and its native capability-retirement marker.
+Git retains the historical requirements; no source-owned inputs, accepted media
+or previously released artifacts are removed.
+
+| Responsibility                                             | Canonical generic capability |
+| ---------------------------------------------------------- | ---------------------------- |
+| Exact portable source members and byte identity            | `source-intake`              |
+| Optional, explicitly selected source execution             | `edition-provider`           |
+| Editor-owned selection, attribution and complete Candidate | `edition-publication`        |
+| Independent media and selected visual refinement           | `semantic-publication`       |
+| Predicate-specific source and media judgment               | `flagship-qualification`     |
+| Authorized exact-target installation and recovery          | `file-publication`           |
+
+ETHOS and AIGW remain equal source owners under these generic interfaces.
+Their domain semantics, export implementation and designated acceptance remain
+outside Publisher. Retirement does not lower generic source, geometry, visible
+coverage, browser, qualification or recovery requirements. A read-only native
+merge inspection and isolated official archive rehearsal must preserve these
+owners and remove only the two retired capabilities. The real Change remains
+open until its independently declared acceptance and lifecycle complete.
